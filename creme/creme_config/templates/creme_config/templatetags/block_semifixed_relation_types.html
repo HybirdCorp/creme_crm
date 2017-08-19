@@ -1,5 +1,8 @@
 {% load i18n %}
 {% load creme_core_tags creme_widgets creme_block %}
+
+{% log 'The template file "creme/creme_config/templates/creme_config/templatetags/block_semifixed_relation_types.html" is deprecated.' level='WARN' %}
+
 {% has_perm_to admin 'creme_core' as admin_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=4 %}

@@ -1,40 +1,18 @@
-{% extends "creme_config/portal.html" %}
-{% load i18n %}
-{% load creme_core_tags creme_block %}
+{% extends 'creme_config/portal.html' %}
+{% load i18n creme_core_tags creme_bricks %}
 
-{% block page_title %}{% trans "Configuration" %} > {{app_verbose_name}} - {% endblock %}
+{% block page_title %}{% trans 'Configuration' %} > {{app_verbose_name}} - {% endblock %}
 
 {% block title %}
     {% has_perm_to access 'creme_config' as conf_perm %}
-    {% if conf_perm %}<a href="{% url 'creme_config__portal' %}">{% trans "Configuration" %} > </a>{% endif %}{% trans "Application" %}: {{app_verbose_name}}
-{% endblock %}
-
-{% block creme_blocks_import %}
-    {% import_block from_app 'creme_config' named 'settings' as 'settings_block' %}
-    {% import_blocks app_config_blocks as 'extra_config_blocks' %}
+    {% if conf_perm %}<a href="{% url 'creme_config__portal' %}">{% trans 'Configuration' %} > </a>{% endif %}{% trans 'Application' %}: {{app_verbose_name}}
 {% endblock %}
 
 {% block before_statistics %}
-    <table class="table_detail_view ui-corner-all">
-        {% get_block_header colspan=1 %}
-            <th class="label">{% get_block_title _('%s Configurable type') _('%s Configurable types') count=app_config|length %}</th>
-        {% end_get_block_header %}
-        <tbody class="collapsable">
-            {% for model_conf in app_config %}
-                <tr class="content">
-                    <td class="{% cycle "block_line_dark" "block_line_light" %}">
-{#                        <a href="/creme_config/{{app_name}}/{{model_conf.name_in_url}}/portal/">{{model_conf.verbose_name}}</a> #}
-                        <a href="{% url 'creme_config__model_portal' app_name model_conf.name_in_url %}">{{model_conf.verbose_name}}</a>
-                    </td>
-                </tr>
-            {% empty %}
-                <tr class="content empty">
-                    <td class="block_line_dark">{% trans "No type requires configuration" %}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    {% include 'creme_config/bricks/configurable-models.html' %}
 
-    {% display_block_detailview 'settings_block' %}
-    {% display_blocks 'extra_config_blocks' %}
+    {% brick_import app='creme_config' name='settings' as settings_brick %}
+    {% brick_declare app_config_bricks %}
+
+    {% brick_display settings_brick app_config_bricks %}
 {% endblock before_statistics %}

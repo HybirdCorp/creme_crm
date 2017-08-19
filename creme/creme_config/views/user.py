@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,30 +20,30 @@
 
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, superuser_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.views.decorators import POST_only
-from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
+from creme.creme_core.views import generic
 
-from ..forms.user import (UserAddForm, UserChangePwForm, UserEditForm,
-        TeamCreateForm, TeamEditForm, UserAssignationForm)
+from ..forms import user as user_forms
+from .portal import _config_portal
 
 
 @login_required
 @superuser_required
 def change_password(request, user_id):
-    return edit_model_with_popup(request, {'pk': user_id}, get_user_model(),
-                                 UserChangePwForm, _(u'Change password for «%s»'),
-                                )
+    return generic.edit_model_with_popup(request, {'pk': user_id}, get_user_model(),
+                                         user_forms.UserChangePwForm, _(u'Change password for «%s»'),
+                                        )
 
 
 @login_required
 @superuser_required
 def add(request):
-    return add_model_with_popup(request, UserAddForm,
+    return generic.add_model_with_popup(request, user_forms.UserAddForm,
                                 # _(u'New user'),
                                 # submit_label=_('Save the user'),
                                )
@@ -52,14 +52,14 @@ def add(request):
 @login_required
 @superuser_required
 def add_team(request):
-    return add_model_with_popup(request, TeamCreateForm, _(u'New team'),
-                                submit_label=_('Save the team'),
-                               )
+    return generic.add_model_with_popup(request, user_forms.TeamCreateForm, _(u'New team'),
+                                        submit_label=_(u'Save the team'),
+                                       )
 
 
 @login_required
 def portal(request):
-    return render(request, 'creme_config/user_portal.html')
+    return _config_portal(request, 'creme_config/user_portal.html')
 
 
 @login_required
@@ -72,19 +72,19 @@ def edit(request, user_id):
     if not request.user.is_staff:
         user_filter['is_staff'] = False
 
-    return edit_model_with_popup(request, user_filter, get_user_model(), UserEditForm)
+    return generic.edit_model_with_popup(request, user_filter, get_user_model(), user_forms.UserEditForm)
 
 
 @login_required
 @superuser_required
 def edit_team(request, user_id):
-    return edit_model_with_popup(request,
-                                 {'pk':       user_id,
-                                  'is_team':  True,
-                                  'is_staff': False,
-                                 },
-                                 get_user_model(), TeamEditForm,
-                                )
+    return generic.edit_model_with_popup(request,
+                                         {'pk':       user_id,
+                                          'is_team':  True,
+                                          'is_staff': False,
+                                         },
+                                         get_user_model(), user_forms.TeamEditForm,
+                                        )
 
 
 @login_required
@@ -104,11 +104,11 @@ def delete(request, user_id):
         return HttpResponse(_(u"You can't delete a staff user."), status=400)
 
     try:
-        return add_model_with_popup(request, UserAssignationForm,
-                                    _(u'Delete «%s» and assign his files to user') % user_to_delete,
-                                    initial={'user_to_delete': user_to_delete},
-                                    submit_label=_('Delete the user'),
-                                   )
+        return generic.add_model_with_popup(request, user_forms.UserAssignationForm,
+                                            _(u'Delete «%s» and assign his files to user') % user_to_delete,
+                                            initial={'user_to_delete': user_to_delete},
+                                            submit_label=_(u'Delete the user'),
+                                           )
     except Exception:
         return HttpResponse(_(u"You can't delete this user."), status=400)
 

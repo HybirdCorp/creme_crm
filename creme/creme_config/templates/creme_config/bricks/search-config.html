@@ -1,0 +1,64 @@
+{% extends 'creme_core/bricks/base/paginated-list.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-search-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Configured type of resource') plural=_('{count} Configured types of resource') icon='config' %}
+{% endblock %}
+
+{% block brick_content %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_search_config' as delete_url %}
+    {% for ctw in page.object_list %}
+        {% with ctype=ctw.ctype %}
+    <div class="brick-list-item search-config-item">
+        <div class="search-config-group search-config-summary-group">
+            <div class="search-config-group-title">{% widget_icon ctype=ctype size='brick-list' class='search-config-type-icon' %} {{ctype}}</div>
+            <div class="search-config-group-action">
+            {% if ctw.sc_items|length < max_conf_count %}{% url 'creme_config__create_search_config' ctw.ctype.id as create_url %}
+                {% brick_action id='add' url=create_url label=_('Create for a role') enabled=admin_perm %}
+            {% endif %}
+            </div>
+        </div>
+        <div class="search-config-group brick-table">
+            <table class="brick-table-content">
+                <tbody>
+                    {% for sc_item in ctw.sc_items %}
+                    <tr>
+                        {% if sc_item.role %}
+                        <td class="search-config-ctype-label">{{sc_item.role}}</td>
+                        {% elif sc_item.superuser %}
+                        <td class="search-config-ctype-label search-config-superuser">{% trans 'Superuser' %}</td>
+                        {% else %}
+                        <td class="search-config-ctype-label">{% trans 'Default configuration' %}</td>
+                        {% endif %}
+                        <td class="search-config-fields">
+                            {% if sc_item.disabled %}
+                            <em>{% trans 'Search is disabled' %}</em>
+                            {% elif sc_item.all_fields %}
+                            <em>{% trans 'All fields' %}</em>
+                            {% else %}
+                            {{sc_item.searchfields|join:' / '}}
+                            {% endif %}
+                        </td>
+                         <td {% brick_table_data_status action %}>{% url 'creme_config__edit_search_config' sc_item.id as edit_url %}
+                            {% brick_table_action id='edit' url=edit_url enabled=admin_perm %}
+                        </td>
+                        <td {% brick_table_data_status action %}>
+                            {% if not sc_item.is_default %}
+                            {% brick_table_action id='delete' url=delete_url __id=sc_item.id enabled=admin_perm %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+        {% endwith %}
+    {% endfor %}
+{% endblock %}
+
+{% block brick_list_empty %}
+    {% trans 'No search configuration for the moment' %}
+{% endblock %}

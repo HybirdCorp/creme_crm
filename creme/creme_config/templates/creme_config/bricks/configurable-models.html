@@ -1,0 +1,26 @@
+{% extends 'creme_core/bricks/base/base.html' %}
+{% load i18n creme_bricks %}
+
+{% block brick_extra_class %}brick-table creme_config-configurable-models-brick{% if not app_config %} is-empty{% endif %}{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Configurable type') plural=_('{count} Configurable types') empty=_('Configurable types') count=app_config|length icon='config' %}
+{% endblock %}
+
+{% block brick_content %}
+<table class="brick-table-content">
+{% if app_config %}
+    <tbody>
+    {% for model_conf in app_config %}
+        <tr>
+            <td><a href="{% url 'creme_config__model_portal' app_name model_conf.name_in_url %}">{{model_conf.verbose_name}}</a><td>
+        </tr>
+    {% endfor %}
+    </tbody>
+{% else %}
+    <thead>
+        <tr><th>{% trans 'No type requires configuration' %}</th></tr>
+    </thead>
+{% endif %}
+</table>
+{% endblock %}

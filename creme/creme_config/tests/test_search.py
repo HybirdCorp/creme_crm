@@ -8,15 +8,16 @@ try:
     from creme.creme_core.models import SearchConfigItem, UserRole, FieldsConfig
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation, FakeInvoice, FakeInvoiceLine
+    from creme.creme_core.tests.views.base import BrickTestCaseMixin
     from creme.creme_core.utils import creme_entity_content_types
     from creme.creme_core.utils.unicode_collation import collator
 
-    from ..blocks import SearchConfigBlock
+    from ..bricks import SearchConfigBrick
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-class SearchConfigTestCase(CremeTestCase):
+class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
     # PORTAL_URL = '/creme_config/search/portal/'
     PORTAL_URL = reverse('creme_config__search')
 
@@ -72,9 +73,15 @@ class SearchConfigTestCase(CremeTestCase):
 
         response = self.assertGET200(self.PORTAL_URL)
         self.assertTemplateUsed(response, 'creme_config/search_portal.html')
-        self.assertContains(response, ' id="%s"' % SearchConfigBlock.id_)
+        self.assertTemplateUsed(response, 'creme_config/bricks/search-config.html')
+        # self.assertContains(response, ' id="%s"' % SearchConfigBlock.id_)
+        # self.assertContains(response, unicode(ctype))
 
-        self.assertContains(response, unicode(ctype))
+        brick_node = self.get_brick_node(self.get_html_tree(response.content), SearchConfigBrick.id_)
+        title_node = brick_node.find(".//div[@class='search-config-group-title']")
+        self.assertIsNotNone(title_node)
+        # self.assertIn(unicode(ctype), title_node.text)
+        self.assertEqual([unicode(ctype)], [text.strip() for text in title_node.itertext()])
 
         # Missing default configurations are built
         sci = self.get_object_or_fail(SearchConfigItem, content_type=ctype)
@@ -172,7 +179,7 @@ class SearchConfigTestCase(CremeTestCase):
         ct = self.ct_contact
         SearchConfigItem.create_if_needed(FakeContact, role='superuser',
                                           fields=['first_name', 'last_name'],
-                                          )
+                                         )
 
         response = self.assertGET200(self._build_add_url(ct))
 
@@ -180,6 +187,59 @@ class SearchConfigTestCase(CremeTestCase):
             role_f = response.context['form'].fields['role']
 
         self.assertIsNone(role_f.empty_label)
+
+    # def test_add05(self):
+    #     "Invalid first column"
+    #     role = self.role
+    #     ct = self.ct_contact
+    #
+    #     url = self._build_add_url(ct)
+    #     response = self.assertGET200(url)
+    #
+    #     with self.assertNoException():
+    #         fields = response.context['form'].fields['fields']
+    #
+    #     fname_1 = 'email'
+    #     index_1 = self._find_field_index(fields, fname_1)
+    #
+    #     fname_2 = 'first_name'
+    #     index_2 = self._find_field_index(fields, fname_2)
+    #
+    #     fname_3 = 'last_name'  # thsi field is always OK
+    #     index_3 = self._find_field_index(fields, fname_3)
+    #
+    #     def post(fname, index, error_msg):
+    #         response = self.assertPOST200(url,
+    #                                       data={'role': role.id,
+    #
+    #                                             'fields_check_%s' % index: 'on',
+    #                                             'fields_value_%s' % index: fname,
+    #                                             'fields_order_%s' % index: 1,
+    #
+    #                                             'fields_check_%s' % index_3: 'on',
+    #                                             'fields_value_%s' % index_3: fname_3,
+    #                                             'fields_order_%s' % index_3: 2,
+    #                                            },
+    #                                      )
+    #         self.assertFormError(response, 'form', 'fields', error_msg)
+    #
+    #     post(fname_1, index_1, _(u'This type of field can not be the first column.'))
+    #     post(fname_2, index_2, _(u'The first column cannot be a possibly empty field.'))
+    #
+    #     # The first column can be empty is there is only one column
+    #     self.assertNoFormError(self.client.post(url,
+    #                                             data={'role': role.id,
+    #
+    #                                                   'fields_check_%s' % index_2: 'on',
+    #                                                   'fields_value_%s' % index_2: fname_2,
+    #                                                   'fields_order_%s' % index_2: 1,
+    #                                                  },
+    #                                            )
+    #                           )
+    #
+    #     sc_items = SearchConfigItem.objects.filter(content_type=ct)
+    #     self.assertEqual(1, len(sc_items))
+    #     self.assertEqual([fname_2], [sf.name for sf in sc_items[0].searchfields])
 
     def _edit_config(self, url, sci, names_indexes, disabled=''):
         data = {'disabled': disabled}
@@ -201,7 +261,7 @@ class SearchConfigTestCase(CremeTestCase):
         return sci
 
     def test_edit01(self):
-        sci = SearchConfigItem.create_if_needed(FakeContact, fields=['first_name'])
+        sci = SearchConfigItem.create_if_needed(FakeContact, fields=['last_name'])
         self.assertIsNone(sci.role)
 
         url = self._build_edit_url(sci)
@@ -210,12 +270,12 @@ class SearchConfigTestCase(CremeTestCase):
         with self.assertNoException():
             fields = response.context['form'].fields['fields']
 
-        self.assertEqual(['first_name'], fields.initial)
+        self.assertEqual(['last_name'], fields.initial)
 
-        fname1 = 'first_name'
+        fname1 = 'last_name'
         index1 = self._find_field_index(fields, fname1)
 
-        fname2 = 'last_name'
+        fname2 = 'first_name'
         index2 = self._find_field_index(fields, fname2)
 
         self._find_field_index(fields, 'civility__title')
@@ -252,7 +312,7 @@ class SearchConfigTestCase(CremeTestCase):
         with self.assertNoException():
             fields = response.context['form'].fields['fields']
 
-        fname1 = 'first_name'
+        fname1 = 'last_name'
         index1 = self._find_field_index(fields, fname1)
         sci = self._edit_config(url, sci, [(fname1, index1)], disabled='on')
         self.assertTrue(sci.disabled)

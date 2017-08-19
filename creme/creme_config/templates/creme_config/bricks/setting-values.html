@@ -1,0 +1,30 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-settings-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Setting value') plural=_('{count} Setting values') empty=_('Setting values') icon='config' %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Description') status='primary' %}
+    {% brick_table_column title=_('Value') %}
+    {% brick_table_column title=_('Action') status='action' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for setting_value in page.object_list %}
+    <tr>
+        <td class="setting-description">{{setting_value.key.description}}</td>
+        <td class="setting-value">{{setting_value.as_html}}</td>
+        <td {% brick_table_data_status action %}>{% url 'creme_config__edit_setting' setting_value.id as edit_url %}
+            {% brick_table_action id='edit' url=edit_url label=_('Edit this value') %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No setting value for this app' %}
+{% endblock %}

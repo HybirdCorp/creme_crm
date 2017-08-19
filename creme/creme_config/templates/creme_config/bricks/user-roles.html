@@ -1,0 +1,58 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-roles-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Role') plural=_('{count} Roles') empty=_('Roles') %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__create_role' as create_url %}
+    {% brick_header_action id='add' url=create_url label=_('New role') enabled=admin_perm %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='name' status='primary nowrap' class='role-name' %}
+    {% brick_table_column title=_('Allowed applications')       status='nowrap' class='role-apps' %}
+    {% brick_table_column title=_('Administrated applications') status='nowrap' class='role-admin-apps' %}
+    {% brick_table_column title=_('Creation credentials')       status='nowrap' class='role-creation-creds' %}
+    {% brick_table_column title=_('Export credentials')         status='nowrap' class='role-export-creds' %}
+    {% brick_table_column title=_('Entities credentials')       status='nowrap' class='role-creds' %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__remove_role_credentials' as rm_creds_url %}
+    {% for role in page.object_list %}
+    <tr>
+        <td class="role-name">{{role.name}}</td>
+        <td class="role-apps">{% widget_select_or_msg role.get_allowed_apps_verbose _('No allowed application') %}</td>
+        <td class="role-admin-apps">{% widget_select_or_msg role.get_admin_4_apps_verbose _('No administrated application') %}</td>
+        <td class="role-creation-creds">{% widget_select_or_msg role.creatable_ctypes.all|uca_sort _('No creation credential') %}</td>
+        <td class="role-export-creds">{% widget_select_or_msg role.exportable_ctypes.all|uca_sort  _('No export credential') %}</td>
+        <td class="role-creds">
+            <ul>
+            {% for sc in role.credentials.all %}{% url 'creme_config__edit_role_credentials' sc.id as edit_creds_url %}
+                <li>
+                    {{sc}}
+                    {% brick_action id='edit'   url=edit_creds_url          label=_('Edit these credentials')   enabled=admin_perm %}
+                    {% brick_action id='delete' url=rm_creds_url __id=sc.id label=_('Delete these credentials') enabled=admin_perm %}
+                </li>
+            {% endfor %}
+            </ul>
+            {% url 'creme_config__add_credentials_to_role' role.id as add_creds_url %}{% brick_action id='edit' url=add_creds_url label=_('New credentials') enabled=admin_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>{% url 'creme_config__edit_role' role.id as edit_url %}
+            {% brick_table_action id='edit' url=edit_url label=_('Edit this role') enabled=admin_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>{% url 'creme_config__delete_role' role.id as delete_url %}
+            {% brick_table_action id='edit' url=delete_url label=_('Delete') icon='delete' enabled=admin_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No role for the moment' %}
+{% endblock %}

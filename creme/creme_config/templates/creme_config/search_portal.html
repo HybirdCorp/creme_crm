@@ -1,5 +1,5 @@
 {% extends "creme_config/portal.html" %}
-{% load i18n creme_core_tags creme_block %}
+{% load i18n creme_core_tags creme_bricks %}
 
 {% block title %}
     {% has_perm_to access 'creme_config' as conf_perm %}
@@ -20,6 +20,6 @@
             </tr>
         </table>
     </div>
-    {% import_block from_app 'creme_config' named 'searchconfig' as 'searchconfig_block' %}
-    {% display_block_detailview 'searchconfig_block' %}
+    {% brick_import app='creme_config' name='searchconfig' as searchconfig_brick %}
+    {% brick_display searchconfig_brick %}
 {% endblock %}

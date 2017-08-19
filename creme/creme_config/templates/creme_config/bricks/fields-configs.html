@@ -1,0 +1,47 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-fields-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Configured type of resource') plural=_('{count} Configured types of resource') empty=_('Configured types of resource') %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% if display_add_button %}{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__create_fields_config' as create_url %}
+        {% brick_header_action id='add' url=create_url label=_('New fields configuration') enabled=admin_perm %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Type')          status='primary' class='fieldconf-label' %}
+    {% brick_table_column title=_('Hidden fields')                  class='fieldconf-hidden-fields' %}
+    {% brick_table_column title=_('Actions')       status='action'  colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_fields_config' as delete_url %}
+    {% for field_conf in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %} class="fieldconf-label">{{field_conf.content_type}}</td>
+        <td class="fieldconf-hidden-fields">
+            {% widget_enumerator field_conf.fields_vnames|uca_sort %}
+            {% with errors=field_conf.errors_on_hidden %}
+                {% if errors %}
+                    <ul class="warninglist">{% for error in errors %}<li>{{error}}</li>{% endfor %}</ul>
+                {% endif %}
+            {% endwith %}
+        </td>
+        <td {% brick_table_data_status action %}>{% url 'creme_config__edit_fields_config' field_conf.pk as edit_url %}
+            {% brick_table_action id='edit' url=edit_url enabled=admin_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=delete_url __id=field_conf.pk enabled=admin_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No fields configuration for the moment' %}
+{% endblock %}

@@ -1,5 +1,8 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
+
+{% log 'The template file "creme/creme_config/templates/creme_config/templatetags/block_relationblocksconfig.html" is deprecated.' level='WARN' %}
+
 {% has_perm_to admin 'creme_core' as admin_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">{% cycle "block_line_light" "block_line_dark" as row_color silent %}
     {% get_block_header colspan=3 %}
@@ -10,7 +13,7 @@
         <tr class="header toolbar">
             <th class="block_header_line_light" colspan="3">
 {#                {% get_line_adder at_url '/creme_config/blocks/relation_block/add/' with_label _("New type of block") with_perms admin_perm %} #}
-                {% url 'creme_config__create_rtype_block' as create_url %}{% get_line_adder at_url create_url with_label _('New type of block') with_perms admin_perm %}
+                {% url 'creme_config__create_rtype_brick' as create_url %}{% get_line_adder at_url create_url with_label _('New type of block') with_perms admin_perm %}
             </th>
         </tr>
         {% if page.paginator.count %}
@@ -19,7 +22,7 @@
                 <th class="block_header_line_light">{% trans "Customisation of columns" %}</th>
                 <th class="block_header_line_light action">{% trans "Delete" %}</th>
             </tr>
-            {% url 'creme_config__delete_rtype_block' as delete_url %}
+            {% url 'creme_config__delete_rtype_brick' as delete_url %}
             {% for block_type in page.object_list %}{% cycle row_color %}
                 <tr class="content">
                     <td class="{{row_color}}">{{block_type.relation_type}}</td>
@@ -28,9 +31,9 @@
                             {% for ct, cells in block_type.iter_cells %}
                                 <li>{{ct}}: {{cells|join:" / "|default:_("not configured yet")}}
 {#                                    {% get_line_editor at_url '/creme_config/blocks/relation_block/{{block_type.id}}/edit_ctype/{{ct.id}}' with_perms admin_perm %} #}
-                                    {% url 'creme_config__edit_cells_of_rtype_block' block_type.id ct.id as edit_cells_url %}{% get_line_editor at_url edit_cells_url with_perms admin_perm %}
+                                    {% url 'creme_config__edit_cells_of_rtype_brick' block_type.id ct.id as edit_cells_url %}{% get_line_editor at_url edit_cells_url with_perms admin_perm %}
 {#                                    {% get_line_deletor at_url '/creme_config/blocks/relation_block/{{block_type.id}}/delete_ctype' with_args "{'id': '{{ct.id}}'}" with_perms admin_perm %} #}
-                                    {% url 'creme_config__delete_cells_of_rtype_block' block_type.id as delete_cells_url %}{% get_line_deletor at_url delete_cells_url with_args "{'id': '{{ct.id}}'}" with_perms admin_perm %}
+                                    {% url 'creme_config__delete_cells_of_rtype_brick' block_type.id as delete_cells_url %}{% get_line_deletor at_url delete_cells_url with_args "{'id': '{{ct.id}}'}" with_perms admin_perm %}
                                 </li>
                             {% endfor %}
                         </ul>
@@ -39,7 +42,7 @@
                         {% else %}
 {#                            {% get_line_adder at_url '/creme_config/blocks/relation_block/add_ctypes/{{block_type.id}}' with_label _("New customised types") with_perms admin_perm %} #}
 {#                            {% get_line_adder at_url '/creme_config/blocks/relation_block/{{block_type.id}}/wizard' with_label _("New customised type") with_perms admin_perm %} #}
-                            {% url 'creme_config__add_cells_to_rtype_block' block_type.id as add_cells_url %}{% get_line_adder at_url add_cells_url with_label _('New customised type') with_perms admin_perm %}
+                            {% url 'creme_config__add_cells_to_rtype_brick' block_type.id as add_cells_url %}{% get_line_adder at_url add_cells_url with_label _('New customised type') with_perms admin_perm %}
                         {% endif %}
                     </td>
                     <td class="{{row_color}} action">

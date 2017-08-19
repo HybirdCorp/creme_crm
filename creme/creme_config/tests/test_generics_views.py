@@ -7,18 +7,20 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
 
-    from creme.creme_core.gui.block import SimpleBlock, _BlockRegistry
     from creme.creme_core.forms import CremeModelForm
+    from creme.creme_core.gui.bricks import SimpleBrick, _BrickRegistry
     from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.fake_bricks import FakeAppPortalBrick
     from creme.creme_core.tests.fake_models import FakeCivility, FakeSector, FakePosition
+    from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
-    from ..blocks import generic_models_block
-    from ..registry import _ConfigRegistry, NotRegisteredInConfig
+    from ..bricks import GenericModelBrick, PropertyTypesBrick, SettingsBrick
+    # from ..registry import _ConfigRegistry, NotRegisteredInConfig
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-class GenericModelConfigTestCase(CremeTestCase):
+class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
     # DOWN_URL = '/creme_config/creme_core/fake_sector/down/%s'
     # UP_URL   = '/creme_config/creme_core/fake_sector/up/%s'
 
@@ -30,6 +32,11 @@ class GenericModelConfigTestCase(CremeTestCase):
 
         cls._sector_backup = list(FakeSector.objects.all())
         FakeSector.objects.all().delete()
+
+        # We import here in order to not launch the automatic registration before the fake bricks are registered.
+        from .. import registry
+        cls._ConfigRegistry = registry._ConfigRegistry
+        cls.NotRegisteredInConfig = registry.NotRegisteredInConfig
 
     @classmethod
     def tearDownClass(cls):
@@ -52,10 +59,10 @@ class GenericModelConfigTestCase(CremeTestCase):
             class Meta(CremeModelForm.Meta):
                 model = FakeSector
 
-        registry = _ConfigRegistry()
+        registry = self._ConfigRegistry()
         registry.register((FakeCivility, 'civility'),
                           (FakeSector, 'sector', SectorForm),
-                          )
+                         )
 
         with self.assertNoException():
             app_conf = registry.get_app('creme_core')
@@ -80,11 +87,11 @@ class GenericModelConfigTestCase(CremeTestCase):
 
     def test_registry_unregister_model01(self):
         "Unregister after the registration"
-        registry = _ConfigRegistry()
+        registry = self._ConfigRegistry()
         registry.register((FakeCivility, 'civility'),
                           (FakeSector, 'sector'),
                           (FakePosition, 'position'),
-                          )
+                         )
         registry.unregister(FakeCivility, FakePosition)
 
         with self.assertNoException():
@@ -95,17 +102,17 @@ class GenericModelConfigTestCase(CremeTestCase):
         with self.assertNoException():
             get_model_conf(model=FakeSector)
 
-        self.assertRaises(NotRegisteredInConfig, get_model_conf, model=FakeCivility)
-        self.assertRaises(NotRegisteredInConfig, get_model_conf, model=FakePosition)
+        self.assertRaises(self.NotRegisteredInConfig, get_model_conf, model=FakeCivility)
+        self.assertRaises(self.NotRegisteredInConfig, get_model_conf, model=FakePosition)
 
     def test_registry_unregister_model02(self):
         "Unregister before the registration"
-        registry = _ConfigRegistry()
+        registry = self._ConfigRegistry()
         registry.unregister(FakeCivility, FakePosition)
         registry.register((FakeCivility, 'civility'),
                           (FakeSector, 'sector'),
                           (FakePosition, 'position'),
-                          )
+                         )
 
         with self.assertNoException():
             app_conf = registry.get_app('creme_core')
@@ -115,23 +122,23 @@ class GenericModelConfigTestCase(CremeTestCase):
         with self.assertNoException():
             get_model_conf(model=FakeSector)
 
-        self.assertRaises(NotRegisteredInConfig, get_model_conf, model=FakeCivility)
-        self.assertRaises(NotRegisteredInConfig, get_model_conf, model=FakePosition)
+        self.assertRaises(self.NotRegisteredInConfig, get_model_conf, model=FakeCivility)
+        self.assertRaises(self.NotRegisteredInConfig, get_model_conf, model=FakePosition)
 
     def test_registry_register_blocks(self):
-        class TestBlock1(SimpleBlock):
-            id_ = SimpleBlock.generate_id('creme_config', 'test_registry_register_blocks1')
+        class TestBlock1(SimpleBrick):
+            id_ = SimpleBrick.generate_id('creme_config', 'test_registry_register_blocks1')
 
-        class TestBlock2(SimpleBlock):
-            id_ = SimpleBlock.generate_id('creme_config', 'test_registry_register_blocks2')
+        class TestBlock2(SimpleBrick):
+            id_ = SimpleBrick.generate_id('creme_config', 'test_registry_register_blocks2')
 
         block1 = TestBlock1()
         block2 = TestBlock2()
 
-        block_registry = _BlockRegistry()
+        block_registry = _BrickRegistry()
         block_registry.register(block1, block2)
 
-        registry = _ConfigRegistry(block_registry)
+        registry = self._ConfigRegistry(block_registry)
         registry.register_blocks(('creme_core', block1),
                                  ('documents',  block2),
                                 )
@@ -140,34 +147,97 @@ class GenericModelConfigTestCase(CremeTestCase):
             app_conf = registry.get_app('creme_core')
 
         blocks = app_conf.blocks()
-        self.assertIn(block1,    blocks)
-        self.assertNotIn(block2, blocks)
+        self.assertIsInstance(blocks, list)
+        self.assertEqual(1, len(blocks))
+        self.assertIsInstance(blocks[0], TestBlock1)
+        # self.assertIn(block1,    blocks)
+        # self.assertNotIn(block2, blocks)
 
         with self.assertNoException():
             app_conf = registry.get_app('documents')
 
         blocks = app_conf.blocks()
-        self.assertIn(block2,    blocks)
-        self.assertNotIn(block1, blocks)
+        # self.assertIn(block2,    blocks)
+        # self.assertNotIn(block1, blocks)
+        self.assertEqual(1, len(blocks))
+        self.assertIsInstance(blocks[0], TestBlock2)
+
+    def test_registry_register_bricks(self):
+        class TestBrick1(SimpleBrick):
+            id_ = SimpleBrick.generate_id('creme_config', 'test_registry_register_bricks1')
+
+        class TestBrick2(SimpleBrick):
+            id_ = SimpleBrick.generate_id('creme_config', 'test_registry_register_bricks2')
+
+        brick_registry = _BrickRegistry()
+        brick_registry.register(TestBrick1, TestBrick2)
+
+        registry = self._ConfigRegistry(brick_registry)
+        registry.register_bricks(('creme_core', TestBrick1),
+                                 ('documents',  TestBrick2),
+                                )
+
+        with self.assertNoException():
+            app_conf = registry.get_app('creme_core')
+
+        def get_brick_ids(app_conf_registry):
+            b_ids = set()
+            for brick in app_conf_registry.bricks:
+                self.assertIsInstance(brick, SimpleBrick)
+                b_ids.add(brick.id_)
+            return b_ids
+
+        brick_ids = get_brick_ids(app_conf)
+        self.assertIn(TestBrick1.id_, brick_ids)
+        self.assertNotIn(TestBrick2, brick_ids)
+
+        with self.assertNoException():
+            app_conf = registry.get_app('documents')
+
+        brick_ids = get_brick_ids(app_conf)
+        self.assertIn(TestBrick2.id_, brick_ids)
+        self.assertNotIn(TestBrick1, brick_ids)
 
     def test_registry_register_userblocks(self):
-        class TestUserBlock1(SimpleBlock):
-            id_ = SimpleBlock.generate_id('creme_config', 'test_registry_register_userblocks1')
+        class TestUserBlock1(SimpleBrick):
+            id_ = SimpleBrick.generate_id('creme_config', 'test_registry_register_userblocks1')
 
-        class TestUserBlock2(SimpleBlock):
-            id_ = SimpleBlock.generate_id('creme_config', 'test_registry_register_userblocks2')
+        class TestUserBlock2(SimpleBrick):
+            id_ = SimpleBrick.generate_id('creme_config', 'test_registry_register_userblocks2')
 
         block1 = TestUserBlock1()
         block2 = TestUserBlock2()
 
-        block_registry = _BlockRegistry()
+        block_registry = _BrickRegistry()
         block_registry.register(block1, block2)
 
-        registry = _ConfigRegistry(block_registry)
+        registry = self._ConfigRegistry(block_registry)
 
         registry.register_userblocks(block1, block2)
-        self.assertIn(block1, registry.userblocks)
-        self.assertIn(block2, registry.userblocks)
+        # self.assertIn(block1, registry.userblocks)
+        # self.assertIn(block2, registry.userblocks)
+        ublocks = list(registry.userblocks)
+        self.assertEqual(2, len(ublocks))
+        self.assertIsInstance(ublocks[0], TestUserBlock1)
+        self.assertIsInstance(ublocks[1], TestUserBlock2)
+
+    def test_registry_register_userbricks(self):
+        class TestUserBrick1(SimpleBrick):
+            id_ = SimpleBrick.generate_id('creme_config', 'test_registry_register_userbricks1')
+
+        class TestUserBrick2(SimpleBrick):
+            id_ = SimpleBrick.generate_id('creme_config', 'test_registry_register_userbricks2')
+
+        brick_registry = _BrickRegistry()
+        brick_registry.register(TestUserBrick1, TestUserBrick2)
+
+        registry = self._ConfigRegistry(brick_registry)
+
+        registry.register_user_bricks(TestUserBrick1, TestUserBrick2)
+        bricks = list(registry.user_bricks)
+        self.assertEqual(2, len(bricks))
+        self.assertIsInstance(bricks[0], TestUserBrick1)
+        self.assertIsInstance(bricks[1], TestUserBrick2)
 
     def test_portals(self):
         # self.assertGET200('/creme_config/creme_core/portal/')
@@ -222,7 +292,6 @@ class GenericModelConfigTestCase(CremeTestCase):
         self.assertEqual(count + 2, sector.order)  # order is set to max
 
     def assertWidgetResponse(self, response, instance):
-        # TODO: json.dumps
         self.assertEqual(json_dump({
                             'added': [[instance.id, unicode(instance)]], 
                             'value': instance.id
@@ -323,11 +392,11 @@ class GenericModelConfigTestCase(CremeTestCase):
                           )
         self.assertStillExists(sector)
 
-    def test_reload_block(self):
+    def test_reload_model_block(self):
         # response = self.assertGET200('/creme_config/models/%s/reload/' %
         #                                 ContentType.objects.get_for_model(FakeCivility).id
         #                             )
-        response = self.assertGET200(reverse('creme_config__reload_model_block',
+        response = self.assertGET200(reverse('creme_config__reload_model_block_legacy',
                                              args=(ContentType.objects.get_for_model(FakeCivility).id,),
                                             )
                                     )
@@ -341,8 +410,70 @@ class GenericModelConfigTestCase(CremeTestCase):
         result = result[0]
         self.assertIsInstance(result, list)
         self.assertEqual(2, len(result))
-        self.assertEqual(generic_models_block.id_, result[0])
-        self.assertIn(' id="%s"' % generic_models_block.id_, result[1])
+
+        brick_id = GenericModelBrick.id_
+        self.assertEqual(brick_id, result[0])
+        self.assertIn(' id="%s"' % brick_id, result[1])
+
+    def test_reload_model_brick(self):
+        response = self.assertGET200(reverse('creme_config__reload_model_brick',
+                                             args=('creme_core', 'fake_civility'),
+                                            )
+                                    )
+
+        with self.assertNoException():
+            result = json_load(response.content)
+
+        self.assertIsInstance(result, list)
+        self.assertEqual(1, len(result))
+
+        result = result[0]
+        self.assertIsInstance(result, list)
+        self.assertEqual(2, len(result))
+
+        brick_id = GenericModelBrick.id_
+        self.assertEqual(brick_id, result[0])
+        self.get_brick_node(self.get_html_tree(result[1]), brick_id)
+
+    def test_reload_app_bricks01(self):
+        url = reverse('creme_config__reload_app_bricks', args=('creme_core',))
+        self.assertGET404(url)
+        self.assertGET404(url, data={'brick_id': PropertyTypesBrick.id_})
+
+        response = self.assertGET200(url, data={'brick_id': SettingsBrick.id_})
+
+        with self.assertNoException():
+            result = json_load(response.content)
+
+        self.assertIsInstance(result, list)
+        self.assertEqual(1, len(result))
+
+        result = result[0]
+        self.assertIsInstance(result, list)
+        self.assertEqual(2, len(result))
+
+        brick_id = SettingsBrick.id_
+        self.assertEqual(brick_id, result[0])
+        self.get_brick_node(self.get_html_tree(result[1]), brick_id)
+
+    def test_reload_app_bricks02(self):
+        response = self.assertGET200(reverse('creme_config__reload_app_bricks', args=('creme_core',)),
+                                     data={'brick_id': FakeAppPortalBrick.id_}
+                                    )
+
+        with self.assertNoException():
+            result = json_load(response.content)
+
+        self.assertIsInstance(result, list)
+        self.assertEqual(1, len(result))
+
+        result = result[0]
+        self.assertIsInstance(result, list)
+        self.assertEqual(2, len(result))
+
+        brick_id = FakeAppPortalBrick.id_
+        self.assertEqual(brick_id, result[0])
+        self.get_brick_node(self.get_html_tree(result[1]), brick_id)
 
     def test_incr_order01(self):
         create_sector = FakeSector.objects.create
@@ -407,3 +538,19 @@ class GenericModelConfigTestCase(CremeTestCase):
 
         # self.assertPOST404(self.UP_URL % sector1.id)
         self.assertPOST404(self._build_up_url(sector1.id))
+
+    def test_reorder(self):
+        create_sector = FakeSector.objects.create
+        sector1 = create_sector(title='Music', order=1)
+        sector2 = create_sector(title='Movie', order=2)
+        sector3 = create_sector(title='Book',  order=3)
+        sector4 = create_sector(title='Web',   order=4)
+
+        url = reverse('creme_config__reorder_instance', args=('creme_core', 'fake_sector', sector1.id))
+        self.assertGET404(url, data={'target': 3})
+
+        self.client.post(url, data={'target': 3})
+        self.assertEqual(3, self.refresh(sector1).order)
+        self.assertEqual(1, self.refresh(sector2).order)
+        self.assertEqual(2, self.refresh(sector3).order)
+        self.assertEqual(4, self.refresh(sector4).order)

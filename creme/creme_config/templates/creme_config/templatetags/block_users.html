@@ -1,4 +1,7 @@
 {% load i18n creme_block creme_core_tags %}
+
+{% log 'The template file "creme/creme_config/templates/creme_config/templatetags/block_users.html" is deprecated.' level='WARN' %}
+
 {% with has_perm=user.is_superuser current_user_id=user.id colspan=display_tz|yesno:'11,10' %}{% trans 'Superuser' as superuser_label %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=colspan %}
@@ -18,7 +21,7 @@
             {% get_column_header _('First name') 'first_name' %}
             {% get_column_header _("Role") 'role__name' %}
             {% get_column_header _('Email address') 'email' %}
-            {% get_column_header _('Active ?') 'is_active' %}
+            {% get_column_header _('Active?') 'is_active' %}
             {% get_column_header _('Last login') 'last_login' %}
             {% get_column_header _("Date joined") 'date_joined' %}
             {% if display_tz %}{% get_column_header _("Time zone") 'time_zone' %}{% endif %}

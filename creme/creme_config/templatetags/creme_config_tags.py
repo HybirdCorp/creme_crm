@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,9 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.template import Library, Node as TemplateNode
 
-from creme.creme_core.gui.block import BlocksManager
+from creme.creme_core.gui.bricks import BricksManager
 
 from ..registry import config_registry
 
@@ -36,24 +38,34 @@ def is_custom(obj):
 
 @register.tag(name='import_usersettings_blocks')
 def do_usersettings_blocks_importer(parser, token):
+    warnings.warn('{% import_usersettings_blocks %} is deprecated.', DeprecationWarning)
+
     return UserSettingsBlocksImporterNode()
 
 
 class UserSettingsBlocksImporterNode(TemplateNode):
+    def __init__(self):
+        warnings.warn('creme_config_tags.UserSettingsBlocksImporterNode is deprecated.', DeprecationWarning)
+
     def render(self, context):
-        blocks_manager = BlocksManager.get(context)
+        blocks_manager = BricksManager.get(context)
         blocks_manager.add_group(_USER_SETTINGS_BLOCK, *config_registry.userblocks)
         return ''
 
 
 @register.tag(name='display_usersettings_blocks')
 def do_usersettings_blocks_displayer(parser, token):
+    warnings.warn('{% do_usersettings_blocks_displayer %} is deprecated.', DeprecationWarning)
+
     return UserSettingsBlocksDisplayerNode()
 
 
 class UserSettingsBlocksDisplayerNode(TemplateNode):
+    def __init__(self):
+        warnings.warn('creme_config_tags.UserSettingsBlocksImporterNode is deprecated.', DeprecationWarning)
+
     def render(self, context):
         context = context.flatten()
         return ''.join(block.detailview_display(context)
-                          for block in BlocksManager.get(context).pop_group(_USER_SETTINGS_BLOCK)
+                       for block in BricksManager.get(context).pop_group(_USER_SETTINGS_BLOCK)
                       )

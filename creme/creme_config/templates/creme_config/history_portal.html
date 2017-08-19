@@ -1,12 +1,12 @@
-{% extends "creme_config/portal.html" %}
-{% load i18n creme_core_tags creme_block %}
+{% extends 'creme_config/portal.html' %}
+{% load i18n creme_core_tags creme_bricks %}
 
 {% block title %}
     {% has_perm_to access 'creme_config' as conf_perm %}
-    {% if conf_perm %}<a href="{% url 'creme_config__portal' %}">{% trans "Configuration" %} > </a>{% endif %}{% trans "History" %}
+    {% if conf_perm %}<a href="{% url 'creme_config__portal' %}">{% trans 'Configuration' %} > </a>{% endif %}{% trans 'History' %}
 {% endblock %}
 
 {% block before_statistics %}
-    {% import_block from_app 'creme_config' named 'historyconfig' as 'historyconfig_block' %}
-    {% display_block_detailview 'historyconfig_block' %}
+    {% brick_import app='creme_config' name='historyconfig' as historyconfig_brick %}
+    {% brick_display historyconfig_brick %}
 {% endblock %}

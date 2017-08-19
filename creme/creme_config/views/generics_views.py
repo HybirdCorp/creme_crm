@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
+import logging, warnings
 
+from django.core.urlresolvers import reverse
 from django.db.models import FieldDoesNotExist, IntegerField
 from django.db.models.deletion import ProtectedError
 from django.http import Http404, HttpResponse
@@ -30,12 +31,12 @@ from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
 # from creme.creme_core.registry import NotRegistered
 from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404, jsonify
-from creme.creme_core.views.blocks import build_context
+from creme.creme_core.utils.db import reorder_instances
+from creme.creme_core.views import bricks as bricks_views, generic
 from creme.creme_core.views.decorators import POST_only
-from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
 from creme.creme_core.views.utils import json_update_from_widget_response
 
-from ..blocks import generic_models_block
+from ..bricks import GenericModelBrick, SettingsBrick
 from ..registry import config_registry
 
 
@@ -65,17 +66,16 @@ def _get_modelconf(app_config, model_name):
 
 def _popup_title(model_conf):
     # TODO: creation label for all CremeModel ??
-    return _('New value: %s') % model_conf.model._meta.verbose_name
+    return _(u'New value: %s') % model_conf.model._meta.verbose_name
 
 
 @login_required
 def add_model(request, app_name, model_name):
     model_conf = _get_modelconf(_get_appconf(request.user, app_name), model_name)
 
-    return add_model_with_popup(request, model_conf.model_form, _popup_title(model_conf),
-                                template='creme_core/generics/form/add_innerpopup.html',
-                               )
-
+    return generic.add_model_with_popup(request, model_conf.model_form, _popup_title(model_conf),
+                                        template='creme_core/generics/form/add_innerpopup.html',
+                                       )
 
 
 @login_required
@@ -84,22 +84,22 @@ def add_model_from_widget(request, app_name, model_name):
 
     if request.method == 'GET':
         initial = request.GET.dict()
-        return add_model_with_popup(request, model_conf.model_form, _popup_title(model_conf),
-                                    template='creme_core/generics/form/add_innerpopup.html',
-                                    initial=initial
-                                   )
+        return generic.add_model_with_popup(request, model_conf.model_form, _popup_title(model_conf),
+                                            template='creme_core/generics/form/add_innerpopup.html',
+                                            initial=initial
+                                           )
 
     form = model_conf.model_form(user=request.user, data=request.POST, files=request.FILES or None)
 
     if not form.is_valid():
-        return inner_popup(request, 'creme_core/generics/form/add_innerpopup.html',
-                           {'form':  form,
-                            'title': _popup_title(model_conf),
-                           },
-                           is_valid=form.is_valid(),  # TODO: already computed -> variable
-                           reload=False,
-                           delegate_reload=True,
-                          )
+        return generic.inner_popup(request, 'creme_core/generics/form/add_innerpopup.html',
+                                   {'form':  form,
+                                    'title': _popup_title(model_conf),
+                                   },
+                                   is_valid=form.is_valid(),  # TODO: already computed -> variable
+                                   reload=False,
+                                   delegate_reload=True,
+                                  )
 
     form.save()
 
@@ -133,10 +133,12 @@ def portal_model(request, app_name, model_name):
                     instance.save()
 
     return render(request, 'creme_config/generics/model_portal.html',
-                  {'model':            model,
-                   'app_name':         app_name,
-                   'app_verbose_name': app_config.verbose_name,
-                   'model_name':       model_name,
+                  {'model':             model,
+                   'app_name':          app_name,
+                   'app_verbose_name':  app_config.verbose_name,
+                   # 'model_name':        model_name,
+                   'bricks_reload_url': reverse('creme_config__reload_model_brick', args=(app_name, model_name)),
+                   'model_brick':       GenericModelBrick(app_name=app_name, model_name=model_name, model=model),
                   }
                  )
 
@@ -152,11 +154,11 @@ def delete_model(request, app_name, model_name):
     try:
         instance.delete()
     except ProtectedError:
-        msg = _('%s can not be deleted because of its dependencies.') % instance
+        msg = _(u'%s can not be deleted because of its dependencies.') % instance
 
         # TODO: factorise ??
         if request.is_ajax():
-            return HttpResponse(msg, content_type="text/javascript", status=400)
+            return HttpResponse(msg, content_type='text/javascript', status=400)
 
         raise Http404(msg)
 
@@ -167,17 +169,34 @@ def delete_model(request, app_name, model_name):
 def edit_model(request, app_name, model_name, object_id):
     modelconf = _get_modelconf(_get_appconf(request.user, app_name), model_name)
 
-    return edit_model_with_popup(request,
-                                 {'pk': object_id},
-                                 modelconf.model,
-                                 modelconf.model_form,
-                                 template='creme_core/generics/form/edit_innerpopup.html',
-                                )
+    return generic.edit_model_with_popup(request,
+                                         {'pk': object_id},
+                                         modelconf.model,
+                                         modelconf.model_form,
+                                         template='creme_core/generics/form/edit_innerpopup.html',
+                                        )
+
+
+@login_required
+@POST_only
+def reorder(request, app_name, model_name, object_id):
+    new_order = get_from_POST_or_404(request.POST, 'target', int)
+    model = _get_modelconf(_get_appconf(request.user, app_name), model_name).model
+    instance = get_object_or_404(model, pk=object_id)
+
+    try:
+        reorder_instances(moved_instance=instance, new_order=new_order)
+    except Exception as e:
+        return HttpResponse(e, status=409, content_type='text/javascript')
+
+    return HttpResponse(content_type='text/javascript')
 
 
 @login_required
 @POST_only
 def swap_order(request, app_name, model_name, object_id, offset):
+    warnings.warn('generic_views.swap_order() is deprecated ; use reorder() instead.', DeprecationWarning)
+
     model = _get_modelconf(_get_appconf(request.user, app_name), model_name).model
 
     if not any(f.name == 'order' for f in model._meta.get_fields()):
@@ -224,7 +243,9 @@ def portal_app(request, app_name):
                   {'app_name':          app_name,
                    'app_verbose_name':  app_config.verbose_name,
                    'app_config':        list(app_config.models()),  # list-> have the length in the template
-                   'app_config_blocks': app_config.blocks(),  # Get config registered blocks
+                   # 'app_config_blocks': app_config.blocks(),  # Get config registered blocks
+                   'app_config_bricks': list(app_config.bricks),  # Get config registered bricks
+                   'bricks_reload_url': reverse('creme_config__reload_app_bricks', args=(app_name,)),
                   }
                  )
 
@@ -232,17 +253,61 @@ def portal_app(request, app_name):
 @login_required
 @jsonify
 def reload_block(request, ct_id):
+    warnings.warn('generics.views.reload_block() is deprecated ; use reload_brick() instead.', DeprecationWarning)
+
+    from creme.creme_core.views import blocks as blocks_views
+    from ..blocks import generic_models_block
+
     model = get_ct_or_404(ct_id).model_class()
     app_name = model._meta.app_label
 
     request.user.has_perm_to_admin_or_die(app_name)
 
-    context = build_context(request,
-                            model=model,
-                            model_name=config_registry.get_app(app_name)
-                                                      .get_model_conf(model=model)
-                                                      .name_in_url,
-                            app_name=app_name,
-                           )
+    context = blocks_views.build_context(
+                request,
+                model=model,
+                model_name=config_registry.get_app(app_name).get_model_conf(model=model).name_in_url,
+                app_name=app_name,
+    )
 
     return [(generic_models_block.id_, generic_models_block.detailview_display(context))]
+
+
+@login_required
+@jsonify
+def reload_model_brick(request, app_name, model_name):
+    app_config = _get_appconf(request.user, app_name)
+    model      = _get_modelconf(app_config, model_name).model
+
+    request.user.has_perm_to_admin_or_die(app_name)
+
+    return bricks_views.bricks_render_info(
+            request,
+            context=bricks_views.build_context(request),
+            bricks=[GenericModelBrick(app_name=app_name, model_name=model_name, model=model)],
+    )
+
+
+@login_required
+@jsonify
+def reload_app_bricks(request, app_name):
+    brick_ids = bricks_views.get_brick_ids_or_404(request)
+    app_config = _get_appconf(request.user, app_name)
+    bricks = []
+
+    for b_id in brick_ids:
+        if b_id == SettingsBrick.id_:
+            brick = SettingsBrick()
+        else:
+            for registered_brick in app_config.bricks:
+                if b_id == registered_brick.id_:
+                    brick = registered_brick
+                    break
+            else:
+                raise Http404('Invalid brick id "%s"' % b_id)
+
+        bricks.append(brick)
+
+    return bricks_views.bricks_render_info(request, bricks=bricks,
+                                           context=bricks_views.build_context(request, app_name=app_name),
+                                          )

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2016  Hybird
+#    Copyright (C) 2015-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@
 
 import warnings
 
+from django.core.urlresolvers import reverse
 # from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -39,7 +40,9 @@ from ..forms.fields_config import FieldsConfigAddForm, FieldsConfigEditForm
 
 @login_required
 def portal(request):
-    return render(request, 'creme_config/fields_config_portal.html')
+    return render(request, 'creme_config/fields_config_portal.html',
+                  context={'bricks_reload_url': reverse('creme_core__reload_bricks')},
+                 )
 
 
 @login_required
@@ -76,7 +79,7 @@ def delete(request):
 
 class FieldConfigWizard(PopupWizardMixin, SessionWizardView):
     class _ModelStep(FieldsConfigAddForm):
-        step_submit_label = _('Select')
+        step_submit_label = _(u'Select')
 
         def __init__(self, *args, **kwargs):
             super(FieldConfigWizard._ModelStep, self).__init__(*args, **kwargs)
@@ -84,7 +87,7 @@ class FieldConfigWizard(PopupWizardMixin, SessionWizardView):
                 raise ConflictError(ugettext(u'All configurable types of resource are already configured.'))
 
     class _ConfigStep(FieldsConfigEditForm):
-        step_prev_label = _('Previous step')
+        step_prev_label = _(u'Previous step')
         # step_submit_label = _('Save the configuration')
         step_submit_label = FieldsConfig.save_label
 

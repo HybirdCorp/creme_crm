@@ -1,0 +1,63 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-users-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} User') plural=_('{count} Users') empty=_('Users') %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__create_user' as create_url %}
+    {% brick_header_action id='add' url=create_url label=_('New user') enabled=admin_perm %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='username' status='primary' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='last_name' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='first_name' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='role__name' title=_('Role') %}
+    {% brick_table_column_for_field ctype=objects_ctype field='email' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='is_active' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='last_login' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='date_joined' %}
+
+    {% if display_tz %}
+    {% brick_table_column_for_field ctype=objects_ctype field='time_zone' %}
+    {% endif %}
+
+    {% brick_table_column title=_('Actions') status='action' colspan=4 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{% trans 'Superuser' as superuser_label %}
+    {% for user in page.object_list %}
+    <tr>
+        <td class="user-username" {% brick_table_data_status primary %}>{{user.username}}</td>
+        <td class="user-lastname" >{{user.last_name}}</td>
+        <td class="user-firstname" >{{user.first_name}}</td>
+        <td class="user-role" >{% if user.role %}{{user.role}}{% else %}<em>{{superuser_label}}</em>{% endif %}</td>
+        <td class="user-email" >{{user.email}}</td>
+        <td class="user-active" >{{user.is_active|yesno:_('Yes,No')}}</td>
+        <td class="user-last-login" data-type='datetime'>{{user.last_login|default:'—'}}</td>
+        <td class="user-joined" data-type='datetime'>{{user.date_joined}}</td>
+        {% if display_tz %}<td class="user-timezone">{{user.time_zone}}</td>{% endif %}
+        <td {% brick_table_data_status action %} class="user-activate">
+            {% if user.is_active %}{% url 'creme_config__deactivate_user' user.id as deactivate_url %}
+                {% brick_table_action id='update' url=deactivate_url label=_('Deactivate') display='text' enabled=admin_perm %}
+            {% else %}{% url 'creme_config__activate_user' user.id as activate_url %}
+                {% brick_table_action id='update' url=activate_url label=_('Activate') display='text' enabled=admin_perm %}
+            {% endif %}
+        </td>
+        <td {% brick_table_data_status action %} class="user-password">{% url 'creme_config__change_user_password' user.id as change_pw_url %}
+            {% brick_table_action id='edit' url=change_pw_url label=_('Change the password') enabled=admin_perm %}
+        </td>
+        <td {% brick_table_data_status action %} class="user-edit">{% url 'creme_config__edit_user' user.id as edit_url %}
+            {% brick_table_action id='edit' url=edit_url label=_('Edit this user') enabled=admin_perm %}
+        </td>
+        <td {% brick_table_data_status action %} class="user-delete">{% url 'creme_config__delete_user' user.id as delete_url %}
+            {% brick_table_action id='edit' url=delete_url label=_('Delete this user') icon='delete' enabled=admin_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}

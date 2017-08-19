@@ -59,8 +59,8 @@ class CustomFieldsTestCase(CremeTestCase):
         self.assertNotIn(ct, ctypes)
         self.assertIn(ContentType.objects.get_for_model(FakeOrganisation), ctypes)
 
-        # self.assertGET200('/creme_config/custom_fields/ct/%s' % ct.id)
-        self.assertGET200(reverse('creme_config__ctype_custom_fields', args=(ct.id,)))
+        # # self.assertGET200('/creme_config/custom_fields/ct/%s' % ct.id)
+        # self.assertGET200(reverse('creme_config__ctype_custom_fields', args=(ct.id,)))
 
     def test_delete_ct(self):
         get_ct = ContentType.objects.get_for_model

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,29 +46,45 @@ class RelationTypeCreateForm(CremeForm):
     subject_ctypes     = _CTypesField()
     subject_properties = _PropertyTypesField()
 
-    # TODO: language....
-    subject_predicate  = CharField(label=_(u'Subject => object'))
-    subject_is_copiable= BooleanField(label=_(u"Direct relationship is copiable"), initial=True, required=False,
-                                      help_text=_(u'Are the relationships with this type copied when the subject entity is cloned?')
-                                     )
+    subject_predicate   = CharField(label=_(u'Subject => object'))
+    subject_is_copiable = BooleanField(label=_(u'Direct relationship is copiable'), initial=True, required=False,
+                                       help_text=_(u'Are the relationships with this type copied '
+                                                   u'when the subject entity is cloned?'
+                                                  ),
+                                      )
+    subject_min_display = BooleanField(label=_(u"Display once on the subject's page"), required=False,
+                                       help_text=_(u'Do not display in the «Relationships» block (detail-view of '
+                                                   u'subject) when it is already displayed by another block.'
+                                                  ),
+                                      )
+
     object_predicate   = CharField(label=_(u'Object => subject'))
-    object_is_copiable = BooleanField(label=_(u"Symmetrical relationship is copiable"), initial=True, required=False,
-                                      help_text=_(u'Are the relationships with this type copied when the object entity is cloned?')
+    object_is_copiable = BooleanField(label=_(u'Symmetrical relationship is copiable'), initial=True, required=False,
+                                      help_text=_(u'Are the relationships with this type copied '
+                                                  u'when the object entity is cloned?'
+                                                 ),
+                                     )
+    object_min_display = BooleanField(label=_(u"Display once on the subject's page"), required=False,
+                                      help_text=_(u'Do not display in the «Relationships» block (detail-view of '
+                                                  u'object) when it is already displayed by another block.'
+                                                 ),
                                      )
 
     object_ctypes      = _CTypesField()
     object_properties  = _PropertyTypesField()
 
     blocks = FieldBlockManager(('subject',   _(u'Subject'),        ('subject_ctypes', 'subject_properties')),
-                               ('predicate', _(u'Verb/Predicate'), ('subject_predicate', 'subject_is_copiable',
-                                                                    'object_predicate', 'object_is_copiable')),
+                               ('predicate', _(u'Verb/Predicate'), ('subject_predicate', 'subject_is_copiable', 'subject_min_display',
+                                                                    'object_predicate',  'object_is_copiable',  'object_min_display',
+                                                                   )
+                               ),
                                ('object',    _(u'Object'),         ('object_ctypes', 'object_properties')),
                               )
 
     def save(self, pk_subject='creme_config-subject_userrelationtype',
-              pk_object='creme_config-object_userrelationtype',
-              generate_pk=True, *args, **kwargs
-             ):
+             pk_object='creme_config-object_userrelationtype',
+             generate_pk=True, *args, **kwargs
+            ):
         get_data = self.cleaned_data.get
 
         subject_ctypes = [ct.model_class() for ct in get_data('subject_ctypes')]
@@ -76,7 +92,9 @@ class RelationTypeCreateForm(CremeForm):
 
         return RelationType.create((pk_subject, get_data('subject_predicate'), subject_ctypes, get_data('subject_properties')),
                                    (pk_object,  get_data('object_predicate'),  object_ctypes,  get_data('object_properties')),
-                                   is_custom=True, generate_pk=generate_pk, is_copiable=(get_data('subject_is_copiable'), get_data('object_is_copiable')),
+                                   is_custom=True, generate_pk=generate_pk,
+                                   is_copiable=(get_data('subject_is_copiable'), get_data('object_is_copiable')),
+                                   minimal_display=(get_data('subject_min_display'), get_data('object_min_display')),
                                   )
 
 
@@ -84,19 +102,23 @@ class RelationTypeEditForm(RelationTypeCreateForm):
     def __init__(self, instance, *args, **kwargs):
         super(RelationTypeEditForm, self).__init__(*args, **kwargs)
         self.instance = instance
+        sym_instance = instance.symmetric_type
         fields = self.fields
 
         fields['subject_ctypes'].initial     = instance.subject_ctypes.values_list('id', flat=True)
         fields['subject_properties'].initial = instance.subject_properties.values_list('id', flat=True)
 
         fields['subject_predicate'].initial = instance.predicate
-        fields['object_predicate'].initial  = instance.symmetric_type.predicate
+        fields['object_predicate'].initial  = sym_instance.predicate
 
         fields['object_ctypes'].initial     = instance.object_ctypes.values_list('id', flat=True)
         fields['object_properties'].initial = instance.object_properties.values_list('id', flat=True)
 
         fields['subject_is_copiable'].initial = instance.is_copiable
-        fields['object_is_copiable'].initial = instance.symmetric_type.is_copiable
+        fields['object_is_copiable'].initial  = sym_instance.is_copiable
+
+        fields['subject_min_display'].initial = instance.minimal_display
+        fields['object_min_display'].initial  = sym_instance.minimal_display
 
     def save(self, *args, **kwargs):
         instance = self.instance
@@ -108,7 +130,7 @@ class RelationTypeEditForm(RelationTypeCreateForm):
 
 
 class SemiFixedRelationTypeCreateForm(CremeModelForm):
-    semi_relation = RelationEntityField(label=_('Type and object'), autocomplete=True,
+    semi_relation = RelationEntityField(label=_(u'Type and object'), autocomplete=True,
                                         allowed_rtypes=RelationType.objects.filter(is_internal=False),
                                         credentials=EntityCredentials.VIEW,
                                        )
@@ -125,8 +147,8 @@ class SemiFixedRelationTypeCreateForm(CremeModelForm):
 
             # TODO: unique_together in model
             if SemiFixedRelationType.objects.filter(relation_type=rtype, object_entity=entity).exists():
-                raise ValidationError(_(u"A semi-fixed type of relationship with "
-                                        u"this type and this object already exists."
+                raise ValidationError(_(u'A semi-fixed type of relationship with '
+                                        u'this type and this object already exists.'
                                        ),
                                       code='not_unique',
                                      )

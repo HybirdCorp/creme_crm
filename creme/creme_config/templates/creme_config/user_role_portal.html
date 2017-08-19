@@ -1,14 +1,11 @@
-{% extends "creme_config/portal.html" %}
-{% load i18n creme_block %}
+{% extends 'creme_config/portal.html' %}
+{% load i18n creme_bricks %}
 
 {% block title %}
-    <a href="{% url 'creme_config__portal' %}">{% trans "Configuration" %} > </a>{% trans "Roles" %}
+    <a href="{% url 'creme_config__portal' %}">{% trans 'Configuration' %} > </a>{% trans 'Roles' %}
 {% endblock %}
 
 {% block before_statistics %}
-    {% comment %}{% import_block from_app 'creme_config' named 'default_credentials' as 'defcreds_block' %}{% endcomment %}
-    {% import_block from_app 'creme_config' named 'user_roles' as 'roles_block' %}
-    {% comment %}{% display_block_detailview 'defcreds_block' %}
-    <br/>{% endcomment %}
-    {% display_block_detailview 'roles_block' %}
+    {% brick_import app='creme_config' name='user_roles' as roles_brick %}
+    {% brick_display roles_brick %}
 {% endblock %}

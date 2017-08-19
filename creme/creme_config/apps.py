@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2016  Hybird
+#    Copyright (C) 2015-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,10 +35,36 @@ class CremeConfigConfig(CremeAppConfig):
     #                                 credentials=creme_registry.CRED_REGULAR,
     #                                )
 
-    def register_blocks(self, block_registry):
-        from .blocks import blocks_list
+    def register_bricks(self, brick_registry):
+        # from .blocks import blocks_list
+        from . import bricks
 
-        block_registry.register(*blocks_list)
+        # brick_registry.register(*blocks_list)
+        brick_registry.register(
+            bricks.SettingsBrick,
+            bricks.PropertyTypesBrick,
+            bricks.RelationTypesBrick,
+            bricks.CustomRelationTypesBrick,
+            bricks.SemiFixedRelationTypesBrick,
+            bricks.CustomFieldsBrick,
+            bricks.BlockDetailviewLocationsBrick,
+            bricks.BlockPortalLocationsBrick,
+            bricks.BlockHomeLocationsBrick,
+            bricks.BlockDefaultMypageLocationsBrick,
+            bricks.BlockMypageLocationsBrick,
+            bricks.RelationBlocksConfigBrick,
+            bricks.InstanceBlocksConfigBrick,
+            bricks.FieldsConfigsBrick,
+            bricks.CustomBlocksConfigBrick,
+            bricks.ButtonMenuBrick,
+            bricks.UsersBrick,
+            bricks.TeamsBrick,
+            bricks.SearchConfigBrick,
+            bricks.HistoryConfigBrick,
+            bricks.UserRolesBrick,
+            bricks.UserPreferredMenusBrick,
+            bricks.UserSettingValuesBrick,
+        )
 
     def register_menu(self, creme_menu):
         from django.conf import settings
@@ -52,7 +78,7 @@ class CremeConfigConfig(CremeAppConfig):
             reg_item(reverse('creme_config__ptypes'),              _(u'Property types settings'),         'creme_config')
             reg_item(reverse('creme_config__fields'),              _(u'Fields settings'),                 'creme_config')
             reg_item(reverse('creme_config__custom_fields'),       _(u'Custom fields settings'),          'creme_config')
-            reg_item(reverse('creme_config__blocks'),              _(u'Blocks settings'),                 'creme_config')
+            reg_item(reverse('creme_config__bricks'),              _(u'Blocks settings'),                 'creme_config')
             reg_item(reverse('creme_config__edit_preferred_menu'), _(u'Default preferred menu settings'), 'creme_core.can_admin') # TODO: viewer mode if user has credentials 'creme_core' ?
             reg_item(reverse('creme_config__buttons'),             _(u'Button menu settings'),            'creme_config')
             reg_item(reverse('creme_config__search'),              _(u'Search settings'),                 'creme_config')
@@ -78,7 +104,7 @@ class CremeConfigConfig(CremeAppConfig):
                                     priority=10
                                    )
                                .add(creme_menu.ItemGroup('creme_config-portals')
-                                       .add(URLItem('creme_config-blocks', url=reverse('creme_config__blocks'),
+                                       .add(URLItem('creme_config-blocks', url=reverse('creme_config__bricks'),
                                                     label=_(u'Blocks'), perm='creme_config',
                                                    ),
                                             priority=10

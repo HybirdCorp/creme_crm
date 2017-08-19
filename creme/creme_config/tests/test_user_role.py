@@ -12,17 +12,18 @@ try:
     from creme.creme_core.models import UserRole, SetCredentials
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
     from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation, FakeActivity
+    from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
     from creme.documents.models import Document
     from creme.persons.models import Contact, Organisation, Address
     from creme.activities.models import Activity
 
-    from ..blocks import UserRolesBlock
+    from ..bricks import UserRolesBrick
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-class UserRoleTestCase(CremeTestCase):
+class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
     # ADD_URL = '/creme_config/role/add/'
     ADD_URL = reverse('creme_config__create_role_legacy')
     # WIZARD_URL = '/creme_config/role/wizard/'
@@ -54,7 +55,8 @@ class UserRoleTestCase(CremeTestCase):
     def _aux_test_portal(self):
         # response = self.assertGET200('/creme_config/role/portal/')
         response = self.assertGET200(reverse('creme_config__roles'))
-        self.assertContains(response, 'id="%s"' % UserRolesBlock.id_)
+        # self.assertContains(response, 'id="%s"' % UserRolesBlock.id_)
+        self.get_brick_node(self.get_html_tree(response.content), UserRolesBrick.id_)
 
     def test_portal01(self):
         self.login()

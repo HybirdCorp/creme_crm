@@ -1,5 +1,5 @@
 {% extends "creme_config/portal.html" %}
-{% load i18n creme_core_tags creme_block %}
+{% load i18n creme_core_tags creme_bricks %}
 
 {% block title %}
     {% has_perm_to access 'creme_config' as conf_perm %}
@@ -7,6 +7,6 @@
 {% endblock %}
 
 {% block before_statistics %}
-    {% import_block from_app 'creme_config' named 'button_menu' as 'button_menu_block' %}
-    {% display_block_detailview 'button_menu_block' %}
+    {% brick_import app='creme_config' name='button_menu' as button_menu_brick %}
+    {% brick_display button_menu_brick %}
 {% endblock %}

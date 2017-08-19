@@ -18,9 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
-# import warnings
-import re
+import logging, re
+import warnings
 
 from django.apps import apps
 from django.core.urlresolvers import reverse
@@ -30,7 +29,7 @@ from django.forms.models import modelform_factory
 
 from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.forms import CremeModelForm
-from creme.creme_core.gui.block import block_registry
+from creme.creme_core.gui.bricks import brick_registry, Brick
 # from creme.creme_core.models.fields import BasicAutoField
 # from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils.imports import find_n_import
@@ -105,7 +104,8 @@ class AppConfigRegistry(object):
         self.verbose_name = verbose_name
         self._models = {}
         self._excluded_models = set()
-        self._blocks = []
+        # self._blocks = []
+        self._bricks_classes = []
 
     @property
     def portal_url(self):
@@ -140,24 +140,43 @@ class AppConfigRegistry(object):
     def models(self):
         return self._models.itervalues()
 
+    def register_brick(self, brick_cls):
+        self._bricks_classes.append(brick_cls)
+
     def register_block(self, block):
-        self._blocks.append(block)
+        warnings.warn('AppConfigRegistry.register_block() is deprecated ; use register_brick() instead.',
+                      DeprecationWarning
+                     )
+
+        self.register_brick(block.__class__)
 
     def unregister_model(self, model):
         self._models.pop(model, None)
         self._excluded_models.add(model)
 
-    # @property TODO: + return a iterator
+    @property
+    def bricks(self):
+        # return iter(self._bricks_classes)
+        for brick_cls in self._bricks_classes:
+            yield brick_cls()
+
     def blocks(self):
-        return self._blocks
+        warnings.warn('AppConfigRegistry.blocks() is deprecated ; '
+                      'use bricks() instead (beware it returns an iterator).',
+                      DeprecationWarning
+                     )
+        # return self._blocks
+        return list(self.bricks)
 
 
 class _ConfigRegistry(object):
-    def __init__(self, block_registry=block_registry):
-        self._block_registry = block_registry
+    def __init__(self, block_registry=brick_registry):
+        # self._block_registry = block_registry
+        self._brick_registry = block_registry
         self._apps = _apps = {}
-        self._userblocks = []
-        self._portalblocks = []
+        # self._userblocks = []
+        self._user_brick_classes = []
+        self._portal_brick_classes = []
 
         # Add an app to creme_config if it has at least a visible SettingKey
         # (to be sure that even app without registered models appear)
@@ -207,13 +226,20 @@ class _ConfigRegistry(object):
     def apps(self):
         return self._apps.itervalues()
 
-    def register_blocks(self, *blocks_to_register):  # TODO: factorise with register()
+    def register_bricks(self, *bricks_to_register):  # TODO: factorise with register()
         app_registries = self._apps
 
-        for app_label, block in blocks_to_register:
-            assert hasattr(block, 'detailview_display'), 'block with id="%s" has no detailview_display() method' % block.id_
+        for app_label, brick_cls in bricks_to_register:
+            if isinstance(brick_cls, Brick):
+                warnings.warn('_ConfigRegistry.register_bricks(): registered brick instance is deprecated ;'
+                              'register brick class instead (brick ID=%s)' % brick_cls.id_,
+                              DeprecationWarning
+                             )
+                brick_cls = brick_cls.__class__
+
+            assert hasattr(brick_cls, 'detailview_display'), 'brick with id="%s" has no detailview_display() method' % brick_cls.id_
             # TODO: need a method is_registered() ?
-            assert block.id_ in self._block_registry._blocks, 'block with id="%s" is not registered' % block.id_
+            assert brick_cls.id_ in self._brick_registry._brick_classes, 'brick with id="%s" is not registered' % brick_cls.id_
 
             app_name = self._get_app_name(app_label)
             app_conf = app_registries.get(app_name)
@@ -221,21 +247,43 @@ class _ConfigRegistry(object):
             if app_conf is None:
                 app_registries[app_name] = app_conf = self._build_app_conf_registry(app_name)
 
-            app_conf.register_block(block)
+            app_conf.register_brick(brick_cls)
 
-    def register_portalblocks(self, *blocks_to_register):
-        for block in blocks_to_register:
-            assert hasattr(block, 'detailview_display'), 'block with id="%s" has no detailview_display() method' % block.id_
-            assert block.id_ in self._block_registry._blocks, 'block with id="%s" is not registered' % block.id_
+    def register_blocks(self, *blocks_to_register):
+        warnings.warn('_ConfigRegistry.register_blocks() is deprecated ; use register_bricks() instead.',
+                      DeprecationWarning
+                     )
 
-        self._portalblocks.extend(blocks_to_register)
+        self.register_bricks(*blocks_to_register)
+
+    def register_portal_bricks(self, *bricks_to_register):
+        for brick_cls in bricks_to_register:
+            assert hasattr(brick_cls, 'detailview_display'), 'brick with id="%s" has no detailview_display() method' % brick_cls.id_
+            assert brick_cls.id_ in self._brick_registry._brick_classes, 'brick with id="%s" is not registered' % brick_cls.id_
+
+        self._portal_brick_classes.extend(bricks_to_register)
+
+    def register_user_bricks(self, *bricks_to_register):
+        for brick_cls in bricks_to_register:
+            if isinstance(brick_cls, Brick):
+                warnings.warn('_ConfigRegistry.register_user_bricks(): registered brick instance is deprecated ;'
+                              'register brick class instead (brick ID=%s)' % brick_cls.id_,
+                              DeprecationWarning
+                             )
+                brick_cls = brick_cls.__class__
+
+            assert hasattr(brick_cls, 'detailview_display'), 'brick with id="%s" has no detailview_display() method' % brick_cls.id_
+            assert brick_cls.id_ in self._brick_registry._brick_classes, 'brick with id="%s" is not registered' % brick_cls.id_
+
+            self._user_brick_classes.append(brick_cls)
+
+        # self._user_bricks.extend(bricks_to_register)
 
     def register_userblocks(self, *blocks_to_register):
-        for block in blocks_to_register:
-            assert hasattr(block, 'detailview_display'), 'block with id="%s" has no detailview_display() method' % block.id_
-            assert block.id_ in self._block_registry._blocks, 'block with id="%s" is not registered' % block.id_
-
-        self._userblocks.extend(blocks_to_register)
+        warnings.warn('_ConfigRegistry.register_userblocks() is deprecated ; use register_user_bricks() instead.',
+                      DeprecationWarning
+                     )
+        self.register_user_bricks(*blocks_to_register)
 
     def unregister(self, *to_unregister):  # TODO: factorise with register()
         """
@@ -253,12 +301,24 @@ class _ConfigRegistry(object):
             app_conf.unregister_model(model)
 
     @property
-    def portalblocks(self):
-        return iter(self._portalblocks)
+    def portal_bricks(self):
+        for brick_cls in self._portal_brick_classes:
+            yield brick_cls()
+
+    @property
+    def user_bricks(self):
+        # return iter(self._user_bricks)
+        for brick_cls in self._user_brick_classes:
+            yield brick_cls()
 
     @property
     def userblocks(self):
-        return iter(self._userblocks)
+        warnings.warn('_ConfigRegistry.userblocks() is deprecated ; use user_bricks() instead.',
+                      DeprecationWarning
+                     )
+
+        # return iter(self._userblocks)
+        return self.user_bricks
 
     def get_model_creation_info(self, model, user):
         app_name = model._meta.app_label
@@ -287,6 +347,6 @@ for config_import in find_n_import('creme_config_register',
                                   ):
     config_registry.register(*getattr(config_import, 'to_register', ()))
     config_registry.unregister(*getattr(config_import, 'to_unregister', ()))
-    config_registry.register_blocks(*getattr(config_import, 'blocks_to_register', ()))
-    config_registry.register_userblocks(*getattr(config_import, 'userblocks_to_register', ()))
-    config_registry.register_portalblocks(*getattr(config_import, 'portalblocks_to_register', ()))
+    config_registry.register_bricks(*getattr(config_import, 'blocks_to_register', ()))  # TODO: rename 'bricks'
+    config_registry.register_user_bricks(*getattr(config_import, 'userblocks_to_register', ()))  # TODO: rename 'userbricks_to_register'
+    config_registry.register_portal_bricks(*getattr(config_import, 'portalbricks_to_register', ()))

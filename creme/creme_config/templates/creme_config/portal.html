@@ -1,114 +1,94 @@
-{% extends "creme_core/generics/portal.html" %}
-{% load i18n creme_core_tags creme_block %}
-{% block page_title %}{% trans "Configuration" %} - {% endblock %}
-{% block logo %}<img src="{% creme_media_url 'images/config_64.png' %}" alt="{% trans "Configuration" %}"/>{% endblock %}
-{% block title %}{% trans "Creme configuration portal" %}{% endblock %}
+{% extends 'creme_core/generics/portal.html' %}
+{% load i18n creme_core_tags creme_bricks %}
+{% block page_title %}{% trans 'Configuration' %} - {% endblock %}
+{% block logo %}<img src="{% creme_media_url 'images/config_64.png' %}" alt="{% trans 'Configuration' %}"/>{% endblock %}
+{% block title %}{% trans 'Creme configuration portal' %}{% endblock %}
 {% block header_link %}{% endblock %}
 {% block creme_blocks_import %}{% endblock %}
 
 {% block before_statistics %}
-    <table class="table_detail_view ui-corner-all"><!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
-        <thead>
-            <tr>
-                <th colspan="1">{% trans "General" %}</th>
-            </tr>
-        </thead>
-        <tbody class="collapsable">
-            <tr class="content">
-{#                <td class="{% cycle row_color %}"><a href="/creme_config/relation_type/portal/">{% trans "Relation types settings" %}</a></td> #}
-                <td class="{% cycle row_color %}"><a href="{% url 'creme_config__rtypes' %}">{% trans "Relation types settings" %}</a></td>
-            </tr>
-            <tr class="content">
-{#                <td class="{% cycle row_color %}"><a href="/creme_config/property_type/portal/">{% trans "Property types settings" %}</a></td> #}
-                <td class="{% cycle row_color %}"><a href="{% url 'creme_config__ptypes' %}">{% trans "Property types settings" %}</a></td>
-            </tr>
-            <tr class="content">
-{#                <td class="{% cycle row_color %}"><a href="/creme_config/fields/portal/">{% trans "Fields settings" %}</a></td> #}
-                <td class="{% cycle row_color %}"><a href="{% url 'creme_config__fields' %}">{% trans "Fields settings" %}</a></td>
-            </tr>
-            <tr class="content">
-{#                <td class="{% cycle row_color %}"><a href="/creme_config/custom_fields/portal/">{% trans "Custom fields settings" %}</a></td> #}
-                <td class="{% cycle row_color %}"><a href="{% url 'creme_config__custom_fields' %}">{% trans "Custom fields settings" %}</a></td>
-            </tr>
-            <tr class="content">
-{#                <td class="{% cycle row_color %}"><a href="/creme_config/blocks/portal/">{% trans "Blocks settings" %}</a></td> #}
-                <td class="{% cycle row_color %}"><a href="{% url 'creme_config__blocks' %}">{% trans "Blocks settings" %}</a></td>
-            </tr>
-            {% if OLD_MENU %}
-                <tr class="content">
-                    <td class="{% cycle row_color %}">{% has_perm_to admin 'creme_core' as admin_perm %}
+    <div class="brick brick-table">
+        <div class="brick-header">
+            <div class="brick-title-container">
+                {% brick_header_title title=_('General') icon='config' %}
+            </div>
+        </div>
+        <div class="brick-content">
+            <table class="brick-table-content">
+                <tbody>
+                    <tr><td><a href="{% url 'creme_config__rtypes' %}">{% trans 'Relation types settings' %}</a></td></tr>
+                    <tr><td><a href="{% url 'creme_config__ptypes' %}">{% trans 'Property types settings' %}</a></td></tr>
+                    <tr><td><a href="{% url 'creme_config__fields' %}">{% trans 'Fields settings' %}</a></td></tr>
+                    <tr><td><a href="{% url 'creme_config__custom_fields' %}">{% trans 'Custom fields settings' %}</a></td></tr>
+                    <tr><td><a href="{% url 'creme_config__bricks' %}">{% trans 'Blocks settings' %}</a></td></tr>
+                    {% if OLD_MENU %}
+                    <tr>
+                        <td>{% has_perm_to admin 'creme_core' as admin_perm %}
                         {% if admin_perm %}
-{#                            <a href="/creme_config/prefered_menu/edit/">{% trans "Default preferred menu settings" %}</a> #}
-                            <a href="{% url 'creme_config__edit_preferred_menu' %}">{% trans "Default preferred menu settings" %}</a>
+                            <a href="{% url 'creme_config__edit_preferred_menu' %}">{% trans 'Default preferred menu settings' %}</a>
                         {% else %}
-                            <span class="forbidden">{% trans "Default preferred menu settings" %}</span>
+                            <span class="forbidden">{% trans 'Default preferred menu settings' %}</span>
                         {% endif %}
-                    </td>
-                </tr>
-            {% endif %}
-            <tr class="content">
-{#                <td class="{% cycle row_color %}"><a href="/creme_config/button_menu/portal/">{% trans "Button menu settings" %}</a></td> #}
-                <td class="{% cycle row_color %}"><a href="{% url 'creme_config__buttons' %}">{% trans "Button menu settings" %}</a></td>
-            </tr>
-            <tr class="content">
-{#                <td class="{% cycle row_color %}"><a href="/creme_config/search/portal/">{% trans "Search settings" %}</a></td> #}
-                <td class="{% cycle row_color %}"><a href="{% url 'creme_config__search' %}">{% trans "Search settings" %}</a></td>
-            </tr>
-            <tr class="content">
-{#                <td class="{% cycle row_color %}"><a href="/creme_config/history/portal/">{% trans "History settings" %}</a></td> #}
-                <td class="{% cycle row_color %}"><a href="{% url 'creme_config__history' %}">{% trans "History settings" %}</a></td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table_detail_view ui-corner-all">
-        <thead>
-            <tr>
-                <th colspan="1">
-                    {% trans "Credentials management" %}
-                </th>
-            </tr>
-        </thead>
-        <tbody class="collapsable">
-            <tr class="content">
-{#                <td class="{% cycle row_color %}"><a href="/creme_config/user/portal/">{% trans "Users settings" %}</a></td> #}
-                <td class="{% cycle row_color %}"><a href="{% url 'creme_config__users' %}">{% trans "Users settings" %}</a></td>
-            </tr>
-            <tr class="content">
-{#                <td class="{% cycle row_color %}"> <a href="/creme_config/role/portal/">{% trans "Roles and credentials settings" %}</a> </td> #}
-                <td class="{% cycle row_color %}"> <a href="{% url 'creme_config__roles' %}">{% trans "Roles and credentials settings" %}</a> </td>
-            </tr>
-        </tbody>
-    </table>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    <tr><td><a href="{% url 'creme_config__buttons' %}">{% trans 'Button menu settings' %}</a></td></tr>
+                    <tr><td><a href="{% url 'creme_config__search' %}">{% trans 'Search settings' %}</a></td></tr>
+                    <tr><td><a href="{% url 'creme_config__history' %}">{% trans 'History settings' %}</a></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="brick brick-table">
+        <div class="brick-header">
+            <div class="brick-title-container">
+                {% brick_header_title title=_('Credentials management') icon='config' %}
+            </div>
+        </div>
+        <div class="brick-content">
+            <table class="brick-table-content">
+                <tbody>
+                    <tr><td><a href="{% url 'creme_config__users' %}">{% trans 'Users settings' %}</a></td></tr>
+                    <tr><td><a href="{% url 'creme_config__roles' %}">{% trans 'Roles and credentials settings' %}</a></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-    {% import_blocks app_blocks as 'app_blocks' %}
-    {% display_blocks 'app_blocks' %}
+    {% brick_declare app_bricks %}
+    {% brick_display app_bricks %}
 
-    <table class="table_detail_view ui-corner-all">
-        <thead>
-            <tr>
-                <th colspan="1">
-                    {% trans "Applications portals" %}
-                </th>
-            </tr>
-        </thead>
-        <tbody class="collapsable">
-            {% for app_conf in app_configs %}
-                <tr class="content">
-                    <td class="{% cycle row_color %}">{% has_perm_to admin app_conf.name as admin_perm %}
-                        {% if admin_perm %}
-                            <a href="{{app_conf.portal_url}}">{% blocktrans with app_conf.verbose_name as app_name%}{{app_name}} configuration portal{% endblocktrans %}</a>
+    <div class="brick brick-table">
+        <div class="brick-header">
+            <div class="brick-title-container">
+                {% brick_header_title title=_('Applications portals') icon='config' %}
+            </div>
+        </div>
+        <div class="brick-content">
+            <table class="brick-table-content">
+                {% if app_configs %}
+                <tbody>
+                    {% for app_conf in app_configs %}
+                    {% has_perm_to admin app_conf.name as app_admin_perm %}
+                    <tr>
+                        <td>
+                        {% if app_admin_perm %}
+                            <a href="{{app_conf.portal_url}}">{% blocktrans with app_name=app_conf.verbose_name %}{{app_name}} configuration portal{% endblocktrans %}</a>
                         {% else %}
-                            <span class="forbidden">{% blocktrans with app_conf.verbose_name as app_name%}{{app_name}} configuration portal{% endblocktrans %}</span>
+                            <span class="forbidden">{% blocktrans with app_name=app_conf.verbose_name %}{{app_name}} configuration portal{% endblocktrans %}</span>
                         {% endif %}
-                    </td>
-                </tr>
-            {% empty %}
-                <tr class="content empty">
-                    <td class="{% cycle row_color %}">{% trans "No application requires configuration" %}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                {% else %}
+                <thead>
+                    <tr><th>{% trans "No application requires configuration" %}</th></tr>
+                </thead>
+                {% endif %}
+            </table>
+        </div>
+    </div>
 {% endblock %}
 
 {% block statistics %}{% endblock %}

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,6 @@ import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404, HttpResponse
-from django.shortcuts import render
 from django.utils.translation import ugettext as _
 
 from formtools.wizard.views import SessionWizardView
@@ -34,6 +33,12 @@ from creme.creme_core.views.generic import add_model_with_popup, inner_popup
 from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
 from ..forms.button_menu import ButtonMenuAddForm, ButtonMenuEditForm
+from .portal import _config_portal
+
+
+@login_required
+def portal(request):
+    return _config_portal(request, 'creme_config/button_menu_portal.html')
 
 
 @login_required
@@ -65,7 +70,7 @@ class ButtonMenuWizard(PopupWizardMixin, SessionWizardView):
     def done(self, form_list, **kwargs):
         form_list[1].save()
 
-        return HttpResponse('', content_type='text/javascript')
+        return HttpResponse(content_type='text/javascript')
 
     def get_form_kwargs(self, step):
         kwargs = super(ButtonMenuWizard, self).get_form_kwargs(step)
@@ -76,11 +81,6 @@ class ButtonMenuWizard(PopupWizardMixin, SessionWizardView):
             kwargs['ct_id'] = cleaned_data['ctype'].id
 
         return kwargs
-
-
-@login_required
-def portal(request):
-    return render(request, 'creme_config/button_menu_portal.html')
 
 
 @login_required

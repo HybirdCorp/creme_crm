@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.http import Http404
-from django.shortcuts import render
+# from django.shortcuts import render
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required
@@ -29,6 +29,9 @@ from creme.creme_core.views.generic import inner_popup
 
 from ..forms.setting import UserSettingForm
 from ..forms.user_settings import UserThemeForm, UserTimeZoneForm
+from ..registry import config_registry
+
+from .portal import _config_portal
 
 # NB: no special permissions needed (user can only view/change its own settings)
 
@@ -37,14 +40,20 @@ from ..forms.user_settings import UserThemeForm, UserTimeZoneForm
 def view(request):
     user = request.user
 
-    return render(request, 'creme_config/user_settings.html',
-                  {
-                   # 'theme_form': UserThemeForm(user).as_span(),
-                   # 'tz_form':    UserTimeZoneForm(user).as_span(),
-                   'theme_form': UserThemeForm(user=user, instance=user).as_span(),
-                   'tz_form':    UserTimeZoneForm(user=user, instance=user).as_span(),
-                  }
-                 )
+    # return render(request, 'creme_config/user_settings.html',
+    #               {
+    #                # 'theme_form': UserThemeForm(user).as_span(),
+    #                # 'tz_form':    UserTimeZoneForm(user).as_span(),
+    #                'theme_form': UserThemeForm(user=user, instance=user).as_span(),
+    #                'tz_form':    UserTimeZoneForm(user=user, instance=user).as_span(),
+    #               }
+    #              )
+    return _config_portal(
+            request, 'creme_config/user_settings.html',
+            theme_form=UserThemeForm(user=user, instance=user).as_span(),
+            tz_form=UserTimeZoneForm(user=user, instance=user).as_span(),
+            apps_usersettings_bricks=list(config_registry.user_bricks),
+    )
 
 
 @login_required
