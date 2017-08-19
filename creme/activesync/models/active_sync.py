@@ -196,23 +196,23 @@ def _empty_dump():
 
 
 class UserSynchronizationHistory(CremeModel):
-    user           = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=u'user')
+    user           = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'User'))
     entity_repr    = CharField(u'Entity', max_length=200, default=None, blank=True, null=True)#Saving the representation of the entity in case it was deleted
     entity_pk      = IntegerField(u'Entity pk', blank=True, null=True) #Saving the pk of the entity
     #entity_ct      = ForeignKey(ContentType, verbose_name=u'What', null=True, blank=True)
-    entity_ct      = CTypeForeignKey(verbose_name=u'What', null=True, blank=True)
-    created        = CreationDateTimeField(_('Creation date'), default=now)
+    entity_ct      = CTypeForeignKey(verbose_name=_(u'What'), null=True, blank=True)
+    created        = CreationDateTimeField(_(u'Creation date'), default=now)
     #entity_changes = TextField(_(u'Entity changes'), default=lambda: pickle.dumps({}))
     entity_changes = TextField(_(u'Entity changes'), default=_empty_dump)
-    type           = IntegerField(u'', choices=USER_HISTORY_TYPE) # TODO: SmallPositiveInteger ?
-    where          = IntegerField(u'', choices=USER_HISTORY_WHERE) # TODO: SmallPositiveInteger ?
+    type           = IntegerField(_(u'Type'), choices=USER_HISTORY_TYPE) # TODO: SmallPositiveInteger ?
+    where          = IntegerField(_(u'Where'), choices=USER_HISTORY_WHERE) # TODO: SmallPositiveInteger ?
 
     _entity = None
 
     class Meta:
         app_label = 'activesync'
-        verbose_name = u"History"
-        verbose_name_plural = u"History"
+        verbose_name = u'History'
+        verbose_name_plural = u'History'
 
     def __unicode__(self):
         return u"<UserSynchronizationHistory user=%s, entity_repr=%s>" % (self.user, self.entity_repr)

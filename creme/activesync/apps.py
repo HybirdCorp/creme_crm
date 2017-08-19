@@ -49,13 +49,13 @@ class ActivesyncConfig(CremeAppConfig):
     # def register_creme_app(self, creme_registry):
     #     creme_registry.register_app('activesync', _(u'Mobile synchronization'), None)
 
-    def register_blocks(self, block_registry):
-        from .blocks import (user_mobile_sync_config_block, mobile_sync_config_block,
-                user_synchronization_history_block)
+    def register_bricks(self, brick_registry):
+        from . import bricks
 
-        block_registry.register(user_mobile_sync_config_block,
-                                mobile_sync_config_block,
-                                user_synchronization_history_block,
+        brick_registry.register(bricks.UserMobileSyncConfigBrick,
+                                bricks.MobileSyncConfigBrick,
+                                # bricks.UserSynchronizationResultsBrick,
+                                # bricks.UserSynchronizationHistoryBrick,
                                )
 
     def register_menu(self, creme_menu):

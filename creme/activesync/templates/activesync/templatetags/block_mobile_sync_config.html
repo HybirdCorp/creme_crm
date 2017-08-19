@@ -1,4 +1,7 @@
 {% load i18n creme_core_tags creme_block %}
+
+{% log 'The template file "creme/activesync/templates/activesync/templatetags/block_mobile_sync_config.html" is deprecated.' level='WARN' %}
+
 {% if not request.is_ajax %}
     <div class="help_box">{% trans 'Here you set the default configuration for mobile synchronization. Each user gets this config until he overrides it in his own settings.' %}</div>
 {% endif %}

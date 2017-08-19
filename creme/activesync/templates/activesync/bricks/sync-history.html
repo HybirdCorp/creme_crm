@@ -1,0 +1,59 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets activesync_tags %}
+
+{% block brick_extra_class %}{{block.super}} activesync-history-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} History entry') plural=_('{count} History entries') empty=_('History entries') icon='phone_sync' %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='type' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='created' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='entity_ct' %}
+    {% brick_table_column title=_('Entity') %}
+    {% brick_table_column title=_('Changes') %}
+    {% brick_table_column_for_field ctype=objects_ctype field='where' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for history in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>
+            {% with verbose_type=history_type_verbose|get_value:history.type %}
+                <span class="logo"><img src="{% get_history_type_img history.type %}" title="{{verbose_type}}" alt="{{verbose_type}}"/></span>
+                {{verbose_type}}
+            {% endwith %}
+        </td>
+        <td>{% print_field object=history field='created' %}</td>
+        <td>
+            {% widget_icon ctype=entity.entity_ct size='brick-table' %}
+            {{history.entity_ct}}
+        </td>
+        <td>
+            {% if history.entity %}
+                {% widget_entity_hyperlink history.entity user %}
+            {% else %}
+                {{history.entity_repr}} {# Can't check if the user had the right view on the deleted entity... #}
+            {% endif %}
+        </td>
+        <td>
+            {% for k, v in history.changes.iteritems %}
+            <p>{% get_field_verbose_name contact_klass k %} : {% if v.get_absolute_url %}<a href="{{v.get_absolute_url}}">{{v}}</a>{% else %}{{v}}{% endif %}</p>
+            {% empty %}
+                &nbsp;
+            {% endfor %}
+        </td>
+        <td>
+            {% with verbose_where=history_where_verbose|get_value:history.where %}
+                <span class="logo"><img src="{% get_history_where_img history.where %}" title="{{verbose_where}}" alt="{{verbose_where}}"/></span>
+                {{verbose_where}}
+            {% endwith %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'Empty history for the moment' %}
+{% endblock %}

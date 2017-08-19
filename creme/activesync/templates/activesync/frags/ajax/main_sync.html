@@ -1,5 +1,7 @@
-{% load i18n %}
-{% load creme_block creme_core_tags activesync_tags %}
+{% load i18n creme_block creme_core_tags activesync_tags %}
+
+{% log 'The template file "creme/activesync/templates/activesync/frags/ajax/main_sync.html" is deprecated.' level='WARN' %}
+
 <table class="table_header" cellpadding="0" cellspacing="0">
     <tr>
         <td width="5%">{% trans 'Phone synchronization' as img_title %}<img src="{% creme_media_url 'images/phone_sync_48.png' %}" alt="{{img_title}}" title="{{img_title}}"/></td>

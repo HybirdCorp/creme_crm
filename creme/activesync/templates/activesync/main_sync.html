@@ -1,8 +1,10 @@
-{% extends "creme_core/base.html" %}
-{% load i18n %}
+{% extends 'creme_core/base.html' %}
+{% load i18n creme_core_tags %}
 
-{% block page_title %}{% trans "Mobile synchronization" %} - {% endblock %}
+{% log 'The template file "creme/activesync/templates/activesync/main_sync.html" is deprecated.' level='WARN' %}
+
+{% block page_title %}{% trans 'Mobile synchronization' %} - {% endblock %}
 
 {% block content %}
-    {% include "activesync/frags/ajax/main_sync.html" %}
+    {% include 'activesync/frags/ajax/main_sync.html' %}
 {% endblock %}

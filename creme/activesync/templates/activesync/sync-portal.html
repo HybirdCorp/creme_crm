@@ -1,0 +1,31 @@
+{% extends 'creme_core/base.html' %}
+{% load i18n creme_bricks creme_widgets %}
+
+{% block page_title %}{% trans 'Mobile synchronization' %} - {% endblock %}
+
+{% block content %}
+    <div class="hat-bar-container">
+        <div class="hat-bar">
+            <div class="bar-icon">{% widget_icon name='phone_sync' size='brick-hat-bar' label=_('Phone synchronization') %}</div>
+            <div class="bar-title"><h1>{% trans 'Mobile synchronization' %}</h1></div>
+            <div class="bar-actions">
+               <div class='bar-action'>
+{#                    <a class="bar-button" onclick="creme.blocks.form('{% url 'activesync__user_settings' %}', {blockReloadUrl:{% get_block_reload_uri %}}).open();" > #}
+                    <a class="bar-button" onclick="creme.dialogs.form('{% url 'activesync__user_settings' %}').onFormSuccess(function() {new creme.bricks.BricksReloader().dependencies(['activesync.usersynchronizationhistory']).action().start();}).open();" >
+                        {% widget_icon name='config' size='brick-hat-bar-button' label=_('Edit your mobile configuration') %}
+                    </a>
+               </div>
+                <div class='bar-action'>
+{#                    <a class="bar-button" onclick="creme.ajax.reloadContent($('#sub_content'), '{% url 'activesync__sync' %}');" > #}
+                    <a class="bar-button" onclick="new creme.bricks.BricksReloader().dependencies(['activesync.usersynchronizationhistory']).action().start();" >
+                        {% widget_icon name='refresh' size='brick-hat-bar-button' label=_('Refresh') %}
+                    </a>
+               </div>
+            </div>
+        </div>
+    </div>
+
+    {% brick_declare bricks %}
+    {% brick_display bricks %}
+    {% brick_end %}
+{% endblock %}

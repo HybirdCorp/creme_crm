@@ -1,0 +1,35 @@
+{% extends 'creme_core/bricks/base/table.html' %}
+{% load i18n creme_core_tags creme_bricks %}
+
+{% block brick_before %}
+{% if not request.is_ajax %}
+    <div class="help_box">{% trans 'Here you set the default configuration for mobile synchronization. Each user gets this config until he overrides it in his own settings.' %}</div>
+{% endif %}
+{% endblock %}
+
+{% block brick_extra_class %}{{block.super}} activesync-default-config-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('Default mobile synchronization configuration') icon='phone_sync' %}
+{% endblock %}
+
+{% block brick_header_actions %}{% url 'activesync__edit_mobile_config' as edit_url %}
+    {% brick_header_action id='edit' url=edit_url label=_('Edit the configuration') %}
+{% endblock %}
+
+{% block brick_table_head %}{% endblock %}
+
+{% block brick_table_rows %}
+    <tr>
+        <td>{% trans 'Server URL' %}</td>
+        <td>{{url.as_html}}</td>
+    </tr>
+    <tr>
+        <td>{% trans 'Domain' %}</td>
+        <td>{{domain.as_html}}</td>
+    </tr>
+    <tr>
+        <td>{% trans 'Is secure' %}</td>
+        <td>{{ssl.as_html}}</td>
+    </tr>
+{% endblock %}

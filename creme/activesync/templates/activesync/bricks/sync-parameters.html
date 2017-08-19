@@ -1,0 +1,43 @@
+{% extends 'creme_core/bricks/base/table.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} activesync-parameters-brick{% if not sync %} is-empty{% endif %}{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('Your current parameters') icon='phone_sync' %}
+{% endblock %}
+
+{% block brick_table_head %}{% endblock %}
+
+{% block brick_table_rows %}
+{% if sync %}
+    <tr>
+        <td>{% trans 'Server URL' %}</td>
+        <td>{{sync.server_url}}</td>
+    </tr>
+    <tr>
+        <td>{% trans 'Login' %}</td>
+        <td>{{sync.login}}</td>
+    </tr>
+    <tr>
+        <td>{% trans 'Domain' %}</td>
+        <td>{{sync.domain}}</td>
+    </tr>
+    <tr>
+        <td>{% trans 'Is secure (SSL)' %}</td>
+        <td>{{sync.server_ssl|print_boolean}}</td>
+    </tr>
+    <tr>
+        <td>{% trans 'Last synchronization' %}</td>
+        <td>{{sync.last_sync|default:_('Never')}}</td>
+    </tr>
+    <tr>
+        <td>{% widget_icon name='calendar' label=_('Calendar') size='brick-table' %}{% trans 'Synchronize your calendars?' %}</td>
+        <td>{{sync.is_user_sync_calendars|print_boolean}}</td>
+    </tr>
+    <tr>
+        <td>{% widget_icon name='contact' label=_('Contacts') size='brick-table' %}{% trans 'Synchronize your contacts?' %}</td>
+        <td>{{sync.is_user_sync_contacts|print_boolean}}</td>
+    </tr>
+{% endif %}
+{% endblock %}

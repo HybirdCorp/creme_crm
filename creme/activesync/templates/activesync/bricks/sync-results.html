@@ -1,0 +1,27 @@
+{% extends 'creme_core/bricks/base/list.html' %}
+{% load i18n creme_core_tags creme_bricks activesync_tags %}
+
+{% block brick_extra_class %}{{block.super}} activesync-results-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('Results of the synchronization') icon='phone_sync' %}
+{% endblock %}
+
+{% block brick_content %}
+    {% for type, messages in all_messages %}
+    <div class="brick-list-item activesync-results-item">
+        <div class="activesync-results-title">{# TODO: use ngettext() or equivalent instead... #}
+            {% with messages_length=messages|length%}{{messages_length}} {% get_verbose_message_type type messages_length %}{% endwith %}
+        </div>
+        {% for message in messages %}
+        <div class="activesync-results-message">
+            {% render_message message %}
+        </div>
+        {% endfor %}
+    </div>
+    {% empty %}
+    <div class="brick-list-item activesync-results-item empty">
+        {% trans 'Nothing to synchronize…' %}
+    </div>
+    {% endfor %}
+{% endblock %}
