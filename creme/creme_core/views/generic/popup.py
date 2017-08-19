@@ -38,9 +38,7 @@ def inner_popup(request, template, template_dict, is_valid=True, html=None,
                                                  GET.getlist('persist'),
                                                 )
                   }
-
     template_dict['persisted'] = tpl_persist
-
     html = mark_safe(html) if html else render_to_string(template, template_dict, request=request, *args, **kwargs)
 
     return HttpResponse(render_to_string('creme_core/generics/inner_popup.html',
@@ -56,5 +54,5 @@ def inner_popup(request, template, template_dict, is_valid=True, html=None,
                                          request=request,
                                          *args, **kwargs
                                         ),
-                        content_type="text/html",
+                        content_type='text/html',
                        )

@@ -1220,8 +1220,8 @@ class _EntityFilterForm(CremeModelForm):
     # Notice that we do not use 0/1 because it is linked to a boolean field,
     # so the value given to the widget for the selected choice is 'True' or 'False'...
     use_or = ChoiceField(label=_(u'The entity is accepted if'),
-                         choices=(('False', _('all the conditions are met')),
-                                  ('True',  _('any condition is met')),
+                         choices=(('False', _(u'all the conditions are met')),
+                                  ('True',  _(u'any condition is met')),
                                  ),
                          widget=CremeRadioSelect,
                         )

@@ -1,0 +1,80 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_core-history-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('History') icon='history' %}
+{% endblock %}
+
+{% block brick_header_actions %}{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='date' status='primary' %}
+
+    {% if not object %}
+    {% brick_table_column title=_('Concerned entity') %}
+    {% endif %}
+
+    {% brick_table_column_for_field ctype=objects_ctype field='type' %}
+    {% brick_table_column title=_('Modifications') %}
+    {% brick_table_column title=_('By') %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for line in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %} data-type="date">
+            {% print_field object=line field='date' %}
+        </td>
+        {% if not object %}
+        <td>
+        {% with concerned_entity=line.entity %}
+            {% if concerned_entity %}
+                {% widget_icon instance=concerned_entity size='brick-table' class='ctype-icon' %}
+                {% widget_entity_hyperlink concerned_entity user %}
+            {% else %}
+                {% widget_icon ctype=line.entity_ctype size='brick-table' class='ctype-icon' %}
+                {{line.entity_repr}}{# TODO: improve credentials here !! #}
+            {% endif %}
+        {% endwith %}
+        </td>
+        {% endif %}
+        <td>{{line.get_type_str}}</td>
+        <td data-type="list">
+            {% with modifications=line|verbose_modifications:user %}
+                {% if modifications|length == 1 %}
+                    {{modifications.0}}
+                {% else %}
+                    <ul>{% for modif in modifications %}<li>{{modif}}</li>{% endfor %}</ul>
+                {% endif %}
+            {% endwith %}
+            {% if line.related_line %}
+                {% with related_line=line.related_line related_entity=line.related_line.entity %}
+                    {% if line.line_type.is_about_relation %}&nbsp;
+                        {% if related_entity %}
+                            {% widget_entity_hyperlink related_entity user %}
+                        {% else %}
+                            {{related_line.entity_repr}}{% comment %}TODO: improve credentials here !! {% endcomment %}
+                        {% endif %}
+                    {% else %}
+                        {% if related_entity %}
+                            {% trans "Edition of :" %}&nbsp;{% widget_entity_hyperlink related_entity user %}
+                        {% else %}
+                            {% blocktrans with related_line.entity_repr as entity %}Edit "{{entity}}"{% endblocktrans %}{% comment %}TODO: improve credentials here !! {% endcomment %}
+                        {% endif %}
+                        <br/>
+                        {% for modif in related_line|verbose_modifications:user %} - {{modif}}<br/>{% endfor %}
+                    {% endif %}
+                {% endwith %}
+             {% endif %}
+        </td>
+{#        <td>{{line.user|default:line.username}}</td> #}
+        <td>{% if line.user != None %}{% widget_hyperlink line.user %}{% else %}{{line.username}}{% endif %}</td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No history for the moment' %}
+{% endblock %}

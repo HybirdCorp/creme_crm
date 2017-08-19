@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
+import logging, warnings
 from sys import argv
 
 from django.apps import AppConfig, apps
@@ -29,9 +29,9 @@ from django.utils.translation import ugettext_lazy as _
 from .checks import Tags, check_uninstalled_apps  # NB: it registers other checks too
 from .core.reminder import reminder_registry
 from .core.setting_key import setting_key_registry, user_setting_key_registry
-from .gui import (creme_menu, block_registry, bulk_update_registry, button_registry,
-        fields_config_registry, field_printers_registry, icon_registry, import_form_registry,
-        merge_form_registry, quickforms_registry, smart_columns_registry, statistics_registry)
+from .gui import (creme_menu, brick_registry, bulk_update_registry, button_registry,
+                  fields_config_registry, field_printers_registry, icon_registry, import_form_registry,
+                  merge_form_registry, quickforms_registry, smart_columns_registry, statistics_registry)
 from .registry import creme_registry
 
 
@@ -197,7 +197,14 @@ class CremeAppConfig(AppConfig):
 
             self.register_entity_models(creme_registry)
 
-            self.register_blocks(block_registry)
+            self.register_bricks(brick_registry)
+            if hasattr(self, 'register_blocks'):
+                warnings.warn('The AppConfig for "%s" has a method "register_blocks()" which is now deprecated ; '
+                              'you should rename it register_bricks().' % self.name,
+                              DeprecationWarning
+                             )
+                self.register_blocks(brick_registry)
+
             self.register_bulk_update(bulk_update_registry)
             self.register_buttons(button_registry)
             self.register_fields_config(fields_config_registry)
@@ -219,7 +226,8 @@ class CremeAppConfig(AppConfig):
     def register_entity_models(self, creme_registry):
         pass
 
-    def register_blocks(self, block_registry):
+    # def register_blocks(self, block_registry):
+    def register_bricks(self, brick_registry):
         pass
 
     def register_bulk_update(self, bulk_update_registry):
@@ -282,6 +290,10 @@ class CremeCoreConfig(CremeAppConfig):
         self.hook_multiselection_widgets()
         self.hook_widget_render()
 
+        if settings.TESTS_ON:
+            from .tests.fake_apps import ready
+            ready()
+
     # def register_creme_app(self, creme_registry):
     #     creme_registry.register_app('creme_core', _(u'Core'), '/')
 
@@ -328,20 +340,29 @@ class CremeCoreConfig(CremeAppConfig):
                           ) \
                       .add(LastViewedEntitiesItem('recent_entities', label=_(u'Recent entities')), priority=40)
 
-    def register_blocks(self, block_registry):
+    # def register_blocks(self, block_registry):
+    def register_bricks(self, brick_registry):
         # from .blocks import (relations_block, properties_block, customfields_block,
         #         history_block, trash_block)
-        from .blocks import block_list
+        from .import bricks
 
         # block_registry.register(relations_block, properties_block, customfields_block,
         #                         history_block, trash_block,
         #                        )
-        block_registry.register(*block_list)
+        brick_registry.register(bricks.PropertiesBrick,
+                                bricks.RelationsBrick,
+                                bricks.CustomFieldsBrick,
+                                bricks.HistoryBrick,
+                                bricks.TrashBrick,
+                                bricks.StatisticsBrick,
+                                bricks.JobBrick,
+                                bricks.JobsBrick,
+                               )
 
-    def register_buttons(self, button_registry):
-        from .buttons import merge_entities_button
-
-        button_registry.register(merge_entities_button)
+    # def register_buttons(self, button_registry):
+    #     from .buttons import merge_entities_button
+    #
+    #     button_registry.register(merge_entities_button)
 
     def register_bulk_update(self, bulk_update_registry):
         from .models import CremeProperty

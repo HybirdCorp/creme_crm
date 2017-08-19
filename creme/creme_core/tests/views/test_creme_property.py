@@ -8,15 +8,17 @@ try:
     from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
-    from .base import ViewsTestCase
-    from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
+    from .base import ViewsTestCase, BrickTestCaseMixin
+
+    from ..fake_models import FakeContact, FakeOrganisation
     from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.bricks import PropertiesBrick
     from creme.creme_core.models import CremePropertyType, CremeProperty, CremeEntity
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-class PropertyViewsTestCase(ViewsTestCase):
+class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     # ADD_TYPE_URL = '/creme_core/property/type/add'
     ADD_TYPE_URL = reverse('creme_core__create_ptype')
 
@@ -44,14 +46,14 @@ class PropertyViewsTestCase(ViewsTestCase):
                )
 
     def test_add(self):
-        self.login()
+        user = self.login()
 
         create_ptype = CremePropertyType.create
         ptype01 = create_ptype(str_pk='test-prop_foobar01', text=u'Wears strange gloves')
         ptype02 = create_ptype(str_pk='test-prop_foobar02', text=u'Wears strange glasses')
         ptype03 = create_ptype(str_pk='test-prop_foobar03', text=u'Wears strange hats')
 
-        entity  = CremeEntity.objects.create(user=self.user)
+        entity = CremeEntity.objects.create(user=user)
         self.assertFalse(entity.properties.all())
 
         # url = '/creme_core/property/add/%s' % entity.id
@@ -83,6 +85,27 @@ class PropertyViewsTestCase(ViewsTestCase):
                                 }
                             )
 
+    def test_properties_brick(self):
+        user = self.login()
+
+        create_ptype = CremePropertyType.create
+        ptype01 = create_ptype(str_pk='test-prop_foobar01', text=u'Uses guns')
+        ptype02 = create_ptype(str_pk='test-prop_foobar02', text=u'Uses blades')
+        ptype03 = create_ptype(str_pk='test-prop_foobar03', text=u'Uses drugs')
+
+        rita = FakeContact.objects.create(user=user, last_name='Vrataski', first_name='Rita')
+
+        create_prop = partial(CremeProperty.objects.create, creme_entity=rita)
+        create_prop(type=ptype01)
+        create_prop(type=ptype02)
+
+        response = self.assertGET200(rita.get_absolute_url())
+        doc = self.get_html_tree(response.content)
+        brick_node = self.get_brick_node(doc, PropertiesBrick.id_)
+        self.assertInstanceLink(brick_node, ptype01)
+        self.assertInstanceLink(brick_node, ptype02)
+        self.assertNoInstanceLink(brick_node, ptype03)
+
     def test_add_type01(self):
         self.login()
 
@@ -105,7 +128,7 @@ class PropertyViewsTestCase(ViewsTestCase):
         self.login()
 
         get_ct = ContentType.objects.get_for_model
-        ct_ids = [get_ct(Contact).id, get_ct(Organisation).id]
+        ct_ids = [get_ct(FakeContact).id, get_ct(FakeOrganisation).id]
         text   = 'is beautiful'
         response = self.client.post(self.ADD_TYPE_URL, follow=True,
                                     data={'text':           text,
@@ -126,9 +149,9 @@ class PropertyViewsTestCase(ViewsTestCase):
         "is_custom=False"
         self.login()
         ptype = CremePropertyType.create('test-foobar', 'is beautiful',
-                                        [ContentType.objects.get_for_model(Contact)],
-                                        is_custom=False,
-                                       )
+                                         [ContentType.objects.get_for_model(FakeContact)],
+                                         is_custom=False,
+                                        )
 
         self.assertGET404(ptype.get_edit_absolute_url())
 
@@ -137,13 +160,13 @@ class PropertyViewsTestCase(ViewsTestCase):
 
         get_ct = ContentType.objects.get_for_model
         ptype = CremePropertyType.create('test-foobar', 'is beautiful',
-                                         [get_ct(Contact)], is_custom=True,
+                                         [get_ct(FakeContact)], is_custom=True,
                                         )
 
         url = ptype.get_edit_absolute_url()
         self.assertGET200(url)
 
-        ct_orga = get_ct(Organisation)
+        ct_orga = get_ct(FakeOrganisation)
         text = 'is very beautiful'
         response = self.client.post(url, follow=True,
                                     data={'text':           text,
@@ -158,10 +181,10 @@ class PropertyViewsTestCase(ViewsTestCase):
         self.assertEqual([ct_orga], list(ptype.subject_ctypes.all()))
 
     def test_delete_related(self):
-        self.login()
+        user = self.login()
 
         ptype  = CremePropertyType.create(str_pk='test-prop_foobar', text='hairy')
-        entity = Contact.objects.create(user=self.user, last_name='Vrataski')
+        entity = FakeContact.objects.create(user=user, last_name='Vrataski')
         prop   = CremeProperty.objects.create(type=ptype, creme_entity=entity)
         ct     = ContentType.objects.get_for_model(CremeProperty)
 
@@ -229,7 +252,7 @@ class PropertyViewsTestCase(ViewsTestCase):
                                     )
         self.assertFormError(response, 'form', 'types', _(u'This field is required.'))
 
-        response = self.client.post(url, data={'types':        [ptype01.id, ptype02.id],
+        response = self.client.post(url, data={'types': [ptype01.id, ptype02.id],
                                                'entities_lbl': '',
                                               }
                                    )
@@ -363,61 +386,73 @@ class PropertyViewsTestCase(ViewsTestCase):
         user = self.login()
         ptype = CremePropertyType.create(str_pk='test-prop_murica', text='is american')
 
-        create_contact = partial(Contact.objects.create, user=user)
-        entity1 = create_contact(last_name='Vrataski', first_name='Rita')
-        entity2 = create_contact(last_name='Kiriya',   first_name='Keiji')
+        create_contact = partial(FakeContact.objects.create, user=user)
+        tagged_contact   = create_contact(last_name='Vrataski', first_name='Rita')
+        untagged_contact = create_contact(last_name='Kiriya',   first_name='Keiji')
 
-        entity3 = Organisation.objects.create(user=user, name='US Defense Force')
+        tagged_orga = FakeOrganisation.objects.create(user=user, name='US Defense Force')
 
         create_prop = partial(CremeProperty.objects.create, type=ptype)
-        create_prop(creme_entity=entity1)
-        create_prop(creme_entity=entity3)
+        create_prop(creme_entity=tagged_contact)
+        create_prop(creme_entity=tagged_orga)
 
         response = self.assertGET200(ptype.get_absolute_url())
         self.assertTemplateUsed(response, 'creme_core/view_property_type.html')
+        self.assertTemplateUsed(response, 'creme_core/bricks/ptype-info.html')
+        self.assertTemplateUsed(response, 'creme_core/bricks/tagged-entities.html')
 
         with self.assertNoException():
             ctxt_ptype = response.context['object']
-
         self.assertEqual(ptype, ctxt_ptype)
 
-        self.assertContains(response,    ' id="block_creme_core-property_type_info"')
-        self.assertContains(response,    ' id="block_creme_core-tagged-creme_core-fakecontact"')
-        self.assertContains(response,    ' id="block_creme_core-tagged-creme_core-fakeorganisation"')
-        self.assertNotContains(response, ' id="block_creme_core-tagged-billing-fakeimage"')
-        self.assertNotContains(response, ' id="block_creme_core-misc_tagged_entities"')
+        doc = self.get_html_tree(response.content)
+        self.get_brick_node(doc, 'block_creme_core-property_type_info')
 
-        self.assertContains(response, unicode(entity1))
-        self.assertNotContains(response, unicode(entity2))
-        self.assertContains(response, unicode(entity3))
+        contacts_brick_node = self.get_brick_node(doc, 'block_creme_core-tagged-creme_core-fakecontact')
+        self.assertBrickHasNotClass(contacts_brick_node, 'is-empty')
+        self.assertInstanceLink(contacts_brick_node, tagged_contact)
+        self.assertNoInstanceLink(contacts_brick_node, untagged_contact)
+        self.assertNoInstanceLink(contacts_brick_node, tagged_orga)
+
+        orgas_brick_node = self.get_brick_node(doc, 'block_creme_core-tagged-creme_core-fakeorganisation')
+        self.assertInstanceLink(orgas_brick_node, tagged_orga)
+        self.assertNoInstanceLink(orgas_brick_node, tagged_contact)
+
+        self.assertNoBrick(doc, 'block_creme_core-tagged-billing-fakeimage')
+        self.assertNoBrick(doc, 'block_creme_core-misc_tagged_entities')
 
     def test_detailview02(self):
+        "Misc brick"
         user = self.login()
         ptype = CremePropertyType.create(str_pk='test-prop_murica', text='is american',
-                                         subject_ctypes=[Contact],
+                                         subject_ctypes=[FakeContact],
                                         )
 
-        rita = Contact.objects.create(user=user, last_name='Vrataski', first_name='Rita')
-        udf = Organisation.objects.create(user=user, name='US Defense Force')
+        rita = FakeContact.objects.create(user=user, last_name='Vrataski', first_name='Rita')
+        udf = FakeOrganisation.objects.create(user=user, name='US Defense Force')
 
         create_prop = partial(CremeProperty.objects.create, type=ptype)
         create_prop(creme_entity=rita)
         create_prop(creme_entity=udf)
 
         response = self.assertGET200(ptype.get_absolute_url())
+        doc = self.get_html_tree(response.content)
 
-        self.assertContains(response,    ' id="block_creme_core-tagged-creme_core-fakecontact"')
-        self.assertNotContains(response, ' id="block_creme_core-tagged-creme_core-fakeorganisation"')
-        self.assertContains(response,    ' id="block_creme_core-misc_tagged_entities"')
+        contacts_brick_node = self.get_brick_node(doc, 'block_creme_core-tagged-creme_core-fakecontact')
+        self.assertInstanceLink(contacts_brick_node, rita)
+        self.assertNoInstanceLink(contacts_brick_node, udf)
 
-        self.assertContains(response, unicode(rita), 1)
-        self.assertContains(response, unicode(udf), 1)
+        misc_brick_node = self.get_brick_node(doc, 'block_creme_core-misc_tagged_entities')
+        self.assertInstanceLink(misc_brick_node, udf)
+        self.assertNoInstanceLink(misc_brick_node, rita)
+
+        self.assertNoBrick(doc, 'block_creme_core-tagged-creme_core-fakeorganisation')
 
     def test_reload_block01(self):
-        self.login()
+        user = self.login()
         ptype = CremePropertyType.create(str_pk='test-prop_murica', text='is american')
 
-        rita = Contact.objects.create(user=self.user, last_name='Vrataski', first_name='Rita')
+        rita = FakeContact.objects.create(user=user, last_name='Vrataski', first_name='Rita')
         CremeProperty.objects.create(type=ptype, creme_entity=rita)
 
         # url_fmt = '/creme_core/property/type/%s/reload_block/%s/'
@@ -449,12 +484,12 @@ class PropertyViewsTestCase(ViewsTestCase):
 
     def test_reload_block02(self):
         "Misc block + info block"
-        self.login()
+        user = self.login()
         ptype = CremePropertyType.create(str_pk='test-prop_murica', text='is american',
-                                         subject_ctypes=[Organisation],
-                                        )
+                                         subject_ctypes=[FakeOrganisation],
+                                         )
 
-        rita = Contact.objects.create(user=self.user, last_name='Vrataski', first_name='Rita')
+        rita = FakeContact.objects.create(user=user, last_name='Vrataski', first_name='Rita')
         CremeProperty.objects.create(type=ptype, creme_entity=rita)
 
         misc_block_id = 'block_creme_core-misc_tagged_entities'
@@ -474,16 +509,83 @@ class PropertyViewsTestCase(ViewsTestCase):
         self.assertIn(' id="%s"' % misc_block_id, result[0][1])
         self.assertIn(' id="%s"' % info_block_id, result[1][1])
 
-    def test_reload_block03(self):
+    def test_reload_ptype_bricks01(self):
+        user = self.login()
+        ptype = CremePropertyType.create(str_pk='test-prop_murica', text='is american')
+
+        rita = FakeContact.objects.create(user=user, last_name='Vrataski', first_name='Rita')
+        CremeProperty.objects.create(type=ptype, creme_entity=rita)
+
+        brick_id = 'block_creme_core-tagged-creme_core-fakecontact'
+        url = reverse('creme_core__reload_ptype_bricks', args=(ptype.id,))
+        response = self.assertGET200(url, data={'brick_id': brick_id})
+
+        with self.assertNoException():
+            result = json.loads(response.content)
+
+        self.assertIsInstance(result, list)
+        self.assertEqual(1, len(result))
+
+        result = result[0]
+        self.assertIsInstance(result, list)
+        self.assertEqual(2, len(result))
+        self.assertEqual(brick_id, result[0])
+
+        document = self.get_html_tree(result[1])
+        brick_node = self.get_brick_node(document, brick_id)
+        self.assertInstanceLink(brick_node, rita)
+
+        self.assertGET404(url, data={'brick_id': 'invalid_brickid'})
+        self.assertGET404(url, data={'brick_id': 'block_creme_core-tagged-persons-invalidmodel'})
+        self.assertGET404(url, data={'brick_id': 'block_creme_core-tagged-persons-civility'})
+
+    def test_reload_ptype_bricks02(self):
+        "Misc brick + info brick"
+        user = self.login()
+        ptype = CremePropertyType.create(str_pk='test-prop_murica', text='is american',
+                                         subject_ctypes=[FakeOrganisation],
+                                        )
+
+        rita = FakeContact.objects.create(user=user, last_name='Vrataski', first_name='Rita')
+        CremeProperty.objects.create(type=ptype, creme_entity=rita)
+
+        misc_brick_id = 'block_creme_core-misc_tagged_entities'
+        info_brick_id = 'block_creme_core-property_type_info'
+
+        response = self.assertGET200(reverse('creme_core__reload_ptype_bricks', args=(ptype.id,)),
+                                     # data={'brick_id': misc_brick_id,
+                                     #       'brick_deps': info_brick_id,
+                                     #      },
+                                     data={'brick_id': [misc_brick_id, info_brick_id]},
+                                    )
+
+        with self.assertNoException():
+            result = json.loads(response.content)
+
+        self.assertEqual(2, len(result))
+
+        doc1 = self.get_html_tree(result[0][1])
+        self.get_brick_node(doc1, misc_brick_id)
+
+        doc2 = self.get_html_tree(result[1][1])
+        self.get_brick_node(doc2, info_brick_id)
+
+    # def test_reload_block03(self):
+    def test_reload_ptype_bricks03(self):
         "Empty block"
         self.login()
         ptype = CremePropertyType.create(str_pk='test-prop_murica', text='is american')
 
-        block_id = 'block_creme_core-tagged-persons-contact'
+        # block_id = 'block_creme_core-tagged-persons-contact'
+        brick_id = 'block_creme_core-tagged-persons-contact'
         # response = self.assertGET200('/creme_core/property/type/%s/reload_block/%s/' % (
         #                                     ptype.id, block_id,
         #                                 ),
-        response = self.assertGET200(reverse('creme_core__reload_ptype_blocks', args=(ptype.id, block_id)),
+        # response = self.assertGET200(reverse('creme_core__reload_ptype_blocks', args=(ptype.id, block_id)),
+        #                              HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        #                             )
+        response = self.assertGET200(reverse('creme_core__reload_ptype_bricks', args=(ptype.id,)),
+                                     data={'brick_id': brick_id},
                                      HTTP_X_REQUESTED_WITH='XMLHttpRequest',
                                     )
 
@@ -491,11 +593,14 @@ class PropertyViewsTestCase(ViewsTestCase):
             result = json.loads(response.content)
 
         self.assertEqual(1, len(result))
-        self.assertEqual('<table style="display:none;" '
-                                'class="table_detail_view ui-corner-all " '
-                                'id="block_creme_core-tagged-persons-contact" />',
-                         result[0][1].strip()
-                        )
+        # self.assertEqual('<table style="display:none;" '
+        #                         'class="table_detail_view ui-corner-all " '
+        #                         'id="block_creme_core-tagged-persons-contact" />',
+        #                  result[0][1].strip()
+        #                 )
+        doc = self.get_html_tree(result[0][1])
+        brick_node = self.get_brick_node(doc, brick_id)
+        self.assertBrickHasClass(brick_node,'is-empty')
 
     def test_inneredit(self):
         user = self.login()

@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
                 ('last_name', models.CharField(max_length=100, verbose_name='Last name', blank=True)),
                 ('email', models.EmailField(max_length=75, verbose_name='Email address', blank=True)),
                 ('date_joined', models.DateTimeField(default=django.utils.timezone.now, verbose_name='Date joined')),
-                ('is_active', models.BooleanField(default=True, verbose_name='Is active?')),
+                ('is_active', models.BooleanField(default=True, verbose_name='Active?')),
                 ('is_staff', models.BooleanField(default=False, verbose_name='Is staff?')),
                 ('is_superuser', models.BooleanField(default=False, verbose_name='Is a superuser?')),
                 ('is_team', models.BooleanField(default=False, verbose_name='Is a team?')),

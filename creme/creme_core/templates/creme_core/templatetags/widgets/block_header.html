@@ -1,10 +1,7 @@
-{% comment %}
-<script type="text/javascript">
-    {% if block_name %}
-        creme.blocks.register('#{{ block_name }}');
-    {% endif %}
-</script>
-{% endcomment %}
+{% load creme_core_tags %}
+
+{% log 'The template file "creme/creme_core/templates/creme_core/templatetags/widgets/block_header.html" is deprecated.' level='WARN' %}
+
 <thead>
     <tr>
         <th colspan="{{colspan}}" class="{{class}}">

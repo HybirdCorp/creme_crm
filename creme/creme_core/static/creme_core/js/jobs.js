@@ -24,14 +24,14 @@
 
 creme.jobs = {};
 
-creme.jobs.decorateJobStatus = function(block, job_id, status, ack_errors) {
+creme.jobs.decorateJobStatus = function(brick_elt, job_id, status, ack_errors) {
     var must_reload = false;
     var ack_errors_label = '';
 
     if (ack_errors) {
         must_reload = true;
 
-        block.find('[data-job-ack-errors][data-job-id=' + job_id + ']').each(function(i, e) {
+        brick_elt.find('[data-job-ack-errors][data-job-id=' + job_id + ']').each(function(i, e) {
             var elt = $(e);
 
             if (!elt.find('.ack-errors').length) {
@@ -42,14 +42,14 @@ creme.jobs.decorateJobStatus = function(block, job_id, status, ack_errors) {
             }
         });
     } else {
-        block.find('[data-job-ack-errors][data-job-id=' + job_id + '] .ack-errors').remove();
+        brick_elt.find('[data-job-ack-errors][data-job-id=' + job_id + '] .ack-errors').remove();
     }
 
     switch(status) {
       case 1: // STATUS_WAIT
         must_reload = true;
 
-        block.find('[data-job-status][data-job-id=' + job_id + ']').each(function(i, e) {
+        brick_elt.find('[data-job-status][data-job-id=' + job_id + ']').each(function(i, e) {
             var elt = $(e);
 
             if (!elt.find('.progress').length) {
@@ -60,26 +60,25 @@ creme.jobs.decorateJobStatus = function(block, job_id, status, ack_errors) {
         break;
 
       case 10: // STATUS_ERROR
-        block.find('[data-job-status][data-job-id=' + job_id + ']').text(gettext('Error')).attr('data-job-status', 10);
+        brick_elt.find('[data-job-status][data-job-id=' + job_id + ']').text(gettext('Error')).attr('data-job-status', 10);
         break;
 
       case 20: // STATUS_OK
-        block.find('[data-job-status][data-job-id=' + job_id + ']').text(gettext('Finished')).attr('data-job-status', 20);
+        brick_elt.find('[data-job-status][data-job-id=' + job_id + ']').text(gettext('Finished')).attr('data-job-status', 20);
         break;
     }
 
     return must_reload;
 };
 
-//creme.jobs.checkJobManager = function(block_id, reload_page) {
-creme.jobs.checkJobManager = function(url, block_id, reload_page) {
-    var block = $('#' + block_id);  // We retrieve the block by its ID at each call, because the block can be reloaded (& so, replaced)
+creme.jobs.checkJobManager = function(url, brick_id, reload_page) {
+    var brick_elt = $('#' + brick_id);  // We retrieve the brick by its ID at each call, because the brick can be reloaded (& so, replaced)
     var job_ids = [];
 
-    block.find('[data-job-id][data-job-status][data-job-ack-errors]').each(function(i, e) {
+    brick_elt.find('[data-job-id][data-job-status][data-job-ack-errors]').each(function(i, e) {
         var job_id = e.getAttribute('data-job-id');
 
-        if (creme.jobs.decorateJobStatus(block, job_id,
+        if (creme.jobs.decorateJobStatus(brick_elt, job_id,
                                          Number(e.getAttribute('data-job-status')),
                                          Number(e.getAttribute('data-job-ack-errors'))
                                         )) {
@@ -87,7 +86,6 @@ creme.jobs.checkJobManager = function(url, block_id, reload_page) {
         }
     });
 
-//    var url = '/creme_core/job/info';
     if (job_ids.length) {
         url = url + '?' + $.param({'id': job_ids});
     }
@@ -95,18 +93,18 @@ creme.jobs.checkJobManager = function(url, block_id, reload_page) {
     $.ajax({url: url,
             dataType: 'json',
             error: function(request, status, error) {
-                var error_panel = block.find('.global_error');
+                var error_panel = brick_elt.find('.global-error');
                 error_panel.css('display', '');
-                error_panel.children().first().text(gettext('HTTP server error'));
+                error_panel.text(gettext('HTTP server error'));
             },
             success: function(data, status) {
                 var alright = true;  // No error, all jobs are finished.
 
-                var error_panel = block.find('.global_error');
+                var error_panel = brick_elt.find('.global-error');
                 var error = data['error'];
                 if (error !== undefined) {
                     error_panel.css('display', '');
-                    error_panel.children().first().text(error);
+                    error_panel.text(error);
 
                     alright = false;
                 } else {
@@ -116,14 +114,13 @@ creme.jobs.checkJobManager = function(url, block_id, reload_page) {
                 job_ids.forEach(function (job_id, index, array) {
                     var job_info = data[job_id];
 
-                    if (!Object.isString(job_info) && creme.jobs.decorateJobStatus(block, job_id, job_info['status'], job_info['ack_errors'])) {
+                    if (!Object.isString(job_info) && creme.jobs.decorateJobStatus(brick_elt, job_id, job_info['status'], job_info['ack_errors'])) {
                         alright = false;
                     }
                 });
 
                 if (!alright) {
-//                    setTimeout(creme.jobs.checkJobManager, 5000, block_id, reload_page);
-                    setTimeout(creme.jobs.checkJobManager, 5000, url, block_id, reload_page);
+                    setTimeout(creme.jobs.checkJobManager, 5000, url, brick_id, reload_page);
                 } else if (reload_page) {
                     window.location = window.location;
                 }

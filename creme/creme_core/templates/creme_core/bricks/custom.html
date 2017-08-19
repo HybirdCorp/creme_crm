@@ -1,0 +1,25 @@
+{% extends 'creme_core/bricks/base/tiles.html' %}
+{% load i18n creme_core_tags creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_core-custom-brick{% endblock %}
+
+{% block brick_menu_actions %}
+    {% brick_menu_reduce_action state %}
+    {{block.super}}
+
+    <hr/>{% has_perm_to admin 'creme_core' as config_perm %}
+    {% url 'creme_config__edit_custom_brick' config_item.id as config_url %}
+    {% brick_menu_action id='edit' url=config_url icon='config' label=_('Configure the fields') enabled=config_perm %}
+{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=config_item.name icon='info' %}
+{% endblock %}
+
+{% block brick_content %}
+    {% for cell in config_item.filtered_cells %}
+        {% brick_tile_for_cell cell object user %}
+    {% empty %}
+        {% trans 'It seems that all fields are hidden. Ask your administrator to fix the configuration.' %}
+    {% endfor %}
+{% endblock %}

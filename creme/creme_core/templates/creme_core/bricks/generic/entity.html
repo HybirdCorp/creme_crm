@@ -1,0 +1,38 @@
+{% extends 'creme_core/bricks/base/tiles.html' %}
+{% load creme_bricks creme_widgets %}
+
+{% block brick_menu_actions %}
+    {% brick_menu_reduce_action state %}
+    {{block.super}}
+{% endblock %}
+
+{% block brick_header_title %}
+    {% widget_icon instance=object size='brick-header' as icon %}
+    {% brick_header_title title=title icon=icon %}
+{% endblock %}
+
+{% block brick_content %}
+    {% block single_line_fields %}
+        {% for cell in cells %}
+            {% if not cell.is_multiline and not cell.is_base_field %}
+                {% brick_tile_for_cell cell object user %}
+            {% endif %}
+        {% endfor %}
+    {% endblock %}
+
+    {% block multi_line_fields %}
+        {% for cell in cells %}
+            {% if cell.is_multiline %}
+                {% brick_tile_for_cell cell object user %}
+            {% endif %}
+        {% endfor %}
+    {% endblock %}
+
+    {% block base_fields %}
+        {% for cell in cells %}
+            {% if cell.is_base_field %}
+                {% brick_tile_for_cell cell object user %}
+            {% endif %}
+        {% endfor %}
+    {% endblock %}
+{% endblock %}

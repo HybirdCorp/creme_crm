@@ -64,10 +64,46 @@ def get_instance_field_info(obj, field_name):
 
 
 class FieldInfo(object):
+    """Class which stores a 'chain' of fields for a given model.
+
+    Example:
+        from django.db import models
+
+        class Company(models.Model):
+            name = models.CharField('Name', max_length=100)
+
+        class Developer(models.Model):
+            first_name = models.CharField('First name', max_length=100)
+            last_name  = models.CharField('Last name', max_length=100)
+            company    = models.ForeignKey(Company)
+
+        class Software(models.Model):
+            name     = models.CharField('Name', max_length=100)
+            core_dev = models.ForeignKey(Developer)
+
+        # Chain of 1 Field
+        FieldInfo(Software, 'name')
+        FieldInfo(Software, 'core_dev')
+
+        # Chain of 2 Fields
+        FieldInfo(Software, 'core_dev__name')
+        FieldInfo(Software, 'core_dev__company')
+
+        # Chain of 3 Fields
+        FieldInfo(Software, 'core_dev__company__name')
+
+    The string notation (like 'core_dev__company__name') is taken from django QuerySet ;
+    so naturally the fields which can have "sub-fields" are fields like ForeignKeys or ManyToManyFields.
+    """
     __slots__ = ('_model', '__fields')
 
     def __init__(self, model, field_name):
-        "@throws FieldDoesNotExist"
+        """ Constructor.
+
+        @param model: Class inheriting django.db.models.Model.
+        @param field_name: String representing a 'chain' of fields; eg: 'book__author__name'.
+        @throws FieldDoesNotExist
+        """
         self._model = model
         self.__fields = fields = []
         subfield_names = field_name.split('__')

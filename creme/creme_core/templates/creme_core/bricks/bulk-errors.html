@@ -1,0 +1,37 @@
+{% extends 'creme_core/bricks/base/table.html' %}
+{% load i18n creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} brick-scrollable creme_core-bulk-errors-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Error') plural=_('{count} Errors') count=errors|length %}
+{% endblock %}
+
+{% block brick_before %}
+    <div class="help_box">{{summary|linebreaksbr}}</div>
+{% endblock %}
+
+{% block brick_content_extra_class %}brick-scrollable-container{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Entity') %}
+    {% brick_table_column title=_('Induced error') %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for entity, error in errors %}
+        <tr>
+            <td>{{entity}}</td>
+            <td class="bulk-errors-messages">
+                <ul>
+                {% for message in error.messages %}
+                    <li>{{message}}</li>
+                {% endfor %}
+                </ul>
+            </td>
+        </tr>
+    {% endfor %}
+    {% if count > 100 %}
+        <tr>{% trans 'Other errors have been omitted.' %}</tr>
+    {% endif %}
+{% endblock %}

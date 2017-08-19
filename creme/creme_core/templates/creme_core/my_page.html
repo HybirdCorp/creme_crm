@@ -1,22 +1,19 @@
-{% extends "creme_core/base.html" %}
-{% load i18n %}
-{% load creme_block creme_core_tags %}
+{% extends 'creme_core/base.html' %}
+{% load i18n creme_widgets creme_bricks %}
 
 {% block before_content_1 %}<div class="my_page">{% endblock %}
 
 {% block content %}
-    <table class="table_header" cellpadding="0" cellspacing="0">
-        <tr>{% trans "My page" as title %}
-            <td class="logo"><img src="{% creme_media_url 'images/home_64.png' %}" alt="{{title}}"/></td>
-            <td class="title"><h1>{{title}}</h1></td>
-            <td class="actions"></td>
-        </tr>
-    </table>
+    <div class="hat-bar-container">
+        <div class="hat-bar">{% trans 'My page' as title %}
+            <div class="bar-icon">{% widget_icon name='home' size='brick-hat-bar' label=title %}</div>
+            <div class="bar-title"><h1>{{title}}</h1></div>
+        </div>
+    </div>
 
-    {% import_mypage_blocks %}
-    {% display_mypage_blocks %}
-
-    {% get_blocks_dependencies %}
+    {% brick_declare bricks %}
+    {% brick_display bricks render='home' %}
+    {% brick_end %}
 {% endblock %}
 
 {% block after_content_3 %}</div>{% endblock %}

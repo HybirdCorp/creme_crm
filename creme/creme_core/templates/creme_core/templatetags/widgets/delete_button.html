@@ -1,5 +1,7 @@
-{% load i18n %}
-{% load creme_core_tags %}
+{% load i18n creme_core_tags %}
+
+{% log 'The template file "creme/creme_core/templates/creme_core/templatetags/widgets/delete_button.html" is deprecated.' level='WARN' %}
+
 {% with url=object.get_delete_absolute_url %}{% comment %}TODO {% blocktrans as %}{% endcomment %}
     {% if url %}
         {% if can_delete %}

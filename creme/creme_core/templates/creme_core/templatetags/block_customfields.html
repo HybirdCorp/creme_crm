@@ -1,5 +1,8 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
+
+{% log 'The template file "creme/creme_core/templates/creme_core/templatetags/block_customfields.html" is deprecated.' level='WARN' %}
+
 {% with object.get_custom_fields_n_values as custom_fields_n_values %}
     {% if custom_fields_n_values %}
         <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">

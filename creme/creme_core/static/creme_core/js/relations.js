@@ -17,7 +17,7 @@
 *******************************************************************************/
 
 /*
- * Requires : creme, jQuery
+ * Requires : creme.ajax, creme.lv_widget, creme.bricks, jQuery
  */
 
 (function($) {"use strict";
@@ -45,9 +45,18 @@ creme.relations.addRelationTo = function(subject_id, rtype_id, ctype_id, options
 
     var options = options || {};
     if (options.blockReloadUrl) {
+        console.warn('creme.relations.addRelationTo(): the option "blockReloadUrl" is deprecated ; remove it, so the Bricks will be automatically reloaded.');
+
         query.onDone(function(event, data) {creme.blocks.reload(options.blockReloadUrl);});
     } else {
-        query.onDone(function(event, data) {creme.utils.reload(window);});
+        // query.onDone(function(event, data) {creme.utils.reload(window);});
+        var reload_on_success = options.reloadOnSuccess;
+
+        if (reload_on_success === 'window') {
+            query.onDone(function(event, data) {creme.utils.reload(window);});
+        } else if (reload_on_success !== false) {
+            query.onDone(function() {new creme.bricks.BricksReloader().dependencies(['creme_core.relation', 'creme_core.relation.' + rtype_id]).action().start();});
+        }
     }
 
 //        var selection_url = '/creme_core/relation/objects2link/rtype/%s/entity/%s/%s%s'.format(predicate, subject, ctype,
@@ -59,7 +68,8 @@ creme.relations.addRelationTo = function(subject_id, rtype_id, ctype_id, options
         selection:     options.multiple ? 'multiple' : 'single'
     }, data || {});
 
-    var action = creme.lv_widget.listViewAction(selection_url, options, get_data);
+//    var action = creme.lv_widget.listViewAction(selection_url, options, get_data);
+    var action = creme.lv_widget.listViewAction(selection_url, {multiple: options.multiple ? true : false}, get_data);
     action.onDone(function(event, data) {
         query.post({
                   entities: data,

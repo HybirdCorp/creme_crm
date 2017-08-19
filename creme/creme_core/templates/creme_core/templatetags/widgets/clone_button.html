@@ -1,4 +1,7 @@
 {% load i18n creme_core_tags %}
+
+{% log 'The template file "creme/creme_core/templates/creme_core/templatetags/widgets/clone_button.html" is deprecated.' level='WARN' %}
+
 {% with url=object.get_clone_absolute_url %}
     {% if url and not object.is_deleted %}
         {% if can_create %}

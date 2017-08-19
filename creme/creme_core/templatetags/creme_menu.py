@@ -105,6 +105,7 @@ else:
         return creme_menu.render(context)
 
 
+# TODO: remove when old menu is removed (template too)
 @register.inclusion_tag('creme_core/templatetags/prefered_menu.html')
 def get_prefered_menu(request):
     return {'items': PreferedMenuItem.objects.filter(Q(user=request.user) |
@@ -113,6 +114,7 @@ def get_prefered_menu(request):
            }
 
 
+# TODO: remove when old menu is removed (template too)
 @register.inclusion_tag('creme_core/templatetags/last_items_menu.html')
 def get_last_items_menu(request):
     return {'items': LastViewedItem.get_all(request)}

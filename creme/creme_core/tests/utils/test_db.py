@@ -13,7 +13,7 @@ try:
     from creme.creme_core.models import Relation, CremeEntity
     from creme.creme_core.constants import REL_SUB_HAS
     from creme.creme_core.utils.db import (get_indexes_columns, get_keyed_indexes_columns,
-           get_indexed_ordering, build_columns_key, populate_related)
+           get_indexed_ordering, build_columns_key, populate_related, reorder_instances)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -423,3 +423,74 @@ class DBTestCase(CremeTestCase):
         with self.assertNumQueries(2):
             populate_related(contacts, ['user__role__name'])
 
+    def test_reorder_instances01(self):
+        "Order + 1"
+        initial_count = FakeSector.objects.count()
+        create_sector = FakeSector.objects.create
+        s1 = create_sector(title='Toys')
+        s2 = create_sector(title='Video games')
+
+        reorder_instances(s1, initial_count + 2)
+        self.assertEqual(initial_count + 2, self.refresh(s1).order)
+        self.assertEqual(initial_count + 1, self.refresh(s2).order)
+
+        with self.assertRaises(IndexError):
+            reorder_instances(s1, initial_count + 3)
+
+        with self.assertRaises(IndexError):
+            reorder_instances(s1, 0)
+
+    def test_reorder_instances02(self):
+        "Order - 2"
+        initial_count = FakeSector.objects.count()
+
+        create_sector = FakeSector.objects.create
+        s1 = create_sector(title='Toys')
+        s2 = create_sector(title='Video games')
+        s3 = create_sector(title='Anime')
+
+        reorder_instances(s3, initial_count + 1)
+        self.assertEqual(initial_count + 1, self.refresh(s3).order)
+        self.assertEqual(initial_count + 2, self.refresh(s1).order)
+        self.assertEqual(initial_count + 3, self.refresh(s2).order)
+
+    def test_reorder_instances03(self):
+        "Queryset parameter"
+        create_sector = FakeSector.objects.create
+        s0 = create_sector(title='Cars')
+        s1 = create_sector(title='Games - Toys')
+        s2 = create_sector(title='Games - Video games')
+        s3 = create_sector(title='Games - Dolls')
+        s4 = create_sector(title='Food - Bakery')
+
+        order0 = s0.order
+        order4 = s4.order
+
+        reorder_instances(moved_instance=s1, new_order=3,
+                          queryset=FakeSector.objects.filter(title__startswith='Games - '),
+                         )
+        self.assertEqual(1, self.refresh(s2).order)
+        self.assertEqual(2, self.refresh(s3).order)
+        self.assertEqual(3, self.refresh(s1).order)
+
+        self.assertEqual(order0, self.refresh(s0).order)
+        self.assertEqual(order4, self.refresh(s4).order)
+
+    def test_reorder_instances04(self):
+        "Orders not contiguous => 1-Only indices are used  2-Orders are remapped"
+        create_sector = FakeSector.objects.create
+        s1 = create_sector(title='Games - Toys')
+        s2 = create_sector(title='Games - Video games', order=s1.order + 2)
+        s3 = create_sector(title='Games - Dolls',       order=s2.order + 2)
+        s4 = create_sector(title='Games - Bikes',       order=s3.order + 2)
+        s5 = create_sector(title='Games - Costumes',    order=s4.order + 2)
+        self.assertEqual(2, s3.order - s2.order)
+
+        reorder_instances(moved_instance=s2, new_order=4,
+                          queryset=FakeSector.objects.filter(title__startswith='Games - '),
+                         )
+        self.assertEqual(1, self.refresh(s1).order)
+        self.assertEqual(2, self.refresh(s3).order)
+        self.assertEqual(3, self.refresh(s4).order)
+        self.assertEqual(4, self.refresh(s2).order)
+        self.assertEqual(5, self.refresh(s5).order)

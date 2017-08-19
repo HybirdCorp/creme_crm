@@ -16,9 +16,9 @@ from django.db.models.query_utils import Q
 from django.forms.formsets import BaseFormSet
 from django.utils.timezone import utc, get_current_timezone, make_aware
 
-from ..models import CremeUser, UserRole, RelationType, Relation, CremePropertyType
-from ..management.commands.creme_populate import Command as PopulateCommand
 from ..global_info import clear_global_info
+from ..management.commands.creme_populate import Command as PopulateCommand
+from ..models import CremeUser, UserRole, RelationType, Relation, CremePropertyType
 from ..utils import print_traceback
 from ..utils.xml_utils import xml_diff, XMLDiffError
 
@@ -68,8 +68,8 @@ class _CremeTestCase(object):
                                 RuntimeWarning, r'django\.db\.models\.fields',
                                )
 
-        from .fake_apps import ready
-        ready()
+        # from .fake_apps import ready
+        # ready()
 
     def tearDown(self):
         if getattr(self, 'clean_files_in_teardown', False):

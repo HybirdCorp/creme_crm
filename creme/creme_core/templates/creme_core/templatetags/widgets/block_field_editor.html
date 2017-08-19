@@ -1,4 +1,7 @@
 {% load i18n creme_block creme_core_tags %}
+
+{% log 'The template file "creme/creme_core/templates/creme_core/templatetags/widgets/block_field_editor.html" is deprecated.' level='WARN' %}
+
 {% if updatable %}
     {% if edit_perm %}{% trans "Edit" as title %}
 {#        <a onclick="creme.blocks.form('/creme_core/entity/edit/inner/{{ct_id}}/{{object.id}}/field/{{field}}', {% if block_name %}{blockReloadUrl:{% get_block_reload_uri %}}{% else %}{reloadOnSuccess: true}{% endif %}).open();" #}

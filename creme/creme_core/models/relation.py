@@ -56,6 +56,10 @@ class RelationType(CremeModel):
     is_copiable = BooleanField(default=True)   # If True, the relations with this type can be copied
                                                #  (ie when cloning or converting an entity)
 
+    # Try to display the relationships of this type only once in the detail-views ?
+    # ie: does not display them in the general relationships bricks when another bricks manage this type.
+    minimal_display = BooleanField(default=False)
+
     predicate      = CharField(_(u'Predicate'), max_length=100)
     symmetric_type = ForeignKey('self', blank=True, null=True)
 
@@ -95,11 +99,12 @@ class RelationType(CremeModel):
 
     @staticmethod
     @atomic
-    def create(subject_desc, object_desc, is_custom=False, generate_pk=False, is_internal=False, is_copiable=(True, True)):
+    def create(subject_desc, object_desc, is_custom=False, generate_pk=False, is_internal=False,
+               is_copiable=(True, True), minimal_display=(False, False)):
         """
-        @param subject_desc Tuple (string_pk, predicate_string [, sequence_of_cremeEntityClasses [, sequence_of_propertyTypes]])
-        @param object_desc See subject_desc
-        @param generate_pk If True, 'string_pk' args are used as prefix to generate pks.
+        @param subject_desc: Tuple (string_pk, predicate_string [, sequence_of_cremeEntityClasses [, sequence_of_propertyTypes]])
+        @param object_desc: See subject_desc.
+        @param generate_pk: If True, 'string_pk' args are used as prefix to generate pks.
         """
         padding       = ((), ())  # In case sequence_of_cremeEntityClasses or sequence_of_propertyType not given.
         subject_desc += padding
@@ -120,21 +125,25 @@ class RelationType(CremeModel):
                                                  defaults=dict(defaults,
                                                                predicate=pred_subject,
                                                                is_copiable=is_copiable[0],
+                                                               minimal_display=minimal_display[0],
                                                               )
                                                 )[0]
             obj_relation_type = update_or_create(id=pk_object,
                                                  defaults=dict(defaults,
                                                                predicate=pred_object,
                                                                is_copiable=is_copiable[1],
+                                                               minimal_display=minimal_display[1],
                                                               )
                                                 )[0]
         else:
             from creme.creme_core.utils.id_generator import generate_string_id_and_save
 
-            sub_relation_type = RelationType(predicate=pred_subject, is_custom=is_custom,
-                                             is_internal=is_internal, is_copiable=is_copiable[0])
-            obj_relation_type = RelationType(predicate=pred_object,  is_custom=is_custom,
-                                             is_internal=is_internal, is_copiable=is_copiable[1])
+            sub_relation_type = RelationType(predicate=pred_subject, is_custom=is_custom, is_internal=is_internal,
+                                             is_copiable=is_copiable[0], minimal_display=minimal_display[0],
+                                            )
+            obj_relation_type = RelationType(predicate=pred_object,  is_custom=is_custom, is_internal=is_internal,
+                                             is_copiable=is_copiable[1], minimal_display=minimal_display[1],
+                                            )
 
             generate_string_id_and_save(RelationType, [sub_relation_type], pk_subject)
             generate_string_id_and_save(RelationType, [obj_relation_type], pk_object)
@@ -182,7 +191,7 @@ class RelationType(CremeModel):
 
     def is_not_internal_or_die(self):
         if self.is_internal:
-            raise Http404(ugettext("You can't add/delete the relationships with this type (internal type)"))
+            raise Http404(ugettext(u"You can't add/delete the relationships with this type (internal type)"))
 
 
 # TODO: remove CremeAbstractEntity inheritance (user/modified not useful any more ??) ??

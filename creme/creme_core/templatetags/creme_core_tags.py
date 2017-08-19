@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,15 +19,19 @@
 ################################################################################
 
 import logging
+from itertools import izip_longest
 from json import dumps as json_dump
 from re import compile as compile_re
 from types import GeneratorType
+from urllib import urlencode
+from urlparse import urlsplit
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import FieldDoesNotExist
 from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode
 from django.template.defaulttags import TemplateLiteral
+from django.utils.safestring import mark_safe
 
 from mediagenerator.generators.bundles.utils import _render_include_media
 
@@ -38,7 +42,7 @@ from ..utils import safe_unicode, bool_as_html
 from ..utils.currency_format import currency
 from ..utils.media import get_creme_media_url  # get_current_theme
 from ..utils.meta import FieldInfo
-# from ..utils.translation import get_model_verbose_name
+from ..utils.translation import plural
 from ..utils.unicode_collation import collator
 
 
@@ -46,7 +50,7 @@ logger = logging.getLogger(__name__)
 register = Library()
 
 
-@register.filter(name="print_boolean")
+@register.filter(name='print_boolean')
 def print_boolean(x):
     return bool_as_html(x)
 
@@ -84,12 +88,13 @@ def get_meta_value(obj, key, default=''):
 
 
 # TODO: still useful ??
-@register.filter(name="get_tag")
+@register.filter(name='get_tag')
 def get_fieldtag(field, tag):
     """eg: {% if field|get_tag:'viewable' %}"""
     return field.get_tag(tag)
 
 
+# TODO: deprecate in favor of {% cell_4_regularfield %} ??
 @register.simple_tag
 def get_field_verbose_name(model_or_entity, field_name):
     try:
@@ -99,12 +104,7 @@ def get_field_verbose_name(model_or_entity, field_name):
         return 'INVALID FIELD'
 
 
-# TODO: ?
-# @register.assignment_tag(name='get_model_verbose_name')
-# def get_model_vname(model, count):
-#     return get_model_verbose_name(model, count)
-
-
+# TODO: deprecate ?
 @register.assignment_tag(takes_context=True)
 def get_viewable_fields(context, instance):
     is_hidden = context['fields_configs'].get_4_model(instance.__class__).is_field_hidden
@@ -179,12 +179,12 @@ def or_op(object1, object2):
     return object1 or object2
 
 
-@register.filter(name="bool")
+@register.filter(name='bool')
 def _bool(object1):
     return bool(object1)
 
 
-@register.filter(name="str")
+@register.filter(name='str')
 def _str(object1):
     return str(object1)
 
@@ -195,7 +195,7 @@ def absolute(integer):
     return abs(integer)
 
 
-@register.filter(name="in")
+@register.filter(name='in')
 def in_list(obj, list):
     return obj in list
 
@@ -216,7 +216,7 @@ def mod(integer, integer2):
     return integer % integer2
 
 
-@register.filter(name="xrange")
+@register.filter(name='xrange')
 def x_range(integer, start=0):
     return xrange(start, start + integer)
 
@@ -226,7 +226,12 @@ def isiterable(iterable):
     return hasattr(iterable, '__iter__')
 
 
-@register.filter(name="format")
+@register.filter
+def is_plural(x):
+    return plural(x)
+
+
+@register.filter(name='format')
 def format_string(ustring, format_str):
     return format_str % ustring
 
@@ -267,6 +272,7 @@ def jsonify(value):
     return json_dump(list(value) if isinstance(value, GeneratorType) else value)
 
 
+# TODO: useless ?
 @register.simple_tag
 def get_entity_summary(entity, user):
     return entity.get_entity_summary(user)
@@ -277,27 +283,64 @@ def get_entity_html_attrs(context, entity):
     return u' '.join(u'%s="%s"' % item for item in entity.get_html_attrs(context).iteritems())
 
 
+# See grouper implementation: https://docs.python.org/2/library/itertools.html#recipes
+@register.filter
+def grouper(value, n):
+    args = [iter(value)] * n
+    return izip_longest(fillvalue=None, *args)
+
+
 # TODO: move to a creme_history.py ?
 @register.filter
 def verbose_modifications(history_line, user):
     return history_line.get_verbose_modifications(user)
 
 
+@register.assignment_tag
+def url_join(*args, **params):
+    """ Add some GET parameters to a URL.
+    It's work even if the URL has already some GET parameters.
+
+    {% url_join my_url arg1=foo.bar arg2='baz' as my_uri %}
+    """
+    if not args:
+        return ''
+
+    # NB: we take the base URL with *args in order to allow all values for GET keys.
+    if len(args) > 1:
+        raise TemplateSyntaxError('url_join takes one & only one positional argument (the base URL)')
+
+    base = args[0]
+
+    if not base:
+        return ''
+    # TODO: base = unicode(base) ?
+
+    if not params:
+        uri = base
+    elif urlsplit(base).query:  # There are already some GET params
+        uri = base + '&' + urlencode(params, doseq=True)
+    else:
+        uri = base + '?' + urlencode(params, doseq=True)
+
+    return mark_safe(uri)
+
+
 # TAG : "templatize"------------------------------------------------------------
 _templatize_re = compile_re(r'(.*?) as (\w+)')
 
 
-@register.tag(name="templatize")
+@register.tag(name='templatize')
 def do_templatize(parser, token):
     try:
         # Splitting by None == splitting by spaces.
         tag_name, arg = token.contents.split(None, 1)
     except ValueError:
-        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+        raise TemplateSyntaxError, '%r tag requires arguments' % token.contents.split()[0]
 
     match = _templatize_re.search(arg)
     if not match:
-        raise TemplateSyntaxError, "%r tag had invalid arguments: %r" % (tag_name, arg)
+        raise TemplateSyntaxError, '%r tag had invalid arguments: %r' % (tag_name, arg)
 
     template_string, var_name = match.groups()
 
@@ -325,7 +368,7 @@ class TemplatizeNode(TemplateNode):
 _PRINT_FIELD_RE = compile_re(r'object=(.*?) field=(.*?)$')
 
 
-@register.tag(name="print_field")
+@register.tag(name='print_field')
 def do_print_field(parser, token):
     """Eg:{% print_field object=object field='created' %}"""
     try:
@@ -381,7 +424,7 @@ _PERMS_FUNCS = {
         'view':   lambda entity, user: user.has_perm_to_view(entity),
         'change': lambda entity, user: user.has_perm_to_change(entity),
         'delete': lambda entity, user: user.has_perm_to_delete(entity),
-        'link':   lambda entity_or_model, user: user.has_perm_to_link(entity_or_model),
+        'link':   lambda entity_or_model, user: user.has_perm_to_link(entity_or_model),  # TODO: or ctype
         'unlink': lambda entity, user: user.has_perm_to_unlink(entity),
         'access': lambda app_name, user: user.has_perm_to_access(app_name),
         'admin':  lambda app_name, user: user.has_perm_to_admin(app_name),
@@ -467,6 +510,7 @@ class MediaNode(TemplateNode):
         return _render_include_media(context['THEME_NAME'] + bundle, variation={})
 
 
+# TODO: creme_backends module ? (wait for list-view rework to see if it's still useful)
 @register.assignment_tag
 def get_export_backends():
     return json_dump([[backend.id, unicode(backend.verbose_name)]

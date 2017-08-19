@@ -1,0 +1,19 @@
+{% extends 'creme_core/bricks/base/tiles.html' %}
+{% load i18n creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_core-custom-fields-brick{% if not cells %} is-empty{% endif %}{% endblock %}
+
+{% block brick_menu_actions %}
+    {% brick_menu_reduce_action state %}
+    {{block.super}}
+{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('Custom fields') icon='info' %}
+{% endblock %}
+
+{% block brick_content %}
+    {% for cell in cells %}
+        {% brick_tile_for_cell cell object user %}
+    {% endfor %}
+{% endblock %}

@@ -1,4 +1,7 @@
 {% load creme_core_tags %}
+
+{% log 'The template file "creme/creme_core/templates/creme_core/templatetags/widgets/block_listview_button.html" is deprecated.' level='WARN' %}
+
 {# <a class="list" onclick="creme.dialogs.url('/creme_core/list_view/popup/{{ct_id}}/1?q_filter={{q_filter}}').open({width:'80%'});"> #}
 <a class="list" onclick="creme.dialogs.url('{% url 'creme_core__listview_popup' %}?ct_id={{ct_id}}&q_filter={{q_filter}}').open({width: '80%'});">
     <img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{{label}}" alt="{{label}}" />

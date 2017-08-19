@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016  Hybird
+#    Copyright (C) 2016-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -122,9 +122,10 @@ class _BatchProcessType(JobType):
                             create_result(entity=entity)
 
     @property
-    def results_blocks(self):
-        from ..blocks import entity_job_errors_block
-        return [entity_job_errors_block]
+    # def results_blocks(self):
+    def results_bricks(self):
+        from ..bricks import EntityJobErrorsBrick
+        return [EntityJobErrorsBrick()]
 
     def get_description(self, job):
         try:
@@ -146,8 +147,8 @@ class _BatchProcessType(JobType):
     def get_stats(self, job):
         count = EntityJobResult.objects.filter(job=job, raw_messages__isnull=True).count()
 
-        return [ungettext('%s entity has been successfully modified.',
-                          '%s entities have been successfully modified.',
+        return [ungettext(u'%s entity has been successfully modified.',
+                          u'%s entities have been successfully modified.',
                           count
                          ) % count,
                ]

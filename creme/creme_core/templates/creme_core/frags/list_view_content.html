@@ -1,5 +1,5 @@
-{% load i18n %}
-{% load creme_core_tags creme_widgets creme_listview creme_block %}
+{% load i18n creme_core_tags creme_widgets creme_listview creme_cells %}
+{% load creme_block %} {# REMOVE !! #}
 
 {% with cells=header_filters.selected.filtered_cells %}{% comment %}{% with cells=header_filters.selected.cells %}{% endcomment %}
 
@@ -124,7 +124,7 @@
                         <td title="actions" class="list_view_actions actions">{% get_entity_actions entity %}</td>
                     {% else %}
                         <td class="lv-cell lv-cell-content {% if cell.key == list_view_state.sort_field %}sorted{% endif %} column cl_lv {{cell.listview_css_class}}" title="" name="{{cell.key}}" {% if cell.is_hidden %}style="display:none;"{% endif %}>
-                            <div>{% get_listview_cell cell entity user %}</div>
+                            <div>{% cell_render cell=cell instance=entity user=user %}</div>
                         </td>
                         {% if not is_popup_view %}
                         <td class="lv-cell lv-cell-action {% if cell.key == list_view_state.sort_field %}sorted{% endif %} column cl_lv" {% if cell.is_hidden %}style="display:none;"{% endif %}>

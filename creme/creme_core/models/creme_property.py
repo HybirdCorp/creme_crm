@@ -31,11 +31,14 @@ from .entity import CremeEntity
 
 class CremePropertyType(CremeModel):
     id             = CharField(primary_key=True, max_length=100)
-    text           = CharField(max_length=200, unique=True)
-    subject_ctypes = ManyToManyField(ContentType, blank=True, related_name='subject_ctypes_creme_property_set')
+    text           = CharField(_(u'Text'), max_length=200, unique=True)
+    subject_ctypes = ManyToManyField(ContentType, blank=True,
+                                     verbose_name=_(u'Applies on entities with following types'),
+                                     related_name='subject_ctypes_creme_property_set',  # TODO: '+'
+                                    )
     is_custom      = BooleanField(default=False)  # TODO: editable=False ??
     # If True, the properties with this type can be copied (ie: when cloning or converting an entity).
-    is_copiable    = BooleanField(default=True)
+    is_copiable    = BooleanField(_(u'Is copiable'), default=True)
 
     creation_label = _(u'Create a type of property')
     save_label     = _(u'Save the type of property')

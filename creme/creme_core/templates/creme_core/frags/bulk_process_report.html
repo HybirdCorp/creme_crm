@@ -1,53 +1,15 @@
-{% load i18n %}
-{% load creme_core_tags creme_block %}
+{% load i18n creme_widgets %}
 
-<table class="table_header" cellpadding="0" cellspacing="0">
-    <tr>
-        <td width="5%"><img src="{% creme_media_url 'images/edit_64.png' %}" alt=""/></td>
-        <td width="95%">
-            <h1>{{title}}</h1>
-        </td>
-    </tr>
-</table>
+<div class="hat-bar-container">
+    <div class="hat-bar">
+        <div class="bar-icon">{% widget_icon name='info' size='brick-hat-bar' label=_('Information') %}</div>
+        <div class="bar-title"><h1>{{title}}</h1></div>
+    </div>
+</div>
 
-{% with form.bulk_invalid_entities as errors %}
+{% with errors=form.bulk_invalid_entities %}
     {% if errors %}
-        <div class="help_box">{{summary|linebreaksbr}}</div>
-        {% with count=errors|length %}
-            <table class="table_detail_view ui-corner-all with-header">
-                {% get_block_header colspan=2 %}
-                    <th class="label">{% get_block_title  _('%s Error') _('%s Errors') 'info_48.png' 'Infos' count %}</th>
-                    <th class="actions"></th>
-                {% end_get_block_header %}
-                <tbody class="collapsable">
-                    <tr class="header">
-                        <th class="block_header_line_dark">{% trans "Entity" %}</th>
-                        <th class="block_header_line_dark">{% trans "Induced error" %}</th>
-                    </tr>
-                    {% for entity, error in errors %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
-                        <tr class="content">
-                            <td class="{{row_color}}">{{entity}}</td>
-                            <td class="{{row_color}}">
-                                <ul>
-                                    {% for message in error.messages %}
-                                        <li>{{message}}</li>
-                                    {% endfor %}
-                                </ul>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-                {% if count > 100 %}
-                    <tfooter class="collapsable">
-                        <tr>
-                            <td colspan="2" class="block_header_line_dark">
-                                {% trans "Other errors have been omitted." %}
-                            </td>
-                        </tr>
-                    </tfooter>
-                {% endif %}
-            </table>
-        {% endwith %}
+        {% include 'creme_core/bricks/bulk-errors.html' %}
     {% else %}
         <p>{{summary|linebreaksbr}}</p>
     {% endif %}

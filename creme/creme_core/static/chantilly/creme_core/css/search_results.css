@@ -22,3 +22,24 @@
 .search-form input[type=submit] {
     margin-left: 10px;
 }
+
+#sub_content > .search_results > .table_header td:first-child { /* page headers... */
+    width: 5%; /* backwards compatibility - 5% is hardcoded in the form 'generics/blockform/base.html' template */
+}
+
+/* Advanced search results bricks */
+.creme_core-search-brick table th {
+    min-width: 100px;
+    max-width: 300px;
+    white-space: nowrap;
+}
+
+.creme_core-search-brick.brick-table .brick-table-content .brick-table-action {
+    padding: 0;
+}
+
+.creme_core-search-brick.brick-table .brick-table-content > thead > tr > :first-child {
+    width: 10px; /* Small size to try to get the minimal size ; does get the same result in all browsers...  */
+    text-align: left;
+    padding-left: 10px;
+}

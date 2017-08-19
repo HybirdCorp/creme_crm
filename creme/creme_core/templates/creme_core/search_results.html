@@ -1,31 +1,59 @@
-{% extends "creme_core/base.html" %}
-{% load i18n creme_core_tags creme_block creme_search %}
+{% extends 'creme_core/base.html' %}
+{% load i18n creme_widgets creme_bricks creme_search %}
 
 {% block page_title %}{% trans 'Search results' %} - {% endblock %}
 
 {% block extrahead %}
-    <script>
-        $(document).ready(function() {
-            creme.utils.decorateSearchResult('{{research|escapejs}}');
+<script>
+    $(document).ready(function() {
+{#        creme.utils.decorateSearchResult('{{research|escapejs}}');  #}
+
+        var total = 0;
+        $('.brick.creme_core-search-brick[search-count]').each(function() {
+            total += parseInt($(this).attr('search-count'));
         });
-    </script>
+{% trans 'Search results: %d entity' as singular_msg %}{% trans 'Search results: %d entities' as plural_msg %}
+        var title_fmt = pluralidx(total) ? '{{plural_msg|escapejs}}' : '{{singular_msg|escapejs}}';
+
+        $('#search_results_title').text(title_fmt.format(total));
+    });
+
+    var SEARCH = '{{research|escapejs|lower}}';
+
+    $(document).on('brick-ready', '.brick.creme_core-search-brick:not(.is-empty)', function(e, brick, options) {
+        brick._element.find('.advanced-search-result').each(function() {
+            var results = $(this);
+            results.addClass('marked');
+
+            var _wrap = function() {
+                var result = $(this);
+
+                if (result.prop('tagName')) {
+                    result.contents().each(_wrap);
+                } else {
+                    if (result.text().toLowerCase().indexOf(SEARCH) >= 0) {
+                        result.wrap($('<mark/>'));
+                    }
+                }
+            };
+
+            results.contents().each(_wrap);
+        });
+    });
+</script>
 {% endblock %}
 
 {% block content %}
 <div class="search_results">
-    <table class="table_header" cellpadding="0" cellspacing="0">
-        <tr>
-            <td class="logo"><img src="{% creme_media_url 'images/search_64.png' %}" alt="{% trans 'Search' context 'creme_core-noun' %}"/></td>
-            <td class="title">
-                {% comment %}<h1>{% blocktrans count total as result_count %}Search results : {{result_count}} result{% plural %}Search results : {{result_count}} results{% endblocktrans %}</h1>{% endcomment %}
-                <h1 id="search_results_title">Search results</h1>{% comment %}The title is updated by JavaScript{% endcomment %}
-            </td>
-            <td class="actions"></td>
-        </tr>
-    </table>
+    <div class="hat-bar-container">
+        <div class="hat-bar">{% trans 'Search' context 'creme_core-noun' as title %}
+            <div class="bar-icon">{% widget_icon name='search' size='brick-hat-bar' label=title %}</div>
+            <div class="bar-title"><h1 id="search_results_title">Search results</h1></div>{# The title is updated by JavaScript #}
+        </div>
+    </div>
 
     {% if not OLD_MENU %}
-        {% get_search_form user selected_ct_id research %}
+        {% search_form user selected_ct_id research %}
     {% endif %}
 
     {% if research or models %}
@@ -48,8 +76,8 @@
         </ul>
     {% endif %}
 
-    {% import_blocks blocks as 'result_blocks' %}
-    {% display_blocks 'result_blocks' %}
-    {% get_blocks_dependencies %}
+    {% brick_declare blocks %}
+    {% brick_display blocks %}
+    {% brick_end %}
 </div>
 {% endblock %}

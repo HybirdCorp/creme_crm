@@ -1,0 +1,31 @@
+{% extends 'creme_core/bricks/base/table.html' %}
+{% load i18n creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_core-statistics-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('Statistics') %}
+{% endblock %}
+
+{% block brick_table_head %}{% endblock %}
+
+{% block brick_table_rows %}
+    {% for item in items %}
+    <tr>
+        <td>{{item.label}}</td>
+        <td>
+        {% with stats=item.retrieve %}
+            {% if stats %}
+                {% if stats|length == 1 %}
+                    {{stats.0}}
+                {% else %}
+                    <ul>{% for stat in stats %}<li>{{stat}}</li>{% endfor %}</ul>
+                {% endif %}
+            {% else %}
+                —
+            {% endif %}
+        {% endwith %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,6 +40,13 @@ def get_current_theme():
     theme_info = getattr(get_global_info('user'), 'theme_info', None) or settings.THEMES[0]
 
     return theme_info[0]
+
+
+def get_current_theme_from_context(context):
+    try:
+        return context['THEME_NAME']
+    except KeyError:
+        return get_current_theme()
 
 
 def get_current_theme_vb(theme_name=None):

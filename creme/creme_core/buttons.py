@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+import warnings
 
 from django.utils.translation import ugettext_lazy as _
 
@@ -34,6 +36,11 @@ class MergeEntitiesButton(Button):
 
     def ok_4_display(self, entity):
         return merge_form_registry.get(entity.__class__) is not None
+
+    def render(self, context):
+        warnings.warn('creme_core.buttons.MergeEntitiesButton is deprecated.', DeprecationWarning)
+
+        super(MergeEntitiesButton, self).render(context)
 
 
 merge_entities_button = MergeEntitiesButton()

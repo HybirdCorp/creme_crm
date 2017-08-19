@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,16 +18,38 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.shortcuts import render
 
 from ..auth.decorators import login_required
+from ..gui.bricks import brick_registry
+from ..models import BlockPortalLocation, BlockMypageLocation
+
+
+def _render_home(request, template_name, brick_ids):
+    return render(request, template_name,
+                  # context={'bricks': block_registry.get_blocks([id_ for id_ in brick_ids if id_]),
+                  context={'bricks':            list(brick_registry.get_bricks([id_ for id_ in brick_ids if id_])),
+                           'bricks_reload_url': reverse('creme_core__reload_home_bricks'),
+                          },
+                 )
 
 
 @login_required
 def home(request):
-    return render(request, 'creme_core/home.html')
+    return _render_home(request, 'creme_core/home.html',
+                        brick_ids=BlockPortalLocation.objects
+                                                     .filter(app_name='creme_core')
+                                                     .order_by('order')
+                                                     .values_list('block_id', flat=True),
+                       )
 
 
 @login_required
 def my_page(request):
-    return render(request, 'creme_core/my_page.html')
+    return _render_home(request, 'creme_core/my_page.html',
+                        brick_ids=BlockMypageLocation.objects
+                                                     .filter(user=request.user)
+                                                     .order_by('order')
+                                                     .values_list('block_id', flat=True),
+                       )

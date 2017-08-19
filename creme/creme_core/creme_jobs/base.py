@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016  Hybird
+#    Copyright (C) 2016-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,6 @@ from django.apps import apps
 from django.utils.timezone import now
 
 from ..models import Job, JobResult
-# from ..registry import creme_registry
 
 
 logger = logging.getLogger(__name__)
@@ -61,15 +60,13 @@ class JobType(object):
         raise NotImplementedError
 
     @property
-    # def app(self):
     def app_config(self):
-        # return creme_registry.get_app(self.id[:self.id.find('-')])
         return apps.get_app_config(self.id[:self.id.find('-')])
 
     @property
-    def results_blocks(self):
-        from ..blocks import job_errors_block
-        return [job_errors_block]
+    def results_bricks(self):
+        from ..bricks import JobErrorsBrick
+        return [JobErrorsBrick()]
 
     def execute(self, job):  # NB: we do not use __call__ because we want to use instances of JobType in template
         if self.periodic != self.NOT_PERIODIC and job.last_run:

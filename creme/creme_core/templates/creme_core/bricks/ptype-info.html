@@ -1,0 +1,67 @@
+{% extends 'creme_core/bricks/base/base.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}brick-kv-list creme_core-ptype-info-brick{% endblock %}
+{% comment %}
+    {# version with groups as large as the brick #}
+    {% block brick_content_extra_class %}-kv-full-width-groups{% endblock %}
+{% endcomment %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('General information') icon='property' %}
+{% endblock %}
+
+{% block brick_content %}
+<div class='brick-kv-group'>
+    <div class='brick-kv-item'>
+        <div class='brick-kv-key'>{% trans 'Text' %}</div>
+        <div class='brick-kv-value -kv-left'>{% print_field object=object field='text' %}</div>
+    </div>
+    <div class='brick-kv-item'>
+        <div class='brick-kv-key'>{% trans 'Applies on entities with following types' %}</div>
+        <div class='brick-kv-value -kv-left'>
+        {% for ctype in ctypes %}{% widget_join %}<a>{{ctype}}</a>{% end_widget_join %}{% empty %}{% trans "No related type of resource" %}{% endfor %}
+        </div>
+    </div>
+    <div class='brick-kv-item'>
+        <div class='brick-kv-key'>{% trans 'Is copiable' %}</div>
+        <div class='brick-kv-value -kv-left'>{% print_field object=object field='is_copiable' %}</div>
+    </div>
+    <div class='brick-kv-item'>
+        <div class='brick-kv-key'>{% trans 'Statistics' %}</div>
+        <div class='brick-kv-value -kv-left'>{% blocktrans count count_stat as count %}{{count}} entity with this property{% plural %}{{count}} entities with this property{% endblocktrans %}</div>
+    </div>
+</div>
+{% comment %}
+<div class='brick-kv-group'>
+    <div class='brick-kv-item'>
+        <div class='brick-kv-key'>{% trans "Text" %}</div>
+        <div class='brick-kv-value'>{% print_field object=object field='text' %}</div>
+    </div>
+    <div class='brick-kv-item'>
+        <div class='brick-kv-key'>{% trans "Applies on entities with following types" %}</div>
+        <div class='brick-kv-value'>
+        {% for ctype in ctypes %}{% widget_join %}<a>{{ctype}}</a>{% end_widget_join %}{% empty %}{% trans "No related type of resource" %}{% endfor %}
+        </div>
+    </div>
+</div>
+<div class='brick-kv-group'>
+    <div class='brick-kv-item'>
+        <div class='brick-kv-key'>{% trans "Is copiable" %}</div>
+        <div class='brick-kv-value'>{% print_field object=object field='is_copiable' %}</div>
+    </div>
+    <div class='brick-kv-item'>
+        <div class='brick-kv-key'>{% trans "Statistics" %}</div>
+        <div class='brick-kv-value'>{% blocktrans count count_stat as count %}{{count}} entity with this property{% plural %}{{count}} entities with this property{% endblocktrans %}</div>
+    </div>
+</div>
+{% endcomment %}
+{% endblock %}
+
+{% block brick_script %}
+<style>
+    .brick-kv-value.-kv-left {
+        text-align: left;
+    }
+</style>
+{% endblock %}

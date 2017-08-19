@@ -1,0 +1,46 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_widgets creme_ctype creme_cells creme_bricks %}
+
+{% block brick_extra_class %}
+{{block.super}} creme_core-search-brick{% if page.paginator.count == 0 %} is-empty{% endif %}
+{% endblock %}
+
+{% block brick_extra_attributes %}
+search-count="{{page.paginator.count}}"
+{% endblock %}
+
+{% block brick_header_title %}
+    {% ctype_counted_instances_label ctype page.paginator.count as title %}
+    {% widget_icon ctype=ctype size='brick-header' as ct_icon %}
+    {% brick_header_title title=title icon=ct_icon %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% if cells %}
+        {% brick_table_column title=_('See') status='action' %}
+        {% for cell in cells %}
+            {% brick_table_column title=cell %}
+        {% endfor %}
+    {% else %}
+        <tr><th>{% trans 'It seems that all fields are hidden. Ask your administrator to fix the configuration.' %}</th></tr>
+    {% endif %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for entity in page.object_list %}
+    <tr>
+    {% if cells %}
+        <td>
+            <a href="{{entity.get_absolute_url}}" class="brick-table-action{% if entity.is_deleted %} is_deleted{% endif %}">
+                {% widget_icon name='view' size='brick-table-action' class='brick-table-action-icon' %}
+            </a>
+        </td>
+    {% endif %}
+    {% for cell in cells %}
+        <td class="advanced-search-result">{% cell_render cell=cell instance=entity user=user as cell_content %}
+            {% if cell_content %}{{cell_content}}{% else %}<span class="empty-field">—</span>{% endif %}
+        </td>
+    {% endfor %}
+    </tr>
+    {% endfor %}
+{% endblock %}

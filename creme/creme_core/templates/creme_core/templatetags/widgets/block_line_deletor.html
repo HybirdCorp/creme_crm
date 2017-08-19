@@ -1,5 +1,7 @@
-{% load i18n %}
-{% load creme_block creme_core_tags %}
+{% load i18n creme_block creme_core_tags %}
+
+{% log 'The template file "creme/creme_core/templates/creme_core/templatetags/widgets/block_line_deletor.html" is deprecated.' level='WARN' %}
+
 {% if line_perm %}
     <a class="pointer" onclick="creme.blocks.confirmPOSTQuery('{{action_url}}', {blockReloadUrl:{% get_block_reload_uri %}}, {{post_args}}).start();">
         {% trans "Delete" as img_title %}<img src="{% creme_media_url 'images/delete_22_button.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}">

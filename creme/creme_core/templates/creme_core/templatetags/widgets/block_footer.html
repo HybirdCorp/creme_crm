@@ -1,5 +1,7 @@
-{% load i18n %}
-{% load creme_block creme_core_tags %}
+{% load i18n creme_block creme_core_tags %}
+
+{% log 'The template file "creme/creme_core/templates/creme_core/templatetags/widgets/block_footer.html" is deprecated.' level='WARN' %}
+
 {% if page.paginator.num_pages != 1 %}
     <tfoot class="collapsable">
         {% comment %}

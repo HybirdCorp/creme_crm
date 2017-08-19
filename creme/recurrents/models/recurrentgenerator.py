@@ -39,8 +39,8 @@ class AbstractRecurrentGenerator(CremeEntity):
                                  )
     is_working       = BooleanField(_(u'Active ?'), editable=False, default=True)  # TODO: useful ?
 
-    creation_label = _('Create a generator')
-    save_label     = _('Save the generator')
+    creation_label = _(u'Create a generator')
+    save_label     = _(u'Save the generator')
 
     class Meta:
         abstract = True

@@ -1,0 +1,94 @@
+{% extends 'creme_core/bricks/base/paginated-list.html' %}
+{% load i18n creme_core_tags creme_bricks creme_cells creme_ctype creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} creme_core-specific-relations-brick{% endblock %}
+
+{% block brick_header_title %}
+{% with predicate=relation_type.predicate %}
+    {% if page.paginator.count|is_plural %}{% trans '{count} Entities' as first_part %}{% else %}{% trans '{count} Entity' as first_part %}{% endif %}
+    {% templatize '{{first_part}} — {{predicate}}' as title_fmt %}
+    {% brick_header_title title=title_fmt empty=predicate icon='relations' %}
+{% endwith %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to link object as subject_link_perm %}{% url 'creme_core__create_relations' object.id relation_type.id as create_url %}
+    {% brick_header_action id='link' url=create_url label=_('New relationships') enabled=subject_link_perm %}
+{% endblock %}
+
+{% block brick_list_content %}
+{% has_perm_to unlink object as subject_unlink_perm %}{% url 'creme_core__delete_relation' as delete_url %}
+{% for entities, cells in groups %}
+{% with counter=entities|length %}
+{% if counter %}
+    <div class="brick-list-item relation-item">
+        <div class="relation-group relation-summary-group">
+            <div class="relation-group-key">
+                {% ctype_counted_instances_label entities.0.entity_type counter as label %}{{label}}
+            </div>
+{#            <div class="relation-group-value"></div> #}
+        </div>
+        <div class="relation-group relation-info-group brick-table">
+            <table class="relation-group-value brick-table-content">
+            {% if cells %}
+                <thead>
+                    <tr>
+                    {% for cell in cells %}
+                        {% if forloop.first %}
+                            {% brick_table_column title=cell.title status='primary' %}
+                        {% else %}
+                            {% brick_table_column title=cell.title %}
+                        {% endif %}
+                    {% endfor %}
+                    {% brick_table_column title=_('Action') status='action' %}
+                    </tr>
+                </thead>
+                <tbody>
+                {% for entity_obj in entities %}
+                    <tr>{% has_perm_to view entity_obj as object_view_perm %}
+                    {% if object_view_perm %}
+                        {% for cell in cells %}
+                            {% if forloop.first %}
+                            <td {% brick_table_data_status primary %} {% if cell.data_type %}data-type="{{cell.data_type}}"{% endif %}>
+                                {% cell_render cell=cell instance=entity_obj user=user output='csv' as cell_content %}
+                                <a href="{{entity_obj.get_absolute_url}}"{% if entity.is_deleted %}class="is_deleted"{% endif %}>{% if cell_content %}{{cell_content}}{% else %}<span class="empty-field">{% trans '(empty)' %}</span>{% endif %}</a>
+                            {% else %}
+                            <td {% if cell.data_type %}data-type="{{cell.data_type}}"{% endif %}>
+                                {% cell_render cell=cell instance=entity_obj user=user as cell_content %}
+                                {% if cell_content %}{{cell_content}}{% else %}<span class="empty-field">—</span>{% endif %}
+                            {% endif %}
+                            </td>
+                        {% endfor %}
+                    {% else %}
+                        {% for cell in cells %}
+                        <td>{{HIDDEN_VALUE}}</td>
+                        {% endfor %}
+                    {% endif %}
+                        <td  {% brick_table_data_status action %}>{% has_perm_to unlink entity_obj as object_unlink_perm %}
+                        {% brick_table_action id='delete' url=delete_url __id=entity_obj.srb_relation_cache.id label=_('Delete this relationship') icon='unlink' enabled=subject_unlink_perm|and_op:object_unlink_perm %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tbody>
+                {% for entity_obj in entities %}
+                    <tr>
+                        <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink entity_obj user %}</td>
+                        <td {% brick_table_data_status action %}>{% has_perm_to unlink entity_obj as object_unlink_perm %}
+                        {% brick_table_action id='delete' url=delete_url __id=entity_obj.srb_relation_cache.id label=_('Delete this relationship') icon='unlink' enabled=subject_unlink_perm|and_op:object_unlink_perm %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endif %}
+{% endwith %}
+{% endfor %}
+{% endblock %}
+
+{% block brick_list_empty %}
+    {% trans 'No related entity for the moment' %}
+{% endblock %}

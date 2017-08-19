@@ -1,5 +1,8 @@
 {% load i18n %}
 {% load creme_core_tags creme_block creme_widgets %}
+
+{% log 'The template file "creme/creme_core/templates/creme_core/templatetags/block_history.html" is deprecated.' level='WARN' %}
+
 {% with object|yesno:'4,5' as colspan %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=colspan %}

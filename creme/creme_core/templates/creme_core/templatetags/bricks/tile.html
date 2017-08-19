@@ -1,0 +1,10 @@
+{% load creme_bricks %}
+<div class="brick-tile{% if multiline %} brick-tile-multiline-value{% endif %}{% if not content %} brick-tile-empty-value{% endif %}"
+     {% if data_type %}data-type="{{data_type}}"{% endif %}
+     {% if key %}data-key="{{key}}"{% endif %}
+     {% if edit_url %}data-field-editable{% endif %}>
+    <span class="brick-tile-name">
+        {{label}}{% if edit_url %}{% brick_tile_action id='edit' url=edit_url enabled=edit_perm %}{% endif %}
+    </span>
+    <span class="brick-tile-value">{% if content %}{{content}}{% else %}<span class="empty-field">—</span>{% endif %}</span>
+</div>

@@ -25,13 +25,13 @@
 creme.merge = creme.merge || {};
 
 creme.merge.selectOtherEntityNRedirect = function(model_id, selection_url, merge_url) {
+    console.warn('creme.lv_widget.selectOtherEntityNRedirect() is deprecated.');
+
     if (selection_url === undefined) {
-        console.warn('creme.lv_widget.selectOtherEntityNRedirect(): implicit "selection_url" argument is deprecated ; give the URL as second argument.');
         selection_url = '/creme_core/entity/merge/select_other/';
     }
 
     if (merge_url === undefined) {
-        console.warn('creme.lv_widget.selectOtherEntityNRedirect(): implicit "merge_url" argument is deprecated ; give the URL as third argument.');
         merge_url = '/creme_core/entity/merge/';
     }
 

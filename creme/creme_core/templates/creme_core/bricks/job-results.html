@@ -1,0 +1,30 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_core-job-results-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% if job.is_finished %}
+    {% brick_header_title title=_('{count} Result') plural=_('{count} Results') empty=_('Results') %}
+    {% else %}
+    {% brick_header_title title=_('Results [job is not finished yet]') %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for result in page.object_list %}
+    <tr>
+        <td>{# factorise #}
+            {% if result.messages|length > 1 %}
+            <ul>{% for msg in result.messages %}<li>{{msg}}</li>{% endfor %}</ul>
+            {% else %}
+            {{result.messages.0}}
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No message' %}
+{% endblock %}

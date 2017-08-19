@@ -1257,7 +1257,7 @@ class ImportForm4CremeEntity(ImportForm):
 
     def __init__(self, *args, **kwargs):
         super(ImportForm4CremeEntity, self).__init__(*args, **kwargs)
-
+        user = self.user
         fields = self.fields
         ct = ContentType.objects.get_for_model(self._meta.model)
         fields['property_types'].queryset = CremePropertyType.objects.filter(Q(subject_ctypes=ct) |
@@ -1271,14 +1271,14 @@ class ImportForm4CremeEntity(ImportForm):
         fdyn_relations.allowed_rtypes = rtypes
         fdyn_relations.columns = self.choices[1:]
 
-        fields['user'].initial = self.user.id
+        fields['user'].initial = user.id
 
         # TODO: in a staticmethod of CustomField ?? (see models.entity.py)
         self.cfields = cfields = CustomField.objects.filter(content_type=ct)
         get_col = self.header_dict.get
         for cfield in cfields:
             fields[_CUSTOM_NAME % cfield.id] = CustomfieldExtractorField(
-                                                    self.choices, cfield, user=self.user,
+                                                    self.choices, cfield, user=user,
                                                     initial={'selected_column': get_col(slugify(cfield.name), 0)},
                                                 )
 
@@ -1377,7 +1377,7 @@ def extractorfield_factory(modelfield, header_dict, choices):
 #     bit we need to avoid the model validation, because we are are not building a true
 #    'self.instance', but a set of instances ; we just use the regular form validation.
 def form_factory(ct, header):
-    choices = [(0, _('Not in the file'))]
+    choices = [(0, _(u'Not in the file'))]
     header_dict = {}
 
     if header:

@@ -6,19 +6,21 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
-    from django.utils.translation import ugettext as _
     from django.test import override_settings
+    from django.utils.translation import ugettext as _
 
-    from .base import ViewsTestCase
-    from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation, FakeSector
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.gui.block import QuerysetBlock
+    from creme.creme_core.gui.bricks import QuerysetBrick
     from creme.creme_core.models import SearchConfigItem, FieldsConfig, SetCredentials
+
+    from ..fake_models import FakeContact, FakeOrganisation, FakeSector
+
+    from .base import ViewsTestCase, BrickTestCaseMixin
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-class SearchViewTestCase(ViewsTestCase):
+class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
     # LIGHT_URL = '/creme_core/search/light/'
     LIGHT_URL = reverse('creme_core__light_search')
 
@@ -30,9 +32,9 @@ class SearchViewTestCase(ViewsTestCase):
         # ViewsTestCase.setUpClass()
         super(SearchViewTestCase, cls).setUpClass()
         # cls.populate('creme_core')
-        cls.contact_ct_id = ContentType.objects.get_for_model(Contact).id
+        cls.contact_ct_id = ContentType.objects.get_for_model(FakeContact).id
 
-        QuerysetBlock.page_size = 10
+        QuerysetBrick.page_size = 10
 
         cls._sci_backup = list(SearchConfigItem.objects.all())
         SearchConfigItem.objects.all().delete()
@@ -42,8 +44,8 @@ class SearchViewTestCase(ViewsTestCase):
         # ViewsTestCase.tearDownClass()
         super(SearchViewTestCase, cls).tearDownClass()
 
-        del QuerysetBlock.page_size
-        assert QuerysetBlock.page_size  # In PaginatedBlock
+        del QuerysetBrick.page_size
+        assert QuerysetBrick.page_size  # In PaginatedBlock
 
         SearchConfigItem.objects.all().delete()
         SearchConfigItem.objects.bulk_create(cls._sci_backup)
@@ -51,23 +53,23 @@ class SearchViewTestCase(ViewsTestCase):
     def _build_contacts(self, user=None):
         sector = FakeSector.objects.create(title='Linux dev')
 
-        create_contact = partial(Contact.objects.create, user=user or self.user)
+        create_contact = partial(FakeContact.objects.create, user=user or self.user)
         self.linus  = create_contact(first_name='Linus',  last_name='Torvalds')
         self.alan   = create_contact(first_name='Alan',   last_name='Cox',      description='Cool beard')
         self.linus2 = create_contact(first_name='Linus',  last_name='Impostor', is_deleted=True)
         self.andrew = create_contact(first_name='Andrew', last_name='Morton',   sector=sector)
 
     def _setup_contacts(self, disabled=False, user=None):
-        SearchConfigItem.create_if_needed(Contact,
+        SearchConfigItem.create_if_needed(FakeContact,
                                           ['first_name', 'last_name', 'sector__title'],
                                           disabled=disabled,
                                          )
         self._build_contacts(user)
 
     def _setup_orgas(self):
-        SearchConfigItem.create_if_needed(Organisation, ['name'])
+        SearchConfigItem.create_if_needed(FakeOrganisation, ['name'])
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(FakeOrganisation.objects.create, user=self.user)
         self.linusfo = create_orga(name='FoobarLinusFoundation')
         self.coxco   = create_orga(name='StuffCoxCorp')
 
@@ -102,9 +104,10 @@ class SearchViewTestCase(ViewsTestCase):
         self.assertEqual(1, len(blocks))
 
         block = blocks[0]
-        self.assertIsInstance(block, QuerysetBlock)
+        self.assertIsInstance(block, QuerysetBrick)
         self.assertIn(self.CONTACT_BLOCKID, block.id_)
-        self.assertEqual('creme_core/templatetags/block_found_entities.html',
+        # self.assertEqual('creme_core/templatetags/block_found_entities.html',
+        self.assertEqual('creme_core/bricks/found-entities.html',
                          block.template_name
                         )
 
@@ -143,8 +146,8 @@ class SearchViewTestCase(ViewsTestCase):
         self.assertNotContains(response, self.linusfo.get_absolute_url())
 
         vnames = {unicode(vname) for vname in context['models']}
-        self.assertIn(_('Contact'), vnames)
-        self.assertIn(_('Organisation'), vnames)
+        self.assertIn(_(u'Contact'), vnames)
+        self.assertIn(_(u'Organisation'), vnames)
 
     @override_settings(OLD_MENU=False)
     def test_search04(self):
@@ -215,14 +218,14 @@ class SearchViewTestCase(ViewsTestCase):
         self.assertNotContains(response, self.alan.get_absolute_url())
 
         vnames = {unicode(vname) for vname in context['models']}
-        self.assertIn(Organisation._meta.verbose_name, vnames)
-        self.assertNotIn(Contact._meta.verbose_name, vnames)
+        self.assertIn(FakeOrganisation._meta.verbose_name, vnames)
+        self.assertNotIn(FakeContact._meta.verbose_name, vnames)
 
     def test_search08(self):
         "Use Role's config if it exists"
         self.login(is_superuser=False, allowed_apps=['creme_core'])
 
-        SearchConfigItem.create_if_needed(Contact, ['description'], role=self.role)
+        SearchConfigItem.create_if_needed(FakeContact, ['description'], role=self.role)
         self._setup_contacts()
 
         response = self._search('bear', self.contact_ct_id)
@@ -236,7 +239,7 @@ class SearchViewTestCase(ViewsTestCase):
         "Use Role's config if it exists (super-user)"
         self.login()
 
-        SearchConfigItem.create_if_needed(Contact, ['description'], role='superuser')
+        SearchConfigItem.create_if_needed(FakeContact, ['description'], role='superuser')
         self._setup_contacts()
 
         response = self._search('bear', self.contact_ct_id)
@@ -252,7 +255,7 @@ class SearchViewTestCase(ViewsTestCase):
 
         hidden_fname1 = 'description'
         hidden_fname2 = 'sector'
-        SearchConfigItem.create_if_needed(Contact,
+        SearchConfigItem.create_if_needed(FakeContact,
                                           ['first_name', 'last_name',
                                            hidden_fname1,
                                            hidden_fname2 + '__title',
@@ -261,12 +264,12 @@ class SearchViewTestCase(ViewsTestCase):
 
         sector = FakeSector.objects.create(title='Linux dev')
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         linus  = create_contact(first_name='Linus',  last_name='Torvalds', description="Alan's friend")
         alan   = create_contact(first_name='Alan',   last_name='Cox',      description="Linus' friend")
         andrew = create_contact(first_name='Andrew', last_name='Morton',   sector=sector)
 
-        FieldsConfig.create(Contact,
+        FieldsConfig.create(FakeContact,
                             descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
                                           (hidden_fname2, {FieldsConfig.HIDDEN: True}),
                                          ]
@@ -279,18 +282,18 @@ class SearchViewTestCase(ViewsTestCase):
         self.assertNotContains(response, alan.get_absolute_url())
         self.assertNotContains(response, andrew.get_absolute_url())
 
-        self.assertContains(response, _('First name'))
-        self.assertContains(response, _('Last name'))
-        self.assertNotContains(response, _('Description'))
-        self.assertNotContains(response, _('Sector'))
+        self.assertContains(response, _(u'First name'))
+        self.assertContains(response, _(u'Last name'))
+        self.assertNotContains(response, _(u'Description'))
+        self.assertNotContains(response, _(u'Sector'))
 
     def test_search11(self):
         "With FieldsConfig: all fields are hidden"
         self.login()
 
         hidden_fname = 'description'
-        SearchConfigItem.create_if_needed(Contact, [hidden_fname])
-        FieldsConfig.create(Contact,
+        SearchConfigItem.create_if_needed(FakeContact, [hidden_fname])
+        FieldsConfig.create(FakeContact,
                             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})]
                            )
         self._build_contacts()
@@ -303,7 +306,7 @@ class SearchViewTestCase(ViewsTestCase):
         self.assertNotContains(response, self.andrew.get_absolute_url())
 
         self.assertContains(response,
-                            _('It seems that all fields are hidden. Ask your administrator to fix the configuration.')
+                            _(u'It seems that all fields are hidden. Ask your administrator to fix the configuration.')
                            )
 
     def test_search12(self):
@@ -338,11 +341,36 @@ class SearchViewTestCase(ViewsTestCase):
         self.assertEqual(block_id, result[0])
         self.assertIn(' id="%s"' % block_id, result[1])
 
+    def test_reload_brick(self):
+        self.login()
+        self._setup_contacts()
+
+        url = reverse('creme_core__reload_search_brick')
+        brick_id = self.CONTACT_BLOCKID + '-32132154'
+        self.assertGET404(url, data={'brick_id': brick_id, 'search': 'da'})
+
+        response = self.assertGET200(url, data={'brick_id': brick_id, 'search': 'linu'})
+
+        with self.assertNoException():
+            results = json_load(response.content)
+
+        self.assertIsInstance(results, list)
+        self.assertEqual(1, len(results))
+
+        result = results[0]
+        self.assertIsInstance(result, list)
+        self.assertEqual(2, len(result))
+
+        self.assertEqual(brick_id, result[0])
+
+        doc = self.get_html_tree(result[1])
+        self.get_brick_node(doc, brick_id)
+
     def test_light_search01(self):
         user = self.login()
 
         self._setup_contacts()
-        coxi = Contact.objects.create(user=user, first_name='Coxi', last_name='Nail')
+        coxi = FakeContact.objects.create(user=user, first_name='Coxi', last_name='Nail')
 
         self._setup_orgas()
 
@@ -401,7 +429,7 @@ class SearchViewTestCase(ViewsTestCase):
                                      )
 
         self._setup_contacts(user=self.other_user)
-        coxi = Contact.objects.create(user=user, first_name='Coxi', last_name='Nail')
+        coxi = FakeContact.objects.create(user=user, first_name='Coxi', last_name='Nail')
 
         response = self.assertGET200(self.LIGHT_URL, data={'value': 'cox'})
 
@@ -453,7 +481,7 @@ class SearchViewTestCase(ViewsTestCase):
              #           'limit': 5,
              #           'ctype': None,
              #          },
-             'error': _(u"Please enter at least %s characters") % 3,
+             'error': _(u'Please enter at least %s characters') % 3,
             },
             json_load(response.content)
         )

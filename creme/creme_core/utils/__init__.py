@@ -174,6 +174,7 @@ def decimal_serializer(value):
     raise TypeError(repr(value) + " is not JSON serializable")
 
 
+# TODO: move to views.decorators ?
 def jsonify(func):
     def _aux(*args, **kwargs):
         status = 200

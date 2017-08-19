@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,12 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.conf import settings
 from django.utils.timezone import now
 
 from creme import __version__
 
-from .gui.block import BlocksManager
+from .gui.bricks import BricksManager
 from .models import FieldsConfig
 # from .utils.media import get_current_theme, get_current_theme_vb
 
@@ -51,15 +53,31 @@ def get_today(request):
 
 
 def get_blocks_manager(request):
-    return {BlocksManager.var_name: BlocksManager()}
+    warnings.warn('"creme.creme_core.context_processor.get_blocks_manager" is deprecated ; '
+                  'use "creme.creme_core.context_processor.get_bricks_manager" in your settings instead.',
+                  DeprecationWarning
+                 )
+    return get_bricks_manager(request)
+
+
+def get_bricks_manager(request):
+    return {BricksManager.var_name: BricksManager()}
 
 
 def get_fields_configs(request):
     return {'fields_configs': FieldsConfig.LocalCache()}
 
 
+def get_shared_data(request):
+    return {'shared': {}}
+
+
 def get_version(request):
     return {'creme_version': __version__}
+
+
+def get_hidden_value(request):
+    return {'HIDDEN_VALUE': settings.HIDDEN_VALUE}
 
 
 def get_django_version(request):

@@ -1,4 +1,7 @@
 {% load i18n creme_core_tags %}
+
+{% log 'The template file "creme/creme_core/templates/creme_core/templatetags/widgets/restore_button.html" is deprecated.' level='WARN' %}
+
 {% if object.get_delete_absolute_url %}
     {% if can_delete %}
         <a onclick="creme.utils.confirmSubmit(this);">

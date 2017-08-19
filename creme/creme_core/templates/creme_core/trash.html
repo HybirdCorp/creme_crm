@@ -1,22 +1,17 @@
-{% extends "creme_core/base.html" %}
-{% load i18n %}
-{% load creme_block creme_core_tags %}
+{% extends 'creme_core/base.html' %}
+{% load i18n creme_widgets creme_bricks %}
 
-{% block page_title %}{% trans "Trash" %} - {% endblock %}
+{% block page_title %}{% trans 'Trash' %} - {% endblock %}
 
 {% block content %}
-    {% block view_title %}
-        <table class="table_header" cellpadding="0" cellspacing="0">
-            <tr>
-                <td width="5%"><img src="{% creme_media_url 'images/delete_64.png' %}" border="0" title="{{title}}" alt="{{title}}" /></td>
-                <td width="95%"><h1>{% trans "Trash" %}</h1></td>
-            </tr>
-        </table>
-    {% endblock %}
+    <div class="hat-bar-container">
+        <div class="hat-bar">{% trans 'Trash' as title %}
+            <div class="bar-icon">{% widget_icon name='delete' size='brick-hat-bar' label=title %}</div>
+            <div class="bar-title"><h1>{{title}}</h1></div>
+        </div>
+    </div>
 
-    <div class=zone_spacer_5px></div>
-
-    {% import_block from_app 'creme_core' named 'trash' as 'trash_block' %}
-    {% display_block_detailview 'trash_block' %}
-    {% get_blocks_dependencies %}
+    {% brick_import app='creme_core' name='trash' as trash_brick %}
+    {% brick_display trash_brick %}
+    {% brick_end %}
 {% endblock %}

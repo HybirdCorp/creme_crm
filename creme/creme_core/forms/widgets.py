@@ -749,7 +749,7 @@ class MultiEntityCreatorWidget(SelectorList):
         self.selector = button_list = ActionButtonList(delegate=None)
 
         if model is None:
-            delegate = Label(empty_label=_(u'Model is not set'))
+            delegate = Label(empty_label=u'Model is not set')
         else:
             self.clear_actions()  # TODO: indicate that we do not want actions in __init__
             self.add_action('add', getattr(model, 'selection_label', _(u'Select')))

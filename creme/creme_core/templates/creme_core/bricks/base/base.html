@@ -1,0 +1,33 @@
+{% load creme_core_tags creme_bricks %}
+{% block brick_before %}{% endblock %}
+<div class="brick {% block brick_extra_class %}{% endblock %} is-loading-border ui-creme-widget widget-auto {% if state %}{% brick_state_classes state %}{% endif %}" widget="brick"
+     id="{{brick_id}}"
+     data-brick-deps="{{dependencies|jsonify}}"
+     {% if reloading_info != None %}data-brick-reloading-info="{{reloading_info|jsonify}}"{% endif %}
+     {% if read_only %}data-brick-readonly="true"{% endif %}
+     {% block brick_extra_attributes %}{% endblock %}>
+    {% block brick_script %}{% endblock %}
+    {% block brick_header %}
+    <div class="brick-header">
+        <div class="brick-menu-buttons">
+            {% block brick_menu_actions %}
+                {% if state %}
+                    {% brick_menu_collapse_action state %}
+                {% endif %}
+            {% endblock %}
+        </div>
+        <div class="brick-title-container">
+            {% block brick_header_title %}{% endblock %}
+        </div>
+        <div class="brick-header-buttons">
+            {% block brick_header_actions %}{% endblock %}
+        </div>
+    </div>
+    {% endblock %}
+    <div class="brick-content {% block brick_content_extra_class %}{% endblock %}" {% block brick_content_extra_attributes %}{% endblock %}>
+    {% block brick_before_content %}{% endblock %}
+    {% block brick_content %}{% endblock %}
+    </div>
+    {% block brick_footer %}{% endblock %}
+</div>
+{% block brick_after %}{% endblock %}

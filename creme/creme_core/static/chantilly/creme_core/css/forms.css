@@ -529,3 +529,67 @@ table .dragtable-col-placeholder:first {
     visibility: hidden;
 }
 /* Dragtable end */
+
+/* DualColumnMultiSelect (dcms) */
+.dcms_div li.dcms_focused {
+    background: #f7b5ad none repeat scroll 0 0;
+}
+
+.dcms_div li {
+    cursor: pointer;
+}
+
+.dcms_div ul, .dcms_div li {
+    list-style-type: none;
+    padding: 0;
+    background: #ffffff;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.dcms_div ul {
+    border: 1px solid #6eaac4;
+    min-width: 100px;
+
+    -webkit-border-radius: 4px;
+       -moz-border-radius: 4px;
+            border-radius: 4px;
+}
+
+.dcms_div table {
+    width: 100%;
+}
+
+.dcms_div table th.available, .dcms_div table th.chosen {
+    width: 45%;
+}
+
+.dcms_div table tr.content td:hover {
+    background: none;
+}
+
+.dcms_div table th.less {
+    display: none;
+}
+
+.dcms_div table th.more {
+    display: table-cell;
+}
+
+.dcms_div table.reduced th.less {
+    display: table-cell;
+}
+
+.dcms_div table.reduced th.more {
+    display: none;
+}
+
+.dcms_div table.reduced .content {
+    display: none;
+}
+
+.dcms_button {
+    display: block;
+    width: auto !important;
+}
+
+/* DualColumnMultiSelect - end */

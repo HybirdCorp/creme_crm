@@ -520,12 +520,12 @@ class CremeUserManager(BaseUserManager):
 
 
 class CremeUser(AbstractBaseUser):
-    username = CharField(_('Username'), max_length=30, unique=True,
-                         help_text=_('Required. 30 characters or fewer. '
-                                     'Letters, digits and @/./+/-/_ only.'
+    username = CharField(_(u'Username'), max_length=30, unique=True,
+                         help_text=_(u'Required. 30 characters or fewer. '
+                                     u'Letters, digits and @/./+/-/_ only.'
                                     ),
                          validators=[RegexValidator(re_compile('^[\w.@+-]+$'),
-                                                    _('Enter a valid username.'),
+                                                    _(u'Enter a valid username.'),
                                                     'invalid',
                                                    ),
                                     ],
@@ -533,19 +533,19 @@ class CremeUser(AbstractBaseUser):
     last_name  = CharField(_(u'Last name'), max_length=100, blank=True)
     first_name = CharField(_(u'First name'), max_length=100, blank=True)\
                           .set_tags(viewable=False)  # NB: blank=True for teams
-    email      = EmailField(_('Email address'), blank=True)
+    email      = EmailField(_(u'Email address'), blank=True)
 
-    date_joined = DateTimeField(_('Date joined'), default=now).set_tags(viewable=False)
-    is_active   = BooleanField(_('Is active?'), default=True,
+    date_joined = DateTimeField(_(u'Date joined'), default=now).set_tags(viewable=False)
+    is_active   = BooleanField(_(u'Active?'), default=True,
                                # help_text=_('Designates whether this user should be treated as '
                                #             'active. Deselect this instead of deleting accounts.'
                                #            ), TODO
                               ).set_tags(viewable=False)
 
-    is_staff     = BooleanField(_('Is staff?'), default=False,
+    is_staff     = BooleanField(_(u'Is staff?'), default=False,
                                 # help_text=_('Designates whether the user can log into this admin site.'), TODO
                                ).set_tags(viewable=False)
-    is_superuser = BooleanField(_('Is a superuser?'), default=False,
+    is_superuser = BooleanField(_(u'Is a superuser?'), default=False,
                                 # help_text=_('If True, can create groups & events.') TODO
                                ).set_tags(viewable=False)
     role         = ForeignKey(UserRole, verbose_name=_(u'Role'), null=True,
@@ -581,10 +581,10 @@ class CremeUser(AbstractBaseUser):
     _teammates = None
 
     class Meta:
-        # abstract = True TODO class  AbstractCremeUser ?
+        # abstract = True TODO: class AbstractCremeUser ?
         ordering = ('username',)
-        verbose_name = _('User')
-        verbose_name_plural = _('Users')
+        verbose_name = _(u'User')
+        verbose_name_plural = _(u'Users')
         app_label = 'creme_core'
 
     def __unicode__(self):

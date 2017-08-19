@@ -1,56 +1,51 @@
-{% extends "creme_core/base.html" %}{% comment %}TODO: improve detailview.html in order to use it easily ? (remove menu_buttons, blocks...) {% endcomment %}
-{% load i18n %}
-{% load creme_core_tags creme_block %}
+{% extends 'creme_core/detailview.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
 
 {% block page_title %}«{{object}}» - {% endblock %}
 
-{% block before_content_1 %}<div class="detailview">
-    <div class="zone_spacer_5px model_buttons">
-        <ul class="button_list hbox">
-            <li>
-                <a class="menu_button" href="{{object.get_lv_absolute_url}}">{% trans "Go to the configuration of types" as list_label %}
-                    <img src="{% creme_media_url 'images/listview_32.png' %}" border="0" title="{{list_label}}" alt="{{list_label}}" />
-                    {{list_label}}
-                </a>
-            </li>
-            {% comment %}TODO: improve {% get_add_button object user %} {% endcomment %}
-            {% has_perm_to admin 'creme_config' as admin_perm %} {% comment %}TODO: creme_core ?! {% endcomment %}
-            <li>{% include 'creme_core/templatetags/widgets/add_button.html' with can_add=admin_perm %}</li>
-        </ul>
-    </div>
+{% block global_buttons %}
+    <li>
+        <a class="menu_button" href="{{object.get_lv_absolute_url}}">{% trans 'Go to the configuration of types' as list_label %}
+            {% widget_icon name='listview' size='global-button' label=list_label %} {{list_label}}
+        </a>
+    </li>
+
+    <li>{% has_perm_to admin 'creme_config' as admin_perm %} {# TODO: creme_core ?! #}
+{#        {% include 'creme_core/templatetags/widgets/add_button.html' with can_add=admin_perm %} #}
+        {% if admin_perm %}
+        <a class="menu_button" href="{{object.get_create_absolute_url}}">
+        {% else %}
+        <a class="menu_button forbidden is-disabled">
+        {% endif %}
+            {% widget_icon name='add' size='global-button' label=_('Create') %} {{object.creation_label}}
+        </a>
+    </li>
 {% endblock %}
 
 {% block content %}
-    <table class="table_header" cellpadding="0" cellspacing="0">
-        <tr>
-            <td width="5%">{% trans "Property type" as img_title%}<img src="{% creme_media_url 'images/property_64.png' %}" title="{{img_title}}" alt="{{img_title}}"></td>
-            <td width="70%">
-                <h1>{{object|get_meta_value:"verbose_name"|capfirst}} : {{object|capfirst}}</h1>
-            </td>
-            <td width="25%" align="right">
-                {% if object.is_custom %}
-                    {% comment %}TODO: improve 'get_edit_button' {% endcomment %}
-                    {% has_perm_to admin 'creme_config' as admin_perm %} {% comment %}TODO: creme_core ?! {% endcomment %}
-                    {% include "creme_core/templatetags/widgets/edit_button.html" with can_change=admin_perm %}
+    <div class="hat-bar-container">
+        <div class="hat-bar">{% trans 'Property type' as title %}
+            <div class="bar-icon">{% widget_icon name='property' size='brick-hat-bar' label=title %}</div>
+            <div class="bar-title"><h1>{{title}} : {{object|capfirst}}</h1></div>
+            {% if object.is_custom %}
+            <div class="bar-actions">{% has_perm_to admin 'creme_config' as admin_perm %}{# TODO: creme_core ?! #}
+                <div class='bar-action'>
+                    <a href="{{object.get_edit_absolute_url}}" class="bar-button{% if not admin_perm %} forbidden is-disabled{% endif %}">
+                        {% widget_icon name='edit' size='brick-hat-bar-button' label=_('Edit') %}
+                    </a>
+                </div>
+                <div class='bar-action'>
+                    <a onclick="creme.utils.confirmSubmit(this, '{{confirm_msg|escapejs}}');" class="bar-button{% if not admin_perm %} forbidden is-disabled{% endif %}">
+                        {% widget_icon name='delete' size='brick-hat-bar-button' %}
+                        <form method="POST" action="{{object.get_delete_absolute_url}}" style="display:none;">{% csrf_token %}</form>
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
 
-                    {% if admin_perm %}
-                        {% comment %}<a onclick="creme.utils.confirmSubmit(this);">{% endcomment %}
-                        {% trans "Deleting a property type will delete the associated properties.<br>Are you sure?" as confirm_msg %}
-                        <a onclick="creme.utils.confirmSubmit(this, '{{confirm_msg|escapejs}}');">
-                            <img src="{% creme_media_url 'images/delete_64.png' %}" title="{% blocktrans %}Delete '{{object}}'{% endblocktrans %}" alt="{% trans "Delete" %}" />
-                            <form method="POST" action="{{object.get_delete_absolute_url}}" style="display:none;">{% csrf_token %}</form>
-                        </a>
-                    {% else %}
-                        <img class="forbidden" src="{% creme_media_url 'images/delete_64.png' %}" title="{% blocktrans %}You can't delete '{{object}}'{% endblocktrans %}" alt="{% trans "Can't delete" %}"/>
-                    {% endif %}
-                {% endif %}
-            </td>
-        </tr>
-    </table>
-
-    {% import_blocks blocks as 'result_blocks' %}
-    {% display_blocks 'result_blocks' %}
-    {% get_blocks_dependencies %}
+    {% brick_declare blocks %}
+    {% brick_display blocks %}
+    {% brick_end %}
 {% endblock %}
-
-{% block after_content_3 %}</div>{% endblock %}

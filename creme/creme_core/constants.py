@@ -21,6 +21,7 @@ DISPLAY_CURRENCY_LOCAL_SYMBOL = 'creme_core-display_currency_local_symbol'
 
 MODELBLOCK_ID = 'modelblock'
 
+# DEPRECATED
 ICON_SIZE_MAP = {
         'big':    64,
         'normal': 48,

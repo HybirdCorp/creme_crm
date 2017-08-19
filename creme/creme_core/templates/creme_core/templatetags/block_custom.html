@@ -1,4 +1,7 @@
-{% load i18n creme_block creme_listview %}
+{% load i18n creme_core_tags creme_block creme_listview %}
+
+{% log 'The template file "creme/persons/templates/persons/templatetags/block_custom.html" is deprecated.' level='WARN' %}
+
 <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=3 %}
         {% with title=config_item.name %}
