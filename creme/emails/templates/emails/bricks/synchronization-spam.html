@@ -1,0 +1,21 @@
+{% extends 'emails/bricks/base/synchronization.html' %}
+{% load i18n creme_core_tags creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} emails-sync-spam-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Incoming email marked as spam') plural=_('{count} Incoming emails marked as spam') empty=_('Spam') icon='spam' selection_title=_('%s Email selected') selection_plural=_('%s Emails selected') %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% url 'emails__crudity_waiting' as waiting_url %}
+    {% brick_header_action id='emailsync-action' url=waiting_url __selector='.row-selector:checked' type='add' label=_('Mark the selection as «to be treated»') icon='email' %}
+    {{block.super}}
+{% endblock %}
+
+{% block mail_sync_actions %}
+    <td {% brick_table_data_status action %}>{% url 'emails__crudity_waiting' as waiting_url %}{% templatize '.row-selector[value={{mail.id}}]' as selector %}
+        {% brick_table_action id='emailsync-action' url=waiting_url __selector=selector label=_('Mark as «to be treated»') icon='email' %}
+    </td>
+    {{block.super}}
+{% endblock %}

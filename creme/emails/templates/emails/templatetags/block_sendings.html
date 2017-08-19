@@ -1,5 +1,8 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
+
+{% log 'The template file "creme/emails/templates/emails/templatetags/block_sendings.html" is deprecated.' level='WARN' %}
+
 {% has_perm_to change object as has_perm %}
 <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=6 %}

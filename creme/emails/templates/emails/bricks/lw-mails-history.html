@@ -1,0 +1,32 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} emails-lw-mails-history-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Campaign email in the history') plural=_('{count} Campaigns emails in the history') empty=_('Emails') icon='email' %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='sending_date' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='subject' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='status' %}
+    {% brick_table_column title=_('Actions') status='action' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for mail in page.object_list %}
+    <tr>
+        <td data-type="date">{{mail.sending_date}}</td>
+        <td>{{mail.sending.subject}}</td>
+        <td>{% print_field object=mail field='status' %}</td>
+        <td {% brick_table_data_status action %}>{% url 'emails__view_lw_mail' mail.pk as view_url %}
+            {% brick_table_action id='view' url=view_url label=_('Details') __title=_('Email') %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No campaign email in the history' %}
+{% endblock %}

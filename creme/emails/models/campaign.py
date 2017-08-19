@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,11 +29,11 @@ from .recipient import EmailRecipient
 
 
 class AbstractEmailCampaign(CremeEntity):
-    name          = CharField(_(u'Name of the campaign'), max_length=100, blank=False, null=False)
+    name          = CharField(_(u'Name of the campaign'), max_length=100)
     mailing_lists = ManyToManyField(settings.EMAILS_MLIST_MODEL, verbose_name=_(u'Related mailing lists'), blank=True)
 
-    creation_label = _('Create an emailing campaign')
-    save_label     = _('Save the emailing campaign')
+    creation_label = _(u'Create an emailing campaign')
+    save_label     = _(u'Save the emailing campaign')
 
     class Meta:
         abstract = True

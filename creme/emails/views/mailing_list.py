@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -93,7 +93,7 @@ def add_contacts(request, ml_id):
     return add_to_entity(request, ml_id, AddContactsForm,
                          ugettext(u'New contacts for «%s»'),
                          entity_class=MailingList,
-                         submit_label=_('Link the contacts'),  # TODO: multi_link_label ??
+                         submit_label=_(u'Link the contacts'),  # TODO: multi_link_label ??
                         )
 
 
@@ -104,7 +104,7 @@ def add_contacts_from_filter(request, ml_id):
     return add_to_entity(request, ml_id, AddContactsFromFilterForm,
                          ugettext(u'New contacts for «%s»'),
                          entity_class=MailingList,
-                         submit_label=_('Link the contacts'),
+                         submit_label=_(u'Link the contacts'),
                         )
 
 
@@ -115,7 +115,7 @@ def add_organisations(request, ml_id):
     return add_to_entity(request, ml_id, AddOrganisationsForm,
                          ugettext(u'New organisations for «%s»'),
                          entity_class=MailingList,
-                         submit_label=_('Link the organisations'),
+                         submit_label=_(u'Link the organisations'),
                         )
 
 
@@ -126,7 +126,7 @@ def add_organisations_from_filter(request, ml_id):
     return add_to_entity(request, ml_id, AddOrganisationsFromFilterForm,
                          ugettext(u'New organisations for «%s»'),
                          entity_class=MailingList,
-                         submit_label=_('Link the organisations'),
+                         submit_label=_(u'Link the organisations'),
                         )
 
 
@@ -136,7 +136,8 @@ def add_children(request, ml_id):
     return add_to_entity(request, ml_id, AddChildForm,
                          ugettext(u'New child lists for «%s»'),
                          entity_class=MailingList,
-                         submit_label=_('Link the mailing lists'),
+                         # submit_label=_(u'Link the mailing lists'),
+                         submit_label=_(u'Link the mailing list'),
                         )
 
 

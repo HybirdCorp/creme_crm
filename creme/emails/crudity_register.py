@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,7 @@ from django.utils.translation import ugettext as _
 from creme.creme_core.models import Relation
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
-from creme.documents import get_folder_model, get_document_model
+from creme import documents
 from creme.documents.constants import REL_OBJ_RELATED_2_DOC, DOCUMENTS_FROM_EMAILS
 from creme.documents.models import FolderCategory
 
@@ -37,18 +37,19 @@ from creme.crudity.inputs.email import CreateEmailInput
 from creme.crudity.models import History
 
 from . import get_entityemail_model
-from .blocks import WaitingSynchronizationMailsBlock, SpamSynchronizationMailsBlock
+from .bricks import WaitingSynchronizationMailsBrick, SpamSynchronizationMailsBrick
 from .constants import MAIL_STATUS_SYNCHRONIZED_WAITING
 
 
-Folder      = get_folder_model()
-Document    = get_document_model()
+Folder   = documents.get_folder_model()
+Document = documents.get_document_model()
+
 EntityEmail = get_entityemail_model()
 
 
 class EntityEmailBackend(CrudityBackend):
     model           = EntityEmail
-    blocks          = (WaitingSynchronizationMailsBlock, SpamSynchronizationMailsBlock)
+    blocks          = (WaitingSynchronizationMailsBrick, SpamSynchronizationMailsBrick)
     attachment_path = ['upload', 'emails', 'attachments']
 
     def fetcher_fallback(self, email, current_user, *args, **kwargs):

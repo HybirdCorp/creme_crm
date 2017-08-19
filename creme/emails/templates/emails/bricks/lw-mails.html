@@ -1,0 +1,37 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} emails-lw-mails-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Email') plural=_('{count} Emails') empty=_('Emails') icon='email' %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Recipient') status='primary' class='lw-mail-recipient' %}
+    {% brick_table_column title=_('Status') class='lw-mail-recipient' %}
+    {% brick_table_column title=_('Action') status='action' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to change object.campaign as delete_perm %}{% url 'creme_core__delete_related_to_entity' objects_ctype.id as delete_mail_url %}
+    {% for mail in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %} class="lw-mail-recipient">
+        {% if mail.recipient_entity %}{% has_perm_to view mail.recipient_entity as view_address_perm %}
+            {% if view_address_perm %}{{mail.recipient}}{% else %}{{HIDDEN_VALUE}}{% endif %}
+        {% else %}
+            {{mail.recipient}}
+        {% endif %}
+        </td>
+        <td class="lw-mail-status">{{sending.get_status_display}}</td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=delete_mail_url __id=mail.id label=_('Delete this email') enabled=delete_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No email in this sending' %}
+{% endblock %}

@@ -1,13 +1,14 @@
-{% load i18n creme_core_tags creme_block %}{% has_perm_to link object as link_perm %}
-{% trans "Link to" as link_label %}
+{% load i18n creme_core_tags creme_widgets %}{% has_perm_to link object as link_perm %}{% trans 'Link to' as link_label %}{# creme_block #}
 {% if link_perm %}
 {#    <a class="menu_button" onclick="creme.blocks.form('/creme_core/relation/add_to_entities/{{entity_email_ct_id}}/{{rtypes}}/?ids={{object.pk}}&persist=ids', {blockReloadUrl:{% get_block_reload_uri %}}).open();"> #}
-    <a class="menu_button" onclick="creme.blocks.form('{% url 'creme_core__create_relations_bulk' entity_email_ct_id %}?ids={{object.pk}}&persist=ids{% for rt_id in rtypes %}&rtype={{rt_id}}{% endfor %}', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
-        <img src="{% creme_media_url 'images/link_32.png' %}" border="0" title="{{link_label}}" alt="{{link_label}}" />{{link_label}}
+{#    <a class="menu_button" onclick="creme.blocks.form('{% url 'creme_core__create_relations_bulk' entity_email_ct_id %}?ids={{object.pk}}&persist=ids{% for rt_id in rtypes %}&rtype={{rt_id}}{% endfor %}', {blockReloadUrl:{% get_block_reload_uri %}}).open();"> #}
+    <a class="menu_button" onclick="creme.dialogs.form('{% url 'creme_core__create_relations_bulk' entity_email_ct_id %}?ids={{object.pk}}&persist=ids{% for rt_id in rtypes %}&rtype={{rt_id}}{% endfor %}').onFormSuccess(function() {new creme.bricks.BricksReloader().dependencies(['creme_core.relation'{% for rt_id in rtypes %}, 'creme_core.relation.{{rt_id}}'{% endfor %}]).action().start();}).open();">
+{#        <img src="{% creme_media_url 'images/link_32.png' %}" border="0" title="{{link_label}}" alt="{{link_label}}" />{{link_label}} #}
+        {% widget_icon name='link' size='instance-button' label=link_label %}{{link_label}}
     </a>
 {% else %}
-    <span class="menu_button forbidden" title="{% trans "forbidden" %}">
-        <img src="{% creme_media_url 'images/link_32.png' %}" border="0" title="{{link_label}}" alt="{{link_label}}" />{{link_label}}
+    <span class="menu_button forbidden" title="{% trans 'forbidden' %}">
+{#        <img src="{% creme_media_url 'images/link_32.png' %}" border="0" title="{{link_label}}" alt="{{link_label}}" />{{link_label}} #}
+        {% widget_icon name='link' size='instance-button' label=link_label %}{{link_label}}
     </span>
 {% endif %}
-

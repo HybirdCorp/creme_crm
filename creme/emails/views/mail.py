@@ -62,7 +62,7 @@ def view_lightweight_mail(request, mail_id):
     # TODO: disable the link in the template if view is not allowed
     request.user.has_perm_to_view_or_die(email.sending.campaign)
 
-    template = 'emails/view_email.html'
+    template = 'emails/view_email.html'  # TODO: rename (lw-mail-popup.html ?)
     ctx_dict = {'mail': email, 'title': _(u'Details of the mail')}
 
     if request.is_ajax():
@@ -80,12 +80,8 @@ def abstract_view_email(request, mail_id, template='emails/view_entity_mail.html
                               )
 
 
-def abstract_popupview(request, mail_id,
-                       template='emails/view_entity_mail_popup.html'
-                      ):
-    return generic.view_entity(request, mail_id, EntityEmail,
-                               template=template,
-                              )
+def abstract_popupview(request, mail_id, template='emails/view_entity_mail_popup.html'):
+    return generic.view_entity(request, mail_id, EntityEmail, template=template)
 
 
 def abstract_create_n_send(request, entity_id, form=EntityEmailForm,

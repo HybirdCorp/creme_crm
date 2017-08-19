@@ -1,0 +1,24 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} emails-parent-lists-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Parent list') plural=_('{count} Parent lists') empty=_('Parent lists') icon='email' %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='name' status='primary' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for mailinglist in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink mailinglist user %}</td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No parent list for the moment' %}
+{% endblock %}

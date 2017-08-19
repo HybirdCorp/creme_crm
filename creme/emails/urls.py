@@ -19,7 +19,8 @@ urlpatterns = [
 
     # Campaign: sending details block (TODO: remove 'campaign/' from url ??)
     url(r'^campaign/sending/(?P<sending_id>\d+)$',               sending.detailview,         name='emails__view_sending'),
-    url(r'^campaign/sending/(?P<sending_id>\d+)/mails/reload/$', sending.reload_block_mails, name='emails__reload_lw_mails_block'),
+    # url(r'^campaign/sending/(?P<sending_id>\d+)/mails/reload/$', sending.reload_block_mails, name='emails__reload_lw_mails_block'),
+    url(r'^campaign/sending/(?P<sending_id>\d+)/mails/reload/$', sending.reload_mails_brick, name='emails__reload_lw_mails_brick'),
 
     # Mailing list: recipients block
     url(r'^mailing_list/(?P<ml_id>\d+)/recipient/add$',     recipient.add,          name='emails__add_recipients'),
@@ -94,9 +95,9 @@ if apps.is_installed('creme.crudity'):
     from .views import crudity
 
     urlpatterns += [
-        url(r'^mail/spam$',          crudity.spam,               name='emails__crudity_spam'),
-        url(r'^mail/validated$',     crudity.validated,          name='emails__crudity_validated'),
-        url(r'^mail/waiting$',       crudity.waiting,            name='emails__crudity_waiting'),
-        url(r'^synchronization$',    crudity.synchronisation,    name='emails__crudity_sync'),
-        url(r'^sync_blocks/reload$', crudity.reload_sync_blocks, name='emails__crudity_reload_sync_blocks'),
+        url(r'^mail/spam$',          crudity.spam,            name='emails__crudity_spam'),
+        url(r'^mail/validated$',     crudity.validated,       name='emails__crudity_validated'),
+        url(r'^mail/waiting$',       crudity.waiting,         name='emails__crudity_waiting'),
+        url(r'^synchronization$',    crudity.synchronisation, name='emails__crudity_sync'),
+        url(r'^sync_blocks/reload$', crudity.reload_sync_blocks, name='emails__crudity_reload_sync_blocks'),  # DEPRECATED
     ]

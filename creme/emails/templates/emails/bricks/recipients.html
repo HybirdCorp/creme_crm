@@ -1,0 +1,37 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} emails-recipients-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Unlinked recipient') plural=_('{count} Unlinked recipients') empty=_('Unlinked recipients') icon='info' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to change object as has_perm %}
+{% url 'emails__add_recipients_from_csv' object.id as add_from_csv_url %}{% url 'emails__add_recipients' object.id as add_recipients_url %}
+    {% brick_header_action id='add' url=add_from_csv_url   label=_('Add from a CSV file') enabled=has_perm %}
+    {% brick_header_action id='add' url=add_recipients_url label=_('Add manually')        enabled=has_perm %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Address') status='primary' %}
+    {% brick_table_column title=_('Action') status='action' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to change object as has_perm %}{% url 'creme_core__delete_related_to_entity' objects_ctype.id as del_recipients_url %}
+{% trans 'Delete this recipient' context 'emails' as del_label %}
+    {% for recipient in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{{recipient.address}}</td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=del_recipients_url __id=recipient.id label=del_label icon='unlink' enabled=has_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No unlinked recipient for the moment' %}
+{% endblock %}
