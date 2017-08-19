@@ -6,14 +6,15 @@ try:
 
     from creme.creme_core.models import HeaderFilter, EntityFilter  # EntityFilterCondition
     from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
-    from .. import constants, blocks
+    from .. import constants, bricks
     from .base import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-class PersonsAppTestCase(CremeTestCase):
+class PersonsAppTestCase(CremeTestCase, BrickTestCaseMixin):
     # @classmethod
     # def setUpClass(cls):
     #     CremeTestCase.setUpClass()
@@ -51,6 +52,5 @@ class PersonsAppTestCase(CremeTestCase):
         self.login()
         # response = self.assertGET200('/creme_config/')
         response = self.assertGET200(reverse('creme_config__portal'))
-        self.assertContains(response, ' id="%s"' % blocks.managed_orgas_block.id_)
-
-# TODO: tests for portal stats
+        # self.assertContains(response, ' id="%s"' % bricks.managed_orgas_block.id_)
+        self.get_brick_node(self.get_html_tree(response.content), bricks.ManagedOrganisationsBrick.id_)

@@ -6,18 +6,19 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.views.base import BrickTestCaseMixin
     from creme.creme_core.models import FieldsConfig
     from creme.creme_core.models.history import HistoryLine, TYPE_CREATION, TYPE_AUX_CREATION
 
     from .base import (skipIfCustomAddress, skipIfCustomContact, skipIfCustomOrganisation,
             Address, Organisation, Contact)
-    from ..blocks import other_address_block
+    from ..bricks import PrettyOtherAddressesBrick
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
 @skipIfCustomAddress
-class AddressTestCase(CremeTestCase):
+class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
     # @classmethod
     # def setUpClass(cls):
     #     CremeTestCase.setUpClass()
@@ -32,7 +33,7 @@ class AddressTestCase(CremeTestCase):
     def _build_add_url(self, entity):
         return reverse('persons__create_address', args=(entity.id,))
 
-    def _create_address(self, orga, name, address, po_box, city, state, zipcode, country, department):
+    def _create_address(self, orga, name, address='', po_box='', city='', state='', zipcode='', country='', department=''):
         response = self.client.post(self._build_add_url(orga),
                                     data={'name':       name,
                                           'address':    address,
@@ -111,15 +112,20 @@ class AddressTestCase(CremeTestCase):
         self.assertEqual(department, address.department)
 
         response = self.client.get(orga.get_absolute_url())
-        self.assertContains(response, 'id="%s"' % other_address_block.id_)
-        self.assertContains(response, name)
-        self.assertContains(response, address_value)
-        self.assertContains(response, po_box)
-        self.assertContains(response, city)
-        self.assertContains(response, state)
-        self.assertContains(response, zipcode)
-        self.assertContains(response, country)
-        self.assertContains(response, department)
+        # self.assertContains(response, 'id="%s"' % other_address_block.id_)
+        # self.assertContains(response, name)
+        # self.assertContains(response, address_value)
+        # self.assertContains(response, po_box)
+        # self.assertContains(response, city)
+        # self.assertContains(response, state)
+        # self.assertContains(response, zipcode)
+        # self.assertContains(response, country)
+        # self.assertContains(response, department)
+        brick_node = self.get_brick_node(self.get_html_tree(response.content), PrettyOtherAddressesBrick.id_)
+        fields = {elt.text for elt in brick_node.findall(".//span[@class='address-option-value']")}
+        self.assertIn(department, fields)
+        self.assertIn(state,      fields)
+        self.assertIn(country,    fields)
 
     @skipIfCustomOrganisation
     def test_create_billing01(self):
@@ -190,7 +196,7 @@ class AddressTestCase(CremeTestCase):
         self.assertEqual(address, self.refresh(orga).shipping_address)
 
     @skipIfCustomOrganisation
-    def test_editview(self):
+    def test_editview01(self):
         orga = self.login()
 
         name = 'Address#1'
@@ -206,7 +212,8 @@ class AddressTestCase(CremeTestCase):
         address = Address.objects.filter(object_id=orga.id)[0]
 
         url = address.get_edit_absolute_url()
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+        self.assertContains(response, _(u'Edit address for «%s»') % orga)
 
         city = 'Groville'
         country = 'Groland'
@@ -225,6 +232,66 @@ class AddressTestCase(CremeTestCase):
         address = self.refresh(address)
         self.assertEqual(city,    address.city)
         self.assertEqual(country, address.country)
+
+    @skipIfCustomOrganisation
+    def test_editview02(self):
+        "Billing address"
+        orga = self.login()
+
+        name = 'Address#1'
+        address_value = '21 jump street'
+        city = 'Atlantis'
+        zipcode = '424242'
+
+        self._create_address(orga, name, address_value, city=city, zipcode=zipcode)
+        address = Address.objects.filter(object_id=orga.id)[0]
+
+        url = address.get_edit_absolute_url() + '?type=billing'
+        response = self.assertGET200(url)
+        self.assertContains(response, _(u'Edit billing address for «%s»') % orga)
+
+        city = 'Groville'
+        response = self.client.post(url, data={'name':       name,
+                                               'address':    address,
+                                               'city':       city,
+                                               'zipcode':    zipcode,
+                                             }
+                                   )
+        self.assertNoFormError(response)
+
+        address = self.refresh(address)
+        self.assertEqual(city, address.city)
+        self.assertEqual(_(u'Billing address'), address.name)
+
+    @skipIfCustomOrganisation
+    def test_editview03(self):
+        "Shipping address"
+        orga = self.login()
+
+        name = 'Address#1'
+        address_value = '21 jump street'
+        city = 'Atlantis'
+        zipcode = '424242'
+
+        self._create_address(orga, name, address_value, city=city, zipcode=zipcode)
+        address = Address.objects.filter(object_id=orga.id)[0]
+
+        url = address.get_edit_absolute_url() + '?type=shipping'
+        response = self.assertGET200(url)
+        self.assertContains(response, _(u'Edit shipping address for «%s»') % orga)
+
+        city = 'Groville'
+        response = self.client.post(url, data={'name':       name,
+                                               'address':    address,
+                                               'city':       city,
+                                               'zipcode':    zipcode,
+                                             }
+                                   )
+        self.assertNoFormError(response)
+
+        address = self.refresh(address)
+        self.assertEqual(city, address.city)
+        self.assertEqual(_(u'Shipping address'), address.name)
 
     @skipIfCustomOrganisation
     def test_deleteview(self):

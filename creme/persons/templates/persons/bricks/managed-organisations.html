@@ -1,0 +1,39 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} persons-managed-organisations-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Managed organisation') plural=_('{count} Managed organisations') empty=_('Managed organisations') icon='organisation' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'persons__orga_set_managed' as set_managed_url %}
+    {% brick_header_action id='add' url=set_managed_url label=_('Manage new organisations') enabled=admin_perm %}
+{% endblock %}
+
+{% block brick_before_content %}
+    <div class="help">(eg: managed organisations can generate numbers for their invoices, or emit opportunities)</div>
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Name') status='primary nowrap' %}
+    {% brick_table_column title=_('Action') status='action' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'persons__orga_unset_managed' as unset_managed_url %}
+    {% for orga in page.object_list %}
+        {% with count=page.paginator.count %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink orga user %}</td>
+        <td {% brick_table_data_status action %}>
+            {% if count != 1 %}{% has_perm_to change orga as edition_perm %}
+                {% brick_table_action id='delete' url=unset_managed_url __id=orga.id label=_('Do not manage any more') icon='unlink' enabled=edition_perm|and_op:admin_perm %}
+            {% endif %}
+
+        </td>
+    </tr>
+        {% endwith %}
+    {% endfor %}
+{% endblock %}

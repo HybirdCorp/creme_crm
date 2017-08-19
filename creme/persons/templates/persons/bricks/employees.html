@@ -1,0 +1,12 @@
+{% extends 'persons/bricks/base/linked-people.html' %}
+{% load i18n creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} persons-employees-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Employee') plural=_('{count} Employees') empty=_('Employees') icon='contact' %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No employee for the moment' %}
+{% endblock %}

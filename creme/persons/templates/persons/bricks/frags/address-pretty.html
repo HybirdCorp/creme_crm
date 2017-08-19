@@ -1,0 +1,27 @@
+{% load creme_core_tags persons_tags %}
+
+{% block address_content %}
+    <div class='address'>{{address|persons_pretty_address|linebreaksbr}}</div>
+    {% if address.department or address.state or address.country %}
+    <div class='address-options'>
+        {% if address.department and 'department' in cells %}
+        <div class='address-option'>
+            <span class='address-option-key'>{% get_field_verbose_name address 'department' %}</span>
+            <span class='address-option-value'>{{address.department}}</span>
+        </div>
+        {% endif %}
+        {% if address.state and 'state' in cells %}
+        <div class='address-option'>
+            <span class='address-option-key'>{% get_field_verbose_name address 'state' %}</span>
+            <span class='address-option-value'>{{address.state}}</span>
+        </div>
+        {% endif %}
+        {% if address.country and 'country' in cells %}
+        <div class='address-option'>
+            <span class='address-option-key'>{% get_field_verbose_name address 'country' %}</span>
+            <span class='address-option-value'>{{address.country}}</span>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+{% endblock %}

@@ -182,12 +182,12 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         billing_address = contact.billing_address
         self.assertIsNotNone(billing_address)
         self.assertEqual(b_address,            billing_address.address)
-        self.assertEqual(_('Billing address'), billing_address.name)
+        self.assertEqual(_(u'Billing address'), billing_address.name)
 
         shipping_address = contact.shipping_address
         self.assertIsNotNone(shipping_address)
         self.assertEqual(s_address,             shipping_address.address)
-        self.assertEqual(_('Shipping address'), shipping_address.name)
+        self.assertEqual(_(u'Shipping address'), shipping_address.name)
 
         self.assertContains(response, b_address)
         self.assertContains(response, s_address)
@@ -228,7 +228,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                  'last_name':                last_name,
                                  'billing_address-address':  'In the Bebop.',
                                  'shipping_address-address': 'In the Bebop. (bis)',
-                                }
+                                },
                           )
         contact = Contact.objects.get(first_name=first_name)
         billing_address_id  = contact.billing_address_id
@@ -242,7 +242,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                                       'last_name':                last_name,
                                                       'billing_address-state':    state,
                                                       'shipping_address-country': country,
-                                                     }
+                                                     },
                                                )
                               )
 
@@ -262,7 +262,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         response = self.assertPOST200(url, follow=True,
                                       data={'user':      user.id,
                                             'last_name': contact.last_name,
-                                           }
+                                           },
                                      )
         msg = _('This field is required.')
         self.assertFormError(response, 'form', 'first_name', msg)
@@ -278,7 +278,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                           'last_name':  last_name,
                                           'first_name': first_name,
                                           'email':      email,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -298,7 +298,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         contact = self.get_object_or_fail(Contact, is_user=user)
 
         FieldsConfig.create(Contact,
-                            descriptions=[('email', {FieldsConfig.HIDDEN: True})]
+                            descriptions=[('email', {FieldsConfig.HIDDEN: True})],
                            )
 
         url = contact.get_edit_absolute_url()
@@ -319,7 +319,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                           'first_name':  first_name,
                                           'email':       'useless@dontcare.org',
                                           'description': description,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -352,6 +352,9 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         with self.assertNumQueries(0):
             user.linked_contact
 
+        self.assertTrue(hasattr(user, 'get_absolute_url'))
+        self.assertEqual(contact.get_absolute_url(), user.get_absolute_url())
+
     def test_is_user02(self):
         """Contact.clean() + integrity of User.
         # first_name = NULL (not nullable in User)
@@ -376,7 +379,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         with self.assertRaises(ValidationError) as cm:
             contact.full_clean()
 
-        self.assertEqual([_('This Contact is related to a user and must have a first name.')],
+        self.assertEqual([_(u'This Contact is related to a user and must have a first name.')],
                          cm.exception.messages
                         )
 
@@ -385,7 +388,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         with self.assertRaises(ValidationError) as cm:
             contact.full_clean()
 
-        self.assertEqual([_('This Contact is related to a user and must have an e-mail address.')],
+        self.assertEqual([_(u'This Contact is related to a user and must have an e-mail address.')],
                          cm.exception.messages
                         )
 
@@ -428,7 +431,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                           'user':          user.pk,
                                           'first_name':    first_name,
                                           'last_name':     last_name,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
         self.assertRedirects(response, redir)
@@ -454,7 +457,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                           'user':          user.pk,
                                           'first_name':    first_name,
                                           'last_name':     last_name,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 

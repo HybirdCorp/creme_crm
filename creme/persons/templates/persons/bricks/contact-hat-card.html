@@ -1,0 +1,72 @@
+{% extends 'creme_core/bricks/base/hat-card.html' %}
+{% load i18n creme_widgets persons_tags %}
+
+{% block brick_extra_class %}{{block.super}} persons-contact-card-brick{% endblock %}
+
+{% block card_intro_content %}
+{% include 'persons/bricks/frags/card-last-activity.html' %}
+{% endblock %}
+
+{% block card_title %}
+{{object|persons_pretty_contact}}
+{% endblock %}
+
+{% block card_indicators %}
+    {% if is_neglected %}
+    <div class='business-card-indicator business-card-warning-indicator'>{% trans 'Not contacted since 15 days' %}</div>
+    {% endif %}
+{% endblock %}
+
+{% block card_secondary %}
+    {% persons_contact_first_employer contact=object user=user as employer %}
+    {% if employer %}
+    <div class="card-job">
+        <span class="card-function">{% if employer.as_manager %}{% trans 'Manager' %}{% else %}{% trans 'Employee' %}{% endif %}</span>, {% widget_entity_hyperlink employer.organisation user %}
+    </div>
+    {% elif object.position and 'position' not in hidden_fields %}
+    <div class="card-job">
+        <span class="card-function">{{object.position}}</span>
+    </div>
+    {% endif %}
+{% endblock %}
+
+{% block card_fields_title %}
+{% trans 'Details' context 'persons-contact' %}
+{% endblock %}
+
+{% block card_fields %}
+    {% if 'phone' not in hidden_fields %}
+    <div class="card-info-field">
+        <span class='card-info-key'>{% trans 'Phone' %}</span>
+        <span class='card-info-value'>{{object.phone|default:'—'}}</span>
+    </div>
+    {% endif %}
+    {% if 'mobile' not in hidden_fields %}
+    <div class="card-info-field">
+        <span class='card-info-key'>{% trans 'Mobile' %}</span>
+        <span class='card-info-value'>{{object.mobile|default:'—'}}</span>
+    </div>
+    {% endif %}
+    {% if 'email' not in hidden_fields %}
+    <div class="card-info-field">
+        <span class='card-info-key'>{% trans 'Email address' %}</span>
+        {% with email=object.email %}
+        {% if email %}
+        <span class='card-info-value' data-type='email'><a href='mailto:{{email}}'>{{email}}</a></span>
+        {% else %}
+        <span class='card-info-value'>—</span>
+        {% endif %}
+        {% endwith %}
+    </div>
+    {% endif %}
+{% endblock %}
+
+{% block card_summary %}
+    {% include 'persons/bricks/frags/card-summary-acts.html' %}
+    {% include 'persons/bricks/frags/card-summary-opportunities.html' %}
+    {% include 'persons/bricks/frags/card-summary-next-activity.html' %}
+{% endblock %}
+
+{% block card_history %}
+{% include 'persons/bricks/frags/contact-card-history.html' %}
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends 'persons/bricks/base/addresses.html' %}
+{% load creme_core_tags persons_tags %}
+
+{% block brick_extra_class %}{{block.super}} persons-addresses-pretty-brick{% endblock %}
+
+{% block billing_address_content %}
+    {% include 'persons/bricks/frags/address-pretty.html' with address=b_address %}
+{% endblock %}
+
+{% block shipping_address_content %}
+    {% include 'persons/bricks/frags/address-pretty.html' with address=s_address %}
+{% endblock %}

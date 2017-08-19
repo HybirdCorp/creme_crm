@@ -32,28 +32,44 @@ Address = get_address_model()
 
 def abstract_add_address(request, entity_id, form=address_forms.AddressForm,
                          title=_(u'Adding address to «%s»'),
-                         submit_label=_('Save the address'),
+                         submit_label=_(u'Save the address'),
                         ):
     return generic.add_to_entity(request, entity_id, form, title=title, submit_label=submit_label)
 
 
 def abstract_add_billing_address(request, entity_id, form=address_forms.BillingAddressForm,
                                  title=_(u'Adding billing address to «%s»'),
-                                 submit_label=_('Save the address')
+                                 submit_label=_(u'Save the address')
                                 ):
     return generic.add_to_entity(request, entity_id, form, title=title, submit_label=submit_label)
 
 
 def abstract_add_shipping_address(request, entity_id, form=address_forms.ShippingAddressForm,
                                   title=_(u'Adding shipping address to «%s»'),
-                                  submit_label=_('Save the address'),
+                                  submit_label=_(u'Save the address'),
                                 ):
     return generic.add_to_entity(request, entity_id, form, title=title, submit_label=submit_label)
 
 
 def abstract_edit_address(request, address_id,
-                          form=address_forms.AddressForm, title=_(u'Address for «%s»'),
+                          # form=address_forms.AddressForm,
+                          form=None,
+                          # title=_(u'Address for «%s»'),
+                          title=None,
                          ):
+    if form is None or title is None:
+        address_type = request.GET.get('type')
+
+        if address_type == 'billing':
+            title = _(u'Edit billing address for «%s»')
+            form = address_forms.BillingAddressForm
+        elif address_type == 'shipping':
+            title = _(u'Edit shipping address for «%s»')
+            form = address_forms.ShippingAddressForm
+        else:
+            title = _(u'Edit address for «%s»')
+            form = address_forms.AddressForm
+
     return generic.edit_related_to_entity(request, address_id, Address, form, title_format=title)
 
 

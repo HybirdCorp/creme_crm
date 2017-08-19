@@ -1,0 +1,6 @@
+{% extends 'creme_core/bricks/frags/hat-card-history.html' %}
+{% load i18n %}
+
+{% block title_extra %}
+    {% if object.is_user %}<span class='contact-is-user'>{% trans 'Creme user' %}</span>{% endif %}
+{% endblock %}
