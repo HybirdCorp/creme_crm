@@ -1,4 +1,7 @@
-{% load i18n creme_block %}
+{% load i18n creme_core_tags creme_block %}
+
+{% log 'The template file "creme/geolocation/templates/geolocation/templatetags/block_persons_filters_google_map.html" is deprecated.' level='WARN' %}
+
 <script type='text/javascript'>
     creme.geolocation.ready(function() {
 {#        new creme.geolocation.AddressesBlock($('#{{block_name}}'));  #}

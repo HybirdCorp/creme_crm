@@ -1,4 +1,7 @@
 {% load i18n creme_core_tags creme_block %}
+
+{% log 'The template file "creme/geolocation/templates/geolocation/templatetags/block_persons_google_map.html" is deprecated.' level='WARN' %}
+
 <script type='text/javascript'>
     creme.geolocation.ready(function() {
 {#        new creme.geolocation.PersonsBlock($('#{{block_name}}'), {{geoaddresses|safe}}); #}
@@ -14,7 +17,8 @@
         {% if addresses %}
         <tr class="content">
             <td class="block-geoaddress-header">
-                <div class="block-geoaddress-items">
+{#                <div class="block-geoaddress-items"> #}
+                <div class="geolocation-brick-items">
                 {% for address in addresses %}
                     <div class="block-geoaddress-item {% if address.is_billing %}item-selected{% endif %}" data-addressid="{{address.id}}">
                         <input type="checkbox" value="{{address.id}}" {% if address.is_billing %}checked{% endif %} />

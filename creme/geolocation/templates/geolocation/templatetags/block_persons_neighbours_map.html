@@ -1,4 +1,7 @@
 {% load i18n creme_core_tags creme_block geolocation %}
+
+{% log 'The template file "creme/geolocation/templates/geolocation/templatetags/block_persons_neighbours_map.html" is deprecated.' level='WARN' %}
+
 <script type='text/javascript'>
     creme.geolocation.ready(function() {
 {#        var block = new creme.geolocation.PersonsNeighborhoodBlock($('#{{block_name}}'), {{radius}}); #}

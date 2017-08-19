@@ -4,10 +4,11 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.models.entity_filter import EntityFilter, EntityFilterCondition
+
     from creme.persons.constants import FILTER_MANAGED_ORGA, FILTER_CONTACT_ME
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
-    from ..blocks import _MapBlock
+    from ..bricks import _MapBrick
     from .base import GeoLocationBaseTestCase, Organisation, Contact
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -19,7 +20,7 @@ class _MapBlockTestCase(GeoLocationBaseTestCase):
     def setUp(self):
         super(_MapBlockTestCase, self).setUp()
         self.login()
-        self.block = _MapBlock()
+        self.block = _MapBrick()
 
         self.contacts_title      = unicode(Contact._meta.verbose_name_plural)
         self.organisations_title = unicode(Organisation._meta.verbose_name_plural)

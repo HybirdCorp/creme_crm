@@ -1,0 +1,35 @@
+{% extends 'creme_core/bricks/base/base.html' %}
+{% load i18n creme_bricks %}
+
+{% block brick_extra_class %}geolocation-brick geolocation-google-filtered-brick{% endblock %}
+
+{% block brick_script %}
+    <script type="text/javascript">
+         $('.brick[id="{{brick_id}}"]').on('brick-ready', function() {
+             creme.geolocation.ready(function() {
+                 new creme.geolocation.AddressesBlock($('#{{brick_id}}'), '{% url 'geolocation__addresses' %}', '{% url 'geolocation__set_address_info' %}');
+             });
+         });
+    </script>
+{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('Maps By Filter') %}
+{% endblock %}
+
+{% block brick_content %}
+{#    <div class="block-geoaddress-header"> #}
+    <div class="geolocation-brick-header">
+        <span class="block-geoaddress-counter">{% trans 'No address from' %}</span>&nbsp;
+        <select class="block-geoaddress-filter">
+        {% for groupname, choices in address_filters %}
+            <optgroup label="{{groupname}}">
+            {% for value, label in choices %}
+                <option value="{{value}}">{{label}}</option>
+            {% endfor %}
+            </optgroup>
+        {% endfor %}
+        </select>
+    </div>
+    <div class="block-geoaddress-canvas"></div>
+{% endblock %}

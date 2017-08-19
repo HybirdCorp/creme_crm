@@ -665,7 +665,7 @@ CREME_OPT_JS = (  # OPTIONAL APPS
     ('creme.events',        'events/js/events.js'),
 
     ('creme.geolocation',   'geolocation/js/geolocation.js'),
-    ('creme.geolocation',   'geolocation/js/block.js'),
+    ('creme.geolocation',   'geolocation/js/brick.js'),
 )
 
 TEST_CREME_CORE_JS = (  # JS Unit test files
