@@ -95,7 +95,8 @@ class ProductTestCase(_ProductsTestCase):
         self.assertEqual(sub_cat,             product.sub_category)
 
         self.assertRedirects(response, product.get_absolute_url())
-        self.assertTemplateUsed(response, 'products/block_images.html')
+        # self.assertTemplateUsed(response, 'products/block_images.html')
+        self.assertTemplateUsed(response, 'products/bricks/images.html')
 
     @skipIfCustomProduct
     def test_createview02(self):

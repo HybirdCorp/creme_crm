@@ -53,8 +53,8 @@ class AbstractService(CremeEntity):
     #                                    )
     images = ImageEntityManyToManyField(verbose_name=_(u'Images'), blank=True)
 
-    creation_label = _('Create a service')
-    save_label     = _('Save the service')
+    creation_label = _(u'Create a service')
+    save_label     = _(u'Save the service')
 
     class Meta:
         abstract = True

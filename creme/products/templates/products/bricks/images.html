@@ -1,0 +1,39 @@
+{% extends 'creme_core/bricks/base/tiles.html' %}
+{% load i18n creme_core_tags creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} products-images-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Image') plural=_('{count} Images') empty=_('Images') icon='image' count=object.images.count %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% has_perm_to change object as has_perm %}
+    {% brick_header_action id='link' url=add_images_url label=_('Add images') enabled=has_perm %}
+{% endblock %}
+
+{% block brick_content_extra_class %}
+{% if not object.images.count %}is-empty{% endif %}
+{% endblock %}
+
+{% block brick_content %}
+{% has_perm_to change object as edit_perm %}
+    {% for image in object.images.all %}
+    <div class="brick-tile" data-type="image">{% has_perm_to view image as view_perm %}
+        <span class="brick-tile-value">
+            {% if view_perm %}
+            <a href="{{image.get_absolute_url}}" title="{{image.image}}" alt="{{image.image}}">
+                <img src="{{image.get_dl_url}}"/>
+            </a>
+            {% else %}
+            {{HIDDEN_VALUE}}
+            {% endif %}
+        </span>
+        <span class="brick-tile-name">{% url 'products__remove_image' object.id as remove_url %}
+            {{image}}{% if edit_perm %}{% brick_tile_action id='delete' url=remove_url __id=image.id type='unlink' label=_('Remove this image') %}{% endif %}
+        </span>
+    </div>
+    {% empty %}
+    <div class="brick-tiles-empty">{% trans 'No image for the moment' %}</div>
+    {% endfor %}
+{% endblock %}

@@ -42,10 +42,12 @@ class ProductsConfig(CremeAppConfig):
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Product, self.Service)
 
-    def register_blocks(self, block_registry):
-        from .blocks import images_block
+    def register_bricks(self, brick_registry):
+        # from .blocks import images_block
+        from . import bricks
 
-        block_registry.register(images_block)
+        # brick_registry.register(images_block)
+        brick_registry.register(bricks.ImagesBrick)
 
     def register_bulk_update(self, bulk_update_registry):
         from .forms.product import ProductInnerEditCategory
