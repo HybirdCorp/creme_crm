@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from django.conf import settings
 from django.db.models import ForeignKey, CharField, DateField, TextField
-from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
+from django.utils.translation import ugettext_lazy as _, ugettext, pgettext, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
 from creme.creme_core.utils import chunktools
@@ -53,13 +53,19 @@ class Sending(CremeModel):
     template = ForeignKey(settings.SMS_TEMPLATE_MODEL, verbose_name=_(u'Message template'))
     content  = TextField(_(u'Generated message'), max_length=160)
 
+    creation_label = pgettext_lazy('sms', u'Create a sending')
+    save_label     = pgettext_lazy('sms', u'Save the sending')
+
     class Meta:
         app_label = 'sms'
         verbose_name = _(u'Sending')
         verbose_name_plural = _(u'Sendings')
 
     def __unicode__(self):
-        return self.date
+        # return self.date
+        return pgettext('sms', u'Sending of «{campaign}» on {date}').format(campaign=self.campaign,
+                                                                            date=self.date,
+                                                                           )
 
     def formatstatus(self):
         items = ((self.messages.filter(status=status).count(), status_name) for status, status_name in MESSAGE_STATUS.iteritems())
@@ -87,9 +93,13 @@ class Message(CremeModel):
         return self.phone
 
     class Meta:
-        app_label = "sms"
+        app_label = 'sms'
         verbose_name = _(u'Message')
         verbose_name_plural = _(u'Messages')
+
+    # TODO: improve delete() method & remove the view delete_message ?
+    # def get_related_entity(self):  # For generic views (deletion)
+    #     return self.sending.campaign
 
     def statusname(self):
         status_desc = MESSAGE_STATUS.get(self.status)

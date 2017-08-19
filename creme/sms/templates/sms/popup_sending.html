@@ -1,3 +1,6 @@
-{% load creme_block %}
-{% import_block from_app 'sms' named 'messages' as 'messages_block' %}
-{% display_block_detailview 'messages_block' %}
+{% load creme_core_tags creme_bricks %}
+{% url 'sms__reload_messages_brick' object.id as bricks_reload_url %}{% url_join bricks_reload_url base_url=request.path as bricks_reload_uri %}
+<div data-bricks-reload-url="{{bricks_reload_uri}}">
+{% brick_import app='sms' name='messages' as messages_brick %}
+{% brick_display messages_brick %}
+</div>

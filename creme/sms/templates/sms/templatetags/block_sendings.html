@@ -1,5 +1,8 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
+
+{% log 'The template file "creme/sms/templates/sms/templatetags/block_sendings.html" is deprecated.' level='WARN' %}
+
 {% has_perm_to change object as has_perm %}
 <script type="text/javascript">
     sms_sendings = {
@@ -37,7 +40,7 @@
                     <td class="{{row_color}}">{{sending.messages.count}}</td>
                     <td class="{{row_color}}">{{sending.formatstatus}}</td>
                     <td class="{{row_color}} action">
-                        <a onclick="creme.dialogs.url('/sms/campaign/sending/{{sending.pk}}').open({width:'80%'});">
+                        <a onclick="creme.dialogs.url('/sms/campaign/sending/{{sending.pk}}').open({width: '80%'});">
                             <img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{{details_label}}" alt="{{details_label}}" />
                         </a>
                     </td>

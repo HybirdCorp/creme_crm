@@ -45,6 +45,25 @@ class SMSConfig(CremeAppConfig):
                                               self.MessageTemplate,
                                              )
 
+    def register_bricks(self, brick_registry):
+        from . import bricks
+
+        brick_registry.register(bricks.MessagingListsBlock,
+                                bricks.RecipientsBrick,
+                                bricks.ContactsBrick,
+                                bricks.MessagesBrick,
+                                bricks.SendingsBrick,
+                               )
+
+    def register_bulk_update(self, bulk_update_registry):
+        bulk_update_registry.register(self.SMSCampaign, exclude=('lists',))
+
+    def register_icons(self, icon_registry):
+        reg_icon = icon_registry.register
+        reg_icon(self.SMSCampaign,     'images/sms_%(size)s.png')
+        reg_icon(self.MessagingList,   'images/sms_%(size)s.png')
+        reg_icon(self.MessageTemplate, 'images/sms_%(size)s.png')
+
     def register_menu(self, creme_menu):
         from django.conf import settings
         from django.core.urlresolvers import reverse_lazy as reverse
@@ -81,21 +100,3 @@ class SMSConfig(CremeAppConfig):
                       .add_link('sms-create_campaign', SMSCampaign, priority=200) \
                       .add_link('sms-create_mlist',    MList,       priority=210) \
                       .add_link('sms-create_template', MTemplate,   priority=220)
-
-    def register_blocks(self, block_registry):
-        from .blocks import (messaging_lists_block, recipients_block, contacts_block,
-                messages_block, sendings_block)
-
-        block_registry.register(messaging_lists_block, recipients_block,
-                                contacts_block, messages_block, sendings_block,
-                               )
-
-    def register_bulk_update(self, bulk_update_registry):
-        bulk_update_registry.register(self.SMSCampaign, exclude=('lists',))
-
-    def register_icons(self, icon_registry):
-        reg_icon = icon_registry.register
-        reg_icon(self.SMSCampaign,     'images/sms_%(size)s.png')
-        reg_icon(self.MessagingList,   'images/sms_%(size)s.png')
-        reg_icon(self.MessageTemplate, 'images/sms_%(size)s.png')
-

@@ -8,55 +8,56 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme SMS 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-23 15:45+0100\n"
+"POT-Creation-Date: 2017-08-14 23:03+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps.py:28 templates/sms/portal.html:4
+#: apps.py:28 templates/sms/portal.html:3
 msgid "SMS"
 msgstr "SMS"
 
-#: apps.py:61
+#: apps.py:80
 msgid "Portal of SMS"
 msgstr "Portail des SMS"
 
-#: apps.py:62
+#: apps.py:81
 msgid "All campaigns"
 msgstr "Lister les campagnes"
 
-#: apps.py:64
+#: apps.py:83
 msgid "All messaging lists"
 msgstr "Lister les listes de diffusion"
 
-#: apps.py:66
+#: apps.py:85
 msgid "All message templates"
 msgstr "Lister les patrons de message"
 
-#: apps.py:73 apps.py:80
+#: apps.py:92 apps.py:99
 msgid "Marketing"
 msgstr "Marketing"
 
-#: blocks.py:54 forms/campaign.py:56
+#: bricks.py:54 forms/campaign.py:56
+#: templates/sms/bricks/messaging-lists.html:7
 msgid "Messaging lists"
 msgstr "Listes de diffusion"
 
-#: blocks.py:65
+#: bricks.py:67 templates/sms/bricks/recipients.html:7
 msgid "Unlinked recipients"
 msgstr "Destinataires manuels"
 
-#: blocks.py:84 forms/messaging_list.py:46 forms/messaging_list.py:89
-#: models/messaging_list.py:32
+#: bricks.py:87 forms/messaging_list.py:46 forms/messaging_list.py:89
+#: models/messaging_list.py:32 templates/sms/bricks/contacts.html:7
 msgid "Contacts recipients"
 msgstr "Contacts destinataires"
 
-#: blocks.py:97
+#: bricks.py:100
 msgid "Sent messages"
 msgstr "Messages envoyés"
 
-#: blocks.py:113 models/message.py:59
+#: bricks.py:117 models/message.py:62 templates/sms/bricks/sendings.html:20
 msgid "Sendings"
 msgstr "Envois"
 
@@ -74,7 +75,7 @@ msgstr ""
 msgid "Message template"
 msgstr "Patron de message"
 
-#: forms/messaging_list.py:44 templates/sms/templatetags/block_contacts.html:7
+#: forms/messaging_list.py:44 templates/sms/templatetags/block_contacts.html:8
 msgid "Contacts"
 msgstr "Contacts"
 
@@ -118,7 +119,7 @@ msgstr ""
 " Attention, l'en-tête compte (+ 3 caractères) et les caractères suivant "
 "comptent double: %s"
 
-#: forms/template.py:37 models/message.py:91
+#: forms/template.py:37 models/message.py:97
 msgid "Message"
 msgstr "Message"
 
@@ -231,31 +232,50 @@ msgstr "Campagne associée"
 msgid "Generated message"
 msgstr "Message généré"
 
-#: models/message.py:58 models/message.py:81
-#: templates/sms/templatetags/block_sendings.html:16
+#: models/message.py:56
+msgctxt "sms"
+msgid "Create a sending"
+msgstr "Créer un envoi"
+
+#: models/message.py:57
+msgctxt "sms"
+msgid "Save the sending"
+msgstr "Enregistrer l'envoi"
+
+#: models/message.py:61 models/message.py:87
+#: templates/sms/templatetags/block_sendings.html:19
 msgid "Sending"
 msgstr "Envoi"
 
-#: models/message.py:82 models/recipient.py:31
-#: templates/sms/templatetags/block_contacts.html:18
-#: templates/sms/templatetags/block_messages.html:64
-#: templates/sms/templatetags/block_recipients.html:27
+#: models/message.py:66
+#, python-brace-format
+msgctxt "sms"
+msgid "Sending of «{campaign}» on {date}"
+msgstr "Envoi de «{campaign}» du {date}"
+
+#: models/message.py:88 models/recipient.py:31
+#: templates/sms/bricks/contacts.html:19 templates/sms/bricks/messages.html:34
+#: templates/sms/bricks/recipients.html:18
+#: templates/sms/templatetags/block_contacts.html:24
+#: templates/sms/templatetags/block_messages.html:65
+#: templates/sms/templatetags/block_recipients.html:30
 msgid "Number"
 msgstr "Numéro"
 
-#: models/message.py:83
+#: models/message.py:89
 msgid "State"
 msgstr "État"
 
-#: models/message.py:84
+#: models/message.py:90
 msgid "Full state"
 msgstr "État détaillé"
 
-#: models/message.py:92 templates/sms/templatetags/block_messages.html:40
+#: models/message.py:98 templates/sms/bricks/messages.html:7
+#: templates/sms/templatetags/block_messages.html:41
 msgid "Messages"
 msgstr "Messages"
 
-#: models/message.py:96
+#: models/message.py:106
 msgid "Unknown"
 msgstr "Inconnu"
 
@@ -325,188 +345,288 @@ msgstr "Patron de message SMS"
 msgid "SMS Messages templates"
 msgstr "Patrons de message SMS"
 
-#: populate.py:51
+#: populate.py:49
 msgid "Messaging list view"
 msgstr "Vue de Liste de Diffusion"
 
-#: populate.py:56
+#: populate.py:54
 msgid "Campaign view"
 msgstr "Vue de Campagne"
 
-#: populate.py:61
+#: populate.py:59
 msgid "Message template view"
 msgstr "Vue de patron de message"
 
-#: templates/sms/portal.html:5
+#: templates/sms/bricks/contacts.html:7
+#, python-brace-format
+msgid "{count} Contact recipient"
+msgstr "{count} Contact destinataire"
+
+#: templates/sms/bricks/contacts.html:7
+#, python-brace-format
+msgid "{count} Contact recipients"
+msgstr "{count} Contacts destinataires"
+
+#: templates/sms/bricks/contacts.html:13
+#: templates/sms/templatetags/block_contacts.html:16
+msgid "Add from a filter"
+msgstr "Ajouter à partir d'un filtre"
+
+#: templates/sms/bricks/contacts.html:14
+#: templates/sms/templatetags/block_contacts.html:15
+msgid "Add contacts"
+msgstr "Ajouter des contacts"
+
+#: templates/sms/bricks/contacts.html:20 templates/sms/bricks/messages.html:37
+#: templates/sms/bricks/messaging-lists.html:17
+#: templates/sms/bricks/recipients.html:19
+msgid "Action"
+msgstr ""
+
+#: templates/sms/bricks/contacts.html:31
+#: templates/sms/templatetags/block_contacts.html:32
+msgid "no number"
+msgstr "pas de numéro"
+
+#: templates/sms/bricks/contacts.html:35
+msgid "Remove this contact"
+msgstr "Enlever ce contact"
+
+#: templates/sms/bricks/contacts.html:42
+#: templates/sms/templatetags/block_contacts.html:43
+msgid "No contact recipient for the moment"
+msgstr "Aucun contact destinataire pour le moment"
+
+#: templates/sms/bricks/messages.html:7
+#, python-brace-format
+msgid "{count} Message"
+msgstr "{count} Message"
+
+#: templates/sms/bricks/messages.html:7
+#, python-brace-format
+msgid "{count} Messages"
+msgstr "{count} Messages"
+
+#: templates/sms/bricks/messages.html:35 templates/sms/bricks/sendings.html:31
+#: templates/sms/templatetags/block_messages.html:66
+#: templates/sms/templatetags/block_sendings.html:31
+msgid "Status"
+msgstr "Statut"
+
+#: templates/sms/bricks/messages.html:36
+#: templates/sms/templatetags/block_messages.html:67
+msgid "Status message"
+msgstr "Message de statut"
+
+#: templates/sms/bricks/messages.html:48
+msgid "Delete this message"
+msgstr "Supprimer ce message"
+
+#: templates/sms/bricks/messages.html:55
+#: templates/sms/templatetags/block_messages.html:82
+msgid "No message in this sending"
+msgstr "Aucun message dans cet envoi"
+
+#: templates/sms/bricks/messaging-lists.html:7
+#, python-brace-format
+msgid "{count} Related messaging list"
+msgstr "{count} Liste de diffusion associée"
+
+#: templates/sms/bricks/messaging-lists.html:7
+#, python-brace-format
+msgid "{count} Related messaging lists"
+msgstr "{count} Listes de diffusion associées"
+
+#: templates/sms/bricks/messaging-lists.html:12
+#: templates/sms/templatetags/block_messaging_lists.html:12
+msgid "Add existing messaging lists"
+msgstr "Ajouter des listes de diffusion existantes"
+
+#: templates/sms/bricks/messaging-lists.html:26
+msgid "Remove this messaging list"
+msgstr "Enlever la liste de diffusion"
+
+#: templates/sms/bricks/messaging-lists.html:33
+#: templates/sms/templatetags/block_messaging_lists.html:34
+msgid "No related messaging list for the moment"
+msgstr "Aucune liste de diffusion associée pour le moment"
+
+#: templates/sms/bricks/recipients.html:7
+#, python-brace-format
+msgid "{count} Unlinked recipient"
+msgstr "{count} Destinataire manuel"
+
+#: templates/sms/bricks/recipients.html:7
+#, python-brace-format
+msgid "{count} Unlinked recipients"
+msgstr "{count} Destinataires manuels"
+
+#: templates/sms/bricks/recipients.html:13
+#: templates/sms/templatetags/block_recipients.html:13
+msgid "Add from a CSV file"
+msgstr "Ajouter à partir d'un fichier CSV"
+
+#: templates/sms/bricks/recipients.html:14
+#: templates/sms/templatetags/block_recipients.html:12
+msgid "Add manually"
+msgstr "Ajouter à la main"
+
+#: templates/sms/bricks/recipients.html:28
+msgid "Delete this recipient"
+msgstr "Enlever ce destinataire"
+
+#: templates/sms/bricks/recipients.html:35
+#: templates/sms/templatetags/block_recipients.html:44
+msgid "No unlinked recipient for the moment"
+msgstr "Aucun destinataire pour le moment"
+
+#: templates/sms/bricks/sendings.html:20
+#, python-brace-format
+msgid "{count} Sending"
+msgstr "{count} Envoi"
+
+#: templates/sms/bricks/sendings.html:20
+#, python-brace-format
+msgid "{count} Sendings"
+msgstr "{count} Envois"
+
+#: templates/sms/bricks/sendings.html:25
+#: templates/sms/templatetags/block_sendings.html:22
+msgid "New sending"
+msgstr "Nouvel envoi"
+
+#: templates/sms/bricks/sendings.html:29
+#: templates/sms/templatetags/block_sendings.html:29
+msgid "Sending date"
+msgstr "Date d'envoi"
+
+#: templates/sms/bricks/sendings.html:30
+#: templates/sms/templatetags/block_sendings.html:30
+msgid "Number of SMS"
+msgstr "Nombre de SMS"
+
+#: templates/sms/bricks/sendings.html:32 templates/sms/bricks/sendings.html:38
+#: templates/sms/bricks/sendings.html:45
+#: templates/sms/templatetags/block_sendings.html:32
+#: templates/sms/templatetags/block_sendings.html:36
+msgid "Details"
+msgstr "Détails"
+
+#: templates/sms/bricks/sendings.html:33
+msgid "Actions"
+msgstr ""
+
+#: templates/sms/bricks/sendings.html:38
+#: templates/sms/templatetags/block_messages.html:43
+#: templates/sms/templatetags/block_sendings.html:33
+#: templates/sms/templatetags/block_sendings.html:36
+msgid "Synchronize"
+msgstr "Synchroniser"
+
+#: templates/sms/bricks/sendings.html:38
+#: templates/sms/templatetags/block_messages.html:56
+#: templates/sms/templatetags/block_sendings.html:36
+msgid "Can't synchronize"
+msgstr "Synchronisation interdite"
+
+#: templates/sms/bricks/sendings.html:57
+msgid "Delete this sending"
+msgstr "Supprimer cette envoi"
+
+#: templates/sms/bricks/sendings.html:64
+#: templates/sms/templatetags/block_sendings.html:63
+msgid "No sending for the moment"
+msgstr "Aucun envoi pour le moment"
+
+#: templates/sms/portal.html:4
 msgid "SMS Campaigns portal"
 msgstr "Portail Campagnes de SMS"
 
-#: templates/sms/portal.html:9
+#: templates/sms/portal.html:7
 msgid "List of campaigns"
 msgstr "Liste des campagnes"
 
-#: templates/sms/templatetags/block_contacts.html:7
+#: templates/sms/templatetags/block_contacts.html:8
 #, python-format
 msgid "%s Contact recipient"
 msgstr "%s Contact destinataire"
 
-#: templates/sms/templatetags/block_contacts.html:7
+#: templates/sms/templatetags/block_contacts.html:8
 #, python-format
 msgid "%s Contacts recipients"
 msgstr "%s Contacts destinataires"
 
-#: templates/sms/templatetags/block_contacts.html:10
-msgid "Add contacts"
-msgstr "Ajouter des contacts"
-
-#: templates/sms/templatetags/block_contacts.html:11
-msgid "Add from a filter"
-msgstr "Ajouter à partir d'un filtre"
-
-#: templates/sms/templatetags/block_contacts.html:19
-#: templates/sms/templatetags/block_messaging_lists.html:17
+#: templates/sms/templatetags/block_contacts.html:25
+#: templates/sms/templatetags/block_messaging_lists.html:20
 msgid "Unlink"
 msgstr "Délier"
 
-#: templates/sms/templatetags/block_contacts.html:26
-msgid "no number"
-msgstr "pas de numéro"
-
-#: templates/sms/templatetags/block_contacts.html:36
-msgid "No contact recipient for the moment"
-msgstr "Aucun contact destinataire pour le moment"
-
-#: templates/sms/templatetags/block_messages.html:40
+#: templates/sms/templatetags/block_messages.html:41
 #, python-format
 msgid "%s Message"
 msgstr "%s Message"
 
-#: templates/sms/templatetags/block_messages.html:40
+#: templates/sms/templatetags/block_messages.html:41
 #, python-format
 msgid "%s Messages"
 msgstr "%s Messages"
 
-#: templates/sms/templatetags/block_messages.html:42
+#: templates/sms/templatetags/block_messages.html:43
 msgid "Send"
 msgstr "Envoyer"
 
-#: templates/sms/templatetags/block_messages.html:42
-#: templates/sms/templatetags/block_sendings.html:30
-#: templates/sms/templatetags/block_sendings.html:33
-msgid "Synchronize"
-msgstr "Synchroniser"
-
-#: templates/sms/templatetags/block_messages.html:52
+#: templates/sms/templatetags/block_messages.html:53
 msgid "Can't send"
 msgstr "Envoi interdit"
 
-#: templates/sms/templatetags/block_messages.html:55
-#: templates/sms/templatetags/block_sendings.html:33
-msgid "Can't synchronize"
-msgstr "Synchronisation interdite"
-
-#: templates/sms/templatetags/block_messages.html:65
-#: templates/sms/templatetags/block_sendings.html:28
-msgid "Status"
-msgstr "Statut"
-
-#: templates/sms/templatetags/block_messages.html:66
-msgid "Status message"
-msgstr "Message de statut"
-
-#: templates/sms/templatetags/block_messages.html:67
-#: templates/sms/templatetags/block_recipients.html:28
-#: templates/sms/templatetags/block_sendings.html:31
+#: templates/sms/templatetags/block_messages.html:68
+#: templates/sms/templatetags/block_recipients.html:31
+#: templates/sms/templatetags/block_sendings.html:34
 msgid "Delete"
 msgstr "Supprimer"
 
-#: templates/sms/templatetags/block_messages.html:81
-msgid "No message in this sending"
-msgstr "Aucun message dans cet envoi"
-
-#: templates/sms/templatetags/block_messaging_lists.html:6
+#: templates/sms/templatetags/block_messaging_lists.html:8
 #, python-format
 msgid "%s Related messaging list"
 msgstr "%s Liste de diffusion associée"
 
-#: templates/sms/templatetags/block_messaging_lists.html:6
+#: templates/sms/templatetags/block_messaging_lists.html:8
 #, python-format
 msgid "%s Related messaging lists"
 msgstr "%s Listes de diffusion associées"
 
-#: templates/sms/templatetags/block_messaging_lists.html:6
+#: templates/sms/templatetags/block_messaging_lists.html:8
 msgid "Messaging list"
 msgstr "Liste de diffusion"
 
-#: templates/sms/templatetags/block_messaging_lists.html:9
-msgid "Add existing messaging lists"
-msgstr "Ajouter des listes de diffusion existantes"
-
-#: templates/sms/templatetags/block_messaging_lists.html:16
+#: templates/sms/templatetags/block_messaging_lists.html:19
 msgid "Name of the list"
 msgstr "Nom de la liste"
 
-#: templates/sms/templatetags/block_messaging_lists.html:29
-msgid "No related messaging list for the moment"
-msgstr "Aucune liste de diffusion associée pour le moment"
-
-#: templates/sms/templatetags/block_recipients.html:7
+#: templates/sms/templatetags/block_recipients.html:8
 #, python-format
 msgid "%s Unlinked recipient"
 msgstr "%s Destinataire manuel"
 
-#: templates/sms/templatetags/block_recipients.html:7
+#: templates/sms/templatetags/block_recipients.html:8
 #, python-format
 msgid "%s Unlinked recipients"
 msgstr "%s Destinataires manuels"
 
-#: templates/sms/templatetags/block_recipients.html:10
-msgid "Add manually"
-msgstr "Ajouter à la main"
-
-#: templates/sms/templatetags/block_recipients.html:11
-msgid "Add from a CSV file"
-msgstr "Ajouter à partir d'un fichier CSV"
-
 # Already in creme_core
-#: templates/sms/templatetags/block_recipients.html:18
+#: templates/sms/templatetags/block_recipients.html:21
 msgid "Can't add"
 msgstr ""
 
-#: templates/sms/templatetags/block_recipients.html:41
-msgid "No unlinked recipient for the moment"
-msgstr "Aucun destinataire pour le moment"
-
-#: templates/sms/templatetags/block_sendings.html:16
+#: templates/sms/templatetags/block_sendings.html:19
 #, python-format
 msgid "%s Sending"
 msgstr "%s Envoi"
 
-#: templates/sms/templatetags/block_sendings.html:16
+#: templates/sms/templatetags/block_sendings.html:19
 #, python-format
 msgid "%s Sendings"
 msgstr "%s Envois"
-
-#: templates/sms/templatetags/block_sendings.html:19
-msgid "New sending"
-msgstr "Nouvel envoi"
-
-#: templates/sms/templatetags/block_sendings.html:26
-msgid "Sending date"
-msgstr "Date d'envoi"
-
-#: templates/sms/templatetags/block_sendings.html:27
-msgid "Number of SMS"
-msgstr "Nombre de SMS"
-
-#: templates/sms/templatetags/block_sendings.html:29
-#: templates/sms/templatetags/block_sendings.html:33
-msgid "Details"
-msgstr "Détails"
-
-#: templates/sms/templatetags/block_sendings.html:60
-msgid "No sending for the moment"
-msgstr "Aucun envoi pour le moment"
 
 #: views/campaign.py:102
 #, python-format
@@ -543,14 +663,10 @@ msgstr "Nombre d'envoi(s)"
 msgid "New recipients for «%s»"
 msgstr "Nouveaux destinataires pour «%s»"
 
-#: views/sending.py:43
+#: views/sending.py:44
 #, python-format
 msgid "New sending for «%s»"
 msgstr "Nouvel envoi pour «%s»"
-
-#: views/sending.py:46
-msgid "Save the sending"
-msgstr "Enregistrer l'envoi"
 
 #~ msgid "Add a messaging list"
 #~ msgstr "Ajouter une liste de diffusion"

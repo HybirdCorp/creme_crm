@@ -1,0 +1,43 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets sms_tags %}
+
+{% block brick_extra_class %}{{block.super}} sms-contacts-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Contact recipient') plural=_('{count} Contact recipients') empty=_('Contacts recipients') icon='contact' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to change object as has_perm %}
+{% url 'sms__add_contacts_to_mlist_from_filter' object.id as add_contact_filter_url %}{% url 'sms__add_contacts_to_mlist' object.id as add_contacts_url %}
+    {% brick_header_action id='link' url=add_contact_filter_url label=_('Add from a filter') enabled=has_perm %}
+    {% brick_header_action id='link' url=add_contacts_url       label=_('Add contacts')      enabled=has_perm %}
+{% endblock %}
+
+{% block brick_table_columns %}
+{% if not field_hidden %}
+    {% brick_table_column title=_('Number') status='primary' %}
+    {% brick_table_column title=_('Action') status='action' %}
+{% endif %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to change object as edit_perm %}{% url 'sms__remove_contact_from_mlist' object.id as rm_contact_url %}
+    {% for contact in page.object_list %}
+    <tr>{% has_perm_to view contact as contact_perm %}
+        <td {% brick_table_data_status primary %}>
+            {% widget_entity_hyperlink contact user %}
+            {% if contact_perm %}
+                &nbsp;:&nbsp;{% if contact.mobile %}{{contact.mobile|phonenumber|formatphone}}{% else %}{% trans 'no number' %}{% endif %}
+            {% endif %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=rm_contact_url __id=contact.id label=_('Remove this contact') icon='unlink' enabled=edit_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No contact recipient for the moment' %}
+{% endblock %}

@@ -86,7 +86,7 @@ def add_contacts(request, mlist_id):
     return add_to_entity(request, mlist_id, AddContactsForm,
                          ugettext(u'New contacts for «%s»'),
                          entity_class=MessagingList,
-                         submit_label=_('Link the contacts'),
+                         submit_label=_(u'Link the contacts'),
                         )
 
 
@@ -96,7 +96,7 @@ def add_contacts_from_filter(request, mlist_id):
     return add_to_entity(request, mlist_id, AddContactsFromFilterForm,
                          ugettext(u'New contacts for «%s»'),
                          entity_class=MessagingList,
-                         submit_label=_('Link the contacts'),
+                         submit_label=_(u'Link the contacts'),
                         )
 
 
