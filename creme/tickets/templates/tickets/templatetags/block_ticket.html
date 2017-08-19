@@ -1,5 +1,7 @@
-{% load i18n %}
-{% load creme_core_tags creme_block %}
+{% load i18n creme_core_tags creme_block %}
+
+{% log 'The template file "creme/tickets/templates/tickets/templatetags/block_ticket.html" is deprecated.' level='WARN' %}
+
 <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=3 %}
         {% comment %}TODO when inclusion_tag is improved in django <th class="label">{% get_basic_block_header object|get_meta_value:"verbose_name"|format:_("Informations %s") 'info_48.png' _('Information') %}</th>{% endcomment %}
