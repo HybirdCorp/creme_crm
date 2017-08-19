@@ -1,0 +1,69 @@
+{% extends 'creme_core/base.html' %}
+{% load i18n creme_bricks creme_widgets %}
+
+{% block page_title %}{% trans 'Waiting actions' %} - {% endblock %}
+
+{% block extrahead %}
+{# TODO: the 'refresh' button should be disabled when the page it loaded, & be enabled after the first automatic refreshing #}
+    <script>
+        function refreshWaitingActions(refresh_url) {
+            $.ajax({url: refresh_url,
+                    type: 'POST',
+                    dataType: 'json',
+                    // TODO ??
+                    // error: function(request, status, error) {
+                    //    var error_panel = ...;
+                    //    error_panel.css('display', '');
+                    //    error_panel.text(gettext(...));
+                    // },
+                    success: function(data, status) {
+                        if (!data.length) return;
+
+                        // Build a 'Set' (indeed an Object) of backend IDS.
+                        // TODO: Use true Set() when available in all browsers.
+                        var backend_ids = {};
+                        for (var i = 0; i < data.length; ++i) {
+                            backend_ids[data[i]] = true;
+                        }
+
+                        var dependencies = new creme.bricks.Dependencies([]);
+
+                        $('.brick').each(function() {
+                            var brick_node = $(this);
+
+                            if (backend_ids[brick_node.attr('data-crudity-backend')]) {
+                                dependencies.add(brick_node.creme().widget().brick().dependencies());
+                            }
+                        });
+
+                        new creme.bricks.BricksReloader().dependencies(dependencies).action().start();
+                    }
+            });
+        }
+
+        $(document).ready(function() {
+            setTimeout(refreshWaitingActions, 500, "{% url 'crudity__refresh_actions' %}");
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="hat-bar-container">
+        <div class="hat-bar">{% trans 'Waiting actions' as title %}
+            <div class="bar-icon">{% widget_icon name='email' size='brick-hat-bar' label=title %}</div>
+            <div class="bar-title"><h1>{{title}}</h1></div>
+            <div class="bar-actions">
+               <div class='bar-action'>
+                    <a class="bar-button" onclick="refreshWaitingActions('{% url 'crudity__refresh_actions' %}');" >
+                        {% widget_icon name='refresh' size='brick-hat-bar-button' label=_('Refresh') %}
+                    </a>
+               </div>
+            </div>
+        </div>
+    </div>
+
+    {% brick_declare bricks %}
+    {% brick_display bricks %}
+
+    {% brick_end %}
+{% endblock %}

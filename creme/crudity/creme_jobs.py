@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext, ungettext
 from creme.creme_core.creme_jobs.base import JobType
 from creme.creme_core.models import JobResult
 
-from .views.actions import _fetch
+# from .views.actions import _fetch
 
 
 # logger = logging.getLogger(__name__)
@@ -46,7 +46,8 @@ class _CruditySynchronizeType(JobType):
             user = CremeUser.objects.get(pk=job.data['user'])
         # except User.DoesNotExist:
             # logger.critical("The setting 'CREME_GET_EMAIL_JOB_USER_ID' is invalid (not an user's ID)")
-        except:
+        # except:
+        except CremeUser.DoesNotExist:
             JobResult.objects.create(job=job,
                                      messages=[ugettext(u"The configured default user is invalid. "
                                                         u"Edit the job's configuration to fix it."
@@ -55,26 +56,28 @@ class _CruditySynchronizeType(JobType):
                                     )
 
             user = CremeUser.objects.get_admin()
-        # else:
-        finally:
-            # self.stdout.write("There are %s new item(s)" % _fetch(user))
-            count = _fetch(user)
-            JobResult.objects.create(job=job,
-                                     messages=[ungettext('There is %s change',
-                                                         'There are %s changes',
-                                                         count
-                                                        ) % count,
-                                              ]
-                                    )
+
+        # self.stdout.write("There are %s new item(s)" % _fetch(user))
+        # count = _fetch(user)
+        from . import registry
+
+        count = len(registry.crudity_registry.fetch(user))
+        JobResult.objects.create(job=job,
+                                 messages=[ungettext(u'There is %s change',
+                                                     u'There are %s changes',
+                                                     count
+                                                    ) % count,
+                                          ]
+                                )
 
     def get_config_form_class(self, job):
         from .forms import CruditySynchronizeJobForm
         return CruditySynchronizeJobForm
 
     @property
-    def results_blocks(self):
-        from creme.creme_core.blocks import job_results_block
-        return [job_results_block]
+    def results_bricks(self):
+        from creme.creme_core.bricks import JobResultsBrick
+        return [JobResultsBrick()]
 
 
 crudity_synchronize_type = _CruditySynchronizeType()

@@ -64,7 +64,7 @@ class IniFileInput(CrudityInput):
                                      url=reverse('crudity__dl_fs_ini_template', args=(backend.subject,)),
                                      title=ugettext(u'Download'),
                                      src=creme_media_url(context, 'images/download_22.png'),
-                                     label=ugettext(u'File .ini template for "%s"') % backend.model._meta.verbose_name,
+                                     label=ugettext(u'File .ini template for «%s»') % backend.model._meta.verbose_name,
                                     )
                                 )
 
@@ -142,4 +142,5 @@ class IniFileInput(CrudityInput):
                     # Cleaning
                     remove_file(file_path)
 
-        return backend is not None
+        # return backend is not None
+        return backend

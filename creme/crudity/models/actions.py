@@ -28,23 +28,24 @@ from creme.creme_core.models.fields import CremeUserForeignKey, CTypeForeignKey
 
 
 class WaitingAction(CremeModel):
-    action  = CharField(_(u"Action"), max_length=100)  # Action (i.e: create, update...) #TODO: int instead ??
+    action  = CharField(_(u'Action'), max_length=100)  # Action (i.e: create, update...) # TODO: int instead ??
     # TODO: split into 2 CharFields 'fetcher' & 'input' ?
     # NB: - If default backend (subject="*"): fetcher_name.
     #     - If not  'fetcher_name - input_name'  (i.e: email - raw, email - infopath, sms - raw...).
     source  = CharField(_(u'Source'), max_length=100)
     data    = TextField(blank=True, null=True)
     ct      = CTypeForeignKey(verbose_name=_(u"Ressource's type"))  # Redundant, but faster bd recovery
-    subject = CharField(_(u"Subject"), max_length=100)
-    user    = CremeUserForeignKey(verbose_name=_(u"Owner"), blank=True, null=True, default=None)  # Case of sandboxes are by user
+    subject = CharField(_(u'Subject'), max_length=100)
+    user    = CremeUserForeignKey(verbose_name=_(u'Owner'), blank=True, null=True, default=None)  # Case of sandboxes are by user
 
     class Meta:
-        app_label = "crudity"
-        verbose_name = _(u"Waiting action")
-        verbose_name_plural = _(u"Waiting actions")
+        app_label = 'crudity'
+        verbose_name = _(u'Waiting action')
+        verbose_name_plural = _(u'Waiting actions')
 
     def get_data(self):
         data = loads(self.data.encode('utf-8'))
+
         if isinstance(data, dict):
             d = {}
             for k,v in data.iteritems():
@@ -60,6 +61,6 @@ class WaitingAction(CremeModel):
     def can_validate_or_delete(self, user):
         """self.user not None means that sandbox is by user"""
         if self.user is not None and self.user != user and not user.is_superuser:
-            return (False, ugettext(u"You are not allowed to validate/delete the waiting action <%s>") % self.id)
+            return False, ugettext(u'You are not allowed to validate/delete the waiting action <%s>') % self.id
 
-        return (True, ugettext(u"OK"))
+        return True, ugettext(u'OK')

@@ -1,0 +1,67 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks crudity_tags %}
+
+{% block brick_extra_class %}{{block.super}} brick-selectable crudity-actions-brick{% endblock %}
+
+{% block brick_extra_attributes %}data-crudity-backend="{{backend.get_id}}"{% endblock %}
+
+{% block brick_header_title %}
+    {% widget_icon ctype=waiting_ct size='brick-header' as ct_icon %}
+    {% brick_header_title title=title icon=ct_icon selection_title=_('%s Action selected') selection_plural=_('%s Actions selected') %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% for action in extra_header_actions %}{{action}}{% endfor %}
+
+    {% url 'crudity__validate_actions' as validated_url %}{%  url 'crudity__delete_actions' as delete_url %}
+    {% brick_header_action id='crudity-validate' url=validated_url __selector='.row-selector:checked' type='add'    label=_('Validate') icon='ok' %}
+    {% brick_header_action id='crudity-delete'   url=delete_url    __selector='.row-selector:checked' type='delete' label=_('Delete')   icon='cancel' %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    <th data-selectable-selector-column>
+        <input class="row-selector-all" type="checkbox" title="{% trans 'Select all' %}"/>
+    </th>
+    {% brick_table_column title=_('Data') %}
+    {% brick_table_column title=_('Type') %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% url 'crudity__validate_actions' as validate_url %}{% url 'crudity__delete_actions' as delete_url %}
+    {% for waiting_action in page.object_list %}
+    <tr>
+        <td data-selectable-selector-column>
+            <input class="row-selector" value="{{waiting_action.pk}}" title="{% trans 'Select this line' %}" type="checkbox"/>
+        </td>
+        <td>
+        {% for k, v in waiting_action.get_data.items %}
+            {% if forloop.counter0|mod:4 == 0 %}
+            <p>
+            {% else %}
+             /
+            {% endif %}
+            {% if v|isiterable %}
+                {{k}} : {{v.0|truncate:50}}
+            {% else %}
+                {{k}} : {{v|truncate:50}}
+            {% endif %}
+            {% if forloop.counter|mod:4 == 0 %}
+            </p>
+            {% endif %}
+        {% endfor %}
+        </td>
+        <td>{{backend.verbose_method}}</td>
+        <td {% brick_table_data_status action %}>{% templatize '.row-selector[value={{waiting_action.id}}]' as selector %}
+            {% brick_table_action id='crudity-validate' url=validate_url __selector=selector label=_('Validate') icon='ok' %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=delete_url __ids=waiting_action.pk %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% blocktrans with ctype=waiting_ct backend=backend.verbose_source %}No waiting action for «{{ctype}}» from «{{backend}}»{% endblocktrans %}
+{% endblock %}

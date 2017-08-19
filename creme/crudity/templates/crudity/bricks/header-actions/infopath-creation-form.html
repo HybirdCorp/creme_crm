@@ -1,0 +1,4 @@
+{% load i18n creme_core_tags creme_bricks %}{% url 'crudity__dl_infopath_form' backend.subject as dl_url %}
+{% with verbose_name=backend.model|get_meta_value:'verbose_name' %}
+  {% brick_header_action id='redirect' url=dl_url icon='download' label=verbose_name|format:_('Download Infopath form for «%s»') %}
+{% endwith %}

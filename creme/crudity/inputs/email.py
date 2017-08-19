@@ -40,6 +40,7 @@ from .base import CrudityInput
 
 
 Document = get_document_model()
+logger = logging.getLogger(__name__)
 
 passwd_pattern = re.compile(r'password=(?P<password>\w+)', flags=re.IGNORECASE)
 re_html_br     = re.compile(r'<br[/\s]*>')
@@ -50,8 +51,8 @@ MULTILINE_SEP_LEN = len(RIGHT_MULTILINE_SEP)
 
 
 class EmailInput(CrudityInput):
-    name = u"raw"
-    verbose_name = _(u"Email - Raw")
+    name = u'raw'
+    verbose_name = _(u'Email - Raw')
 
     def strip_html(self, html):
         # 'Manually' replace &nbsp; because we don't want \xA0 unicode char
@@ -62,9 +63,9 @@ class EmailInput(CrudityInput):
 
 
 class CreateEmailInput(EmailInput):
-    method = "create"
-
-    verbose_method = _(u"Create")
+    method = 'create'
+    verbose_method = _(u'Create')
+    brickheader_action_templates = ('crudity/bricks/header-actions/email-creation-template.html',)
 
     def __init__(self, template_creation_button=EmailTemplateCreateButton):
         super(CreateEmailInput, self).__init__()
@@ -78,7 +79,7 @@ class CreateEmailInput(EmailInput):
             data = backend.body_map.copy()
             body = (self.strip_html(email.body_html) or email.body).replace('\r', '')
 
-            # Multiline handling
+            # Multi-line handling
             left_idx = body.find(LEFT_MULTILINE_SEP)
             while left_idx > -1:
                 right_idx = body.find(RIGHT_MULTILINE_SEP)
@@ -123,7 +124,8 @@ class CreateEmailInput(EmailInput):
 
                 return self._create(backend, data, email.senders[0])
 
-        return False
+        # return False
+        return None
 
     def _pre_create(self, backend, data):
         pass
@@ -135,7 +137,7 @@ class CreateEmailInput(EmailInput):
         pass
 
     def _create(self, backend, data, sender):
-        data.pop("password", None)
+        data.pop('password', None)
         owner = self.get_owner(backend.is_sandbox_by_user, sender)
 
         self._pre_process_data(backend, data)
@@ -144,18 +146,19 @@ class CreateEmailInput(EmailInput):
             # TODO: action = WaitingAction(action='create' ....)
             action         = WaitingAction()
             action.data    = action.set_data(data)
-            action.action  = "create"
-            action.source  = "email - %s" % self.name
+            action.action  = 'create'
+            action.source  = 'email - %s' % self.name
             action.ct      = ContentType.objects.get_for_model(backend.model)
             action.subject = backend.subject
             action.user    = owner
             action.save()
         else:
             self._pre_create(backend, data)
-            is_created, instance = backend._create_instance_n_history(data, user=owner, source="email - %s" % self.name)
+            is_created, instance = backend._create_instance_n_history(data, user=owner, source='email - %s' % self.name)
             self._post_create(backend, data, instance)
 
-        return True
+        # return True
+        return backend
 
     @staticmethod
     def get_owner(is_sandbox_by_user, sender=None):
@@ -190,7 +193,8 @@ remove_pattern = re.compile('[\t\n\r\f\v]')
 
 class CreateInfopathInput(CreateEmailInput):
     name         = 'infopath'
-    verbose_name = _(u"Email - Infopath")
+    verbose_name = _(u'Email - Infopath')
+    brickheader_action_templates = ('crudity/bricks/header-actions/infopath-creation-form.html',)
 
     MIME_TYPES = ['application/x-microsoft-infopathform']
 
@@ -218,7 +222,8 @@ class CreateInfopathInput(CreateEmailInput):
         backend = self.get_backend(CrudityBackend.normalize_subject(email.subject)) or self.get_backend("*")
 
         if backend is None:
-            return False
+            # return False
+            return None
 
         MIME_TYPES = self.MIME_TYPES
         attachments = [a for a in email.attachments if a[1].content_type in MIME_TYPES]
@@ -234,9 +239,13 @@ class CreateInfopathInput(CreateEmailInput):
                                         for name, attachment in attachments
                                    )
                                   ):
-                    is_created |= self._create(backend, data, email.senders[0])
+                    # is_created |= self._create(backend, data, email.senders[0])
+                    self._create(backend, data, email.senders[0])
+                    is_created = True
 
-                return is_created
+                # return is_created
+                if is_created:
+                    return backend
 
     def get_data_from_infopath_file(self, backend, xml_file):
         content = xml_file.read()
@@ -250,7 +259,7 @@ class CreateInfopathInput(CreateEmailInput):
         try:
             xml = ET.fromstring(content)
         except Exception as e:  # ExpatError in py2.6, ParseError in py2.7...
-            logging.error(e)
+            logger.error('CreateInfopathInput.get_data_from_infopath_file(): %s', e)
             return None
 
         data = backend.body_map.copy()

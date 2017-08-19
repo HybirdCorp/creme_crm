@@ -1,8 +1,10 @@
-{% extends "creme_core/base.html" %}
-{% load i18n %}
+{% extends 'creme_core/base.html' %}
+{% load i18n creme_core_tags %}
 
-{% block page_title %}{% trans "Waiting actions" %} - {% endblock %}
+{% log '"creme/crudity/templates/crudity/waiting_actions.html" is deprecated.' level='WARN' %}
+
+{% block page_title %}{% trans 'Waiting actions' %} - {% endblock %}
 
 {% block content %}
-    {% include "crudity/frags/ajax/waiting_actions.html" %}
+    {% include 'crudity/frags/ajax/waiting_actions.html' %}
 {% endblock %}

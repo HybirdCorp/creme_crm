@@ -44,7 +44,7 @@ def download_email_template(request, subject):
     if backend is None:
         raise Http404(u"This backend is not registered")
 
-    response = HttpResponse(render_to_string("crudity/create_email_template.html",
+    response = HttpResponse(render_to_string("crudity/create_email_template.html",  # TODO: rename crudity/create_email_template.eml ??
                                              {'backend': backend,
                                               'contact': request.user.linked_contact,
                                               'to':      settings.CREME_GET_EMAIL,

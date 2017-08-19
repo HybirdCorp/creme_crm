@@ -125,9 +125,9 @@ class CRUDityRegistry(object):
         return res
 
     def autodiscover(self):
-        for crud_import in find_n_import("crudity_register", ['fetchers', 'inputs', 'backends']):
+        for crud_import in find_n_import('crudity_register', ['fetchers', 'inputs', 'backends']):
             # Fetchers
-            fetchers = getattr(crud_import, "fetchers", {})
+            fetchers = getattr(crud_import, 'fetchers', {})
             register_fetchers = self.register_fetchers
             # for source_type, fetchers_list in fetchers.iteritems():
             for source_type, fetchers_classes in fetchers.iteritems():
@@ -141,7 +141,7 @@ class CRUDityRegistry(object):
                 register_fetchers(source_type, [fetcher_cls() for fetcher_cls in fetchers_classes])
 
             # Inputs
-            inputs = getattr(crud_import, "inputs", {})
+            inputs = getattr(crud_import, 'inputs', {})
             register_inputs = self.register_inputs
             # for source_type, inputs_list in inputs.iteritems():
             for source_type, input_classes in inputs.iteritems():
@@ -156,7 +156,7 @@ class CRUDityRegistry(object):
                 register_inputs(source_type, [input_cls() for input_cls in input_classes])
 
             # Backends (registered by models)
-            backends = getattr(crud_import, "backends", [])
+            backends = getattr(crud_import, 'backends', [])
             self.register_backends(backends)
 
     def register_fetchers(self, source, fetchers):
@@ -187,6 +187,7 @@ class CRUDityRegistry(object):
 
     def register_backends(self, backends):
         for backend in backends:
+            # TODO: error if model is already associated with the model ? (or a log in order to override cleanly)
             self._backends[backend.model] = backend
 
     def get_backends(self):
@@ -200,7 +201,7 @@ class CRUDityRegistry(object):
         try:
             return self._backends[model]
         except KeyError:
-            raise NotRegistered("No backend is registered for this model '%s'" % model)
+            raise NotRegistered("No backend is registered for the model '%s'" % model)
 
     def get_configured_backends(self):
         """Get backends instances which are configured and associated to an input
@@ -211,8 +212,10 @@ class CRUDityRegistry(object):
 
         for fetcher in self.get_fetchers():
             for crud_inputs in fetcher.get_inputs():
-                for input_type, input in crud_inputs.iteritems():
-                    backends.extend(input.get_backends())
+                # for input_type, input in crud_inputs.iteritems():
+                for crud_input in crud_inputs.itervalues():
+                    # backends.extend(input.get_backends())
+                    backends.extend(crud_input.get_backends())
 
             default_be = fetcher.get_default_backend()
 
@@ -255,7 +258,9 @@ class CRUDityRegistry(object):
 
         backend = fetcher.get_default_backend()
         if not backend:
-            raise KeyError('Fetcher "%s" has no deafult backend' % fetcher_name)
+            raise KeyError('Fetcher "%s" has no default backend' % fetcher_name)
+
+        return backend
 
     # def dispatch(self):
     #     for backend_cfg in settings.CRUDITY_BACKENDS:
@@ -367,11 +372,12 @@ class CRUDityRegistry(object):
                                                    )
                                                   )
 
-                    backend_cfg['source'] = u"%s - %s" % (fetcher_source, input_name)
+                    # TODO: move this code to backend
+                    backend_cfg['source'] = u'%s - %s' % (fetcher_source, input_name)
                     backend_cfg['verbose_source'] = crud_input.verbose_name  # For i18n
                     backend_cfg['verbose_method'] = crud_input.verbose_method  # For i18n
 
-                    backend_instance = backend_cls(backend_cfg)
+                    backend_instance = backend_cls(backend_cfg, crud_input=crud_input)
                     backend_instance.fetcher_name = fetcher_source
                     backend_instance.input_name = input_name
 
@@ -383,6 +389,39 @@ class CRUDityRegistry(object):
                                                   )
 
                     crud_input.add_backend(backend_instance)
+
+    def fetch(self, user):
+        used_backends = []
+
+        def _handle_data(multi_fetcher, data):
+            for inputs_per_method in multi_fetcher.get_inputs():
+                for crud_input in inputs_per_method.itervalues():
+                    handling_backend = crud_input.handle(data)
+
+                    if handling_backend is not None:
+                        return handling_backend
+
+                default_backend = multi_fetcher.get_default_backend()
+
+                if default_backend is not None:
+                    default_backend.fetcher_fallback(data, user)
+                    return default_backend
+
+        for fetcher_multiplex in self.get_fetchers():
+            # TODO: FetcherInterface.has_backends() ?
+            if not any(crud_input.backends
+                           for inputs_per_method in fetcher_multiplex.get_inputs()
+                               for crud_input in inputs_per_method.itervalues()
+                      ) and not fetcher_multiplex.get_default_backend():
+                continue
+
+            for data in fetcher_multiplex.fetch():
+                backend = _handle_data(fetcher_multiplex, data)
+
+                if backend:
+                    used_backends.append(backend)
+
+        return used_backends
 
 
 crudity_registry = CRUDityRegistry()
