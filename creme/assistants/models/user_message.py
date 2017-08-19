@@ -55,7 +55,7 @@ class UserMessagePriority(CremeModel):
 class UserMessage(CremeModel):
     title         = CharField(_(u'Title'), max_length=200)
     body          = TextField(_(u'Message body'))
-    creation_date = DateTimeField(_(u"Creation date"))
+    creation_date = DateTimeField(_(u'Creation date'))
     priority      = ForeignKey(UserMessagePriority, verbose_name=_(u'Priority'), on_delete=PROTECT)
     sender        = CremeUserForeignKey(verbose_name=_(u'Sender'),
                                         related_name='sent_assistants_messages_set',

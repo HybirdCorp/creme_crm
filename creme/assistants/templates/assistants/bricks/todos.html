@@ -1,0 +1,65 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} assistants-todos-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Todo') plural=_('{count} Todos') empty=_('Todos') icon='todo' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% if object %}
+        {% has_perm_to change object as has_perm %}{% url 'assistants__create_todo' object.id as create_url %}
+        {% brick_header_action id='add' url=create_url label=_('New todo') enabled=has_perm %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% if not object %}
+    {% brick_table_column title=_('Concerned entity') %}
+    {% endif %}
+
+    {% brick_table_column_for_field ctype=objects_ctype field='user'          title=_('User') status='primary' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='creation_date' title=_('Created on')%}
+    {% brick_table_column_for_field ctype=objects_ctype field='title' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='description'   title=_('Todo text') %}
+    {% brick_table_column_for_field ctype=objects_ctype field='deadline' %}
+    {% brick_table_column title=_('Status')  status='action' %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}{% url 'creme_core__delete_related_to_entity' objects_ctype.id as delete_url %}
+    {% for todo in page.object_list %}{% has_perm_to change todo.creme_entity as has_perm %}
+    <tr>
+        {% if not object %}
+            <td>{% widget_entity_hyperlink todo.creme_entity user %}</td>
+        {% endif %}
+        <td {% brick_table_data_status primary %}>{% print_field object=todo field='user' %}</td>
+        <td data-type="date">{{todo.creation_date|date:'DATE_FORMAT'}}</td>
+        <td>{% print_field object=todo field='title' %}</td>
+        <td>{% print_field object=todo field='description' %}</td>
+        {% if todo.deadline %}
+            <td class="{% if todo.is_ok or todo.deadline >= today %}td_valid{% else %}td_error{% endif %}">{{todo.deadline|date:'DATETIME_FORMAT'}}</td>
+        {% else %}
+            <td class="{% if todo.is_ok %}td_valid{% else %}{{row_color}}{% endif %}"></td>
+        {% endif %}
+        <td {% brick_table_data_status action %}>
+        {% if todo.is_ok %}
+            {% widget_icon name='ok' label=_('Validated') size='brick-table' class='brick-table-icon' %}
+        {% else %}{% url 'assistants__validate_todo' todo.id as validate_url %}
+            {% brick_table_action id='update' url=validate_url confirm=_('Are you sure?') label=_('Validate') display='text' enabled=has_perm %}
+        {% endif %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url=todo.get_edit_absolute_url label=_('Edit this todo') enabled=has_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=delete_url __id=todo.id label=_('Delete this todo') enabled=has_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No Todo for the moment' %}
+{% endblock %}

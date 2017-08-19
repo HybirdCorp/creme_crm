@@ -31,11 +31,11 @@ from creme.creme_core.models.fields import CremeUserForeignKey, CreationDateTime
 
 class Action(CremeModel):
     title               = CharField(_(u'Title'), max_length=200)
-    is_ok               = BooleanField(_('Expected reaction has been done'), editable=False, default=False)
+    is_ok               = BooleanField(_(u'Expected reaction has been done'), editable=False, default=False)
     description         = TextField(_(u'Source action'), blank=True)
     creation_date       = CreationDateTimeField(_(u'Creation date'), editable=False)
     expected_reaction   = TextField(_(u'Target action'), blank=True)
-    deadline            = DateTimeField(_(u"Deadline"))
+    deadline            = DateTimeField(_(u'Deadline'))
     validation_date     = DateTimeField(_(u'Validation date'), blank=True, null=True, editable=False)
 
     # TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)
@@ -43,7 +43,7 @@ class Action(CremeModel):
     entity_id           = PositiveIntegerField(editable=False).set_tags(viewable=False)
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
 
-    user                = CremeUserForeignKey(verbose_name=_('Owner user')) #verbose_name=_(u"Assigned to")
+    user                = CremeUserForeignKey(verbose_name=_(u'Owner user')) #verbose_name=_(u"Assigned to")
 
     class Meta:
         app_label = 'assistants'

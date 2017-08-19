@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2015  Hybird
+    Copyright (C) 2009-2017  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -20,8 +20,9 @@
 
 creme.assistants = creme.assistants || {};
 
-// TODO : a simple checkbox change with confirmation may do the same work ?
 creme.assistants.validateEntity = function(form, checkbox_id, reload_url) {
+    console.warn('creme.assistants.validateEntity() is deprecated ; use the new brick action system instead.');
+
     if (!$('#' + checkbox_id).is(':checked')) {
         creme.dialogs.warning(gettext("Check the box if you consider as treated"))
                      .open();

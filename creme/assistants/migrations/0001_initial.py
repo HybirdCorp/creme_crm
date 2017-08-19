@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
             name='Alert',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('title', models.CharField(max_length=200)),
+                ('title', models.CharField(max_length=200, verbose_name='Title')),
                 ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
                 ('is_validated', models.BooleanField(default=False, verbose_name='Validated', editable=False)),
                 ('reminded', models.BooleanField(default=False, editable=False, verbose_name=u'Notification sent')),

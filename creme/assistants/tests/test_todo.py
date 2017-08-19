@@ -15,24 +15,26 @@ try:
     from django.utils.timezone import now, localtime
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.blocks import job_errors_block
+    from creme.creme_core.bricks import JobErrorsBrick
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
     # from creme.creme_core.management.commands.reminder import Command as ReminderCommand
     from creme.creme_core.models import (CremeEntity, DateReminder,
             SettingValue, HistoryLine, JobResult)
     from creme.creme_core.models.history import (TYPE_AUX_CREATION,
             TYPE_AUX_EDITION, TYPE_AUX_DELETION)
-    from creme.creme_core.tests.fake_models import FakeContact as Contact
+    from creme.creme_core.tests.fake_models import FakeContact
+    from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
     from ..constants import MIN_HOUR_4_TODO_REMINDER
-    from ..blocks import todos_block
+    # from ..blocks import todos_block
+    from ..bricks import TodosBrick
     from ..models import ToDo, Alert
     from .base import AssistantsTestCase
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-class TodoTestCase(AssistantsTestCase):
+class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
     @classmethod
     def setUpClass(cls):
         # AssistantsTestCase.setUpClass()
@@ -55,7 +57,7 @@ class TodoTestCase(AssistantsTestCase):
                                     data={'user':        user.pk,
                                           'title':       title,
                                           'description': description,
-                                         }
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -64,10 +66,9 @@ class TodoTestCase(AssistantsTestCase):
     def _create_several_todos(self):
         self._create_todo('Todo01', 'Description01')
 
-        entity02 = Contact.objects.create(user=self.user, first_name='Akane', last_name='Tendo')
+        entity02 = FakeContact.objects.create(user=self.user, first_name='Akane', last_name='Tendo')
         self._create_todo('Todo02', 'Description02', entity=entity02)
 
-        #user02 = User.objects.create_user('user02', 'user@creme.org', 'password02')
         user02 = get_user_model().objects.create_user(username='ryoga',
                                                       first_name='Ryoga',
                                                       last_name='Hibiki',
@@ -195,7 +196,8 @@ class TodoTestCase(AssistantsTestCase):
         self.assertRedirects(response, self.entity.get_absolute_url())
         self.assertIs(True, self.refresh(todo).is_ok)
 
-    def test_block_reload01(self):
+    # def test_block_reload01(self):
+    def test_brick_reload01(self):
         "Detailview"
         for i in xrange(1, 4):
             self._create_todo('Todo%s' % i, 'Description %s' % i)
@@ -206,16 +208,19 @@ class TodoTestCase(AssistantsTestCase):
                          {t.id for t in todos}
                         )
 
-        self.assertGreaterEqual(todos_block.page_size, 2)
+        self.assertGreaterEqual(TodosBrick.page_size, 2)
 
         # response = self.assertGET200('/creme_core/blocks/reload/%s/%s/' % (todos_block.id_, self.entity.id))
-        response = self.assertGET200(reverse('creme_core__reload_detailview_blocks', args=(todos_block.id_, self.entity.id)))
+        # response = self.assertGET200(reverse('creme_core__reload_detailview_blocks', args=(todos_block.id_, self.entity.id)))
+        response = self.assertGET200(reverse('creme_core__reload_detailview_bricks', args=(self.entity.id,)),
+                                     data={'brick_id': TodosBrick.id_},
+                                    )
         self.assertEqual('text/javascript', response['Content-Type'])
 
         content = load_json(response.content)
         self.assertEqual(1, len(content))
         self.assertEqual(2, len(content[0]))
-        self.assertEqual(todos_block.id_, content[0][0])
+        self.assertEqual(TodosBrick.id_, content[0][0])
 
         with self.assertNoException():
             page = response.context['page']
@@ -224,7 +229,8 @@ class TodoTestCase(AssistantsTestCase):
         self.assertEqual(size, len(page.object_list))
         self.assertEqual(size, len(set(todos) & set(page.object_list)))
 
-    def test_block_reload02(self):
+    # def test_block_reload02(self):
+    def test_brick_reload02(self):
         "Home"
         self._create_several_todos()
         self.assertEqual(3, ToDo.objects.count())
@@ -233,13 +239,14 @@ class TodoTestCase(AssistantsTestCase):
         self.assertEqual(2, len(todos))
 
         # response = self.assertGET200('/creme_core/blocks/reload/home/%s/' % todos_block.id_)
-        response = self.assertGET200(reverse('creme_core__reload_home_blocks', args=(todos_block.id_,)))
+        # response = self.assertGET200(reverse('creme_core__reload_home_blocks', args=(todos_block.id_,)))
+        response = self.assertGET200(reverse('creme_core__reload_home_bricks'), data={'brick_id': TodosBrick.id_})
         self.assertEqual('text/javascript', response['Content-Type'])
 
         content = load_json(response.content)
         self.assertEqual(1, len(content))
         self.assertEqual(2, len(content[0]))
-        self.assertEqual(todos_block.id_, content[0][0])
+        self.assertEqual(TodosBrick.id_, content[0][0])
 
         with self.assertNoException():
             page = response.context['page']
@@ -251,7 +258,7 @@ class TodoTestCase(AssistantsTestCase):
         "Portal"
         self._create_several_todos()
 
-        ct_id = ContentType.objects.get_for_model(Contact).id
+        ct_id = ContentType.objects.get_for_model(FakeContact).id
         todos = ToDo.get_todos_for_ctypes([ct_id], self.user)
         self.assertEqual(2, len(todos))
 
@@ -259,16 +266,21 @@ class TodoTestCase(AssistantsTestCase):
         #                                     todos_block.id_, ct_id
         #                                 )
         #                             )
-        response = self.assertGET200(reverse('creme_core__reload_portal_blocks',
-                                             args=(todos_block.id_, ct_id),
-                                            )
+        # response = self.assertGET200(reverse('creme_core__reload_portal_blocks',
+        #                                      args=(todos_block.id_, ct_id),
+        #                                     )
+        #                             )
+        response = self.assertGET200(reverse('creme_core__reload_portal_bricks'),
+                                     data={'brick_id': TodosBrick.id_,
+                                           'ct_id': ct_id,
+                                          },
                                     )
         self.assertEqual('text/javascript', response['Content-Type'])
 
         content = load_json(response.content)
         self.assertEqual(1, len(content))
         self.assertEqual(2, len(content[0]))
-        self.assertEqual(todos_block.id_, content[0][0])
+        self.assertEqual(TodosBrick.id_, content[0][0])
 
         with self.assertNoException():
             page = response.context['page']
@@ -301,9 +313,9 @@ class TodoTestCase(AssistantsTestCase):
         self.assertEqual(u'<ul><li>Todo02</li><li>Todo01</li></ul>', result.for_html())
 
         # limit to 3 ToDos
-        #self._create_todo('Todo03', 'Description03')
-        #self._create_todo('Todo04', 'Description04')
-        #self.assertEqual(u'<ul><li>Todo04</li><li>Todo03</li><li>Todo02</li></ul>', funf(self.entity))
+        # self._create_todo('Todo03', 'Description03')
+        # self._create_todo('Todo04', 'Description04')
+        # self.assertEqual(u'<ul><li>Todo04</li><li>Todo03</li><li>Todo02</li></ul>', funf(self.entity))
 
     def test_function_field03(self):
         "Prefetch with 'populate_entities()'"
@@ -393,7 +405,7 @@ class TodoTestCase(AssistantsTestCase):
         self.assertFalse(JobResult.objects.filter(job=job))
 
         response = self.assertGET200(job.get_absolute_url())
-        self.assertContains(response, ' id="%s"' % job_errors_block.id_)
+        self.get_brick_node(self.get_html_tree(response.content), JobErrorsBrick.id_)
 
     def test_reminder02(self):
         "Minimum hour (SettingValue) is in the future"
@@ -401,7 +413,7 @@ class TodoTestCase(AssistantsTestCase):
 
         next_hour = localtime(now_value).hour + 1
         if next_hour > 23:
-            print 'Skip the test TodoTestCase.test_reminder02 because it is too late.'
+            print('Skip the test TodoTestCase.test_reminder02 because it is too late.')
             return
 
         sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
@@ -570,7 +582,7 @@ class TodoTestCase(AssistantsTestCase):
     def test_history01(self):
         "Creation"
         user = self.user
-        akane = Contact.objects.create(user=user, first_name='Akane', last_name='Tendo')
+        akane = FakeContact.objects.create(user=user, first_name='Akane', last_name='Tendo')
         old_count = HistoryLine.objects.count()
 
         self._create_todo(entity=akane)
@@ -586,7 +598,7 @@ class TodoTestCase(AssistantsTestCase):
     def test_history02(self):
         "Edition"
         user = self.user
-        akane = Contact.objects.create(user=user, first_name='Akane', last_name='Tendo')
+        akane = FakeContact.objects.create(user=user, first_name='Akane', last_name='Tendo')
         todo = ToDo.objects.create(user=user, creme_entity=akane, title='Todo#1')
         old_count = HistoryLine.objects.count()
 
@@ -616,7 +628,7 @@ class TodoTestCase(AssistantsTestCase):
     def test_history03(self):
         "Deletion"
         user = self.user
-        akane = Contact.objects.create(user=user, first_name='Akane', last_name='Tendo')
+        akane = FakeContact.objects.create(user=user, first_name='Akane', last_name='Tendo')
         todo = ToDo.objects.create(user=user, creme_entity=akane, title='Todo#1')
         old_count = HistoryLine.objects.count()
 

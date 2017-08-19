@@ -10,7 +10,8 @@ try:
     from creme.creme_core.tests.fake_models import FakeContact as Contact
     from creme.creme_core.models import BlockDetailviewLocation
 
-    from ..blocks import actions_it_block, actions_nit_block
+    # from ..bricks import actions_it_block, actions_nit_block
+    from ..bricks import ActionsOnTimeBrick, ActionsNotOnTimeBrick
     from ..models import Action
     from .base import AssistantsTestCase
 except Exception as e:
@@ -68,14 +69,16 @@ class ActionTestCase(AssistantsTestCase):
         self.assertEqual(title, unicode(action))
 
         create_bdi = partial(BlockDetailviewLocation.create, model=Contact,
-                             zone=BlockDetailviewLocation.RIGHT
+                             zone=BlockDetailviewLocation.RIGHT,
                             )
-        create_bdi(block_id=actions_it_block.id_,  order=500)
-        create_bdi(block_id=actions_nit_block.id_, order=501)
+        create_bdi(block_id=ActionsOnTimeBrick.id_,    order=500)
+        create_bdi(block_id=ActionsNotOnTimeBrick.id_, order=501)
 
         response = self.assertGET200(entity.get_absolute_url())
-        self.assertTemplateUsed(response, 'assistants/block_actions_it.html')
-        self.assertTemplateUsed(response, 'assistants/block_actions_nit.html')
+        # self.assertTemplateUsed(response, 'assistants/block_actions_it.html')
+        # self.assertTemplateUsed(response, 'assistants/block_actions_nit.html')
+        self.assertTemplateUsed(response, 'assistants/bricks/actions-on-time.html')
+        self.assertTemplateUsed(response, 'assistants/bricks/actions-not-on-time.html')
 
     def test_edit(self):
         title    = 'TITLE'
@@ -83,7 +86,6 @@ class ActionTestCase(AssistantsTestCase):
         reaction = 'REACTION'
         action = self._create_action('2010-12-24', title, descr, reaction)
 
-        #url = '/assistants/action/edit/%s/' % action.id
         url = action.get_edit_absolute_url()
         self.assertGET200(url)
 
@@ -163,5 +165,3 @@ class ActionTestCase(AssistantsTestCase):
                 self.assertEqual(contact01, action.creme_entity)
 
         self.aux_test_merge(creator, assertor)
-
-    #TODO: improve block reloading tests with several blocks

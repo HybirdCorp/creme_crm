@@ -1,15 +1,14 @@
 # FR LOCALISATION OF 'ASSISTANTS' APP (JavaScript only)
-# Copyright (C) 2013 Hybird
+# Copyright (C) 2017 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -d djangojs -l fr
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Assistants 1.4\n"
+"Project-Id-Version: Creme Assistants 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-11-21 15:45+0100\n"
+"POT-Creation-Date: 2017-08-12 14:32+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -17,6 +16,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: static/assistants/js/assistants.js:24
+#: static/assistants/js/assistants.js:27
 msgid "Check the box if you consider as treated"
-msgstr "Merci de cocher si vous considérez comme traité"
+msgstr "Cochez si vous considérez comme traité"
