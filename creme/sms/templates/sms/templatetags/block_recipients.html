@@ -1,16 +1,19 @@
-{% load i18n %}
-{% load creme_core_tags creme_block %}
-{% load sms_tags %}
+{% load i18n creme_core_tags creme_block sms_tags %}
+
+{% log 'The template file "creme/sms/templates/sms/templatetags/block_recipients.html" is deprecated.' level='WARN' %}
+
 {% has_perm_to change object as has_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=2 %}
         <th class="label">{% get_block_title _('%s Unlinked recipient') _('%s Unlinked recipients') %}</th>
         <th class="actions">
             <div class="buttons">
-                {% get_line_adder at_url '/sms/messaging_list/{{object.pk}}/recipient/add' with_label _("Add manually") with_perms has_perm %}
+{#                {% get_line_adder at_url '/sms/messaging_list/{{object.pk}}/recipient/add' with_label _("Add manually") with_perms has_perm %} #}
+                {% url 'sms__add_recipients' object.id as add_url %}{% get_line_adder at_url add_url with_label _('Add manually') with_perms has_perm %}
                 {% trans "Add from a CSV file" as csv_label %}
                 {% if has_perm %}
-                    <a class="add" onclick="creme.blocks.form('/sms/messaging_list/{{object.pk}}/recipient/add_csv').open();">
+{#                    <a class="add" onclick="creme.blocks.form('/sms/messaging_list/{{object.pk}}/recipient/add_csv').open();"> #}
+                    <a class="add" onclick="creme.blocks.form('{% url 'sms__add_recipients_from_csv' object.id %}').open();">
                         <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{csv_label}}" alt="{{csv_label}}" />{{csv_label}}
                     </a>
                 {% else %}

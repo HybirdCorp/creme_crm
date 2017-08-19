@@ -1,6 +1,7 @@
-{% load i18n %}
-{% load creme_core_tags creme_block %}
-{% load sms_tags %}
+{% load i18n creme_core_tags creme_block sms_tags %}
+
+{% log 'The template file "creme/sms/templates/sms/templatetags/block_messages.html" is deprecated.' level='WARN' %}
+
 {% has_perm_to change object.campaign as has_perm %}
 <style type="text/css">
     tr.creme-sms-message td.notsent {

@@ -1,19 +1,25 @@
-{% load i18n %}
-{% load creme_core_tags creme_block creme_widgets %}
-{% load sms_tags %}
+{% load i18n creme_core_tags creme_block creme_widgets sms_tags %}
+
+{% log 'The template file "creme/sms/templates/sms/templatetags/block_contacts.html" is deprecated.' level='WARN' %}
+
 {% has_perm_to change object as has_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=2 %}
         <th class="label">{% get_block_title _('%s Contact recipient') _('%s Contacts recipients') 'contact_48.png' _('Contacts') %}</th>
         <th class="actions">
             <div class="buttons">
+{% comment %}
                 {% get_line_linker at_url '/sms/messaging_list/{{object.pk}}/contact/add' with_label _("Add contacts") with_perms has_perm %}
                 {% get_line_linker at_url '/sms/messaging_list/{{object.pk}}/contact/add_from_filter' with_label _("Add from a filter") with_perms has_perm %}
+{% endcomment %}
+                {% url 'sms__add_contacts_to_mlist' object.id as add_contacts_url %}{% get_line_linker at_url add_contacts_url with_label _('Add contacts') with_perms has_perm %}
+                {% url 'sms__add_contacts_to_mlist_from_filter' object.id as add_contact_filter_url %}{% get_line_linker at_url add_contact_filter_url with_label _('Add from a filter') with_perms has_perm %}
             </div>
         </th>
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
+        {% url 'sms__remove_contact_from_mlist' object.id as rm_contact_url %}
             <tr class="header">
                 <th class="block_header_line_dark">{% trans "Number" %}</th>
                 <th class="block_header_line_dark action">{% trans "Unlink" %}</th>
@@ -27,7 +33,8 @@
                         {% endif %}
                     </td>
                     <td class="{{row_color}} action">
-                        {% get_line_unlinker at_url '/sms/messaging_list/{{object.pk}}/contact/delete' with_args "{'id':{{contact.pk}} }" with_perms has_perm %}
+{#                        {% get_line_unlinker at_url '/sms/messaging_list/{{object.pk}}/contact/delete' with_args "{'id':{{contact.pk}} }" with_perms has_perm %} #}
+                        {% get_line_unlinker at_url rm_contact_url with_args "{'id':{{contact.pk}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}
