@@ -1,0 +1,24 @@
+{% extends 'creme_core/bricks/base/paginated.html' %}
+
+{% block brick_extra_class %}brick-table{% endblock %}
+
+{% block brick_content %}
+<table class="brick-table-content">
+{% if page.paginator.count %}
+    {% block brick_table_head %}
+    <thead>
+        <tr>{% block brick_table_columns %}{% endblock %}</tr>
+    </thead>
+    {% endblock %}
+    {% block brick_table_body %}
+    <tbody>
+        {% block brick_table_rows %}{% endblock %}
+    </tbody>
+    {% endblock %}
+{% else %}
+    <thead>
+        <tr><th>{% block brick_table_empty %}{% endblock %}</th></tr>
+    </thead>
+{% endif %}
+</table>
+{% endblock %}

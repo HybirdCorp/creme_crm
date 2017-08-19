@@ -1,3 +1,7 @@
+{% load creme_core_tags %}
+
+{% log 'The template file "creme/creme_core/templates/creme_core/templatetags/blocks_dependencies.html" is deprecated.' level='WARN' %}
+
 <script type='text/javascript'>
     $(document).ready(function() {
         // creme.blocks.deps ???
@@ -18,7 +22,7 @@
 
             return deps;
         };
-    })
+    });
 </script>
 {% if remaining_groups %}
     <div>

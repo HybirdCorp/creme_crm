@@ -25,7 +25,7 @@
 
 creme.search = creme.search || {};
 
-creme.search.SearchBox = function (element, searchUrl, advancedSearchUrl) {
+creme.search.SearchBox = function(element, searchUrl, advancedSearchUrl) {
     this.$element = $(element);
 
     this.$input = this.$element.find('input');
@@ -48,7 +48,7 @@ creme.search.SearchBox = function (element, searchUrl, advancedSearchUrl) {
     this.advancedSearchUrl = advancedSearchUrl;
 };
 
-creme.search.SearchBox.prototype= {
+creme.search.SearchBox.prototype = {
     _onShow: function(e) {
         this.glasspane.open($('.header-menu'));
         this.$resultsRoot.addClass('showing');
@@ -249,6 +249,6 @@ creme.search.SearchBox.prototype= {
 
             window.location.href = result.attr('href');
         }
-    },
+    }
 };
 }(jQuery));

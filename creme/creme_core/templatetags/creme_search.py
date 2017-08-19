@@ -29,7 +29,7 @@ from ..utils.unicode_collation import collator
 register = template.Library()
 
 
-# TODO: remove when OLD_MENU is removed
+# TODO: remove when OLD_MENU is removed (remove load from base.html too)
 @register.inclusion_tag('creme_core/templatetags/search_panel.html', takes_context=True)
 def get_search_panel(context):
     get_ct = ContentType.objects.get_for_model
@@ -48,7 +48,7 @@ def get_search_panel(context):
 
 
 @register.inclusion_tag('creme_core/templatetags/search_form.html')
-def get_search_form(user, selected_ct_id=None, search_terms=''):
+def search_form(user, selected_ct_id=None, search_terms=''):
     get_ct = ContentType.objects.get_for_model
     content_types = [{'id':           get_ct(model).id,
                       'verbose_name': unicode(model._meta.verbose_name),

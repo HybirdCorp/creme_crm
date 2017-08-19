@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,23 +18,206 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
+import logging, warnings
 
 from django.conf import settings
-from django.template import Library
+from django.template import Library, TemplateSyntaxError, Node as TemplateNode
 from django.utils.html import escape
+from django.utils.translation import ugettext as _
 
-from ..constants import ICON_SIZE_MAP
-from ..gui.icon_registry import icon_registry
-from ..utils.media import get_creme_media_url
+from ..gui.icons import icon_registry, get_icon_size_px, get_icon_by_name
+from ..utils.media import get_creme_media_url, get_current_theme_from_context
+from . import KWARG_RE
 
 
 register = Library()
+logger = logging.getLogger(__name__)
 
 
-# TODO: takes_context=False ??
+# WIDGET ICON ------------------------------------------------------------------
+
+class IconNode(TemplateNode):
+    def __init__(self, size_var=None, label_var=None, class_var=None, asvar_name=None):
+        self.size_var = size_var
+        self.label_var = label_var
+        self.class_var = class_var
+        self.asvar_name = asvar_name
+
+    def _build_icon(self, context, theme, size_px, label, css_class):
+        raise NotImplementedError
+
+    def render(self, context):
+        theme = get_current_theme_from_context(context)
+
+        def resolve(var, default):
+            return var.resolve(context) if var is not None else default
+
+        icon = self._build_icon(context, theme=theme,
+                                size_px=get_icon_size_px(theme, resolve(self.size_var, 'medium')),
+                                label=resolve(self.label_var, ''),
+                                css_class=resolve(self.class_var, ''),
+                               )
+
+        if self.asvar_name:
+            context[self.asvar_name] = icon
+            return ''
+        else:
+            return icon.render()
+
+
+class NamedIconNode(IconNode):
+    def __init__(self, name_var, **kwargs):
+        super(NamedIconNode, self).__init__(**kwargs)
+        self.name_var = name_var
+
+    def _build_icon(self, context, theme, size_px, label, css_class):
+        return get_icon_by_name(self.name_var.resolve(context), theme, size_px, label, css_class)
+
+
+class ContentTypeIconNode(IconNode):
+    def __init__(self, ctype_var, **kwargs):
+        super(ContentTypeIconNode, self).__init__(**kwargs)
+        self.ctype_var = ctype_var
+
+    def _build_icon(self, context, theme, size_px, label, css_class):
+        model = self.ctype_var.resolve(context).model_class()
+
+        icon = icon_registry.get_4_model(model=model, theme=theme, size_px=size_px)
+        icon.css_class = css_class
+
+        if label:
+            icon.label = label
+
+        return icon
+
+
+class InstanceIconNode(IconNode):
+    def __init__(self, instance_var, **kwargs):
+        super(InstanceIconNode, self).__init__(**kwargs)
+        self.instance_var = instance_var
+
+    def _build_icon(self, context, theme, size_px, label, css_class):
+        instance = self.instance_var.resolve(context)
+
+        icon = icon_registry.get_4_instance(instance=instance, theme=theme, size_px=size_px)
+        icon.css_class = css_class
+
+        return icon
+
+
+__ICON_ARGS_MAP = {
+    'size':  'size_var',
+    'label': 'label_var',
+    'class': 'class_var',
+}
+_WIDGET_ICON_NODES = {
+    'name':     ('name_var',     NamedIconNode),
+    'ctype':    ('ctype_var',    ContentTypeIconNode),
+    'instance': ('instance_var', InstanceIconNode),
+}
+
+
+@register.tag(name='widget_icon')
+def do_icon(parser, token):
+    """ Get an Icon (ie: <img>).
+
+    A. The icon can be rendered immediately:
+            {% widget_icon name='add' %}
+
+       or be assigned to a context variable:
+           {% widget_icon name='add' as add_icon %}
+           {# the icon can then be rendered like this ... #}
+           {{add_icon.render}}
+           {# ... or like this with an additional CSS class #}
+           {% widget_render_icon add_icon class='my-icon-class' %}
+
+    B. The first argument can have 3 types:
+       name='foobar' => An icon with 'foobar' as base name is searched in the images/ directory of the current theme.
+       ctype=content_type_instance  => The icon associated to this ContentType is used (see icon_registry.register()).
+       instance=my_instance => The icon associated to this instance is used (see icon_registry.register_4_instance()).
+
+    C. The other arguments are:
+       - size: a String in big/medium/small/brick-header/global-button/...  (creme.creme_core.gui.icons._ICON_SIZES_MAP)
+       - label
+       - class: the CSS classes in the <img> node.
+    """
+    bits = token.split_contents()
+    if len(bits) < 2:
+        raise TemplateSyntaxError("'%s' takes at least one argument (name/ctype/instance=...)" % bits[0])
+
+    match = KWARG_RE.match(bits[1])
+    if not match:
+        raise TemplateSyntaxError('Malformed 1rst argument to "widget_icon" tag.')
+
+    # First argument
+    fa_name, fa_value = match.groups()
+    try:
+        arg_name, icon_node_cls = _WIDGET_ICON_NODES[fa_name]
+    except KeyError:
+        raise TemplateSyntaxError('Invalid 1rst argument to "widget_icon" tag ; it must be in %s' % _WIDGET_ICON_NODES.keys())
+
+    kwargs = {arg_name: parser.compile_filter(fa_value)}
+
+    bits = bits[2:]
+    if len(bits) >= 2 and bits[-2] == 'as':
+        kwargs['asvar_name'] = bits[-1]
+        bits = bits[:-2]
+
+    for bit in bits:
+        match = KWARG_RE.match(bit)
+        if not match:
+            raise TemplateSyntaxError('Malformed arguments to "widget_icon" tag: %s' % bit)
+
+        name, value = match.groups()
+
+        arg_name = __ICON_ARGS_MAP.get(name)
+        if arg_name is None:
+            raise TemplateSyntaxError('Invalid argument name to "widget_icon" tag: %s' % name)
+
+        kwargs[arg_name] = parser.compile_filter(value)
+
+    return icon_node_cls(**kwargs)
+
+
+@register.tag(name='widget_render_icon')
+def do_render_icon(parser, token):
+    """Render an Icon with additional CSS classes.
+
+    {% widget_icon name='add' class='A' as my_icon %}
+    {% widget_render_icon my_icon class='B' %} {# The <img class="A B" ...> #}
+    """
+    bits = token.split_contents()
+
+    if len(bits) != 3:
+        raise TemplateSyntaxError("'%s' takes 2 arguments (icon & class)" % bits[0])
+
+    def compile_arg(token, prefix):
+        if token.startswith(prefix):
+            token = token[len(prefix):]
+
+        return parser.compile_filter(token)
+
+    return IconRendererNode(icon_var=compile_arg(bits[1], 'icon='),
+                            class_var=compile_arg(bits[2], 'class='),
+                           )
+
+
+class IconRendererNode(TemplateNode):
+    def __init__(self, icon_var, class_var):
+        self.icon_var = icon_var
+        self.class_var = class_var
+
+    def render(self, context):
+        return self.icon_var.resolve(context).render(css_class=self.class_var.resolve(context))
+
+
+# WIDGET ICON [END] ------------------------------------------------------------
+
+
 @register.inclusion_tag('creme_core/templatetags/widgets/add_button.html', takes_context=True)
 def get_add_button(context, entity, user):
+    warnings.warn('{% get_add_button %} is deprecated.', DeprecationWarning)
+
     # url = entity.get_create_absolute_url()
     #
     # if not url:
@@ -55,24 +238,32 @@ def get_add_button(context, entity, user):
 
 @register.inclusion_tag('creme_core/templatetags/widgets/delete_button.html', takes_context=True)
 def get_delete_button(context, entity, user):
+    warnings.warn('{% get_edit_button %} is deprecated.', DeprecationWarning)
+
     context['can_delete'] = user.has_perm_to_delete(entity)
     return context
 
 
 @register.inclusion_tag('creme_core/templatetags/widgets/restore_button.html', takes_context=True)
-def get_restore_button(context, entity, user):  # TODO: factorise
+def get_restore_button(context, entity, user):
+    warnings.warn('{% get_restore_button %} is deprecated.', DeprecationWarning)
+
     context['can_delete'] = user.has_perm_to_delete(entity)
     return context
 
 
 @register.inclusion_tag('creme_core/templatetags/widgets/edit_button.html', takes_context=True)
 def get_edit_button(context, entity, user):
+    warnings.warn('{% get_edit_button %} is deprecated.', DeprecationWarning)
+
     context['can_change'] = user.has_perm_to_change(entity)
     return context
 
 
 @register.inclusion_tag('creme_core/templatetags/widgets/clone_button.html', takes_context=True)
 def get_clone_button(context, entity, user):
+    warnings.warn('{% get_clone_button %} is deprecated.', DeprecationWarning)
+
     context['can_create'] = user.has_perm_to_create(entity)
     return context
 
@@ -95,11 +286,14 @@ def widget_hyperlink(instance):
            BEWARE: it must not be a CremeEntity instance, or an auxiliary instance,
            because the permissions are not checked.
     """
-    return u'<a href="%s">%s</a>' % (instance.get_absolute_url(), escape(instance))
+    try:
+        return u'<a href="%s">%s</a>' % (instance.get_absolute_url(), escape(instance))
+    except AttributeError:
+        return escape(instance)
 
 
 @register.simple_tag
-def widget_entity_hyperlink(entity, user, ignore_deleted=False):  # TODO: takes_context for user ???
+def widget_entity_hyperlink(entity, user, ignore_deleted=False):
     "{% widget_entity_hyperlink my_entity user %}"
     if user.has_perm_to_view(entity):
         return u'<a href="%s"%s>%s</a>' % (
@@ -121,7 +315,16 @@ def widget_select_or_msg(items, void_msg):
     return {'items': items, 'void_msg': void_msg}
 
 
+@register.inclusion_tag('creme_core/templatetags/widgets/enumerator.html')
+def widget_enumerator(items, threshold=None, empty=''):
+    return {'items': items, 'threshold': threshold, 'empty_label': empty}
+
+
 def _get_image_path_for_model(theme, model, size):
+    warnings.warn('creme_widgets._get_image_path_for_model() is deprecated.', DeprecationWarning)
+
+    from ..constants import ICON_SIZE_MAP
+
     path = icon_registry.get(model, ICON_SIZE_MAP[size])
 
     if not path:
@@ -136,6 +339,8 @@ def _get_image_path_for_model(theme, model, size):
 
 
 def _get_image_for_model(theme, model, size):
+    warnings.warn('creme_widgets._get_image_for_model() is deprecated.', DeprecationWarning)
+
     path = _get_image_path_for_model(theme, model, size)
     return u'<img src="%(src)s" alt="%(title)s" title="%(title)s" />' % {
                     'src':   path,
@@ -144,18 +349,89 @@ def _get_image_for_model(theme, model, size):
 
 
 @register.simple_tag(takes_context=True)
-def get_image_for_object(context, obj, size):  # TODO: size='default' ??
+def get_image_for_object(context, obj, size):
     """{% get_image_for_object object 'big' %}"""
+    warnings.warn('{% get_image_for_object ... %} is deprecated ; '
+                  'use {% widget_icon instance= ... %} instead.',
+                  DeprecationWarning
+                 )
+
     return _get_image_for_model(context['THEME_NAME'], obj.__class__, size)
 
 
 @register.simple_tag(takes_context=True)
 def get_image_for_ctype(context, ctype, size):
     """{% get_image_for_ctype ctype 'small' %}"""
+    warnings.warn('{% get_image_for_ctype ... %} is deprecated ; '
+                  'use {% widget_icon ctype= ... %} instead.',
+                  DeprecationWarning
+                 )
+
     return _get_image_for_model(context['THEME_NAME'], ctype.model_class(), size)
 
 
 @register.simple_tag(takes_context=True)
 def get_image_path_for_ctype(context, ctype, size):
     """{% get_image_path_for_ctype ctype 'small' %}"""
+    warnings.warn('{% get_image_path_for_ctype ... %} is deprecated ; '
+                  'use {% widget_icon ctype= ... %} instead.',
+                  DeprecationWarning
+                 )
+
     return _get_image_path_for_model(context['THEME_NAME'], ctype.model_class(), size)
+
+
+@register.tag(name='widget_join')
+def do_join(parser, token):
+    """ Joins the items items of a enumeration (ie: for loop) in a pretty way.
+    Must be used inside a for loop.
+
+    Example:
+    {% for item in items %}{% widget_join %}<strong>{{item}}</strong>{% end_widget_join %}{% empty %}No item{% endfor %}
+    """
+    tokens = token.contents.split(None, 2)
+
+    if len(tokens) > 1:
+        # We are sure there are at least one token (the tag itself).
+        raise TemplateSyntaxError('"%r" tag takes no argument' % tokens[0])
+
+    nodelist = parser.parse(('end_widget_join',))
+    parser.delete_first_token()
+
+    return JoinNode(nodelist)
+
+
+def enum_comma_and(item, counter, is_first, is_last):
+    if is_first:
+        return item
+
+    if is_last:
+        return u'&emsp14;{}&emsp14;{}'.format(_(u'and'), item)
+
+    return u',&emsp14;{}'.format(item)
+
+
+class JoinNode(TemplateNode):
+    behaviours = {
+        '':   enum_comma_and,  # Default
+        'en': enum_comma_and,
+        'fr': enum_comma_and,
+    }
+
+    def __init__(self, nodelist):
+        self.nodelist = nodelist
+
+    def render(self, context):
+        try:
+            forloop = context['forloop']
+        except KeyError:
+            raise ValueError('The tag {% widget_join %} must be used inside a {% for %} loop.')
+
+        try:
+            behaviour = self.behaviours[context['LANGUAGE_CODE']]
+        except KeyError:
+            behaviour = self.behaviours['']
+
+        return behaviour(self.nodelist.render(context), counter=forloop['counter0'],
+                         is_first=forloop['first'], is_last=forloop['last'],
+                        )

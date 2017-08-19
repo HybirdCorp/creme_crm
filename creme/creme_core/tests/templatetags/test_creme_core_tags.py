@@ -291,3 +291,99 @@ class CremeCoreTagsTestCase(CremeTestCase):
                             ),
                          render.strip()
                         )
+
+    def test_url_join1(self):
+        "No GET parameter"
+        url = '/creme_core/foobar'
+
+        with self.assertNoException():
+            template = Template('{% load creme_core_tags %}'
+                                '{% url_join my_url as my_uri %}'
+                                '<a href="{{my_uri}}">Link</a>'
+                               )
+            render = template.render(Context({'my_url': url}))
+
+        self.assertEqual('<a href="{}">Link</a>'.format(url), render.strip())
+
+    def test_url_join2(self):
+        "Several arguments"
+        url = '/creme_core/foobar'
+        brick_id1 = 'brick-core-entities'
+        brick_id2 = 'brick-core-properties'
+
+        with self.assertNoException():
+            template = Template('{% load creme_core_tags %}'
+                                '{% url_join my_url brick_id_01=brick_id1 brick_id_02=brick_id2 as my_uri %}'
+                                '<a href="{{my_uri}}">Link</a>'
+                               )
+            render = template.render(Context({'my_url': url, 'brick_id1': brick_id1, 'brick_id2': brick_id2}))
+
+        self.assertIn(render.strip(),
+                      ('<a href="{}?brick_id_01={}&brick_id_02={}">Link</a>'.format(url, brick_id1, brick_id2),
+                       '<a href="{}?brick_id_02={}&brick_id_01={}">Link</a>'.format(url, brick_id2, brick_id1),
+                      )
+                     )
+
+    def test_url_join3(self):
+        "List arguments"
+        url = '/creme_core/foobar'
+        brick_ids = ['brick-core-entities', 'brick-core-properties']
+
+        with self.assertNoException():
+            template = Template('{% load creme_core_tags %}'
+                                '{% url_join my_url brick_id=brick_id as my_uri %}'
+                                '<a href="{{my_uri}}">Link</a>'
+                               )
+            render = template.render(Context({'my_url': url, 'brick_id': brick_ids}))
+
+        self.assertEqual('<a href="{}?brick_id={}&brick_id={}">Link</a>'.format(url, brick_ids[0], brick_ids[1]),
+                         render.strip()
+                        )
+
+    def test_url_join4(self):
+        "Already a GET parameter"
+        url = '/creme_core/foobar?arg1=value'
+        brick_id = 'brick-core-entities'
+
+        with self.assertNoException():
+            template = Template('{% load creme_core_tags %}'
+                                '{% url_join my_url brick_id=brick_id as my_uri %}'
+                                '<a href="{{my_uri}}">Link</a>'
+                               )
+            render = template.render(Context({'my_url': url, 'brick_id': brick_id}))
+
+        self.assertEqual('<a href="{}&brick_id={}">Link</a>'.format(url, brick_id),
+                         render.strip()
+                        )
+
+    def test_url_join5(self):
+        "Already a GET parameter + list paratemeter"
+        url = '/creme_core/foobar?arg1=value'
+        brick_ids = ['brick-core-entities', 'brick-core-properties']
+
+        with self.assertNoException():
+            template = Template('{% load creme_core_tags %}'
+                                '{% url_join my_url brick_id=brick_id as my_uri %}'
+                                '<a href="{{my_uri}}">Link</a>'
+                               )
+            render = template.render(Context({'my_url': url, 'brick_id': brick_ids}))
+
+        self.assertEqual('<a href="{}&brick_id={}&brick_id={}">Link</a>'.format(url, brick_ids[0], brick_ids[1]),
+                         render.strip()
+                        )
+
+    def test_url_join6(self):
+        "Escaping"
+        url = '/creme_core/search'
+        search = 'orange & lemons'
+
+        with self.assertNoException():
+            template = Template('{% load creme_core_tags %}'
+                                '{% url_join my_url value=search as my_uri %}'
+                                '<a href="{{my_uri}}">Link</a>'
+                               )
+            render = template.render(Context({'my_url': url, 'search': search}))
+
+        self.assertEqual('<a href="{}?value={}">Link</a>'.format(url, 'orange+%26+lemons'),
+                         render.strip()
+                        )

@@ -10,10 +10,10 @@ try:
     from ..base import CremeTestCase
     from ..fake_models import FakeContact, FakeOrganisation, FakeAddress
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.blocks import RelationsBlock
+    from creme.creme_core.bricks import RelationsBrick
     from creme.creme_core.core.entity_cell import EntityCellRegularField
-    from creme.creme_core.gui.block import (block_registry, Block,
-            InstanceBlockConfigItem, _BlockRegistry)
+    from creme.creme_core.gui.bricks import (brick_registry, Brick,
+            InstanceBlockConfigItem, _BrickRegistry)
     from creme.creme_core.models import (SetCredentials, RelationType, Relation,
             BlockState, BlockDetailviewLocation, CustomBlockConfigItem, FieldsConfig)
 except Exception as e:
@@ -22,7 +22,6 @@ except Exception as e:
 
 class BlockViewTestCase(CremeTestCase):
     # SET_STATE_URL = '/creme_core/blocks/reload/set_state/%s/'
-    SET_STATE_URL = reverse('creme_core__set_block_state')
     # TODO: other urls...
 
     # @classmethod
@@ -34,9 +33,10 @@ class BlockViewTestCase(CremeTestCase):
         user = self.login()
         self.assertEqual(0, BlockState.objects.count())
 
-        block_id = RelationsBlock.id_
+        block_id = RelationsBrick.id_
+        url = reverse('creme_core__set_block_state', args=(block_id,))
         # self.assertPOST200(self.SET_STATE_URL % block_id, data={'is_open': 1})
-        self.assertPOST200(self.SET_STATE_URL, data={'id': block_id, 'is_open': 1})
+        self.assertPOST200(url, data={'is_open': 1})
 
         bstates = BlockState.objects.all()
         self.assertEqual(1, len(bstates))
@@ -47,14 +47,14 @@ class BlockViewTestCase(CremeTestCase):
         self.assertTrue(bstate.is_open)
 
         # self.assertPOST200(self.SET_STATE_URL % block_id, data={'is_open': 0})
-        self.assertPOST200(self.SET_STATE_URL, data={'id': block_id, 'is_open': 0})
+        self.assertPOST200(url, data={'is_open': 0})
         self.assertEqual(1, BlockState.objects.count())
 
         bstate = self.get_object_or_fail(BlockState, user=user, block_id=block_id)
         self.assertFalse(bstate.is_open)
 
         # self.assertPOST200(self.SET_STATE_URL % block_id, data={})  # No data
-        self.assertPOST200(self.SET_STATE_URL, data={'id': block_id, })  # No data
+        self.assertPOST200(url, data={})  # No data
         self.assertEqual(1, BlockState.objects.count())
 
         bstate = self.get_object_or_fail(BlockState, user=user, block_id=block_id)
@@ -62,9 +62,11 @@ class BlockViewTestCase(CremeTestCase):
 
     def test_set_state02(self):
         user = self.login()
-        block_id = RelationsBlock.id_
+        block_id = RelationsBrick.id_
         # self.assertPOST200(self.SET_STATE_URL % block_id, data={'is_open': 1, 'show_empty_fields': 1})
-        self.assertPOST200(self.SET_STATE_URL, data={'id': block_id, 'is_open': 1, 'show_empty_fields': 1})
+        self.assertPOST200(reverse('creme_core__set_block_state', args=(block_id,)),
+                           data={'is_open': 1, 'show_empty_fields': 1},
+                          )
 
         bstate = self.get_object_or_fail(BlockState, user=user, block_id=block_id)
         self.assertTrue(bstate.is_open)
@@ -72,11 +74,12 @@ class BlockViewTestCase(CremeTestCase):
 
     def test_set_state03(self):
         user = self.login()
-        block_id = RelationsBlock.id_
+        block_id = RelationsBrick.id_
+        url = reverse('creme_core__set_block_state', args=(block_id,))
         # self.client.post(self.SET_STATE_URL % block_id,
         #                  data = {'is_open': 1, 'show_empty_fields': 1}
         #                 )
-        self.client.post(self.SET_STATE_URL, data={'id': block_id, 'is_open': 1, 'show_empty_fields': 1})
+        self.client.post(url, data={'is_open': 1, 'show_empty_fields': 1})
 
         self.client.logout()
         self.client.login(username=self.other_user.username, password='test')
@@ -84,9 +87,7 @@ class BlockViewTestCase(CremeTestCase):
         # self.client.post(self.SET_STATE_URL % block_id,
         #                  data = {'is_open': 0, 'show_empty_fields': 0}
         #                 )
-        self.client.post(self.SET_STATE_URL,
-                         data={'id': block_id, 'is_open': 0, 'show_empty_fields': 0}
-                        )
+        self.client.post(url, data={'is_open': 0, 'show_empty_fields': 0})
 
         blocks_states = BlockState.objects.filter(block_id=block_id)
 
@@ -104,7 +105,7 @@ class BlockViewTestCase(CremeTestCase):
         user = self.login()
         casca = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
 
-        class ContactBlock(Block):
+        class ContactBlock(Brick):
             id_ = InstanceBlockConfigItem.generate_base_id('creme_core', 'base_block')
             dependencies = (FakeOrganisation,)
             template_name = 'persons/templatetags/block_thatdoesnotexist.html'
@@ -126,18 +127,20 @@ class BlockViewTestCase(CremeTestCase):
                                               data='',
                                              )
 
-        block_registry = _BlockRegistry()
+        block_registry = _BrickRegistry()
         block_registry.register_4_instance(ContactBlock)
 
         blocks = block_registry.get_blocks([ibci.block_id], entity=casca)
         block_id = blocks[0].id_
 
         # self.assertPOST200(self.SET_STATE_URL % block_id, data={'is_open': 1, 'show_empty_fields': 1})
-        self.assertPOST200(self.SET_STATE_URL, data={'id': block_id, 'is_open': 1, 'show_empty_fields': 1})
+        self.assertPOST200(reverse('creme_core__set_block_state', args=(block_id,)),
+                           data={'is_open': 1, 'show_empty_fields': 1},
+                          )
 
     def test_set_state_legacy(self):
         user = self.login()
-        block_id = RelationsBlock.id_
+        block_id = RelationsBrick.id_
         self.assertPOST200(reverse('creme_core__set_block_state', args=(block_id,)),
                            data={'is_open': 1, 'show_empty_fields': 1}
                           )
@@ -146,7 +149,7 @@ class BlockViewTestCase(CremeTestCase):
         self.assertTrue(bstate.is_open)
         self.assertTrue(bstate.show_empty_fields)
 
-    class TestBlock(Block):
+    class TestBlock(Brick):
         verbose_name = u'Testing purpose'
 
         string_format_detail = '<div id=%s>DETAIL</div>'
@@ -157,14 +160,16 @@ class BlockViewTestCase(CremeTestCase):
         ct_ids  = None
 
         def detailview_display(self, context):
-            self.contact = context.get('object')
+            # self.contact = context.get('object')
+            self.__class__.contact = context.get('object')
             return self.string_format_detail % self.id_
 
         def home_display(self, context):
             return self.string_format_home % self.id_
 
         def portal_display(self, context, ct_ids):
-            self.ct_ids = ct_ids
+            # self.ct_ids = ct_ids
+            self.__class__.ct_ids = ct_ids
             return self.string_format_portal % self.id_
 
     def test_reload_detailview01(self):
@@ -172,10 +177,10 @@ class BlockViewTestCase(CremeTestCase):
         atom = FakeContact.objects.create(user=user, first_name='Atom', last_name='Tenma')
 
         class FoobarBlock(self.TestBlock):
-            id_ = Block.generate_id('creme_core', 'test_reload_detailview01')
+            id_ = Brick.generate_id('creme_core', 'test_reload_detailview01')
 
         block1 = FoobarBlock()
-        block_registry.register(block1)
+        brick_registry.register(block1)
 
         # response = self.assertGET200('/creme_core/blocks/reload/%s/%s/' % (block1.id_, atom.id))
         response = self.assertGET200(reverse('creme_core__reload_detailview_blocks', args=(block1.id_, atom.id)))
@@ -191,18 +196,18 @@ class BlockViewTestCase(CremeTestCase):
         atom = FakeContact.objects.create(user=user, first_name='Atom', last_name='Tenma')
 
         class FoobarBlock1(self.TestBlock):
-            id_ = Block.generate_id('creme_core', 'test_reload_detailview02_1')
+            id_ = Brick.generate_id('creme_core', 'test_reload_detailview02_1')
 
         class FoobarBlock2(self.TestBlock):
-            id_ = Block.generate_id('creme_core', 'test_reload_detailview02_2')
+            id_ = Brick.generate_id('creme_core', 'test_reload_detailview02_2')
 
         class FoobarBlock3(self.TestBlock):
-            id_ = Block.generate_id('creme_core', 'test_reload_detailview02_3')
+            id_ = Brick.generate_id('creme_core', 'test_reload_detailview02_3')
 
         block1 = FoobarBlock1()
         block2 = FoobarBlock2()
         block3 = FoobarBlock3()
-        block_registry.register(block1, block2, block3)
+        brick_registry.register(block1, block2, block3)
 
         # response = self.assertGET200('/creme_core/blocks/reload/%s/%s/' % (block1.id_, atom.id),
         response = self.assertGET200(reverse('creme_core__reload_detailview_blocks', args=(block1.id_, atom.id)),
@@ -225,10 +230,10 @@ class BlockViewTestCase(CremeTestCase):
         atom = FakeContact.objects.create(user=self.other_user, first_name='Atom', last_name='Tenma')
 
         class FoobarBlock(self.TestBlock):
-            id_ = Block.generate_id('creme_core', 'test_reload_detailview03')
+            id_ = Brick.generate_id('creme_core', 'test_reload_detailview03')
 
         block1 = FoobarBlock()
-        block_registry.register(block1)
+        brick_registry.register(block1)
         # self.assertGET403('/creme_core/blocks/reload/%s/%s/' % (block1.id_, atom.id))
         self.assertGET403(reverse('creme_core__reload_detailview_blocks', args=(block1.id_, atom.id)))
 
@@ -241,10 +246,10 @@ class BlockViewTestCase(CremeTestCase):
         self.assertTrue(self.user.has_perm_to_view(atom))
 
         class FoobarBlock(self.TestBlock):
-            id_ = Block.generate_id('creme_core', 'test_reload_detailview04')
+            id_ = Brick.generate_id('creme_core', 'test_reload_detailview04')
 
         block1 = FoobarBlock()
-        block_registry.register(block1)
+        brick_registry.register(block1)
 
         # response = self.assertGET200('/creme_core/blocks/reload/%s/%s/' % (block1.id_, atom.id))
         response = self.assertGET200(reverse('creme_core__reload_detailview_blocks', args=(block1.id_, atom.id)))
@@ -269,14 +274,14 @@ class BlockViewTestCase(CremeTestCase):
         self.login()
 
         class FoobarBlock1(self.TestBlock):
-            id_ = Block.generate_id('creme_core', 'test_reload_home_1')
+            id_ = Brick.generate_id('creme_core', 'test_reload_home_1')
 
         class FoobarBlock2(self.TestBlock):
-            id_ = Block.generate_id('creme_core', 'test_reload_home_2')
+            id_ = Brick.generate_id('creme_core', 'test_reload_home_2')
 
         block1 = FoobarBlock1()
         block2 = FoobarBlock2()
-        block_registry.register(block1, block2)
+        brick_registry.register(block1, block2)
 
         # response = self.assertGET200('/creme_core/blocks/reload/home/%s/' % block1.id_,
         response = self.assertGET200(reverse('creme_core__reload_home_blocks', args=(block1.id_,)),
@@ -293,14 +298,14 @@ class BlockViewTestCase(CremeTestCase):
         self.login()
 
         class FoobarBlock1(self.TestBlock):
-            id_ = Block.generate_id('creme_core', 'test_reload_portal01_1')
+            id_ = Brick.generate_id('creme_core', 'test_reload_portal01_1')
 
         class FoobarBlock2(self.TestBlock):
-            id_ = Block.generate_id('creme_core', 'test_reload_portal01_2')
+            id_ = Brick.generate_id('creme_core', 'test_reload_portal01_2')
 
         block1 = FoobarBlock1()
         block2 = FoobarBlock2()
-        block_registry.register(block1, block2)
+        brick_registry.register(block1, block2)
 
         get_ct = ContentType.objects.get_for_model
         ct_id1 = get_ct(FakeContact).id
@@ -329,10 +334,10 @@ class BlockViewTestCase(CremeTestCase):
         self.login(is_superuser=False, allowed_apps=['documents'])
 
         class FoobarBlock1(self.TestBlock):
-            id_ = Block.generate_id('creme_core', 'test_reload_portal02_1')
+            id_ = Brick.generate_id('creme_core', 'test_reload_portal02_1')
 
         block1 = FoobarBlock1()
-        block_registry.register(block1)
+        brick_registry.register(block1)
         # self.assertGET403('/creme_core/blocks/reload/portal/%s/%s/' % (
         #                         block1.id_,
         #                         ContentType.objects.get_for_model(FakeContact).id
@@ -351,10 +356,10 @@ class BlockViewTestCase(CremeTestCase):
         self.login(is_superuser=False, allowed_apps=[model._meta.app_label])
 
         class FoobarBlock1(self.TestBlock):
-            id_ = Block.generate_id('creme_core', 'test_reload_portal03')
+            id_ = Brick.generate_id('creme_core', 'test_reload_portal03')
 
         block1 = FoobarBlock1()
-        block_registry.register(block1)
+        brick_registry.register(block1)
 
         # response = self.assertGET200('/creme_core/blocks/reload/portal/%s/%s/' % (
         #                                     block1.id_, ContentType.objects.get_for_model(model).id
@@ -372,16 +377,16 @@ class BlockViewTestCase(CremeTestCase):
         self.login()
 
         class FoobarBlock1(self.TestBlock):
-            id_ = Block.generate_id('creme_core', 'test_reload_basic01_1')
+            id_ = Brick.generate_id('creme_core', 'test_reload_basic01_1')
             permission = 'persons'
 
         class FoobarBlock2(self.TestBlock):
-            id_ = Block.generate_id('creme_core', 'test_reload_basic01_2')
+            id_ = Brick.generate_id('creme_core', 'test_reload_basic01_2')
             permission = 'persons'
 
         block1 = FoobarBlock1()
         block2 = FoobarBlock2()
-        block_registry.register(block1, block2)
+        brick_registry.register(block1, block2)
 
         # response = self.assertGET200('/creme_core/blocks/reload/basic/%s/' % block1.id_,
         response = self.assertGET200(reverse('creme_core__reload_blocks', args=(block1.id_,)),
@@ -399,11 +404,11 @@ class BlockViewTestCase(CremeTestCase):
         self.login(is_superuser=False)
 
         class FoobarBlock1(self.TestBlock):
-            id_ = Block.generate_id('creme_core', 'test_reload_basic02')
+            id_ = Brick.generate_id('creme_core', 'test_reload_basic02')
             permission = 'persons'
 
         block1 = FoobarBlock1()
-        block_registry.register(block1)
+        brick_registry.register(block1)
         # self.assertGET403('/creme_core/blocks/reload/basic/%s/' % block1.id_)
         self.assertGET403(reverse('creme_core__reload_blocks', args=(block1.id_,)))
 
@@ -413,11 +418,11 @@ class BlockViewTestCase(CremeTestCase):
         self.login(is_superuser=False, allowed_apps=[app_name])
 
         class FoobarBlock1(self.TestBlock):
-            id_ = Block.generate_id('creme_core', 'test_reload_basic03')
+            id_ = Brick.generate_id('creme_core', 'test_reload_basic03')
             permission = app_name
 
         block1 = FoobarBlock1()
-        block_registry.register(block1)
+        brick_registry.register(block1)
 
         # response = self.assertGET200('/creme_core/blocks/reload/basic/%s/' % block1.id_)
         response = self.assertGET200(reverse('creme_core__reload_blocks', args=(block1.id_,)))
@@ -454,7 +459,7 @@ class BlockViewTestCase(CremeTestCase):
         content = content[0]
         self.assertTrue(isinstance(content, list))
         self.assertEqual(2, len(content))
-        self.assertEqual(RelationsBlock.id_, content[0])
+        self.assertEqual(RelationsBrick.id_, content[0])
 
         self.assertEqual(atom, response.context['object'])
         self.assertEqual({rel1, rel2}, set(response.context['page'].object_list))

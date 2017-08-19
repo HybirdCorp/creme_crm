@@ -1,4 +1,18 @@
+/*
 .home {}
 .home .table_header .logo {}
 .home .table_header .title {}
 .home .table_header .actions {}
+*/
+
+.home .hat-bar-container {
+    border: 0;
+}
+
+.home .hat-bar .bar-title {
+    width: 100%;
+}
+
+.home .hat-bar .bar-title h1 {
+    text-align: center;
+}

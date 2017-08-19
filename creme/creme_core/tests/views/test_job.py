@@ -15,15 +15,16 @@ try:
     from django.utils.translation import ugettext as _
 
     from ..base import skipIfNotInstalled
-    from .base import ViewsTestCase
-    from creme.creme_core.blocks import job_block, job_errors_block, entity_job_errors_block
+    from ..fake_models import FakeOrganisation
+
+    from .base import ViewsTestCase, BrickTestCaseMixin
+
+    from creme.creme_core.bricks import JobBrick, JobErrorsBrick, EntityJobErrorsBrick
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
     from creme.creme_core.creme_jobs import batch_process_type, reminder_type
     from creme.creme_core.creme_jobs.base import JobType
     from creme.creme_core.models import Job, JobResult, EntityJobResult
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
-
-    from ..fake_models import FakeOrganisation as Organisation
 
     if apps.is_installed('creme.crudity'):
         from creme.crudity.creme_jobs import crudity_synchronize_type
@@ -34,7 +35,7 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-class JobViewsTestCase(ViewsTestCase):
+class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     # LIST_URL = '/creme_core/job/all'
     LIST_URL = reverse('creme_core__jobs')
     # INFO_URL = '/creme_core/job/info'
@@ -76,21 +77,15 @@ class JobViewsTestCase(ViewsTestCase):
         return reverse('creme_core__disable_job', args=(job.id,))
 
     def _create_batchprocess_job(self, user=None, status=Job.STATUS_WAIT):
-        if user is None:
-            user = self.user
-
-        return Job.objects.create(user=user,
+        return Job.objects.create(user=user or self.user,
                                   type_id=batch_process_type.id,
                                   language='en',
                                   status=status,
-                                  raw_data='{"ctype": %s, "actions": []}' % ContentType.objects.get_for_model(Organisation).id,
+                                  raw_data='{"ctype": %s, "actions": []}' % ContentType.objects.get_for_model(FakeOrganisation).id,
                                  )
 
     def _create_invalid_job(self, user=None, status=Job.STATUS_WAIT):
-        if user is None:
-            user = self.user
-
-        return Job.objects.create(user=user,
+        return Job.objects.create(user=user or self.user,
                                   type_id=JobType.generate_id('creme_core', 'invalid'),
                                   language='en',
                                   status=status,
@@ -109,7 +104,8 @@ class JobViewsTestCase(ViewsTestCase):
 
         self.assertEqual(job, cxt_job)
 
-        self.assertContains(response, ' id="%s"' % entity_job_errors_block.id_)
+        doc = self.get_html_tree(response.content)
+        self.get_brick_node(doc, EntityJobErrorsBrick.id_)
 
     def test_detailview02(self):
         "Credentials"
@@ -167,7 +163,7 @@ class JobViewsTestCase(ViewsTestCase):
         queue = JobManagerQueue.get_main_queue()
         queue.clear()
 
-        self.login()
+        user = self.login()
         self.assertEqual([], queue.refreshed_jobs)
 
         job = self.get_object_or_fail(Job, type_id=crudity_synchronize_type.id)
@@ -189,7 +185,7 @@ class JobViewsTestCase(ViewsTestCase):
                                                'periodicity_0': 'minutes',
                                                'periodicity_1': '180',
 
-                                               'user': self.user.id,
+                                               'user': user.id,
                                               },
                                    )
         self.assertNoFormError(response)
@@ -206,7 +202,7 @@ class JobViewsTestCase(ViewsTestCase):
         queue = JobManagerQueue.get_main_queue()
         queue.clear()
 
-        self.login()
+        user = self.login()
         self.assertEqual([], queue.refreshed_jobs)
 
         job = self.get_object_or_fail(Job, type_id=crudity_synchronize_type.id)
@@ -219,7 +215,7 @@ class JobViewsTestCase(ViewsTestCase):
                                           'periodicity_0': pdict['type'],
                                           'periodicity_1': str(pdict['value']),
 
-                                          'user': self.user.id,
+                                          'user': user.id,
                                          },
                                    )
         self.assertNoFormError(response)
@@ -238,7 +234,7 @@ class JobViewsTestCase(ViewsTestCase):
         queue = JobManagerQueue.get_main_queue()
         queue.clear()
 
-        self.login()
+        user = self.login()
 
         job = self.get_object_or_fail(Job, type_id=crudity_synchronize_type.id)
         old_reference_run = job.reference_run
@@ -253,7 +249,7 @@ class JobViewsTestCase(ViewsTestCase):
                                           'periodicity_0': pdict['type'],
                                           'periodicity_1': str(pdict['value']),
 
-                                          'user': self.user.id,
+                                          'user': user.id,
                                          },
                                    )
         self.assertNoFormError(response)
@@ -304,7 +300,7 @@ class JobViewsTestCase(ViewsTestCase):
         response = self.assertGET200(self.LIST_URL)
         self.assertTemplateUsed('creme_core/jobs.html')
 
-        msg = _('You must delete your job in order to create a new one.')
+        msg = _(u'You must delete your job in order to create a new one.')
         self.assertNotContains(response, msg)
 
         self._create_batchprocess_job()
@@ -323,7 +319,7 @@ class JobViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(self.LIST_URL)
         self.assertContains(response,
-                            _('You must delete one of your jobs in order to create a new one.')
+                            _(u'You must delete one of your jobs in order to create a new one.')
                            )
 
     def test_listview05(self):
@@ -333,10 +329,10 @@ class JobViewsTestCase(ViewsTestCase):
         self.assertGET200(self.LIST_URL)
 
     def test_clear01(self):
-        self.login()
+        user = self.login()
         job = self._create_batchprocess_job(status=Job.STATUS_OK)
 
-        orga = Organisation.objects.create(user=self.user)
+        orga = FakeOrganisation.objects.create(user=user)
         jresult = EntityJobResult.objects.create(job=job, entity=orga)
 
         del_url = self._build_delete_url(job)
@@ -351,7 +347,7 @@ class JobViewsTestCase(ViewsTestCase):
         "status = Job.STATUS_ERROR + ajax"
         self.login()
         job = self._create_batchprocess_job(status=Job.STATUS_ERROR)
-        orga = Organisation.objects.create(user=self.user)
+
         self.assertPOST200(self._build_delete_url(job),
                            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
                           )
@@ -494,9 +490,10 @@ class JobViewsTestCase(ViewsTestCase):
                          json_load(response.content)
                         )
 
-    def _aux_test_reload(self, job, block_id):
-        # response = self.assertGET200('/creme_core/job/%s/reload/%s' % (job.id, block_id))
-        response = self.assertGET200(reverse('creme_core__reload_job_block', args=(job.id, block_id)))
+    def _aux_test_reload(self, job, brick_id):
+        response = self.assertGET200(reverse('creme_core__reload_job_bricks', args=(job.id,)),
+                                     data={'brick_id': brick_id},
+                                    )
 
         with self.assertNoException():
             result = json_load(response.content)
@@ -507,25 +504,29 @@ class JobViewsTestCase(ViewsTestCase):
         result = result[0]
         self.assertIsInstance(result, list)
         self.assertEqual(2, len(result))
-        self.assertEqual(block_id, result[0])
-        self.assertIn(' id="%s"' % block_id, result[1])
+        self.assertEqual(brick_id, result[0])
+        # self.assertIn(' id="%s"' % brick_id, result[1])
+
+        doc = self.get_html_tree(result[1])
+        self.get_brick_node(doc, brick_id)
 
     def test_reload01(self):
         self.login()
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
 
-        self._aux_test_reload(job, job_block.id_)
-        self._aux_test_reload(job, job_errors_block.id_)
+        self._aux_test_reload(job, JobBrick.id_)
+        self._aux_test_reload(job, JobErrorsBrick.id_)
 
     def test_reload02(self):
         self.login()
         job = self._create_batchprocess_job()
 
-        self._aux_test_reload(job, job_block.id_)
-        self._aux_test_reload(job, entity_job_errors_block.id_)
+        self._aux_test_reload(job, JobBrick.id_)
+        self._aux_test_reload(job, EntityJobErrorsBrick.id_)
 
     def test_reload03(self):
         self.login(is_superuser=False)
         job = self._create_batchprocess_job(user=self.other_user)
-        # self.assertGET403('/creme_core/job/%s/reload/%s' % (job.id, job_block.id_))
-        self.assertGET403(reverse('creme_core__reload_job_block', args=(job.id, job_block.id_)))
+        self.assertGET403(reverse('creme_core__reload_job_bricks', args=(job.id,)),
+                          data={'brick_id': JobBrick.id_},
+                         )

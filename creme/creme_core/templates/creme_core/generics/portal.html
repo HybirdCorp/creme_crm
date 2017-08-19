@@ -1,10 +1,10 @@
-{% extends "creme_core/base.html" %}
-{% load i18n %}
-{% load creme_block creme_core_tags %}
+{% extends 'creme_core/base.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
 
 {% block before_content_1 %}<div class="portal the_cake_is_a_lie">{% endblock %}
 
 {% block content %}
+{% comment %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
             <td class="logo">{% block logo %}{% endblock %}</td>
@@ -13,14 +13,34 @@
                 {% block header_link %}
                     <a href="{% block list_url %}{% endblock %}">
                         {% block list_msg %}{% endblock %}
-                        {% trans "Go to the list" as img_title %}<img src="{% creme_media_url 'images/next_64.png' %}" title="{{img_title}}" alt="{{img_title}}"/>
+                        {% trans 'Go to the list' as img_title %}<img src="{% creme_media_url 'images/next_64.png' %}" title="{{img_title}}" alt="{{img_title}}"/>
                     </a>
                 {% endblock %}
             </td>
         </tr>
     </table>
+{% endcomment %}
+    <div class="hat-bar-container">
+        <div class="hat-bar">
+            <div class="bar-icon">{% block logo %}{% endblock %}</div>
+            <div class="bar-title">
+                <h1>{% block title %}{% endblock %}</h1>
+            </div>
+            <div class="bar-actions">
+                <div class='bar-action'>
+                    {% block header_link %}
+                        <a class="bar-button" href="{% block list_url %}{% endblock %}">
+                            {% widget_icon name='next' size='brick-hat-bar-button' label=_('Go to the list') %}
+{#                            {% block list_msg %}{% endblock %} #}
+                        </a>
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
 
     {% if config_url %}
+{% comment %}
         <div>
             <ul class="button_list hbox">
                 <li>{% trans "Configure" as config_label %}
@@ -29,43 +49,64 @@
                             <img src="{% creme_media_url 'images/config_32.png' %}" border="0" title="{{config_label}}" alt="{{config_label}}" />{{config_label}}
                         </a>
                     {% else %}
-                        <span class="menu_button forbidden" title="{% trans "forbidden" %}">
+                        <span class="menu_button forbidden" title="{% trans 'forbidden' %}">
                             <img src="{% creme_media_url 'images/config_32.png' %}" border="0" title="{{config_label}}" alt="{{config_label}}" />{{config_label}}
                         </span>
                     {% endif %}
                 </li>
             </ul>
         </div>
+{% endcomment %}
+        <div class="buttons-list instance-buttons">
+            <ul>
+                <li>{% trans 'Configure' as config_label %}
+                    {% if can_admin %}
+                    <a class="menu_button" href="{{config_url}}">
+                    {% else %}
+                    <a class="menu_button forbidden is-disabled">
+                    {% endif %}
+                    {% widget_icon name='config' size='instance-button' label=config_label %} {{config_label}}
+                    </a>
+                </li>
+            </ul>
+        </div>
     {% endif %}
 
     {% block creme_blocks_import %}
-        {% import_portal_blocks app_name %}
+{#        {% import_portal_blocks app_name %}  #}
     {% endblock %}
 
     {% block before_statistics %}{% endblock %}
 
     {% block statistics %}
-        <table class="table_detail_view ui-corner-all">
-            {% get_block_header colspan=2 %}
-                <th class="label">{% get_basic_block_header _('Statistics') 'info_48.png' _('Information') %}</th>
-                <th class="actions"></th>
-            {% end_get_block_header %}
-            <tbody class="collapsable">
-                {% for statk, statv in stats %}
-                    <tr class="content">
-                        <th class="{% cycle "block_header_line_dark" "block_header_line_light" %} th_info">{{statk}}</th>
-                        <td class="{% cycle "block_line_dark" "block_line_light" %} td_info">{{statv}}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="brick {% block brick_extra_class %}{% endblock %} is-loading-border ui-creme-widget widget-auto {% if state %}{% brick_state_classes state %}{% endif %}" widget="brick">
+            <div class="brick-header">
+                <div class="brick-title-container">
+                    {% brick_header_title title=_('Statistics') %}
+                </div>
+            </div>
+            <div class="brick-content brick-table" >
+                <table class="brick-table-content">
+                    <tbody>
+                        {% for statk, statv in stats %}
+                        <tr>
+                            <td>{{statk}}</td>
+                            <td>{{statv}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     {% endblock statistics %}
 
     {% block extra_infos %}
-        {% display_portal_blocks ct_ids %}
+{#        {% display_portal_blocks ct_ids %} #}
+        {% brick_declare bricks %}
+        {% brick_display bricks render='portal' %}
     {% endblock %}
 
-    {% get_blocks_dependencies %}
+    {% brick_end %}
 {% endblock %}
 
 {% block after_content_3 %}</div>{% endblock %}

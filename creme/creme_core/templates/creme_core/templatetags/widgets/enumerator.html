@@ -1,0 +1,6 @@
+{% load creme_widgets %}
+{% if not threshold or items|length < threshold %}
+    {% for item in items %}{% widget_join %}<span class="enumerator-item">{{item}}</span>{% end_widget_join %}{% empty %}<span class="enumerator-empty">{{empty_label}}</span>{% endfor %}
+{% else %}
+    {% widget_select_or_msg items empty_label %}
+{% endif %}

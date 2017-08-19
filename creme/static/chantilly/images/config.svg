@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -13,12 +14,11 @@
    height="128"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.46"
+   inkscape:version="0.91 r13725"
    version="1.0"
-   sodipodi:docbase="/home/guitouze/Work/hyflight"
-   sodipodi:docname="wrench.svg"
+   sodipodi:docname="config.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   inkscape:export-filename="/home/guitouze/HG/cremecrm/creme/media/images/config_48.png"
+   inkscape:export-filename="config_48.png"
    inkscape:export-xdpi="33.75"
    inkscape:export-ydpi="33.75">
   <defs
@@ -345,18 +345,19 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.5"
-     inkscape:cx="-372.03901"
-     inkscape:cy="215.26443"
+     inkscape:zoom="1.4142136"
+     inkscape:cx="224.17663"
+     inkscape:cy="151.06035"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      width="512px"
      height="512px"
-     inkscape:window-width="1440"
-     inkscape:window-height="825"
+     inkscape:window-width="1920"
+     inkscape:window-height="1030"
      inkscape:window-x="0"
      inkscape:window-y="25"
-     showgrid="false" />
+     showgrid="false"
+     inkscape:window-maximized="1" />
   <metadata
      id="metadata7">
     <rdf:RDF>

@@ -1,0 +1,24 @@
+{% extends 'creme_core/bricks/job-errors.html' %}
+{% load i18n creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_core-entity-job-errors-brick{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Entity') %}
+    {% brick_table_column title=_('Error') %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for result in page.object_list %}
+    <tr>
+        <td>{% widget_entity_hyperlink result.entity user %}</td>
+        <td>
+            {% if result.messages|length > 1 %}
+            <ul>{% for error in result.messages %}<li>{{error}}</li>{% endfor %}</ul>
+            {% else %}
+            {{result.messages.0}}
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}

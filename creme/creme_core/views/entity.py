@@ -25,6 +25,7 @@ import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 from django.db.models import Q, FieldDoesNotExist, ProtectedError
 from django.forms.models import modelform_factory
 from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseBadRequest
@@ -230,7 +231,7 @@ def inner_edit_field(request, ct_id, id, field_name):
         else:
             form = form_class(entities=[entity], user=user)
     except (FieldDoesNotExist, FieldNotAllowed):
-        return HttpResponseBadRequest(_(u'The field "%s" doesn\'t exist or cannot be edited') % field_name)
+        return HttpResponseBadRequest(_(u'The field «%s» does not exist or cannot be edited') % field_name)
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':  form,
@@ -256,7 +257,7 @@ def bulk_update_field(request, ct_id, field_name=None):
     try:
         form_class = bulk_update_registry.get_form(model, field_name, BulkDefaultEditForm)
     except (FieldDoesNotExist, FieldNotAllowed):
-        return HttpResponseBadRequest(_(u'''The field "%s" doesn't exist or cannot be edited''') % field_name)
+        return HttpResponseBadRequest(_(u'The field «%s» does not exist or cannot be edited') % field_name)
 
     meta = model._meta
 
@@ -285,14 +286,15 @@ def bulk_update_field(request, ct_id, field_name=None):
                        'unallowed': unallowed_count,
                       }
 
+            # TODO: modification_label/bulk_label/... in model instead (fr: masculin/féminin)
             if initial_count == success_count:
-                summary = ungettext(u'%(success)s %(model)s has been successfully modified.',
-                                    u'%(success)s %(model)s have been successfully modified.',
+                summary = ungettext(u'%(success)s «%(model)s» has been successfully modified.',
+                                    u'%(success)s «%(model)s» have been successfully modified.',
                                     success_count
                                    )
             else:
-                summary = ungettext(u'%(success)s of %(initial)s %(model)s has been successfully modified.',
-                                    u'%(success)s of %(initial)s %(model)s have been successfully modified.',
+                summary = ungettext(u'%(success)s of %(initial)s «%(model)s» has been successfully modified.',
+                                    u'%(success)s of %(initial)s «%(model)s» have been successfully modified.',
                                     success_count
                                    )
 
@@ -319,8 +321,8 @@ def bulk_update_field(request, ct_id, field_name=None):
 
     # TODO: select_label in model instead (fr: masculin/féminin)
     help_message = u'<span class="bulk-selection-summary" data-msg="%s" data-msg-plural="%s"></span>' % (
-                         _(u'%%s %s has been selected.') % meta.verbose_name,
-                         _(u'%%s %s have been selected.') % meta.verbose_name_plural,
+                         _(u'%%s «%s» has been selected.') % meta.verbose_name,
+                         _(u'%%s «%s» have been selected.') % meta.verbose_name_plural,
                     )
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
@@ -377,7 +379,7 @@ def bulk_edit_field(request, ct_id, id, field_name):
             form.bulk_viewname = viewname
 
     except (FieldDoesNotExist, FieldNotAllowed):
-        return HttpResponseBadRequest(_(u'The field "%s" doesn\'t exist or cannot be edited') % field_name)
+        return HttpResponseBadRequest(_(u'The field «%s» does not exist or cannot be edited') % field_name)
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':  form,
@@ -509,7 +511,9 @@ def merge(request, entity1_id=None, entity2_id=None):
 
 @login_required
 def trash(request):
-    return render(request, 'creme_core/trash.html')
+    return render(request, 'creme_core/trash.html',
+                  context={'bricks_reload_url': reverse('creme_core__reload_bricks')},
+                 )
 
 
 @login_required

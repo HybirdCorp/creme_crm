@@ -4,6 +4,8 @@ try:
     from tempfile import NamedTemporaryFile
     from unittest import skipIf
 
+    import html5lib
+
     from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
 
@@ -56,6 +58,49 @@ class ViewsTestCase(CremeTestCase):
         SetCredentials.objects.create(role=self.user.role, value=value,
                                       set_type=SetCredentials.ESET_ALL
                                      )
+
+
+class BrickTestCaseMixin(object):
+    def get_html_tree(self, content):
+        return html5lib.parse(content, namespaceHTMLElements=False)
+
+    def get_brick_node(self, tree, brick_id):
+        brick_node = tree.find(".//div[@id='{}']".format(brick_id))
+        self.assertIsNotNone(brick_node, 'The brick id="%s" is not found.' % brick_id)
+
+        classes = brick_node.attrib.get('class')
+        self.assertIsNotNone(classes, 'The brick id="%s" is not a valid brick (no "class" attribute).')
+        self.assertIn('brick', classes.split(), 'The brick id="%s" is not a valid brick (no "brick" class).')
+
+        return brick_node
+
+    def assertNoBrick(self, tree, brick_id):
+        self.assertIsNone(tree.find(".//div[@id='{}']".format(brick_id)),
+                          'The brick id="%s" has been unexpectedly found.' % brick_id
+                          )
+
+    def assertInstanceLink(self, brick_node, entity):
+        link_node = brick_node.find(".//a[@href='{}']".format(entity.get_absolute_url()))
+        self.assertIsNotNone(link_node)
+        self.assertEqual(unicode(entity), link_node.text)
+
+    def assertNoInstanceLink(self, brick_node, entity):
+        self.assertIsNone(brick_node.find(".//a[@href='{}']".format(entity.get_absolute_url())))
+
+    def assertBrickHasClass(self, brick_node, css_class):
+        self.assertIn(css_class, brick_node.attrib.get('class').split())
+
+    def assertBrickHasNotClass(self, brick_node, css_class):
+        self.assertNotIn(css_class, brick_node.attrib.get('class').split())
+
+    def get_brick_tile(self, content_node, key):
+        tile_node = content_node.find('.//div[@data-key="%s"]' % key)
+        self.assertIsNotNone(tile_node)
+
+        value_node = tile_node.find('.//span[@class="brick-tile-value"]')
+        self.assertIsNotNone(value_node)
+
+        return value_node
 
 
 # TODO: rename (MassImportBaseTestCaseMixin)

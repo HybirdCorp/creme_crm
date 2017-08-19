@@ -1,0 +1,1478 @@
+/* creme wtf TODO */
+
+/* Apply a natural box layout model to all elements */
+.brick * {
+    -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.brick a img {
+    transition: none;
+}
+
+.brick a img:hover {
+    opacity: 1;
+}
+/* creme wtf - end */
+
+.brick {
+    background: white;
+    border-left: 1px solid #d9d9d9;
+    border-bottom: 1px solid #d9d9d9;
+    border-right: 1px solid #d9d9d9;
+
+    display: inline-block;
+
+    -webkit-box-shadow: 0 1px 2px rgba(0,0,0,0.10);
+       -moz-box-shadow: 0 1px 2px rgba(0,0,0,0.10);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.10);
+
+    width: 100%;
+}
+
+.brick:not(.is-empty) ~ .brick:not(.is-empty) {
+    margin-top: 15px;
+}
+
+/* TODO: some blocks have script tags defined before them, making sibling selection impossible. Eg. Geoolocation map block.
+Those templates need to be cleaned up */
+.brick + table.table_detail_view,
+.brick + script + table.table_detail_view {
+    margin-top: 15px;
+    margin-bottom: 0;
+}
+
+table.table_detail_view + .brick,
+table.table_detail_view + table.table_detail_view {
+    margin-top: 15px;
+    margin-bottom: 0;
+}
+
+.brick.is-empty {
+    display: none;
+}
+
+.brick .brick-header {
+/*    display: inline-block; */
+    display: flex;
+
+    width: 100%;
+    height: 26px;
+
+    padding: 0;
+    margin: 0;
+
+    background: #f5f5f5;
+
+    text-transform: uppercase;
+    font-size: 11px;
+    color: #666;
+    font-weight: 600;
+
+    /* _border-right: 1px solid #d9d9d9;  right border of the block */
+}
+
+.brick .brick-content {
+    padding: 10px;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    /* _border-left: 1px solid #d9d9d9;  left border of the block */
+    /* _border-right: 1px solid #d9d9d9;  right border of the block */
+}
+
+.brick .brick-content.is-paginated {
+    padding-bottom: 0;
+}
+
+.brick .brick-title-container {
+    flex: 1;
+    padding-left: 10px;
+    border-top: 1px solid #d9d9d9;
+    border-bottom: 1px solid #dedede;
+    display: inline-flex;
+    align-items: center;
+    cursor: default;
+
+    min-width: 30px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    /* _border-left: 1px solid #d9d9d9; left border of the block */
+}
+
+.brick .brick-header-menu:not(.is-disabled):hover {
+    cursor: pointer;
+}
+
+.brick .brick-action.is-disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+/* blocks end */
+
+/* block menu */
+
+.brick-menu-buttons {
+    display: flex;
+    overflow: hidden;
+    white-space: nowrap;
+    flex-direction: column;
+}
+
+.brick-menu-buttons .brick-menu-action {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 3px 0px;
+
+    color: #666;
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.brick-menu-buttons .brick-menu-action.is-disabled {
+    color: #aaa;
+    cursor: default;
+}
+
+.brick-menu-buttons .brick-menu-action + hr:not(last-child) {
+    margin-top: 2px;
+    border-top: 1px solid #dedede;
+}
+
+.brick-menu-action img.brick-menu-icon {
+    height: 16px;
+    min-width: 16px;
+    max-width: 16px;
+}
+
+.brick-menu-action.is-disabled img.brick-menu-icon {
+    opacity: 0.6;
+}
+
+
+.brick-menu-action .brick-menu-button-title {
+    display: inline-block;
+    margin-left: 8px;
+}
+
+/* block menu end */
+
+/* block header */
+
+/*
+.brick .brick-header-icon {
+    height: 10px;
+    min-width: 10px;
+    max-width: 10px;
+}
+*/
+
+/* tmp: svg tests*/
+.brick img.brick-header-icon {
+    height: 16px;
+    min-width: 16px;
+    max-width: 16px;
+}
+
+.brick .brick-title-container .brick-header-icon {
+    margin-right: 5px;
+}
+
+.brick .brick-title-container .brick-loading-indicator {
+    display: none;
+}
+
+.brick.is-loading .brick-title-container .brick-loading-indicator {
+    display: inline-block;
+    font-weight: 700;
+}
+
+.brick.is-loading .brick-title-container .brick-header-icon:not(.brick-loading-indicator) {
+    display: none;
+}
+
+.brick .brick-header-buttons {
+    display: inline-flex;
+    overflow: hidden;
+    white-space: nowrap;
+    margin-right: -1px;
+}
+
+.brick .brick-header-button {
+    display: inline-flex;
+    align-items: center;
+
+    border-top: 1px solid #d9d9d9;
+    border-bottom: 1px solid #dedede;
+
+    padding: 0 15px;
+    text-decoration: none;
+
+    position: relative;
+    margin-left: -1px;
+
+    cursor: pointer;
+
+    color: #666;
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    transition: all 0.15s ease-in-out;
+}
+
+.brick .brick-header-button.is-disabled {
+    cursor: default;
+}
+
+.brick .brick-header-button:first-child {
+    margin-left: 0;
+}
+
+.brick .brick-header-button:last-child {
+    border-right: 1px solid #d9d9d9;
+}
+
+.brick .brick-header-button:before {
+    content: "";
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+
+    top: -1px;
+    width: 1px;
+    background: -webkit-linear-gradient(transparent, #aaa);
+    background:    -moz-linear-gradient(transparent, #aaa);
+    background:      -o-linear-gradient(transparent, #aaa);
+    background:         linear-gradient(transparent, #aaa);
+}
+
+.brick .brick-header-buttons img.brick-header-icon {
+    height: 10px;
+    min-width: 10px;
+    max-width: 10px;
+}
+
+.brick .brick-header-button-title {
+    display: inline-block;
+    margin-left: 8px;
+}
+
+.brick .brick-header-button:not(.is-disabled):hover {
+    color: #414141;
+    background: currentColor;
+    border-top: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    z-index: 1;
+}
+
+.brick .brick-header-button:last-child:hover {
+    border-right: 1px solid currentColor;
+}
+
+.brick .brick-header-button:not(.is-disabled):hover:before {
+    display: none;
+}
+
+.brick .brick-header-button:not(.is-disabled):hover .brick-header-button-title {
+    color: white;
+}
+
+.brick .brick-header-button:not(.is-disabled):hover .brick-header-icon {
+    -webkit-filter: brightness(10);
+       -moz-filter: brightness(10);
+            filter: brightness(10);
+}
+
+.brick .brick-menu-buttons {
+    display: none;
+}
+
+/* block header - end */
+
+/* buttons - action types test */
+/* todo: find better name/namespace for enums like this ? creme-actions-* ? is-action-link ? */
+.brick .brick-header-button.action-type-add {
+    color: #3bab07; /* hsl(101, 92%, 35%) */
+}
+
+.brick .brick-header-button.action-type-add:hover {
+    color: #44c408; /* hsl(101, 92%, 40%) */
+}
+
+.brick .brick-header-button.action-type-link,
+.brick .brick-header-button.action-type-link:hover,
+.brick .brick-header-button.action-type-add-relationships,
+.brick .brick-header-button.action-type-add-relationships:hover {
+    color: #479ef5; /* hsl(210, 90%, 62%) */
+}
+
+.brick .brick-header-button.action-type-delete,
+.brick .brick-header-button.action-type-delete:hover {
+    color: #fa4242; /* hsl(0, 95%, 62%) */
+}
+
+/* buttons - action types test - end */
+
+/* button icon alignment/image hijacking test */
+
+.brick .brick-title-container .brick-header-icon[src*='add'] {
+    margin-left: -3px;
+}
+
+.brick .brick-header-icon[src*='add'] {
+    position: relative;
+    top: 1px;
+}
+
+.brick .brick-header-icon[src*='link'] {
+    position: relative;
+    top: 1px;
+}
+
+/* button icon alignment/image hijacking test - end */
+
+/* block types - table type */
+
+.brick.brick-table .brick-content {
+    padding: 0;
+    /* _border-left: 0;  reset left border of the block */
+    /* _border-right: 0;  reset right border of the block */
+}
+
+/* .brick-content padding and block left border distributed into the table's first column */
+.brick-table .brick-table-content > tbody > tr > :first-child,
+.brick-table .brick-table-content > thead > tr > :first-child {
+    padding-left: 10px;
+    /* _border-left: 1px solid #d9d9d9;  left border of the block */
+}
+
+/* distribute block right border into the table's last column */
+.brick-table .brick-table-content > tbody > tr > :last-child,
+.brick-table .brick-table-content > thead > tr > :last-child {
+    /* _border-right: 1px solid #d9d9d9;  right border of the block */
+    padding-right: 10px;
+}
+
+/* todo: find out if it's necessary/useful to prefix all rules by .brick.brick-table or just use .brick-table ? */
+
+.brick-table table.brick-table-content {
+    width: 100%;
+
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+
+.brick-table .brick-content:not(.is-empty) .brick-table-content > thead > tr {
+    color: #666;
+/*
+    border-bottom: 1px solid #ededed;
+    border-bottom: 1px solid #dedede;
+*/
+    background: #fcfcfc;
+}
+
+.brick-table .brick-table-content > thead > tr > th {
+    text-transform: uppercase;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    cursor: default;
+    color: #777;
+}
+
+.brick-table .brick-table-content > tbody > tr {
+    font-size: 13px;
+    vertical-align: top;
+    border-bottom: 1px solid #ededed;
+}
+
+/* thead tr's border-bottom distributed in here to allow overrides */
+.brick-table .brick-table-content > thead + tbody > tr:first-child {
+/*    border-top: 1px solid #ededed; */
+    border-top: 1px solid #dedede;
+}
+
+.brick-table .brick-table-content > tbody > tr:nth-child(2n) {
+    background: #fcfcfc;
+}
+
+.brick-table .brick-table-content > tbody > tr:last-child {
+    border-bottom: none;
+}
+
+.brick-table .brick-content.is-paginated .brick-table-content > tbody > tr:last-child {
+    border-bottom: 1px solid #dedede;
+}
+
+.brick-table .brick-table-content > thead > tr > th,
+.brick-table .brick-table-content > tbody > tr > td {
+    padding-left: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.brick-table .brick-table-content > thead .brick-table-sortable {
+    margin-right: 10px;
+    position: relative;
+    cursor: pointer;
+    color: #222;
+}
+
+.brick-table .brick-table-content > thead .brick-table-sortable.brick-table-sorted {
+    font-weight: 700;
+    color: #666;
+}
+
+.brick-table .brick-table-content > thead .brick-table-sortable::after {
+    content: '';
+    display: none;
+    position: absolute;
+
+    color: #999;
+
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+
+    bottom: 3px;
+    left: 100%;
+
+    margin-bottom: 2px;
+    margin-left: 4px;
+
+    border-top: 0;
+    border-bottom: 4px solid currentColor;
+}
+
+.brick-table .brick-table-content > thead .brick-table-sortable.brick-table-sorted::after {
+    display: block;
+}
+
+.brick-table .brick-table-content > thead .brick-table-sorted[data-sort-order='asc']::after {
+    border-top: 0;
+    border-bottom: 4px solid currentColor;
+}
+
+.brick-table .brick-table-content > thead .brick-table-sorted[data-sort-order='desc']::after {
+    border-top: 4px solid currentColor;
+    border-bottom: 0;
+}
+
+.brick-table .brick-table-content > thead .brick-table-sortable:hover::after {
+    display: inline-block;
+}
+
+.brick-table .brick-table-content > thead .brick-table-nowrap {
+    whitespace: no-wrap
+}
+
+/* block types - table type - end */
+
+/* action buttons in tables */
+
+.brick-table .brick-table-content [data-table-action-column] {
+    text-align: center;
+    padding: 0;
+}
+
+.brick-table .brick-table-content > tbody > tr [data-table-action-column]:last-child {
+    padding-right: 10px;
+}
+
+.brick-table .brick-table-content > tbody [data-table-action-column] {
+    width: 25px;
+}
+
+.brick-table .brick-table-content .brick-table-action {
+    display: inline-block;
+    width: 100%;
+    padding: 6px 10px 3px 10px;
+}
+
+.brick-table .brick-table-content .brick-table-action.is-disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.brick-table .brick-table-content .brick-table-icon {
+/*    display: inline-block; */
+/*    padding: 6px 10px 3px 10px; */
+    padding-top: 6px;
+}
+
+.brick-table .brick-table-content .brick-table-action .brick-table-action-icon,
+.brick-list .brick-content .brick-action .brick-action-icon {
+/*    border: 1px solid #d7d7d7; */
+    border-bottom: 1px solid #bdbdbd;
+    border-radius: 4px;
+
+    -webkit-box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
+            box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
+
+    background: linear-gradient(#fcfcfc, #f0f0f0);
+}
+
+/* action buttons in tables - end */
+
+/* examples of hijacking of render in the bricks tables: 1) for fields data-types, 2) for main fields/columns */
+
+.brick-table .brick-table-content > thead > tr > [data-type='money'],
+.brick-table .brick-table-content > tbody > tr > [data-type='money'] {
+    text-align: right;
+    padding-right: 20px;
+}
+
+.brick-table .brick-table-content tr > [data-type='money'] .data-type-currency-symbol {
+    color: #666;
+}
+
+.brick-table .brick-table-content [data-type='date'],
+.brick-table .brick-table-content [data-type='datetime'] {
+    min-width: 80px;
+}
+
+.brick-table .brick-table-content [data-type='date'] .data-type-date-separator {
+    color: #888;
+}
+
+.brick-table .brick-table-content [data-type='list'] ul {
+    padding: 0 0 0 20px;
+    margin: 0;
+}
+
+/* Guit: only in brick 'emails history' ? */
+.brick-table .brick-table-content [data-type="email"] {
+    word-break: break-all;
+}
+
+.brick-table .brick-table-content [data-table-primary-column] {
+    font-weight: 600;
+}
+
+.brick-table .brick-table-content > thead [data-table-primary-column],
+.brick-table .brick-table-content > thead [data-table-primary-column] .brick-table-sortable {
+    font-weight: 700;
+    color: #666;
+}
+
+.brick-table .brick-table-content > thead [data-table-nowrap-column] {
+    white-space: nowrap;
+}
+
+/* examples of render hijacking for data types - end */
+
+/* block content types - pagination */
+
+.brick .brick-footer {
+    padding: 5px 10px;
+
+    /* _border-left: 1px solid #d9d9d9;  right border of the block */
+    /* _border-right: 1px solid #d9d9d9;  right border of the block */
+}
+
+.brick .brick-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border-top: 1px solid #dedede;
+    padding-top: 7px;
+    padding-bottom: 2px;
+}
+
+.brick-table .brick-pagination {
+    padding-top: 2px;
+    border: 0;
+}
+
+.brick .brick-pagination > a,
+.brick .brick-pagination > span {
+    margin-left: -1px;
+    padding: 3px 10px;
+    border: 1px solid #dedede;
+
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+
+    cursor: pointer;
+}
+
+.brick-pagination > :first-child {
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+}
+
+.brick-pagination > :last-child {
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+.brick .brick-pagination .brick-pagination-current {
+    font-weight: 700;
+    background: #ededed;
+    cursor: default;
+    z-index: 1;
+}
+
+.brick .brick-pagination .brick-pagination-previous.is-disabled,
+.brick .brick-pagination .brick-pagination-next.is-disabled {
+    color: #ccc;
+    background: #fcfcfc;
+    cursor: default;
+    border: 1px solid #dedede;
+}
+
+.brick .brick-pagination a:hover {
+    color: #fff;
+    background: #414141;
+    border-color: #414141;
+    z-index: 1;
+}
+
+.brick .brick-pagination .brick-pagination-choose span {
+    padding: 3px 10px;
+}
+
+.brick .brick-pagination .brick-pagination-choose input {
+    display: none;
+
+    font-weight: 700;
+    padding: 0px 0px;
+    width: 40px;
+    color: black;
+    text-align: center;
+    background-color: transparent;
+    margin: -1px 0 0 0;
+    border: 0px;
+
+    -webkit-border-radius: 0;
+       -moz-border-radius: 0;
+            border-radius: 0;
+
+    outline: 0px;
+}
+
+.brick .brick-pagination .brick-pagination-choose.active span {
+    display: none;
+}
+
+.brick .brick-pagination .brick-pagination-choose.active input {
+    display: inline-block;
+}
+
+.brick .brick-pagination .brick-pagination-choose.active .invalid-page {
+    color: #FF851B;
+}
+
+/* block content types - pagination - end */
+
+/* block indicator */
+
+.brick .brick-indicator {
+    display: inline-block;
+    color: #fff;
+    font-weight: 700;
+    background: #6a9af5;
+    border-radius: 4px;
+    padding: 2px 10px;
+    text-align: center;
+}
+
+.brick .brick-indicator.-warning-indicator {
+    background: #ff6a6a;
+}
+
+.brick .brick-indicator.-disabled-indicator {
+    background: #414141;
+}
+
+/* block indicator - end */
+
+/* block types - tiles type */
+
+.brick-tiles .brick-tile {
+    display: inline-block;
+    width: 33.33%;
+
+    vertical-align: top;
+    margin-bottom: 10px;
+    margin-left: -3px;
+
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+.brick-tiles.brick-full-width .brick-tile:not(.brick-tile-multiline-value) {
+    width: 14.28%; /* 100% ÷ 7 */
+    width: 16.66%; /* 100% ÷ 6 */
+    width: calc(100% / 6);
+}
+
+.brick-tiles .brick-tile:last-child {
+  margin-right: 0;
+}
+
+.brick-tiles .brick-tile-name {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    color: #777;
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+/*
+.brick-tiles .brick-tile[data-field-editable] .brick-tile-name {
+    color: #222;
+}
+*/
+
+.is-content-reduced .brick-tile.brick-tile-empty-value {
+    display: none;
+}
+
+.brick-tiles .brick-tile-value {
+    display: block;
+
+    font-size: 13px;
+    font-weight: 600;
+    color: #111;
+    margin-top: 1px;
+
+    word-wrap: break-word;
+}
+
+.brick-tiles .brick-tile-value ul {
+    padding-left: 0px;
+}
+
+.brick-tiles .brick-tile-action {
+    opacity: 0;
+    visibility: hidden;
+    padding: 0px 7px 0px 5px;
+    background: #fafafa;
+    margin-left: 5px;
+    outline: 1px solid #ccc;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.1s ease-in;
+    white-space: nowrap;
+    max-height: 16px;
+}
+
+.brick-tiles .brick-tile:hover .brick-tile-action {
+    opacity: 1;
+    visibility: visible;
+}
+
+.brick-tiles .brick-tile-action-title {
+    text-transform: uppercase;
+    white-space: nowrap;
+    font-size: 11px;
+    font-weight: 600;
+    color: #444;
+}
+
+.brick-tiles .brick-tile-action img {
+    margin-bottom: -1px;
+    height: 10px;
+    min-width: 10px;
+    max-width: 10px;
+}
+
+.brick-tiles .brick-tile-multiline-value .brick-tile-value {
+    font-weight: 400;
+}
+
+.brick-tiles .brick-tile-multiline-value {
+    display: block;
+    width: 100%;
+
+    margin-top: 3px;
+/*    padding-top: 10px; */
+/*    padding-bottom: 3px; */
+
+/*    border-top: 1px solid #dedede; */
+}
+
+.brick-tiles .brick-tile-multiline-value:not(:last-child) {
+    padding-bottom: 7px;
+    border-bottom: 1px solid #dedede;
+}
+
+.brick-tiles .brick-tile:not(.brick-tile-multiline-value) + .brick-tile.brick-tile-multiline-value {
+    padding-top: 10px;
+    border-top: 1px solid #dedede;
+}
+
+.brick-tiles .brick-tile-value input {
+    margin-left: 0;
+}
+
+.brick-tiles .brick-tile-value input + span {
+    vertical-align: top;
+}
+
+/* block types - tiles type - end */
+
+/* block types - key/value list */
+
+.brick-kv-list .brick-content {
+    display: flex;
+    padding: 0;
+}
+
+.brick-kv-list .brick-kv-group {
+    flex: 1;
+}
+
+.brick-kv-list .brick-kv-group .brick-kv-group-title {
+    height: 28px;
+    padding: 7px 10px;
+
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    color: #777;
+
+    background: #fcfcfc;
+    border-bottom: 1px solid #ededed;
+}
+
+.brick-kv-list .brick-kv-item {
+    display: flex;
+    align-items: center;
+
+    min-height: 28px;
+
+    padding: 0 10px;
+    border-bottom: 1px solid #ededed;
+}
+
+.brick-kv-list .brick-content .brick-kv-item:nth-child(2n),
+.brick-kv-group .brick-kv-item:nth-child(2n) {
+    background: #fcfcfc;
+}
+
+.brick-kv-list .brick-content .brick-kv-item:last-child,
+.brick-kv-group .brick-kv-item:last-child {
+    border-bottom: none;
+}
+
+.brick-kv-list .brick-kv-key {
+    width: 300px;
+}
+
+.brick-kv-list .brick-kv-value {
+    flex: 1;
+
+    font-size: 13px;
+    font-weight: 600;
+    color: #111;
+
+    text-align: right;
+}
+
+.brick-kv-list .brick-kv-group:not(:first-child) .brick-kv-group-title,
+.brick-kv-list .brick-kv-group:not(:first-child) .brick-kv-item {
+    border-left: 1px solid #ccc;
+}
+
+/* key/value list variation: compact keys for high number of rows */
+
+.brick-kv-list .brick-kv-group.-ui-compact .brick-kv-key {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    color: #444;
+}
+
+/* key/value list variation: full width groups, laid out in a column */
+
+.brick-kv-list .brick-content.-kv-full-width-groups {
+    display: block;
+}
+
+.brick-kv-list .brick-content.-kv-full-width-groups .brick-kv-group + .brick-kv-group {
+    border-top: 1px solid #ccc;
+}
+
+.brick-kv-list .brick-content.-kv-full-width-groups .brick-kv-group-title,
+.brick-kv-list .brick-content.-kv-full-width-groups .brick-kv-item {
+    border-left: 0;
+}
+
+/* block types - key/value list - end */
+
+/* block states - is loading */
+
+.brick .brick-title .brick-loading-indicator {
+    display: none;
+}
+
+.brick.is-loading .brick-title .brick-loading-indicator {
+    display: inline-block;
+}
+
+.brick .brick-loading-indicator {
+    font-weight: 700;
+}
+
+.brick.is-loading .brick-content {
+/*    opacity: 0.6;*/
+}
+
+.brick.is-collapsed .brick-content,
+.brick.is-collapsed .brick-footer {
+    display: none;
+}
+
+/* tmp: icon alignment */
+.brick.is-loading .brick-header-icon[src*='wait'] {
+    position: relative;
+    top: 1px;
+}
+
+/* block states - is loading - end */
+
+/* block states - is loading - tests */
+/* if any of those tests are interesting, find real class names of value, and encode this feature in the block component class instead of its state is-loading class */
+
+/* using the block header background as a progress bar indicator */
+.brick.is-loading.is-loading-bar .brick-header {
+    position: relative;
+}
+
+.brick.is-loading.is-loading-bar .brick-header::before {
+    content: ' ';
+    position: absolute;
+    top: 1px;
+    width: 20%;
+    height: calc(100% - 2px);
+    background: hsla(210, 90%, 62%, 0.15);
+
+    transition: width 0.3s ease-in-out;
+}
+
+.brick.is-loading .brick-header[data-loading-progress="20"]::before {
+    width: 20%
+}
+
+.brick.is-loading .brick-header[data-loading-progress="40"]::before {
+    width: 40%
+}
+
+.brick.is-loading .brick-header[data-loading-progress="60"]::before {
+    width: 60%
+}
+
+.brick.is-loading .brick-header[data-loading-progress="80"]::before {
+    width: 80%
+}
+
+.brick.is-loading .brick-header[data-loading-progress="100"]::before {
+    width: 100%
+}
+
+/* using the block header border as a progress indicator */
+/* the block's left border collides with this background like everything else, if this experiment is interesting, distribute the left border inside the components so the progress loading border can be drawn over it */
+.brick.is-loading.is-loading-border {
+    position: relative;
+}
+
+/*
+.brick.is-loading.is-loading-border .brick-loading-indicator {
+    color: hsl(210, 90%, 62%);
+    color: hsl(210, 90%, 45%);
+}
+*/
+
+.brick.is-loading.is-loading-border::before {
+    content: ' ';
+    position: absolute;
+
+    width: 20%;
+    height: 2px;
+
+    top: 25px; /* at the top of the block content */
+    top: 24px; /* at the bottom of the block header */
+
+    background: #479ef5; /* hsl(210, 90%, 62%) */
+    z-index: 1;
+
+
+    /* shadow: With or without you, I can't live © U2 1987 */
+/*
+    -webkit-box-shadow: 0 2px 1px 1px hsla(210, 90%, 62%, 0.15);
+       -moz-box-shadow: 0 2px 1px 1px hsla(210, 90%, 62%, 0.15);
+            box-shadow: 0 2px 1px 1px hsla(210, 90%, 62%, 0.15);
+*/
+
+    transition: width 0.3s ease-in-out;
+}
+
+/* block states - is loading - tests - end */
+
+
+/* block types - list type */
+.brick-list .brick-list-empty {
+    text-transform: uppercase;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    cursor: default;
+    color: #777;
+    padding: 5px 10px;
+}
+
+.brick-list .brick-content {
+    padding: 0;
+}
+
+.brick-list .brick-footer {
+    padding: 0px 0px 5px 0px;
+}
+
+/* block types - list type - end */
+
+/* block types - scrollable type */
+
+.brick-scrollable .brick-scrollable-container {
+    /*a default max-height: 200px could be added here to limit every block's height, but block by block overrides would actually be added to the container's style attribute in the html template */
+}
+
+/* when the header is fixed, the bottom border (which is normally distributed into the first row) needs to be specified */
+.brick-table.brick-scrollable .brick-table-content > thead > tr {
+    border-bottom: 1px solid #dedede;
+}
+
+.brick-table .brick-scrollable-container {
+    max-height: 200px;
+}
+
+.brick-table .brick-scrollable-container .brick-table-content > thead > tr > th {
+    background: #fcfcfc;
+}
+
+/* block types - scrollable type - end */
+
+/* block types - selectable type */
+
+.brick-selectable .brick-selection-indicator {
+    font-weight: 700;
+    color: #5799db; /* hsl(210, 65%, 60%) */
+    display: none;
+}
+
+.brick-selectable .brick-selection-indicator.has-selection {
+    display: inline;
+}
+
+/* todo: use an attribute selector or a class for this kind of things ? */
+.brick-table.brick-selectable [data-selectable-selector-column] {
+    width: 15px;
+}
+
+.brick-table.brick-selectable .brick-table-content > thead [data-selectable-selector-column] {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.brick-table.brick-selectable .brick-table-content > tbody > tr.is-selected > td {
+    border-top: 1px solid #5cadff; /* hsl(210, 100%, 68%) */
+    border-bottom: 1px solid #5cadff; /* hsl(210, 100%, 68%) */
+
+    background: rgba(71, 158, 245, 0.07); /* hsla(210, 90%, 62%, 0.07) */
+}
+
+.brick-table.brick-selectable .brick-table-content > tbody > tr:nth-child(2n):last-child {
+    border-bottom: 1px solid #fcfcfc;
+}
+
+.brick-table.brick-selectable .brick-table-content > tbody > tr:last-child {
+    border-bottom: 1px solid transparent;
+}
+
+/* block types - selectable type - end */
+
+/* block types - reorderable type */
+
+.icon.brick-reorderable-handle-icon {
+    width: 15px;
+    height: 15px;
+
+    top: 2px;
+    color: #888;
+}
+
+/* tmp: to show the icon in the title. useless in production */
+.brick-reorderable .brick-title .brick-reorderable-handle-icon {
+    top: 3px;
+    left: 2px;
+}
+
+.brick-reorderable [data-reorderable-handle-column] {
+    width: 15px;
+    cursor: move;
+}
+
+.brick-table.brick-reorderable .brick-table-content > tbody > tr.brick-reorderable-placeholder {
+    background: #f2f2f2;
+    outline: 1px dashed #bbb;
+    font-size: 1px;
+}
+
+.brick-table.brick-reorderable .brick-table-content > tbody > tr.is-dragging,
+.brick-table.brick-reorderable .brick-table-content > thead > tr.is-dragging {
+    background: #fff;
+    box-shadow: 0 0 5px rgba(0,0,0,0.6);
+}
+
+/* counter experiment
+.brick-reorderable {
+    counter-reset: reorderable-items-counter;
+}
+
+.brick-table.brick-reorderable .brick-reorderable-items tr {
+    counter-increment: reorderable-items-counter;
+}
+
+.brick-reorderable [data-reorderable-handle-column] {
+    cursor: move;
+
+    width: 35px;
+    padding-right: 0;
+}
+
+.brick-table.brick-reorderable [data-reorderable-handle-column]::after {
+    content: counter(reorderable-items-counter);
+
+    position: relative;
+    top: -1px;
+    left: 3px;
+
+    font-size: 11px;
+    color: #666;
+}
+
+.brick-table.brick-reorderable tr.is-dragging [data-reorderable-handle-column]::after {
+    display: none;
+}
+
+*/
+
+/* block types - reorderable type - end */
+
+/* block types - list of cards */
+/* block types - list of cards - end */
+
+
+/* hack: uppercase punctuation characters alignment ... */
+
+.brick .brick-title .typography-mdash {
+    position: relative;
+    top: -1px;
+}
+
+.brick .brick-title .typography-hyphen {
+    position: relative;
+    top: -1px;
+}
+
+.brick-graph .brick-graph-header .typography-colon {
+    position: relative;
+    top: -1px;
+}
+
+/* uppercase punctuation characters alignment ... - end */
+
+.brick.brick-detailview-popup {
+    border: 0;
+    -webkit-box-shadow: none;
+       -moz-box-shadow: none;
+            box-shadow: none;
+}
+
+.brick .help {
+    padding: 8px;
+    color: grey;
+    background: rgb(254, 254, 252);
+    font-style: italic;
+}
+
+
+/* clearfix */
+
+.clearfix:before,
+.clearfix:after {
+  content: ' ';
+  display: table;
+}
+
+.clearfix:after {
+  clear: both;
+}
+
+/* clearfix - end */
+
+/* generic icons experiments */
+
+svg.icon {
+    position: relative;
+    fill: currentColor;
+}
+
+/* generic icons experiments - end */
+
+.brick td p {
+    margin: 0px;
+}
+
+.brick hr {
+    display: block;
+    height: 1px;
+
+    margin: 5px 0;
+
+    border: 0;
+    border-top: 1px solid currentColor;
+    padding: 0;
+
+    color: #ccc;
+}
+
+.brick hr {
+    color: #dedede;
+    margin: 0 0 10px 0;
+}
+
+.brick .global-error {
+    background-color: #f08080;
+}
+
+.brick .help-box {
+    background-color: #fff7a1;
+    padding: 5px;
+/*    border: 1px solid #ccc; */
+}
+
+/* Trash brick */
+.creme_core-trash-brick .trash-brick-modelname {
+    vertical-align: middle;
+}
+
+.creme_core-trash-brick .trash-brick-modelname {
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+/* History brick */
+.creme_core-history-brick .ctype-icon {
+    vertical-align: middle;
+}
+
+/* Specific relation brick */
+
+.creme_core-specific-relations-brick .brick-content {
+    padding: 0;
+}
+
+/*
+.creme_core-specific-relations-brick .brick-content .brick-list-item:last-child {
+    padding-bottom: 5px;
+}
+*/
+
+.creme_core-specific-relations-brick .relation-item {
+    font-size: 13px;
+}
+
+.creme_core-specific-relations-brick .relation-item + .relation-item {
+    margin-top: 0px;
+    border-top: 1px solid #ccc;
+}
+
+.creme_core-specific-relations-brick .relation-group {
+    display: flex;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+.creme_core-specific-relations-brick .relation-group + .relation-group {
+    margin-top: 5px;
+}
+
+.creme_core-specific-relations-brick .relation-group-key {
+    min-width: 160px;
+
+    /* relation counter experiment: */
+/*
+    min-width: 170px;
+    margin-left: 15px;
+*/
+}
+
+.creme_core-specific-relations-brick .relation-group-value {
+    flex: 1;
+    /*margin-left: 10px;*/
+}
+
+.creme_core-specific-relations-brick .relation-group.brick-table {
+    display: block;
+    padding: 0px;
+    margin-top: 0px;
+}
+
+.creme_core-specific-relations-brick .brick-table thead tr {
+    background: #fcfcfc;
+}
+
+.creme_core-specific-relations-brick .relation-info-group .relation-group-key {
+    align-self: flex-start;
+    padding-top: 2px;
+
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.creme_core-specific-relations-brick .relation-summary-group {
+    padding-top: 3px;
+    padding-bottom: 3px;
+
+    background: #fafafa;
+    border-bottom: 1px solid #dedede;
+}
+
+.creme_core-specific-relations-brick .brick-table .brick-table-content .brick-table-action {
+/*    display: inline-block; */
+/*    width: 100%; */
+    padding: 0px;
+}
+
+/*
+.creme_core-specific-relations-brick .relation-schedule-beginning {
+    font-weight: 600;
+}
+*/
+
+/*
+.creme_core-specific-relations-brick .relation-type {
+    margin-right: 3px;
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+}
+*/
+
+/*
+.creme_core-specific-relations-brick .relation-title {
+    font-weight: 600;
+}
+*/
+
+/*
+.creme_core-specific-relations-brick .relation-status {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    color: #333;
+    _color: #FF4136; // red
+    _color: #FF851B; // orange
+}
+*/
+
+/*
+.creme_core-specific-relations-brick .relation-action {
+    margin-left: 15px;
+    padding-left: 5px;
+}
+
+.creme_core-specific-relations-brick .relation-action img {
+    position: relative;
+    top: 3px;
+}
+*/
+
+/*
+.creme_core-specific-relations-brick .relation-warning {
+    color: #FF4136; // red
+    color: #FF851B; // orange
+    cursor: default;
+}
+
+.creme_core-specific-relations-brick .relation-warning .relation-warning-icon {
+    width: 16px;
+    height: 16px;
+
+    margin-top: -2px;
+    position: relative;
+    top: 4px;
+
+    fill: currentColor;
+}
+
+.creme_core-specific-relations-brick .relation-warning-label {
+    display: inline-block;
+
+    margin-left: 3px;
+    padding-top: 2px;
+
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 700;
+}
+*/
+
+/*
+.creme_core-specific-relations-brick .relation-relation {
+    font-weight: 600;
+    color: #333;
+}
+*/
+
+/*
+.creme_core-specific-relations-brick .relation-group .relation-type-icon {
+    width: 14px;
+    height: 14px;
+
+    margin-top: -2px;
+    position: relative;
+    top: 3px;
+
+    fill: #666;
+}
+*/
+
+/* Specific relation brick - end */
+
+/* Statistics brick */
+
+.creme_core-statistics-brick.brick .brick-table-content ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+/* Bulk-errors brick */
+
+.bulk-errors-messages ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.bulk-errors-messages ul li {
+    padding: 0;
+}

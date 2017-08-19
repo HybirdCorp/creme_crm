@@ -16,6 +16,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
 
+// XXX: this lib is deprecated in favor of bricks.js
+
 (function($) {"use strict";
 
 creme.blocks = {
@@ -25,6 +27,8 @@ creme.blocks = {
 };
 
 creme.blocks.reload = function(url) {
+    console.warn('creme.blocks.reload() is deprecated ; use the new brick reload system instead.');
+
     creme.ajax.query(url, {backend: {sync: false, dataType: 'json'}})
               .onDone(function(event, data) {
                   data.forEach(function(entry) {
@@ -37,13 +41,16 @@ creme.blocks.reload = function(url) {
 };
 
 creme.blocks.fill = function(block, content) {
-    block.replaceWith(content);
-    creme.blocks.initialize(content);
+    console.warn('creme.blocks.fill() is deprecated ; use creme.bricks.replaceContent() instead.');
+
+//    block.replaceWith(content);
+//    creme.blocks.initialize(content);
+    creme.bricks.replaceContent(block, content);
 };
 
-// TODO : make a generic method for deferred save. something like:
-//        deferredAction(element, action_name, action_func, action_delay)
 creme.blocks.saveState = function(block) {
+    console.warn('creme.blocks.saveState() is deprecated ; use the new bricks state system instead.');
+
 //    var state = {
 //            is_open:           $(block).hasClass('collapsed') ? 0 : 1,
 //            show_empty_fields: $(block).hasClass(this.hide_fields_class) ? 0 : 1
@@ -66,11 +73,11 @@ creme.blocks.saveState = function(block) {
 //        creme.ajax.json.post('/creme_core/blocks/reload/set_state/' + block.attr('id') + '/',
 //                             state, null, null, true);
 
-        var url = $('body').attr('data-block-state-url');
+        var url = $('body').attr('data-brick-state-url');
 
         if (url === undefined) {
-            console.warn('creme.blocks.saveState(): hard-coded URL is deprecated ; set the URL as the <body> attribute "data-block-state-url" (see base.html).');
-            url = '/creme_core/blocks/reload/set_state/';
+            console.warn('creme.blocks.saveState(): hard-coded URL is deprecated ; set the URL as the <body> attribute "data-brick-state-url" (see base.html).');
+            url = '/creme_core/bricks/set_state/';
         }
 
         creme.ajax.json.post(url, post_data, null, null, true);
@@ -85,6 +92,8 @@ creme.blocks.saveState = function(block) {
 };
 
 creme.blocks.initEmptyFields = function(block) {
+    console.warn('creme.blocks.initEmptyFields() is deprecated ; use the new bricks system instead.');
+
     // if there are no buttons toggling the 'empty field hiding', we should do nothing with the block lines
     if (block.find('.block_header .buttons').find('a.view_less, a.view_more').length == 0)
         return;
@@ -95,6 +104,8 @@ creme.blocks.initEmptyFields = function(block) {
 };
 
 creme.blocks.updateFieldsColors = function(block) {
+    console.warn('creme.blocks.initEmptyFields() is deprecated.');
+
     var line_collapsed = block.hasClass(this.hide_fields_class);
 
     if (!line_collapsed) {
@@ -113,6 +124,8 @@ creme.blocks.updateFieldsColors = function(block) {
 };
 
 creme.blocks.updateToggleButton = function(block, collapsed) {
+    console.warn('creme.blocks.updateToggleButton() is deprecated.');
+
     var button = $('table.block_header th.actions a.view_more, table.block_header th.actions a.view_less', block);
     var collapsed = block.hasClass(this.hide_fields_class);
     var button_title = collapsed ? gettext('Show empty fields') : gettext('Hide empty fields');
@@ -123,6 +136,8 @@ creme.blocks.updateToggleButton = function(block, collapsed) {
 };
 
 creme.blocks.toggleEmptyFields = function(button) {
+    console.warn('creme.blocks.toggleEmptyFields() is deprecated ; use the new bricks action menu instead.');
+
     var $block = $(button).parents('table[id].table_detail_view:not(.collapsed)');
 
     if ($block.size() == 0)
@@ -139,7 +154,8 @@ creme.blocks.toggleEmptyFields = function(button) {
 };
 
 creme.blocks.initPager = function(pager) {
-    // TODO : remove this hack when smartlinks will be available.
+    console.warn('creme.blocks.initPager() is deprecated ; use the new bricks pager instead.');
+
     $('.pager-link a', pager).bind('click', function(e) {
         e.preventDefault();
 
@@ -222,6 +238,8 @@ creme.blocks.initPager = function(pager) {
 };
 
 creme.blocks.initialize = function(block) {
+    console.warn('creme.blocks.initialize() is deprecated ; use the new bricks system instead.');
+
     block.bind('creme-table-collapse', function(e, params) {
         creme.blocks.saveState($(this));
     });
@@ -244,6 +262,8 @@ creme.blocks.initialize = function(block) {
 };
 
 creme.blocks.bindEvents = function(root) {
+// TODO: (1.8)  console.warn('creme.blocks.bindEvents() is deprecated ; use the new bricks system instead');
+
     $('.table_detail_view[id]:not(.block-ready)', root).each(function() {
         var block = $(this);
 
@@ -257,10 +277,13 @@ creme.blocks.bindEvents = function(root) {
 };
 
 creme.blocks.scrollToError = function(block) {
+    console.warn('creme.blocks.scrollToError() is deprecated.');
     creme.utils.scrollTo($('.errorlist:first'));
 };
 
 creme.blocks.form = function(url, options, data) {
+    console.warn('creme.blocks.form() is deprecated ; use the new brick action system instead.');
+
     var options = options || {};
     var dialog = creme.dialogs.form(url, options, data);
 
@@ -274,10 +297,14 @@ creme.blocks.form = function(url, options, data) {
 };
 
 creme.blocks.confirmPOSTQuery = function(url, options, data) {
+    console.warn('creme.blocks.confirmPOSTQuery() is deprecated ; use the new brick action system instead.');
+
     return creme.blocks.confirmAjaxQuery(url, $.extend({action: 'post'}, options), data);
 };
 
 creme.blocks.confirmAjaxQuery = function(url, options, data) {
+    console.warn('creme.blocks.confirmAjaxQuery() is deprecated.');
+
     var action = creme.utils.confirmAjaxQuery(url, options, data);
 
     if (options.blockReloadUrl) {
@@ -290,10 +317,14 @@ creme.blocks.confirmAjaxQuery = function(url, options, data) {
 };
 
 creme.blocks.ajaxPOSTQuery = function(url, options, data) {
+    console.warn('creme.blocks.ajaxPOSTQuery() is deprecated ; use the new brick action system instead.');
+
     return creme.blocks.ajaxQuery(url, $.extend({action: 'post'}, options), data);
 }
 
 creme.blocks.ajaxQuery = function(url, options, data) {
+    console.warn('creme.blocks.ajaxQuery() is deprecated.')
+
     var query = creme.utils.ajaxQuery(url, options, data);
 
     if (options.blockReloadUrl) {
@@ -306,6 +337,8 @@ creme.blocks.ajaxQuery = function(url, options, data) {
 };
 
 creme.blocks.massAction = function(url, selector, block_url, values_post_process_cb) {
+    console.warn('creme.blocks.massAction() is deprecated ; use a brick action instead (example of "brick-selectable" in crudity/bricks/waiting-actions.html.');
+
     var values = $(selector).getValues();
 
     if ($.isFunction(values_post_process_cb)) {
@@ -326,7 +359,7 @@ creme.blocks.massAction = function(url, selector, block_url, values_post_process
 };
 
 creme.blocks.massRelation = function(subject_ct_id, rtype_ids, selector, block_url) {
-    console.warn('creme.blocks.massRelation() is deprecated ; use creme.blocks.massRelating() instead.');
+    console.warn('creme.blocks.massRelation() is deprecated.');
 
     var values = $(selector).getValues();
     if (values.length == 0) {
@@ -340,19 +373,23 @@ creme.blocks.massRelation = function(subject_ct_id, rtype_ids, selector, block_u
     creme.blocks.form(url, {blockReloadUrl: block_url}).open();
 };
 
-creme.blocks.massRelating = function(url, rtype_ids, selector, block_url) {
-    var entities_ids = $(selector).getValues();
-    if (entities_ids.length == 0) {
-        creme.dialogs.warning(gettext("Please select at least one entity.")).open();
-        return false;
-    }
-
-    creme.blocks.form(url + '?' + $.param({persist: 'id', ids: entities_ids, rtype: rtype_ids}),
-                      {blockReloadUrl: block_url}
-                     ).open();
-};
+//creme.blocks.massRelating = function(url, rtype_ids, selector, block_url) {
+//    console.warn('creme.blocks.massRelation() is deprecated.');
+//
+//    var entities_ids = $(selector).getValues();
+//    if (entities_ids.length == 0) {
+//        creme.dialogs.warning(gettext("Please select at least one entity.")).open();
+//        return false;
+//    }
+//
+//    creme.blocks.form(url + '?' + $.param({persist: 'id', ids: entities_ids, rtype: rtype_ids}),
+//                      {blockReloadUrl: block_url}
+//                     ).open();
+//};
 
 creme.blocks.tableExpandState = function($self, state, trigger) {
+    console.warn('creme.blocks.tableExpandState() is deprecated.');
+
     var $table = $self.parents('table[id]');
     var old_state = !$table.hasClass('collapsed');
 
@@ -373,14 +410,20 @@ creme.blocks.tableExpandState = function($self, state, trigger) {
 };
 
 creme.blocks.tableIsCollapsed = function($self) {
+    console.warn('creme.blocks.tableIsCollapsed() is deprecated.');
+
     return $self.parents('table[id]').hasClass('collapsed');
 };
 
 creme.blocks.tableExpand = function($self, trigger) {
+    console.warn('creme.blocks.tableExpand() is deprecated.');
+
     creme.blocks.tableExpandState($self, true, trigger);
 };
 
 creme.blocks.bindTableToggle = function($self) {
+    console.warn('creme.blocks.bindTableToggle() is deprecated.');
+
     $self.click(function(e) {
         // HACK: we avoid that clicking on a button in the header collapses the block;
         //       we should stop the propagation of the event in the buttons => we _really_ need to refactor the button system.

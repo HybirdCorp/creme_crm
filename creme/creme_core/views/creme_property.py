@@ -18,23 +18,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_list_or_404, get_object_or_404, render, redirect
-from django.utils.translation import ugettext_lazy as _, ungettext
+from django.utils.translation import ugettext_lazy as _  # ungettext
 
 # TODO: move them to creme_core ?
 from creme.creme_config.forms.creme_property_type import CremePropertyTypeAddForm, CremePropertyTypeEditForm
 
 from ..auth.decorators import login_required, permission_required
 from ..forms.creme_property import AddPropertiesForm, AddPropertiesBulkForm
-from ..gui.block import QuerysetBlock, Block
+from ..gui.bricks import QuerysetBrick, Brick
 from ..models import CremeEntity, CremePropertyType
-from ..utils import creme_entity_content_types, get_ct_or_404, get_from_POST_or_404, jsonify
-from ..utils.translation import get_model_verbose_name
-from .blocks import _get_depblock_ids, build_context  # TODO: make _get_depblock_ids public ??
-from .generic import inner_popup, add_to_entity as generic_add_to_entity
+from ..utils import creme_entity_content_types, get_ct_or_404, get_from_POST_or_404, jsonify  # get_from_GET_or_404
+# from ..utils.translation import get_model_verbose_name
+from . import generic, bricks as bricks_views
 from .utils import build_cancel_path
 
 # TODO: Factorise with views in creme_config
@@ -45,6 +46,7 @@ from .utils import build_cancel_path
 def add_properties_bulk(request, ct_id):
     user     = request.user
     model    = get_ct_or_404(ct_id).model_class()
+    # TODO: only use GET on GET request etc
     entities = get_list_or_404(model, pk__in=request.POST.getlist('ids') or
                                              request.GET.getlist('ids')
                               )
@@ -71,20 +73,20 @@ def add_properties_bulk(request, ct_id):
                                      forbidden_entities=filtered[False],
                                     )
 
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
-                       {'form':  form,
-                        'title': _(u'Multiple adding of properties'),
-                        'submit_label': _(u'Add the properties'),
-                       },
-                       is_valid=form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+    return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
+                               {'form':  form,
+                                'title': _(u'Multiple adding of properties'),
+                                'submit_label': _(u'Add the properties'),
+                               },
+                               is_valid=form.is_valid(),
+                               reload=False,
+                               delegate_reload=True,
+                              )
 
 
 @login_required
 def add_to_entity(request, entity_id):
-    return generic_add_to_entity(request, entity_id, AddPropertiesForm,
+    return generic.add_to_entity(request, entity_id, AddPropertiesForm,
                                  _(u'New properties for «%s»'),
                                  submit_label=_(u'Add the properties'),
                                 )
@@ -181,32 +183,39 @@ def delete_type(request, ptype_id):
     return HttpResponseRedirect(CremePropertyType.get_lv_absolute_url())
 
 
-class PropertyTypeInfoBlock(Block):
-    id_           = Block.generate_id('creme_core', 'property_type_info')
+# class PropertyTypeInfoBlock(Block):
+class PropertyTypeInfoBrick(Brick):
+    id_           = Brick.generate_id('creme_core', 'property_type_info')
     dependencies  = '*'
     read_only     = True
-    template_name = 'creme_core/templatetags/block_ptype_info.html'
+    # template_name = 'creme_core/templatetags/block_ptype_info.html'
+    template_name = 'creme_core/bricks/ptype-info.html'
 
     def __init__(self, ptype, ctypes):
+        super(PropertyTypeInfoBrick, self).__init__()
         self.ptype = ptype
         self.ctypes = ctypes
 
     def detailview_display(self, context):
         ptype = self.ptype
 
-        return self._render(self.get_block_template_context(
+        # return self._render(self.get_block_template_context(
+        return self._render(self.get_template_context(
                     context,
                     # update_url='/creme_core/property/type/%s/reload_block/%s/' % (ptype.id, self.id_),
                     update_url=reverse('creme_core__reload_ptype_blocks', args=(ptype.id, self.id_)),
                     ctypes=self.ctypes,
                     count_stat=CremeEntity.objects.filter(properties__type=ptype).count(),
-                ))
+        ))
 
 
-class TaggedEntitiesBlock(QuerysetBlock):
-    template_name = 'creme_core/templatetags/block_tagged_entities.html'
+# class TaggedEntitiesBlock(QuerysetBlock):
+class TaggedEntitiesBrick(QuerysetBrick):
+    # template_name = 'creme_core/templatetags/block_tagged_entities.html'
+    template_name = 'creme_core/bricks/tagged-entities.html'
 
     def __init__(self, ptype, ctype):
+        super(TaggedEntitiesBrick, self).__init__()
         self.ptype = ptype
         self.ctype = ctype
         self.id_ = self.generate_id('creme_core', 'tagged-%s-%s' % (ctype.app_label, ctype.model))
@@ -236,7 +245,8 @@ class TaggedEntitiesBlock(QuerysetBlock):
         # verbose_name = meta.verbose_name
         ptype = self.ptype
 
-        btc = self.get_block_template_context(
+        # btc = self.get_block_template_context(
+        btc = self.get_template_context(
                     context,
                     model.objects.filter(properties__type=ptype),
                     # update_url='/creme_core/property/type/%s/reload_block/%s/' % (ptype.id, self.id_),
@@ -245,31 +255,34 @@ class TaggedEntitiesBlock(QuerysetBlock):
                     ctype=ctype,  # If the model is inserted in the context,
                                   #  the template call it and create an instance...
                     # short_title=verbose_name,
-                    short_title=model._meta.verbose_name,
                 )
 
-        count = btc['page'].paginator.count
-        btc['title'] = _(u'%(count)s %(model)s') % {
-                            'count': count,
-                            # 'model': ungettext(verbose_name, meta.verbose_name_plural, count),
-                            'model': get_model_verbose_name(model, count),
-                        }
+        # count = btc['page'].paginator.count
+        # btc['title'] = _(u'%(count)s %(model)s') % {
+        #                     'count': count,
+        #                     # 'model': ungettext(verbose_name, meta.verbose_name_plural, count),
+        #                     'model': get_model_verbose_name(model, count),
+        #                 }
 
         return self._render(btc)
 
 
-class TaggedMiscEntitiesBlock(QuerysetBlock):
-    id_           = QuerysetBlock.generate_id('creme_core', 'misc_tagged_entities')
+# class TaggedMiscEntitiesBlock(QuerysetBlock):
+class TaggedMiscEntitiesBrick(QuerysetBrick):
+    id_           = QuerysetBrick.generate_id('creme_core', 'misc_tagged_entities')
     dependencies  = (CremeEntity,)
-    template_name = 'creme_core/templatetags/block_tagged_entities.html'
+    # template_name = 'creme_core/templatetags/block_tagged_entities.html'
+    template_name = 'creme_core/bricks/tagged-entities.html'
 
     def __init__(self, ptype, excluded_ctypes):
+        super(TaggedMiscEntitiesBrick, self).__init__()
         self.ptype = ptype
         self.excluded_ctypes = excluded_ctypes
 
     def detailview_display(self, context):
         ptype = self.ptype
-        btc = self.get_block_template_context(
+        # btc = self.get_block_template_context(
+        btc = self.get_template_context(
                     context,
                     CremeEntity.objects.filter(properties__type=ptype)
                                        .exclude(entity_type__in=self.excluded_ctypes),
@@ -289,17 +302,18 @@ def type_detailview(request, ptype_id):
     ptype = get_object_or_404(CremePropertyType, id=ptype_id)
     ctypes = ptype.subject_ctypes.all()
 
-    blocks = [PropertyTypeInfoBlock(ptype, ctypes)]
-    blocks.extend(TaggedEntitiesBlock(ptype, ctype)
-                    for ctype in (ctypes or creme_entity_content_types())
+    bricks = [PropertyTypeInfoBrick(ptype, ctypes)]
+    bricks.extend(TaggedEntitiesBrick(ptype, ctype)
+                      for ctype in (ctypes or creme_entity_content_types())
                  )
 
     if ctypes:
-        blocks.append(TaggedMiscEntitiesBlock(ptype, excluded_ctypes=ctypes))
+        bricks.append(TaggedMiscEntitiesBrick(ptype, excluded_ctypes=ctypes))
 
     return render(request, 'creme_core/view_property_type.html',
                   {'object': ptype,
-                   'blocks': blocks,
+                   'blocks': bricks,  # TODO: rename 'bricks'
+                   'bricks_reload_url': reverse('creme_core__reload_ptype_bricks', args=(ptype_id,)),
                   }
                  )
 
@@ -307,6 +321,13 @@ def type_detailview(request, ptype_id):
 @login_required
 @jsonify
 def reload_block(request, ptype_id, block_id):
+    warnings.warn("The view /creme_core/property/type/{{pt_id}}/reload_block/{{block_id}} is now deprecated."
+                  "Use /creme_core/property/type/{{pt_id}}/reload_bricks/ view instead"
+                  "[ie: reverse('creme_core__reload_ptype_bricks', args=(ptype.id,)) ].",
+                  DeprecationWarning
+                 )
+    from .blocks import build_context, _get_depblock_ids
+
     ptype = get_object_or_404(CremePropertyType, id=ptype_id)
     block_renders = []
     ctypes = ptype.subject_ctypes.all()
@@ -314,17 +335,44 @@ def reload_block(request, ptype_id, block_id):
     context = build_context(request, object=ptype)
 
     for b_id in _get_depblock_ids(request, block_id):
-        if b_id == PropertyTypeInfoBlock.id_:
-            block = PropertyTypeInfoBlock(ptype, ctypes)
-        elif b_id == TaggedMiscEntitiesBlock.id_:
-            block = TaggedMiscEntitiesBlock(ptype, ctypes)
+        if b_id == PropertyTypeInfoBrick.id_:
+            block = PropertyTypeInfoBrick(ptype, ctypes)
+        elif b_id == TaggedMiscEntitiesBrick.id_:
+            block = TaggedMiscEntitiesBrick(ptype, ctypes)
         else:
-            ctype = TaggedEntitiesBlock.parse_block_id(b_id)
+            ctype = TaggedEntitiesBrick.parse_block_id(b_id)
             if ctype is None:
                 raise Http404('Invalid block id "%s"' % b_id)
 
-            block = TaggedEntitiesBlock(ptype, ctype)
+            block = TaggedEntitiesBrick(ptype, ctype)
 
         block_renders.append((block.id_, block.detailview_display(context)))
 
     return block_renders
+
+
+@login_required
+@jsonify
+def reload_bricks(request, ptype_id):
+    brick_ids = bricks_views.get_brick_ids_or_404(request)
+    ptype = get_object_or_404(CremePropertyType, id=ptype_id)
+    bricks = []
+    ctypes = ptype.subject_ctypes.all()
+
+    for b_id in brick_ids:
+        if b_id == PropertyTypeInfoBrick.id_:
+            brick = PropertyTypeInfoBrick(ptype, ctypes)
+        elif b_id == TaggedMiscEntitiesBrick.id_:
+            brick = TaggedMiscEntitiesBrick(ptype, ctypes)
+        else:
+            ctype = TaggedEntitiesBrick.parse_block_id(b_id)
+            if ctype is None:
+                raise Http404('Invalid brick id "%s"' % b_id)
+
+            brick = TaggedEntitiesBrick(ptype, ctype)
+
+        bricks.append(brick)
+
+    return bricks_views.bricks_render_info(request, bricks=bricks,
+                                           context=bricks_views.build_context(request, object=ptype),
+                                          )

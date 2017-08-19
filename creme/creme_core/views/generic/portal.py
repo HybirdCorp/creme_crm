@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,13 +20,16 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.shortcuts import render
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required
+from creme.creme_core.gui.bricks import brick_registry
+from creme.creme_core.models import BlockPortalLocation
 
 
-# TODO: remove 'models' arg (and use app_name to get the related contenttypes) ??
 @login_required
 def app_portal(request, app_name, template, models, stats, config_url=None, extra_template_dict=None):
     has_perm = request.user.has_perm
@@ -41,11 +44,21 @@ def app_portal(request, app_name, template, models, stats, config_url=None, extr
     except TypeError:  # 'models' is a not a sequence -> CremeEntity
         ct_ids = [get_ct(models).id]
 
-    template_dict = {'app_name':     app_name,
-                     'ct_ids':       ct_ids,
-                     'stats':        stats,
-                     'config_url':   config_url,
-                     'can_admin':    has_perm('%s.can_admin' % app_name),
+    locs = BlockPortalLocation.objects.filter(Q(app_name='') | Q(app_name=app_name)) \
+                                      .order_by('order')
+
+    # We fallback to the default config is there is no config for this app.
+    brick_ids = [loc.block_id for loc in locs if loc.app_name] or [loc.block_id for loc in locs]
+
+    template_dict = {'app_name':          app_name,
+                     'ct_ids':            ct_ids,
+                     'stats':             stats,
+                     'config_url':        config_url,
+                     'can_admin':         has_perm('%s.can_admin' % app_name),
+                     # 'bricks':            block_registry.get_blocks([id_ for id_ in brick_ids if id_]),
+                     'bricks':            list(brick_registry.get_bricks([id_ for id_ in brick_ids if id_])),
+                     'bricks_reload_url': reverse('creme_core__reload_portal_bricks') + '?' +
+                                          '&'.join('ct_id=%d' % ct_id for ct_id in ct_ids),
                     }
 
     if extra_template_dict is not None:

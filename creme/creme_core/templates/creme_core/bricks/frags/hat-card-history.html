@@ -1,0 +1,23 @@
+{% load i18n creme_widgets creme_history %}
+{% history_summary object user as history_info %}
+<div class='card-history'>
+    <div class="history-title-container">
+        <span class="history-title">{% trans 'Information on Creme entity' %}</span>
+        {% block title_extra %}{% endblock %}
+    </div>
+    {% with creation_date=history_info.creation.date creation_user=history_info.creation.user %}
+    <div class='history-info'>
+        {% trans 'Created on' %} <span class="history-info-value">{{creation_date|date:'DATE_FORMAT'}}</span> {% trans 'at' %} <span class="history-info-value">{{creation_date|time:'H:i'}}</span>{% if creation_user %} {% trans 'by' %} <span class="history-info-value">{% widget_hyperlink creation_user %}</span>{% endif %}
+    </div>
+    {% endwith %}
+    {% if history_info.last_edition %}
+    {% with edition_date=history_info.last_edition.date edition_user=history_info.last_edition.user %}
+    <div class='history-info'>
+        {% trans 'Edited on' %} <span class="history-info-value">{{edition_date|date:'DATE_FORMAT'}}</span> {% trans 'at' %} <span class="history-info-value">{{edition_date|time:'H:i'}}</span>{% if edition_user %} {% trans 'by' %} <span class="history-info-value">{% widget_hyperlink edition_user %}</span>{% endif %}
+    </div>
+    {% endwith %}
+    {% endif %}
+    <div class='history-info'>
+        {% trans 'Assigned to' %} <span class="history-info-value">{% widget_hyperlink object.user %}</span>
+    </div>
+</div>

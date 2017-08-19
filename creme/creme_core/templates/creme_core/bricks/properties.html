@@ -1,0 +1,33 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_core-properties-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Property') plural=_('{count} Properties') empty=_('Properties') icon='property' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% has_perm_to change object as has_perm %}{% url 'creme_core__add_properties' object.id as add_url %}
+    {% brick_header_action id='add' url=add_url label=_('New properties') enabled=has_perm %}
+{% endblock %}
+
+{% block brick_table_head %}{% endblock %}
+
+{% block brick_table_rows %}
+{% has_perm_to change object as has_perm %}{% url 'creme_core__delete_related_to_entity' objects_ctype.id as rm_url %}
+    {% for property in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>
+            <a href="{{property.type.get_absolute_url}}">{{property}}</a>
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=rm_url __id=property.id label=_('Remove this property') enabled=has_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No property for the moment' %}
+{% endblock %}

@@ -1,21 +1,23 @@
-{% extends "creme_core/base.html" %}
-{% load i18n creme_core_tags creme_block %}
+{% extends 'creme_core/base.html' %}
+{% load i18n creme_bricks creme_widgets %}
 
 {% block content %}
-    <ul class="button_list hbox">
-        <li>
-            <a class="menu_button" href="{% url 'creme_core__jobs' %}">{% trans "List of jobs" as label %}
-                <img src="{% creme_media_url 'images/listview_32.png' %}" border="0" title="{{label}}" alt="{{label}}" />
-                {{label}}
-            </a>
-        </li>
-    </ul>
+    <div class="buttons-list global-buttons">
+        <ul>
+            <li>
+                <a class="menu_button" href="{% url 'creme_core__jobs' %}">{% trans 'List of jobs' as list_label %}
+                    {% widget_icon name='listview' size='global-button' label=list_label %}
+                    {{list_label}}
+                </a>
+            </li>
+        </ul>
+    </div>
 
-    {% import_block from_app 'creme_core' named 'job' as 'job_block' %}
-    {% import_blocks results_blocks as 'results_blocks' %}
+    {% brick_import app='creme_core' name='job' as job_brick %}
+    {% brick_declare results_bricks %}
 
-    {% display_block_detailview 'job_block' %}
-    {% display_blocks 'results_blocks' %}
+    {% brick_display job_brick %}
+    {% brick_display results_bricks %}
 
-    {% get_blocks_dependencies %}
+    {% brick_end %}
 {% endblock %}

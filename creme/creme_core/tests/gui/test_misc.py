@@ -21,6 +21,7 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.gui.field_printers import (_FieldPrintersRegistry,
             FKPrinter, simple_print_html, print_foreignkey_html)  # field_printers_registry
+    from creme.creme_core.gui.icons import Icon, IconRegistry
     from creme.creme_core.gui.last_viewed import LastViewedItem
     from creme.creme_core.gui.statistics import _StatisticsRegistry
     from creme.creme_core.models import CremeEntity, SetCredentials, Language
@@ -468,3 +469,61 @@ class GuiTestCase(CremeTestCase):
         stats = list(registry)
         self.assertEqual(1,   len(stats))
         self.assertEqual(id2, stats[0].id)
+
+    def test_icon_registry01(self):
+        "get_4_model()"
+        icon_reg = IconRegistry()
+        icon_reg.register(FakeContact,      'images/contact_%(size)s.png')
+        icon_reg.register(FakeOrganisation, 'images/organisation_%(size)s.png')
+
+        icon1 = icon_reg.get_4_model(model=FakeContact, theme='icecream', size_px=22)
+        self.assertIsInstance(icon1, Icon)
+        self.assertIn('icecream/images/contact_22', icon1.url)
+        self.assertEqual(u'Test Contact',           icon1.label)
+
+        icon2 = icon_reg.get_4_model(model=FakeOrganisation, theme='chantilly', size_px=48)
+        self.assertIn('chantilly/images/organisation_48', icon2.url)
+        self.assertEqual(u'Test Organisation',            icon2.label)
+
+        # Bad size
+        icon3 = icon_reg.get_4_model(model=FakeContact, theme='icecream', size_px=1024)
+        self.assertIsInstance(icon3, Icon)
+        self.assertIn('', icon3.url)
+
+        # Model not registered
+        icon4 = icon_reg.get_4_model(model=FakeImage, theme='icecream', size_px=22)
+        self.assertIsInstance(icon4, Icon)
+        self.assertIn('', icon4.url)
+
+    def test_icon_registry02(self):
+        "get_4_instance()"
+        icon_reg = IconRegistry()
+        icon_reg.register(FakeContact,      'images/contact_%(size)s.png')
+        icon_reg.register(FakeOrganisation, 'images/organisation_%(size)s.png')
+
+        phone_label = 'Contact with phone'
+        email_label = 'Contact with email'
+
+        def callback(instance):
+            return ('phone', phone_label) if instance.phone else ('email', email_label)
+
+        icon_reg.register_4_instance(
+                FakeContact,
+                lambda instance: ('phone', phone_label) if instance.phone else ('email', email_label)
+        )
+
+        c = FakeContact(first_name='Casca', last_name='Mylove')
+        icon1 = icon_reg.get_4_instance(instance=c, theme='icecream', size_px=22)
+        self.assertIsInstance(icon1, Icon)
+        self.assertIn('icecream/images/email_22', icon1.url)
+        self.assertEqual(email_label,             icon1.label)
+
+        c.phone = '123456'
+        icon2 = icon_reg.get_4_instance(instance=c, theme='icecream', size_px=22)
+        self.assertIn('icecream/images/phone_22', icon2.url)
+        self.assertEqual(phone_label,             icon2.label)
+
+        o = FakeOrganisation(name='Midland')
+        icon3 = icon_reg.get_4_instance(instance=o, theme='icecream', size_px=22)
+        self.assertIn('icecream/images/organisation_22', icon3.url)
+        self.assertEqual(u'Test Organisation',           icon3.label)

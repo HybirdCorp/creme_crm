@@ -154,7 +154,9 @@ def add_relations(request, subject_id, rtype_id=None):
         NB: In case of rtype_id=None is internal relation type is verified in RelationCreateForm clean
     """
     subject = get_object_or_404(CremeEntity, pk=subject_id)
-    request.user.has_perm_to_link_or_die(subject)
+
+    user = request.user
+    user.has_perm_to_link_or_die(subject)
 
     relations_types = None
 
@@ -163,15 +165,23 @@ def add_relations(request, subject_id, rtype_id=None):
         relations_types = [rtype_id]
 
     if request.method == 'POST':
-        form = RelationCreateForm(subject=subject, user=request.user,
+        form = RelationCreateForm(subject=subject, user=user,
                                   relations_types=relations_types,
                                   data=request.POST,
                                  )
 
         if form.is_valid():
             form.save()
-    else:
-        form = RelationCreateForm(subject=subject, user=request.user,
+    else:  # GET
+        if rtype_id is None:
+            excluded_rtype_ids = request.GET.getlist('exclude')
+            if excluded_rtype_ids:
+                # Theses type are excluded to provide a better GUI, but they cannot cause business conflict
+                # (internal rtypes are always excluded), so it's not a problem to only excluded them only in GET part.
+                relations_types = RelationType.get_compatible_ones(subject.entity_type) \
+                                              .exclude(id__in=excluded_rtype_ids)
+
+        form = RelationCreateForm(subject=subject, user=user,
                                   relations_types=relations_types,
                                  )
 
@@ -219,7 +229,7 @@ def add_relations_bulk(request, model_ct_id, relations_types=None):
     if request.method == 'POST':
         form = MultiEntitiesRelationCreateForm(subjects=filtered[True],
                                                forbidden_subjects=filtered[False],
-                                               user=request.user,
+                                               user=user,
                                                data=request.POST,
                                                relations_types=rtype_ids,
                                               )
@@ -229,7 +239,7 @@ def add_relations_bulk(request, model_ct_id, relations_types=None):
     else:
         form = MultiEntitiesRelationCreateForm(subjects=filtered[True],
                                                forbidden_subjects=filtered[False],
-                                               user=request.user,
+                                               user=user,
                                                relations_types=rtype_ids,
                                               )
 
@@ -247,7 +257,7 @@ def add_relations_bulk(request, model_ct_id, relations_types=None):
 @login_required
 def delete(request):
     relation = get_object_or_404(Relation, pk=utils.get_from_POST_or_404(request.POST, 'id'))
-    subject  = relation.subject_entity
+    subject = relation.subject_entity
     user = request.user
 
     has_perm = user.has_perm_to_unlink_or_die
@@ -291,7 +301,7 @@ def delete_similar(request):
 
 
 @login_required
-def delete_all(request):
+def delete_all(request):  # TODO: deprecate ?
     subject_id = utils.get_from_POST_or_404(request.POST, 'subject_id')
     user = request.user
     subject = get_object_or_404(CremeEntity, pk=subject_id)
@@ -313,7 +323,7 @@ def delete_all(request):
         status = min(errors.iterkeys())
         message = ",".join(msg for error_messages in errors.itervalues() for msg in error_messages)
 
-    return HttpResponse(message, content_type="text/javascript", status=status)
+    return HttpResponse(message, content_type='text/javascript', status=status)
 
 
 @login_required
@@ -469,11 +479,11 @@ def add_relations_with_same_type(request):
     create_relation = Relation.objects.create
     for entity in entities:
         if not check_ctype(entity):
-            errors[409].append(_(u"Incompatible type for object entity with id=%s") % entity.id)
+            errors[409].append(_(u'Incompatible type for object entity with id=%s') % entity.id)
         elif not check_properties(entity):
-            errors[409].append(_(u"Missing compatible property for object entity with id=%s") % entity.id)
+            errors[409].append(_(u'Missing compatible property for object entity with id=%s') % entity.id)
         elif not user.has_perm_to_link(entity):
-            errors[403].append(_("Permission denied to entity with id=%s") % entity.id)
+            errors[403].append(_(u'Permission denied to entity with id=%s') % entity.id)
         else:
             create_relation(subject_entity=subject, type=rtype, object_entity=entity, user=user)
 
@@ -482,6 +492,6 @@ def add_relations_with_same_type(request):
         message = _(u'Operation successfully completed')
     else:
         status = min(errors.iterkeys())
-        message = ",".join(msg for error_messages in errors.itervalues() for msg in error_messages)
+        message = ','.join(msg for error_messages in errors.itervalues() for msg in error_messages)
 
     return HttpResponse(message, status=status)

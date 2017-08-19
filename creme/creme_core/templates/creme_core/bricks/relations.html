@@ -1,0 +1,42 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} creme_core-relations-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Relationship') plural=_('{count} Relationships') empty=_('Relationships') icon='relations' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to link object as subject_link_perm %}
+{% url 'creme_core__create_relations' object.id as create_url %}{% url_join create_url exclude=excluded_rtype_ids as create_uri %}
+    {% brick_header_action id='link' url=create_uri label=_('New relationships') enabled=subject_link_perm %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Name') status='primary' colspan=2 %} {# {% brick_table_column_for_field ... field='type' .. %} #}
+    {% brick_table_column title=_('Action') status='action' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% has_perm_to unlink object as subject_unlink_perm %}{% url 'creme_core__delete_relation' as delete_url %}
+    {% regroup page.object_list by type as relations_by_rtype %}
+    {% for relation_group in relations_by_rtype %}
+        {% if not relation.type.is_internal %}
+            {% for relation in relation_group.list %}{% with relation.object_entity.get_real_entity as entity_obj %}
+                {% has_perm_to unlink entity_obj as object_unlink_perm %}
+        <tr>
+            <td {% brick_table_data_status primary %}>{% if forloop.first %}{{relation_group.grouper.predicate}}{% else %}&nbsp;{% endif %}</td>
+            <td>{% widget_entity_hyperlink entity_obj user %}</td>
+            <td {% brick_table_data_status action %}>
+                {% brick_table_action id='delete' url=delete_url __id=relation.pk label=_('Delete this relationship') icon='unlink' enabled=subject_unlink_perm|and_op:object_unlink_perm %}
+            </td>
+        </tr>
+            {% endwith %}{% endfor %}
+        {% endif %}
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No relationship for the moment' %}
+{% endblock %}

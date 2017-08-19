@@ -13,7 +13,8 @@ try:
     from ..base import CremeTestCase
     from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
     from creme.creme_core.core.entity_cell import EntityCellRegularField
-    from creme.creme_core.gui.block import block_registry, Block, SimpleBlock, BlocksManager
+    from creme.creme_core.gui.block import Block, SimpleBlock, block_registry, BlocksManager
+    from creme.creme_core.gui.bricks import brick_registry, Brick, SimpleBrick, BricksManager
     from creme.creme_core.models import (RelationType, Relation,
             BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
             InstanceBlockConfigItem, RelationBlockItem, CustomBlockConfigItem)
@@ -78,7 +79,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
             def detailview_display(self, context):
                 return blockstr
 
-        block_registry.register(FooBlock())
+        brick_registry.register(FooBlock())
 
         with self.assertNoException():
             template = Template("{%% load creme_block %%}"
@@ -98,13 +99,15 @@ class CremeBlockTagsTestCase(CremeTestCase):
         class FooBlock(SimpleBlock):
             id_ = SimpleBlock.generate_id('creme_core', name)
             verbose_name = u'Testing purpose'
+            ct_ids = None
 
             def portal_display(self, context, ct_ids):
-                self.ct_ids = ct_ids
+                # self.ct_ids = ct_ids
+                FooBlock.ct_ids = ct_ids
                 return blockstr
 
         block1 = FooBlock()
-        block_registry.register(block1)
+        brick_registry.register(block1)
 
         ct_ids = [ContentType.objects.get_for_model(Organisation).id]
 
@@ -116,7 +119,8 @@ class CremeBlockTagsTestCase(CremeTestCase):
             render = template.render(RequestContext(self._build_request(), {'ct_ids': ct_ids}))
 
         self.assertEqual(blockstr, render.strip())
-        self.assertEqual(ct_ids, block1.ct_ids)
+        # self.assertEqual(ct_ids, block1.ct_ids)
+        self.assertEqual(ct_ids, FooBlock.ct_ids)
 
     def test_import_n_display_on_detail_from_conf01(self):
         "Default configuration"
@@ -124,7 +128,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         orga = Organisation.objects.create(user=user, name='Xing')
 
-        class TestBlock(Block):
+        class TestBlock(Brick):
             verbose_name = u'Testing purpose'
             self.blockstr = None
 
@@ -176,7 +180,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         orga = Organisation.objects.create(user=user, name='Xing')
 
-        class TestBlock(Block):
+        class TestBlock(Brick):
             verbose_name = u'Testing purpose'
             self.blockstr = None
 
@@ -203,7 +207,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         # Default conf should be ignored
         BlockDetailviewLocation.create(block_id=blocks[0].id_, order=1, zone=BlockDetailviewLocation.BOTTOM)
-        block_registry.register(*blocks)
+        brick_registry.register(*blocks)
 
         with self.assertNoException():
             template = Template("{% load creme_block %}"
@@ -228,7 +232,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         orga = Organisation.objects.create(user=user, name='Xing')
 
-        class TestBlock(Block):
+        class TestBlock(Brick):
             verbose_name = u'Testing purpose'
             self.blockstr = None
 
@@ -256,7 +260,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
                                       )  # Default conf for the CT should be ignored
         self.assertEqual(5, BlockDetailviewLocation.objects.count())
 
-        block_registry.register(*blocks)
+        brick_registry.register(*blocks)
 
         with self.assertNoException():
             template = Template("{% load creme_block %}"
@@ -281,7 +285,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         orga = Organisation.objects.create(user=user, name='Xing')
 
-        class TestBlock(Block):
+        class TestBlock(Brick):
             verbose_name = u'Testing purpose'
             self.blockstr = None
 
@@ -309,7 +313,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
                                       )  # Default conf should be ignored
         self.assertEqual(5, BlockDetailviewLocation.objects.count())
 
-        block_registry.register(*blocks)
+        brick_registry.register(*blocks)
 
         with self.assertNoException():
             template = Template("{% load creme_block %}"
@@ -334,8 +338,8 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         orga = Organisation.objects.create(user=user, name='Xing')
 
-        class OrgaInfoBlock(Block):
-            id_          = Block.generate_id('creme_core', 'CremeBlockTagsTestCase__import_n_display_on_detail_from_conf05')
+        class OrgaInfoBlock(Brick):
+            id_          = Brick.generate_id('creme_core', 'CremeBlockTagsTestCase__import_n_display_on_detail_from_conf05')
             verbose_name = u'Testing purpose'
             dependencies = (Organisation,)
 
@@ -351,7 +355,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
                         '</table>' % (self.id_, context['object'].name)
                        )
 
-        class OrgaInstanceBlock(Block):
+        class OrgaInstanceBlock(Brick):
             id_  = InstanceBlockConfigItem.generate_base_id('creme_core', 'base_block')
             # dependencies = ()
             template_name = 'persons/templatetags/block_thatdoesnotexist.html'
@@ -375,8 +379,8 @@ class CremeBlockTagsTestCase(CremeTestCase):
         BlockDetailviewLocation.create(block_id=ibci.block_id, order=1, zone=BlockDetailviewLocation.RIGHT)
         BlockDetailviewLocation.create(block_id=infoblock.id_, order=2, zone=BlockDetailviewLocation.RIGHT)
 
-        block_registry.register(infoblock)
-        block_registry.register_4_instance(OrgaInstanceBlock)
+        brick_registry.register(infoblock)
+        brick_registry.register_4_instance(OrgaInstanceBlock)
 
         with self.assertNoException():
             template = Template("{% load creme_block %}"
@@ -491,7 +495,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         Organisation.objects.create(user=user, name='Xing')
 
-        class TestBlock(SimpleBlock):
+        class TestBlock(SimpleBrick):
             verbose_name = u'Testing purpose'
             self.blockstr = None
 
@@ -514,7 +518,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
             BlockPortalLocation.create(block_id=block.id_, order=i)
 
-        block_registry.register(*blocks)
+        brick_registry.register(*blocks)
 
         ct_ids = [ContentType.objects.get_for_model(Organisation).id]
 
@@ -534,7 +538,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         Organisation.objects.create(user=user, name='Xing')
 
-        class TestBlock(SimpleBlock):
+        class TestBlock(SimpleBrick):
             verbose_name = u'Testing purpose'
             self.blockstr = None
 
@@ -558,7 +562,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
             BlockPortalLocation.create(block_id=block.id_, order=i, app_name='persons')
 
         BlockPortalLocation.create(block_id=blocks[0].id_, order=1)  # Default conf should be ignored
-        block_registry.register(*blocks)
+        brick_registry.register(*blocks)
 
         ct_ids = [ContentType.objects.get_for_model(Organisation).id]
 
@@ -583,7 +587,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         Organisation.objects.create(user=user, name='Xing')
 
-        class TestBlock(SimpleBlock):
+        class TestBlock(SimpleBrick):
             verbose_name = u'Testing purpose'
             self.blockstr = None
 
@@ -606,7 +610,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
             BlockPortalLocation.create(block_id=block.id_, order=i, app_name='creme_core')
 
-        block_registry.register(*blocks)
+        brick_registry.register(*blocks)
 
         with self.assertNoException():
             template = Template("{% load creme_block %}"
@@ -624,7 +628,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         Organisation.objects.create(user=user, name='Xing')
 
-        class TestBlock(SimpleBlock):
+        class TestBlock(SimpleBrick):
             verbose_name = u'Testing purpose'
             self.blockstr = None
 
@@ -647,7 +651,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
             BlockMypageLocation.create(block_id=block.id_, order=i, user=user)
 
-        block_registry.register(*blocks)
+        brick_registry.register(*blocks)
 
         with self.assertNoException():
             template = Template("{% load creme_block %}"
@@ -663,15 +667,15 @@ class CremeBlockTagsTestCase(CremeTestCase):
     def test_import_n_display_blocks(self):
         self.login()
 
-        class FooBlock1(Block):
-            id_          = Block.generate_id('creme_core', 'CremeBlockTagsTestCase__import_n_display_blocks_1')
+        class FooBlock1(Brick):
+            id_          = Brick.generate_id('creme_core', 'CremeBlockTagsTestCase__import_n_display_blocks_1')
             verbose_name = u'Testing purpose'
 
             def detailview_display(self, context):
                 return '<div>FOO</div>'
 
-        class FooBlock2(Block):
-            id_          = Block.generate_id('creme_core', 'CremeBlockTagsTestCase__import_n_display_blocks_2')
+        class FooBlock2(Brick):
+            id_          = Brick.generate_id('creme_core', 'CremeBlockTagsTestCase__import_n_display_blocks_2')
             verbose_name = u'Testing purpose'
 
             def detailview_display(self, context):
@@ -693,7 +697,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
     def test_get_blocks_dependencies(self):
         self.login()
 
-        class TestBlock(Block):
+        class TestBlock(Brick):
             verbose_name = u'Testing purpose'
 
             def detailview_display(self, context): return ''
@@ -748,26 +752,27 @@ class CremeBlockTagsTestCase(CremeTestCase):
                                     )
 
         self.assertEqual("'/update/url/?base_url=/base/url/&test-testblock_deps=' + creme.utils.getBlocksDeps('test-testblock')",
-                         render
+                         # render
+                         render.strip()
                         )
 
     def test_get_block_relation_reload_uri(self):
         self.login()
 
-        class FooBlock1(SimpleBlock):
-            id_ = SimpleBlock.generate_id('creme_core', 'CremeBlockTagsTestCase__get_block_relation_reload_uri_1')
+        class FooBlock1(SimpleBrick):
+            id_ = SimpleBrick.generate_id('creme_core', 'CremeBlockTagsTestCase__get_block_relation_reload_uri_1')
             dependencies = (Contact,)
 
-        class FooBlock2(SimpleBlock):
-            id_ = SimpleBlock.generate_id('creme_core', 'CremeBlockTagsTestCase__get_block_relation_reload_uri_2')
+        class FooBlock2(SimpleBrick):
+            id_ = SimpleBrick.generate_id('creme_core', 'CremeBlockTagsTestCase__get_block_relation_reload_uri_2')
             dependencies = (Relation,)
 
-        class FooBlock3(SimpleBlock):
-            id_ = SimpleBlock.generate_id('creme_core', 'CremeBlockTagsTestCase__get_block_relation_reload_uri_3')
+        class FooBlock3(SimpleBrick):
+            id_ = SimpleBrick.generate_id('creme_core', 'CremeBlockTagsTestCase__get_block_relation_reload_uri_3')
             dependencies = (Relation,)
 
-        class FooBlock4(SimpleBlock):
-            id_ = SimpleBlock.generate_id('creme_core', 'CremeBlockTagsTestCase__get_block_relation_reload_uri_4')
+        class FooBlock4(SimpleBrick):
+            id_ = SimpleBrick.generate_id('creme_core', 'CremeBlockTagsTestCase__get_block_relation_reload_uri_4')
             dependencies = '*'
 
         block1 = FooBlock1(); block2 = FooBlock2()
@@ -790,5 +795,6 @@ class CremeBlockTagsTestCase(CremeTestCase):
         self.assertEqual(u"'/update/url/?base_url=/base/url/&%s_deps=%s,%s'" % (
                                 block2.id_, block3.id_, block4.id_
                             ),
-                         render
+                         # render
+                         render.strip()
                         )

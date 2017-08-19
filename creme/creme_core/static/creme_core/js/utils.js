@@ -335,7 +335,7 @@ creme.utils.appendInUrl = function(url, strToAppend) {
 };
 
 creme.utils.innerPopupNReload = function(url, reload_url) {
-    console.warn('creme.utils.innerPopupNReload() is deprecated ; use creme.blocks.form() instead.');
+    console.warn('creme.utils.innerPopupNReload() is deprecated ; use the new brick action system instead.');
 
     creme.utils.showInnerPopup(url, {
         beforeClose: function(event, ui, dial) {
@@ -345,6 +345,8 @@ creme.utils.innerPopupNReload = function(url, reload_url) {
 };
 
 creme.utils.decorateSearchResult = function(research) {
+    console.warn('creme.utils.decorateSearchResult() is deprecated.');
+
     var research = research.toLowerCase();
 
     var mark = function(results) {
@@ -361,7 +363,7 @@ creme.utils.decorateSearchResult = function(research) {
                     result.wrap($('<mark/>'));
                 }
             }
-        }
+        };
 
         results.contents().each(_wrap);
     };
@@ -400,6 +402,8 @@ creme.utils.openQuickForms = function(element) {
 };
 
 creme.utils.autoCheckallState = function(from, select_all_selector, checkboxes_selector) {
+    console.warn('creme.utils.autoCheckallState() is deprecated.');
+
     var $select_all = $(select_all_selector);
 
     if (!$(from).is(':checked')) {
@@ -420,6 +424,8 @@ creme.utils.autoCheckallState = function(from, select_all_selector, checkboxes_s
 };
 
 creme.utils.toggleCheckallState = function(select_all, checkboxes_selector) {
+    console.warn('creme.utils.toggleCheckallState() is deprecated.');
+
     if ($(select_all).is(':checked')) {
         $(checkboxes_selector).check();
     } else {
@@ -576,6 +582,15 @@ creme.utils.innerPopupFormAction = function(url, options, data) {
     });
 };
 
+creme.utils.isHTMLDataType = function(dataType) {
+    if (!dataType) {
+        return false;
+    }
+
+    var cleaned_dt = dataType.toLowerCase();
+    return cleaned_dt == 'html' || cleaned_dt == 'text/html';
+};
+
 /*******************************************************************************
     Taken from Underscore.js ( http://underscorejs.org/ )
 
@@ -623,12 +638,4 @@ creme.utils.debounce = function(func, wait, immediate) {
     };
 };
 
-creme.utils.isHTMLDataType = function(dataType) {
-    if (!dataType) {
-        return false;
-    }
-
-    var cleaned_dt = dataType.toLowerCase();
-    return cleaned_dt == 'html' || cleaned_dt == 'text/html';
-};
 }(jQuery));

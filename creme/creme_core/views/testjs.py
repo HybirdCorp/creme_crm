@@ -38,8 +38,8 @@ from django.utils.timezone import now
 from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
 # from ..global_info import set_global_info
-from ..gui import block_registry
-from ..gui.block import PaginatedBlock
+from ..gui import brick_registry
+from ..gui.bricks import PaginatedBrick
 from ..gui.field_printers import (print_image_html, print_url_html, print_datetime,
         print_date, print_duration, print_foreignkey_html, print_many2many_html)
 #       print_image print_urlfield print_foreignkey print_many2many
@@ -105,8 +105,8 @@ class Dummy(object):
         return self.name
 
 
-class DummyListBlock(PaginatedBlock):
-    id_           = PaginatedBlock.generate_id('creme_core', 'test_dummy_list')
+class DummyListBlock(PaginatedBrick):
+    id_           = PaginatedBrick.generate_id('creme_core', 'test_dummy_list')
     verbose_name  = u'Dummies'
     dependencies  = ()
     permission    = 'creme_config.can_admin'
@@ -127,7 +127,8 @@ class DummyListBlock(PaginatedBlock):
 
         context['min_block_count'] = min_count
 
-        return self._render(self.get_block_template_context(
+        # return self._render(self.get_block_template_context(
+        return self._render(self.get_template_context(
                     context, self.data,
                     # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
                     update_url=reverse('creme_core__set_block_state', args=(self.id_,)),
@@ -147,10 +148,10 @@ def js_testview_or_404(message, error):
 
 def js_testview_context(request, viewname):
     try:
-        block_registry[dummy_list_block.id_]
+        brick_registry[dummy_list_block.id_]
     except:
         logger.info('Register dummy object list block %s' % dummy_list_block.id_)
-        block_registry.register(dummy_list_block)
+        brick_registry.register(dummy_list_block)
 
     test_view_pattern = re_compile('^test_(?P<name>[\d\w]+)\.html$')
     test_views = []

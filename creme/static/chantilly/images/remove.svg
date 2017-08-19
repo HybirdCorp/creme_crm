@@ -11,13 +11,16 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    sodipodi:docname="remove.svg"
-   inkscape:version="0.48.1 r9760"
+   inkscape:version="0.91 r13725"
    sodipodi:version="0.32"
    id="svg2203"
    height="128"
    width="128"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   version="1.0">
+   version="1.0"
+   inkscape:export-filename="remove_22.png"
+   inkscape:export-xdpi="15.47"
+   inkscape:export-ydpi="15.47">
   <defs
      id="defs3">
     <linearGradient
@@ -178,12 +181,12 @@
   <sodipodi:namedview
      inkscape:window-y="25"
      inkscape:window-x="0"
-     inkscape:window-height="824"
-     inkscape:window-width="1434"
+     inkscape:window-height="1030"
+     inkscape:window-width="1920"
      inkscape:current-layer="layer3"
      inkscape:document-units="px"
      inkscape:cy="94.816752"
-     inkscape:cx="53.99893"
+     inkscape:cx="-27.25491"
      inkscape:zoom="2.8490961"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
@@ -192,7 +195,7 @@
      pagecolor="#ffffff"
      id="base"
      showgrid="false"
-     inkscape:window-maximized="0" />
+     inkscape:window-maximized="1" />
   <metadata
      id="metadata4">
     <rdf:RDF>

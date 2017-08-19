@@ -1,0 +1,90 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_core-jobs-brick{% endblock %}
+
+{% block brick_script %}{# TODO: in .js ?? #}
+    {% if not request.is_ajax %}
+    <script type="text/javascript">
+        $('.brick[id="{{brick_id}}"]').on('brick-ready', function(e, brick, options) {
+            creme.jobs.checkJobManager('{% url 'creme_core__jobs_info' %}', brick._id, false);
+        });
+    </script>
+    {% endif %}
+{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Job') plural=_('{count} Jobs') empty=_('Jobs') %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('App') class='job-app' %}
+    {% brick_table_column title=_('Type') class='job-type' %}
+    {% brick_table_column title=_('Owner') class='job-owner' %}
+    {% brick_table_column title=_('Periodicity') class='job-periodicity' %}
+    {% brick_table_column title=_('Last run') class='job-lastrun' %}
+    {% brick_table_column title=_('Status') class='job-status' %}
+    {% brick_table_column title=_('Actions') status='action' colspan=4 %}
+{% endblock %}
+
+{% block brick_before_content %}
+    <div class="global-error" style="display: none;"></div>
+
+    {% if user_jobs_count >= MAX_JOBS_PER_USER %}
+    <div class="help-box">
+        {% if user_jobs_count == 1 %}
+            {% trans 'You must delete your job in order to create a new one.' %}
+        {% else %}
+            {% trans 'You must delete one of your jobs in order to create a new one.' %}
+        {% endif %}
+    </div>
+    {% endif %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for job in page.object_list %}
+    <tr>
+        <td class="job-app">{{job.type.app_config.verbose_name|default:'?'}}</td>
+        <td class="job-type">{{job.type|default:'?'}}</td>
+        <td class="job-owner">{{job.user|default:''}}</td>
+        <td class="job-periodicity">
+        {% if job.type.periodic != NOT_PERIODIC %}
+            <ul>
+                <li>{% trans 'Reference run' %}: {{job.reference_run}}</li>
+                <li>{% trans 'Every' %}: {{job.real_periodicity}}</li>
+            </ul>
+        {% endif %}
+        </td>
+        <td class="job-lastrun">{{job.last_run|default:''}}</td>
+        <td class="job-status" data-job-id="{{job.id}}" data-job-status="{{job.status}}" data-job-ack-errors="{{job.ack_errors}}">
+            {{job.get_status_display}}
+        </td>
+        <td {% brick_table_data_status action %} >
+        {% if not job.user %}
+            {% if job.enabled %}{% url 'creme_core__disable_job' job.id as disable_url %}
+                {% brick_table_action id='update' url=disable_url label=_('Disable') display='text' enabled=user.is_superuser %}
+            {% else %}{% url 'creme_core__enable_job' job.id as enable_url %}
+                {% brick_table_action id='update' url=enable_url label=_('Enable') display='text' enabled=user.is_superuser %}
+            {% endif %}
+        {% endif %}
+        </td>
+        <td {% brick_table_data_status action %} >
+        {% if job.get_config_form_class %}
+            {% brick_table_action id='edit' url=job.get_edit_absolute_url label=_('Edit this job') %}
+        {% endif %}
+        </td>
+        <td {% brick_table_data_status action %} >
+            {% brick_table_action id='redirect' url=job.get_absolute_url label=_('View this job') type='view' %}
+        </td>
+        <td {% brick_table_data_status action %} >
+        {% if job.is_finished and job.user_id %}
+            {% brick_table_action id='delete' url=job.get_delete_absolute_url label=_('Delete this job') %}
+        {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No job for the moment' %}
+{% endblock %}

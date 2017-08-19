@@ -1,10 +1,12 @@
-{% load i18n %}
-{% load creme_core_tags creme_block creme_widgets creme_listview %}
+{% load i18n creme_core_tags creme_block creme_widgets creme_listview %}
+
+{% log 'The template file "creme/persons/templates/persons/templatetags/block_specific_relations.html" is deprecated.' level='WARN' %}
+
 {% has_perm_to link object as subject_link_perm %}{% has_perm_to unlink object as subject_unlink_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=colspan %}
         <th class="label">
-            {% blocktrans with relation_type.predicate as predicate %}Entities related to: {{predicate}}{% endblocktrans %}
+            {% blocktrans with predicate=relation_type.predicate %}Entities related to: {{predicate}}{% endblocktrans %}
         </th>
         <th class="actions">
             <div class="buttons">
@@ -13,9 +15,9 @@
             </div>
         </th>
     {% end_get_block_header %}
-    <tbody class="collapsable">
+    <tbody class="collapsable">{% url 'creme_core__delete_relation' as delete_url %}
         {% for entities, cells in groups %}
-            {% if cells %}{% url 'creme_core__delete_relation' as delete_url %}
+            {% if cells %}
                 {% with len=cells|length %}{% with fixed_colspan=colspan|sub:len %}
                     {% if groups|length > 1 %}<tr class="header"><th class="block_header_line_dark" colspan="{{colspan}}">{{entities.0|get_meta_value:'verbose_name_plural'}}</th></tr>{% endif %}
                     <tr class="header">

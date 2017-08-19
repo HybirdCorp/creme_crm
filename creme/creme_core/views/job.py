@@ -24,14 +24,15 @@ from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext as _
 
 from ..auth.decorators import login_required, superuser_required
-from ..blocks import job_block
+from ..bricks import JobBrick
 # from ..creme_jobs.base import JobType
 from ..core.exceptions import ConflictError
 from ..core.job import JobManagerQueue
 # from ..forms.job import JobForm
 from ..models import Job
 from ..utils import jsonify
-from .blocks import build_context
+
+from . import bricks as bricks_views
 from .decorators import POST_only
 from .generic import inner_popup
 
@@ -39,13 +40,14 @@ from .generic import inner_popup
 @login_required
 def listview(request):
     return render(request, 'creme_core/jobs.html',
-                  # {'back_url': request.META.get('HTTP_REFERER')} #problem when we went from a deleted job
+                  context={'bricks_reload_url': reverse('creme_core__reload_bricks')},
+                  # {'back_url': request.META.get('HTTP_REFERER')} #problem when we come from a deleted job
                  )
 
 
 @login_required
 def detailview(request, job_id):
-    job = get_object_or_404(Job, pk=job_id)
+    job = get_object_or_404(Job, id=job_id)
 
     jtype = job.type
     if jtype is None:
@@ -55,7 +57,9 @@ def detailview(request, job_id):
 
     return render(request, 'creme_core/job.html',
                   {'job': job,
-                   'results_blocks': jtype.results_blocks,
+                   # 'results_blocks': jtype.results_blocks,
+                   'results_bricks': jtype.results_bricks,
+                   'bricks_reload_url': reverse('creme_core__reload_job_bricks', args=(job.id,)),
                    # 'back_url': request.META.get('HTTP_REFERER'),
                    # 'back_url': '/', #TODO: improve (page before form, not form itself)
                   }
@@ -65,7 +69,7 @@ def detailview(request, job_id):
 @login_required
 @superuser_required
 def edit(request, job_id):
-    job = get_object_or_404(Job, pk=job_id)
+    job = get_object_or_404(Job, id=job_id)
 
     if job.user_id is not None:
         raise ConflictError('A non-system job cannot be edited')
@@ -100,7 +104,7 @@ def edit(request, job_id):
 @superuser_required
 @POST_only
 def enable(request, job_id, enabled=True):
-    job = get_object_or_404(Job, pk=job_id)
+    job = get_object_or_404(Job, id=job_id)
 
     if job.user_id is not None:
         raise ConflictError('A non-system job cannot be disabled')
@@ -114,7 +118,7 @@ def enable(request, job_id, enabled=True):
 @login_required
 @POST_only
 def delete(request, job_id):
-    job = get_object_or_404(Job, pk=job_id)
+    job = get_object_or_404(Job, id=job_id)
 
     if job.user_id is None:
         raise ConflictError('A system job cannot be cleared')
@@ -126,11 +130,13 @@ def delete(request, job_id):
 
     job.delete()
 
-    if request.is_ajax():
-        return HttpResponse()
+    url = reverse('creme_core__jobs')
 
-    # return HttpResponseRedirect('/creme_core/job/all')
-    return HttpResponseRedirect(reverse('creme_core__jobs'))
+    if request.is_ajax():
+        # return HttpResponse()
+        return HttpResponse(content=url, content_type='text/javascript')
+
+    return HttpResponseRedirect(url)
 
 
 @login_required
@@ -174,22 +180,28 @@ def get_info(request):
 
 @login_required
 @jsonify
-def reload_block(request, job_id, block_id):
-    job = get_object_or_404(Job, pk=job_id)
+def reload_bricks(request, job_id):
+    brick_ids = bricks_views.get_brick_ids_or_404(request)
+    job = get_object_or_404(Job, id=job_id)
+    bricks = []
+    results_bricks = None
 
-    if block_id == job_block.id_:
-        block = job_block
-    else:
-        for err_block in job.type.results_blocks:
-            if block_id == err_block.id_:
-                block = err_block
-                break
+    for brick_id in brick_ids:
+        if brick_id == JobBrick.id_:
+            bricks.append(JobBrick())
         else:
-            raise Http404('Invalid block ID')
+            if results_bricks is None:
+                results_bricks = job.type.results_bricks
+
+            for err_block in results_bricks:
+                if brick_id == err_block.id_:
+                    bricks.append(err_block)
+                    break
+            else:
+                raise Http404('Invalid brick ID')
 
     job.check_owner_or_die(request.user)
 
-    context = build_context(request)
-    context['job'] = job
-
-    return [(block.id_, block.detailview_display(context))]
+    return bricks_views.bricks_render_info(request, bricks=bricks,
+                                           context=bricks_views.build_context(request, job=job),
+                                          )

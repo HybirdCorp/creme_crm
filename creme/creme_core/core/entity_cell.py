@@ -21,18 +21,40 @@
 import logging
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import (Field, FieldDoesNotExist, BooleanField, PositiveIntegerField,
-        DecimalField, DateField, DateTimeField, ForeignKey, ManyToManyField)
+from django.db import models
+from django.db.models import Field, FieldDoesNotExist, BooleanField, DateField
 from django.utils.translation import ugettext_lazy as _
 
 from ..models import CremeEntity, RelationType, CustomField
+from ..models import fields as core_fields
 from ..models.fields import DatePeriodField
+from ..utils.collections import ClassKeyedMap
 from ..utils.db import populate_related
 from ..utils.meta import FieldInfo
 from .function_field import FunctionFieldDecimal
 
 
 logger = logging.getLogger(__name__)
+MULTILINE_FIELDS = (
+    models.TextField, core_fields.UnsafeHTMLField, models.ManyToManyField,
+)
+FIELDS_DATA_TYPES = ClassKeyedMap([
+    (DateField,                   'date'),
+    (models.TimeField,            'time'),
+    (models.DateTimeField,        'datetime'),
+
+    (models.IntegerField,         'integer'),
+
+    (models.TextField,            'text'),
+    (models.EmailField,           'email'),
+
+    (core_fields.PhoneField,      'phone'),
+    (core_fields.DurationField,   'duration'),
+    (core_fields.DatePeriod,      'period'),
+    (core_fields.ColorField,      'color'),
+    (core_fields.UnsafeHTMLField, 'html'),
+    (core_fields.MoneyField,      'html'),
+])
 
 
 class EntityCellsRegistry(object):
@@ -125,6 +147,10 @@ class EntityCell(object):
         return listview_css_class
 
     @property
+    def data_type(self):
+        return FIELDS_DATA_TYPES[self._get_field_class()]
+
+    @property
     def key(self):
         "Return an ID that should be unique in a EntityCell set"
         return '%s-%s' % (self.type_id, self.value)
@@ -136,6 +162,10 @@ class EntityCell(object):
     @property
     def header_listview_css_class(self):
         return self._get_listview_css_class('_header_listview_css_class')
+
+    @property
+    def is_multiline(self):
+        return issubclass(self._get_field_class(), MULTILINE_FIELDS)
 
     @staticmethod
     # def populate_entities(cells, entities):
@@ -171,14 +201,14 @@ class EntityCellRegularField(EntityCell):
 
     def __init__(self, model, name, field_info, is_hidden=False):
         "Use build() instead of using this constructor directly."
-        self._model = model
+        self._model = model  # TODO: move to EntityCell (@property too)
         self._field_info = field_info
         self._printer_html = self._printer_csv = None
 
         field = field_info[0]
         has_a_filter = True
         sortable = True
-        pattern = "%s__icontains"
+        pattern = '%s__icontains'
 
         # if isinstance(field, (ForeignKey, ManyToManyField)):
         #     if len(field_info) == 1:
@@ -200,9 +230,9 @@ class EntityCellRegularField(EntityCell):
 
         # if isinstance(field, (DateField, DateTimeField)):
         if isinstance(field, DateField):
-            pattern = "%s__range"  # TODO: quick search overload this, to use gte/lte when it is needed
+            pattern = '%s__range'  # TODO: quick search overload this, to use gte/lte when it is needed
         elif isinstance(field, BooleanField):
-            pattern = "%s__creme-boolean"
+            pattern = '%s__creme-boolean'
         elif isinstance(field, DatePeriodField):
             has_a_filter = False
             sortable = False
@@ -227,6 +257,13 @@ class EntityCellRegularField(EntityCell):
 
     @staticmethod
     def build(model, name, is_hidden=False):
+        """ Helper function to build EntityCellRegularField instances.
+
+        @param model: Class inheriting django.db.models.Model.
+        @param name: String representing a 'chain' of fields; eg: 'book__author__name'.
+        @param is_hidden: Boolean. See EntityCell.is_hidden.
+        @return: An instance of EntityCellRegularField, or None (if an error occurred).
+        """
         try:
             field_info = FieldInfo(model, name)
         except FieldDoesNotExist as e:
@@ -237,7 +274,15 @@ class EntityCellRegularField(EntityCell):
 
     @property
     def field_info(self):
+        """ Getter for attribute 'field_info'.
+
+        @return: An instance of creme_core.utils.meta.FieldInfo.
+        """
         return self._field_info
+
+    @property
+    def model(self):
+        return self._model
 
     def _get_field_class(self):
         return self._field_info[-1].__class__
@@ -282,12 +327,12 @@ class EntityCellCustomField(EntityCell):
             CustomField.MULTI_ENUM: '%s__value__exact',
         }
     _CF_CSS = {
-            CustomField.DATETIME:   DateTimeField,
-            CustomField.INT:        PositiveIntegerField,
-            CustomField.FLOAT:      DecimalField,
+            CustomField.DATETIME:   models.DateTimeField,
+            CustomField.INT:        models.PositiveIntegerField,
+            CustomField.FLOAT:      models.DecimalField,
             CustomField.BOOL:       BooleanField,
-            CustomField.ENUM:       ForeignKey,
-            CustomField.MULTI_ENUM: ManyToManyField,
+            CustomField.ENUM:       models.ForeignKey,
+            CustomField.MULTI_ENUM: models.ManyToManyField,
         }
 
     def __init__(self, customfield):
@@ -342,7 +387,7 @@ class EntityCellFunctionField(EntityCell):
     type_id = 'function_field'
 
     _FUNFIELD_CSS = { # TODO: ClassKeyedMap ?
-        FunctionFieldDecimal: DecimalField,
+        FunctionFieldDecimal: models.DecimalField,
     }
 
     def __init__(self, func_field):
@@ -408,6 +453,10 @@ class EntityCellRelation(EntityCell):
             return None
 
         return EntityCellRelation(rtype, is_hidden=is_hidden)
+
+    @property
+    def is_multiline(self):
+        return True
 
     @property
     def relation_type(self):

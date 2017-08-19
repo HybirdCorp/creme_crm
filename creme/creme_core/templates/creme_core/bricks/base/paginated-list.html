@@ -1,0 +1,11 @@
+{% extends 'creme_core/bricks/base/paginated.html' %}
+
+{% block brick_extra_class %}brick-list{% endblock %}
+
+{% block brick_content %}
+    {% if page.paginator.count %}
+        {% block brick_list_content %}{% endblock %}
+    {% else %}
+        <div class="brick-list-item brick-list-empty">{% block brick_list_empty %}{% endblock %}</div>
+    {% endif %}
+{% endblock %}

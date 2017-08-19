@@ -21,7 +21,7 @@ from .i18n import Language  # NOQA
 from .currency import Currency  # NOQA
 from .vat import Vat  # NOQA
 
-from .block import *  # NOQA
+from .bricks import *  # NOQA
 from .prefered_menu import PreferedMenuItem  # NOQA
 from .button_menu import ButtonMenuItem  # NOQA
 

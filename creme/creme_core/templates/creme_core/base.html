@@ -1,13 +1,12 @@
-{% load i18n %}
-{% load creme_menu creme_core_tags creme_search creme_quickforms %}
+{% load i18n creme_menu creme_core_tags creme_search creme_quickforms %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{LANGUAGE_CODE}}" xml:lang="{{LANGUAGE_CODE}}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />{% comment %}<meta http-equiv="X-UA-Compatible" content="IE=8" />{% endcomment %}
     <title>{% block page_title %}{% endblock %}Creme CRM</title>
     <script type='text/javascript'>
-        var THEME_NAME = "{{ THEME_NAME }}";
+        var THEME_NAME = "{{THEME_NAME}}";
     </script>
     <!--
         Firebug for browsers without plugin/extension :
@@ -24,7 +23,7 @@
       {% else %}
         /* TODO: move to CSS when OLD_MENU has been removed */
         div.main_content {
-            padding-top: 35px;
+            padding-top: 40px;
         }
 {% comment %}
         #top {
@@ -35,10 +34,12 @@
     </style>
     {% block extrahead %}{% endblock %}
 </head>
-<body {% block bodyclass %}{% endblock %}
+{# <body {% block bodyclass %}{% endblock %} #}
+<body class="{% block body_classes %}{% endblock %}"
       data-save-relations-url="{% url 'creme_core__save_relations' %}"
       data-select-relations-objects-url="{% url 'creme_core__select_entities_to_link' %}"
-      data-block-state-url="{% url 'creme_core__set_block_state' %}"
+      {% url_join bricks_reload_url base_url=request.path as bricks_reload_uri %}{% if bricks_reload_uri %}data-bricks-reload-url="{{bricks_reload_uri}}"{% endif %}
+      data-brick-state-url="{% url 'creme_core__set_brick_state' %}"
 >
 {% if OLD_MENU %}
     {% block side_menu %}

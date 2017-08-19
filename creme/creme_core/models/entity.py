@@ -271,21 +271,22 @@ class CremeEntity(CremeAbstractEntity):
 
         edit_url = self.get_edit_absolute_url()
         if edit_url:
-            actions.append(EntityAction(edit_url, ugettext('Edit'),
-                                user.has_perm_to_change(self), icon='images/edit_16.png'
-                               )
+            actions.append(EntityAction(edit_url, ugettext(u'Edit'),
+                                        user.has_perm_to_change(self),
+                                        icon='images/edit_16.png',
+                                       )
                            )
 
         delete_url = self.get_delete_absolute_url()
         if delete_url:
-            actions.append(EntityAction(delete_url, ugettext('Delete'),
+            actions.append(EntityAction(delete_url, ugettext(u'Delete'),
                                         user.has_perm_to_delete(self),
                                         icon='images/delete_16_button.png',
                                         attrs={'class': 'confirm post ajax lv_reload'},
                                        )
                           )
 
-        return {'default': EntityAction(self.get_absolute_url(), ugettext('See'),
+        return {'default': EntityAction(self.get_absolute_url(), ugettext(u'See'),
                                         is_allowed=True, icon='images/view_16.png',
                                        ),
                 'others':  actions,

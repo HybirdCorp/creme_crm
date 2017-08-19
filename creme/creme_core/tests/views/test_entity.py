@@ -14,9 +14,6 @@ try:
     from django.db.models import Max
     from django.utils.translation import ugettext as _
 
-    from .base import ViewsTestCase
-    from ..fake_models import (FakeContact, FakeOrganisation, FakePosition, FakeSector,
-               FakeAddress, FakeImage, FakeImageCategory)
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import (CremeEntity, RelationType, Relation, SetCredentials,
             CremePropertyType, CremeProperty, HistoryLine, FieldsConfig, history,
@@ -24,16 +21,21 @@ try:
             CustomFieldString, CustomFieldDateTime,
             CustomFieldEnum, CustomFieldMultiEnum, CustomFieldEnumValue)
     from creme.creme_core.gui.bulk_update import bulk_update_registry
-    from creme.creme_core.blocks import trash_block
+    from creme.creme_core.bricks import TrashBrick
     from creme.creme_core.forms.bulk import _CUSTOMFIELD_FORMAT, BulkDefaultEditForm
     from creme.creme_core.utils import safe_unicode
+
+    from ..fake_models import (FakeContact, FakeOrganisation, FakePosition, FakeSector,
+               FakeAddress, FakeImage, FakeImageCategory)
+
+    from .base import ViewsTestCase, BrickTestCaseMixin
 
     from creme.creme_config.tests.fake_models import FakeConfigEntity
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-class EntityViewsTestCase(ViewsTestCase):
+class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     # CLONE_URL        = '/creme_core/entity/clone'
     CLONE_URL        = reverse('creme_core__clone_entity')
     # DEL_ENTITIES_URL = '/creme_core/entity/delete/multi'
@@ -397,9 +399,11 @@ class EntityViewsTestCase(ViewsTestCase):
         # response = self.assertGET200('/creme_core/entity/trash')
         response = self.assertGET200(reverse('creme_core__trash'))
         self.assertTemplateUsed(response, 'creme_core/trash.html')
-        self.assertContains(response, 'id="%s"' % trash_block.id_)
-        self.assertContains(response, unicode(entity1))
-        self.assertNotContains(response, unicode(entity2))
+
+        doc = self.get_html_tree(response.content)
+        brick_node = self.get_brick_node(doc, TrashBrick.id_)
+        self.assertInstanceLink(brick_node, entity1)
+        self.assertNoInstanceLink(brick_node, entity2)
 
     def test_restore_entity01(self):
         "No trashed"
@@ -1315,7 +1319,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         # self.assertGET404(build_url(''))
 
         response = self.assertGET(400, build_url('unknown'))
-        msg = _(u'The field "%s" doesn\'t exist or cannot be edited')
+        msg = _(u'The field «%s» does not exist or cannot be edited')
         self.assertContains(response, msg % 'unknown', status_code=400)
 
         response = self.assertGET(400, build_url(_CUSTOMFIELD_FORMAT % 44500124))
@@ -1943,7 +1947,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         url = self.build_inneredit_url(image, 'categories')
         response = self.client.post(url, data={'field_value': [categories[0].pk, invalid_pk]})
         self.assertFormError(response, 'form', 'field_value',
-                             _('Select a valid choice. %(value)s is not one of the available choices.') % {
+                             _(u'Select a valid choice. %(value)s is not one of the available choices.') % {
                                     'value': invalid_pk,
                                 }
                             )

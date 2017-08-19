@@ -1,0 +1,115 @@
+{% extends 'creme_core/bricks/base/table.html' %}
+{% load i18n creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_core-job-brick{% endblock %}
+
+{% block brick_script %}{# TODO: in .js ?? #}
+    {% if not request.is_ajax and not job.is_finished %}
+    <script type="text/javascript">
+        $('.brick[id="{{brick_id}}"]').on('brick-ready', function(e, brick, options) {
+            creme.jobs.checkJobManager('{% url 'creme_core__jobs_info' %}', brick._id, true);
+        });
+    </script>
+    {% endif %}
+{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('Job') %}{# TODO: change icon ? icon by job type ? #}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% if job.get_config_form_class %}
+        {% brick_header_action id='edit' url=job.get_edit_absolute_url label=_("Edit the job's configuration") %}
+    {% endif %}
+
+    {% if job.is_finished and job.user %}
+        {% brick_header_action id='update-redirect' url=job.get_delete_absolute_url type='delete' label=_('Delete the job') %}
+    {% endif %}
+
+    {% if not job.user %}
+        {% if job.enabled %}{% url 'creme_core__disable_job' job.id as disable_url %}
+            {% brick_header_action id='update' url=disable_url label=_('Disable') icon='cancel' enabled=user.is_superuser %}
+        {% else %}{% url 'creme_core__enable_job' job.id as enable_url %}
+            {% brick_header_action id='update' url=enable_url label=_('Enable') icon='ok' enabled=user.is_superuser %}
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_table_head %}{% endblock %}
+
+{% block brick_before_content %}
+    <div class="global-error" style="display: none;"></div>
+
+    {% if job.enabled and user.is_superuser and job.status == JOB_WAIT %}
+    <div class="help-box">{% trans 'Disabling takes effect only after the current execution.' %}</div>
+    {% endif %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    <tr>
+        <td>{% trans 'Type' %}</td>
+        <td>{{job.type}}</td>
+    </tr>
+    <tr>
+        <td>{% trans 'App' %}</td>
+        <td>{{job.type.app_config.verbose_name}}</td>
+    </tr>
+    {% if job.user %}
+    <tr>
+        <td>{% trans 'User' %}</td>
+        <td>{{job.user}}</td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td>{% trans 'Description' %}</td>
+        <td>
+        {% with description=job.description %}{# TODO: factorise #}
+            {% if description|length > 1 %}
+                <ul>{% for elt in description %}<li>{{elt}}</li>{% endfor %}</ul>
+            {% else %}
+                {{description.0}}
+            {% endif %}
+        {% endwith %}
+        </td>
+    </tr>
+    {% if job.type.periodic != NOT_PERIODIC %}
+    <tr>
+        <td>{% trans 'Periodicity' %}</td>
+        <td>
+            <ul>
+                <li>{% trans 'Reference run' %}: {{job.reference_run}}</li>
+                <li>{% trans 'Every' %}: {{job.real_periodicity}}</li>
+            </ul>
+        </td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td>{% trans 'Last run' %}</td>
+        <td>{{job.last_run|default:_('Not run yet')}}</td>
+    </tr>
+    <tr>
+        <td>{% trans 'Status' %}</td>
+        <td data-job-id="{{job.id}}" data-job-status="{{job.status}}" data-job-ack-errors="{{job.ack_errors}}">
+            {{job.get_status_display}}
+        </td>
+    </tr>
+    {% if job.status == JOB_OK %}
+    <tr>
+        <td>{% trans 'Statistics' %}</td>
+        <td>
+        {% with stats=job.stats %}{# TODO: factorise #}
+            {% if stats|length > 1 %}
+                <ul>{% for stat in stats %}<li>{{stat}}</li>{% endfor %}</ul>
+            {% else %}
+                {{stats.0}}
+            {% endif %}
+        {% endwith %}
+        </td>
+    </tr>
+    {% elif job.status == JOB_ERROR %}
+    <tr>
+        <td>{% trans 'Error' %}</td>
+        <td>{{job.error}}</td>
+    </tr>
+    {% endif %}
+{% endblock %}

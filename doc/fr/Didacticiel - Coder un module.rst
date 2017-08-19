@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 27-02-2017 pour la version 1.7 de Creme
+:Version: 24-07-2017 pour la version 1.7 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -1977,7 +1977,7 @@ voulez définir la vue de création de ``my_tickets.Ticket`` avec votre propre f
 
 
 **Un peu plus loin** : vous avez peut-être remarqué que dans ``settings.py`` se
-trouvaient aussi aussi des variable de la forme ``<APP>_<MODEL>_FORCE_NOT_CUSTOM``
+trouvaient aussi des variable de la forme ``<APP>_<MODEL>_FORCE_NOT_CUSTOM``
 (par exemple ``TICKETS_TICKET_FORCE_NOT_CUSTOM``). Comme nous l'avons dit, il est
 préférable de procéder au *swapping* avant la création de la base de données. Or
 vous pourriez pressentir qu'à l'avenir un modèle doivent être *swappé*, mais vous

@@ -3,7 +3,7 @@
 from django.conf import settings
 from django.conf.urls import url, include
 
-from .views import (batch_process, blocks, creme_property, enumerable, entity,
+from .views import (batch_process, blocks, bricks, creme_property, enumerable, entity,
         entity_filter, file_handling, header_filter, index, job, list_view_export,
         mass_import, quick_forms, relation, search, testjs,
        )
@@ -71,32 +71,39 @@ property_patterns = [
     url(r'^delete_from_type$',                creme_property.delete_from_type,    name='creme_core__remove_property'),
 
     # Property type
-    url(r'^type/add$',                         creme_property.add_type,        name='creme_core__create_ptype'),
-    url(r'^type/(?P<ptype_id>[\w-]+)$',        creme_property.type_detailview, name='creme_core__ptype'),
-    url(r'^type/(?P<ptype_id>[\w-]+)/edit$',   creme_property.edit_type,       name='creme_core__edit_ptype'),
-    url(r'^type/(?P<ptype_id>[\w-]+)/delete$', creme_property.delete_type,     name='creme_core__delete_ptype'),
+    url(r'^type/add$',                                 creme_property.add_type,        name='creme_core__create_ptype'),
+    url(r'^type/(?P<ptype_id>[\w-]+)$',                creme_property.type_detailview, name='creme_core__ptype'),
+    url(r'^type/(?P<ptype_id>[\w-]+)/edit$',           creme_property.edit_type,       name='creme_core__edit_ptype'),
+    url(r'^type/(?P<ptype_id>[\w-]+)/delete$',         creme_property.delete_type,     name='creme_core__delete_ptype'),
+    url(r'^type/(?P<ptype_id>[\w-]+)/reload_bricks/$', creme_property.reload_bricks,   name='creme_core__reload_ptype_bricks'),
     url(r'^type/(?P<ptype_id>[\w-]+)/reload_block/(?P<block_id>[\w\-]+)/$',
         creme_property.reload_block,
         name='creme_core__reload_ptype_blocks',
-       ),
+       ),  # DEPRECATED
 ]
 
+# DEPRECATED
 blocks_patterns = [
     url(r'^relations_block/(?P<entity_id>\d+)/$',                                blocks.reload_relations_block, name='creme_core__reload_relations_block'),
     url(r'^relations_block/(?P<entity_id>\d+)/(?P<relation_type_ids>[\w,-]+)/$', blocks.reload_relations_block, name='creme_core__reload_relations_block'),
 
-    # TODO: change url to detailview/(?P<block_id>[\w-]+)...
     url(r'^(?P<block_id>[\w\-\|]+)/(?P<entity_id>\d+)/$', blocks.reload_detailview, name='creme_core__reload_detailview_blocks'),
 
     url(r'^home/(?P<block_id>[\w\-\|]+)/$',                      blocks.reload_home,   name='creme_core__reload_home_blocks'),
     url(r'^portal/(?P<block_id>[\w\-\|]+)/(?P<ct_ids>[\d,]+)/$', blocks.reload_portal, name='creme_core__reload_portal_blocks'),
 
-    # Most of blocks in creme_config for example
     url(r'^basic/(?P<block_id>[\w\-\|]+)/$', blocks.reload_basic, name='creme_core__reload_blocks'),
 
-    # TODO: change url ('reload' does not mean anything here...)
-    url(r'^set_state/$',                         blocks.set_state, name='creme_core__set_block_state'),
-    url(r'^set_state/(?P<block_id>[\w\-\|]+)/$', blocks.set_state, name='creme_core__set_block_state'),  # DEPRECATED
+    url(r'^set_state/(?P<block_id>[\w\-\|]+)/$', blocks.set_state, name='creme_core__set_block_state'),
+]
+
+bricks_patterns = [
+    url(r'^reload/$',                               bricks.reload_basic,      name='creme_core__reload_bricks'),
+    url(r'^reload/detailview/(?P<entity_id>\d+)/$', bricks.reload_detailview, name='creme_core__reload_detailview_bricks'),
+    url(r'^reload/home/$',                          bricks.reload_home,       name='creme_core__reload_home_bricks'),
+    url(r'^reload/portal/$',                        bricks.reload_portal,     name='creme_core__reload_portal_bricks'),
+
+    url(r'^set_state/$', bricks.set_state, name='creme_core__set_brick_state'),
 ]
 
 entity_filter_patterns = [
@@ -136,12 +143,12 @@ job_patterns = [
     url(r'^info$', job.get_info, name='creme_core__jobs_info'),
 
     url(r'^(?P<job_id>\d+)', include([
-        url(r'^$',                                job.detailview,                 name='creme_core__job'),
-        url(r'^/edit$',                           job.edit,                       name='creme_core__edit_job'),
-        url(r'^/delete$',                         job.delete,                     name='creme_core__delete_job'),
-        url(r'^/enable$',                         job.enable,                     name='creme_core__enable_job'),
-        url(r'^/disable$',                        job.enable, {'enabled': False}, name='creme_core__disable_job'),
-        url(r'^/reload/(?P<block_id>[\w\-\|]+)$', job.reload_block,               name='creme_core__reload_job_block'),
+        url(r'^$',         job.detailview,                 name='creme_core__job'),
+        url(r'^/edit$',    job.edit,                       name='creme_core__edit_job'),
+        url(r'^/delete$',  job.delete,                     name='creme_core__delete_job'),
+        url(r'^/enable$',  job.enable,                     name='creme_core__enable_job'),
+        url(r'^/disable$', job.enable, {'enabled': False}, name='creme_core__disable_job'),
+        url(r'^/reload$',  job.reload_bricks,              name='creme_core__reload_job_bricks'),
     ])),
 ]
 
@@ -150,6 +157,7 @@ creme_core_patterns = [
     url(r'^relation/',      include(relation_patterns)),
     url(r'^property/',      include(property_patterns)),
     url(r'^blocks/reload/', include(blocks_patterns)),
+    url(r'^bricks/',        include(bricks_patterns)),
     url(r'^entity_filter/', include(entity_filter_patterns)),
     url(r'^header_filter/', include(headerfilter_patterns)),
     url(r'^enumerable/',    include(enumerable_patterns)),
@@ -179,9 +187,10 @@ creme_core_patterns = [
     url(r'^list_view/batch_process/(?P<ct_id>\d+)/get_ops/(?P<field>[\w]+)$', batch_process.get_ops,       name='creme_core__batch_process_ops'),
 
     # Search
-    url(r'^search$',                                                       search.search,       name='creme_core__search'),
-    url(r'^search/light[/]?$',                                             search.light_search, name='creme_core__light_search'),
-    url(r'^search/reload_block/(?P<block_id>[\w\-\|]+)/(?P<research>.+)$', search.reload_block, name='creme_core__reload_search_block'),
+    url(r'^search$',               search.search,       name='creme_core__search'),
+    url(r'^search/light[/]?$',     search.light_search, name='creme_core__light_search'),
+    url(r'^search/reload_brick/$', search.reload_brick, name='creme_core__reload_search_brick'),
+    url(r'^search/reload_block/(?P<block_id>[\w\-\|]+)/(?P<research>.+)$', search.reload_block, name='creme_core__reload_search_block'),  # DEPRECATED
 
     url(r'^quickforms/(?P<ct_id>\d+)/(?P<count>\d)$',                  quick_forms.add,             name='creme_core__quick_forms'),
     # url(r'^quickforms/from_widget/(?P<ct_id>\d+)/add/(?P<count>\d)$', quick_forms.add_from_widget),

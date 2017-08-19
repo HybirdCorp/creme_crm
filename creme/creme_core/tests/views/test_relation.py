@@ -220,7 +220,7 @@ class RelationViewsTestCase(ViewsTestCase):
         Relation.objects.create(user=self.user,
                                 subject_entity=self.subject01,
                                 type=self.rtype02,
-                                object_entity=self.object02
+                                object_entity=self.object02,
                                )
         ct_id = self.ct_id
         response = self.client.post(self._build_add_url(self.subject01),
@@ -296,6 +296,19 @@ class RelationViewsTestCase(ViewsTestCase):
                                    )
         self.assertNoFormError(response)
         self.assertEqual(1, subject.relations.count())
+
+    def test_add_relations08(self):
+        "'exclude' parameter"
+        self._aux_test_add_relations()
+
+        rtype01 = self.rtype01
+        response = self.client.get(self._build_add_url(self.subject01), data={'exclude': [rtype01.id]})
+
+        with self.assertNoException():
+            rtypes = response.context['form'].fields['relations'].allowed_rtypes
+
+        self.assertIn(self.rtype02, rtypes)
+        self.assertNotIn(rtype01, rtypes)
 
     def test_add_relations_with_semi_fixed01(self):
         "Only semi fixed"

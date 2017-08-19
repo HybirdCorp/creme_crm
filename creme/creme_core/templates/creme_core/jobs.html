@@ -1,10 +1,10 @@
-{% extends "creme_core/base.html" %}
-{% load i18n creme_core_tags creme_block %}
+{% extends 'creme_core/base.html' %}
+{% load i18n creme_bricks %}
 
 {% block content %}
-    <div class="help_box">{% trans "Disabling a job takes effect only after its current execution." %}</div>
+    <div class="help_box">{% trans 'Disabling a job takes effect only after its current execution.' %}</div>
 
-    {% import_block from_app 'creme_core' named 'jobs' as 'jobs_block' %}
-    {% display_block_detailview 'jobs_block' %}
-    {% get_blocks_dependencies %}
+    {% brick_import app='creme_core' name='jobs' as jobs_brick %}
+    {% brick_display jobs_brick %}
+    {% brick_end %}
 {% endblock %}

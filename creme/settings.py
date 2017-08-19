@@ -202,11 +202,14 @@ TEMPLATES = [
 
                 'creme.creme_core.context_processors.get_logo_url',
                 'creme.creme_core.context_processors.get_version',
+                'creme.creme_core.context_processors.get_hidden_value',
                 'creme.creme_core.context_processors.get_django_version',
                 'creme.creme_core.context_processors.get_today',
                 'creme.creme_core.context_processors.get_css_theme',
-                'creme.creme_core.context_processors.get_blocks_manager',
+                # 'creme.creme_core.context_processors.get_blocks_manager',
+                'creme.creme_core.context_processors.get_bricks_manager',
                 'creme.creme_core.context_processors.get_fields_configs',
+                'creme.creme_core.context_processors.get_shared_data',
                 'creme.creme_core.context_processors.get_old_menu',
             ],
             'loaders': [
@@ -416,7 +419,7 @@ OLD_MENU = False  # True use pre 1.7 menu (left side menu, with items per app)
 BLOCK_SIZE = 10  # Lines number in common blocks
 MAX_LAST_ITEMS = 9  # Max number of items in the 'Last viewed items' bar
 
-HIDDEN_VALUE = u"??"  # Used to replace contents which a user is not allowed to see.
+HIDDEN_VALUE = u'??'  # Used to replace contents which a user is not allowed to see.
 
 # List-view
 PAGE_SIZES = [10, 25, 50, 100, 200]  # Available page sizes  (list of integers)
@@ -462,6 +465,7 @@ CREME_CORE_CSS = ('main.css',
 
                     'creme_core/css/header_menu.css',
                     'creme_core/css/blocks.css',
+                    'creme_core/css/bricks.css',
                     'creme_core/css/home.css',
                     'creme_core/css/my_page.css',
                     'creme_core/css/search_results.css',
@@ -470,22 +474,24 @@ CREME_CORE_CSS = ('main.css',
                     'creme_core/css/detail_view.css',
                     'creme_core/css/navit.css',
                     'creme_core/css/forms.css',
+                    'creme_core/css/popover.css',
 
-                    # APPS
                     'creme_config/css/creme_config.css',
-                    'activities/css/fullcalendar-1.6.7.css',
-                    'activities/css/activities.css',
-                    'persons/css/persons.css',
                  )
 
-CREME_OPT_CSS = (  # OPTIONAL APPS
-                 ('creme.billing',     'billing/css/billing.css'),
-                 ('creme.commercial',  'commercial/css/commercial.css'),
-                 ('creme.crudity',     'crudity/css/crudity.css'),
-                 ('creme.geolocation', 'geolocation/css/geolocation.css'),
-                 ('creme.products',    'products/css/products.css'),
-                 ('creme.tickets',     'tickets/css/tickets.css'),
-                )
+CREME_OPT_CSS = (  # APPS
+     ('creme.persons',          'persons/css/persons.css'),
+
+     ('creme.activities',       'activities/css/activities.css'),
+     ('creme.activities',       'activities/css/fullcalendar-1.6.7.css'),
+
+     ('creme.billing',          'billing/css/billing.css'),
+     ('creme.commercial',       'commercial/css/commercial.css'),
+     ('creme.crudity',          'crudity/css/crudity.css'),
+     ('creme.geolocation',      'geolocation/css/geolocation.css'),
+     ('creme.products',         'products/css/products.css'),
+     ('creme.tickets',          'tickets/css/tickets.css'),
+)
 
 CREME_I18N_JS = ('l10n.js',
                     {'filter': 'mediagenerator.filters.i18n.I18N'},  # To build the i18n catalog statically.
@@ -548,16 +554,13 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/utils.js',
                     'creme_core/js/forms.js',
                     'creme_core/js/ajax.js',
-                    'creme_core/js/menu.js',
-                    'creme_core/js/search.js',
-                    'creme_core/js/blocks.js',
-                    'creme_core/js/jobs.js',
 
                     'creme_core/js/widgets/base.js',
 
                     'creme_core/js/widgets/component/component.js',
                     'creme_core/js/widgets/component/events.js',
                     'creme_core/js/widgets/component/action.js',
+                    'creme_core/js/widgets/component/action-link.js',
                     'creme_core/js/widgets/component/chosen.js',
 
                     'creme_core/js/widgets/utils/template.js',
@@ -590,6 +593,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/widgets/dialog/form.js',
                     'creme_core/js/widgets/dialog/select.js',
                     'creme_core/js/widgets/dialog/glasspane.js',
+                    'creme_core/js/widgets/dialog/popover.js',
 
                     'creme_core/js/widgets/frame.js',
                     'creme_core/js/widgets/toggle.js',
@@ -612,31 +616,46 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/widgets/scrollactivator.js',
                     'creme_core/js/widgets/container.js',
 
+                    'creme_core/js/menu.js',
+                    'creme_core/js/search.js',
+                    'creme_core/js/blocks.js',
+
+                    'creme_core/js/bricks.js',
+
                     'creme_core/js/list_view.core.js',
                     'creme_core/js/lv_widget.js',
+                    'creme_core/js/detailview.js',
+
                     'creme_core/js/entity_cell.js',
                     'creme_core/js/export.js',
                     'creme_core/js/merge.js',
                     'creme_core/js/relations.js',
-
-                    'assistants/js/assistants.js',
-                    'activities/js/jquery/extensions/fullcalendar-1.6.7.js',
-                    'activities/js/activities.js',
-
-                    # OTHER APPS (mandatory ones)
-                    'persons/js/persons.js',
+                    'creme_core/js/jobs.js',
                 )
 
 CREME_OPT_JS = (  # OPTIONAL APPS
-                ('creme.billing',     'billing/js/billing.js'),
-                ('creme.reports',     'reports/js/reports.js'),
-                ('creme.emails',      'emails/js/emails.js'),
-                ('creme.cti',         'cti/js/cti.js'),
-                ('creme.commercial',  'commercial/js/commercial.js'),
-                ('creme.events',      'events/js/events.js'),
-                ('creme.geolocation', 'geolocation/js/geolocation.js',),
-                ('creme.geolocation', 'geolocation/js/block.js',),
-               )
+    ('creme.persons',       'persons/js/persons.js'),
+
+    ('creme.assistants',    'assistants/js/assistants.js'),
+
+    ('creme.activities',    'activities/js/jquery/extensions/fullcalendar-1.6.7.js'),
+    ('creme.activities',    'activities/js/activities.js'),
+
+    ('creme.billing',       'billing/js/billing.js'),
+
+    ('creme.commercial',    'commercial/js/commercial.js'),
+
+    ('creme.reports',       'reports/js/reports.js'),
+
+    ('creme.emails',        'emails/js/emails.js'),
+
+    ('creme.cti',           'cti/js/cti.js'),
+
+    ('creme.events',        'events/js/events.js'),
+
+    ('creme.geolocation',   'geolocation/js/geolocation.js'),
+    ('creme.geolocation',   'geolocation/js/block.js'),
+)
 
 TEST_CREME_CORE_JS = (  # JS Unit test files
     'test_core.js',

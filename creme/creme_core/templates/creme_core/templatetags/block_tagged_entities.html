@@ -1,4 +1,7 @@
 {% load creme_core_tags creme_block creme_widgets %}
+
+{% log 'The template file "creme/creme_core/templates/creme_core/templatetags/block_tagged_entities.html" is deprecated.' level='WARN' %}
+
 {% if not page.paginator.count %}
     {% if request.is_ajax %}
         <table style="display:none;" class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}" />

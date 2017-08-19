@@ -1,0 +1,7 @@
+<th{% for value in status %} data-table-{{value}}-column{% endfor %}{% if key %} data-key="{{key}}"{% endif %} {{attributes}}>
+{% if sort_by %}
+    <span class="brick-table-sortable{% if sort_by.sorted %} brick-table-sorted{% endif %}" {% if help %}title="{{help}}"{% endif %} data-sort-order="{{sort_by.order}}" data-sort-field="{{sort_by.field}}">{{title}}</span>
+{% else %}
+    <span title="{{help}}">{{title}}</span>
+{% endif %}
+</th>

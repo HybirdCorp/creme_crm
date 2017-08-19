@@ -1,4 +1,7 @@
-{% load i18n %}
+{% load i18n creme_core_tags %}
+
+{% log 'The template file "creme/creme_core/templates/creme_core/templatetags/widgets/block_empty_fields_button.html" is deprecated.' level='WARN' %}
+
 <div class="buttons">
     <a onclick="creme.blocks.toggleEmptyFields(this);" class="{% if state.show_empty_fields %}view_less{% else %}view_more{% endif %}" title="{% trans "Show/Hide empty fields" %}"></a>
 </div>

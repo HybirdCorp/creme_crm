@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@
 
 from collections import defaultdict
 from re import compile as compile_re
+import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
@@ -29,7 +30,7 @@ from django.template.loader import get_template
 # from django.utils.translation import ungettext
 
 from ..core.entity_cell import EntityCellRegularField, EntityCellCustomField
-from ..gui.block import Block, block_registry, BlocksManager
+from ..gui.bricks import Brick, brick_registry, BricksManager
 from ..gui.bulk_update import bulk_update_registry
 from ..models import Relation, BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation
 from ..utils.translation import plural
@@ -47,7 +48,14 @@ _MYPAGE_BLOCKS        = 'mypage_blocks'
 _PORTAL_BLOCKS        = 'portal_blocks'
 
 
+warnings.warn('{% load creme_block %} is deprecated ; use tags of {% load creme_bricks %} instead.',
+              DeprecationWarning
+             )
+
+
 def _arg_in_quotes_or_die(arg, tag_name):
+    warnings.warn('creme_block._arg_in_quotes_or_die() is deprecated.', DeprecationWarning)
+
     first_char = arg[0]
     if not (first_char == arg[-1] and first_char in ('"', "'")):
         raise TemplateSyntaxError("%r tag's argument should be in quotes" % tag_name)
@@ -57,6 +65,7 @@ class InnerTemplateVar(object):
     __slots__ = ('tpl',)
 
     def __init__(self, tpl):
+        warnings.warn('creme_block.InnerTemplateVar is deprecated.', DeprecationWarning)
         self.tpl = tpl
 
     def eval(self, context):
@@ -77,6 +86,8 @@ def do_block_header(parser, token):
             <th class="label">My other title</th>
           {% end_get_block_header %}
     """
+    warnings.warn('{% get_block_header %} is deprecated ; use the new bricks tools instead.', DeprecationWarning)
+
     try:
         tag_name, arg = token.contents.split(None, 1)  # Splitting by None == splitting by spaces.
     except ValueError:
@@ -95,7 +106,7 @@ def do_block_header(parser, token):
         raise TemplateSyntaxError(str(e))
 
     raw_collapsable = groupdict.get('collapsable') or '1'
-    try: #TODO: factorise
+    try:  # TODO: factorise
         collapsable = TemplateLiteral(parser.compile_filter(raw_collapsable), raw_collapsable)
     except Exception as e:
         raise TemplateSyntaxError(str(e))
@@ -108,6 +119,8 @@ def do_block_header(parser, token):
 
 class HeaderNode(TemplateNode):
     def __init__(self, nodelist, colspan, collapsable):
+        warnings.warn('creme_block.HeaderNode is deprecated.', DeprecationWarning)
+
         self.header_tpl = get_template('creme_core/templatetags/widgets/block_header.html')
         self.nodelist = nodelist
         self.colspan  = colspan
@@ -126,16 +139,24 @@ class HeaderNode(TemplateNode):
 
 @register.inclusion_tag('creme_core/templatetags/widgets/block_reload_uri.html', takes_context=True)
 def get_block_reload_uri(context):  # {% include 'creme_core/templatetags/widgets/block_reload_uri.html' %} instead ??
+    warnings.warn('{% get_block_reload_uri %} is deprecated ; use the new bricks reload system instead.',
+                  DeprecationWarning
+                 )
     return context
 
 
 @register.inclusion_tag('creme_core/templatetags/widgets/block_relation_reload_uri.html', takes_context=True)
 def get_block_relation_reload_uri(context):
     "Specific to relation block, it aim to reload all relations blocks on the page at the same time."
+    warnings.warn('{% get_block_relation_reload_uri %} is deprecated ; use the new bricks tools instead.',
+                  DeprecationWarning
+                 )
+
     block_id = context['block_name']
     # TODO: move a part in BlocksManager ?? ('_blocks' is private...)
-    context['deps'] = ','.join(block.id_ for block in BlocksManager.get(context)._blocks
-                                            if (block.dependencies == '*'
+    # context['deps'] = ','.join(block.id_ for block in BricksManager.get(context)._blocks
+    context['deps'] = ','.join(block.id_ for block in BricksManager.get(context)._bricks
+                               if (block.dependencies == '*'
                                                 or Relation in block.dependencies
                                                ) and block.id_ != block_id
                               )
@@ -145,6 +166,8 @@ def get_block_relation_reload_uri(context):
 
 @register.inclusion_tag('creme_core/templatetags/widgets/block_title.html', takes_context=True)
 def get_block_title(context, singular_title, plural_title, icon='', short_title='', count=None):
+    warnings.warn('{% get_block_title %} is deprecated ; use {% brick_header_title %} instead.', DeprecationWarning)
+
     if count is None:
         count = context['page'].paginator.count
 
@@ -161,6 +184,8 @@ def get_block_title(context, singular_title, plural_title, icon='', short_title=
 
 @register.inclusion_tag('creme_core/templatetags/widgets/block_title.html', takes_context=True)
 def get_basic_block_header(context, title, icon='', short_title=''):
+    warnings.warn('{% get_basic_header %} is deprecated ; use {% brick_header_title %} instead.', DeprecationWarning)
+
     context.update({
             'title':       title,
             'icon':        icon,
@@ -172,6 +197,8 @@ def get_basic_block_header(context, title, icon='', short_title=''):
 
 @register.inclusion_tag('creme_core/templatetags/widgets/block_column_header.html', takes_context=True)
 def get_column_header(context, column_name, field_name):
+    warnings.warn('{% get_column_header %} is deprecated ; use {% brick_table_column %} instead.', DeprecationWarning)
+
     order_by = context['order_by']
 
     if order_by.startswith('-'):
@@ -193,6 +220,9 @@ def get_column_header(context, column_name, field_name):
 
 @register.inclusion_tag('creme_core/templatetags/widgets/block_empty_fields_button.html', takes_context=True)
 def get_toggle_empty_field_button(context):
+    warnings.warn('{% get_toggle_empty_field_button %} is deprecated ; use {% brick_menu_reduce_action %} instead.',
+                  DeprecationWarning
+                 )
     return context
 
 # ------------------------------------------------------------------------------
@@ -232,6 +262,8 @@ def _do_line_creator(parser, token, template_path):
 
 class LineCreatorNode(TemplateNode):
     def __init__(self, url_var, label_var, perm_var, template_path):
+        warnings.warn('creme_block.LineCreatorNode is deprecated.', DeprecationWarning)
+
         self.template  = get_template(template_path)
         self.url_var   = url_var
         self.perm_var  = perm_var
@@ -254,18 +286,32 @@ def do_line_adder(parser, token):
     {% url 'my_app__add_my_model' object.id as my_url %}
     {% get_line_adder at_url my_url with_label _("New Stuff") with_perms has_perm %}
     """
+    warnings.warn('{% get_line_adder %} is deprecated ; use {% brick_header_action id="add" ... % } instead.',
+                  DeprecationWarning
+                 )
+
     return _do_line_creator(parser, token, 'creme_core/templatetags/widgets/block_line_adder.html')
 
 
 @register.tag(name="get_line_linker")
 def do_line_linker(parser, token):
     """Eg: {% get_line_linker at_url '/assistants/action/link/{{object.id}}/' with_label _("Link to existing Stuffs") with_perms has_perm %}"""
+    warnings.warn('{% get_line_adder %} is deprecated ; '
+                  'use {% brick_header_action id="add" icon="link" ... % } instead.',
+                  DeprecationWarning
+                 )
+
     return _do_line_creator(parser, token, 'creme_core/templatetags/widgets/block_line_linker.html')
 
 
 @register.tag(name="get_line_viewer")
 def do_line_viewer(parser, token):
     """Eg: {% get_line_viewer at_url '/assistants/action/link/{{object.id}}/' with_label _("View this object") with_perms has_perm %}"""
+    warnings.warn('{% get_line_viewer %} is deprecated ; '
+                  'you can use {% wigdet_entity_link ... % } instead for example.',
+                  DeprecationWarning
+                 )
+
     return _do_line_creator(parser, token, 'creme_core/templatetags/widgets/block_line_viewer.html')
 
 # ------------------------------------------------------------------------------
@@ -275,6 +321,10 @@ _LINE_RELATOR_RE = compile_re(r'to_subject (.*?) with_rtype_id (.*?) with_ct_id 
 @register.tag(name="get_line_relator")
 def do_line_relator(parser, token):
     """Eg: {% get_line_relator to_object object with_rtype_id predicate_id with_ctype ct with_label _("Link to an existing Stuff") with_perms has_perm %}"""
+    warnings.warn('{% get_line_relator %} is deprecated ; use {% brick_header_action id="add-relationships" ... % } instead.',
+                  DeprecationWarning
+                 )
+
     try:
         tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
     except ValueError:
@@ -303,6 +353,8 @@ def do_line_relator(parser, token):
 
 class LineRelatorNode(TemplateNode):
     def __init__(self, subject_var, rtype_id_var, ctype_id_var, label_var, perm_var, is_multiple):
+        warnings.warn('creme_block.LineRelatorNode is deprecated.', DeprecationWarning)
+
         self.template = get_template('creme_core/templatetags/widgets/block_line_relator.html')
         self.subject_var  = subject_var
         self.rtype_id_var = rtype_id_var
@@ -364,6 +416,8 @@ def _do_line_suppr(parser, token, template_path):
 
 class LineSuppressorNode(TemplateNode):
     def __init__(self, url_var, post_args, perm_var, template_path):
+        warnings.warn('creme_block.LineSuppressorNode is deprecated.', DeprecationWarning)
+
         self.template = get_template(template_path)
         self.url_var   = url_var
         self.args_tpl = Template(post_args)
@@ -386,12 +440,22 @@ def do_line_deletor(parser, token):
     {% url 'my_app__delete_model' as delete_url %}
     {% get_line_deletor at_url delete_url with_args "{'id' : {{object.id}} }" with_perms boolean_variable %}
     """
+    warnings.warn('{% get_line_deletor %} is deprecated ; '
+                  'use {% brick_header_action id="delete" ... % } instead.',
+                  DeprecationWarning
+                 )
+
     return _do_line_suppr(parser, token, 'creme_core/templatetags/widgets/block_line_deletor.html')
 
 
 @register.tag(name="get_line_unlinker")
 def do_line_unlinker(parser, token):
     """Eg: {% get_line_unlinker at_url '/app/model/unlink' with_args "{'id' : {{object.id}} }" with_perms boolean_variable %}"""
+    warnings.warn('{% get_line_deletor %} is deprecated ; '
+                  'use {% brick_header_action id="delete" icon=""unlink" ... % } instead.',
+                  DeprecationWarning
+                 )
+
     return _do_line_suppr(parser, token, 'creme_core/templatetags/widgets/block_line_unlinker.html')
 
 
@@ -402,6 +466,8 @@ _FIELD_EDITOR_RE = compile_re(r'on (.*?) (.*?) for (.*?)$')
 @register.tag(name="get_field_editor")
 def do_get_field_editor(parser, token):
     """Eg: {% get_field_editor on custom|regular|entity_cell field|'field_name'|"field_name" for object %}"""
+    warnings.warn('{% get_field_editor %} is deprecated.', DeprecationWarning)
+
     try:
         tag_name, arg = token.contents.split(None, 1)  # Splitting by None == splitting by spaces.
     except ValueError:
@@ -426,6 +492,7 @@ class RegularFieldEditorNode(TemplateNode):
     template_name = 'creme_core/templatetags/widgets/block_field_editor.html'
 
     def __init__(self, field_var, object_var):
+        warnings.warn('creme_block.RegularFieldEditorNode is deprecated.', DeprecationWarning)
         self.field_var  = field_var
         self.object_var = object_var
 
@@ -449,7 +516,7 @@ class RegularFieldEditorNode(TemplateNode):
 
         e_context = context.flatten()
         e_context['object']    = instance
-        e_context['ct_id']     = ContentType.objects.get_for_model(instance).pk #TODO: instance.entity_type_id ??
+        e_context['ct_id']     = ContentType.objects.get_for_model(instance).pk
         e_context['edit_perm'] = e_context['user'].has_perm_to_change(owner)
 
         self._update_context(e_context, field, instance)
@@ -491,6 +558,11 @@ _LINE_EDITOR_RE = compile_re(r'at_url (.*?) with_perms (.*?)$')
 @register.tag(name="get_line_editor")
 def do_line_editor(parser, token):
     """Eg: {% get_line_editor at_url '/assistants/action/edit/{{action.id}}/' with_perms has_perm %}"""
+    warnings.warn('{% get_line_editor %} is deprecated ; '
+                  'use {% brick_header_action id="edit" ... % } instead.',
+                  DeprecationWarning
+                 )
+
     try:
         tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
     except ValueError:
@@ -518,6 +590,8 @@ def do_line_editor(parser, token):
 
 class LineEditorNode(TemplateNode):
     def __init__(self, edit_url_var, perm_var):
+        warnings.warn('creme_block.LineEditorNode is deprecated.', DeprecationWarning)
+
         self.template = get_template('creme_core/templatetags/widgets/block_line_editor.html')
         self.edit_url_var = edit_url_var
         self.perm_var = perm_var
@@ -537,6 +611,13 @@ _LISTVIEW_BUTTON_RE = compile_re(r'with_ct_id (.*?) with_label (.*?) with_q_filt
 @register.tag(name="get_listview_button")
 def do_line_lister(parser, token):
     """Eg: {% get_listview_button with_ct_id ct_id with_label _("List of related products") with_q_filter q_filter %}"""
+    warnings.warn("{% get_listview_button %} is deprecated ; "
+                  "use {% url 'creme_core__listview_popup' as lv_url %}"
+                  "{% templatize '{{lv_url}}?ct_id={{ct_id}}&q_filter={{q_filter}}' as action_uri %}"
+                  "{% brick_header_action id='view' url=action_uri ... % } instead.",
+                  DeprecationWarning
+                 )
+
     try:
         tag_name, arg = token.contents.split(None, 1)  # Splitting by None == splitting by spaces.
     except ValueError:
@@ -557,6 +638,8 @@ def do_line_lister(parser, token):
 
 class ListViewButtonNode(TemplateNode):
     def __init__(self, ctype_id_var, label_var, q_filter_var):
+        warnings.warn('creme_block.ListViewButtonNode is deprecated.', DeprecationWarning)
+
         self.template = get_template('creme_core/templatetags/widgets/block_listview_button.html')
         self.ctype_id_var = ctype_id_var
         self.label_var    = label_var
@@ -575,6 +658,8 @@ class ListViewButtonNode(TemplateNode):
 # TODO:  use keyword ?
 @register.inclusion_tag('creme_core/templatetags/widgets/block_footer.html', takes_context=True)
 def get_block_footer(context, colspan):
+    warnings.warn('{% get_block_footer %} is deprecated ; use the new bricks tools instead.', DeprecationWarning)
+
     assert 'page' in context, 'Use the templatetag <get_block_footer> only on paginated blocks (problem with: %s)' % context.get('block_name', 'Unknown block id')
     context['colspan'] = colspan
     return context
@@ -587,6 +672,10 @@ _BLOCK_IMPORTER_RE = compile_re(r'from_app (.*?) named (.*?) as (.*?)$')
 @register.tag(name="import_block")
 def do_block_importer(parser, token):
     """Eg: {% import_block from_app 'creme_core' named 'relations' as 'relations_block' %}"""
+    warnings.warn('{% import_block %} is deprecated ; use {% brick_import %} (from creme_bricks) instead.',
+                  DeprecationWarning
+                 )
+
     try:
         # Splitting by None == splitting by spaces.
         tag_name, arg = token.contents.split(None, 1)
@@ -614,17 +703,23 @@ def do_block_importer(parser, token):
 
 class BlockImporterNode(TemplateNode):
     def __init__(self, app_name, block_name, alias):
-        self.block = block_registry[Block.generate_id(app_name, block_name)]
+        warnings.warn('creme_blocks.BlockImporterNode is deprecated.', DeprecationWarning)
+
+        # Beware 'block' is now (creme1.7) a class, & not an instance.
+        self.block = brick_registry[Brick.generate_id(app_name, block_name)]
         self.alias = alias  # Name of the block in this template
 
     def render(self, context):
-        BlocksManager.get(context).add_group(self.alias, self.block)
+        # BricksManager.get(context).add_group(self.alias, self.block)
+        BricksManager.get(context).add_group(self.alias, self.block())
         return ''
 
 
 # UTILS ------------------------------------------------------------------------
 
 def _parse_block_alias(tag_name, block_alias):
+    warnings.warn('creme_blocks._parse_block_alias() is deprecated.', DeprecationWarning)
+
     first_char = block_alias[0]
     if not (first_char == block_alias[-1] and first_char in ('"', "'")):
         raise TemplateSyntaxError("%r tag's argument should be in quotes" % tag_name)
@@ -641,6 +736,10 @@ def _parse_block_alias(tag_name, block_alias):
 @register.tag(name="display_block_detailview")
 def do_block_detailviewer(parser, token):
     """Eg: {% display_block_detailview 'relations_block' %}"""
+    warnings.warn('{% display_block_detailview %} is deprecated ; use {% brick_display %} (from creme_bricks) instead.',
+                  DeprecationWarning
+                 )
+
     try:
         # Splitting by None == splitting by spaces.
         tag_name, block_alias = token.contents.split(None, 1)
@@ -649,19 +748,25 @@ def do_block_detailviewer(parser, token):
 
     return BlockDetailViewerNode(_parse_block_alias(tag_name, block_alias))
 
+
 class BlockDetailViewerNode(TemplateNode):
     def __init__(self, block_alias):
+        warnings.warn('creme_blocks.BlockDetailViewerNode is deprecated.', DeprecationWarning)
         self.alias = block_alias  # Name of the block in this template
 
     def render(self, context):
-        block = BlocksManager.get(context).pop_group(self.alias)[0]
+        block = BricksManager.get(context).pop_group(self.alias)[0]
 
         return block.detailview_display(context.flatten())
 
 
 @register.tag(name="import_object_block")
 def do_object_block_importer(parser, token):
-    """Eg: {% import_object_block object=object as 'object_block' %}"""
+    """Eg: {% import_object_block as 'object_block' %}"""
+    warnings.warn('{% import_object_block %} is deprecated ; use {% brick_import object=... %} (from creme_bricks) instead.',
+                  DeprecationWarning
+                 )
+
     split = token.contents.split()
     tag_name = split[0]
 
@@ -679,10 +784,12 @@ def do_object_block_importer(parser, token):
 
 class ObjectBlockImporterNode(TemplateNode):
     def __init__(self, alias):
+        warnings.warn('creme_blocks.ObjectBlockImporterNode is deprecated.', DeprecationWarning)
+
         self.alias = alias
 
     def render(self, context):
-        BlocksManager.get(context).add_group(self.alias, block_registry.get_block_4_object(context['object']))
+        BricksManager.get(context).add_group(self.alias, brick_registry.get_block_4_object(context['object']))
         return ''
 
 
@@ -699,7 +806,7 @@ class DetailviewBlocksImporterNode(TemplateNode):
               )
 
     def render(self, context):
-        blocks_manager = BlocksManager.get(context)
+        blocks_manager = BricksManager.get(context)
         entity = context['object']
         user = context['user']
         is_superuser = user.is_superuser
@@ -725,12 +832,12 @@ class DetailviewBlocksImporterNode(TemplateNode):
 
             if block_id:  # Populate scripts can leave void block ids
                 if BlockDetailviewLocation.id_is_4_model(block_id):
-                    block_id = block_registry.get_block_4_object(entity).id_
+                    block_id = brick_registry.get_block_4_object(entity).id_
 
                 loc_map[loc.zone].append(block_id)
 
         add_group  = blocks_manager.add_group
-        get_blocks = block_registry.get_blocks
+        get_blocks = brick_registry.get_blocks
 
         for group_name, zone in self._GROUPS:
             add_group(group_name, *get_blocks(loc_map[zone], entity=entity))
@@ -769,15 +876,15 @@ class DetailviewBlocksDisplayerNode(TemplateNode):
     def block_outputs(self, context):
         model = context['object'].__class__
 
-        for block in BlocksManager.get(context).pop_group(self.group_name):
+        for block in BricksManager.get(context).pop_group(self.group_name):
             detailview_display = getattr(block, 'detailview_display', None)
             if not detailview_display:
-                yield "THIS BLOCK CAN'T BE DISPLAY ON DETAILVIEW (YOU HAVE A CONFIG PROBLEM): %s" % (block.id_ or block.__class__.__name__)
+                yield "THIS BLOCK CAN'T BE DISPLAYED ON DETAILVIEW (YOU HAVE A CONFIG PROBLEM): %s" % (block.id_ or block.__class__.__name__)
                 continue
 
             target_ctypes = block.target_ctypes
             if target_ctypes and not model in target_ctypes:
-                yield "THIS BLOCK CAN'T BE DISPLAY ON THIS CONTENT TYPE (YOU HAVE A CONFIG PROBLEM): %s" % block.id_
+                yield "THIS BLOCK CAN'T BE DISPLAYED ON THIS CONTENT TYPE (YOU HAVE A CONFIG PROBLEM): %s" % block.id_
                 continue
 
             yield detailview_display(context)
@@ -791,6 +898,8 @@ class DetailviewBlocksDisplayerNode(TemplateNode):
 @register.tag(name="display_block_portal")
 def do_block_portalviewer(parser, token):
     """Eg: {% display_block_portal 'stuffs_block' ct_ids %}"""
+    warnings.warn('{% display_block_portal %} is deprecated.', DeprecationWarning)
+
     try:
         # Splitting by None == splitting by spaces.
         tag_name, block_alias, ct_ids_varname = token.contents.split(None)
@@ -802,17 +911,20 @@ def do_block_portalviewer(parser, token):
 
 class BlockPortalViewerNode(TemplateNode):
     def __init__(self, block_alias, ct_ids_varname):
+        warnings.warn('creme_block.BlockPortalViewerNode is deprecated.', DeprecationWarning)
+
         self.alias = block_alias  # Name of the block in this template
         self.ct_ids_varname = ct_ids_varname
 
     def render(self, context):
-        block = BlocksManager.get(context).pop_group(self.alias)[0]
+        block = BricksManager.get(context).pop_group(self.alias)[0]
 
         return block.portal_display(context, context[self.ct_ids_varname])
 
 
-# TODO: move in creme_core.utils
 def _parse_one_var_tag(token):
+    warnings.warn('creme_block._parse_one_var_tag() is deprecated.', DeprecationWarning)
+
     try:
         # Splitting by None == splitting by spaces.
         tag_name, var_name = token.contents.split(None, 1)
@@ -828,6 +940,8 @@ def _parse_one_var_tag(token):
 @register.tag(name="import_portal_blocks")
 def do_portal_blocks_importer(parser, token):
     """Eg: {% import_portal_blocks app_name %}"""
+    warnings.warn('{% import_portal_blocks %} is deprecated.', DeprecationWarning)
+
     split = token.contents.split()
 
     if len(split) != 2:
@@ -840,10 +954,11 @@ def do_portal_blocks_importer(parser, token):
 
 class PortalBlocksImporterNode(TemplateNode):
     def __init__(self, appname_var):
+        warnings.warn('creme_block.PortalBlocksImporterNode is deprecated.', DeprecationWarning)
         self.appname_var = appname_var
 
     def render(self, context):
-        blocks_manager = BlocksManager.get(context)
+        blocks_manager = BricksManager.get(context)
         app_name = self.appname_var.eval(context)
         locs = BlockPortalLocation.objects.filter(Q(app_name='') | Q(app_name=app_name)) \
                                           .order_by('order')
@@ -851,24 +966,28 @@ class PortalBlocksImporterNode(TemplateNode):
         # We fallback to the default config is there is no config for this app.
         block_ids = [loc.block_id for loc in locs if loc.app_name] or [loc.block_id for loc in locs]
 
-        blocks_manager.add_group(_PORTAL_BLOCKS, *block_registry.get_blocks([id_ for id_ in block_ids if id_]))
+        blocks_manager.add_group(_PORTAL_BLOCKS, *brick_registry.get_blocks([id_ for id_ in block_ids if id_]))
 
         return ''
 
 
-# TODO: use TemplateLiteral
 @register.tag(name="display_portal_blocks")
 def do_portal_blocks_displayer(parser, token):
     """Eg: {% display_portal_blocks ct_ids %}"""
+    warnings.warn('{% display_portal_blocks %} is deprecated; use {% brick_display ... render="portal" %}.',
+                  DeprecationWarning
+                 )
+
     return PortalBlocksDisplayerNode(_parse_one_var_tag(token))
 
 
 class PortalBlocksDisplayerNode(TemplateNode):
     def __init__(self, ct_ids_varname):
+        warnings.warn('creme_block.PortalBlocksDisplayerNode is deprecated.', DeprecationWarning)
         self.ct_ids_varname = ct_ids_varname
 
     def block_outputs(self, context):
-        blocks = BlocksManager.get(context).pop_group(_PORTAL_BLOCKS)
+        blocks = BricksManager.get(context).pop_group(_PORTAL_BLOCKS)
         ct_ids = context[self.ct_ids_varname]
 
         for block in blocks:
@@ -877,7 +996,7 @@ class PortalBlocksDisplayerNode(TemplateNode):
             if portal_display is not None:
                 yield portal_display(context, ct_ids)
             else:
-                yield "THIS BLOCK CAN'T BE DISPLAY ON PORTAL (YOU HAVE A CONFIG PROBLEM): %s" % block.id_
+                yield "THIS BLOCK CAN'T BE DISPLAYED ON PORTAL (YOU HAVE A CONFIG PROBLEM): %s" % block.id_
 
     def render(self, context):
         return ''.join(op for op in self.block_outputs(context.flatten()))
@@ -887,47 +1006,64 @@ class PortalBlocksDisplayerNode(TemplateNode):
 
 @register.tag(name="import_home_blocks")
 def do_home_blocks_importer(parser, token):
+    warnings.warn('{% import_home_blocks %} is deprecated.', DeprecationWarning)
+
     return HomeBlocksImporterNode()
 
 
 class HomeBlocksImporterNode(TemplateNode):
+    def __init__(self):
+        warnings.warn('creme_block.HomeBlocksImporterNode is deprecated.', DeprecationWarning)
+
     def render(self, context):
-        blocks_manager = BlocksManager.get(context)
+        blocks_manager = BricksManager.get(context)
         block_ids = BlockPortalLocation.objects.filter(app_name='creme_core') \
                                                 .order_by('order') \
                                                 .values_list('block_id', flat=True)
-        blocks_manager.add_group(_HOME_BLOCKS, *block_registry.get_blocks([id_ for id_ in block_ids if id_]))
+        blocks_manager.add_group(_HOME_BLOCKS, *brick_registry.get_blocks([id_ for id_ in block_ids if id_]))
 
         return ''
 
 
 @register.tag(name="import_mypage_blocks")
 def do_mypage_blocks_importer(parser, token):
+    warnings.warn('{% import_mypage_blocks %} is deprecated.', DeprecationWarning)
+
     return MypageBlocksImporterNode()
 
 
 class MypageBlocksImporterNode(TemplateNode):
+    def __init__(self):
+        warnings.warn('creme_block.MypageBlocksImporterNode is deprecated.', DeprecationWarning)
+
     def render(self, context):
-        blocks_manager = BlocksManager.get(context)
+        blocks_manager = BricksManager.get(context)
         block_ids = BlockMypageLocation.objects.filter(user=context['user']) \
                                                .order_by('order') \
                                                .values_list('block_id', flat=True)
-        blocks_manager.add_group(_MYPAGE_BLOCKS, *block_registry.get_blocks([id_ for id_ in block_ids if id_]))
+        blocks_manager.add_group(_MYPAGE_BLOCKS, *brick_registry.get_blocks([id_ for id_ in block_ids if id_]))
 
         return ''
 
 
 @register.tag(name="display_home_blocks")
 def do_home_blocks_displayer(parser, token):
+    warnings.warn('{% display_home_blocks %} is deprecated; use {% brick_display ... render="home" %}.',
+                  DeprecationWarning
+                 )
+
     return HomeBlocksDisplayerNode()
 
 
 class HomeBlocksDisplayerNode(TemplateNode):
     GROUP_NAME   = _HOME_BLOCKS
-    BAD_CONF_MSG = "THIS BLOCK CAN'T BE DISPLAY ON HOME (YOU HAVE A CONFIG PROBLEM): %s"
+    BAD_CONF_MSG = "THIS BLOCK CAN'T BE DISPLAYED ON HOME (YOU HAVE A CONFIG PROBLEM): %s"
+
+    def __init__(self):
+        warnings.warn('creme_block.HomeBlocksDisplayerNode is deprecated.', DeprecationWarning)
 
     def block_outputs(self, context):
-        for block in BlocksManager.get(context).pop_group(self.GROUP_NAME):
+        for block in BricksManager.get(context).pop_group(self.GROUP_NAME):
             home_display = getattr(block, 'home_display', None)
 
             if home_display is not None:
@@ -941,6 +1077,10 @@ class HomeBlocksDisplayerNode(TemplateNode):
 
 @register.tag(name="display_mypage_blocks")
 def do_mypage_blocks_displayer(parser, token):
+    warnings.warn('{% display_mypage_blocks %} is deprecated; use {% brick_display ... render="home" %}.',
+                  DeprecationWarning
+                 )
+
     return MypageBlocksDisplayerNode()
 
 
@@ -948,12 +1088,19 @@ class MypageBlocksDisplayerNode(HomeBlocksDisplayerNode):
     GROUP_NAME   = _MYPAGE_BLOCKS
     BAD_CONF_MSG = "THIS BLOCK CAN'T BE DISPLAY ON MYPAGE (YOU HAVE A CONFIG PROBLEM): %s"
 
+    def __init__(self):
+        warnings.warn('creme_block.MypageBlocksDisplayerNode is deprecated.', DeprecationWarning)
+
 
 # BLOCKS DEPENDENCIES ----------------------------------------------------------
 
 @register.inclusion_tag('creme_core/templatetags/blocks_dependencies.html', takes_context=True)
 def get_blocks_dependencies(context):
-    blocks_manager = BlocksManager.get(context)
+    warnings.warn('{% get_blocks_dependencies %} is deprecated ; use {% brick_end %} (from creme_bricks) instead.',
+                  DeprecationWarning
+                 )
+
+    blocks_manager = BricksManager.get(context)
 
     return {'deps_map':         blocks_manager.get_dependencies_map(),
             'remaining_groups': blocks_manager.get_remaining_groups(),
@@ -962,11 +1109,16 @@ def get_blocks_dependencies(context):
 # ------------------------------------------------------------------------------
 _BLOCKS_IMPORTER_RE = compile_re(r'(.*?) as (.*?)$')
 
+
 @register.tag(name="import_blocks")
 def do_blocks_importer(parser, token):
     """ With blocks a list of blocks:
     {% import_blocks blocks as 'my_blocks' %}
     """
+    warnings.warn('{% import_blocks %} is deprecated ; use {% brick_declare %} (from creme_bricks) instead.',
+                  DeprecationWarning
+                 )
+
     try:
         # Splitting by None == splitting by spaces.
         tag_name, arg = token.contents.split(None, 1)
@@ -977,7 +1129,7 @@ def do_blocks_importer(parser, token):
     if not match:
         raise TemplateSyntaxError("%r tag had invalid arguments" % tag_name)
 
-    blocks_str, alias =  match.groups()
+    blocks_str, alias = match.groups()
 
     _arg_in_quotes_or_die(alias, tag_name)
 
@@ -988,11 +1140,12 @@ def do_blocks_importer(parser, token):
 
 class BlocksImporterNode(TemplateNode):
     def __init__(self, blocks_var, alias):
+        warnings.warn('creme_block.BlocksImporterNode is deprecated.', DeprecationWarning)
         self.blocks_var = blocks_var
         self.alias      = alias
 
     def render(self, context):
-        BlocksManager.get(context).add_group(self.alias, *self.blocks_var.eval(context))
+        BricksManager.get(context).add_group(self.alias, *self.blocks_var.eval(context))
         return ""
 
 
@@ -1005,6 +1158,10 @@ def do_blocks_displayer(parser, token):
     """ With 'my_blocks' previously imported with {% import_blocks ... %}
     {% display_blocks 'my_blocks' %}
     """
+    warnings.warn('{% display_blocks %} is deprecated ; use {% brick_display %} (from creme_bricks) instead.',
+                  DeprecationWarning
+                 )
+
     try:
         # Splitting by None == splitting by spaces.
         tag_name, arg = token.contents.split(None, 1)
@@ -1024,10 +1181,11 @@ def do_blocks_displayer(parser, token):
 
 class BlocksDisplayerNode(TemplateNode):
     def __init__(self, alias):
+        warnings.warn('creme_block.BlocksDisplayerNode is deprecated.', DeprecationWarning)
         self.alias = alias
 
-    def block_outputs(self, context):  # TODO: useless (inline the call)
-        for block in BlocksManager.get(context).pop_group(self.alias):
+    def block_outputs(self, context):
+        for block in BricksManager.get(context).pop_group(self.alias):
             yield block.detailview_display(context)
 
     def render(self, context):

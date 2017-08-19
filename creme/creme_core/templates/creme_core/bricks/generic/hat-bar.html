@@ -1,0 +1,84 @@
+{% extends 'creme_core/bricks/base/base.html' %}
+{% load i18n creme_core_tags creme_ctype creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}brick-hat brick-hat-bar{% endblock %}
+
+{% block brick_header %}{% endblock %}
+
+{% block brick_content %}
+{% has_perm_to change object as edit_perm %}{% has_perm_to delete object as delete_perm %}
+    <div class="hat-bar">
+        <div class="bar-icon">{% block icon %}{% widget_icon instance=object size='brick-hat-bar' %}{% endblock %}</div>
+        <div class="bar-title">
+            <h1>
+                {% block title %}
+                    {{object|get_meta_value:'verbose_name'|capfirst}} : {{object|capfirst}}
+                {% endblock %}
+                {% if object.is_deleted %}<span class="bar-deleted-indicator">[{% trans 'deleted' %}]</span>{% endif %}
+            </h1>
+        </div>
+        <div class="bar-actions">
+        {% if not object.is_deleted %}
+            {% block buttons %}
+                {% block edit_button %}
+                    {% with edit_url=object.get_edit_absolute_url %}
+                    {% if edit_url %}
+                       <div class='bar-action'>
+                           {% if edit_perm %}
+                           <a class="bar-button" href="{{edit_url}}" >
+                           {% else %}
+                           <a class="bar-button forbidden is-disabled">
+                           {% endif %}
+                               {% widget_icon name='edit' size='brick-hat-bar-button' label=_('Edit') %}
+                           </a>
+                       </div>
+                    {% endif %}
+                    {% endwith %}
+                {% endblock %}
+
+                {% block delete_button %}
+                    {% with delete_url=object.get_delete_absolute_url %}
+                    {% if delete_url %}
+                    <div class='bar-action'>
+                        {% brick_bar_button action='detailview-delete' label=_('Delete') url=delete_url icon='delete' confirm=_('Do you really want to sent this entity to the trash?') enabled=delete_perm %}
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+                {% endblock %}
+
+                {% block clone_button %}
+                    {% with clone_url=object.get_clone_absolute_url %}
+                    {% if clone_url %}{% has_perm_to create object as create_perm %}
+                    <div class='bar-action'>
+                        {% brick_bar_button action='detailview-clone' label=_('Clone') url=clone_url icon='clone' __id=object.id confirm=_('Do you really want to clone this entity?') enabled=create_perm %}
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+                {% endblock %}
+
+                {% block merge_button %}
+                    {% if object.entity_type|ctype_can_be_merged %}
+                    {% url 'creme_core__select_entity_for_merge' as select_other_url %}{% url 'creme_core__merge_entities' as merge_url %}
+                    <div class='bar-action'>
+                        {% brick_bar_button action='detailview-merge' label=_('Merge') url=merge_url icon='merge' __id=object.id __selection_url=select_other_url enabled=edit_perm %}
+                    </div>
+                    {% endif %}
+                {% endblock %}
+            {% endblock buttons %}
+        {% else %}
+            {% url 'creme_core__restore_entity' object.id as restore_url %}
+            <div class='bar-action'>
+                {% brick_bar_button action='detailview-restore' label=_('Restore') url=restore_url icon='restore' confirm=_('Do you really want to restore this entity?') enabled=delete_perm %}
+            </div>
+
+            {% with delete_url=object.get_delete_absolute_url %}
+            {% if delete_url %}
+            <div class='bar-action'>
+                {% brick_bar_button action='detailview-delete' label=_('Delete permanently') url=delete_url icon='delete' confirm=_('Do you really want to sent this entity to the trash?') enabled=delete_perm %}
+            </div>
+            {% endif %}
+            {% endwith %}
+         {% endif %}
+        </div>
+    </div>
+{% endblock %}

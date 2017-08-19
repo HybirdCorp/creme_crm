@@ -25,6 +25,7 @@ from json import loads as jsonloads, JSONEncoder
 import logging
 
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.models import (Model, PositiveSmallIntegerField, CharField, TextField,
         ForeignKey, OneToOneField, SET_NULL, FieldDoesNotExist)
@@ -526,8 +527,8 @@ class HistoryLine(Model):
     entity_owner = CremeUserForeignKey()  # We do not use entity.user because we keep history of the deleted entities
     username     = CharField(max_length=30)  # Not a Fk to a User object because we want to
                                              # keep the same line after the deletion of a User.
-    date         = CreationDateTimeField()
-    type         = PositiveSmallIntegerField()  # See TYPE_*
+    date         = CreationDateTimeField(_(u'Date'))
+    type         = PositiveSmallIntegerField(_(u'Type'))  # See TYPE_*
     value        = TextField(null=True)  # TODO: use a JSONField ? (see EntityFilter)
 
     ENABLED = True  # False means that no new HistoryLines are created.
@@ -703,10 +704,20 @@ class HistoryLine(Model):
             self.username = user.username if user else ''
             super(HistoryLine, self).save(*args, **kwargs)
 
-    # TODO: ?? (see HistoryBlock)
-    # @property
-    # def user(self):
-    #     [...]
+    @property
+    def user(self):
+        try:
+            user = getattr(self, '_user_cache')
+        except AttributeError:
+            username = self.username
+            self._user_cache = user = get_user_model().objects.filter(username=username).first() if username else None
+
+        return user
+
+    @user.setter
+    def user(self, user):
+        self._user_cache = user
+        self.username = user.username if user else ''
 
 
 # TODO: method of CremeEntity ??

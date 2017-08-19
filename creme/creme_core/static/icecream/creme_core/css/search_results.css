@@ -26,3 +26,13 @@
 .search-form input[type=submit] {
     margin-left: 10px;
 }
+
+#sub_content > .search_results > .table_header td:first-child { /* page headers... */
+    width: 5%; /* backwards compatibility - 5% is hardcoded in the form 'generics/blockform/base.html' template */
+}
+
+/*
+.creme_core-search-brick + .creme_core-search-brick {
+    margin-top: 0;
+}
+*/

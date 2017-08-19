@@ -24,6 +24,7 @@ from django.template import Library
 from ..gui.quick_forms import quickforms_registry
 from ..utils.unicode_collation import collator
 
+# TODO: remove when old menu is removed
 # TODO: regroup with some others templatetags files (eg search_panel, menu) ?????
 
 register = Library()

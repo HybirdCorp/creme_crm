@@ -33,7 +33,7 @@ from django.dispatch import receiver
 from django.utils.encoding import force_unicode
 
 from creme.creme_core.core.setting_key import setting_key_registry
-from creme.creme_core.gui.block import Block
+from creme.creme_core.gui.bricks import Brick
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.models import (CremeEntity, RelationType, CremePropertyType,
          EntityFilter, HistoryLine, SettingValue, Job,
@@ -108,7 +108,7 @@ def _uninstall_blocks(sender, **kwargs):
     ibc_items.delete()
 
     # Regular blocks -----------------------------------------------------------
-    id_prefix = Block.generate_id(app_name=app_label, name='')
+    id_prefix = Brick.generate_id(app_name=app_label, name='')
 
     bdl = BlockDetailviewLocation.objects.filter(block_id__startswith=id_prefix)
     block_ids.update(bdl.values_list('block_id', flat=True))

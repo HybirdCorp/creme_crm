@@ -1,0 +1,39 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_core-trash-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Deleted entity') plural=_('{count} Deleted entities') empty=_('Deleted entities') icon='delete' %}
+{% endblock %}
+
+{% block brick_header_actions %}{% url 'creme_core__empty_trash' as empty_url %}
+    {% brick_header_action id='delete' url=empty_url label=_('Empty the trash') icon='cancel' %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='modified' title=_('Deletion date') status='primary' %}
+    {% brick_table_column title=_('Type') %}
+    {% brick_table_column title=_('Name') %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for entity in page.object_list %}
+    <tr>{% has_perm_to delete entity as delete_perm %}
+        <td {% brick_table_data_status primary %}>{{entity.modified}}</td>
+        <td>{% widget_icon ctype=entity.entity_type size='brick-table' class='brick-trash-modelicon' %}<span class="trash-brick-modelname">{{entity.entity_type}}</span></td>
+        <td>{% widget_entity_hyperlink entity.get_real_entity user 1 %}</td>
+        <td {% brick_table_data_status action %}>{% url 'creme_core__restore_entity' entity.id as restore_url %}
+            {% brick_table_action id='update' url=restore_url label=_('Restore') icon='restore' enabled=delete_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=entity.get_delete_absolute_url label=_('Delete definitively') enabled=delete_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'The trash is empty' %}
+{% endblock %}

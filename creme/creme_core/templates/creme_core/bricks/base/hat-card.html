@@ -1,0 +1,150 @@
+{% extends 'creme_core/bricks/base/base.html' %}
+{% load i18n creme_core_tags creme_ctype creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}brick-hat brick-hat-card{% endblock %}
+
+{% block brick_header %}{% endblock %}
+
+{% block brick_content %}
+    <div class='hat-card'>
+        <div class='hat-card-main'>
+            <div class='business-card-container'>
+                <div class='business-card'>
+                    <div class="card-icon">
+                        {% block card_icon %}
+                        <div>{% widget_icon instance=object size='brick-hat-card' %}</div>
+                        {% endblock %}
+                    </div>
+                    <div class="card-content">
+                        {% block card_intro %}
+                        <div class="card-intro">
+                            <span class="card-type">{% block card_intro_name %}{{object.entity_type}}{% endblock %}</span>
+                            <div class="card-info-field">
+                                {% block card_intro_content %}{# OVERRIDE !! --------------------------------- #}
+                                    <span class='card-info-key'>Last action</span>
+                                    <span class='card-info-value'>
+                                        {# {% widget_icon instance=last_activity size='brick-hat-card-intro' %} #} Foobar
+                                        <a href="" class='last-action-link'>
+                                            <span class="history-info-value">31-12-2000</span> at <span class="history-info-value">12:36</span>
+                                        </a> by <span class="history-info-value"><a href=''>Fulbert C.</a></span>
+                                    </span>
+                                {% endblock %}{# OVERRIDE !! [end] -------------------------------- #}
+                            </div>
+                        </div>
+                        {% endblock %}
+                        {% block card_main %}
+                        <div class='card-main'>
+                            <div class="card-name">{% block card_title %}{{object}}{% endblock %}
+                                {% if object.is_deleted %}
+                                <div class='business-card-indicator business-card-deleted-indicator'>{% trans 'Entity in the trash' %}</div>
+                                {% endif %}
+                            </div>
+                            <div class='business-card-indicators'>
+                                {% block card_indicators %}{# OVERRIDE !! --------------------------------- #}
+                                <div class='business-card-indicator business-card-warning-indicator'>I am very important</div>
+                                {% endblock %}{# OVERRIDE !! [end] -------------------------------- #}
+                            </div>
+                        </div>
+                        {% endblock %}
+                        {% block card_secondary %}{# OVERRIDE !! --------------------------------- #}
+                            <div class="card-FOO">
+                                <span class="card-BAR">Related to</span><a href=''>An important other entity</a>
+                            </div>
+                        {% endblock %}{# OVERRIDE !! [end] -------------------------------- #}
+                    </div>
+                </div>
+            </div>
+            <div class='hat-card-info'>
+                <div class='card-info-fields'>
+                    <span class="card-info-title">{% block card_fields_title %}{% trans 'Fields' %}{% endblock %}</span>
+                    {% block card_fields %}{# OVERRIDE !! --------------------------------- #}
+                        <div class="card-info-field">
+                            <span class='card-info-key'>Field #1</span>
+                            <span class='card-info-value'>Blablabla</span>
+                        </div>
+                        <div class="card-info-field">
+                            <span class='card-info-key'>Field #2</span>
+                            <span class='card-info-value'>—</span>
+                        </div>
+                    {% endblock %}{# OVERRIDE !! [end] -------------------------------- #}
+                </div>
+                <div class='card-info-summary'>
+                    <span class="card-info-title">{% block card_summary_title %}{% trans 'Strategic summary' %}{% endblock %}</span>
+                    {% block card_summary %}{# OVERRIDE !! --------------------------------- #}
+                        <div class="card-info-field">
+                            <span class='card-info-key'>Next action</span>
+                            <span class='card-info-value next-action-value'>
+                                {# {% widget_icon instance=next_activity size='brick-hat-card-summary' %} #}
+                                <span class="next-action-type">Meeting</span>
+                                <a href=""><span class="history-info-value">01-01-2040</span> at <span class="history-info-value">13:25</span></a>
+                            </span>
+                        </div>
+                    {% endblock %}{# OVERRIDE !! [end] -------------------------------- #}
+                </div>
+            </div>
+        </div>
+        <div class='hat-card-sidebar{% if not object.entity_type|ctype_can_be_merged %} hat-card-sidebar-narrow{% endif %}'>
+            <div class='card-actions'>
+            {% block card_buttons %}
+                {% has_perm_to delete object as delete_perm %}
+                {% if not object.is_deleted %}
+                    {% has_perm_to change object as edit_perm %}
+
+                    {% with edit_url=object.get_edit_absolute_url %}
+                    {% if edit_url %}
+                    <div class='card-action'>
+                        {% if edit_perm %}
+                        <a class="card-button card-button-icon" href="{{edit_url}}" >
+                        {% else %}
+                        <a class="card-button card-button-icon forbidden is-disabled">
+                        {% endif %}
+                            {% trans 'Edit' as label %}{% widget_icon name='edit' size='brick-hat-card-button' label=label %}{{label}}
+                        </a>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+
+                    {% with delete_url=object.get_delete_absolute_url %}
+                    {% if delete_url %}
+                    <div class='card-action'>{% brick_card_button action='detailview-delete' label=_('Delete') url=delete_url icon='delete' confirm=_('Do you really want to sent this entity to the trash?') enabled=delete_perm %}</div>
+                    {% endif %}
+                    {% endwith %}
+
+                    {% with clone_url=object.get_clone_absolute_url %}
+                    {% if clone_url %}{% has_perm_to create object as create_perm %}
+                    <div class='card-action'>{% brick_card_button action='detailview-clone' label=_('Clone') url=clone_url icon='clone' __id=object.id confirm=_('Do you really want to clone this entity?') enabled=create_perm %}</div>
+                    {% endif %}
+                    {% endwith %}
+
+                    {% if object.entity_type|ctype_can_be_merged %}
+                    {% url 'creme_core__select_entity_for_merge' as select_other_url %}{% url 'creme_core__merge_entities' as merge_url %}
+                    <div class='card-action'>{% brick_card_button action='detailview-merge' label=_('Merge') url=merge_url icon='merge' __id=object.id __selection_url=select_other_url enabled=edit_perm %}</div>
+                    {% endif %}
+                {% else %}
+                    {% url 'creme_core__restore_entity' object.id as restore_url %}
+                    <div class='card-action'>{% brick_card_button action='detailview-restore' label=_('Restore') url=restore_url icon='restore' confirm=_('Do you really want to restore this entity?') enabled=delete_perm %}</div>
+                    <div class='card-action'>{% brick_card_button action='detailview-delete' label=_('Delete permanently') url=object.get_delete_absolute_url icon='delete' confirm=_('Do you really want to delete this entity definitely?') enabled=delete_perm %}</div>
+                {% endif %}
+            {% endblock %}
+            </div>
+            {% block card_history %}
+            {% include 'creme_core/bricks/frags/hat-card-history.html' %}
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}
+
+
+{% comment %}
+{% block brick_script %}
+<style>
+    .brick-hat-card .card-FOO {
+        font-size: 14px;
+    }
+
+    .brick-hat-card .card-FOO a {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+{% endcomment %}

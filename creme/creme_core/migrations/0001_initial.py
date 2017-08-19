@@ -111,10 +111,14 @@ class Migration(migrations.Migration):
             name='CremePropertyType',
             fields=[
                 ('id', models.CharField(max_length=100, serialize=False, primary_key=True)),
-                ('text', models.CharField(unique=True, max_length=200)),
+                ('text', models.CharField(unique=True, max_length=200, verbose_name='Text')),
                 ('is_custom', models.BooleanField(default=False)),
-                ('is_copiable', models.BooleanField(default=True)),
-                ('subject_ctypes', models.ManyToManyField(related_name='subject_ctypes_creme_property_set', to='contenttypes.ContentType', blank=True)), # null=True
+                ('is_copiable', models.BooleanField(default=True, verbose_name='Is copiable')),
+                ('subject_ctypes', models.ManyToManyField(related_name='subject_ctypes_creme_property_set',
+                                                          to='contenttypes.ContentType', blank=True,
+                                                          verbose_name='Applies on entities with following types',
+                                                         )  # null=True
+                ),
             ],
             options={
                 'ordering': ('text',),
@@ -334,8 +338,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('username', models.CharField(max_length=30)),
-                ('date', creme.creme_core.models.fields.CreationDateTimeField(default=django.utils.timezone.now, editable=False, blank=True)),
-                ('type', models.PositiveSmallIntegerField()),
+                ('date', creme.creme_core.models.fields.CreationDateTimeField(default=django.utils.timezone.now, editable=False, blank=True, verbose_name='Date')),
+                ('type', models.PositiveSmallIntegerField(verbose_name='Type')),
                 ('value', models.TextField(null=True)),
                 ('entity', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, to='creme_core.CremeEntity', null=True)),
                 ('entity_ctype', creme.creme_core.models.fields.CTypeForeignKey(to='contenttypes.ContentType')),
@@ -349,7 +353,7 @@ class Migration(migrations.Migration):
             name='InstanceBlockConfigItem',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('block_id', models.CharField(verbose_name='Block ID', max_length=300, editable=False)),
+                ('block_id', models.CharField(verbose_name='Brick ID', max_length=300, editable=False)),
                 ('data', models.TextField(null=True, blank=True)),
                 ('verbose', models.CharField(max_length=200, null=True, verbose_name='Verbose', blank=True)),
                 ('entity', models.ForeignKey(verbose_name='Block related entity', to='creme_core.CremeEntity')),

@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+import warnings
 
 from django.conf import settings
 from django.db.models import ForeignKey, ManyToManyField, BooleanField, DateField
@@ -204,6 +205,10 @@ def get_listview_columns_header(context):
 
 @register.simple_tag
 def get_listview_cell(cell, entity, user):
+    warnings.warn('{% get_listview_cell %} is deprecated ; use {% render_cell %} (from lib creme_cells) instead.',
+                  DeprecationWarning
+                 )
+
     try:
         return cell.render_html(entity, user)
     except Exception as e:

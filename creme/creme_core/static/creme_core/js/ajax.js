@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2015  Hybird
+    Copyright (C) 2009-2017  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -155,6 +155,7 @@ creme.ajax.post = function(options) {
     creme.ajax.ajax($.extend({type:"POST"}, options));
 };
 
+/* TODO: deprecate ? */
 creme.ajax.reloadContent = function($target, target_url) {
     creme.ajax.get({
         url: target_url,

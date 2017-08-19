@@ -19,6 +19,8 @@
 ################################################################################
 
 from time import time
+from urllib import urlencode
+import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -27,25 +29,30 @@ from django.http import Http404
 from django.shortcuts import render
 from django.utils.translation import ugettext as _  # ungettext
 
+from .. import utils
 from ..auth.decorators import login_required
 from ..core.search import Searcher
-from ..gui.block import QuerysetBlock
+from ..core.entity_cell import EntityCellRegularField
+from ..gui.bricks import QuerysetBrick
 from ..models import CremeEntity, EntityCredentials
 from ..registry import creme_registry
-from ..utils import get_ct_or_404, jsonify
-from ..utils.translation import get_model_verbose_name
+# from ..utils.translation import get_model_verbose_name
 from ..utils.unicode_collation import collator
-from .blocks import build_context
+
+from .bricks import bricks_render_info
 
 
 MIN_RESEARCH_LENGTH = 3
 
 
-class FoundEntitiesBlock(QuerysetBlock):
-    # dependencies  = (CremeProperty,) #TODO: ??
-    template_name = 'creme_core/templatetags/block_found_entities.html'
+# class FoundEntitiesBlock(QuerysetBrick):
+class FoundEntitiesBrick(QuerysetBrick):
+    # template_name = 'creme_core/templatetags/block_found_entities.html'
+    template_name = 'creme_core/bricks/found-entities.html'
 
     def __init__(self, searcher, model, research, user, id=None):
+        super(FoundEntitiesBrick, self).__init__()
+        # dependencies  = (...,)  # TODO: ??
         self.searcher = searcher
         self.model = model
         self.research = research
@@ -92,23 +99,24 @@ class FoundEntitiesBlock(QuerysetBlock):
         else:
             qs = EntityCredentials.filter(self.user, results)
 
-        btc = self.get_block_template_context(
+        # btc = self.get_block_template_context(
+        btc = self.get_template_context(
                     context, qs,
                     # update_url='/creme_core/search/reload_block/%s/%s' % (self.id_, research),
                     update_url=reverse('creme_core__reload_search_block', args=(self.id_, research)),
-                    sfields=searcher.get_fields(model),
+                    # sfields=searcher.get_fields(model),
+                    cells=[EntityCellRegularField.build(model, field.name) for field in searcher.get_fields(model)],
                     # If the model is inserted in the context, the template call it and create an instance...
                     ctype=self.ctype,
                     # short_title=verbose_name,
-                    short_title=model._meta.verbose_name,
                 )
 
-        count = btc['page'].paginator.count
-        btc['title'] = _(u'%(count)s %(model)s') % {
-                            'count': count,
-                            # 'model': ungettext(verbose_name, meta.verbose_name_plural, count),
-                            'model': get_model_verbose_name(model, count),
-                        }
+        # count = btc['page'].paginator.count
+        # btc['title'] = _(u'%(count)s %(model)s') % {
+        #                     'count': count,
+        #                     # 'model': ungettext(verbose_name, meta.verbose_name_plural, count),
+        #                     'model': get_model_verbose_name(model, count),
+        #                 }
 
         return self._render(btc)
 
@@ -119,7 +127,7 @@ def search(request):
     research = GET_get('research', '')
     ct_id    = GET_get('ct_id', '')
 
-    t_ctx  = {}
+    t_ctx  = {'bricks_reload_url': reverse('creme_core__reload_search_brick') + '?' + urlencode({'search': research})}
     models = []
     blocks = []
 
@@ -133,7 +141,7 @@ def search(request):
             models.extend(creme_registry.iter_entity_models())
             models.sort(key=lambda m: m._meta.verbose_name)
         else:
-            model = get_ct_or_404(ct_id).model_class()
+            model = utils.get_ct_or_404(ct_id).model_class()
 
             if not issubclass(model, CremeEntity):
                 raise Http404('The model must be a CremeEntity')
@@ -144,7 +152,7 @@ def search(request):
         searcher = Searcher(models, user)
 
         models = list(searcher.models)  # Remove disabled models
-        blocks.extend(FoundEntitiesBlock(searcher, model, research, user) for model in models)
+        blocks.extend(FoundEntitiesBrick(searcher, model, research, user) for model in models)
 
     t_ctx['research'] = research
     t_ctx['models'] = [model._meta.verbose_name for model in models]
@@ -155,9 +163,17 @@ def search(request):
 
 
 @login_required
-@jsonify
+@utils.jsonify
 def reload_block(request, block_id, research):
-    ctype = FoundEntitiesBlock.parse_block_id(block_id)
+    warnings.warn("/creme_core/search/reload_block/{{block_id}}/{{search}} is now deprecated. "
+                  "Use /creme_core/search/reload_brick/ view instead "
+                  "[ie: reverse('creme_core__reload_search_brick') + '?block_id=' + block_id + '&search=' + research ].",
+                  DeprecationWarning
+                 )
+
+    from . import blocks
+
+    ctype = FoundEntitiesBrick.parse_block_id(block_id)
 
     if ctype is None:
         raise Http404('Invalid block ID')
@@ -167,13 +183,35 @@ def reload_block(request, block_id, research):
 
     user = request.user
     model = ctype.model_class()
-    block = FoundEntitiesBlock(Searcher([model], user), model, research, user, id=block_id)
+    block = FoundEntitiesBrick(Searcher([model], user), model, research, user, id=block_id)
 
-    return [(block.id_, block.detailview_display(build_context(request)))]
+    return [(block.id_, block.detailview_display(blocks.build_context(request)))]
 
 
 @login_required
-@jsonify
+@utils.jsonify
+def reload_brick(request):
+    GET = request.GET
+    brick_id = utils.get_from_GET_or_404(GET, 'brick_id')
+    ctype = FoundEntitiesBrick.parse_block_id(brick_id)
+
+    if ctype is None:
+        raise Http404('Invalid block ID')
+
+    search = GET.get('search', '')
+
+    if len(search) < MIN_RESEARCH_LENGTH:
+        raise Http404(u'Please enter at least %s characters' % MIN_RESEARCH_LENGTH)
+
+    user = request.user
+    model = ctype.model_class()
+    brick = FoundEntitiesBrick(Searcher([model], user), model, search, user, id=brick_id)
+
+    # return [(brick.id_, brick.detailview_display(bricks.build_context(request)))]
+    return bricks_render_info(request, bricks=[brick])
+
+@login_required
+@utils.jsonify
 def light_search(request):
     GET_get = request.GET.get
     sought = GET_get('value', '')

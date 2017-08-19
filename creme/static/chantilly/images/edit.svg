@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -13,11 +14,13 @@
    height="128"
    id="svg2376"
    sodipodi:version="0.32"
-   inkscape:version="0.46"
+   inkscape:version="0.91 r13725"
    version="1.0"
-   sodipodi:docbase="/home/guitouze/Travail/2D"
-   sodipodi:docname="pen.svg"
-   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+   sodipodi:docname="edit.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   inkscape:export-filename="edit_32.png"
+   inkscape:export-xdpi="22.5"
+   inkscape:export-ydpi="22.5">
   <defs
      id="defs2378">
     <linearGradient
@@ -248,17 +251,18 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2"
-     inkscape:cx="-16.218642"
-     inkscape:cy="117.70291"
+     inkscape:cx="46.531358"
+     inkscape:cy="114.70291"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
-     inkscape:window-width="1440"
-     inkscape:window-height="825"
+     inkscape:window-width="1920"
+     inkscape:window-height="1030"
      inkscape:window-x="0"
      inkscape:window-y="25"
      showguides="true"
      inkscape:guide-bbox="true"
-     showgrid="false" />
+     showgrid="false"
+     inkscape:window-maximized="1" />
   <metadata
      id="metadata2381">
     <rdf:RDF>

@@ -25,7 +25,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext as _
 
-from . import blocks, constants, setting_keys
+from . import bricks, constants, setting_keys
 from .creme_jobs import reminder_type
 from .management.commands.creme_populate import BasePopulator
 from .models import (RelationType, SettingValue, Currency, Language, Vat, Job,
@@ -101,19 +101,19 @@ class Populator(BasePopulator):
             LEFT = BlockDetailviewLocation.LEFT
 
             create_bdl = BlockDetailviewLocation.create
-            BlockDetailviewLocation.create_4_model_block(order=5, zone=LEFT)
-            create_bdl(block_id=blocks.customfields_block.id_, order=40,  zone=LEFT)
-            create_bdl(block_id=blocks.properties_block.id_,   order=450, zone=LEFT)
-            create_bdl(block_id=blocks.relations_block.id_,    order=500, zone=LEFT)
-            create_bdl(block_id=blocks.history_block.id_,      order=8,   zone=BlockDetailviewLocation.RIGHT)
+            BlockDetailviewLocation.create_4_model_brick(order=5,        zone=LEFT)
+            create_bdl(block_id=bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT)
+            create_bdl(block_id=bricks.PropertiesBrick.id_,   order=450, zone=LEFT)
+            create_bdl(block_id=bricks.RelationsBrick.id_,    order=500, zone=LEFT)
+            create_bdl(block_id=bricks.HistoryBrick.id_,      order=8,   zone=BlockDetailviewLocation.RIGHT)
 
-            BlockPortalLocation.create(block_id=blocks.history_block.id_, order=8)
+            BlockPortalLocation.create(block_id=bricks.HistoryBrick.id_, order=8)
 
-            BlockPortalLocation.create(block_id=blocks.statistics_block.id_, order=8,  app_name='creme_core')
-            BlockPortalLocation.create(block_id=blocks.history_block.id_,    order=10, app_name='creme_core')
+            BlockPortalLocation.create(block_id=bricks.StatisticsBrick.id_, order=8,  app_name='creme_core')
+            BlockPortalLocation.create(block_id=bricks.HistoryBrick.id_,    order=10, app_name='creme_core')
 
-            BlockMypageLocation.create(block_id=blocks.history_block.id_, order=8)
-            BlockMypageLocation.create(block_id=blocks.history_block.id_, order=8, user=root)
+            BlockMypageLocation.create(block_id=bricks.HistoryBrick.id_, order=8)
+            BlockMypageLocation.create(block_id=bricks.HistoryBrick.id_, order=8, user=root)
 
             # ---------------------------
             if not ButtonMenuItem.objects.filter(content_type=None).exists():

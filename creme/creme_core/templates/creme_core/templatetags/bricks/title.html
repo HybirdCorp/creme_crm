@@ -1,0 +1,16 @@
+{% load i18n creme_widgets creme_bricks %}
+{% widget_icon name='wait' label=_('Loading…') size='brick-loading' class='brick-header-icon brick-loading-indicator' %}
+{% if icon %}{% widget_render_icon icon class='brick-header-icon brick-header-menu' %}{% endif %}
+<span class="brick-title" title="{{title}}">
+    {{title}}
+    <span class="brick-loading-indicator">
+        <span class="typography-mdash">&nbsp;—&nbsp;</span>
+        <span class="brick-loading-indicator-title">{% trans 'Loading…' %}</span>
+    </span>
+    {% if selection_title %}
+    <span class="brick-selection-indicator">
+        <span class="typography-mdash">—</span>
+        <span class="brick-selection-title" data-title-format="{{selection_title}}" data-plural-format="{{selection_plural}}"></span>
+    </span>
+    {% endif %}
+</span>

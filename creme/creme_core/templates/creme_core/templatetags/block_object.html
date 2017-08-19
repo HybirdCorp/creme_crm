@@ -1,5 +1,7 @@
-{% load i18n %}
-{% load creme_core_tags creme_block %}
+{% load i18n creme_core_tags creme_block %}
+
+{% log 'The template file "creme/persons/templates/persons/templatetags/block_object.html" is deprecated.' level='WARN' %}
+
 <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=3 %}
         {% with title=object|get_meta_value:"verbose_name"|format:_("Information %s") %}
@@ -12,17 +14,6 @@
         </th>
     {% end_get_block_header %}
     <tbody class="collapsable">
-{% comment %}
-        {% for field in object|get_meta_value:"fields" %}
-            {% if field|get_tag:'viewable' %}
-                <tr class="content">
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %} th_info">{{field.verbose_name|capfirst}}</th>
-                    <td class="{% cycle "block_line_dark" "block_line_light" %} td_info">{% print_field object=object field=field.name %}</td>
-                    <td class="{% cycle "block_line_dark" "block_line_light" %} edit_inner">{% get_field_editor on regular field for object %}</td>
-                </tr>
-            {% endif %}
-        {% endfor %}
-{% endcomment %}
         {% get_viewable_fields object as fields %}
         {% for field in fields %}
             <tr class="content">

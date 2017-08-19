@@ -93,7 +93,8 @@
     position: relative;
     float: left;
 
-    font-size: 11px;
+/*    font-size: 11px; */
+    font-size: 13px;
     color: #646464;
     font-weight: 600;
 
@@ -114,9 +115,10 @@
     height: 100%;
 }
 .ui-creme-navigation > li {
-    text-transform: uppercase;
-    padding: 5px 10px;
-}  /* menus */
+/*    text-transform: uppercase; */
+/*    padding: 5px 10px; */
+    padding: 5px 7px;
+}
 
 /* Menu entries root */
 .ui-creme-navigation ul {
