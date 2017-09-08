@@ -61,7 +61,6 @@ AppConfig.get_extending_app_configs = __get_extending_app_configs
 
 # Hooking of AppConfig [end] ------------
 
-
 # TODO: remove when MediaGenerator is not used
 class MediaGeneratorConfig(AppConfig):
     name = 'mediagenerator'
@@ -73,12 +72,16 @@ class MediaGeneratorConfig(AppConfig):
 
     def _build_MEDIA_BUNDLES(self):
         is_installed = apps.is_installed
+
         MEDIA_BUNDLES = (settings.CREME_I18N_JS,
+                         settings.CREME_LIB_JS + tuple(js for app, js in settings.CREME_OPTLIB_JS if is_installed(app)),
                          settings.CREME_CORE_JS + tuple(js for app, js in settings.CREME_OPT_JS if is_installed(app))
                         )
 
         if settings.FORCE_JS_TESTVIEW:
-            MEDIA_BUNDLES += (settings.TEST_CREME_CORE_JS,)
+            MEDIA_BUNDLES += (settings.TEST_CREME_LIB_JS,
+                              settings.TEST_CREME_CORE_JS + tuple(js for app, js in settings.TEST_CREME_OPT_JS if is_installed(app))
+                             )
 
         MEDIA_BUNDLES += settings.CREME_OPT_MEDIA_BUNDLES
 

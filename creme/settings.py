@@ -502,9 +502,11 @@ CREME_OPT_CSS = (  # APPS
 
 CREME_I18N_JS = ('l10n.js',
                     {'filter': 'mediagenerator.filters.i18n.I18N'},  # To build the i18n catalog statically.
+                    # 'creme_core/js/datejs/date-en-US.js', # TODO improve
+                    'creme_core/js/datejs/date-fr-FR.js',
                 )
 
-CREME_CORE_JS = ('main.js',
+CREME_LIB_JS = ('lib.js',
                     {'filter': 'mediagenerator.filters.media_url.MediaURL'},  # To get the media_url() function in JS.
                     'creme_core/js/media.js',
                     'creme_core/js/jquery/jquery-1.11.2.js',
@@ -542,7 +544,10 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/jquery/extensions/jquery.debounce.js',
                     'creme_core/js/jquery/extensions/chosen.jquery-0.9.15-unchosen.js',
                     'creme_core/js/jquery/extensions/jquery.bind-first.js',
+                    'creme_core/js/lib/jquery.navIt.0.0.6.js',
+                )
 
+CREME_CORE_JS = ('main.js',
                     'creme_core/js/lib/fallbacks/object-0.1.js',
                     'creme_core/js/lib/fallbacks/array-0.9.js',
                     'creme_core/js/lib/fallbacks/string-0.1.js',
@@ -550,11 +555,6 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/lib/fallbacks/event-0.1.js',
                     'creme_core/js/lib/fallbacks/htmldocument-0.1.js',
                     'creme_core/js/lib/generators-0.1.js',
-
-                    # 'creme_core/js/datejs/date-en-US.js', # TODO improve
-                    'creme_core/js/datejs/date-fr-FR.js',
-
-                    'creme_core/js/lib/jquery.navIt.0.0.6.js',
 
                     'creme_core/js/creme.js',
                     'creme_core/js/color.js',
@@ -640,12 +640,15 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/jobs.js',
                 )
 
+CREME_OPTLIB_JS = (
+    ('creme.activities', 'activities/js/jquery/extensions/fullcalendar-1.6.7.js'),
+)
+
 CREME_OPT_JS = (  # OPTIONAL APPS
     ('creme.persons',       'persons/js/persons.js'),
 
     ('creme.assistants',    'assistants/js/assistants.js'),
 
-    ('creme.activities',    'activities/js/jquery/extensions/fullcalendar-1.6.7.js'),
     ('creme.activities',    'activities/js/activities.js'),
 
     ('creme.billing',       'billing/js/billing.js'),
@@ -668,42 +671,48 @@ CREME_OPT_JS = (  # OPTIONAL APPS
     ('creme.geolocation',   'geolocation/js/brick.js'),
 )
 
-TEST_CREME_CORE_JS = (  # JS Unit test files
-    'test_core.js',
-    'creme_core/js/tests/qunit/qunit-1.18.0.js',
-    'creme_core/js/tests/component/component.js',
-    'creme_core/js/tests/component/events.js',
-    'creme_core/js/tests/component/action.js',
-    'creme_core/js/tests/utils/template.js',
-    'creme_core/js/tests/utils/lambda.js',
-    'creme_core/js/tests/utils/converter.js',
-    'creme_core/js/tests/utils/utils.js',
-    'creme_core/js/tests/ajax/mockajax.js',
-    'creme_core/js/tests/ajax/cacheajax.js',
-    'creme_core/js/tests/ajax/query.js',
-    'creme_core/js/tests/ajax/localize.js',
-    'creme_core/js/tests/model/collection.js',
-    'creme_core/js/tests/model/renderer.js',
-    'creme_core/js/tests/model/query.js',
-    'creme_core/js/tests/model/controller.js',
-    'creme_core/js/tests/dialog/dialog.js',
-    'creme_core/js/tests/fallbacks.js',
-    'creme_core/js/tests/generators.js',
-    'creme_core/js/tests/widgets/base.js',
-    'creme_core/js/tests/widgets/widget.js',
-    'creme_core/js/tests/widgets/plot.js',
-    'creme_core/js/tests/widgets/frame.js',
-    'creme_core/js/tests/widgets/toggle.js',
-    'creme_core/js/tests/widgets/dselect.js',
-    'creme_core/js/tests/widgets/dinput.js',
-    'creme_core/js/tests/widgets/pselect.js',
-    'creme_core/js/tests/widgets/entityselector.js',
-    'creme_core/js/tests/widgets/chainedselect.js',
-    'creme_core/js/tests/widgets/checklistselect.js',
-    'creme_core/js/tests/widgets/selectorlist.js',
-    'creme_core/js/tests/widgets/actionlist.js',
-    'creme_core/js/tests/widgets/plotselector.js',
-    'creme_core/js/tests/widgets/container.js',
+TEST_CREME_LIB_JS = ('testlib.js',
+                        'creme_core/js/tests/qunit/qunit-1.18.0.js',
+                   )
+
+TEST_CREME_CORE_JS = ('testcore.js',
+                        'creme_core/js/tests/component/component.js',
+                        'creme_core/js/tests/component/events.js',
+                        'creme_core/js/tests/component/action.js',
+                        'creme_core/js/tests/utils/template.js',
+                        'creme_core/js/tests/utils/lambda.js',
+                        'creme_core/js/tests/utils/converter.js',
+                        'creme_core/js/tests/utils/utils.js',
+                        'creme_core/js/tests/ajax/mockajax.js',
+                        'creme_core/js/tests/ajax/cacheajax.js',
+                        'creme_core/js/tests/ajax/query.js',
+                        'creme_core/js/tests/ajax/localize.js',
+                        'creme_core/js/tests/model/collection.js',
+                        'creme_core/js/tests/model/renderer.js',
+                        'creme_core/js/tests/model/query.js',
+                        'creme_core/js/tests/model/controller.js',
+                        'creme_core/js/tests/dialog/dialog.js',
+                        'creme_core/js/tests/fallbacks.js',
+                        'creme_core/js/tests/generators.js',
+                        'creme_core/js/tests/widgets/base.js',
+                        'creme_core/js/tests/widgets/widget.js',
+                        'creme_core/js/tests/widgets/plot.js',
+                        'creme_core/js/tests/widgets/frame.js',
+                        'creme_core/js/tests/widgets/toggle.js',
+                        'creme_core/js/tests/widgets/dselect.js',
+                        'creme_core/js/tests/widgets/dinput.js',
+                        'creme_core/js/tests/widgets/pselect.js',
+                        'creme_core/js/tests/widgets/entityselector.js',
+                        'creme_core/js/tests/widgets/chainedselect.js',
+                        'creme_core/js/tests/widgets/checklistselect.js',
+                        'creme_core/js/tests/widgets/selectorlist.js',
+                        'creme_core/js/tests/widgets/actionlist.js',
+                        'creme_core/js/tests/widgets/plotselector.js',
+                        'creme_core/js/tests/widgets/container.js',
+                    )
+
+TEST_CREME_OPT_JS = (
+#   ('creme.my_app',       'my_app/js/tests/my_app.js'),
 )
 
 # Optional js/css bundles for extending projects.
