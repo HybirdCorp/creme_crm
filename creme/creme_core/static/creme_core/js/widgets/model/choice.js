@@ -16,27 +16,28 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.model = creme.model || {};
 
 creme.model.ChoiceRenderer = creme.model.ListRenderer.sub({
-    createItem: function(target, before, data, index)
-    {
+    createItem: function(target, before, data, index) {
         var item = $('<option>');
         this.updateItem(target, item, data, undefined, index);
         return item;
     },
 
-    updateItem: function(target, item, data, previous, index, action)
-    {
-        if (action === 'select')
+    updateItem: function(target, item, data, previous, index, action) {
+        if (action === 'select') {
             return this.selectItem(target, item, data, previous, index);
+        }
 
         var value = Object.isNone(data.value) ? '' : data.value;
 
-        if (typeof data.value === 'object')
-            value = new creme.utils.JSON().encode(data.value)
+        if (typeof data.value === 'object') {
+            value = new creme.utils.JSON().encode(data.value);
+        }
 
         // upgrade to Jquery 1.9x : selected is a property and attr() method should not be used.
         item.attr('value', value)
@@ -56,7 +57,7 @@ creme.model.ChoiceRenderer = creme.model.ListRenderer.sub({
     }
 });
 
-creme.model.ChoiceRenderer.parse = function(element, converter) { 
+creme.model.ChoiceRenderer.parse = function(element, converter) {
     var values = element.val();
     values = element.is('[multiple]') ? (values || []) : [values];
 
@@ -77,7 +78,8 @@ creme.model.ChoiceRenderer.parse = function(element, converter) {
 };
 
 creme.model.ChoiceRenderer.choicesFromTuples = function(data) {
-    var data = data || [];
+    data = data || [];
+
     var istuple = data ? Array.isArray(data[0]) : false;
 
     if (istuple) {
@@ -92,8 +94,7 @@ creme.model.ChoiceRenderer.choicesFromTuples = function(data) {
 };
 
 creme.model.ChoiceGroupRenderer = creme.model.ChoiceRenderer.sub({
-    insertGroup: function(target, before, groupname)
-    {
+    insertGroup: function(target, before, groupname) {
         var group = $('optgroup[label="' + groupname + '"]', target);
 
         if (group && group.length) {
@@ -111,8 +112,7 @@ creme.model.ChoiceGroupRenderer = creme.model.ChoiceRenderer.sub({
         return group;
     },
 
-    insertItem: function(target, before, data, index)
-    {
+    insertItem: function(target, before, data, index) {
         var group = target;
         var previous_groupname = before && before.length ? before.parent().attr('label') : undefined;
         var next_groupname = data.group;
@@ -121,8 +121,7 @@ creme.model.ChoiceGroupRenderer = creme.model.ChoiceRenderer.sub({
             group = this.insertGroup(target, before, next_groupname);
         }
 
-        if (before && before.length)
-        {
+        if (before && before.length) {
             if (next_groupname && previous_groupname !== next_groupname) {
                 before = $('option:first', group);
             }
@@ -133,20 +132,20 @@ creme.model.ChoiceGroupRenderer = creme.model.ChoiceRenderer.sub({
         }
     },
 
-    removeItem: function(target, item, data, index)
-    {
+    removeItem: function(target, item, data, index) {
         var group = data.group ? item.parent() : undefined;
 
         item.remove();
 
-        if (group && $('option', group).length < 1)
+        if (group && $('option', group).length < 1) {
             group.remove();
+        }
     },
 
-    updateItem: function(target, item, data, previous, index, action)
-    {
-        if (action === 'select')
+    updateItem: function(target, item, data, previous, index, action) {
+        if (action === 'select') {
             return this.selectItem(target, item, data, previous, index);
+        }
 
         var group = target;
         var prev_group = item.parent();
@@ -158,19 +157,20 @@ creme.model.ChoiceGroupRenderer = creme.model.ChoiceRenderer.sub({
             group = this.insertGroup(target, item.next(), next_groupname);
         }
 
-        if (previous_groupname !== next_groupname)
-        {
+        if (previous_groupname !== next_groupname) {
             item.remove();
             group.append(item);
 
-            if (prev_group && ($('option', prev_group).length) < 1)
+            if (prev_group && ($('option', prev_group).length) < 1) {
                 prev_group.remove();
+            }
         }
 
         var value = Object.isNone(data.value) ? '' : data.value;
 
-        if (typeof data.value === 'object')
-            value = new creme.utils.JSON().encode(data.value)
+        if (typeof data.value === 'object') {
+            value = new creme.utils.JSON().encode(data.value);
+        }
 
         // upgrade to Jquery 1.9x : selected is a property and attr() method should not be used.
         item.attr('value', value)
@@ -183,7 +183,7 @@ creme.model.ChoiceGroupRenderer = creme.model.ChoiceRenderer.sub({
 
 creme.model.ChoiceGroupRenderer.parse = function(element, converter) {
     var values = element.val();
-    values = element.is('[multiple]') ? (values || []) : [values]; 
+    values = element.is('[multiple]') ? (values || []) : [values];
 
     return $('option', element).map(function() {
         var option = $(this);
@@ -204,7 +204,8 @@ creme.model.ChoiceGroupRenderer.parse = function(element, converter) {
 };
 
 creme.model.ChoiceGroupRenderer.choicesFromTuples = function(data) {
-    var data = data || [];
+    data = data || [];
+
     var istuple = data ? Array.isArray(data[0]) : false;
 
     if (istuple) {
@@ -223,9 +224,8 @@ creme.model.ChoiceGroupRenderer.choicesFromTuples = function(data) {
 };
 
 creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
-    _init_: function(options)
-    {
-        var options = $.extend({itemtag: 'li', disabled: false}, options || {});
+    _init_: function(options) {
+        options = $.extend({itemtag: 'li', disabled: false}, options || {});
 
         this._super_(creme.model.ListRenderer, '_init_');
         this._itemtag = options.itemtag;
@@ -246,8 +246,7 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
         return value;
     },
 
-    createItem: function(target, before, data, index)
-    {
+    createItem: function(target, before, data, index) {
         var disabled = data.disabled || this._disabled;
         var value = this._getItemValue(data);
 
@@ -256,7 +255,7 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
             disabled: disabled ? 'disabled' : '',
             value: value,
             index: index,
-            checked: data.selected ? 'checked': '',
+            checked: data.selected ? 'checked' : '',
             label: data.label || '',
             help: data.help || '',
             hidden: !data.visible ? 'hidden' : '',
@@ -272,16 +271,16 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
                       '</${tag}>').template(context));
 
         var checkbox = $('input[type="checkbox"]', item);
-        checkbox.data('checklist-item', {data: data, index:index});
+        checkbox.data('checklist-item', {data: data, index: index});
 
         // this.updateItem(target, item, data, undefined, index);
         return item;
     },
 
-    updateItem: function(target, item, data, previous, index, action)
-    {
-        if (action === 'select')
+    updateItem: function(target, item, data, previous, index, action) {
+        if (action === 'select') {
             return this.selectItem(target, item, data, previous, index);
+        }
 
         var value = this._getItemValue(data);
         var checkbox = $('input[type="checkbox"]', item);
@@ -290,7 +289,7 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
         checkbox.toggleAttr('disabled', data.disabled || disabled)
                 .attr('value', value)
                 .attr('checklist-index', index)
-                .data('checklist-item', {data: data, index:index})
+                .data('checklist-item', {data: data, index: index});
 
         checkbox.prop('checked', data.selected);
 
@@ -312,7 +311,7 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
 
     items: function(target) {
         return $('.checkbox-field', target).sort(function(a, b) {
-            return parseInt($(a).attr('checklist-index')) - parseInt($(b).attr('checklist-index')); 
+            return parseInt($(a).attr('checklist-index')) - parseInt($(b).attr('checklist-index'));
         });
     },
 
@@ -320,8 +319,7 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
         return Object.property(this, '_converter', converter);
     },
 
-    parseItem: function(target, item, index)
-    {
+    parseItem: function(target, item, index) {
         var converter = this._converter;
         var input = $('input[type="checkbox"]', item);
         var label = $('.checkbox-label', item);
@@ -329,9 +327,9 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
         var value = input.attr('value');
 
         return {
-            label:    label.html(), 
+            label:    label.html(),
             value:    Object.isFunc(converter) ? converter(value) : value,
-            disabled: input.is('[disabled]') || target.is('[disabled]'), 
+            disabled: input.is('[disabled]') || target.is('[disabled]'),
             selected: input.is(':checked'),
             help:     help.html(),
             tags:     input.is('[tags]') ? input.attr('tags').split(' ') : [],
@@ -339,8 +337,7 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
         };
     },
 
-    parse: function(target)
-    {
+    parse: function(target) {
         var self = this;
 
         this._itemtag = this.items(target).first().prop('tagName') || this._itemtag;
@@ -352,16 +349,14 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
 });
 
 creme.model.CheckGroupListRenderer = creme.model.CheckListRenderer.sub({
-    _init_: function(options)
-    {
-        var options = $.extend({grouptag: 'ul'}, options || {});
+    _init_: function(options) {
+        options = $.extend({grouptag: 'ul'}, options || {});
 
         this._super_(creme.model.CheckListRenderer, '_init_', options);
         this._grouptag = options.grouptag;
     },
 
-    insertGroup: function(target, before, groupname)
-    {
+    insertGroup: function(target, before, groupname) {
         var group = $('.checkbox-group[label="' + groupname + '"]', target);
 
         if (group && group.length) {
@@ -384,8 +379,7 @@ creme.model.CheckGroupListRenderer = creme.model.CheckListRenderer.sub({
         return group;
     },
 
-    insertItem: function(target, before, data, index)
-    {
+    insertItem: function(target, before, data, index) {
         var group = target;
         var previous_groupname = before && before.length ? before.parent().attr('label') : undefined;
         var next_groupname = data.group;
@@ -394,8 +388,7 @@ creme.model.CheckGroupListRenderer = creme.model.CheckListRenderer.sub({
             group = this.insertGroup(target, before, next_groupname);
         }
 
-        if (before && before.length)
-        {
+        if (before && before.length) {
             if (next_groupname && previous_groupname !== next_groupname) {
                 before = $('.checkbox-field:first', group);
             }
@@ -406,18 +399,17 @@ creme.model.CheckGroupListRenderer = creme.model.CheckListRenderer.sub({
         }
     },
 
-    removeItem: function(target, item, data, index)
-    {
+    removeItem: function(target, item, data, index) {
         var group = data.group ? item.parent() : undefined;
 
         item.remove();
 
-        if (group && this.items(group).length < 1)
+        if (group && this.items(group).length < 1) {
             group.remove();
+        }
     },
 
-    updateItem: function(target, item, data, previous, index, action)
-    {
+    updateItem: function(target, item, data, previous, index, action) {
         if (action === 'select') {
             return this._super_(creme.model.CheckListRenderer, 'updateItem', target, item, data, previous, index, action);
         }
@@ -432,26 +424,24 @@ creme.model.CheckGroupListRenderer = creme.model.CheckListRenderer.sub({
             group = this.insertGroup(target, item.next(), next_groupname);
         }
 
-        if (previous_groupname !== next_groupname)
-        {
+        if (previous_groupname !== next_groupname) {
             item.remove();
             group.append(item);
 
-            if (prev_group && (this.items(prev_group).length) < 1)
+            if (prev_group && (this.items(prev_group).length) < 1) {
                 prev_group.remove();
+            }
         }
 
         return this._super_(creme.model.CheckListRenderer, 'updateItem', target, item, data, previous, index, action);
     },
 
-    parseItem: function(target, item, index)
-    {
+    parseItem: function(target, item, index) {
         var data = this._super_(creme.model.CheckListRenderer, 'parseItem', target, item, index);
         var checkbox_group = item.parent();
 
-        data.group = (checkbox_group && checkbox_group.is('.checkbox-group')) ? option_group.attr('label') : undefined;
+        data.group = (checkbox_group && checkbox_group.is('.checkbox-group')) ? checkbox_group.attr('label') : undefined;
         return data;
     }
 });
-
 }(jQuery));

@@ -16,7 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.model = creme.model || {};
 
@@ -72,7 +73,7 @@ creme.model.Collection = creme.component.Component.sub({
     },
 
     slice: function(start, end) {
-        return this.all().slice(start, end)
+        return this.all().slice(start, end);
     },
 
     first: function() {
@@ -88,10 +89,8 @@ creme.model.Collection = creme.component.Component.sub({
     }
 });
 
-
 creme.model.Delegate = creme.model.Collection.sub({
-    _init_: function(delegate, listeners)
-    {
+    _init_: function(delegate, listeners) {
         this._super_(creme.model.Collection, '_init_');
 
         this._delegateListener = $.extend({
@@ -103,10 +102,10 @@ creme.model.Delegate = creme.model.Collection.sub({
         this.delegate(delegate);
     },
 
-    delegate: function(delegate)
-    {
-        if (delegate === undefined)
+    delegate: function(delegate) {
+        if (delegate === undefined) {
             return this._delegate;
+        }
 
         var previous = this._delegate;
 
@@ -139,12 +138,10 @@ creme.model.Delegate = creme.model.Collection.sub({
     }
 });
 
-
 creme.model.Filter = creme.model.Delegate.sub({
-    _init_: function(delegate, filter)
-    {
+    _init_: function(delegate, filter) {
         var listeners = {
-           reset: $.proxy(this._onReset, this)
+            reset: $.proxy(this._onReset, this)
         };
 
         this._setFilter(filter);
@@ -155,28 +152,26 @@ creme.model.Filter = creme.model.Delegate.sub({
         return this._data;
     },
 
-    fetch: function(start, end)
-    {
+    fetch: function(start, end) {
         var data = this._filterData();
         this._super_(creme.model.Array, 'reset', data);
         return this;
     },
 
-    _filterData: function()
-    {
+    _filterData: function() {
         var delegate = this._delegate;
         var filter = this._filter;
 
-        if (!delegate)
+        if (!delegate) {
             return [];
+        }
 
-        return Object.isFunc(filter) ? delegate.where(filter) : delegate.all().slice(); 
+        return Object.isFunc(filter) ? delegate.where(filter) : delegate.all().slice();
     },
 
-    _setFilter: function(filter)
-    {
+    _setFilter: function(filter) {
         if (Object.isNone(filter)) {
-            this._filter = null
+            this._filter = null;
         } else if (Object.isFunc(filter)) {
             this._filter = filter;
         } else if (Object.isFunc(filter.callable)) {
@@ -186,10 +181,10 @@ creme.model.Filter = creme.model.Delegate.sub({
         }
     },
 
-    filter: function(filter)
-    {
-        if (filter === undefined)
+    filter: function(filter) {
+        if (filter === undefined) {
             return this._filter;
+        }
 
         this._setFilter(filter);
         this.fetch();
@@ -197,12 +192,11 @@ creme.model.Filter = creme.model.Delegate.sub({
         return this;
     },
 
-    delegate: function(delegate)
-    {
+    delegate: function(delegate) {
         var previous = this._delegate;
         var ret = this._super_(creme.model.Delegate, 'delegate', delegate);
 
-        if (previous != this._delegate) {
+        if (previous !== this._delegate) {
             this.fetch();
         }
 
@@ -231,5 +225,4 @@ creme.model.Filter = creme.model.Delegate.sub({
         this.fetch();
     }
 });
-
 }(jQuery));

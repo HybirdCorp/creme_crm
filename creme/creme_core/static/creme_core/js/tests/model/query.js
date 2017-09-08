@@ -35,6 +35,23 @@ QUnit.module("creme.model.query.js", {
         return (function(name) {return function() {
             self.mockListenerCalls(name).push(Array.copy(arguments));
         }})(name);
+    },
+
+    assertMockQueryErrorCalls(expected, calls)
+    {
+        equal(expected.length, calls.length, 'length');
+
+        for(var i = 0; i < calls.length; ++i)
+        {
+            var call = calls[i];
+            var expect = expected[i];
+
+            equal(call[0], expect[0], 'event');
+            equal(call[1], expect[1], 'data');
+            equal(call[2].type, 'request');
+            equal(call[2].status, expect[2], 'status');
+            equal(call[2].message, expect[1], 'xhr message');
+        }
     }
 });
 
@@ -52,7 +69,7 @@ QUnit.test('creme.model.AjaxArray.constructor', function(assert) {
     deepEqual([1, 2, 3], model.all());
 });
 
-QUnit.test('creme.model.AjaxArray.url (string)', function(assert) {
+QUnit.test('creme.model.AjaxArray.fetch (url: string)', function(assert) {
     var model = new creme.model.AjaxArray(this.backend);
 
     equal(undefined, model.url());
@@ -72,7 +89,7 @@ QUnit.test('creme.model.AjaxArray.url (string)', function(assert) {
     deepEqual(['a'], model.all());
 });
 
-QUnit.test('creme.model.AjaxArray.url (function)', function(assert) {
+QUnit.test('creme.model.AjaxArray.fetch (url: function)', function(assert) {
     var model = new creme.model.AjaxArray(this.backend);
     var id = 1;
     var url = function() {
@@ -162,28 +179,69 @@ QUnit.test('creme.model.AjaxArray.fetch (fail)', function(assert) {
 
     model.url('mock/unknown').fetch();
 
-    assertMockQueryErrorCalls([
-                               ['fetch-error', '', 404]
-                              ], this.mockListenerCalls('fetch-error'));
+    this.assertMockQueryErrorCalls([
+                                    ['fetch-error', '', 404]
+                                   ], this.mockListenerCalls('fetch-error'));
     deepEqual([], this.mockListenerCalls('fetch-done'));
 
     model.url('mock/forbidden').fetch();
 
-    assertMockQueryErrorCalls([
-                               ['fetch-error', '', 404],
-                               ['fetch-error', 'HTTP - Error 403', 403]
-                              ], this.mockListenerCalls('fetch-error'));
+    this.assertMockQueryErrorCalls([
+                                    ['fetch-error', '', 404],
+                                    ['fetch-error', 'HTTP - Error 403', 403]
+                                   ], this.mockListenerCalls('fetch-error'));
     deepEqual([], this.mockListenerCalls('fetch-done'));
 
     model.url('mock/error').fetch();
 
-    assertMockQueryErrorCalls([
-                               ['fetch-error', '', 404],
-                               ['fetch-error', 'HTTP - Error 403', 403],
-                               ['fetch-error', 'HTTP - Error 500', 500]
-                              ], this.mockListenerCalls('fetch-error'));
+    this.assertMockQueryErrorCalls([
+                                    ['fetch-error', '', 404],
+                                    ['fetch-error', 'HTTP - Error 403', 403],
+                                    ['fetch-error', 'HTTP - Error 500', 500]
+                                   ], this.mockListenerCalls('fetch-error'));
     deepEqual([], this.mockListenerCalls('fetch-done'));
 });
+
+QUnit.test('creme.model.AjaxArray.fetch (debounce)', function(assert) {
+    this.backend.options = {
+        sync: false,
+        delay: 100
+    };
+
+    var model = new creme.model.AjaxArray(this.backend);
+    model.bind('fetch-error', this.mockListener('fetch-error'));
+    model.bind('fetch-done', this.mockListener('fetch-done'));
+    model.bind('fetch-cancel', this.mockListener('fetch-cancel'));
+
+    deepEqual([], model.all());
+
+    model.url('mock/options/1');
+    model.fetch();
+
+    model.url('mock/options/2');
+    model.fetch();
+
+    model.url('mock/options/3');
+    model.fetch();
+
+    stop(1)
+
+    var self = this;
+
+    setTimeout(function() {
+        deepEqual([
+                   ['fetch-cancel'],
+                   ['fetch-cancel']
+                  ], self.mockListenerCalls('fetch-cancel'));
+        deepEqual([
+                   ['fetch-done', ['a', 'b', 'c']]
+                  ], self.mockListenerCalls('fetch-done'));
+        deepEqual([], self.mockListenerCalls('fetch-error'));
+        deepEqual(['a', 'b', 'c'], model.all());
+        start();
+    }, 200);
+});
+
 
 QUnit.test('creme.model.AjaxArray.converter', function(assert) {
     var model = new creme.model.AjaxArray(this.backend);
@@ -259,9 +317,9 @@ QUnit.test('creme.model.AjaxArray.fetch (listeners)', function(assert) {
     model.url('mock/unknown').fetch({}, {}, query_listener);
     deepEqual([], model.all());
 
-    assertMockQueryErrorCalls([
-                               ['fail', '', 404]
-                              ], this.mockListenerCalls('failed'));
+    this.assertMockQueryErrorCalls([
+                                    ['fail', '', 404]
+                                   ], this.mockListenerCalls('failed'));
     deepEqual([], this.mockListenerCalls('canceled'));
     deepEqual([], this.mockListenerCalls('succeded'));
 });

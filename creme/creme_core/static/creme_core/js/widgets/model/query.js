@@ -16,13 +16,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.model = creme.model || {};
 
 creme.model.AjaxArray = creme.model.Array.sub({
-    _init_: function(backend, initial)
-    {
+    _init_: function(backend, initial) {
         this.backend(backend);
         this.initial(initial || []);
 
@@ -32,11 +32,10 @@ creme.model.AjaxArray = creme.model.Array.sub({
             done: $.proxy(this._onQueryDone, this),
             fail: $.proxy(this._onQueryError, this),
             cancel: $.proxy(this._onQueryCancel, this)
-        }
+        };
     },
 
-    _onQueryDone: function(event, data, textStatus)
-    {
+    _onQueryDone: function(event, data, textStatus) {
         this._events.trigger('fetch-done', [data], this);
         this.patch(data);
     },
@@ -45,16 +44,15 @@ creme.model.AjaxArray = creme.model.Array.sub({
         this._events.trigger('fetch-cancel', [], this);
     },
 
-    _onQueryError: function(event, data, error)
-    {
+    _onQueryError: function(event, data, error) {
         this._events.trigger('fetch-error', [data, error], this);
         this.patch(this.initial());
     },
 
-    initial: function(initial)
-    {
-        if (initial === undefined)
+    initial: function(initial) {
+        if (initial === undefined) {
             return Object.isFunc(this._initial) ? this._initial() : this._initial;
+        }
 
         this._initial = initial;
         return this;
@@ -72,21 +70,21 @@ creme.model.AjaxArray = creme.model.Array.sub({
         return Object.property(this, '_url', url);
     },
 
-    fetch: function(data, options, listeners)
-    {
+    fetch: function(data, options, listeners) {
         var query = this.backend().query();
 
         query.one(this._queryListeners)
              .one(listeners || {})
              .url(this._url);
 
-        if (this._converter)
+        if (this._converter) {
             query.converter(this._converter);
+        }
 
-        if (this._running)
-        {
-            if (this._running.isRunning())
+        if (this._running) {
+            if (this._running.isRunning()) {
                 this._running.cancel();
+            }
 
             delete this._running;
         }
@@ -96,5 +94,4 @@ creme.model.AjaxArray = creme.model.Array.sub({
         return this;
     }
 });
-
 }(jQuery));
