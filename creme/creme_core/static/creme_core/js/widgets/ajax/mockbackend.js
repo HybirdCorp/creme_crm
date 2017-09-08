@@ -16,7 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
+
+creme.ajax = creme.ajax || {};
 
 creme.ajax.MockAjaxBackend = function(options) {
     $.extend(this.options, {
@@ -26,66 +29,67 @@ creme.ajax.MockAjaxBackend = function(options) {
     this.GET =  {};
     this.POST = {};
 
-    this.counts = {GET: 0, POST: 0, SUBMIT:0};
+    this.counts = {GET: 0, POST: 0, SUBMIT: 0};
 };
 
 creme.ajax.MockAjaxBackend.prototype = new creme.ajax.Backend();
 creme.ajax.MockAjaxBackend.prototype.constructor = creme.ajax.Backend;
 
 $.extend(creme.ajax.MockAjaxBackend.prototype, {
-    send: function(url, data, method, on_success, on_error, options)
-    {
+    send: function(url, data, method, on_success, on_error, options) {
         var self = this;
-        var options = $.extend({}, this.options, options);
+        options = $.extend({}, this.options, options);
 
-        if (options.sync !== true)
-        {
-             options.sync = true;
-             var delay = options.delay || 500;
+        if (options.sync !== true) {
+            options.sync = true;
+            var delay = options.delay || 500;
 
-             window.setTimeout(function() {self.send(url, data, method, on_success, on_error, options);}, delay);
-             return;
+            window.setTimeout(function() {
+                self.send(url, data, method, on_success, on_error, options);
+            }, delay);
+
+            return;
         }
 
         var response = method !== undefined ? method[url] : undefined;
 
-        if (response === undefined)
+        if (response === undefined) {
             response = this.response(404, '');
+        }
 
         if (Object.isFunc(response)) {
             try {
                 response = creme.object.invoke(response, url, data, options);
-            } catch(e) {
+            } catch (e) {
                 response = this.response(500, '' + e);
             }
         }
 
-        if (options.debug)
+        if (options.debug) {
             console.log('mockajax > send > url:', url, 'options:', options, 'response:', response);
+        }
 
-        if (response.status !== 200)
+        if (response.status !== 200) {
             return creme.object.invoke(on_error, response.responseText, new creme.ajax.AjaxResponse(response.status,
                                                                                                     response.responseText,
                                                                                                     response.xhr));
+        }
 
         return creme.object.invoke(on_success, response.responseText, response.statusText, response);
     },
 
-    get:function(url, data, on_success, on_error, options)
-    {
+    get: function(url, data, on_success, on_error, options) {
         this.counts.GET += 1;
         return this.send(url, data, this.GET, on_success, on_error, options);
     },
 
-    post:function(url, data, on_success, on_error, options)
-    {
+    post: function(url, data, on_success, on_error, options) {
         this.counts.POST += 1;
         return this.send(url, data, this.POST, on_success, on_error, options);
     },
 
-    submit:function(form, on_success, on_error, options)
-    {
-        var options = options || {};
+    submit: function(form, on_success, on_error, options) {
+        options = options || {};
         var action = options.action || form.attr('action');
 
         this.counts.SUBMIT += 1;
@@ -93,20 +97,20 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
     },
 
     response: function(status, data, header) {
-        var header = $.extend({
+        header = $.extend({
             'content-type': 'text/html'
         }, header || {});
 
-        return new creme.ajax.XHR({responseText: data,
-                                   status: status,
-                                   statusText: status !== 200 ? creme.ajax.LOCALIZED_ERROR_MESSAGES[status] : 'ok',
-                                   getResponseHeader: function(name) {return header[name.toLowerCase()];}
-                                  });
+        return new creme.ajax.XHR({
+            responseText: data,
+            status: status,
+            statusText: status !== 200 ? creme.ajax.LOCALIZED_ERROR_MESSAGES[status] : 'ok',
+            getResponseHeader: function(name) { return header[name.toLowerCase()]; }
+        });
     },
 
     resetMockCounts: function() {
-        this.counts = {GET: 0, POST: 0, SUBMIT:0};
+        this.counts = {GET: 0, POST: 0, SUBMIT: 0};
     }
 });
-
 }(jQuery));

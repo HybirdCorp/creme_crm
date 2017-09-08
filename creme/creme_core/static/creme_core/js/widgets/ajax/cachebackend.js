@@ -16,7 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
+
+creme.ajax = creme.ajax || {};
 
 /*
  * CacheBackendEntry
@@ -35,21 +38,20 @@ creme.ajax.CacheBackendEntry = function(key, url, data, dataType, response) {
     this.registry = undefined;
 };
 
-
 /*
  * CacheBackendCondition
  *
  * base class for cache expiration behaviour.
  */
 creme.ajax.CacheBackendCondition = function(cb) {
-    this._expired_cb = Object.isFunc(cb) ? cb : function() {return false;};
+    this._expired_cb = Object.isFunc(cb) ? cb : function() { return false; };
 };
 
 creme.ajax.CacheBackendCondition.prototype = {
-    expired: function(entry, options)
-    {
-        if (entry.state === undefined)
+    expired: function(entry, options) {
+        if (entry.state === undefined) {
             return true;
+        }
 
         return creme.object.invoke(this._expired_cb, entry, options);
     },
@@ -72,10 +74,10 @@ creme.ajax.CacheBackendTimeout.prototype = new creme.ajax.CacheBackendCondition(
 creme.ajax.CacheBackendTimeout.prototype.constructor = creme.ajax.CacheBackendCondition;
 
 $.extend(creme.ajax.CacheBackendTimeout.prototype, {
-    expired: function(entry, options)
-    {
-        if (entry.state === undefined)
+    expired: function(entry, options) {
+        if (entry.state === undefined) {
             return true;
+        }
 
         var expirationTime = entry.state.time + this.maxdelay;
         return expirationTime - new Date().getTime() <= 0;
@@ -85,8 +87,6 @@ $.extend(creme.ajax.CacheBackendTimeout.prototype, {
         entry.state = {time: new Date().getTime()};
     }
 });
-
-
 
 /*
  * CacheBackend
@@ -104,41 +104,35 @@ creme.ajax.CacheBackend.prototype = new creme.ajax.Backend();
 creme.ajax.CacheBackend.prototype.constructor = creme.ajax.Backend;
 
 $.extend(creme.ajax.CacheBackend.prototype, {
-    get: function(url, data, on_success, on_error, options)
-    {
-        var options = $.extend({}, this.options, options);
-        var entry = this._getEntry(url, data, options.dataType)
+    get: function(url, data, on_success, on_error, options) {
+        options = $.extend({}, this.options, options);
+        var entry = this._getEntry(url, data, options.dataType);
 
         this._fetchEntry(entry, on_success, on_error, options);
     },
 
-    _getEntry: function(url, data, dataType)
-    {
+    _getEntry: function(url, data, dataType) {
         var key = $.toJSON([url, dataType, data]);
         return this.entries[key] || new creme.ajax.CacheBackendEntry(key, url, data, dataType);
     },
 
-    _updateEntry: function(entry, response, textStatus)
-    {
+    _updateEntry: function(entry, response, textStatus) {
         entry.response = {data: response, textStatus: textStatus};
         this.condition.reset(entry);
     },
 
-    _registerEntry: function(entry)
-    {
+    _registerEntry: function(entry) {
         this.entries[entry.key] = entry;
         this.condition.reset(entry);
         entry.registry = this;
     },
 
-    _removeEntry: function(entry)
-    {
+    _removeEntry: function(entry) {
         entry.registry = undefined;
         delete this.entries[entry.key];
     },
 
-    _fetchEntry: function(entry, on_success, on_error, options)
-    {
+    _fetchEntry: function(entry, on_success, on_error, options) {
         var self = this;
 
         if (!options.forcecache && !entry.waiting && (this.condition.expired(entry, options) === false)) {
@@ -150,25 +144,24 @@ $.extend(creme.ajax.CacheBackend.prototype, {
         }
 
         entry.events.one('complete', function(event, is_success, data, status) {
-                         creme.object.invoke(is_success ? on_success : on_error, data, status);
-                    });
+            creme.object.invoke(is_success ? on_success : on_error, data, status);
+        });
 
-        if (!entry.waiting)
-        {
+        if (!entry.waiting) {
             entry.waiting = true;
             this.delegate.get(entry.url, entry.data,
-                              function(data, textStatus) {
-                                  entry.waiting = false;
-                                  self._updateEntry(entry, data, textStatus);
-                                  entry.events.trigger('complete', [true, data, textStatus]);
-                              },
-                              function(data, status) {
-                                  self._removeEntry(entry);
-                                  entry.waiting = false;
-                                  entry.events.trigger('complete', [false, data, status]);
-                              }, options);
+                function(data, textStatus) {
+                    entry.waiting = false;
+                    self._updateEntry(entry, data, textStatus);
+                    entry.events.trigger('complete', [true, data, textStatus]);
+                },
+                function(data, status) {
+                    self._removeEntry(entry);
+                    entry.waiting = false;
+                    entry.events.trigger('complete', [false, data, status]);
+                },
+                options);
         }
     }
 });
-
 }(jQuery));
