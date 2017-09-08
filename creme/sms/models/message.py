@@ -20,6 +20,7 @@
 
 from django.conf import settings
 from django.db.models import ForeignKey, CharField, DateField, TextField
+from django.utils.formats import date_format
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
@@ -63,9 +64,10 @@ class Sending(CremeModel):
 
     def __unicode__(self):
         # return self.date
-        return pgettext('sms', u'Sending of «{campaign}» on {date}').format(campaign=self.campaign,
-                                                                            date=self.date,
-                                                                           )
+        return pgettext('sms', u'Sending of «{campaign}» on {date}').format(
+                    campaign=self.campaign,
+                    date=date_format(self.date, 'DATE_FORMAT'),
+               )
 
     def formatstatus(self):
         items = ((self.messages.filter(status=status).count(), status_name) for status, status_name in MESSAGE_STATUS.iteritems())
