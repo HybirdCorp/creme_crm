@@ -105,7 +105,7 @@ creme.widget.Toggle = creme.widget.declare('ui-creme-toggle', {
             });
         }
 
-        if (typeof this._on_toggle === 'function') {
+        if (Object.isFunc(this._on_toggle)) {
             try {
                 if (element.is('.widget-ready')) {
                     this._on_toggle.apply(this, [collapsed, options]);

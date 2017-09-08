@@ -20,10 +20,12 @@
 
 creme.object = {
     isnone: function(obj) {
+        console.warn('creme.utils.isnone is deprecated ; use Object.isNone() instead.');
         return obj === undefined || obj === null;
     },
 
     isempty: function(obj) {
+        console.warn('creme.utils.isempty is deprecated ; use Object.isEmpty() instead.');
         return this.isnone(obj) || obj.length === 0 || (obj !== 0 && $.isEmptyObject(obj))
     },
 
@@ -203,7 +205,7 @@ $.extend(creme.widget, {
 
     proxy: function(element, delegate)
     {
-        if (creme.object.isnone(delegate))
+        if (Object.isNone(delegate))
             return;
 
         var widget = {
@@ -417,10 +419,10 @@ $.extend(creme.widget, {
 
     is_valid: function(element)
     {
-        if (creme.object.isempty(element))
+        if (Object.isEmpty(element))
             return false;
 
-        return (typeof element.data === 'function') && !creme.object.isnone(element.data('CremeWidget'));
+        return Object.isFunc(element.data) && !Object.isNone(element.data('CremeWidget'));
     },
 
     writeAttr: function(element, options)
@@ -445,7 +447,7 @@ $.extend(creme.widget, {
         if (auto === true)
             element.addClass('widget-auto');
 
-        if (creme.object.isempty(options))
+        if (Object.isEmpty(options))
             return element;
 
         return this.writeAttr(element, options);

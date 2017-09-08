@@ -53,7 +53,7 @@ creme.widget.PlotSelector = creme.widget.declare('ui-creme-plotselector', {
     _updatePlotOptions: function(element, plot, data)
     {
         try {
-            if (creme.object.isnone(this._plot_name)) {
+            if (Object.isNone(this._plot_name)) {
                 plot.plotInfo(plot.plotScript());
                 return;
             }
@@ -90,7 +90,7 @@ creme.widget.PlotSelector = creme.widget.declare('ui-creme-plotselector', {
 
         var url = plot_data_url.render();
 
-        if (creme.object.isempty(url))
+        if (Object.isEmpty(url))
             throw new Error('empty data url');
 
         backend.get(url, {},
@@ -147,7 +147,7 @@ creme.widget.PlotSelector = creme.widget.declare('ui-creme-plotselector', {
         var self = this;
         var plot = this._delegate(element);
 
-        if (creme.object.isnone(plot)) {
+        if (Object.isNone(plot)) {
             creme.object.invoke(error_cb, element, new Error('Plot not initialized'));
             return;
         }

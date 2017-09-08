@@ -51,9 +51,9 @@ function assertDSelectAt(widget, name, value, dependencies, url, choices)
 
 function assertDSelect(select, value, dependencies, url, choices)
 {
-    equal(creme.object.isempty(select), false);
+    equal(Object.isEmpty(select), false);
 
-    if (creme.object.isempty(select))
+    if (Object.isEmpty(select))
         return;
 
     equal(select.creme().isActive(), true);
@@ -65,9 +65,9 @@ function assertDSelect(select, value, dependencies, url, choices)
 
 function assertEntitySelect(select, value, dependencies, url)
 {
-    equal(creme.object.isempty(select), false);
+    equal(Object.isEmpty(select), false);
 
-    if (creme.object.isempty(select))
+    if (Object.isEmpty(select))
         return;
 
     equal(select.creme().isActive(), true);

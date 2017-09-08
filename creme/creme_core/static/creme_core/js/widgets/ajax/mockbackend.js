@@ -52,7 +52,7 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
         if (response === undefined)
             response = this.response(404, '');
 
-        if (typeof response === 'function') {
+        if (Object.isFunc(response)) {
             try {
                 response = creme.object.invoke(response, url, data, options);
             } catch(e) {

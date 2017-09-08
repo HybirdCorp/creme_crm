@@ -137,7 +137,7 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
         var self = this;
         var selector_model = this.selectorModel(element).clone();
 
-        if (creme.object.isempty(selector_model)) {
+        if (Object.isEmpty(selector_model)) {
             creme.object.invoke(listeners.fail, 'fail');
             return;
         }

@@ -138,7 +138,7 @@ creme.billing.validateInput = function(input) {
     var validator = input.attr('validator') ? creme.billing['check' + input.attr('validator')] : undefined;
     var isvalid = input.attr('isvalid') || false;
 
-    if (typeof validator === 'function') {
+    if (Object.isFunc(validator)) {
         isvalid = validator(input);
     } else {
         isvalid = true;
