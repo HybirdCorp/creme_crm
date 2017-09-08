@@ -16,27 +16,24 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.utils = creme.utils || {};
 
 creme.utils.TemplateRenderer = creme.component.Component.sub({
-    tags: function(template) {return [];},
-    render: function(template, values) {return template;}
+    tags: function(template) { return []; },
+    render: function(template, values) { return template; }
 });
 
 creme.utils.TemplateDefaultRenderer = creme.utils.TemplateRenderer.sub({
-    _matches: function(template) {
-        return template.match(/\$\{[\w\d\\.^\\s]+\}/g);
-    },
+    _entrypattern: /\$\{([\w\d\\.^\\s]+)\}/g,
 
-    _attributeGetter: function(data, key)
-    {
+    _attributeGetter: function(data, key) {
         var keys = Array.isArray(key) ? key : ((typeof key === 'string') ? key.split('.') : [key]);
         var value = data;
 
-        for(var i in keys)
-        {
+        for (var i in keys) {
             if (!Object.isNone(value) && typeof value === 'object') {
                 value = value[keys[i]];
             } else {
@@ -50,83 +47,59 @@ creme.utils.TemplateDefaultRenderer = creme.utils.TemplateRenderer.sub({
         return value;
     },
 
-    _getter: function(data)
-    {
-        var self = this;
-
-        if (Object.isFunc(data))
-            return data;
-
-        return function(key) {
-            return self._attributeGetter(data, key);
-        }
-    },
-
-    tags: function(template)
-    {
-        var matches = this._matches(template);
-
-        if (Object.isEmpty(matches))
-            return [];
-
+    tags: function(template) {
+        var matches = template.match(this._entrypattern);
         var tags = {};
 
-        matches.forEach(function(match) {
-            return tags[match.slice(2, -1).split('.')[0]] = 0;
-        });
+        if (Object.isEmpty(matches) === false) {
+            matches.forEach(function(match) {
+                tags[match.slice(2, -1).split('.')[0]] = 0;
+                return 0;
+            });
+        }
 
         return Object.keys(tags);
     },
 
-    render: function(template, values)
-    {
-        if (Object.isEmpty(values))
+    render: function(template, values) {
+        if (Object.isEmpty(values)) {
             return template;
-
-        var entries = this._matches(template);
-
-        if (Object.isEmpty(entries))
-            return template;
-
-        var result = '' + template;
-        var getter = this._getter(values);
-
-        for(var i = 0; i < entries.length; i++)
-        {
-            var entry = entries[i];
-            var key = entry.slice(2, -1);
-            var value = getter(key);
-
-            if (value !== undefined)
-                result = result.replace(entry, value);
         }
 
-        return result;
+        var getter = this._attributeGetter.bind(this);
+
+        return template.replace(this._entrypattern, function(match, key) {
+            var value = getter(values, key);
+            return value !== undefined ? value : match;
+        });
     }
 });
 
 creme.utils.Template = creme.component.Component.sub({
-    _init_: function(pattern, parameters, renderer)
-    {
+    _init_: function(pattern, parameters, renderer) {
         this.renderer(renderer || new creme.utils.TemplateDefaultRenderer());
         this.pattern(pattern);
         this.parameters(parameters);
     },
 
-    _resolve: function(extra)
-    {
+    _resolve: function(extra) {
+        extra = extra || {};
+
         var data = this._parameters || {};
-        var extra = extra || {};
         var resolved = {};
 
         if (Object.isFunc(data)) {
-            this.tags().forEach(function(key) {resolved[key] = data(key);});
+            this.tags().forEach(function(key) {
+                resolved[key] = data(key);
+            });
         } else {
             resolved = $.extend(resolved, data);
         }
 
         if (Object.isFunc(extra)) {
-            this.tags().forEach(function(key) {resolved[key] = extra(key);});
+            this.tags().forEach(function(key) {
+                resolved[key] = extra(key);
+            });
         } else {
             resolved = $.extend(resolved, extra);
         }
@@ -134,62 +107,55 @@ creme.utils.Template = creme.component.Component.sub({
         return resolved;
     },
 
-    render: function(extra)
-    {
+    render: function(extra) {
         var renderer = this._renderer;
         var pattern = this._pattern;
 
-        if (Object.isNone(renderer) || Object.isNone(pattern))
+        if (Object.isNone(renderer) || Object.isNone(pattern)) {
             return null;
+        }
 
-        var resolved = this._resolve(extra);
-
-        if (Object.isNone(resolved))
-            return pattern;
-
-        return renderer.render(pattern, resolved);
+        return renderer.render(pattern, this._resolve(extra));
     },
 
     tags: function() {
         return this._tags;
     },
 
-    _updateTags: function()
-    {
+    _updateTags: function() {
         var renderer = this._renderer;
         var pattern = this._pattern;
 
         this._tags = (Object.isNone(renderer) || Object.isEmpty(pattern)) ? [] : renderer.tags(pattern);
     },
 
-    iscomplete: function()
-    {
+    iscomplete: function() {
         var tags = this._tags;
         var parameters = this._resolve();
 
-        for(var i = 0; i < tags.length; ++i)
-        {
-            if (Object.isNone(parameters[tags[i]]))
+        for (var i = 0; i < tags.length; ++i) {
+            if (Object.isNone(parameters[tags[i]])) {
                 return false;
+            }
         }
 
         return true;
     },
 
-    renderer: function(renderer)
-    {
-        if (renderer === undefined)
+    renderer: function(renderer) {
+        if (renderer === undefined) {
             return this._renderer;
+        }
 
         this._renderer = renderer;
         this._updateTags();
         return this;
     },
 
-    pattern: function(pattern)
-    {
-        if (pattern === undefined)
+    pattern: function(pattern) {
+        if (pattern === undefined) {
             return this._pattern;
+        }
 
         this._pattern = pattern;
         this._updateTags();
@@ -200,11 +166,9 @@ creme.utils.Template = creme.component.Component.sub({
         return Object.property(this, '_parameters', parameters);
     },
 
-    update: function(data)
-    {
+    update: function(data) {
         // data is a string, use it as url
-        if (Array.isArray(data))
-        {
+        if (Array.isArray(data)) {
             this.pattern(data[0]);
             this.parameters(data[1]);
         } else if (typeof data === 'object') {
@@ -220,11 +184,13 @@ creme.utils.Template = creme.component.Component.sub({
 creme.utils.templatize = function(value, context) {
     var template;
 
-    if (Object.isNone(value))
+    if (Object.isNone(value)) {
         template = new creme.utils.Template();
+    }
 
-    if (Object.isType(value, 'string'))
+    if (Object.isType(value, 'string')) {
         template = new creme.utils.Template(value);
+    }
 
     if (value !== null && Object.isType(value, 'object') && Object.isFunc(value.is) && value.is(creme.utils.Template)) {
         template = value;
@@ -232,5 +198,4 @@ creme.utils.templatize = function(value, context) {
 
     return Object.isNone(context) ? template : template.parameters(context);
 };
-
 }(jQuery));

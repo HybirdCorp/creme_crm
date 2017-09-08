@@ -16,65 +16,67 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.utils = creme.utils || {};
 
 creme.utils.JSON = function() {};
 creme.utils.JSON.prototype = {
-    encode: function(data)
-    {
-        if (typeof jQuery.toJSON !== 'function') {
-            throw 'not implemented !';
+    encode: function(data) {
+        if (window.JSON && window.JSON.stringify) {
+            return window.JSON.stringify(data);
+        } else if (Object.isFunc($.toJSON)) {
+            return $.toJSON(data);
         }
 
-        return jQuery.toJSON(data);
+        throw Error('not implemented !');
     },
 
-    isJSON: function(data)
-    {
+    isJSON: function(data) {
         // Make sure the incoming data is actual JSON
         // Logic borrowed from http://json.org/json2.js
-        return typeof data === 'string' && 
+        return typeof data === 'string' &&
                (/^[\],:{}\s]*$/.test(data.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@")
                                          .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]")
                                          .replace(/(?:^|:|,)(?:\s*\[)+/g, "")));
     },
 
-    decode: function(data, defaults)
-    {
+    decode: function(data, defaults) {
         if (defaults !== undefined) {
             try {
                 return this.decode(data);
-            } catch(e) {
+            } catch (e) {
                 return defaults;
             }
         }
 
-        if ( typeof data !== "string" || !data) {
-            throw 'Invalid data type or empty string';
+        if (typeof data !== "string" || !data) {
+            throw Error('Invalid data type or empty string');
         }
 
         // Make sure leading/trailing whitespace is removed (IE can't handle it)
-        data = jQuery.trim(data);
+        data = $.trim(data);
 
         try {
-            if (window.JSON && window.JSON.parse)
+            if (window.JSON && window.JSON.parse) {
                 return window.JSON.parse(data);
-        } catch(err) {
-            throw 'JSON parse error: ' + err;
+            }
+        } catch (err) {
+            throw Error('JSON parse error: ' + err);
         }
 
         var isvalid = this.isJSON(data);
 
-        if (!isvalid)
-            throw 'JSON parse error (fallback)';
+        if (!isvalid) {
+            throw Error('JSON parse error (fallback)');
+        }
 
         try {
-            // Try to use the native JSON parser first
-            return (new Function("return " + data))();
-        } catch(err) {
-            throw 'JSON parse error (fallback): ' + err;
+            // Try to use jQuery instead
+            return $.parseJSON(data);
+        } catch (err) {
+            throw Error('JSON parse error (fallback): ' + err);
         }
     }
 };
@@ -94,5 +96,4 @@ creme.utils.JSON.encoder = function() {
 creme.utils.JSON.clean = function(data, defaults) {
     return Object.isType(data, 'string') ? new creme.utils.JSON().decode(data, defaults) : data;
 };
-
 }(jQuery));

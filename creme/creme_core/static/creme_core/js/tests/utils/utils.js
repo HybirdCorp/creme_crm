@@ -146,6 +146,12 @@ QUnit.test('creme.utils.isHTMLDataType', function(assert) {
     equal(creme.utils.isHTMLDataType('text/html'), true);
     equal(creme.utils.isHTMLDataType('HTML'), true);
     equal(creme.utils.isHTMLDataType('json'), false);
+
+    equal(creme.utils.isHTMLDataType(''), false);
+    equal(creme.utils.isHTMLDataType(), false);
+    equal(creme.utils.isHTMLDataType(null), false);
+    equal(creme.utils.isHTMLDataType(false), false);
+    equal(creme.utils.isHTMLDataType(12), false);
 });
 
 /**

@@ -16,7 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.utils = creme.utils || {};
 
@@ -26,7 +27,7 @@ creme.utils.Lambda = creme.component.Component.sub({
     },
 
     isValid: function() {
-        return !Object.isNone(this._lambda)
+        return !Object.isNone(this._lambda);
     },
 
     apply: function(context, parameters) {
@@ -35,8 +36,7 @@ creme.utils.Lambda = creme.component.Component.sub({
         }
     },
 
-    call: function()
-    {
+    call: function() {
         if (this._lambda) {
             var args = Array.copy(arguments);
             return this._lambda.apply(args[0], args.slice(1));
@@ -47,43 +47,48 @@ creme.utils.Lambda = creme.component.Component.sub({
         return this._lambda ? this._lambda.apply(this._context || {}, arguments) : undefined;
     },
 
-    constant: function(value)
-    {
-        this._lambda = function() {return value;};
+    constant: function(value) {
+        this._lambda = function() { return value; };
         return this;
     },
 
-    lambda: function(callable, parameters)
-    {
-        if (callable === undefined)
+    lambda: function(callable, parameters) {
+        if (callable === undefined) {
             return this._lambda;
+        }
 
         if (Object.isFunc(callable)) {
             this._lambda = callable;
             return this;
         }
 
-        if (!Object.isType(callable, 'string'))
+        if (!Object.isType(callable, 'string')) {
             return this.constant(callable);
+        }
 
-        if (Object.isEmpty(callable))
+        if (Object.isEmpty(callable)) {
             throw Error('empty lambda script');
+        }
 
-        var parameters = Array.isArray(parameters) ? parameters.join(',') : (parameters || '');
+        parameters = Array.isArray(parameters) ? parameters.join(',') : (parameters || '');
         var body = callable.indexOf('return') !== -1 ? callable : 'return ' + callable + ';';
 
+        /* eslint-disable no-new-func, no-eval */
         if (!Object.isNone(window['Function'])) {
             this._lambda = new Function(parameters, body);
         } else {
             // HACK : compatibiliy for older browsers
-            var uuid = $.uidGen({prefix: '__lambda_', mode:'random'});
-            var script = 'creme.utils["' + uuid + '"] = function(' + parameters + ') {' + body + "};"
+            var uuid = $.uidGen({
+                prefix: '__lambda_',
+                mode: 'random'
+            });
 
-            eval(script);
+            eval('creme.utils["' + uuid + '"] = function(' + parameters + ') {' + body + "};");
 
             this._lambda = creme.utils[uuid];
             delete creme.utils[uuid];
         }
+        /* eslint-enable no-new-func, no-eval */
 
         return this;
     },
@@ -94,23 +99,21 @@ creme.utils.Lambda = creme.component.Component.sub({
         }
     },
 
-    bind: function(context)
-    {
+    bind: function(context) {
         this._context = context;
         return this;
     }
 });
 
-creme.utils.lambda = function(callable, parameters, defaults)
-{
+creme.utils.lambda = function(callable, parameters, defaults) {
     try {
         return new creme.utils.Lambda(callable, parameters).callable();
-    } catch(e) {
-        if (defaults !== undefined)
+    } catch (e) {
+        if (defaults !== undefined) {
             return defaults;
-
-        throw e;
+        } else {
+            throw e;
+        }
     }
 };
-
 }(jQuery));

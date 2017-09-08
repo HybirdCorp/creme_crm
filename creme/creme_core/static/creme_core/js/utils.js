@@ -583,7 +583,7 @@ creme.utils.innerPopupFormAction = function(url, options, data) {
 };
 
 creme.utils.isHTMLDataType = function(dataType) {
-    if (!dataType) {
+    if (!dataType || !Object.isString(dataType)) {
         return false;
     }
 

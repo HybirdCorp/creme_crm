@@ -122,6 +122,8 @@ QUnit.test('creme.utils.ConverterRegistry.convert (default)', function(assert) {
 
     this.converters.register('string', 'int', this.str2int);
     equal(this.converters.convert('string', 'int', '15446', 10), 15446);
+
+    equal(this.converters.convert('string', 'int', {}, 10), 10);
 });
 
 QUnit.test('creme.utils.converters (string-number)', function(assert) {

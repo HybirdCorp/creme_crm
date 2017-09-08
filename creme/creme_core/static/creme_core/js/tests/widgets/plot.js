@@ -200,7 +200,7 @@ QUnit.test('creme.widget.Plot.create (invalid)', function(assert) {
     assertReady(element);
     assertNoPlot(this, element);
 
-    equal(this.plotError.substr(0, 'JSON parse error'.length), 'JSON parse error');
+    equal(this.plotError.message.substr(0, 'JSON parse error'.length), 'JSON parse error');
 });
 
 QUnit.test('creme.widget.Plot.create (valid)', function(assert) {
@@ -270,7 +270,7 @@ QUnit.test('creme.widget.Plot.draw (invalid)', function(assert) {
 
     assertReady(element);
     assertNoPlot(this, element);
-    equal(this.plotError.substr(0, 'JSON parse error'.length), 'JSON parse error');
+    equal(this.plotError.message.substr(0, 'JSON parse error'.length), 'JSON parse error');
 });
 
 QUnit.test('creme.widget.Plot.redraw (valid, data)', function(assert) {

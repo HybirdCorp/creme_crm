@@ -3,6 +3,12 @@ QUnit.module("creme.utils.template.js", {
   teardown: function() {}
 });
 
+QUnit.test('creme.utils.TemplateRenderer (constructor)', function(assert) {
+    var renderer = new creme.utils.TemplateRenderer();
+    deepEqual([], renderer.tags('${a}'));
+    deepEqual('${a}', renderer.render('${a}', {a: 12}));
+});
+
 QUnit.test('creme.utils.Template (constructor)', function(assert) {
     var template = new creme.utils.Template();
     equal(undefined, template.pattern());
