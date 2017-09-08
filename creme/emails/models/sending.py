@@ -30,6 +30,8 @@ from django.db.models import (ForeignKey, DateTimeField, PositiveSmallIntegerFie
         EmailField, CharField, TextField, ManyToManyField, SET_NULL)
 from django.db.transaction import atomic
 from django.template import Template, Context
+from django.utils.formats import date_format
+from django.utils.timezone import localtime
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext, pgettext_lazy  # activate
 
 from creme.creme_core.models import CremeModel, CremeEntity
@@ -100,11 +102,12 @@ class EmailSending(CremeModel):
         verbose_name_plural = _(u'Email campaign sendings')
 
     def __unicode__(self):
-        return pgettext('emails', u'Sending of «{campaign}» on {date}').format(campaign=self.campaign,
-                                                                               date=self.sending_date,
-                                                                              )
+        return pgettext('emails', u'Sending of «{campaign}» on {date}').format(
+                    campaign=self.campaign,
+                    date=date_format(localtime(self.sending_date), 'DATETIME_FORMAT'),
+                )
 
-    def get_mails(self):
+    def get_mails(self):  # TODO: remove
         return self.mails_set.all()
 
     def get_unsent_mails_count(self):
