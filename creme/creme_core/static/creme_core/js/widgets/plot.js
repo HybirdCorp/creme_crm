@@ -61,7 +61,7 @@ creme.widget.PlotEventHandlers = new creme.widget.PlotEventHandlerRegistry();
 creme.widget.PlotEventHandlers.register('redirect', function(event, seriesIndex, pointIndex, value, options) {
     var url = options.url.format(value);
 
-    if (options.url !== url && !creme.object.isempty(url)) {
+    if (options.url !== url && !Object.isEmpty(url)) {
         window.location = url;
     }
 });
@@ -69,7 +69,7 @@ creme.widget.PlotEventHandlers.register('redirect', function(event, seriesIndex,
 creme.widget.PlotEventHandlers.register('popup', function(event, seriesIndex, pointIndex, value, options) {
     var url = options.url.format(value);
 
-    if (options.url !== url && !creme.object.isempty(url)) {
+    if (options.url !== url && !Object.isEmpty(url)) {
         creme.dialogs.url(options.url.format(value), {'title': options.url.format(value)}).open();
     }
 });

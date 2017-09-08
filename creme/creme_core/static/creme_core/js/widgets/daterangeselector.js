@@ -104,7 +104,7 @@ creme.widget.DateRangeSelector = creme.widget.declare('ui-creme-daterange-select
     {
         var values = creme.widget.cleanval(data, {'type':'', 'start':null, 'end':null});
 
-        if (creme.object.isempty(values))
+        if (Object.isEmpty(values))
             values = {'type':'', 'start':null, 'end':null};
 
         // TODO : use this method instead. parse json if value is a string and

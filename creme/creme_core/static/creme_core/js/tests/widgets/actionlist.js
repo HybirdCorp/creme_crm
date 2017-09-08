@@ -19,9 +19,9 @@ function mock_actionlist_add(element, options)
 
 function assertAction(action, name, label, type, url, enabled)
 {
-    equal(creme.object.isempty(action), false, 'action is empty');
+    equal(Object.isEmpty(action), false, 'action is empty');
 
-    if (creme.object.isempty(action))
+    if (Object.isEmpty(action))
         return;
 
     equal(action.attr('name'), name, 'action name');
