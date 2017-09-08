@@ -240,3 +240,26 @@ QUnit.test('creme.component._super', function(assert) {
     equal(12 + 485, ab._super_(MockComponentA, 'add', 485));
     equal(12, ab._super_(MockComponentA, 'add'));
 });
+
+QUnit.test('creme.component.is', function(assert) {
+    var obj = new creme.component.Component();
+    var noobj = function() {};
+
+    equal(false, creme.component.is(null, creme.component.Component));
+    equal(false, creme.component.is(undefined, creme.component.Component));
+    equal(false, creme.component.is(noobj, creme.component.Component));
+    equal(false, creme.component.is(15, creme.component.Component));
+    equal(false, creme.component.is(obj, MockComponentAB));
+    equal(false, creme.component.is(obj, creme.component.Component));
+
+    equal(true, creme.component.is(creme.component.Component, creme.component.Component));
+    equal(true, creme.component.is(creme.component.Component, Object));
+    equal(true, creme.component.is(Object, Object));
+
+    equal(true, creme.component.is(MockComponentAB, creme.component.Component));
+    equal(true, creme.component.is(MockComponentAB, MockComponentA));
+    equal(false, creme.component.is(MockComponentAB, MockComponentAC));
+
+    equal(true, creme.component.is(Object.getPrototypeOf(obj).constructor, creme.component.Component));
+});
+
