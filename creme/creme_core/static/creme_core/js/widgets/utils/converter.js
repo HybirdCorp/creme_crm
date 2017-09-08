@@ -16,40 +16,41 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.utils = creme.utils || {};
 
 creme.utils.ConverterRegistry = function() {
     this._init_();
-}
+};
 
 creme.utils.ConverterRegistry.prototype = {
     _init_: function() {
         this._converters = {};
     },
 
-    convert: function(from, to, data, defaults)
-    {
-        if (from === to)
+    convert: function(from, to, data, defaults) {
+        if (from === to) {
             return data;
+        }
 
         var converter = this.converter(from, to);
 
-        if (!Object.isFunc(converter))
-        {
-            if (defaults !== undefined)
+        if (!Object.isFunc(converter)) {
+            if (defaults !== undefined) {
                 return defaults;
+            }
 
             throw new Error('no such converter "' + from + '-' + to + '"');
         }
 
-        try
-        {
+        try {
             return converter.call(this, data);
-        } catch(e) {
-            if (defaults !== undefined)
+        } catch (e) {
+            if (defaults !== undefined) {
                 return defaults;
+            }
 
             throw new Error('unable to convert data from "' + from + '" to "' + to + '" : ' + (e.message || e));
         }
@@ -60,16 +61,17 @@ creme.utils.ConverterRegistry.prototype = {
     },
 
     register: function(from, to, converter) {
-        if (Object.isFunc(this.converter(from, to)))
+        if (Object.isFunc(this.converter(from, to))) {
             throw new Error('converter "' + from + '-' + to + '" is already registered');
+        }
 
         this._converters[from + '-' + to] = converter;
     },
 
-    unregister: function(from, to)
-    {
-        if (this.converter(from, to) === undefined)
+    unregister: function(from, to) {
+        if (this.converter(from, to) === undefined) {
             throw new Error('no such converter "' + from + '-' + to + '"');
+        }
 
         delete this._converters[from + '-' + to];
     }
@@ -84,8 +86,9 @@ creme.utils.converters.register('string', 'number', function(value) {
 
     var num = parseFloat(value);
 
-    if (isNaN(num))
-        throw '"' + value + '" is not a number';
+    if (isNaN(num)) {
+        throw Error('"' + value + '" is not a number');
+    }
 
     return num;
 });
@@ -97,10 +100,10 @@ creme.utils.converters.register('string', 'int', function(value) {
 
     var num = parseInt(value);
 
-    if (isNaN(num))
-        throw '"' + value + '" is not a number';
+    if (isNaN(num)) {
+        throw Error('"' + value + '" is not a number');
+    }
 
     return num;
 });
-
 }(jQuery));
