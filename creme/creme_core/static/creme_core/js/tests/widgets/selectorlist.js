@@ -79,7 +79,7 @@ QUnit.module("creme.widgets.selectorlist.js", {
   }
 });
 
-test('creme.widets.selectorlist.create (empty, no model)', function() {
+QUnit.test('creme.widets.selectorlist.create (empty, no model)', function(assert) {
     var element = mock_selectorlist_create();
     var widget = creme.widget.create(element);
 
@@ -91,7 +91,7 @@ test('creme.widets.selectorlist.create (empty, no model)', function() {
     equal(widget.selectors().length, 0);
 });
 
-test('creme.widets.selectorlist.create (empty, model)', function() {
+QUnit.test('creme.widets.selectorlist.create (empty, model)', function(assert) {
     var element = mock_selectorlist_create();
     var ctype = mock_dselect_create();
     mock_dselect_add_choice(ctype, 'a', 15);
@@ -110,7 +110,7 @@ test('creme.widets.selectorlist.create (empty, model)', function() {
     equal(widget.selectorModel().creme().isActive(), false);
 });
 
-test('creme.widets.selectorlist.create (empty, model, disabled)', function() {
+QUnit.test('creme.widets.selectorlist.create (empty, model, disabled)', function(assert) {
     var element = mock_selectorlist_create('', false, {disabled: ''});
     var ctype = mock_dselect_create();
     mock_dselect_add_choice(ctype, 'a', 15);
@@ -136,7 +136,7 @@ test('creme.widets.selectorlist.create (empty, model, disabled)', function() {
     equal(widget.delegate._enabled, false);
 });
 
-test('creme.widets.selectorlist.create (empty, chained selector)', function() {
+QUnit.test('creme.widets.selectorlist.create (empty, chained selector)', function(assert) {
     var element = mock_selectorlist_create();
     var model = mock_chainedselect_create();
 
@@ -161,7 +161,7 @@ test('creme.widets.selectorlist.create (empty, chained selector)', function() {
     equal(widget.selectors().length, 0);
 });
 
-test('creme.widets.selectorlist.create (value, no selector)', function() {
+QUnit.test('creme.widets.selectorlist.create (value, no selector)', function(assert) {
     var element = mock_selectorlist_create($.toJSON([{ctype: '12', rtype:'rtype.3'}]));
     var widget = creme.widget.create(element);
 
@@ -173,7 +173,7 @@ test('creme.widets.selectorlist.create (value, no selector)', function() {
     equal(widget.selectors().length, 0);
 });
 
-test('creme.widets.selectorlist.create (value, static selector)', function() {
+QUnit.test('creme.widets.selectorlist.create (value, static selector)', function(assert) {
     var element = mock_selectorlist_create($.toJSON([3, 5, 3, 15]));
     var ctype = mock_dselect_create();
     mock_dselect_add_choice(ctype, 'a', 15);
@@ -197,7 +197,7 @@ test('creme.widets.selectorlist.create (value, static selector)', function() {
     assertDSelect(widget.selector(3), '15', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c']]);
 });
 
-test('creme.widets.selectorlist.create (value, chained selector)', function() {
+QUnit.test('creme.widets.selectorlist.create (value, chained selector)', function(assert) {
     var element = mock_selectorlist_create($.toJSON([{ctype: '3', rtype: '1'}, {ctype: '15', rtype: '6'}, {ctype: '5', rtype: '6'}]));
     var model = mock_ctype_rtype_model();
 
@@ -224,7 +224,7 @@ test('creme.widets.selectorlist.create (value, chained selector)', function() {
     assertDSelectAt(widget.selector(2).creme().widget(), 'rtype', '6', [], '', [['1', 'd'], ['6', 'e']]);
 });
 
-test('creme.widets.selectorlist.create (invalid value, multiple dependencies)', function() {
+QUnit.test('creme.widets.selectorlist.create (invalid value, multiple dependencies)', function(assert) {
     var element = mock_selectorlist_create($.toJSON([{ctype: '3', rtype: 'rtype.3', entity: null}]));
     var model = mock_chainedselect_create();
 
@@ -253,7 +253,7 @@ test('creme.widets.selectorlist.create (invalid value, multiple dependencies)', 
     assertDSelectAt(widget.selector(0).creme().widget(), 'entity', null, ['rtype', 'ctype'], null, []);
 });
 
-test('creme.widets.selectorlist.value (value, no selector)', function() {
+QUnit.test('creme.widets.selectorlist.value (value, no selector)', function(assert) {
     var element = mock_selectorlist_create();
     var widget = creme.widget.create(element);
 
@@ -277,7 +277,7 @@ test('creme.widets.selectorlist.value (value, no selector)', function() {
     equal(widget.selectors().length, 0);
 });
 
-test('creme.widets.selectorlist.value (value, static selector)', function() {
+QUnit.test('creme.widets.selectorlist.value (value, static selector)', function(assert) {
     var element = mock_selectorlist_create();
     var ctype = mock_dselect_create();
     mock_dselect_add_choice(ctype, 'a', 15);
@@ -313,7 +313,7 @@ test('creme.widets.selectorlist.value (value, static selector)', function() {
     equal(widget.selectors().length, 0);
 });
 
-test('creme.widets.selectorlist.value (value, single dependency)', function() {
+QUnit.test('creme.widets.selectorlist.value (value, single dependency)', function(assert) {
     var element = mock_selectorlist_create($.toJSON([]));
     var model = mock_chainedselect_create();
 
@@ -357,7 +357,7 @@ test('creme.widets.selectorlist.value (value, single dependency)', function() {
     equal(widget.selectors().length, 0);
 });
 
-test('creme.widets.selectorlist.value (value, multiple dependencies)', function() {
+QUnit.test('creme.widets.selectorlist.value (value, multiple dependencies)', function(assert) {
     var element = mock_selectorlist_create($.toJSON([]));
     var model = mock_chainedselect_create();
 
@@ -406,7 +406,7 @@ test('creme.widets.selectorlist.value (value, multiple dependencies)', function(
     equal(widget.selectors().length, 0);
 });
 
-test('creme.widets.selectorlist.append (empty)', function() {
+QUnit.test('creme.widets.selectorlist.append (empty)', function(assert) {
     var element = mock_selectorlist_create($.toJSON([]));
     var model = mock_ctype_rtype_model();
 
@@ -428,7 +428,7 @@ test('creme.widets.selectorlist.append (empty)', function() {
     deepEqual(widget.selector(0).creme().widget(), last);
 });
 
-test('creme.widets.selectorlist.append (not empty)', function() {
+QUnit.test('creme.widets.selectorlist.append (not empty)', function(assert) {
     var element = mock_selectorlist_create($.toJSON([{ctype: '3', rtype: '1'}, {ctype: '15', rtype: '6'}, {ctype: '5', rtype: '6'}]));
     var model = mock_ctype_rtype_model();
 
@@ -459,7 +459,7 @@ test('creme.widets.selectorlist.append (not empty)', function() {
     assertDSelectAt(widget.selector(3).creme().widget(), 'rtype', '1', [], '', [['1', 'd'], ['6', 'e']]);
 });
 
-test('creme.widets.selectorlist.append (not empty, value)', function() {
+QUnit.test('creme.widets.selectorlist.append (not empty, value)', function(assert) {
     var element = mock_selectorlist_create($.toJSON([{ctype: '3', rtype: '1'}, {ctype: '15', rtype: '6'}, {ctype: '5', rtype: '6'}]));
     var model = mock_ctype_rtype_model();
 
@@ -490,7 +490,7 @@ test('creme.widets.selectorlist.append (not empty, value)', function() {
     assertDSelectAt(widget.selector(3).creme().widget(), 'rtype', '6', [], '', [['1', 'd'], ['6', 'e']]);
 });
 
-test('creme.widets.selectorlist.append (not empty, multiple dependencies, value)', function() {
+QUnit.test('creme.widets.selectorlist.append (not empty, multiple dependencies, value)', function(assert) {
     var element = mock_selectorlist_create($.toJSON([{ctype: '3', rtype: 'rtype.3', entity: null}]));
     var model = mock_chainedselect_create();
 
@@ -534,7 +534,7 @@ test('creme.widets.selectorlist.append (not empty, multiple dependencies, value)
     assertDSelectAt(widget.selector(1).creme().widget(), 'entity', '789', ['rtype', 'ctype'], 'mock/entity/rtype.22/5/options', [['456', 'Bean Bandit'], ['789', 'Mini May']]);
 });
 
-test('creme.widets.selectorlist.removeAt (empty)', function() {
+QUnit.test('creme.widets.selectorlist.removeAt (empty)', function(assert) {
     var element = mock_selectorlist_create($.toJSON([]));
     var model = mock_ctype_rtype_model();
 
@@ -553,7 +553,7 @@ test('creme.widets.selectorlist.removeAt (empty)', function() {
     equal(widget.selectors().length, 0);
 });
 
-test('creme.widets.selectorlist.removeAt (not empty)', function() {
+QUnit.test('creme.widets.selectorlist.removeAt (not empty)', function(assert) {
     var element = mock_selectorlist_create($.toJSON([{ctype: '3', rtype: '1'}, {ctype: '15', rtype: '6'}, {ctype: '5', rtype: '6'}]));
     var model = mock_ctype_rtype_model();
 
@@ -586,7 +586,7 @@ test('creme.widets.selectorlist.removeAt (not empty)', function() {
     assertDSelectAt(widget.selector(0).creme().widget(), 'rtype', '6', [], '', [['1', 'd'], ['6', 'e']]);
 });
 
-test('creme.widets.selectorlist.remove (empty)', function() {
+QUnit.test('creme.widets.selectorlist.remove (empty)', function(assert) {
     var element = mock_selectorlist_create($.toJSON([]));
     var model = mock_ctype_rtype_model();
 
@@ -605,7 +605,7 @@ test('creme.widets.selectorlist.remove (empty)', function() {
     equal(widget.selectors().length, 0);
 });
 
-test('creme.widets.selectorlist.remove (not empty)', function() {
+QUnit.test('creme.widets.selectorlist.remove (not empty)', function(assert) {
     var element = mock_selectorlist_create($.toJSON([{ctype: '3', rtype: '1'}, {ctype: '15', rtype: '6'}, {ctype: '5', rtype: '6'}]));
     var model = mock_ctype_rtype_model();
 
@@ -638,7 +638,7 @@ test('creme.widets.selectorlist.remove (not empty)', function() {
     assertDSelectAt(widget.selector(0).creme().widget(), 'rtype', '6', [], '', [['1', 'd'], ['6', 'e']]);
 });
 
-test('creme.widets.selectorlist.appendLast (not empty)', function() {
+QUnit.test('creme.widets.selectorlist.appendLast (not empty)', function(assert) {
     var element = mock_selectorlist_create($.toJSON([{ctype: '3', rtype: '1'}, {ctype: '5', rtype: '6'}]));
     var model = mock_ctype_rtype_model();
 
@@ -657,7 +657,7 @@ test('creme.widets.selectorlist.appendLast (not empty)', function() {
     equal(widget.selectors().length, 3);
 });
 
-test('creme.widets.selectorlist.appendLast (not empty, no clone last)', function() {
+QUnit.test('creme.widets.selectorlist.appendLast (not empty, no clone last)', function(assert) {
     var element = mock_selectorlist_create($.toJSON([{ctype: '3', rtype: '1'}, {ctype: '5', rtype: '6'}]));
     var model = mock_ctype_rtype_model();
 

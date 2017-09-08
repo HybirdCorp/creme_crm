@@ -24,7 +24,7 @@ function assertListenerUUIDs(listeners, expected)
     deepEqual(listeners.map(uuid_getter), expected.map(uuid_getter));
 }
 
-test('creme.component.EventHandler.bind (single key, single listener)', function() {
+QUnit.test('creme.component.EventHandler.bind (single key, single listener)', function(assert) {
     var handler = new creme.component.EventHandler();
     var listener = this.mockListener('1'),
         listener2 = this.mockListener('2');
@@ -60,7 +60,7 @@ test('creme.component.EventHandler.bind (single key, single listener)', function
     deepEqual([['1', handler, 'event2', 'b']], this._eventListenerCalls);
 });
 
-test('creme.component.EventHandler.bind (single key, multiple listener)', function() {
+QUnit.test('creme.component.EventHandler.bind (single key, multiple listener)', function(assert) {
     var handler = new creme.component.EventHandler();
     var listener = this.mockListener('1'),
         listener2 = this.mockListener('2');
@@ -79,7 +79,7 @@ test('creme.component.EventHandler.bind (single key, multiple listener)', functi
     deepEqual([['1', handler, 'event1', 'a'], ['2', handler, 'event1', 'a']], this._eventListenerCalls);
 });
 
-test('creme.component.EventHandler.bind (multiple key, single listener)', function() {
+QUnit.test('creme.component.EventHandler.bind (multiple key, single listener)', function(assert) {
     var handler = new creme.component.EventHandler();
     var listener = this.mockListener('1'),
         listener2 = this.mockListener('2');
@@ -120,7 +120,7 @@ test('creme.component.EventHandler.bind (multiple key, single listener)', functi
     deepEqual([['2', handler, 'event3', 'd'], ['2', handler, 'event3', 'd']], this._eventListenerCalls);
 });
 
-test('creme.component.EventHandler.bind (multiple key, multiple listener)', function() {
+QUnit.test('creme.component.EventHandler.bind (multiple key, multiple listener)', function(assert) {
     var handler = new creme.component.EventHandler();
     var listener = this.mockListener('1'),
         listener2 = this.mockListener('2');
@@ -147,7 +147,7 @@ test('creme.component.EventHandler.bind (multiple key, multiple listener)', func
     deepEqual([listener, listener2], handler.listeners('event3'));
 });
 
-test('creme.component.EventHandler.bind (split key, multiple listener)', function() {
+QUnit.test('creme.component.EventHandler.bind (split key, multiple listener)', function(assert) {
     var handler = new creme.component.EventHandler();
     var listener = this.mockListener('1'),
         listener2 = this.mockListener('2');
@@ -174,7 +174,7 @@ test('creme.component.EventHandler.bind (split key, multiple listener)', functio
     deepEqual([listener, listener2], handler.listeners('event3'));
 });
 
-test('creme.component.EventHandler.bind (decorator)', function() {
+QUnit.test('creme.component.EventHandler.bind (decorator)', function(assert) {
     var handler = new creme.component.EventHandler();
     var listener = this.mockListener('1'),
         listener2 = this.mockListener('2');
@@ -202,7 +202,7 @@ test('creme.component.EventHandler.bind (decorator)', function() {
     deepEqual([['2', handler, 'event3', 38, 'decorated']], this._eventListenerCalls);
 });
 
-test('creme.component.EventHandler.bind (object)', function() {
+QUnit.test('creme.component.EventHandler.bind (object)', function(assert) {
     var handler = new creme.component.EventHandler();
     var listeners = {
             event1: this.mockListener('1'),
@@ -230,7 +230,7 @@ test('creme.component.EventHandler.bind (object)', function() {
     deepEqual([], this._eventListenerCalls);
 });
 
-test('creme.component.EventHandler.bind (object array)', function() {
+QUnit.test('creme.component.EventHandler.bind (object array)', function(assert) {
     var handler = new creme.component.EventHandler();
     var listeners1 = {
             event1: this.mockListener('1'),
@@ -264,7 +264,7 @@ test('creme.component.EventHandler.bind (object array)', function() {
     deepEqual([['2.2', handler, 'event3'], ['2.3', handler, 'event3']], this._eventListenerCalls);
 });
 
-test('creme.component.EventHandler.trigger', function() {
+QUnit.test('creme.component.EventHandler.trigger', function(assert) {
     var handler = new creme.component.EventHandler();
     var listener = this.mockListener('1'),
         listener2 = this.mockListener('2');
@@ -284,7 +284,7 @@ test('creme.component.EventHandler.trigger', function() {
     deepEqual([['1', this, 'event1', 'a', 12], ['2', this, 'event1', 'a', 12]], this._eventListenerCalls);
 });
 
-test('creme.component.EventHandler.unbind (single key, single listener)', function() {
+QUnit.test('creme.component.EventHandler.unbind (single key, single listener)', function(assert) {
     var handler = new creme.component.EventHandler();
     var listener = this.mockListener('1'),
         listener2 = this.mockListener('2');
@@ -315,7 +315,7 @@ test('creme.component.EventHandler.unbind (single key, single listener)', functi
     deepEqual([listener2], handler.listeners('event2'));
 });
 
-test('creme.component.EventHandler.unbind (single key, multiple listener)', function() {
+QUnit.test('creme.component.EventHandler.unbind (single key, multiple listener)', function(assert) {
     var handler = new creme.component.EventHandler();
     var listener = this.mockListener('1'),
         listener2 = this.mockListener('2');
@@ -340,7 +340,7 @@ test('creme.component.EventHandler.unbind (single key, multiple listener)', func
     deepEqual([listener2], handler.listeners('event2'));
 });
 
-test('creme.component.EventHandler.unbind (multiple key, single listener)', function() {
+QUnit.test('creme.component.EventHandler.unbind (multiple key, single listener)', function(assert) {
     var handler = new creme.component.EventHandler();
     var listener = this.mockListener('1'),
         listener2 = this.mockListener('2');
@@ -365,7 +365,7 @@ test('creme.component.EventHandler.unbind (multiple key, single listener)', func
     deepEqual([], handler.listeners('event2'));
 });
 
-test('creme.component.EventHandler.unbind (multiple key, multiple listener)', function() {
+QUnit.test('creme.component.EventHandler.unbind (multiple key, multiple listener)', function(assert) {
     var handler = new creme.component.EventHandler();
     var listener = this.mockListener('1'),
         listener2 = this.mockListener('2');
@@ -390,7 +390,7 @@ test('creme.component.EventHandler.unbind (multiple key, multiple listener)', fu
     deepEqual([], handler.listeners('event2'));
 });
 
-test('creme.component.EventHandler.unbind (single key, all listeners)', function() {
+QUnit.test('creme.component.EventHandler.unbind (single key, all listeners)', function(assert) {
     var handler = new creme.component.EventHandler();
     var listener = this.mockListener('1'),
         listener2 = this.mockListener('2');
@@ -416,7 +416,7 @@ test('creme.component.EventHandler.unbind (single key, all listeners)', function
 });
 
 
-test('creme.component.EventHandler.unbind (multiple key, all listeners)', function() {
+QUnit.test('creme.component.EventHandler.unbind (multiple key, all listeners)', function(assert) {
     var handler = new creme.component.EventHandler();
     var listener = this.mockListener('1'),
         listener2 = this.mockListener('2');
@@ -441,7 +441,7 @@ test('creme.component.EventHandler.unbind (multiple key, all listeners)', functi
     deepEqual([], handler.listeners('event2'));
 });
 
-test('creme.component.EventHandler.unbind (dict)', function() {
+QUnit.test('creme.component.EventHandler.unbind (dict)', function(assert) {
     var handler = new creme.component.EventHandler();
     var listeners = {
             event1: this.mockListener('1'),
@@ -466,7 +466,7 @@ test('creme.component.EventHandler.unbind (dict)', function() {
     deepEqual([], handler.listeners('event2'));
 });
 
-test('creme.component.EventHandler.unbind (dict array)', function() {
+QUnit.test('creme.component.EventHandler.unbind (dict array)', function(assert) {
     var handler = new creme.component.EventHandler();
     var listeners1 = {
             event1: this.mockListener('1'),
@@ -492,7 +492,7 @@ test('creme.component.EventHandler.unbind (dict array)', function() {
     deepEqual({'event1':[], 'event2':[], 'event3': []}, handler._listeners);
 });
 
-test('creme.component.EventHandler.one (single key, single listener)', function() {
+QUnit.test('creme.component.EventHandler.one (single key, single listener)', function(assert) {
     var handler = new creme.component.EventHandler();
     var listener = this.mockListener('1'),
         listener2 = this.mockListener('2');
@@ -516,7 +516,7 @@ test('creme.component.EventHandler.one (single key, single listener)', function(
     assertListenerUUIDs(handler.listeners('event1'), [listener2]);
 });
 
-test('creme.component.EventHandler.one (single key, multiple listeners)', function() {
+QUnit.test('creme.component.EventHandler.one (single key, multiple listeners)', function(assert) {
     var handler = new creme.component.EventHandler();
     var listener = this.mockListener('1'),
         listener2 = this.mockListener('2'),
@@ -535,7 +535,7 @@ test('creme.component.EventHandler.one (single key, multiple listeners)', functi
     assertListenerUUIDs(handler.listeners('event1'), [listener3]);
 });
 
-test('creme.component.EventHandler.one (multiple key, single listener)', function() {
+QUnit.test('creme.component.EventHandler.one (multiple key, single listener)', function(assert) {
     var handler = new creme.component.EventHandler();
     var listener = this.mockListener('1'),
         listener2 = this.mockListener('2');
@@ -569,7 +569,7 @@ test('creme.component.EventHandler.one (multiple key, single listener)', functio
     assertListenerUUIDs(handler.listeners('event2'), [listener2]);
 });
 
-test('creme.component.EventHandler.one (multiple key, multiple listeners)', function() {
+QUnit.test('creme.component.EventHandler.one (multiple key, multiple listeners)', function(assert) {
     var handler = new creme.component.EventHandler();
     var listener = this.mockListener('1'),
         listener2 = this.mockListener('2'),
@@ -604,7 +604,7 @@ test('creme.component.EventHandler.one (multiple key, multiple listeners)', func
     assertListenerUUIDs(handler.listeners('event2'), [listener3]);
 });
 
-test('creme.component.EventHandler.one ()', function() {
+QUnit.test('creme.component.EventHandler.one ()', function(assert) {
     var handler = new creme.component.EventHandler();
     var listener = this.mockListener('1'),
         listener2 = this.mockListener('2');

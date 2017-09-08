@@ -37,7 +37,7 @@ QUnit.module("creme.component.action.js", {
     }
 });
 
-test('creme.component.Action (options)', function() {
+QUnit.test('creme.component.Action (options)', function(assert) {
     var action = new creme.component.Action();
     deepEqual({}, action.options());
 
@@ -45,7 +45,7 @@ test('creme.component.Action (options)', function() {
     deepEqual({a:1, b:12}, action.options());
 });
 
-test('creme.component.Action (start)', function() {
+QUnit.test('creme.component.Action (start)', function(assert) {
     var action = new creme.component.Action();
     var run = this.mockCallback('run_cb');
 
@@ -65,7 +65,7 @@ test('creme.component.Action (start)', function() {
     equal(true, action.isRunning());
 });
 
-test('creme.component.Action (start, extra args)', function() {
+QUnit.test('creme.component.Action (start, extra args)', function(assert) {
     var action = new creme.component.Action();
     var run = this.mockCallback('run_cb');
 
@@ -77,7 +77,7 @@ test('creme.component.Action (start, extra args)', function() {
     equal(true, action.isRunning());
 });
 
-test('creme.component.Action (start, default)', function() {
+QUnit.test('creme.component.Action (start, default)', function(assert) {
     var action = new creme.component.Action();
     var run = this.mockCallback('run_cb'),
         done = this.mockCallback('done_cb'),
@@ -101,7 +101,7 @@ test('creme.component.Action (start, default)', function() {
     equal(false, action.isRunning());
 });
 
-test('creme.component.Action (start, constant)', function() {
+QUnit.test('creme.component.Action (start, constant)', function(assert) {
     var action = new creme.component.Action();
     var run = this.mockCallback('run_cb'),
         done = this.mockCallback('done_cb'),
@@ -126,7 +126,7 @@ test('creme.component.Action (start, constant)', function() {
     equal(false, action.isRunning());
 });
 
-test('creme.component.Action (start, already running)', function() {
+QUnit.test('creme.component.Action (start, already running)', function(assert) {
     var action = new creme.component.Action();
     var run = this.mockCallback('run_cb');
 
@@ -152,7 +152,7 @@ test('creme.component.Action (start, already running)', function() {
     equal(true, action.isRunning());
 });
 
-test('creme.component.Action (done)', function() {
+QUnit.test('creme.component.Action (done)', function(assert) {
     var action = this.mockAction();
 
     deepEqual([], this._eventListenerCalls);
@@ -169,7 +169,7 @@ test('creme.component.Action (done)', function() {
     equal(false, action.isRunning());
 });
 
-test('creme.component.Action (done, parameter)', function() {
+QUnit.test('creme.component.Action (done, parameter)', function(assert) {
     var action = this.mockAction();
 
     deepEqual([], this._eventListenerCalls);
@@ -186,7 +186,7 @@ test('creme.component.Action (done, parameter)', function() {
     equal(false, action.isRunning());
 });
 
-test('creme.component.Action (done, not running)', function() {
+QUnit.test('creme.component.Action (done, not running)', function(assert) {
     var action = this.mockAction();
 
     deepEqual([], this._eventListenerCalls);
@@ -198,7 +198,7 @@ test('creme.component.Action (done, not running)', function() {
     equal(false, action.isRunning());
 });
 
-test('creme.component.Action (fail)', function() {
+QUnit.test('creme.component.Action (fail)', function(assert) {
     var action = this.mockAction();
 
     action.start();
@@ -213,7 +213,7 @@ test('creme.component.Action (fail)', function() {
     equal(false, action.isRunning());
 });
 
-test('creme.component.Action (fail, run exception)', function() {
+QUnit.test('creme.component.Action (fail, run exception)', function(assert) {
     var action = this.mockAction();
     var error = new Error('fail test !');
 
@@ -227,7 +227,7 @@ test('creme.component.Action (fail, run exception)', function() {
     equal(false, action.isRunning());
 });
 
-test('creme.component.Action (fail from action)', function() {
+QUnit.test('creme.component.Action (fail from action)', function(assert) {
     var action = this.mockAction();
 
     action.action(function() {
@@ -240,7 +240,7 @@ test('creme.component.Action (fail from action)', function() {
     equal(false, action.isRunning());
 });
 
-test('creme.component.Action (cancel)', function() {
+QUnit.test('creme.component.Action (cancel)', function(assert) {
     var action = this.mockAction();
 
     action.start();
@@ -255,7 +255,7 @@ test('creme.component.Action (cancel)', function() {
     equal(false, action.isRunning());
 });
 
-test('creme.component.Action (cancel from action)', function() {
+QUnit.test('creme.component.Action (cancel from action)', function(assert) {
     var action = this.mockAction();
 
     action.action(function() {
@@ -268,7 +268,7 @@ test('creme.component.Action (cancel from action)', function() {
     equal(false, action.isRunning());
 });
 
-test('creme.component.Action (after)', function() {
+QUnit.test('creme.component.Action (after)', function(assert) {
     var first = this.mockBindActionCallbacks(new creme.component.Action());
     var second = this.mockBindActionCallbacks(new creme.component.Action());
 

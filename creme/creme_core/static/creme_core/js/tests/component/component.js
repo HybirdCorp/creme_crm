@@ -90,7 +90,7 @@ MockCollectionBC = MockCollectionB.sub({
     }
 });
 
-test('creme.component (Component)', function() {
+QUnit.test('creme.component (Component)', function(assert) {
     var obj = new creme.component.Component();
 
     deepEqual(creme.component.Component.__super__, Object.prototype);
@@ -104,7 +104,7 @@ test('creme.component (Component)', function() {
     equal(obj.is(MockComponentAB), false);
 });
 
-test('creme.component (MockA)', function() {
+QUnit.test('creme.component (MockA)', function(assert) {
     var a = new MockComponentA(12);
 
     deepEqual(MockComponentA.__super__, creme.component.Component.prototype);
@@ -121,7 +121,7 @@ test('creme.component (MockA)', function() {
     equal(a.is(MockComponentAC), false);
 });
 
-test('creme.component (MockAB)', function() {
+QUnit.test('creme.component (MockAB)', function(assert) {
     var ab = new MockComponentAB(12, 8);
 
     deepEqual(MockComponentAB.__super__, MockComponentA.prototype);
@@ -140,7 +140,7 @@ test('creme.component (MockAB)', function() {
     equal(ab.is(MockComponentAC), false);
 });
 
-test('creme.component (MockAC)', function() {
+QUnit.test('creme.component (MockAC)', function(assert) {
     var ac = new MockComponentAC(12, 8);
 
     deepEqual(MockComponentAC.__super__, MockComponentA.prototype);
@@ -160,7 +160,7 @@ test('creme.component (MockAC)', function() {
 });
 
 /* This test checks that an inherited collection is not shared between subclasses */
-test('creme.component (Collection)', function() {
+QUnit.test('creme.component (Collection)', function(assert) {
     var collection = new MockCollection();
     var a = new MockCollectionA();
     var a2 = new MockCollectionA();
@@ -225,7 +225,7 @@ test('creme.component (Collection)', function() {
     deepEqual(bc._data, {'B_C_1': 875});
 });
 
-test('creme.component._super', function() {
+QUnit.test('creme.component._super', function(assert) {
     var ab = new MockComponentAB(12, 8);
 
     deepEqual(ab.get(), [12, 8]);

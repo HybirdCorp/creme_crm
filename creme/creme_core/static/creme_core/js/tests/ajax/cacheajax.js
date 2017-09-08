@@ -67,7 +67,7 @@ function assertCacheEntry(backend, url, data, response)
     equal(entry.response.data, response, 'cache entry response');
 }
 
-test('CacheBackend.get (create entry)', function() {
+QUnit.test('CacheBackend.get (create entry)', function(assert) {
     var cache = new creme.ajax.CacheBackend(this.backend);
 
     equal(0, Object.keys(cache.entries).length);
@@ -90,7 +90,7 @@ test('CacheBackend.get (create entry)', function() {
     equal(1, this.backend.counts.GET);
 });
 
-test('CacheBackend.get (create entry, unknown url)', function() {
+QUnit.test('CacheBackend.get (create entry, unknown url)', function(assert) {
     var cache = new creme.ajax.CacheBackend(this.backend);
 
     equal(0, Object.keys(cache.entries).length);
@@ -109,7 +109,7 @@ test('CacheBackend.get (create entry, unknown url)', function() {
     equal(2, this.backend.counts.GET);
 });
 
-test('CacheBackend.get (force entry)', function() {
+QUnit.test('CacheBackend.get (force entry)', function(assert) {
     var cache = new creme.ajax.CacheBackend(this.backend);
 
     equal(0, Object.keys(cache.entries).length);
@@ -132,7 +132,7 @@ test('CacheBackend.get (force entry)', function() {
     equal(2, this.backend.counts.GET);
 });
 
-test('CacheBackend.get (create entry, data)', function() {
+QUnit.test('CacheBackend.get (create entry, data)', function(assert) {
     var cache = new creme.ajax.CacheBackend(this.backend);
 
     equal(0, Object.keys(cache.entries).length);
@@ -155,7 +155,7 @@ test('CacheBackend.get (create entry, data)', function() {
     equal(1, this.backend.counts.GET);
 });
 
-test('CacheBackend.get (create entry, data changes)', function() {
+QUnit.test('CacheBackend.get (create entry, data changes)', function(assert) {
     var cache = new creme.ajax.CacheBackend(this.backend);
 
     equal(0, Object.keys(cache.entries).length);
@@ -191,7 +191,7 @@ test('CacheBackend.get (create entry, data changes)', function() {
     equal(2, this.backend.counts.GET);
 });
 
-test('CacheBackend.get (create entry, async)', function() {
+QUnit.test('CacheBackend.get (create entry, async)', function(assert) {
     var cache = new creme.ajax.CacheBackend(this.backend);
 
     equal(0, Object.keys(cache.entries).length);
@@ -218,7 +218,7 @@ test('CacheBackend.get (create entry, async)', function() {
     }, 300);
 });
 
-test('CacheBackend.get (create entry, async, 403)', function() {
+QUnit.test('CacheBackend.get (create entry, async, 403)', function(assert) {
     var cache = new creme.ajax.CacheBackend(this.backend);
 
     equal(0, Object.keys(cache.entries).length);
@@ -246,7 +246,7 @@ test('CacheBackend.get (create entry, async, 403)', function() {
     }, 300);
 });
 
-test('CacheBackend.get (create entry, async, waiting queue)', function() {
+QUnit.test('CacheBackend.get (create entry, async, waiting queue)', function(assert) {
     var cache = new creme.ajax.CacheBackend(this.backend);
 
     equal(0, Object.keys(cache.entries).length);
@@ -280,7 +280,7 @@ test('CacheBackend.get (create entry, async, waiting queue)', function() {
 });
 
 
-test('CacheBackend.get (create entry, async, waiting queue, 403)', function() {
+QUnit.test('CacheBackend.get (create entry, async, waiting queue, 403)', function(assert) {
     var cache = new creme.ajax.CacheBackend(this.backend);
 
     equal(0, Object.keys(cache.entries).length);
@@ -313,7 +313,7 @@ test('CacheBackend.get (create entry, async, waiting queue, 403)', function() {
     }, 300);
 });
 
-test('CacheBackend.get (entry expired)', function() {
+QUnit.test('CacheBackend.get (entry expired)', function(assert) {
 
     var self = this;
     var condition = new creme.ajax.CacheBackendCondition(function() {return (condition.mock_expired === true)});
@@ -354,7 +354,7 @@ test('CacheBackend.get (entry expired)', function() {
     equal(2, this.backend.counts.GET);
 });
 
-asyncTest('CacheBackend.get (entry timeout, not expired)', function() {
+QUnit.test('CacheBackend.get (entry timeout, not expired)', function() {
     var self = this;
     var condition = new creme.ajax.CacheBackendTimeout(500);
     var cache = new creme.ajax.CacheBackend(this.backend, {condition: condition});
@@ -367,6 +367,8 @@ asyncTest('CacheBackend.get (entry timeout, not expired)', function() {
 
     var response = this.doRequest(cache, 'mock/default');
     assertCacheResponseOk(response, 'this is a test message 1');
+
+    stop(1);
 
     setTimeout(function() {
         var response = self.doRequest(cache, 'mock/default');
@@ -375,7 +377,7 @@ asyncTest('CacheBackend.get (entry timeout, not expired)', function() {
     }, 100);
 });
 
-asyncTest('CacheBackend.get (entry timeout, expired)', function() {
+QUnit.test('CacheBackend.get (entry timeout, expired)', function() {
     var self = this;
     var condition = new creme.ajax.CacheBackendTimeout(500);
     var cache = new creme.ajax.CacheBackend(this.backend, {condition: condition});
@@ -388,6 +390,8 @@ asyncTest('CacheBackend.get (entry timeout, expired)', function() {
 
     var response = this.doRequest(cache, 'mock/default');
     assertCacheResponseOk(response, 'this is a test message 1');
+
+    stop(1);
 
     setTimeout(function() {
         var response = self.doRequest(cache, 'mock/default');

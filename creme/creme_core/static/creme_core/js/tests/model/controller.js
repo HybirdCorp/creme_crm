@@ -29,7 +29,7 @@ QUnit.module("creme.model.controller.js", {
 
 function assertRaises(block, expected, message)
 {
-    raises(block,
+    QUnit.assert.raises(block,
            function(error) {
                 ok(error instanceof expected, 'error is ' + expected);
                 equal(message, '' + error);
@@ -48,7 +48,7 @@ function assertItems(element, expected)
     });
 }
 
-test('creme.model.CollectionController.target', function() {
+QUnit.test('creme.model.CollectionController.target', function(assert) {
     var model = new creme.model.Array(['a', 'b']);
     var element = $('<ul></ul>');
     var renderer = new creme.model.ListRenderer();
@@ -71,7 +71,7 @@ test('creme.model.CollectionController.target', function() {
     assertItems(element, ['a', 'b']);
 });
 
-test('creme.model.CollectionController.renderer', function() {
+QUnit.test('creme.model.CollectionController.renderer', function(assert) {
     var model = new creme.model.Array(['a', 'b']);
     var element = $('<ul></ul>');
     var renderer = new creme.model.ListRenderer();
@@ -94,7 +94,7 @@ test('creme.model.CollectionController.renderer', function() {
     assertItems(element, ['a', 'b']);
 });
 
-test('creme.model.CollectionController.model', function() {
+QUnit.test('creme.model.CollectionController.model', function(assert) {
     var model = new creme.model.Array(['a', 'b']);
     var element = $('<ul></ul>');
     var renderer = new creme.model.ListRenderer();
@@ -122,7 +122,7 @@ test('creme.model.CollectionController.model', function() {
     assertItems(element, [1, 2, 3]);
 });
 
-test('creme.model.SelectionController.select (default)', function() {
+QUnit.test('creme.model.SelectionController.select (default)', function(assert) {
     var model = new creme.model.Array([{value:1}, {value:5}, {value:3}, {value:8}, {value:7}])
     var controller = new creme.model.SelectionController().model(model);
 
@@ -143,7 +143,7 @@ test('creme.model.SelectionController.select (default)', function() {
     deepEqual([{value: 1, selected:true}, {value:3, selected:true}], controller.selected());
 });
 
-test('creme.model.SelectionController.select (inclusive)', function() {
+QUnit.test('creme.model.SelectionController.select (inclusive)', function(assert) {
     var model = new creme.model.Array([{value:1}, {value:5}, {value:3}, {value:8}, {value:7}])
     var controller = new creme.model.SelectionController().model(model);
 
@@ -168,7 +168,7 @@ test('creme.model.SelectionController.select (inclusive)', function() {
                {value: 7, selected:true}], controller.selected());
 });
 
-test('creme.model.SelectionController.unselect (default)', function() {
+QUnit.test('creme.model.SelectionController.unselect (default)', function(assert) {
     var model = new creme.model.Array([{value:1}, {value:5}, {value:3}])
     var controller = new creme.model.SelectionController().model(model);
 
@@ -187,7 +187,7 @@ test('creme.model.SelectionController.unselect (default)', function() {
 });
 
 /*
-test('creme.model.SelectionController.select (custom itemKey)', function() {
+QUnit.test('creme.model.SelectionController.select (custom itemKey)', function(assert) {
     var model = new creme.model.Array([{value:1}, {value:5}, {value:3}])
     var controller = new creme.model.SelectionController().model(model);
 
@@ -209,7 +209,7 @@ test('creme.model.SelectionController.select (custom itemKey)', function() {
 });
 */
 
-test('creme.model.SelectionController.select (not selectable)', function() {
+QUnit.test('creme.model.SelectionController.select (not selectable)', function(assert) {
     var model = new creme.model.Array([{value:2}, {value:5}, {value:4}, {value:3}])
     var controller = new creme.model.SelectionController().model(model);
     var filter = function(item) {return (item.value % 2) === 0;};
@@ -240,7 +240,7 @@ test('creme.model.SelectionController.select (not selectable)', function() {
     deepEqual([{value: 2, selected:true}, {value:4, selected:true}], controller.selected());
 });
 
-test('creme.model.SelectionController.select (update model)', function() {
+QUnit.test('creme.model.SelectionController.select (update model)', function(assert) {
     var model = new creme.model.Array([{value:2, selected: false},
                                        {value:5, selected: false},
                                        {value:4, selected: false},
@@ -309,7 +309,7 @@ test('creme.model.SelectionController.select (update model)', function() {
     deepEqual([['change']], this.mockListenerCalls('selection'), 'set');
 });
 
-test('creme.model.SelectionController.toggle', function() {
+QUnit.test('creme.model.SelectionController.toggle', function(assert) {
     var model = new creme.model.Array([{value:2}, {value:5}, {value:4}, {value:3}])
     model.bind('update', this.mockListener('update'));
 
@@ -358,7 +358,7 @@ test('creme.model.SelectionController.toggle', function() {
     deepEqual([['change']], this.mockListenerCalls('selection'));
 });
 
-test('creme.model.SelectionController.toggleAll', function() {
+QUnit.test('creme.model.SelectionController.toggleAll', function(assert) {
     var model = new creme.model.Array([{value:2}, {value:5}, {value:4}])
     model.bind('update', this.mockListener('update'));
 

@@ -5,7 +5,7 @@ QUnit.module("creme.utils.lambda.js", {
 
 function assertRaises(block, expected, message)
 {
-    raises(block,
+    QUnit.assert.raises(block,
            function(error) {
                 ok(error instanceof expected);
                 equal(message, '' + error);
@@ -13,14 +13,14 @@ function assertRaises(block, expected, message)
            });
 }
 
-test('creme.utils.Lambda (constructor, default)', function() {
+QUnit.test('creme.utils.Lambda (constructor, default)', function(assert) {
     var lambda = new creme.utils.Lambda();
     equal(false, lambda.isValid());
     equal(undefined, lambda._context);
     equal(undefined, lambda._lambda);
 });
 
-test('creme.utils.Lambda (constructor, function)', function() {
+QUnit.test('creme.utils.Lambda (constructor, function)', function(assert) {
     var f = function() {return 1;}
     var lambda = new creme.utils.Lambda(f);
 
@@ -32,7 +32,7 @@ test('creme.utils.Lambda (constructor, function)', function() {
     equal(1, lambda.apply(this));
 });
 
-test('creme.utils.Lambda (constructor, script, no parameter)', function() {
+QUnit.test('creme.utils.Lambda (constructor, script, no parameter)', function(assert) {
     var lambda = new creme.utils.Lambda('return 48;');
 
     equal(true, lambda.isValid());
@@ -44,7 +44,7 @@ test('creme.utils.Lambda (constructor, script, no parameter)', function() {
     equal(48, lambda.apply(this, [1, 3]));
 });
 
-test('creme.utils.Lambda (constructor, script, parameter)', function() {
+QUnit.test('creme.utils.Lambda (constructor, script, parameter)', function(assert) {
     var lambda = new creme.utils.Lambda('return a;', 'a');
 
     equal(true, lambda.isValid());
@@ -60,7 +60,7 @@ test('creme.utils.Lambda (constructor, script, parameter)', function() {
     equal(7, lambda.apply(this, [7]));
 });
 
-test('creme.utils.Lambda (constructor, script, multi parameter string)', function() {
+QUnit.test('creme.utils.Lambda (constructor, script, multi parameter string)', function(assert) {
     var lambda = new creme.utils.Lambda('return a + b + c;', 'a, b, c');
 
     equal(true, lambda.isValid());
@@ -74,7 +74,7 @@ test('creme.utils.Lambda (constructor, script, multi parameter string)', functio
     equal(4 + 5 + 6, lambda.apply(this, [4, 5, 6]));
 });
 
-test('creme.utils.Lambda (constructor, script, multi parameter array)', function() {
+QUnit.test('creme.utils.Lambda (constructor, script, multi parameter array)', function(assert) {
     var lambda = new creme.utils.Lambda('return a + b + c;', ['a', 'b', 'c']);
 
     equal(true, lambda.isValid());
@@ -88,7 +88,7 @@ test('creme.utils.Lambda (constructor, script, multi parameter array)', function
     equal(4 + 5 + 6, lambda.apply(this, [4, 5, 6]));
 });
 
-test('creme.utils.Lambda (constructor, constant)', function() {
+QUnit.test('creme.utils.Lambda (constructor, constant)', function(assert) {
     var lambda = new creme.utils.Lambda(12);
 
     equal(true, lambda.isValid());
@@ -102,12 +102,12 @@ test('creme.utils.Lambda (constructor, constant)', function() {
     equal(12, lambda.apply(this, [7]));
 });
 
-test('creme.utils.Lambda (constructor, invalid script)', function() {
+QUnit.test('creme.utils.Lambda (constructor, invalid script)', function(assert) {
     assertRaises(function() {
         var lambda = new creme.utils.Lambda('');
     }, Error, 'Error: empty lambda script');
 
-    raises(function() {
+    QUnit.assert.raises(function() {
                var lambda = new creme.utils.Lambda('(new invalid;-4)');
            },
            function(error) {
@@ -117,7 +117,7 @@ test('creme.utils.Lambda (constructor, invalid script)', function() {
            });
 });
 
-test('creme.utils.Lambda (lambda)', function() {
+QUnit.test('creme.utils.Lambda (lambda)', function(assert) {
     var f = function(b) {return (this.a || 0) - b;}
     var lambda = new creme.utils.Lambda();
 
@@ -149,7 +149,7 @@ test('creme.utils.Lambda (lambda)', function() {
     equal(12, lambda.call(this, 12));
 });
 
-test('creme.utils.Lambda (bind)', function() {
+QUnit.test('creme.utils.Lambda (bind)', function(assert) {
     var f = function(b) {return (this.a || 0) - b;}
     var lambda = new creme.utils.Lambda(f);
 

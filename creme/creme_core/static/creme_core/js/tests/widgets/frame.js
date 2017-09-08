@@ -65,7 +65,7 @@ function assertOverlay(element, status, active)
     equal(overlay.hasClass('overlay-active'), active || false, 'overlay isactive');
 }
 
-test('creme.widget.Frame.create (empty)', function() {
+QUnit.test('creme.widget.Frame.create (empty)', function(assert) {
     var element = mock_frame_create();
 
     creme.widget.create(element);
@@ -76,7 +76,7 @@ test('creme.widget.Frame.create (empty)', function() {
     equal(0, $('h1', element).length);
 });
 
-test('creme.widget.Frame.create (url)', function() {
+QUnit.test('creme.widget.Frame.create (url)', function(assert) {
     var element = mock_frame_create('mock/html');
 
     creme.widget.create(element);
@@ -87,7 +87,7 @@ test('creme.widget.Frame.create (url)', function() {
     equal(1, $('h1', element).length);
 });
 
-test('creme.widget.Frame.create (404)', function()
+QUnit.test('creme.widget.Frame.create (404)', function()
 {
     var element = mock_frame_create('mock/unknown');
 
@@ -99,7 +99,7 @@ test('creme.widget.Frame.create (404)', function()
     equal(0, $('h1', element).length);
 });
 
-test('creme.widget.Frame.create (403)', function() {
+QUnit.test('creme.widget.Frame.create (403)', function(assert) {
     var element = mock_frame_create('mock/forbidden');
 
     creme.widget.create(element);
@@ -110,7 +110,7 @@ test('creme.widget.Frame.create (403)', function() {
     equal(0, $('h1', element).length);
 });
 
-test('creme.widget.Frame.create (500)', function() {
+QUnit.test('creme.widget.Frame.create (500)', function(assert) {
     var element = mock_frame_create('mock/error');
 
     creme.widget.create(element);
@@ -121,7 +121,7 @@ test('creme.widget.Frame.create (500)', function() {
     equal(0, $('h1', element).length);
 });
 
-test('creme.widget.Frame.create (url, overlay not shown, async)', function() {
+QUnit.test('creme.widget.Frame.create (url, overlay not shown, async)', function(assert) {
     this.backend.options.sync = false;
     this.backend.options.delay = 100;
 
@@ -150,7 +150,7 @@ test('creme.widget.Frame.create (url, overlay not shown, async)', function() {
     }, 150);
 });
 
-test('creme.widget.Frame.create (url, overlay shown, async)', function() {
+QUnit.test('creme.widget.Frame.create (url, overlay shown, async)', function(assert) {
     this.backend.options.sync = false;
     this.backend.options.delay = 500;
 
@@ -185,7 +185,7 @@ test('creme.widget.Frame.create (url, overlay shown, async)', function() {
     }, 700);
 });
 
-test('creme.widget.Frame.create (url, overlay shown, async, error)', function() {
+QUnit.test('creme.widget.Frame.create (url, overlay shown, async, error)', function(assert) {
     this.backend.options.sync = false;
     this.backend.options.delay = 500;
 
@@ -220,7 +220,7 @@ test('creme.widget.Frame.create (url, overlay shown, async, error)', function() 
     }, 600);
 });
 
-test('creme.widget.Frame.fill', function() {
+QUnit.test('creme.widget.Frame.fill', function(assert) {
     var element = mock_frame_create();
 
     creme.widget.create(element);
@@ -250,7 +250,7 @@ test('creme.widget.Frame.fill', function() {
     equal(1, $('ul', element).length);
 });
 
-test('creme.widget.Frame.reload (none)', function() {
+QUnit.test('creme.widget.Frame.reload (none)', function(assert) {
     var element = mock_frame_create('mock/html');
 
     creme.widget.create(element);
@@ -270,7 +270,7 @@ test('creme.widget.Frame.reload (none)', function() {
     equal(1, $('ul', element).length);
 });
 
-test('creme.widget.Frame.reload (none, async)', function() {
+QUnit.test('creme.widget.Frame.reload (none, async)', function(assert) {
     var element = mock_frame_create('mock/html');
 
     creme.widget.create(element);
@@ -311,7 +311,7 @@ test('creme.widget.Frame.reload (none, async)', function() {
     }, 600);
 });
 
-test('creme.widget.Frame.reload (url)', function() {
+QUnit.test('creme.widget.Frame.reload (url)', function(assert) {
     var element = mock_frame_create('mock/html');
 
     creme.widget.create(element);
@@ -329,7 +329,7 @@ test('creme.widget.Frame.reload (url)', function() {
     equal(1, $('ul', element).length);
 });
 
-test('creme.widget.Frame.reload (url, data)', function() {
+QUnit.test('creme.widget.Frame.reload (url, data)', function(assert) {
     var element = mock_frame_create('mock/html');
 
     creme.widget.create(element);
@@ -351,7 +351,7 @@ test('creme.widget.Frame.reload (url, data)', function() {
     equal(element.html(), '<div>' + $.toJSON({url: 'mock/custom', method: 'GET', data: {'a': 12}}) + '</div>');
 });
 
-test('creme.widget.Frame.reload (url, async)', function() {
+QUnit.test('creme.widget.Frame.reload (url, async)', function(assert) {
     var element = mock_frame_create('mock/html');
 
     creme.widget.create(element);
@@ -391,7 +391,7 @@ test('creme.widget.Frame.reload (url, async)', function() {
     }, 600);
 });
 
-test('creme.widget.Frame.reload (invalid url)', function() {
+QUnit.test('creme.widget.Frame.reload (invalid url)', function(assert) {
     var element = mock_frame_create('mock/html');
 
     creme.widget.create(element);
@@ -409,7 +409,7 @@ test('creme.widget.Frame.reload (invalid url)', function() {
     equal(0, $('ul', element).length);
 });
 
-test('creme.widget.Frame.reload (invalid url, async)', function() {
+QUnit.test('creme.widget.Frame.reload (invalid url, async)', function(assert) {
     var element = mock_frame_create('mock/html');
     creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
@@ -449,7 +449,7 @@ test('creme.widget.Frame.reload (invalid url, async)', function() {
 });
 
 
-test('creme.widget.Frame.submit', function() {
+QUnit.test('creme.widget.Frame.submit', function(assert) {
     var element = mock_frame_create('mock/submit');
 
     creme.widget.create(element);

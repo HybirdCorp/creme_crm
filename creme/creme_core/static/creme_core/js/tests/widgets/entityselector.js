@@ -32,7 +32,7 @@ QUnit.module("creme.widgets.entityselector.js", {
   }
 });
 
-test('creme.widget.EntitySelector.create (empty, auto)', function() {
+QUnit.test('creme.widget.EntitySelector.create (empty, auto)', function(assert) {
     var element = mock_entityselector_create();
 
     creme.widget.create(element);
@@ -48,7 +48,7 @@ test('creme.widget.EntitySelector.create (empty, auto)', function() {
     equal("", element.creme().widget().options().qfilter);
 });
 
-test('creme.widget.EntitySelector.create (not empty, auto)', function() {
+QUnit.test('creme.widget.EntitySelector.create (not empty, auto)', function(assert) {
     var element = mock_entityselector_create();
     creme.widget.input(element).val('1');
 
@@ -68,7 +68,7 @@ test('creme.widget.EntitySelector.create (not empty, auto)', function() {
     equal("", element.creme().widget().options().qfilter);
 });
 
-test('creme.widget.EntitySelector.create (auto, disabled)', function() {
+QUnit.test('creme.widget.EntitySelector.create (auto, disabled)', function(assert) {
     var element = mock_entityselector_create({disabled:''});
     creme.widget.input(element).val('1');
 
@@ -94,7 +94,7 @@ test('creme.widget.EntitySelector.create (auto, disabled)', function() {
     equal("2", element.creme().widget().val());
 });
 
-test('creme.widget.EntitySelector.create (empty, popup url, auto)', function() {
+QUnit.test('creme.widget.EntitySelector.create (empty, popup url, auto)', function(assert) {
     var element = mock_entityselector_create({popupURL:'mock/label'});
 
     creme.widget.create(element);
@@ -110,7 +110,7 @@ test('creme.widget.EntitySelector.create (empty, popup url, auto)', function() {
     equal("", element.creme().widget().options().qfilter);
 });
 
-test('creme.widget.EntitySelector.create (empty, invalid label url, auto)', function() {
+QUnit.test('creme.widget.EntitySelector.create (empty, invalid label url, auto)', function(assert) {
     var element = mock_entityselector_create({labelURL:'mock/label/unknown'});
 
     creme.widget.create(element);
@@ -126,7 +126,7 @@ test('creme.widget.EntitySelector.create (empty, invalid label url, auto)', func
     equal("", element.creme().widget().options().qfilter);
 });
 
-test('creme.widget.EntitySelector.create (not empty, invalid label url, auto)', function() {
+QUnit.test('creme.widget.EntitySelector.create (not empty, invalid label url, auto)', function(assert) {
     var element = mock_entityselector_create({labelURL: 'mock/label/unknown'});
     creme.widget.input(element).val('1');
 
@@ -144,7 +144,7 @@ test('creme.widget.EntitySelector.create (not empty, invalid label url, auto)', 
     equal("", element.creme().widget().options().qfilter);
 });
 
-test('creme.widget.EntitySelector.val', function() {
+QUnit.test('creme.widget.EntitySelector.val', function(assert) {
     var element = mock_entityselector_create();
 
     creme.widget.create(element);
@@ -168,7 +168,7 @@ test('creme.widget.EntitySelector.val', function() {
     equal("unknown", element.creme().widget().val());
 });
 
-test('creme.widget.EntitySelector.multiple', function() {
+QUnit.test('creme.widget.EntitySelector.multiple', function(assert) {
     var element = mock_entityselector_create();
     creme.widget.create(element);
 
@@ -188,7 +188,7 @@ test('creme.widget.EntitySelector.multiple', function() {
     equal(element.creme().widget().isMultiple(), true);
 });
 
-test('creme.widget.EntitySelector.reload (url)', function() {
+QUnit.test('creme.widget.EntitySelector.reload (url)', function(assert) {
     var element = mock_entityselector_create();
     creme.widget.create(element);
     deepEqual([], element.creme().widget().dependencies());
@@ -205,7 +205,7 @@ test('creme.widget.EntitySelector.reload (url)', function() {
     equal("mock/popup", element.creme().widget().popupURL());
 });
 
-test('creme.widget.EntitySelector.reload (template url, multiple)', function() {
+QUnit.test('creme.widget.EntitySelector.reload (template url, multiple)', function(assert) {
     var element = mock_entityselector_create({popupURL:'mock/popup/${selection}'});
 
     creme.widget.create(element);
@@ -220,7 +220,7 @@ test('creme.widget.EntitySelector.reload (template url, multiple)', function() {
     equal("mock/popup/2", element.creme().widget().popupURL());
 });
 
-test('creme.widget.EntitySelector.reload (template url, multiple, qfilter)', function() {
+QUnit.test('creme.widget.EntitySelector.reload (template url, multiple, qfilter)', function(assert) {
     var element = mock_entityselector_create({popupURL:'mock/popup/${selection}?q_filter=${qfilter}'});
 
     creme.widget.create(element);
@@ -239,7 +239,7 @@ test('creme.widget.EntitySelector.reload (template url, multiple, qfilter)', fun
     equal("mock/popup/${ctype}/multiple?q_filter=" + $.toJSON({"~pk__in":[1, 2]}), element.creme().widget().popupURL());
 });
 
-test('creme.widget.EntitySelector.reset', function() {
+QUnit.test('creme.widget.EntitySelector.reset', function(assert) {
     var element = mock_entityselector_create();
     var widget = creme.widget.create(element);
     deepEqual([], element.creme().widget().dependencies());

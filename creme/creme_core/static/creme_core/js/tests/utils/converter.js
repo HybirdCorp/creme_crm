@@ -26,7 +26,7 @@ QUnit.module("creme.utils.converters.js", {
 
 function assertRaises(block, expected, message)
 {
-    raises(block,
+    QUnit.assert.raises(block,
            function(error) {
                 ok(error instanceof expected);
                 equal(message, '' + error);
@@ -34,7 +34,7 @@ function assertRaises(block, expected, message)
            });
 }
 
-test('creme.utils.ConverterRegistry.register', function() {
+QUnit.test('creme.utils.ConverterRegistry.register', function(assert) {
     equal(this.converters.converter('string', 'int'), undefined);
     equal(this.converters.converter('string', 'float'), undefined);
 
@@ -49,7 +49,7 @@ test('creme.utils.ConverterRegistry.register', function() {
     equal(this.converters.converter('string', 'float'), this.str2float);
 });
 
-test('creme.utils.ConverterRegistry.register (fail)', function() {
+QUnit.test('creme.utils.ConverterRegistry.register (fail)', function(assert) {
     this.converters.register('string', 'int', this.str2int);
     equal(this.converters.converter('string', 'int'), this.str2int);
 
@@ -58,7 +58,7 @@ test('creme.utils.ConverterRegistry.register (fail)', function() {
            }, Error, 'Error: converter "string-int" is already registered');
 });
 
-test('creme.utils.ConverterRegistry.unregister', function() {
+QUnit.test('creme.utils.ConverterRegistry.unregister', function(assert) {
     this.converters.register('string', 'int', this.str2int);
     this.converters.register('string', 'float', this.str2float);
 
@@ -76,7 +76,7 @@ test('creme.utils.ConverterRegistry.unregister', function() {
     equal(this.converters.converter('string', 'float'), undefined);
 });
 
-test('creme.utils.ConverterRegistry.unregister (fail)', function() {
+QUnit.test('creme.utils.ConverterRegistry.unregister (fail)', function(assert) {
     equal(this.converters.converter('string', 'int'), undefined);
 
     assertRaises(function() {
@@ -84,7 +84,7 @@ test('creme.utils.ConverterRegistry.unregister (fail)', function() {
            }, Error, 'Error: no such converter "string-int"');
 });
 
-test('creme.utils.ConverterRegistry.convert', function() {
+QUnit.test('creme.utils.ConverterRegistry.convert', function(assert) {
     this.converters.register('string', 'int', this.str2int);
     this.converters.register('string', 'float', this.str2float);
 
@@ -95,7 +95,7 @@ test('creme.utils.ConverterRegistry.convert', function() {
     equal(this.converters.convert('string', 'float', '12.65'), 12.65);
 });
 
-test('creme.utils.ConverterRegistry.convert (not found)', function() {
+QUnit.test('creme.utils.ConverterRegistry.convert (not found)', function(assert) {
     equal(this.converters.converter('string', 'int'), undefined);
 
     assertRaises(function() {
@@ -103,7 +103,7 @@ test('creme.utils.ConverterRegistry.convert (not found)', function() {
     }, Error, 'Error: no such converter "string-int"');
 });
 
-test('creme.utils.ConverterRegistry.convert (fail)', function() {
+QUnit.test('creme.utils.ConverterRegistry.convert (fail)', function(assert) {
     this.converters.register('string', 'int', this.str2int);
     
     assertRaises(function() {
@@ -111,12 +111,12 @@ test('creme.utils.ConverterRegistry.convert (fail)', function() {
     }, Error, 'Error: unable to convert data from "string" to "int" : \"[object Object]\" <object> is not a number');
 });
 
-test('creme.utils.ConverterRegistry.convert (same)', function() {
+QUnit.test('creme.utils.ConverterRegistry.convert (same)', function(assert) {
     equal(this.converters.converter('int', 'int'), undefined);
     equal(this.converters.convert('int', 'int', 15446), 15446);
 });
 
-test('creme.utils.ConverterRegistry.convert (default)', function() {
+QUnit.test('creme.utils.ConverterRegistry.convert (default)', function(assert) {
     equal(this.converters.converter('string', 'int'), undefined);
     equal(this.converters.convert('string', 'int', '15446', 10), 10);
 
@@ -124,7 +124,7 @@ test('creme.utils.ConverterRegistry.convert (default)', function() {
     equal(this.converters.convert('string', 'int', '15446', 10), 15446);
 });
 
-test('creme.utils.converters (string-number)', function() {
+QUnit.test('creme.utils.converters (string-number)', function(assert) {
     equal(true, Object.isFunc(creme.utils.converter('string', 'number')));
 
     assertRaises(function() {
@@ -143,7 +143,7 @@ test('creme.utils.converters (string-number)', function() {
     equal(15, creme.utils.convert('string', 'number', '15ab'));
 });
 
-test('creme.utils.converters (string-float)', function() {
+QUnit.test('creme.utils.converters (string-float)', function(assert) {
     equal(true, Object.isFunc(creme.utils.converter('string', 'float')));
 
     assertRaises(function() {
@@ -162,7 +162,7 @@ test('creme.utils.converters (string-float)', function() {
     equal(15, creme.utils.convert('string', 'float', '15ab'));
 });
 
-test('creme.utils.converters (string-int)', function() {
+QUnit.test('creme.utils.converters (string-int)', function(assert) {
     equal(true, Object.isFunc(creme.utils.converter('string', 'int')));
 
     assertRaises(function() {

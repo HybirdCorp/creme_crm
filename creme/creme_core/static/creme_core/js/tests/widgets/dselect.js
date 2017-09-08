@@ -33,7 +33,7 @@ function mock_dselect_add_group(element, label) {
     return group;
 }
 
-module("creme.widgets.dselect.js", {
+QUnit.module("creme.widgets.dselect.js", {
   setup: function() {
       this.backend = new creme.ajax.MockAjaxBackend({sync:true});
       $.extend(this.backend.GET, {'mock/options': this.backend.response(200, [[1, 'a'], [15, 'b'], [12.5, 'c']]),
@@ -49,7 +49,7 @@ module("creme.widgets.dselect.js", {
   }
 });
 
-test('creme.widget.DynamicSelect.create (empty)', function() {
+QUnit.test('creme.widget.DynamicSelect.create (empty)', function(assert) {
     var element = mock_dselect_create();
 
     creme.widget.create(element);
@@ -60,7 +60,7 @@ test('creme.widget.DynamicSelect.create (empty)', function() {
     equal(element.is(':disabled'), true);
 });
 
-test('creme.widget.DynamicSelect.create (static)', function() {
+QUnit.test('creme.widget.DynamicSelect.create (static)', function(assert) {
     var element = mock_dselect_create();
     mock_dselect_add_choice(element, 'a', 1);
     mock_dselect_add_choice(element, 'b', 5);
@@ -84,7 +84,7 @@ test('creme.widget.DynamicSelect.create (static)', function() {
     deepEqual([3, 'c'], element.creme().widget().choice(3));
 });
 
-test('creme.widget.DynamicSelect.create (static, disabled)', function() {
+QUnit.test('creme.widget.DynamicSelect.create (static, disabled)', function(assert) {
     var element = mock_dselect_create();
     mock_dselect_add_choice(element, 'a', 1);
     mock_dselect_add_choice(element, 'b', 5);
@@ -111,7 +111,7 @@ test('creme.widget.DynamicSelect.create (static, disabled)', function() {
     equal(element.is('[disabled]'), true);
 });
 
-test('creme.widget.DynamicSelect.create (static, empty url)', function() {
+QUnit.test('creme.widget.DynamicSelect.create (static, empty url)', function(assert) {
     var element = mock_dselect_create('');
     mock_dselect_add_choice(element, 'a', 1);
     mock_dselect_add_choice(element, 'b', 5);
@@ -133,7 +133,7 @@ test('creme.widget.DynamicSelect.create (static, empty url)', function() {
 });
 
 
-test('creme.widget.DynamicSelect.create (url)', function() {
+QUnit.test('creme.widget.DynamicSelect.create (url)', function(assert) {
     var element = mock_dselect_create('mock/options');
 
     creme.widget.create(element);
@@ -156,7 +156,7 @@ test('creme.widget.DynamicSelect.create (url)', function() {
     deepEqual([12.5, 'c'], element.creme().widget().choice(12.5));
 });
 
-test('creme.widget.DynamicSelect.create (unknown url)', function() {
+QUnit.test('creme.widget.DynamicSelect.create (unknown url)', function(assert) {
     var element = mock_dselect_create('unknown');
 
     creme.widget.create(element);
@@ -167,7 +167,7 @@ test('creme.widget.DynamicSelect.create (unknown url)', function() {
     equal(element.is(':disabled'), true);
 });
 
-test('creme.widget.DynamicSelect.destroy', function() {
+QUnit.test('creme.widget.DynamicSelect.destroy', function(assert) {
     var element = mock_dselect_create('mock/options');
 
     creme.widget.create(element);
@@ -192,7 +192,7 @@ test('creme.widget.DynamicSelect.destroy', function() {
     equal('12.5', $('option:nth(2)', element).attr('value'));
 });
 
-test('creme.widget.DynamicSelect.choices', function()
+QUnit.test('creme.widget.DynamicSelect.choices', function()
 {
     var element = mock_dselect_create();
     mock_dselect_add_choice(element, 'a', 1);
@@ -209,7 +209,7 @@ test('creme.widget.DynamicSelect.choices', function()
     equal(element.creme().widget().choice('15'), undefined);
 });
 
-test('creme.widget.DynamicSelect.choices (json)', function()
+QUnit.test('creme.widget.DynamicSelect.choices (json)', function()
 {
     var element = mock_dselect_create();
     mock_dselect_add_choice(element, 'a', $.toJSON({id:1, name:'a'}));
@@ -228,7 +228,7 @@ test('creme.widget.DynamicSelect.choices (json)', function()
     equal(element.creme().widget().choice('15'), undefined);
 });
 
-test('creme.widget.DynamicSelect.groups', function() {
+QUnit.test('creme.widget.DynamicSelect.groups', function(assert) {
     var element = mock_dselect_create();
 
     var group1 = mock_dselect_add_group(element, 'group1');
@@ -249,7 +249,7 @@ test('creme.widget.DynamicSelect.groups', function() {
     deepEqual(element.creme().widget().groups(), ['group1', 'group2']);
 });
 
-test('creme.widget.DynamicSelect.url (static, unknown url)', function() {
+QUnit.test('creme.widget.DynamicSelect.url (static, unknown url)', function(assert) {
     var element = mock_dselect_create();
     mock_dselect_add_choice(element, 'a', 1);
     mock_dselect_add_choice(element, 'b', 5);
@@ -275,7 +275,7 @@ test('creme.widget.DynamicSelect.url (static, unknown url)', function() {
     equal('3', $('option:nth(2)', element).attr('value'));
 });
 
-test('creme.widget.DynamicSelect.url (url, unknown url)', function() {
+QUnit.test('creme.widget.DynamicSelect.url (url, unknown url)', function(assert) {
     var element = mock_dselect_create('mock/options');
 
     creme.widget.create(element);
@@ -300,7 +300,7 @@ test('creme.widget.DynamicSelect.url (url, unknown url)', function() {
     equal(element.is(':disabled'), true);
 });
 
-test('creme.widget.DynamicSelect.url (static)', function() {
+QUnit.test('creme.widget.DynamicSelect.url (static)', function(assert) {
     var element = mock_dselect_create();
     mock_dselect_add_choice(element, 'a', 1);
     mock_dselect_add_choice(element, 'b', 5);
@@ -330,7 +330,7 @@ test('creme.widget.DynamicSelect.url (static)', function() {
     equal(element.is(':disabled'), true);
 });
 
-test('creme.widget.DynamicSelect.reload (template url)', function() {
+QUnit.test('creme.widget.DynamicSelect.reload (template url)', function(assert) {
     var element = mock_dselect_create('mock/${name}${content}');
     mock_dselect_add_choice(element, 'a', 1);
     mock_dselect_add_choice(element, 'b', 5);
@@ -390,7 +390,7 @@ test('creme.widget.DynamicSelect.reload (template url)', function() {
     equal('12.5', $('option:nth(2)', element).attr('value'));
 });
 
-test('creme.widget.DynamicSelect.update (undefined)', function() {
+QUnit.test('creme.widget.DynamicSelect.update (undefined)', function(assert) {
     var element = mock_dselect_create();
     mock_dselect_add_choice(element, 'a', 1);
     mock_dselect_add_choice(element, 'b', 5);
@@ -413,7 +413,7 @@ test('creme.widget.DynamicSelect.update (undefined)', function() {
     equal('3', $('option:nth(2)', element).attr('value'));
 });
 
-test('creme.widget.DynamicSelect.update (add)', function() {
+QUnit.test('creme.widget.DynamicSelect.update (add)', function(assert) {
     var element = mock_dselect_create();
     mock_dselect_add_choice(element, 'a', 1);
     mock_dselect_add_choice(element, 'b', 5);
@@ -442,7 +442,7 @@ test('creme.widget.DynamicSelect.update (add)', function() {
     equal('35', $('option:nth(6)', element).attr('value'));
 });
 
-test('creme.widget.DynamicSelect.update (remove)', function() {
+QUnit.test('creme.widget.DynamicSelect.update (remove)', function(assert) {
     var element = mock_dselect_create();
     mock_dselect_add_choice(element, 'a', 1);
     mock_dselect_add_choice(element, 'b', 5);
@@ -475,7 +475,7 @@ test('creme.widget.DynamicSelect.update (remove)', function() {
     equal(element.is(':disabled'), true);
 });
 
-test('creme.widget.DynamicSelect.update (add/remove)', function() {
+QUnit.test('creme.widget.DynamicSelect.update (add/remove)', function(assert) {
     var element = mock_dselect_create();
     mock_dselect_add_choice(element, 'a', 1);
     mock_dselect_add_choice(element, 'b', 5);
@@ -491,7 +491,7 @@ test('creme.widget.DynamicSelect.update (add/remove)', function() {
     equal('bb', $('option:nth(2)', element).text());
 });
 
-test('creme.widget.DynamicSelect.val (static)', function() {
+QUnit.test('creme.widget.DynamicSelect.val (static)', function(assert) {
     var element = mock_dselect_create();
     mock_dselect_add_choice(element, 'a', 1);
     mock_dselect_add_choice(element, 'b', 5);
@@ -513,7 +513,7 @@ test('creme.widget.DynamicSelect.val (static)', function() {
     equal('1', element.creme().widget().val(), 'unknown choice');
 });
 
-test('creme.widget.DynamicSelect.val (static, json)', function() {
+QUnit.test('creme.widget.DynamicSelect.val (static, json)', function(assert) {
     var element = mock_dselect_create().attr('datatype', 'json');
     mock_dselect_add_choice(element, 'a', $.toJSON({'a': 1}));
     mock_dselect_add_choice(element, 'b', $.toJSON({'b': 5}));
@@ -542,7 +542,7 @@ test('creme.widget.DynamicSelect.val (static, json)', function() {
     deepEqual({'a': 1}, element.creme().widget().cleanedval(), 'cleaned');
 });
 
-test('creme.widget.DynamicSelect.val (static, multiple)', function() {
+QUnit.test('creme.widget.DynamicSelect.val (static, multiple)', function(assert) {
     var element = mock_dselect_create().attr('multiple', 'multiple');
     mock_dselect_add_choice(element, 'a', 1);
     mock_dselect_add_choice(element, 'b', 5);
@@ -568,7 +568,7 @@ test('creme.widget.DynamicSelect.val (static, multiple)', function() {
     deepEqual(null, element.creme().widget().val());
 });
 
-test('creme.widget.DynamicSelect.val (static, multiple, json)', function() {
+QUnit.test('creme.widget.DynamicSelect.val (static, multiple, json)', function(assert) {
     var element = mock_dselect_create().attr('multiple', 'multiple')
                                        .attr('datatype', 'json');
 
@@ -599,7 +599,7 @@ test('creme.widget.DynamicSelect.val (static, multiple, json)', function() {
     deepEqual(null, element.creme().widget().val());
 });
 
-test('creme.widget.DynamicSelect.val (reload)', function() {
+QUnit.test('creme.widget.DynamicSelect.val (reload)', function(assert) {
     var element = mock_dselect_create();
     mock_dselect_add_choice(element, 'a', 1);
     mock_dselect_add_choice(element, 'b', 5);
@@ -620,7 +620,7 @@ test('creme.widget.DynamicSelect.val (reload)', function() {
     equal('12.5', $('option:nth(3)', element).attr('value'));
 });
 
-test('creme.widget.DynamicSelect.val (reload, not exists)', function() {
+QUnit.test('creme.widget.DynamicSelect.val (reload, not exists)', function(assert) {
     var element = mock_dselect_create();
     mock_dselect_add_choice(element, 'a', 1);
     mock_dselect_add_choice(element, 'b', 5);
@@ -641,7 +641,7 @@ test('creme.widget.DynamicSelect.val (reload, not exists)', function() {
     equal('12.5', $('option:nth(3)', element).attr('value'));
 });
 
-test('creme.widget.DynamicSelect.reset', function() {
+QUnit.test('creme.widget.DynamicSelect.reset', function(assert) {
     var element = mock_dselect_create();
     mock_dselect_add_choice(element, 'a', 1);
     mock_dselect_add_choice(element, 'b', 5);
@@ -656,7 +656,7 @@ test('creme.widget.DynamicSelect.reset', function() {
     deepEqual(widget.selected(), ['1', 'a']);
 });
 
-test('creme.widget.DynamicSelect.filter (script)', function() {
+QUnit.test('creme.widget.DynamicSelect.filter (script)', function(assert) {
     var element = mock_dselect_create();
     mock_dselect_add_choice(element, 'a', 1);
     mock_dselect_add_choice(element, 'b', 5);
@@ -673,7 +673,7 @@ test('creme.widget.DynamicSelect.filter (script)', function() {
     equal('3', $('option:nth(1)', element).attr('value'));
 });
 
-test('creme.widget.DynamicSelect.filter (script update)', function() {
+QUnit.test('creme.widget.DynamicSelect.filter (script update)', function(assert) {
     var element = mock_dselect_create();
     mock_dselect_add_choice(element, 'a', 1);
     mock_dselect_add_choice(element, 'b', 5);
@@ -703,7 +703,7 @@ test('creme.widget.DynamicSelect.filter (script update)', function() {
     equal('5', $('option:nth(1)', element).attr('value'));
 });
 
-test('creme.widget.DynamicSelect.filter (template)', function() {
+QUnit.test('creme.widget.DynamicSelect.filter (template)', function(assert) {
     var element = mock_dselect_create();
     mock_dselect_add_choice(element, 'a', 1);
     mock_dselect_add_choice(element, 'b', 5);
@@ -746,7 +746,7 @@ test('creme.widget.DynamicSelect.filter (template)', function() {
     equal('4', $('option:nth(3)', element).attr('value'));
 });
 
-test('creme.widget.DynamicSelect.filter (context)', function() {
+QUnit.test('creme.widget.DynamicSelect.filter (context)', function(assert) {
     var element = mock_dselect_create();
     mock_dselect_add_choice(element, 'a', 1);
     mock_dselect_add_choice(element, 'b', 5);

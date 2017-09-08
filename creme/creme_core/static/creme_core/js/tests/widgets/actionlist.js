@@ -47,7 +47,7 @@ QUnit.module("creme.widgets.actionlist.js", {
   }
 });
 
-test('creme.widgets.actionlist.create (no delegate, no action)', function() {
+QUnit.test('creme.widgets.actionlist.create (no delegate, no action)', function(assert) {
     var element = mock_actionlist_create();
     var widget = creme.widget.create(element);
 
@@ -59,7 +59,7 @@ test('creme.widgets.actionlist.create (no delegate, no action)', function() {
     deepEqual(widget.dependencies(), []);
 });
 
-test('creme.widgets.actionlist.create (no delegate)', function() {
+QUnit.test('creme.widgets.actionlist.create (no delegate)', function(assert) {
     var element = mock_actionlist_create();
     mock_actionlist_add(element, {name: 'create', label: 'create', url: 'mock/create/popup'});
 
@@ -73,7 +73,7 @@ test('creme.widgets.actionlist.create (no delegate)', function() {
     deepEqual(widget.dependencies(), []);
 });
 
-test('creme.widgets.actionlist.create', function() {
+QUnit.test('creme.widgets.actionlist.create', function(assert) {
     var delegate = mock_dselect_create();
     mock_dselect_add_choice(delegate, 'a', 1);
     mock_dselect_add_choice(delegate, 'b', 5);
@@ -100,7 +100,7 @@ test('creme.widgets.actionlist.create', function() {
     deepEqual(delegate.creme().widget().dependencies(), []);
 });
 
-test('creme.widgets.actionlist.create (disabled)', function() {
+QUnit.test('creme.widgets.actionlist.create (disabled)', function(assert) {
     var delegate = mock_dselect_create();
     mock_dselect_add_choice(delegate, 'a', 1);
 
@@ -144,7 +144,7 @@ test('creme.widgets.actionlist.create (disabled)', function() {
     equal(widget.actions().is('[disabled]'), true);
 });
 
-test('creme.widgets.actionlist.dependencies (url delegate)', function() {
+QUnit.test('creme.widgets.actionlist.dependencies (url delegate)', function(assert) {
     var delegate = mock_dselect_create('mock/${ctype}/options', true);
 
     var element = mock_actionlist_create();
@@ -158,7 +158,7 @@ test('creme.widgets.actionlist.dependencies (url delegate)', function() {
 
 // TODO : add dependency support for actions
 /*
-test('creme.widgets.actionlist.dependencies (url actions)', function() {
+QUnit.test('creme.widgets.actionlist.dependencies (url actions)', function(assert) {
     var delegate = mock_dselect_create('mock/${ctype}/options', true);
     mock_dselect_add_choice(delegate, 'a', 1);
     mock_dselect_add_choice(delegate, 'b', 5);
@@ -174,7 +174,7 @@ test('creme.widgets.actionlist.dependencies (url actions)', function() {
 });
 */
 
-test('creme.widgets.actionlist.value', function()
+QUnit.test('creme.widgets.actionlist.value', function()
 {
     var delegate = mock_dselect_create(undefined, true);
     mock_dselect_add_choice(delegate, 'a', 1);
@@ -199,7 +199,7 @@ test('creme.widgets.actionlist.value', function()
     equal(widget.val(), 1);
 });
 
-test('creme.widgets.actionlist.reset', function()
+QUnit.test('creme.widgets.actionlist.reset', function()
 {
     var delegate = mock_dselect_create(undefined, true);
     mock_dselect_add_choice(delegate, 'a', 12);
@@ -221,7 +221,7 @@ test('creme.widgets.actionlist.reset', function()
     equal(widget.val(), 12);
 });
 
-test('creme.widgets.actionlist.reload', function() {
+QUnit.test('creme.widgets.actionlist.reload', function(assert) {
     var delegate = mock_dselect_create(undefined, true);
     mock_dselect_add_choice(delegate, 'a', 1);
     mock_dselect_add_choice(delegate, 'b', 5);
@@ -251,7 +251,7 @@ test('creme.widgets.actionlist.reload', function() {
     deepEqual(widget.dependencies(), ['ctype']);
 });
 
-test('creme.widgets.actionlist.action', function() {
+QUnit.test('creme.widgets.actionlist.action', function(assert) {
     var delegate = mock_dselect_create('mock/${ctype}/options', true);
     mock_dselect_add_choice(delegate, 'a', 1);
     mock_dselect_add_choice(delegate, 'b', 5);

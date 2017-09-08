@@ -38,7 +38,7 @@ QUnit.module("creme.mockajax.js", {
 });
 
 
-test('MockAjaxBackend.get', function() {
+QUnit.test('MockAjaxBackend.get', function(assert) {
     var response = {}
     this.backend.get('mock/html', {}, function(responseText) {$.extend(response, {responseText:responseText});},
                                       function(responseText, xhr) {$.extend(response, xhr);}, {sync:true});
@@ -71,11 +71,13 @@ test('MockAjaxBackend.get', function() {
     equal(response.status, 500);
 });
 
-asyncTest('MockAjaxBackend.get (200, async, not elapsed)', function() {
+QUnit.test('MockAjaxBackend.get (200, async, not elapsed)', function() {
     var response = {}
     this.backend.get('mock/html', {}, function(responseText) {$.extend(response, {responseText:responseText});},
                                       function(responseText, xhr) {$.extend(response, xhr);});
     deepEqual(response, {});
+
+    stop(1);
 
     setTimeout(function() {
         deepEqual(response, {});
@@ -83,11 +85,13 @@ asyncTest('MockAjaxBackend.get (200, async, not elapsed)', function() {
     }, 200);
 });
 
-asyncTest('MockAjaxBackend.get (200, async)', function() {
+QUnit.test('MockAjaxBackend.get (200, async)', function() {
     var response = {}
     this.backend.get('mock/html', {}, function(responseText) {$.extend(response, {responseText:responseText});},
                                       function(responseText, xhr) {$.extend(response, xhr);});
     deepEqual(response, {});
+
+    stop(1);
 
     setTimeout(function() {
         equal(response.responseText, 'this is a test');
@@ -95,11 +99,13 @@ asyncTest('MockAjaxBackend.get (200, async)', function() {
     }, 700);
 });
 
-asyncTest('MockAjaxBackend.get (200, async, delay)', function() {
+QUnit.test('MockAjaxBackend.get (200, async, delay)', function() {
     var response = {}
     this.backend.get('mock/html', {}, function(responseText) {$.extend(response, {responseText:responseText});},
                                       function(responseText, xhr) {$.extend(response, xhr);}, {delay:100});
     deepEqual(response, {});
+
+    stop(1);
 
     setTimeout(function() {
         equal(response.responseText, 'this is a test');
@@ -107,11 +113,13 @@ asyncTest('MockAjaxBackend.get (200, async, delay)', function() {
     }, 200);
 });
 
-asyncTest('MockAjaxBackend.get (404, async)', function() {
+QUnit.test('MockAjaxBackend.get (404, async)', function() {
     var response = {}
     this.backend.get('mock/unknown', {}, function(responseText) {$.extend(response, {responseText:responseText});},
                                          function(responseText, xhr) {$.extend(response, xhr);});
     deepEqual(response, {});
+
+    stop(1);
 
     setTimeout(function() {
         equal(response.responseText, undefined);
@@ -121,8 +129,7 @@ asyncTest('MockAjaxBackend.get (404, async)', function() {
     }, 600);
 });
 
-
-test('MockAjaxBackend.get (custom)', function() {
+QUnit.test('MockAjaxBackend.get (custom)', function(assert) {
     var response = {}
     this.backend.get('mock/custom', {}, function(responseText) {$.extend(response, {responseText:responseText});},
                                         function(responseText, xhr) {$.extend(response, xhr);}, {sync: true});
@@ -136,7 +143,7 @@ test('MockAjaxBackend.get (custom)', function() {
     equal(response.responseText, $.toJSON({url: 'mock/custom', method: 'GET', data: {a: 1, b: 'test'}}));
 });
 
-test('MockAjaxBackend.post', function() {
+QUnit.test('MockAjaxBackend.post', function(assert) {
     var response = {}
     this.backend.post('mock/add', {}, function(responseText) {$.extend(response, {responseText:responseText});},
                                       function(responseText, xhr) {$.extend(response, xhr);}, {sync:true});
@@ -169,7 +176,7 @@ test('MockAjaxBackend.post', function() {
     equal(response.status, 500);
 });
 
-test('MockAjaxBackend.submit', function() {
+QUnit.test('MockAjaxBackend.submit', function(assert) {
     var form = $(MOCK_AJAX_FORM_CONTENT);
 
     var response = {}
@@ -191,7 +198,7 @@ test('MockAjaxBackend.submit', function() {
 });
 
 
-test('MockAjaxBackend.post (custom)', function() {
+QUnit.test('MockAjaxBackend.post (custom)', function(assert) {
     var response = {}
     this.backend.post('mock/custom', {}, function(responseText) {$.extend(response, {responseText:responseText});},
                                         function(responseText, xhr) {$.extend(response, xhr);}, {sync: true});

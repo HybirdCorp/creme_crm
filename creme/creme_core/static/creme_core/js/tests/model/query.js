@@ -38,7 +38,7 @@ QUnit.module("creme.model.query.js", {
     }
 });
 
-test('creme.model.AjaxArray.constructor', function() {
+QUnit.test('creme.model.AjaxArray.constructor', function(assert) {
     var model = new creme.model.AjaxArray(this.backend);
 
     equal(undefined, model.url());
@@ -52,7 +52,7 @@ test('creme.model.AjaxArray.constructor', function() {
     deepEqual([1, 2, 3], model.all());
 });
 
-test('creme.model.AjaxArray.url (string)', function() {
+QUnit.test('creme.model.AjaxArray.url (string)', function(assert) {
     var model = new creme.model.AjaxArray(this.backend);
 
     equal(undefined, model.url());
@@ -72,7 +72,7 @@ test('creme.model.AjaxArray.url (string)', function() {
     deepEqual(['a'], model.all());
 });
 
-test('creme.model.AjaxArray.url (function)', function() {
+QUnit.test('creme.model.AjaxArray.url (function)', function(assert) {
     var model = new creme.model.AjaxArray(this.backend);
     var id = 1;
     var url = function() {
@@ -104,7 +104,7 @@ test('creme.model.AjaxArray.url (function)', function() {
     deepEqual(['a', 'b', 'c'], model.all());
 });
 
-test('creme.model.AjaxArray.fetch (array)', function() {
+QUnit.test('creme.model.AjaxArray.fetch (array)', function(assert) {
     var model = new creme.model.AjaxArray(this.backend);
     model.bind('fetch-error', this.mockListener('fetch-error'));
     model.bind('fetch-done', this.mockListener('fetch-done'));
@@ -132,7 +132,7 @@ test('creme.model.AjaxArray.fetch (array)', function() {
               ], this.mockListenerCalls('fetch-done'));
 });
 
-test('creme.model.AjaxArray.fetch (diff)', function() {
+QUnit.test('creme.model.AjaxArray.fetch (diff)', function(assert) {
     var model = new creme.model.AjaxArray(this.backend, ['a', 'b', 'c']);
     model.bind('fetch-error', this.mockListener('fetch-error'));
     model.bind('fetch-done', this.mockListener('fetch-done'));
@@ -150,7 +150,7 @@ test('creme.model.AjaxArray.fetch (diff)', function() {
               ], this.mockListenerCalls('fetch-done'));
 });
 
-test('creme.model.AjaxArray.fetch (fail)', function() {
+QUnit.test('creme.model.AjaxArray.fetch (fail)', function(assert) {
     var model = new creme.model.AjaxArray(this.backend);
     model.bind('fetch-error', this.mockListener('fetch-error'));
     model.bind('fetch-done', this.mockListener('fetch-done'));
@@ -185,7 +185,7 @@ test('creme.model.AjaxArray.fetch (fail)', function() {
     deepEqual([], this.mockListenerCalls('fetch-done'));
 });
 
-test('creme.model.AjaxArray.converter', function() {
+QUnit.test('creme.model.AjaxArray.converter', function(assert) {
     var model = new creme.model.AjaxArray(this.backend);
     var converter = function(data) {
         return data.map(function(item, index) {return [item, index];});
@@ -198,7 +198,7 @@ test('creme.model.AjaxArray.converter', function() {
     deepEqual([['a', 0], ['b', 1], ['c', 2]], model.fetch().all());
 });
 
-test('creme.model.AjaxArray.initial (array)', function() {
+QUnit.test('creme.model.AjaxArray.initial (array)', function(assert) {
     var initial = [1, 2, 3];
     var model = new creme.model.AjaxArray(this.backend, initial);
 
@@ -207,7 +207,7 @@ test('creme.model.AjaxArray.initial (array)', function() {
     deepEqual([1, 2, 3], model.all());
 });
 
-test('creme.model.AjaxArray.initial (function)', function() {
+QUnit.test('creme.model.AjaxArray.initial (function)', function(assert) {
     var initial = function() {return [4, 5, 6];}
     var model = new creme.model.AjaxArray(this.backend, initial);
 
@@ -225,7 +225,7 @@ test('creme.model.AjaxArray.initial (function)', function() {
     deepEqual([4, 5, 6], model.fetch().all());
 });
 
-test('creme.model.AjaxArray.fetch (listeners)', function() {
+QUnit.test('creme.model.AjaxArray.fetch (listeners)', function(assert) {
     var model = new creme.model.AjaxArray(this.backend);
     var query_listener = {
         fail: this.mockListener('failed'),

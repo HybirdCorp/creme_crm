@@ -185,7 +185,7 @@ function assertInvalidPlot(context, element, error)
     }
 }
 
-test('creme.widget.Plot.create (empty)', function() {
+QUnit.test('creme.widget.Plot.create (empty)', function(assert) {
     var element = this.createMockPlot('');
 
     creme.widget.create(element);
@@ -193,7 +193,7 @@ test('creme.widget.Plot.create (empty)', function() {
     assertNoPlot(this, element, 'null');
 });
 
-test('creme.widget.Plot.create (invalid)', function() {
+QUnit.test('creme.widget.Plot.create (invalid)', function(assert) {
     var element = this.createMockPlot(MOCK_PLOT_CONTENT_JSON_INVALID);
 
     creme.widget.create(element);
@@ -203,7 +203,7 @@ test('creme.widget.Plot.create (invalid)', function() {
     equal(this.plotError.substr(0, 'JSON parse error'.length), 'JSON parse error');
 });
 
-test('creme.widget.Plot.create (valid)', function() {
+QUnit.test('creme.widget.Plot.create (valid)', function(assert) {
     var element = this.createMockPlot(MOCK_PLOT_CONTENT_JSON_DEFAULT);
 
     stop(1);
@@ -218,7 +218,7 @@ test('creme.widget.Plot.create (valid)', function() {
     assertPlot(this, element);
 });
 
-test('creme.widget.Plot.draw (empty)', function() {
+QUnit.test('creme.widget.Plot.draw (empty)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
 
@@ -238,7 +238,7 @@ test('creme.widget.Plot.draw (empty)', function() {
     assertNoPlot(this, element, 'null');
 });
 
-test('creme.widget.Plot.draw (valid)', function() {
+QUnit.test('creme.widget.Plot.draw (valid)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
     assertActive(element);
@@ -256,7 +256,7 @@ test('creme.widget.Plot.draw (valid)', function() {
     assertPlot(this, element);
 });
 
-test('creme.widget.Plot.draw (invalid)', function() {
+QUnit.test('creme.widget.Plot.draw (invalid)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
     assertActive(element);
@@ -273,7 +273,7 @@ test('creme.widget.Plot.draw (invalid)', function() {
     equal(this.plotError.substr(0, 'JSON parse error'.length), 'JSON parse error');
 });
 
-test('creme.widget.Plot.redraw (valid, data)', function() {
+QUnit.test('creme.widget.Plot.redraw (valid, data)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
     assertActive(element);
@@ -300,7 +300,7 @@ test('creme.widget.Plot.redraw (valid, data)', function() {
 });
 
 
-test('creme.widget.Plot.redraw (empty, valid default)', function() {
+QUnit.test('creme.widget.Plot.redraw (empty, valid default)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
     assertReady(element);
@@ -325,7 +325,7 @@ test('creme.widget.Plot.redraw (empty, valid default)', function() {
 });
 
 
-test('creme.widget.Plot.redraw (valid, options)', function() {
+QUnit.test('creme.widget.Plot.redraw (valid, options)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
     assertActive(element);
@@ -358,7 +358,7 @@ test('creme.widget.Plot.redraw (valid, options)', function() {
     assertPlot(this, element);
 });
 
-test('creme.widget.Plot.preprocess (convert data)', function() {
+QUnit.test('creme.widget.Plot.preprocess (convert data)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
     assertActive(element);
@@ -381,7 +381,7 @@ test('creme.widget.Plot.preprocess (convert data)', function() {
     deepEqual(widget.plotOptions(), plot_options);
 });
 
-test('creme.widget.Plot.preprocess (preprocess data)', function() {
+QUnit.test('creme.widget.Plot.preprocess (preprocess data)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
     assertActive(element);
@@ -414,7 +414,7 @@ test('creme.widget.Plot.preprocess (preprocess data)', function() {
     deepEqual(widget.plotInfo().built.options, built_plot_options);
 });
 
-test('creme.widget.Plot.preprocess (preprocess data chained)', function() {
+QUnit.test('creme.widget.Plot.preprocess (preprocess data chained)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
     assertActive(element);
@@ -450,7 +450,7 @@ test('creme.widget.Plot.preprocess (preprocess data chained)', function() {
     deepEqual(widget.plotInfo().built.options, built_plot_options);
 });
 
-test('creme.widget.Plot.preprocess (convert + preprocess data)', function() {
+QUnit.test('creme.widget.Plot.preprocess (convert + preprocess data)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
     assertActive(element);
@@ -485,7 +485,7 @@ test('creme.widget.Plot.preprocess (convert + preprocess data)', function() {
     deepEqual(widget.plotInfo().built.options, built_plot_options);
 });
 
-test('creme.widget.Plot.preprocess (preprocess options)', function() {
+QUnit.test('creme.widget.Plot.preprocess (preprocess options)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
     assertActive(element);
@@ -554,7 +554,7 @@ test('creme.widget.Plot.preprocess (preprocess options)', function() {
     deepEqual(widget.plotOptions(), plot_options);
 });
 
-test('creme.widget.Plot.preprocess (preprocess handlers)', function() {
+QUnit.test('creme.widget.Plot.preprocess (preprocess handlers)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
     assertActive(element);
@@ -595,7 +595,7 @@ test('creme.widget.Plot.preprocess (preprocess handlers)', function() {
     deepEqual(widget.plotInfo().built.options, plot_built_options);
 });
 
-test('creme.widget.Plot.preprocess (preprocess invalid handler)', function() {
+QUnit.test('creme.widget.Plot.preprocess (preprocess invalid handler)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
     assertActive(element);
