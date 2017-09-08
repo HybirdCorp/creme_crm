@@ -202,7 +202,7 @@ def multi_save_lines(request, document_id):
         # return HttpResponse(u'<center>--------------------</center><br>'.join(errors),
         #                     content_type='text/plain', status=409,
         #                    )
-        return render(request, 'billing/frags/lines_errors.html', context={'errors': errors}, status=409)
+        return render(request, 'billing/frags/lines-errors.html', context={'errors': errors}, status=409)
 
     # Save all formset now that we haven't detect any errors
     for formset in formset_to_save:
