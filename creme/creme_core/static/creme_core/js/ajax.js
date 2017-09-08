@@ -21,12 +21,32 @@
  *            creme.utils.js
  */
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
-//Code from Django doc: http://docs.djangoproject.com/en/1.2/ref/contrib/csrf/#csrf-ajax
-//jQuery 1.9x compatibility : call ajaxSend from document
+// TODO : factorise with creme.ajax.cookieAttr
+// Code from Django doc: http://docs.djangoproject.com/en/1.2/ref/contrib/csrf/#csrf-ajax
+// jQuery 1.9x compatibility : call ajaxSend from document
 $(document).ajaxSend(function(event, xhr, settings) {
     function getCookie(name) {
+        var cookieValue = null;
+
+        if (Object.isEmpty(document.cookie) === false) {
+            var cookies = document.cookie.split(';');
+
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+
+        return cookieValue;
+        /*
         var cookieValue = null;
         if (document.cookie && document.cookie != '') {
             var cookies = document.cookie.split(';');
@@ -40,6 +60,7 @@ $(document).ajaxSend(function(event, xhr, settings) {
             }
         }
         return cookieValue;
+        */
     }
     if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
         // Only send the token to relative URLs i.e. locally.
@@ -47,59 +68,60 @@ $(document).ajaxSend(function(event, xhr, settings) {
     }
 });
 
-//Traditional parameter serialization (true: a=1&a=2&b=3, false: a[]=1&a[]=2&b=3)
-//So, with false if a param is used more than once "[]" is appended to the param name
+// Traditional parameter serialization (true: a=1&a=2&b=3, false: a[]=1&a[]=2&b=3)
+// So, with false if a param is used more than once "[]" is appended to the param name
 jQuery.ajaxSettings.traditional = true;
 
-creme.ajax = {};
+creme.ajax = creme.ajax || {};
 
-creme.ajax.submit = function(form, data, options) {//Tip: If data === true => data are taken from the form
-        var $form = $(form);
+creme.ajax.submit = function(form, data, options) {
+    // Tip: If data === true => data are taken from the form
+    var $form = $(form);
 
-        var defaults = {
-            method: $form.attr('method'),
-            action: ($form.attr('action') == "") ? window.location.href : $form.attr('action'),
-            async: true,
-            cache: true,
-            beforeSend: null,
-            success: null,
-            beforeError: null,
-            beforeComplete: null,
-            error: function() {
-                creme.utils.showErrorNReload();
-            },
-            afterError: null,
-            complete: null
-        };
+    var defaults = {
+        method: $form.attr('method'),
+        action: ($form.attr('action') === "") ? window.location.href : $form.attr('action'),
+        async: true,
+        cache: true,
+        beforeSend: null,
+        success: null,
+        beforeError: null,
+        beforeComplete: null,
+        error: function() {
+            creme.utils.showErrorNReload();
+        },
+        afterError: null,
+        complete: null
+    };
 
-        var opts = $.extend(defaults, options);
-        if (data === true) {
-            data = $form.serialize();
-        }
+    var opts = $.extend(defaults, options);
+    if (data === true) {
+        data = $form.serialize();
+    }
 
-        $.ajax({
-              url: opts.action,
-              type: opts.method,
-              data: data,
-              async: opts.async,
-              beforeSend: function(request){
-                  creme.utils.loading('loading', false, {});
-                  if(opts.beforeSend) opts.beforeSend(request);
-              },
-              success: function(returnedData, status) {
-                if (opts.success) opts.success(returnedData, status);
-              },
-              error: function(request, status, error) {
-                  if (opts.beforeError) opts.beforeError(request, status, error);
-                  if (opts.error) opts.error(request, status, error);
-                  if (opts.afterError) opts.afterError(request, status, error);
-              },
-              complete: function(request, status) {
-                  if (opts.beforeComplete) opts.beforeComplete(request, status);
-                  creme.utils.loading('loading', true, {});
-                  if (opts.complete) opts.complete(request, status);
-              }
-        });
+    $.ajax({
+          url: opts.action,
+          type: opts.method,
+          data: data,
+          async: opts.async,
+          beforeSend: function(request) {
+              creme.utils.loading('loading', false, {});
+              if (opts.beforeSend) opts.beforeSend(request);
+          },
+          success: function(returnedData, status) {
+            if (opts.success) opts.success(returnedData, status);
+          },
+          error: function(request, status, error) {
+              if (opts.beforeError) opts.beforeError(request, status, error);
+              if (opts.error) opts.error(request, status, error);
+              if (opts.afterError) opts.afterError(request, status, error);
+          },
+          complete: function(request, status) {
+              if (opts.beforeComplete) opts.beforeComplete(request, status);
+              creme.utils.loading('loading', true, {});
+              if (opts.complete) opts.complete(request, status);
+          }
+    });
 };
 
 creme.ajax.ajax = function(options) {
@@ -148,11 +170,11 @@ creme.ajax.ajax = function(options) {
 };
 
 creme.ajax.get = function(options) {
-    creme.ajax.ajax($.extend({type:"GET"}, options));
+    creme.ajax.ajax($.extend({type: "GET"}, options));
 };
 
 creme.ajax.post = function(options) {
-    creme.ajax.ajax($.extend({type:"POST"}, options));
+    creme.ajax.ajax($.extend({type: "POST"}, options));
 };
 
 /* TODO: deprecate ? */
@@ -167,13 +189,21 @@ creme.ajax.reloadContent = function($target, target_url) {
 
 creme.ajax.json = {};
 creme.ajax.json._handleSendError = function(req, textStatus, errorThrown) {
-    switch(textStatus) {
+    var message;
+
+    switch (textStatus) {
         case "parsererror":
-            return {type: "request", status: req.status, message: "JSON parse error", request: req}
-            break;
+            message = "JSON parse error"; break;
         default:
-            return {type: "request", status: req.status, message: "" + req.status + " " + req.statusText, request: req}
-    }
+            message = String(req.status) + " " + req.statusText;
+    };
+
+    return {
+        type: "request",
+        status: req.status,
+        request: req,
+        message: message
+    };
 };
 
 creme.ajax.json.send = function(url, data, success_cb, error_cb, sync, method, parameters) {
@@ -195,7 +225,7 @@ creme.ajax.json.send = function(url, data, success_cb, error_cb, sync, method, p
         }
     };
 
-    if (parameters != undefined) {
+    if (parameters !== undefined) {
         ajax_parameters = $.extend(ajax_parameters, parameters);
     }
 
@@ -210,48 +240,47 @@ creme.ajax.json.get = function(url, data, success_cb, error_cb, sync, parameters
     creme.ajax.json.send(url, data, success_cb, error_cb, sync, "GET", parameters);
 };
 
+// Make sure the incoming data is actual JSON
+// Logic borrowed from http://json.org/json2.js
+// TODO : Factorise with creme.utils.JSON
 creme.ajax.json.isvalid = function(data) {
-    return typeof data === 'string' &&
+    return Object.isString(data) &&
            /^[\],:{}\s]*$/.test(data.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@")
                                     .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]")
                                     .replace(/(?:^|:|,)(?:\s*\[)+/g, ""));
 };
 
 // Code copied from JQuery 1.4.*
+// TODO : Factorise with creme.utils.JSON
 creme.ajax.json.parse = function(data) {
-    if (typeof data !== "string" || !data) {
+    if (!data || !Object.isString(data)) {
         return null;
     }
 
-    // Make sure leading/trailing whitespace is removed (IE can't handle it)
-    data = jQuery.trim( data );
+    data = data.trim();
 
-    // Make sure the incoming data is actual JSON
-    // Logic borrowed from http://json.org/json2.js
-    if (/^[\],:{}\s]*$/.test(data.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@")
-        .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]")
-        .replace(/(?:^|:|,)(?:\s*\[)+/g, ""))) {
-
+    if (creme.ajax.json.isvalid(data)) {
         try {
             // Try to use the native JSON parser first
-            return window.JSON && window.JSON.parse ?
-                window.JSON.parse(data) :
-                (new Function("return " + data))();
-        } catch(err) {
-            //console.log("Invalid JSON: " + data);
+            if (window.JSON && window.JSON.parse) {
+                return window.JSON.parse(data);
+            } else {
+                return $.parseJSON(data);
+            }
+        } catch (err) {
+            // console.log( "Invalid JSON: " + data );
             return null;
         }
-
     } else {
-        //console.log( "Invalid JSON: " + data );
+        // console.log( "Invalid JSON: " + data );
         return null;
-    }
-};
+     }
+ };
 
 creme.ajax.json.ajaxFormSubmit = function($form, success_cb, error_cb, sync, parameters) {
     creme.ajax.json.post($form.attr('action'),
                          $form.serialize(),
-                         success_cb || function(data) {$form.html(data.form);},
+                         success_cb || function(data) { $form.html(data.form); },
                          error_cb, sync, parameters
     );
 };
