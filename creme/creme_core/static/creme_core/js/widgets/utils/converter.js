@@ -51,7 +51,7 @@ creme.utils.ConverterRegistry.prototype = {
             if (defaults !== undefined)
                 return defaults;
 
-            throw new Error('unable to convert data from "' + from + '" to "' + to + '" : ' + e);
+            throw new Error('unable to convert data from "' + from + '" to "' + to + '" : ' + (e.message || e));
         }
     },
 

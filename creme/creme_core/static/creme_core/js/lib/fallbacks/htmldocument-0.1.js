@@ -1,6 +1,6 @@
 /*******************************************************************************
  Creme is a free/open-source Customer Relationship Management software
- Copyright (C) 2009-2011  Hybird
+ Copyright (C) 2009-2017  Hybird
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -16,25 +16,28 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
 
-if (!this['HTMLDocument']) {
-    this['HTMLDocument'] = function () {};
-}
+// HTMLDocument = $.assertIEVersions(7, 8, 9) ? function() {} : HTMLDocument;
+// CSSStyleDeclaration = $.assertIEVersions(7) ? function() {} : CSSStyleDeclaration;
 
-if (!this['CSSStyleDeclaration']) {
-    this['CSSStyleDeclaration'] = function () {};
-}
-
-//HTMLDocument = $.assertIEVersions(7, 8, 9) ? function() {} : HTMLDocument;
-//CSSStyleDeclaration = $.assertIEVersions(7) ? function() {} : CSSStyleDeclaration;
-
+/* istanbul ignore next : compatibility with IE < 8.0 */
 (function() {
+    "use strict";
 
-  function append(name, method) {
-    if(!HTMLDocument.prototype[name])
-      HTMLDocument.prototype[name] = method;
-  };
+    if (!window['HTMLDocument']) {
+        window['HTMLDocument'] = function () {};
+    }
 
-  append("createElementNS", function(namespace, name) {
-    return this.createElement(name);
-  });
-})();
+    if (!window['CSSStyleDeclaration']) {
+        window['CSSStyleDeclaration'] = function () {};
+    }
+
+    function append(name, method) {
+        if (!HTMLDocument.prototype[name]) {
+            HTMLDocument.prototype[name] = method;
+        }
+    };
+
+    append("createElementNS", function(namespace, name) {
+        return this.createElement(name);
+    });
+}());

@@ -1,6 +1,6 @@
 /*******************************************************************************
  Creme is a free/open-source Customer Relationship Management software
- Copyright (C) 2009-2013  Hybird
+ Copyright (C) 2009-2017  Hybird
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -20,29 +20,25 @@
 (function() {
     "use strict";
 
-    function appendStatic(name, method)
-    {
-        if(!Object[name])
+    function appendStatic(name, method) {
+        if (!Object[name]) {
             Object[name] = method;
+        }
     };
 
-    function append(name, method)
-    {
-        if(!Object.prototype[name])
-            Object.prototype[name] = method;
-    };
-
+    /* istanbul ignore next */
     appendStatic('property', function(obj, key, value) {
-        if (value === undefined)
+        if (value === undefined) {
             return obj[key];
+        }
 
         obj[key] = value;
         return obj;
     });
 
+    /* istanbul ignore next */
     appendStatic('keys', function(obj, all) {
         var keys = [];
-        var key;
 
         for (var key in obj) {
             if (all || obj.hasOwnProperty(key)) {
@@ -68,7 +64,7 @@
     appendStatic('entries', function(obj, all) {
         var entries = [];
 
-        for(var key in obj) {
+        for (var key in obj) {
             if (all || obj.hasOwnProperty(key)) {
                 entries.push([key, obj[key]]);
             }
@@ -82,11 +78,13 @@
     });
 
     appendStatic('isEmpty', function(obj) {
-        if (Object.isNone(obj) || obj.length === 0)
-            return true
+        if (Object.isNone(obj) || obj.length === 0) {
+            return true;
+        }
 
-        if (typeof obj === 'number')
+        if (typeof obj === 'number') {
             return false;
+        }
 
         for (var name in obj) {
             return false;
@@ -100,8 +98,9 @@
     });
 
     appendStatic('assertIsTypeOf', function(obj, type) {
-        if (typeof obj !== type)
-            throw '"' + obj + '" is not a ' + type;
+        if (typeof obj !== type) {
+            throw Error('"' + obj + '" is not a ' + type);
+        }
     });
 
     appendStatic('isFunc', function(obj) {
@@ -109,26 +108,27 @@
     });
 
     appendStatic('isString', function(obj) {
-        return (typeof obj === 'string') || (typeof obj === 'object' && Object.getPrototypeOf(obj) == String.prototype);
+        return (typeof obj === 'string') || (typeof obj === 'object' && Object.getPrototypeOf(obj) === String.prototype);
     });
 
     appendStatic('proxy', function(delegate, context, options) {
-        if (Object.isNone(delegate))
+        if (Object.isNone(delegate)) {
             return;
+        }
 
-        var options = options || {};
+        options = options || {};
+        context = context || delegate;
 
-        var context = context || delegate;
-        var proxy = {__context__: context || {}};
-        var filter = Object.isFunc(options.filter) ? options.filter : function() {return true}
-        var parameters = Object.isFunc(options.arguments) ? function(args) {return options.arguments(Array.copy(args));} : Array.copy;
+        var proxy = {__context__: context};
+        var filter = Object.isFunc(options.filter) ? options.filter : function () { return true; };
+        var parameters = Object.isFunc(options.arguments) ? function (args) { return options.arguments(Array.copy(args)); } : Array.copy;
 
-        for(var key in delegate)
-        {
+        for (var key in delegate) {
             var value = delegate[key];
 
-            if (!Object.isFunc(value) || filter(key, value) === false)
+            if (!Object.isFunc(value) || filter(key, value) === false) {
                 continue;
+            }
 
             // use a function to 'keep' the current loop step context
             (function(proxy, fn, key) {
@@ -141,12 +141,15 @@
         return proxy;
     });
 
+    /* istanbul ignore next : compatibility with old IE versions (not really usefull) */
     appendStatic('getPrototypeOf', function(object) {
-        if (typeof "".__proto__ === 'object')
+        if (typeof "".__proto__ === 'object') {
             return object.__proto__;
+        }
 
-        if (Object.isNone(object) || object === Object.prototype)
+        if (Object.isNone(object) || object === Object.prototype) {
             return null;
+        }
 
         return Object.isNone(object.constructor) ? null : object.constructor.prototype;
     });
