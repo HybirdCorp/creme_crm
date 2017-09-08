@@ -16,13 +16,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.model = creme.model || {};
 
 creme.model.Array = creme.model.Collection.sub({
-    _init_: function(data, comparator)
-    {
+    _init_: function(data, comparator) {
         this._super_(creme.model.Collection, '_init_');
         this._data = !Object.isEmpty(data) ? (Array.isArray(data) ? data : [data]) : [];
         this.comparator(comparator);
@@ -36,8 +36,7 @@ creme.model.Array = creme.model.Collection.sub({
         return this._data[index];
     },
 
-    set: function(data, index, action)
-    {
+    set: function(data, index, action) {
         if (index < 0 || index > this._data.length) {
             throw new Error('index out of bound');
         }
@@ -49,8 +48,7 @@ creme.model.Array = creme.model.Collection.sub({
         return this;
     },
 
-    reset: function(data)
-    {
+    reset: function(data) {
         var previous = this._data;
         var previous_length = previous ? previous.length : 0;
 
@@ -58,21 +56,19 @@ creme.model.Array = creme.model.Collection.sub({
 
         var next_length = this._data.length;
 
-        if (previous_length > 0)
-        {
-            if (next_length > 0)
-            {
+        if (previous_length > 0) {
+            if (next_length > 0) {
                 var update_start = 0;
                 var update_end = Math.max(0, Math.min(previous.length - 1, this._data.length - 1));
 
                 this._fireUpdate(this._data.slice(update_start, update_end + 1),
-                                 update_start, update_end, 
+                                 update_start,
+                                 update_end,
                                  previous.slice(update_start, update_end + 1),
                                  'reset');
             }
 
-            if (previous_length > next_length)
-            {
+            if (previous_length > next_length) {
                 var remove_start = next_length;
                 var remove_end = previous_length - 1;
 
@@ -80,8 +76,7 @@ creme.model.Array = creme.model.Collection.sub({
             }
         }
 
-        if (next_length > 0 && next_length > previous_length)
-        {
+        if (next_length > 0 && next_length > previous_length) {
             var add_start = previous_length;
             var add_end = next_length - 1;
 
@@ -92,17 +87,16 @@ creme.model.Array = creme.model.Collection.sub({
         return this;
     },
 
-    insert: function(data, index)
-    {
-        var self = this;
-        var data = Array.isArray(data) ? data : [data];
-        var index = index || 0;
+    insert: function(data, index) {
+        data = Array.isArray(data) ? data : [data];
+        index = index || 0;
 
         var start = index;
         var end = start + (data.length - 1);
 
-        if (data.length === 0)
+        if (data.length === 0) {
             return this;
+        }
 
         if (index < 0 || index > this._data.length) {
             throw new Error('index out of bound');
@@ -128,10 +122,10 @@ creme.model.Array = creme.model.Collection.sub({
         return this.insert(data);
     },
 
-    pop: function()
-    {
-        if (this._data.length === 0)
+    pop: function() {
+        if (this._data.length === 0) {
             return;
+        }
 
         var index = this._data.length - 1;
         var item = this._data.pop();
@@ -140,8 +134,7 @@ creme.model.Array = creme.model.Collection.sub({
         return item;
     },
 
-    removeAt: function(index)
-    {
+    removeAt: function(index) {
         if (index < 0 || index > this._data.length) {
             throw new Error('index out of bound');
         }
@@ -151,18 +144,16 @@ creme.model.Array = creme.model.Collection.sub({
         return item[0];
     },
 
-    remove: function(value)
-    {
+    remove: function(value) {
+        value = Array.isArray(value) ? value : [value];
+
         var self = this;
-        var value = Array.isArray(value) ? value : [value];
-        var data = this._data;
         var removed = [];
-        var index = -1;
 
         value.forEach(function(item) {
             var index = self.indexOf(item);
 
-            if (index != -1) {
+            if (index !== -1) {
                 removed.push(self.removeAt(index));
             }
         });
@@ -170,43 +161,43 @@ creme.model.Array = creme.model.Collection.sub({
         return removed;
     },
 
-    indexOf: function(value, comparator)
-    {
-        var comparator = comparator || this._comparator;
+    indexOf: function(value, comparator) {
+        comparator = comparator || this._comparator;
+
         var data = this._data;
 
-        if (Object.isFunc(comparator) === false)
+        if (Object.isFunc(comparator) === false) {
             return data.indexOf(value);
+        }
 
-        for(var index = 0; index < data.length; ++index)
-        {
-            if (comparator(data[index], value) === 0)
+        for (var index = 0; index < data.length; ++index) {
+            if (comparator(data[index], value) === 0) {
                 return index;
+            }
         }
 
         return -1;
     },
 
-    indicesOf: function(values, comparator)
-    {
-        var comparator = comparator || this._comparator;
+    indicesOf: function(values, comparator) {
+        comparator = comparator || this._comparator;
+        values = Array.isArray(values) ? values.slice() : [values];
+
         var data = this._data;
-        var values = Array.isArray(values) ? values.slice() : [values];
         var result = [];
 
-        if (Object.isFunc(comparator) === false)
-        {
+        if (Object.isFunc(comparator) === false) {
             data.forEach(function(item, index) {
                 var i = values.indexOf(item);
 
                 if (i !== -1) {
                     result.push(index);
-                    values.slice(i, 1)
+                    values.slice(i, 1);
                 }
             });
         } else {
             data.forEach(function(item, index) {
-                for(var i = 0; i < values.length; ++i) {
+                for (var i = 0; i < values.length; ++i) {
                     if (comparator(item, values[i]) === 0) {
                         result.push(index);
                         values.slice(i, 1);
@@ -218,8 +209,7 @@ creme.model.Array = creme.model.Collection.sub({
         return result.length === 0 ? -1 : (result.length === 1 ? result[0] : result);
     },
 
-    clear: function()
-    {
+    clear: function() {
         var data = this._data;
         this._data = [];
         this._fireRemove(data, 0, data.length - 1, 'clear');
@@ -235,8 +225,7 @@ creme.model.Array = creme.model.Collection.sub({
         return this._data ? this._data[this._data.length - 1] : undefined;
     },
 
-    each: function(cb)
-    {
+    each: function(cb) {
         this._data.forEach(cb);
         return this;
     },
@@ -250,7 +239,7 @@ creme.model.Array = creme.model.Collection.sub({
     },
 
     slice: function(start, end) {
-        return this._data.slice(start, end)
+        return this._data.slice(start, end);
     },
 
     all: function() {
@@ -261,12 +250,11 @@ creme.model.Array = creme.model.Collection.sub({
         return Object.property(this, '_comparator', comparator);
     },
 
-    sort: function(comparator)
-    {
+    sort: function(comparator) {
         var data = this._data;
         var previous = Array.copy(data);
-        var comparator = comparator || this._comparator;
 
+        comparator = comparator || this._comparator;
         data.sort(comparator);
 
         this._fireUpdate(data, 0, data.length - 1, previous, 'sort');
@@ -275,8 +263,7 @@ creme.model.Array = creme.model.Collection.sub({
         return this;
     },
 
-    reverse: function()
-    {
+    reverse: function() {
         var data = this._data;
         var previous = Array.copy(data);
 
@@ -288,13 +275,14 @@ creme.model.Array = creme.model.Collection.sub({
         return this;
     },
 
-    patch: function(data)
-    {
-        if (Array.isArray(data))
+    patch: function(data) {
+        if (Array.isArray(data)) {
             return this.reset(data);
+        }
+
+        data = data || {};
 
         var self = this;
-        var data = data || {};
         var added = data.add || [];
         var removed = data.remove || [];
         var updated = data.update || [];
@@ -309,5 +297,4 @@ creme.model.Array = creme.model.Collection.sub({
         return this;
     }
 });
-
 }(jQuery));

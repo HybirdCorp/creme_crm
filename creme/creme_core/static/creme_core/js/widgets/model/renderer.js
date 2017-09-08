@@ -16,15 +16,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.model = creme.model || {};
 
 creme.model.Renderer = creme.component.Component.sub({
-    _init_: function(target, model, listeners)
-    {
-        var self = this;
-
+    _init_: function(target, model, listeners) {
         this._modelListener = $.extend({
             update: $.proxy(this._onUpdate, this),
             add: $.proxy(this._onAdd, this),
@@ -39,12 +37,12 @@ creme.model.Renderer = creme.component.Component.sub({
         return Object.property(this, '_target', target);
     },
 
-    model: function(model)
-    {
-        if (model === undefined)
+    model: function(model) {
+        if (model === undefined) {
             return this._model;
+        }
 
-        var model = Array.isArray(model) ? new creme.model.Array(model) : model;
+        model = Array.isArray(model) ? new creme.model.Array(model) : model;
         var previous = this._model;
 
         if (!Object.isNone(previous)) {
@@ -59,18 +57,10 @@ creme.model.Renderer = creme.component.Component.sub({
         return this;
     },
 
-    redraw: function()
-    {
-        this._target.html('');
-
-        if (this._model && this._model.length() > 0) {
-            this.added(model._data, 0, model._data.length - 1);
-        }
-
+    redraw: function() {
         return this;
     }
 });
-
 
 creme.model.ListRenderer = creme.model.Renderer.sub({
     items: function(target) {
@@ -83,9 +73,8 @@ creme.model.ListRenderer = creme.model.Renderer.sub({
         return item;
     },
 
-    insertItem: function(target, before, data, index)
-    {
-        var item = this.createItem(target, before, data, index)
+    insertItem: function(target, before, data, index) {
+        var item = this.createItem(target, before, data, index);
 
         if (before && before.length) {
             before.before(item);
@@ -103,18 +92,18 @@ creme.model.ListRenderer = creme.model.Renderer.sub({
         item.remove();
     },
 
-    redraw: function()
-    {
+    redraw: function() {
         var target = this._target;
         var self = this;
         var model = this.model();
 
         this.items(target).each(function(index) {
-            self.removeItem(target, $(this), model !== undefined ? model.get(index) : undefined, index)
+            self.removeItem(target, $(this), model !== undefined ? model.get(index) : undefined, index);
         });
 
-        if (model === undefined)
+        if (model === undefined) {
             return this;
+        }
 
         model.all().forEach(function(data, index) {
             self.insertItem(target, $([]), data, index);
@@ -123,8 +112,7 @@ creme.model.ListRenderer = creme.model.Renderer.sub({
         return this;
     },
 
-    _onUpdate: function(event, data, start, end, previous, action)
-    {
+    _onUpdate: function(event, data, start, end, previous, action) {
         var self = this;
         var target = this._target;
 
@@ -133,8 +121,7 @@ creme.model.ListRenderer = creme.model.Renderer.sub({
         });
     },
 
-    _onAdd: function(event, data, start, end, action)
-    {
+    _onAdd: function(event, data, start, end, action) {
         var target = this._target;
         var self = this;
         var before = this.items(target).slice(start, start + 1);
@@ -144,8 +131,7 @@ creme.model.ListRenderer = creme.model.Renderer.sub({
         });
     },
 
-    _onRemove: function(event, data, start, end, action)
-    {
+    _onRemove: function(event, data, start, end, action) {
         var target = this._target;
         var self = this;
 
@@ -154,5 +140,4 @@ creme.model.ListRenderer = creme.model.Renderer.sub({
         });
     }
 });
-
 }(jQuery));

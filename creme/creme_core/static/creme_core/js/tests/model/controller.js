@@ -141,6 +141,29 @@ QUnit.test('creme.model.SelectionController.select (default)', function(assert) 
 
     controller.select([0, 2]);
     deepEqual([{value: 1, selected:true}, {value:3, selected:true}], controller.selected());
+
+    // inverted range
+    controller.select([[4, 2]]);
+    deepEqual([{value: 3, selected:true}, {value:8, selected:true}, {value:7, selected:true}], controller.selected());
+
+    // function range
+    controller.select(function(ctrl) {
+        return [[1, ctrl.model().all().length - 2]];
+    });
+    deepEqual([{value: 5, selected:true}, {value:3, selected:true}, {value:8, selected:true}], controller.selected());
+
+    // multiple ranges
+    controller.select([4, [3, 2], 1]);
+    deepEqual([{value: 5, selected:true},
+               {value: 3, selected:true},
+               {value: 8, selected:true},
+               {value: 7, selected:true}], controller.selected());
+
+    // duplicate
+    controller.select([4, 4, 1, [1, 2], [1, 2]]);
+    deepEqual([{value: 5, selected:true},
+               {value: 3, selected:true},
+               {value: 7, selected:true}], controller.selected());
 });
 
 QUnit.test('creme.model.SelectionController.select (inclusive)', function(assert) {
@@ -240,6 +263,21 @@ QUnit.test('creme.model.SelectionController.select (not selectable)', function(a
     deepEqual([{value: 2, selected:true}, {value:4, selected:true}], controller.selected());
 });
 
+QUnit.test('creme.model.SelectionController.select (empty selection)', function(assert) {
+    var model = new creme.model.Array([{value:2, selected: false},
+                                       {value:5, selected: true},
+                                       {value:4, selected: false},
+                                       {value:3, selected: true}]);
+    var controller = new creme.model.SelectionController().model(model);
+    controller.on('change', this.mockListener('selection'));
+
+    deepEqual([{value: 5, selected:true}, {value:3, selected:true}], controller.selected());
+
+    controller.select([]);
+    deepEqual([], controller.selected());
+    deepEqual([['change']], this.mockListenerCalls('selection'));
+});
+
 QUnit.test('creme.model.SelectionController.select (update model)', function(assert) {
     var model = new creme.model.Array([{value:2, selected: false},
                                        {value:5, selected: false},
@@ -260,6 +298,7 @@ QUnit.test('creme.model.SelectionController.select (update model)', function(ass
     deepEqual([], this.mockListenerCalls('update'));
     deepEqual([], this.mockListenerCalls('selection'));
 
+    // select out of bound index
     controller.select([58]);
     deepEqual([], controller.selected());
 
@@ -268,6 +307,7 @@ QUnit.test('creme.model.SelectionController.select (update model)', function(ass
     deepEqual([], this.mockListenerCalls('update'));
     deepEqual([], this.mockListenerCalls('selection'), 'out of bound index');
 
+    // select multiple items
     this.resetMockCalls();
     controller.select([1, 3]);
     deepEqual([{value: 5, selected: true}, {value: 3, selected: true}], controller.selected());
@@ -278,6 +318,7 @@ QUnit.test('creme.model.SelectionController.select (update model)', function(ass
                ['update', [{value: 3, selected: true}], 3, 3, [{value: 3, selected: true}], 'select']], this.mockListenerCalls('update'), 'select [1,3]');
     deepEqual([['change']], this.mockListenerCalls('selection'));
 
+    // remove selected item
     this.resetMockCalls();
     model.removeAt(1);
 
@@ -288,6 +329,7 @@ QUnit.test('creme.model.SelectionController.select (update model)', function(ass
     deepEqual([], this.mockListenerCalls('update'));
     deepEqual([['change']], this.mockListenerCalls('selection'), 'remove');
 
+    // append selected item
     this.resetMockCalls();
     model.append({value: 12, selected: true});
 
@@ -298,6 +340,7 @@ QUnit.test('creme.model.SelectionController.select (update model)', function(ass
     deepEqual([], this.mockListenerCalls('update'));
     deepEqual([['change']], this.mockListenerCalls('selection'), 'append');
 
+    // insert selected item
     this.resetMockCalls();
     model.set({value: 15, selected: true}, 0);
 
@@ -450,4 +493,54 @@ QUnit.test('creme.model.SelectionController.toggleAll', function(assert) {
                           'select']
                ], this.mockListenerCalls('update'), 'toggle all unselect');
     deepEqual([['change']], this.mockListenerCalls('selection'));
+});
+
+QUnit.test('creme.model.SelectionController.select/unselectAll', function(assert) {
+    var model = new creme.model.Array([{value:2}, {value:5}, {value:4}]);
+    model.bind('update', this.mockListener('update'));
+
+    var controller = new creme.model.SelectionController().model(model);
+    controller.on('change', this.mockListener('selection'));
+
+    controller.selectAll();
+    deepEqual([{value:2, selected: true}, {value: 5, selected: true}, {value: 4, selected: true}], controller.selected());
+
+    deepEqual([['update', [{value: 2, selected: true}, {value: 5, selected: true}, {value: 4, selected: true}],
+                          0, 2,
+                          [{value: 2, selected: true}, {value: 5, selected: true}, {value: 4, selected: true}],
+                          'select']
+               ], this.mockListenerCalls('update'), 'toggle all select');
+
+    this.resetMockCalls();
+    controller.unselectAll();
+    deepEqual([], controller.selected());
+
+    deepEqual([['update', [{value: 2, selected: false}, {value: 5, selected: false}, {value: 4, selected: false}],
+                          0, 2,
+                          [{value: 2, selected: false}, {value: 5, selected: false}, {value: 4, selected: false}],
+                          'select']
+               ], this.mockListenerCalls('update'), 'toggle all unselect');
+    deepEqual([['change']], this.mockListenerCalls('selection'));
+});
+
+QUnit.test('creme.model.SelectionController.model (change)', function(assert) {
+    var model = new creme.model.Array([{value:2}, {value:5}, {value:4}]);
+    var modelB = new creme.model.Array([{value:7}, {value:13}]);
+    model.bind('update', this.mockListener('update'));
+
+    var controller = new creme.model.SelectionController();
+
+    // no model
+    deepEqual([], controller.selectables());
+
+    controller.model(model);
+    deepEqual([{value: 2}, {value: 5}, {value: 4}], controller.selectables());
+
+    // other model
+    controller.model(modelB);
+    deepEqual([{value:7}, {value:13}], controller.selectables());
+
+    // remove model
+    controller.model(null);
+    deepEqual([], controller.selectables());
 });
