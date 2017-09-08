@@ -5,11 +5,11 @@
 
 {% block brick_header_title %}
     {% if is_contact %}
-        {% brick_header_title title=_('This contact is a favorite for {count} user') plural=_('This contact is a favorite for {count} users') empty=_('Favorite contacts') icon='contact' %}
+        {% brick_header_title title=_('This contact is a favorite for {count} user') plural=_('This contact is a favorite for {count} users') empty=_('Favorite contacts') icon='phone' %}
     {% elif is_orga %}
-        {% brick_header_title title=_('This organisation is a favorite for {count} user') plural=_('This organisation is a favorite for {count} users') empty=_('Favorite organisations') icon='contact' %}
+        {% brick_header_title title=_('This organisation is a favorite for {count} user') plural=_('This organisation is a favorite for {count} users') empty=_('Favorite organisations') icon='phone' %}
     {% else %}
-        {% brick_header_title title=_('This entity is a favorite for {count} user') plural=_('This entity is a favorite for {count} users') empty=_('Favorite entities') icon='contact' %}
+        {% brick_header_title title=_('This entity is a favorite for {count} user') plural=_('This entity is a favorite for {count} users') empty=_('Favorite entities') icon='phone' %}
     {% endif %}
 {% endblock %}
 
