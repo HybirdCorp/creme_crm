@@ -16,11 +16,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.dialog.SelectionDialog = creme.dialog.Dialog.sub({
     _init_: function(options) {
-        var options = $.extend({
+        options = $.extend({
             title:    gettext('Selection'),
             fitFrame: false,
             height:   200
@@ -42,21 +43,20 @@ creme.dialog.SelectionDialog = creme.dialog.Dialog.sub({
         return Object.isFunc(selector) ? selector.apply(this, [this.content()]) : [];
     },
 
-    ok: function()
-    {
+    ok: function() {
         var validator = this._validator;
         var selected = this.selected();
 
-        if (Object.isFunc(validator) && validator(selected) === false)
+        if (Object.isFunc(validator) && validator(selected) === false) {
             return this;
+        }
 
         this._destroyDialog();
         this._events.trigger('ok', [selected], this);
         return this;
     },
 
-    _defaultButtons: function(buttons, options)
-    {
+    _defaultButtons: function(buttons, options) {
         this._appendButton(buttons, 'ok', gettext('Ok'), function(button, e, options) {
                                this.ok();
                            });
@@ -72,5 +72,4 @@ creme.dialog.SelectionDialog = creme.dialog.Dialog.sub({
         return this;
     }
 });
-
 }(jQuery));

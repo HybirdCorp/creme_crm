@@ -16,16 +16,16 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
-creme.dialogs = creme.dialogs || {}
+creme.dialogs = creme.dialogs || {};
 
 creme.dialogs.GlassPane = creme.component.Component.sub({
-    _init_: function(options)
-    {
-        var options = $.extend({
+    _init_: function(options) {
+        options = $.extend({
             debug: false,
-            modal: false,
+            modal: false
         }, options || {});
 
         this._events = new creme.component.EventHandler();
@@ -34,8 +34,7 @@ creme.dialogs.GlassPane = creme.component.Component.sub({
         this._initFrame(options);
     },
 
-    _initFrame: function(options)
-    {
+    _initFrame: function(options) {
         var pane = this._pane = $('<div class="glasspane">');
 
         if (options.debug) {
@@ -72,8 +71,7 @@ creme.dialogs.GlassPane = creme.component.Component.sub({
         return this;
     },
 
-    open: function(anchor)
-    {
+    open: function(anchor) {
         if (this.isOpened()) {
             return;
         }
@@ -99,9 +97,8 @@ creme.dialogs.GlassPane = creme.component.Component.sub({
         return this._opened;
     },
 
-    close: function()
-    {
-        if (this.isOpened() == false) {
+    close: function() {
+        if (this.isOpened() === false) {
             return;
         }
 
@@ -112,8 +109,7 @@ creme.dialogs.GlassPane = creme.component.Component.sub({
         return this;
     },
 
-    toggle: function(anchor)
-    {
+    toggle: function(anchor) {
         if (this.isOpened()) {
             return this.close();
         } else {
@@ -121,5 +117,4 @@ creme.dialogs.GlassPane = creme.component.Component.sub({
         }
     }
 });
-
 }(jQuery));
