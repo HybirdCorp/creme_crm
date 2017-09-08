@@ -43,8 +43,8 @@
             {% brick_table_action id='view' url=email_view_url label=_('Details') __title=_('Email') %}
         </td>
         <td {% brick_table_data_status action %}>
-            {% if mail.status != sent_status %}{% url 'emails__resend_emails' as resend_url %}
-                {% if mail.status in sync_statuses %}
+            {% if not mail.sent %}{% url 'emails__resend_emails' as resend_url %}
+                {% if mail.synchronised %}
                     {% brick_table_action id='update' url=resend_url __ids=mail.id label=_('Re-send') icon='refresh' confirm=_('This mail was synchronized. Are you sure you want to send it ?') %}
                 {% else %}
                     {% brick_table_action id='update' url=resend_url __ids=mail.id label=_('Re-send') icon='refresh' %}
