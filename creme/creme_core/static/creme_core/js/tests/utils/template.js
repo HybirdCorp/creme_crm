@@ -3,7 +3,7 @@ QUnit.module("creme.utils.template.js", {
   teardown: function() {}
 });
 
-test('creme.utils.Template (constructor)', function() {
+QUnit.test('creme.utils.Template (constructor)', function(assert) {
     var template = new creme.utils.Template();
     equal(undefined, template.pattern());
     deepEqual(undefined, template.parameters());
@@ -15,7 +15,7 @@ test('creme.utils.Template (constructor)', function() {
     equal('object', typeof template.renderer());
 });
 
-test('creme.utils.Template (tags)', function() {
+QUnit.test('creme.utils.Template (tags)', function(assert) {
     var template = new creme.utils.Template();
     deepEqual([], template.tags());
 
@@ -44,7 +44,7 @@ test('creme.utils.Template (tags)', function() {
     deepEqual(['tag'], template.tags());
 });
 
-test('creme.utils.Template (render, empty data)', function() {
+QUnit.test('creme.utils.Template (render, empty data)', function(assert) {
     var template = new creme.utils.Template('this is a template');
     equal('this is a template', template.render());
 
@@ -52,7 +52,7 @@ test('creme.utils.Template (render, empty data)', function() {
     equal('${tag} ${tag2} ${last_tag}', template.render());
 });
 
-test('creme.utils.Template (render, empty pattern)', function() {
+QUnit.test('creme.utils.Template (render, empty pattern)', function(assert) {
     var template = new creme.utils.Template('', {tag:12});
     equal('', template.render());
 
@@ -60,7 +60,7 @@ test('creme.utils.Template (render, empty pattern)', function() {
     equal(null, template.render());
 });
 
-test('creme.utils.Template (render, dict)', function() {
+QUnit.test('creme.utils.Template (render, dict)', function(assert) {
     var data = {tag:12,
                 tag2:'string',
                 last_tag:{toString:function() {return 'yo';}}};
@@ -81,7 +81,7 @@ test('creme.utils.Template (render, dict)', function() {
     equal('12 ${tag2} yo', template.render({tag3: 'extra_string3'}));
 });
 
-test('creme.utils.Template (render, array)', function() {
+QUnit.test('creme.utils.Template (render, array)', function(assert) {
     var data = [12, 13, 14];
 
     var template = new creme.utils.Template('this is a template', data);
@@ -100,7 +100,7 @@ test('creme.utils.Template (render, array)', function() {
     equal('12 13 ${3}', template.render());
 });
 
-test('creme.utils.Template (render, function)', function() {
+QUnit.test('creme.utils.Template (render, function)', function(assert) {
     var data = function(key) {return key + "_rendered";};
     var extra = function(key) {return key + "_extra";};
 
@@ -122,7 +122,7 @@ test('creme.utils.Template (render, function)', function() {
     equal('tag_extra tag2_extra last_tag_extra last_tag2_extra', template.render(extra));
 });
 
-test('creme.utils.Template (render, object attribute)', function() {
+QUnit.test('creme.utils.Template (render, object attribute)', function(assert) {
     var data = {
          firstname: 'John',
          lastname: 'Doe',
@@ -144,7 +144,7 @@ test('creme.utils.Template (render, object attribute)', function() {
     equal('Mr John Doe, living at 13, rue des plantes en pot, 45007 Melun Sud', template.render());
 });
 
-test('creme.utils.Template (render, empty object attribute)', function() {
+QUnit.test('creme.utils.Template (render, empty object attribute)', function(assert) {
     var data = {
          firstname: 'John',
          lastname: 'Doe',
@@ -163,7 +163,7 @@ test('creme.utils.Template (render, empty object attribute)', function() {
     equal('Mr John Doe, living at 13, rue des plantes en pot, ${address.city.postalcode} ${address.city.name}', template.render());
 });
 
-test('creme.utils.Template (render, object getters)', function() {
+QUnit.test('creme.utils.Template (render, object getters)', function(assert) {
     var data = {
         firstname: function() {return 'John';},
         lastname: function() {return 'Doe';},
@@ -186,7 +186,7 @@ test('creme.utils.Template (render, object getters)', function() {
     equal('Mr John Doe (JohnDoe), living at 38, rue des plantes en pot, 45007 Melun Sud', template.render());
 });
 
-test('creme.utils.templatize (none)', function() {
+QUnit.test('creme.utils.templatize (none)', function(assert) {
     var template = creme.utils.templatize();
 
     equal(undefined, template.pattern());
@@ -200,7 +200,7 @@ test('creme.utils.templatize (none)', function() {
     equal(null, template.render());
 });
 
-test('creme.utils.templatize (string)', function() {
+QUnit.test('creme.utils.templatize (string)', function(assert) {
     var template = creme.utils.templatize('template ${tag}');
 
     equal('template ${tag}', template.pattern());
@@ -214,7 +214,7 @@ test('creme.utils.templatize (string)', function() {
     equal('template tag1', template.render());
 });
 
-test('creme.utils.templatize (template, context)', function() {
+QUnit.test('creme.utils.templatize (template, context)', function(assert) {
     var source = new creme.utils.Template('template ${tag}');
     var template = creme.utils.templatize(source);
 

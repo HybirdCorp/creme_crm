@@ -28,7 +28,7 @@ $.extend(MockObjectB.prototype, {
     'add': function(a) {return (a + this.b) * this.c;}
 });
 
-test('fallbacks.Object.isNone', function() {
+QUnit.test('fallbacks.Object.isNone', function() {
     equal(typeof Object.isNone, 'function');
 
     equal(Object.isNone(undefined), true);
@@ -39,7 +39,7 @@ test('fallbacks.Object.isNone', function() {
     equal(Object.isNone(''), false);
 });
 
-test('fallbacks.Object.isEmpty', function() {
+QUnit.test('fallbacks.Object.isEmpty', function() {
     equal(typeof Object.isEmpty, 'function');
 
     equal(Object.isEmpty(undefined), true);
@@ -55,7 +55,7 @@ test('fallbacks.Object.isEmpty', function() {
     equal(Object.isEmpty('a'), false);
 });
 
-test('fallbacks.Object.isType (undefined)', function() {
+QUnit.test('fallbacks.Object.isType (undefined)', function() {
     equal(typeof Object.isType, 'function');
 
     equal(Object.isType(undefined, 'undefined'), true);
@@ -67,7 +67,7 @@ test('fallbacks.Object.isType (undefined)', function() {
     equal(Object.isType(undefined, 'string'),    false);
 });
 
-test('fallbacks.Object.isType (null)', function() {
+QUnit.test('fallbacks.Object.isType (null)', function() {
     equal(Object.isType(null, 'undefined'), false);
     equal(Object.isType(null, 'null'),      false);
     equal(Object.isType(null, 'function'),  false);
@@ -77,7 +77,7 @@ test('fallbacks.Object.isType (null)', function() {
     equal(Object.isType(null, 'string'),    false);
 });
 
-test('fallbacks.Object.isType (string)', function() {
+QUnit.test('fallbacks.Object.isType (string)', function() {
     equal(Object.isType('a', 'undefined'), false);
     equal(Object.isType('a', 'null'),      false);
     equal(Object.isType('a', 'function'),  false);
@@ -87,7 +87,7 @@ test('fallbacks.Object.isType (string)', function() {
     equal(Object.isType('a', 'string'),    true);
 });
 
-test('fallbacks.Object.isType (numeric)', function() {
+QUnit.test('fallbacks.Object.isType (numeric)', function() {
     equal(Object.isType(12, 'undefined'), false);
     equal(Object.isType(12, 'null'),      false);
     equal(Object.isType(12, 'function'),  false);
@@ -105,7 +105,7 @@ test('fallbacks.Object.isType (numeric)', function() {
     equal(Object.isType(12.55, 'string'),    false);
 });
 
-test('fallbacks.Object.isType (boolean)', function() {
+QUnit.test('fallbacks.Object.isType (boolean)', function() {
     equal(Object.isType(true, 'undefined'), false);
     equal(Object.isType(true, 'null'),      false);
     equal(Object.isType(true, 'function'),  false);
@@ -115,7 +115,7 @@ test('fallbacks.Object.isType (boolean)', function() {
     equal(Object.isType(true, 'string'),    false);
 });
 
-test('fallbacks.Object.isType (function)', function() {
+QUnit.test('fallbacks.Object.isType (function)', function() {
     equal(Object.isType(function() {}, 'undefined'), false);
     equal(Object.isType(function() {}, 'null'),      false);
     equal(Object.isType(function() {}, 'function'),  true);
@@ -133,7 +133,7 @@ test('fallbacks.Object.isType (function)', function() {
     equal(Object.isFunc('a', 'string'),   false);
 });
 
-test('fallbacks.Object.keys', function() {
+QUnit.test('fallbacks.Object.keys', function() {
     equal(typeof Object.keys, 'function');
     equal({}.keys, undefined);
 
@@ -142,7 +142,7 @@ test('fallbacks.Object.keys', function() {
     deepEqual(['a', 'b', 'c', 'd', 'z'], Object.keys({a:1, b:2, c:5, d:7, z:8}));
 });
 
-test('fallbacks.Object.values', function() {
+QUnit.test('fallbacks.Object.values', function() {
     equal(typeof Object.values, 'function');
     equal({}.values, undefined);
 
@@ -152,7 +152,7 @@ test('fallbacks.Object.values', function() {
 });
 
 
-test('fallbacks.Object.entries', function() {
+QUnit.test('fallbacks.Object.entries', function() {
     equal(typeof Object.entries, 'function');
     equal({}.entries, undefined);
 
@@ -161,7 +161,7 @@ test('fallbacks.Object.entries', function() {
     deepEqual([['a', 1], ['b', 2], ['c', 5], ['d', 7], ['z', 8]], Object.entries({a:1, b:2, c:5, d:7, z:8}));
 });
 
-test('fallbacks.Object.proxy (no context)', function() {
+QUnit.test('fallbacks.Object.proxy (no context)', function() {
     equal(typeof Object.proxy, 'function');
 
     var a = new MockObjectA(5);
@@ -180,7 +180,7 @@ test('fallbacks.Object.proxy (no context)', function() {
     equal(proxy.mult(2), 2 * 5);
 });
 
-test('fallbacks.Object.proxy (context)', function() {
+QUnit.test('fallbacks.Object.proxy (context)', function() {
     equal(typeof Object.proxy, 'function');
 
     var a = new MockObjectA(5);
@@ -199,7 +199,7 @@ test('fallbacks.Object.proxy (context)', function() {
     equal(proxy.mult(2), 2 * 12);
 });
 
-test('fallbacks.Object.proxy (filter)', function() {
+QUnit.test('fallbacks.Object.proxy (filter)', function() {
     equal(typeof Object.proxy, 'function');
 
     var a = new MockObjectA(5);
@@ -218,7 +218,7 @@ test('fallbacks.Object.proxy (filter)', function() {
     equal(proxy.mult, undefined);
 });
 
-test('fallbacks.Object.proxy (filter, context)', function() {
+QUnit.test('fallbacks.Object.proxy (filter, context)', function() {
     equal(typeof Object.proxy, 'function');
 
     var a = new MockObjectA(5);
@@ -237,7 +237,7 @@ test('fallbacks.Object.proxy (filter, context)', function() {
     equal(proxy.mult, undefined);
 });
 
-test('fallbacks.Object.proxy (arguments)', function() {
+QUnit.test('fallbacks.Object.proxy (arguments)', function() {
     equal(typeof Object.proxy, 'function');
 
     var a = new MockObjectA(5);
@@ -253,7 +253,7 @@ test('fallbacks.Object.proxy (arguments)', function() {
     equal(proxy.mult(2), (2 * 0.8) * 5);
 });
 
-test('fallbacks.Object.proxy (arguments, context)', function() {
+QUnit.test('fallbacks.Object.proxy (arguments, context)', function() {
     equal(typeof Object.proxy, 'function');
 
     var a = new MockObjectA(5);
@@ -269,7 +269,7 @@ test('fallbacks.Object.proxy (arguments, context)', function() {
 });
 
 
-test('fallbacks.Object.proxy (arguments, filter)', function() {
+QUnit.test('fallbacks.Object.proxy (arguments, filter)', function() {
     equal(typeof Object.proxy, 'function');
 
     var a = new MockObjectA(5);
@@ -287,7 +287,7 @@ test('fallbacks.Object.proxy (arguments, filter)', function() {
     equal(proxy.mult, undefined);
 });
 
-test('fallbacks.Object.proxy (arguments, filter, context)', function() {
+QUnit.test('fallbacks.Object.proxy (arguments, filter, context)', function() {
     equal(typeof Object.proxy, 'function');
 
     var a = new MockObjectA(5);
@@ -305,7 +305,7 @@ test('fallbacks.Object.proxy (arguments, filter, context)', function() {
     equal(proxy.mult, undefined);
 });
 
-test('fallbacks.Object.getPrototypeOf (object)', function() {
+QUnit.test('fallbacks.Object.getPrototypeOf (object)', function() {
     equal(typeof Object.getPrototypeOf, 'function');
 
     var a = new MockObjectA(5);
@@ -318,7 +318,7 @@ test('fallbacks.Object.getPrototypeOf (object)', function() {
     equal(Object.getPrototypeOf(b).constructor, MockObjectB, 'b.constructor');
 });
 
-test('fallbacks.Object.isString', function() {
+QUnit.test('fallbacks.Object.isString', function() {
     equal(typeof Object.isString, 'function');
 
     equal(Object.isString(''), true);
@@ -329,7 +329,7 @@ test('fallbacks.Object.isString', function() {
     equal(Object.isString({}), false);
 });
 
-test('fallbacks.Array.indexOf', function() {
+QUnit.test('fallbacks.Array.indexOf', function() {
     equal(typeof Array.prototype.indexOf, 'function');
     equal(typeof [].indexOf, 'function');
 
@@ -342,7 +342,7 @@ test('fallbacks.Array.indexOf', function() {
     equal([12, 5, 8, 5, 44].indexOf(12, 1), -1);
 });
 
-test('fallbacks.Array.slice', function() {
+QUnit.test('fallbacks.Array.slice', function() {
     equal(typeof Array.prototype.slice, 'function');
     equal(typeof [].slice, 'function');
 
@@ -357,7 +357,7 @@ test('fallbacks.Array.slice', function() {
     deepEqual([1, 2, 1, 4, 5, 4].slice(1, 4), [2, 1, 4]);
 });
 
-test('fallbacks.Array.map', function() {
+QUnit.test('fallbacks.Array.map', function() {
     equal(typeof Array.prototype.map, 'function');
     equal(typeof [].map, 'function');
 
@@ -366,7 +366,7 @@ test('fallbacks.Array.map', function() {
                                                 }), ["MY", "NAME", "IS", "HARRY"]);
 });
 
-test('fallbacks.Array.forEach', function() {
+QUnit.test('fallbacks.Array.forEach', function() {
     equal(typeof Array.prototype.forEach, 'function');
     equal(typeof [].forEach, 'function');
 
@@ -376,7 +376,7 @@ test('fallbacks.Array.forEach', function() {
     equal(value, 'ThisisaforEachtest');
 });
 
-test('fallbacks.Array.isArray', function() {
+QUnit.test('fallbacks.Array.isArray', function() {
     equal(typeof Array.isArray, 'function');
     equal(Array.isArray([]), true);
     equal(Array.isArray([12, 5, 5]), true);
@@ -389,7 +389,7 @@ test('fallbacks.Array.isArray', function() {
     equal(Array.isArray({'test': 1}), false);
 });
 
-test('fallbacks.Array.copy', function() {
+QUnit.test('fallbacks.Array.copy', function() {
     equal(typeof Array.copy, 'function');
 
     deepEqual([], Array.copy([]));
@@ -403,7 +403,7 @@ test('fallbacks.Array.copy', function() {
     deepEqual(['b', 'c'], Array.copy(['a', 'b', 'c'], 1, 10));
 });
 
-test('fallbacks.Array.copy (arguments)', function() {
+QUnit.test('fallbacks.Array.copy (arguments)', function() {
     var f = function() {
         return Array.copy(arguments);
     };
@@ -522,27 +522,27 @@ if (jQuery === undefined)
     });
 }
 
-test('fallbacks.HTMLDocument', function() {
+QUnit.test('fallbacks.HTMLDocument', function() {
     notEqual(typeof HTMLDocument, 'undefined');
 });
 
-test('fallbacks.HTMLDocument.createElementNS', function() {
+QUnit.test('fallbacks.HTMLDocument.createElementNS', function() {
     equal(typeof HTMLDocument.prototype.createElementNS, 'function');
 });
 
-test('fallbacks.CSSStyleDeclaration', function() {
+QUnit.test('fallbacks.CSSStyleDeclaration', function() {
     notEqual(typeof CSSStyleDeclaration, 'undefined');
 });
 
-test('fallbacks.Event', function() {
+QUnit.test('fallbacks.Event', function() {
     notEqual(typeof Event, 'undefined');
 });
 
-test('fallbacks.Event.preventDefault', function() {
+QUnit.test('fallbacks.Event.preventDefault', function() {
     equal(typeof Event.prototype.preventDefault, 'function');
 });
 
-test('fallbacks.String.trim', function() {
+QUnit.test('fallbacks.String.trim', function() {
     equal('', ''.trim());
     equal('', '   '.trim());
     equal('', '\t\t'.trim());
@@ -555,7 +555,7 @@ test('fallbacks.String.trim', function() {
     equal('abc', '\tabc\t'.trim());
 });
 
-test('fallbacks.String.ltrim', function() {
+QUnit.test('fallbacks.String.ltrim', function() {
     equal('', ''.ltrim());
     equal('', '   '.ltrim());
     equal('', '\t\t'.ltrim());
@@ -568,7 +568,7 @@ test('fallbacks.String.ltrim', function() {
     equal('abc\t', '\tabc\t'.ltrim());
 });
 
-test('fallbacks.String.rtrim', function() {
+QUnit.test('fallbacks.String.rtrim', function() {
     equal('', ''.rtrim());
     equal('', '   '.rtrim());
     equal('', '\t\t'.rtrim());
@@ -581,7 +581,7 @@ test('fallbacks.String.rtrim', function() {
     equal('\tabc', '\tabc\t'.rtrim());
 });
 
-test('fallbacks.String.startsWith', function() {
+QUnit.test('fallbacks.String.startsWith', function() {
     equal(''.startsWith(''), true);
     equal(''.startsWith('a'), false);
 
@@ -594,7 +594,7 @@ test('fallbacks.String.startsWith', function() {
     equal('dcba'.startsWith('abcd'), false);
 });
 
-test('fallbacks.String.endsWith', function() {
+QUnit.test('fallbacks.String.endsWith', function() {
     equal(''.endsWith(''), true);
     equal(''.endsWith('a'), false);
 
@@ -607,7 +607,7 @@ test('fallbacks.String.endsWith', function() {
     equal('dcba'.startsWith('abcd'), false);
 });
 
-test('fallbacks.String.format', function() {
+QUnit.test('fallbacks.String.format', function() {
     equal('12',    '%d'.format(12))
     equal('00012', '%05d'.format(12))
     equal('   12', '%5d'.format(12))
@@ -625,14 +625,14 @@ test('fallbacks.String.format', function() {
     equal('12.46',     '%-.2f'.format(12.457))
 });
 
-test('fallbacks.String.capitalize', function() {
+QUnit.test('fallbacks.String.capitalize', function() {
     equal('', ''.capitalize());
     equal('A', 'A'.capitalize());
     equal('A', 'a'.capitalize());
     equal('Abcd', 'abcd'.capitalize());
 });
 
-test('fallbacks.String.isDigit', function() {
+QUnit.test('fallbacks.String.isDigit', function() {
     equal(''.isDigit(), false);
     equal('abcd'.isDigit(), false);
     equal('0'.isDigit(), true);
@@ -642,7 +642,7 @@ test('fallbacks.String.isDigit', function() {
     equal('+52400'.isDigit(), true);
 });
 
-test('fallbacks.String.isAlpha', function() {
+QUnit.test('fallbacks.String.isAlpha', function() {
     equal(''.isAlpha(), false);
     equal('0'.isAlpha(), false);
     equal('01124'.isAlpha(), false);
@@ -650,7 +650,7 @@ test('fallbacks.String.isAlpha', function() {
     equal('éõô'.isAlpha(), false);
 });
 
-test('fallbacks.String.isSpace', function() {
+QUnit.test('fallbacks.String.isSpace', function() {
     equal(''.isSpace(), false);
     equal('0'.isSpace(), false);
     equal('abcd'.isSpace(), false);
@@ -660,13 +660,13 @@ test('fallbacks.String.isSpace', function() {
     equal('\t   \t'.isSpace(), true);
 });
 
-test('fallbacks.String.removeDiacritics', function() {
+QUnit.test('fallbacks.String.removeDiacritics', function() {
     equal(''.removeDiacritics(), '');
     equal('Éé'.removeDiacritics(), 'Ee');
     equal('åkà ! çétÔwîÂrg.'.removeDiacritics(), 'aka ! cetOwiArg.');
 });
 
-test('fallbacks.String.decodeHTMLEntities', function() {
+QUnit.test('fallbacks.String.decodeHTMLEntities', function() {
     equal(''.decodeHTMLEntities(), '');
     equal('&#x000C8;&&#x000C9;;'.decodeHTMLEntities(), 'È&É;');
     equal('&#200;&&#201;;'.decodeHTMLEntities(),     'È&É;');

@@ -8,7 +8,7 @@ function assertHTMLEqual(expected, value) {
     deepEqual($(expected).html(), $(value).html());
 }
 
-test('creme.widget.parseopt (no default options)', function() {
+QUnit.test('creme.widget.parseopt (no default options)', function(assert) {
     expect(3);
     var options = creme.widget.parseopt($('<div/>'));
     deepEqual(options, {});
@@ -20,7 +20,7 @@ test('creme.widget.parseopt (no default options)', function() {
     deepEqual(options, {});
 });
 
-test('creme.widget.parseopt (default options)', function() {
+QUnit.test('creme.widget.parseopt (default options)', function(assert) {
     var options = creme.widget.parseopt($('<div/>'), {attr1:'default1', attr2:'default2'});
     deepEqual(options, {attr1:'default1', attr2:'default2'});
 
@@ -31,7 +31,7 @@ test('creme.widget.parseopt (default options)', function() {
     deepEqual(options, {attr1:'val1', attr2:'default2'});
 });
 
-test('creme.widget.parseattr (no exclusion)', function() {
+QUnit.test('creme.widget.parseattr (no exclusion)', function(assert) {
     var attrs = creme.widget.parseattr($('<div/>'))
     deepEqual(attrs, {});
 
@@ -42,7 +42,7 @@ test('creme.widget.parseattr (no exclusion)', function() {
     deepEqual(attrs, {attr1:'val1', attr2:'val2', attr3:'val3', widget:"creme.widget"});
 });
 
-test('creme.widget.parseattr (with exclusion)', function() {
+QUnit.test('creme.widget.parseattr (with exclusion)', function(assert) {
     var attrs = creme.widget.parseattr($('<div/>'), {'attr2':''});
     deepEqual(attrs, {});
 
@@ -53,7 +53,7 @@ test('creme.widget.parseattr (with exclusion)', function() {
     deepEqual(attrs, {attr2:'val2'});
 });
 
-test('creme.widget.template (template:no keys)', function() {
+QUnit.test('creme.widget.template (template:no keys)', function(assert) {
     var result = creme.widget.template('');
     equal(result, '');
 
@@ -67,7 +67,7 @@ test('creme.widget.template (template:no keys)', function() {
     equal(result, 'template without key');
 });
 
-test('creme.widget.template (template:keys, values: in template)', function() {
+QUnit.test('creme.widget.template (template:keys, values: in template)', function(assert) {
     var result = creme.widget.template('template with key1=${key1} and key2=${key2}, ${key1}');
     equal(result, 'template with key1=${key1} and key2=${key2}, ${key1}');
 
@@ -84,7 +84,7 @@ test('creme.widget.template (template:keys, values: in template)', function() {
     equal(result, 'template with key1=value1 and key2=${key2}, value1');
 });
 
-test('creme.widget.template (template:keys, values: not in template)', function() {
+QUnit.test('creme.widget.template (template:keys, values: not in template)', function(assert) {
     var result = creme.widget.template('template with key1=${key1} and key2=${key2}, ${key1}', {key3:'value3'});
     equal(result, 'template with key1=${key1} and key2=${key2}, ${key1}');
 
@@ -92,7 +92,7 @@ test('creme.widget.template (template:keys, values: not in template)', function(
     equal(result, 'template with key1=value1 and key2=${key2}, value1');
 });
 
-test('creme.widget.parseval (parser: json, value: none)', function() {
+QUnit.test('creme.widget.parseval (parser: json, value: none)', function(assert) {
     var result = creme.widget.parseval(undefined, creme.ajax.json.parse)
     equal(result, undefined);
 
@@ -106,7 +106,7 @@ test('creme.widget.parseval (parser: json, value: none)', function() {
     equal(result, null);
 });
 
-test('creme.widget.parseval (parser: json, value: object)', function() {
+QUnit.test('creme.widget.parseval (parser: json, value: object)', function(assert) {
     var result = creme.widget.parseval({'a':2, 'b':3}, creme.ajax.json.parse)
     deepEqual(result, {'a':2, 'b':3});
 
@@ -117,7 +117,7 @@ test('creme.widget.parseval (parser: json, value: object)', function() {
     deepEqual(result, 15);
 });
 
-test('creme.widget.parseval (parser: json, value: invalid json)', function() {
+QUnit.test('creme.widget.parseval (parser: json, value: invalid json)', function(assert) {
     var result = creme.widget.parseval('{"a":2, "b":3', creme.ajax.json.parse);
     equal(result, null);
 
@@ -131,7 +131,7 @@ test('creme.widget.parseval (parser: json, value: invalid json)', function() {
     equal(result, null);
 });
 
-test('creme.widget.parseval (parser: json, value: valid json)', function() {
+QUnit.test('creme.widget.parseval (parser: json, value: valid json)', function(assert) {
     var result = creme.widget.parseval('{"a":2, "b":3}', creme.ajax.json.parse);
     deepEqual(result, {'a':2, 'b':3});
 
@@ -145,7 +145,7 @@ test('creme.widget.parseval (parser: json, value: valid json)', function() {
     equal(result, 15335);
 });
 
-test('creme.widget.parseval (parser: none, value: invalid json)', function() {
+QUnit.test('creme.widget.parseval (parser: none, value: invalid json)', function(assert) {
     var result = creme.widget.parseval('{"a":2, "b":3}');
     equal(result, '{"a":2, "b":3}');
 
@@ -153,7 +153,7 @@ test('creme.widget.parseval (parser: none, value: invalid json)', function() {
     equal(result, '["a", 2');
 });
 
-test('creme.widget.cleanval (parser: default, value: none)', function() {
+QUnit.test('creme.widget.cleanval (parser: default, value: none)', function(assert) {
     var result = creme.widget.cleanval(undefined);
     equal(result, undefined);
 
@@ -161,7 +161,7 @@ test('creme.widget.cleanval (parser: default, value: none)', function() {
     equal(result, null);
 });
 
-test('creme.widget.cleanval (parser: default, value: none, default value)', function() {
+QUnit.test('creme.widget.cleanval (parser: default, value: none, default value)', function(assert) {
     var result = creme.widget.cleanval(undefined, 'default');
     equal(result, 'default');
 
@@ -169,7 +169,7 @@ test('creme.widget.cleanval (parser: default, value: none, default value)', func
     equal(result, 'default');
 });
 
-test('creme.widget.cleanval (parser: none (json), value: object)', function() {
+QUnit.test('creme.widget.cleanval (parser: none (json), value: object)', function(assert) {
     var result = creme.widget.cleanval({'a':2, 'b':3})
     deepEqual(result, {'a':2, 'b':3});
 
@@ -177,7 +177,7 @@ test('creme.widget.cleanval (parser: none (json), value: object)', function() {
     deepEqual(result, ['a', 2, 'b', 3]);
 });
 
-test('creme.widget.cleanval (parser: none (json), value: valid json)', function() {
+QUnit.test('creme.widget.cleanval (parser: none (json), value: valid json)', function(assert) {
     var result = creme.widget.cleanval('{"a":2, "b":3}');
     deepEqual(result, {'a':2, 'b':3});
 
@@ -191,7 +191,7 @@ test('creme.widget.cleanval (parser: none (json), value: valid json)', function(
     equal(result, 15335);
 });
 
-test('creme.widget.cleanval (parser: none (json), value: invalid json)', function() {
+QUnit.test('creme.widget.cleanval (parser: none (json), value: invalid json)', function(assert) {
     var result = creme.widget.cleanval('{"a":2, "b":3');
     equal(result, null);
 
@@ -205,7 +205,7 @@ test('creme.widget.cleanval (parser: none (json), value: invalid json)', functio
     equal(result, null);
 });
 
-test('creme.widget.cleanval (parser: none (json), value: invalid json, default value)', function() {
+QUnit.test('creme.widget.cleanval (parser: none (json), value: invalid json, default value)', function(assert) {
     var result = creme.widget.cleanval('{"a":2, "b":3', {"a":15});
     deepEqual(result, {"a":15});
 
@@ -219,7 +219,7 @@ test('creme.widget.cleanval (parser: none (json), value: invalid json, default v
     equal(result, 0);
 });
 
-test('creme.object.invoke', function() {
+QUnit.test('creme.object.invoke', function(assert) {
     equal(undefined, creme.object.invoke());
     equal(undefined, creme.object.invoke(undefined));
     equal(undefined, creme.object.invoke(null));
@@ -233,7 +233,7 @@ test('creme.object.invoke', function() {
     deepEqual([5.2, 12.5], creme.object.invoke(function(a, b) {return [b, a];}, 12.5, 5.2));
 });
 
-test('creme.object.delegate', function() {
+QUnit.test('creme.object.delegate', function(assert) {
     equal(undefined, creme.object.delegate());
     equal(undefined, creme.object.delegate(undefined));
     equal(undefined, creme.object.delegate(null));
@@ -251,7 +251,7 @@ test('creme.object.delegate', function() {
     equal(7, creme.object.delegate(instance, 'add', 3, 4));
 });
 
-test('creme.object.isnone', function() {
+QUnit.test('creme.object.isnone', function(assert) {
     equal(creme.object.isnone(undefined), true);
     equal(creme.object.isnone(null), true);
     equal(creme.object.isnone({}), false);
@@ -260,7 +260,7 @@ test('creme.object.isnone', function() {
     equal(creme.object.isnone(''), false);
 });
 
-test('creme.object.isempty', function() {
+QUnit.test('creme.object.isempty', function(assert) {
     equal(creme.object.isempty(undefined), true);
     equal(creme.object.isempty(null), true);
     equal(creme.object.isempty({}), true);
@@ -273,7 +273,7 @@ test('creme.object.isempty', function() {
     equal(creme.object.isempty('a'), false);
 });
 
-test('creme.object.deferred (finished)', function() {
+QUnit.test('creme.object.deferred (finished)', function(assert) {
     var element = $('<div/>');
     var result = [];
 
@@ -296,7 +296,7 @@ test('creme.object.deferred (finished)', function() {
     }, 600);
 });
 
-test('creme.object.deferred (canceled)', function() {
+QUnit.test('creme.object.deferred (canceled)', function(assert) {
     var element = $('<div/>');
     var result = [];
 
@@ -322,7 +322,7 @@ test('creme.object.deferred (canceled)', function() {
     }, 300);
 });
 
-test('creme.object.deferred (restarted)', function() {
+QUnit.test('creme.object.deferred (restarted)', function(assert) {
     var element = $('<div/>');
     var result = [];
 
@@ -354,18 +354,18 @@ test('creme.object.deferred (restarted)', function() {
     }, 700);
 });
 
-test('creme.object.build_callback (invalid script)', function() {
-    raises(function() {creme.object.build_callback('...');});
-    raises(function() {creme.object.build_callback('{', ['arg1', 'arg2']);});
+QUnit.test('creme.object.build_callback (invalid script)', function(assert) {
+    QUnit.assert.raises(function() {creme.object.build_callback('...');});
+    QUnit.assert.raises(function() {creme.object.build_callback('{', ['arg1', 'arg2']);});
 });
 
-test('creme.object.build_callback (function)', function() {
+QUnit.test('creme.object.build_callback (function)', function(assert) {
     var cb = function() {return 12};
     equal(cb, creme.object.build_callback(cb))
     equal(cb, creme.object.build_callback(cb, ['arg1', 'arg2']));
 });
 
-test('creme.object.build_callback (valid script, no parameter)', function() {
+QUnit.test('creme.object.build_callback (valid script, no parameter)', function(assert) {
     var cb = creme.object.build_callback('12');
     equal(typeof cb, 'function');
     equal(cb(), 12);
@@ -375,7 +375,7 @@ test('creme.object.build_callback (valid script, no parameter)', function() {
     equal(cb(), 15);
 });
 
-test('creme.object.build_callback (valid script, parameters)', function() {
+QUnit.test('creme.object.build_callback (valid script, parameters)', function(assert) {
     var cb = creme.object.build_callback('arg1 * arg2', ['arg1', 'arg2']);
     equal(typeof cb, 'function');
     equal(cb(0, 0), 0);

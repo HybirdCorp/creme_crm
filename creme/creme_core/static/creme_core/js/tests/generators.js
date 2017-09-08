@@ -7,7 +7,7 @@ QUnit.module("creme.generators.js", {
 });
 
 
-test('generators.ArrayTools.get', function() {
+QUnit.test('generators.ArrayTools.get', function(assert) {
     equal(ArrayTools.get([12, 3, 8, 5, 44], 0), 12);
     equal(ArrayTools.get([12, 3, 8, 5, 44], 3), 5);
     equal(ArrayTools.get([12, 3, 8, 5, 44], 4), 44);
@@ -23,7 +23,7 @@ test('generators.ArrayTools.get', function() {
     equal(ArrayTools.get([12, 3, 8, 5, 44], -6, 404), 404);
 });
 
-test('generators.ArrayTools.set', function() {
+QUnit.test('generators.ArrayTools.set', function(assert) {
     deepEqual(ArrayTools.set([12, 3, 8, 5, 44], 0, "a"), ["a", 3, 8,   5,  44]);
     deepEqual(ArrayTools.set([12, 3, 8, 5, 44], 3, "a"), [ 12, 3, 8, "a",  44]);
     deepEqual(ArrayTools.set([12, 3, 8, 5, 44], 4, "a"), [ 12, 3, 8,   5, "a"]);
@@ -41,7 +41,7 @@ test('generators.ArrayTools.set', function() {
     deepEqual(ArrayTools.set([12, 3, 8, 5, 44], -10, "a"), ["a", none, none, none, none,   12,    3,    8,    5,  44]);
 });
 
-test('generators.ArrayTools.remove', function() {
+QUnit.test('generators.ArrayTools.remove', function(assert) {
     var array = [12, 3, 8, 5, 44];
     equal(ArrayTools.remove(array, 0), 12);
     deepEqual(array, [3,  8, 5, 44]);
@@ -67,7 +67,7 @@ test('generators.ArrayTools.remove', function() {
     deepEqual(array, [3,  8, 5, 44]);
 });
 
-test('generators.ArrayTools.sum', function() {
+QUnit.test('generators.ArrayTools.sum', function(assert) {
     equal(0, ArrayTools.sum([]));
 
     equal(10, ArrayTools.sum([1, 2, 3, 4]));
@@ -76,7 +76,7 @@ test('generators.ArrayTools.sum', function() {
     equal(7, ArrayTools.sum([1, 2, "a", 4]));
 });
 
-test('generators.ArrayTools.swap', function() {
+QUnit.test('generators.ArrayTools.swap', function(assert) {
     // same index
     deepEqual(ArrayTools.swap([12, 3, 8, 5, 44], 0, 0), [12, 3, 8, 5, 44]);
     deepEqual(ArrayTools.swap([12, 3, 8, 5, 44], 2, 2), [12, 3, 8, 5, 44]);

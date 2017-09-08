@@ -37,7 +37,7 @@ QUnit.module("creme.widgets.pselect.js", {
 });
 
 
-test('creme.widgets.pselect.create (empty, no selector)', function() {
+QUnit.test('creme.widgets.pselect.create (empty, no selector)', function(assert) {
     var element = mock_pselect_create();
     var widget = creme.widget.create(element);
 
@@ -52,7 +52,7 @@ test('creme.widgets.pselect.create (empty, no selector)', function() {
     equal(widget.selector(), undefined);
 });
 
-test('creme.widgets.pselect.create (empty, single selector)', function() {
+QUnit.test('creme.widgets.pselect.create (empty, single selector)', function(assert) {
     var element = mock_pselect_create();
     var text = mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {}, true);
 
@@ -70,7 +70,7 @@ test('creme.widgets.pselect.create (empty, single selector)', function() {
     equal(widget.selector(), undefined, 'selector');
 });
 
-test('creme.widgets.pselect.create (empty, default single selector)', function() {
+QUnit.test('creme.widgets.pselect.create (empty, default single selector)', function(assert) {
     var element = mock_pselect_create();
     var text = mock_pselect_add_selector(element, '*', $('<input type="text"/>'), 'ui-creme-dinput', {}, true);
 
@@ -89,7 +89,7 @@ test('creme.widgets.pselect.create (empty, default single selector)', function()
     ok(widget.selector().element.is('input[type="text"].ui-creme-dinput'));
 });
 
-test('creme.widgets.pselect.create (empty, multiple selector)', function() {
+QUnit.test('creme.widgets.pselect.create (empty, multiple selector)', function(assert) {
     var element = mock_pselect_create();
     var text = mock_pselect_add_selector(element, '*', $('<input type="text"/>'), 'ui-creme-dinput', {});
     var password = mock_pselect_add_selector(element, 'password', $('<input type="password"/>'), 'ui-creme-dinput', {});
@@ -116,7 +116,7 @@ test('creme.widgets.pselect.create (empty, multiple selector)', function() {
     ok(widget.selector().element.is('input[type="text"].ui-creme-dinput'));
 });
 
-test('creme.widgets.pselect.create (empty, multiple selector, no default)', function() {
+QUnit.test('creme.widgets.pselect.create (empty, multiple selector, no default)', function(assert) {
     var element = mock_pselect_create();
     var text = mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {});
     var password = mock_pselect_add_selector(element, 'password', $('<input type="password"/>'), 'ui-creme-dinput', {});
@@ -141,7 +141,7 @@ test('creme.widgets.pselect.create (empty, multiple selector, no default)', func
     equal(widget.selector(), undefined);
 });
 
-test('creme.widgets.pselect.val (unknown key, default selector)', function() {
+QUnit.test('creme.widgets.pselect.val (unknown key, default selector)', function(assert) {
     var element = mock_pselect_create('unknown');
     var text = mock_pselect_add_selector(element, '*', $('<input type="text"/>'), 'ui-creme-dinput', {});
 
@@ -153,7 +153,7 @@ test('creme.widgets.pselect.val (unknown key, default selector)', function() {
     assertSelector(widget, 'unknown', 12.5, '.ui-creme-dinput[type="text"]');
 });
 
-test('creme.widgets.pselect.val (key, no selector)', function() {
+QUnit.test('creme.widgets.pselect.val (key, no selector)', function(assert) {
     var element = mock_pselect_create('text');
     var widget = creme.widget.create(element);
 
@@ -163,7 +163,7 @@ test('creme.widgets.pselect.val (key, no selector)', function() {
     assertSelector(widget, 'text', null);
 });
 
-test('creme.widgets.pselect.val (selector)', function() {
+QUnit.test('creme.widgets.pselect.val (selector)', function(assert) {
     var element = mock_pselect_create('text');
     var text = mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {});
 
@@ -174,7 +174,7 @@ test('creme.widgets.pselect.val (selector)', function() {
     assertSelector(widget, 'text', 12.5, '.ui-creme-dinput[type="text"]');
 });
 
-test('creme.widgets.pselect.val (multiple selector)', function() {
+QUnit.test('creme.widgets.pselect.val (multiple selector)', function(assert) {
     var element = mock_pselect_create('password');
     var text = mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {});
     var password = mock_pselect_add_selector(element, 'password', $('<input type="password"/>'), 'ui-creme-dinput', {});
@@ -185,7 +185,7 @@ test('creme.widgets.pselect.val (multiple selector)', function() {
     assertSelector(widget, 'password', 'toor', '.ui-creme-dinput[type="password"]');
 });
 
-test('creme.widgets.pselect.reload (unknown type, default selector)', function() {
+QUnit.test('creme.widgets.pselect.reload (unknown type, default selector)', function(assert) {
     var element = mock_pselect_create('${operator}');
     var text = mock_pselect_add_selector(element, '*', $('<input type="text"/>'), 'ui-creme-dinput', {});
 
@@ -201,7 +201,7 @@ test('creme.widgets.pselect.reload (unknown type, default selector)', function()
     assertSelector(widget, 'boolean', 12.5, '.ui-creme-dinput[type="text"]');
 });
 
-test('creme.widgets.pselect.reload (any type, default selector, template)', function() {
+QUnit.test('creme.widgets.pselect.reload (any type, default selector, template)', function(assert) {
     var element = mock_pselect_create('${operator}');
     var text = mock_pselect_add_selector(element, '*', $('<input type="${operator}"/>'), 'ui-creme-dinput', {});
 
@@ -217,7 +217,7 @@ test('creme.widgets.pselect.reload (any type, default selector, template)', func
     assertSelector(widget, 'boolean', '', '.ui-creme-dinput[type="boolean"]');
 });
 
-test('creme.widgets.pselect.reload (unknown type, single selector, no default)', function() {
+QUnit.test('creme.widgets.pselect.reload (unknown type, single selector, no default)', function(assert) {
     var element = mock_pselect_create('${operator}');
     var text = mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {});
 
@@ -233,7 +233,7 @@ test('creme.widgets.pselect.reload (unknown type, single selector, no default)',
     assertSelector(widget, 'boolean', null);
 });
 
-test('creme.widgets.pselect.reload (type, value, multiple selector)', function() {
+QUnit.test('creme.widgets.pselect.reload (type, value, multiple selector)', function(assert) {
     var element = mock_pselect_create('${operator}');
     var text = mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {});
     var password = mock_pselect_add_selector(element, 'password', $('<input type="password"/>'), 'ui-creme-dinput', {});
@@ -251,7 +251,7 @@ test('creme.widgets.pselect.reload (type, value, multiple selector)', function()
     assertSelector(widget, 'boolean', 'true', '.ui-creme-dselect');
 });
 
-test('creme.widgets.pselect.reload (type, value, multiple selector, template)', function() {
+QUnit.test('creme.widgets.pselect.reload (type, value, multiple selector, template)', function(assert) {
     var element = mock_pselect_create('${operator}.${type}');
     var text = mock_pselect_add_selector(element, 'text.*', $('<input type="text"/>'), 'ui-creme-dinput', {});
     var password = mock_pselect_add_selector(element, 'input.*', $('<input type="${type}"/>'), 'ui-creme-dinput', {});
@@ -275,7 +275,7 @@ test('creme.widgets.pselect.reload (type, value, multiple selector, template)', 
     assertSelector(widget, 'boolean.boolean', 'true', '.ui-creme-dselect');
 });
 
-test('creme.widgets.pselect.reset (type, value, multiple selector)', function() {
+QUnit.test('creme.widgets.pselect.reset (type, value, multiple selector)', function(assert) {
     var element = mock_pselect_create('${operator}');
     var text = mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {});
     var password = mock_pselect_add_selector(element, 'password', $('<input type="password"/>'), 'ui-creme-dinput', {});

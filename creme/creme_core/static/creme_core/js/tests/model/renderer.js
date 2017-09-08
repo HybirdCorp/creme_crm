@@ -16,7 +16,7 @@ assertItems = function(element, expected) {
     });
 }
 
-test('creme.model.ListRenderer.constructor', function() {
+QUnit.test('creme.model.ListRenderer.constructor', function(assert) {
     var model = new creme.model.Array();
     var element = $('<ul></ul>');
     var renderer = new creme.model.ListRenderer(element, model);
@@ -30,7 +30,7 @@ test('creme.model.ListRenderer.constructor', function() {
     equal(undefined, renderer.target());
 });
 
-test('creme.model.ListRenderer (empty model)', function() {
+QUnit.test('creme.model.ListRenderer (empty model)', function(assert) {
     var model = new creme.model.Array();
     var element = $('<ul></ul>');
     var renderer = new creme.model.ListRenderer(element, model);
@@ -38,7 +38,7 @@ test('creme.model.ListRenderer (empty model)', function() {
     equal($('li', element).length, 0);
 });
 
-test('creme.model.ListRenderer (filled model)', function() {
+QUnit.test('creme.model.ListRenderer (filled model)', function(assert) {
     var model = new creme.model.Array(['a', 'b']);
     var element = $('<ul></ul>');
     var renderer = new creme.model.ListRenderer(element, model);
@@ -49,7 +49,7 @@ test('creme.model.ListRenderer (filled model)', function() {
     assertItems(element, ['a', 'b']);
 });
 
-test('creme.model.ListRenderer (empty model, add)', function() {
+QUnit.test('creme.model.ListRenderer (empty model, add)', function(assert) {
     var model = new creme.model.Array();
     var element = $('<ul></ul>');
     var renderer = new creme.model.ListRenderer(element, model).redraw();
@@ -60,7 +60,7 @@ test('creme.model.ListRenderer (empty model, add)', function() {
     assertItems(element, ['a', 'b']);
 });
 
-test('creme.model.ListRenderer (filled, model, add)', function() {
+QUnit.test('creme.model.ListRenderer (filled, model, add)', function(assert) {
     var model = new creme.model.Array(['a', 'b']);
     var element = $('<ul></ul>');
     var renderer = new creme.model.ListRenderer(element, model).redraw();
@@ -71,7 +71,7 @@ test('creme.model.ListRenderer (filled, model, add)', function() {
     assertItems(element, ['a', 'b', 'c', 'd']);
 });
 
-test('creme.model.ListRenderer (remove)', function() {
+QUnit.test('creme.model.ListRenderer (remove)', function(assert) {
     var model = new creme.model.Array(['a', 'b', 'c', 'd']);
     var element = $('<ul></ul>');
     var renderer = new creme.model.ListRenderer(element, model).redraw();
@@ -85,7 +85,7 @@ test('creme.model.ListRenderer (remove)', function() {
     assertItems(element, ['a', 'c']);
 });
 
-test('creme.model.ListRenderer (update)', function() {
+QUnit.test('creme.model.ListRenderer (update)', function(assert) {
     var model = new creme.model.Array(['a', 'b', 'c', 'd']);
     var element = $('<ul></ul>');
     var renderer = new creme.model.ListRenderer(element, model).redraw();
@@ -99,7 +99,7 @@ test('creme.model.ListRenderer (update)', function() {
     assertItems(element, ['a', 'g', 'k', 'd']);
 });
 
-test('creme.model.ListRenderer (switch model)', function() {
+QUnit.test('creme.model.ListRenderer (switch model)', function(assert) {
     var model = new creme.model.Array();
     var element = $('<ul></ul>');
     var renderer = new creme.model.ListRenderer(element, model).redraw();
@@ -115,7 +115,7 @@ test('creme.model.ListRenderer (switch model)', function() {
     assertItems(element, ['x', 'y', 'z']);
 });
 
-test('creme.model.ListRenderer (reset model)', function() {
+QUnit.test('creme.model.ListRenderer (reset model)', function(assert) {
     var model = new creme.model.Array(['a', 'b', 'c', 'd']);
     var element = $('<ul></ul>');
     var renderer = new creme.model.ListRenderer(element, model).redraw();
@@ -145,7 +145,7 @@ assertOptions = function(element, expected) {
     });
 }
 
-test('creme.model.ChoiceRenderer.constructor', function() {
+QUnit.test('creme.model.ChoiceRenderer.constructor', function(assert) {
     var model = new creme.model.Array();
     var element = $('<select><options></options></select>');
     var renderer = new creme.model.ChoiceRenderer(element, model).redraw();
@@ -159,7 +159,7 @@ test('creme.model.ChoiceRenderer.constructor', function() {
     equal(undefined, renderer.target());
 });
 
-test('creme.model.ChoiceRenderer (empty model)', function() {
+QUnit.test('creme.model.ChoiceRenderer (empty model)', function(assert) {
     var model = new creme.model.Array();
     var element = $('<select><options></options></select>');
     var renderer = new creme.model.ChoiceRenderer(element, model).redraw();
@@ -167,7 +167,7 @@ test('creme.model.ChoiceRenderer (empty model)', function() {
     equal($('option', element).length, 0);
 });
 
-test('creme.model.ChoiceRenderer (filled model)', function() {
+QUnit.test('creme.model.ChoiceRenderer (filled model)', function(assert) {
     var model = new creme.model.Array([{value:1, label:'a'},
                                        {value:2, label:'b'}]);
     var element = $('<select><options></options></select>');
@@ -177,7 +177,7 @@ test('creme.model.ChoiceRenderer (filled model)', function() {
                             {value:2, label:'b'}]);
 });
 
-test('creme.model.ChoiceRenderer (empty model, add)', function() {
+QUnit.test('creme.model.ChoiceRenderer (empty model, add)', function(assert) {
     var model = new creme.model.Array();
     var element = $('<select><options></options></select>');
     var renderer = new creme.model.ChoiceRenderer(element, model).redraw();
@@ -191,7 +191,7 @@ test('creme.model.ChoiceRenderer (empty model, add)', function() {
                             {value:2, label:'b'}]);
 });
 
-test('creme.model.ChoiceRenderer (empty model, add object)', function() {
+QUnit.test('creme.model.ChoiceRenderer (empty model, add object)', function(assert) {
     var model = new creme.model.Array();
     var element = $('<select><options></options></select>');
     var renderer = new creme.model.ChoiceRenderer(element, model).redraw();
@@ -205,7 +205,7 @@ test('creme.model.ChoiceRenderer (empty model, add object)', function() {
                             {value:$.toJSON({id:2, name:'b'}), label:'b'}]);
 });
 
-test('creme.model.ChoiceRenderer (filled, model, add)', function() {
+QUnit.test('creme.model.ChoiceRenderer (filled, model, add)', function(assert) {
     var model = new creme.model.Array([{value:1, label:'a'},
                                        {value:2, label:'b'}]);
     var element = $('<select><options></options></select>');
@@ -223,7 +223,7 @@ test('creme.model.ChoiceRenderer (filled, model, add)', function() {
                             {value:4, label:'d'}]);
 });
 
-test('creme.model.ChoiceRenderer (filled, model, insert)', function() {
+QUnit.test('creme.model.ChoiceRenderer (filled, model, insert)', function(assert) {
     var model = new creme.model.Array([{value:1, label:'a'},
                                        {value:2, label:'b'},
                                        {value:3, label:'c'}]);
@@ -244,7 +244,7 @@ test('creme.model.ChoiceRenderer (filled, model, insert)', function() {
                             {value:3, label:'c'}]);
 });
 
-test('creme.model.ChoiceRenderer (remove)', function() {
+QUnit.test('creme.model.ChoiceRenderer (remove)', function(assert) {
     var model = new creme.model.Array([{value:1, label:'a'},
                                        {value:2, label:'b'},
                                        {value:3, label:'c'},
@@ -269,7 +269,7 @@ test('creme.model.ChoiceRenderer (remove)', function() {
                             {value:3, label:'c'}]);
 });
 
-test('creme.model.ChoiceRenderer (update)', function() {
+QUnit.test('creme.model.ChoiceRenderer (update)', function(assert) {
     var model = new creme.model.Array([{value:1, label:'a'},
                                        {value:2, label:'b'},
                                        {value:3, label:'c'},
@@ -297,7 +297,7 @@ test('creme.model.ChoiceRenderer (update)', function() {
                             {value:4, label:'d'}]);
 });
 
-test('creme.model.ChoiceRenderer (switch model)', function() {
+QUnit.test('creme.model.ChoiceRenderer (switch model)', function(assert) {
     var model = new creme.model.Array();
     var element = $('<select><options></options></select>');
     var renderer = new creme.model.ChoiceRenderer(element, model).redraw();
@@ -321,7 +321,7 @@ test('creme.model.ChoiceRenderer (switch model)', function() {
                             {value:6, label:'z'}]);
 });
 
-test('creme.model.ChoiceRenderer (reset model)', function() {
+QUnit.test('creme.model.ChoiceRenderer (reset model)', function(assert) {
     var model = new creme.model.Array([{value:1, label:'a'},
                                        {value:2, label:'b'},
                                        {value:3, label:'c'},
@@ -351,7 +351,7 @@ test('creme.model.ChoiceRenderer (reset model)', function() {
                             {value:4, label:'a'}]);
 });
 
-test('creme.model.ChoiceRenderer (parse)', function() {
+QUnit.test('creme.model.ChoiceRenderer (parse)', function(assert) {
     deepEqual([], creme.model.ChoiceRenderer.parse($('<select></select>')));
     deepEqual([], creme.model.ChoiceRenderer.parse($('<select><options></options></select>')));
 
@@ -365,7 +365,7 @@ test('creme.model.ChoiceRenderer (parse)', function() {
                                                  '</options></select>')));
 });
 
-test('creme.model.ChoiceRenderer.parse (no converter)', function() {
+QUnit.test('creme.model.ChoiceRenderer.parse (no converter)', function(assert) {
     var element = $('<select><options>' +
                         '<option value="[1, 2]" help="A">a</option>' +
                         '<option value="[3, 4]">b</option>' +
@@ -396,7 +396,7 @@ test('creme.model.ChoiceRenderer.parse (no converter)', function() {
                         {value:'[5, 6]', label:'c', help: undefined, disabled:true,  selected:false, visible: true, tags:[]},]);
 });
 
-test('creme.model.ChoiceRenderer.parse (converter)', function() {
+QUnit.test('creme.model.ChoiceRenderer.parse (converter)', function(assert) {
     var element = $('<select><options>' +
             '<option value="[1, 2]">a</option>' +
             '<option value="[3, 4]">b</option>' +
@@ -427,7 +427,7 @@ test('creme.model.ChoiceRenderer.parse (converter)', function() {
                         {value:[5, 6], label:'c', help: undefined, disabled:true,  selected:false, visible: true, tags:[]},]);
 });
 
-test('creme.model.ChoiceRenderer.choicesFromTuples ([value, label])', function() {
+QUnit.test('creme.model.ChoiceRenderer.choicesFromTuples ([value, label])', function(assert) {
     var data = [[[1, 2], 'a'], [[3, 4], 'b'], [[5, 6], 'c']];
     var options = creme.model.ChoiceRenderer.choicesFromTuples(data);
 
@@ -436,7 +436,7 @@ test('creme.model.ChoiceRenderer.choicesFromTuples ([value, label])', function()
                         {value:[5, 6], label:'c', disabled:false, selected:false, visible: true}]);
 });
 
-test('creme.model.ChoiceRenderer.choicesFromTuples (value)', function() {
+QUnit.test('creme.model.ChoiceRenderer.choicesFromTuples (value)', function(assert) {
     var data = ['a', 'b', 'c'];
     var options = creme.model.ChoiceRenderer.choicesFromTuples(data);
 
@@ -455,7 +455,7 @@ assertOptionGroups = function(element, expected) {
     });
 }
 
-test('creme.model.ChoiceGroupRenderer (empty model, add)', function() {
+QUnit.test('creme.model.ChoiceGroupRenderer (empty model, add)', function(assert) {
     var model = new creme.model.Array();
     var element = $('<select><options></options></select>');
     var renderer = new creme.model.ChoiceGroupRenderer(element, model).redraw();
@@ -476,7 +476,7 @@ test('creme.model.ChoiceGroupRenderer (empty model, add)', function() {
                             {group: 'group1', value:4, label:'d'},
                             {group: 'group2', value:5, label:'e'}]);
 });
-test('creme.model.ChoiceGroupRenderer (filled model)', function() {
+QUnit.test('creme.model.ChoiceGroupRenderer (filled model)', function(assert) {
     var model = new creme.model.Array([{value:1, label:'a'},
                                        {value:2, label:'b'},
                                        {group: 'group1', value:3, label:'c'},
@@ -494,7 +494,7 @@ test('creme.model.ChoiceGroupRenderer (filled model)', function() {
 });
 
 
-test('creme.model.ChoiceGroupRenderer (filled, model, add)', function() {
+QUnit.test('creme.model.ChoiceGroupRenderer (filled, model, add)', function(assert) {
     var model = new creme.model.Array([{value:1, label:'a'},
                                        {value:2, label:'b'}]);
     var element = $('<select><options></options></select>');
@@ -514,7 +514,7 @@ test('creme.model.ChoiceGroupRenderer (filled, model, add)', function() {
                             {group: 'group1', value:4, label:'d'}]);
 });
 
-test('creme.model.ChoiceGroupRenderer (filled, model, add, same group)', function() {
+QUnit.test('creme.model.ChoiceGroupRenderer (filled, model, add, same group)', function(assert) {
     var model = new creme.model.Array([{value:1, label:'a'},
                                        {group: 'group1', value:2, label:'b'},
                                        {group: 'group2', value:3, label:'c'}]);
@@ -547,7 +547,7 @@ test('creme.model.ChoiceGroupRenderer (filled, model, add, same group)', functio
                             {group: 'group2', value:10, label:'z'}]);
 });
 
-test('creme.model.ChoiceGroupRenderer (filled, model, insert, same group)', function() {
+QUnit.test('creme.model.ChoiceGroupRenderer (filled, model, insert, same group)', function(assert) {
     var model = new creme.model.Array([{value:1, label:'a'},
                                        {group:'group1', value:2, label:'b'},
                                        {group:'group2', value:3, label:'c'}]);
@@ -570,7 +570,7 @@ test('creme.model.ChoiceGroupRenderer (filled, model, insert, same group)', func
                             {group:'group2', value:3, label:'c'}]);
 });
 
-test('creme.model.ChoiceGroupRenderer (filled, model, insert, other group)', function() {
+QUnit.test('creme.model.ChoiceGroupRenderer (filled, model, insert, other group)', function(assert) {
     var model = new creme.model.Array([{value:1, label:'a'},
                                        {group:'group1', value:2, label:'b'},
                                        {group:'group2', value:3, label:'c'}]);
@@ -593,7 +593,7 @@ test('creme.model.ChoiceGroupRenderer (filled, model, insert, other group)', fun
                             {group:'group2', value:3, label:'c'}]);
 });
 
-test('creme.model.ChoiceGroupRenderer (filled, model, remove)', function() {
+QUnit.test('creme.model.ChoiceGroupRenderer (filled, model, remove)', function(assert) {
     var model = new creme.model.Array([{value:1, label:'a'},
                                        {value:2, label:'b'},
                                        {group:'group2', value:3, label:'c'}]);
@@ -617,7 +617,7 @@ test('creme.model.ChoiceGroupRenderer (filled, model, remove)', function() {
     assertOptions(element, [{group:'group2', value:3, label:'c'}]);
 });
 
-test('creme.model.ChoiceGroupRenderer (filled, model, remove, empty group)', function() {
+QUnit.test('creme.model.ChoiceGroupRenderer (filled, model, remove, empty group)', function(assert) {
     var model = new creme.model.Array([{value:1, label:'a'},
                                        {group:'group1', value:2, label:'b'},
                                        {group:'group2', value:3, label:'c'}]);
@@ -641,7 +641,7 @@ test('creme.model.ChoiceGroupRenderer (filled, model, remove, empty group)', fun
     assertOptions(element, [{value:1, label:'a'}]);
 });
 
-test('creme.model.ChoiceGroupRenderer (filled, model, remove, group)', function() {
+QUnit.test('creme.model.ChoiceGroupRenderer (filled, model, remove, group)', function(assert) {
     var model = new creme.model.Array([{value:1, label:'a'},
                                        {group:'group1', value:2, label:'b'},
                                        {group:'group1', value:2.5, label:'b.5'},
@@ -679,7 +679,7 @@ test('creme.model.ChoiceGroupRenderer (filled, model, remove, group)', function(
                             {group:'group1', value:2.5, label:'b.5'}]);
 });
 
-test('creme.model.ChoiceGroupRenderer (filled, model, update, same group)', function() {
+QUnit.test('creme.model.ChoiceGroupRenderer (filled, model, update, same group)', function(assert) {
     var model = new creme.model.Array([{value:1, label:'a'},
                                        {group:'group1', value:2, label:'b'},
                                        {group:'group1', value:2.5, label:'b.5'},
@@ -705,7 +705,7 @@ test('creme.model.ChoiceGroupRenderer (filled, model, update, same group)', func
                             {group:'group2', value:4, label:'d'}]);
 });
 
-test('creme.model.ChoiceGroupRenderer (filled, model, update, other group)', function() {
+QUnit.test('creme.model.ChoiceGroupRenderer (filled, model, update, other group)', function(assert) {
     var model = new creme.model.Array([{value:1, label:'a'},
                                        {group:'group1', value:2, label:'b'},
                                        {group:'group1', value:2.5, label:'b.5'},
@@ -749,7 +749,7 @@ test('creme.model.ChoiceGroupRenderer (filled, model, update, other group)', fun
                             {group:'group2', value:57, label:'b.57'}]);
 });
 
-test('creme.model.ChoiceGroupRenderer (filled, model, update, create group)', function() {
+QUnit.test('creme.model.ChoiceGroupRenderer (filled, model, update, create group)', function(assert) {
     var model = new creme.model.Array([{value:1, label:'a'},
                                        {group:'group1', value:2, label:'b'},
                                        {group:'group1', value:3, label:'c'},
@@ -772,7 +772,7 @@ test('creme.model.ChoiceGroupRenderer (filled, model, update, create group)', fu
                             {group:'group3', value:57, label:'c'}]);
 });
 
-test('creme.model.ChoiceGroupRenderer (filled, model, update, remove group)', function() {
+QUnit.test('creme.model.ChoiceGroupRenderer (filled, model, update, remove group)', function(assert) {
     var model = new creme.model.Array([{value:1, label:'a'},
                                        {group:'group1', value:2, label:'b'},
                                        {group:'group1', value:3, label:'c'},
@@ -795,7 +795,7 @@ test('creme.model.ChoiceGroupRenderer (filled, model, update, remove group)', fu
                             {value:57, label:'c'}]);
 });
 
-test('creme.model.ChoiceGroupRenderer (filled, model, update, other group, empty)', function() {
+QUnit.test('creme.model.ChoiceGroupRenderer (filled, model, update, other group, empty)', function(assert) {
     var model = new creme.model.Array([{value:1, label:'a'},
                                        {group:'group1', value:2, label:'b'},
                                        {group:'group2', value:3, label:'c'},
@@ -826,7 +826,7 @@ test('creme.model.ChoiceGroupRenderer (filled, model, update, other group, empty
                             {group:'group2', value:57, label:'b.57'}]);
 });
 
-test('creme.model.ChoiceGroupRenderer (parse)', function() {
+QUnit.test('creme.model.ChoiceGroupRenderer (parse)', function(assert) {
     deepEqual([{group: undefined, value:'1', label:'a', help: undefined, disabled:false, selected: false, visible: true, tags: []},
                {group: 'group1',  value:'2', label:'b', help: undefined, disabled:false, selected: true,  visible: true, tags: ['tag1']},
                {group: 'group2',  value:'3', label:'c', help: undefined, disabled:true,  selected: false, visible: true, tags: ['tag2']},
@@ -847,7 +847,7 @@ test('creme.model.ChoiceGroupRenderer (parse)', function() {
                                                  '</options></select>')));
 });
 
-test('creme.model.ChoiceGroupRenderer.choicesFromTuples ([value, label, group])', function() {
+QUnit.test('creme.model.ChoiceGroupRenderer.choicesFromTuples ([value, label, group])', function(assert) {
     var data = [[[1, 2], 'a'], [[3, 4], 'b', 'group1'], [[5, 6], 'c', 'group2'], [7, 'd', 'group1']];
     var options = creme.model.ChoiceGroupRenderer.choicesFromTuples(data);
 
@@ -857,7 +857,7 @@ test('creme.model.ChoiceGroupRenderer.choicesFromTuples ([value, label, group])'
                         {group: 'group1',  value:7,      label:'d', disabled:false, selected:false, visible: true}]);
 });
 
-test('creme.model.ChoiceGroupRenderer.choicesFromTuples (value)', function() {
+QUnit.test('creme.model.ChoiceGroupRenderer.choicesFromTuples (value)', function(assert) {
     var data = ['a', 'b', 'c'];
     var options = creme.model.ChoiceGroupRenderer.choicesFromTuples(data);
 

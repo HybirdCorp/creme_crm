@@ -106,7 +106,7 @@ QUnit.module("creme.widgets.chainedselect.js", {
 });
 
 
-test('creme.widgets.chainedselect.create (empty, no selector)', function() {
+QUnit.test('creme.widgets.chainedselect.create (empty, no selector)', function(assert) {
     var element = mock_chainedselect_create();
     var widget = creme.widget.create(element);
 
@@ -117,7 +117,7 @@ test('creme.widgets.chainedselect.create (empty, no selector)', function() {
     equal(widget.selector('ctype').length, 0);
 });
 
-test('creme.widgets.chainedselect.create (empty, single selector, static)', function() {
+QUnit.test('creme.widgets.chainedselect.create (empty, single selector, static)', function(assert) {
     var element = mock_chainedselect_create();
     var ctype = mock_dselect_create();
     mock_dselect_add_choice(ctype, 'a', 15);
@@ -139,7 +139,7 @@ test('creme.widgets.chainedselect.create (empty, single selector, static)', func
     equal(widget.selector('unknown').length, 0);
 });
 
-test('creme.widgets.chainedselect.create (empty, single selector, static, <div>)', function() {
+QUnit.test('creme.widgets.chainedselect.create (empty, single selector, static, <div>)', function(assert) {
     var element = mock_chainedselect_create();
     var ctype = mock_dselect_create();
     mock_dselect_add_choice(ctype, 'a', 15);
@@ -161,7 +161,7 @@ test('creme.widgets.chainedselect.create (empty, single selector, static, <div>)
     equal(widget.selector('unknown').length, 0);
 });
 
-test('creme.widgets.chainedselect.create (empty, single selector, url)', function() {
+QUnit.test('creme.widgets.chainedselect.create (empty, single selector, url)', function(assert) {
     var element = mock_chainedselect_create();
     var ctype = mock_dselect_create('mock/options');
 
@@ -180,7 +180,7 @@ test('creme.widgets.chainedselect.create (empty, single selector, url)', functio
     equal(widget.selector('unknown').length, 0);
 });
 
-test('creme.widgets.chainedselect.create (empty, multi selector)', function() {
+QUnit.test('creme.widgets.chainedselect.create (empty, multi selector)', function(assert) {
     var element = mock_chainedselect_create();
 
     var ctype = mock_dselect_create();
@@ -204,7 +204,7 @@ test('creme.widgets.chainedselect.create (empty, multi selector)', function() {
     assertDSelectAt(widget, 'rtype', '1', [], '', [['1', 'd'], ['6', 'e']]);
 });
 
-test('creme.widgets.chainedselect.create (empty, multi selector, single dependency)', function() {
+QUnit.test('creme.widgets.chainedselect.create (empty, multi selector, single dependency)', function(assert) {
     var element = mock_chainedselect_create();
 
     var ctype = mock_dselect_create();
@@ -226,7 +226,7 @@ test('creme.widgets.chainedselect.create (empty, multi selector, single dependen
     assertDSelectAt(widget, 'rtype', 'rtype.12', ['ctype'], 'mock/rtype/15/options', [['rtype.12', 'b'], ['rtype.2', 'e']]);
 });
 
-test('creme.widgets.chainedselect.create (empty, multi selector, multiple dependency)', function() {
+QUnit.test('creme.widgets.chainedselect.create (empty, multi selector, multiple dependency)', function(assert) {
     var element = mock_chainedselect_create();
 
     var ctype = mock_dselect_create();
@@ -252,7 +252,7 @@ test('creme.widgets.chainedselect.create (empty, multi selector, multiple depend
 });
 
 
-test('creme.widgets.chainedselect.create (empty, multi selector, duplicates)', function() {
+QUnit.test('creme.widgets.chainedselect.create (empty, multi selector, duplicates)', function(assert) {
     var element = mock_chainedselect_create();
 
     var ctype = mock_dselect_create();
@@ -290,12 +290,12 @@ test('creme.widgets.chainedselect.create (empty, multi selector, duplicates)', f
 
 // TODO : implement detection of cross dependencies
 /*
-test('creme.widgets.chainedselect.create (multi selector, cross dependencies)', function() {
+QUnit.test('creme.widgets.chainedselect.create (multi selector, cross dependencies)', function(assert) {
 
 });
 */
 
-test('creme.widgets.chainedselect.create (valid, no selector)', function() {
+QUnit.test('creme.widgets.chainedselect.create (valid, no selector)', function(assert) {
     var element = mock_chainedselect_create($.toJSON({ctype:'12'}));
     var widget = creme.widget.create(element);
 
@@ -306,7 +306,7 @@ test('creme.widgets.chainedselect.create (valid, no selector)', function() {
     equal(widget.selector('ctype').length, 0);
 });
 
-test('creme.widgets.chainedselect.create (valid, single selector, static)', function() {
+QUnit.test('creme.widgets.chainedselect.create (valid, single selector, static)', function(assert) {
     var element = mock_chainedselect_create($.toJSON({ctype:'5'}));
     var ctype = mock_dselect_create();
     mock_dselect_add_choice(ctype, 'a', 15);
@@ -324,7 +324,7 @@ test('creme.widgets.chainedselect.create (valid, single selector, static)', func
                   [['15', 'a'], ['5', 'b'], ['3', 'c']]);
 });
 
-test('creme.widgets.chainedselect.create (unknown choice, single selector, static)', function() {
+QUnit.test('creme.widgets.chainedselect.create (unknown choice, single selector, static)', function(assert) {
     var element = mock_chainedselect_create($.toJSON({ctype:'54'}));
     var ctype = mock_dselect_create();
     mock_dselect_add_choice(ctype, 'a', 15);
@@ -342,7 +342,7 @@ test('creme.widgets.chainedselect.create (unknown choice, single selector, stati
                   [['15', 'a'], ['5', 'b'], ['3', 'c']]);
 });
 
-test('creme.widgets.chainedselect.create (valid, single selector, url)', function() {
+QUnit.test('creme.widgets.chainedselect.create (valid, single selector, url)', function(assert) {
     var element = mock_chainedselect_create($.toJSON({ctype:'14'}));
     var ctype = mock_dselect_create('mock/options');
 
@@ -357,7 +357,7 @@ test('creme.widgets.chainedselect.create (valid, single selector, url)', functio
                   [['15', 'a'], ['5', 'b'], ['3', 'c'], ['14', 't'], ['42', 'y']]);
 });
 
-test('creme.widgets.chainedselect.create (valid, multi selector, static)', function() {
+QUnit.test('creme.widgets.chainedselect.create (valid, multi selector, static)', function(assert) {
     var element = mock_chainedselect_create($.toJSON({ctype: '3', rtype: '6'}));
 
     var ctype = mock_dselect_create();
@@ -381,7 +381,7 @@ test('creme.widgets.chainedselect.create (valid, multi selector, static)', funct
     assertDSelectAt(widget, 'rtype', '6', [], '', [['1', 'd'], ['6', 'e']]);
 });
 
-test('creme.widgets.chainedselect.create (unknown choice, multi selector, static)', function() {
+QUnit.test('creme.widgets.chainedselect.create (unknown choice, multi selector, static)', function(assert) {
     var element = mock_chainedselect_create($.toJSON({ctype: '3', rtype: '46'}));
 
     var ctype = mock_dselect_create();
@@ -405,7 +405,7 @@ test('creme.widgets.chainedselect.create (unknown choice, multi selector, static
     assertDSelectAt(widget, 'rtype', '1', [], '', [['1', 'd'], ['6', 'e']]);
 });
 
-test('creme.widgets.chainedselect.create (valid, multi selector, single dependency)', function() {
+QUnit.test('creme.widgets.chainedselect.create (valid, multi selector, single dependency)', function(assert) {
     var element = mock_chainedselect_create($.toJSON({ctype: '1', rtype: 'rtype.3'}));
 
     var ctype = mock_dselect_create();
@@ -429,7 +429,7 @@ test('creme.widgets.chainedselect.create (valid, multi selector, single dependen
     assertDSelectAt(widget, 'rtype', 'rtype.3', ['ctype'], 'mock/rtype/1/options', [['rtype.1', 'a'], ['rtype.12', 'b'], ['rtype.3', 'c']]);
 });
 
-test('creme.widgets.chainedselect.create (valid, multi selector, multi dependencies)', function() {
+QUnit.test('creme.widgets.chainedselect.create (valid, multi selector, multi dependencies)', function(assert) {
     var element = mock_chainedselect_create($.toJSON({ctype: '5', rtype: 'rtype.22', entity: '789'}));
 
     var ctype = mock_dselect_create();
@@ -456,7 +456,7 @@ test('creme.widgets.chainedselect.create (valid, multi selector, multi dependenc
     assertDSelectAt(widget, 'entity', '789', ['rtype', 'ctype'], 'mock/entity/rtype.22/5/options', [['456', 'Bean Bandit'], ['789', 'Mini May']]);
 });
 
-test('creme.widgets.chainedselect.val (single selector)', function() {
+QUnit.test('creme.widgets.chainedselect.val (single selector)', function(assert) {
     var element = mock_chainedselect_create($.toJSON({ctype:'5'}));
     var ctype = mock_dselect_create();
     mock_dselect_add_choice(ctype, 'a', 15);
@@ -479,7 +479,7 @@ test('creme.widgets.chainedselect.val (single selector)', function() {
     assertDSelectAt(widget, 'ctype', '15', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c']]);
 });
 
-test('creme.widgets.chainedselect.val (multi selector, static)', function() {
+QUnit.test('creme.widgets.chainedselect.val (multi selector, static)', function(assert) {
     var element = mock_chainedselect_create($.toJSON({ctype: '5', rtype: '6'}));
 
     var ctype = mock_dselect_create();
@@ -512,7 +512,7 @@ test('creme.widgets.chainedselect.val (multi selector, static)', function() {
     assertDSelectAt(widget, 'rtype', '1', [], '', [['1', 'd'], ['6', 'e'], ['42', 'f']]);
 });
 
-test('creme.widgets.chainedselect.val (multi selector, single dependency)', function() {
+QUnit.test('creme.widgets.chainedselect.val (multi selector, single dependency)', function(assert) {
     var element = mock_chainedselect_create($.toJSON({ctype: '1', rtype: 'rtype.3'}));
 
     var ctype = mock_dselect_create();
@@ -548,7 +548,7 @@ test('creme.widgets.chainedselect.val (multi selector, single dependency)', func
     assertDSelectAt(widget, 'rtype', 'rtype.1', ['ctype'], 'mock/rtype/1/options', [['rtype.1', 'a'], ['rtype.12', 'b'], ['rtype.3', 'c']]);
 });
 
-test('creme.widgets.chainedselect.val (multi selector, multiple dependencies)', function() {
+QUnit.test('creme.widgets.chainedselect.val (multi selector, multiple dependencies)', function(assert) {
     var element = mock_chainedselect_create($.toJSON({ctype: '1', rtype: 'rtype.3', entity: null}));
 
     var ctype = mock_dselect_create();
@@ -596,7 +596,7 @@ test('creme.widgets.chainedselect.val (multi selector, multiple dependencies)', 
     assertDSelectAt(widget, 'entity', '456', ['rtype', 'ctype'], 'mock/entity/rtype.22/5/options', [['456', 'Bean Bandit'], ['789', 'Mini May']]);
 });
 
-test('creme.widgets.chainedselect.val (multi selector, multiple dependencies, entity selector)', function() {
+QUnit.test('creme.widgets.chainedselect.val (multi selector, multiple dependencies, entity selector)', function(assert) {
     var element = mock_chainedselect_create($.toJSON({ctype: '1', rtype: 'rtype.3', entity: null}));
 
     var ctype = mock_dselect_create();
@@ -645,7 +645,7 @@ test('creme.widgets.chainedselect.val (multi selector, multiple dependencies, en
     assertEntitySelect(widget.selector('entity'), '007', ['rtype', 'ctype'], 'mock/entity/rtype.22/5/popup');
 });
 
-test('creme.widgets.chainedselect.change (single selector)', function() {
+QUnit.test('creme.widgets.chainedselect.change (single selector)', function(assert) {
     var element = mock_chainedselect_create($.toJSON({ctype:'5'}));
     var ctype = mock_dselect_create();
     mock_dselect_add_choice(ctype, 'a', 15);
@@ -668,7 +668,7 @@ test('creme.widgets.chainedselect.change (single selector)', function() {
     assertDSelectAt(widget, 'ctype', '15', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c']]);
 });
 
-test('creme.widgets.chainedselect.change (multi selector, static)', function() {
+QUnit.test('creme.widgets.chainedselect.change (multi selector, static)', function(assert) {
     var element = mock_chainedselect_create($.toJSON({ctype: '5', rtype: '6'}));
 
     var ctype = mock_dselect_create();
@@ -707,7 +707,7 @@ test('creme.widgets.chainedselect.change (multi selector, static)', function() {
     assertDSelectAt(widget, 'rtype', '6', [], '', [['1', 'd'], ['6', 'e'], ['42', 'f']]);
 });
 
-test('creme.widgets.chainedselect.change (multi selector, single dependency)', function() {
+QUnit.test('creme.widgets.chainedselect.change (multi selector, single dependency)', function(assert) {
     var element = mock_chainedselect_create($.toJSON({ctype: '1', rtype: 'rtype.3'}));
 
     var ctype = mock_dselect_create();
@@ -739,7 +739,7 @@ test('creme.widgets.chainedselect.change (multi selector, single dependency)', f
     assertDSelectAt(widget, 'rtype', 'rtype.22', ['ctype'], 'mock/rtype/5/options', [['rtype.7', 'x'], ['rtype.22', 'y'], ['rtype.3', 'c']]);
 });
 
-test('creme.widgets.chainedselect.change (multi selector, multiple dependencies)', function() {
+QUnit.test('creme.widgets.chainedselect.change (multi selector, multiple dependencies)', function(assert) {
     var element = mock_chainedselect_create($.toJSON({ctype: '1', rtype: 'rtype.3', entity: null}));
 
     var ctype = mock_dselect_create();
@@ -783,7 +783,7 @@ test('creme.widgets.chainedselect.change (multi selector, multiple dependencies)
 });
 
 
-test('creme.widgets.chainedselect.reset (single selector)', function() {
+QUnit.test('creme.widgets.chainedselect.reset (single selector)', function(assert) {
     var element = mock_chainedselect_create($.toJSON({ctype:'5'}));
     var ctype = mock_dselect_create();
     mock_dselect_add_choice(ctype, 'a', 15);
@@ -803,7 +803,7 @@ test('creme.widgets.chainedselect.reset (single selector)', function() {
     assertDSelectAt(widget, 'ctype', '15', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c']]);
 });
 
-test('creme.widgets.chainedselect.reset (multi selector, static)', function() {
+QUnit.test('creme.widgets.chainedselect.reset (multi selector, static)', function(assert) {
     var element = mock_chainedselect_create($.toJSON({ctype: '3', rtype: '42'}));
 
     var ctype = mock_dselect_create();
@@ -832,7 +832,7 @@ test('creme.widgets.chainedselect.reset (multi selector, static)', function() {
     assertDSelectAt(widget, 'rtype', '1', [], '', [['1', 'd'], ['6', 'e'], ['42', 'f']]);
 });
 
-test('creme.widgets.chainedselect.reset (multi selector, single dependency)', function() {
+QUnit.test('creme.widgets.chainedselect.reset (multi selector, single dependency)', function(assert) {
     var element = mock_chainedselect_create($.toJSON({ctype: '5', rtype: 'rtype.22'}));
 
     var ctype = mock_dselect_create();
@@ -859,7 +859,7 @@ test('creme.widgets.chainedselect.reset (multi selector, single dependency)', fu
     assertDSelectAt(widget, 'rtype', 'rtype.12', ['ctype'], 'mock/rtype/15/options', [['rtype.12', 'b'], ['rtype.2', 'e']]);
 });
 
-test('creme.widgets.chainedselect.reset (multi selector, multiple dependencies)', function() {
+QUnit.test('creme.widgets.chainedselect.reset (multi selector, multiple dependencies)', function(assert) {
     var element = mock_chainedselect_create($.toJSON({ctype: '5', rtype: 'rtype.22', entity: '789'}));
 
     var ctype = mock_dselect_create();

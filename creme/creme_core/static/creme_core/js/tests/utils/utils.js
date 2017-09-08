@@ -3,13 +3,13 @@ QUnit.module("creme.utils.js", {
     teardown: function() {}
 });
 
-test('creme.utils.JSON.encode (null)', function() {
+QUnit.test('creme.utils.JSON.encode (null)', function(assert) {
     var codec = new creme.utils.JSON();
 
     equal("null", codec.encode(null));
 });
 
-test('creme.utils.JSON.encode', function() {
+QUnit.test('creme.utils.JSON.encode', function(assert) {
     var codec = new creme.utils.JSON();
 
     equal(codec.encode('test'), '"test"');
@@ -31,27 +31,27 @@ test('creme.utils.JSON.encode', function() {
                   }), '{"a":["a","b",150],"b":"test","c":12}');
 });
 
-test('creme.utils.JSON.decode (null)', function() {
+QUnit.test('creme.utils.JSON.decode (null)', function(assert) {
     var codec = new creme.utils.JSON();
 
-    raises(function() {codec.decode(null);});
+    QUnit.assert.raises(function() {codec.decode(null);});
 });
 
-test('creme.utils.JSON.decode (invalid)', function() {
+QUnit.test('creme.utils.JSON.decode (invalid)', function(assert) {
     var codec = new creme.utils.JSON();
 
-    raises(function() {codec.decode('{"a\':1}');});
-    raises(function() {codec.decode('{"a":1,}');});
-    raises(function() {codec.decode('{a:1}');});
+    QUnit.assert.raises(function() {codec.decode('{"a\':1}');});
+    QUnit.assert.raises(function() {codec.decode('{"a":1,}');});
+    QUnit.assert.raises(function() {codec.decode('{a:1}');});
 
     var decoder = creme.utils.JSON.decoder();
 
-    raises(function() {decoder('{"a\':1}');});
-    raises(function() {decoder('{"a":1,}');});
-    raises(function() {decoder('{a:1}');});
+    QUnit.assert.raises(function() {decoder('{"a\':1}');});
+    QUnit.assert.raises(function() {decoder('{"a":1,}');});
+    QUnit.assert.raises(function() {decoder('{a:1}');});
 });
 
-test('creme.utils.JSON.decode (invalid or null, default)', function() {
+QUnit.test('creme.utils.JSON.decode (invalid or null, default)', function(assert) {
     var codec = new creme.utils.JSON();
 
     equal(codec.decode('{"a\':1}', 'fail'), 'fail');
@@ -72,7 +72,7 @@ test('creme.utils.JSON.decode (invalid or null, default)', function() {
     equal(decoder(null, 'fail'), 'fail');
 });
 
-test('creme.utils.JSON.decode (valid)', function() {
+QUnit.test('creme.utils.JSON.decode (valid)', function(assert) {
     var codec = new creme.utils.JSON();
 
     deepEqual(codec.decode('{"a":1, "b":true, "c":[1, 2, 3]}'), {a: 1, b: true, c: [1, 2, 3]});
@@ -82,10 +82,10 @@ test('creme.utils.JSON.decode (valid)', function() {
     deepEqual(decoder('{"a":1, "b":true, "c":[1, 2, 3]}'), {a: 1, b: true, c: [1, 2, 3]});
 });
 
-test('creme.utils.JSON.clean', function() {
+QUnit.test('creme.utils.JSON.clean', function(assert) {
     var clean = creme.utils.JSON.clean;
 
-    raises(function() {clean('{"a\':1}');});
+    QUnit.assert.raises(function() {clean('{"a\':1}');});
     equal(clean('{"a\':1}', 'default'), 'default');
 
     equal(clean(null), null);
@@ -95,7 +95,7 @@ test('creme.utils.JSON.clean', function() {
     deepEqual(clean({a: 1}), {a: 1});
 });
 
-test('creme.utils.comparator (simple)', function() {
+QUnit.test('creme.utils.comparator (simple)', function(assert) {
     var compare = creme.utils.comparator();
 
     deepEqual(compare, creme.utils.compareTo);
@@ -113,7 +113,7 @@ test('creme.utils.comparator (simple)', function() {
     equal(1, compare('test', 'da test'));
 });
 
-test('creme.utils.comparator (key)', function() {
+QUnit.test('creme.utils.comparator (key)', function(assert) {
     var compare = creme.utils.comparator('value');
 
     equal(0, compare({value: 12}, {value: 12}));
@@ -129,7 +129,7 @@ test('creme.utils.comparator (key)', function() {
     equal(1, compare({value: 'test'}, {value: 'da test'}));
 });
 
-test('creme.utils.comparator (multiple keys)', function() {
+QUnit.test('creme.utils.comparator (multiple keys)', function(assert) {
     var compare = creme.utils.comparator('value', 'index');
 
     equal(0, compare({value: 12, index: 0}, {value: 12, index: 0}));
@@ -141,7 +141,7 @@ test('creme.utils.comparator (multiple keys)', function() {
     equal(-1, compare({value: 12, index: 1}, {value: 13, index: 0}));
 });
 
-test('creme.utils.isHTMLDataType', function() {
+QUnit.test('creme.utils.isHTMLDataType', function(assert) {
     equal(creme.utils.isHTMLDataType('html'), true);
     equal(creme.utils.isHTMLDataType('text/html'), true);
     equal(creme.utils.isHTMLDataType('HTML'), true);
@@ -152,7 +152,7 @@ test('creme.utils.isHTMLDataType', function() {
  * Old creme creme_core/unit.js unit tests.
  */
 
-test('creme.utils.appendInUrl', function() {
+QUnit.test('creme.utils.appendInUrl', function(assert) {
     equal(creme.utils.appendInUrl('/', ''), '/');
     equal(creme.utils.appendInUrl('/test', '?foo=1'), '/test?foo=1');
     equal(creme.utils.appendInUrl('/test?bar=0', '?foo=1'), '/test?foo=1&bar=0');
@@ -160,7 +160,7 @@ test('creme.utils.appendInUrl', function() {
     equal(creme.utils.appendInUrl('/test?bar=0#id_node', '?foo=1&plop=2'), '/test?foo=1&plop=2&bar=0#id_node');
 });
 
-test('creme.utils.autoCheckallState / creme.utils.toggleCheckallState', function() {
+QUnit.test('creme.utils.autoCheckallState / creme.utils.toggleCheckallState', function(assert) {
     var _checkbox            = '<input type="checkbox" checked="checked"/>';
     var _all_selector        = "[name=check_all]";
     var _checkboxes_selector = "[name=check_one]"
@@ -207,7 +207,7 @@ test('creme.utils.autoCheckallState / creme.utils.toggleCheckallState', function
 });
 
 /*
-test('creme.utils.loading', function() {
+QUnit.test('creme.utils.loading', function(assert) {
     equal($('.ui-creme-overlay').size(), 0);
     equal($('.ui-creme-overlay.overlay-active').size(), 0);
 

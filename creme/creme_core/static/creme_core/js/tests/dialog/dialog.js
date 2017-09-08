@@ -59,7 +59,7 @@ QUnit.module("creme.dialog.js", {
 });
 
 
-test('creme.dialog.SelectionDialog (default)', function() {
+QUnit.test('creme.dialog.SelectionDialog (default)', function(assert) {
     var dialog = new creme.dialog.SelectionDialog();
     dialog.onOk(this.mockListener('ok'));
     dialog.onClose(this.mockListener('close'));
@@ -83,7 +83,7 @@ test('creme.dialog.SelectionDialog (default)', function() {
     deepEqual([['close', dialog.options]], this.mockListenerCalls('close'));
 });
 
-test('creme.dialog.SelectionDialog (selector)', function() {
+QUnit.test('creme.dialog.SelectionDialog (selector)', function(assert) {
     var selector = function() {return $('option[value="2"]', this.content()).html();};
     var dialog = new creme.dialog.SelectionDialog();
     dialog.fill('<option value="1">a</option><option value="2">b</option>')
@@ -111,7 +111,7 @@ test('creme.dialog.SelectionDialog (selector)', function() {
     deepEqual([['close', dialog.options]], this.mockListenerCalls('close'));
 });
 
-test('creme.dialog.SelectionDialog (validator)', function() {
+QUnit.test('creme.dialog.SelectionDialog (validator)', function(assert) {
     var selector = function() {return $('select', this.content()).val();};
     var validator = function(data) {return data != null && data.length > 0;}
     var dialog = new creme.dialog.SelectionDialog();
@@ -150,7 +150,7 @@ test('creme.dialog.SelectionDialog (validator)', function() {
     deepEqual([['close', dialog.options]], this.mockListenerCalls('close'));
 });
 
-test('creme.dialog.FormDialog (default validator)', function() {
+QUnit.test('creme.dialog.FormDialog (default validator)', function(assert) {
     var options = $.extend({compatible: false}, options || {});
     var dialog = new creme.dialog.FormDialog(options);
 
@@ -162,7 +162,7 @@ test('creme.dialog.FormDialog (default validator)', function() {
     equal(true, dialog._validate('"<div><form></form></div>"', 'success', 'text/json'));
 });
 
-test('creme.dialog.FormDialog (compatible validator)', function() {
+QUnit.test('creme.dialog.FormDialog (compatible validator)', function(assert) {
     var options = $.extend({compatible: true}, options || {});
     var dialog = new creme.dialog.FormDialog(options);
 

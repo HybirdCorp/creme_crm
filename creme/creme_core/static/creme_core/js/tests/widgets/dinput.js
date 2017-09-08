@@ -11,14 +11,14 @@ function mock_dinput_create(value, noauto) {
 }
 
 
-module("creme.widgets.dinput.js", {
+QUnit.module("creme.widgets.dinput.js", {
   setup: function() {
   },
   teardown: function() {
   }
 });
 
-test('creme.widget.DynamicInput.create (empty)', function() {
+QUnit.test('creme.widget.DynamicInput.create (empty)', function(assert) {
     var element = mock_dinput_create();
 
     creme.widget.create(element);
@@ -29,7 +29,7 @@ test('creme.widget.DynamicInput.create (empty)', function() {
     equal('', element.creme().widget().val());
 });
 
-test('creme.widget.DynamicInput.create (static)', function() {
+QUnit.test('creme.widget.DynamicInput.create (static)', function(assert) {
     var element = mock_dinput_create('this is a test');
 
     creme.widget.create(element);
@@ -40,7 +40,7 @@ test('creme.widget.DynamicInput.create (static)', function() {
     equal('this is a test', element.creme().widget().val());
 });
 
-test('creme.widget.DynamicInput.create (static, disabled)', function() {
+QUnit.test('creme.widget.DynamicInput.create (static, disabled)', function(assert) {
     var element = mock_dinput_create('this is a test');
     element.attr('disabled', '');
 
@@ -61,7 +61,7 @@ test('creme.widget.DynamicInput.create (static, disabled)', function() {
     equal(widget.delegate._enabled, false);
 });
 
-test('creme.widget.DynamicInput.placeholder', function() {
+QUnit.test('creme.widget.DynamicInput.placeholder', function(assert) {
     var element = mock_dinput_create();
     element.attr('placeholder', 'edit this text');
 
@@ -77,7 +77,7 @@ test('creme.widget.DynamicInput.placeholder', function() {
     equal('this is a test', element.creme().widget().val());
 });
 
-test('creme.widget.DynamicInput.reset', function() {
+QUnit.test('creme.widget.DynamicInput.reset', function(assert) {
     var element = mock_dinput_create('this is a test');
     var widget = creme.widget.create(element);
 

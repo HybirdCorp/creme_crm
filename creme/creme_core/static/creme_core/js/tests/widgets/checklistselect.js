@@ -51,7 +51,7 @@ QUnit.module("creme.widgets.checklistselect.js", {
     teardown: function() {}
 });
 
-test('creme.widget.CheckListSelect.create (no delegate)', function() {
+QUnit.test('creme.widget.CheckListSelect.create (no delegate)', function(assert) {
     var element = mock_checklistselect_create({}, false, true);
     var widget = creme.widget.create(element);
 
@@ -64,7 +64,7 @@ test('creme.widget.CheckListSelect.create (no delegate)', function() {
     equal(0, $('input[type="checkbox"]', widget.content()).length);
 });
 
-test('creme.widget.CheckListSelect.create (delegate)', function() {
+QUnit.test('creme.widget.CheckListSelect.create (delegate)', function(assert) {
     var element = mock_checklistselect_create();
     mock_checklistselect_add_choice(element, 'item1', 12);
     mock_checklistselect_add_choice(element, 'item2', 78);
@@ -88,7 +88,7 @@ test('creme.widget.CheckListSelect.create (delegate)', function() {
                             {label:'item3', value:'1'}])
 });
 
-test('creme.widget.CheckListSelect.create (disabled)', function() {
+QUnit.test('creme.widget.CheckListSelect.create (disabled)', function(assert) {
     var element = mock_checklistselect_create({disabled:true});
     mock_checklistselect_add_choice(element, 'item1', 12);
     mock_checklistselect_add_choice(element, 'item2', 78);
@@ -112,7 +112,7 @@ test('creme.widget.CheckListSelect.create (disabled)', function() {
                             {label:'item3', value:'1',  disabled:true}]);
 });
 
-test('creme.widget.CheckListSelect.create (initial value)', function() {
+QUnit.test('creme.widget.CheckListSelect.create (initial value)', function(assert) {
     var element = mock_checklistselect_create();
     mock_checklistselect_add_choice(element, 'item1', 12);
     mock_checklistselect_add_choice(element, 'item2', 78);
@@ -137,7 +137,7 @@ test('creme.widget.CheckListSelect.create (initial value)', function() {
     deepEqual(['12', '1'], widget.val());
 });
 
-test('creme.widget.CheckListSelect.disable', function() {
+QUnit.test('creme.widget.CheckListSelect.disable', function(assert) {
     var element = mock_checklistselect_create();
     mock_checklistselect_add_choice(element, 'item1', 12);
     mock_checklistselect_add_choice(element, 'item2', 78);
@@ -167,7 +167,7 @@ test('creme.widget.CheckListSelect.disable', function() {
                             {label:'item2', value:'78', disabled:true}]);
 });
 
-test('creme.widget.CheckListSelect.val', function() {
+QUnit.test('creme.widget.CheckListSelect.val', function(assert) {
     var element = mock_checklistselect_create();
     mock_checklistselect_add_choice(element, 'item1', 12);
     mock_checklistselect_add_choice(element, 'item2', 78);
@@ -197,7 +197,7 @@ test('creme.widget.CheckListSelect.val', function() {
                             {label:'item3', value:'5',  selected:true}]);
 });
 
-test('creme.widget.CheckListSelect.val (select / unselect)', function() {
+QUnit.test('creme.widget.CheckListSelect.val (select / unselect)', function(assert) {
     var element = mock_checklistselect_create();
     mock_checklistselect_add_choice(element, 'item1', 12);
     mock_checklistselect_add_choice(element, 'item2', 78);
@@ -240,7 +240,7 @@ test('creme.widget.CheckListSelect.val (select / unselect)', function() {
     deepEqual(["5"], widget.val());
 });
 
-test('creme.widget.CheckListSelect.selectAll', function() {
+QUnit.test('creme.widget.CheckListSelect.selectAll', function(assert) {
     var element = mock_checklistselect_create();
     mock_checklistselect_add_choice(element, 'item1', 12);
     mock_checklistselect_add_choice(element, 'item2', 78);
@@ -269,7 +269,7 @@ test('creme.widget.CheckListSelect.selectAll', function() {
     deepEqual(["12", "78", "5"], widget.val());
 });
 
-test('creme.widget.CheckListSelect.selectAll (disabled options)', function() {
+QUnit.test('creme.widget.CheckListSelect.selectAll (disabled options)', function(assert) {
     var element = mock_checklistselect_create();
     mock_checklistselect_add_choice(element, 'item1', 12);
     mock_checklistselect_add_choice(element, 'item2', 78).attr('disabled', 'disabled');
@@ -298,7 +298,7 @@ test('creme.widget.CheckListSelect.selectAll (disabled options)', function() {
     deepEqual(["12", "5"], widget.val());
 });
 
-test('creme.widget.CheckListSelect.unselectAll', function() {
+QUnit.test('creme.widget.CheckListSelect.unselectAll', function(assert) {
     var element = mock_checklistselect_create();
     mock_checklistselect_add_choice(element, 'item1', 12);
     mock_checklistselect_add_choice(element, 'item2', 78);
@@ -328,7 +328,7 @@ test('creme.widget.CheckListSelect.unselectAll', function() {
     deepEqual(null, widget.val());
 });
 
-test('creme.widget.CheckListSelect.reset', function() {
+QUnit.test('creme.widget.CheckListSelect.reset', function(assert) {
     var element = mock_checklistselect_create();
     mock_checklistselect_add_choice(element, 'item1', 12);
     mock_checklistselect_add_choice(element, 'item2', 78);
