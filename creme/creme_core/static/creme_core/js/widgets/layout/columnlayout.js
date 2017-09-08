@@ -16,14 +16,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
-creme.layout = creme.layout || {}
+creme.layout = creme.layout || {};
 
 creme.layout.ColumnSortLayout = creme.layout.Layout.sub({
-    _init_: function(options)
-    {
-        var options = $.extend({
+    _init_: function(options) {
+        options = $.extend({
             columns: 1
         }, options || {});
 
@@ -45,32 +45,37 @@ creme.layout.ColumnSortLayout = creme.layout.Layout.sub({
         return $('> *:not(.ui-layout), > .ui-layout > *', this._target).filter(this._filter);
     },
     */
-
-    comparator: function(comparator)
-    {
-        if (comparator === undefined)
+    comparator: function(comparator) {
+        if (comparator === undefined) {
             return this._comparator;
+        }
 
         this._comparator = $.proxy(comparator, this);
         return this;
     },
 
-    columns: function(columns)
-    {
-        if (columns === undefined)
+    columns: function(columns) {
+        if (columns === undefined) {
             return this._columns;
+        }
 
         if (Object.isType(columns, 'string') && columns.endsWith('px')) {
             var size = parseInt(columns.substr(0, columns.length - 2));
-            columns = isNaN(size) ? 1 : function() {return Math.floor(this.container().width() / size);}
+
+            if (isNaN(size)) {
+                columns = 1;
+            } else {
+                columns = function() {
+                    return Math.floor(this.container().width() / size);
+                };
+            }
         }
 
-        this._columns = Object.isFunc(columns) ? columns : function() {return columns;};
-        return this; 
+        this._columns = Object.isFunc(columns) ? columns : function() { return columns; };
+        return this;
     },
 
-    _onLayout: function(event, container)
-    {
+    _onLayout: function(event, container) {
         var sortables = Array.copy(this.children().get());
         var column_count = Math.max(this._columns(), 1);
         var column_list = [];
@@ -78,9 +83,9 @@ creme.layout.ColumnSortLayout = creme.layout.Layout.sub({
 
         try {
             sortables = sortables.sort(this._comparator);
-        } catch(e) {}
+        } catch (e) {}
 
-        for(var index = 0; index < column_count; ++index) {
+        for (var index = 0; index < column_count; ++index) {
             column_list.push([]);
         }
 
@@ -88,9 +93,11 @@ creme.layout.ColumnSortLayout = creme.layout.Layout.sub({
             column_list[Math.floor(index / column_item_count)].push($(item));
         });
 
-//        column_list.forEach(function(column, index) {
-//            console.log('column: ', index, ' ', column.map(function(item) {return $(item).attr('name');}));
-//        });
+        /*
+        column_list.forEach(function(column, index) {
+            console.log('column: ', index, ' ', column.map(function(item) {return $(item).attr('name');}));
+        });
+        */
 
         /*
          * Create sub lists as columns
@@ -129,8 +136,7 @@ creme.layout.ColumnSortLayout = creme.layout.Layout.sub({
         $('> .ui-layout.column.empty', container).remove();
         this.children().remove();
 
-        for(var line = 0; line < column_item_count; ++line)
-        {
+        for (var line = 0; line < column_item_count; ++line) {
             column_list.forEach(function(column) {
                 if (column.length > line) {
                     container.append(column[line]);
@@ -142,11 +148,9 @@ creme.layout.ColumnSortLayout = creme.layout.Layout.sub({
     }
 });
 
-
 creme.layout.CSSColumnLayout = creme.layout.Layout.sub({
-    _init_: function(options)
-    {
-        var options = $.extend({
+    _init_: function(options) {
+        options = $.extend({
             columns: 1
         }, options || {});
 
@@ -161,30 +165,25 @@ creme.layout.CSSColumnLayout = creme.layout.Layout.sub({
     },
 
     columnWidth: function() {
-        return Math.floor(this.container().width() / this.columns()); 
+        return Math.floor(this.container().width() / this.columns());
     },
 
-    columns: function(columns)
-    {
+    columns: function(columns) {
         if (columns === undefined) {
             return this._columns ? this._columns() : 1;
         }
 
-        this._columns = Object.isFunc(columns) ? columns : function() {return columns;};
+        this._columns = Object.isFunc(columns) ? columns : function() { return columns; };
         return this;
     },
 
-    _onLayout: function(event, container)
-    {
-        var container = this.container();
-        var column_width = this.columnWidth();
+    _onLayout: function(event, container) {
+        var column_width = '' + this.columnWidth() + 'px;';
 
-        column_width = '' + column_width + 'px;'
-
+        container = this.container();
         container.attr('style', '-webkit-column-width:' + column_width +
                                 '-moz-column-width:' + column_width +
                                 '-column-width:' + column_width);
     }
 });
-
 }(jQuery));
