@@ -16,15 +16,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.dialog = creme.dialog || {};
 
 creme.dialog.Overlay = creme.component.Component.sub({
-    _init_: function(options)
-    {
-        var options = options || {};
+    _init_: function(options) {
         var self = this;
+
+        options = options || {};
 
         this._content = $('<div/>').addClass('overlay-content');
         this._overlay = $('<div/>').addClass('ui-creme-overlay')
@@ -36,14 +37,16 @@ creme.dialog.Overlay = creme.component.Component.sub({
         });
     },
 
-    update: function(visible, status, delay)
-    {
-        var self = this;
-
+    update: function(visible, status, delay) {
         this._timeout.cancel();
 
         if (delay > 0) {
-            this._timeout.start({delay:delay, visible:visible, status:status});
+            this._timeout.start({
+                delay: delay,
+                visible: visible,
+                status: status
+            });
+
             return this;
         }
 
@@ -73,29 +76,29 @@ creme.dialog.Overlay = creme.component.Component.sub({
         return this;
     },
 
-    content: function(content)
-    {
-        if (content === undefined)
+    content: function(content) {
+        if (content === undefined) {
             return this._content;
+        }
 
         this._content.html(content);
         return this;
     },
 
-    visible: function(visible)
-    {
-        if (visible === undefined)
+    visible: function(visible) {
+        if (visible === undefined) {
             return this._overlay.hasClass('overlay-active');
+        }
 
-        var visible = visible || false;
+        visible = visible || false;
 
-        if (!this.isBound() || this.visible() === visible)
+        if (!this.isBound() || this.visible() === visible) {
             return this;
+        }
 
         this._overlay.toggleClass('overlay-active', visible);
 
-        if (visible)
-        {
+        if (visible) {
             /* IE Hack : remove overflow of container in order to prevent issues with unexpected 
              * vertical scrollbars.
              */ 
@@ -104,10 +107,10 @@ creme.dialog.Overlay = creme.component.Component.sub({
             this._targetPosition = this._target.css('position');
 
             this._target.css({
-                             'overflow-x': 'hidden',
-                             'overflow-y': 'hidden',
-                             'position':   'relative'
-                         });
+                'overflow-x': 'hidden',
+                'overflow-y': 'hidden',
+                'position':   'relative'
+            });
 
             this.resize();
 
@@ -115,19 +118,19 @@ creme.dialog.Overlay = creme.component.Component.sub({
         } else {
             this._overlay.remove();
             this._target.css({
-                             'overflow-x': this._targetOverflowX,
-                             'overflow-y': this._targetOverflowY,
-                             'position':   this._targetPosition
-                         });
+                'overflow-x': this._targetOverflowX,
+                'overflow-y': this._targetOverflowY,
+                'position':   this._targetPosition
+            });
         }
 
         return this;
     },
 
-    resize: function()
-    {
-        if (!this.isBound() || !this.visible())
+    resize: function() {
+        if (!this.isBound() || !this.visible()) {
             return this;
+        }
 
         var padding = $.browserInfo().mozilla ? 1 : 0;
 
@@ -137,8 +140,7 @@ creme.dialog.Overlay = creme.component.Component.sub({
         return this;
     },
 
-    bind: function(element)
-    {
+    bind: function(element) {
         var self = this;
 
         if (this.isBound()) {
@@ -146,13 +148,12 @@ creme.dialog.Overlay = creme.component.Component.sub({
         }
 
         this._target = element;
-        this._target.bind('resize', function() {self.resize()});
+        this._target.bind('resize', function() { self.resize(); });
 
         return this;
     },
 
-    unbind: function(element)
-    {
+    unbind: function(element) {
         if (!this.isBound()) {
             throw new Error('Overlay is not bound.');
         }
@@ -172,5 +173,4 @@ creme.dialog.Overlay = creme.component.Component.sub({
         return this._overlay.attr('status');
     }
 });
-
 }(jQuery));

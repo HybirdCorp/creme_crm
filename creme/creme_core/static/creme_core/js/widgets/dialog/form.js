@@ -20,19 +20,20 @@
  * Requires : creme.utils
  */
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.dialog = creme.dialog || {};
 
 creme.dialog.FormDialog = creme.dialog.Dialog.sub({
-    _init_: function(options)
-    {
+    _init_: function(options) {
         var self = this;
-        var options = $.extend({
-                autoFocus: true,
-                submitOnKey: 13,
-                submitData: {}
-            }, options || {});
+
+        options = $.extend({
+            autoFocus: true,
+            submitOnKey: 13,
+            submitData: {}
+        }, options || {});
 
         this._super_(creme.dialog.Dialog, '_init_', options);
 
@@ -57,26 +58,24 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         this._submitKeyCb = this._onSubmitKey.bind(this);
     },
 
-    validator: function(validator)
-    {
-        if (validator === undefined)
+    validator: function(validator) {
+        if (validator === undefined) {
             return this._validator;
+        }
 
-        if (!Object.isFunc(validator))
+        if (!Object.isFunc(validator)) {
             throw new Error('validator is not a function');
+        }
 
         this._validator = validator;
         return this;
     },
 
     _defaultValidator: function(data, statusText, dataType) {
-//        return dataType !== 'text/html' || data.match(/<form[^>]*>/) === null;
         return !creme.utils.isHTMLDataType(dataType) || data.match(/<form[^>]*>/) === null;
     },
 
-    _compatibleValidator: function(data, statusText, dataType)
-    {
-//        if (Object.isEmpty(data) || dataType !== 'text/html') {
+    _compatibleValidator: function(data, statusText, dataType) {
         if (Object.isEmpty(data) || !creme.utils.isHTMLDataType(dataType)) {
             return true;
         }
@@ -92,32 +91,28 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         return false;
     },
 
-    _validate: function(data, statusText, dataType)
-    {
+    _validate: function(data, statusText, dataType) {
         var validator = this.validator();
         return !Object.isFunc(validator) || validator(data, statusText, dataType);
     },
 
-    _frameSubmitData: function(data)
-    {
+    _frameSubmitData: function(data) {
         var options = this.options;
         var submitData = Object.isFunc(options.submitData) ? options.submitData.bind(this)(options, data) : options.submitData || {};
         return $.extend({}, submitData, data);
     },
 
-    submit: function(options, data, listeners)
-    {
-        var self = this;
-        var dialog = this.dialog();
+    submit: function(options, data, listeners) {
+        options = options || {};
+
         var form = $('form:first', this.content());
         var html5_errors = $(form).validateHTML5();
-        var options = options || {};
 
         if (Object.isEmpty(html5_errors) === false) {
             return this;
         }
 
-        var data = Object.isFunc(data) ? data.bind(this)(options) : data;
+        data = Object.isFunc(data) ? data.bind(this)(options) : data;
         var submitData = this._frameSubmitData(data);
 
         this.frame().submit('', $.extend({}, options, {data: submitData}), form, this._submitListeners);
@@ -129,10 +124,10 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         this.frame().delegate().off('keypress', this._submitKeyCb);
     },
 
-    _onFrameUpdate: function(event, data, dataType, action)
-    {
-        if (action !== 'submit')
+    _onFrameUpdate: function(event, data, dataType, action) {
+        if (action !== 'submit') {
             this._super_(creme.dialog.Dialog, '_onFrameUpdate', event, data, dataType, action);
+        }
 
         if (this.options.autoFocus) {
             var autofocus = $('[autofocus]:tabbable:first', this._frame.delegate());
@@ -151,8 +146,7 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         }
     },
 
-    _onSubmitDone: function(event, data, statusText, dataType)
-    {
+    _onSubmitDone: function(event, data, statusText, dataType) {
         if (this._validate(data, statusText, dataType)) {
             this._destroyDialog();
             this._events.trigger('form-success', [data, statusText, dataType], this);
@@ -178,8 +172,7 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         }
     },
 
-    _onOpen: function(dialog, frame, options)
-    {
+    _onOpen: function(dialog, frame, options) {
         var self = this;
 
         frame.onFetchFail(function(data, status) {
@@ -194,10 +187,10 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         this._super_(creme.dialog.Dialog, '_onOpen', dialog, frame, options);
     },
 
-    _frameActionButtons: function(options)
-    {
+    _frameActionFormSubmitButtons: function(options) {
         var self = this;
-        var buttons = this._super_(creme.dialog.Dialog, '_frameActionButtons', options);
+        var buttons = {};
+        var index = 1;
 
         $('.ui-creme-dialog-action[type="submit"]', this.content()).each(function() {
             var item  = $(this);
@@ -205,36 +198,56 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
             var name  = item.attr('name');
             var label = item.text();
             var order = parseInt(item.attr('data-dialog-action-order') || 0);
+            var value = item.val();
 
             if (item.is('input')) {
                 name = name || 'send';
-                label = item.val();
+                label = value || gettext('Save');
             } else {
                 if (!Object.isEmpty(name)) {
-                    data[name] = item.val();
+                    data[name] = value;
                 } else {
                     name = 'button';
                 }
 
-                if (buttons[name]) {
-                    name += '-' + item.val();
+                if (name in buttons) {
+                    if (!Object.isEmpty(value)) {
+                        name += '-' + value;
+                    } else {
+                        name += '-' + index;
+                        index += 1;
+                    }
                 }
+
+                label = label || gettext('Button');
             }
 
-            self._appendButton(buttons, name, label, function(button, e, options) {
-                                   this.submit(options, options.data);
-                               },
-                               {data: data, order: order});
+            if (name in buttons) {
+                console.warn('submit button/input "%s" appears multiple times'.format(name));
+            } else {
+                self._appendButton(buttons, name, label, function(button, e, options) {
+                                       this.submit(options, options.data);
+                                   },
+                                   {data: data, order: order});
+            }
         }).toggleAttr('disabled', true);
+
+        if (Object.isEmpty(buttons)) {
+            this._appendButton(buttons, 'send', gettext('Save'), function(button, e, options) {
+                this.submit();
+            });
+        }
 
         return buttons;
     },
 
-    _defaultButtons: function(buttons, options)
-    {
-        this._appendButton(buttons, 'send', gettext('Save'), function(button, e, options) {
-                               this.submit();
-                           });
+    _frameActionButtons: function(options) {
+        var buttons = this._super_(creme.dialog.Dialog, '_frameActionButtons', options);
+        $.extend(buttons, this._frameActionFormSubmitButtons(options));
+        return buttons;
+    },
+
+    _defaultButtons: function(buttons, options) {
         this._appendButton(buttons, 'cancel', gettext('Cancel'), function(button, e, options) {
                                this.close();
                            });
@@ -242,19 +255,16 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         return buttons;
     },
 
-    onFormSuccess: function(success)
-    {
+    onFormSuccess: function(success) {
         this._events.bind('form-success', success);
         return this;
     },
 
-    onFormError: function(error)
-    {
+    onFormError: function(error) {
         this._events.bind('form-error', error);
         return this;
     }
 });
-
 
 creme.dialog.FormDialogAction = creme.component.Action.sub({
     _init_: function(options, listeners) {
@@ -262,8 +272,7 @@ creme.dialog.FormDialogAction = creme.component.Action.sub({
         this._listeners = listeners || {};
     },
 
-    _onSubmit: function(data, statusText, dataType)
-    {
+    _onSubmit: function(data, statusText, dataType) {
         if ($.matchIEVersion(7, 8, 9)) {
             data = data.endsWith('</json>') || data.endsWith('</JSON>') ? data.substr(0, data.length - '</json>'.length) : data;
         }
@@ -271,16 +280,14 @@ creme.dialog.FormDialogAction = creme.component.Action.sub({
         this.done(data);
     },
 
-    _openPopup: function(options)
-    {
+    _openPopup: function(options) {
         var self = this;
-        var options = $.extend(this.options(), options || {});
+        options = $.extend(this.options(), options || {});
 
-        new creme.dialog.FormDialog(options).onFormSuccess(function(event, data) {self._onSubmit(data);})
-                                            .onClose(function() {self.cancel();})
+        new creme.dialog.FormDialog(options).onFormSuccess(function(event, data) { self._onSubmit(data); })
+                                            .onClose(function() { self.cancel(); })
                                             .on(this._listeners)
                                             .open();
     }
 });
-
 }(jQuery));

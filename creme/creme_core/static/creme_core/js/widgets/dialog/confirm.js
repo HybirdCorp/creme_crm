@@ -16,13 +16,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.dialog = creme.dialog || {};
 
 creme.dialog.ConfirmDialog = creme.dialog.Dialog.sub({
     _init_: function(message, options) {
-        var options = $.extend({
+        options = $.extend({
             title:    gettext('Confirm'),
             fitFrame: true,
             height:   200
@@ -32,26 +33,23 @@ creme.dialog.ConfirmDialog = creme.dialog.Dialog.sub({
         this.message(message);
     },
 
-    ok: function()
-    {
+    ok: function() {
         this._destroyDialog();
         this._events.trigger('ok', [], this);
         return this;
     },
 
-    message: function(message)
-    {
+    message: function(message) {
         this.options.html = '<p>' + message + '</p>';
         return this.isOpened() ? this.fill(this.options.html) : this;
     },
 
-    _defaultButtons: function(buttons, options)
-    {
+    _defaultButtons: function(buttons, options) {
         this._appendButton(buttons, 'ok', gettext('Ok'), function(button, e, options) {
                                this.ok();
                            });
         this._appendButton(buttons, 'cancel', gettext('Cancel'), function(button, e, options) {
-                               this.close()
+                               this.close();
                            });
 
         return buttons;
@@ -63,21 +61,18 @@ creme.dialog.ConfirmDialog = creme.dialog.Dialog.sub({
     }
 });
 
-
 creme.dialog.ConfirmAction = creme.component.Action.sub({
     _init_: function(options) {
         this._super_(creme.component.Action, '_init_', this._openPopup, options);
     },
 
-    _openPopup: function(options)
-    {
+    _openPopup: function(options) {
         var self = this;
 
         new creme.dialog.ConfirmDialog(options.message || '', options)
-                            .onOk(function(data) {self.done();})
-                            .onClose(function() {self.cancel();})
-                            .open();
+                        .onOk(function(data) { self.done(); })
+                        .onClose(function() { self.cancel(); })
+                        .open();
     }
 });
-
 }(jQuery));

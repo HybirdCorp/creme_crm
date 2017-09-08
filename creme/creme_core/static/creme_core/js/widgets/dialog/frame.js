@@ -20,16 +20,16 @@
  * Requires : creme.utils
  */
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.dialog = creme.dialog || {};
 
 creme.dialog.Frame = creme.component.Component.sub({
-    _init_: function(options)
-    {
-        var options = $.extend({
-                          autoActivate: true,
-                      }, options || {});
+    _init_: function(options) {
+        options = $.extend({
+            autoActivate: true
+        }, options || {});
 
         this._overlay = new creme.dialog.Overlay();
         this._overlayDelay = 200;
@@ -70,10 +70,9 @@ creme.dialog.Frame = creme.component.Component.sub({
         return this.on('submit-fail', listener);
     },
 
-    _cleanJSONResponse: function(response)
-    {
+    _cleanJSONResponse: function(response) {
         var json_matches = response.match('^[\s]*<json>(.*)</json>[\s]*$');
-        var json_data = (json_matches !== null && json_matches.length == 2) ? json_matches[1] : undefined;
+        var json_data = (json_matches !== null && json_matches.length === 2) ? json_matches[1] : undefined;
 
         if (json_data && this._json.isJSON(json_data)) {
             return {content: json_data, type: 'text/json'};
@@ -82,12 +81,10 @@ creme.dialog.Frame = creme.component.Component.sub({
         return null;
     },
 
-    _cleanResponse: function(response, statusText, dataType)
-    {
-        if (Object.isType(response, 'string')) {
+    _cleanResponse: function(response, statusText, dataType) {
+        if (Object.isString(response)) {
             return this._cleanJSONResponse(response) || {content: response, type: dataType || 'text/html'};
         } else if (Object.isType(response, 'object')) {
-//            if (response.type == 'text/html') {
             if (creme.utils.isHTMLDataType(response.type)) {
                 return response;
             } else {
@@ -98,18 +95,16 @@ creme.dialog.Frame = creme.component.Component.sub({
         return {content: response, type: 'text/html'};
     },
 
-    deactivateContent: function(content)
-    {
+    deactivateContent: function() {
         if (this._contentReady) {
-            creme.widget.shutdown(content);
+            creme.widget.shutdown(this._delegate);
             this._contentReady = false;
         }
     },
 
-    activateContent: function(content)
-    {
+    activateContent: function() {
         if (!this._contentReady) {
-            creme.widget.ready(content);
+            creme.widget.ready(this._delegate);
             this._contentReady = true;
         }
     },
@@ -118,15 +113,13 @@ creme.dialog.Frame = creme.component.Component.sub({
         return this._contentReady;
     },
 
-    fill: function(data, action)
-    {
-        var self = this;
-        var data = this._cleanResponse(data);
+    fill: function(data, action) {
+        data = this._cleanResponse(data);
+
         var delegate = this._delegate;
         var overlay = this._overlay;
         var dataType = data.type;
 
-//        if (['text/html', 'object/jquery'].indexOf(data.type) === -1) {
         if (!creme.utils.isHTMLDataType(dataType) && dataType !== 'object/jquery') {
             return this;
         }
@@ -135,24 +128,29 @@ creme.dialog.Frame = creme.component.Component.sub({
             overlay.unbind(delegate).update(false);
 
             this._events.trigger('cleanup', [delegate, action], this);
-            this.deactivateContent(delegate);
+            this.deactivateContent();
+
             delegate.empty();
             overlay.bind(delegate);
 
-            // upgrade to Jquery 1.9x : html content without starting '<' is no longer supported.
-            //                          use $.trim() for trailing space or returns.
-            if (data.content) {
-                if (data.content.trim) {
-                    delegate.append($($.trim(data.content)));
-                } else {
-                    delegate.append($(data.content));
-                }
+            var content;
+
+            if (Object.isString(data.content)) {
+                // upgrade to Jquery 1.9x : html content without starting '<' is no longer supported.
+                //                          use $.trim() for trailing space or returns.
+                content = $(data.content.trim());
+            } else {
+                content = $(data.content);
             }
 
-            if (this._autoActivate) {
-                this.activateContent(delegate);
+            if (content.length > 0) {
+                delegate.append(content);
+
+                if (this._autoActivate) {
+                    this.activateContent();
+                }
             }
-        } catch(e) {
+        } catch (e) {
             console.error(e);
         }
 
@@ -172,11 +170,10 @@ creme.dialog.Frame = creme.component.Component.sub({
         this._delegate.trigger('resize', args);
     },
 
-    _formatOverlayContent: function(url, response, error)
-    {
+    _formatOverlayContent: function(url, response, error) {
         var error_status = error ? error.status : 404;
         var error_message = '<h2>%s&nbsp;(%s)<div class="subtitle">%s</div></h2>' +
-                            '<p class="message">%s</p>' + 
+                            '<p class="message">%s</p>' +
                             '<a class="redirect" onclick="creme.utils.reload();">' +
                                 gettext('Reload the page or click here. If the problem persists, please contact your administrator.') +
                             '</a>';
@@ -184,17 +181,18 @@ creme.dialog.Frame = creme.component.Component.sub({
         return error_message.format(creme.ajax.localizedErrorMessage(error),
                                     error_status,
                                     url,
-                                    response)
+                                    response);
     },
 
-    fetch: function(url, options, data, listeners)
-    {
+    fetch: function(url, options, data, listeners) {
         var self = this;
-        var listeners = listeners || {};
+
+        listeners = listeners || {};
+        url = url || this.lastFetchUrl();
+
         var query = this._backend.query();
         var overlay = this._overlay;
         var events = this._events;
-        var url = url || this.lastFetchUrl();
 
         events.trigger('before-fetch', [url, options], this);
         overlay.content('')
@@ -216,12 +214,13 @@ creme.dialog.Frame = creme.component.Component.sub({
              .get(data, options);
     },
 
-    submit: function(url, options, form, listeners)
-    {
+    submit: function(url, options, form, listeners) {
         var self = this;
-        var url = (form ? (url || form.attr('action')) : url) || this.lastFetchUrl();
-        var options = $.extend({action: url}, options || {});
-        var listeners = listeners || {};
+
+        url = (form ? (url || form.attr('action')) : url) || this.lastFetchUrl();
+        options = $.extend({action: url}, options || {});
+        listeners = listeners || {};
+
         var overlay = this._overlay;
         var events = this._events;
 
@@ -254,22 +253,22 @@ creme.dialog.Frame = creme.component.Component.sub({
                              options);
     },
 
-    bind: function(delegate)
-    {
-        if (this._delegate !== undefined)
+    bind: function(delegate) {
+        if (this._delegate !== undefined) {
             throw new Error('frame component is already bound');
+        }
 
         this._delegate = delegate;
         this._overlay.bind(delegate);
         return this;
     },
 
-    unbind: function()
-    {
-        if (this._delegate === undefined)
+    unbind: function() {
+        if (this._delegate === undefined) {
             throw new Error('frame component is not bound');
+        }
 
-        this._overlay.unbind(delegate);
+        this._overlay.unbind(this._delegate);
         this._delegate = undefined;
         return this;
     },
@@ -294,5 +293,4 @@ creme.dialog.Frame = creme.component.Component.sub({
         return this._delegate ? creme.layout.preferredSize(this._delegate, 2) : {width: 0, height: 0};
     }
 });
-
 }(jQuery));
