@@ -727,6 +727,11 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         quote = quotes[0]
         self.assertDatetimesAlmostEqual(date.today(), quote.issuing_date)
         self.assertEqual(1, quote.status_id)
+        self.assertTrue(quote.number)
+
+        name = quote.name
+        self.assertIn(unicode(quote.number), name)
+        self.assertIn(str(opportunity.name), name)
 
         self.assertRelationCount(1, quote, REL_SUB_BILL_ISSUED,   emitter)
         self.assertRelationCount(1, quote, REL_SUB_BILL_RECEIVED, target)

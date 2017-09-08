@@ -23,6 +23,7 @@ from functools import partial
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.timezone import now
+from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import Relation, Vat
@@ -78,7 +79,7 @@ def current_quote(request, opp_id, quote_id, action):
         relations.delete()
 
     if request.is_ajax():
-        return HttpResponse("", content_type="text/javascript")
+        return HttpResponse(content_type='text/javascript')
 
     return redirect(opp)
 
@@ -123,7 +124,7 @@ def generate_new_doc(request, opp_id, ct_id):
     create_relation(type_id=rtype_id,              object_entity=opp)
 
     document.generate_number()  # Need the relationship with emitter organisation
-    document.name = u'%s(%s)' % (document.number, opp.name)
+    document.name = _(u'{number} ({opportunity})').format(number=document.number, opportunity=opp.name)
     document.save()
 
     relations = Relation.objects.filter(subject_entity=opp.id,
@@ -162,6 +163,6 @@ def generate_new_doc(request, opp_id, ct_id):
         workflow_action(opp.emitter, opp.target, user)
 
     if request.is_ajax():
-        return HttpResponse('', content_type="text/javascript")
+        return HttpResponse(content_type='text/javascript')
 
     return redirect(opp)
