@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,27 +19,27 @@
 ################################################################################
 
 from django import template
-from django.utils.translation import ugettext as _
+from django.utils.translation import ungettext
 
 
 register = template.Library()
 
 
-@register.filter(name="timedelta_pprint")
+@register.filter(name='timedelta_pprint')
 def timedelta_pprint(timedelta_):
     days = timedelta_.days
 
     if days > 0:
-        return _('%s day(s)') % days
+        return ungettext(u'%s day', u'%s days', days) % days
 
     hours, hour_remain = divmod(timedelta_.seconds, 3600)
 
     if hours > 0:
-        return _('%s hour(s)') % hours
+        return ungettext(u'%s hour', u'%s hours', hours) % hours
 
     minutes, seconds = divmod(hour_remain, 60)
 
     if minutes > 0:
-        return _('%s minute(s)') % minutes
+        return ungettext(u'%s minute)', u'%s minutes', minutes) % minutes
 
-    return _('%s second(s)') % seconds
+    return ungettext(u'%s second', u'%s seconds', seconds) % seconds
