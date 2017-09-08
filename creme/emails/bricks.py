@@ -45,6 +45,10 @@ MailingList   = emails.get_mailinglist_model()
 # class EntityEmailBlock(SimpleBlock):
 #     template_name = 'emails/templatetags/block_mail.html'
 
+class EntityEmailBarHatBrick(SimpleBrick):
+    # NB: we do not set an ID because it's the main Header Brick.
+    template_name = 'emails/bricks/mail-hat-bar.html'
+
 
 class _HTMLBodyBrick(SimpleBrick):
     verbose_name  = _(u'HTML body')
@@ -250,10 +254,6 @@ class MailsHistoryBrick(QuerysetBrick):
                   constants.REL_SUB_MAIL_RECEIVED,
                   constants.REL_SUB_RELATED_TO,
                  ]
-    _STATUSES = [constants.MAIL_STATUS_SYNCHRONIZED,
-                 constants.MAIL_STATUS_SYNCHRONIZED_SPAM,
-                 constants.MAIL_STATUS_SYNCHRONIZED_WAITING,
-                ]
 
     def detailview_display(self, context):
         pk = context['object'].pk
@@ -264,11 +264,6 @@ class MailsHistoryBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     EntityEmail.objects.filter(is_deleted=False, pk__in=entityemail_ids),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pk)),
-                    sent_status=constants.MAIL_STATUS_SENT,
-                    sync_statuses=self._STATUSES,
-                    rtypes=','.join(self.relation_type_deps),  # DEPRECATED
                     rtype_ids=self.relation_type_deps,
                     creation_perm=context['user'].has_perm_to_create(EntityEmail),
         ))

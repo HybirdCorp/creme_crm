@@ -24,13 +24,19 @@ MAIL_STATUS_SYNCHRONIZED         = 4
 MAIL_STATUS_SYNCHRONIZED_SPAM    = 5
 MAIL_STATUS_SYNCHRONIZED_WAITING = 6
 
-MAIL_STATUS = {
+MAIL_STATUS = {  # TODO: rename MAIL_STATUSES ?
     MAIL_STATUS_SENT:                 pgettext_lazy('emails', u'Sent'),
     MAIL_STATUS_NOTSENT:              pgettext_lazy('emails', u'Not sent'),
     MAIL_STATUS_SENDINGERROR:         _(u'Sending error'),
     MAIL_STATUS_SYNCHRONIZED:         pgettext_lazy('emails', u'Synchronized'),
     MAIL_STATUS_SYNCHRONIZED_SPAM:    _(u'Synchronized - Marked as SPAM'),
     MAIL_STATUS_SYNCHRONIZED_WAITING: _(u'Synchronized - Untreated'),
+}
+
+MAIL_SYNC_STATUSES = {
+    MAIL_STATUS_SYNCHRONIZED,
+    MAIL_STATUS_SYNCHRONIZED_SPAM,
+    MAIL_STATUS_SYNCHRONIZED_WAITING,
 }
 
 SETTING_EMAILCAMPAIGN_SENDER = 'emails-emailcampaign_sender'

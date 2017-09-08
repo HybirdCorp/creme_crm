@@ -74,6 +74,7 @@ class EmailsConfig(CremeAppConfig):
                                 bricks.SignaturesBrick,
                                 bricks.MySignaturesBrick,
                                )
+        brick_registry.register_hat(self.EntityEmail, main_brick_cls=bricks.EntityEmailBarHatBrick)
 
     def register_bulk_update(self, bulk_update_registry):
         from .models import EmailSending, LightWeightEmail
