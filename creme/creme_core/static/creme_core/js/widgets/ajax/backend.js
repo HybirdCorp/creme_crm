@@ -16,7 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
+
+creme.ajax = creme.ajax || {};
 
 creme.ajax.Backend = function(options) {
     this.options = $.extend({
@@ -27,32 +30,32 @@ creme.ajax.Backend = function(options) {
 };
 
 creme.ajax.Backend.prototype = {
-    get:function(url, data, on_success, on_error, options)
-    {
+    get: function(url, data, on_success, on_error, options) {
         var opts = $.extend({method: 'GET'}, this.options, options);
 
-        if (opts.debug)
+        if (opts.debug) {
             console.log('creme.ajax.Backend > GET', url, ' > data:', data, ', options:', opts);
+        }
 
         creme.ajax.jqueryAjaxSend(url, data, on_success, on_error, opts);
     },
 
-    post:function(url, data, on_success, on_error, options)
-    {
+    post: function(url, data, on_success, on_error, options) {
         var opts = $.extend({method: 'POST'}, this.options, options, true);
 
-        if (opts.debug)
+        if (opts.debug) {
             console.log('creme.ajax.Backend > POST', url, ' > data:', data, ', options:', opts);
+        }
 
         creme.ajax.jqueryAjaxSend(url, data, on_success, on_error, opts);
     },
 
-    submit:function(form, on_success, on_error, options)
-    {
+    submit: function(form, on_success, on_error, options) {
         var opts = $.extend({}, this.options, options, true);
 
-        if (opts.debug)
+        if (opts.debug) {
             console.log('creme.ajax.Backend > SUBMIT', form.attr('action'), '> options:', opts);
+        }
 
         creme.ajax.jqueryFormSubmit(form, on_success, on_error, opts);
     },
@@ -77,7 +80,7 @@ creme.ajax.localizedErrorMessage = function(xhr) {
     var status = Object.isEmpty(xhr) ? '200' : (['number', 'string'].indexOf(typeof xhr) !== -1 ? xhr : (xhr.status || '200'));
     var message = creme.ajax.LOCALIZED_ERROR_MESSAGES[status];
 
-    return message ? message : gettext('Error') + (status && status !== '200' ? ' (' + status + ')' : '');
+    return message || (gettext('Error') + (status && status !== '200' ? ' (' + status + ')' : ''));
 };
 
 // mock XHR object (thanks to jquery.form author)
@@ -109,12 +112,14 @@ creme.ajax.AjaxResponse = function(status, data, xhr) {
 creme.ajax.cookieAttr = function(name) {
     var cookieValue = null;
 
-    if (document.cookie && document.cookie != '') {
+    if (Object.isEmpty(document.cookie) === false) {
         var cookies = document.cookie.split(';');
+
         for (var i = 0; i < cookies.length; i++) {
             var cookie = jQuery.trim(cookies[i]);
+
             // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break;
             }
@@ -128,11 +133,11 @@ creme.ajax.cookieCSRF = function() {
     return creme.ajax.cookieAttr('csrftoken');
 };
 
-creme.ajax.jqueryFormSubmit = function(form, success_cb, error_cb, options)
-{
+creme.ajax.jqueryFormSubmit = function(form, success_cb, error_cb, options) {
+    options = options || {};
+
     var form_action = form.attr('action');
     var needs_iframe = $('input[type=file]', form).length > 0; // disable iframe if no file input in form
-    var options = options || {};
 
     form.attr('action', options.action || form_action);
 
@@ -145,28 +150,40 @@ creme.ajax.jqueryFormSubmit = function(form, success_cb, error_cb, options)
     }
 
     var submit_options = {
-            iframe: needs_iframe,
-            success:function(responseText, statusText, xhr, form) {
-                form.attr('action', form_action);
+        iframe: needs_iframe,
+        success: function(responseText, statusText, xhr, form) {
+            form.attr('action', form_action);
 
-                if (needs_iframe && xhr.status === 0) {
-                    xhr.status = parse_iframe_response_status(responseText);
-                }
-
-                if (xhr.status === 200) {
-                    if (success_cb !== undefined)
-                        success_cb(responseText, statusText, xhr, form);
-
-                    return;
-                }
-
-                if (error_cb !== undefined)
-                    error_cb(responseText, {type:"request", status:xhr.status, message:"HTTP - " + xhr.status + " error", request:xhr});
-            },
-            error: function(xhr) {
-                if (error_cb !== undefined)
-                    error_cb(xhr.responseText, {type:"request", status:xhr.status, message:"HTTP - " + xhr.status + " error", request:xhr});
+            if (needs_iframe && xhr.status === 0) {
+                xhr.status = parse_iframe_response_status(responseText);
             }
+
+            if (xhr.status === 200) {
+                if (success_cb !== undefined) {
+                    success_cb(responseText, statusText, xhr, form);
+                }
+
+                return;
+            }
+
+            if (error_cb !== undefined) {
+                error_cb(responseText, {
+                    type:    "request",
+                    status:  xhr.status,
+                    message: "HTTP - " + xhr.status + " error",
+                    request: xhr
+                });
+            }
+        },
+        error: function(xhr) {
+            if (error_cb !== undefined) {
+                error_cb(xhr.responseText, {
+                    type:   "request",
+                    status:  xhr.status,
+                    message: "HTTP - " + xhr.status + " error",
+                    request: xhr});
+            }
+        }
     };
 
     submit_options = $.extend({}, submit_options, options, true);
@@ -180,10 +197,10 @@ creme.ajax.jqueryFormSubmit = function(form, success_cb, error_cb, options)
 
 // TODO : This code is duplicated from creme.ajax.json.send and will replace it in the future
 // TODO : replace success_cb/error_cb by listeners.
-creme.ajax.jqueryAjaxSend = function(url, data, success_cb, error_cb, options)
-{
+creme.ajax.jqueryAjaxSend = function(url, data, success_cb, error_cb, options) {
+    options = options || {};
+
     var csrf = creme.ajax.cookieCSRF();
-    var options = options || {};
 
     var ajax_options = $.extend({
         async:    !options.sync,
@@ -209,5 +226,4 @@ creme.ajax.jqueryAjaxSend = function(url, data, success_cb, error_cb, options)
 
     $.ajax(ajax_options);
 };
-
 }(jQuery));

@@ -54,6 +54,15 @@ QUnit.module("creme.ajax.query.js", {
         return (function(name) {return function() {
             self.mockListenerCalls(name).push(Array.copy(arguments));
         }})(name);
+    },
+
+    assertRaises: function(block, expected, message) {
+        QUnit.assert.raises(block,
+               function(error) {
+                    ok(error instanceof expected, 'error is ' + expected);
+                    equal(message, '' + error);
+                    return true;
+               });
     }
 });
 
@@ -193,6 +202,27 @@ QUnit.test('creme.ajax.Query.get (url, data)', function(assert) {
     deepEqual(this.mockListenerCalls('success'), this.mockListenerCalls('complete'));
 });
 
+QUnit.test('creme.ajax.Query.get (url, data function)', function(assert) {
+    var query = new creme.ajax.Query({}, this.backend);
+    query.onDone(this.mockListener('success'));
+    query.onCancel(this.mockListener('cancel'));
+    query.onFail(this.mockListener('error'));
+    query.onComplete(this.mockListener('complete'));
+
+    var datasource = function() {
+        return {a: 'a', b: [3, 4]};
+    };
+
+    query.url('mock/custom').data(datasource).get({c: 12});
+
+    deepEqual([
+               ['done', $.toJSON({url: 'mock/custom', method: 'GET', data: {a: 'a', b: [3, 4], c: 12}})]
+              ], this.mockListenerCalls('success'));
+    deepEqual([], this.mockListenerCalls('cancel'));
+    deepEqual([], this.mockListenerCalls('error'));
+    deepEqual(this.mockListenerCalls('success'), this.mockListenerCalls('complete'));
+});
+
 QUnit.test('creme.ajax.Query.get (fail)', function(assert) {
     var query = new creme.ajax.Query({}, this.backend);
     query.onDone(this.mockListener('success'));
@@ -229,6 +259,58 @@ QUnit.test('creme.ajax.Query.get (fail)', function(assert) {
                                ['fail', 'HTTP - Error 500', 500]
                               ], this.mockListenerCalls('error'));
     deepEqual(this.mockListenerCalls('error'), this.mockListenerCalls('complete'));
+});
+
+QUnit.test('creme.ajax.Query.get (converter)', function(assert) {
+    var query = new creme.ajax.Query({}, this.backend);
+    query.onDone(this.mockListener('success'));
+    query.onCancel(this.mockListener('cancel'));
+    query.onFail(this.mockListener('error'));
+    query.onComplete(this.mockListener('complete'));
+
+    var converter = function(response) {
+        return JSON.parse(response).data.a + 10;
+    };
+
+    equal(true, Object.isFunc(query.converter()));
+    query.converter(converter);
+    query.url('mock/custom').get({a: 5});
+
+    deepEqual([
+           ['done', 5 + 10]
+    ], this.mockListenerCalls('success'));
+    deepEqual([], this.mockListenerCalls('cancel'));
+    deepEqual([], this.mockListenerCalls('error'));
+});
+
+QUnit.test('creme.ajax.Query.get (converter, raises)', function(assert) {
+    var query = new creme.ajax.Query({}, this.backend);
+    query.onDone(this.mockListener('success'));
+    query.onCancel(this.mockListener('cancel'));
+    query.onFail(this.mockListener('error'));
+    query.onComplete(this.mockListener('complete'));
+
+    var error_converter = function(response) {
+        throw new Error('invalid convert');
+    };
+
+    equal(true, Object.isFunc(query.converter()));
+    query.converter(error_converter);
+    query.url('mock/custom').get({a: 5});
+
+    deepEqual([], this.mockListenerCalls('success'));
+    deepEqual([], this.mockListenerCalls('cancel'));
+    deepEqual([
+        ['fail', $.toJSON({url: 'mock/custom', method: 'GET', data: {a: 5}}), Error('invalid convert')]
+    ], this.mockListenerCalls('error'));
+});
+
+QUnit.test('creme.ajax.Query.get (invalid converter)', function(assert) {
+    var query = new creme.ajax.Query({}, this.backend);
+
+    this.assertRaises(function() {
+        query.converter('not a function');
+    }, Error, 'Error: converter is not a function')
 });
 
 QUnit.test('creme.ajax.Query.post (empty url)', function(assert) {
@@ -308,5 +390,56 @@ QUnit.test('creme.ajax.Query.post (fail)', function(assert) {
                                ['fail', 'HTTP - Error 403', 403],
                                ['fail', 'HTTP - Error 500', 500]
                               ], this.mockListenerCalls('error'));
+    deepEqual(this.mockListenerCalls('error'), this.mockListenerCalls('complete'));
+});
+
+QUnit.test('creme.ajax.query (get)', function(assert) {
+    var query = creme.ajax.query('mock/custom', {}, {}, this.backend);
+    query.onDone(this.mockListener('success'));
+    query.onCancel(this.mockListener('cancel'));
+    query.onFail(this.mockListener('error'));
+    query.onComplete(this.mockListener('complete'));
+
+    query.start();
+
+    deepEqual([
+               ['done', $.toJSON({url: 'mock/custom', method: 'GET', data: {}})]
+              ], this.mockListenerCalls('success'));
+    deepEqual([], this.mockListenerCalls('cancel'));
+    deepEqual([], this.mockListenerCalls('error'));
+    deepEqual(this.mockListenerCalls('success'), this.mockListenerCalls('complete'));
+});
+
+QUnit.test('creme.ajax.query (post)', function(assert) {
+    var query = creme.ajax.query('mock/custom', {action: 'POST'}, {}, this.backend);
+    query.onDone(this.mockListener('success'));
+    query.onCancel(this.mockListener('cancel'));
+    query.onFail(this.mockListener('error'));
+    query.onComplete(this.mockListener('complete'));
+
+    query.start();
+
+    deepEqual([
+               ['done', $.toJSON({url: 'mock/custom', method: 'POST', data: {}})]
+              ], this.mockListenerCalls('success'));
+    deepEqual([], this.mockListenerCalls('cancel'));
+    deepEqual([], this.mockListenerCalls('error'));
+    deepEqual(this.mockListenerCalls('success'), this.mockListenerCalls('complete'));
+});
+
+QUnit.test('creme.ajax.query (unknown action)', function(assert) {
+    var query = creme.ajax.query('mock/custom', {action: 'UNKNOWN'}, {}, this.backend);
+    query.onDone(this.mockListener('success'));
+    query.onCancel(this.mockListener('cancel'));
+    query.onFail(this.mockListener('error'));
+    query.onComplete(this.mockListener('complete'));
+
+    query.start();
+
+    deepEqual([], this.mockListenerCalls('success'));
+    deepEqual([], this.mockListenerCalls('cancel'));
+    deepEqual([
+               ['fail', Error('no such backend action "unknown"')]
+              ], this.mockListenerCalls('error'));
     deepEqual(this.mockListenerCalls('error'), this.mockListenerCalls('complete'));
 });
