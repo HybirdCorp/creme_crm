@@ -16,9 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
-creme.layout = creme.layout || {}
+creme.layout = creme.layout || {};
 
 creme.layout.LayoutResizeSensor = creme.component.Component.sub({
     _OVERFLOW_EVENT:  'OverflowEvent' in window ? 'overflowchanged' : 'overflow',
@@ -26,7 +27,7 @@ creme.layout.LayoutResizeSensor = creme.component.Component.sub({
 
     _init_: function() {
         this._threshold = 100;
-        
+
         if ($.browserInfo().msie) {
             this._sensor = $('<div class="ui-layout resize-sensor" onresize="$(\'body\').resize();">');
         } else {
@@ -41,10 +42,10 @@ creme.layout.LayoutResizeSensor = creme.component.Component.sub({
         return this._target !== undefined;
     },
 
-    bind: function(element)
-    {
-        if (this._target !== undefined)
+    bind: function(element) {
+        if (this._target !== undefined) {
             throw new Error('Resize sensor already bound');
+        }
 
         this._target = element;
 
@@ -57,10 +58,11 @@ creme.layout.LayoutResizeSensor = creme.component.Component.sub({
             var width = sensor[0].offsetWidth;
             var height = sensor[0].offsetHeight;
 
-            if (prev_width === width && prev_height === height)
+            if (prev_width === width && prev_height === height) {
                 return;
+            }
 
-            //console.log('resize ', [width, height], ' ', [prev_width, prev_height])
+            // console.log('resize ', [width, height], ' ', [prev_width, prev_height])
 
             element.trigger(jQuery.Event("resize", {width: width, height: height}));
 
@@ -68,8 +70,8 @@ creme.layout.LayoutResizeSensor = creme.component.Component.sub({
                 element.append(sensor);
             }
 
-            var width = sensor[0].offsetWidth;
-            var height = sensor[0].offsetHeight;
+            width = sensor[0].offsetWidth;
+            height = sensor[0].offsetHeight;
 
             $('> :first', overflow).css('width', width - 1)
                                    .css('height', height - 1);
@@ -83,8 +85,7 @@ creme.layout.LayoutResizeSensor = creme.component.Component.sub({
 
         var flow_cb = $.debounce(matchFlow, this._threshold);
 
-        if (!$.browserInfo().msie)
-        {
+        if (!$.browserInfo().msie) {
             this._onOverflow(sensor, flow_cb);
             this._onUnderflow(sensor, flow_cb);
             this._onOverflow(overflow, flow_cb);
@@ -100,10 +101,10 @@ creme.layout.LayoutResizeSensor = creme.component.Component.sub({
         matchFlow({});
     },
 
-    unbind: function()
-    {
-        if (this._target === undefined)
+    unbind: function() {
+        if (this._target === undefined) {
             throw new Error('Resize sensor not bound');
+        }
 
         $('> div.ui-layout.resize-sensor', this._target).remove();
 
@@ -113,16 +114,14 @@ creme.layout.LayoutResizeSensor = creme.component.Component.sub({
         return this;
     },
 
-    _isOverflowEvent: function(e)
-    {
-        return e.type == 'overflow' ||
-               ((e.orient == 0 && e.horizontalOverflow) ||
-                (e.orient == 1 && e.verticalOverflow) ||
-                (e.orient == 2 && e.horizontalOverflow && e.verticalOverflow));
+    _isOverflowEvent: function(e) {
+        return e.type === 'overflow' ||
+               ((e.orient === 0 && e.horizontalOverflow) ||
+                (e.orient === 1 && e.verticalOverflow) ||
+                (e.orient === 2 && e.horizontalOverflow && e.verticalOverflow));
     },
 
-    _onOverflow: function(element, overflow)
-    {
+    _onOverflow: function(element, overflow) {
         var self = this;
         var event = this._OVERFLOW_EVENT;
 
@@ -134,8 +133,7 @@ creme.layout.LayoutResizeSensor = creme.component.Component.sub({
         });
     },
 
-    _onUnderflow: function(element, underflow)
-    {
+    _onUnderflow: function(element, underflow) {
         var self = this;
         var event = this._UNDERFLOW_EVENT;
 
@@ -148,14 +146,13 @@ creme.layout.LayoutResizeSensor = creme.component.Component.sub({
     }
 });
 
-
 creme.layout.Layout = creme.component.Component.sub({
-    _init_: function(options)
-    {
+    _init_: function(options) {
         var self = this;
-        var options = $.extend({
+
+        options = $.extend({
             resizable: false,
-            filter: function() {return true;}
+            filter: function() { return true; }
         }, options || {});
 
         this._resize_cb = function(e, ui) {
@@ -163,9 +160,9 @@ creme.layout.Layout = creme.component.Component.sub({
                             ui ? ui.size.height : e.height || 0);
         };
 
-        this._add_cb = function(e) {self.fireAdded(e.target);};
-        this._remove_cb = function(e) {self.fireRemoved(e.target);};
-        this._layout_cb = function() {self.layout();};
+        this._add_cb = function(e) { self.fireAdded(e.target); };
+        this._remove_cb = function(e) { self.fireRemoved(e.target); };
+        this._layout_cb = function() { self.layout(); };
         this._locked = false;
         this._uuid = $.uidGen();
 
@@ -179,19 +176,19 @@ creme.layout.Layout = creme.component.Component.sub({
         return creme.layout.preferredSize(element);
     },
 
-    filter: function(filter)
-    {
-        if (filter === undefined)
+    filter: function(filter) {
+        if (filter === undefined) {
             return this._filter;
+        }
 
-        this._filter = Object.isType(filter, 'string') ? function(item) {$(item).is(filter);} : filter;
+        this._filter = Object.isType(filter, 'string') ? function(item) { $(item).is(filter); } : filter;
         return this;
     },
 
-    resizable: function(resizable)
-    {
-        if (resizable === undefined)
+    resizable: function(resizable) {
+        if (resizable === undefined) {
             return this._resizable;
+        }
 
         this._resizable = resizable;
         this._initResizeSensor();
@@ -199,10 +196,10 @@ creme.layout.Layout = creme.component.Component.sub({
         return this;
     },
 
-    _initResizeSensor: function()
-    {
-        if (this._target == undefined)
+    _initResizeSensor: function() {
+        if (this._target === undefined) {
             return;
+        }
 
         var resizable = this._resizable;
         var sensor = this._resizeSensor;
@@ -219,8 +216,7 @@ creme.layout.Layout = creme.component.Component.sub({
         this._bindResizeSensor();
     },
 
-    _bindResizeSensor: function()
-    {
+    _bindResizeSensor: function() {
         var sensor = this._resizeSensor;
 
         if (sensor !== undefined && !sensor.isBound()) {
@@ -228,8 +224,7 @@ creme.layout.Layout = creme.component.Component.sub({
         }
     },
 
-    _unbindResizeSensor: function()
-    {
+    _unbindResizeSensor: function() {
         var sensor = this._resizeSensor;
 
         if (sensor !== undefined && sensor.isBound()) {
@@ -260,14 +255,13 @@ creme.layout.Layout = creme.component.Component.sub({
         return this;
     },
 
-    onLayout: function(layout)
-    {
+    onLayout: function(layout) {
         var self = this;
 
         this._events.bind('start', function() {
             try {
                 layout.apply(this, arguments);
-            } catch(e) {}
+            } catch (e) {}
 
             self.done();
         });
@@ -290,51 +284,45 @@ creme.layout.Layout = creme.component.Component.sub({
         return this;
     },
 
-    done: function()
-    {
+    done: function() {
         this._locked = false;
         this._events.trigger('done', [this._target], this);
         return this;
     },
 
-    layout: function()
-    {
-        if (this._locked === true)
+    layout: function() {
+        if (this._locked === true) {
             return this;
+        }
 
         this._locked = true;
         this._events.trigger('start', [this._target], this);
         return this;
     },
 
-    _bindEvents: function()
-    {
+    _bindEvents: function() {
         if (creme.component.is(Object.getPrototypeOf(this._target), creme.layout.Layout)) {
             this._target.onDone(this._layout_cb);
             return;
         }
 
         this._target.bind('resize', this._resize_cb);
-        this._target.bind($.matchIEVersion(8, 9) ? 'DOMNodeRemoved DOMNodeRemovedFromDocument' : 'DOMNodeRemoved', this._remove_cb)
-        this._target.bind($.matchIEVersion(8, 9) ? 'DOMNodeInserted DOMNodeInsertedIntoDocument' : 'DOMNodeInserted', this._add_cb)
+        this._target.bind($.matchIEVersion(8, 9) ? 'DOMNodeRemoved DOMNodeRemovedFromDocument' : 'DOMNodeRemoved', this._remove_cb);
+        this._target.bind($.matchIEVersion(8, 9) ? 'DOMNodeInserted DOMNodeInsertedIntoDocument' : 'DOMNodeInserted', this._add_cb);
     },
 
-    _unbindEvents: function()
-    {
+    _unbindEvents: function() {
         if (creme.component.is(Object.getPrototypeOf(this._target), creme.layout.Layout)) {
             this._target._events.unbind('done', this._layout_cb);
             return;
         }
 
         this._target.unbind('resize', this._resize_cb);
-        this._target.unbind($.matchIEVersion(8, 9) ? 'DOMNodeRemoved DOMNodeRemovedFromDocument' : 'DOMNodeRemoved', this._remove_cb)
-        this._target.unbind($.matchIEVersion(8, 9) ? 'DOMNodeInserted DOMNodeInsertedIntoDocument' : 'DOMNodeInserted', this._add_cb)
+        this._target.unbind($.matchIEVersion(8, 9) ? 'DOMNodeRemoved DOMNodeRemovedFromDocument' : 'DOMNodeRemoved', this._remove_cb);
+        this._target.unbind($.matchIEVersion(8, 9) ? 'DOMNodeInserted DOMNodeInsertedIntoDocument' : 'DOMNodeInserted', this._add_cb);
     },
 
-    bind: function(element)
-    {
-        var self = this;
-
+    bind: function(element) {
         if (this.isBound()) {
             throw new Error('Layout is already bound.');
         }
@@ -346,8 +334,7 @@ creme.layout.Layout = creme.component.Component.sub({
         return this;
     },
 
-    unbind: function()
-    {
+    unbind: function() {
         if (!this.isBound()) {
             throw new Error('Layout is not bound.');
         }
@@ -364,9 +351,10 @@ creme.layout.Layout = creme.component.Component.sub({
 });
 
 creme.layout.preferredSize = function(element, depth) {
+    depth = depth || 1;
+
     var height = 0;
     var width = 0;
-    var depth = depth || 1
 
     $('> *', element).filter(':visible').each(function() {
         var position = $(this).position();
@@ -383,5 +371,4 @@ creme.layout.preferredSize = function(element, depth) {
 
     return [Math.round(width), Math.round(height)];
 };
-
 }(jQuery));

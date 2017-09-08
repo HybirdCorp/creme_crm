@@ -16,48 +16,46 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
-creme.layout = creme.layout || {}
+creme.layout = creme.layout || {};
 
 creme.layout.TextAreaAutoSize = creme.component.Component.sub({
     _init_: function(options) {
-        var options = $.extend({min: 2}, options || {});
+        options = $.extend({min: 2}, options || {});
 
         this._min = options.min;
         this._max = options.max;
         this._listeners = $.proxy(this._onResize, this);
     },
 
-    _onResize: function(e)
-    {
+    _onResize: function(e) {
         var element = this._delegate;
         var previous = this._count !== undefined ? this._count : this._initial;
-        var count = this._count = element.val() !== null ? element.val().split('\n').length: this._min;
+        var count = this._count = (element.val() !== null) ? element.val().split('\n').length : this._min;
 
-        if (e.keyCode === 13)
+        if (e.keyCode === 13) {
             ++count;
+        }
 
         count = Math.max(this._min, count);
         count = !isNaN(this._max) ? Math.min(this._max, count) : count;
 
-        if (previous !== count)
-        {
+        if (previous !== count) {
             count = $.browserInfo().mozilla ? count - 1 : count;
             element.get().scrollTop = 0;
             element.attr('rows', count);
         }
     },
 
-    bind: function(element)
-    {
-        var self = this;
-
-        if (this._delegate !== undefined)
+    bind: function(element) {
+        if (this._delegate !== undefined) {
             throw new Error('already bound');
+        }
 
         this._delegate = element;
-        element.css({'overflow-y':'hidden', 'resize': 'none'})
+        element.css({'overflow-y': 'hidden', 'resize': 'none'});
 
         this._initial = parseInt(element.attr('rows')) || 1;
         this._initial = $.browserInfo().mozilla ? this._initial - 1 : this._initial;
@@ -67,10 +65,10 @@ creme.layout.TextAreaAutoSize = creme.component.Component.sub({
         return this;
     },
 
-    unbind: function()
-    {
-        if (this._delegate === undefined)
+    unbind: function() {
+        if (this._delegate === undefined) {
             throw new Error('not bound');
+        }
 
         this._delegate.unbind('propertychange keydown paste input', this._listeners);
         this._delegate = undefined;
@@ -78,5 +76,4 @@ creme.layout.TextAreaAutoSize = creme.component.Component.sub({
         return this;
     }
 });
-
 }(jQuery));

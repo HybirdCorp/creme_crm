@@ -16,15 +16,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
-creme.layout = creme.layout || {}
+creme.layout = creme.layout || {};
 
 creme.layout.SortLayout = creme.layout.Layout.sub({
-    _init_: function(options)
-    {
-        var options = $.extend({
-            comparator: function(a, b) {return 0;},
+    _init_: function(options) {
+        options = $.extend({
+            comparator: function(a, b) { return 0; },
             reverse: false
         }, options || {});
 
@@ -38,10 +38,10 @@ creme.layout.SortLayout = creme.layout.Layout.sub({
         this.onRemoved(this.layout);
     },
 
-    comparator: function(comparator)
-    {
-        if (comparator === undefined)
+    comparator: function(comparator) {
+        if (comparator === undefined) {
             return this._comparator;
+        }
 
         this._comparator = $.proxy(comparator, this);
         return this;
@@ -51,19 +51,17 @@ creme.layout.SortLayout = creme.layout.Layout.sub({
         return Object.property(this, '_reverse', reverse);
     },
 
-    _onLayout: function(event, container)
-    {
+    _onLayout: function(event, container) {
         var sortables = Array.copy(this.children().get());
 
         try {
             sortables = sortables.sort(this._comparator);
             sortables = this.reverse() ? sortables.reverse() : sortables;
-        } catch(e) {}
+        } catch (e) {}
 
         sortables.forEach(function(item) {
             container.append($(item).remove());
         });
     }
 });
-
 }(jQuery));
