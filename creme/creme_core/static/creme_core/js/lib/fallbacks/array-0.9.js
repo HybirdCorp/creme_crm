@@ -25,17 +25,16 @@
     *
     * @private
     */
-    function append(name, method)
-    {
-        if(!Array.prototype[name]) {
+    function append(name, method) {
+        if (!Array.prototype[name]) {
             Array.prototype[name] = method;
         }
     };
 
-    function appendStatic(name, method)
-    {
-        if(!Array[name])
+    function appendStatic(name, method) {
+        if (!Array[name]) {
             Array[name] = method;
+        }
     };
 
     /**
@@ -52,28 +51,31 @@
     * @param Number offset (optional) Index at which to start searching
     * @return Int
     */
-    append("indexOf", function(subject, offset){
-        for(var i = offset || 0; i < this.length; i++)
-            if(this[i] === subject)
+    /* istanbul ignore next : already supported by any recent browsers */
+    append("indexOf", function(subject, offset) {
+        for (var i = offset || 0; i < this.length; i++) {
+            if (this[i] === subject) {
                 return i;
+            }
+        }
+
         return -1;
     });
 
     // ES5 15.4.3.2
     // http://es5.github.com/#x15.4.3.2
     // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/isArray
-    if (!Array.isArray) {
-        Array.isArray = function isArray(obj) {
-            return (obj !== undefined && obj !== null && obj.toString() === "[object Array]") || obj instanceof Array;
-        };
-    }
+    /* istanbul ignore next */
+    appendStatic('isArray', function(obj) {
+        return (obj !== undefined && obj !== null && obj.toString() === "[object Array]") || obj instanceof Array;
+    });
 
     appendStatic('copy', function(iterable, start, end) {
         var res = [];
-        var start = Math.min(Math.max(0, start || 0), iterable.length);
-        var end = end !== undefined ? Math.min(Math.max(0, end), iterable.length) : iterable.length;
+        start = Math.min(Math.max(0, start || 0), iterable.length);
+        end = end !== undefined ? Math.min(Math.max(0, end), iterable.length) : iterable.length;
 
-        for(var i = start; i < end; ++i) {
+        for (var i = start; i < end; ++i) {
             res.push(iterable[i]);
         }
 
@@ -99,11 +101,14 @@
     * @param Object scope (optional) The scope of the function (defaults to this).
     * @return Array
     */
-    append("map", function(fn, scope){
+    /* istanbul ignore next : already supported by any recent browsers */
+    append("map", function(fn, scope) {
         scope = scope || window;
         var r = [];
-        for(var i = 0; i < this.length; i++)
+        for (var i = 0; i < this.length; i++) {
             r[r.length] = fn.call(scope, this[i], i, this);
+        }
+
         return r;
     });
 
@@ -123,16 +128,18 @@
     * @param Function fn The function to be called for each element.
     * @param Object scope (optional) The scope of the function (defaults to this).
     * @return void
-    */  
-    append("forEach", function(fn, scope){
-        for(var i = 0; i < this.length; i++)
+    */
+    /* istanbul ignore next : already supported by any recent browsers */
+    append("forEach", function(fn, scope) {
+        for (var i = 0; i < this.length; i++) {
             fn.call(scope || window, this[i], i, this);
+        }
     });
 
-    if ($ !== undefined)
+    if ($ !== undefined) {
         return;
+    }
 
-    
     /**
     * Returns the array without the elements in 'elements'.
     * 
@@ -143,12 +150,12 @@
     * @param Array elements
     * @return Boolean
     */
-    append("exfiltrate", function(elements){
-        return this.filter(function(element){
+    /* istanbul ignore next */
+    append("exfiltrate", function(elements) {
+        return this.filter(function(element) {
             return this.indexOf(element) < 0;
         }, elements);
     });
-    
 
     /**
     * Returns true if every element in 'elements' is in the array.
@@ -160,6 +167,7 @@
     * @param Array elements
     * @return Boolean
     */
+    /* istanbul ignore next : already supported by any recent browsers */
     append("contains", function(element) {
         return this.indexOf(element) >= 0;
     });
@@ -182,12 +190,16 @@
     * @param Object scope (optional) The scope of the function (defaults to this).
     * @return Boolean
     */
-    append("every", function(fn, scope){
-        for(var i = 0; i < this.length; i++)
-            if(!fn.call(scope || window, this[i], i, this))
+    /* istanbul ignore next */
+    append("every", function(fn, scope) {
+        for (var i = 0; i < this.length; i++) {
+            if (!fn.call(scope || window, this[i], i, this)) {
                 return false;
+            }
+        }
         return true;
     });
+
     /**
     * Creates a new array with all elements that pass the test implemented by the provided function.
     *
@@ -204,11 +216,14 @@
     * @param Object scope (optional) The scope of the function (defaults to this).
     * @return Array
     */
-    append("filter", function(fn, scope){
+    /* istanbul ignore next */
+    append("filter", function(fn, scope) {
         var r = [];
-        for(var i = 0; i < this.length; i++)
-            if(fn.call(scope || window, this[i], i, this))
+        for (var i = 0; i < this.length; i++) {
+            if (fn.call(scope || window, this[i], i, this)) {
                 r.push(this[i]);
+            }
+        }
         return r;
     });
 
@@ -223,20 +238,25 @@
     * @param Number endIndex (optional) default to the last item
     * @return Array
     */
-    append("getRange", function(start, end){
+    /* istanbul ignore next */
+    append("getRange", function(start, end) {
         var items = this;
-        if(items.length < 1)
+        if (items.length < 1) {
             return [];
+        }
 
         start = start || 0;
-        end = Math.min(typeof end == "undefined" ? this.length-1 : end, this.length-1);
-        var r = [];
-        if(start <= end)
-            for(var i = start; i <= end; i++)
+        end = Math.min(end === undefined ? this.length - 1 : end, this.length - 1);
+        var r = [], i;
+        if (start <= end) {
+            for (i = start; i <= end; i++) {
                 r[r.length] = items[i];
-        else
-            for(var i = start; i >= end; i--)
+            }
+        } else {
+            for (i = start; i >= end; i--) {
                 r[r.length] = items[i];
+            }
+        }
 
         return r;
     });
@@ -254,10 +274,13 @@
     * @param Object subject Object to search for
     * @return Boolean
     */
-    append("inArray", function(subject){
-        for(var i = 0; i < this.length; i++)
-            if(subject == this[i])
+    /* istanbul ignore next */
+    append("inArray", function(subject) {
+        for (var i = 0; i < this.length; i++) {
+            if (subject === this[i]) {
                 return true;
+            }
+        }
         return false;
     });
 
@@ -272,9 +295,12 @@
     * @param Object element The element to insert
     * @return Array
     */
-    append("insertAt", function(index, element){
-        for(var k = this.length; k > index; k--)
-            this[k] = this[k-1];
+    /* istanbul ignore next */
+    append("insertAt", function(index, element) {
+        for (var k = this.length; k > index; k--) {
+            this[k] = this[k - 1];
+        }
+
         this[index] = element;
         return this;
     });
@@ -289,9 +315,12 @@
     * @param Number index The index within the array of the item to remove.
     * @return Array
     */
+    /* istanbul ignore next */
     append("removeAt", function(index) {
-        for(var k = index; k < this.length-1; k++)
-            this[k] = this[k+1];
+        for (var k = index; k < this.length - 1; k++) {
+            this[k] = this[k + 1];
+        }
+
         this.length--;
         return this;
     });
@@ -317,10 +346,14 @@
     * @param Object scope (optional) The scope of the function (defaults to this).
     * @return Boolean
     */
-    append("some", function(fn, scope){
-        for(var i = 0; i < this.length; i++)
-            if(fn.call(scope || window, this[i], i, this))
+    /* istanbul ignore next */
+    append("some", function(fn, scope) {
+        for (var i = 0; i < this.length; i++) {
+            if (fn.call(scope || window, this[i], i, this)) {
                 return true;
+            }
+        }
+
         return false;
     });
 
@@ -333,7 +366,8 @@
     * @name unique
     * @return Array
     */
-    append("unique", function(){
+    /* istanbul ignore next */
+    append("unique", function() {
         return this.filter(function(element, index, array) {
             return array.indexOf(element) >= index;
         });

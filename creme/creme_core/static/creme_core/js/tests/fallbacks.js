@@ -161,6 +161,11 @@ QUnit.test('fallbacks.Object.entries', function() {
     deepEqual([['a', 1], ['b', 2], ['c', 5], ['d', 7], ['z', 8]], Object.entries({a:1, b:2, c:5, d:7, z:8}));
 });
 
+QUnit.test('fallbacks.Object.proxy (undefined)', function() {
+    equal(undefined, Object.proxy(null));
+    equal(undefined, Object.proxy());
+});
+
 QUnit.test('fallbacks.Object.proxy (no context)', function() {
     equal(typeof Object.proxy, 'function');
 
@@ -608,21 +613,33 @@ QUnit.test('fallbacks.String.endsWith', function() {
 });
 
 QUnit.test('fallbacks.String.format', function() {
-    equal('12',    '%d'.format(12))
-    equal('00012', '%05d'.format(12))
-    equal('   12', '%5d'.format(12))
-    equal('12   ', '%-5d'.format(12))
+    equal('12',    '%d'.format(12));
+    equal('00012', '%05d'.format(12));
+    equal('   12', '%5d'.format(12));
+    equal('12   ', '%-5d'.format(12));
     
-    equal('12.457000', '%f'.format(12.457))
-    equal('12.457000', '%09f'.format(12.457))
-    equal('12.457000', '%9f'.format(12.457))
-    equal('12.457000', '%-9f'.format(12.457))
-    equal('12.457',    '%05.3f'.format(12.457))
-    equal('12.457',    '%5.3f'.format(12.457))
-    equal('12.457',    '%-5.3f'.format(12.457))
-    equal('12.46',     '%.2f'.format(12.457))
-    equal('12.46',     '%.2f'.format(12.457))
-    equal('12.46',     '%-.2f'.format(12.457))
+    equal('12.457000', '%f'.format(12.457));
+    equal('12.457000', '%09f'.format(12.457));
+    equal('12.457000', '%9f'.format(12.457));
+    equal('12.457000', '%-9f'.format(12.457));
+    equal('12.457',    '%05.3f'.format(12.457));
+    equal('12.457',    '%5.3f'.format(12.457));
+    equal('12.457',    '%-5.3f'.format(12.457));
+    equal('12.46',     '%.2f'.format(12.457));
+    equal('12.46',     '%.2f'.format(12.457));
+    equal('12.46',     '%-.2f'.format(12.457));
+});
+
+QUnit.test('fallbacks.String.template', function() {
+    equal('12', '${a}'.template({a: 12}));
+    equal('12 monkeys are jumping.', '${a} ${b} are jumping.'.template({a: 12, b: 'monkeys'}));
+    equal('12 ${b} are jumping.', '${a} ${b} are jumping.'.template({a: 12}));
+    equal('${a} monkeys are jumping.', '${a} ${b} are jumping.'.template({b: 'monkeys'}));
+
+    equal('${a} ${b} are jumping.', '${a} ${b} are jumping.'.template());
+    equal('${a} ${b} are jumping.', '${a} ${b} are jumping.'.template({}));
+
+    equal('this an empty template.', 'this an empty template.'.template({a: 12}));
 });
 
 QUnit.test('fallbacks.String.capitalize', function() {
