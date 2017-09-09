@@ -29,7 +29,7 @@ from django.core.serializers.python import _get_model
 
 from creme.creme_core.registry import NotRegistered
 from creme.creme_core.utils.collections import OrderedSet
-from creme.creme_core.utils.imports import find_n_import
+from creme.creme_core.utils.imports import import_apps_sub_modules  # find_n_import
 
 # from creme.crudity.backends.models import CrudityBackend
 
@@ -125,7 +125,8 @@ class CRUDityRegistry(object):
         return res
 
     def autodiscover(self):
-        for crud_import in find_n_import('crudity_register', ['fetchers', 'inputs', 'backends']):
+        # for crud_import in find_n_import('crudity_register', ['fetchers', 'inputs', 'backends']):
+        for crud_import in import_apps_sub_modules('crudity_register'):
             # Fetchers
             fetchers = getattr(crud_import, 'fetchers', {})
             register_fetchers = self.register_fetchers

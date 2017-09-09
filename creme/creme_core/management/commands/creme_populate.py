@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from imp import find_module
+# from imp import find_module
+from importlib import import_module
 import sys
 from traceback import format_exception
 
@@ -112,21 +113,29 @@ class Command(BaseCommand):
         while True:
             changed = False
 
-            for app in apps_2_populate:
-                try:
-                    populator = self._get_populate_module(app) \
-                                    .populate \
-                                    .Populator(verbosity, app, all_apps, options, self.stdout, self.style)
-                except ImportError:
-                    if verbosity >= 1:
-                        self.stdout.write(self.style.NOTICE('Disable populate for "%s": '
-                                                            'it does not have any "populate.py" script.' % app
-                                                           )
-                                         )
-                else:
-                    assert isinstance(populator, BasePopulator)
+            # for app in apps_2_populate:
+            #     try:
+            #         populator = self._get_populate_module(app) \
+            #                         .populate \
+            #                         .Populator(verbosity, app, all_apps, options, self.stdout, self.style)
+            #     except ImportError:
+            #         if verbosity >= 1:
+            #             self.stdout.write(self.style.NOTICE('Disable populate for "%s": '
+            #                                                 'it does not have any "populate.py" script.' % app
+            #                                                )
+            #                              )
+            #     else:
+            #         assert isinstance(populator, BasePopulator)
+            #         populators.append(populator)
+            #         populators_names.add(app)
+            #         total_deps.update(populator.dependencies)
+            #         changed = True
+            for app_label in apps_2_populate:
+                populator = self._get_populator(app_label=app_label, verbosity=verbosity, all_apps=all_apps, options=options)
+
+                if populator is not None:
                     populators.append(populator)
-                    populators_names.add(app)
+                    populators_names.add(app_label)
                     total_deps.update(populator.dependencies)
                     changed = True
 
@@ -200,8 +209,38 @@ class Command(BaseCommand):
         if verbosity >= 1:
             self.stdout.write(self.style.MIGRATE_SUCCESS('Populate is OK.'))
 
-    def _get_populate_module(self, app_label):
-        app_name = apps.get_app_config(app_label).name
-        find_module('populate', __import__(app_name, globals(), locals(), [app_label]).__path__)
+    # def _get_populate_module(self, app_label):
+    #     app_name = apps.get_app_config(app_label).name
+    #     find_module('populate', __import__(app_name, globals(), locals(), [app_label]).__path__)
+    #
+    #     return __import__(app_name, globals(), locals(), ['populate'])
 
-        return __import__(app_name, globals(), locals(), ['populate'])
+    def _get_populator(self, app_label, verbosity, all_apps, options):
+        try:
+            mod = import_module(apps.get_app_config(app_label).name + '.populate')
+        except ImportError:
+            if verbosity >= 1:
+                self.stdout.write(self.style.NOTICE('Disable populate for "%s": '
+                                                    'it does not have any "populate.py" script.' % app_label
+                                                   )
+                                 )
+
+            return None
+
+        populator_class = getattr(mod, 'Populator', None)
+
+        if populator_class is None:
+            if verbosity >= 1:
+                self.stdout.write(self.style.NOTICE('Disable populate for "%s": '
+                                                    'its populate.py script has no "Populator" class.' % app_label
+                                                   )
+                                 )
+
+            return None
+
+        try:
+            populator = populator_class(verbosity, app_label, all_apps, options, self.stdout, self.style)
+        except Exception as e:
+            self.stderr.write('Disable populate for "%s": error when creating populator [%s].' % (app_label, e))
+        else:
+            return populator
