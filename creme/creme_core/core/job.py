@@ -34,7 +34,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext, activate
 from ..creme_jobs.base import JobType
 from ..global_info import set_global_info
 from ..models import Job
-from ..utils.imports import find_n_import
+from ..utils.imports import import_apps_sub_modules
 from ..utils.system import python_subprocess, enable_exit_handler
 
 
@@ -78,7 +78,7 @@ class _JobTypeRegistry(object):
     def autodiscover(self):
         register = self.register
 
-        for jobs_import in find_n_import('creme_jobs', ['jobs']):
+        for jobs_import in import_apps_sub_modules('creme_jobs'):
             for job in getattr(jobs_import, 'jobs', ()):
                 register(job)
 

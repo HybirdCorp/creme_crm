@@ -18,9 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from imp import find_module
 from importlib import import_module
-import logging
+import logging, warnings
 
 from django.apps import apps
 
@@ -29,6 +28,12 @@ logger = logging.getLogger(__name__)
 
 
 def find_n_import(filename, imports):
+    from imp import find_module
+
+    warnings.warn('creme_core.utils.imports.find_n_import() is deprecated ; use import_apps_sub_modules() instead.',
+                  DeprecationWarning
+                 )
+
     results = []
 
     for app_config in apps.get_app_configs():
@@ -43,6 +48,25 @@ def find_n_import(filename, imports):
         results.append(__import__("%s.%s" % (app_name, filename), globals(), locals(), imports, -1))
 
     return results
+
+
+def import_apps_sub_modules(module_name):
+    """Iterate on on installed apps & for each one get a sub-module (if it exists).
+
+    @param module_name: string.
+    @return: a list of modules.
+    """
+    modules = []
+
+    for app_config in apps.get_app_configs():
+        try:
+            mod = import_module('%s.%s' % (app_config.name, module_name))
+        except ImportError:
+            continue
+        else:
+            modules.append(mod)
+
+    return modules
 
 
 def import_object(objectpath):

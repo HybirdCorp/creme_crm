@@ -32,7 +32,7 @@ from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.gui.bricks import brick_registry, Brick
 # from creme.creme_core.models.fields import BasicAutoField
 # from creme.creme_core.registry import creme_registry
-from creme.creme_core.utils.imports import find_n_import
+from creme.creme_core.utils.imports import import_apps_sub_modules  # find_n_import
 
 from creme.creme_config.utils import generate_portal_url
 
@@ -340,11 +340,12 @@ class _ConfigRegistry(object):
 config_registry = _ConfigRegistry()
 
 logger.debug('creme_config: populate registry')
-for config_import in find_n_import('creme_config_register',
-                                   ['to_register', 'to_unregister',
-                                    'blocks_to_register', 'userblocks_to_register',
-                                   ]
-                                  ):
+# for config_import in find_n_import('creme_config_register',
+#                                    ['to_register', 'to_unregister',
+#                                     'blocks_to_register', 'userblocks_to_register',
+#                                    ]
+#                                   ):
+for config_import in import_apps_sub_modules('creme_config_register'):
     config_registry.register(*getattr(config_import, 'to_register', ()))
     config_registry.unregister(*getattr(config_import, 'to_unregister', ()))
     config_registry.register_bricks(*getattr(config_import, 'blocks_to_register', ()))  # TODO: rename 'bricks'
