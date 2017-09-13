@@ -18,6 +18,8 @@
 
 creme.geolocation = creme.geolocation || {};
 
+/* TODO: rename google-geolocation ?? */
+
 __googleAPI_loader_status = false;
 __googleAPI_loader_callbacks = [];
 
@@ -35,7 +37,7 @@ initialize = function() {
     });
 }
 
-creme.geolocation.ready = function(callback) {
+creme.geolocation.ready = function(callback, google_api_key) {
     $(document).ready(function() {
         if (window['google'] !== undefined || __googleAPI_loader_status === 'done') {
             return callback();
@@ -43,13 +45,22 @@ creme.geolocation.ready = function(callback) {
 
         __googleAPI_loader_callbacks.push(callback);
 
-        if (!__googleAPI_loader_status)
-        {
+        if (!__googleAPI_loader_status) {
             __googleAPI_loader_status = 'loading';
             var script = document.createElement('script');
+            var GET_args = {
+                v: '3.exp',
+                callback: 'initialize',
+                language: LANGUAGE_CODE || 'en'
+            };
+
+            if (google_api_key) {
+                GET_args.key = google_api_key;
+            }
 
             script.type = 'text/javascript';
-            script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&language=%s&callback=initialize'.format(LANGUAGE_CODE || 'en');
+//            script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&language=%s&callback=initialize'.format(LANGUAGE_CODE || 'en');
+            script.src = 'https://maps.googleapis.com/maps/api/js?' + $.param(GET_args);
 
             document.body.appendChild(script);
         }

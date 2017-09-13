@@ -6,9 +6,12 @@
 {% block brick_script %}
     <script type="text/javascript">
          $('.brick[id="{{brick_id}}"]').on('brick-ready', function() {
-             creme.geolocation.ready(function() {
-                 new creme.geolocation.PersonsBlock($('#{{brick_id}}'), {{geoaddresses|safe}}, '{% url 'geolocation__set_address_info' %}');
-             });
+             creme.geolocation.ready(
+                function() {
+                    new creme.geolocation.PersonsBlock($('#{{brick_id}}'), {{geoaddresses|safe}}, '{% url 'geolocation__set_address_info' %}');
+                },
+                '{{google_api_key}}'
+             );
          });
     </script>
 {% endblock %}

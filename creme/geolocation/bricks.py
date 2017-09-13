@@ -33,7 +33,7 @@ from creme import persons
 # from .constants import DEFAULT_SEPARATING_NEIGHBOURS
 from .models import GeoAddress
 # from .setting_keys import NEIGHBOURHOOD_DISTANCE
-from .utils import address_as_dict, get_radius  # get_setting
+from .utils import address_as_dict, get_radius, get_google_api_key  # get_setting
 
 
 Contact      = persons.get_contact_model()
@@ -89,6 +89,7 @@ class GoogleDetailMapBrick(_MapBrick):
                     update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
                     addresses=addresses,
                     geoaddresses=encode_json(addresses),
+                    google_api_key=get_google_api_key(),  # TODO: factorise
         ))
 
 
@@ -106,6 +107,7 @@ class GoogleFilteredMapBrick(_MapBrick):
                     address_filters=self.get_filter_choices(context['user'],
                                                             Contact, Organisation,
                                                            ),
+                    google_api_key=get_google_api_key(),  # TODO: factorise
         ))
 
 
@@ -118,7 +120,7 @@ class GoogleNeighboursMapBrick(_MapBrick):
     target_ctypes = (Contact, Organisation)
 
     # Specific use case
-    # Add a new ungeolocatable
+    # Add a new "ungeolocatable"
     # the person bloc will show an error message
     # this bloc will show an empty select
     # edit this address with a geolocatable address
@@ -141,4 +143,5 @@ class GoogleNeighboursMapBrick(_MapBrick):
                     #                   ),
                     radius=get_radius(),
                     maps_blockid=GoogleDetailMapBrick.id_,
+                    google_api_key=get_google_api_key(),  # TODO: factorise
         ))

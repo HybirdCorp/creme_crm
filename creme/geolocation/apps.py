@@ -51,4 +51,6 @@ class GeolocationConfig(CremeAppConfig):
     def register_setting_key(self, setting_key_registry):
         from . import setting_keys
 
-        setting_key_registry.register(setting_keys.NEIGHBOURHOOD_DISTANCE)
+        setting_key_registry.register(setting_keys.NEIGHBOURHOOD_DISTANCE,
+                                      setting_keys.GOOGLE_API_KEY,
+                                     )
