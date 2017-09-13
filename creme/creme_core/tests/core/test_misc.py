@@ -482,6 +482,7 @@ class SettingKeyTestCase(CremeTestCase):
                          description=u'Page title',
                          app_label='creme_core',
                          type=SettingKey.STRING,
+                         blank=True,
                         )
         sk2 = SettingKey('creme_core-test_sk_int',
                          description=u'Page size',

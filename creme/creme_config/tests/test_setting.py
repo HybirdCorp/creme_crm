@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from django.utils.translation import ugettext as _
     from django.core.urlresolvers import reverse
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.core.setting_key import SettingKey, setting_key_registry
@@ -16,7 +16,7 @@ class SettingTestCase(CremeTestCase):
     # def setUp(self):
     #     self.populate('creme_core')
 
-    def _buil_edit_url(self, setting_value):
+    def _build_edit_url(self, setting_value):
         # return '/creme_config/settings/edit/%s' % setting_value.id
         return reverse('creme_config__edit_setting', args=(setting_value.id,))
 
@@ -31,7 +31,7 @@ class SettingTestCase(CremeTestCase):
         title = 'May the source be with you'
         sv = SettingValue.objects.create(key=sk, user=None, value=title)
 
-        url = self._buil_edit_url(sv)
+        url = self._build_edit_url(sv)
         self.assertGET200(url)
 
         title = title.upper()
@@ -47,10 +47,10 @@ class SettingTestCase(CremeTestCase):
         setting_key_registry.register(sk)
 
         size = 156
-        sv = SettingValue.objects.create(key=sk, user=None, value=size)
+        sv = SettingValue.objects.create(key=sk, value=size)
 
         size += 15
-        self.assertNoFormError(self.client.post(self._buil_edit_url(sv), data={'value': size}))
+        self.assertNoFormError(self.client.post(self._build_edit_url(sv), data={'value': size}))
         self.assertEqual(size, self.refresh(sv).value)
 
     def test_edit_bool(self):
@@ -61,9 +61,9 @@ class SettingTestCase(CremeTestCase):
                        )
         setting_key_registry.register(sk)
 
-        sv = SettingValue.objects.create(key=sk, user=None, value=True)
+        sv = SettingValue.objects.create(key=sk, value=True)
 
-        self.assertNoFormError(self.client.post(self._buil_edit_url(sv), data={})) #False -> empty POST
+        self.assertNoFormError(self.client.post(self._build_edit_url(sv), data={})) #False -> empty POST
         self.assertFalse(self.refresh(sv).value)
 
     def test_edit_hour(self):
@@ -75,9 +75,9 @@ class SettingTestCase(CremeTestCase):
         setting_key_registry.register(sk)
 
         hour = 11
-        sv = SettingValue.objects.create(key=sk, user=None, value=hour)
+        sv = SettingValue.objects.create(key=sk, value=hour)
 
-        url = self._buil_edit_url(sv)
+        url = self._build_edit_url(sv)
         hour += 1
         self.assertNoFormError(self.client.post(url, data={'value': hour}))
         self.assertEqual(hour, self.refresh(sv).value)
@@ -105,9 +105,9 @@ class SettingTestCase(CremeTestCase):
         setting_key_registry.register(sk)
 
         email = u'd.knut@eswat.ol'
-        sv = SettingValue.objects.create(key=sk, user=None, value=email)
+        sv = SettingValue.objects.create(key=sk, value=email)
 
-        url = self._buil_edit_url(sv)
+        url = self._build_edit_url(sv)
 
         response = self.assertPOST200(url, data={'value': 42})
         self.assertFormError(response, 'form', 'value',
@@ -127,8 +127,8 @@ class SettingTestCase(CremeTestCase):
                        )
         setting_key_registry.register(sk)
 
-        sv = SettingValue.objects.create(key=sk, user=None, value=True)
-        self.assertGET404(self._buil_edit_url(sv))
+        sv = SettingValue.objects.create(key=sk, value=True)
+        self.assertGET404(self._build_edit_url(sv))
 
     def test_edit_hidden02(self):
         "Hidden => not editable (value=False)"
@@ -140,4 +140,45 @@ class SettingTestCase(CremeTestCase):
         setting_key_registry.register(sk)
 
         sv = SettingValue.objects.create(key=sk, user=user, value=True)
-        self.assertGET404(self._buil_edit_url(sv))
+        self.assertGET404(self._build_edit_url(sv))
+
+    def test_edit_blank01(self):
+        self.login()
+
+        sk = SettingKey(id='persons-test_edit_blank01', description=u'API key',
+                        app_label='persons', type=SettingKey.STRING,
+                        blank=True,
+                       )
+        setting_key_registry.register(sk)
+
+        sv = SettingValue.objects.create(key=sk, value='123-456-abc')
+
+        self.assertNoFormError(self.client.post(self._build_edit_url(sv), data={'value': ''}))
+
+        sv = self.refresh(sv)
+        self.assertEqual('', sv.value_str)
+        self.assertIsNone(sv.value)
+
+    def test_edit_blank02(self):
+        self.login()
+
+        sk = SettingKey(id='persons-test_edit_blank02', description=u'API key',
+                        app_label='persons', type=SettingKey.INT,
+                        blank=True,
+                       )
+        setting_key_registry.register(sk)
+
+        sv = SettingValue.objects.create(key=sk, value=12345)
+
+        self.assertNoFormError(self.client.post(self._build_edit_url(sv)))
+
+        sv = self.refresh(sv)
+        self.assertEqual('', sv.value_str)
+        self.assertIsNone(sv.value)
+
+        # ---
+        self.assertNoFormError(self.client.post(self._build_edit_url(sv), data={'value': ''}))
+
+        sv = self.refresh(sv)
+        self.assertEqual('', sv.value_str)
+        self.assertIsNone(sv.value)

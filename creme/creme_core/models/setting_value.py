@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,6 @@ from django.db.models import Model, CharField, TextField, ForeignKey
 from ..core.setting_key import setting_key_registry
 
 
-# TODO: Add a null and blank attribute ??
 class SettingValue(Model):
     key_id    = CharField(max_length=100)  # See SettingKey.id
     user      = ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
@@ -52,15 +51,31 @@ class SettingValue(Model):
 
     @property
     def value(self):
-        return self.key.cast(self.value_str)
+        # return self.key.cast(self.value_str)
+        value_str = self.value_str
+
+        return self.key.cast(value_str) if value_str else None
 
     @value.setter
     def value(self, value):
-        self.value_str = str(value)
+        # self.value_str = str(value)
+
+        if value is None:
+            if not self.key.blank:
+                raise ValueError('SettingValue.value: a value is required (key is not <blank=True>.')
+
+            self.value_str = ''
+        else:
+            value_str = str(value)
+            self.key.cast(value_str)  # raises ValueError
+            self.value_str = value_str
 
     @property
     def as_html(self):
-        return self.key.value_as_html(self.value)
+        # return self.key.value_as_html(self.value)
+        value = self.value
+
+        return self.key.value_as_html(value) if value is not None else ''
 
     @staticmethod
     def create_if_needed(key, user, value):

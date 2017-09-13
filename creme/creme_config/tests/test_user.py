@@ -889,10 +889,10 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         "Related SettingValues are deleted."
         user = self.login()
 
-        sk = SettingKey(id='unit_test-test_userl_delete06', description='',
+        sk = SettingKey(id='unit_test-test_user_delete_settingkey', description='',
                         app_label='creme_config', type=SettingKey.BOOL,
                        )  # NB: we do not ne to register it (because the SettingValue's value is not used)
-        sv = SettingValue.objects.create(key=sk, user=self.other_user, value=True)
+        sv = SettingValue.objects.create(key=sk, user=self.other_user, value_str='True')
 
         self.assertNoFormError(self.client.post(self._build_delete_url(self.other_user),
                                                 {'to_user': user.id}
@@ -1112,3 +1112,69 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
 
         self._register_key(sk)
         self.assertGET404(self._build_edit_user_svalue_url(sk))
+
+    def test_edit_user_setting_value03(self):
+        "Not blank + STRING"
+        user = self.user
+        sk = UserSettingKey('creme_config-test_edit_user_setting_value03',
+                            description=u'API key',
+                            app_label='creme_core',
+                            type=SettingKey.STRING,
+                           )
+        self.assertFalse(sk.blank)
+        self._register_key(sk)
+
+        response = self.client.post(self._build_edit_user_svalue_url(sk), data={'value': ''})
+        self.assertFormError(response, 'form', 'value', _(u'This field is required.'))
+
+    def test_edit_user_setting_value04(self):
+        "Blank + STRING"
+        user = self.user
+        sk = UserSettingKey('creme_config-test_edit_user_setting_value04',
+                            description=u'API key',
+                            app_label='creme_core',
+                            type=SettingKey.STRING,
+                            blank=True,
+                           )
+        self.assertIsNone(user.settings.get(sk))
+
+        url = self._build_edit_user_svalue_url(sk)
+        self.assertGET404(url)
+
+        self._register_key(sk)
+        self.assertIsNone(user.settings.get(sk))
+        self.assertGET200(url)
+
+        response = self.client.post(url, data={'value': ''})
+        self.assertNoFormError(response)
+        self.assertEqual('', self.refresh(user).settings.get(sk))
+
+        self.assertGET200(url)
+
+    def test_edit_user_setting_value05(self):
+        "Blank + INT"
+        user = self.user
+        sk = UserSettingKey('creme_config-test_edit_user_setting_value05',
+                            description=u'API key',
+                            app_label='creme_core',
+                            type=SettingKey.INT,
+                            blank=True,
+                           )
+        self._register_key(sk)
+
+        usettings = user.settings
+        with usettings:
+            usettings[sk] = 123
+
+        url = self._build_edit_user_svalue_url(sk)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            value_f = response.context['form'].fields['value']
+
+        self.assertEqual(123, value_f.initial)
+
+        # ---
+        response = self.client.post(url)
+        self.assertNoFormError(response)
+        self.assertIsNone(self.refresh(user).settings.get(sk))
