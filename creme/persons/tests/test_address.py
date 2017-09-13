@@ -3,6 +3,7 @@
 try:
     from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
+    from django.utils.html import escape
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
@@ -213,7 +214,7 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = address.get_edit_absolute_url()
         response = self.assertGET200(url)
-        self.assertContains(response, _(u'Edit address for «%s»') % orga)
+        self.assertContains(response, escape(_(u'Edit address for «%s»') % orga))
 
         city = 'Groville'
         country = 'Groland'
@@ -248,7 +249,7 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = address.get_edit_absolute_url() + '?type=billing'
         response = self.assertGET200(url)
-        self.assertContains(response, _(u'Edit billing address for «%s»') % orga)
+        self.assertContains(response, escape(_(u'Edit billing address for «%s»') % orga))
 
         city = 'Groville'
         response = self.client.post(url, data={'name':       name,
@@ -278,7 +279,7 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = address.get_edit_absolute_url() + '?type=shipping'
         response = self.assertGET200(url)
-        self.assertContains(response, _(u'Edit shipping address for «%s»') % orga)
+        self.assertContains(response, escape(_(u'Edit shipping address for «%s»') % orga))
 
         city = 'Groville'
         response = self.client.post(url, data={'name':       name,
