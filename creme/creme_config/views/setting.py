@@ -75,7 +75,7 @@ def reload_block(request, app_name):
                  )
     from creme.creme_core.views.blocks import build_context
 
-    from ..bricks import settings_block
+    from ..blocks import settings_block
 
     request.user.has_perm_to_admin_or_die(app_name)
 

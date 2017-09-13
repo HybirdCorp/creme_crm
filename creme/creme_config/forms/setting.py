@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -48,15 +48,22 @@ class SettingForm(CremeModelForm):
         super(SettingForm, self).__init__(*args, **kwargs)
         fields = self.fields
         svalue = self.instance
+
         field_class = _FIELDS.get(svalue.key.type)
 
         if field_class:
             fields['value'] = field_class(label=ugettext(u'Value'))
 
-        fields['value'].initial = svalue.value
+        value_f = fields['value']
+        value_f.initial = svalue.value
+
+        # We avoid "value_f.required = not svalue.key.blank" because BooleanField is never required
+        if svalue.key.blank:
+            value_f.required = value_f.widget.is_required = False
 
     def save(self, *args, **kwargs):
         self.instance.value = self.cleaned_data['value']
+
         return super(SettingForm, self).save(*args, **kwargs)
 
 
@@ -72,11 +79,22 @@ class UserSettingForm(CremeForm):
         if field_class:
             fields['value'] = field_class(label=ugettext(u'Value'))
 
+        value_f = fields['value']
+
         try:
-            fields['value'].initial = self.user.settings[skey]
+            value_f.initial = self.user.settings[skey]
         except KeyError:
             pass
 
+        # We avoid "value_f.required = not svalue.key.blank" because BooleanField is never required
+        if skey.blank:
+            value_f.required = value_f.widget.is_required = False
+
     def save(self, *args, **kwargs):
+        c_value = self.cleaned_data['value']
+
         with self.user.settings as settings:
-            settings[self.skey] = self.cleaned_data['value']
+            if c_value is None:
+                del settings[self.skey]
+            else:
+                settings[self.skey] = c_value

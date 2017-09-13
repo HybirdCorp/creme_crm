@@ -54,7 +54,7 @@ class _SettingKey(object):
             HOUR:   print_hour,
         }
 
-    def __init__(self, id, description, app_label, type=STRING, hidden=False):
+    def __init__(self, id, description, app_label, type=STRING, hidden=False, blank=False):
         """Constructor.
         @param id: Unique String. Use something like 'my_app-key_name'
         @param description: Used in the configuration GUI ; use a ugettext_lazy() instance ('' is OK if hidden==True)
@@ -67,6 +67,7 @@ class _SettingKey(object):
         self.app_label   = app_label
         self.type        = type
         self.hidden      = hidden
+        self.blank       = blank
 
         self._castor = self._CASTORS[type]
 

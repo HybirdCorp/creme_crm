@@ -8,7 +8,7 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.core.setting_key import (SettingKey, UserSettingKey,
-           UserSettingValueManager, setting_key_registry, user_setting_key_registry)
+           setting_key_registry, user_setting_key_registry)
     from creme.creme_core.models import SettingValue
     from creme.creme_core.utils import bool_as_html
 except Exception as e:
@@ -46,6 +46,7 @@ class SettingValueTestCase(CremeTestCase):
                         app_label='persons', type=SettingKey.INT,
                        )
         self.assertFalse(sk.hidden)
+        self.assertFalse(sk.blank)
 
         self._register_key(sk)
 
@@ -55,6 +56,11 @@ class SettingValueTestCase(CremeTestCase):
         sv = self.refresh(sv)
         self.assertEqual(size, sv.value)
         self.assertEqual(size, sv.as_html)
+
+        # ---
+        size += 1
+        sv.value = str(size)
+        self.assertEqual(size, sv.value)
 
     def test_type_bool(self):
         self.login()
@@ -128,6 +134,55 @@ class SettingValueTestCase(CremeTestCase):
 
         sv = SettingValue.create_if_needed(key=sk, user=None, value=size + 1)
         self.assertEqual(size, sv.value)  # Not a new size
+
+    def test_blank(self):
+        sk = SettingKey('creme_core-test_model_blank',
+                        description=u'API key',
+                        app_label='creme_core',
+                        type=SettingKey.STRING,
+                        blank=True,
+                       )
+        self._register_key(sk)
+
+        sv = SettingValue.objects.create(key=sk, value='')
+
+        sv = self.refresh(sv)
+        self.assertEqual('', sv.value_str)
+        self.assertIsNone(sv.value)
+        self.assertEqual('', sv.as_html)
+
+        sv.value = None
+        self.assertIsNone(sv.value)
+
+    def test_not_blank(self):
+        sk = SettingKey('creme_core-test_model_not_blank',
+                        description=u'API key',
+                        app_label='creme_core',
+                        type=SettingKey.STRING,
+                        blank=False,
+                       )
+        self._register_key(sk)
+
+        with self.assertRaises(ValueError):
+            # SettingValue.objects.create(key=sk, value='')  TODO
+            SettingValue.objects.create(key=sk, value=None)
+
+        value = '111'
+        sv = SettingValue.objects.create(key=sk, value=value)
+
+        with self.assertRaises(ValueError):
+            sv.value = None
+
+        self.assertEqual(value, sv.value)
+
+    def test_bad_value(self):
+        sk = SettingKey(id='persons-test_bad_value', description=u'Page size',
+                        app_label='persons', type=SettingKey.INT,
+                       )
+        self._register_key(sk)
+
+        with self.assertRaises(ValueError):
+            SettingValue.objects.create(key=sk, value='abc')
 
 
 class UserSettingValueTestCase(CremeTestCase):
@@ -421,3 +476,4 @@ class UserSettingValueTestCase(CremeTestCase):
         as_html = user.settings.as_html
         self.assertEqual(bool_as_html(True), as_html(sk1))
         self.assertEqual(str_value,          as_html(sk2))
+

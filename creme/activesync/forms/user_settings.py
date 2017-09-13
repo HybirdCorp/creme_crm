@@ -96,7 +96,7 @@ class UserSettingsConfigForm(CremeForm):
 
         url_field = fields['url']
         # url_field.help_text = let_empty_msg % sv_get(key_id=MAPI_SERVER_URL).value
-        url_field.help_text = let_empty_msg % def_svalues['url'].value
+        url_field.help_text = let_empty_msg % (def_svalues['url'].value or '')
         # try:
         #     url_field.initial = get_svalue(USER_MOBILE_SYNC_SERVER_URL).value
         # except sv_doesnotexist:
@@ -105,7 +105,7 @@ class UserSettingsConfigForm(CremeForm):
 
         domain_field = fields['domain']
         # domain_field.help_text = let_empty_msg % sv_get(key_id=MAPI_DOMAIN).value
-        domain_field.help_text = let_empty_msg % def_svalues['domain'].value
+        domain_field.help_text = let_empty_msg % (def_svalues['domain'].value or '')
         # try:
         #     domain_field.initial = get_svalue(USER_MOBILE_SYNC_SERVER_DOMAIN).value
         # except sv_doesnotexist:
