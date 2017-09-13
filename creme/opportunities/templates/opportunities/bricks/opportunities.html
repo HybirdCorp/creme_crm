@@ -34,8 +34,20 @@
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink opportunity user %}</td>
         {% if opp_view_perm %}
         <td>{{opportunity.sales_phase}}</td>
-        <td data-type="money">{{opportunity.estimated_sales|default:'—'}}</td>
-        <td data-type="money">{{opportunity.made_sales|default:'—'}}</td>
+        <td data-type="money">{# TODO: factorise with opportunity-hat-card.html #}
+            {% if opportunity.estimated_sales == None %}
+            —
+            {% else %}
+            {{opportunity.estimated_sales|format_amount:opportunity.currency}}
+            {% endif %}
+        </td>
+        <td data-type="money">
+            {% if opportunity.made_sales == None %}
+            —
+            {% else %}
+            {{opportunity.made_sales|format_amount:opportunity.currency}}
+            {% endif %}
+        </td>
         {% else %}
         <td>{{HIDDEN_VALUE}}</td>
         <td>{{HIDDEN_VALUE}}</td>
