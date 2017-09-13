@@ -359,6 +359,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.aux_test_merge(creator, assertor)
 
     def test_reminder01(self):
+        user = self.user
         now_value = now()
 
         sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
@@ -371,7 +372,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         job = self.get_reminder_job()
         self.assertIsNone(job.type.next_wakeup(job, now_value))
 
-        create_todo = partial(ToDo.objects.create, creme_entity=self.entity, user=self.user)
+        create_todo = partial(ToDo.objects.create, creme_entity=self.entity, user=user)
         todo1 = create_todo(title='Todo#1', deadline=now_value)
         create_todo(title='Todo#2', deadline=now_value + timedelta(days=2))
         create_todo(title='Todo#3')
@@ -398,6 +399,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertEqual(1, len(messages))
 
         message = messages[0]
+        self.assertEqual([user.email], message.to)
         self.assertEqual(_(u'Reminder concerning a Creme CRM todo related to %s') % self.entity,
                          message.subject
                         )
@@ -463,7 +465,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         err_msg = 'Sent error'
 
         def send_messages(this, messages):
-            self.send_messages_called = True
+            self.send_messages_called = True  # TODO: pyk nonlocal
             raise Exception(err_msg)
 
         EmailBackend.send_messages = send_messages
@@ -493,6 +495,33 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertEqual(1, len(mail.outbox))
         self.assertEqual(2, DateReminder.objects.exclude(id__in=reminder_ids).count())
         self.assertFalse(JobResult.objects.filter(job=job))
+
+    def test_reminder04(self):
+        "Teams"
+        user = self.user
+        now_value = now()
+
+        create_user = get_user_model().objects.create
+        teammate = create_user(username='luffy',
+                               email='luffy@sunny.org', role=self.role,
+                               first_name='Luffy', last_name='Monkey D.',
+                              )
+        team = create_user(username='Team #1', is_team=True)
+        team.teammates = [teammate, user]
+
+        sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
+        sv.value = max(localtime(now_value).hour - 1, 0)
+        sv.save()
+
+        ToDo.objects.create(title='Todo#1', deadline=now_value, creme_entity=self.entity, user=team)
+
+        self.execute_reminder_job()
+
+        messages = mail.outbox
+        self.assertEqual(2, len(messages))
+        self.assertEqual({(teammate.email,), (user.email,)},
+                         {tuple(m.to) for m in messages}
+                        )
 
     def test_next_wakeup01(self):
         "Next wake is one day later + minimum hour"

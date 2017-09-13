@@ -200,6 +200,7 @@ class AlertTestCase(AssistantsTestCase):
 
     @override_settings(DEFAULT_TIME_ALERT_REMIND=60)
     def test_reminder(self):
+        user = self.user
         now_value = now()
 
         job = self.get_reminder_job()
@@ -209,7 +210,7 @@ class AlertTestCase(AssistantsTestCase):
         reminder_ids = list(DateReminder.objects.values_list('id', flat=True))
 
         create_alert = partial(Alert.objects.create, creme_entity=self.entity,
-                               user=self.user, trigger_date=now_value,
+                               user=user, trigger_date=now_value,
                               )
         alert1 = create_alert(title='Alert#1', trigger_date=now_value + timedelta(minutes=50))
         alert2 = create_alert(title='Alert#2', trigger_date=now_value + timedelta(minutes=70))
@@ -236,6 +237,7 @@ class AlertTestCase(AssistantsTestCase):
         self.assertEqual(1, len(messages))
 
         message = messages[0]
+        self.assertEqual([user.email], message.to)
         self.assertEqual(_(u'Reminder concerning a Creme CRM alert related to %s') % self.entity,
                          message.subject
                         )

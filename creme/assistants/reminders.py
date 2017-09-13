@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,7 +35,15 @@ from .models import Alert, ToDo
 TODO_REMINDER_DAYS_BEFORE = 1  # TODO: in settings.py ? SettingValue ?
 
 
-class ReminderAlert(Reminder):
+class AssistantReminder(Reminder):
+    def get_emails(self, object):
+        user = object.user
+
+        return [teammate.email for teammate in user.teammates.itervalues()] if user.is_team else [user.email]
+
+
+# class ReminderAlert(Reminder):
+class ReminderAlert(AssistantReminder):
     id    = Reminder.generate_id('assistants', 'alert')
     model = Alert
 
@@ -70,7 +78,8 @@ class ReminderAlert(Reminder):
         return alert.trigger_date - self._get_delta() if alert is not None else None
 
 
-class ReminderTodo(Reminder):
+# class ReminderTodo(Reminder):
+class ReminderTodo(AssistantReminder):
     id    = Reminder.generate_id('assistants', 'todo')
     model = ToDo
 
