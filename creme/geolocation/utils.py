@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2016  Hybird
+#    Copyright (C) 2014-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,8 +30,8 @@ from creme.creme_core.models import SettingValue
 
 from creme.persons import get_address_model
 
+from . import setting_keys
 from .constants import DEFAULT_SEPARATING_NEIGHBOURS
-from .setting_keys import NEIGHBOURHOOD_DISTANCE
 
 
 def address_as_dict(address):
@@ -112,7 +112,7 @@ def addresses_from_persons(queryset, user):
     return addresses.filter(pk__in=address_ids.itervalues())  # TODO: select_related('geoaddress') ??
 
 
-# TODO: deprecate ?
+# TODO : move it to creme_core ? (as SettingValue static method ?)
 def get_setting(key, default=None):
     try:
         if isinstance(key, SettingKey):
@@ -124,10 +124,11 @@ def get_setting(key, default=None):
 
 
 def get_radius():
-    try:
-        return SettingValue.objects.get(key_id=NEIGHBOURHOOD_DISTANCE.id).value
-    except SettingValue.DoesNotExist:
-        return DEFAULT_SEPARATING_NEIGHBOURS
+    return get_setting(setting_keys.NEIGHBOURHOOD_DISTANCE, default=DEFAULT_SEPARATING_NEIGHBOURS)
+
+
+def get_google_api_key():
+    return get_setting(setting_keys.GOOGLE_API_KEY) or ''
 
 
 def location_bounding_box(latitude, longitude, distance):

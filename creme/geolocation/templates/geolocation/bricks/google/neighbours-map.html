@@ -6,13 +6,16 @@
 {% block brick_script %}
     <script type="text/javascript">
          $('.brick[id="{{brick_id}}"]').on('brick-ready', function() {
-             creme.geolocation.ready(function() {
-                 var controller = new creme.geolocation.PersonsNeighborhoodBlock($('#{{brick_id}}'), {{radius}}, '{% url 'geolocation__neighbours' %}', '{% url 'geolocation__set_address_info' %}');
+             creme.geolocation.ready(
+                 function() {
+                     var controller = new creme.geolocation.PersonsNeighborhoodBlock($('#{{brick_id}}'), {{radius}}, '{% url 'geolocation__neighbours' %}', '{% url 'geolocation__set_address_info' %}');
 
-                 $('#{{maps_blockid}}').bind('block-geoaddress-location', function(event, address, mark) {
-                     controller.sourcePosition(address, mark.position);
-                 });
-             });
+                     $('#{{maps_blockid}}').bind('block-geoaddress-location', function(event, address, mark) {
+                         controller.sourcePosition(address, mark.position);
+                     });
+                 },
+                 '{{google_api_key}}'
+             );
          });
     </script>
 {% endblock %}

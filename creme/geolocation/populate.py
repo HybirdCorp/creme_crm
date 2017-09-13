@@ -25,12 +25,12 @@ from django.contrib.auth import get_user_model
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import BlockDetailviewLocation, BlockMypageLocation, SettingValue
 
-from creme.persons import get_contact_model, get_organisation_model
+from creme import persons
 
-from . import bricks
+from . import bricks, setting_keys
 from .constants import DEFAULT_SEPARATING_NEIGHBOURS
 from .management.commands.geolocation import Command as GeolocationCommand
-from .setting_keys import NEIGHBOURHOOD_DISTANCE
+
 
 logger = logging.getLogger(__name__)
 
@@ -39,12 +39,12 @@ class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons']
 
     def populate(self):
-        already_populated = SettingValue.objects.filter(key_id=NEIGHBOURHOOD_DISTANCE.id).exists()
+        already_populated = SettingValue.objects.filter(key_id=setting_keys.NEIGHBOURHOOD_DISTANCE.id).exists()
 
         # SettingValue.create_if_needed(key=NEIGHBOURHOOD_DISTANCE, user=None, value=DEFAULT_SEPARATING_NEIGHBOURS)
-        SettingValue.objects.get_or_create(key_id=NEIGHBOURHOOD_DISTANCE.id,
-                                           defaults={'value': DEFAULT_SEPARATING_NEIGHBOURS},
-                                          )
+        create_skey = SettingValue.objects.get_or_create
+        create_skey(key_id=setting_keys.NEIGHBOURHOOD_DISTANCE.id, defaults={'value': DEFAULT_SEPARATING_NEIGHBOURS})
+        create_skey(key_id=setting_keys.GOOGLE_API_KEY.id,         defaults={'value': ''})
 
         if not already_populated:
             if self.verbosity:
@@ -54,8 +54,8 @@ class Populator(BasePopulator):
             GeolocationCommand().import_town_all(verbosity=self.verbosity)
 
         if not already_populated:
-            Contact = get_contact_model()
-            Organisation = get_organisation_model()
+            Contact      = persons.get_contact_model()
+            Organisation = persons.get_organisation_model()
 
             create_bdl = BlockDetailviewLocation.create
             create_bdl(block_id=bricks.GoogleDetailMapBrick.id_, order=70, zone=BlockDetailviewLocation.LEFT, model=Organisation)
