@@ -50,11 +50,11 @@ class Action(CremeModel):
         verbose_name = _(u'Action')
         verbose_name_plural = _(u'Actions')
 
-    def __init__ (self, *args , **kwargs):
-        super(Action, self).__init__(*args, **kwargs)
-
-        if self.pk is None:
-            self.is_ok = False
+    # def __init__ (self, *args , **kwargs):
+    #     super(Action, self).__init__(*args, **kwargs)
+    #
+    #     if self.pk is None:
+    #         self.is_ok = False
 
     def __unicode__(self):
         return self.title
@@ -75,22 +75,34 @@ class Action(CremeModel):
 
     @staticmethod
     def get_actions_it_for_home(user, today):
-        return Action.objects.filter(is_ok=False, deadline__gt=today, user=user) \
+        # return Action.objects.filter(is_ok=False, deadline__gt=today, user=user) \
+        return Action.objects.filter(is_ok=False, deadline__gt=today, user__in=[user] + user.teams) \
                              .select_related('user')
 
     @staticmethod
     def get_actions_nit_for_home(user, today):
-        return Action.objects.filter(is_ok=False, deadline__lte=today, user=user) \
+        # return Action.objects.filter(is_ok=False, deadline__lte=today, user=user) \
+        return Action.objects.filter(is_ok=False, deadline__lte=today, user__in=[user] + user.teams) \
                              .select_related('user')
 
     @staticmethod
     def get_actions_it_for_ctypes(ct_ids, user, today):
-        return Action.objects.filter(entity_content_type__in=ct_ids, user=user, is_ok=False, deadline__gt=today) \
+        # return Action.objects.filter(entity_content_type__in=ct_ids, user=user, is_ok=False, deadline__gt=today) \
+        return Action.objects.filter(entity_content_type__in=ct_ids,
+                                     user__in=[user] + user.teams,
+                                     is_ok=False,
+                                     deadline__gt=today,
+                                    ) \
                              .select_related('user')
 
     @staticmethod
     def get_actions_nit_for_ctypes(ct_ids, user, today):
-        return Action.objects.filter(entity_content_type__in=ct_ids, user=user, is_ok=False, deadline__lte=today) \
+        # return Action.objects.filter(entity_content_type__in=ct_ids, user=user, is_ok=False, deadline__lte=today) \
+        return Action.objects.filter(entity_content_type__in=ct_ids,
+                                     user__in=[user] + user.teams,
+                                     is_ok=False,
+                                     deadline__lte=today
+                                    ) \
                              .select_related('user')
 
     def get_related_entity(self):  # For generic views

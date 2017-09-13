@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from datetime import timedelta
     from functools import partial
 
+    from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
+    from django.db.models.query import QuerySet
     from django.utils.timezone import now
 
-    from creme.creme_core.tests.fake_models import FakeContact as Contact
-    from creme.creme_core.models import BlockDetailviewLocation
+    from creme.creme_core.models import (BlockDetailviewLocation,
+             FakeContact, FakeOrganisation, FakeMailingList)
 
     # from ..bricks import actions_it_block, actions_nit_block
     from ..bricks import ActionsOnTimeBrick, ActionsNotOnTimeBrick
@@ -68,7 +71,7 @@ class ActionTestCase(AssistantsTestCase):
 
         self.assertEqual(title, unicode(action))
 
-        create_bdi = partial(BlockDetailviewLocation.create, model=Contact,
+        create_bdi = partial(BlockDetailviewLocation.create, model=FakeContact,
                              zone=BlockDetailviewLocation.RIGHT,
                             )
         create_bdi(block_id=ActionsOnTimeBrick.id_,    order=500)
@@ -165,3 +168,187 @@ class ActionTestCase(AssistantsTestCase):
                 self.assertEqual(contact01, action.creme_entity)
 
         self.aux_test_merge(creator, assertor)
+
+    def test_get_actions(self):
+        user = self.user
+        now_value = now()
+
+        entity2 = FakeOrganisation.objects.create(user=user, name='Thousand sunny')
+
+        create_action = partial(Action.objects.create, creme_entity=self.entity,
+                                user=user, deadline=now_value + timedelta(days=1),
+                               )
+        action1 = create_action(title='Action#1')
+        create_action(title='Action#2', is_ok=True)  # No (validated)
+        action3 = create_action(title='Action#3')
+        create_action(title='Action#4', creme_entity=entity2)  # No (other entity)
+        action5 = create_action(title='Action#5', deadline=now_value - timedelta(days=1))  # No (deadline)
+        create_action(title='Action#5', deadline=now_value - timedelta(days=1), is_ok=True)  # No
+
+        actions = Action.get_actions_it(entity=self.entity, today=now_value)
+        self.assertIsInstance(actions, QuerySet)
+        self.assertEqual(Action, actions.model)
+
+        self.assertEqual({action1, action3}, set(actions))
+        self.assertEqual(2, len(actions))
+
+        # --
+        actions = Action.get_actions_nit(entity=self.entity, today=now_value)
+        self.assertIsInstance(actions, QuerySet)
+        self.assertEqual(Action, actions.model)
+
+        self.assertEqual({action5}, set(actions))
+        self.assertEqual(1, len(actions))
+
+    def test_get_actions_for_home01(self):
+        user = self.user
+        now_value = now()
+
+        create_action = partial(Action.objects.create, creme_entity=self.entity,
+                                user=user, deadline=now_value + timedelta(days=1),
+                               )
+        yesterday = now_value - timedelta(days=1)
+        action1 = create_action(title='Action#1')
+        create_action(title='Action#2', is_ok=True)  # No (validated)
+        action3 = create_action(title='Action#3')
+        create_action(title='Action#4', user=self.other_user)  # No (other user)
+        action5 = create_action(title='Action#5', deadline=yesterday)  # No (deadline)
+        create_action(title='Action#5', deadline=yesterday, is_ok=True)  # No
+        create_action(title='Action#5', deadline=yesterday, user=self.other_user)  # No
+
+        actions = Action.get_actions_it_for_home(user=user, today=now_value)
+        self.assertIsInstance(actions, QuerySet)
+        self.assertEqual(Action, actions.model)
+
+        self.assertEqual({action1, action3}, set(actions))
+        self.assertEqual(2, len(actions))
+
+        # --
+        actions = Action.get_actions_nit_for_home(user=user, today=now_value)
+        self.assertIsInstance(actions, QuerySet)
+        self.assertEqual(Action, actions.model)
+
+        self.assertEqual({action5}, set(actions))
+        self.assertEqual(1, len(actions))
+
+    def test_get_actions_for_home02(self):
+        "Teams"
+        user = self.user
+        now_value = now()
+
+        create_user = get_user_model().objects.create
+        teammate1 = create_user(username='luffy',
+                                email='luffy@sunny.org', role=self.role,
+                                first_name='Luffy', last_name='Monkey D.',
+                               )
+        teammate2 = create_user(username='zorro',
+                                email='zorro@sunny.org', role=self.role,
+                                first_name='Zorro', last_name='Roronoa',
+                               )
+
+        team1 = create_user(username='Team #1', is_team=True)
+        team1.teammates = [teammate1, user]
+
+        team2 = create_user(username='Team #2', is_team=True)
+        team2.teammates = [self.other_user, teammate2]
+
+        create_action = partial(Action.objects.create, creme_entity=self.entity,
+                                user=user, deadline=now_value + timedelta(days=1),
+                               )
+        yesterday = now_value - timedelta(days=1)
+        action1 = create_action(title='Action#1')
+        create_action(title='Action#2', user=team2)  # No (other team)
+        action3 = create_action(title='Action#3', user=team1)
+        action4 = create_action(title='Action#4', deadline=yesterday, user=team1)  # No (deadline)
+        create_action(title='Action#5', deadline=yesterday, user=team2)  # No
+
+        actions = Action.get_actions_it_for_home(user=user, today=now_value)
+        self.assertEqual({action1, action3}, set(actions))
+        self.assertEqual(2, len(actions))
+
+        # --
+        actions = Action.get_actions_nit_for_home(user=user, today=now_value)
+        self.assertEqual({action4}, set(actions))
+        self.assertEqual(1, len(actions))
+
+    def test_get_actions_for_ctypes01(self):
+        user = self.user
+        now_value = now()
+
+        entity2 = FakeOrganisation.objects.create(user=user, name='Thousand sunny')
+        entity3 = FakeMailingList.objects.create(user=user, name='Pirates')
+
+        create_action = partial(Action.objects.create, creme_entity=self.entity,
+                                user=user, deadline=now_value + timedelta(days=1),
+                               )
+        yesterday = now_value - timedelta(days=1)
+        action1 = create_action(title='Action#1')
+        create_action(title='Action#2', is_ok=True)  # No (validated)
+        action3 = create_action(title='Action#3')
+        create_action(title='Action#4', user=self.other_user)  # No (other user)
+        action5 = create_action(title='Action#5', creme_entity=entity2)
+        create_action(title='Action#6', creme_entity=entity3)  # No (other ct)
+        action7 = create_action(title='Action#7', deadline=yesterday)  # No (deadline)
+        create_action(title='Action#5', deadline=yesterday, is_ok=True)  # No
+        create_action(title='Action#5', deadline=yesterday, user=self.other_user)  # No
+        create_action(title='Action#5', deadline=yesterday, creme_entity=entity3)  # No
+
+        ct_ids = [self.entity.entity_type_id, entity2.entity_type_id]
+        actions = Action.get_actions_it_for_ctypes(user=user, today=now_value, ct_ids=ct_ids)
+        self.assertIsInstance(actions, QuerySet)
+        self.assertEqual(Action, actions.model)
+
+        self.assertEqual({action1, action3, action5}, set(actions))
+        self.assertEqual(3, len(actions))
+
+        # --
+        actions = Action.get_actions_nit_for_ctypes(user=user, today=now_value, ct_ids=ct_ids)
+        self.assertIsInstance(actions, QuerySet)
+        self.assertEqual(Action, actions.model)
+
+        self.assertEqual({action7}, set(actions))
+        self.assertEqual(1, len(actions))
+
+    def test_get_actions_for_ctypes02(self):
+        "Teams"
+        user = self.user
+        now_value = now()
+
+        entity2 = FakeOrganisation.objects.create(user=user, name='Thousand sunny')
+
+        create_user = get_user_model().objects.create
+        teammate1 = create_user(username='luffy',
+                                email='luffy@sunny.org', role=self.role,
+                                first_name='Luffy', last_name='Monkey D.',
+                               )
+        teammate2 = create_user(username='zorro',
+                                email='zorro@sunny.org', role=self.role,
+                                first_name='Zorro', last_name='Roronoa',
+                               )
+
+        team1 = create_user(username='Team #1', is_team=True)
+        team1.teammates = [teammate1, user]
+
+        team2 = create_user(username='Team #2', is_team=True)
+        team2.teammates = [self.other_user, teammate2]
+
+        create_action = partial(Action.objects.create, creme_entity=self.entity,
+                                user=user, deadline=now_value + timedelta(days=1),
+                               )
+        yesterday = now_value - timedelta(days=1)
+        action1 = create_action(title='Action#1')
+        create_action(title='Action#2', user=team2)  # No (other team)
+        action3 = create_action(title='Action#3', user=team1)
+        action4 = create_action(title='Action#4', user=team1, creme_entity=entity2)
+        action5 = create_action(title='Action#5', deadline=yesterday, user=team1)  # No (deadline)
+        create_action(title='Action#5', deadline=yesterday, user=team2)  # No
+
+        ct_ids = [self.entity.entity_type_id, entity2.entity_type_id]
+        actions = Action.get_actions_it_for_ctypes(user=user, today=now_value, ct_ids=ct_ids)
+        self.assertEqual({action1, action3, action4}, set(actions))
+        self.assertEqual(3, len(actions))
+
+        # --
+        actions = Action.get_actions_nit_for_ctypes(user=user, today=now_value, ct_ids=ct_ids)
+        self.assertEqual({action5}, set(actions))
+        self.assertEqual(1, len(actions))

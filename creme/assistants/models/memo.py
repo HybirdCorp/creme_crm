@@ -62,11 +62,15 @@ class Memo(CremeModel):
 
     @staticmethod
     def get_memos_for_home(user):
-        return Memo.objects.filter(on_homepage=True, user=user).select_related('user')
+        # return Memo.objects.filter(on_homepage=True, user=user).select_related('user')
+        return Memo.objects.filter(on_homepage=True, user__in=[user] + user.teams) \
+                          .select_related('user')
 
     @staticmethod
     def get_memos_for_ctypes(ct_ids, user):
-        return Memo.objects.filter(entity_content_type__in=ct_ids, user=user).select_related('user')
+        # return Memo.objects.filter(entity_content_type__in=ct_ids, user=user).select_related('user')
+        return Memo.objects.filter(entity_content_type__in=ct_ids, user__in=[user] + user.teams) \
+                           .select_related('user')
 
     def get_related_entity(self):  # For generic views
         return self.creme_entity
