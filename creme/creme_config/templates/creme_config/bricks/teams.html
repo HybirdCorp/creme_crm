@@ -12,6 +12,14 @@
     {% brick_header_action id='add' url=create_url label=_('New team') enabled=admin_perm %}
 {% endblock %}
 
+{% block brick_before_content %}
+    <div class="help">
+        {% blocktrans %}A team is a user which can owns entities, but which cannot be logged in.
+A team contains some teammates, which must be real users, not teams.
+When an entity belongs to a team, each teammate has the same permissions on this entity as if it was belonging to him.{% endblocktrans %}
+    </div>
+{% endblock %}
+
 {% block brick_table_columns %}
     {% brick_table_column_for_field ctype=objects_ctype field='username' title=_('Name') status='primary' %}
     {% brick_table_column title=_('Teammates') %}
