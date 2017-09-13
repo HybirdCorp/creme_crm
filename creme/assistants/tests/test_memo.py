@@ -2,12 +2,15 @@
 
 try:
     from datetime import timedelta
+    from functools import partial
 
+    from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
+    from django.db.models.query import QuerySet
     from django.utils.timezone import now
 
-    from creme.creme_core.models import CremeEntity
+    from creme.creme_core.models import CremeEntity, FakeOrganisation, FakeMailingList
 
     from ..models import Memo
     from .base import AssistantsTestCase
@@ -150,3 +153,103 @@ will be truncate by unicode() method"""
                 self.assertEqual(contact01, memo.creme_entity)
 
         self.aux_test_merge(creator, assertor)
+
+    def test_get_memos(self):
+        user = self.user
+
+        entity2 = FakeOrganisation.objects.create(user=user, name='Thousand sunny')
+
+        create_memo = partial(Memo.objects.create, creme_entity=self.entity, user=user)
+        memo1 = create_memo(content='Memo#1')
+        create_memo(content='Memo#2', creme_entity=entity2)  # No (other entity)
+        memo3 = create_memo(content='Memo#3')
+
+        memos = Memo.get_memos(entity=self.entity)
+        self.assertIsInstance(memos, QuerySet)
+        self.assertEqual(Memo, memos.model)
+
+        self.assertEqual({memo1, memo3}, set(memos))
+        self.assertEqual(2, len(memos))
+
+    def test_get_memos_for_home01(self):
+        user = self.user
+
+        create_memo = partial(Memo.objects.create, creme_entity=self.entity, user=user, on_homepage=True)
+        memo1 = create_memo(content='Memo#1')
+        create_memo(content='Memo#2', on_homepage=False)  # No
+        memo3 = create_memo(content='Memo#3')
+        create_memo(content='Memo#4', user=self.other_user)  # No (other user)
+
+        memos = Memo.get_memos_for_home(user=user)
+        self.assertIsInstance(memos, QuerySet)
+        self.assertEqual(Memo, memos.model)
+
+        self.assertEqual({memo1, memo3}, set(memos))
+        self.assertEqual(2, len(memos))
+
+    def test_get_memos_for_home02(self):
+        "Teams"
+        user = self.user
+
+        create_user = get_user_model().objects.create
+        teammate1 = create_user(username='luffy',
+                                email='luffy@sunny.org', role=self.role,
+                                first_name='Luffy', last_name='Monkey D.',
+                               )
+        teammate2 = create_user(username='zorro',
+                                email='zorro@sunny.org', role=self.role,
+                                first_name='Zorro', last_name='Roronoa',
+                               )
+
+        team1 = create_user(username='Team #1', is_team=True)
+        team1.teammates = [teammate1, user]
+
+        team2 = create_user(username='Team #2', is_team=True)
+        team2.teammates = [self.other_user, teammate2]
+
+        create_memo = partial(Memo.objects.create, creme_entity=self.entity, user=user, on_homepage=True)
+        memo1 = create_memo(content='Memo#1')
+        create_memo(content='Memo#2', on_homepage=False)  # No
+        memo3 = create_memo(content='Memo#3', user=team1)
+        create_memo(content='Memo#4', user=team2)  # No (other team)
+
+        memos = Memo.get_memos_for_home(user=user)
+        self.assertEqual({memo1, memo3}, set(memos))
+        self.assertEqual(2, len(memos))
+
+    def test_get_memos_for_ctypes(self):
+        user = self.user
+
+        entity2 = FakeOrganisation.objects.create(user=user, name='Thousand sunny')
+        entity3 = FakeMailingList.objects.create(user=user, name='Pirates')
+
+        create_user = get_user_model().objects.create
+        teammate1 = create_user(username='luffy',
+                                email='luffy@sunny.org', role=self.role,
+                                first_name='Luffy', last_name='Monkey D.',
+                               )
+        teammate2 = create_user(username='zorro',
+                                email='zorro@sunny.org', role=self.role,
+                                first_name='Zorro', last_name='Roronoa',
+                               )
+
+        team1 = create_user(username='Team #1', is_team=True)
+        team1.teammates = [teammate1, user]
+
+        team2 = create_user(username='Team #2', is_team=True)
+        team2.teammates = [self.other_user, teammate2]
+
+        create_memo = partial(Memo.objects.create, creme_entity=self.entity, user=user)
+        memo1 = create_memo(content='Memo#1')
+        create_memo(content='Memo#2', user=self.other_user)  # No (other user)
+        memo3 = create_memo(content='Memo#3', user=team1)
+        create_memo(content='Memo#4', user=team2)  # No (other team)
+        memo5 = create_memo(content='Memo#5', creme_entity=entity2)
+        create_memo(content='Memo#6', creme_entity=entity3)
+
+        memos = Memo.get_memos_for_ctypes(user=user, ct_ids=[self.entity.entity_type_id, entity2.entity_type_id])
+        self.assertIsInstance(memos, QuerySet)
+        self.assertEqual(Memo, memos.model)
+
+        self.assertEqual({memo1, memo3, memo5}, set(memos))
+        self.assertEqual(3, len(memos))

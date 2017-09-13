@@ -4,16 +4,18 @@ try:
     from datetime import timedelta, datetime
     from functools import partial
 
+    from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
     from django.core import mail
     from django.core.urlresolvers import reverse
+    from django.db.models.query import QuerySet
     from django.test.utils import override_settings
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
     # from creme.creme_core.management.commands.reminder import Command as ReminderCommand
-    from creme.creme_core.models import CremeEntity, DateReminder
+    from creme.creme_core.models import CremeEntity, DateReminder, FakeOrganisation, FakeMailingList
 
     from ..models import Alert
     from .base import AssistantsTestCase
@@ -266,3 +268,134 @@ class AlertTestCase(AssistantsTestCase):
         self.assertDatetimesAlmostEqual(now_value + timedelta(minutes=20),
                                         wakeup
                                        )
+
+    def test_get_alerts(self):
+        user = self.user
+        now_value = now()
+
+        entity2 = FakeOrganisation.objects.create(user=user, name='Thousand sunny')
+
+        create_alert = partial(Alert.objects.create, creme_entity=self.entity,
+                               user=user, trigger_date=now_value,
+                              )
+        alert1 = create_alert(title='Alert#1')
+        create_alert(title='Alert#2', is_validated=True)  # No (validated)
+        alert3 = create_alert(title='Alert#3')
+        create_alert(title='Alert#4', creme_entity=entity2)  # No (other entity)
+
+        alerts = Alert.get_alerts(entity=self.entity)
+        self.assertIsInstance(alerts, QuerySet)
+        self.assertEqual(Alert, alerts.model)
+
+        self.assertEqual({alert1, alert3}, set(alerts))
+        self.assertEqual(2, len(alerts))
+
+    def test_get_alerts_for_home01(self):
+        user = self.user
+        now_value = now()
+
+        create_alert = partial(Alert.objects.create, creme_entity=self.entity,
+                               user=user, trigger_date=now_value,
+                              )
+        alert1 = create_alert(title='Alert#1')
+        create_alert(title='Alert#2', is_validated=True)  # No (validated)
+        alert3 = create_alert(title='Alert#3')
+        create_alert(title='Alert#4', user=self.other_user)  # No (other user)
+
+        alerts = Alert.get_alerts_for_home(user=user)
+        self.assertIsInstance(alerts, QuerySet)
+        self.assertEqual(Alert, alerts.model)
+
+        self.assertEqual({alert1, alert3}, set(alerts))
+        self.assertEqual(2, len(alerts))
+
+    def test_get_alerts_for_home02(self):
+        "Teams"
+        user = self.user
+        now_value = now()
+
+        create_user = get_user_model().objects.create
+        teammate1 = create_user(username='luffy',
+                                email='luffy@sunny.org', role=self.role,
+                                first_name='Luffy', last_name='Monkey D.',
+                               )
+        teammate2 = create_user(username='zorro',
+                                email='zorro@sunny.org', role=self.role,
+                                first_name='Zorro', last_name='Roronoa',
+                               )
+
+        team1 = create_user(username='Team #1', is_team=True)
+        team1.teammates = [teammate1, user]
+
+        team2 = create_user(username='Team #2', is_team=True)
+        team2.teammates = [self.other_user, teammate2]
+
+        create_alert = partial(Alert.objects.create, creme_entity=self.entity,
+                               user=user, trigger_date=now_value,
+                              )
+        alert1 = create_alert(title='Alert#1')
+        create_alert(title='Alert#2', user=team2)  # No (other team)
+        alert3 = create_alert(title='Alert#3', user=team1)
+
+        alerts = Alert.get_alerts_for_home(user=user)
+        self.assertEqual({alert1, alert3}, set(alerts))
+        self.assertEqual(2, len(alerts))
+
+    def test_get_alerts_for_ctypes01(self):
+        user = self.user
+        now_value = now()
+
+        entity2 = FakeOrganisation.objects.create(user=user, name='Thousand sunny')
+        entity3 = FakeMailingList.objects.create(user=user, name='Pirates')
+
+        create_alert = partial(Alert.objects.create, creme_entity=self.entity,
+                               user=user, trigger_date=now_value,
+                              )
+        alert1 = create_alert(title='Alert#1')
+        create_alert(title='Alert#2', is_validated=True)  # No (validated)
+        alert3 = create_alert(title='Alert#3')
+        create_alert(title='Alert#4', user=self.other_user)  # No (other user)
+        alert5 = create_alert(title='Alert#5', creme_entity=entity2)
+        create_alert(title='Alert#6', creme_entity=entity3)  # No (bad ctype)
+
+        alerts = Alert.get_alerts_for_ctypes(user=user, ct_ids=[self.entity.entity_type_id, entity2.entity_type_id])
+        self.assertIsInstance(alerts, QuerySet)
+        self.assertEqual(Alert, alerts.model)
+
+        self.assertEqual({alert1, alert3, alert5}, set(alerts))
+        self.assertEqual(3, len(alerts))
+
+    def test_get_alerts_for_ctypes02(self):
+        "Teams"
+        user = self.user
+        now_value = now()
+
+        entity2 = FakeOrganisation.objects.create(user=user, name='Thousand sunny')
+
+        create_user = get_user_model().objects.create
+        teammate1 = create_user(username='luffy',
+                                email='luffy@sunny.org', role=self.role,
+                                first_name='Luffy', last_name='Monkey D.',
+                               )
+        teammate2 = create_user(username='zorro',
+                                email='zorro@sunny.org', role=self.role,
+                                first_name='Zorro', last_name='Roronoa',
+                               )
+
+        team1 = create_user(username='Team #1', is_team=True)
+        team1.teammates = [teammate1, user]
+
+        team2 = create_user(username='Team #2', is_team=True)
+        team2.teammates = [self.other_user, teammate2]
+
+        create_alert = partial(Alert.objects.create, creme_entity=self.entity,
+                               user=user, trigger_date=now_value,
+                              )
+        alert1 = create_alert(title='Alert#1')
+        create_alert(title='Alert#2', user=team2)  # No (other team)
+        alert3 = create_alert(title='Alert#3', user=team1)
+        alert4 = create_alert(title='Alert#4', creme_entity=entity2)
+
+        alerts = Alert.get_alerts_for_ctypes(user=user, ct_ids=[self.entity.entity_type_id, entity2.entity_type_id])
+        self.assertEqual({alert1, alert3, alert4}, set(alerts))
+        self.assertEqual(3, len(alerts))

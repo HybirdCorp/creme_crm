@@ -6,11 +6,12 @@ try:
     from json import loads as load_json
 
     from django.conf import settings
+    from django.contrib.auth import get_user_model
+    from django.contrib.contenttypes.models import ContentType
     from django.core import mail
     from django.core.mail.backends.locmem import EmailBackend
     from django.core.urlresolvers import reverse
-    from django.contrib.auth import get_user_model
-    from django.contrib.contenttypes.models import ContentType
+    from django.db.models.query import QuerySet
     from django.test.utils import override_settings
     from django.utils.timezone import now, localtime
     from django.utils.translation import ugettext as _
@@ -22,7 +23,7 @@ try:
             SettingValue, HistoryLine, JobResult)
     from creme.creme_core.models.history import (TYPE_AUX_CREATION,
             TYPE_AUX_EDITION, TYPE_AUX_DELETION)
-    from creme.creme_core.tests.fake_models import FakeContact
+    from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation, FakeMailingList
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
     from ..constants import MIN_HOUR_4_TODO_REMINDER
@@ -649,3 +650,89 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
                                },
                          vmodifs[0]
                         )
+
+    def test_get_todos(self):
+        user = self.user
+
+        entity2 = FakeOrganisation.objects.create(user=user, name='Thousand sunny')
+
+        create_todo = partial(ToDo.objects.create, creme_entity=self.entity, user=user)
+        todo1 = create_todo(title='Todo#1')
+        create_todo(title='Todo#2', creme_entity=entity2)  # No (other entity)
+        todo3 = create_todo(title='Todo#3')
+
+        todos = ToDo.get_todos(entity=self.entity)
+        self.assertIsInstance(todos, QuerySet)
+        self.assertEqual(ToDo, todos.model)
+
+        self.assertEqual({todo1, todo3}, set(todos))
+        self.assertEqual(2, len(todos))
+
+    def test_get_todos_for_home(self):
+        user = self.user
+
+        create_user = get_user_model().objects.create
+        teammate1 = create_user(username='luffy',
+                                email='luffy@sunny.org', role=self.role,
+                                first_name='Luffy', last_name='Monkey D.',
+                               )
+        teammate2 = create_user(username='zorro',
+                                email='zorro@sunny.org', role=self.role,
+                                first_name='Zorro', last_name='Roronoa',
+                               )
+
+        team1 = create_user(username='Team #1', is_team=True)
+        team1.teammates = [teammate1, user]
+
+        team2 = create_user(username='Team #2', is_team=True)
+        team2.teammates = [self.other_user, teammate2]
+
+        create_todo = partial(ToDo.objects.create, creme_entity=self.entity, user=user)
+        todo1 = create_todo(title='Todo#1')
+        create_todo(title='Todo#2', user=self.other_user)  # No (other user)
+        todo3 = create_todo(title='Todo#3', user=team1)
+        create_todo(title='Todo#4', user=team2)  # No (other team)
+
+        todos = ToDo.get_todos_for_home(user=user)
+        self.assertIsInstance(todos, QuerySet)
+        self.assertEqual(ToDo, todos.model)
+
+        self.assertEqual({todo1, todo3}, set(todos))
+        self.assertEqual(2, len(todos))
+
+    def test_get_todos_for_ctypes(self):
+        user = self.user
+
+        entity2 = FakeOrganisation.objects.create(user=user, name='Thousand sunny')
+        entity3 = FakeMailingList.objects.create(user=user, name='Pirates')
+
+        create_user = get_user_model().objects.create
+        teammate1 = create_user(username='luffy',
+                                email='luffy@sunny.org', role=self.role,
+                                first_name='Luffy', last_name='Monkey D.',
+                               )
+        teammate2 = create_user(username='zorro',
+                                email='zorro@sunny.org', role=self.role,
+                                first_name='Zorro', last_name='Roronoa',
+                               )
+
+        team1 = create_user(username='Team #1', is_team=True)
+        team1.teammates = [teammate1, user]
+
+        team2 = create_user(username='Team #2', is_team=True)
+        team2.teammates = [self.other_user, teammate2]
+
+        create_todo = partial(ToDo.objects.create, creme_entity=self.entity, user=user)
+        todo1 = create_todo(title='Todo#1')
+        create_todo(title='Todo#2', user=self.other_user)  # No (other user)
+        todo3 = create_todo(title='Todo#3', user=team1)
+        create_todo(title='Todo#4', user=team2)  # No (other team)
+        todo5 = create_todo(title='Todo#5', creme_entity=entity2)
+        create_todo(title='Todo#6', creme_entity=entity3)  # No (bad ctype)
+
+        todos = ToDo.get_todos_for_ctypes(user=user, ct_ids=[self.entity.entity_type_id, entity2.entity_type_id])
+        self.assertIsInstance(todos, QuerySet)
+        self.assertEqual(ToDo, todos.model)
+
+        self.assertEqual({todo1, todo3, todo5}, set(todos))
+        self.assertEqual(3, len(todos))

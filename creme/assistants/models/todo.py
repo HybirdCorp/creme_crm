@@ -65,11 +65,15 @@ class ToDo(CremeModel):
 
     @staticmethod
     def get_todos_for_home(user):
-        return ToDo.objects.filter(user=user).select_related('user')
+        # return ToDo.objects.filter(user=user).select_related('user')
+        return ToDo.objects.filter(user__in=[user] + user.teams).select_related('user')
 
     @staticmethod
     def get_todos_for_ctypes(ct_ids, user):
-        return ToDo.objects.filter(entity_content_type__in=ct_ids, user=user).select_related('user')
+        # return ToDo.objects.filter(entity_content_type__in=ct_ids, user=user).select_related('user')
+        return ToDo.objects.filter(entity_content_type__in=ct_ids,
+                                   user__in=[user] + user.teams
+                                  ).select_related('user')
 
     def get_related_entity(self):  # For generic views
         return self.creme_entity

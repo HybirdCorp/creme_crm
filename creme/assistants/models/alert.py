@@ -65,11 +65,13 @@ class Alert(CremeModel):
 
     @staticmethod
     def get_alerts_for_home(user):
-        return Alert.objects.filter(is_validated=False, user=user).select_related('user')
+        # return Alert.objects.filter(is_validated=False, user=user).select_related('user')
+        return Alert.objects.filter(is_validated=False, user__in=[user] + user.teams).select_related('user')
 
     @staticmethod
     def get_alerts_for_ctypes(ct_ids, user):
-        return Alert.objects.filter(entity_content_type__in=ct_ids, user=user, is_validated=False) \
+        # return Alert.objects.filter(entity_content_type__in=ct_ids, user=user, is_validated=False) \
+        return Alert.objects.filter(entity_content_type__in=ct_ids, user__in=[user] + user.teams, is_validated=False) \
                             .select_related('user')
 
     def get_related_entity(self):  # For generic views
