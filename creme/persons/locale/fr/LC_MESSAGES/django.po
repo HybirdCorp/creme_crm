@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-17 18:38+0200\n"
+"POT-Creation-Date: 2017-09-13 15:40+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -850,6 +850,14 @@ msgstr "Sociétés gérées"
 #: templates/persons/bricks/managed-organisations.html:12
 msgid "Manage new organisations"
 msgstr "Gérer de nouvelles sociétés"
+
+#: templates/persons/bricks/managed-organisations.html:16
+msgid ""
+"(eg: managed organisations can generate numbers for their invoices, or emit "
+"opportunities)"
+msgstr ""
+"(ex: les sociétés gérées peuvent générer des numéros de factures, ou émettre "
+"des opportunités)"
 
 #: templates/persons/bricks/managed-organisations.html:21
 msgid "Action"
