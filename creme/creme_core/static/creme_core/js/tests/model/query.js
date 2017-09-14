@@ -37,7 +37,7 @@ QUnit.module("creme.model.query.js", {
         }})(name);
     },
 
-    assertMockQueryErrorCalls(expected, calls)
+    assertMockQueryErrorCalls: function(expected, calls)
     {
         equal(expected.length, calls.length, 'length');
 
