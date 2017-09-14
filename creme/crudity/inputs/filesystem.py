@@ -39,10 +39,12 @@ class IniFileInput(CrudityInput):
     method = 'create'
     verbose_name = _(u'File - INI')
     verbose_method = _(u'Create')  # TODO: factorise + retrieve with 'method'
+    brickheader_action_templates = ('crudity/bricks/header-actions/inifile-creation-template.html',)
 
     def __init__(self):
         super(IniFileInput, self).__init__()
 
+        # TODO: remove in creme1.8
         # NB: we define an inner class + avoid using a template file in order to reduce the API (will break soon).
         from django.core.urlresolvers import reverse
         from django.utils.safestring import mark_safe
