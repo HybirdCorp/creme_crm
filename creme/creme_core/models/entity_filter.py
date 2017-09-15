@@ -108,7 +108,7 @@ class EntityFilter(Model):  # CremeModel ???
      - The holding (or the not holding) of a kind of CremeProperty
     """
     id          = CharField(primary_key=True, max_length=100, editable=False).set_tags(viewable=False)
-    name        = CharField(max_length=100, verbose_name=_('Name'))
+    name        = CharField(max_length=100, verbose_name=_(u'Name'))
     user        = CremeUserForeignKey(verbose_name=_(u'Owner user'), blank=True, null=True).set_tags(viewable=False)
     entity_type = CTypeForeignKey(editable=False).set_tags(viewable=False)
     is_custom   = BooleanField(editable=False, default=True).set_tags(viewable=False)
@@ -118,8 +118,8 @@ class EntityFilter(Model):  # CremeModel ???
 
     use_or = BooleanField(verbose_name=_(u'Use "OR"'), default=False).set_tags(viewable=False)
 
-    creation_label = _('Create a filter')
-    save_label     = _('Save the filter')
+    creation_label = _(u'Create a filter')
+    save_label     = _(u'Save the filter')
 
     _conditions_cache = None
     _connected_filter_cache = None

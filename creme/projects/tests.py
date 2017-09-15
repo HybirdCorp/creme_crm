@@ -91,7 +91,7 @@ class ProjectsTestCase(CremeTestCase):
     def _build_type_value(self, atype=ACTIVITYTYPE_TASK, sub_type=None):
         return json_dump({'type': atype, 'sub_type': sub_type})
 
-    def create_resource(self, task, contact, hourly_cost=100):
+    def create_resource(self, task, contact, hourly_cost=100, error=False):
         response = self.client.post(self._build_add_resource_url(task),
                                     follow=True,
                                     data={'user':        self.user.id,
@@ -99,7 +99,11 @@ class ProjectsTestCase(CremeTestCase):
                                           'hourly_cost': hourly_cost,
                                          }
                                    )
-        self.assertNoFormError(response)
+
+        if not error:
+            self.assertNoFormError(response)
+
+        return response
 
     def create_activity(self, resource, start='2015-05-19', end='2015-06-03',
                         duration='8', atype=None, busy='', errors=False,
@@ -679,14 +683,15 @@ class ProjectsTestCase(CremeTestCase):
         task    = self.create_task(project, 'legs', status=status)
 
         url = self._build_add_resource_url(task)
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/error.html')
+        # response = self.assertGET200(url)
+        # self.assertTemplateUsed(response, 'creme_core/generics/error.html')
+        self.assertGET409(url)
 
         worker = Contact.objects.create(user=user, first_name='Yui', last_name='Ikari')
-        self.create_resource(task, worker)
-
+        response = self.create_resource(task, worker, error=True)
         self.assertFalse(task.resources_set.all())
-        self.assertTemplateUsed(response, 'creme_core/generics/error.html')
+        # self.assertTemplateUsed(response, 'creme_core/generics/error.html')
+        self.assertEqual(409, response.status_code)
 
     @skipIfCustomActivity
     @skipIfCustomTask

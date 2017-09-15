@@ -20,30 +20,65 @@
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core.views import generic
 
+from .. import get_task_model
 from ..constants import REL_SUB_PART_AS_RESOURCE
 from ..forms import resource as resource_forms
 from ..models import Resource
-from . import utils  # TODO: these generic views are only here => 'inline' them
+# from . import utils
 
 
+# TODO: improve add_to_entity (see: "if not task.is_alive() etc...") ???
 @login_required
 @permission_required('projects')
 # @permission_required('projects.add_resource') #resource not registered as CremeEntity
 def add(request, task_id):
-    return utils._add_generic(request, resource_forms.ResourceCreateForm, task_id, _(u'Allocation of a new resource'))
+    # return utils._add_generic(request, resource_forms.ResourceCreateForm, task_id, _(u'Allocation of a new resource'))
+    task = get_object_or_404(get_task_model(), pk=task_id)
+    user = request.user
+
+    user.has_perm_to_change_or_die(task)
+
+    if not task.is_alive():
+        raise ConflictError(ugettext(u"You can't add a resources or a working "
+                                     u"period to a task which has status «%s»"
+                                    ) % task.tstatus.name
+                           )
+
+    if request.method == 'POST':
+        form = resource_forms.ResourceCreateForm(task, user=user, data=request.POST)
+
+        if form.is_valid():
+            form.save()
+    else:
+        form = resource_forms.ResourceCreateForm(task, user=user)
+
+    return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
+                               {'form':         form,
+                                'title':        _(u'Allocation of a new resource'),
+                                'submit_label': Resource.save_label,
+                               },
+                               is_valid=form.is_valid(),
+                               reload=False,
+                               delegate_reload=True,
+                              )
 
 
 @login_required
 @permission_required('projects')
 def edit(request, resource_id):
-    return utils._edit_generic(request, resource_forms.ResourceEditForm, resource_id, Resource, _(u'Edition of a resource'))
+    # return utils._edit_generic(request, resource_forms.ResourceEditForm, resource_id, Resource, _(u'Edition of a resource'))
+    return generic.edit_related_to_entity(request, pk=resource_id, model=Resource,
+                                          form_class=resource_forms.ResourceEditForm,
+                                          title_format=_(u'Resource for «%s»'),
+                                         )
 
 
 @login_required
@@ -59,7 +94,7 @@ def delete(request):  # TODO: generic delete ??
                                object_entity__in=[a.id for a in resource.task.related_activities],
                               ) \
                        .exists():
-        raise ConflictError(_('This resource cannot be deleted, because it is linked to activities.'))
+        raise ConflictError(ugettext(u'This resource cannot be deleted, because it is linked to activities.'))
 
     resource.delete()
 

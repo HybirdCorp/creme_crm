@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Projects 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-13 23:00+0200\n"
+"POT-Creation-Date: 2017-09-15 16:57+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -231,11 +231,15 @@ msgstr "Tâche"
 msgid "Create a resource"
 msgstr "Créer une ressource"
 
-#: models/resource.py:45
+#: models/resource.py:42
+msgid "Save the resource"
+msgstr "Enregistrer la ressource"
+
+#: models/resource.py:46
 msgid "Resource of project"
 msgstr "Ressource de projet"
 
-#: models/resource.py:46
+#: models/resource.py:47
 msgid "Resources of project"
 msgstr "Ressources de projet"
 
@@ -425,7 +429,7 @@ msgstr "Ressource(s) concernée(s)"
 msgid "Actions"
 msgstr "Actions"
 
-#: templates/projects/bricks/activities.html:37
+#: templates/projects/bricks/activities.html:41
 #, python-format
 msgid ""
 "On <span class=\"start-date\">%(start_date)s</span> from <span class=\"start-"
@@ -434,7 +438,7 @@ msgstr ""
 "Le <span class=\"start-date\">%(start_date)s</span> de <span class=\"start-"
 "hour\">%(start_hour)s</span> à <span class=\"end-hour\">%(end_hour)s</span>"
 
-#: templates/projects/bricks/activities.html:39
+#: templates/projects/bricks/activities.html:43
 #, python-format
 msgid ""
 "From <span class=\"start-date\">%(start_date)s</span> at <span class=\"start-"
@@ -442,19 +446,19 @@ msgid ""
 "at <span class=\"end-hour\">%(end_hour)s</span>"
 msgstr ""
 "De <span class=\"start-date\">%(start_date)s</span> à <span class=\"start-"
-"hour\">%(start_hour)s</span> jusqu'à <span class=\"end-date\">%(end_date)s</span> "
-"à <span class=\"end-hour\">%(end_hour)s</span>"
+"hour\">%(start_hour)s</span> jusqu'à <span class=\"end-date\">%(end_date)s</"
+"span> à <span class=\"end-hour\">%(end_hour)s</span>"
 
-#: templates/projects/bricks/activities.html:50
+#: templates/projects/bricks/activities.html:54
 msgid "Edit this activity"
 msgstr "Modifier l'activité"
 
-#: templates/projects/bricks/activities.html:53
+#: templates/projects/bricks/activities.html:57
 msgid "Delete this activity"
 msgstr "Supprimer l'activité"
 
-#: templates/projects/bricks/activities.html:59
-#: templates/projects/bricks/activities.html:66
+#: templates/projects/bricks/activities.html:63
+#: templates/projects/bricks/activities.html:70
 #: templates/projects/bricks/resources.html:41
 #: templates/projects/bricks/resources.html:49
 #: templates/projects/templatetags/block_activities.html:23
@@ -464,7 +468,7 @@ msgstr ""
 "Vous ne pouvez pas ajouter de période travaillée car cette tâche est "
 "%(status)s"
 
-#: templates/projects/bricks/activities.html:68
+#: templates/projects/bricks/activities.html:72
 #: templates/projects/templatetags/block_activities.html:56
 msgid "No related activity for this task"
 msgstr "Pas d'activité lié à cette tâche"
@@ -727,15 +731,24 @@ msgstr "Retour au projet"
 msgid "Number of projects"
 msgstr "Nombre de projet(s)"
 
-#: views/resource.py:40
+#: views/resource.py:50 views/utils.py:52
+#, python-format
+msgid ""
+"You can't add a resources or a working period to a task which has status «%s»"
+msgstr ""
+"Vous ne pouvez pas ajouter de ressources ou de périodes travaillées à une "
+"tâche en statut «%s»"
+
+#: views/resource.py:65
 msgid "Allocation of a new resource"
 msgstr "Affectation d'une nouvelle ressource"
 
-#: views/resource.py:46
-msgid "Edition of a resource"
-msgstr "Modification d'une ressource"
+#: views/resource.py:80
+#, python-format
+msgid "Resource for «%s»"
+msgstr "Ressource pour «%s»"
 
-#: views/resource.py:62
+#: views/resource.py:97
 msgid "This resource cannot be deleted, because it is linked to activities."
 msgstr ""
 "Cette ressource ne peut pas être supprimée, car elle est liée à des "
@@ -765,18 +778,13 @@ msgstr "La suppression a provoqué une erreur inattendue [%s]."
 msgid "Operation successfully completed"
 msgstr ""
 
-#: views/utils.py:49
-#, python-format
-msgid ""
-"You can't add a resources or a working period to a task which has status «%s»"
-msgstr ""
-"Vous ne pouvez pas ajouter de ressources ou de périodes travaillées à une "
-"tâche en statut «%s»"
-
 # Already in creme_core
-#: views/utils.py:93
+#: views/utils.py:95
 msgid "Save the modifications"
 msgstr ""
+
+#~ msgid "Edition of a resource"
+#~ msgstr "Modification d'une ressource"
 
 #~ msgid "On %(start_date)s from %(start_hour)s to %(end_hour)s"
 #~ msgstr "Le %(start_date)s de %(start_hour)s à %(end_hour)s"
@@ -845,9 +853,6 @@ msgstr ""
 
 #~ msgid "Description of the task"
 #~ msgstr "Description de la tâche"
-
-#~ msgid "Name of the resource"
-#~ msgstr "Nom de la ressource"
 
 #~ msgid "Portal"
 #~ msgstr "Portail"

@@ -64,14 +64,16 @@ class ResourceCreateForm(CremeEntityForm):
 
 
 class ResourceEditForm(ResourceCreateForm):
-    keep_participating = BooleanField(label=_('If the contact changes, the old one '
-                                              'keeps participating to the activities.'
+    keep_participating = BooleanField(label=_(u'If the contact changes, the old one '
+                                              u'keeps participating to the activities.'
                                              ),
                                       required=False,
                                      )
 
-    def __init__(self, *args, **kwargs):
-        super(ResourceEditForm, self).__init__(*args, **kwargs)
+    # def __init__(self, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
+        # super(ResourceEditForm, self).__init__(*args, **kwargs)
+        super(ResourceEditForm, self).__init__(task=entity, *args, **kwargs)
         self.old_contact = self.fields['contact'].initial = self.instance.linked_contact
 
     def save(self, *args, **kwargs):
