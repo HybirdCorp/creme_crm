@@ -53,13 +53,13 @@ def edit_entity(request, object_id, model, edit_form,
     return render(request, template,
                   {'form': form,
                    'object': entity,
-                   'submit_label': _('Save the modifications'),
+                   'submit_label': _(u'Save the modifications'),
                    'cancel_url': cancel_url,
                   })
 
 
 def edit_related_to_entity(request, pk, model, form_class, title_format,
-                           submit_label=_('Save the modifications'),
+                           submit_label=_(u'Save the modifications'),
                            template='creme_core/generics/blockform/edit_popup.html',
                           ):
     """Edit a model related to a CremeEntity.
@@ -98,7 +98,7 @@ def edit_related_to_entity(request, pk, model, form_class, title_format,
 def edit_model_with_popup(request, query_dict, model, form_class,
                           title_format=None, can_change=None,
                           template='creme_core/generics/blockform/edit_popup.html',
-                          submit_label=_('Save the modifications'),
+                          submit_label=_(u'Save the modifications'),
                          ):
     """Get & edit an instance in a inner popup.
     @param query_dict A dictionary which represents the query to retrieve the
