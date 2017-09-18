@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,13 +31,16 @@ from creme.creme_core.views.generic import view_entity, list_view, edit_entity
 
 from .. import get_rgenerator_model
 from ..constants import DEFAULT_HFILTER_RGENERATOR
-from ..forms.recurrentgenerator import RecurrentGeneratorEditForm
+from ..forms import recurrentgenerator as generator_forms
 
 
 RecurrentGenerator = get_rgenerator_model()
 
 
 class RecurrentGeneratorWizard(SessionWizardView):
+    # NB: in deed, the second form is just a place holder ;
+    #     it will be dynamically replaced by a form from 'recurrent_registry' (see get_form().
+    form_list = [generator_forms.RecurrentGeneratorCreateForm] * 2
     template_name = 'creme_core/generics/blockform/add_wizard.html'
 
     @method_decorator(login_required)
@@ -97,7 +100,7 @@ class RecurrentGeneratorWizard(SessionWizardView):
         return {'user': self.request.user}
 
 
-def abstract_edit_rgenerator(request, generator_id, form=RecurrentGeneratorEditForm):
+def abstract_edit_rgenerator(request, generator_id, form=generator_forms.RecurrentGeneratorEditForm):
     return edit_entity(request, generator_id, RecurrentGenerator, form)
 
 
