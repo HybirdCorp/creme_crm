@@ -16,9 +16,9 @@
    version="1.1"
    inkscape:version="0.91 r13725"
    sodipodi:docname="meeting.svg"
-   inkscape:export-filename="meeting_16.png"
-   inkscape:export-xdpi="11.25"
-   inkscape:export-ydpi="11.25">
+   inkscape:export-filename="meeting_48.png"
+   inkscape:export-xdpi="33.75"
+   inkscape:export-ydpi="33.75">
   <defs
      id="defs4">
     <linearGradient
@@ -141,8 +141,8 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="6.0339778"
-     inkscape:cx="30.865864"
-     inkscape:cy="81.170076"
+     inkscape:cx="28.297078"
+     inkscape:cy="80.009979"
      inkscape:document-units="px"
      inkscape:current-layer="layer3"
      showgrid="true"
@@ -250,7 +250,7 @@
      inkscape:groupmode="layer"
      id="layer3"
      inkscape:label="outline"
-     style="display:none">
+     style="display:inline">
     <path
        sodipodi:nodetypes="ccccccsssccccccsscccccccccccssssssssssssssssssssccsccscccsccsc"
        inkscape:connector-curvature="0"
