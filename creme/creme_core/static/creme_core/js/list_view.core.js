@@ -19,30 +19,35 @@
  * Dependencies : jQuery / jquery.utils.js
  */
 
-//TODO : To be deleted and all console.log in code also
+// TODO : To be deleted and all console.log in code also
 
-(function($) {"use strict";
+(function($) {
+    "use strict";
+
     $.fn.list_view = function(options) {
-        var isMethodCall = (typeof options == 'string'),
-            args = Array.prototype.slice.call(arguments, 1);
+        var isMethodCall = Object.isString(options);
+        var args = Array.prototype.slice.call(arguments, 1);
 
         $.fn.list_view.defaults = {
-            user_page         : '#user_page',
-            selected_rows     : '#selected_rows',
-            selectable_class  : 'selectable',
-            selected_class    : 'selected',
-            id_container      : '[name="entity_id"]',
-            checkbox_selector : '[name="select_one"]',
+            user_page:          '#user_page',
+            selected_rows:      '#selected_rows',
+            selectable_class:   'selectable',
+            selected_class:     'selected',
+            id_container:       '[name="entity_id"]',
+            checkbox_selector:  '[name="select_one"]',
             all_boxes_selector: '[name="select_all"]',
-            beforeSubmit      : null,
-            afterSubmit       : null,
-            o2m               : false,
-            entity_separator  : ',',
-            serializer        : 'input[name][type!="submit"], select[name]',
-            submitHandler     : null, // Use handleSubmit in it to easy list view's management
-            kd_submitHandler  : null, // Same as submitHandler but for key down events,
-            reload_url        : null
+            beforeSubmit:       null,
+            afterSubmit:        null,
+            o2m:                false,
+            entity_separator:   ',',
+            serializer:         'input[name][type!="submit"], select[name]',
+            submitHandler:      null, // Use handleSubmit in it to easy list view's management
+            kd_submitHandler:   null, // Same as submitHandler but for key down events,
+            reload_url:         null,
+            historyHandler:     null
         };
+
+        var _noop = function() {};
 
         var publicMethods = ["countEntities", "getSelectedEntities",
                              "getSelectedEntitiesAsArray",
@@ -52,7 +57,7 @@
                              "setReloadUrl", "getReloadUrl", "isLoading"];
 
         if (isMethodCall && $.inArray(options, publicMethods) > -1) {
-            var instance = $.data(this[0], 'list_view');
+            var instance = $.data(this.get(0), 'list_view');
             return (instance ? instance[options].apply(instance, args)
                              : undefined);
         }
@@ -67,81 +72,92 @@
 
                 $.data(this, 'list_view', this);
 
-                me.beforeSubmit     = ($.isFunction(opts.beforeSubmit))     ? opts.beforeSubmit     : false;
-                me.afterSubmit      = ($.isFunction(opts.afterSubmit))      ? opts.afterSubmit      : false;
-                me.submitHandler    = ($.isFunction(opts.submitHandler))    ? opts.submitHandler    : false;
-                me.kd_submitHandler = ($.isFunction(opts.kd_submitHandler)) ? opts.kd_submitHandler : false;
+                me.beforeSubmit     = (Object.isFunc(opts.beforeSubmit))     ? opts.beforeSubmit     : false;
+                me.afterSubmit      = (Object.isFunc(opts.afterSubmit))      ? opts.afterSubmit      : false;
+                me.submitHandler    = (Object.isFunc(opts.submitHandler))    ? opts.submitHandler    : false;
+                me.kd_submitHandler = (Object.isFunc(opts.kd_submitHandler)) ? opts.kd_submitHandler : false;
+                me.historyHandler   = (Object.isFunc(opts.historyHandler))   ? opts.historyHandler   : false;
                 me.is_loading = false;
 
-                /***************** Getters & Setters *****************/
+                /* **************** Getters & Setters **************** */
                 this.getSelectedEntities = function() {
                     return $(opts.selected_rows, self).val();
-                }
+                };
 
                 this.getSelectedEntitiesAsArray = function() {
                     return ($(opts.selected_rows, self).val() !== "") ? $(opts.selected_rows, self).val().split(opts.entity_separator) : [];
-                }
+                };
 
                 this.countEntities = function() {
                     return ($(opts.selected_rows, self).val() !== "") ? $(opts.selected_rows, self).val().split(opts.entity_separator).length : 0;
-                }
+                };
 
-                this.option = function(key, value){
-                    if (typeof key == "string") {
+                this.option = function(key, value) {
+                    if (Object.isString(key)) {
                         if (value === undefined) {
                             return opts[key];
                         }
                         opts[key] = value;
                     }
-                }
+                };
 
                 this.setSubmit = function(fn) {
-                    if ($.isFunction(fn)) me.submitHandler = fn;
-                }
+                    if (Object.isFunc(fn)) {
+                        me.submitHandler = fn;
+                    }
+                };
 
                 this.setKdSubmit = function(fn) {
-                    if ($.isFunction(fn)) me.kd_submitHandler = fn;
-                }
+                    if (Object.isFunc(fn)) {
+                        me.kd_submitHandler = fn;
+                    }
+                };
 
                 this.getSubmit = function() {
-                    if (me.submitHandler) return me.submitHandler;
-                    return function() {}; // Null handler
-                }
+                    if (me.submitHandler) {
+                        return me.submitHandler;
+                    } else {
+                        return _noop; // Null handler
+                    }
+                };
 
                 this.getKdSubmit = function() {
-                    if (me.kd_submitHandler) return me.kd_submitHandler;
-                    return function() {}; // Null handler
-                }
+                    if (me.kd_submitHandler) {
+                        return me.kd_submitHandler;
+                    } else {
+                        return _noop; // Null handler
+                    }
+                };
 
                 this.setReloadUrl = function(url) {
                     me.reload_url = url;
-                }
+                };
 
                 this.getReloadUrl = function() {
                     return me.reload_url;
-                }
+                };
 
                 this.isLoading = function() {
                     return me.is_loading;
-                }
+                };
 
-                /***************** Helpers ****************************/
+                /* **************** Helpers *************************** */
                 this.reload = function(is_ajax) {
-                    var url = this.reload_url || creme.utils.appendInUrl(window.location.href, '?ajax=' + (is_ajax || true));
+                    var url = this.reload_url || window.location.pathname;
 
                     var submit_opts = {
-                        'action': url,
-                        'success':function(data, status) {
+                        action:  url,
+                        success: function(data, status) {
                             self.empty().html(data);
                         }
                     };
 
-                    this.handleSubmit(null, submit_opts, null);
-                }
+                    this.handleSubmit(submit_opts, null);
+                };
 
                 this.hasSelection = function() {
-                    return (this.countEntities() != 0);
-                }
+                    return (this.countEntities() !== 0);
+                };
 
                 this.ensureSelection = function() {
                     if (!this.hasSelection()) {
@@ -149,19 +165,19 @@
                         return false;
                     }
                     return true;
-                }
+                };
 
                 this.enableFilters = function() {
                     self.find('.columns_bottom .column input[type="text"]')
                         .bind('keydown', function(event) {
                              event.stopPropagation();
-                             me.getKdSubmit()(event, this, {'_search': 1});
+                             me.getKdSubmit()(event, this);
                          });
 
                     self.find('.columns_bottom .column select')
                         .bind('change', function(event) {
                              event.stopPropagation();
-                             me.getSubmit()(this, {'_search': 1});
+                             me.getSubmit()(this);
                          });
 
 //                    self.find('.columns_bottom .column.datefield input')
@@ -175,8 +191,9 @@
                     var date_inputs = self.find('.columns_bottom .column.datefield input');
 
                     date_inputs.bind('keydown', function(event) {
+                                    event.preventDefault();
                                     event.stopPropagation();
-                                    me.getKdSubmit()(event, this, {'_search': 1});
+                                    me.getKdSubmit()(event, this);
                                });
 
                     date_inputs.each(function() {
@@ -186,7 +203,7 @@
                            buttonImage: creme_media_url('images/icon_calendar.gif'),
                            buttonImageOnly: true});
                     });
-                }
+                };
 
                 this.enableActions = function() {
                     self.find('.lv-header-action-list').NavIt({ArrowSideOnRight: false});
@@ -202,28 +219,28 @@
                             }
                         }
                     });
-                }
+                };
 
-                /***************** Row selection part *****************/
+                /* **************** Row selection part **************** */
                 this.enableRowSelection = function() {
-                    self.on ('click', '.' + opts.selectable_class,
+                    self.on('click', '.' + opts.selectable_class,
                         function(e) {
                             var $target = $(e.target);
 
                             // Ignore clicks on links, they should not select the row
-                            var isClickFromLink = $target.is('a') || $target.parents('a').first().length == 1;
+                            var isClickFromLink = $target.is('a') || $target.parents('a').first().length === 1;
                             if (isClickFromLink) {
                                 return;
                             }
 
                             var entity_id = $(this).find(opts.id_container).val();
-                            var entity_id_index = $.inArray(entity_id, selected_ids); //selected_ids.indexOf(entity_id);
+                            var entity_id_index = $.inArray(entity_id, selected_ids); // selected_ids.indexOf(entity_id);
 
                             if (!$(this).hasClass(opts.selected_class)) {
                                 if (entity_id_index === -1) {
                                     if (opts.o2m) {
                                         selected_ids = [];
-                                        self.find('.'+opts.selected_class).removeClass(opts.selected_class);
+                                        self.find('.' + opts.selected_class).removeClass(opts.selected_class);
                                     }
                                     selected_ids.push(entity_id);
                                     $(opts.selected_rows, self).val(selected_ids.join(opts.entity_separator));
@@ -239,17 +256,21 @@
                                 $(this).trigger('row-selection-changed', {selected: true});
                             } else {
                                 self.find(opts.all_boxes_selector).uncheck();
-                                if(entity_id_index !== -1) selected_ids.splice(entity_id_index, 1);
+                                if (entity_id_index !== -1) {
+                                    selected_ids.splice(entity_id_index, 1);
+                                }
                                 $(opts.selected_rows, self).val(selected_ids.join(opts.entity_separator));
-                                if($(this).hasClass(opts.selected_class))$(this).removeClass(opts.selected_class);
-                                if(!opts.o2m) {
+                                if ($(this).hasClass(opts.selected_class)) {
+                                    $(this).removeClass(opts.selected_class);
+                                }
+                                if (!opts.o2m) {
                                     $(this).find(opts.checkbox_selector).uncheck();
                                 }
                                 $(this).trigger('row-selection-changed', {selected: false});
                             }
                         }
                     );
-                }
+                };
 
                 // Firefox keeps the checked state of inputs on simple page reloads
                 // we could 1) incorporate those pre-selected rows into our initial selected_ids set
@@ -262,10 +283,10 @@
                     self.find('.' + opts.selectable_class + ' .choices input[type="checkbox"],' +
                               opts.all_boxes_selector)
                         .prop('checked', false);
-                }
-                /******************************************************/
+                };
+                /* **************************************************** */
 
-                /***************** Check all boxes part *****************/
+                /* **************** Check all boxes part **************** */
                 this.enableCheckAllBoxes = function() {
                     self.find(opts.all_boxes_selector)
                     .bind('click',
@@ -275,7 +296,7 @@
                             if ($(this).is(':checked')) {
                                 entities.each(function() {
                                     var entity_id = $(this).find(opts.id_container).val();
-                                    var entity_id_index = $.inArray(entity_id, selected_ids); //selected_ids.indexOf(entity_id);
+                                    var entity_id_index = $.inArray(entity_id, selected_ids); // selected_ids.indexOf(entity_id);
 
                                     if (entity_id_index === -1) {
                                         selected_ids.push(entity_id);
@@ -307,101 +328,116 @@
                             }
                         }
                     );
-                }
+                };
 
-                /******************************************************/
+                /* **************************************************** */
 
-                /***************** Submit part *****************/
+                /* **************** Submit part **************** */
 
                 // Remove this part in ajax lv for handling multi-page selection,
                 // if that you want implement the "coloration" selection on submit
                 this.flushSelected = function() {
                     $(opts.selected_rows, self).val('');
                     selected_ids = [];
-                }
+                };
 
                 this.disableEvents = function() {
                     self.off('click', '.' + opts.selectable_class);
                     if (!opts.o2m) self.find(opts.all_boxes_selector).unbind('click');
-                }
+                };
 
                 this.enableEvents = function() {
                     this.enableRowSelection();
                     this.enableFilters();
                     this.enableActions();
                     if (!opts.o2m) this.enableCheckAllBoxes();
-                }
+                };
+
+                this.addParameter = function(data, key, value, unique) {
+                    if (!Object.isEmpty(key) && !Object.isNone(value)) {
+                        if (data[key] === undefined) {
+                            data[key] = [value];
+                        } else {
+                            data[key].push(value);
+                        }
+                    }
+                };
+
+                this.setParameter = function(data, key, value) {
+                    if (!Object.isEmpty(key) && !Object.isNone(value)) {
+                        data[key] = [value];
+                    }
+                };
 
                 this.serializeMe = function () {
                     var data = {};
 
-                    self.find(opts.serializer).each(function() {
-                       var $node = $(this);
-
-                       if (typeof(data[$node.attr('name')]) == "undefined") {
-                           data[$node.attr('name')] = [$node.val()];
-                       } else if (data[$node.attr('name')].length > 0) {
-                           data[$node.attr('name')].push($node.val());
-                       }
+                    self.find(opts.serializer).serializeArray().forEach(function(e) {
+                        me.addParameter(data, e.name, e.value);
                     });
 
-                    return data;
-                }
+                    data['page'] = data['page'] || $(opts.user_page, self);
+                    data['selection'] = opts.o2m ? 'single' : 'multiple';
 
-                this.handleSubmit = function(form, options, target, extra_data) {
+                    delete data['entity_id'];
+                    delete data['inner_header_from_url'];
+
+                    return data;
+                };
+
+                this.handleSubmit = function(options, target, extra_data) {
                     if (me.is_loading) {
                         return;
                     }
 
-                    var data = this.serializeMe();
-                    if (typeof(extra_data) != "undefined") {
-                        data = $.extend(data, extra_data);
-                    }
+                    options = options || {};
 
-                    var $target = $(target);
+                    var next_url = me.reload_url || window.location.pathname;
+                    var parameters = $.extend(this.serializeMe(), extra_data || {});
+                    me.setParameter(parameters, $(target).attr('name'), $(target).val());
 
-                    if (typeof(data[$target.attr('name')]) == "undefined") {
-                        data[$target.attr('name')] = [$target.val()];
-                    } else if (data[$target.attr('name')].length > 0) {
-                        var target_value = $target.val();
-                        if ($.inArray(target_value, data[$target.attr('name')]) == -1)
-                            data[$target.attr('name')].push(target_value);
-                    }
-
-                    if (typeof(data['page']) == "undefined") {
-                        data['page'] = $(opts.user_page, self);
-                    }
-
-                    this.disableEvents();
-                    me.is_loading = true;
-
-                    // We get a previous beforeComplete user callback if exists
-                    var previousCallback = null;
-                    if (typeof(options) !== "undefined" && typeof(options['beforeComplete']) == "function") {
-                        previousCallback = options['beforeComplete'];
-                    }
-
-                    options['beforeComplete'] = function(request, status) {
+                    var beforeComplete = options.beforeComplete;
+                    var beforeCompleteWrapper = function(request, status) {
                         // Calling our beforeComplete callback
                         me.is_loading = false;
-                        self.list_view('enableEvents');
-                        // Then user callback
-                        if (previousCallback) previousCallback(request, status);
-                    }
+                        me.enableEvents();
 
-                    creme.ajax.submit(form, data, options);
+                        // Then user callback
+                        if (Object.isFunc(beforeComplete)) {
+                            beforeComplete(request, status);
+                        }
+                    };
+
+                    var complete = function(request, status) {
+                        if (Object.isFunc(me.historyHandler)) {
+                            return me.historyHandler(next_url + '?' + $.param(parameters));
+                        }
+                    };
+
+                    me.disableEvents();
+                    me.is_loading = true;
+
+                    creme.ajax.post($.extend(options, {
+                        url:  next_url,
+                        data: parameters,
+                        beforeComplete: beforeCompleteWrapper,
+                        complete: complete
+                    }));
+
                     this.flushSelected();
-                }
+                };
 
                 this.init = function() {
                     this.clearRowSelection();
                     this.enableEvents();
-                }
+                };
 
                 this.init();
             } else {
-                if ($.isFunction(this[options])) this[options].apply(this, args);
+                if (Object.isFunc(this[options])) {
+                    this[options].apply(this, args);
+                }
             }
         });
-    };//$.fn.list_view
+    }; // $.fn.list_view
 })(jQuery);

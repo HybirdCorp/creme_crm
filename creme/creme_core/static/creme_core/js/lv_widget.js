@@ -16,21 +16,26 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+    "use strict";
 
 // if(!creme.relations) creme.relations = {}  ???
 creme.lv_widget = {};
 
 // TODO: useful ? (only used in tests)
 creme.lv_widget.openFilterSelection = function(ct_id, q_filter, multiple, listeners) {
-    creme.lv_widget.listViewAction('/creme_core/list_view/popup/%s/%s?q_filter=%s'.format(ct_id, multiple ? 0 : 1, q_filter), {multiple:multiple})
+    var url = '/creme_core/list_view/popup/%s/%s?q_filter=%s'.format(ct_id, multiple ? 0 : 1, q_filter);
+
+    creme.lv_widget.listViewAction(url, {multiple: multiple})
                    .one(listeners)
                    .start();
 };
 
 // TODO: useful ? (only used in tests)
 creme.lv_widget.openFilterView = function(ct_id, q_filter) {
-    creme.utils.showInnerPopup('/creme_core/list_view/popup/%s/%s?q_filter=%s'.format(ct_id, 1, q_filter), {
+    var url = '/creme_core/list_view/popup/%s/%s?q_filter=%s'.format(ct_id, 1, q_filter);
+
+    creme.utils.showInnerPopup(url, {
                                    closeOnEscape: true,
                                    open: function() {},
                                    buttons: [{text: gettext("Ok"),
@@ -45,7 +50,10 @@ creme.lv_widget.deleteEntityFilter = function(list, filterid) {
     console.warn('creme.lv_widget.deleteEntityFilter() is deprecated ; use creme.lv_widget.deleteFilter() instead.');
 
     var query = creme.utils.confirmPOSTQuery('/creme_core/entity_filter/delete', {}, {id: filterid});
-    query.onDone(function(event, data) {list.list_view('reload');});
+    query.onDone(function(event, data) {
+        list.list_view('reload');
+    });
+
     return query.start();
 };
 
@@ -53,33 +61,40 @@ creme.lv_widget.deleteHeaderFilter = function(list, filterid) {
     console.warn('creme.lv_widget.deleteHeaderFilter() is deprecated ; use creme.lv_widget.deleteFilter() instead.');
 
     var query = creme.utils.confirmPOSTQuery('/creme_core/header_filter/delete', {}, {id: filterid});
-    query.onDone(function(event, data) {list.list_view('reload');});
+    query.onDone(function(event, data) {
+        list.list_view('reload');
+    });
+
     return query.start();
 };
 
 creme.lv_widget.deleteFilter = function(list, filter_id, url) {
     return creme.utils.confirmPOSTQuery(url, {}, {id: filter_id})
-                      .onDone(function(event, data) {list.list_view('reload');})
+                      .onDone(function(event, data) {
+                          list.list_view('reload');
+                       })
                       .start();
 };
 
 creme.lv_widget.selectedLines = function(list) {
-    var list = $(list);
+    list = $(list);
 
-    if (list.list_view('countEntities') == 0)
+    if (list.list_view('countEntities') === 0) {
         return [];
+    }
 
     return list.list_view('getSelectedEntitiesAsArray');
 };
 
-//creme.lv_widget.deleteSelectedLines = function(list) {
+// creme.lv_widget.deleteSelectedLines = function(list) {
 creme.lv_widget.deleteSelectedLines = function(list, url) {
     if (url === undefined) {
         console.warn('creme.lv_widget.deleteSelectedLines(): implicit "url" argument is deprecated ; give the URL as second argument.');
         url = '/creme_core/entity/delete/multi';
     }
 
-    var list = $(list);
+    list = $(list);
+
     var selection = creme.lv_widget.selectedLines(list);
     var parser = new creme.utils.JSON();
 
@@ -88,8 +103,7 @@ creme.lv_widget.deleteSelectedLines = function(list, url) {
         return;
     }
 
-//    var query = creme.utils.confirmPOSTQuery('/creme_core/entity/delete/multi', {warnOnFail: false, dataType:'json'}, {ids: selection.join(',')});
-    var query = creme.utils.confirmPOSTQuery(url, {warnOnFail: false, dataType:'json'}, {ids: selection.join(',')});
+    var query = creme.utils.confirmPOSTQuery(url, {warnOnFail: false, dataType: 'json'}, {ids: selection.join(',')});
     query.onFail(function(event, error, data) {
               var message = Object.isType(error, 'string') ? error : (error.message || gettext("Error"));
               var header = creme.ajax.localizedErrorMessage(data);
@@ -103,7 +117,7 @@ creme.lv_widget.deleteSelectedLines = function(list, url) {
                   if (removed_count > 0) {
                       header = ngettext('%d entity have been deleted.',
                                         '%d entities have been deleted.',
-                                        removed_count).format(removed_count)
+                                        removed_count).format(removed_count);
                   }
 
                   if (results.errors) {
@@ -112,20 +126,25 @@ creme.lv_widget.deleteSelectedLines = function(list, url) {
                                          results.errors.length).format(results.errors.length);
                   }
 
-                  message = '<ul>' + results.errors.map(function(item) {return '<li>' + item + '</li>'}).join('') + '<ul>';
+                  message = '<ul>' + results.errors.map(function(item) {
+                                                       return '<li>' + item + '</li>';
+                                                    }).join('') +
+                            '</ul>';
               }
 
               creme.dialogs.warning(message, {header: header})
-                           .onClose(function() {list.list_view('reload');})
+                           .onClose(function() { list.list_view('reload'); })
                            .open();
           })
-         .onDone(function(event, data) {list.list_view('reload');});
+         .onDone(function(event, data) {
+             list.list_view('reload');
+          });
 
     return query.start();
 };
 
 creme.lv_widget.addToSelectedLines = function(list, url) {
-    var list = $(list);
+    list = $(list);
     var selection = creme.lv_widget.selectedLines(list);
 
     if (!selection.length) {
@@ -144,7 +163,7 @@ creme.lv_widget.addToSelectedLines = function(list, url) {
 };
 
 creme.lv_widget.editSelectedLines = function(list, url) {
-    var list = $(list);
+    list = $(list);
     var selection = creme.lv_widget.selectedLines(list);
 
     if (!selection.length) {
@@ -160,7 +179,7 @@ creme.lv_widget.editSelectedLines = function(list, url) {
               list.list_view('reload');
            })
           .onFormError(function(event, data) {
-              if ($('form', this.content()).length == 0) {
+              if ($('form', this.content()).length === 0) {
                   this._updateButtonState('send', false);
                   this._updateButtonLabel('cancel', gettext('Close'));
                   this._bulk_edit_done = true;
@@ -187,7 +206,7 @@ creme.lv_widget.editSelectedLines = function(list, url) {
     return dialog;
 };
 
-//creme.lv_widget.mergeSelectedLines = function(list) {
+// creme.lv_widget.mergeSelectedLines = function(list) {
 creme.lv_widget.mergeSelectedLines = function(list, url) {
     var selection = creme.lv_widget.selectedLines(list);
 
@@ -204,8 +223,8 @@ creme.lv_widget.handleSort = function(sort_field, sort_order, new_sort_field, in
     var $sort_field = $(sort_field);
     var $sort_order = $(sort_order);
 
-    if ($sort_field.val() == new_sort_field) {
-        if ($sort_order.val() == "") {
+    if ($sort_field.val() === new_sort_field) {
+        if ($sort_order.val() === "") {
             $sort_order.val("-");
         } else {
             $sort_order.val("");
@@ -213,53 +232,60 @@ creme.lv_widget.handleSort = function(sort_field, sort_order, new_sort_field, in
     } else {
         $sort_order.val("");
     }
+
     $sort_field.val(new_sort_field);
-//     if(typeof(callback) == "function") callback(input);
-    if ($.isFunction(callback))
+
+    if (Object.isFunc(callback)) {
         callback(input);
+    }
 };
 
-creme.lv_widget.initialize = function(options, dialog) {
-    var id = dialog ? dialog.attr('id') : undefined;
-    var listview = $('form[name="list_view_form"]', dialog);
-    var submit_url = (dialog ? $('[name="inner_header_from_url"]', dialog).val() : '') + '?ajax=true';
-    var submit_handler;
+creme.lv_widget.initialize = function(options, listview) {
+    var submit_handler, history_handler;
+    var dialog = listview.parents('.ui-dialog-content:first');
+    var submit_url = options.reloadurl || window.location.pathname;
+    var id = dialog.length > 0 ? dialog.attr('id') : undefined;
 
     if (id) {
         submit_handler = function(input, extra_data) {
-            var extra_data = id ? $.extend({whoami: id}, extra_data) : extra_data;
+            extra_data = id ? $.extend({whoami: id}, extra_data) : extra_data;
             var submit_options = {
                     action: submit_url,
                     success: function(data, status) {
-                        var data = id ? data + '<input type="hidden" name="whoami" value="' + id + '"/>' : data;
-                        $(input.form).html(data);
+                        data = id ? data + '<input type="hidden" name="whoami" value="' + id + '"/>' : data;
+                        listview.html(data);
                     }
                 };
 
-            $(input.form).list_view('setReloadUrl', submit_url);
-            $(input.form).list_view('handleSubmit', input.form, submit_options, input, extra_data);
-        }
+            listview.list_view('setReloadUrl', submit_url);
+            listview.list_view('handleSubmit', submit_options, input, extra_data);
+        };
     } else {
+        history_handler = function(url) {
+            creme.history.push(url);
+        };
         submit_handler = function(input, extra_data) {
             var submit_options = {
                     action: submit_url,
-                    success: function(data, status) {$(input.form).html(data);}
+                    success: function(data, status) {
+                        listview.html(data);
+                    }
                 };
 
-            $(input.form).list_view('handleSubmit', input.form, submit_options, input, extra_data);
-        }
+            listview.list_view('handleSubmit', submit_options, input, extra_data);
+        };
     }
 
     listview.list_view({
         o2m:              options.multiple ? 0 : 1,
+        historyHandler:   history_handler,
         submitHandler:    submit_handler,
-        kd_submitHandler: function (e, input, extra_data)
-        {
-            var e = (window.event) ? window.event : e;
-            var key= (window.event) ? e.keyCode : e.which;
+        kd_submitHandler: function (e, input, extra_data) {
+            e = (window.event) ? window.event : e;
+            var key = (window.event) ? e.keyCode : e.which;
 
             if (key === 13) {
-                $(input.form).list_view('getSubmit')(input, extra_data);
+                listview.list_view('getSubmit')(input, extra_data);
             }
 
             return true;
@@ -267,15 +293,15 @@ creme.lv_widget.initialize = function(options, dialog) {
     });
 
     // TODO : WTF ??
-    $('.magnify', dialog).imageMagnifier();
+    $('.magnify', listview).imageMagnifier();
 };
 
 
 creme.lv_widget.listViewAction = function(url, options, data) {
-    var options = options || {};
+    options = options || {};
 
     var selector = function(dialog) {
-        var values = $('form[name="list_view_form"] tr.selected input[name="entity_id"]', dialog).map(function(index, item) {
+        var values = $('.ui-creme-listview tr.selected input[name="entity_id"]', dialog).map(function(index, item) {
                          return $(item).val();
                      });
 
@@ -283,7 +309,7 @@ creme.lv_widget.listViewAction = function(url, options, data) {
     };
 
     var validator = function(data) {
-          if (!Array.isArray(data) || data.length == 0) {
+          if (Object.isEmpty(data)) {
               creme.dialogs.warning(gettext('Please select at least one entity.'), {'title': gettext("Error")}).open();
               return false;
           }
@@ -311,16 +337,20 @@ creme.lv_widget.listViewAction = function(url, options, data) {
 
 creme.lv_widget.ListViewLauncher = creme.widget.declare('ui-creme-listview', {
     options: {
-        multiple: false,
-        whoami:   '',
+        multiple:     false,
+        whoami:       '',
+        'reload-url': ''
     },
 
-    _create: function(element, options, cb, sync)
-    {
-        var dialog = options.whoami ? $('#' + options.whoami) : undefined;
-        var multiple = element.is('[multiple]') || options.multiple
+    _create: function(element, options, cb, sync) {
+        // var dialog = options.whoami ? $('#' + options.whoami) : undefined;
+        var multiple = element.is('[multiple]') || options.multiple;
 
-        creme.lv_widget.initialize({multiple: multiple}, dialog);
+        creme.lv_widget.initialize({
+            multiple:  multiple,
+            reloadurl: options['reload-url']
+        }, element);
+
         element.addClass('widget-ready');
     }
 });

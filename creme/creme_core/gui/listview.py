@@ -33,6 +33,7 @@ from django.utils.timezone import now
 from ..core.entity_cell import (EntityCellRegularField, EntityCellCustomField,
         EntityCellFunctionField, EntityCellRelation)
 from ..models import RelationType, Relation, CustomField
+from ..models.header_filter import HeaderFilterList
 from ..utils import find_first
 from ..utils.date_range import CustomRange
 from ..utils.dates import dt_from_str
@@ -42,6 +43,10 @@ from ..utils.queries import QSerializer
 
 NULL_FK = 'NULL'
 logger = logging.getLogger(__name__)
+
+
+class NoHeaderFilterAvailable(Exception):
+    pass
 
 
 def simple_value(value):
@@ -79,20 +84,25 @@ class ListViewState(object):
         self.header_filter_id = get_arg('hfilter')
         self.page = get_arg('page')
         self.rows = get_arg('rows')
-        self._search = get_arg('_search')  # TODO: rename to search ?? or add property
+        # self._search = get_arg('_search')  # TODO : no longer useful to enable search state.
         self.sort_order = get_arg('sort_order')
         self.sort_field = get_arg('sort_field')  # TODO: rename 'sort_cell_key'
-        self._extra_sort_field = ''
+        # self._extra_sort_field = ''  # TODO : never used.
         self.url = get_arg('url')
         self.research = ()
         self.extra_q = None
         # self._ordering = []
 
     def __repr__(self):
-        return u'<ListViewState(efilter_id=%s, hfilter_id=%s, page=%s,' \
-               u' rows=%s, _search=%s, sort=%s%s, url=%s, research=%s)>' % (
-                    self.entity_filter_id, self.header_filter_id, self.page, self.rows,
-                    self._search, self.sort_order, self.sort_field, self.url, self.research,
+        return u'<ListViewState(efilter_id={efilter}, hfilter_id={hfilter}, page={page},' \
+               u' rows={rows}, sort={sortorder}{sortfield}, url={url}, research={research}, extra_q={extra_q})>'.format(
+                   efilter=self.entity_filter_id,
+                   hfilter=self.header_filter_id,
+                   page=self.page, rows=self.rows,
+                   sortorder=self.sort_order, sortfield=self.sort_field,
+                   url=self.url,
+                   research=self.research,
+                   extra_q=self.extra_q
                 )
 
     def register_in_session(self, request):
@@ -119,32 +129,44 @@ class ListViewState(object):
 
         return lvs
 
+# TODO : remove it later.
+#     @staticmethod
+#     def build_from_request(request, **kwargs):
+#         kwargs.update((str(k), v) for k, v in chain(request.POST.iteritems(),
+#                                                     request.GET.iteritems(),
+#                                                    )
+#                      )
+#         kwargs['url'] = request.path
+#         return ListViewState(**kwargs)
+
     @staticmethod
-    def build_from_request(request, **kwargs):
-        kwargs.update((str(k), v) for k, v in chain(request.POST.iteritems(),
-                                                    request.GET.iteritems(),
-                                                   )
-                     )
-        kwargs['url'] = request.path
+    def build_from_request(arguments, url, **kwargs):
+        kwargs.update((str(k), v) for k, v in arguments.iteritems())
+        kwargs['url'] = url
         return ListViewState(**kwargs)
 
-    def handle_research(self, request, cells):
+    @staticmethod
+    def get_or_create_state(request, url, **kwargs):
+        state = ListViewState.get_state(request, url)
+
+        if state is None:
+            arguments = request.POST if request.method == 'POST' else request.GET
+            state = ListViewState.build_from_request(arguments, url, **kwargs)
+
+        return state
+
+    def clear_research(self):
+        self.research = ()
+
+    def handle_research(self, arguments, cells, merge=False):
         "Handle strings to use in order to filter (strings are in the request)."
-        if self._search:
-            POST = request.POST
+        list_session = list(self.research) if merge else []
+        getlist = arguments.getlist
 
-            if not POST and self.research:
-                return
-
-            GET = request.GET
-            list_session = []
-
-            for cell in cells:
-                if not cell.has_a_filter:
-                    continue
-
+        for cell in cells:
+            if cell.has_a_filter:
                 cell_key = cell.key
-                values = chain(POST.getlist(cell_key), GET.getlist(cell_key))
+                values = getlist(cell_key)
 
                 if values:
                     filtered_attr = [smart_str(value.strip()) for value in values]
@@ -152,9 +174,21 @@ class ListViewState(object):
                     if filtered_attr and any(filtered_attr):
                         list_session.append((cell_key, filtered_attr))
 
-            self.research = list_session
-        else:
-            self.research = ()
+        self.research = list_session
+
+    def set_headerfilter(self, header_filters, id=-1, default_id=''):
+        # Try first to get the posted header filter which is the most recent.
+        # Then try to retrieve the header filter from session, then fallback
+        hf = header_filters.select_by_id(id,
+                                         self.header_filter_id,
+                                         default_id,
+                                        )
+
+        if hf is None:
+            raise NoHeaderFilterAvailable()
+
+        self.header_filter_id = hf.id
+        return hf
 
     def _build_condition(self, pattern, value):
         return {pattern.replace('creme-boolean', 'exact'): simple_value(value)}
