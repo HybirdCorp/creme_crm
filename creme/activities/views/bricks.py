@@ -40,6 +40,7 @@ def add_participant(request, activity_id):
                          _(u'Adding participants to activity «%s»'),
                          entity_class=Activity, link_perm=True,
                          submit_label=_(u'Add the participants'),
+                         template='creme_core/generics/blockform/link_popup.html',
                         )
 
 
@@ -69,6 +70,7 @@ def add_subject(request, activity_id):
                          _(u'Adding subjects to activity «%s»'),
                          entity_class=Activity, link_perm=True,
                          submit_label=_(u'Add the subjects'),
+                         template='creme_core/generics/blockform/link_popup.html',
                         )
 
 

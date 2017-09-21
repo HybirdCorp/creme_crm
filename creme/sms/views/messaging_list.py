@@ -87,6 +87,7 @@ def add_contacts(request, mlist_id):
                          ugettext(u'New contacts for «%s»'),
                          entity_class=MessagingList,
                          submit_label=_(u'Link the contacts'),
+                         template='creme_core/generics/blockform/link_popup.html',
                         )
 
 
@@ -97,6 +98,7 @@ def add_contacts_from_filter(request, mlist_id):
                          ugettext(u'New contacts for «%s»'),
                          entity_class=MessagingList,
                          submit_label=_(u'Link the contacts'),
+                         template='creme_core/generics/blockform/link_popup.html',
                         )
 
 

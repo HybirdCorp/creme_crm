@@ -102,6 +102,7 @@ def add_relation_types(request, graph_id):
     return add_to_entity(request, graph_id, AddRelationTypesForm,
                          _(u'Add relation types to «%s»'),
                          entity_class=Graph,
+                         template='creme_core/generics/blockform/link_popup.html',
                         )
 
 

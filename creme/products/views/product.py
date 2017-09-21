@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,13 +26,12 @@ from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import jsonify, get_from_POST_or_404
-from creme.creme_core.views.generic import (add_entity, add_to_entity,
-        edit_entity, view_entity, list_view)
+from creme.creme_core.views import generic
 
 from .. import get_product_model, get_service_model
 from ..constants import DEFAULT_HFILTER_PRODUCT
+from ..forms import product as product_forms
 from ..forms.base import AddImagesForm
-from ..forms.product import ProductCreateForm, ProductEditForm
 from ..models import Category, SubCategory
 
 
@@ -40,23 +39,23 @@ Product = get_product_model()
 Service = get_service_model()
 
 
-def abstract_add_product(request, form=ProductCreateForm,
+def abstract_add_product(request, form=product_forms.ProductCreateForm,
                          # submit_label=_('Save the product'),
                          submit_label=Product.save_label,
                         ):
-    return add_entity(request, form,
-                      extra_template_dict={'submit_label': submit_label},
-                     )
+    return generic.add_entity(request, form,
+                              extra_template_dict={'submit_label': submit_label},
+                             )
 
 
-def abstract_edit_product(request, product_id, form=ProductEditForm):
-    return edit_entity(request, product_id, Product, form)
+def abstract_edit_product(request, product_id, form=product_forms.ProductEditForm):
+    return generic.edit_entity(request, product_id, Product, form)
 
 
 def abstract_view_product(request, product_id,
                           template='products/view_product.html',
                          ):
-    return view_entity(request, product_id, Product, template=template)
+    return generic.view_entity(request, product_id, Product, template=template)
 
 
 @login_required
@@ -80,7 +79,7 @@ def detailview(request, product_id):
 @login_required
 @permission_required('products')
 def listview(request):
-    return list_view(request, Product, hf_pk=DEFAULT_HFILTER_PRODUCT)
+    return generic.list_view(request, Product, hf_pk=DEFAULT_HFILTER_PRODUCT)
 
 
 @jsonify
@@ -96,11 +95,12 @@ def get_subcategories(request, category_id):
 @login_required
 @permission_required('products')
 def add_images(request, product_id):
-    return add_to_entity(request, product_id, AddImagesForm,
-                         ugettext(u'New images for «%s»'),
-                         entity_class=Product,
-                         submit_label=_('Link the images'),
-                        )
+    return generic.add_to_entity(request, product_id, AddImagesForm,
+                                 ugettext(u'New images for «%s»'),
+                                 entity_class=Product,
+                                 submit_label=_(u'Link the images'),
+                                 template='creme_core/generics/blockform/link_popup.html',
+                                )
 
 
 @login_required

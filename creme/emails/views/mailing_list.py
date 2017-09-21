@@ -94,6 +94,7 @@ def add_contacts(request, ml_id):
                          ugettext(u'New contacts for «%s»'),
                          entity_class=MailingList,
                          submit_label=_(u'Link the contacts'),  # TODO: multi_link_label ??
+                         template='creme_core/generics/blockform/link_popup.html',
                         )
 
 
@@ -105,6 +106,7 @@ def add_contacts_from_filter(request, ml_id):
                          ugettext(u'New contacts for «%s»'),
                          entity_class=MailingList,
                          submit_label=_(u'Link the contacts'),
+                         template='creme_core/generics/blockform/link_popup.html',
                         )
 
 
@@ -116,6 +118,7 @@ def add_organisations(request, ml_id):
                          ugettext(u'New organisations for «%s»'),
                          entity_class=MailingList,
                          submit_label=_(u'Link the organisations'),
+                         template='creme_core/generics/blockform/link_popup.html',
                         )
 
 
@@ -127,6 +130,7 @@ def add_organisations_from_filter(request, ml_id):
                          ugettext(u'New organisations for «%s»'),
                          entity_class=MailingList,
                          submit_label=_(u'Link the organisations'),
+                         template='creme_core/generics/blockform/link_popup.html',
                         )
 
 
@@ -138,6 +142,7 @@ def add_children(request, ml_id):
                          entity_class=MailingList,
                          # submit_label=_(u'Link the mailing lists'),
                          submit_label=_(u'Link the mailing list'),
+                         template='creme_core/generics/blockform/link_popup.html',
                         )
 
 

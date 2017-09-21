@@ -9,7 +9,7 @@
 
 {% block brick_header_actions %}
 {% has_perm_to change object as has_perm %}{% url 'graphs__add_rtypes' object.id as add_rtypes_url %}
-    {% brick_header_action id='add' url=add_rtypes_url label=_('Add some types of relationship') enabled=has_perm %}
+    {% brick_header_action id='link' url=add_rtypes_url label=_('Add some types of relationship') enabled=has_perm %}
 {% endblock %}
 
 {% block brick_table_columns %}

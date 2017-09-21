@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,35 +22,34 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.views.generic import (add_entity, add_to_entity,
-        edit_entity, view_entity, list_view)
+from creme.creme_core.views import generic
 
 from .. import get_service_model
 from ..constants import DEFAULT_HFILTER_SERVICE
+from ..forms import service as service_forms
 from ..forms.base import AddImagesForm
-from ..forms.service import ServiceCreateForm, ServiceEditForm
 
 
 Service = get_service_model()
 
 
-def abstract_add_service(request, form=ServiceCreateForm,
+def abstract_add_service(request, form=service_forms.ServiceCreateForm,
                          # submit_label=_('Save the service'),
                          submit_label=Service.save_label,
                         ):
-    return add_entity(request, form,
-                      extra_template_dict={'submit_label': submit_label},
-                     )
+    return generic.add_entity(request, form,
+                              extra_template_dict={'submit_label': submit_label},
+                             )
 
 
-def abstract_edit_service(request, service_id, form=ServiceEditForm):
-    return edit_entity(request, service_id, Service, form)
+def abstract_edit_service(request, service_id, form=service_forms.ServiceEditForm):
+    return generic.edit_entity(request, service_id, Service, form)
 
 
 def abstract_view_service(request, service_id,
                           template='products/view_service.html',
                          ):
-    return view_entity(request, service_id, Service, template=template)
+    return generic.view_entity(request, service_id, Service, template=template)
 
 
 @login_required
@@ -74,14 +73,15 @@ def detailview(request, service_id):
 @login_required
 @permission_required('products')
 def listview(request):
-    return list_view(request, Service, hf_pk=DEFAULT_HFILTER_SERVICE)
+    return generic.list_view(request, Service, hf_pk=DEFAULT_HFILTER_SERVICE)
 
 
 @login_required
 @permission_required('products')
 def add_images(request, service_id):
-    return add_to_entity(request, service_id, AddImagesForm,
-                         ugettext(u'New images for «%s»'),
-                         entity_class=Service,
-                         submit_label=_('Link the images'),
-                        )
+    return generic.add_to_entity(request, service_id, AddImagesForm,
+                                 ugettext(u'New images for «%s»'),
+                                 entity_class=Service,
+                                 submit_label=_(u'Link the images'),
+                                 template='creme_core/generics/blockform/link_popup.html',
+                                )
