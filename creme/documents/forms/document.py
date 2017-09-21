@@ -52,7 +52,8 @@ class _DocumentBaseForm(CremeEntityForm):  # TODO: rename to_DocumentCreateBaseF
     #               )
     def __init__(self, *args, **kwargs):
         super(_DocumentBaseForm, self).__init__(*args, **kwargs)
-        self.fields['title'].required = False
+        title_f = self.fields['title']
+        title_f.required = title_f.widget.is_required = False
 
     def save(self, *args, **kwargs):
         instance = self.instance
