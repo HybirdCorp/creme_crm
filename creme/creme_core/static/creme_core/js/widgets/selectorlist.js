@@ -145,9 +145,11 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
         var selector_item = $('<li>').addClass('selector');
         var selector_layout = $('<ul>').addClass('ui-layout hbox').css('display', 'block').appendTo(selector_item);
 
-        var delete_button = $('<img/>').attr('src', creme_media_url('images/delete_22_button.png'))
-                                       .attr('alt', gettext("Delete"))
-                                       .attr('title', gettext("Delete"))
+        var img_title = gettext('Delete');
+//        var delete_button = $('<img/>').attr('src', creme_media_url('images/delete_22_button.png'))
+        var delete_button = $('<img/>').attr('src', creme_media_url('images/delete_22.png'))
+                                       .attr('alt', img_title)
+                                       .attr('title', img_title)
                                        .attr('style', 'vertical-align:middle;')
                                        .addClass('delete')
                                        .click(function() {

@@ -1,5 +1,6 @@
-{% load i18n creme_core_tags %}
+{% load i18n creme_core_tags creme_widgets %}
 {% block title %}
+{% comment %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
             <td width="5%"><img src="{% creme_media_url logo %}" alt=""/></td>
@@ -8,6 +9,13 @@
             </td>
         </tr>
     </table>
+{% endcomment %}
+    <div class="hat-bar-container">
+        <div class="hat-bar">
+            <div class="bar-icon">{% widget_icon name=icon_name size='brick-hat-bar' label=icon_label|or_op:title %}</div>
+            <div class="bar-title"><h1>{{title}}</h1></div>
+        </div>
+    </div>
 {% endblock %}
 
 {% if help_message %}
@@ -25,7 +33,7 @@
     });
 </script>
 
-<p class="required-help">{% trans "Fields marked with * are required." %}</p>
+<p class="required-help">{% trans 'Fields marked with * are required.' %}</p>
 
 <div id="editforms">
     <form action="" method="POST" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>{% csrf_token %}
@@ -49,7 +57,7 @@
             <table class="table_detail_view ui-corner-all">
                 <thead>
                     <tr>
-                        <th valign="middle">{% trans "Global errors"%}</th>
+                        <th valign="middle">{% trans 'Global errors' %}</th>
                     </tr>
                 </thead>
                 <tbody class="collapsable">
@@ -62,7 +70,7 @@
 
         {% block main_content %}
             {% for form_block in form.get_blocks %}
-                {% include "creme_core/generics/blockform/content.html" %}
+                {% include 'creme_core/generics/blockform/content.html' %}
             {% endfor %}
         {% endblock %}
 
@@ -70,11 +78,11 @@
             {% if not is_inner_popup %}
                 <div class="spacer"></div>
                 <div class="submit_buttons">
-                    <input type="submit" value="{{submit_label|default:_("Save")}}" />
+                    <input type="submit" value="{{submit_label|default:_('Save')}}" />
                     {% if cancel_url %}<a href="{{cancel_url}}" >{% trans "Cancel" %}</a>{% endif %}
                 </div>
             {% else %}
-                <input type="submit" value="{{submit_label|default:_("Save")}}" class="ui-creme-dialog-action"/>
+                <input type="submit" value="{{submit_label|default:_('Save')}}" class="ui-creme-dialog-action"/>
             {% endif %}
         {% endblock %}
     </form>

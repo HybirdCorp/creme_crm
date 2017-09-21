@@ -186,3 +186,8 @@ td.width_inner_edit_address {
 
 /* Brick - Address [end] */
 
+/* TODO: use class instead (wait for new HTML for forms)  */
+#editforms form .table_detail_view#billing_table tbody > tr:first-child,
+#editforms form .table_detail_view#shipping_table tbody > tr:first-child {
+    border-bottom: none;
+}

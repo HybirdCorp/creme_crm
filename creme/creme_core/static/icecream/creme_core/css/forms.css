@@ -1,4 +1,35 @@
+/* retarget to editforms as it was mistakenly applied to some detailviews */
+#editforms {
+    padding-bottom: 10px;
+}
+
+#editforms form .table_detail_view {
+    border-spacing: 0;
+    border-collapse: collapse;
+    border-bottom: 0; /* distribute the existing 1px border into the last row to prevent a Chrome bug (dual column form, rightmost form: the border at the bottom of the last cell is hidden) */
+}
+
+#editforms form .table_detail_view tbody tr:last-child {
+    border-bottom: 1px solid #ccc; /* table border distributed in the last row */
+}
+
+#editforms form .table_detail_view .block_header_line_light,
+#editforms form .table_detail_view .block_line_light {
+    background: #fff;
+}
+
+#editforms form .table_detail_view .block_header_line_dark,
+#editforms form .table_detail_view .block_line_dark {
+    background: #fcfcfc;
+
+}
+
+#editforms form .table_detail_view tbody tr:not(:last-child) {
+    border-bottom: 1px solid #ddd;
+}
+
 div.submit_buttons {
+    margin-top: 20px;
     text-align: center;
 }
 
@@ -6,16 +37,42 @@ div.submit_buttons a {
     padding-left: 20px;
 }
 
-input[type="text"], input[type="password"], input[type="number"] {
+input, textarea, select, textarea, .ui-widget input, .ui-widget select, .ui-widget textarea, label {
+    font-family: 'Open Sans', 'Verdana', sans-serif;
+    font-size: 13px;
+}
+
+input, textarea {
+    padding-left: 5px;
+}
+
+select {
+    padding-left: 3px;
+
+    font-family: 'Open Sans', 'Verdana', sans-serif;
+    font-size: 12.5px;
+}
+
+/* input[type="text"], input[type="password"], input[type="number"] {
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
     border: 1px solid #6eaac4;
+} */
+input:not([type="submit"]):not([type="file"]),
+select,
+textarea {
+    border-radius: 0;
+    border: 1px solid #a9a9a9;
+
+    background: white;
 }
 
-input[type="text"]:disabled, input[type="text"][readonly] {
+/*
+input[type="text"]:disabled,
+input[type="text"][readonly] {
     border: 0px;
     color: #6eaac4;
-    background: #ffffff;/*#F4FAFD;*/
+    background: #ffffff;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
 }
@@ -26,17 +83,33 @@ textarea {
     border: 1px solid #6eaac4;
 }
 
-textarea:disabled, textarea[readonly] {
+textarea:disabled,
+textarea[readonly] {
     border: 0px;
     color: #6eaac4;
-    background: #ffffff;/*#F4FAFD;*/
+    background: #ffffff;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
 }
+*/
 
+/*
+input[type="text"]:disabled,
+input[type="text"][readonly],
+*/
+input:disabled,
+textarea:disabled,
+textarea[readonly] {
+    border-color: #dddddd;
+    color: #8c8c8c
+}
+
+/*
 input[type="text"]:invalid,
 input[type="password"]:invalid,
 input[type="number"]:invalid,
+*/
+input:invalid,
 textarea:invalid {
     border: 1px solid #ff0000;
 }
@@ -44,6 +117,10 @@ textarea:invalid {
 ul.radio_select, ul.multi-select {
     list-style-type: none;
     padding: 0;
+}
+
+.block-form td button {
+    padding: 0 6px;
 }
 
 form .table_detail_view .td_info > input,
@@ -60,7 +137,8 @@ form .table_detail_view.dual_column .td_info > textarea,
 .in-popup form .table_detail_view .td_info > select,
 .in-popup form .table_detail_view .td_info span > select,
 .in-popup form .table_detail_view .td_info > textarea {
-    width: 100%;
+/*    width: 100%; */
+    width: 98.5%;
 }
 
 form .table_detail_view .td_info > textarea {

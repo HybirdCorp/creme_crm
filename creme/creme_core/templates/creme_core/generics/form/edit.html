@@ -1,14 +1,21 @@
-{% extends "creme_core/base.html" %}
+{% extends 'creme_core/base.html' %}
 {% load i18n %}
 
 {% block page_title %}
     {% if object %}
         {% blocktrans %}Modify {{object}}{% endblocktrans %}
     {% else %}
-        {% trans "Edit" %}
+        {% trans 'Edit' %}
     {% endif %} - 
 {% endblock %}
 
 {% block content %}
-    {% include "creme_core/generics/form/base.html" with logo='images/edit_64.png' title=_("Edit") %}{# TODO: {% templatize "Edit: {{object}}" as title %} #}
+{#    {% include "creme_core/generics/form/base.html" with logo='images/edit_64.png' title=_("Edit") %} #}
+    {% with icon_name='edit' icon_label=_('Edit') submit_label=submit_label|default:_('Save the modifications') %}
+        {% if not title %}
+            {% include 'creme_core/generics/blockform/base.html' with title=object|format:_('Edit «%s»') %}
+        {% else %}
+            {% include 'creme_core/generics/blockform/base.html' %}
+        {% endif %}
+    {% endwith %}
 {% endblock %}

@@ -1,6 +1,5 @@
-{% extends "creme_core/base.html" %}
-{% load i18n %}
-{% load creme_core_tags %}
+{% extends 'creme_core/base.html' %}
+{% load i18n creme_widgets %}{# creme_core_tags #}
 
 {% block page_title %}{{title}} - {% endblock %}
 
@@ -14,6 +13,7 @@
     {% endif %}
     {% with form=wizard.form steps=wizard.steps %}
         {% block title %}
+{% comment %}
             <table class="table_header" cellpadding="0" cellspacing="0">
                 <tr>
                     <td width="5%"><img src="{% creme_media_url 'images/add_64.png' %}" alt=""/></td>
@@ -22,13 +22,20 @@
                     </td>
                 </tr>
             </table>
+{% endcomment %}
+            <div class="hat-bar-container">
+                <div class="hat-bar">
+                    <div class="bar-icon">{% widget_icon name='add' size='brick-hat-bar' label=_('Add') %}</div>
+                    <div class="bar-title"><h1>{% blocktrans with current_step=steps.step1 step_count=steps.count %}{{title}}: step {{current_step}} of {{step_count}}{% endblocktrans %}</h1></div>
+                </div>
+            </div>
         {% endblock %}
 
         {% if help_message %}
             <div class="help_box">{{help_message|linebreaksbr}}</div>
         {% endif%}
 
-        <p>{% trans "Fields marked with * are required."%}</p>
+        <p>{% trans 'Fields marked with * are required.' %}</p>
 
         <div id="wizard_form">
             <form action="" method="POST">{% csrf_token %}
@@ -62,7 +69,7 @@
                     <table class="table_detail_view ui-corner-all">
                         <thead>
                             <tr>
-                                <th valign="middle">{% trans "Global errors"%}</th>
+                                <th valign="middle">{% trans 'Global errors' %}</th>
                             </tr>
                         </thead>
                         <tbody class="collapsable">
@@ -73,26 +80,26 @@
                     </table>
                 {% endif %}
 
-                {% if form.forms %}{% comment %}TODO: improve this case{% endcomment %}
+                {% if form.forms %}{# TODO: improve this case #}
                     {{form.management_form}}
                     {% for subform in form.forms %}
                         {{subform.as_p}}
                     {% endfor %}
                 {% else %}
                     {% for form_block in form.get_blocks %}
-                        {% include "creme_core/generics/blockform/content.html" %}
+                        {% include 'creme_core/generics/blockform/content.html' %}
                     {% endfor %}
                 {% endif %}
 
                 <div class="submit_buttons">
                     {% if steps.prev %}
-                        <button name="wizard_goto_step" type="submit" value="{{steps.first}}">{% trans "First step" %}</button>
+                        <button name="wizard_goto_step" type="submit" value="{{steps.first}}">{% trans 'First step' %}</button>
                         {% if steps.count > 2 %}
-                            <button name="wizard_goto_step" type="submit" value="{{steps.prev}}">{% trans "Previous step" %}</button>
+                            <button name="wizard_goto_step" type="submit" value="{{steps.prev}}">{% trans 'Previous step' %}</button>
                         {% endif %}
                     {% endif %}
-                    <input type="submit" name="submit" value="{% if steps.current != steps.last %}{% trans "Next step" %}{% else %}{{submit_label|default:_("Save")}}{% endif %}" />
-                    {% comment %} TODO {% if cancel_url %}<a href="{{cancel_url}}" >{% trans "Cancel" %}</a>{% endif %}{% endcomment %}
+                    <input type="submit" name="submit" value="{% if steps.current != steps.last %}{% trans 'Next step' %}{% else %}{{submit_label|default:_('Save')}}{% endif %}" />
+                    {# TODO {% if cancel_url %}<a href="{{cancel_url}}" >{% trans 'Cancel' %}</a>{% endif %} #}
                 </div>
             </form>
         </div>

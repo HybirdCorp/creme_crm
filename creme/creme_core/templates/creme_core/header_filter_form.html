@@ -1,12 +1,14 @@
-{% extends "creme_core/base.html" %}
+{% extends 'creme_core/base.html' %}
 {% load i18n creme_core_tags %}
 
 {% block page_title %}{% trans 'View of list' %} - {{form.instance.entity_type}} - {% endblock %}
 
 {% block content %}
     {% if not form.instance.pk %}
-        {% include "creme_core/generics/blockform/base.html" with logo='images/header_filter_64.png' title=form.instance.entity_type|format:_('Create a view of list for «%s»') %}
+{#        {% include "creme_core/generics/blockform/base.html" with logo='images/header_filter_64.png' title=form.instance.entity_type|format:_('Create a view of list for «%s»') %} #}
+        {% include 'creme_core/generics/blockform/base.html' with icon_name='header_filter' icon_label=_('View of list') title=form.instance.entity_type|format:_('Create a view of list for «%s»') %}
     {% else %}
-        {% include "creme_core/generics/blockform/base.html" with logo='images/header_filter_64.png' title=form.instance|format:_('Edit the view of list «%s»') %}
+{#        {% include "creme_core/generics/blockform/base.html" with logo='images/header_filter_64.png' title=form.instance|format:_('Edit the view of list «%s»') %} #}
+        {% include "creme_core/generics/blockform/base.html" with icon_name='header_filter' icon_label=_('View of list') title=form.instance|format:_('Edit the view of list «%s»') %}
     {% endif %}
 {% endblock %}

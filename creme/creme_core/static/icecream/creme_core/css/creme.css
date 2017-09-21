@@ -133,6 +133,11 @@ a img.text_icon {
     height: 18px;
 }
 
+button {
+    font-family: 'Open Sans', 'Verdana', sans-serif;
+    font-size: 12.5px;
+}
+
 /* Default styling overrides end */
 
 /* Page structure - header and footer */
@@ -680,7 +685,7 @@ ul.button_list.vbox li {
 
 
 /* This seems to be block-related and could be moved to blocks.css  TODO: remove in 1.8 */
-/* Buttons (for example: 'validate') in ths blocks */
+/* Buttons (for example: 'validate') in the blocks */
 .table_detail_view td button {
     padding: 0px;
 }
@@ -724,12 +729,6 @@ ul.button_list.vbox li {
 
 .button_link img {
     border: 0;
-}
-
-
-/* retarget to editforms as it was mistakenly applied to some detailviews */
-#editforms {
-    padding-bottom: 10px;
 }
 
 /*
@@ -959,12 +958,16 @@ ul.button_list.vbox li {
 
 /* Dialogs */
 
-.in-popup .table_header h1 {
+/* TODO: remove all 'table_header' stuffes in 1.8  */
+.in-popup .table_header h1,
+.in-popup .hat-bar-container .hat-bar .bar-title h1 {
     font-size: 15px;
 }
 
-.in-popup .table_header td:first-child img {
+.in-popup .table_header td:first-child img,
+.in-popup .hat-bar-container .hat-bar .bar-icon img {
     height: 20px;
+    width: 20px;
     position: relative;
     top: 2px;
 }
@@ -972,6 +975,14 @@ ul.button_list.vbox li {
 .in-popup .table_detail_view thead,
 .in-popup form .table_detail_view .th_info {
     font-size: 13px;
+}
+
+.in-popup div.hat-bar {
+    height: 30px;
+}
+
+.in-popup .hat-bar .bar-title h1 {
+    margin-top: 3px;
 }
 
 /* Dialogs - end */

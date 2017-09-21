@@ -1,5 +1,6 @@
-{% extends "creme_core/generics/blockform/add.html" %}
+{% extends 'creme_core/generics/blockform/add.html' %}
 
 {% block content %}
-    {% include "persons/frags/contact_form_content.html" with logo='images/add_64.png' %}
+{#    {% include "persons/frags/contact_form_content.html" with logo='images/add_64.png' %} #}
+    {% include 'persons/frags/contact_form_content.html' with icon_name='add' %}
 {% endblock %}

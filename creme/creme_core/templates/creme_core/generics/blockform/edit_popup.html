@@ -1,4 +1,5 @@
-{% comment %} {% load i18n %} {% endcomment %}
+{% load i18n %}
 <div>
-    {% include "creme_core/generics/blockform/base.html" with logo='images/edit_64.png' %}
+{#    {% include "creme_core/generics/blockform/base.html" with logo='images/edit_64.png' %} #}
+    {% include "creme_core/generics/blockform/base.html" with icon_name='edit' icon_label=_('Edit') %}
 </div>
