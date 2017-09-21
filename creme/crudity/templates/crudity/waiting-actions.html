@@ -62,8 +62,21 @@
         </div>
     </div>
 
-    {% brick_declare bricks %}
-    {% brick_display bricks %}
+    {% if bricks %}
+        {% brick_declare bricks %}
+        {% brick_display bricks %}
 
-    {% brick_end %}
+        {% brick_end %}
+    {% else %}
+        <div class="help_box">
+            <table>
+                <tr>
+                    <td><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span></td>
+                    <td>
+                        {% trans 'No external data source is configured. Please contact your administrator (settings.CRUDITY_BACKENDS).' %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    {% endif %}
 {% endblock %}

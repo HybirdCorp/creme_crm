@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Crudity 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-12 14:42+0200\n"
+"POT-Creation-Date: 2017-09-19 17:57+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -131,13 +131,14 @@ msgstr "E-mail - Infopath"
 msgid "File - INI"
 msgstr "Fichier - INI"
 
-#: inputs/filesystem.py:65
+#: inputs/filesystem.py:67
 #: templates/crudity/templatetags/button_email_template_create.html:6
 #: templates/crudity/templatetags/button_infopath_create_form.html:6
 msgid "Download"
 msgstr "Télécharger"
 
-#: inputs/filesystem.py:67
+#: inputs/filesystem.py:69
+#: templates/crudity/bricks/header-actions/inifile-creation-template.html:3
 #, python-format
 msgid "File .ini template for «%s»"
 msgstr "Modèle de fichier .ini pour «%s»"
@@ -339,6 +340,14 @@ msgstr "Modèle d'e-mail pour «%(verbose_name)s»"
 #, python-format
 msgid "Infopath form for «%(verbose_name)s»"
 msgstr "Formulaire Infopath pour «%(verbose_name)s»"
+
+#: templates/crudity/waiting-actions.html:76
+msgid ""
+"No external data source is configured. Please contact your administrator "
+"(settings.CRUDITY_BACKENDS)."
+msgstr ""
+"Aucune source de données externes n'est configurée. Veuillez contacter votre "
+"administrateur (settings.CRUDITY_BACKENDS)."
 
 # Already in creme_core
 #: views/actions.py:142
