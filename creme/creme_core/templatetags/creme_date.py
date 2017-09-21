@@ -40,6 +40,6 @@ def timedelta_pprint(timedelta_):
     minutes, seconds = divmod(hour_remain, 60)
 
     if minutes > 0:
-        return ungettext(u'%s minute)', u'%s minutes', minutes) % minutes
+        return ungettext(u'%s minute', u'%s minutes', minutes) % minutes
 
     return ungettext(u'%s second', u'%s seconds', seconds) % seconds

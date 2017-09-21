@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-12 15:35+0200\n"
+"POT-Creation-Date: 2017-09-21 18:27+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,50 +16,50 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: apps.py:278
+#: apps.py:281
 msgid "Core"
 msgstr "Cœur"
 
-#: apps.py:306 apps.py:315 templates/creme_core/frags/header_menu.html:3
+#: apps.py:309 apps.py:318 templates/creme_core/frags/header_menu.html:3
 #: templates/creme_core/frags/header_menu.html:4
 #: templates/creme_core/home.html:8
 msgid "Home"
 msgstr "Accueil"
 
-#: apps.py:308 apps.py:318 templates/creme_core/my_page.html:8
+#: apps.py:311 apps.py:321 templates/creme_core/my_page.html:8
 msgid "My page"
 msgstr "Ma page"
 
-#: apps.py:317 models/auth.py:586 models/job.py:83 models/prefered_menu.py:27
+#: apps.py:320 models/auth.py:586 models/job.py:83 models/prefered_menu.py:27
 #: templates/creme_core/bricks/job.html:59
 msgid "User"
 msgstr "Utilisateur"
 
-#: apps.py:323 templates/creme_core/base.html:83
+#: apps.py:326 templates/creme_core/base.html:83
 msgid "Log out"
 msgstr "Se déconnecter"
 
-#: apps.py:327
+#: apps.py:330
 msgid "Tools"
 msgstr "Outils"
 
-#: apps.py:328 templates/creme_core/base.html:87
+#: apps.py:331 templates/creme_core/base.html:87
 msgid "My jobs"
 msgstr "Mes jobs"
 
-#: apps.py:335
+#: apps.py:338
 msgid "+ Creation"
 msgstr "+ Création"
 
-#: apps.py:336
+#: apps.py:339
 msgid "Main entities"
 msgstr "Fiches principales"
 
-#: apps.py:338
+#: apps.py:341
 msgid "Other type of entity"
 msgstr "Autre fiche de fiche"
 
-#: apps.py:341
+#: apps.py:344
 msgid "Recent entities"
 msgstr "Fiches récentes"
 
@@ -111,7 +111,7 @@ msgid "XLSX file extension introduced by Microsoft Excel 2007."
 msgstr "Extension XLSX introduite par Microsoft Excel 2007."
 
 #: blocks.py:18 bricks.py:150 forms/bulk.py:150 models/custom_field.py:64
-#: templates/creme_core/bricks/custom-fields.html:7
+#: templates/creme_core/bricks/custom-fields.html:12
 #: templates/creme_core/entity_cells_widget.html:60
 #: templates/creme_core/templatetags/block_customfields.html:10
 msgid "Custom fields"
@@ -128,17 +128,17 @@ msgstr "Propriétés"
 msgid "Relationships"
 msgstr "Relations"
 
-#: bricks.py:171 templates/creme_core/bricks/history.html:7
+#: bricks.py:172 templates/creme_core/bricks/history.html:7
 #: templates/creme_core/templatetags/block_history.html:9
 msgid "History"
 msgstr "Historique"
 
-#: bricks.py:281 gui/menu.py:577 templates/creme_core/base.html:85
+#: bricks.py:282 gui/menu.py:577 templates/creme_core/base.html:85
 #: templates/creme_core/trash.html:4 templates/creme_core/trash.html.py:8
 msgid "Trash"
 msgstr "Corbeille"
 
-#: bricks.py:303 templates/creme_core/bricks/job.html:98
+#: bricks.py:304 templates/creme_core/bricks/job.html:98
 #: templates/creme_core/bricks/ptype-info.html:31
 #: templates/creme_core/bricks/statistics.html:7
 #: templates/creme_core/generics/portal.html:85
@@ -258,12 +258,12 @@ msgstr ""
 msgid "Redis queue"
 msgstr "Queue Redis"
 
-#: core/reminder.py:80
+#: core/reminder.py:90
 #, python-format
 msgid "An error occurred while sending emails related to «%s»"
 msgstr "Une erreur s'est produite pendant l'envoi des e-mails relatifs à «%s»"
 
-#: core/reminder.py:82
+#: core/reminder.py:92
 #, python-format
 msgid "Original error: %s"
 msgstr "Erreur originale : %s"
@@ -278,7 +278,7 @@ msgid "Enter a valid HTML color."
 msgstr "Saisissez une couleur HTML valide."
 
 #: creme_jobs/batch_process.py:42 templates/creme_core/batch_process.html:4
-#: templates/creme_core/frags/list_view_content.html:64
+#: templates/creme_core/frags/list_view_content.html:67
 msgid "Batch process"
 msgstr "Traitement par lots"
 
@@ -1109,15 +1109,15 @@ msgstr "Informations «{model}»"
 msgid "Relationship block: «%s»"
 msgstr "Bloc de relation: «%s»"
 
-#: gui/bricks.py:789
+#: gui/bricks.py:790
 msgid "Unknown type of block (bad uninstall ?)"
 msgstr "Type de bloc inconnu (mauvaise désinstallation ?)"
 
-#: gui/bricks.py:959
+#: gui/bricks.py:960
 msgid "Information on the entity"
 msgstr "Informations sur la fiche"
 
-#: gui/bricks.py:985
+#: gui/bricks.py:986
 msgid "Title bar"
 msgstr "Barre de titre"
 
@@ -1221,7 +1221,7 @@ msgstr "Modifier"
 #: templates/creme_core/templatetags/widgets/block_line_deletor.html:7
 #: templates/creme_core/templatetags/widgets/delete_button.html:14
 #: templates/creme_core/templatetags/widgets/restore_button.html:8
-#: templatetags/creme_bricks.py:94
+#: templatetags/creme_bricks.py:135
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -1572,7 +1572,7 @@ msgstr "Fiche #%s (non visible)"
 #: templates/creme_core/templatetags/widgets/block_line_editor.html:7
 #: templates/creme_core/templatetags/widgets/edit_button.html:10
 #: templates/creme_core/view_property_type.html:34
-#: templatetags/creme_bricks.py:93
+#: templatetags/creme_bricks.py:134
 msgid "Edit"
 msgstr "Modifier"
 
@@ -1612,7 +1612,7 @@ msgstr "Ce filtre ne peut être modifié/effacé"
 #: models/entity_filter.py:194 models/header_filter.py:146
 #: views/batch_process.py:44 views/batch_process.py:98 views/entity.py:174
 #: views/entity_filter.py:56 views/entity_filter.py:182
-#: views/generic/listview.py:378 views/header_filter.py:50
+#: views/generic/listview.py:373 views/header_filter.py:50
 #: views/header_filter.py:147
 msgid "You are not allowed to access to this app"
 msgstr "Vous n'êtes autorisé à accéder à cette application: %s"
@@ -1956,7 +1956,7 @@ msgstr "Auxiliaire (suppression)"
 msgid "Delete <%(type)s>: “%(value)s”"
 msgstr "Suppression de <%(type)s>: “%(value)s”"
 
-#: models/history.py:530
+#: models/history.py:530 templates/creme_core/bricks/history.html:14
 #: templates/creme_core/templatetags/block_history.html:15
 msgid "Date"
 msgstr "Date"
@@ -1968,6 +1968,14 @@ msgstr "Date"
 #: templates/creme_core/templatetags/block_trash.html:25
 msgid "Type"
 msgstr "Type"
+
+#: models/history.py:544
+msgid "Line of history"
+msgstr "Ligne d'historique"
+
+#: models/history.py:545
+msgid "Lines of history"
+msgstr "Lignes d'historique"
 
 #: models/i18n.py:29
 msgid "Code"
@@ -2365,34 +2373,34 @@ msgstr "Assignée à"
 msgid "deleted"
 msgstr "supprimé"
 
-#: templates/creme_core/bricks/history.html:16
+#: templates/creme_core/bricks/history.html:17
 #: templates/creme_core/importing_report.html:43
 #: templates/creme_core/templatetags/block_history.html:17
 msgid "Concerned entity"
 msgstr "Fiche concernée"
 
-#: templates/creme_core/bricks/history.html:20
+#: templates/creme_core/bricks/history.html:21
 #: templates/creme_core/templatetags/block_history.html:20
 msgid "Modifications"
 msgstr "Modifications"
 
-#: templates/creme_core/bricks/history.html:21
+#: templates/creme_core/bricks/history.html:22
 #: templates/creme_core/templatetags/block_history.html:21
 msgid "By"
 msgstr "Par"
 
-#: templates/creme_core/bricks/history.html:63
+#: templates/creme_core/bricks/history.html:64
 #: templates/creme_core/templatetags/block_history.html:60
 msgid "Edition of :"
 msgstr "Modification de :"
 
-#: templates/creme_core/bricks/history.html:65
+#: templates/creme_core/bricks/history.html:66
 #: templates/creme_core/templatetags/block_history.html:62
 #, python-format
 msgid "Edit \"%(entity)s\""
 msgstr "Modifier \"%(entity)s\""
 
-#: templates/creme_core/bricks/history.html:81
+#: templates/creme_core/bricks/history.html:82
 #: templates/creme_core/templatetags/block_history.html:79
 msgid "No history for the moment"
 msgstr "Aucun historique pour le moment"
@@ -2593,21 +2601,21 @@ msgid "{count} Relationships"
 msgstr "{count} Relations"
 
 #: templates/creme_core/bricks/relations.html:13
-#: templates/creme_core/bricks/specific-relations.html:16
+#: templates/creme_core/bricks/specific-relations.html:29
 #: templates/creme_core/templatetags/block_relations.html:15
 #: templates/creme_core/templatetags/block_specific_relations.html:14
 msgid "New relationships"
 msgstr "Nouvelles relations"
 
 #: templates/creme_core/bricks/relations.html:18
-#: templates/creme_core/bricks/specific-relations.html:43
+#: templates/creme_core/bricks/specific-relations.html:56
 #: templates/creme_core/templatetags/block_found_entities.html:27
 msgid "Action"
 msgstr "Action"
 
 #: templates/creme_core/bricks/relations.html:32
-#: templates/creme_core/bricks/specific-relations.html:68
-#: templates/creme_core/bricks/specific-relations.html:78
+#: templates/creme_core/bricks/specific-relations.html:81
+#: templates/creme_core/bricks/specific-relations.html:91
 msgid "Delete this relationship"
 msgstr "Supprimer cette relation"
 
@@ -2616,21 +2624,30 @@ msgstr "Supprimer cette relation"
 msgid "No relationship for the moment"
 msgstr "Aucune relation pour le moment"
 
-#: templates/creme_core/bricks/specific-relations.html:8
+#: templates/creme_core/bricks/specific-relations.html:11
+#, python-format
+msgid "Configure the fields for «%s»"
+msgstr "Configurer les champs pour «%s»"
+
+#: templates/creme_core/bricks/specific-relations.html:15
+msgid "Configure the fields of a new type"
+msgstr "Configurer les champs d'un nouveau type"
+
+#: templates/creme_core/bricks/specific-relations.html:21
 #, python-brace-format
 msgid "{count} Entities"
 msgstr "{count} Fiches"
 
-#: templates/creme_core/bricks/specific-relations.html:8
+#: templates/creme_core/bricks/specific-relations.html:21
 #, python-brace-format
 msgid "{count} Entity"
 msgstr "{count} Fiche"
 
-#: templates/creme_core/bricks/specific-relations.html:54
+#: templates/creme_core/bricks/specific-relations.html:67
 msgid "(empty)"
 msgstr "(vide)"
 
-#: templates/creme_core/bricks/specific-relations.html:93
+#: templates/creme_core/bricks/specific-relations.html:106
 #: templates/creme_core/templatetags/block_specific_relations.html:71
 msgid "No related entity for the moment"
 msgstr "Aucune fiche liée pour le moment"
@@ -2759,7 +2776,7 @@ msgstr ""
 #: templates/creme_core/templatetags/block_customfields.html:10
 #: templates/creme_core/templatetags/block_object.html:8
 #: templates/creme_core/templatetags/block_ptype_info.html:7
-#: templatetags/creme_bricks.py:81 templatetags/creme_bricks.py:116
+#: templatetags/creme_bricks.py:122 templatetags/creme_bricks.py:213
 msgid "Information"
 msgstr "Informations"
 
@@ -2775,51 +2792,51 @@ msgstr "Recherche"
 msgid "Advanced search"
 msgstr "Recherche avancée"
 
-#: templates/creme_core/frags/list_view_content.html:36
-#: templates/creme_core/frags/list_view_content.html:43
-#: templates/creme_core/frags/list_view_content.html:47
-#: templates/creme_core/frags/list_view_content.html:57
+#: templates/creme_core/frags/list_view_content.html:39
+#: templates/creme_core/frags/list_view_content.html:46
+#: templates/creme_core/frags/list_view_content.html:50
+#: templates/creme_core/frags/list_view_content.html:60
 msgid "Forbidden"
 msgstr "Interdit"
 
-#: templates/creme_core/frags/list_view_content.html:37
+#: templates/creme_core/frags/list_view_content.html:40
 #: views/generic/add.py:136 views/generic/add.py:139
 msgid "New"
 msgstr "Nouveau"
 
-#: templates/creme_core/frags/list_view_content.html:44
+#: templates/creme_core/frags/list_view_content.html:47
 msgid "Download"
 msgstr "Télécharger"
 
-#: templates/creme_core/frags/list_view_content.html:48
+#: templates/creme_core/frags/list_view_content.html:51
 msgid "Download header"
 msgstr "Télécharger l'en-tête"
 
-#: templates/creme_core/frags/list_view_content.html:58
+#: templates/creme_core/frags/list_view_content.html:61
 msgid "Import"
 msgstr "Importer"
 
-#: templates/creme_core/frags/list_view_content.html:67
+#: templates/creme_core/frags/list_view_content.html:70
 msgid "Clean the search"
 msgstr "Effacer la recherche"
 
-#: templates/creme_core/frags/list_view_content.html:69
+#: templates/creme_core/frags/list_view_content.html:72
 #: templates/creme_core/templatetags/search_form.html:4
 #: templates/creme_core/templatetags/search_panel.html:5
 msgctxt "creme_core-verb"
 msgid "Search"
 msgstr "Rechercher"
 
-#: templates/creme_core/frags/list_view_content.html:103
+#: templates/creme_core/frags/list_view_content.html:107
 #, python-format
 msgid "Sort by %(col_title)s"
 msgstr "Trier par %(col_title)s"
 
-#: templates/creme_core/frags/list_view_content.html:140
+#: templates/creme_core/frags/list_view_content.html:144
 msgid "No entity exists / matches your search"
 msgstr "Aucun élément n'existe / ne correspond à votre recherche"
 
-#: templates/creme_core/frags/list_view_content.html:152
+#: templates/creme_core/frags/list_view_content.html:156
 msgid "Nb / Page"
 msgstr "Nb / Page"
 
@@ -3175,14 +3192,14 @@ msgstr "Première page"
 #: templates/creme_core/templatetags/listview_paginator_fast.html:8
 #: templates/creme_core/templatetags/listview_paginator_slow.html:7
 #: templates/creme_core/templatetags/widgets/block_footer.html:39
-#: templatetags/creme_bricks.py:454
+#: templatetags/creme_bricks.py:706
 msgid "Previous page"
 msgstr "Page précédente"
 
 #: templates/creme_core/templatetags/listview_paginator_fast.html:11
 #: templates/creme_core/templatetags/listview_paginator_slow.html:13
 #: templates/creme_core/templatetags/widgets/block_footer.html:101
-#: templatetags/creme_bricks.py:473
+#: templatetags/creme_bricks.py:725
 msgid "Next page"
 msgstr "Page suivante"
 
@@ -3238,8 +3255,8 @@ msgstr "Aller à la page %(p)s"
 #: templates/creme_core/templatetags/widgets/block_footer.html:69
 #: templates/creme_core/templatetags/widgets/block_footer.html:82
 #: templates/creme_core/templatetags/widgets/block_footer.html:91
-#: templatetags/creme_bricks.py:460 templatetags/creme_bricks.py:464
-#: templatetags/creme_bricks.py:468 templatetags/creme_bricks.py:470
+#: templatetags/creme_bricks.py:712 templatetags/creme_bricks.py:716
+#: templatetags/creme_bricks.py:720 templatetags/creme_bricks.py:722
 msgid "To another page"
 msgstr "Aller à une autre page"
 
@@ -3333,37 +3350,37 @@ msgstr "Aller à la configuration des types"
 msgid "Property type"
 msgstr "Type de propriété"
 
-#: templatetags/creme_bricks.py:210
+#: templatetags/creme_bricks.py:358
 msgid "Collapse block"
 msgstr "Replier le bloc"
 
-#: templatetags/creme_bricks.py:210
+#: templatetags/creme_bricks.py:358
 msgid "Expand block"
 msgstr "Déplier le bloc"
 
-#: templatetags/creme_bricks.py:220
+#: templatetags/creme_bricks.py:366
 msgid "Hide empty fields"
 msgstr "Cacher les champs vides"
 
-#: templatetags/creme_bricks.py:220
+#: templatetags/creme_bricks.py:366
 msgid "Show empty fields"
 msgstr "Montrer les champs vides"
 
-#: templatetags/creme_bricks.py:281
+#: templatetags/creme_bricks.py:434
 #, python-brace-format
 msgid "Sort «{model}» by «{field}»"
 msgstr "Trier «{model}» par «{field}»"
 
-#: templatetags/creme_bricks.py:427
+#: templatetags/creme_bricks.py:686
 #, python-format
 msgid "To page %s"
 msgstr "À la page %s"
 
-#: templatetags/creme_bricks.py:461 templatetags/creme_bricks.py:471
+#: templatetags/creme_bricks.py:713 templatetags/creme_bricks.py:723
 msgid "To last page"
 msgstr "À la dernière page"
 
-#: templatetags/creme_bricks.py:463 templatetags/creme_bricks.py:467
+#: templatetags/creme_bricks.py:715 templatetags/creme_bricks.py:719
 msgid "To first page"
 msgstr "À la première page"
 
@@ -3372,25 +3389,33 @@ msgstr "À la première page"
 msgid "%(count)s %(model)s"
 msgstr "%(count)s %(model)s"
 
-#: templatetags/creme_date.py:33
+#: templatetags/creme_date.py:33 utils/date_period.py:117
 #, python-format
-msgid "%s day(s)"
-msgstr "%s jour(s)"
+msgid "%s day"
+msgid_plural "%s days"
+msgstr[0] "%s jour"
+msgstr[1] "%s jours"
 
-#: templatetags/creme_date.py:38
+#: templatetags/creme_date.py:38 utils/date_period.py:108
 #, python-format
-msgid "%s hour(s)"
-msgstr "%s heure(s)"
+msgid "%s hour"
+msgid_plural "%s hours"
+msgstr[0] "%s heure"
+msgstr[1] "%s heures"
 
-#: templatetags/creme_date.py:43
+#: templatetags/creme_date.py:43 utils/date_period.py:99
 #, python-format
-msgid "%s minute(s)"
-msgstr "%s minute(s)"
+msgid "%s minute"
+msgid_plural "%s minutes"
+msgstr[0] "%s minute"
+msgstr[1] "%s minutes"
 
 #: templatetags/creme_date.py:45
 #, python-format
-msgid "%s second(s)"
-msgstr "%s seconde(s)"
+msgid "%s second"
+msgid_plural "%s seconds"
+msgstr[0] "%s seconde"
+msgstr[1] "%s seconde(s)"
 
 #: templatetags/creme_listview.py:157 templatetags/creme_listview.py:185
 msgid "* is empty *"
@@ -3400,30 +3425,9 @@ msgstr "* est vide *"
 msgid "and"
 msgstr "et"
 
-#: utils/date_period.py:99
-#, python-format
-msgid "%s minute"
-msgid_plural "%s minutes"
-msgstr[0] "%s minute"
-msgstr[1] "%s minutes"
-
-#: utils/date_period.py:108
-#, python-format
-msgid "%s hour"
-msgid_plural "%s hours"
-msgstr[0] "%s heure"
-msgstr[1] "%s heures"
-
 #: utils/date_period.py:113
 msgid "Day(s)"
 msgstr "Jour(s)"
-
-#: utils/date_period.py:117
-#, python-format
-msgid "%s day"
-msgid_plural "%s days"
-msgstr[0] "%s jour"
-msgstr[1] "%s jours"
 
 #: utils/date_period.py:122
 msgid "Week(s)"
@@ -3538,6 +3542,11 @@ msgstr "Ajouter les propriétés"
 #, python-format
 msgid "New properties for «%s»"
 msgstr "Nouvelles propriétés pour «%s»"
+
+#: views/decorators.py:49
+#, python-brace-format
+msgid "The field \"{model}.{field}\" is hidden."
+msgstr "Le champ \"{model}.{field}\" est caché."
 
 #: views/entity.py:126
 #, python-format
@@ -3698,12 +3707,12 @@ msgstr "Fichier invalide"
 msgid "You can not edit this model"
 msgstr "Vous ne pouvez pas modifier ce modèle"
 
-#: views/generic/listview.py:299
+#: views/generic/listview.py:294
 #, python-format
 msgid "List of %s"
 msgstr "Liste des %s"
 
-#: views/generic/listview.py:342 views/generic/listview.py:404
+#: views/generic/listview.py:337 views/generic/listview.py:401
 msgid "The desired list does not have any view, please create one."
 msgstr "La liste souhaitée n'a aucune vue, veuillez en créer au moins une."
 
@@ -3792,6 +3801,15 @@ msgstr "Recherche vide…"
 #, python-format
 msgid "Please enter at least %s characters"
 msgstr "Veuillez entrer au moins %s caractères"
+
+#~ msgid "%s day(s)"
+#~ msgstr "%s jour(s)"
+
+#~ msgid "%s hour(s)"
+#~ msgstr "%s heure(s)"
+
+#~ msgid "%s minute(s)"
+#~ msgstr "%s minute(s)"
 
 #~ msgid ""
 #~ "Deleting a property type will delete the associated properties.<br>Are "

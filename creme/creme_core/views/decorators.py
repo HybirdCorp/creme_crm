@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2015  Hybird
+#    Copyright (C) 2013-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,7 @@
 from functools import wraps
 
 from django.http import Http404
+from django.utils.translation import ugettext as _
 
 from ..core.exceptions import ConflictError
 from ..models import FieldsConfig
@@ -45,8 +46,9 @@ def require_model_fields(model, *field_names):
 
             for field_name in field_names:
                 if is_hidden(field_name):
-                    raise ConflictError('The field "%s.%s" is hidden' % (
-                                                model.__name__, field_name,
+                    raise ConflictError(_(u'The field "{model}.{field}" is hidden.').format(
+                                                model=model.__name__,
+                                                field=field_name,
                                             )
                                        )
 
