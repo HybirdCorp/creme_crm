@@ -116,3 +116,25 @@ button.reports-chart-selectors-refresh {
     border: 0;
     vertical-align: middle;
 }
+
+/* Report preview */
+/* TODO: remove/rework this shit when form HTML/CSS has been reworked */
+
+div.report-preview {
+    padding-top: 20px;
+}
+
+.report-preview form .table_detail_view {
+    border: 1px solid #bdd3dc;
+    padding: 0px;
+
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
+}
+
+.report-preview .table_detail_view thead {
+    background: #e9f6fb;
+    color: black;
+    font-size: 14px;
+}
+
+/* Report preview - end */

@@ -1,4 +1,5 @@
-{% load i18n creme_core_tags %}
+{% load i18n creme_core_tags creme_widgets %}
+{% comment %}
 <table class="table_header" cellpadding="0" cellspacing="0">
     <tr>
         <td width="5%"><img src="{% creme_media_url logo %}" alt=""/></td>
@@ -7,6 +8,13 @@
         </td>
     </tr>
 </table>
+{% endcomment %}
+<div class="hat-bar-container">
+    <div class="hat-bar">
+        <div class="bar-icon">{% widget_icon name=icon_name size='brick-hat-bar' label=icon_label|or_op:title %}</div>
+        <div class="bar-title"><h1>{{title}}</h1></div>
+    </div>
+</div>
 
 {% if help_message %}
     <div class="help_box">{{help_message}}</div>

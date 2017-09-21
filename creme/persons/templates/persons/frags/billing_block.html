@@ -1,5 +1,4 @@
-{% extends "creme_core/generics/blockform/content.html" %}
-
+{% extends 'creme_core/generics/blockform/content.html' %}
 {% load i18n %}
 
 {% block table_attrs %}
@@ -10,7 +9,7 @@
     {% if not form.hide_shipping_address %}
         <tr>
             <td class="{% cycle "block_line_dark" "block_line_light" %}" colspan="2" align="right">
-                <button type="button" onclick="creme.persons.copyTo('billing_table', 'shipping_table');">{% trans "Copy the address to right side" %}</button>
+                <button type="button" onclick="creme.persons.copyTo('billing_table', 'shipping_table');">{% trans 'Copy the address to right side' %}</button>
             </td>
         </tr>
     {% endif %}

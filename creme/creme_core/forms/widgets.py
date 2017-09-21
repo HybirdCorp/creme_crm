@@ -30,16 +30,17 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db.models.query import Q
-from django.forms.utils import flatatt
 from django.forms import widgets
+from django.forms.utils import flatatt
 from django.utils.encoding import force_unicode
 from django.utils.html import conditional_escape, escape
 from django.utils.safestring import mark_safe
 from django.utils.timezone import localtime, is_naive
 from django.utils.translation import ugettext as _, ugettext_lazy, pgettext_lazy, pgettext
 
+from ..templatetags.creme_widgets import get_icon_size_px, get_icon_by_name
 from ..utils.date_range import date_range_registry
-from ..utils.media import creme_media_themed_url as media_url
+from ..utils.media import get_current_theme  # creme_media_themed_url as media_url
 from ..utils.url import TemplateURLBuilder
 
 
@@ -419,11 +420,17 @@ class ChainedInput(widgets.TextInput):
                      )
 
         if attrs.pop('reset', True):
-            output.append(u'<li>'
-                              u'<img class="reset" src="%(url)s" alt="%(title)s" title="%(title)s" />'
-                          u'</li>' % {'url':   media_url('images/delete_22_button.png'),
-                                      'title': _(u'Reset'),
-                                     }
+            # output.append(u'<li>'
+            #                   u'<img class="reset" src="%(url)s" alt="%(title)s" title="%(title)s" />'
+            #               u'</li>' % {'url':   media_url('images/delete_22_button.png'),
+            #                           'title': _(u'Reset'),
+            #                          }
+            #              )
+            theme = get_current_theme()
+            output.append(u'<li>{}</li>'.format(get_icon_by_name('delete', theme=theme, label=_(u'Reset'),
+                                                                 size_px=get_icon_size_px(theme, size='form-widget'),
+                                                                ).render(css_class='reset')
+                                               )
                          )
 
         output.append(u'</ul>')

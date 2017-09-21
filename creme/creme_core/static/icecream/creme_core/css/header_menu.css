@@ -63,14 +63,16 @@
     margin-right: 15px;
 }
 
-.search-box input[type="text"] {
-    font: 12px 'Open Sans', sans-serif;
+div.search-box input[type="text"] {
     height: auto;
     /*  padding: 5px 5px;*/
     padding-left: 5px;
     /*  width: 120px;*/
     width: 150px;
     height: 100%;
+
+/*    font: 12px 'Open Sans', sans-serif; */
+    font-size: 12.5px;
 
     border: 0;
     border-radius: 0;

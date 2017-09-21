@@ -1,5 +1,7 @@
-{% extends "creme_core/base.html" %}
+{% extends 'creme_core/base.html' %}
 {% load i18n %}
+
 {% block content %}
-    {% include "creme_core/generics/blockform/base.html" with logo='images/batch_process_64.png' title=_('Batch process') %}
+{#    {% include "creme_core/generics/blockform/base.html" with logo='images/batch_process_64.png' title=_('Batch process') %} #}
+    {% include 'creme_core/generics/blockform/base.html' with icon_name='batch_process' title=_('Batch process') %}
 {% endblock %}
