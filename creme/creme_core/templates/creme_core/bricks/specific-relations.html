@@ -3,6 +3,19 @@
 
 {% block brick_extra_class %}{{block.super}} creme_core-specific-relations-brick{% endblock %}
 
+{% block brick_menu_actions %}
+    {{block.super}}
+
+    <hr/>{% has_perm_to admin 'creme_core' as config_perm %}
+    {% for ct, cells in config_item.iter_cells %}{% url 'creme_config__edit_cells_of_rtype_brick' config_item.id ct.id as edit_cells_url %}
+        {% brick_menu_action id='edit' url=edit_cells_url icon='config' label=ct|format:_('Configure the fields for «%s»') enabled=config_perm %}
+    {% endfor %}
+
+    {% if not config_item.all_ctypes_configured %}{% url 'creme_config__add_cells_to_rtype_brick' config_item.id as add_cells_url %}
+        {% brick_menu_action id='edit' url=add_cells_url label=_('Configure the fields of a new type') enabled=config_perm %}
+    {% endif %}
+{% endblock %}
+
 {% block brick_header_title %}
 {% with predicate=relation_type.predicate %}
     {% if page.paginator.count|is_plural %}{% trans '{count} Entities' as first_part %}{% else %}{% trans '{count} Entity' as first_part %}{% endif %}
