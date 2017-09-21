@@ -85,7 +85,8 @@ def add_attachment(request, template_id):
     return add_to_entity(request, template_id, EmailTemplateAddAttachment,
                          ugettext(u'New attachments for «%s»'),
                          entity_class=EmailTemplate,
-                         submit_label=_('Save the attachments'),
+                         submit_label=_(u'Save the attachments'),
+                         template='creme_core/generics/blockform/link_popup.html',
                         )
 
 

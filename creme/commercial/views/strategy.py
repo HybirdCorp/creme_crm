@@ -140,6 +140,7 @@ def add_evalorga(request, strategy_id):
                                  ugettext(u'New organisation(s) for «%s»'),
                                  entity_class=Strategy,
                                  submit_label=_(u'Link the organisation(s)'),
+                                 template='creme_core/generics/blockform/link_popup.html',
                                 )
 
 

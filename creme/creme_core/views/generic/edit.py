@@ -105,7 +105,7 @@ def edit_model_with_popup(request, query_dict, model, form_class,
                       edited instance (eg: {'pk': 12})
     @param model A django model class which implements the method get_related_entity().
     @param model title_format A format unicode with an arg (for the edited instance).
-    @param can_change A function with instance and user as paramaters, which
+    @param can_change A function with instance and user as parameters, which
                       returns a Boolean: False causes a 403 error.
     """
     instance = get_object_or_404(model, **query_dict)

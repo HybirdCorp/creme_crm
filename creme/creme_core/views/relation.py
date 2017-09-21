@@ -185,7 +185,9 @@ def add_relations(request, subject_id, rtype_id=None):
                                   relations_types=relations_types,
                                  )
 
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
+    return inner_popup(request,
+                       # 'creme_core/generics/blockform/add_popup.html',
+                       'creme_core/generics/blockform/link_popup.html',
                        {'form':  form,
                         'title': _(u'Relationships for «%s»') % subject,
                         'submit_label': _(u'Save the relationships'),

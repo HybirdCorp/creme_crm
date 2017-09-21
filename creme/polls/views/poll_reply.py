@@ -205,6 +205,7 @@ def link_to_person(request, person_id):
     return add_to_entity(request, person_id, PersonAddRepliesForm,
                          ugettext(u'Existing replies for «%s»'), link_perm=True,
                          submit_label=_(u'Link to the replies'),
+                         template='creme_core/generics/blockform/link_popup.html',
                         )
 
 

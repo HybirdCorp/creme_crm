@@ -74,7 +74,7 @@ def add_entity(request, form_class, url_redirect='',
 
 def add_to_entity(request, entity_id, form_class, title, entity_class=None, initial=None,
                   template='creme_core/generics/blockform/add_popup.html',
-                  link_perm=False, submit_label=_('Save')):
+                  link_perm=False, submit_label=_(u'Save')):
     """ Add models related to one CremeEntity (eg: a CremeProperty)
     @param entity_id Id of a CremeEntity.
     @param form_class Form which __init__'s method MUST HAVE an argument caled 'entity' (the related CremeEntity).

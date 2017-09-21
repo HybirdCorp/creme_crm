@@ -101,7 +101,8 @@ def add_messaging_list(request, campaign_id):
     return add_to_entity(request, campaign_id, CampaignAddListForm,
                          ugettext(u'New messaging lists for «%s»'),
                          entity_class=SMSCampaign,
-                         submit_label=_('Link the messaging lists'),
+                         submit_label=_(u'Link the messaging lists'),
+                         template='creme_core/generics/blockform/link_popup.html',
                         )
 
 

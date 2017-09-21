@@ -29,9 +29,8 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.utils.db import reorder_instances
+from creme.creme_core.views import generic
 from creme.creme_core.views.decorators import POST_only
-from creme.creme_core.views.generic import (add_entity, edit_entity,
-        view_entity, list_view, inner_popup, add_to_entity)
 
 from .. import get_report_model
 from ..constants import DEFAULT_HFILTER_REPORT
@@ -50,19 +49,19 @@ def abstract_add_report(request, form=ReportCreateForm,
                         # submit_label=_('Save the report'),
                         submit_label=Report.save_label,
                        ):
-    return add_entity(request, form, template=template,
-                      extra_template_dict={'submit_label': submit_label},
-                     )
+    return generic.add_entity(request, form, template=template,
+                              extra_template_dict={'submit_label': submit_label},
+                             )
 
 
 def abstract_edit_report(request, report_id, form=ReportEditForm):
-    return edit_entity(request, report_id, Report, form)
+    return generic.edit_entity(request, report_id, Report, form)
 
 
 def abstract_view_report(request, report_id,
                          template='reports/view_report.html',
                         ):
-    return view_entity(request, report_id, Report, template=template)
+    return generic.view_entity(request, report_id, Report, template=template)
 
 
 @login_required
@@ -86,7 +85,7 @@ def detailview(request, report_id):
 @login_required
 @permission_required('reports')
 def listview(request):
-    return list_view(request, Report, hf_pk=DEFAULT_HFILTER_REPORT)
+    return generic.list_view(request, Report, hf_pk=DEFAULT_HFILTER_REPORT)
 
 
 @login_required
@@ -136,26 +135,35 @@ def link_report(request, field_id):
     else:
         link_form = LinkFieldToReportForm(rfield, ctypes, user=user)
 
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
-                       {'form': link_form,
-                        'title': ugettext(u'Link of the column «%s»') % rfield,
-                        'submit_label': _('Link'),
-                       },
-                       is_valid=link_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+    return generic.inner_popup(request,
+                               # 'creme_core/generics/blockform/add_popup.html',
+                               'creme_core/generics/blockform/link_popup.html',
+                               {'form': link_form,
+                                'title': ugettext(u'Link of the column «%s»') % rfield,
+                                'submit_label': _(u'Link'),
+                               },
+                               is_valid=link_form.is_valid(),
+                               reload=False,
+                               delegate_reload=True,
+                              )
 
 
 @login_required
 @permission_required('reports')
 def edit_fields(request, report_id):
-    return add_to_entity(request, report_id, ReportFieldsForm,
-                         _(u'Edit columns of «%s»'),
-                         entity_class=Report,
-                         submit_label=_('Save the modifications'),
-                        )
-
+    return generic.add_to_entity(request, report_id, ReportFieldsForm,
+                                 _(u'Edit columns of «%s»'),
+                                 entity_class=Report,
+                                 submit_label=_(u'Save the modifications'),
+                                 template='creme_core/generics/blockform/edit_popup.html',
+                                )
+    # TODO: need to change the constructor of ReportFieldsForm (arg 'entity' => 'instance'
+    # return generic.edit_model_with_popup(request,
+    #                                      model=Report,
+    #                                      query_dict={'id': report_id},
+    #                                      form_class=ReportFieldsForm,
+    #                                      title_format=_(u'Edit columns of «%s»'),
+    #                                     )
 
 _order_direction = {
     'up':   -1,

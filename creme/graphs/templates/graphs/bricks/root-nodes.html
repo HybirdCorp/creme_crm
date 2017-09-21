@@ -9,7 +9,7 @@
 
 {% block brick_header_actions %}
 {% has_perm_to change object as has_perm %}{% url 'graphs__add_roots' object.id as add_roots_url %}
-    {% brick_header_action id='add' url=add_roots_url label=_('Add some entities') enabled=has_perm %}
+    {% brick_header_action id='link' url=add_roots_url label=_('Add some entities') enabled=has_perm %}
 {% endblock %}
 
 {% block brick_table_columns %}

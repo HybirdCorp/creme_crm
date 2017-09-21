@@ -69,7 +69,7 @@
                     {% has_perm_to unlink sub_report as unlink_sub_report_perm %}{% url 'reports__unlink_report' as unlink_url %}
                     {% brick_table_action id='update' url=unlink_url __field_id=column.id label=_('Unlink the report') display='text' enabled=unlink_sub_report_perm %}
                 {% else %}{% url 'reports__link_report' column.id as link_url %}
-                    {% brick_table_action id='edit' url=link_url label=_('Link a report') enabled=link_perm %}
+                    {% brick_table_action id='link' url=link_url label=_('Link a report') enabled=link_perm %}
                 {% endif %}
             {% endif %}
             </td>
