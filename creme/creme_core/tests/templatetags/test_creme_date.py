@@ -35,11 +35,11 @@ class CremeDateTagsTestCase(CremeTestCase):
                         }))
 
         self.assertEqual(u'%s#%s#%s#%s#%s' % (
-                                ungettext(u'%s day',     u'%s days',     3) % 3,
-                                ungettext(u'%s hour',    u'%s hours',    4) % 4,
-                                ungettext(u'%s minute)', u'%s minutes', 19) % 19,
-                                ungettext(u'%s second',  u'%s seconds',  2) % 2,
-                                ungettext(u'%s second',  u'%s seconds',  1) % 1,
+                                ungettext(u'%s day',    u'%s days',     3) % 3,
+                                ungettext(u'%s hour',   u'%s hours',    4) % 4,
+                                ungettext(u'%s minute', u'%s minutes', 19) % 19,
+                                ungettext(u'%s second', u'%s seconds',  2) % 2,
+                                ungettext(u'%s second', u'%s seconds',  1) % 1,
                             ),
                          render.strip()
                         )
