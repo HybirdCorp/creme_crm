@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2016  Hybird
+#    Copyright (C) 2012-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,15 +34,13 @@ from creme.creme_core.forms.bulk import BulkDefaultEditForm
 # from creme.creme_core.forms import validators
 from creme.creme_core.forms.widgets import Label
 
-from creme.persons import get_contact_model, get_organisation_model
-
-from .. import get_pollcampaign_model, get_pollform_model, get_pollreply_model
+from creme import persons, polls
 
 
-Contact      = get_contact_model()
-Organisation = get_organisation_model()
-PollCampaign = get_pollcampaign_model()
-PollReply    = get_pollreply_model()
+Contact      = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
+PollCampaign = polls.get_pollcampaign_model()
+PollReply    = polls.get_pollreply_model()
 
 
 class PollRepliesCreateForm(CremeForm):
@@ -60,7 +58,7 @@ class PollRepliesCreateForm(CremeForm):
                                                    u'(and "Number of replies" will be ignored)'
                                                   ),
                                       )
-    pform    = CreatorEntityField(label=_(u'Related form'), model=get_pollform_model())
+    pform    = CreatorEntityField(label=_(u'Related form'), model=polls.get_pollform_model())
 
     def __init__(self, *args, **kwargs):
         super(PollRepliesCreateForm, self).__init__(*args, **kwargs)
@@ -177,7 +175,7 @@ class PollReplyEditForm(CremeEntityForm):
 
 class PersonAddRepliesForm(CremeForm):
     # TODO: qfilter to exclude linked replies ??
-    replies = MultiCreatorEntityField(label=_(u'Replies'), model=get_pollreply_model(),
+    replies = MultiCreatorEntityField(label=_(u'Replies'), model=polls.get_pollreply_model(),
                                       credentials=EntityCredentials.CHANGE,
                                      )
 
@@ -213,17 +211,18 @@ class PollReplyFillForm(CremeForm):
         if number:
             # TODO: use NodeStyle ??
             question.initial = u'%s - %s' % (number, line_node.question)
-            fields['not_applicable']= BooleanField(label=ugettext(u'Not applicable'),
-                                                   required=False,
-                                                   initial=not line_node.applicable,
-                                                  )
+            fields['not_applicable'] = BooleanField(label=ugettext(u'Not applicable'),
+                                                    required=False,
+                                                    initial=not line_node.applicable,
+                                                   )
         else:
             question.label = _(u'Comment')
             question.initial = line_node.question
 
         answer_field = line_node.answer_formfield
         if answer_field is not None:
-            answer_field.required = False
+            # TODO: set dynamically "required" on client side with the value of 'not_applicable'
+            answer_field.required = answer_field.widget.is_required = False
             fields['answer'] = answer_field
 
     def clean(self):
@@ -232,7 +231,7 @@ class PollReplyFillForm(CremeForm):
 
         if not errors and not cdata.get('not_applicable', False) and \
            self.line_node.poll_line_type.editable and cdata.get('answer') is None:
-            errors['answer'] = self.error_class([ugettext('The answer is required.')])
+            errors['answer'] = self.error_class([ugettext(u'The answer is required.')])
 
         return cdata
 
