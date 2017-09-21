@@ -500,8 +500,20 @@ class CustomBrick(Brick):
         "@param customblock_conf_item Instance of CustomBlockConfigItem"
         super(CustomBrick, self).__init__()
         self.id_ = id_
-        self.dependencies = (customblock_conf_item.content_type.model_class(),)  # TODO: other model (FK, M2M, Relation)
-        # self.relation_type_deps = () #TODO: if cell is EntityCellRelation
+        # TODO: related models (by FK/M2M/...) ?
+        self.dependencies = deps = [customblock_conf_item.content_type.model_class()]
+
+        rtype_ids = [rtype.id for rtype in filter(None,
+                                                  (getattr(cell, 'relation_type', None)
+                                                       for cell in customblock_conf_item.cells
+                                                  )
+                                                 )
+                    ]
+
+        if rtype_ids:
+            deps.append(Relation)
+            self.relation_type_deps = rtype_ids
+
         self.verbose_name = customblock_conf_item.name
         self.config_item = customblock_conf_item
 
