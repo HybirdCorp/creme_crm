@@ -167,7 +167,8 @@ class HistoryBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('creme_core', 'history')
     dependencies  = '*'
     read_only     = True
-    order_by      = '-date'
+    # order_by      = '-date'
+    order_by      = '-id'
     verbose_name  = _(u'History')
     # template_name = 'creme_core/templatetags/block_history.html'
     template_name = 'creme_core/bricks/history.html'

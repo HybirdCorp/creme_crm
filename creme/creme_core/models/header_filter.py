@@ -82,8 +82,8 @@ class HeaderFilter(Model):  # CremeModel ???
 
     json_cells = TextField(editable=False, null=True) #TODO: JSONField ? CellsField ?
 
-    creation_label = _('Create a view')
-    save_label     = _('Save the view')
+    creation_label = _(u'Create a view')
+    save_label     = _(u'Save the view')
 
     _cells = None
 

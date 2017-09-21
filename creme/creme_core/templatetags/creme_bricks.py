@@ -415,6 +415,7 @@ def brick_table_column_for_cell(context, cell, title='', status='', **attrs):
 
     sort_data = None
     help = ''
+    verbose_name = title or cell.title
 
     # TODO: only if the brick manages sorting (QuerysetBrick) ??
     if cell.sortable:
@@ -431,14 +432,14 @@ def brick_table_column_for_cell(context, cell, title='', status='', **attrs):
                 'order': 'desc' if current_is_desc else 'asc',
             }
             help = _(u'Sort «{model}» by «{field}»').format(model=cell.model._meta.verbose_name_plural,
-                                                            field=cell.title,
+                                                            field=verbose_name,
                                                            )
 
     if 'data_type' not in attrs:
         attrs['data_type'] = cell.data_type
 
     return {
-        'title':   title or cell.title,
+        'title':   verbose_name,
         'key':     cell.key,
         'help':    help,
         'sort_by': sort_data,

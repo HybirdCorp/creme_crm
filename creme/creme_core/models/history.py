@@ -541,6 +541,8 @@ class HistoryLine(Model):
 
     class Meta:
         app_label = 'creme_core'
+        verbose_name = _(u'Line of history')
+        verbose_name_plural = _(u'Lines of history')
 
     def __repr__(self):
         return 'HistoryLine(entity_id=%s, entity_owner_id=%s, date=%s, type=%s, value=%s)' % (
