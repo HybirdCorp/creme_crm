@@ -10,7 +10,8 @@
 {% block brick_header_actions %}{% endblock %}
 
 {% block brick_table_columns %}
-    {% brick_table_column_for_field ctype=objects_ctype field='date' status='primary' %}
+{#    {% brick_table_column_for_field ctype=objects_ctype field='date' status='primary' %} #}
+    {% brick_table_column_for_field ctype=objects_ctype field='id' status='primary' title=_('Date') %}
 
     {% if not object %}
     {% brick_table_column title=_('Concerned entity') %}
