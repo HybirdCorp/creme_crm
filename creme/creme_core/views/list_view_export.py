@@ -28,7 +28,8 @@ from ..auth.decorators import login_required
 from ..backends import export_backend_registry
 from ..core.paginator import FlowPaginator
 from ..gui.listview import ListViewState
-from ..models import EntityFilter, EntityCredentials, HeaderFilter
+from ..models import EntityFilter, EntityCredentials
+from ..models.header_filter import HeaderFilterList
 from ..utils import get_ct_or_404, get_from_GET_or_404, bool_from_str_extended
 # from ..utils.chunktools import iter_as_slices
 
@@ -84,6 +85,7 @@ def dl_listview(request, ct_id=None, doc_type=None, header_only=None):
     ct    = get_ct_or_404(ct_id)
     model = ct.model_class()
     user  = request.user
+    url   = request.GET['list_url']
 
     user.has_perm_to_export_or_die(model)
 
@@ -91,11 +93,12 @@ def dl_listview(request, ct_id=None, doc_type=None, header_only=None):
     if backend is None:
         raise Http404('Unknown extension')
 
-    # TODO: is it possible that session doesn't content the state (eg: url linked and open directly) ????
-    current_lvs = ListViewState.get_state(request, url=request.GET['list_url'])
+    # TODO: is it possible that session doesn't content the state (eg: url linked and open directly)
+    #   => now yes, the GET request doesn't create or update session state.
+    current_lvs = ListViewState.get_or_create_state(request, url=url)
 
-    # TODO: factorise (with list_view()) ?? in a ListViewState's method ???
-    hf = HeaderFilter.objects.get(pk=current_lvs.header_filter_id)
+    user = request.user
+    hf = current_lvs.set_headerfilter(HeaderFilterList(ct, user), request.GET.get('hfilter', -1))
     cells = hf.filtered_cells
 
     writer = backend()
@@ -103,7 +106,7 @@ def dl_listview(request, ct_id=None, doc_type=None, header_only=None):
     writerow([smart_str(cell.title) for cell in cells])  # Doesn't accept generator expression... ;(
 
     if not header_only:
-        current_lvs.handle_research(request, cells)
+        current_lvs.handle_research(request.GET, cells, merge=True)
         # current_lvs.set_sort(model, cells, current_lvs.sort_field, current_lvs.sort_order)
         ordering = current_lvs.set_sort(model, cells,
                                         current_lvs.sort_field,

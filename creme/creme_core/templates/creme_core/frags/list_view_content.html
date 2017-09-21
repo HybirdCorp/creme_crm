@@ -1,8 +1,12 @@
 {% load i18n creme_core_tags creme_widgets creme_listview creme_cells %}
 {% load creme_block %} {# REMOVE !! #}
 
-{% with cells=header_filters.selected.filtered_cells %}{% comment %}{% with cells=header_filters.selected.cells %}{% endcomment %}
+{% with cells=header_filters.selected.filtered_cells %}
 
+{# TODO : replace it by a div after complete refactor of button/link bindings #}
+<form class="ui-creme-widget widget-auto ui-creme-listview" widget="ui-creme-listview"
+      {% if whoami %}whoami="{{whoami}}"{% endif %} {% if not o2m %}multiple{% endif %}
+      {% if is_popup_view %}reload-url="{% url 'creme_core__listview_popup' %}"{% endif %}>
 {% listview_header_colspan cells=cells is_readonly=is_popup_view is_single_select=o2m as colspan %}
 
 <table id="list" class="list_view" cellpadding="0" cellspacing="0">
@@ -63,8 +67,8 @@
                         {% trans "Batch process" as label %}<img border="0" src="{% creme_media_url 'images/batch_process_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}
                     </a>&nbsp;
                 {% endif %}
-                <button class="listview-header-button clear-search" value="0" type="button" name="_search"{% if not search %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %}>{% trans "Clean the search" %}</button>&nbsp;
-                <button class="listview-header-button-with-icon do-search" value="1" type="button" name="_search" onclick="$(this.form).list_view('getSubmit')(this);">
+                <button class="listview-header-button clear-search" value="1" type="button" {% if not search %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this, {search: 'clear'});" {% endif %}>{% trans "Clean the search" %}</button>&nbsp;
+                <button class="listview-header-button-with-icon do-search" value="0" type="button" onclick="$(this.form).list_view('getSubmit')(this);">
                     {% trans "Search" context "creme_core-verb" as label %}
                     <div>
                         <img border="0" src="{% creme_media_url 'images/search_22.png' %}" alt="{{label}}" title="{{label}}"/>
@@ -86,6 +90,7 @@
                 <input value=""                               id="selected_rows" type="hidden" />
                 <input value="{{o2m}}"                        id="o2m"           type="hidden" />
                 <input value="{{q_filter}}"                   id="q_filter"      type="hidden" name="q_filter" />
+                <input value="{{content_type_id}}"            id="ct_id"         type="hidden" name="ct_id" />
                 {% block extra_buttons_hidden %}{% endblock %}
             </th>
         </tr>
@@ -164,4 +169,5 @@
         </tr>
     </tfoot>
 </table>
+</form>
 {% endwith %}

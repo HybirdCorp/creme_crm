@@ -268,7 +268,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                      )
 
         # We set the current list view state
-        self.assertGET200(Organisation.get_lv_absolute_url(), data={'filter': efilter.id})
+        # Now needs a POST request for session changes.
+        self.assertPOST200(Organisation.get_lv_absolute_url(), data={'filter': efilter.id})
 
         response = self.assertGET200(self._build_add_url(Organisation))
 

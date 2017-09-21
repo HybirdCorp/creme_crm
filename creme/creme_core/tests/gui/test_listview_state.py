@@ -35,10 +35,10 @@ class ListViewStateTestCase(CremeTestCase):
         self.assertIsNone(lvs.header_filter_id)
         self.assertIsNone(lvs.page)
         self.assertIsNone(lvs.rows)
-        self.assertIsNone(lvs._search)
+        # self.assertIsNone(lvs.search)
         self.assertIsNone(lvs.sort_order)
         self.assertIsNone(lvs.sort_field)
-        self.assertEqual('', lvs._extra_sort_field)
+        # self.assertEqual('', lvs._extra_sort_field)
         self.assertEqual((), lvs.research)
         self.assertIsNone(lvs.extra_q)
         # self.assertEqual([], lvs._ordering)
@@ -81,7 +81,7 @@ class ListViewStateTestCase(CremeTestCase):
 
     def test_build_from_request(self):
         request = self._build_request()
-        lvs = ListViewState.build_from_request(request)
+        lvs = ListViewState.build_from_request(request.GET, request.path)
         self.assertIsInstance(lvs, ListViewState)
         self.assertEqual(self.url, lvs.url)
         self._assertLVSEmpty(lvs)

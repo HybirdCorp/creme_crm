@@ -758,10 +758,16 @@ def list_view_popup(request):
       - 'ct_id': the ContentType ID of the model we want. Required (if not given in the URL -- which is deprecated).
       - 'selection': The selection mode, which can be "single" or "multiple". Optional (default is "single").
     """
-    GET = request.GET
-    ct_id = get_from_GET_or_404(GET, 'ct_id', cast=int)
-    mode  = get_from_GET_or_404(GET, 'selection', cast=listview.str_to_mode, default='single')
+    if request.method == 'POST':
+        POST = request.POST
+        ct_id = get_from_POST_or_404(POST, 'ct_id', cast=int)
+        mode  = get_from_POST_or_404(POST, 'selection', cast=listview.str_to_mode, default='single')
+    else:
+        GET = request.GET
+        ct_id = get_from_GET_or_404(GET, 'ct_id', cast=int)
+        mode  = get_from_GET_or_404(GET, 'selection', cast=listview.str_to_mode, default='single')
 
     ct = get_ct_or_404(ct_id)
+    lv_state_id = '{}#{}'.format(ct_id, request.path)
 
-    return listview.list_view_popup(request, model=ct.model_class(), mode=mode)
+    return listview.list_view_popup(request, model=ct.model_class(), mode=mode, lv_state_id=lv_state_id)

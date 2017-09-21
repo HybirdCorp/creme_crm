@@ -130,16 +130,16 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         return url
 
-    def _set_listview_state(self, model=Contact):
-        lv_url = model.get_lv_absolute_url()
-        self.assertGET200(lv_url)  # Set the current list view state...
-
-        return lv_url
+#     def _set_listview_state(self, model=Contact):
+#         lv_url = model.get_lv_absolute_url()
+#         self.assertGET200(lv_url)  # Set the current list view state...
+# 
+#         return lv_url
 
     def test_export_error01(self):
         "Assert doc_type in ('xls', 'csv')"
         self.login()
-        lv_url = self._set_listview_state()
+        lv_url = Contact.get_lv_absolute_url()
 
         # self.assertGET404(self._build_url(self.ct, doc_type='exe'), data={'list_url': lv_url})
         self.assertGET404(self._build_dl_url(self.ct, doc_type='exe', list_url=lv_url))
@@ -147,7 +147,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
     def test_list_view_export_header(self):
         self.login()
         cells = self._build_hf_n_contacts()
-        lv_url = self._set_listview_state()
+        lv_url = Contact.get_lv_absolute_url()
         # url = self._build_url(self.ct, method='download_header')
         # response = self.assertGET200(url, data={'list_url': lv_url})
         response = self.assertGET200(self._build_dl_url(self.ct, header=True, list_url=lv_url))
@@ -168,7 +168,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
     def test_xls_export_header(self):
         self.login()
         cells = self._build_hf_n_contacts()
-        lv_url = self._set_listview_state()
+        lv_url = Contact.get_lv_absolute_url()
 
         # response = self.assertGET200(self._build_url(self.ct, method='download_header', doc_type='xls'),
         #                              data = {'list_url': lv_url}, follow = True
@@ -186,7 +186,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         "csv"
         self.login()
         cells = self._build_hf_n_contacts()
-        lv_url = self._set_listview_state()
+        lv_url = Contact.get_lv_absolute_url()
 
         # response = self.assertGET200(self._build_url(self.ct), data={'list_url': lv_url})
         response = self.assertGET200(self._build_dl_url(self.ct, list_url=lv_url))
@@ -213,7 +213,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         "scsv"
         self.login()
         cells = self._build_hf_n_contacts()
-        lv_url = self._set_listview_state()
+        lv_url = Contact.get_lv_absolute_url()
 
         # response = self.assertGET200(self._build_url(self.ct, doc_type='scsv'), data={'list_url': lv_url})
         response = self.assertGET200(self._build_dl_url(self.ct, doc_type='scsv', list_url=lv_url))
@@ -236,9 +236,9 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.login(is_superuser=False)
         self._build_hf_n_contacts()
         # url = self._build_url(self.ct)
-        # data = {'list_url': self._set_listview_state()}
+        # data = {'list_url': Contact.get_lv_absolute_url()}
         # self.assertGET403(url, data=data)
-        url = self._build_dl_url(self.ct, list_url=self._set_listview_state())
+        url = self._build_dl_url(self.ct, list_url=Contact.get_lv_absolute_url())
         self.assertGET403(url)
 
         self.role.exportable_ctypes = [self.ct]  # Set the 'export' credentials
@@ -267,9 +267,9 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertTrue(user.has_perm_to_view(organisations['Swordfish']))
 
         # response = self.assertGET200(self._build_url(self.ct),
-        #                              data = {'list_url': self._set_listview_state()}
+        #                              data = {'list_url': Contact.get_lv_absolute_url()}
         #                            )
-        response = self.assertGET200(self._build_dl_url(self.ct, list_url=self._set_listview_state()))
+        response = self.assertGET200(self._build_dl_url(self.ct, list_url=Contact.get_lv_absolute_url()))
         result = map(force_unicode, response.content.splitlines())
         self.assertEqual(result[1], '"","Black","Jet","",""')
         self.assertEqual(result[2], '"","Spiegel","Spike","Swordfish",""')
@@ -287,7 +287,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         spike = Contact.objects.create(user=user, first_name='Spike', last_name='Spiegel')
 
-        lv_url = self._set_listview_state()
+        lv_url = Contact.get_lv_absolute_url()
         # response = self.assertGET200(self._build_url(self.ct), data={'list_url': lv_url})
         response = self.assertGET200(self._build_dl_url(self.ct, list_url=lv_url))
 
@@ -322,7 +322,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                        ],
                            )
 
-        lv_url = self._set_listview_state()
+        lv_url = Contact.get_lv_absolute_url()
         # response = self.assertGET200(self._build_url(self.ct), data={'list_url': lv_url})
         response = self.assertGET200(self._build_dl_url(self.ct, list_url=lv_url))
         it = (force_unicode(line) for line in response.content.splitlines()); it.next()
@@ -352,7 +352,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                        ],
                            )
 
-        lv_url = self._set_listview_state(model=EmailCampaign)
+        lv_url = EmailCampaign.get_lv_absolute_url()
         # response = self.assertGET200(self._build_url(ContentType.objects.get_for_model(EmailCampaign)),
         #                              data = {'list_url': lv_url}
         #                             )
@@ -371,7 +371,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         "FieldsConfig"
         self.login()
         self._build_hf_n_contacts()
-        lv_url = self._set_listview_state()
+        lv_url = Contact.get_lv_absolute_url()
 
         FieldsConfig.create(Contact,
                             descriptions=[('first_name', {FieldsConfig.HIDDEN: True})],
@@ -395,7 +395,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
     def test_xls_export01(self):
         self.login()
         cells = self._build_hf_n_contacts()
-        lv_url = self._set_listview_state()
+        lv_url = Contact.get_lv_absolute_url()
         # response = self.assertGET200(self._build_url(self.ct, doc_type='xls'),
         #                              data = {'list_url': lv_url}, follow = True,
         #                             )
@@ -433,11 +433,11 @@ class CSVExportViewsTestCase(ViewsTestCase):
                            )
 
         # response = self.assertGET200(self._build_url(ContentType.objects.get_for_model(Organisation), doc_type='xls'),
-        #                              data = {'list_url': self._set_listview_state(model=Organisation)}, follow = True,
+        #                              data = {'list_url': Organisation.get_lv_absolute_url()}, follow = True,
         #                             )
         response = self.assertGET200(self._build_dl_url(ContentType.objects.get_for_model(Organisation),
                                                         doc_type='xls',
-                                                        list_url=self._set_listview_state(model=Organisation),
+                                                        list_url=Organisation.get_lv_absolute_url(),
                                                        ),
                                      follow=True,
                                     )
@@ -462,7 +462,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
                             cells_desc=[build(name='name'), build(name='capital')],
                            )
 
-        lv_url = self._set_listview_state(model=Organisation)
+        lv_url = Organisation.get_lv_absolute_url()
         # response = self.assertGET200(self._build_url(ContentType.objects.get_for_model(Organisation)),
         #                              data = {'list_url': lv_url}, follow = True,
         #                             )
@@ -497,7 +497,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                        ],
                            )
 
-        lv_url = self._set_listview_state(model=FakeInvoiceLine)
+        lv_url = FakeInvoiceLine.get_lv_absolute_url()
         # response = self.assertGET200(self._build_url(ContentType.objects.get_for_model(FakeInvoiceLine)),
         #                              data = {'list_url': lv_url}, follow = True,
         #                             )
@@ -584,9 +584,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         # Set the current list view state, with the quick search
         lv_url = EmailCampaign.get_lv_absolute_url()
         response = self.assertPOST200(lv_url,
-                                      data={'_search': 1,
-                                            'regular_field-mailing_lists': 'staff',
-                                           }
+                                      data={'regular_field-mailing_lists': 'staff'}
                                      )
         content = self._get_lv_content(response)
         self.assertCountOccurrences(camp1.name, content, count=1)  # Not 2

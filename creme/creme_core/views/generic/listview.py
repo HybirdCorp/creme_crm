@@ -19,6 +19,7 @@
 ################################################################################
 
 from json import loads as json_load, dumps as json_dump
+
 import logging, warnings
 
 from django.conf import settings
@@ -31,7 +32,7 @@ from django.utils.translation import ugettext as _
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import EntityCellActions
 from creme.creme_core.core.paginator import FlowPaginator, LastPage
-from creme.creme_core.gui.listview import ListViewState
+from creme.creme_core.gui.listview import ListViewState, NoHeaderFilterAvailable
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.entity_filter import EntityFilterList
 from creme.creme_core.models.header_filter import HeaderFilterList
@@ -46,10 +47,6 @@ logger = logging.getLogger(__name__)
 # MODE_NORMAL = 0  # TODO ? (no selection)
 MODE_SINGLE_SELECTION = 1
 MODE_MULTIPLE_SELECTION = 2
-
-
-class NoHeaderFilterAvailable(Exception):
-    pass
 
 
 def str_to_mode(value):
@@ -145,13 +142,13 @@ def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filt
 #         entities_page = paginator.page(paginator.num_pages)
 #
 #     return entities_page
-def _build_entities_page(request, list_view_state, queryset, size, count, ordering, fast_mode=False):
+def _build_entities_page(arguments, list_view_state, queryset, size, count, ordering, fast_mode=False):
     if not fast_mode:
         paginator = Paginator(queryset, size)
         paginator._count = count
 
         try:
-            page = int(request.POST['page'])
+            page = int(arguments['page'])
         except (KeyError, ValueError, TypeError):
             page = list_view_state.page or 1
 
@@ -163,7 +160,7 @@ def _build_entities_page(request, list_view_state, queryset, size, count, orderi
         list_view_state.page = entities_page.number
     else:
         paginator = FlowPaginator(queryset=queryset, key=ordering[0], per_page=size, count=count)
-        page_str = request.POST.get('page') or str(list_view_state.page)
+        page_str = arguments.get('page') or str(list_view_state.page)
 
         try:
             page_info = json_load(page_str)
@@ -180,7 +177,7 @@ def _build_entities_page(request, list_view_state, queryset, size, count, orderi
         except InvalidPage:
             entities_page = paginator.page()
 
-        list_view_state.page = json_dump(entities_page.info())
+        list_view_state.page = json_dump(entities_page.info(), separators=(',', ':'))
 
     return entities_page
 
@@ -198,7 +195,7 @@ def _build_extrafilter(request, extra_filter=None):
     if extra_filter is not None:
         q_filter &= extra_filter
 
-    return json_q_filter, q_filter
+    return json_dump(q_filter_as_dict, separators=(',', ':')), q_filter
 
 
 def _select_entityfilter(request, entity_filters, default_filter):
@@ -210,11 +207,28 @@ def _select_entityfilter(request, entity_filters, default_filter):
     return entity_filters.select_by_id(efilter_id)
 
 
+def _build_rowscount(arguments, list_view_state):
+    PAGE_SIZES = settings.PAGE_SIZES
+
+    try:
+        rows = int(arguments.get('rows'))
+    except (ValueError, TypeError):
+        rows = list_view_state.rows or PAGE_SIZES[settings.DEFAULT_PAGE_SIZE_IDX]
+    else:
+        if rows not in PAGE_SIZES:
+            rows = PAGE_SIZES[settings.DEFAULT_PAGE_SIZE_IDX]
+
+        list_view_state.rows = rows
+
+    return rows
+
+
 # TODO: use mode=MODE_* instead of "o2m"
 def list_view_content(request, model, hf_pk='', extra_dict=None,
                       template='creme_core/generics/list_entities.html',
-                      show_actions=True, extra_q=None, o2m=False, post_process=None,
+                      show_actions=True, extra_q=None, mode=MODE_MULTIPLE_SELECTION, post_process=None,
                       content_template='creme_core/frags/list_view_content.html',
+                      lv_state_id=None
                      ):
     """ Generic list_view wrapper / generator
     Accepts only CremeEntity model and subclasses.
@@ -223,51 +237,31 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
     """
     assert issubclass(model, CremeEntity), '%s is not a subclass of CremeEntity' % model
 
-    POST_get = request.POST.get
-    current_lvs = ListViewState.get_state(request)
-
-    if current_lvs is None:
-        current_lvs = ListViewState.build_from_request(request)  # TODO: move to ListViewState.get_state() ???
-
     PAGE_SIZES = settings.PAGE_SIZES
 
-    try:
-        rows = int(POST_get('rows'))
-    except (ValueError, TypeError):
-        rows = current_lvs.rows or PAGE_SIZES[settings.DEFAULT_PAGE_SIZE_IDX]
-    else:
-        if rows not in PAGE_SIZES:
-            rows = PAGE_SIZES[settings.DEFAULT_PAGE_SIZE_IDX]
+    is_GET = request.method == 'GET'
+    arguments = request.GET if is_GET else request.POST
+    lv_state_id = lv_state_id or request.path
+    current_lvs = ListViewState.get_or_create_state(request, url=lv_state_id)
 
-        current_lvs.rows = rows
+    rows = _build_rowscount(arguments, current_lvs)
 
-    try:
-        # TODO: rename '_search' attribute & POST param
-        current_lvs._search = search = bool(int(POST_get('_search')))
-    except (ValueError, TypeError):
-        search = current_lvs._search or False
-
+    transient = is_GET or (arguments.get('transient') in ('1', 'true'))
     ct = ContentType.objects.get_for_model(model)
     user = request.user
     header_filters = HeaderFilterList(ct, user)
-    # Try first to get the posted header filter which is the most recent.
-    # Then try to retrieve the header filter from session, then fallback
-    hf = header_filters.select_by_id(POST_get('hfilter', -1),
-                                     current_lvs.header_filter_id,
-                                     hf_pk,
-                                    )
 
-    if hf is None:
-        raise NoHeaderFilterAvailable()
-
-    current_lvs.header_filter_id = hf.id
-
+    hf = current_lvs.set_headerfilter(header_filters, arguments.get('hfilter', -1), hf_pk)
     cells = hf.cells
 
     if show_actions:
         cells.insert(0, EntityCellActions())
 
-    current_lvs.handle_research(request, cells)
+    if arguments.get('search', '') == 'clear':
+        current_lvs.clear_research()
+    else:
+        current_lvs.handle_research(arguments, cells, merge=transient)
+
     # current_lvs.set_sort(model, cells,
     #                      POST_get('sort_field', current_lvs.sort_field),
     #                      POST_get('sort_order', current_lvs.sort_order),
@@ -282,17 +276,18 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
     entities, count = _build_entity_queryset(request, model, current_lvs, extra_filter, efilter, hf)
     fast_mode = (count >= settings.FAST_QUERY_MODE_THRESHOLD)
     ordering = current_lvs.set_sort(model, cells,
-                                    cell_key=POST_get('sort_field', current_lvs.sort_field),
-                                    order=POST_get('sort_order', current_lvs.sort_order),
+                                    cell_key=arguments.get('sort_field', current_lvs.sort_field),
+                                    order=arguments.get('sort_order', current_lvs.sort_order),
                                     fast_mode=fast_mode,
                                    )
 
     # entities_page = _build_entities_page(request, current_lvs, entities, rows, count)
-    entities_page = _build_entities_page(request, current_lvs, entities.order_by(*ordering),
+    entities_page = _build_entities_page(arguments, current_lvs, entities.order_by(*ordering),
                                          size=rows, count=count, ordering=ordering, fast_mode=fast_mode,
                                         )
 
-    current_lvs.register_in_session(request)
+    if not transient:
+        current_lvs.register_in_session(request)
 
     template_dict = {
         'model':              model,
@@ -304,22 +299,22 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
         'list_view_state':    current_lvs,
         'content_type':       ct,
         'content_type_id':    ct.id,
-        'search':             search,
+        'search':             len(current_lvs.research) > 0,
         'content_template':   content_template,
         'page_sizes':         PAGE_SIZES,
-        'o2m':                o2m,
+        'o2m':                (mode == MODE_MULTIPLE_SELECTION),
         'add_url':            model.get_create_absolute_url(),
         'extra_bt_templates': None,  # TODO: () instead ???,
         'show_actions':       show_actions,
         'q_filter':           json_q_filter,
-        'research_cellkeys':  {cell_key for cell_key, value in current_lvs.research},
+        'research_cellkeys':  {cell_key for cell_key, _value in current_lvs.research},
         'is_popup_view':      False,
     }
 
     if extra_dict:
         template_dict.update(extra_dict)
 
-    if request.GET.get('ajax', False):  # TODO: request.is_ajax() ?
+    if request.is_ajax():
         template = template_dict['content_template']
 
     if post_process:
@@ -366,7 +361,7 @@ def list_view_popup_from_widget(request, ct_id, o2m, **kwargs):
 
 
 # TODO: add a no-selection mode ??
-def list_view_popup(request, model, mode=MODE_SINGLE_SELECTION, **kwargs):
+def list_view_popup(request, model, mode=MODE_SINGLE_SELECTION, lv_state_id=None, **kwargs):
     """ Displays a list-view selector in an inner popup.
     @param model: Class inheriting CremeEntity.
     @param mode: Selection mode, in (MODE_SINGLE_SELECTION, MODE_MULTIPLE_SELECTION).
@@ -378,12 +373,13 @@ def list_view_popup(request, model, mode=MODE_SINGLE_SELECTION, **kwargs):
         raise Http404(_(u'You are not allowed to access to this app'))
 
     # TODO: only use GET of GET request etc...
-    req_get = lambda k, default=None: request.POST.get(k, default) or request.GET.get(k, default)
-    kwargs['show_actions'] = bool(int(req_get('sa', False)))
+    request_get = request.GET.get
+    kwargs['show_actions'] = bool(int(request_get('sa', False)))
     extra_dict = {
-        'js_handler':    req_get('js_handler'),
-        'js_arguments':  req_get('js_arguments'),
-        'whoami':        req_get('whoami'),
+    # TODO: never used ?
+#         'js_handler':    request_get('js_handler'),
+#         'js_arguments':  request_get('js_arguments'),
+        'whoami':        request_get('whoami'),
         'is_popup_view': True,
     }
 
@@ -395,7 +391,8 @@ def list_view_popup(request, model, mode=MODE_SINGLE_SELECTION, **kwargs):
         template_name, template_dict = list_view_content(request, model=model, extra_dict=extra_dict,
                                                          template='creme_core/frags/list_view.html',
                                                          extra_q=extra_q,
-                                                         o2m=True if mode == MODE_SINGLE_SELECTION else False,
+                                                         mode=mode,
+                                                         lv_state_id=lv_state_id,
                                                          **kwargs
                                                         )
     except NoHeaderFilterAvailable:
