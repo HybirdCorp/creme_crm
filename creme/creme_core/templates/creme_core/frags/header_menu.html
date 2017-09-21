@@ -1,4 +1,4 @@
-{% load i18n creme_core_tags creme_menu %}
+{% load i18n creme_core_tags creme_menu creme_widgets %}
 <div class="header-menu">
     <a id="logo" href="/" alt="{% trans 'Home' %}">
         <img src="{% creme_media_url logo_url %}" height="30" width="30" alt="{% trans 'Home' %}">
@@ -8,17 +8,18 @@
     <div class="accessories-box">
         <div class="search-box">
             <input type="text" placeholder="{% trans 'Search' %}">
-            <span class='search-box-icon default'>
-                <img class='search-icon-loading' src="{% creme_media_url 'images/wait.gif' %}" width='16' height='16' />
-                <img class='search-icon-default' src="{% creme_media_url 'images/search_22.png' %}" width='16' height='16' />
+            <span class="search-box-icon default">
+{#                <img class="search-icon-loading" src="{% creme_media_url 'images/wait.gif' %}" width='16' height='16' /> #}
+                {% widget_icon name='wait' size='header-menu' label=_('Loading…') class='search-icon-loading' %}
+{#                <img class='search-icon-default' src="{% creme_media_url 'images/search_22.png' %}" width='16' height='16' /> #}
+                {% widget_icon name='search' size='header-menu' label=_('Search') class='search-icon-default' %}
             </span>
 
-            <div class='inline-search-results'>
-                <div class='search-results-group all-search-results'>
-                    <span class='search-results-group-title'></span>
-                    <ul class='search-results'>
-{#                        <li class='search-result'><a href='/creme_core/search'>{% trans "Advanced search" %}</a></li> #}
-                        <li class='search-result'><a href='{% url 'creme_core__search' %}'>{% trans "Advanced search" %}</a></li>
+            <div class="inline-search-results">
+                <div class="search-results-group all-search-results">
+                    <span class="search-results-group-title"></span>
+                    <ul class="search-results">
+                        <li class="search-result"><a href="{% url 'creme_core__search' %}">{% trans 'Advanced search' %}</a></li>
                     </ul>
                 </div>
             </div>
@@ -38,7 +39,6 @@
                 creme.menu.openCreateAnyDialog(e.target);
             });
 
-{#            new creme.search.SearchBox('.search-box', '/creme_core/search/light/', '/creme_core/search'); #}
             new creme.search.SearchBox('.search-box', '{% url 'creme_core__light_search' %}', '{% url 'creme_core__search' %}');
         })
     </script>

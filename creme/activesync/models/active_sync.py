@@ -43,13 +43,14 @@ IN_CREME  = 1
 ON_SERVER = 2
 
 USER_HISTORY_TYPE = (
-    (CREATE, _(u"Creation")),
-    (UPDATE, _(u"Update")),
-    (DELETE, _(u"Deletion")),
+    (CREATE, _(u'Creation')),
+    (UPDATE, _(u'Update')),
+    (DELETE, _(u'Deletion')),
 )
 
 USER_HISTORY_TYPE_VERBOSE = dict(USER_HISTORY_TYPE)
 
+# DEPRECATED
 USER_HISTORY_TYPE_IMG = {
     CREATE: "images/add_22.png",
     UPDATE: "images/edit_22_button.png",
@@ -57,13 +58,14 @@ USER_HISTORY_TYPE_IMG = {
 }
 
 USER_HISTORY_WHERE = (
-    (IN_CREME, _(u"In Creme")),
-    (ON_SERVER, _(u"On server")),
+    (IN_CREME, _(u'In Creme')),
+    (ON_SERVER, _(u'On server')),
 )
 
+# DEPRECATED
 USER_HISTORY_WHERE_IMG = {
     IN_CREME:  "images/creme_22.png",
-    ON_SERVER: "images/organisation_22.png",#TODO: Change this icon for a server icon
+    ON_SERVER: "images/organisation_22.png",  # todo: Change this icon for a server icon
 }
 
 USER_HISTORY_WHERE_VERBOSE = dict(USER_HISTORY_WHERE)
@@ -71,22 +73,21 @@ USER_HISTORY_WHERE_VERBOSE = dict(USER_HISTORY_WHERE)
 
 class CremeExchangeMapping(CremeModel):
     creme_entity_id    = IntegerField(u'Creme entity pk', unique=True)
-    #creme_entity_ct    = ForeignKey(ContentType, verbose_name=u'Creme entity ct')#For filtering when the entity was deleted
-    creme_entity_ct    = CTypeForeignKey(verbose_name=u'Creme entity ct')#For filtering when the entity was deleted
+    creme_entity_ct    = CTypeForeignKey(verbose_name=u'Creme entity ct')  # For filtering when the entity was deleted
     exchange_entity_id = CharField(u'Exchange entity pk', max_length=64, unique=True)
     synced             = BooleanField(u'Already synced on server', default=False)
     is_creme_modified  = BooleanField(u'Modified by creme?',       default=False)
-    was_deleted        = BooleanField(u'Was deleted by creme?',    default=False) #Seems redundant with is_deleted but isn't in case of real deletion
+    was_deleted        = BooleanField(u'Was deleted by creme?',    default=False)  # Seems redundant with is_deleted but isn't in case of real deletion
     user               = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=u'Belongs to')
-    creme_entity_repr  = CharField(u'Verbose entity representation', max_length=200, null=True, blank=True, default=u"")#IHM/User purposes
+    creme_entity_repr  = CharField(u'Verbose entity representation', max_length=200, null=True, blank=True, default=u"")  # IHM/User purposes
 
     def __unicode__(self):
         return u"<CremeExchangeMapping ce_id: <%s>, ex_id: <%s>, belongs to %s>" % (self.creme_entity_id, self.exchange_entity_id, self.user)
 
     class Meta:
         app_label = 'activesync'
-        verbose_name = u""
-        verbose_name_plural = u""
+        # verbose_name = u""
+        # verbose_name_plural = u""
 
     def get_entity(self):
         entity = None
@@ -116,8 +117,8 @@ class CremeClient(CremeModel):
 
     class Meta:
         app_label = 'activesync'
-        verbose_name = u""
-        verbose_name_plural = u""
+        # verbose_name = u""
+        # verbose_name_plural = u""
 
     def purge(self):
         SyncKeyHistory.objects.filter(client=self).delete()
@@ -129,12 +130,12 @@ class CremeClient(CremeModel):
 class SyncKeyHistory(CremeModel):
     client   = ForeignKey(CremeClient, verbose_name=u'client')
     sync_key = CharField(u'sync key', max_length=200, default=None, blank=True, null=True)
-    created  = CreationDateTimeField(_('Creation date'))
+    created  = CreationDateTimeField(_(u'Creation date'))
 
     class Meta:
         app_label = 'activesync'
-        verbose_name = u""
-        verbose_name_plural = u""
+        # verbose_name = u""
+        # verbose_name_plural = u""
 
     def save(self, *args, **kwargs):
         client_synckeys = SyncKeyHistory.objects.filter(client=self.client)
@@ -197,15 +198,13 @@ def _empty_dump():
 
 class UserSynchronizationHistory(CremeModel):
     user           = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'User'))
-    entity_repr    = CharField(u'Entity', max_length=200, default=None, blank=True, null=True)#Saving the representation of the entity in case it was deleted
-    entity_pk      = IntegerField(u'Entity pk', blank=True, null=True) #Saving the pk of the entity
-    #entity_ct      = ForeignKey(ContentType, verbose_name=u'What', null=True, blank=True)
+    entity_repr    = CharField(u'Entity', max_length=200, default=None, blank=True, null=True)  # Saving the representation of the entity in case it was deleted
+    entity_pk      = IntegerField(u'Entity pk', blank=True, null=True)  # Saving the pk of the entity
     entity_ct      = CTypeForeignKey(verbose_name=_(u'What'), null=True, blank=True)
     created        = CreationDateTimeField(_(u'Creation date'), default=now)
-    #entity_changes = TextField(_(u'Entity changes'), default=lambda: pickle.dumps({}))
     entity_changes = TextField(_(u'Entity changes'), default=_empty_dump)
-    type           = IntegerField(_(u'Type'), choices=USER_HISTORY_TYPE) # TODO: SmallPositiveInteger ?
-    where          = IntegerField(_(u'Where'), choices=USER_HISTORY_WHERE) # TODO: SmallPositiveInteger ?
+    type           = IntegerField(_(u'Type'), choices=USER_HISTORY_TYPE)  # TODO: SmallPositiveInteger ?
+    where          = IntegerField(_(u'Where'), choices=USER_HISTORY_WHERE)  # TODO: SmallPositiveInteger ?
 
     _entity = None
 
@@ -264,8 +263,8 @@ class UserSynchronizationHistory(CremeModel):
                     changes[k] = model_class._default_manager.get(pk=v['pk'])
                 except model_class.DoesNotExist:
                     changes[k] = _(u"This entity doesn't exist anymore")
-        return changes
 
+        return changes
 
     def _set_changes(self, entity_changes):
         """ Set changes in self.entity_changes
@@ -325,24 +324,24 @@ class UserSynchronizationHistory(CremeModel):
 
 class AS_Folder(CremeModel):
     client       = ForeignKey(CremeClient, verbose_name=u'client')
-    server_id    = CharField(u'Server id',    max_length=200)#Folder id on server
-    parent_id    = CharField(u'Server id',    max_length=200, blank=True, null=True)#Parent id of this folder on the server
+    server_id    = CharField(u'Server id',    max_length=200)  # Folder id on server
+    parent_id    = CharField(u'Server id',    max_length=200, blank=True, null=True)  # Parent id of this folder on the server
     display_name = CharField(u'Display name', max_length=200, default="")
     type         = IntegerField(u'Type') # TODO: SmallPositiveInteger ??
     sync_key     = CharField(u'sync key',     max_length=200, default=None, blank=True, null=True)
     as_class     = CharField(u'class',        max_length=25, default=None, blank=True, null=True)
-    entity_id    = CharField(u'Entity id',    max_length=200, default=None, blank=True, null=True)#A reference to something in Creme (currently used for Calendars mapping)
+    entity_id    = CharField(u'Entity id',    max_length=200, default=None, blank=True, null=True)  # A reference to something in Creme (currently used for Calendars mapping)
 
     def __unicode__(self):
         return u"<AS_Folder for <%s> >" % self.client.user
 
     class Meta:
         app_label = 'activesync'
-        verbose_name = u""
-        verbose_name_plural = u""
+        # verbose_name = u""
+        # verbose_name_plural = u""
 
     def get_parent(self):
-        if self.parent_id is not None: #TODO: WTF ??!
+        if self.parent_id is not None:  # TODO: WTF ??!
             return None
 
         try:

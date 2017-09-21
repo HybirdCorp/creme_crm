@@ -1,9 +1,10 @@
-{% load i18n creme_core_tags %}
+{% load i18n creme_widgets %}{# creme_core_tags  #}
 <div class="research_box">
 {#    <form method="GET" action="/creme_core/search"> #}
     <form method="GET" action="{% url 'creme_core__search' %}">
         <span>{% trans "Search" context "creme_core-verb" as label %}
-            <img border="0" title="{{label}}" alt="{{label}}" src="{% creme_media_url 'images/search_22.png' %}" align="top">
+{#            <img border="0" title="{{label}}" alt="{{label}}" src="{% creme_media_url 'images/search_22.png' %}" align="top"> #}
+            {% widget_icon name='search' size='small' label=label %}
             <select name="ct_id">
                 <option value="">{% trans "All" %}</option>
                 <option disabled>------</option>

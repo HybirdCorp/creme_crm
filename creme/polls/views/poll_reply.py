@@ -31,8 +31,9 @@ from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
+from creme.creme_core.templatetags.creme_widgets import get_icon_by_name, get_icon_size_px
 from creme.creme_core.utils import get_from_POST_or_404, update_model_instance
-from creme.creme_core.utils.media import creme_media_themed_url as media_url
+from creme.creme_core.utils.media import get_current_theme  # creme_media_themed_url as media_url
 from creme.creme_core.views.generic import (add_model_with_popup, edit_entity,
         inner_popup, view_entity, list_view, add_to_entity)
 from creme.creme_core.views.utils import build_cancel_path
@@ -217,10 +218,12 @@ def _format_previous_answered_question(preply_id, line, style):
         answer = escape(line.answer)
 
     number = style.number(line)
+    theme = get_current_theme()
+
     return mark_safe(u'<b>%(title)s</b><br>'
                       '%(label)s : %(number)s %(question)s<br>'
                       # '%(answer_str)s : %(answer)s <a class="add" href="/polls/poll_reply/%(mreply_id)s/line/%(line_id)s/edit_wizard"><img src="%(img_src)s" alt="Edit" title="Edit"></a>'
-                      '%(answer_str)s : %(answer)s <a class="add" href="%(url)s"><img src="%(img_src)s" alt="Edit" title="Edit"></a>'
+                      '%(answer_str)s : %(answer)s <a class="add" href="%(url)s">%(icon)s</a>'
                         % {'title':         ugettext(u'Reminder of the previous answered question :'),
                            'label':         ugettext('Question'),
                            'number':        '%s -' % number if number != 'None' else '',
@@ -230,10 +233,13 @@ def _format_previous_answered_question(preply_id, line, style):
                            'url':           reverse('polls__edit_reply_line_wizard', args=(preply_id, line.id)),
                            # 'mreply_id':     preply_id,
                            # 'line_id':       line.id,
-                           'img_src':       media_url('images/edit_16.png'),
+                           # 'img_src':       media_url('images/edit_16.png'),
+                           'icon':          get_icon_by_name('edit', theme=theme, label=_(u'Edit'),
+                                                             size_px=get_icon_size_px(theme, size='instance-button'),
+                                                            ).render(css_class='polls-previous-edition'),
                           }
                     )
-# /polls/poll_reply/%(mreply_id)s/line/%(line_id)s/edit_wizard
+
 
 @login_required
 @permission_required('polls')

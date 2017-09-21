@@ -1,7 +1,7 @@
-{% extends "creme_core/generics/portal.html" %}
-{% load i18n creme_core_tags %}
+{% extends 'creme_core/generics/portal.html' %}
+{% load i18n creme_widgets %}
 
-{% block logo %}<img src="{% creme_media_url 'images/contact_64.png' %}" alt="{% trans 'Contact' %}"/>{% endblock %}
+{% block logo %}{% widget_icon name='contact' size='brick-hat-bar' label=_('Contacts') %}{% endblock %}
 {% block title %}{% trans 'Accounts & contacts portal' %}{% endblock %}
 {% block list_url %}{% url 'persons__list_contacts' %}{% endblock %}
 {% block list_msg %}{% trans 'List of contacts' %}{% endblock %}

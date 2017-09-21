@@ -1,9 +1,11 @@
 {% extends 'creme_core/bricks/generic/hat-bar.html' %}
-{% load i18n creme_core_tags %}
+{% load i18n creme_widgets %}
 
 {% block buttons %}
-    <a href="{% url 'graphs__dl_image' object.id %}">
-        <img src="{% creme_media_url 'images/download_64.png' %}" title="{% blocktrans %}Download '{{object}}' as PNG file{% endblocktrans %}" alt="{% trans "Download PNG" %}"/>
-    </a>&nbsp;
+    <div class='bar-action'>
+        <a href="{% url 'graphs__dl_image' object.id %}">
+            {% widget_icon name='download' size='brick-hat-bar-button' label=_('Download as PNG file') %}
+        </a>
+    </div>
     {{block.super}}
 {% endblock %}

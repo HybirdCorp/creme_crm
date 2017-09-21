@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Graphs 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-12 15:06+0200\n"
+"POT-Creation-Date: 2017-09-13 21:25+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -67,7 +67,7 @@ msgctxt "graphs"
 msgid "Save the graph"
 msgstr "Enregistrer le graphe"
 
-#: models/graph.py:47 templates/graphs/portal.html:3
+#: models/graph.py:47 templates/graphs/portal.html:4
 msgctxt "graphs"
 msgid "Graph"
 msgstr "Graphe"
@@ -76,14 +76,9 @@ msgstr "Graphe"
 msgid "Graph view"
 msgstr "Vue de Graphe"
 
-#: templates/graphs/bricks/graph-hat-bar.html:6
-#, python-format
-msgid "Download '%(object)s' as PNG file"
-msgstr "Télécharger '%(object)s' sous forme de fichier PNG"
-
-#: templates/graphs/bricks/graph-hat-bar.html:6
-msgid "Download PNG"
-msgstr "Télécharger PNG"
+#: templates/graphs/bricks/graph-hat-bar.html:7
+msgid "Download as PNG file"
+msgstr "Télécharger sous forme de fichier PNG"
 
 #: templates/graphs/bricks/orbital-rtypes.html:7
 #, python-brace-format
@@ -173,11 +168,11 @@ msgstr "Enlever ce nœuds"
 msgid "No root node for the moment"
 msgstr "Pas de nœud racine pour le moment"
 
-#: templates/graphs/portal.html:4
+#: templates/graphs/portal.html:5
 msgid "Graphs portal"
 msgstr "Portail Graphes"
 
-#: templates/graphs/portal.html:6
+#: templates/graphs/portal.html:7
 msgctxt "graphs"
 msgid "List of Graphs"
 msgstr "Liste des Graphes"
@@ -240,6 +235,9 @@ msgstr "Ajouter des nœuds racines à «%s»"
 #, python-format
 msgid "Edit root node for «%s»"
 msgstr "Modifier le nœud racine pour «%s»"
+
+#~ msgid "Download PNG"
+#~ msgstr "Télécharger PNG"
 
 # msgctxt "graphs"
 #~ msgid "Add a graph"

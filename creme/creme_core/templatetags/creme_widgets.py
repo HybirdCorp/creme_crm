@@ -184,7 +184,7 @@ def do_render_icon(parser, token):
     """Render an Icon with additional CSS classes.
 
     {% widget_icon name='add' class='A' as my_icon %}
-    {% widget_render_icon my_icon class='B' %} {# The <img class="A B" ...> #}
+    {% widget_render_icon my_icon class='B' %} {# Outputs <img class="A B" ...> #}
     """
     bits = token.split_contents()
 

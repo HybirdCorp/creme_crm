@@ -1,7 +1,8 @@
 {% extends 'creme_core/generics/portal.html' %}
-{% load i18n creme_core_tags creme_bricks %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}
+
 {% block page_title %}{% trans 'Configuration' %} - {% endblock %}
-{% block logo %}<img src="{% creme_media_url 'images/config_64.png' %}" alt="{% trans 'Configuration' %}"/>{% endblock %}
+{% block logo %}{% widget_icon name='config' size='brick-hat-bar' label=_('Configuration') %}{% endblock %}
 {% block title %}{% trans 'Creme configuration portal' %}{% endblock %}
 {% block header_link %}{% endblock %}
 {% block creme_blocks_import %}{% endblock %}

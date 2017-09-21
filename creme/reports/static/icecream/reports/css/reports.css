@@ -114,3 +114,13 @@
 }
 
 /* graphs inside tables - end */
+
+button.reports-chart-selectors-refresh {
+    padding: 1px 1px;
+    vertical-align: middle;
+}
+
+.reports-chart-selectors-refresh img {
+    border: 0;
+    vertical-align: middle;
+}

@@ -1,6 +1,7 @@
-{% extends "creme_core/generics/portal.html" %}
-{% load i18n creme_core_tags %}
-{% block logo %}<img src="{% creme_media_url 'images/invoice_64.png' %}" alt=""/>{% endblock %}
-{% block title %}{% trans "Billing portal" %}{% endblock %}
+{% extends 'creme_core/generics/portal.html' %}
+{% load i18n creme_widgets %}
+
+{% block logo %}{% widget_icon name='invoice' size='brick-hat-bar' label=_('Billing') %}{% endblock %}
+{% block title %}{% trans 'Billing portal' %}{% endblock %}
 {% block list_url %}{% url 'billing__list_invoices' %}{% endblock %}
-{% block list_msg %}{% trans "List of invoices" %}{% endblock %}
+{% block list_msg %}{% trans 'List of invoices' %}{% endblock %}
