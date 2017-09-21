@@ -2,6 +2,9 @@
 
 try:
     from unittest import skipIf
+    from xml.etree import ElementTree
+
+    import html5lib
 
     from django.conf import settings
     from django.test.client import RequestFactory
@@ -749,57 +752,89 @@ class MenuTestCase(CremeTestCase):
 
     def test_render_url_item01(self):
         "URLItem with icon"
-        context = self.build_context()
+#         context = self.build_context()
+#
+#         icon = 'images/creme_30.png'
+#         html_fmt = \
+# """<a href="/">
+#     <img src="%s" height="30" width="30" alt="Home" />
+# </a>"""
+#
+#         def render(theme):
+#             context['THEME_NAME'] = theme
+#             item = URLItem('home', url='/', icon=icon, icon_label='Home')
+#
+#             self.assertHTMLEqual(html_fmt % get_creme_media_url(theme, icon),
+#                                  item.render(context)
+#                                 )
+#
+#         render('chantilly')
+#         render('icecream')
+        url = '/'
+        icon = 'creme'
+        label = 'Home'
+        item = URLItem('home', url=url, icon=icon, icon_label=label)
 
-        icon = 'images/creme_30.png'
-        html_fmt = \
-"""<a href="/">
-    <img src="%s" height="30" width="30" alt="Home" />
-</a>"""
+        elt = html5lib.parse(item.render(self.build_context()), namespaceHTMLElements=False)
+        a_node = elt.find('.//a')
+        self.assertEqual(url, a_node.get('href'))
 
-        def render(theme):
-            context['THEME_NAME'] = theme
-            item = URLItem('home', url='/', icon=icon, icon_label='Home')
+        children = list(a_node)
+        self.assertEqual(1, len(children))
 
-            self.assertHTMLEqual(html_fmt % get_creme_media_url(theme, icon),
-                                 item.render(context)
-                                )
-
-        render('chantilly')
-        render('icecream')
+        img_node = children[0]
+        self.assertEqual('img',              img_node.tag)
+        self.assertEqual('header-menu-icon', img_node.get('class'))
+        self.assertEqual(label,              img_node.get('alt'))
+        self.assertEqual(label,              img_node.get('title'))
+        self.assertIn(icon,                  img_node.get('src', ''))
+        self.assertFalse(img_node.tail)
 
     def test_render_url_item02(self):
         "URLItem with icon and label"
-        icon = 'images/creme_30.png'
+        # icon = 'images/creme_30.png'
+        icon = 'creme'
         my_label = 'HOME'
         item = URLItem('home', url='/', label=my_label,
                        icon=icon, icon_label='Home',
                        perm='creme_core',
                       )
 
-        self.assertHTMLEqual('<a href="/">'
-                                 '<img src="%s" height="30" width="30" alt="Home" />'
-                                 '%s'
-                             '</a>' % (get_creme_media_url(self.theme, icon), my_label),
-                             item.render(self.build_context())
-                            )
+        # self.assertHTMLEqual('<a href="/">'
+        #                          '<img src="%s" height="30" width="30" alt="Home" />'
+        #                          '%s'
+        #                      '</a>' % (get_creme_media_url(self.theme, icon), my_label),
+        #                      item.render(self.build_context())
+        #                     )
+        elt = html5lib.parse(item.render(self.build_context()), namespaceHTMLElements=False)
+        img_node = elt.find('.//a/img')
+        self.assertEqual('header-menu-icon', img_node.get('class'))
+        self.assertEqual(my_label,           img_node.tail)
 
     def test_render_url_item03(self):
         "Not allowed"
         self.login(is_superuser=False, allowed_apps=['creme_core'])
 
-        icon = 'images/creme_30.png'
+        # icon = 'images/creme_30.png'
+        icon = 'creme'
         my_label = 'HOME'
         item = URLItem('home', url='/', label=my_label, icon=icon, icon_label='Home',
                        perm='creme_core.add_fakecontact',
                       )
 
-        self.assertHTMLEqual('<span class="ui-creme-navigation-text-entry forbidden">'
-                                 '<img src="%s" height="30" width="30" alt="Home" />'
-                                 '%s'
-                             '</span>' % (get_creme_media_url(self.theme, icon), my_label),
-                             item.render(self.build_context())
-                            )
+        # self.assertHTMLEqual('<span class="ui-creme-navigation-text-entry forbidden">'
+        #                          '<img src="%s" height="30" width="30" alt="Home" />'
+        #                          '%s'
+        #                      '</span>' % (get_creme_media_url(self.theme, icon), my_label),
+        #                      item.render(self.build_context())
+        #                     )
+        elt = html5lib.parse(item.render(self.build_context()), namespaceHTMLElements=False)
+        span_node = elt.find('.//span')
+        self.assertEqual('ui-creme-navigation-text-entry forbidden', span_node.get('class'))
+
+        children = list(span_node)
+        self.assertEqual(1, len(children))
+        self.assertEqual('img', children[0].tag)
 
     def test_render_label_item(self):
         item_id = 'tools-title'
@@ -886,33 +921,56 @@ class MenuTestCase(CremeTestCase):
         context = self.build_context()
 
         label = 'Contacts'
-        icon = 'images/contact_32.png'
+        # icon = 'images/contact_32.png'
+        icon = 'contact'
         icon_label = 'Contact'
         parent = ContainerItem('persons', label=label, icon=icon, icon_label=icon_label) \
                     .add(URLItem('home', url='/persons/contacts', label='List of contacts'))
 
         render = parent.render(context, level=1)
-        idx = render.find('/>')
-        self.assertNotEqual(idx, -1)
+        # idx = render.find('/>')
+        # self.assertNotEqual(idx, -1)
+        #
+        # img_end = idx + 2  # 2 == len('/>')
+        # self.assertHTMLEqual('<img src="%s" height="30" width="30" alt="%s" />' % (
+        #                             get_creme_media_url(self.theme, icon),
+        #                             icon_label,
+        #                         ),
+        #                      render[:img_end]
+        #                     )
+        elt = html5lib.parse(render, namespaceHTMLElements=False)
 
-        img_end = idx + 2  # 2 == len('/>')
-        self.assertHTMLEqual('<img src="%s" height="30" width="30" alt="%s" />' % (
-                                    get_creme_media_url(self.theme, icon),
-                                    icon_label,
-                                ),
-                             render[:img_end]
-                            )
+        # ElementTree.dump(elt) >>>
+        # <html><head /><body>
+        #         <img alt="Contact" class="header-menu-icon"
+        #              src="/static_media/icecream/images/contact_16-....png" title="Contact" width="16dpx" />
+        #         Contacts
+        #         <ul>
+        #             <li class="ui-creme-navigation-item-level2 ui-creme-navigation-item-id_home">
+        #                  <a href="/persons/contacts">List of contacts</a>
+        #             </li>
+        #         </ul>
+        # </body>
+        img_node = elt.find('.//img')
+        self.assertIsNotNone(img_node, 'No <img> tag.')
+        self.assertEqual('header-menu-icon', img_node.get('class'))
+        self.assertEqual(icon_label,         img_node.get('alt'))
+        self.assertEqual(icon_label,         img_node.get('title'))
+        self.assertIn(icon,                  img_node.get('src', ''))
+        self.assertIn(label,                 img_node.tail)
 
-        ul_start = render.find('<', img_end)
-        self.assertNotEqual(idx, -1)
-        self.assertEqual(label, render[img_end:ul_start])
-
+        # ul_start = render.find('<', img_end)
+        # self.assertNotEqual(idx, -1)
+        # self.assertEqual(label, render[img_end:ul_start])
+        ul_node = elt.find('.//ul')
+        self.assertIsNotNone(ul_node, 'No <ul> tag.')
         self.assertHTMLEqual('<ul>'
                                  '<li class="ui-creme-navigation-item-id_home ui-creme-navigation-item-level2">'
                                      '<a href="/persons/contacts">List of contacts</a>'
                                  '</li>'
                              '</ul>',
-                             render[ul_start:]
+                             # render[ul_start:]
+                             ElementTree.tostring(ul_node)
                             )
 
     def test_render_menu(self):

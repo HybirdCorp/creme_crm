@@ -33,7 +33,8 @@ from django.utils.translation import ugettext as _, ungettext, ugettext_lazy
 from ..auth import build_creation_perm as cperm
 from ..models import CremeEntity
 # from ..registry import creme_registry
-from ..utils.media import get_creme_media_url
+from ..templatetags.creme_widgets import get_icon_size_px, get_icon_by_name
+from ..utils.media import get_current_theme_from_context  # get_creme_media_url
 from ..utils.unicode_collation import collator
 
 
@@ -174,12 +175,18 @@ else:
         def render_icon(self, context):
             icon = self.icon
 
-            # TODO: what about 'height="30" width="30"' ??
-            return '<img height="30" width="30" src="%s" alt="%s" />' % (
-                # TODO: factorise with {% creme_media_url ... %}
-                get_creme_media_url(context.get('THEME_NAME', 'icecream'), icon),
-                self.icon_label,
-            ) if icon else ''
+            # return '<img height="30" width="30" src="%s" alt="%s" />' % (
+            #     get_creme_media_url(context.get('THEME_NAME', 'icecream'), icon),
+            #     self.icon_label,
+            # ) if icon else ''
+            if icon:
+                theme = get_current_theme_from_context(context)
+
+                return get_icon_by_name(icon, theme, label=self.icon_label,
+                                        size_px=get_icon_size_px(theme, size='brick-header'),
+                                       ).render(css_class='header-menu-icon')
+
+            return ''
 
         def render_label(self, context):
             return self.label

@@ -72,6 +72,8 @@ _ICON_SIZES_MAP = {
         'tiny':   16,
 
         # Semantic sizes (use these ones)
+        'header-menu': 22,
+
         # Brick sizes
         'brick-header':        48,
         'brick-header-action': 22,
@@ -94,6 +96,9 @@ _ICON_SIZES_MAP = {
         'brick-hat-card-summary': 22,
         'brick-hat-card-button':  32,
 
+        # Forms
+        'form-widget': 22,
+
         # Buttons
         'global-button':   32,
         'instance-button': 32,
@@ -107,6 +112,8 @@ _ICON_SIZES_MAP = {
         'tiny':   12,
 
         # Semantic sizes (use these ones)
+        'header-menu': 16,
+
         # Brick sizes
         'brick-header':           16,
         'brick-header-action':    12,  # TODO: 10 ?
@@ -129,9 +136,12 @@ _ICON_SIZES_MAP = {
         'brick-hat-card-summary': 16,
         'brick-hat-card-button':  16,
 
+        # Forms
+        'form-widget': 16,
+
         # Buttons
-        'global-button':          16,
-        'instance-button':        16,
+        'global-button':   16,
+        'instance-button': 16,
     },
 }
 

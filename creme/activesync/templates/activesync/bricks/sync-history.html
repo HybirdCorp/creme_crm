@@ -21,7 +21,9 @@
     <tr>
         <td {% brick_table_data_status primary %}>
             {% with verbose_type=history_type_verbose|get_value:history.type %}
-                <span class="logo"><img src="{% get_history_type_img history.type %}" title="{{verbose_type}}" alt="{{verbose_type}}"/></span>
+{#                <span class="logo"><img src="{% get_history_type_img history.type %}" title="{{verbose_type}}" alt="{{verbose_type}}"/></span> #}
+                {% activesync_history_type_icon_name history.type as type_icon_name %}
+                {% widget_icon name=type_icon_name size='brick-table' label=verbose_type class='activesync-history-type' %}
                 {{verbose_type}}
             {% endwith %}
         </td>
@@ -46,7 +48,9 @@
         </td>
         <td>
             {% with verbose_where=history_where_verbose|get_value:history.where %}
-                <span class="logo"><img src="{% get_history_where_img history.where %}" title="{{verbose_where}}" alt="{{verbose_where}}"/></span>
+{#                <span class="logo"><img src="{% get_history_where_img history.where %}" title="{{verbose_where}}" alt="{{verbose_where}}"/></span> #}
+                {% activesync_history_where_icon_name history.type as where_icon_name %}
+                {% widget_icon name=where_icon_name size='brick-table' label=verbose_where class='activesync-history-where' %}
                 {{verbose_where}}
             {% endwith %}
         </td>

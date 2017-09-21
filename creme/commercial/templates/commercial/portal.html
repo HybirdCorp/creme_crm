@@ -1,6 +1,6 @@
-{% extends "creme_core/generics/portal.html" %}
-{% load i18n creme_core_tags %}
-{% block logo %}<img src="{% creme_media_url 'images/commercial_64.png' %}" alt=""/>{% endblock %}
-{% block title %}{% trans "Commercial portal" %}{% endblock %}
+{% extends 'creme_core/generics/portal.html' %}
+{% load i18n creme_widgets %}
+{% block logo %}{% widget_icon name='commercial' size='brick-hat-bar' label=_('Commercial strategy') %}{% endblock %}
+{% block title %}{% trans 'Commercial portal' %}{% endblock %}
 {% block list_url %}{% url 'commercial__list_acts' %}{% endblock %}
-{% block list_msg %}{% trans "List of commercial actions" %}{% endblock %}
+{% block list_msg %}{% trans 'List of commercial actions' %}{% endblock %}

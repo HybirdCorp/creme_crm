@@ -1,5 +1,5 @@
-{% load i18n creme_core_tags %}
-{# <a class="menu_button" href="/vcfs/{{object.id}}/generate_vcf"> #}
-<a class="menu_button" href="{% url 'vcfs__export' object.id %}">
-    {% trans "Generate a VCF" as label %}<img src="{% creme_media_url 'images/ticket_32.png' %}" border="0" title="{{label}}" alt="{{label}}" />{{label}}
+{% load i18n creme_widgets %}
+<a class="menu_button" href="{% url 'vcfs__export' object.id %}">{% trans 'Generate a VCF' as label %}
+    {% widget_icon name='ticket' size='instance-button' label=label %}
+    {{label}}
 </a>

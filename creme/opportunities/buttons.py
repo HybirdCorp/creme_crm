@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,18 +26,15 @@ from creme.creme_core.gui.button_menu import Button
 from . import get_opportunity_model
 
 
-Opportunity = get_opportunity_model()
-
-
 class LinkedOpportunityButton(Button):
     id_           = Button.generate_id('opportunities', 'linked_opportunity')
     verbose_name  = _(u'Create a linked opportunity')
     template_name = 'opportunities/templatetags/button_linked_opp.html'
-    permission    = cperm(Opportunity)
+    permission    = cperm(get_opportunity_model())
 
     def get_ctypes(self):
-        from creme.persons import get_contact_model, get_organisation_model
-        return (get_organisation_model(), get_contact_model())
+        from creme import persons
+        return (persons.get_organisation_model(), persons.get_contact_model())
 
 
 linked_opportunity_button = LinkedOpportunityButton()

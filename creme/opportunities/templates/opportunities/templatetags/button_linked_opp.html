@@ -1,14 +1,12 @@
-{% load i18n %}
-{% load creme_core_tags %}{% has_perm_to link object as link_perm %}
-{% trans "Opportunity" as img_title %}
+{% load i18n creme_core_tags creme_widgets %}{% has_perm_to link object as link_perm %}
 {% if has_perm and link_perm %}
     <a class="menu_button" href="{% url 'opportunities__create_related_opportunity' object.id %}" title="{% blocktrans %}Create an opportunity which targets «{{object}}»{% endblocktrans  %}" >
-        <img src="{% creme_media_url 'images/opportunity_32.png' %}" border="0" alt="{{img_title}}" />
-        {% trans "Create a linked opportunity" %}
+        {% widget_icon name='opportunity' size='instance-button' label=_('Opportunity') %}
+        {% trans 'Create a linked opportunity' %}
     </a>
 {% else %}
-    <span class="menu_button forbidden" title="{% trans "forbidden" %}">
-        <img src="{% creme_media_url 'images/opportunity_32.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
-        {% trans "Create a linked opportunity" %}
+    <span class="menu_button forbidden" title="{% trans 'forbidden' %}">
+        {% widget_icon name='opportunity' size='instance-button' label=_('Opportunity') %}
+        {% trans 'Create a linked opportunity' %}
     </span>
 {% endif %}
