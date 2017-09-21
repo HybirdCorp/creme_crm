@@ -5,7 +5,7 @@ try:
 
     from ..base import CremeTestCase
     from ..fake_models import FakeContact, FakeOrganisation, FakeImage
-    from creme.creme_core.core.entity_cell import EntityCellRegularField
+    from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
     from creme.creme_core.models import (Relation, RelationType,
         InstanceBlockConfigItem, RelationBlockItem, CustomBlockConfigItem)
     from creme.creme_core.gui.bricks import (Brick, SimpleBrick,
@@ -14,11 +14,13 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-class BlockRegistryTestCase(CremeTestCase):
+# class BlockRegistryTestCase(CremeTestCase):
+class BrickRegistryTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         # CremeTestCase.setUpClass()
-        super(BlockRegistryTestCase, cls).setUpClass()
+        # super(BlockRegistryTestCase, cls).setUpClass()
+        super(BrickRegistryTestCase, cls).setUpClass()
         RelationBlockItem.objects.all().delete()
         InstanceBlockConfigItem.objects.all().delete()
 
@@ -585,7 +587,8 @@ class BlockRegistryTestCase(CremeTestCase):
         custom_brick = bricks[2]
         self.assertIsInstance(custom_brick, CustomBrick)
         self.assertEqual(cbci.generate_id(),  custom_brick.id_)
-        self.assertEqual((FakeOrganisation,), custom_brick.dependencies)
+        # self.assertEqual((FakeOrganisation,), custom_brick.dependencies)
+        self.assertEqual([FakeOrganisation], custom_brick.dependencies)
         self.assertEqual(cbci.name,           custom_brick.verbose_name)
 
     def test_get_bricks03(self):
@@ -986,3 +989,34 @@ class BlocksManagerTestCase(CremeTestCase):
         self.assertIs(mngr, BricksManager.get(fake_context))
 
     # TODO: test def get_state(self, block_id, user)
+
+
+class BrickTestCase(CremeTestCase):
+    def test_custom_brick01(self):
+        cbci = CustomBlockConfigItem.objects.create(
+                id='tests-organisations01', name='General',
+                content_type=ContentType.objects.get_for_model(FakeOrganisation),
+                cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
+        )
+
+        cbrick = CustomBrick(cbci.generate_id(), cbci)
+        self.assertEqual([FakeOrganisation], cbrick.dependencies)
+        self.assertFalse(cbrick.relation_type_deps)
+
+    def test_custom_brick02(self):
+        "Relation + dependencies"
+        rtype = RelationType.create(('test-subject_employs', 'employs'),
+                                    ('test-object_employs', 'is employed by')
+                                   )[0]
+
+        cbci = CustomBlockConfigItem.objects.create(
+                id='tests-organisations01', name='General',
+                content_type=ContentType.objects.get_for_model(FakeOrganisation),
+                cells=[EntityCellRegularField.build(FakeOrganisation, 'name'),
+                       EntityCellRelation(rtype=rtype),
+                      ],
+        )
+
+        cbrick = CustomBrick(cbci.generate_id(), cbci)
+        self.assertEqual([FakeOrganisation, Relation], cbrick.dependencies)
+        self.assertEqual([rtype.id], cbrick.relation_type_deps)
