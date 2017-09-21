@@ -454,6 +454,7 @@ class SpecificRelationsBrick(QuerysetBrick):
                     update_url=reverse('creme_core__reload_detailview_blocks',
                                        args=(self.id_, entity.pk),
                                       ),
+                    config_item=config_item,
                     relation_type=relation_type,
                    )
         relations = btc['page'].object_list
