@@ -22,8 +22,8 @@
             </a>
         {% endif %}
         {% if can_delete %}
-{#            <a onclick="creme.lv_widget.deleteEntityFilter($(this).parents('form:first'), '{{efilter_id}}');"> #}
-            <a onclick="creme.lv_widget.deleteFilter($(this).parents('form:first'), '{{efilter_id}}', '{% url 'creme_core__delete_efilter' %}');">
+{#            <a onclick="creme.lv_widget.deleteEntityFilter(creme.lv_widget.findList(this), '{{efilter_id}}');"> #}
+            <a onclick="creme.lv_widget.deleteFilter(creme.lv_widget.findList(this), '{{efilter_id}}', '{% url 'creme_core__delete_efilter' %}');">
                 {% trans "Delete custom filter" as img_title %}<img border="0" src="{% creme_media_url 'images/delete_22_button.png' %}" alt="{{img_title}}" title="{{img_title}}"/>
             </a>
         {% endif %}
