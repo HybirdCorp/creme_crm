@@ -46,6 +46,10 @@ creme.lv_widget.openFilterView = function(ct_id, q_filter) {
                                });
 };
 
+creme.lv_widget.findList = function(element) {
+    return $(element).parents('form.ui-creme-listview:first');
+}
+
 creme.lv_widget.deleteEntityFilter = function(list, filterid) {
     console.warn('creme.lv_widget.deleteEntityFilter() is deprecated ; use creme.lv_widget.deleteFilter() instead.');
 

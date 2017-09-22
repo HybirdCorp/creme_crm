@@ -36,7 +36,7 @@ from creme.creme_core.gui.listview import ListViewState, NoHeaderFilterAvailable
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.entity_filter import EntityFilterList
 from creme.creme_core.models.header_filter import HeaderFilterList
-from creme.creme_core.utils import get_ct_or_404
+from creme.creme_core.utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404
 from creme.creme_core.utils.queries import get_q_from_dict
 
 from .popup import inner_popup
@@ -302,7 +302,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
         'search':             len(current_lvs.research) > 0,
         'content_template':   content_template,
         'page_sizes':         PAGE_SIZES,
-        'o2m':                (mode == MODE_MULTIPLE_SELECTION),
+        'o2m':                (mode == MODE_SINGLE_SELECTION),
         'add_url':            model.get_create_absolute_url(),
         'extra_bt_templates': None,  # TODO: () instead ???,
         'show_actions':       show_actions,
@@ -327,10 +327,16 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
     return template, template_dict
 
 
-def list_view(request, model, *args, **kwargs):
+def list_view(request, model, **kwargs):
     """See list_view_content() for arguments"""
+
+    if request.method == 'POST':
+        mode  = get_from_POST_or_404(request.POST, 'selection', cast=str_to_mode, default='multiple')
+    else:
+        mode  = get_from_GET_or_404(request.GET, 'selection', cast=str_to_mode, default='multiple')
+
     try:
-        template_name, template_dict = list_view_content(request, model, *args, **kwargs)
+        template_name, template_dict = list_view_content(request, model, mode=mode, **kwargs)
     except NoHeaderFilterAvailable:
         from ..header_filter import add as add_header_filter
         return add_header_filter(request, ContentType.objects.get_for_model(model).id,

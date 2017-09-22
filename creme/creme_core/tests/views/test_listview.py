@@ -216,6 +216,42 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(bebop.name, content)
         self.assertNotIn(bebop.url_site, content, '"url_site" not hidden')
 
+    def test_selection_single(self):
+        user = self.login()
+
+        create_contact = partial(Contact.objects.create, user=user)
+        _spike = create_contact(first_name='Spike', last_name='Spiegel')
+        _faye  = create_contact(first_name='Faye',  last_name='Valentine')
+
+        def post(selection, is_single):
+            response = self.assertPOST200(self.url, data={'selection': selection} if selection is not None else {})
+            pattern = '<input[\s]+value="{}"[\s]+id="o2m"[\s]+type="hidden"[\s]+/>'.format(is_single)
+            self.assertIsNotNone(re.search(pattern, response.content))
+
+        post(None, False)
+        post('single', True)
+        post('multiple', False)
+
+        self.assertPOST404(self.url, data={'selection': 'unknown'})
+
+    def test_selection_single_GET(self):
+        user = self.login()
+
+        create_contact = partial(Contact.objects.create, user=user)
+        _spike = create_contact(first_name='Spike', last_name='Spiegel')
+        _faye  = create_contact(first_name='Faye',  last_name='Valentine')
+
+        def get(selection, is_single):
+            response = self.assertGET200(self.url, data={'selection': selection} if selection is not None else {})
+            pattern = '<input[\s]+value="{}"[\s]+id="o2m"[\s]+type="hidden"[\s]+/>'.format(is_single)
+            self.assertIsNotNone(re.search(pattern, response.content))
+
+        get(None, False)
+        get('single', True)
+        get('multiple', False)
+
+        self.assertGET404(self.url, data={'selection': 'unknown'})
+
     def test_ordering_regularfield(self):
         user = self.login()
 
