@@ -71,8 +71,7 @@
                                 </li>
                                 {% if can_merge_entities %}
                                     <li>
-{#                                        <a style="white-space: nowrap;" onclick="creme.lv_widget.mergeSelectedLines(creme.lv_widget.findList(this));"> #}
-                                        <a style="white-space: nowrap;" onclick="creme.lv_widget.mergeSelectedLines(creme.lv_widget.findList(this), '{% url 'creme_core__select_entity_for_merge' %}', '{% url 'creme_core__merge_entities' %}');">
+                                        <a style="white-space: nowrap;" onclick="creme.lv_widget.mergeSelectedLines(creme.lv_widget.findList(this), '{% url 'creme_core__merge_entities' %}');">
                                             {% trans "Merge 2 entities" as item_label %}<img border="0" src="{% creme_media_url 'images/merge_22.png' %}" alt="{{item_label}}" title="{{item_label}}"/>{{item_label}}
                                         </a>
                                     </li>
