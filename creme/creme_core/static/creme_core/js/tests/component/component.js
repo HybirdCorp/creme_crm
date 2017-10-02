@@ -114,11 +114,11 @@ QUnit.test('creme.component (MockA)', function(assert) {
 
     equal(Object.isFunc(MockComponentA.sub), true);
 
-    equal(a.is(Object), true);
-    equal(a.is(creme.component.Component), true);
+    equal(a.is(Object), true, 'is Object');
+    equal(a.is(creme.component.Component), true, 'is Component');
     equal(a.is(MockComponentA), true, 'is MockComponentA');
-    equal(a.is(MockComponentAB), false);
-    equal(a.is(MockComponentAC), false);
+    equal(a.is(MockComponentAB), false, 'not MockComponentAB');
+    equal(a.is(MockComponentAC), false, 'not MockComponentAC');
 });
 
 QUnit.test('creme.component (MockAB)', function(assert) {

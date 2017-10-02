@@ -153,4 +153,12 @@
 
         return Object.isNone(object.constructor) ? null : object.constructor.prototype;
     });
+
+    appendStatic('isSubClassOf', function(object, constructor) {
+        if (constructor && Object.isFunc(constructor.prototype.isPrototypeOf)) {
+            return constructor.prototype.isPrototypeOf(object);
+        }
+
+        return false;
+    });
 }());
