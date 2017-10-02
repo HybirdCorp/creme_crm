@@ -301,7 +301,7 @@ creme.layout.Layout = creme.component.Component.sub({
     },
 
     _bindEvents: function() {
-        if (creme.component.is(Object.getPrototypeOf(this._target), creme.layout.Layout)) {
+        if (Object.isSubClassOf(this._target, creme.layout.Layout)) {
             this._target.onDone(this._layout_cb);
             return;
         }
@@ -312,7 +312,7 @@ creme.layout.Layout = creme.component.Component.sub({
     },
 
     _unbindEvents: function() {
-        if (creme.component.is(Object.getPrototypeOf(this._target), creme.layout.Layout)) {
+        if (Object.isSubClassOf(this._target, creme.layout.Layout)) {
             this._target._events.unbind('done', this._layout_cb);
             return;
         }

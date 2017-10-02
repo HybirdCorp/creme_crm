@@ -24,7 +24,7 @@ creme.ajax = creme.ajax || {};
 creme.ajax.Query = creme.component.Action.sub({
     _init_: function(options, backend) {
         this._super_(creme.component.Action, '_init_', this._send, options);
-        this._backend = backend || new creme.ajax.Backend(options.backend);
+        this._backend = backend || creme.ajax.defaultBackend();
         this._converter = function(data) { return data; };
         this._data = {};
 

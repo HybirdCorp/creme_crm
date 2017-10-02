@@ -323,6 +323,50 @@ QUnit.test('fallbacks.Object.getPrototypeOf (object)', function() {
     equal(Object.getPrototypeOf(b).constructor, MockObjectB, 'b.constructor');
 });
 
+QUnit.test('fallbacks.Object.isPrototypeOf (object)', function() {
+    equal(typeof Object.prototype.isPrototypeOf, 'function');
+
+    var a = new MockObjectA(5);
+    var b = new MockObjectB(8, 3);
+
+    equal(true, Object.prototype.isPrototypeOf(a), 'Object isPrototype of a');
+    equal(true, Object.prototype.isPrototypeOf(b), 'Object isPrototype of b');
+
+    equal(true, MockObjectA.prototype.isPrototypeOf(a), 'MockObjectA isPrototype of a');
+    equal(true, MockObjectA.prototype.isPrototypeOf(b), 'MockObjectA isPrototype of b');
+
+    equal(false, MockObjectB.prototype.isPrototypeOf(a), 'MockObjectB not isPrototype of a');
+    equal(true, MockObjectB.prototype.isPrototypeOf(b), 'MockObjectB isPrototype of b');
+});
+
+QUnit.test('fallbacks.Object.isSubClassOf (object)', function() {
+    equal(typeof Object.isSubClassOf, 'function');
+
+    var o = {};
+    var a = new MockObjectA(5);
+    var b = new MockObjectB(8, 3);
+
+    equal(false, Object.isSubClassOf(null, Object), 'Object not isPrototype of null');
+    equal(false, Object.isSubClassOf(undefined, Object), 'Object not isPrototype of undefined');
+    equal(true, Object.isSubClassOf(o, Object), 'Object isPrototype of o');
+    equal(true, Object.isSubClassOf(a, Object), 'Object isPrototype of a');
+    equal(true, Object.isSubClassOf(a, Object), 'Object isPrototype of b');
+    equal(false, Object.isSubClassOf(a, null), 'null not isPrototype of a');
+    equal(false, Object.isSubClassOf(a, undefined), 'undefined not isPrototype of b');
+
+    equal(false, Object.isSubClassOf(null, MockObjectA), 'MockObjectA not isPrototype of null');
+    equal(false, Object.isSubClassOf(undefined, MockObjectA), 'MockObjectA not isPrototype of undefined');
+    equal(false, Object.isSubClassOf(o, MockObjectA), 'MockObjectA not isPrototype of o');
+    equal(true, Object.isSubClassOf(a, MockObjectA), 'MockObjectA isPrototype of a');
+    equal(true, Object.isSubClassOf(b, MockObjectA), 'MockObjectA isPrototype of b');
+
+    equal(false, Object.isSubClassOf(null, MockObjectB), 'MockObjectB not isPrototype of null');
+    equal(false, Object.isSubClassOf(undefined, MockObjectB), 'MockObjectB not isPrototype of undefined');
+    equal(false, Object.isSubClassOf(o, MockObjectB), 'MockObjectB not isPrototype of o');
+    equal(false, Object.isSubClassOf(a, MockObjectB), 'MockObjectB not isPrototype of a');
+    equal(true, Object.isSubClassOf(b, MockObjectB), 'MockObjectB isPrototype of b');
+});
+
 QUnit.test('fallbacks.Object.isString', function() {
     equal(typeof Object.isString, 'function');
 

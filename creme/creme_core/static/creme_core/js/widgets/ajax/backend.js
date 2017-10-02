@@ -226,4 +226,19 @@ creme.ajax.jqueryAjaxSend = function(url, data, success_cb, error_cb, options) {
 
     $.ajax(ajax_options);
 };
+
+var __defaultBackend = new creme.ajax.Backend();
+
+creme.ajax.defaultBackend = function(backend) {
+    if (backend === undefined) {
+        return __defaultBackend;
+    }
+
+    if (creme.ajax.Backend.prototype.isPrototypeOf(backend) === false) {
+        throw new Error('Default ajax backend must be a creme.ajax.Backend instance');
+    }
+
+    __defaultBackend = backend;
+};
+
 }(jQuery));
