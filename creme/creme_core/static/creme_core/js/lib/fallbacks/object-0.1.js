@@ -108,7 +108,14 @@
     });
 
     appendStatic('isString', function(obj) {
-        return (typeof obj === 'string') || (typeof obj === 'object' && Object.getPrototypeOf(obj) === String.prototype);
+        /*
+         * typeof null === 'object'... WAAAT !
+         */
+        if (!Object.isNone(obj)) {
+            return (typeof obj === 'string') || (obj instanceof String);
+        } else {
+            return false;
+        }
     });
 
     appendStatic('proxy', function(delegate, context, options) {

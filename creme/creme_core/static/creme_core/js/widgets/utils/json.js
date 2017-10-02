@@ -94,6 +94,6 @@ creme.utils.JSON.encoder = function() {
 };
 
 creme.utils.JSON.clean = function(data, defaults) {
-    return Object.isType(data, 'string') ? new creme.utils.JSON().decode(data, defaults) : data;
+    return Object.isString(data) ? new creme.utils.JSON().decode(data, defaults) : data;
 };
 }(jQuery));
