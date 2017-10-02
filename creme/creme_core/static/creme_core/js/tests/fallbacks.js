@@ -376,6 +376,8 @@ QUnit.test('fallbacks.Object.isString', function() {
     equal(Object.isString([12, 13]), false);
     equal(Object.isString(new Object()), false);
     equal(Object.isString({}), false);
+    equal(Object.isString(undefined), false);
+    equal(Object.isString(null), false);
 });
 
 QUnit.test('fallbacks.Array.indexOf', function() {
