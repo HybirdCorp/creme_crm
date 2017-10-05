@@ -35,7 +35,7 @@ creme.geolocation.PersonsBlock = creme.component.Component.sub({
 //    _init_: function(block, addresses)
     _init_: function(block, addresses, set_address_info_url) {
         if (set_address_info_url === undefined) {
-            console.warn('creme.geolocation.PersonsBlock(): hard-coded "set_address_info_url" is deprecated ; give it as parameter.')
+            console.warn('creme.geolocation.PersonsBlock(): hard-coded "set_address_info_url" is deprecated ; give it as parameter.');
         }
 
         var self = this;
@@ -59,7 +59,7 @@ creme.geolocation.PersonsBlock = creme.component.Component.sub({
             self._showPosition(address.id, marker);
             self._showStatus(address.id, status);
 
-            block.trigger('block-geoaddress-location', [address, marker])
+            block.trigger('block-geoaddress-location', [address, marker]);
         });
 
         $('.block-geoaddress-item input[type="checkbox"]', block).each(function() {
@@ -104,7 +104,7 @@ creme.geolocation.PersonsBlock = creme.component.Component.sub({
 
     _showStatus: function(address_id, status) {
         var item = this.addressItem(address_id);
-        var is_complete = (status == creme.geolocation.LocationStatus.COMPLETE);
+        var is_complete = (status === creme.geolocation.LocationStatus.COMPLETE);
 
         item.find('.block-geoaddress-status').html(this.STATUS_LABELS[status]);
         item.find('.block-geoaddress-action').toggleClass('block-geoaddress-iscomplete', is_complete);
@@ -140,7 +140,7 @@ creme.geolocation.PersonsBlock = creme.component.Component.sub({
                                      controller.adjustMap();
                                  },
                                  fail: function(status) {
-                                     self._showPosition(address_id)
+                                     self._showPosition(address_id);
                                      self._showStatus(address_id, status);
                                  }
                              });
@@ -157,14 +157,14 @@ creme.geolocation.AddressesBlock = creme.component.Component.sub({
 //    _init_: function(block) {
     _init_: function(block, addresses_url, set_address_info_url) {
         if (addresses_url === undefined) {
-            console.warn('creme.geolocation.AddressesBlock(): hard-coded "addresses_url" is deprecated ; give it as the second parameter.')
+            console.warn('creme.geolocation.AddressesBlock(): hard-coded "addresses_url" is deprecated ; give it as the second parameter.');
             this.addresses_url = '/geolocation/get_addresses/';
         } else {
             this.addresses_url = addresses_url;
         }
 
         if (set_address_info_url === undefined) {
-            console.warn('creme.geolocation.AddressesBlock(): hard-coded "set_address_info_url" is deprecated ; give it as the third parameter.')
+            console.warn('creme.geolocation.AddressesBlock(): hard-coded "set_address_info_url" is deprecated ; give it as the third parameter.');
         }
 
 //        var controller = this._controller = new creme.geolocation.GoogleMapController();
@@ -181,7 +181,7 @@ creme.geolocation.AddressesBlock = creme.component.Component.sub({
         this._updateFilter(filterSelector.val());
 
         block.bind('creme-table-collapse', function(e, status) {
-            if (status.action == 'show') {
+            if (status.action === 'show') {
                 controller.resize();
                 controller.adjustMap();
             }
@@ -215,7 +215,7 @@ creme.geolocation.AddressesBlock = creme.component.Component.sub({
 
     _updateAddress: function(address) {
         var controller = this._controller;
-        var marker = controller.marker_manager.get(address.id)
+        var marker = controller.marker_manager.get(address.id);
 
         if (!marker) {
             if (controller.isAddressLocated(address)) {
@@ -243,8 +243,7 @@ creme.geolocation.AddressesBlock = creme.component.Component.sub({
              });
     },
 
-    _updateFilter: function(filter, listeners)
-    {
+    _updateFilter: function(filter, listeners) {
         if (filter) {
             this._queryAddresses(filter, listeners);
         } else {
@@ -253,8 +252,7 @@ creme.geolocation.AddressesBlock = creme.component.Component.sub({
         }
     },
 
-    _showCount: function(count)
-    {
+    _showCount: function(count) {
         var content = !count ? gettext('No address from') : ngettext('%0$d address from', '%0$d addresses from', count).format(count);
         $('.block-geoaddress-counter', this._block).html(content);
     }
@@ -265,14 +263,14 @@ creme.geolocation.PersonsNeighborhoodBlock = creme.component.Component.sub({
 //    _init_: function(block, radius) {
     _init_: function(block, radius, neighbours_url, set_address_info_url) {
         if (neighbours_url === undefined) {
-            console.warn('creme.geolocation.PersonsNeighborhoodBlock(): hard-coded "neighbours_url" is deprecated ; give it as the third parameter.')
+            console.warn('creme.geolocation.PersonsNeighborhoodBlock(): hard-coded "neighbours_url" is deprecated ; give it as the third parameter.');
             this.neighbours_url = '/geolocation/get_neighbours/';
         } else {
             this.neighbours_url = neighbours_url;
         }
 
         if (set_address_info_url === undefined) {
-            console.warn('creme.geolocation.PersonsNeighborhoodBlock(): hard-coded "set_address_info_url" is deprecated ; give it as the fourth parameter.')
+            console.warn('creme.geolocation.PersonsNeighborhoodBlock(): hard-coded "set_address_info_url" is deprecated ; give it as the fourth parameter.');
         }
 
 //        var controller = this._controller = new creme.geolocation.GoogleMapController();
@@ -292,7 +290,7 @@ creme.geolocation.PersonsNeighborhoodBlock = creme.component.Component.sub({
         this._onChange();
 
         block.bind('creme-table-collapse', function(e, status) {
-            if (status.action == 'show') {
+            if (status.action === 'show') {
                 controller.resize();
                 controller.shape_manager.adjustMap('NeighbourhoodCircle');
             }
@@ -333,6 +331,7 @@ creme.geolocation.PersonsNeighborhoodBlock = creme.component.Component.sub({
         }
     },
 
+    /* global google */
     _updateMarker: function(address, options) {
         if (Object.isNone(address)) {
             return;
@@ -345,10 +344,10 @@ creme.geolocation.PersonsNeighborhoodBlock = creme.component.Component.sub({
             if (marker) {
                 marker.setPosition(new google.maps.LatLng(address.latitude, address.longitude));
             } else {
-                var options = $.extend({
-                                    address: address,
-                                    draggable: false
-                                }, options || {});
+                options = $.extend({
+                    address: address,
+                    draggable: false
+                }, options || {});
 
                 marker = controller.marker_manager.Marker(options);
             }
@@ -359,6 +358,7 @@ creme.geolocation.PersonsNeighborhoodBlock = creme.component.Component.sub({
         return marker;
     },
 
+    /* global google */
     _updateNeighbours: function(source, addresses) {
         this._clearNeighbours();
 
