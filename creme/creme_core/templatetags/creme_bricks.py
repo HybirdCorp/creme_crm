@@ -24,15 +24,15 @@ from functools import partial
 from json import dumps as json_dump
 import logging
 
-from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
+# from django.contrib.contenttypes.models import ContentType
+# from django.core.urlresolvers import reverse
 from django.template import Library, TemplateSyntaxError
 from django.template.base import TextNode
 # from django.utils.functional import Promise
 from django.utils.safestring import mark_safe, SafeData
 from django.utils.translation import ugettext as _, ugettext_lazy
 
-from ..core.entity_cell import EntityCellRegularField, EntityCellCustomField
+from ..core.entity_cell import EntityCellRegularField  # EntityCellCustomField
 from ..gui.bricks import Brick, brick_registry, BricksManager
 from ..gui.bulk_update import bulk_update_registry
 from ..utils.media import get_current_theme_from_context
@@ -477,7 +477,6 @@ def brick_table_column_for_field(context, ctype, field, title='', status='', **a
 
         ...
     """
-
     cell = EntityCellRegularField.build(ctype.model_class(), field)
 
     if cell is None:
@@ -633,22 +632,19 @@ def brick_tile_for_cell(cell, instance, user):
             ...
         {% endblock %}
     """
-    data_type = cell.data_type
-
-    edit_url = None
-    edit_perm = _bulk_has_perm(instance, user)
-
-    if isinstance(cell, EntityCellRegularField):
-        field_name = cell.field_info[0].name
-
-        if bulk_update_registry.is_updatable(instance.__class__, field_name, exclude_unique=False):
-            ct = ContentType.objects.get_for_model(instance.__class__)
-            edit_url = reverse('creme_core__inner_edition', args=(ct.id, instance.id, field_name))
-
-    elif isinstance(cell, EntityCellCustomField):
-        edit_url = reverse('creme_core__inner_edition',
-                           args=(instance.entity_type_id, instance.id, 'customfield-%s' % cell.value),
-                          )
+    # edit_url = None
+    #
+    # if isinstance(cell, EntityCellRegularField):
+    #     field_name = cell.field_info[0].name
+    #
+    #     if bulk_update_registry.is_updatable(instance.__class__, field_name, exclude_unique=False):
+    #         ct = ContentType.objects.get_for_model(instance.__class__)
+    #         edit_url = reverse('creme_core__inner_edition', args=(ct.id, instance.id, field_name))
+    #
+    # elif isinstance(cell, EntityCellCustomField):
+    #     edit_url = reverse('creme_core__inner_edition',
+    #                        args=(instance.entity_type_id, instance.id, 'customfield-%s' % cell.value),
+    #                       )
 
     try:
         content = cell.render_html(instance, user)
@@ -661,11 +657,12 @@ def brick_tile_for_cell(cell, instance, user):
         'label': cell.title,
 
         'content':   mark_safe(content),
-        'data_type': data_type,
+        'data_type': cell.data_type,
         'multiline': cell.is_multiline,
 
-        'edit_url':  edit_url,
-        'edit_perm': edit_perm,
+        # 'edit_url':  edit_url,
+        'edit_url':  bulk_update_registry.inner_uri(cell=cell, instance=instance, user=user),
+        'edit_perm': _bulk_has_perm(instance, user),
     }
 
 
@@ -727,8 +724,8 @@ def _brick_pager_links(page):
     return links
 
 
-@register.inclusion_tag('creme_core/templatetags/bricks/footer-pager.html')
-def brick_footer_pager(page):
+@register.inclusion_tag('creme_core/templatetags/bricks/pager.html')
+def brick_pager(page):
     return {
         'links': _brick_pager_links(page),
         'first_page': 1,

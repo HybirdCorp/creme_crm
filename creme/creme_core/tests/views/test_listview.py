@@ -782,8 +782,11 @@ class ListViewTestCase(ViewsTestCase):
 
         content = self._get_lv_content(response)
         self.assertNotIn(bebop.name, content)
-        self.assertCountOccurrences(redtail.name, content, count=1)
-        self.assertCountOccurrences(dragons.name, content, count=1)
+        # self.assertCountOccurrences(redtail.name, content, count=1)
+        # TODO: search only in 'content' td instead
+        self.assertCountOccurrences('<div>%s</div>' % redtail.name, content, count=1)
+        # self.assertCountOccurrences(dragons.name, content, count=1)
+        self.assertCountOccurrences('<div>%s</div>' % dragons.name, content, count=1)
 
         self.assertEqual(2, response.context['entities'].paginator.count)
 
@@ -808,7 +811,8 @@ class ListViewTestCase(ViewsTestCase):
         self.assertCountOccurrences('value="{&quot;name&quot;:&quot;%s&quot;}"' % bebop.name,
                                     content, count=1
                                    )
-        self.assertCountOccurrences(bebop.name, content, count=2)
+        # self.assertCountOccurrences(bebop.name, content, count=2)
+        self.assertCountOccurrences('<div>%s</div>' % bebop.name, content, count=1)
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
@@ -833,7 +837,8 @@ class ListViewTestCase(ViewsTestCase):
         self.assertCountOccurrences('value="{&quot;name&quot;:&quot;%s&quot;}"' % bebop.name,
                                     content, count=1
                                    )
-        self.assertCountOccurrences(bebop.name, content, count=2)
+        # self.assertCountOccurrences(bebop.name, content, count=2)
+        self.assertCountOccurrences('<div>%s</div>' % bebop.name, content, count=1)
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
@@ -899,22 +904,27 @@ class ListViewTestCase(ViewsTestCase):
         content = self._get_lv_content(response)
         self.assertNotIn(bebop.name,     content)
         self.assertNotIn(swordfish.name, content)
-        self.assertCountOccurrences(redtail.name, content, count=1)
-        self.assertCountOccurrences(dragons.name, content, count=1)
+        # self.assertCountOccurrences(redtail.name, content, count=1)
+        self.assertCountOccurrences('<div>%s</div>' % redtail.name, content, count=1)
+        # self.assertCountOccurrences(dragons.name, content, count=1)
+        self.assertCountOccurrences('<div>%s</div>' % dragons.name, content, count=1)
         self.assertEqual(2, response.context['entities'].paginator.count)
 
         response = self.assertPOST200(url, data=build_data('', '88', clear=1))
         content = self._get_lv_content(response)
         self.assertNotIn(bebop.name,   content)
-        self.assertIn(swordfish.name,  content)
-        self.assertIn(redtail.name,    content)
+        # self.assertIn(swordfish.name,  content)
+        self.assertIn('<div>%s</div>' % swordfish.name,  content)
+        # self.assertIn(redtail.name,    content)
+        self.assertIn('<div>%s</div>' % redtail.name,    content)
         self.assertNotIn(dragons.name, content)
 
         response = self.assertPOST200(url, data=build_data('Red', '88', clear=1))
         content = self._get_lv_content(response)
         self.assertNotIn(bebop.name,     content)
         self.assertNotIn(swordfish.name, content)
-        self.assertIn(redtail.name,      content)
+        # self.assertIn(redtail.name,      content)
+        self.assertIn('<div>%s</div>' % redtail.name, content)
         self.assertNotIn(dragons.name,   content)
 
         context = CaptureQueriesContext()
@@ -925,7 +935,8 @@ class ListViewTestCase(ViewsTestCase):
         content = self._get_lv_content(response)
         self.assertIn(bebop.name,     content)
         self.assertIn(swordfish.name, content)
-        self.assertIn(redtail.name,   content)
+        # self.assertIn(redtail.name,   content)
+        self.assertIn('<div>%s</div>' % redtail.name, content)
         self.assertIn(dragons.name,   content)
         self.assertEqual(4, response.context['entities'].paginator.count)
 
@@ -1157,7 +1168,8 @@ class ListViewTestCase(ViewsTestCase):
         data = {}
         response = self.assertPOST200(url, data=dict(data, **{'regular_field-civility': mister.id}))
         content = self._get_lv_content(response)
-        self.assertCountOccurrences(spike.last_name, content, count=1)
+        # self.assertCountOccurrences(spike.last_name, content, count=1)
+        self.assertCountOccurrences('<div>%s</div>' % spike.last_name, content, count=1)
         self.assertNotIn(faye.last_name, content)
         self.assertNotIn(ed.last_name,   content)
 
@@ -1165,7 +1177,8 @@ class ListViewTestCase(ViewsTestCase):
         response = self.assertPOST200(url, data=dict(data, **{'regular_field-civility__title': 'iss'}))
         content = self._get_lv_content(response)
         self.assertNotIn(spike.last_name, content)
-        self.assertIn(faye.last_name,     content)
+        # self.assertIn(faye.last_name,     content)
+        self.assertIn('<div>%s</div>' % faye.last_name,  content)
         self.assertNotIn(ed.last_name,    content)
 
         # ---------------------------------------------------------------------
@@ -1173,14 +1186,16 @@ class ListViewTestCase(ViewsTestCase):
         content = self._get_lv_content(response)
         self.assertNotIn(spike.last_name, content)
         self.assertNotIn(faye.last_name,  content)
-        self.assertIn(ed.last_name,       content)
+        # self.assertIn(ed.last_name,       content)
+        self.assertIn('<div>%s</div>' % ed.last_name, content)
 
         # ---------------------------------------------------------------------
         response = self.assertPOST200(url, data=dict(data, **{'regular_field-image': img_ed.name}))
         content = self._get_lv_content(response)
         self.assertNotIn(spike.last_name, content)
         self.assertNotIn(faye.last_name,  content)
-        self.assertIn(ed.last_name,       content)
+        # self.assertIn(ed.last_name,       content)
+        self.assertIn('<div>%s</div>' % ed.last_name, content)
 
     def test_search_fk02(self):
         "Search on a subfield which is a FK too"
@@ -1308,17 +1323,21 @@ class ListViewTestCase(ViewsTestCase):
             return self._get_lv_content(response)
 
         content = search('Bebo')
-        self.assertCountOccurrences(camp1.name, content, count=1)
-        self.assertCountOccurrences(camp2.name, content, count=1)
+        # self.assertCountOccurrences(camp1.name, content, count=1)
+        self.assertCountOccurrences('<div>%s</div>' % camp1.name, content, count=1)
+        # self.assertCountOccurrences(camp2.name, content, count=1)
+        self.assertCountOccurrences('<div>%s</div>' % camp2.name, content, count=1)
         self.assertNotIn(camp3.name, content)
 
         content = search('afia')
-        self.assertCountOccurrences(camp1.name, content, count=1)
+        # self.assertCountOccurrences(camp1.name, content, count=1)
+        self.assertCountOccurrences('<div>%s</div>' % camp1.name, content, count=1)
         self.assertNotIn(camp2.name, content)
         self.assertNotIn(camp3.name, content)
 
         content = search('staff')
-        self.assertCountOccurrences(camp1.name, content, count=1)  # Not 2 !!
+        # self.assertCountOccurrences(camp1.name, content, count=1)  # Not 2 !!
+        self.assertCountOccurrences('<div>%s</div>' % camp1.name, content, count=1)  # Not 2 !!
 
     def test_search_m2mfields02(self):
         "M2M to basic model"
@@ -2103,11 +2122,13 @@ class ListViewTestCase(ViewsTestCase):
         self.assertFalse(entities_page1.has_previous())
         self.assertFalse(hasattr(entities_page1, 'next_page_number'))
         self.assertTrue(hasattr(entities_page1, 'next_page_info'))
+        self.assertFalse(hasattr(entities_page1, 'start_index'))
 
         paginator = entities_page1.paginator
         self.assertEqual(10, paginator.per_page)
         self.assertEqual(13, paginator.count)
-        self.assertFalse(hasattr(paginator, 'num_pages'))
+        # self.assertFalse(hasattr(paginator, 'num_pages'))
+        self.assertEqual(2, paginator.num_pages)
 
         entities = list(entities_page1.object_list)
         idx1 = self.assertIndex(organisations[0], entities)
@@ -2170,7 +2191,7 @@ class ListViewTestCase(ViewsTestCase):
         paginator = entities_page1.paginator
         self.assertEqual(rows, paginator.per_page)
         self.assertEqual(expected_count, paginator.count)
-        self.assertFalse(hasattr(paginator, 'num_pages'))
+        # self.assertFalse(hasattr(paginator, 'num_pages'))
 
         entities = list(entities_page1.object_list)
         idx1 = self.assertIndex(contacts[0], entities)

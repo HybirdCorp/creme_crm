@@ -88,6 +88,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         self._build_contacts()
         contacts = Contact.objects.all()
         count = Contact.objects.count()
+        self.assertIn(count, {7, 8})
 
         per_page = 3
 
@@ -96,6 +97,7 @@ class FlowPaginatorTestCase(CremeTestCase):
 
         self.assertEqual(count, paginator.count)
         self.assertEqual(per_page, paginator.per_page)
+        self.assertEqual(3, paginator.num_pages)
 
         with self.assertNumQueries(1):
             page = paginator.page()
@@ -111,6 +113,22 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertIs(page.has_next(), True)
         self.assertIs(page.has_previous(), False)
         self.assertIs(page.has_other_pages(), True)
+
+    def test_num_pages(self):
+        self._build_contacts()
+        contacts = Contact.objects.all()
+
+        count = Contact.objects.count()
+        self.assertIn(count, {7, 8})
+
+        per_page = 4
+
+        paginator = FlowPaginator(contacts, key='last_name', per_page=per_page, count=count)
+
+        with self.assertNumQueries(0):
+            num_pages = paginator.num_pages
+
+        self.assertEqual(2, num_pages)
 
     def test_get_item(self):
         self._build_contacts()

@@ -37,16 +37,17 @@ logger = logging.getLogger(__name__)
 
 
 class EntityAction(object):
-    def __init__(self, url, text, is_allowed, attrs=None, icon=None):
+    def __init__(self, url, text, is_allowed, attrs=None, icon=None, verbose=None):
         self.url = url
         self.text = text
+        self.verbose = verbose or text
         self.attrs = mark_safe(flatatt(attrs or {}))
         self.icon = icon
         self.is_allowed = is_allowed
 
 
 class _PrettyPropertiesField(FunctionField):
-    name         = "get_pretty_properties"
+    name         = 'get_pretty_properties'
     verbose_name = _(u'Properties')
     has_filter   = True  # ==> quick search in ListView
 
@@ -271,23 +272,31 @@ class CremeEntity(CremeAbstractEntity):
 
         edit_url = self.get_edit_absolute_url()
         if edit_url:
-            actions.append(EntityAction(edit_url, ugettext(u'Edit'),
-                                        user.has_perm_to_change(self),
-                                        icon='images/edit_16.png',
+            actions.append(EntityAction(edit_url,
+                                        text=ugettext(u'Edit'),
+                                        is_allowed=user.has_perm_to_change(self),
+                                        # icon='images/edit_16.png',
+                                        icon='edit',
                                        )
                            )
 
         delete_url = self.get_delete_absolute_url()
         if delete_url:
-            actions.append(EntityAction(delete_url, ugettext(u'Delete'),
-                                        user.has_perm_to_delete(self),
-                                        icon='images/delete_16_button.png',
+            actions.append(EntityAction(delete_url,
+                                        text=ugettext(u'Delete'),
+                                        is_allowed=user.has_perm_to_delete(self),
+                                        # icon='images/delete_16_button.png',
+                                        icon='delete',
                                         attrs={'class': 'confirm post ajax lv_reload'},
                                        )
                           )
 
-        return {'default': EntityAction(self.get_absolute_url(), ugettext(u'See'),
-                                        is_allowed=True, icon='images/view_16.png',
+        return {'default': EntityAction(self.get_absolute_url(),
+                                        text=ugettext(u'See'),
+                                        is_allowed=True,
+                                        # icon='images/view_16.png',
+                                        icon='view',
+                                        verbose=ugettext(u'Go to the entity {entity}').format(entity=self),
                                        ),
                 'others':  actions,
                }

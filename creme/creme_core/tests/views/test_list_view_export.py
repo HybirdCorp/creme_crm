@@ -587,8 +587,11 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                       data={'regular_field-mailing_lists': 'staff'}
                                      )
         content = self._get_lv_content(response)
-        self.assertCountOccurrences(camp1.name, content, count=1)  # Not 2
-        self.assertCountOccurrences(camp2.name, content, count=1)
+        # self.assertCountOccurrences(camp1.name, content, count=1)  # Not 2
+        # TODO: search only in 'content' td instead
+        self.assertCountOccurrences('<div>%s</div>' % camp1.name, content, count=1)  # Not 2
+        # self.assertCountOccurrences(camp2.name, content, count=1)
+        self.assertCountOccurrences('<div>%s</div>' % camp2.name, content, count=1)
         self.assertNotIn(camp3.name, content)
 
         # ------

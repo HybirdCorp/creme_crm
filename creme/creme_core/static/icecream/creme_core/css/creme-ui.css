@@ -6,6 +6,10 @@
     font-size: 1.1em;/* Old 1.2em*/
 }
 
+.ui-dialog.ui-widget {
+    font-size: inherit;
+}
+
 .ui-dialog.ui-widget-content {
     border-radius: 0;
 }
@@ -233,6 +237,12 @@ ul.ui-layout.vbox li { position:relative; display:block; }
 }
 
 .ui-creme-overlay.page-loading {
+    position: fixed;
+    min-width: 100vw;
+    min-height: 100vh;
+
+    z-index: 103;
+
     background-color: white;
     opacity: .80;
     filter: Alpha(Opacity=80);

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016  Hybird
+#    Copyright (C) 2016-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,9 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import division
+
 import collections
 from datetime import date, datetime
 from decimal import Decimal
+from math import ceil
 import sys
 
 from django.core.exceptions import ValidationError
@@ -76,6 +79,7 @@ class FlowPaginator(object):
         self.queryset = queryset
         self.per_page = per_page
         self.count = count
+        self._num_pages = None
 
         self._attr_name = ''
         self._reverse_order = False
@@ -138,6 +142,17 @@ class FlowPaginator(object):
 
     def last_page(self):
         return self.page({'type': 'last', 'key': self.key})
+
+    # TODO: 'allow_empty_first_page' feature like in django.core.paginator.Paginator
+    @property
+    def num_pages(self):
+        """
+        Returns the total number of pages.
+        """
+        if self._num_pages is None:
+            self._num_pages = int(ceil(self.count / self.per_page))
+
+        return self._num_pages
 
     @property
     def per_page(self):

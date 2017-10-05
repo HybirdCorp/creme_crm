@@ -16,9 +16,9 @@
    version="1.1"
    inkscape:version="0.91 r13725"
    sodipodi:docname="document_csv.svg"
-   inkscape:export-filename="document_csv_48.png"
-   inkscape:export-xdpi="33.75"
-   inkscape:export-ydpi="33.75">
+   inkscape:export-filename="document_csv_16.png"
+   inkscape:export-xdpi="11.25"
+   inkscape:export-ydpi="11.25">
   <defs
      id="defs4">
     <linearGradient
@@ -139,8 +139,8 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.979899"
-     inkscape:cx="26.37124"
-     inkscape:cy="32.964374"
+     inkscape:cx="-90.553916"
+     inkscape:cy="31.954221"
      inkscape:document-units="px"
      inkscape:current-layer="layer4"
      showgrid="true"
@@ -246,7 +246,7 @@
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="outline"
-     style="display:none">
+     style="display:inline">
     <path
        id="path3115"
        d="m 80,8 -71.90625,0.03125 0,104.125 103.96875,0 L 112,24 80,8 Z m -4,4 32,16 -32,0 0,-16 z m -60,28 24.03125,0 0,8 L 24.1875,48.03125 24,72 l 16,0 0,8 -24,0 0,-40 z m 32,0 24.03125,0 0,8 -15.84375,0.03125 -0.09375,5.9375 L 72,62 72,80 48,80 48,72 64,72 64,66 48,57.875 48,40 Z m 32,0 8,0 4,16 4,-16 8.03125,0 L 96,80 88,80 80,40 Z"

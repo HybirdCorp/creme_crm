@@ -106,7 +106,7 @@ a:hover {
     color: #df8177;
     text-decoration: underline;
     background-color: transparent;
-    text-shadow: 1px 1px 3px #cccccc;
+/*    text-shadow: 1px 1px 3px #cccccc; */
 }
 
 a.is_deleted {

@@ -1,3 +1,40 @@
+{% load i18n creme_widgets %}
+<ul class="row-actions-list">
+    {% if actions.others %}
+    <li class="row-actions-trigger" title="{% blocktrans %}Display the available actions for «&nbsp;{{entity}}&nbsp;»{% endblocktrans %}">
+        <div class="listview-actions-container">
+            {% for action in actions.others %}
+            <div class="listview-action">
+                {% if action.is_allowed %}
+                <a href="{{action.url}}" {{action.attrs}}>
+                    {% if action.icon %}{% widget_icon name=action.icon label=action.text size='listview-menu' class='listview-action-icon' %}{% endif %}
+                    {{action.text}}
+                </a>
+                {% else %}
+                <span class="forbidden">
+                    {% if action.icon %}{% widget_icon name=action.icon label=action.text size='listview-menu' class='listview-action-icon' %}{% endif %}
+                    {{action.text}} ({% trans 'forbidden' %})
+                </span>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </li>
+    {% endif %}
+    <li class="listview-action default-row-action">
+        {% with actions.default as action %}
+        {% if action %}
+        <a href="{{action.url}}" title="{{action.verbose}}">
+            {% if action.icon %}{% widget_icon name=action.icon label=action.text size='listview-menu' class='listview-action-icon' %}{% endif %}
+            {{action.text}}
+        </a>
+        {% else %}
+        <a>{% trans 'Actions' %}</a>
+        {% endif %}
+        {% endwith %}
+    </li>
+</ul>
+{% comment %}
 {% load i18n %}
 {% load creme_core_tags %}
 <ul id="actions_menu_{{id}}" class="lv-row-action-list entity_menu ui-widget ui-corner-all ui-state-default">
@@ -13,7 +50,7 @@
             {% endif %}
         {% endwith %}
         {% if actions.others %}
-            {% comment %}<ul style="float: left; position: absolute; z-index: 10;" class="ui-widget ui-widget-content ui-corner-all ui-state-default">{% endcomment %}
+            {# <ul style="float: left; position: absolute; z-index: 10;" class="ui-widget ui-widget-content ui-corner-all ui-state-default"> #}
             <ul style="float: left; position: absolute; z-index: 10; display: none;" class="ui-widget ui-widget-content ui-corner-all">
                 {% for action in actions.others %}
                     <li>
@@ -34,3 +71,4 @@
         {% endif %}
     </li>
 </ul>
+{% endcomment %}

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,15 +22,19 @@ from functools import partial
 from itertools import chain
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models.fields import FieldDoesNotExist
-from django.db.models.fields.related import ForeignKey
+from django.core.urlresolvers import reverse
+from django.db.models import ForeignKey, FieldDoesNotExist
 
+from ..core.entity_cell import EntityCellRegularField, EntityCellCustomField
 from ..models import CremeModel, CustomField, FieldsConfig
 from ..utils.unicode_collation import collator
+
+# TODO: factorise 'customfield-...'
 
 
 class FieldNotAllowed(Exception):
     pass
+
 
 
 class _BulkUpdateRegistry(object):
@@ -314,6 +318,24 @@ class _BulkUpdateRegistry(object):
         return sorted(self.status(model).custom_fields.values(),
                       key=lambda f: sort_key(f.name)
                      )
+
+    # TODO: we need a better system, so we could also inner edit other type of cells
+    #      (maybe _BulkUpdateRegistry should only
+    def inner_uri(self, cell, instance, user):
+        uri = None
+
+        if isinstance(cell, EntityCellRegularField):
+            field_name = cell.field_info[0].name
+
+            if self.is_updatable(instance.__class__, field_name, exclude_unique=False):
+                ct = ContentType.objects.get_for_model(instance.__class__)
+                uri = reverse('creme_core__inner_edition', args=(ct.id, instance.id, field_name))
+        elif isinstance(cell, EntityCellCustomField):
+            uri = reverse('creme_core__inner_edition',
+                          args=(instance.entity_type_id, instance.id, 'customfield-%s' % cell.value),
+                         )
+
+        return uri
 
 
 bulk_update_registry = _BulkUpdateRegistry()

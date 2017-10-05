@@ -1,5 +1,4 @@
-{% load i18n creme_core_tags creme_widgets creme_listview creme_cells %}
-{% load creme_block %} {# REMOVE !! #}
+{% load i18n creme_core_tags creme_widgets creme_listview creme_cells creme_ctype %}{# creme_block #}
 
 {% with cells=header_filters.selected.filtered_cells %}
 
@@ -7,10 +6,151 @@
 <form class="ui-creme-widget widget-auto ui-creme-listview" widget="ui-creme-listview"
       {% if whoami %}whoami="{{whoami}}"{% endif %} {% if not o2m %}multiple{% endif %}
       {% if is_popup_view %}reload-url="{% url 'creme_core__listview_popup' %}"{% endif %}>
-{% listview_header_colspan cells=cells is_readonly=is_popup_view is_single_select=o2m as colspan %}
 
-<table id="list" class="list_view" cellpadding="0" cellspacing="0">
+{% if not is_popup_view %}
+{% block extrahead %}
+<script>
+    $(function() {
+        var $list = $('.listview-standalone#list');
+
+        // only one standalone listview is allowed per page
+        if ($list.length != 1) {
+            return;
+        }
+
+        $('.footer, .page-decoration').css('transform', 'translateX(0)');
+
+        // TODO: call this function when the ajax loading of the list returns, or the elements are reset to left: 0
+        function handleHorizontalStickiness() {
+            var scrollLeft = $(document).scrollLeft();
+            var viewportWidth = $(window).width();
+
+            // Simple stickiness to left: 0
+            $('.sticky-container-standalone .sticks-horizontally, .listview-standalone .sticks-horizontally, .footer, .page-decoration').css('transform', 'translateX(' + scrollLeft + 'px)');
+
+            // complex stickiness between two absolute values modeled as position: fixed over the viewport
+            var listAnchorStickingStart = $list.offset().left;
+            var listAnchorStickingEnd = listAnchorStickingStart + $list.width();
+
+            var overShooting = scrollLeft + viewportWidth >= listAnchorStickingEnd;
+            var overshoot = Math.abs(Math.ceil(listAnchorStickingEnd - viewportWidth - scrollLeft));
+
+            $('.floated-header-anchor').css({
+                'left': Math.max(0, listAnchorStickingStart - scrollLeft),
+                'right': overShooting ? overshoot : 0
+            });
+        }
+
+        function handleVerticalConstraints() {
+            var scrollTop = $(document).scrollTop();
+            $('.listview-actions-popover').each(function() {
+                var $popover = $(this);
+                var offset = $popover.offset();
+
+                var $floatContainer = $('.floatThead-container');
+                var floatingOffset = $floatContainer.offset();
+
+                // Check for collisions
+                if (offset.top < floatingOffset.top + $floatContainer.innerHeight() + 5 /* safe zone */) {
+                    var isRowPopover = $popover.hasClass ('row-actions-popover');
+                    var isHeaderPopover = $popover.hasClass ('header-actions-popover');
+                    var containerIsFloating = $floatContainer.hasClass ('floated');
+
+                    // Vertical constraint 1 : close row actions popovers when they collide with the floating header
+                    // Vertical constraint 3 : close header actions popovers when they are opened while the header is floating, and the document is scrolled
+                    var popoverNeedsClosing = isRowPopover || (isHeaderPopover && containerIsFloating);
+                    if (popoverNeedsClosing) {
+                        $popover.trigger('modal-close');
+                    }
+                }
+            });
+        }
+
+        $(document).on('scroll', function(e) {
+            handleHorizontalStickiness();
+            handleVerticalConstraints();
+        });
+
+        handleHorizontalStickiness();
+    });
+</script>
+{% endblock %}
+{% endif %}
+
+{% listview_header_colspan cells=cells is_readonly=is_popup_view is_single_select=o2m as colspan %}
+<div class="list-header-container{% if not is_popup_view %} sticky-container sticky-container-standalone{% endif %}">
+    <div class="list-header sticks-horizontally">
+        <div class="list-title-container">
+            <span class="list-title">
+                {{list_title}}
+                {% if list_sub_title %}<span class="list-sub-title-separator">—</span><span class="list-sub-title">{{list_sub_title}}</span>{% endif %}
+                {% if entities.paginator.count > 0 %}
+                <span class="list-title-stats">
+                    {% if entities.start_index %}{# TODO: per paginator-class stats templatetag ?? #}
+                    <span class="typography-parenthesis">(</span>{{entities.start_index}}&nbsp;–&nbsp;{{entities.end_index}} / {{entities.paginator.count}}<span class="typography-parenthesis">)</span>
+                    {% else %}
+                    <span class="typography-parenthesis">(</span>{{entities.paginator.count}}<span class="typography-parenthesis">)</span>
+                    {% endif %}
+                </span>
+                {% endif %}
+            </span>
+            <div class="list-controls">
+                <div class="list-control-group list-filters">
+                    {% get_listview_entity_filters %}
+                </div>
+                <div class="list-control-group list-views">
+                    {% get_listview_headerfilters %}
+                </div>
+            </div>
+        </div>
+        <div class="list-header-buttons clearfix">
+          {% if not is_popup_view %}
+            {% has_perm_to create model as creation_perm %}{% has_perm_to export model as export_perm %}
+            {% get_export_backends as export_backends %}
+            {% if export_backends|length > 2 %}{% url 'creme_core__dl_listview' as dl_url %}
+                <a class="with-icon" {% if export_perm %}href="{{dl_url}}?ct_id={{content_type_id}}&list_url={{request.path}}" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}});"{% else %}class="forbidden" title="{% trans 'Forbidden' %}"{% endif %}>
+                    {% trans 'Download' as label %}{% widget_icon name='document_csv' label=label size='listview-button' %}{{label}}
+                </a>
+                <a class="with-icon" {% if export_perm %}href="{{dl_url}}?ct_id={{content_type_id}}&list_url={{request.path}}&header=true" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}});"{% else %}class="forbidden" title="{% trans 'Forbidden' %}"{% endif %}>
+                    {% trans 'Download header' as label %}{% widget_icon name='document_csv' label=label size='listview-button' %}{{label}}
+                </a>
+            {% endif %}
+            {% ctype_is_registered_for_import content_type as can_import %}
+            {% if can_import %}
+                {% get_import_backends as import_backends %}
+                {% if import_backends|length > 2 %}
+                <a {% if creation_perm %}class="with-icon" href="{% url 'creme_core__mass_import' content_type_id %}"{% else %}class="with-icon forbidden" title="{% trans 'Forbidden' %}"{% endif %}>
+                    {% trans 'Import' as label %}{% widget_icon name='document_csv' label=label size='listview-button' %}{{label}}
+                </a>
+                {% endif %}
+            {% endif %}
+            <a class="with-icon" href="{% url 'creme_core__batch_process' content_type_id %}?list_url={{request.path}}">
+                {% trans 'Batch process' as label %}{% widget_icon name='batch_process' label=label size='listview-button' %}{{label}}
+            </a>
+            {% block extra_buttons %}{% endblock %}
+            {% if extra_bt_templates|isiterable %}
+                {% for templ in extra_bt_templates %}
+                    {% include templ %}
+                {% endfor %}
+            {% endif %}
+          {% endif %}
+            <button class="with-icon do-search button-right" value="0" type="button" onclick="creme.lv_widget.findList(this).list_view('getSubmit')(this);">
+                {% trans 'Search' context 'creme_core-verb' as label %}
+                {% widget_icon name='search' label=label size='listview-button' %}
+                <span>{{label}}</span>
+            </button>
+            <button class="clear-search button-right" value="1" type="button" {% if not search %}disabled="true"{% else %}onclick="creme.lv_widget.findList(this).list_view('getSubmit')(this, {search: 'clear'});"{% endif %}>
+                {% trans 'Clean the search' %}
+            </button>
+        </div>
+    </div>
+</div>
+
+{# <table id="list" class="list_view" cellpadding="0" cellspacing="0"> #}
+{# TODO: remove class "list_view" #}
+<table id="list" class="list_view listview {% if is_popup_view %}listview-popup{% else %}listview-standalone{% endif %} {% if o2m %}listview-selection-single{% else %}listview-selection-multiple{% endif %}" cellpadding="0" cellspacing="0" data-total-count="{{entities.paginator.count}}">
     <thead>
+{% comment %}
         <tr class="title">
             <th colspan="{{colspan}}"><h2>{{list_title}}</h2></th>
         </tr>
@@ -36,19 +176,19 @@
                 {% if not is_popup_view %}
                     {% has_perm_to create model as creation_perm %}{% has_perm_to export model as export_perm %}
                     {% if add_url %}
-                        <a {% if creation_perm %}href="{{add_url}}"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
-                            {% trans "New" as img_title %}<img border="0" src="{% creme_media_url 'images/add_22.png' %}" alt="{{img_title}}" title="{{img_title}}"/>{{model.creation_label}}
+                        <a {% if creation_perm %}href="{{add_url}}"{% else %}class="forbidden" title="{% trans 'Forbidden' %}"{% endif %}>
+                            {% widget_icon name='add' label=_('Create') size='listview-button' %}{{model.creation_label}}
                         </a>&nbsp;
                     {% endif %}
                     {% get_export_backends as export_backends %}
                     {% if export_backends|length > 2 %}{% url 'creme_core__dl_listview' as dl_url %}
 {#                        <a {% if export_perm %}href="/creme_core/list_view/download/{{content_type_id}}/%s?list_url={{request.path}}" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}});"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}> #}
                         <a {% if export_perm %}href="{{dl_url}}?ct_id={{content_type_id}}&list_url={{request.path}}" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}}, 'type');"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
-                            {% trans "Download" as label %}<img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}
+                            {% trans 'Download' as label %}{% widget_icon name='document_csv' label=label size='listview-button' %}{{label}}
                         </a>&nbsp;
 {#                        <a {% if export_perm %}href="/creme_core/list_view/download_header/{{content_type_id}}/%s?list_url={{request.path}}" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}});"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}> #}
                         <a {% if export_perm %}href="{{dl_url}}?ct_id={{content_type_id}}&list_url={{request.path}}&header=true" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}}, 'type');"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
-                            {% trans "Download header" as label %}<img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}
+                            {% trans 'Download header' as label %}{% widget_icon name='document_csv' label=label size='listview-button' %}{{label}}
                         </a>&nbsp;
                     {% endif %}
                     {% ctype_is_registered_for_import content_type as can_import %}
@@ -56,22 +196,21 @@
                         {% get_import_backends as import_backends %}
                         {% if import_backends|length > 2 %}
 {#                          <a {% if creation_perm %}href="/creme_core/list_view/import/{{content_type_id}}?list_url={{request.path}}"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}> #}
-{#                            <a {% if creation_perm %}href="/creme_core/mass_import/{{content_type_id}}"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}> #}
-                            <a {% if creation_perm %}href="{% url 'creme_core__mass_import' content_type_id %}"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
-                                {% trans "Import" as label %}<img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}
+                            <a {% if creation_perm %}href="{% url 'creme_core__mass_import' content_type_id %}"{% else %}class="forbidden" title="{% trans 'Forbidden' %}"{% endif %}>
+                                {% trans 'Import' as label %}{% widget_icon name='document_csv' label=label size='listview-button' %}{{label}}
                             </a>&nbsp;
                         {% endif %}
                     {% endif %}
 {#                    <a href="/creme_core/list_view/batch_process/{{content_type_id}}?list_url={{request.path}}"> #}
                     <a href="{% url 'creme_core__batch_process' content_type_id %}?list_url={{request.path}}">
-                        {% trans "Batch process" as label %}<img border="0" src="{% creme_media_url 'images/batch_process_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}
+                        {% trans 'Batch process' as label %}{% widget_icon name='batch_process' label=label size='listview-button' %}{{label}}
                     </a>&nbsp;
                 {% endif %}
                 <button class="listview-header-button clear-search" value="1" type="button" {% if not search %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this, {search: 'clear'});" {% endif %}>{% trans "Clean the search" %}</button>&nbsp;
                 <button class="listview-header-button-with-icon do-search" value="0" type="button" onclick="$(this.form).list_view('getSubmit')(this);">
-                    {% trans "Search" context "creme_core-verb" as label %}
+                    {% trans 'Search' context 'creme_core-verb' as label %}
                     <div>
-                        <img border="0" src="{% creme_media_url 'images/search_22.png' %}" alt="{{label}}" title="{{label}}"/>
+                        {% widget_icon name='search' label=label size='listview-button' %}
                         <span>{{label}}</span>
                     </div>
                 </button>
@@ -83,6 +222,7 @@
                 {% endif %}
             </th>
         </tr>
+{% endcomment %}
         <tr style="display:none;">
             <th colspan="{{colspan}}">
                 <input value="{{list_view_state.sort_field}}" id="sort_field"    type="hidden" name="sort_field" />
@@ -95,16 +235,55 @@
             </th>
         </tr>
         <tr class="columns_top">
-            {% if not o2m %}<th class="choices">&nbsp;</th>{% endif %}
+{#            {% if not o2m %}<th class="choices">&nbsp;</th>{% endif %} #}
+            {% if not o2m %}<th class="choices"><center><input name="select_all" value="all" type="checkbox" title="{% trans 'Select all' %}"/></center></th>{% endif %}
             {% for cell in cells %}
                 {% if cell.is_hidden %}
                     <th style="display:none;"></th>
                 {% elif cell.type_id == 'actions' %}
-                    <th class="actions"></th>
+{#                    <th class="actions"></th> #}
+                    <th class="actions">
+                        <ul class="header-actions-list">
+                            <li class="header-actions-trigger" title="{% trans 'Actions on the selected entities' %}">
+                                <span>{% trans 'Actions' %}</span>
+                                <div class="listview-actions-container">
+                                    <div class="listview-action">
+                                        <a onclick="creme.lv_widget.editSelectedLines(creme.lv_widget.findList(this), '{% url 'creme_core__bulk_update' content_type_id %}');">
+                                            {% widget_icon name='edit' label=_('Edit') size='listview-menu' class='listview-action-icon' %}{% trans 'Multiple update' %}
+                                        </a>
+                                    </div>
+                                    <div class="listview-action">
+                                        <a onclick="creme.lv_widget.deleteSelectedLines(creme.lv_widget.findList(this), '{% url 'creme_core__delete_entities' %}');">
+                                            {% widget_icon name='delete' label=_('Delete') size='listview-menu' class='listview-action-icon' %}{% trans 'Multiple deletion' %}
+                                        </a>
+                                    </div>
+                                    <div class="listview-action">
+                                        <a onclick="creme.lv_widget.addToSelectedLines(creme.lv_widget.findList(this), '{% url 'creme_core__add_properties_bulk' content_type_id %}');">
+                                            {% widget_icon name='property' label=_('Property') size='listview-menu' class='listview-action-icon' %}{% trans 'Multiple property adding' %}
+                                        </a>
+                                    </div>
+                                    <div class="listview-action">
+                                        <a onclick="creme.lv_widget.addToSelectedLines(creme.lv_widget.findList(this), '{% url 'creme_core__create_relations_bulk' content_type_id %}');">
+                                            {% widget_icon name='relations' label=_('Relationship') size='listview-menu' class='listview-action-icon' %}{% trans 'Multiple relationship adding' %}
+                                        </a>
+                                    </div>
+                                    {% if content_type|ctype_can_be_merged %}
+                                    <div class="listview-action">
+                                        <a onclick="creme.lv_widget.mergeSelectedLines(creme.lv_widget.findList(this), '{% url 'creme_core__merge_entities' %}');">
+                                            {% widget_icon name='merge' label=_('Merge') size='listview-menu' class='listview-action-icon' %}{% trans 'Merge 2 entities' %}
+                                        </a>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </li>
+                        </ul>
+                    </th>
                 {% else %}
+                    {# NB: TMP - this header currently adds the css class cell.listview_css_class until semantic information is provided in the template context #}
+                    {# TODO: should this header also add the cell.header_listview_css_class ? #}
                     <th class="{% if cell.key == list_view_state.sort_field %}sorted {% if list_view_state.sort_order == '-' %} reverse{% endif %}{% endif %} column{% if cell.key in research_cellkeys %} search{% endif %}{% if cell.sortable %} sortable{% endif %} cl_lv"
                         colspan="{{cell|listview_column_colspan:is_popup_view}}">
-                        <button type="button" {% if cell.sortable %}title="{% blocktrans with cell.title as col_title %}Sort by {{col_title}}{% endblocktrans %}" onclick="creme.lv_widget.handleSort('#sort_field', '#sort_order', '{{cell.key}}', this, $(this.form).list_view('getSubmit'));"{% else %} disabled="true" {% endif %}>
+                        <button type="button" {% if cell.sortable %}title="{% blocktrans with cell.title as col_title %}Sort by {{col_title}}{% endblocktrans %}" onclick="creme.lv_widget.handleSort('#sort_field', '#sort_order', '{{cell.key}}', this, creme.lv_widget.findList(this).list_view('getSubmit'));"{% else %}disabled="true"{% endif %}>
                             <div>
                                 <span class="lv-sort-toggle-flag ui-icon {% if list_view_state.sort_order == '-' %}ui-icon-triangle-1-s{% else %}ui-icon-triangle-1-n{% endif %}">&nbsp;</span>
                                 <span class="lv-sort-toggle-title">{{cell.title}}</span>
@@ -126,14 +305,15 @@
                 </td>
                 {% for cell in cells %}
                     {% if cell.type_id == 'actions' and show_actions %}
-                        <td title="actions" class="list_view_actions actions">{% get_entity_actions entity %}</td>
+                        <td {# title="actions" #} class="list_view_actions actions">{% get_entity_actions entity %}</td>
                     {% else %}
-                        <td class="lv-cell lv-cell-content {% if cell.key == list_view_state.sort_field %}sorted{% endif %} column cl_lv {{cell.listview_css_class}}" title="" name="{{cell.key}}" {% if cell.is_hidden %}style="display:none;"{% endif %}>
+                        <td class="lv-cell lv-cell-content {% if cell.key == list_view_state.sort_field %}sorted{% endif %} column cl_lv {{cell.listview_css_class}}" name="{{cell.key}}" {% if cell.is_hidden %}style="display:none;"{% endif %}>
                             <div>{% cell_render cell=cell instance=entity user=user %}</div>
                         </td>
                         {% if not is_popup_view %}
                         <td class="lv-cell lv-cell-action {% if cell.key == list_view_state.sort_field %}sorted{% endif %} column cl_lv" {% if cell.is_hidden %}style="display:none;"{% endif %}>
-                            {% get_field_editor on entity_cell cell for entity %}
+{#                            {% get_field_editor on entity_cell cell for entity %} #}
+                            {% listview_td_action_for_cell cell=cell instance=entity user=user %}
                         </td>
                         {% endif %}
                     {% endif %}
@@ -141,30 +321,73 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="{{colspan}}">{% trans "No entity exists / matches your search" %}</td>
+                <td colspan="{{colspan}}">{% trans 'No entity exists / matches your search' %}</td>
             </tr>
         {% endfor %}
     </tbody>
     <tfoot>
         <tr>
             <td colspan="{{colspan}}">
+{% comment %}
                 <table border="0" width="100%">
                     <tbody>
                         <tr>
-                            {% get_listview_pagination entities %}
+                            <td class="page_information">
+                                {% blocktrans with start_index=entities.start_index end_index=entities.end_index entities_count=entities.paginator.count %}Recordings {{start_index}} - {{end_index}} on {{entities_count}}{% endblocktrans %}
+                            </td>
+                            <td class="previous_buttons">
+                                <button class="first_page" name="page" value="1" {% if not entities.has_previous %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %} type="button">|<</button>
+                                <button class="previous_page" name="page" {% if entities.has_previous %}value="{{entities.previous_page_number}}" onclick="$(this.form).list_view('getSubmit')(this);"{% else %} disabled="true"{% endif %} type="button"><<</button>
+                            </td>
+                            <td class="current_page">
+                                <label for="user_page">{% trans "Page" %} </label><input id="user_page" value="{{entities.number}}" name="page" onkeydown="$(this.form).list_view('getKdSubmit')(event, this);" title="{% trans "'Enter' to submit" %}"/><label for="user_page"> {% trans "on" %} {{entities.paginator.num_pages}}</label>
+                            </td>
+                            <td class="next_buttons">
+                                <button class="next_page" name="page" {% if entities.has_next %}value="{{entities.next_page_number}}" onclick="$(this.form).list_view('getSubmit')(this);"{% else %}disabled="true"{% endif %} type="button">>></button>
+                                <button class="last_page" name="page" value="{{entities.paginator.num_pages}}"{% if entities.number == entities.paginator.num_pages %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %} type="button">>|</button>
+                            </td>
                             <td class="page_selector">
                                 <label for="id_page_selector_rows">{% trans "Nb / Page" %} :</label>
                                 <select id="id_page_selector_rows" name="rows" onchange="$(this.form).list_view('getSubmit')(this);">
                                     {% with entities.paginator.per_page as rows %}
-                                        {% for size_option in page_sizes %}
-                                            <option value="{{size_option}}" {% if rows == size_option %}selected{% endif %}>{{size_option}}</option>
-                                        {% endfor %}
+                                        <option value="10" {% if rows == 10 %}selected{% endif %}>10</option>
+                                        <option value="25" {% if rows == 25 %}selected{% endif %}>25</option>
+                                        <option value="50" {% if rows == 50 %}selected{% endif %}>50</option>
+                                        <option value="100" {% if rows == 100 %}selected{% endif %}>100</option>
+                                        <option value="200" {% if rows == 200 %}selected{% endif %}>200</option>
                                     {% endwith %}
                                 </select>
                             </td>
                         </tr>
                     </tbody>
                 </table>
+{% endcomment %}
+                <div class='list-footer-container sticks-horizontally'>
+                    <div class='list-footer-stats'>
+                    {% with start_index=entities.start_index %}
+                      {% if start_index %}{# TODO: per paginator-class footer-stats templatetag ?? (see similar question in title section #}
+                        {% blocktrans with end_index=entities.end_index entities_count=entities.paginator.count %}Recordings {{start_index}} - {{end_index}} on {{entities_count}}{% endblocktrans %}
+                      {% else %}
+                        {% blocktrans count entities_count=entities.paginator.count %}{{entities_count}} recording{% plural %}{{entities_count}} recordings{% endblocktrans %}
+                      {% endif %}
+                    {% endwith %}
+                    </div>
+
+                  {% if entities.paginator.num_pages > 1 %}
+                    {% listview_pager entities %}
+                  {% else %}
+                    <div class='listview-pagination'></div>
+                  {% endif %}
+
+                    <div class='list-footer-page-selector'>
+                        <label for="id_page_selector_rows">{% trans 'Nb / Page' %} :</label>
+                        <select id="id_page_selector_rows" name="rows" onchange="creme.lv_widget.findList(this).list_view('getSubmit')(this);">
+                        {% with rows=entities.paginator.per_page %}
+                            {% for size_option in page_sizes %}<option value="{{size_option}}"{% if rows == size_option %} selected{% endif %}>{{size_option}}</option>{% endfor %}
+                        {% endwith %}
+                        </select>
+                    </div>
+                </div>
             </td>
         </tr>
     </tfoot>

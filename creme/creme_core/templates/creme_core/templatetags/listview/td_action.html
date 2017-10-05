@@ -1,0 +1,8 @@
+{% load i18n creme_widgets %}{% trans 'Edit' as label %}
+{# TODO: transform into a 'true' action system (like in bricks) instead of using crappy onclick #}
+{% if edit_url %}
+<a class="listview-td-action{% if not edit_perm %} is-disabled{% endif %}" title="{{label}}" alt="{{label}}"
+   {% if edit_perm %}onclick="var a_tag = this; creme.dialogs.form('{{edit_url}}').onFormSuccess(function() { creme.lv_widget.findList(a_tag).list_view('reload'); }).open();"{% endif %}>
+    {% widget_icon name='edit' label=label size='listview-td-action' class='listview-td-action-icon' %}
+</a>
+{% endif %}

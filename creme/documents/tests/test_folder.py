@@ -364,7 +364,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         self.assertNotIn(folder3, folders)
         self.assertNotIn(parent2, folders)
 
-        self.assertEqual(_(u"List sub-folders of %s") % parent, title)
+        self.assertEqual(_(u'List sub-folders of «%s»') % parent, title)
         self.assertEqual('%s > %s' % (grand_parent.title, parent.title),
                          sub_title
                         )

@@ -206,36 +206,37 @@ def search_and_view(request):
     raise Http404(_(u'No entity corresponding to your search was found.'))
 
 
-def _bulk_has_perm(entity, user):
-    owner = entity.get_related_entity() if hasattr(entity, 'get_related_entity') else entity
+# TODO: remove when bulk_update_registry has been rework to manage different type of cells (eg: RelationType => LINK)
+def _bulk_has_perm(entity, user):  # NB: indeed 'entity' can be a simple model...
+    owner = entity.get_related_entity() if hasattr(entity, 'get_related_entity') else entity  # TODO: factorise
     return user.has_perm_to_change(owner) if isinstance(owner, CremeEntity) else False
 
 
 @login_required
 def inner_edit_field(request, ct_id, id, field_name):
-    user   = request.user
-    model  = get_ct_or_404(ct_id).model_class()
-    entity = get_object_or_404(model, pk=id)  # TODO: rename because not always an entity...
+    user = request.user
+    model = get_ct_or_404(ct_id).model_class()
+    instance = get_object_or_404(model, pk=id)
 
-    if not _bulk_has_perm(entity, user):
+    if not _bulk_has_perm(instance, user):
         raise PermissionDenied(_(u'You are not allowed to edit this entity'))
 
     try:
         form_class = bulk_update_registry.get_form(model, field_name, BulkDefaultEditForm)
 
         if request.method == 'POST':
-            form = form_class(entities=[entity], user=user, data=request.POST)
+            form = form_class(entities=[instance], user=user, data=request.POST)  # TODO: rename 'entities' arg
 
             if form.is_valid():
                 form.save()
         else:
-            form = form_class(entities=[entity], user=user)
+            form = form_class(entities=[instance], user=user)
     except (FieldDoesNotExist, FieldNotAllowed):
         return HttpResponseBadRequest(_(u'The field «%s» does not exist or cannot be edited') % field_name)
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':  form,
-                        'title': _(u'Edit «%s»') % unicode(entity),
+                        'title': _(u'Edit «%s»') % unicode(instance),
                        },
                        is_valid=form.is_valid(),
                        reload=False, delegate_reload=True,
@@ -248,7 +249,7 @@ def bulk_update_field(request, ct_id, field_name=None):
     user = request.user
     model = get_ct_or_404(ct_id).model_class()
 
-    if not issubclass(model, CremeEntity):
+    if not issubclass(model, CremeEntity):  # TODO: auxiliary too ? (see inner_edit_field())
         raise Http404('The model must be a CremeEntity')
 
     if field_name is None:
@@ -575,10 +576,10 @@ def empty_trash(request):
     # TODO: factorise ??
     if not errors:
         status = 200
-        message = _('Operation successfully completed')
+        message = _(u'Operation successfully completed')
     else:
         status = 409
-        message = _('The following entities cannot be deleted') + \
+        message = _(u'The following entities cannot be deleted') + \
                   u'<ul>%s</ul>' % u'\n'.join(u'<li>%s</li>' % msg for msg in errors)
 
     return HttpResponse(message, content_type='text/javascript', status=status)
@@ -607,7 +608,7 @@ def restore_entity(request, entity_id):
 
 def _delete_entity(user, entity):
     if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
-        return 404, _('%s does not use the generic deletion view.') % entity.allowed_unicode(user)
+        return 404, _(u'%s does not use the generic deletion view.') % entity.allowed_unicode(user)
 
     if hasattr(entity, 'get_related_entity'):
         related = entity.get_related_entity()

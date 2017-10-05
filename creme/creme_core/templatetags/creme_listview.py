@@ -30,16 +30,21 @@ from django.utils.translation import ugettext as _
 from ..core.entity_cell import (EntityCellRegularField, EntityCellCustomField,
         EntityCellFunctionField, EntityCellRelation)
 from ..core.paginator import FlowPaginator
+from ..gui.bulk_update import bulk_update_registry
 from ..gui.listview import NULL_FK
 from ..gui.mass_import import import_form_registry
 from ..gui.merge import merge_form_registry
 from ..models import CustomField
 from ..models.fields import EntityCTypeForeignKey
 from ..utils import creme_entity_content_types, build_ct_choices
+from ..views.entity import _bulk_has_perm
 
 
 logger = logging.getLogger(__name__)
 register = Library()
+
+# TODO: prefix all templatetags with 'listview_'
+# TODO: move all templates to 'creme_core/templatetags/listview/'
 
 
 @register.inclusion_tag('creme_core/templatetags/listview_entityfilters.html', takes_context=True)
@@ -74,14 +79,14 @@ def get_listview_headerfilters(context):
     return context
 
 
-DEFAULT_PAGINATOR_TEMPLATE = 'creme_core/templatetags/listview_paginator_slow.html'
+DEFAULT_PAGINATOR_TEMPLATE = 'creme_core/templatetags/listview/paginator_slow.html'
 PAGINATOR_TEMPLATES = {
-    FlowPaginator: 'creme_core/templatetags/listview_paginator_fast.html',
+    FlowPaginator: 'creme_core/templatetags/listview/paginator_fast.html',
 }
 
 
 @register.simple_tag
-def get_listview_pagination(page):
+def listview_pager(page):
     return get_template(PAGINATOR_TEMPLATES.get(page.paginator.__class__, DEFAULT_PAGINATOR_TEMPLATE))\
                        .render({'page': page})
 
@@ -196,7 +201,7 @@ def get_listview_columns_header(context):
         cell.widget_ctx = widget_ctx
 
     context['NULL_FK'] = NULL_FK
-    context['can_merge_entities'] = merge_form_registry.get(context['model']) is not None
+    context['can_merge_entities'] = merge_form_registry.get(context['model']) is not None  # DEPRECATED
 
     return context
 
@@ -217,6 +222,8 @@ def get_listview_cell(cell, entity, user):
     return u''
 
 
+# TODO: move to lib (creme_ctype)
+# TODO: transform into filter + rename ({% if ctype|ctype_can_be_mass_imported %})
 @register.assignment_tag
 def ctype_is_registered_for_import(ctype):
     return import_form_registry.is_registered(ctype)
@@ -238,3 +245,11 @@ def listview_header_colspan(cells, is_readonly, is_single_select):
 @register.filter('listview_column_colspan')
 def get_column_colspan(cell, is_readonly):
     return 2 if cell.type_id != 'actions' and not is_readonly else 1
+
+
+@register.inclusion_tag('creme_core/templatetags/listview/td_action.html')
+def listview_td_action_for_cell(cell, instance, user):
+    return {
+        'edit_url':  bulk_update_registry.inner_uri(cell=cell, instance=instance, user=user),
+        'edit_perm': _bulk_has_perm(instance, user),
+    }

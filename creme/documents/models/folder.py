@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -49,8 +49,8 @@ class AbstractFolder(CremeEntity):
 
     allowed_related = CremeEntity.allowed_related | {'document'}
 
-    creation_label = _('Create a folder')
-    save_label     = _('Save the folder')
+    creation_label = _(u'Create a folder')
+    save_label     = _(u'Save the folder')
 
     class Meta:
         abstract = True
@@ -80,9 +80,9 @@ class AbstractFolder(CremeEntity):
     def _pre_save_clone(self, source):
         max_length = self._meta.get_field('title').max_length
         self.title = truncate_str(source.title, max_length,
-                                  suffix=' (%s %08x)' % (ugettext(u"Copy"),
-                                                         randint(0, MAXINT),
-                                                        )
+                                  suffix=u' (%s %08x)' % (ugettext(u'Copy'),
+                                                          randint(0, MAXINT),
+                                                         )
                                  )
 
         # TODO: atomic
@@ -93,9 +93,10 @@ class AbstractFolder(CremeEntity):
         actions = super(AbstractFolder, self).get_actions(user)
 
         actions['others'].append(EntityAction('%s?parent_id=%s' % (self.get_lv_absolute_url(), self.id),
-                                              ugettext(u"Explore"),
+                                              ugettext(u'Explore'),
                                               user.has_perm_to_view(self),
-                                              icon="images/view_16.png",
+                                              # icon="images/view_16.png",
+                                              icon='view',
                                              ),
                                 )  # TODO: Ajaxify this
         return actions

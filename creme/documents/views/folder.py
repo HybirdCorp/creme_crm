@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -85,6 +85,7 @@ def abstract_list_folders(request, **extra_kwargs):
             parent_id = int(parent_id)
         except (ValueError, TypeError):
             logger.warn('Folder.listview(): invalid "parent_id" parameter: %s', parent_id)
+            parent_id = None
         else:
             folder = get_object_or_404(Folder, pk=parent_id)
             request.user.has_perm_to_view_or_die(folder)
@@ -94,10 +95,14 @@ def abstract_list_folders(request, **extra_kwargs):
     def post_process(template_dict, request):
         if folder is not None:
             parents = folder.get_parents()
-            parents.insert(0, folder)
-            parents.reverse()
-            template_dict['list_title'] = _(u"List sub-folders of %s") % folder
-            template_dict['list_sub_title'] = u" > ".join(f.title for f in parents)
+            # parents.insert(0, folder)
+            # parents.reverse()
+            template_dict['list_title'] = _(u'List sub-folders of «%s»') % folder
+            # template_dict['list_sub_title'] = u' > '.join(f.title for f in parents)
+            if parents:
+                parents.reverse()
+                parents.append(folder)
+                template_dict['list_sub_title'] = u' > '.join(f.title for f in parents)
 
     return list_view(request, Folder,
                      hf_pk=DEFAULT_HFILTER_FOLDER,

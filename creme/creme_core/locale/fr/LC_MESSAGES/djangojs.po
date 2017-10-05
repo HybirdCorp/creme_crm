@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-18 15:45+0200\n"
+"POT-Creation-Date: 2017-09-26 14:34+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -33,9 +33,9 @@ msgid "Process done"
 msgstr "Opération effectuée"
 
 #: static/creme_core/js/blocks.js:366
-#: static/creme_core/js/list_view.core.js:148
-#: static/creme_core/js/lv_widget.js:87 static/creme_core/js/lv_widget.js:132
-#: static/creme_core/js/lv_widget.js:151 static/creme_core/js/lv_widget.js:287
+#: static/creme_core/js/list_view.core.js:164
+#: static/creme_core/js/lv_widget.js:106 static/creme_core/js/lv_widget.js:155
+#: static/creme_core/js/lv_widget.js:174 static/creme_core/js/lv_widget.js:322
 msgid "Please select at least one entity."
 msgstr "Veuillez sélectionner au moins une fiche."
 
@@ -134,8 +134,8 @@ msgstr ""
 "Erreur de communication avec le gestionnaire de job (les derniers "
 "changements n'ont pas été pris en compte)"
 
-#: static/creme_core/js/jobs.js:63 static/creme_core/js/lv_widget.js:94
-#: static/creme_core/js/lv_widget.js:287 static/creme_core/js/lv_widget.js:292
+#: static/creme_core/js/jobs.js:63 static/creme_core/js/lv_widget.js:112
+#: static/creme_core/js/lv_widget.js:322 static/creme_core/js/lv_widget.js:327
 #: static/creme_core/js/utils.js:108 static/creme_core/js/utils.js:457
 #: static/creme_core/js/utils.js:499
 #: static/creme_core/js/widgets/ajax/backend.js:83
@@ -151,40 +151,44 @@ msgstr "Terminé"
 msgid "HTTP server error"
 msgstr "Erreur du serveur HTTP"
 
-#: static/creme_core/js/lv_widget.js:36 static/creme_core/js/utils.js:79
+#: static/creme_core/js/list_view.core.js:226
+msgid "Actions"
+msgstr "Actions"
+
+#: static/creme_core/js/lv_widget.js:41 static/creme_core/js/utils.js:79
 #: static/creme_core/js/widgets/dialog/confirm.js:48
 #: static/creme_core/js/widgets/dialog/select.js:60
 msgid "Ok"
 msgstr "Ok"
 
-#: static/creme_core/js/lv_widget.js:104
+#: static/creme_core/js/lv_widget.js:122
 #, javascript-format
 msgid "%d entity have been deleted."
 msgid_plural "%d entities have been deleted."
 msgstr[0] "%d entité a été supprimée."
 msgstr[1] "%d entités ont été supprimées."
 
-#: static/creme_core/js/lv_widget.js:110
+#: static/creme_core/js/lv_widget.js:128
 #, javascript-format
 msgid " %d entity cannot be deleted."
 msgid_plural " %d entities cannot be deleted."
 msgstr[0] "%d entité n'a pu être supprimée."
 msgstr[1] "%d entités n'ont pu être supprimées."
 
-#: static/creme_core/js/lv_widget.js:165
+#: static/creme_core/js/lv_widget.js:188
 #: static/creme_core/js/widgets/dialog/dialog.js:244
 msgid "Close"
 msgstr "Fermer"
 
-#: static/creme_core/js/lv_widget.js:195
+#: static/creme_core/js/lv_widget.js:218
 msgid "Please select 2 entities."
 msgstr "Veuillez sélectioner 2 fiches."
 
-#: static/creme_core/js/lv_widget.js:292
+#: static/creme_core/js/lv_widget.js:327
 msgid "Please select only one entity."
 msgstr "Veuillez sélectioner une seule fiche."
 
-#: static/creme_core/js/lv_widget.js:300
+#: static/creme_core/js/lv_widget.js:335
 msgid "Validate the selection"
 msgstr "Valider la sélection"
 
@@ -376,8 +380,7 @@ msgstr "Capture du graphique"
 msgid "View as image"
 msgstr "Capturer une image du graphique"
 
-#: static/creme_core/js/widgets/selectorlist.js:149
-#: static/creme_core/js/widgets/selectorlist.js:150
+#: static/creme_core/js/widgets/selectorlist.js:148
 msgid "Delete"
 msgstr "Supprimer"
 

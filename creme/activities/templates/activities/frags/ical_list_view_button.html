@@ -1,5 +1,7 @@
-{% load i18n creme_core_tags %}
-{# <a onclick="return creme.activities.exportAsICal(creme.lv_widget.findList(this));"> #}
-<a onclick="return creme.activities.exportAsICal(creme.lv_widget.findList(this), '{% url 'activities__dl_ical' %}');">
-    {% trans "Download in iCalendar format" as label %}<img border="0" src="{% creme_media_url 'images/calendar_ical_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}
-</a>&nbsp;
+{% load i18n creme_widgets %}{# creme_core_tags #}
+{# <a onclick="return creme.activities.exportAsICal($('form[name=list_view_form]'));"> #}
+<a class="with-icon" onclick="return creme.activities.exportAsICal(creme.lv_widget.findList(this), '{% url 'activities__dl_ical' %}');">
+{#    {% trans "Download in iCalendar format" as label %}<img border="0" src="{% creme_media_url 'images/calendar_ical_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}} #}
+    {% widget_icon name='calendar_ical' label=_('iCalendar') size='listview-button' %}{% trans 'Download in iCalendar format' %}
+{#</a>&nbsp;#}
+</a>
