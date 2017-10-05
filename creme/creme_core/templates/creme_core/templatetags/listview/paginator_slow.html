@@ -1,0 +1,51 @@
+{% load i18n %}
+{% with num_pages=page.paginator.num_pages %}
+<div class="listview-pagination">
+    <button class="listview-pagination-previous" name="page" {% if page.has_previous %}value="{{page.previous_page_number}}" onclick="creme.lv_widget.findList(this).list_view('getSubmit')(this);"{% else %}disabled{% endif %} type="button">{% trans 'Previous page' %}</button>
+    <button name="page" value="1" {% if page.has_previous %}onclick="creme.lv_widget.findList(this).list_view('getSubmit')(this);" title="{% trans 'First page' %}"{% else %}disabled="true"{% endif %} type="button">1</button>
+    {% if num_pages > 2 %}
+        <span class="listview-pagination-choose">
+            <input name="page" value="{{page.number}}" min="1" max="{{num_pages}}" onkeydown="creme.lv_widget.findList(this).list_view('getKdSubmit')(event, this);" title="{% trans '«Enter» to submit' %}"/>
+        </span>
+    {% endif %}
+    <button name="page" value="{{num_pages}}" {% if page.number == num_pages %}disabled="true"{% else %}onclick="creme.lv_widget.findList(this).list_view('getSubmit')(this);" title="{% trans 'Last page' %}"{% endif %} type="button">{{num_pages}}</button>
+    <button class="listview-pagination-next" name="page" {% if page.has_next %}value="{{page.next_page_number}}" onclick="creme.lv_widget.findList(this).list_view('getSubmit')(this);"{% else %}disabled{% endif %} type="button">{% trans 'Next page' %}</button>
+</div>
+{% endwith %}
+
+{% comment %} TODO (based on bricks/footer-pager.html)
+{% load creme_listview %}
+{% listview_slow_pager page as pager %}
+<div class="listview-pagination">
+    {% for link in pager.links %}
+        {% if link.is_current %}
+            <span class="listview-pagination-current">{{link.label}}</span>
+        {% elif link.group == 'choose' %}
+            <span class="listview-pagination-choose">
+                <span>…</span>
+                <input type="text" min="{{pager.first_page}}" max="{{pager.last_page}}" data-initial-value="{{link.page}}" />
+            </span>
+        {% else %}
+            <a class="{{link.css}}" href="" title="{{link.help}}" data-page="{{link.page}}">{{link.label}}</a>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endcomment %}
+
+{% comment %}
+{% load i18n %}
+<td class="page_information">
+    {% blocktrans with start_index=page.start_index end_index=page.end_index entities_count=page.paginator.count %}Recordings {{start_index}} - {{end_index}} on {{entities_count}}{% endblocktrans %}
+</td>
+<td class="previous_buttons">
+    <button class="first_page" name="page" value="1" {% if page.has_previous %} onclick="creme.lv_widget.findList(this).list_view('getSubmit')(this);" title="{% trans 'First page' %}"{% else %}disabled="true"{% endif %} type="button">|<</button>
+    <button class="previous_page" name="page" {% if page.has_previous %}value="{{page.previous_page_number}}" onclick="creme.lv_widget.findList(this).list_view('getSubmit')(this);" title="{% trans 'Previous page' %}"{% else %} disabled="true"{% endif %} type="button"><<</button>
+</td>
+<td class="current_page">
+    <label for="user_page">{% trans 'Page' %} </label><input id="user_page" value="{{page.number}}" name="page" onkeydown="creme.lv_widget.findList(this).list_view('getKdSubmit')(event, this);" title="{% trans "'Enter' to submit" %}"/><label for="user_page"> {% trans 'on' %} {{page.paginator.num_pages}}</label>
+</td>
+<td class="next_buttons">
+    <button class="next_page" name="page" {% if page.has_next %}value="{{page.next_page_number}}" onclick="creme.lv_widget.findList(this).list_view('getSubmit')(this);" title="{% trans 'Next page' %}"{% else %}disabled="true"{% endif %} type="button">>></button>
+    <button class="last_page" name="page" value="{{page.paginator.num_pages}}" {% if page.number == page.paginator.num_pages %}disabled="true"{% else %}onclick="creme.lv_widget.findList(this).list_view('getSubmit')(this);" title="{% trans 'Last page' %}"{% endif %} type="button">>|</button>
+</td>
+{% endcomment %}

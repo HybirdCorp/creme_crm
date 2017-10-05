@@ -291,7 +291,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
 
     template_dict = {
         'model':              model,
-        'list_title':         _(u"List of %s") % unicode(model._meta.verbose_name_plural),
+        'list_title':         _(u'List of %s') % unicode(model._meta.verbose_name_plural),
         'sub_title':          '',
         'header_filters':     header_filters,
         'entity_filters':     entity_filters,

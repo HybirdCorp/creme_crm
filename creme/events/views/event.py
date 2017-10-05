@@ -110,14 +110,16 @@ def build_get_actions(event, entity):
     def _get_actions(user):
         return {'default': EntityAction(entity.get_absolute_url(), ugettext(u'See'),
                                         user.has_perm_to_view(entity),
-                                        icon="images/view_16.png",
+                                        # icon="images/view_16.png",
+                                        icon='view',
                                        ),
                 'others':  [EntityAction(reverse('events__create_related_opportunity',
                                                  args=(event.id, entity.id),
                                                 ),
                                          ugettext(u'Create an opportunity'),
                                          user.has_perm(cperm(Opportunity)) and user.has_perm_to_link(event),
-                                         icon="images/opportunity_16.png",
+                                         # icon="images/opportunity_16.png",
+                                         icon='opportunity',
                                         ),
                            ]
                }

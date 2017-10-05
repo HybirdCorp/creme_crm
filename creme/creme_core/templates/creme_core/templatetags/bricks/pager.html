@@ -5,11 +5,9 @@
         {% elif link.group == 'choose' %}
             <span class="brick-pagination-choose">
                 <span>…</span>
-{#                <input type="text" min="{{first_page}}" max="{{last_page}}" data-initial-value="{{link.page}}" data-brick-page-uri="{{link.url}}"/> #}
                 <input type="text" min="{{first_page}}" max="{{last_page}}" data-initial-value="{{link.page}}" />
             </span>
         {% else %}
-{#            <a class="{{link.css}}" href="{{link.url}}" title="{{link.help}}">{{link.label}}</a> #}
             <a class="{{link.css}}" href="" title="{{link.help}}" data-page="{{link.page}}">{{link.label}}</a>
         {% endif %}
     {% endfor %}

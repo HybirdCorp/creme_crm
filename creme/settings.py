@@ -544,6 +544,8 @@ CREME_LIB_JS = ('lib.js',
                     'creme_core/js/jquery/extensions/jquery.debounce.js',
                     'creme_core/js/jquery/extensions/chosen.jquery-0.9.15-unchosen.js',
                     'creme_core/js/jquery/extensions/jquery.bind-first.js',
+                    'creme_core/js/jquery/extensions/jquery.floatthead-1.3.1._.js',
+                    'creme_core/js/jquery/extensions/jquery.floatthead-1.3.1.js',
                     'creme_core/js/lib/jquery.navIt.0.0.6.js',
                 )
 

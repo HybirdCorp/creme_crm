@@ -4,19 +4,18 @@
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Creme Documents 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-12 14:50+0200\n"
+"POT-Creation-Date: 2017-09-26 17:09+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps.py:29 models/document.py:58
+#: apps.py:29 models/document.py:58 templates/documents/portal.html:4
 msgid "Documents"
 msgstr "Documents"
 
@@ -250,10 +249,8 @@ msgid "No child folder"
 msgstr "Pas de classeur enfant"
 
 #: templates/documents/bricks/document-hat-bar.html:7
-#, fuzzy
-#| msgid "Download"
 msgid "Download the file"
-msgstr "Télécharger"
+msgstr "Télécharger le fichier"
 
 #: templates/documents/bricks/documents.html:7
 #, python-brace-format
@@ -270,7 +267,7 @@ msgid "Contained documents"
 msgstr "Documents contenus"
 
 #: templates/documents/bricks/documents.html:13
-#: templates/documents/portal.html:6
+#: templates/documents/portal.html:7
 #: templates/documents/templatetags/block_documents.html:11
 msgid "List of documents"
 msgstr "Liste des documents"
@@ -318,11 +315,11 @@ msgstr "Délier à un document"
 msgid "No linked document"
 msgstr "Aucun document lié"
 
-#: templates/documents/frags/previous.html:6
+#: templates/documents/frags/previous.html:7
 msgid "Previous folder"
 msgstr "Classeur parent"
 
-#: templates/documents/portal.html:4
+#: templates/documents/portal.html:5
 msgid "Document Portal"
 msgstr "Portail Document"
 
@@ -404,8 +401,8 @@ msgstr "Nouveau classeur enfant pour «%s»"
 
 #: views/folder.py:99
 #, python-format
-msgid "List sub-folders of %s"
-msgstr "Liste des sous-dossiers de %s"
+msgid "List sub-folders of «%s»"
+msgstr "Liste des sous-dossiers de «%s»"
 
 #: views/portal.py:33
 msgid "Number of documents"

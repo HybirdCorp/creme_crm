@@ -1,27 +1,184 @@
 .list_view {
     width: 100%;
+    padding: 0px 4px 0px 0px;
+    margin: 12px 5px 15px 0px;
+
+/*
     border: 1px solid #548295;
-    padding: 4px;
-    margin: 0px;
-    -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
+       -moz-border-radius: 4px;
+            border-radius: 4px;
+*/
+
+    border-top:    none;
+    border-left:   1px solid #e1e9ec;
+    border-bottom: none;
+    border-right:  none;
 }
+
+/* Listview page - page header and controls */
+
+.list-header-container {
+    min-height: 50px;
+    margin-top: 10px;
+}
+
+.list-title-container {
+    margin-bottom: 10px;
+}
+
+.list-title {
+/*    text-transform: uppercase; */
+    font-size: 23px;
+    font-weight: 600;
+
+/*    flex: 1; */
+}
+
+.list-title .list-title-stats {
+    font-size: 16px;
+    color: #5e6b71;
+    margin-left: 5px;
+}
+
+.list-control-group {
+    display: inline-block;
+/*    min-width: 200px; */
+}
+
+.list-control-group + .list-control-group {
+    margin-left: 200px;
+}
+
+.list-control-group fieldset {
+    display: inline-block;
+    border: 0;
+    padding: 0;
+/*    font-size: 0px; */
+}
+
+.list-control-group .legend {
+    display: inline-block;
+    margin-right: 10px;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.list-control-group .legend img {
+/*    width: 16px; */
+/*    height: 16px; */
+    position: relative;
+    top: 6px;
+    left: -4px;
+    margin-right: 5px;
+}
+
+.list-control-group select {
+/*    margin-left: 10px; */
+    max-width: 300px;
+}
+
+.list-control-group a {
+    position: relative;
+    top: 5px;
+    margin-left: 10px;
+/*    cursor: pointer; */
+}
+
+.ui-creme-listview-standalone .button-right {
+    float: right;
+}
+
+/* Listview page - page header and controls - end */
+
+/* Listview page header buttons */
+
+/* TMP: mostly once again duplicated from menu_button */
+.list-header-buttons a,
+.list-header-buttons button {
+    padding: 7px 20px;
+    margin-right: 5px;
+
+    display: inline-block;
+
+            box-sizing: border-box;
+       -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+
+    border: 1px solid #bdd3dc;
+    border-bottom: 1px solid #9db2bb;
+
+    border-radius: 3px;
+
+            box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
+    -webkit-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.6), inset 0 1px 0px white;
+
+    text-align: center;
+    text-decoration: none;
+
+    font-size: 12px;
+    font-weight: 600;
+    color: #333;
+    white-space: nowrap;
+
+    background: linear-gradient(#f6fcff, #e0f1f7);
+
+    cursor: pointer;
+}
+
+.list-header-buttons a.with-icon,
+.list-header-buttons button.with-icon {
+    padding-left: 35px;
+    position: relative;
+}
+
+.list-header-buttons a.with-icon img,
+.list-header-buttons button.with-icon img {
+    position: absolute;
+/*    top: calc(50% - 7px); */
+    left: 13px;
+    top: 3px;
+}
+
+.list-header-buttons a:enabled:hover,
+.list-header-buttons button:enabled:hover {
+    background: linear-gradient(#ffffff, #f3f3f3);
+    color: #4d4d4d;
+}
+
+.list-header-buttons a:enabled:active,
+.list-header-buttons button:enabled:active {
+    background: linear-gradient(#f9f9f9, #ededed);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);
+    border-bottom-color: #d7d7d7;
+    border-top-color: #bdbdbd;
+    color: #1a1a1a;
+}
+
+.list-header-buttons a:disabled,
+.list-header-buttons button:disabled {
+    opacity: 0.5;
+}
+
+/* Listview page header buttons - end */
+
+/* Listview - header columns */
 
 .list_view thead {
-    /*font-size:16px;*/
-    /*font-weight:bold;*/
-    /*color:white;*/
-    color: #2C596C;
-    /*background-color:#94c6db;*/
-    background: #94c6db url(jquery-css/creme-theme/images/ui-bg_diagonals-thick_15_94c6db_40x40.png) 50% 50% repeat;
-    padding : 0px;
+    padding: 0px;
+/*    color: #2C596C; */
+/*    background: #94c6db url(jquery-css/creme-theme/images/ui-bg_diagonals-thick_15_94c6db_40x40.png) 50% 50% repeat; */
+/*    background: #e9f6fb; */
 }
 
+/* TODO: remove ".title" stuffes in 1.8 */
 .list_view thead .title th h2 {
     padding-top: 0.6em;
     padding-bottom: 0.6em;
 }
 
+/* TODO: remove ".sub_title" stuffes in 1.8 */
 .list_view thead .sub_title th h4, .list_view thead .title th h2 {
     height: 1px;
     margin-top: 0px;
@@ -32,6 +189,7 @@
     border: 0;
 }
 
+/* TODO: remove ".filters" stuffes in 1.8 */
 .list_view thead .lines_modifiers .filters, .list_view thead .lines_modifiers .views {
     vertical-align: baseline;
     width: 50%;
@@ -81,13 +239,12 @@
     padding-bottom: 5px;
 }
 
-/* .list_view tr#list_thead_toolbar button.do-search { */
+/* TODO: remove '#list_thead_toolbar' in 1.8 */
 .list_view tr#list_thead_toolbar button.listview-header-button-with-icon {
     position: relative;
     top: 5px;
 }
 
-/* .list_view tr#list_thead_toolbar button.do-search > div { */
 .list_view tr#list_thead_toolbar button.listview-header-button-with-icon > div {
     display: -webkit-flex;
     display: -ms-flexbox;
@@ -95,7 +252,6 @@
     height: 16px;
 }
 
-/* .list_view tr#list_thead_toolbar button.do-search img { */
 .list_view tr#list_thead_toolbar button.listview-header-button-with-icon img {
     -webkit-align-self: center;
         -ms-flex-item-align: center;
@@ -106,55 +262,45 @@
     position: relative;
 }
 
-/* .list_view tr#list_thead_toolbar button.do-search span { */
 .list_view tr#list_thead_toolbar button.listview-header-button-with-icon span {
     -webkit-align-self: center;
         -ms-flex-item-align: center;
             align-self: center;
 }
 
-.list_view .toolbar button, .list_view .toolbar a, .list_view button {
-    /*padding: 4px ;
-    border: 1px solid #d5e0e5;
-    background-color: #d9e5ea;
-    color:  #22439f;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;*/
-
+.list_view .toolbar button,
+.list_view .toolbar a,
+.list_view button {
     cursor:pointer;
-    border: 1px solid #d5e0e5;
-    background: #d9e5ea url(../css/jquery-css/creme-theme/images/ui-bg_highlight-hard_75_d9e5ea_1x100.png) 50% 50% repeat-x;
+/*    background: #d9e5ea url(../css/jquery-css/creme-theme/images/ui-bg_highlight-hard_75_d9e5ea_1x100.png) 50% 50% repeat-x; */
+
     font-weight: normal;
-    /*color: #22439f;*/
     color: #254B5B;
     outline: none;
-    -moz-border-radius: 4px;
+
+    border: 1px solid #d5e0e5;
     -webkit-border-radius: 4px;
+       -moz-border-radius: 4px;
+            border-radius: 4px;
 }
 
-.list_view .toolbar button:hover, .list_view .toolbar a:hover, .list_view button:hover {
-    /*color: #f46758;
-    border: 1px solid #f7b5ad;
-    background-color: #fdd5d1;
-    text-decoration: none;
-    cursor:pointer;*/
-
+.list_view .toolbar button:hover,
+.list_view .toolbar a:hover,
+.list_view button:hover {
     cursor: pointer;
-    border: 1px solid #f7b5ad;
-    background: #fdd5d1 url(../css/jquery-css/creme-theme/images/ui-bg_inset-soft_75_fdd5d1_1x100.png) 50% 50% repeat-x;
+
+/*    background: #fdd5d1 url(../css/jquery-css/creme-theme/images/ui-bg_inset-soft_75_fdd5d1_1x100.png) 50% 50% repeat-x; */
+
     font-weight: normal;
     color: #f46758;
     outline: none;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
     text-decoration: none;
-}
 
-/*.list_view thead th{
-    border-bottom: 1px solid #548295;
-    border-left: 1px solid #548295;
-    border-right: 1px solid #548295;
-}*/
+    border: 1px solid #f7b5ad;
+    -webkit-border-radius: 4px;
+       -moz-border-radius: 4px;
+            border-radius: 4px;
+}
 
 .list_view .columns_top .column button {
     width: 100%;
@@ -174,20 +320,21 @@
 }
 
 .list_view .columns_top .column .lv-sort-toggle-title {
-    -webkit-align-self: center;
-        -ms-flex-item-align: center;
-            align-self: center;
+    -ms-flex-item-align: center;
+     -webkit-align-self: center;
+             align-self: center;
     -webkit-flex-grow: 1;
         -ms-flex-positive: 1;
             flex-grow: 1;
 }
 
 .list_view .columns_top .column .lv-sort-toggle-flag {
-    visibility: hidden;
-    -webkit-align-self: center;
-        -ms-flex-item-align: center;
-            align-self: center;
     min-width: 16px;
+    visibility: hidden;
+
+    -ms-flex-item-align: center;
+     -webkit-align-self: center;
+             align-self: center;
 }
 
 .list_view .columns_top .column.sorted .lv-sort-toggle-flag {
@@ -195,9 +342,22 @@
 }
 
 .list_view .columns_top th {
-    border-top: 1px solid #548295;
-    border-left: 1px solid #548295;
+    background: #e9f6fb;
+/*
+    border-top:   1px solid #548295;
+    border-left:  1px solid #548295;
     border-right: 1px solid #548295;
+*/
+    border-top:   1px solid #cce0e8;
+    border-right: 1px solid #e1e9ec;
+}
+
+.list_view > thead tr.columns_top,
+.list_view > thead tr.columns_bottom,
+/*.list_view .columns_top th.sorted,*/
+/*.list_view .columns_bottom th.sorted,*/
+.list_view > tbody tr:not(.odd) {
+    background: #fcfeff;
 }
 
 .list_view .columns_bottom th.search input,
@@ -207,17 +367,23 @@
     background-color: #FCD3CF;
     color: #C05C50;
     border: 1px solid #D87D72;
-    /*background: #fdd5d1 url(jquery-css/creme-theme/images/ui-bg_glass_75_f7d6d2_1x400.png) 50% 50% repeat-x;*/
 }
 
 .list_view .columns_bottom th {
-    border-bottom: 1px solid #548295;
-    border-left: 1px solid #548295;
-    border-right: 1px solid #548295;
-    text-align: center;
     padding-bottom: 2px;
-}
 
+/*
+    border-bottom: 1px solid #548295;
+    border-left:   1px solid #548295;
+    border-right:  1px solid #548295;
+*/
+    border-bottom: 1px solid #cce0e8;
+    border-top:    1px solid #cce0e8;
+
+    text-align: center;
+
+    background: #e9f6fb;
+}
 
 .list_view .columns_bottom .text input {
     min-width: 50px;
@@ -248,58 +414,330 @@
 
 .list_view .columns_bottom .lv-search-daterange label {
     margin: 2px;
-    -webkit-align-self: center;
-        -ms-flex-item-align: center;
-            align-self: center;
+
+    -ms-flex-item-align: center;
+     -webkit-align-self: center;
+             align-self: center;
 }
 
 .list_view .columns_bottom .lv-search-daterange input {
-    padding-right: 20px;
-    -webkit-align-self: center;
-        -ms-flex-item-align: center;
-            align-self: center;
     width: 70px;
+    padding-right: 20px;
+
+    -ms-flex-item-align: center;
+     -webkit-align-self: center;
+             align-self: center;
 }
 
 .list_view .columns_bottom .lv-search-daterange .ui-datepicker-trigger {
-    right: 20px;
-    -webkit-align-self: center;
-        -ms-flex-item-align: center;
-            align-self: center;
-    opacity: 1;
-    height: 16px;
     position: relative;
+    height: 16px;
+    right: 20px;
     bottom: 1px;
-    z-index: 1;
     margin: 0;
+    padding: 0;
+
+    -ms-flex-item-align: center;
+     -webkit-align-self: center;
+             align-self: center;
+    opacity: 1;
+    z-index: 1;
+}
+
+.list_view thead button,
+.list_view thead button:hover {
+    border: 0 !important;
+    background: none;
+    color: currentColor;
+}
+
+.list_view thead th:last-child {
+    border-right: 1px solid #e1e9ec;
+}
+
+.list_view thead th .lv-sort-toggle-title {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    color: #222;
+    padding-left: 1px;
+}
+
+.list_view thead th.left_align .lv-sort-toggle-title {
+    text-align: left;
+}
+
+.list_view thead th.right_align .lv-sort-toggle-flag:first-child {
+    display: inline;
+    width: 0;
+    flex-grow: 1;
+}
+
+.list_view thead th.right_align .lv-sort-toggle-title {
+    text-align: right;
+    margin-right: 21px;
+}
+
+.list_view thead th button:disabled .lv-sort-toggle-title {
+    color: #777;
+}
+
+.list_view thead button:enabled .lv-sort-toggle-title {
+    position: relative;
+    flex-grow: 0 !important;
+}
+
+.list_view thead .sorted .lv-sort-toggle-title {
+    color: #666;
+    font-weight: 700;
+}
+
+.list_view .lv-sort-toggle-flag {
+    display: none;  /* Hide the left-aligned sorted flags (TODO: remove from creme ??) */
+}
+
+.list_view .columns_top .column.sorted.right_align .lv-sort-toggle-flag {
+    visibility: hidden; /* Hide the right-aligned left sorted flag (TODO: remove from creme ??) */
+}
+
+.list_view thead button:enabled .lv-sort-toggle-title:hover::after,
+.list_view thead .sorted .lv-sort-toggle-flag.ui-icon-triangle-1-n + .lv-sort-toggle-title::after {
+    content: '';
+    display: inline-block;
+    position: absolute;
+    color: #999;
+    width: 0;
+    height: 0;
+    border-left:  4px solid transparent;
+    border-right: 4px solid transparent;
+    bottom: 3px;
+
+/*    left: 100%; */
+    margin-bottom: 2px;
+    margin-left: 4px;
+    border-top: 0;
+    border-bottom: 4px solid currentColor;
+}
+
+.list_view thead .sorted .lv-sort-toggle-flag.ui-icon-triangle-1-s + .lv-sort-toggle-title::after {
+    content: '';
+    display: inline-block;
+    position: absolute;
+    color: #999;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    bottom: 3px;
+
+    left: 100%;
+    margin-bottom: 2px;
+    margin-left: 4px;
+    border-bottom: 0;
+    border-top: 4px solid currentColor;
+}
+
+/* Listview - header columns - end */
+
+/* Listview - row and header actions */
+
+.listview .header-actions-list,
+.listview .row-actions-list {
+    height: 20px;
+    max-width: 100px;
+
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    background: hsl(198, 50%, 96%);
+    border: 1px solid hsl(197, 25%, 80%);
+    border-radius: 4px;
+}
+
+.listview .row-actions-list {
+    font-size: 0;
+}
+
+.listview .row-actions-trigger {
+    display: inline-block;
+    width: 22px;
+    height: 21px;
+
+    position: relative;
+    cursor: pointer;
+
+    color: #777;
+    padding-right: 2px;
+}
+
+.listview .row-actions-trigger::before {
+    content: '';
+    display: inline-block;
+    position: absolute;
+
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+
+    top: 9px;
+    left: 4px;
+
+    margin-bottom: 2px;
+    margin-left: 4px;
+    border-bottom: 0;
+    border-top: 4px solid currentColor;
+}
+
+.listview .header-actions-trigger {
+    height: 100%;
+
+    cursor: pointer;
+
+    font-weight: 600;
+    font-size: 13px;
+    color: #333 !important;
+}
+
+.listview .header-actions-trigger > span {
+    position: relative;
+    top: 2px;
+    left: -4px;
+}
+
+.listview .header-actions-trigger > span::after {
+    content: '';
+    display: inline-block;
+    position: absolute;
+
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+
+    top: 6px;
+    left: 100%;
+    margin-left: 4px;
+
+    color: #777;
+    border-bottom: 0;
+    border-top: 4px solid currentColor;
+}
+
+.listview .listview-actions-container {
+    display: none;
+}
+
+.listview .default-row-action {
+    display: inline-block;
+    height: 21px;
+
+    position: relative;
+    top: -6px;
+
+    border-left: 1px solid #ccc;
+}
+
+.listview-action a {
+    display: block;
+
+    padding-left: 5px;
+    padding-right: 10px;
+
+    font-weight: 500;
+    font-size: 13px;
+    font-style: italic;
+    color: #333 !important;
+
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.listview-action .listview-action-icon {
+    width: 16px;
+    height: 16px;
+
+    margin-right: 5px;
+    position: relative;
+}
+
+/*
+.listview .default-row-action a {
+    display: inline-block;
+    height: 21px;
+    padding-right: 15px;
+}
+*/
+
+.listview .default-row-action .listview-action-icon {
+    top: 3px;
+    margin-left: 5px;
+}
+
+.listview-actions-popover .popover-content {
     padding: 0;
 }
 
-/*.list_view tbody tr:nth-of-type(odd) { CSS3*/
-.list_view tbody tr.odd {
-    background-color: #E6F2F7;
+.listview-actions-popover .listview-action {
+    border-top: 1px solid #ccc;
 }
 
+.listview-actions-popover .listview-action a {
+    padding: 4px 14px 7px 9px;
+}
+
+.listview-actions-popover .listview-action-icon {
+    top: 3px;
+    margin-right: 8px;
+}
+
+.header-actions-popover .listview-action-icon[src*='/edit_'] {
+    top: 4px;
+}
+
+.listview .header-actions-trigger:hover,
+.listview .header-actions-trigger:hover > span::after,
+.listview .row-actions-trigger:hover,
+.listview-action:hover,
+.listview-action a:hover {
+    background: hsl(199, 90%, 75%);
+    color: white !important;
+}
+
+/* Listview - row and header actions - end */
+
+/*.list_view tbody tr:nth-of-type(odd) { CSS3*/
+.list_view tbody tr.odd {
+/*    background-color: #E6F2F7; */
+    background-color: #f8fdff;
+}
+
+/*
 .list_view tbody tr {
     border-bottom: 1px solid #333;
 }
+*/
 
 .list_view tbody td {
-    color: #376e86;
     padding-left: 5px;
     padding-right: 5px;
-    /*min-width:5% !important;*/
-    white-space: nowrap;
     padding: 2px 6px;
+
+    white-space: nowrap;
     text-align: center;
-    border-bottom: 1px solid #548295;
-    border-left: 1px solid #548295;
-    border-right: 1px solid #548295;
+/*    color: #376e86; */
+
+/*    border-bottom: 1px solid #548295; */
+    border-bottom: 1px solid #e1e9ec;
+/*    border-left:   1px solid #548295; */
+/*    border-right:  1px solid #548295; */
+    border-right: 1px solid #e1e9ec;
 }
 
-.list_view tbody td ul{
-    text-align:left;
+.list_view tbody td ul {
     margin: 3px;
+    text-align: left;
 }
 
 .list_view tfoot tr td table tr td {
@@ -309,40 +747,44 @@
 }
 
 .list_view tfoot tr td {
+/*
     border-bottom: 1px solid #548295;
-    border-left: 1px solid #548295;
-    border-right: 1px solid #548295;
-    /*background-color:#94c6db;*/
-    background: #94c6db url(jquery-css/creme-theme/images/ui-bg_diagonals-thick_15_94c6db_40x40.png) 50% 50% repeat;
+    border-left:   1px solid #548295;
+    border-right:  1px solid #548295;
+*/
+    border-right: 1px solid #e1e9ec;
+    border-bottom: 1px solid #e1e9ec;
+
+/*    background: #94c6db url(jquery-css/creme-theme/images/ui-bg_diagonals-thick_15_94c6db_40x40.png) 50% 50% repeat; */
 }
 
-/*.list_view button{
-    border: #548295 1px outset;
-    color: #2C596C;
-}*/
-.list_view button[disabled="true"], .list_view button[disabled="true"]:hover, .list_view button[disabled="true"]:active{
-    background-color: #CCCCCC;
+.list_view button[disabled="true"],
+.list_view button[disabled="true"]:hover,
+.list_view button[disabled="true"]:active {
+/*    background-color: #CCCCCC; */
     color: #919191;
     cursor: auto;
 }
 
-/*.list_view button:hover{
-    background-color: #D7E2E7;
-} */
 .list_view button:active {
     border: #548295 1px inset;
 }
 
-.list_view input, .list_view select, .list_view input, .list_view select {
+.list_view input,
+.list_view select,
+.list_view input,
+.list_view select {
     border: #548295 1px solid;
     border-radius: 4px;
-    color: #254B5B;
-    background-color: #DDEEFF;
+/*    color: #254B5B; */
+/*    background-color: #DDEEFF; */
+    background-color: white;
 }
 
-.list_view input:hover, .list_view select:hover, .list_view input:focus, .list_view select:focus {
-    /*border: #548295 1px solid;
-    background-color: #D7E2E7;*/
+.list_view input:hover,
+.list_view select:hover,
+.list_view input:focus,
+.list_view select:focus {
     background-color: #E9EEFF;
 }
 
@@ -350,23 +792,16 @@
     max-width: 1%;
     width: 1%;
 }
-/*
-.list_view select {
-    color:#376e86;
-    border : 1px solid #548295;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-}
-*/
 
 .list_view option.search-nullfk {
     font-style: italic;
 }
 
 .list_view .cl_lv {
-    word-wrap: break-word;
     max-width: 200px;
     min-width: 120px;
+
+    word-wrap: break-word;
     white-space:normal;
 }
 
@@ -375,14 +810,17 @@
 }
 
 .list_view .hd_date_cl_lv {
-    word-wrap: break-word;
     max-width: 120px;
+    word-wrap: break-word;
 }
 
 
 .list_view .cl_lv ul {
-    padding-top: 0px;
+/*
+    padding-top:    0px;
     padding-bottom: 0px;
+*/
+    padding: 0 0 0 15px;
 }
 
 .list_view tbody .lv-cell-content {
@@ -400,7 +838,13 @@
     height: 18px;
 }
 
+/*
 .list_view tbody .lv-cell-content {
+    border-right: 0px;
+}
+*/
+
+.listview.listview-standalone tbody .lv-cell-content {
     border-right: 0px;
 }
 
@@ -411,8 +855,8 @@
     min-width: 22px;
     width: 22px;
     padding: 0px;
-    border-left: 0px;
-    border-right: 1px solid #548295;
+/*    border-left: 0px; */
+/*    border-right: 1px solid #548295; */
 }
 
 .list_view tbody .lv-cell-action a {
@@ -454,3 +898,273 @@
     text-align: right;
     padding-right: 5px;
 }
+
+/* Listview - row selection */
+
+.listview.first-row-hovered .columns_bottom th,
+.listview.first-row-selected .columns_bottom th {
+    border-bottom: 1px solid #f49b90;
+}
+
+.listview tr.selected {
+    background: none !important;
+}
+
+.listview tr.selectable td {
+    border-bottom: none;
+    border-top: 1px solid rgba(84, 130, 149, 0.3);
+    transition: background-color 0.1s ease-in-out;
+}
+
+.listview tr.selectable:first-child td {
+    border-top: none;
+}
+
+.listview tr.selectable:not(.selected):last-child:not(:first-child) td {
+    border-top: 1px solid rgba(84, 130, 149, 0.3);
+}
+
+.listview tr.selectable:last-child td {
+    border-bottom: 1px solid rgba(84, 130, 149, 0.3);
+}
+
+.listview tr.selectable:hover td,
+.listview tr.selectable.selected td {
+    border-top-color: #f49b90 !important;
+    border-bottom: 1px solid #f49b90;
+    background-color: rgba(245, 71, 71, 0.07);
+}
+
+.listview tr.selectable:hover:first-child td,
+.listview tr.selectable.selected:first-child td {
+    border-top: none;
+}
+
+.listview tr.selectable:hover td:first-child,
+.listview tr.selectable.selected td:first-child,
+.listview-selection-single tr.selectable:hover td:first-child + td,
+.listview-selection-single tr.selectable.selected td:first-child + td {
+    border-left: 1px solid #f49b90;
+}
+
+.listview tr.selectable:hover td:last-child,
+.listview tr.selectable.selected td:last-child {
+    border-right: 1px solid #f49b90;
+}
+
+.listview tr.selectable:hover + tr.selected td,
+.listview tr.selected + tr.selected td {
+    border-top: none;
+}
+
+.listview tr.selectable:hover + tr:not(.selected) td,
+.listview tr.selected + tr:not(.selected) td {
+    border-top: none !important;
+}
+
+.listview tr.selectable:hover {
+    background-color: rgba(71, 158, 245, 0.11) !important;
+    transition: background-color 0.1s ease-in-out;
+}
+
+/* Listview - row selection - end */
+
+/* The stickytude attitude */
+
+/*
+.sticky-container {
+    position: relative;
+}
+
+.sticky-container .sticks-horizontally {
+    position: absolute;
+    width: 100%;
+}
+
+.listview-popup .sticks-horizontally { // disable stickytude in popups
+    position: static;
+}
+*/
+
+/* The stickytude attitude - end */
+
+/* Listview - floating header */
+
+.floated-header-anchor {
+    display: none;
+
+/*    position: fixed; */
+    height: 10px;
+
+    pointer-events: none;
+    z-index: 1;
+
+    -webkit-box-shadow: 0 1px 12px -3px rgba(0, 0, 0, 0.3);
+       -moz-box-shadow: 0 1px 12px -3px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 1px 12px -3px rgba(0, 0, 0, 0.3);
+}
+
+.floatThead-container.floated + .floated-header-anchor {
+    display: block;
+}
+
+.floatThead-container.floated #list_thead_search th {
+    border-bottom: 1px solid rgba(84, 130, 149, 0.3) !important;
+}
+
+/* Listview - floating header - end */
+
+/* Listview - inner edition */
+
+.list_view tbody .lv-cell-action .listview-td-action.is-disabled {
+    opacity: 0.6;
+}
+
+/* Listview - inner edition -end */
+
+/* Listview - footer & pager */
+
+.listview tfoot {
+    background: white;
+}
+
+.listview .list-footer-container {
+    display: flex;
+    align-items: center;
+
+    padding: 5px 10px;
+}
+
+@media (min-width: 1600px) {
+    .listview-standalone .list-footer-container {
+        max-width: 96.5vw;
+    }
+}
+
+@media (max-width: 1600px) {
+    .listview-standalone .list-footer-container {
+        max-width: 96vw;
+    }
+}
+
+.listview .list-footer-stats,
+.listview .list-footer-page-selector label {
+    color: #444;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+/* mostly copied from bricks pagination */
+.listview .list-footer-container .listview-pagination {
+    display: inline-flex;
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+
+    border-top: 1px solid hsl(197, 25%, 80%);
+/*    padding-top: 7px; */
+    padding-bottom: 2px;
+
+    /* -- */
+    padding-top: 2px;
+    border: 0;
+}
+
+/*.listview .list-footer-container .listview-pagination > a,
+.listview .list-footer-container .listview-pagination > span */
+.listview .list-footer-container .listview-pagination > button,
+.listview .list-footer-container .listview-pagination > span {
+    margin-left: -1px;
+    padding: 3px 10px;
+
+    border: 1px solid hsl(197, 25%, 80%);
+
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+
+    cursor: pointer;
+}
+
+.listview .list-footer-container .listview-pagination > button {
+    background: hsl(198, 50%, 96%);
+}
+
+.listview .list-footer-container .listview-pagination > :first-child {
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+}
+
+.listview .list-footer-container .listview-pagination > :last-child {
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+/* TODO: with action system (like bricks)
+.listview .list-footer-container .listview-pagination .listview-pagination-current {
+    font-weight: 700;
+    background: #ededed;
+    cursor: default;
+    z-index: 1;
+}
+*/
+
+/* TODO: idem
+.listview .list-footer-container .listview-pagination a.is-disabled { */
+.listview .list-footer-container .listview-pagination button[disabled] {
+    color: #ccc;
+    background: #fcfcfc;
+    cursor: default;
+    border: 1px solid hsl(197, 25%, 80%);
+}
+
+/* TODO: idem
+.listview .list-footer-container .listview-pagination a:hover:not(.is-disabled) { */
+.listview .list-footer-container .listview-pagination button:hover:not([disabled]) {
+    color: #fff;
+    background: hsl(199, 90%, 75%);
+    z-index: 1;
+}
+
+/* TODO
+.listview .list-footer-container .listview-pagination .listview-pagination-choose span {
+    padding: 3px 10px;
+}
+*/
+
+.listview .list-footer-container .listview-pagination .listview-pagination-choose input {
+/*    display: none;  TODO */
+
+    width: 40px;
+    margin: -1px 0 0 0;
+    padding: 0px 0px;
+
+    font-weight: 700;
+    color: black;
+    text-align: center;
+    background-color: transparent;
+    border: 0px;
+
+    -webkit-border-radius: 0;
+       -moz-border-radius: 0;
+            border-radius: 0;
+
+    outline: 0px;
+}
+
+/* TODO: idem
+.listview .list-footer-container .listview-pagination .listview-pagination-choose.active span {
+    display: none;
+}
+
+.listview .list-footer-container .listview-pagination .listview-pagination-choose.active input {
+    display: inline-block;
+}
+
+.listview .list-footer-container .listview-pagination .listview-pagination-choose.active .invalid-page {
+    color: #ff851b;
+}
+*/
+
+/* Listview - footer & pager -end */

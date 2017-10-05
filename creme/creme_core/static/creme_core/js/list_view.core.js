@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2016  Hybird
+    Copyright (C) 2009-2017  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -205,19 +205,108 @@
                     });
                 };
 
+//                this.enableActions = function() {
+//                    self.find('.lv-header-action-list').NavIt({ArrowSideOnRight: false});
+//                    self.find('.lv-action-toggle')
+//                        .click(function() {
+//                            $(this).parents('ul').find('ul').slideToggle('slide');
+//                         });
+//
+//                    creme.menu.HNavIt(self.find('.lv-row-action-list'), {}, {
+//                        done: function() {
+//                            if (this.options().link.is('.lv_reload')) {
+//                                me.reload();
+//                            }
+//                        }
+//                    });
+//                };
                 this.enableActions = function() {
-                    self.find('.lv-header-action-list').NavIt({ArrowSideOnRight: false});
-                    self.find('.lv-action-toggle')
-                        .click(function() {
-                            $(this).parents('ul').find('ul').slideToggle('slide');
-                         });
+                    var createPopover = function(popoverClass, $target) {
+                        var popover = new creme.dialogs.Popover ({
+                            title: gettext("Actions"),
+                            content: $target.find('.listview-actions-container').html()
+                        });
 
-                    creme.menu.HNavIt(self.find('.lv-row-action-list'), {}, {
-                        done: function() {
-                            if (this.options().link.is('.lv_reload')) {
-                                me.reload();
+                        // TODO: the following use cases should be facilitated by APIs or features on popovers
+                        // Use case 1): differentiate popovers to style some of their content in CSS
+                        popover._dialog.addClass(popoverClass);
+
+                        // Use case 3): z-index handling in this specific case where the popover can trigger a confirmation overlay
+                        popover._dialog.css('z-index', 99);
+                        popover._glasspane.pane().css('z-index', 98);
+
+                        // Use case 4): more precise arrow positioning
+                        popover.one('opened', function(e) {
+                            var offset = $target.offset().left + $target.width() / 2 - this._dialog.offset().left;
+                            this._dialog.find('.arrow').css('left', offset);
+                        });
+
+                        return popover;
+                    };
+
+                    self.on('click', '.row-actions-trigger', function(e) {
+                        e.stopPropagation();
+
+                        var $target = $(e.target);
+                        var popover = createPopover('row-actions-popover listview-actions-popover', $target);
+
+                        // use case 2): interactions with the popover's content
+                        var listeners = {
+                            done: function() {
+                                if (this.options().link.is('.lv_reload')) {
+                                    me.reload();
+                                }
                             }
+                        };
+
+                        popover._dialog.on('click', 'a', function(e) {
+                            e.preventDefault();
+
+                            var $target = $(e.target);
+                            var $a = $target.is('a') ? $target : $target.parents('a').first();
+                            var confirm = $a.hasClass('confirm');
+                            var action  = $a.hasClass('post') ? 'post' : 'get';
+                            var ajax    = $a.hasClass('ajax');
+                            var url     = $a.prop('href');
+
+                            if (ajax) {
+                                var queryOptions = $.extend({action:action, link:$a}, options.queryOptions || {});
+
+                                if (confirm) {
+                                    creme.utils.confirmAjaxQuery(url, queryOptions)
+                                               .on(listeners).start();
+                                } else {
+                                    creme.utils.ajaxQuery(url, queryOptions)
+                                               .on(listeners).start();
+                                }
+                            } else {
+                                if (confirm) {
+                                    creme.utils.confirmBeforeGo(url, ajax, opts);
+                                } else {
+                                    creme.utils.goTo(url);
+                                }
+                            }
+                        });
+
+                        popover.open(e.target);
+                    });
+
+                    self.on('click', '.header-actions-trigger', function(e) {
+                        e.stopPropagation();
+
+                        var $target = $(e.target);
+                        if (!$target.is('.header-actions-trigger')) {
+                            $target = $target.parents('.header-actions-trigger').first();
                         }
+
+                        var popover = createPopover('header-actions-popover listview-actions-popover', $target);
+
+                        // use case 2): interactions with the popover's content
+                        popover._dialog.on('click', 'a', function(e) {
+                            popover.close();
+                        });
+
+                        popover.open (e.target);
                     });
                 };
 
@@ -350,6 +439,7 @@
                     this.enableRowSelection();
                     this.enableFilters();
                     this.enableActions();
+                    // TODO: add inner edit launch event here
                     if (!opts.o2m) this.enableCheckAllBoxes();
                 };
 
@@ -369,7 +459,7 @@
                     }
                 };
 
-                this.serializeMe = function () {
+                this.serializeMe = function() {
                     var data = {};
 
                     self.find(opts.serializer).serializeArray().forEach(function(e) {

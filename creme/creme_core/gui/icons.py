@@ -99,9 +99,16 @@ _ICON_SIZES_MAP = {
         # Forms
         'form-widget': 22,
 
-        # Buttons
+        # Detail-view buttons
         'global-button':   32,
         'instance-button': 32,
+
+        # Listview
+        'listview-menu':          22,
+        'listview-button':        22,
+        'listview-filter':        32,
+        'listview-filter-action': 22,
+        'listview-td-action':     16,
     },
     'icecream': {
         # Fall-backs (should be avoided)
@@ -139,9 +146,16 @@ _ICON_SIZES_MAP = {
         # Forms
         'form-widget': 16,
 
-        # Buttons
+        # Detail-view buttons
         'global-button':   16,
         'instance-button': 16,
+
+        # Listview
+        'listview-menu':          16,
+        'listview-button':        16,
+        'listview-filter':        16,
+        'listview-filter-action': 22,
+        'listview-td-action':     16,
     },
 }
 
