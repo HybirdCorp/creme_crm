@@ -16,6 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {
+"use strict";
+
 creme.geolocation = creme.geolocation || {};
 
 // TODO: rename PersonsBrick etc..
@@ -415,3 +418,5 @@ creme.geolocation.PersonsNeighborhoodBlock = creme.component.Component.sub({
         $('.block-geoaddress-counter', this._block).html(counter);
     }
 });
+
+}(jQuery));

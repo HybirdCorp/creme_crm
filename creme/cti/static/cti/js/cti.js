@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2015  Hybird
+    Copyright (C) 2009-2017  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,9 @@
  * Requires : jQuery, Creme
  */
 
+(function($) {
+"use strict";
+
 creme.cti = {};
 
 creme.cti.phoneCall = function(external_url, creme_url, number, entity_id) {
@@ -31,7 +34,7 @@ creme.cti.phoneCall = function(external_url, creme_url, number, entity_id) {
     creme.ajax.post({ //TODO: creme.ajax.json.post ???
                         url:      creme_url,
                         data:     {entity_id: entity_id},
-                        dataType: "json",
+                        dataType: 'json',
                         error:    function() { //TODO: better error message (wait for jsonify improvement)
                                       creme.dialogs.warning(gettext("Failed to create the phone call entity !")).open();
                                   },
@@ -39,4 +42,6 @@ creme.cti.phoneCall = function(external_url, creme_url, number, entity_id) {
                                       creme.dialogs.html($('<p>').append(returnedData), {'title': gettext("Phone call")}).open();
                                   }
                     });
-}
+};
+
+}(jQuery));

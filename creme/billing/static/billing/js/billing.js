@@ -20,6 +20,9 @@
  * Requires : jQuery, Creme
  */
 
+(function($) {
+"use strict";
+
 creme.billing = creme.billing || {};
 
 creme.billing.selectDefaultPayment = function(payment_id, invoice_id, reload_url) {
@@ -588,3 +591,5 @@ creme.billing.generateInvoiceNumber = function(url) {
     $(document).on('brick-before-bind', '.brick.billing-lines-brick', function(e, brick, options) {$.extend(brick, billingLinesActions);})
                .on('brick-ready', function(e, brick, options) {creme.billing.initLinesBrick(brick);});
 }());
+
+}(jQuery));

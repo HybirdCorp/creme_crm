@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {
+"use strict";
 
 creme.commercial = creme.commercial || {};
 
@@ -69,3 +71,5 @@ creme.commercial.increaseObjectiveCounter = function(url, inc, reload_url) {
                                {diff: inc})
                 .start();
 }
+
+}(jQuery));

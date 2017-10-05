@@ -20,6 +20,9 @@
  * Requires : creme, jQuery, creme.bricks
  */
 
+(function($) {
+"use strict";
+
 creme.crudity = {};
 
 (function() {
@@ -59,3 +62,5 @@ creme.crudity = {};
         $.extend(brick, waitingSyncActions);
     });
 }());
+
+}(jQuery));
