@@ -23,10 +23,10 @@ creme.geolocation = creme.geolocation || {};
 
 /* TODO: rename google-geolocation ?? */
 
-__googleAPI_loader_status = false;
-__googleAPI_loader_callbacks = [];
+var __googleAPI_loader_status = false;
+var __googleAPI_loader_callbacks = [];
 
-initialize = function() {
+creme.geolocation.__initAPI = function() {
     __googleAPI_loader_status = 'done';
 
     var callbacks = __googleAPI_loader_callbacks.splice(0, __googleAPI_loader_callbacks.length);
@@ -34,12 +34,13 @@ initialize = function() {
     callbacks.forEach(function(callback) {
         try {
             callback();
-        } catch(e) {
+        } catch (e) {
             console.warn(e);
         }
     });
 };
 
+/* global LANGUAGE_CODE */
 creme.geolocation.ready = function(callback, google_api_key) {
     $(document).ready(function() {
         if (window['google'] !== undefined || __googleAPI_loader_status === 'done') {
@@ -53,7 +54,7 @@ creme.geolocation.ready = function(callback, google_api_key) {
             var script = document.createElement('script');
             var GET_args = {
                 v: '3.exp',
-                callback: 'initialize',
+                callback: 'creme.geolocation.__initAPI',
                 language: LANGUAGE_CODE || 'en'
             };
 
@@ -100,10 +101,11 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
         }
     ],
 
-//    _init_: function () {
+    /* global google */
+//  _init_: function () {
     _init_: function (set_address_info_url) {
         if (set_address_info_url === undefined) {
-            console.warn('creme.geolocation.GoogleMapController(): hard-coded "set_address_info_url" is deprecated ; give it as parameter.')
+            console.warn('creme.geolocation.GoogleMapController(): hard-coded "set_address_info_url" is deprecated ; give it as parameter.');
             this.set_address_info_url = '/geolocation/set_address_info/';
         } else {
             this.set_address_info_url = set_address_info_url;
@@ -121,13 +123,17 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
         this.shape_manager = new creme.geolocation.GoogleMapShapeRegistry(this);
     },
 
+    /* global google */
     enableMap: function(container, styles) {
         if (this.isMapEnabled()) {
             return this;
         }
 
-        var styles = styles || this.MAPSTYLES.slice();
-        var styleIds = styles.map(function(style) {return style.id})
+        styles = styles || this.MAPSTYLES.slice();
+
+        var styleIds = styles.map(function(style) {
+                                  return style.id;
+                              })
                              .concat(google.maps.MapTypeId.SATELLITE);
 
         var map = this.map = new google.maps.Map(container, {
@@ -138,7 +144,7 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
         });
 
         styles.forEach(function(style) {
-            map.mapTypes.set(style.id, new google.maps.StyledMapType(style.style, {name: style.label}));
+            map.mapTypes.set(style.id, new google.maps.StyledMapType(style.style, { name: style.label }));
         });
 
         map.setMapTypeId(styleIds[0]);
@@ -189,7 +195,7 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
 
         var n_markers = this.marker_manager.count(true);
 
-        if (n_markers == 0) {
+        if (n_markers === 0) {
             var default_location = new google.maps.LatLng(this.defaultLat, this.defaultLn);
             this.map.setCenter(default_location);
             this.map.setZoom(this.defaultLargeZoom);
@@ -197,7 +203,7 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
             var boundbox = this.marker_manager.getBoundBox();
             this.map.setCenter(boundbox.getCenter());
 
-            if (n_markers == 1) {
+            if (n_markers === 1) {
                 this.map.setZoom(this.defaultZoomValue);
             } else {
                 this.map.fitBounds(boundbox);
@@ -242,7 +248,7 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
                 }
 
                 if (!marker) {
-                    var marker = marker_manager.Marker({
+                    marker = marker_manager.Marker({
                         address:   address,
                         draggable: options.draggable,
                         position:  position
@@ -365,7 +371,9 @@ creme.geolocation.GoogleMapMarkerManager = creme.component.Component.sub({
             return markers;
         }
 
-        return markers.filter(function(item) {return item.getVisible() === visible});
+        return markers.filter(function(item) {
+            return item.getVisible() === visible;
+        });
     },
 
     count: function(visible) {
@@ -373,18 +381,20 @@ creme.geolocation.GoogleMapMarkerManager = creme.component.Component.sub({
     },
 
     register: function(marker) {
-        var id = marker.address.id
+        var id = marker.address.id;
+
         if (id in this._markers) {
             throw new Error('marker "' + id + '" is already registered');
         }
+
         this._markers[id] = marker;
     },
 
     Marker: function(options) {
-        var options = $.extend({
-                            map:       this._controller.map,
-                            draggable: false
-                        }, options || {});
+        options = $.extend({
+            map:       this._controller.map,
+            draggable: false
+        }, options || {});
 
         var address = options.address;
 
@@ -437,7 +447,7 @@ creme.geolocation.GoogleMapMarkerManager = creme.component.Component.sub({
     },
 
     hideAll: function() {
-        for (key in this._markers) {
+        for (var key in this._markers) {
             this._markers[key].setVisible(false);
         }
     },
