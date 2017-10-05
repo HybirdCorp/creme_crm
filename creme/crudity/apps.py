@@ -49,15 +49,18 @@ class CrudityConfig(CremeAppConfig):
         else:
             URLItem = creme_menu.URLItem
             creme_menu.get('features', 'tools') \
+                      .get_or_create(creme_menu.ItemGroup, 'crudity', priority=250,
+                                     defaults={'label': _(u'External data')},
+                                    ) \
                       .add(URLItem('crudity-waiting_actions', url=reverse('crudity__actions'),
-                                   label=_(u'Email waiting actions'), perm='crudity',
+                                   label=_(u'Waiting actions'), perm='crudity',
                                   ),
-                           priority=250,
+                           priority=10,
                           ) \
                       .add(URLItem('crudity-history', reverse('crudity__history'),
-                                   label=_(u'History of automatised creations'), perm='crudity',
+                                   label=_(u'History'), perm='crudity',
                                   ),
-                           priority=260,
+                           priority=20,
                           )
 
     def register_setting_key(self, setting_key_registry):
