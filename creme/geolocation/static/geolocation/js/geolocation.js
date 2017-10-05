@@ -16,6 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+(function($) {
+"use strict";
+
 creme.geolocation = creme.geolocation || {};
 
 /* TODO: rename google-geolocation ?? */
@@ -35,7 +38,7 @@ initialize = function() {
             console.warn(e);
         }
     });
-}
+};
 
 creme.geolocation.ready = function(callback, google_api_key) {
     $(document).ready(function() {
@@ -82,24 +85,23 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
             style: [
                 {
                     stylers: [
-                         {hue: "#94c6db"},
+                         {hue: '#94c6db'},
                          {weight: 2}
                     ]
                 },
                 {
-                    featureType: "road",
-                    elementType: "geometry",
+                    featureType: 'road',
+                    elementType: 'geometry',
                     stylers: [
-                      { visibility: "simplified" }
+                      { visibility: 'simplified' }
                     ]
                 }
             ]
         }
     ],
 
-//    _init_: function ()
-    _init_: function (set_address_info_url)
-    {
+//    _init_: function () {
+    _init_: function (set_address_info_url) {
         if (set_address_info_url === undefined) {
             console.warn('creme.geolocation.GoogleMapController(): hard-coded "set_address_info_url" is deprecated ; give it as parameter.')
             this.set_address_info_url = '/geolocation/set_address_info/';
@@ -119,8 +121,7 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
         this.shape_manager = new creme.geolocation.GoogleMapShapeRegistry(this);
     },
 
-    enableMap: function(container, styles)
-    {
+    enableMap: function(container, styles) {
         if (this.isMapEnabled()) {
             return this;
         }
@@ -149,8 +150,7 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
         return this;
     },
 
-    disableMap: function()
-    {
+    disableMap: function() {
         if (!this.isMapEnabled()) {
             return this;
         }
@@ -182,8 +182,7 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
         return this;
     },
 
-    adjustMap: function()
-    {
+    adjustMap: function() {
         if (!this.isMapEnabled()) {
             return this;
         }
@@ -197,6 +196,7 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
         } else {
             var boundbox = this.marker_manager.getBoundBox();
             this.map.setCenter(boundbox.getCenter());
+
             if (n_markers == 1) {
                 this.map.setZoom(this.defaultZoomValue);
             } else {
@@ -207,21 +207,21 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
         return this;
     },
 
-    _isPartialMatch: function(results)
-    {
-        if (results.length > 1)
+    _isPartialMatch: function(results) {
+        if (results.length > 1) {
             return true;
+        }
 
-        var match = results[0]
+        var match = results[0];
 
-        if (match.partial_match === false)
+        if (match.partial_match === false) {
             return false;
+        }
 
         return match.address_components.length < 7;
     },
 
-    geocode: function(options)
-    {
+    geocode: function(options) {
         var marker_manager = this.marker_manager;
         var saveLocation = this.saveLocation.bind(this);
         var isPartialMatch = this._isPartialMatch.bind(this);
@@ -229,8 +229,7 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
         this.geocoder.geocode(options.data, function(results, status) {
             var address = options.address;
 
-            if (status === google.maps.GeocoderStatus.OK)
-            {
+            if (status === google.maps.GeocoderStatus.OK) {
                 var marker   = marker_manager.get(address.id);
                 var result   = results[0];
 
@@ -270,8 +269,7 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
         return this;
     },
 
-    saveLocation: function (marker, options, geocoded, status)
-    {
+    saveLocation: function(marker, options, geocoded, status) {
         var self = this;
 
 //        creme.ajax.query('/geolocation/set_address_info/%s'.format(options.address.id), {}, {
@@ -286,15 +284,14 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
                               marker.setPosition(options.initial_position);
                           })
                   .onDone(function() {
-                              self._events.trigger('save-location', [options.address, marker, status])
+                              self._events.trigger('save-location', [options.address, marker, status]);
                           })
                   .post();
 
         return this;
     },
 
-    findLocation: function(address, options)
-    {
+    findLocation: function(address, options) {
         return this.geocode({
             address:   address,
             draggable: options.draggable,
@@ -319,20 +316,20 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
 });
 
 creme.geolocation.GoogleMapShapeRegistry = creme.component.Component.sub({
-    _init_: function (controller) {
+    _init_: function(controller) {
         this._controller = controller;
         this._shapes = {};
     },
 
     register: function(shape_id, shape) {
-        if (shape_id in this._shapes){
+        if (shape_id in this._shapes) {
             throw new Error('Shape "' + shape_id + '" is already registered');
         }
         this._shapes[shape_id] = shape;
     },
 
     unregister: function(shape_id) {
-        if (shape_id in this._shapes){
+        if (shape_id in this._shapes) {
             this._shapes[shape_id].setMap(null);
             delete this._shapes[shape_id];
         } else {
@@ -356,7 +353,7 @@ creme.geolocation.GoogleMapShapeRegistry = creme.component.Component.sub({
 });
 
 creme.geolocation.GoogleMapMarkerManager = creme.component.Component.sub({
-    _init_: function (controller) {
+    _init_: function(controller) {
         this._controller = controller;
         this._markers = {};
     },
@@ -364,8 +361,9 @@ creme.geolocation.GoogleMapMarkerManager = creme.component.Component.sub({
     markers: function(visible) {
         var markers = Object.values(this._markers);
 
-        if (visible === undefined)
+        if (visible === undefined) {
             return markers;
+        }
 
         return markers.filter(function(item) {return item.getVisible() === visible});
     },
@@ -376,36 +374,33 @@ creme.geolocation.GoogleMapMarkerManager = creme.component.Component.sub({
 
     register: function(marker) {
         var id = marker.address.id
-        if (id in this._markers){
+        if (id in this._markers) {
             throw new Error('marker "' + id + '" is already registered');
         }
         this._markers[id] = marker;
     },
 
-    Marker: function (options)
-    {
+    Marker: function(options) {
         var options = $.extend({
                             map:       this._controller.map,
-                            draggable: false,
+                            draggable: false
                         }, options || {});
 
         var address = options.address;
 
         options.position = options.position || new google.maps.LatLng(address.latitude, address.longitude);
-        options.title = '%s\n%s'.format(address.owner, address.title || address.content)
+        options.title = '%s\n%s'.format(address.owner, address.title || address.content);
 
         var marker = new google.maps.Marker(options);
         this.register(marker);
 
-        if (options.redirect)
-        {
+        if (options.redirect) {
             google.maps.event.addListener(marker, 'click', function() {
                                   creme.utils.goTo(options.redirect);
                               });
         }
 
-        if (options.draggable)
-        {
+        if (options.draggable) {
             var saveLocation = this._controller.saveLocation.bind(this._controller);
 
             google.maps.event.addListener(marker, 'dragstart', function() {
@@ -432,8 +427,7 @@ creme.geolocation.GoogleMapMarkerManager = creme.component.Component.sub({
         this.toggle(id, false);
     },
 
-    toggle: function(id, state)
-    {
+    toggle: function(id, state) {
         var marker = this.get(id);
 
         if (marker) {
@@ -448,7 +442,6 @@ creme.geolocation.GoogleMapMarkerManager = creme.component.Component.sub({
         }
     },
 
-
     getBoundBox: function() {
         var boundbox = new google.maps.LatLngBounds();
 
@@ -460,3 +453,4 @@ creme.geolocation.GoogleMapMarkerManager = creme.component.Component.sub({
     }
 });
 
+}(jQuery));

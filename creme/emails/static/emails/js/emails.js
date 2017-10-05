@@ -20,6 +20,9 @@
  * Requires : creme, jQuery, creme.blocks, creme.bricks
  */
 
+(function($) {
+"use strict";
+
 creme.emails = {};
 
 //creme.emails.confirmResend = function(message, ids, block_url) {
@@ -127,3 +130,5 @@ creme.emails.allowExternalImages = function(block_id) {
         $.extend(brick, emailActions);
     });
 }());
+
+}(jQuery));

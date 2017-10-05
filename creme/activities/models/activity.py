@@ -67,8 +67,8 @@ class AbstractActivity(CremeEntity):
                                          editable=False,
                                         ).set_tags(viewable=False)
 
-    creation_label = _('Create an activity')
-    save_label = _('Save the activity')
+    creation_label = _(u'Create an activity')
+    save_label = _(u'Save the activity')
 
     class Meta:
         abstract = True

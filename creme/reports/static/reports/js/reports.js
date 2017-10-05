@@ -20,6 +20,9 @@
  * Requires : creme, jQuery, creme.utils, creme.ajax, creme.dialogs
  */
 
+(function($) {
+"use strict";
+
 if (!creme.reports) creme.reports = {};
 
 
@@ -35,7 +38,7 @@ creme.reports.load = function(options, hfilters_url, efilters_url) {
     var $filter = $(options.filter);
 //    this.loadFilters(ct_id, $filter);
     this.loadEntityFilters(efilters_url, ct_id, $filter);
-}
+};
 
 //TODO: Could use creme.forms.Select.optionsFromData & creme.forms.Select.fill with a hack for default/error options?
 creme.reports.__loadFilters = function(url, ct_id, $target_select, parameters) {
@@ -80,7 +83,7 @@ creme.reports.__loadFilters = function(url, ct_id, $target_select, parameters) {
     };
 
     creme.ajax.json.get(url, {}, success_cb, error_cb, false, this.loading_options);
-}
+};
 
 //creme.reports.loadHeaderFilters = function(ct_id, $target_select) {
 creme.reports.loadHeaderFilters = function(url, ct_id, $target_select) {
@@ -90,7 +93,7 @@ creme.reports.loadHeaderFilters = function(url, ct_id, $target_select) {
         'always_option': $('<option value="">' + gettext("No selected view") + '</option>')
     };
     creme.reports.__loadFilters(url, ct_id, $target_select, params);
-}
+};
 
 //creme.reports.loadFilters = function(ct_id, $target_select) {
 creme.reports.loadEntityFilters = function(url, ct_id, $target_select) {
@@ -103,7 +106,7 @@ creme.reports.loadEntityFilters = function(url, ct_id, $target_select) {
         'error_option' : $all_opt
     };
     creme.reports.__loadFilters(url, ct_id, $target_select, params);
-}
+};
 
 
 creme.reports.AJAX_BACKEND = new creme.ajax.CacheBackend(new creme.ajax.Backend(), {
@@ -128,7 +131,7 @@ creme.reports.doAjaxAction = function(url, options, data) {
          .post(data);
 
     return query;
-}
+};
 
 //creme.reports.unlink_report = function(field_id, block_url) {
 creme.reports.unlink_report = function(url, field_id, block_url) {
@@ -153,7 +156,7 @@ creme.reports.changeOrder = function(url, field_id, direction, block_url) {
                                           'field_id': field_id,
                                           'direction': direction
                                       });
-}
+};
 
 //creme.reports.setSelected = function(checkbox, field_id, block_url) {
 creme.reports.setSelected = function(url, checkbox, field_id, block_url) {
@@ -178,7 +181,7 @@ creme.reports.toggleDisableOthers = function(me, others) {
 creme.utils.converters.register('creme.graphael.BargraphData', 'jqplotData', function(data) {
     var ticks = data['x'] || [];
     var values = data['y'] || [];
-    var jqplotData = []
+    var jqplotData = [];
 
     var clean_float = function(value) {
         var res = parseFloat(value);
@@ -221,7 +224,7 @@ creme.reports.exportReport = function(title, filterform_url, export_preview_url,
                       creme.utils.goTo($(data).attr('redirect'));
                   })
                  .open({width: 1024});
-}
+};
 
 creme.reports.openGraphEdition = function(edition_url, graph_id, reload_uri) {
     console.warn('creme.reports.openGraphEdition() is deprecated ; use bricks & actions instead.');
@@ -230,12 +233,11 @@ creme.reports.openGraphEdition = function(edition_url, graph_id, reload_uri) {
                 .onFormSuccess(function() {
                      $('#graph-%s .ui-creme-plotselector'.format(graph_id)).creme().widget().resetBackend();
                  }).open();
-}
+};
 
 creme.reports.PreviewController = creme.component.Component.sub({
-//    _init_: function(report)
-    _init_: function(preview_url, export_url)
-    {
+//    _init_: function(report) {
+    _init_: function(preview_url, export_url) {
 //        this._redirectUrl = '/reports/export/preview/' + report + '?%s';
 //        this._downloadUrl = '/reports/export/' + report + '?%s';
         this._redirectUrl = preview_url + '?%s';
@@ -245,13 +247,13 @@ creme.reports.PreviewController = creme.component.Component.sub({
             update:   $.proxy(this._updateHeader, this),
             redirect: $.proxy(this.redirect, this),
             download: $.proxy(this.download, this)
-        }
+        };
     },
 
-    bind: function(element)
-    {
-        if (this._header !== undefined)
+    bind: function(element) {
+        if (this._header !== undefined) {
             throw 'creme.reports.PreviewController is already bound.';
+        }
 
         var listeners = this._listeners;
         var header = this._header = $('.report-preview-header', element);
@@ -266,13 +268,11 @@ creme.reports.PreviewController = creme.component.Component.sub({
         return this;
     },
 
-    unbind: function(element)
-    {
+    unbind: function(element) {
         var listeners = this._listeners;
         var header = this._header;
 
-        if (header !== undefined)
-        {
+        if (header !== undefined) {
             $('select[name="date_field"]',    header).unbind('change', listeners.update);
             $('select[name="date_filter_0"]', header).unbind('change', listeners.update);
 
@@ -284,8 +284,7 @@ creme.reports.PreviewController = creme.component.Component.sub({
         return this;
     },
 
-    _updateHeader: function()
-    {
+    _updateHeader: function() {
         var header = this._header;
 
         var has_datefield = !Object.isEmpty($('[name="date_field"]', header).val());
@@ -327,8 +326,7 @@ creme.reports.ChartController = creme.component.Component.sub({
         this._properties = properties || {};
     },
 
-    initialize: function(element, initial)
-    {
+    initialize: function(element, initial) {
         var self = this;
         var properties = this._properties || {};
         var plot = this._plot = creme.widget.create($('.ui-creme-plotselector', element));
@@ -344,10 +342,11 @@ creme.reports.ChartController = creme.component.Component.sub({
         };
 
         var popoverContent = function(popover, choices, selected) {
-            var choices = Object.entries(choices).filter(function(e) {return e[0] !== selected;});
+            var choices = Object.entries(choices).filter(function(e) { return e[0] !== selected; });
 
             var choices = choices.map(function(choice) {
                 var value = choice[0], label = choice[1];
+
                 return $('<a class="popover-list-item" title="%s" alt="%s">%s</a>'.format(label, label, label)).click(function(e) {
                     e.preventDefault();
                     popover.selectAndClose(value);
@@ -390,3 +389,5 @@ creme.reports.ChartController = creme.component.Component.sub({
         this._plot.reload(this._state);
     }
 });
+
+}(jQuery));
