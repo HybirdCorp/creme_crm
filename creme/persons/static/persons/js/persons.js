@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2015  Hybird
+    Copyright (C) 2009-2017  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -17,12 +17,13 @@
 *******************************************************************************/
 
 /*
- * Requires : jQuery, creme
+ * Requires : jQuery, creme.utils, creme.dialogs
  */
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
-creme.persons = {};
+creme.persons = creme.persons || {};
 
 // Copy only in the same order
 creme.persons.copyTo = function (from_id, to_id) {
@@ -32,7 +33,7 @@ creme.persons.copyTo = function (from_id, to_id) {
     if ($from.size() > 0 && $to.size() > 0) {
         var $to_fill = $to.find('input, textarea, select');
 
-        //TODO: use ':input' selector ??
+        // TODO: use ':input' selector ??
         $from.find('input, textarea, select').each(function(ind) {
             $($to_fill[ind]).val($(this).val());
         });
