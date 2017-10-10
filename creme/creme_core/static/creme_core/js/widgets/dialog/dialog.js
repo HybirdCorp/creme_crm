@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2013  Hybird
+    Copyright (C) 2009-2017  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -175,7 +175,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
     },
 
     _onResize: function(dialog, frame) {
-        var container = $(this._dialog).parent('.ui-dialog:first');
+        var container = this._dialogContainer();
         var body = $('> .ui-dialog-content', container);
         var delegate = frame.delegate();
 
@@ -266,6 +266,10 @@ creme.dialog.Dialog = creme.component.Component.sub({
         $('.ui-button-text', this.button(name)).html(label);
     },
 
+    _dialogContainer: function() {
+        return $(this._dialog).parent('.ui-dialog:first');
+    },
+
     _resizeDialog: function(width, height) {
         if (!this.isOpened()) {
             return;
@@ -303,7 +307,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
             return this;
         }
 
-        var container = $(this._dialog).parent('.ui-dialog:first');
+        var container = this._dialogContainer();
         var body = $('> .ui-dialog-content', container);
         var frame = this._frame.delegate();
 
@@ -363,7 +367,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
     cssPosition: function() {
         if (this.isOpened) {
-            return this._dialog.parents('.ui-dialog:first').position();
+            return this._dialogContainer().position();
         }
     },
 
@@ -385,7 +389,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
     },
 
     buttons: function() {
-        return $('.ui-dialog-buttonset', $(this._dialog).parent('.ui-dialog:first'));
+        return $('.ui-dialog-buttonset', this._dialogContainer());
     },
 
     button: function(name) {
@@ -469,8 +473,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
     },
 
     focus: function() {
-        var container = $(this._dialog).parent('.ui-dialog:first');
-        container.focus();
+        this._dialogContainer().focus();
         return this;
     },
 

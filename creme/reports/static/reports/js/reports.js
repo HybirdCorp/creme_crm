@@ -349,22 +349,22 @@ creme.reports.ChartController = creme.component.Component.sub({
 
                 return $('<a class="popover-list-item" title="%s" alt="%s">%s</a>'.format(label, label, label)).click(function(e) {
                     e.preventDefault();
-                    popover.selectAndClose(value);
+                    popover.close(value);
                 });
             });
 
             return choices;
         }
 
-        var chartPopover = new creme.dialogs.Popover()
-                                            .onOk(function(event, value) {
-                                                setState({chart: value});
-                                            });
-
-        var sortPopover = new creme.dialogs.Popover({direction: 'right'})
-                                           .onOk(function(event, value) {
-                                               setState({sort: value});
+        var chartPopover = new creme.dialog.Popover()
+                                           .on('closed', function(event, value) {
+                                               setState({chart: value});
                                            });
+
+        var sortPopover = new creme.dialog.Popover({direction: 'right'})
+                                          .on('closed', function(event, value) {
+                                              setState({sort: value});
+                                          });
 
         chartPopover.fill(popoverContent(chartPopover, properties.charts, state.chart));
         sortPopover.fill(popoverContent(sortPopover, properties.sorts, state.sort));

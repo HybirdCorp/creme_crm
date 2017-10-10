@@ -40,7 +40,7 @@ creme.search.SearchBox = function(element, searchUrl, advancedSearchUrl) {
     this.$allResultsGroup = this.$element.find('.all-search-results');
     this.$allResultsLink  = this.$allResultsGroup.find('a');
 
-    this.glasspane = new creme.dialogs.GlassPane(/*{debug: true}*/);
+    this.glasspane = new creme.dialog.GlassPane(/*{debug: true}*/);
     this.glasspane.on('click', this._onHide.bind(this));
 
     this.state = 'default';

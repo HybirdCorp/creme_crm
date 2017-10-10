@@ -94,16 +94,14 @@ QUnit.module("creme.dialog.js", {
         this._eventListenerCalls = {};
     },
 
-    mockListenerCalls: function(name)
-    {
+    mockListenerCalls: function(name) {
         if (this._eventListenerCalls[name] === undefined)
             this._eventListenerCalls[name] = [];
 
         return this._eventListenerCalls[name];
     },
 
-    mockListener: function(name)
-    {
+    mockListener: function(name) {
         var self = this;
         return (function(name) {return function() {
             self.mockListenerCalls(name).push(Array.copy(arguments));

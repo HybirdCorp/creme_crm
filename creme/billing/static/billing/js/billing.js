@@ -588,8 +588,12 @@ creme.billing.generateInvoiceNumber = function(url) {
         }
     };
 
-    $(document).on('brick-before-bind', '.brick.billing-lines-brick', function(e, brick, options) {$.extend(brick, billingLinesActions);})
-               .on('brick-ready', function(e, brick, options) {creme.billing.initLinesBrick(brick);});
+    $(document).on('brick-before-bind', '.brick.billing-lines-brick', function(e, brick) {
+                    $.extend(brick, billingLinesActions);
+                })
+               .on('brick-ready', function(e, brick, options) {
+                    creme.billing.initLinesBrick(brick);
+                });
 }());
 
 }(jQuery));

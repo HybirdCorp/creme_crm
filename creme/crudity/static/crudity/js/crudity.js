@@ -58,7 +58,7 @@ creme.crudity = {};
         },
     };
 
-    $(document).on('brick-before-bind', '.brick.crudity-actions-brick', function(e, brick, options) {
+    $(document).on('brick-before-bind', '.brick.crudity-actions-brick', function(e, brick) {
         $.extend(brick, waitingSyncActions);
     });
 }());

@@ -104,7 +104,7 @@ creme.emails.allowExternalImages = function(block_id) {
         },
     };
 
-    $(document).on('brick-before-bind', '.brick.emails-emailsync-brick', function(e, brick, options) {
+    $(document).on('brick-before-bind', '.brick.emails-emailsync-brick', function(e, brick) {
         $.extend(brick, emailSyncActions);
     });
 
@@ -126,7 +126,7 @@ creme.emails.allowExternalImages = function(block_id) {
         },
     }
 
-    $(document).on('brick-before-bind', '.brick.emails-email-brick', function(e, brick, options) {
+    $(document).on('brick-before-bind', '.brick.emails-email-brick', function(e, brick) {
         $.extend(brick, emailActions);
     });
 }());
