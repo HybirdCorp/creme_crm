@@ -87,14 +87,12 @@ $('.brick[id="{{brick_id}}"]').on('brick-ready', function(e, brick) {
                     orga_id:         ui.draggable.attr('data-orga')
                 };
 
-                brick.doAction('update', url, {}, data, {
-                    done: function() {
-                        ui.draggable.appendTo(zone);
-                    },
-                    fail: function() {
-                        brick.refresh();
-                    }
-                });
+                brick.action('update', url, {}, data)
+                     .on({
+                         done: function() { ui.draggable.appendTo(zone); },
+                         fail: function() { brick.refresh(); }
+                      })
+                     .start();
             }
         }
     });

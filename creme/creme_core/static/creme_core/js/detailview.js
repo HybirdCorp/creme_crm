@@ -20,9 +20,9 @@
  * Requires : jQuery lib, creme.utils, creme.lv_widget.
  */
 
-(function($) {"use strict";
+(function($) {
+    "use strict";
 
-(function() {
     var detailViewActions = {
         _action_detailview_merge: function(url, options, data) {
             var action = creme.lv_widget.listViewAction(data.selection_url + '?' + $.param({id1: data.id}), {multiple: false});
@@ -35,22 +35,20 @@
         },
 
         _action_detailview_clone: function(url, options, data) {
-            return this._action_update_redirect(url, options, data)
+            return this._action_update_redirect(url, options, data);
         },
 
         _action_detailview_delete: function(url, options, data) {
-            return this._action_update_redirect(url, options, data)
+            return this._action_update_redirect(url, options, data);
         },
 
         _action_detailview_restore: function(url, options, data) {
-            return this._action_update_redirect(url, options, data)
+            return this._action_update_redirect(url, options, data);
         }
     };
 
 //    $(document).on('brick-before-bind', '.brick.brick-hat-card', function(e, brick, options) {
-    $(document).on('brick-before-bind', '.brick.brick-hat', function(e, brick, options) {
+    $(document).on('brick-before-bind', '.brick.brick-hat', function(e, brick) {
         $.extend(brick, detailViewActions);
     });
-})();
-
 }(jQuery));

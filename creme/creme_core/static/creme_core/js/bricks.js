@@ -16,12 +16,18 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.bricks = creme.bricks || {};
 
 creme.bricks.dialogCenterPosition = function(dialog) {
-    var outer_height = $('.header-menu').outerHeight()
+    // TODO : simplify this code with new dialog center(constraint) feature
+    /*
+     * var outer_height = $('.header-menu').outerHeight();
+     * dialog.center({top: outer_height});
+     */
+    var outer_height = $('.header-menu').outerHeight();
 
 //    if (dialog.dialog().parents('.ui-dialog:first').position().top < $('.header-menu').outerHeight()) {
     if (dialog.dialog().parents('.ui-dialog:first').position().top < outer_height) {
@@ -34,10 +40,13 @@ creme.bricks.dialogCenterPosition = function(dialog) {
     }
 };
 
+// TODO : a specific creme.bricks.Dialog should be a better idea (combine action-link and brick-dialog-action ?)
 creme.bricks.dialogActionButtons = function(dialog) {
     var buttons = $('a.brick-dialog-action', dialog.content()).map(function(index) {
         var link = $(this);
-        var label = link.contents().map(function(){return this.nodeType == 3 ? this.data : '';}).get().join('');
+        var label = link.contents().map(function() {
+                                            return this.nodeType === 3 ? this.data : '';
+                                        }).get().join('');
 
         return {
             'text': label,
@@ -62,11 +71,20 @@ creme.bricks.DialogAction = creme.dialog.DialogAction.sub({
     _init_: function(options, listeners) {
         this._super_(creme.dialog.DialogAction, '_init_', options);
         this._listeners = listeners || {};
+        // TODO : remove specific code, dialog.DialogAction now supports listeners:
+        /*
+        listeners = $.extend({
+            'frame-activated': function() {
+                creme.bricks.dialogActionButtons(this);
+                creme.bricks.dialogCenterPosition(this);
+            }
+        }, listeners || {});
+        this._super_(creme.dialog.DialogAction, '_init_', options, listeners);
+        */
     },
 
     _openPopup: function(options) {
-        var self = this;
-        var options = $.extend(this.options(), options || {});
+        options = $.extend(this.options(), options || {});
 
         this._dialog = new creme.dialog.Dialog(options).onClose(this._onClose.bind(this))
                                                        .on('frame-activated', function() {
@@ -82,17 +100,33 @@ creme.bricks.FormDialogAction = creme.dialog.FormDialogAction.sub({
     _init_: function(options, listeners) {
         this._super_(creme.dialog.FormDialogAction, '_init_', options);
         this._listeners = listeners || {};
+        // TODO : remove specific code, dialog.FormDialogAction now supports listeners:
+        /*
+        listeners = $.extend({
+            'frame-update': function() {
+                creme.bricks.dialogCenterPosition(this);
+            }
+        }, listeners || {});
+        this._super_(creme.dialog.FormDialogAction, '_init_', options, listeners);
+        */
     },
 
     _openPopup: function(options) {
         var self = this;
-        var options = $.extend(this.options(), options || {});
+        options = $.extend(this.options(), options || {});
 
-        this._dialog = new creme.dialog.FormDialog(options).onFormSuccess(function(event, data) {self._onSubmit(data);})
-                                                           .onClose(function() {self.cancel();})
-                                                           .on('frame-update', function() {creme.bricks.dialogCenterPosition(this);})
-                                                           .on(this._listeners)
-                                                           .open();
+        this._dialog = new creme.dialog.FormDialog(options);
+        this._dialog.onFormSuccess(function(event, data) {
+                         self._onSubmit(data);
+                     })
+                    .onClose(function() {
+                         self.cancel();
+                     })
+                    .on('frame-update', function() {
+                         creme.bricks.dialogCenterPosition(this);
+                     })
+                    .on(this._listeners)
+                    .open();
     }
 });
 
@@ -215,41 +249,78 @@ creme.bricks.BrickPager = creme.component.Component.sub({
     }
 });
 
-creme.bricks.BrickMenu = creme.dialogs.Popover.sub({
+creme.bricks.BrickMenu = creme.component.Component.sub({
     _init_: function(brick, options) {
-        var options = $.extend({
-            content: '',
+        this._options = $.extend({
             direction: 'right'
         }, options || {});
 
-        this._super_(creme.dialogs.Popover, '_init_', options);
         this._brick = brick;
+        this._disabled = true;
+    },
 
-        var self = this;
-        var content = this._menuContent();
+    bind: function(element) {
+        if (this.isBound()) {
+            throw new Error('BrickMenu is already bound');
+        }
+
+        var toggle = this.toggle.bind(this);
+        var content = this._menuContent(element);
         var is_disabled = this._disabled = $('a', content).length < 1;
 
-        $('.brick-header-menu', this._brick._element).toggleClass('is-disabled', is_disabled)
-                                                     .click(function(e) {
-                                                          self.toggle(e);
-                                                      });
+        this._element = element;
+        this._dialog = new creme.dialog.Popover(this._options).fill(content);
 
-        var dialog = this._dialog = new creme.dialogs.Popover(options);
-        dialog.fill(content);
+        $('.brick-header-menu', element).toggleClass('is-disabled', is_disabled)
+                                        .click(function(e) {
+                                            toggle(e.target);
+                                         });
     },
 
-    _menuContent: function() {
-        return $('.brick-menu-buttons', this._brick._element);
+    unbind: function() {
+        if (!this.isBound()) {
+            throw new Error('BrickMenu is not bound');
+        }
+
+        this.close();
+
+        this._dialog = null;
+        this._element = null;
+        this._disabled = true;
     },
 
-    toggle: function(e) {
-        if (!this._brick.isLoading() && !this._disabled) {
-            this._dialog.toggle(e.target);
+    _menuContent: function(element) {
+        return $('.brick-menu-buttons', element);
+    },
+
+    isBound: function() {
+        return Object.isNone(this._element) === false;
+    },
+
+    isDisabled: function() {
+        return !this.isBound() || this._disabled;
+    },
+
+    isOpened: function() {
+        return this.isBound() && this._dialog.isOpened();
+    },
+
+    toggle: function(anchor) {
+        if (!this.isDisabled() && !this._brick.isLoading()) {
+            this._dialog.toggle(anchor);
         }
     },
 
     close: function() {
-        this._dialog.close();
+        if (this.isBound()) {
+            this._dialog.close();
+        }
+    },
+
+    open: function(anchor) {
+        if (!this.isDisabled() && !this._brick.isLoading()) {
+            this._dialog.open(anchor);
+        }
     }
 });
 
@@ -262,27 +333,25 @@ creme.bricks.BrickActionLink = creme.action.ActionLink.sub({
 
     _brickActionBuilder: function(actiontype) {
         var brick = this._brick;
-        var builder = brick['_action_' + actiontype];
+        var builder = brick._getActionBuilder(actiontype);
 
         if (Object.isFunc(builder)) {
-            builder = builder.bind(brick);
-
             return function(url, options, data, e) {
                 if (!brick.isLoading()) {
                     brick.closeMenu();
-                    return builder(url, options, data, e);
+                    return builder(url, options || {}, data || {}, e);
                 }
-            }
+            };
         }
     }
-})
+});
 
 creme.bricks.BrickSelectionController = creme.component.Component.sub({
     _init_: function(options) {
         this._options = $.extend({
             rows:     'tr',
             renderer: this._defaultItemStateRenderer,
-            parser:   this._defaultItemStateParser,
+            parser:   this._defaultItemStateParser
         }, options || {});
 
         var model = this._model = new creme.model.Array();
@@ -325,7 +394,7 @@ creme.bricks.BrickSelectionController = creme.component.Component.sub({
     }
 });
 
-//Sigh...
+// Sigh...
 // jQuery UI 1.11 Sortable: the 'start' event is sent *after* the dragged item has been modified to absolute positioning,
 // which destroys the table layout. So: hijack the start of the process to send an event before this happens.
 // HACK: can break in later versions than 1.11
@@ -373,44 +442,74 @@ creme.bricks.BrickTable = creme.component.Component.sub({
         return this._selections.state();
     },
 
+    isBound: function() {
+        return Object.isNone(this._element) === false;
+    },
+
+    _updateSelectionState: function() {
+        var state = this._selections.state();
+        var count = state.selected().length;
+        var total = state.selectables().length;
+
+        $('th[data-selectable-selector-column] input[type="checkbox"]', this._element).prop('checked', count === total);
+        this._brick.setSelectionState(count, total);
+    },
+
+    toggleSelection: function(index, state) {
+        if (!this._brick.isLoading()) {
+            this._selections.state().toggle(index, state);
+        }
+    },
+
+    toggleSelectionAll: function(state) {
+        if (!this._brick.isLoading()) {
+            this._selections.state().toggleAll(state);
+        }
+    },
+
+    toggleSort: function(field, ascending) {
+        if (!this._brick.isLoading()) {
+          var link = $(this);
+
+          // TODO: simpler param -> key == 'order_by' ??
+          var params = {};
+          var order = ascending ? '' : '-';
+          params[this._brick.id() + '_order'] = order + field;
+
+          this._brick.refresh(params);
+        }
+    },
+
     bind: function(element) {
+        if (this.isBound()) {
+            throw new Error('BrickTable is already bound');
+        }
+
+        var self = this;
         var brick = this._brick;
         var events = this._events;
         var selections = this._selections.bind($('tbody', element));
 
-        $('.row-selector-all', element).click(function(e) {
-            if (!brick.isLoading()) {
-                selections.state().toggleAll($(this).prop('checked'));
-            }
+        this._element = element;
+
+        element.delegate('.row-selector-all', 'change', function(e) {
+            self.toggleSelectionAll($(this).prop('checked'));
         });
 
-        $('td[data-selectable-selector-column]', element).click(function(e) {
-            if (!brick.isLoading()) {
-                var row = $(this).parents('tr:first');
-                selections.state().toggle(row.attr('data-row-index'), !row.is('.is-selected'));
-            }
+        element.delegate('td[data-selectable-selector-column]', 'click', function(e) {
+            var row = $(this).parents('tr:first');
+            self.toggleSelection(row.attr('data-row-index'), !row.is('.is-selected'));
         });
 
         selections.state().on('change', function() {
-            var count = selections.state().selected().length;
-            var total = selections.state().selectables().length;
-
-            $('th[data-selectable-selector-column] input[type="checkbox"]', element).prop('checked', count === total);
-            brick.setSelectionState(count, total);
+            self._updateSelectionState();
         });
 
-        $('.brick-table-sortable', element).click(function(e) {
-            if (!brick.isLoading()) {
-//                brick.refresh($(this).attr('data-column-sort-url'));
-                var link = $(this);
+        element.delegate('.brick-table-sortable', 'click', function(e) {
+            var link = $(this);
 
-                // TODO: simpler param -> key == 'order_by' ??
-                var extra_params = {};
-                var order = link.attr('data-sort-order') === 'desc' ? '': '-';
-                extra_params[brick._id + '_order'] =  order + link.attr('data-sort-field');
-
-                brick.refresh(extra_params);
-            }
+            self.toggleSort(link.attr('data-sort-field'),
+                            link.attr('data-sort-order') === 'desc');
         });
 
         $('table[-table-floating-header]', element).each(function() {
@@ -423,17 +522,17 @@ creme.bricks.BrickTable = creme.component.Component.sub({
             });
         });
 
-        $('.brick-reorderable-items', element).sortable ({
+        $('.brick-reorderable-items', element).sortable({
             placeholder: 'brick-reorderable-placeholder',
             handle:      '[data-reorderable-handle-column]',
             beforeStart: function (e, ui) {
-                var widths = ui.item.find('td').map (function() {
+                var widths = ui.item.find('td').map(function() {
                     return this.offsetWidth;
                 }).get();
 
                 var height = ui.item.height();
 
-                ui.item.data ('creme-layout-state', {
+                ui.item.data('creme-layout-state', {
                     height: height,
                     widths: widths
                 });
@@ -452,13 +551,13 @@ creme.bricks.BrickTable = creme.component.Component.sub({
 
                 // The placeholder suffers the same problem, it has no content so the table is relaid out and the columns widths are lost
                 // So: make the placeholder size match the item's original size more closely
-                ui.placeholder.find('td').each (function (index, element) {
+                ui.placeholder.find('td').each(function (index, element) {
                     // 1): pretend columns with the same widths are still in the table
                     $(this).css('width', state.widths [index]);
                 });
 
                 // 2: pretend the row still has the same height, in order to not offset the siblings
-                ui.placeholder.height (state.height);
+                ui.placeholder.height(state.height);
 //                ui.placeholder[0].innerHTML = '<td colspan="50">' + gettext('Drop here to reorder') + '</td>';
                 events.trigger('row-drag-start', [e, ui.item]);
             },
@@ -475,24 +574,31 @@ creme.bricks.BrickTable = creme.component.Component.sub({
             var prev = parseInt(item.attr('data-reorderable-item-order'));
 
             if (next !== prev) {
-                brick.doAction('update', url, {}, {target: next}, {
-                    done: function() {
-                        item.attr('data-reorderable-item-order', next);
-                    },
-                    fail: function() {
-                        brick.refresh();
-                    }
-                });
+                brick.action('update', url, {}, {target: next})
+                     .on({
+                         done: function() { item.attr('data-reorderable-item-order', next); },
+                         fail: function() { brick.refresh(); }
+                      })
+                     .start();
             }
         });
+
+        return this;
     },
 
-    unbind: function(element) {
-        $('table[-table-floating-header]', element).each(function() {
+    unbind: function() {
+        if (this.isBound() === false) {
+            throw new Error('BrickTable is not bound');
+        }
+
+        $('table[-table-floating-header]', this._element).each(function() {
             $(this).floatThead('destroy');
         });
 
-        $('.brick-reorderable-items', element).sortable ('destroy');
+        $('.brick-reorderable-items', this._element).sortable('destroy');
+
+        this._element = null;
+        return this;
     }
 });
 
@@ -512,38 +618,19 @@ creme.bricks.BrickTable = creme.component.Component.sub({
 */
 creme.bricks.Dependencies = function(deps) {
     this._wildcard = false;
-    this._deps = null;
+    this._deps = {};
 
-    // TODO: use Set() when OK in all browsers
-    //       https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set
-    var deps_set = {};
-
-    if (creme.bricks.Dependencies.prototype.isPrototypeOf(deps)) {
-        this._wildcard = deps._wildcard;
-        jQuery.extend(deps_set, deps._deps);
-    } else {
-        for (var i = 0; i < deps.length; i++) {
-            var dep = deps[i];
-
-            if (dep === '*') {
-                this._wildcard = true;
-                return;
-            }
-
-            deps_set[dep] = true;
-        }
-    }
-
-    this._deps = deps_set;
+    this.add(deps);
 };
+
 creme.bricks.Dependencies.prototype = {
-    intersect: function(other_deps_obj) {
-        if (this._wildcard || other_deps_obj._wildcard) {
+    intersect: function(other) {
+        if (this._wildcard || other._wildcard) {
             return true;
         }
 
         var this_deps = this._deps;
-        var other_deps = Object.keys(other_deps_obj._deps);
+        var other_deps = other.keys();
 
         for (var i = 0; i < other_deps.length; i++) {
             if (this_deps[other_deps[i]]) {
@@ -554,25 +641,53 @@ creme.bricks.Dependencies.prototype = {
         return false;
     },
 
-    add: function(other_deps_obj) {
-        if (!this._wildcard) {
-            if (other_deps_obj._wildcard) {
-                this._wildcard = true;
-                this._deps = null;
-            } else {
-                var this_deps = this._deps;
-                var other_deps = Object.keys(other_deps_obj._deps);
+    add: function(deps) {
+        deps = deps || [];
 
-                for (var i = 0; i < other_deps.length; i++) {
-                    this_deps[other_deps[i]] = true;
-                }
+        if (this._wildcard) {
+            return this;
+        }
+
+        if (creme.bricks.Dependencies.prototype.isPrototypeOf(deps)) {
+            this._wildcard = deps._wildcard;
+
+            if (deps._wildcard) {
+                this._deps = {};
+            } else {
+                this._deps = $.extend(this._deps, deps._deps);
             }
+        } else if (Array.isArray(deps)) {
+            // TODO: use Set() when OK in all browsers
+            //       https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set
+            for (var i = 0; i < deps.length; i++) {
+                var key = deps[i];
+
+                if (key === '*') {
+                    this._wildcard = true;
+                    this._deps = {};
+                    break;
+                }
+
+                this._deps[key] = true;
+            }
+        } else if (Object.isString(deps)) {
+            return this.add([deps]);
+        } else {
+            throw new Error('Unable to add invalid dependency data', deps);
         }
 
         return this;
     },
 
-    is_empty: function() {
+    keys: function() {
+        return Object.keys(this._deps);
+    },
+
+    isWildcard: function() {
+        return this._wildcard;
+    },
+
+    isEmpty: function() {
         return !this._wildcard && (Object.keys(this._deps).length === 0);
     }
 };
@@ -580,15 +695,17 @@ creme.bricks.Dependencies.prototype = {
 creme.bricks.Brick = creme.component.Component.sub({
     _init_: function(options) {
         var self = this;
-        var options = $.extend({
-                            overlayDelay: 200,
-                            deferredStateSaveDelay: 1000
-                        }, options || {});
+        options = $.extend({
+                        overlayDelay: 200,
+                        deferredStateSaveDelay: 1000
+                    }, options || {});
 
         this._options = options;
         this._events = new creme.component.EventHandler();
 
         this._state = {};
+        this._dependencies = new creme.bricks.Dependencies();
+        this._actionLinks = [];
         this._deferredStateSave = $.debounce(this.saveState.bind(this), options.deferredStateSaveDelay);
 
         this._overlay = new creme.dialog.Overlay();
@@ -597,6 +714,7 @@ creme.bricks.Brick = creme.component.Component.sub({
                                             self.refresh(url);
                                       });
         this._table = new creme.bricks.BrickTable(this);
+        this._menu = new creme.bricks.BrickMenu(this);
     },
 
     on: function(event, listener, decorator) {
@@ -611,49 +729,112 @@ creme.bricks.Brick = creme.component.Component.sub({
 
     one: function(event, listener) {
         this._events.one(event, listener);
+        return this;
+    },
+
+    trigger: function(event, data) {
+        if (this.isBound()) {
+            this._element.trigger('brick-' + event, [this].concat(data || []));
+        }
+
+        this._events.trigger(event, data, this);
+    },
+
+    isBound: function() {
+        return Object.isNone(this._element) === false;
+    },
+
+    element: function() {
+        return this._element;
+    },
+
+    _bindStateSaveURL: function() {
+        var url = this._stateSaveURL = $('body').attr('data-brick-state-url') || '';
+
+        if (!url) {
+            console.warn('It seems there is no brick state URL in this page (see <body data-brick-state-url="..." > attribute)');
+        }
+
+        return url;
+    },
+
+    _bindDependencies: function(element) {
+        var data = creme.utils.JSON.clean(element.attr('data-brick-deps'), []);
+        var deps = this._dependencies = new creme.bricks.Dependencies(data);
+
+        return deps;
+    },
+
+    _bindActionLinks: function(element) {
+        var self = this;
+
+        var links = this._actionLinks = $('[data-action]', element).map(function() {
+            return self._initializeActionButton($(this));
+        });
+
+        return links;
     },
 
     bind: function(element) {
-        if (Object.isNone(this._element) === false) {
-            throw 'brick component is already bound !';
+        if (this.isBound()) {
+            throw Error('brick component is already bound');
         }
+
+        // brick is not bound so brick.trigger() doesn't send the 'brick-*' event to the element.
+        this.trigger('before-bind', [element]);
+        element.trigger('brick-before-bind', [this, element]);
 
         this._id = element.attr('id');
-
-        this._stateSaveURL = $('body').attr('data-brick-state-url');
-        if (!this._stateSaveURL) {
-            this._stateSaveURL = '';
-            console.warn('It seems there is no brick state URL in this page (see <body data-brick-state-url="..." > attribute)!');
-        }
-
-        this._defaultLoadingMessage = element.find('.brick-loading-indicator-title').html();
         this._element = element;
-
-        var self = this;
-
-        $('[data-action]', element).each(function() {
-            self._initializeActionButton($(this));
-        });
-
+        this._defaultLoadingMessage = element.find('.brick-loading-indicator-title').html();
         this._state = {
             collapsed: element.is('.is-collapsed'),
             reduced:   element.is('.is-content-reduced')
-        }
+        };
+
+        this._bindStateSaveURL();
+        this._bindDependencies(element);
+        this._bindActionLinks(element);
 
         this._table.bind(element);
         this._pager.bind(element);
         this._overlay.bind($('.brick-content', element));
-        this._menu = new creme.bricks.BrickMenu(this);
+        this._menu.bind(element);
+
+        this.trigger('bind', [element]);
+
+        return this;
     },
 
-    unbind: function(element) {
-        if (Object.isNone(this._element)) {
-            throw 'brick component is not bound !';
+    unbind: function() {
+        if (this.isBound() === false) {
+            throw Error('brick component is not bound');
         }
 
-        this._table.unbind(element);
-        this._overlay.unbind(element).update(false);
+        var element = this._element;
+
+        this.trigger('before-unbind', [element]);
+
+        this._table.unbind();
+        this._overlay.unbind().update(false);
+        this._menu.unbind();
+
         this.closeMenu();
+
+        this._element = undefined;
+        this._state = {};
+        this._actionLinks = [];
+        this._defaultLoadingMessage = '';
+        this._stateSaveURL = '';
+
+        this.trigger('unbind', [element]);
+        element.trigger('brick-unbind', [this, element]);
+
+        return this;
+    },
+
+    id: function() {
+        return this._id;
     },
 
     title: function() {
@@ -662,10 +843,16 @@ creme.bricks.Brick = creme.component.Component.sub({
 
     toggleMenu: function() {
         this._menu.toggle();
+        return this;
     },
 
     closeMenu: function() {
-        return this._menu.close();
+        this._menu.close();
+        return this;
+    },
+
+    menu: function() {
+        return this._menu;
     },
 
     table: function() {
@@ -673,11 +860,25 @@ creme.bricks.Brick = creme.component.Component.sub({
     },
 
     setSelectionState: function(count, total) {
-        var indicator = $('.brick-selection-indicator', this._element);
-        var title = indicator.find('.brick-selection-title');
+        count = Math.max(0, count || 0);
+        total = Math.max(0, total || 0);
 
-        indicator.toggleClass('has-selection', count > 0);
-        title.text(title.attr(pluralidx(count) ? 'data-plural-format' : 'data-title-format').format(count));
+        if (this.isBound()) {
+            var indicator = $('.brick-selection-indicator', this._element);
+            var title = indicator.find('.brick-selection-title');
+            var message = title.attr('data-title-format') || '';
+            var plural = title.attr('data-plural-format');
+            var has_selection = count > 0;
+
+            if (pluralidx(count)) {
+                message = plural || message;
+            }
+
+            indicator.toggleClass('has-selection', has_selection);
+            title.text(has_selection && Object.isString(message) ? message.format(count, total) : '');
+        }
+
+        return this;
     },
 
     state: function() {
@@ -687,7 +888,7 @@ creme.bricks.Brick = creme.component.Component.sub({
     setState: function(state) {
         this._state = $.extend(this._state, state || {});
         this._renderState();
-        this._events.trigger('state-update', [this._state], this);
+        this.trigger('state-update', [this._state]);
         this._deferredStateSave();
         return this;
     },
@@ -699,14 +900,20 @@ creme.bricks.Brick = creme.component.Component.sub({
     },
 
     saveState: function() {
-        var state = this._state;
+        if (this.isBound()) {
+            var state = this._state;
 
-        creme.ajax.query(this._stateSaveURL, {action: 'post'}, {
-                       id:                this._id,
-                       is_open:           state.collapsed ? 0 : 1,
-                       show_empty_fields: state.reduced ? 0 : 1,
-                   })
-                   .start();
+            if (!Object.isEmpty(this._stateSaveURL)) {
+                creme.ajax.query(this._stateSaveURL, {action: 'post'}, {
+                               id:                this._id,
+                               is_open:           state.collapsed ? 0 : 1,
+                               show_empty_fields: state.reduced ? 0 : 1
+                           })
+                           .start();
+            }
+        }
+
+        return this;
     },
 
     _renderState: function() {
@@ -718,59 +925,99 @@ creme.bricks.Brick = creme.component.Component.sub({
     },
 
     _initializeActionButton: function(button) {
-        var self = this;
         var link = new creme.bricks.BrickActionLink(this).bind(button);
 
+        // TODO : move this to BrickActionLink ?
         if (button.is('.is-async-action')) {
             var setLoadingState = this.setLoadingState.bind(this);
 
             link.on('action-link-start', function(event, url, options, data) {
                     setLoadingState(true, options.loading);
                  })
-                .on('action-link-complete', function() {setLoadingState(false);});
+                .onComplete(function() {
+                    setLoadingState(false);
+                 });
         }
 
         return link;
     },
 
-    doAction: function(action, url, options, data, listeners) {
-        var listeners = listeners || {};
-        var actiontype = action.replace(/\-/g, '_').toLowerCase();
+    _getActionBuilder: function(actiontype) {
+        actiontype = actiontype.replace(/\-/g, '_').toLowerCase();
         var builder = this['_action_' + actiontype];
 
-        if (Object.isFunc(builder) && !this.isLoading()) {
-            builder = builder.bind(this);
-            builder(url, options, data).on(listeners).start();
+        if (Object.isFunc(builder)) {
+            return builder.bind(this);
         }
     },
 
-    _toggleStateAction: function(key, e, active_label, inactive_label) {
+    _buildAction: function(actiontype, url, options, data, event) {
+        options = options || {};
+        data = data || {};
+
+        var builder = this._getActionBuilder(actiontype);
+
+        if (Object.isFunc(builder)) {
+            return builder(url, options, data, event);
+        }
+    },
+
+    action: function(actiontype, url, options, data) {
+        var self = this;
+
+        if (!this.isBound()) {
+            return new creme.component.Action(function() {
+                this.cancel('brick is not bound', self);
+            });
+        }
+
+        if (this.isLoading()) {
+            return new creme.component.Action(function() {
+                this.cancel('brick is in loading state', self);
+            });
+        }
+
+        var action = this._buildAction(actiontype, url, options, data);
+
+        if (Object.isNone(action)) {
+            action = new creme.component.Action(function() {
+                this.fail('no such action "' + actiontype + '"', self);
+            });
+        }
+
+        return action;
+    },
+
+    _toggleStateAction: function(key, event, active_label, inactive_label) {
         var toggle = this.toggleState.bind(this, key);
         return new creme.component.Action(function() {
             var state = toggle().state()[key];
-            var link = $(e.target).parents('[data-action]:first');
-            link.find('.brick-action-title').text(state ? inactive_label : active_label);
+
+            if (!Object.isNone(event)) {
+                var link = $(event.target).parents('[data-action]:first');
+                link.find('.brick-action-title').text(state ? inactive_label : active_label);
+            }
+
             this.done();
         });
     },
 
-    _action_collapse: function(url, options, data, e) {
-        return this._toggleStateAction('collapsed', e, data.inlabel, data.outlabel);
+    _action_collapse: function(url, options, data, event) {
+        return this._toggleStateAction('collapsed', event, data.inlabel, data.outlabel);
     },
 
-    _action_reduce_content: function(url, options, data, e) {
-        return this._toggleStateAction('reduced', e, data.inlabel, data.outlabel);
+    _action_reduce_content: function(url, options, data, event) {
+        return this._toggleStateAction('reduced', event, data.inlabel, data.outlabel);
     },
 
     _action_form: function(url, options, data) {
-        var options = $.extend(this._defaultDialogOptions(url), options || {});
-
+        options = $.extend(this._defaultDialogOptions(url), options || {});
         return new creme.bricks.FormDialogAction(options);
     },
 
     _action_form_refresh: function(url, options, data) {
         var self = this;
-        return this._action_form(url, options, data).onDone(function() {self.refresh();});
+        return this._action_form(url, options, data).onDone(function() { self.refresh(); });
     },
 
     _action_add: function(url, options, data) {
@@ -800,27 +1047,38 @@ creme.bricks.Brick = creme.component.Component.sub({
     /* TODO: factorise with _action_update() */
     _action_delete: function(url, options, data) {
         var self = this;
-        var options = $.extend({action: 'post'}, options || {});
+        options = $.extend({action: 'post'}, options || {});
+
         var action = creme.utils.confirmAjaxQuery(url, options, data)
-                                .onDone(function() {self.refresh();});
+                                .onDone(function() { self.refresh(); });
 
         return action;
     },
 
     _action_update: function(url, options, data) {
         var self = this;
-        var options = $.extend({action: 'post', reloadBrick: true}, options || {});
-        var action = options.confirm ? creme.utils.confirmAjaxQuery(url, options, data) :
-                                       creme.utils.ajaxQuery(url, options, data);
+        var action;
+        options = $.extend({action: 'post', reloadBrick: true}, options || {});
 
-        return action.onDone(function() {self.refresh();});
+        if (options.confirm) {
+            action = creme.utils.confirmAjaxQuery(url, options, data);
+        } else {
+            action = creme.utils.ajaxQuery(url, options, data);
+        }
+
+        return action.onDone(function() { self.refresh(); });
     },
 
     /* TODO: factorise with _action_update() */
     _action_update_redirect: function(url, options, data) {
-        var options = $.extend({action: 'post'}, options || {});
-        var action = options.confirm ? creme.utils.confirmAjaxQuery(url, options, data) :
-                                       creme.utils.ajaxQuery(url, options, data);
+        options = $.extend({action: 'post'}, options || {});
+        var action;
+
+        if (options.confirm) {
+            action = creme.utils.confirmAjaxQuery(url, options, data);
+        } else {
+            action = creme.utils.ajaxQuery(url, options, data);
+        }
 
         return action.onDone(function(event, data, xhr) {
             creme.utils.goTo(data);
@@ -848,7 +1106,7 @@ creme.bricks.Brick = creme.component.Component.sub({
     },
 
     _action_view: function(url, options, data) {
-        var options = $.extend(this._defaultDialogOptions(url, data.title), options || {});
+        options = $.extend(this._defaultDialogOptions(url, data.title), options || {});
 
         return new creme.bricks.DialogAction(options);
     },
@@ -864,81 +1122,74 @@ creme.bricks.Brick = creme.component.Component.sub({
 
         return new creme.component.Action(function() {
             creme.utils.goTo(creme.utils.templatize(url, context).render());
-        })
+        });
     },
 
     dependencies: function() {
-        var deps_list = [];
-        var deps_str = this._element.attr('data-brick-deps');
-
-        if (deps_str !== undefined) {
-            try {
-                deps_list = JSON.parse(deps_str);
-            } catch (e) {
-                console.warn('Invalid "data-brick-deps" attribute:', e);
-            }
-        }
-
-        return new creme.bricks.Dependencies(deps_list);
+        return this._dependencies;
     },
 
     isLoading: function() {
-        return this._element.is('.is-loading');
+        return this.isBound() && this._element.is('.is-loading');
     },
 
     readOnly: function() {
-        var read_only = false;
-        var read_only_str = this._element.attr('data-brick-readonly');
-
-        if (read_only_str !== undefined) {
-            try {
-                read_only = Boolean(JSON.parse(read_only_str));
-            } catch (e) {
-                console.warn('Invalid "data-brick-readonly" attribute:', e);
-            }
-        }
-
-        return read_only;
+        return this.isBound() && (this._element.attr('data-brick-readonly') === 'true');
     },
 
     reloadingInfo: function() {
-        var info = null;
-        var info_str = this._element.attr('data-brick-reloading-info');
+        if (!this.isBound()) {
+            return {};
+        }
 
-        if (info_str !== undefined) {
+        var data = this._element.attr('data-brick-reloading-info') || '';
+
+        if (data) {
             try {
-                info = JSON.parse(info_str);
+                return JSON.parse(data);
             } catch (e) {
                 console.warn('Invalid "data-brick-reloading-info" attribute:', e);
             }
         }
 
-        return info;
+        return {};
     },
 
     setLoadingState: function(state, message) {
-        if (state != this.isLoading()) {
-            var message = message || this._defaultLoadingMessage;
+        if (this.isBound() && state !== this.isLoading()) {
+            message = message || this._defaultLoadingMessage;
             var element = this._element;
 
             element.toggleClass('is-loading', state)
-                   .find('.brick-loading-indicator-title').html(message)
-                   .trigger(state ? 'brick-loading-start' : 'brick-loading-complete');
+                   .find('.brick-loading-indicator-title').html(message);
+
+            element.trigger(state ? 'brick-loading-start' : 'brick-loading-complete');
         }
+
+        return this;
     },
 
     setDownloadStatus: function(percent) {
-        var element = this._element;
-        $('.brick-header', element).attr('data-loading-progress', percent);
-        element.trigger('brick-loading-progress', [percent]);
+        if (this.isBound()) {
+            var element = this._element;
+            $('.brick-header', element).attr('data-loading-progress', percent);
+            this.trigger('brick-loading-progress', [percent]);
+        }
+
+        return this;
     },
 
-    refresh: function(uri_extra_params) {
-        this._action_refresh(uri_extra_params).start();
+    refresh: function(uri_extra_params, listeners) {
+        if (this.isBound()) {
+            return this._action_refresh(uri_extra_params).on(listeners || {}).start();
+        }
+
+        return this;
     },
 
     redirect: function(url, option, data) {
         this._action_redirect(url, option, data).start();
+        return this;
     }
 });
 
@@ -963,9 +1214,13 @@ creme.bricks.BricksReloader = function(uri_extra_params) {
 };
 creme.bricks.BricksReloader.prototype = {
     containerFromNode: function(node) {
-        var container = (node === undefined ? $('[data-bricks-reload-url]').first():
-                                              node.parents('[data-bricks-reload-url]').first()
-                        );
+        var container;
+
+        if (node === undefined) {
+            container = $('[data-bricks-reload-url]').first();
+        } else {
+            container = node.parents('[data-bricks-reload-url]').first();
+        }
 
         if (container.length === 1) {
             var url = container.attr('data-bricks-reload-url');
@@ -996,16 +1251,20 @@ creme.bricks.BricksReloader.prototype = {
     sourceBrick: function(brick) {
         this.containerFromNode(brick._element);
         var src_deps = brick.dependencies();
+        var source_id = brick.id();
 
-        if (brick.readOnly() || src_deps.is_empty()) {
-            var source_id = brick._id;
+        if (Object.isEmpty(source_id)) {
+            this._brickFilter = null;
+            return this;
+        }
 
+        if (brick.readOnly() || src_deps.isEmpty()) {
             this._brickFilter = function(other_brick) {
-                return other_brick._id === source_id;
+                return other_brick.id() === source_id;
             };
         } else {
             this._brickFilter = function(other_brick) {
-                return src_deps.intersect(other_brick.dependencies());
+                return other_brick.id() === source_id || src_deps.intersect(other_brick.dependencies());
             };
         }
 
@@ -1013,59 +1272,71 @@ creme.bricks.BricksReloader.prototype = {
     },
 
     action: function() {
+        var failAction = function(message) {
+            return new creme.component.Action(function() {
+                this.fail(message);
+            });
+        };
+
+        var cancelAction = function(message) {
+            return new creme.component.Action(function() {
+                this.cancel(message);
+            });
+        };
+
         if (!this._bricksContainer) {
             this.containerFromNode();
         }
 
-        if (!this._url || this._brickFilter === null) {
-            return;
+        if (this._brickFilter === null) {
+            return failAction('Missing or invalid source brick');
         }
 
         var bricks = [];
         var extra_data = {}; // Additional information (per brick) sent to the server.
         var brickFilter = this._brickFilter;
 
-        $('.brick', this._bricksContainer).each(function() {
+        $('.brick.widget-ready', this._bricksContainer).each(function() {
             var brick = $(this).creme().widget().brick();
+            var brick_id = brick.id();
 
-            if (brickFilter(brick)) {
+            if (brickFilter(brick) && !Object.isEmpty(brick_id)) {
                 bricks.push(brick);
 
                 var brick_extra_data = brick.reloadingInfo();
-                if (brick_extra_data) {
-                    extra_data[brick._id] = brick_extra_data;  // TODO: getter for _id ?
+
+                if (!Object.isEmpty(brick_extra_data)) {
+                    extra_data[brick_id] = brick_extra_data;
                 }
             }
         });
 
         if (bricks.length === 0) {
             console.debug('No brick collected ; so we avoid the reloading query');
-
-            return new creme.component.Action();
+            return cancelAction('No active brick collected. Avoid the reloading query.');
         }
 
         // TODO: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
-        var uri = this._url + '&' + $.param({brick_id: bricks.map(function(brick) {return brick._id;}),
-                                             extra_data: $.toJSON(extra_data)
-                                            });
-
-        if (this.uri_extra_params) {
-            uri += '&' + $.param(this.uri_extra_params);
-        }
+        var data = $.extend({
+            brick_id:   bricks.map(function(brick) { return brick.id(); }),
+            extra_data: $.toJSON(extra_data)
+        }, this.uri_extra_params || false);
 
         var queryOptions = {
             backend: {
                 sync: false,
-                dataType: 'json',
+                dataType: 'json'
             },
             onDownloadProgress: function(evt) {
                 var percent = 100;
 
-                if (evt.lengthComputable && event.total > 0) {
+                if (evt.lengthComputable && evt.total > 0) {
                     percent = Math.trunc(Math.max((evt.loaded / evt.total) * 100, 0) / 20) * 20;
                 }
 
-                bricks.forEach(function(brick) {brick.setDownloadStatus(percent);});
+                bricks.forEach(function(brick) {
+                    brick.setDownloadStatus(percent);
+                });
             }
         };
 
@@ -1075,7 +1346,7 @@ creme.bricks.BricksReloader.prototype = {
                  .update(true, 'wait', brick._options.overlayDelay);
         });
 
-        return creme.ajax.query(uri, queryOptions)
+        return creme.ajax.query(this._url, queryOptions, data)
                          .onStart(function() {
                               bricks.forEach(function(brick) {
                                   brick.setLoadingState(true);
@@ -1101,11 +1372,10 @@ creme.bricks.BrickLauncher = creme.widget.declare('brick', {
     _create: function(element, options, cb, sync, args) {
         var brick = this._brick = new creme.bricks.Brick();
 
-        element.trigger('brick-before-bind', [brick, options, element]);
         brick.bind(element);
 
         element.addClass('widget-ready');
-        element.trigger('brick-ready', [brick, options]);
+        brick.trigger('ready', [options]);
     },
 
     _destroy: function(element) {
@@ -1115,7 +1385,7 @@ creme.bricks.BrickLauncher = creme.widget.declare('brick', {
 
     brick: function(element) {
         return this._brick;
-    },
+    }
 });
 
 }(jQuery));

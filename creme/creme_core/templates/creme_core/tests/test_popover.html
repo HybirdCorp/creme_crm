@@ -1,0 +1,108 @@
+{% extends "creme_core/tests/testbase.html" %}
+{% load i18n %}
+{% load media %}
+{% load creme_core_tags creme_widgets %}
+
+{% block test_title %}Popover{% endblock %}
+{% block test_header %}
+<style type="text/css">
+    .popover-test-options input {
+        vertical-align: middle;
+        display: inline-block;
+    }
+
+    .popover-test-options input[type="radio"] {
+        margin: 0px 3px;
+        padding: 0px;
+    }
+</style>
+
+<script type="text/javascript">
+(function($) {
+    "use strict";
+
+    var LOREM_IPSUM = ("Lorem ipsum dolor sit amet, consectetur adipiscing elit. In interdum leo ut mi eleifend rutrum. " +
+                       "Morbi aliquam augue vel elit molestie sagittis. Aenean suscipit, purus lacinia hendrerit accumsan, " +
+                       "risus erat placerat tortor, non rhoncus tellus orci sed libero. Maecenas erat ligula, scelerisque " +
+                       "id interdum in, semper eu metus. Integer eget eros nec nisi pellentesque congue. Sed quis lacinia " +
+                       "magna. Etiam eget nulla sit amet ligula fringilla ornare. In euismod adipiscing lacus, nec congue" +
+                       "elit vulputate vel. Phasellus et velit lacus, id ultricies odio. Fusce imperdiet vehicula justo, " +
+                       "nec gravida velit bibendum porta.").split(" ");
+
+    function randomText(words) {
+        var half = LOREM_IPSUM.length / 2;
+        var count = 0;
+        var text = '';
+
+        if (words > 1) {
+            while(count < words) {
+                var start = Math.random() * (half - 1);
+                var end = (1 + Math.random()) * half;
+
+                end = Math.min((end - start), (words - count)) + start;
+
+                var sentence = LOREM_IPSUM.slice(start, end);
+                sentence[0] = sentence[0].capitalize();
+
+                text += sentence.join(" ") + ". ";
+                count += sentence.length;
+            }
+        }
+
+        return text;
+    };
+
+    $(document).ready(function() {
+        $('.popover-test-open').click(function() {
+            var direction = $('input[type="radio"][name="direction"]:checked').val();
+            var closeIfOut = $('input[type="checkbox"][name="closeIfOut"]:checked').val() === '1';
+            var modal = $('input[type="checkbox"][name="modal"]:checked').val() === '1';
+            var title = $('.popover-test-title').val();
+            var content = randomText(parseInt($('.popover-test-content').val()));
+
+            var popover = new creme.dialog.Popover({
+                direction: direction,
+                closeIfOut: closeIfOut,
+                modal: modal,
+                title: $('<h3>${title}</h3>'.template({title: title}))
+            });
+
+            popover.fill('<p>${content}</p>'.template({content: content}))
+                   .open($(this));
+        })
+    })
+}(jQuery));
+</script>
+{% endblock %}
+{% block test_content %}
+<ul>
+    <li>
+        <h4>Popover</h4>
+        <div class="popover-test-options">
+            <label><input type="radio" value="top" name="direction" checked/>Top</label>
+            <label><input type="radio" value="left" name="direction"/>Left</label>
+            <label><input type="radio" value="right" name="direction"/>Right</label>
+            <label><input type="radio" value="bottom" name="direction"/>Bottom</label>
+            &nbsp;|&nbsp;
+            <label><input type="checkbox" value="1" name="closeIfOut" checked/>Close if Out</label>
+            &nbsp;|&nbsp;
+            <label><input type="checkbox" value="1" name="modal"/>Modal</label>
+            &nbsp;|&nbsp;
+            <select class="popover-test-title">
+                <option value="">---</option>
+                <option value="Title A">Title A</option>
+                <option value="Title B">Title B</option>
+                <option value="Very, very, very, very, very, very long title C...">Title C</option>
+            </select>
+            <select class="popover-test-content">
+                <option value="0">empty</option>
+                <option value="50">50 words</option>
+                <option value="200">200 words</option>
+                <option value="1000">1000 words</option>
+            </select>
+            &nbsp;|&nbsp;
+            <a class="popover-test-open">Open this popover !</a>
+        </div>
+    </li>
+</ul>
+{% endblock %}

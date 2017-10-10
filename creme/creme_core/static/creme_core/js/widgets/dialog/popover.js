@@ -1,6 +1,6 @@
 /*******************************************************************************
  Creme is a free/open-source Customer Relationship Management software
- Copyright (C) 2015  Hybird
+ Copyright (C) 2017  Hybird
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -16,17 +16,27 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
 
-creme.dialogs = creme.dialogs || {};
+(function($) {
+"use strict";
 
-creme.dialogs.Popover = creme.component.Component.sub({
-    _init_: function(options)
-    {
-        var options = $.extend({
-            choices:    [],
-            title:      '',
+var _DIRECTIONS = ['top', 'left', 'right', 'bottom'];
+
+var _assertDirection = function(direction) {
+    if (_DIRECTIONS.indexOf(direction) === -1) {
+        throw Error('invalid popover direction ' + direction);
+    } else {
+        return direction;
+    }
+};
+
+creme.dialog = creme.dialog || {};
+
+creme.dialog.Popover = creme.component.Component.sub({
+    _init_: function(options) {
+        options = $.extend({
+            title:      false,
             closeIfOut: true,
             direction:  'bottom',
-            content:    '',
             modal:      true
         }, options || {});
 
@@ -35,76 +45,48 @@ creme.dialogs.Popover = creme.component.Component.sub({
         this._initFrame(options);
     },
 
-    _initFrame: function(options)
-    {
+    _initFrame: function(options) {
         var content = $('<div class="popover-content"/>');
-        content.html(Object.isFunc(options.content) ? options.content.bind(this)(options) : options.content);
+        var dialog = this._dialog = $('<div class="popover"><div class="arrow"></div>');
 
-        var dialog = this._dialog = $('<div class="popover %s"><div class="arrow"></div>'.format(options.direction));
-
-        if (options.title) {
-            dialog.append($('<div class="popover-title"/>').html(options.title));
-        }
-
+        dialog.append($('<div class="popover-title hidden"/>'));
         dialog.append(content);
-        this._glasspane = new creme.dialogs.GlassPane().addClass('popover-glasspane');
+
+        this._glasspane = new creme.dialog.GlassPane().addClass('popover-glasspane');
+
+        this.title(options.title);
+        this.direction(options.direction);
     },
 
-    selectAndClose: function(value)
-    {
-        this._events.trigger('ok', [value]);
-        this.close();
-    },
-
-    open: function(anchor, options)
-    {
+    open: function(anchor, options) {
         if (this.isOpened()) {
-            return;
+            throw Error('popover is already opened');
         }
 
         if (this._options.modal) {
             $('.popover').trigger('modal-close');
         }
 
-        var options = $.extend(this._options, options || {});
-        var direction = options.direction || 'bottom';
+        options = this._options = $.extend({}, this._options, options || {});
+        anchor = this._anchor = $(anchor);
 
-        var anchor = this._anchor = $(anchor);
-
-        // offset() is used since it returns the position of the element relative to the document
-        // whereas position() is relative to the parent. When adding the popover to the body,
-        // we need the absolute position of the anchor in the document.
-        var position = anchor.offset();
-
-        var width = anchor.outerWidth() || 0;
-        var height = anchor.outerHeight() || 0;
         var dialog = this._dialog;
+        var close = this.close.bind(this);
 
-        $('body').append(this._dialog);
+        dialog.css('visiblility', 'hidden');  // hide dialog before positionning
 
-        if (direction === 'bottom') {
-            position.top += height;
-            position.left -= width / 2;
-            position['min-width'] = width;
-        } else if (direction === 'top') {
-            position.bottom += height;
-            position.left -= width / 2;
-            position['min-width'] = width;
-        } else if (direction === 'right') {
-            position.top += (height / 2) - 18;
-            position.left += width;
-        } else if (direction === 'left') {
-            position.top -= (height / 2) - 18;
-            position.left -= width;
-        }
-
-        dialog.css(position);
+        $('body').append(dialog);
         this._glasspane.open(dialog);
+        this._onclose = function() { close(); };
 
-        dialog.on('modal-close', this.close.bind(this));
+        this.direction(options.direction || 'bottom');
+
+        dialog.css('visiblility', 'visible');
+
+        dialog.on('modal-close', this._onclose);
 
         if (options.closeIfOut) {
-            this._glasspane.pane().on('mousedown', this.close.bind(this));
+            this._glasspane.pane().on('mousedown', this._onclose);
         }
 
         this._events.trigger('opened', [], this);
@@ -115,8 +97,9 @@ creme.dialogs.Popover = creme.component.Component.sub({
         return Object.isNone(this._anchor) === false;
     },
 
-    _closeIfOutside: function(e)
-    {
+    // TODO : never used ? (maybe deprecated by glasspane)
+/*
+    _closeIfOutside: function(e) {
         var target = $(e.target);
         var isinside = target.closest(this._dialog).length > 0;
 
@@ -124,28 +107,127 @@ creme.dialogs.Popover = creme.component.Component.sub({
             this.close();
         }
     },
+*/
 
-    close: function()
-    {
+    _updateDialogPosition: function(dialog, anchor, direction) {
+        // offset() is used since it returns the position of the element relative to the document
+        // whereas position() is relative to the parent. When adding the popover to the body,
+        // we need the absolute position of the anchor in the document.
+        var position = $.extend({top: 0, left: 0}, anchor.offset());
+        var anchorWidth = anchor.outerWidth() || 0;
+        var anchorHeight = anchor.outerHeight() || 0;
+        var width = dialog.outerWidth() || 0;
+        var height = dialog.outerHeight() || 0;
+
+        switch (direction) {
+            case 'bottom':
+                position.top += anchorHeight;
+                position.left += (anchorWidth - width) / 2;
+                // position['min-width'] = anchorWidth;
+                break;
+            case 'top':
+                position.top -= height;
+                position.left += (anchorWidth - width) / 2;
+                // position['min-width'] = anchorWidth;
+                break;
+            case 'right':
+                position.top += (anchorHeight / 2) - 18;
+                position.left += anchorWidth;
+                break;
+            case 'left':
+                position.top += (anchorHeight / 2) - 18;
+                position.left -= width;
+                break;
+        };
+
+        dialog.removeClass(_DIRECTIONS.join(' '));
+        dialog.addClass(direction);
+
+        dialog.css(position);
+    },
+
+    close: function() {
+        this._dialog.off('modal-close', this._onclose);
         this._dialog.detach();
+
         this._anchor = null;
+
+        this._glasspane.pane().off('mousedown', this._onclose);
         this._glasspane.close();
-        this._events.trigger('closed', [], this);
+
+        this._events.trigger('closed', Array.copy(arguments), this);
 
         return this;
     },
 
-    fill: function(content)
-    {
-        var options = this._options;
-        var content = content || options.content;
-        $('.popover-content', this._dialog).html(Object.isFunc(content) ? content.bind(this)(options) : content);
+    options: function() {
+        return this._options;
+    },
+
+    direction: function(direction) {
+        if (direction === undefined) {
+            return this._options.direction;
+        }
+
+        _assertDirection(direction);
+
+        this._options.direction = direction;
+
+        if (this.isOpened()) {
+            this._updateDialogPosition(this._dialog, this._anchor, direction);
+        }
 
         return this;
     },
 
-    toggle: function(anchor, options)
-    {
+    title: function(title) {
+        if (title === undefined) {
+            return $('.popover-title', this._dialog);
+        }
+
+        $('.popover-title', this._dialog).toggleClass('hidden', title === false);
+
+        if (Object.isString(title)) {
+            $('.popover-title', this._dialog).html(title);
+        } else {
+            $('.popover-title', this._dialog).empty().append(title);
+        }
+
+        return this;
+    },
+
+    addClass: function(classname) {
+        this._dialog.addClass(classname);
+        return this;
+    },
+
+    removeClass: function(classname) {
+        this._dialog.removeClass(classname);
+        return this;
+    },
+
+    toggleClass: function(classname, state) {
+        this._dialog.toggleClass(classname, state);
+        return this;
+    },
+
+    content: function() {
+        return $('.popover-content', this._dialog);
+    },
+
+    fill: function(content) {
+        var rendered = Object.isFunc(content) ? content.bind(this)(this._options) : content;
+
+        if (Object.isString(rendered)) {
+            $('.popover-content', this._dialog).html(rendered);
+        } else {
+            $('.popover-content', this._dialog).empty().append(rendered);
+        }
+
+        return this;
+    },
+
+    toggle: function(anchor, options) {
         if (this.isOpened()) {
             return this.close();
         } else {
@@ -166,9 +248,6 @@ creme.dialogs.Popover = creme.component.Component.sub({
     one: function(event, listener) {
         this._events.one(event, listener);
         return this;
-    },
-
-    onOk: function(listener, decorator) {
-        return this.on('ok', listener, decorator);
     }
 });
+}(jQuery));
