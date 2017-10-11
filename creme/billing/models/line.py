@@ -43,7 +43,7 @@ class Line(CremeEntity):
     # NB: not blank (no related item => name is filled)
     on_the_fly_item = CharField(_(u'On-the-fly line'), max_length=100, null=True)
 
-    comment         = TextField(_('Comment'), blank=True)
+    comment         = TextField(_(u'Comment'), blank=True)
     quantity        = DecimalField(_(u'Quantity'), max_digits=10, decimal_places=2, default=DEFAULT_QUANTITY)
     unit_price      = DecimalField(_(u'Unit price'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
     unit            = CharField(_(u'Unit'), max_length=100, blank=True)
@@ -53,7 +53,7 @@ class Line(CremeEntity):
     discount_unit   = PositiveIntegerField(_(u'Discount Unit'), blank=True, null=True, editable=False,
                                            choices=DISCOUNT_UNIT.items(), default=PERCENT_PK,
                                           )
-    total_discount  = BooleanField(_('Total discount ?'), editable=False, default=False)
+    total_discount  = BooleanField(_(u'Total discount ?'), editable=False, default=False)
     vat_value       = ForeignKey(Vat, verbose_name=_(u'VAT'), blank=True, null=True, on_delete=PROTECT)  # TODO null=False
 
     creation_label = _('Create a line')

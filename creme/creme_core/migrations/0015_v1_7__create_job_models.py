@@ -9,7 +9,8 @@ import creme.creme_core.models.fields
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('creme_core', '0014_v1_6__set_version'),
+        # ('creme_core', '0014_v1_6__set_version'),
+        ('creme_core', '0001_initial'),
     ]
 
     operations = [

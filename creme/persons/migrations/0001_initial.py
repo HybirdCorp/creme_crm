@@ -3,15 +3,25 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models, migrations
-import django.db.models.deletion
+from django.db.models.deletion import SET_NULL
 
 import creme.creme_core.models.fields
 
 
 class Migration(migrations.Migration):
+    # replaces = [
+    #     (b'persons', '0001_initial'),
+    #     (b'persons', '0002_v1_6__convert_user_FKs'),
+    #     (b'persons', '0003_v1_6__custom_blocks'),
+    #     (b'persons', '0004_v1_6__fk_on_delete_set'),
+    #     (b'persons', '0005_v1_6__emails_length'),
+    #     (b'persons', '0006_v1_6__contact_full_position'),
+    #     (b'persons', '0007_v1_6__rm_address_relnames'),
+    # ]
+
     dependencies = [
         ('contenttypes', '0001_initial'),
-        #migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('auth', '0001_initial'),
         ('creme_core', '0001_initial'),
         ('media_managers', '0001_initial'),
@@ -111,7 +121,7 @@ class Migration(migrations.Migration):
             name='Contact',
             fields=[
                 ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
-                ('civility', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Civility', blank=True, to='persons.Civility', null=True)),
+                ('civility', models.ForeignKey(on_delete=SET_NULL, verbose_name='Civility', blank=True, to='persons.Civility', null=True)),
                 ('last_name', models.CharField(max_length=100, verbose_name='Last name')),
                 ('first_name', models.CharField(max_length=100, null=True, verbose_name='First name', blank=True)),
                 ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
@@ -119,18 +129,20 @@ class Migration(migrations.Migration):
                 ('mobile', creme.creme_core.models.fields.PhoneField(max_length=100, null=True, verbose_name='Mobile', blank=True)),
                 ('skype', models.CharField(max_length=100, null=True, verbose_name=b'Skype', blank=True)),
                 ('fax', models.CharField(max_length=100, null=True, verbose_name='Fax', blank=True)),
-                ('email', models.EmailField(max_length=100, null=True, verbose_name='Email address', blank=True)),
+                # ('email', models.EmailField(max_length=100, null=True, verbose_name='Email address', blank=True)),
+                ('email', models.EmailField(max_length=254, null=True, verbose_name='Email address', blank=True)),
                 ('url_site', models.URLField(max_length=500, null=True, verbose_name='Web Site', blank=True)),
                 ('birthday', models.DateField(null=True, verbose_name='Birthday', blank=True)),
-                #('billing_address', models.ForeignKey(related_name='billing_address_contact_set', blank=True, editable=False, to='persons.Address', null=True, verbose_name='Billing address')),
-                #('shipping_address', models.ForeignKey(related_name='shipping_address_contact_set', blank=True, editable=False, to='persons.Address', null=True, verbose_name='Shipping address')),
-                ('billing_address',  models.ForeignKey(related_name='billing_address_contact_set',  blank=True, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Billing address')),
-                ('shipping_address', models.ForeignKey(related_name='shipping_address_contact_set', blank=True, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Shipping address')),
-                ('image', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Photograph', blank=True, to='media_managers.Image', null=True)),
-                #('is_user', models.ForeignKey(related_name='related_contact', on_delete=django.db.models.deletion.SET_NULL, blank=True, editable=False, to=settings.AUTH_USER_MODEL, null=True, verbose_name='Related user')),
-                ('is_user', models.ForeignKey(related_name='related_contact', on_delete=django.db.models.deletion.SET_NULL, blank=True, editable=False, to='auth.User', null=True, verbose_name='Related user')),
-                ('position', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Position', blank=True, to='persons.Position', null=True)),
-                ('sector', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Line of business', blank=True, to='persons.Sector', null=True)),
+                # ('billing_address',  models.ForeignKey(related_name='billing_address_contact_set',  blank=True, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Billing address')),
+                ('billing_address',  models.ForeignKey(related_name='+', on_delete=SET_NULL, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Billing address')),
+                # ('shipping_address', models.ForeignKey(related_name='shipping_address_contact_set', blank=True, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Shipping address')),
+                ('shipping_address', models.ForeignKey(related_name='+', on_delete=SET_NULL, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Shipping address')),
+                ('image', models.ForeignKey(on_delete=SET_NULL, verbose_name='Photograph', blank=True, to='media_managers.Image', null=True)),
+                # ('is_user', models.ForeignKey(related_name='related_contact', on_delete=SET_NULL, blank=True, editable=False, to='auth.User', null=True, verbose_name='Related user')),
+                ('is_user', models.ForeignKey(related_name='related_contact', on_delete=SET_NULL, blank=True, editable=False, to=settings.AUTH_USER_MODEL, null=True, verbose_name='Related user')),
+                ('position', models.ForeignKey(on_delete=SET_NULL, verbose_name='Position', blank=True, to='persons.Position', null=True)),
+                ('full_position', models.CharField(max_length=500, null=True, verbose_name='Detailed position', blank=True)),
+                ('sector', models.ForeignKey(on_delete=SET_NULL, verbose_name='Line of business', blank=True, to='persons.Sector', null=True)),
                 ('language', models.ManyToManyField(verbose_name='Spoken language(s)', editable=False, to='creme_core.Language', blank=True)), # null=True
             ],
             options={
@@ -148,7 +160,8 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=200, verbose_name='Name')),
                 ('phone', creme.creme_core.models.fields.PhoneField(max_length=100, null=True, verbose_name='Phone number', blank=True)),
                 ('fax', models.CharField(max_length=100, null=True, verbose_name='Fax', blank=True)),
-                ('email', models.EmailField(max_length=100, null=True, verbose_name='Email address', blank=True)),
+                # ('email', models.EmailField(max_length=100, null=True, verbose_name='Email address', blank=True)),
+                ('email', models.EmailField(max_length=254, null=True, verbose_name='Email address', blank=True)),
                 ('url_site', models.URLField(max_length=500, null=True, verbose_name='Web Site', blank=True)),
                 ('capital', models.PositiveIntegerField(null=True, verbose_name='Capital', blank=True)),
                 ('siren', models.CharField(max_length=100, null=True, verbose_name='SIREN', blank=True)),
@@ -160,14 +173,15 @@ class Migration(migrations.Migration):
                 ('annual_revenue', models.CharField(max_length=100, null=True, verbose_name='Annual revenue', blank=True)),
                 ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
                 ('creation_date', models.DateField(null=True, verbose_name='Date of creation of the organisation', blank=True)),
-                #('billing_address', models.ForeignKey(related_name='billing_address_orga_set', blank=True, editable=False, to='persons.Address', null=True, verbose_name='Billing address')),
-                #('shipping_address', models.ForeignKey(related_name='shipping_address_orga_set', blank=True, editable=False, to='persons.Address', null=True, verbose_name='Shipping address')),
-                ('billing_address',  models.ForeignKey(related_name='billing_address_orga_set',  blank=True, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Billing address')),
-                ('shipping_address', models.ForeignKey(related_name='shipping_address_orga_set', blank=True, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Shipping address')),
-                ('image', models.ForeignKey(verbose_name='Logo', blank=True, to='media_managers.Image', null=True)),
-                ('legal_form', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Legal form', blank=True, to='persons.LegalForm', null=True)),
-                ('sector', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Sector', blank=True, to='persons.Sector', null=True)),
-                ('staff_size', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Staff size', blank=True, to='persons.StaffSize', null=True)),
+                # ('billing_address',  models.ForeignKey(related_name='billing_address_orga_set',  blank=True, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Billing address')),
+                ('billing_address',  models.ForeignKey(related_name='+', on_delete=SET_NULL, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Billing address')),
+                # ('shipping_address', models.ForeignKey(related_name='shipping_address_orga_set', blank=True, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Shipping address')),
+                ('shipping_address', models.ForeignKey(related_name='+', on_delete=SET_NULL, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Shipping address')),
+                # ('image', models.ForeignKey(verbose_name='Logo', blank=True, to='media_managers.Image', null=True)),
+                ('image', models.ForeignKey(on_delete=SET_NULL, verbose_name='Logo', blank=True, to='media_managers.Image', null=True)),
+                ('legal_form', models.ForeignKey(on_delete=SET_NULL, verbose_name='Legal form', blank=True, to='persons.LegalForm', null=True)),
+                ('sector', models.ForeignKey(on_delete=SET_NULL, verbose_name='Sector', blank=True, to='persons.Sector', null=True)),
+                ('staff_size', models.ForeignKey(on_delete=SET_NULL, verbose_name='Staff size', blank=True, to='persons.StaffSize', null=True)),
             ],
             options={
                 'swappable': 'PERSONS_ORGANISATION_MODEL',

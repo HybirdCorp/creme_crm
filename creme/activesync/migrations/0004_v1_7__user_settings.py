@@ -64,7 +64,8 @@ def migrate_user_settings(apps, schema_editor):
 class Migration(migrations.Migration):
     dependencies = [
         ('creme_core', '0018_v1_7__cremeuser_settings'),
-        ('activesync', '0003_v1_6__django18_hints'),
+        # ('activesync', '0003_v1_6__django18_hints'),
+        ('activesync', '0001_initial'),
     ]
 
     operations = [

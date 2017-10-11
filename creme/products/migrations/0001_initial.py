@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-import django.db.models.deletion
+from django.db.models.deletion import PROTECT
 
 
 class Migration(migrations.Migration):
@@ -54,8 +54,9 @@ class Migration(migrations.Migration):
                 ('weight', models.DecimalField(null=True, verbose_name='Weight', max_digits=8, decimal_places=2, blank=True)),
                 ('stock', models.IntegerField(null=True, verbose_name='Quantity/Stock', blank=True)),
                 ('web_site', models.CharField(max_length=100, null=True, verbose_name='Web Site', blank=True)),
-                ('category', models.ForeignKey(verbose_name='Category', to='products.Category')),
-                ('sub_category', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Sub-category', to='products.SubCategory')),
+                # ('category', models.ForeignKey(verbose_name='Category', to='products.Category')),
+                ('category', models.ForeignKey(on_delete=PROTECT, verbose_name='Category', to='products.Category')),
+                ('sub_category', models.ForeignKey(on_delete=PROTECT, verbose_name='Sub-category', to='products.SubCategory')),
                 ('images', models.ManyToManyField(related_name='ProductImages_set', verbose_name='Images', to='media_managers.Image', blank=True)), # null=True
             ],
             options={
@@ -78,8 +79,9 @@ class Migration(migrations.Migration):
                 ('quantity_per_unit', models.IntegerField(null=True, verbose_name='Quantity/Unit', blank=True)),
                 ('unit_price', models.DecimalField(verbose_name='Unit price', max_digits=8, decimal_places=2)),
                 ('web_site', models.CharField(max_length=100, null=True, verbose_name='Web Site', blank=True)),
-                ('category', models.ForeignKey(verbose_name='Category', to='products.Category')),
-                ('sub_category', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Sub-category', to='products.SubCategory')),
+                # ('category', models.ForeignKey(verbose_name='Category', to='products.Category')),
+                ('category', models.ForeignKey(on_delete=PROTECT, verbose_name='Category', to='products.Category')),
+                ('sub_category', models.ForeignKey(on_delete=PROTECT, verbose_name='Sub-category', to='products.SubCategory')),
                 ('images', models.ManyToManyField(related_name='ServiceImages_set', verbose_name='Images', to='media_managers.Image', blank=True)), # null=True
             ],
             options={

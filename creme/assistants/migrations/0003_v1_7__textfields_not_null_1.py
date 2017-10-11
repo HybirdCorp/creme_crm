@@ -22,7 +22,8 @@ def fill_none_strings(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('assistants', '0002_v1_6__convert_user_FKs'),
+        # ('assistants', '0002_v1_6__convert_user_FKs'),
+        ('assistants', '0001_initial'),
     ]
 
     operations = [

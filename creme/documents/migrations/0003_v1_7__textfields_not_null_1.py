@@ -16,7 +16,8 @@ def fill_none_strings(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('documents', '0002_v1_6__folder_unicity_n_category_is_custom'),
+        # ('documents', '0002_v1_6__folder_unicity_n_category_is_custom'),
+        ('documents', '0001_initial'),
     ]
 
     operations = [

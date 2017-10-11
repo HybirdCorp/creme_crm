@@ -58,7 +58,8 @@ def replace_empty_strings(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('billing', '0011_v1_6__clean_ctypes'),
+        # ('billing', '0011_v1_6__clean_ctypes'),
+        ('billing', '0001_initial'),
     ]
 
     operations = [

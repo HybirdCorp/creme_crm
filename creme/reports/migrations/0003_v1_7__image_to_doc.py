@@ -48,7 +48,8 @@ def convert_img_reports(apps, schema_editor):
 class Migration(migrations.Migration):
     dependencies = [
         ('documents', '0007_v1_7__image_to_doc_2'),
-        ('reports', '0002_v1_6__type_choices'),
+        # ('reports', '0002_v1_6__type_choices'),
+        ('reports', '0001_initial'),
     ]
 
     run_before = [

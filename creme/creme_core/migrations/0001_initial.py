@@ -1,26 +1,108 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-#import re
 from decimal import Decimal
+import re
 
 from django.conf import settings
-import django.core.validators
-from django.db import models, migrations
-import django.db.models.deletion
-import django.utils.timezone
+from django.core.validators import RegexValidator
+from django.db import migrations, models
+from django.utils.timezone import now
+from django.db.models import deletion
 
 import creme.creme_core.models.fields
 
 
 class Migration(migrations.Migration):
+    # replaces = [
+    #     (b'creme_core', '0001_initial'),
+    #     (b'creme_core', '0002_v1_6__create_creme_user'),
+    #     (b'creme_core', '0003_v1_6__convert_old_users'),
+    #     (b'creme_core', '0004_v1_6__convert_user_FKs_n_remove_old_teamM2M'),
+    #     (b'creme_core', '0005_v1_6__add_fieldsconfig'),
+    #     (b'creme_core', '0006_v1_6__searchconfig_per_role_1'),
+    #     (b'creme_core', '0007_v1_6__searchconfig_per_role_2'),
+    #     (b'creme_core', '0008_v1_6__searchconfig_per_role_3'),
+    #     (b'creme_core', '0009_v1_6__user_fixes_django18'),
+    #     (b'creme_core', '0010_v1_6__django18_hints'),
+    #     (b'creme_core', '0011_v1_6__blockconfig_per_role'),
+    #     (b'creme_core', '0012_v1_6__ct_one2one'),
+    #     (b'creme_core', '0013_v1_6__clean_ctypes'),
+    #     (b'creme_core', '0014_v1_6__set_version'),
+    # ]
+
     dependencies = [
-        #migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('auth', '0001_initial'),
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('contenttypes', '0001_initial'),
     ]
 
     operations = [
+        migrations.CreateModel(
+                name='UserRole',
+                fields=[
+                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    ('name', models.CharField(max_length=100, verbose_name='Name')),
+                    ('raw_allowed_apps', models.TextField(default=b'')),
+                    ('raw_admin_4_apps', models.TextField(default=b'')),
+                    ('creatable_ctypes',
+                     models.ManyToManyField(related_name='roles_allowing_creation', verbose_name='Creatable resources',
+                                            to=b'contenttypes.ContentType')),
+                    ('exportable_ctypes',
+                     models.ManyToManyField(related_name='roles_allowing_export', verbose_name='Exportable resources',
+                                            to=b'contenttypes.ContentType')),
+                ],
+        ),
+        migrations.CreateModel(
+                name='SetCredentials',
+                fields=[
+                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    ('value', models.PositiveSmallIntegerField()),
+                    ('set_type', models.PositiveIntegerField()),
+                    ('ctype', creme.creme_core.models.fields.CTypeForeignKey(blank=True, to='contenttypes.ContentType',
+                                                                             null=True)),
+                    ('role', models.ForeignKey(related_name='credentials', to='creme_core.UserRole')),
+                ],
+        ),
+        migrations.CreateModel(
+                name='CremeUser',
+                fields=[
+                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    ('password', models.CharField(max_length=128, verbose_name='password')),
+                    # ('last_login', models.DateTimeField(default=now, verbose_name='last login')),
+                    ('last_login', models.DateTimeField(null=True, verbose_name='last login', blank=True)),
+                    ('username', models.CharField(help_text='Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.',
+                                                  unique=True, max_length=30, verbose_name='Username',
+                                                  validators=[RegexValidator(re.compile(b'^[\\w.@+-]+$'),
+                                                                             'Enter a valid username.', b'invalid'
+                                                                            ),
+                                                  ],
+                                                 )
+                    ),
+                    ('first_name', models.CharField(max_length=100, verbose_name='First name', blank=True)),
+                    ('last_name', models.CharField(max_length=100, verbose_name='Last name', blank=True)),
+                    ('email', models.EmailField(max_length=254, verbose_name='Email address', blank=True)),
+                    (
+                    'date_joined', models.DateTimeField(default=now, verbose_name='Date joined')),
+                    ('is_active', models.BooleanField(default=True, verbose_name='Active?')),
+                    ('is_staff', models.BooleanField(default=False, verbose_name='Is staff?')),
+                    ('is_superuser', models.BooleanField(default=False, verbose_name='Is a superuser?')),
+                    ('is_team', models.BooleanField(default=False, verbose_name='Is a team?')),
+                    ('role', models.ForeignKey(on_delete=deletion.PROTECT, verbose_name='Role',
+                                               to='creme_core.UserRole', null=True,
+                                              )
+                    ),
+                    ('teammates_set', models.ManyToManyField(related_name='teams_set', verbose_name='Teammates',
+                                                             to=settings.AUTH_USER_MODEL,
+                                                            )
+                    ),
+                ],
+                options={
+                    'ordering':            ('username',),
+                    'verbose_name':        'User',
+                    'verbose_name_plural': 'Users',
+                },
+        ),
         migrations.CreateModel(
             name='BlockDetailviewLocation',
             fields=[
@@ -29,11 +111,12 @@ class Migration(migrations.Migration):
                 ('order', models.PositiveIntegerField()),
                 ('zone', models.PositiveSmallIntegerField()),
                 ('content_type', creme.creme_core.models.fields.CTypeForeignKey(verbose_name='Related type', to='contenttypes.ContentType', null=True)),
+                ('role', models.ForeignKey(default=None, verbose_name='Related role', to='creme_core.UserRole', null=True)),
+                ('superuser', models.BooleanField(default=False, verbose_name='related to superusers', editable=False)),
             ],
             options={
                 'ordering': ('order',),
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='BlockMypageLocation',
@@ -41,14 +124,17 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('block_id', models.CharField(max_length=100)),
                 ('order', models.PositiveIntegerField()),
-                #('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True)),
-                ('user', models.ForeignKey(to='auth.User', null=True)), 
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True)),
             ],
             options={
                 'ordering': ('order',),
             },
-            bases=(models.Model,),
         ),
+        # migrations.AlterField(
+        #         model_name='blockmypagelocation',
+        #         name='user',
+        #         field=models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True),
+        # ),
         migrations.CreateModel(
             name='BlockPortalLocation',
             fields=[
@@ -60,7 +146,6 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ('order',),
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='BlockState',
@@ -69,12 +154,21 @@ class Migration(migrations.Migration):
                 ('block_id', models.CharField(max_length=100, verbose_name='Block ID')),
                 ('is_open', models.BooleanField(default=True)),
                 ('show_empty_fields', models.BooleanField(default=True)),
-                #('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
-                ('user', models.ForeignKey(to='auth.User')),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
-            options={},
-            bases=(models.Model,),
+            options={
+                'unique_together': {('user', 'block_id')},
+            }
         ),
+        # migrations.AlterField(
+        #         model_name='blockstate',
+        #         name='user',
+        #         field=models.ForeignKey(to=settings.AUTH_USER_MODEL),
+        # ),
+        # migrations.AlterUniqueTogether(
+        #         name='blockstate',
+        #         unique_together={('user', 'block_id')},
+        # ),
         migrations.CreateModel(
             name='ButtonMenuItem',
             fields=[
@@ -87,26 +181,29 @@ class Migration(migrations.Migration):
                 'verbose_name': 'Button to display',
                 'verbose_name_plural': 'Buttons to display',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='CremeEntity',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('created', creme.creme_core.models.fields.CreationDateTimeField(default=django.utils.timezone.now, verbose_name='Creation date', editable=False, blank=True)),
-                ('modified', creme.creme_core.models.fields.ModificationDateTimeField(default=django.utils.timezone.now, verbose_name='Last modification', editable=False, blank=True)),
+                ('created', creme.creme_core.models.fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True)),
+                ('modified', creme.creme_core.models.fields.ModificationDateTimeField(default=now, verbose_name='Last modification', editable=False, blank=True)),
                 ('header_filter_search_field', models.CharField(max_length=200, editable=False)),
                 ('is_deleted', models.BooleanField(default=False, editable=False)),
                 ('is_actived', models.BooleanField(default=False, editable=False)),
                 ('entity_type', creme.creme_core.models.fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')),
-                #('user', creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Owner user', to=settings.AUTH_USER_MODEL)),
-                ('user', creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Owner user', to='auth.User')),
+                ('user', creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Owner user', to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'ordering': ('header_filter_search_field',),
             },
-            bases=(models.Model,),
         ),
+        # migrations.AlterField(
+        #         model_name='cremeentity',
+        #         name='user',
+        #         field=creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Owner user',
+        #                                                                  to=settings.AUTH_USER_MODEL),
+        # ),
         migrations.CreateModel(
             name='CremePropertyType',
             fields=[
@@ -115,9 +212,9 @@ class Migration(migrations.Migration):
                 ('is_custom', models.BooleanField(default=False)),
                 ('is_copiable', models.BooleanField(default=True, verbose_name='Is copiable')),
                 ('subject_ctypes', models.ManyToManyField(related_name='subject_ctypes_creme_property_set',
-                                                          to='contenttypes.ContentType', blank=True,
                                                           verbose_name='Applies on entities with following types',
-                                                         )  # null=True
+                                                          to=b'contenttypes.ContentType', blank=True,
+                                                         )
                 ),
             ],
             options={
@@ -125,7 +222,6 @@ class Migration(migrations.Migration):
                 'verbose_name': 'Type of property',
                 'verbose_name_plural': 'Types of property',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='CremeProperty',
@@ -138,7 +234,6 @@ class Migration(migrations.Migration):
                 'verbose_name': 'Property',
                 'verbose_name_plural': 'Properties',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Currency',
@@ -154,7 +249,6 @@ class Migration(migrations.Migration):
                 'verbose_name': 'Currency',
                 'verbose_name_plural': 'Currencies',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='CustomBlockConfigItem',
@@ -164,8 +258,6 @@ class Migration(migrations.Migration):
                 ('json_cells', models.TextField(null=True, editable=False)),
                 ('content_type', creme.creme_core.models.fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType', verbose_name='Related type')),
             ],
-            options={},
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='CustomField',
@@ -180,7 +272,6 @@ class Migration(migrations.Migration):
                 'verbose_name': 'Custom field',
                 'verbose_name_plural': 'Custom fields',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='CustomFieldBoolean',
@@ -190,8 +281,6 @@ class Migration(migrations.Migration):
                 ('custom_field', models.ForeignKey(to='creme_core.CustomField')),
                 ('entity', models.ForeignKey(to='creme_core.CremeEntity')),
             ],
-            options={},
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='CustomFieldDateTime',
@@ -201,8 +290,6 @@ class Migration(migrations.Migration):
                 ('custom_field', models.ForeignKey(to='creme_core.CustomField')),
                 ('entity', models.ForeignKey(to='creme_core.CremeEntity')),
             ],
-            options={},
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='CustomFieldEnumValue',
@@ -211,9 +298,6 @@ class Migration(migrations.Migration):
                 ('value', models.CharField(max_length=100)),
                 ('custom_field', models.ForeignKey(related_name='customfieldenumvalue_set', to='creme_core.CustomField')),
             ],
-            options={
-            },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='CustomFieldEnum',
@@ -223,8 +307,6 @@ class Migration(migrations.Migration):
                 ('entity', models.ForeignKey(to='creme_core.CremeEntity')),
                 ('value', models.ForeignKey(to='creme_core.CustomFieldEnumValue')),
             ],
-            options={},
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='CustomFieldFloat',
@@ -234,8 +316,6 @@ class Migration(migrations.Migration):
                 ('custom_field', models.ForeignKey(to='creme_core.CustomField')),
                 ('entity', models.ForeignKey(to='creme_core.CremeEntity')),
             ],
-            options={},
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='CustomFieldInteger',
@@ -245,8 +325,6 @@ class Migration(migrations.Migration):
                 ('custom_field', models.ForeignKey(to='creme_core.CustomField')),
                 ('entity', models.ForeignKey(to='creme_core.CremeEntity')),
             ],
-            options={},
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='CustomFieldMultiEnum',
@@ -254,10 +332,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('custom_field', models.ForeignKey(to='creme_core.CustomField')),
                 ('entity', models.ForeignKey(to='creme_core.CremeEntity')),
-                ('value', models.ManyToManyField(to='creme_core.CustomFieldEnumValue')),
+                ('value', models.ManyToManyField(to=b'creme_core.CustomFieldEnumValue')),
             ],
-            options={},
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='CustomFieldString',
@@ -267,8 +343,6 @@ class Migration(migrations.Migration):
                 ('custom_field', models.ForeignKey(to='creme_core.CustomField')),
                 ('entity', models.ForeignKey(to='creme_core.CremeEntity')),
             ],
-            options={},
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='DateReminder',
@@ -283,7 +357,6 @@ class Migration(migrations.Migration):
                 'verbose_name': 'Reminder',
                 'verbose_name_plural': 'Reminders',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='EntityFilter',
@@ -294,16 +367,20 @@ class Migration(migrations.Migration):
                 ('is_private', models.BooleanField(default=False, verbose_name='Is private?')),
                 ('use_or', models.BooleanField(default=False, verbose_name='Use "OR"')),
                 ('entity_type', creme.creme_core.models.fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')),
-                #('user', creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Owner user', blank=True, to=settings.AUTH_USER_MODEL, null=True)),
-                ('user', creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Owner user', blank=True, to='auth.User', null=True)),
+                ('user', creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Owner user', blank=True, to=settings.AUTH_USER_MODEL, null=True)),
             ],
             options={
                 'ordering': ('name',),
                 'verbose_name': 'Filter of Entity',
                 'verbose_name_plural': 'Filters of Entity',
             },
-            bases=(models.Model,),
         ),
+        # migrations.AlterField(
+        #         model_name='entityfilter',
+        #         name='user',
+        #         field=creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Owner user', blank=True,
+        #                                                                  to=settings.AUTH_USER_MODEL, null=True),
+        # ),
         migrations.CreateModel(
             name='EntityFilterCondition',
             fields=[
@@ -313,8 +390,6 @@ class Migration(migrations.Migration):
                 ('value', models.TextField()),
                 ('filter', models.ForeignKey(related_name='conditions', to='creme_core.EntityFilter')),
             ],
-            options={},
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='HeaderFilter',
@@ -325,30 +400,40 @@ class Migration(migrations.Migration):
                 ('is_private', models.BooleanField(default=False, verbose_name='Is private?')),
                 ('json_cells', models.TextField(null=True, editable=False)),
                 ('entity_type', creme.creme_core.models.fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')),
-                #('user', creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Owner user', blank=True, to=settings.AUTH_USER_MODEL, null=True)),
-                ('user', creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Owner user', blank=True, to='auth.User', null=True)),
+                ('user', creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Owner user', blank=True, to=settings.AUTH_USER_MODEL, null=True)),
             ],
             options={
                 'ordering': ('name',),
             },
-            bases=(models.Model,),
         ),
+        # migrations.AlterField(
+        #         model_name='headerfilter',
+        #         name='user',
+        #         field=creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Owner user', blank=True,
+        #                                                                  to=settings.AUTH_USER_MODEL, null=True),
+        # ),
         migrations.CreateModel(
             name='HistoryLine',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('username', models.CharField(max_length=30)),
-                ('date', creme.creme_core.models.fields.CreationDateTimeField(default=django.utils.timezone.now, editable=False, blank=True, verbose_name='Date')),
+                ('date', creme.creme_core.models.fields.CreationDateTimeField(default=now, verbose_name='Date', editable=False, blank=True)),
                 ('type', models.PositiveSmallIntegerField(verbose_name='Type')),
                 ('value', models.TextField(null=True)),
-                ('entity', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, to='creme_core.CremeEntity', null=True)),
+                ('entity', models.ForeignKey(on_delete=deletion.SET_NULL, to='creme_core.CremeEntity', null=True)),
                 ('entity_ctype', creme.creme_core.models.fields.CTypeForeignKey(to='contenttypes.ContentType')),
-                #('entity_owner', creme.creme_core.models.fields.CremeUserForeignKey(to=settings.AUTH_USER_MODEL)),
-                ('entity_owner', creme.creme_core.models.fields.CremeUserForeignKey(to='auth.User')),
+                ('entity_owner', creme.creme_core.models.fields.CremeUserForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
-            options={},
-            bases=(models.Model,),
+            options={
+                'verbose_name': 'Line of history',
+                'verbose_name_plural': 'Lines of history',
+            },
         ),
+        # migrations.AlterField(
+        #         model_name='historyline',
+        #         name='entity_owner',
+        #         field=creme.creme_core.models.fields.CremeUserForeignKey(to=settings.AUTH_USER_MODEL),
+        # ),
         migrations.CreateModel(
             name='InstanceBlockConfigItem',
             fields=[
@@ -361,7 +446,6 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ('id',),
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Language',
@@ -374,16 +458,12 @@ class Migration(migrations.Migration):
                 'verbose_name': 'Language',
                 'verbose_name_plural': 'Languages',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Mutex',
             fields=[
                 ('id', models.CharField(max_length=100, serialize=False, primary_key=True)),
             ],
-            options={
-            },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='PreferedMenuItem',
@@ -392,12 +472,14 @@ class Migration(migrations.Migration):
                 ('label', models.CharField(max_length=100, verbose_name='Label', blank=True)),
                 ('url', models.CharField(max_length=100, verbose_name='Url', blank=True)),
                 ('order', models.PositiveIntegerField(verbose_name='Order')),
-                #('user', models.ForeignKey(verbose_name='User', to=settings.AUTH_USER_MODEL, null=True)),
-                ('user', models.ForeignKey(verbose_name='User', to='auth.User', null=True)),
+                ('user', models.ForeignKey(verbose_name='User', to=settings.AUTH_USER_MODEL, null=True)),
             ],
-            options={},
-            bases=(models.Model,),
         ),
+        # migrations.AlterField(
+        #         model_name='preferedmenuitem',
+        #         name='user',
+        #         field=models.ForeignKey(verbose_name='User', to=settings.AUTH_USER_MODEL, null=True),
+        # ),
         migrations.CreateModel(
             name='RelationType',
             fields=[
@@ -406,52 +488,59 @@ class Migration(migrations.Migration):
                 ('is_custom', models.BooleanField(default=False)),
                 ('is_copiable', models.BooleanField(default=True)),
                 ('predicate', models.CharField(max_length=100, verbose_name='Predicate')),
-                ('subject_ctypes',     models.ManyToManyField(related_name='relationtype_subjects_set', to='contenttypes.ContentType',     blank=True)), # null=True
-                ('object_ctypes',      models.ManyToManyField(related_name='relationtype_objects_set',  to='contenttypes.ContentType',     blank=True)), # null=True
-                ('subject_properties', models.ManyToManyField(related_name='relationtype_subjects_set', to='creme_core.CremePropertyType', blank=True)), # null=True
-                ('object_properties',  models.ManyToManyField(related_name='relationtype_objects_set',  to='creme_core.CremePropertyType', blank=True)), # null=True
+                ('subject_ctypes', models.ManyToManyField(related_name='relationtype_subjects_set', to=b'contenttypes.ContentType', blank=True)),
+                ('object_ctypes', models.ManyToManyField(related_name='relationtype_objects_set', to=b'contenttypes.ContentType', blank=True)),
+                ('subject_properties', models.ManyToManyField(related_name='relationtype_subjects_set', to=b'creme_core.CremePropertyType', blank=True)),
+                ('object_properties', models.ManyToManyField(related_name='relationtype_objects_set', to=b'creme_core.CremePropertyType', blank=True)),
                 ('symmetric_type', models.ForeignKey(blank=True, to='creme_core.RelationType', null=True)),
             ],
             options={
                 'verbose_name': 'Type of relationship',
                 'verbose_name_plural': 'Types of relationship',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Relation',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('created', creme.creme_core.models.fields.CreationDateTimeField(default=django.utils.timezone.now, verbose_name='Creation date', editable=False, blank=True)),
-                ('modified', creme.creme_core.models.fields.ModificationDateTimeField(default=django.utils.timezone.now, verbose_name='Last modification', editable=False, blank=True)),
+                ('created', creme.creme_core.models.fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True)),
+                ('modified', creme.creme_core.models.fields.ModificationDateTimeField(default=now, verbose_name='Last modification', editable=False, blank=True)),
                 ('header_filter_search_field', models.CharField(max_length=200, editable=False)),
                 ('is_deleted', models.BooleanField(default=False, editable=False)),
                 ('is_actived', models.BooleanField(default=False, editable=False)),
                 ('entity_type', creme.creme_core.models.fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')),
-                ('object_entity', models.ForeignKey(related_name='relations_where_is_object', on_delete=django.db.models.deletion.PROTECT, to='creme_core.CremeEntity')),
-                ('subject_entity', models.ForeignKey(related_name='relations', on_delete=django.db.models.deletion.PROTECT, to='creme_core.CremeEntity')),
+                ('object_entity', models.ForeignKey(related_name='relations_where_is_object', on_delete=deletion.PROTECT, to='creme_core.CremeEntity')),
+                ('subject_entity', models.ForeignKey(related_name='relations', on_delete=deletion.PROTECT, to='creme_core.CremeEntity')),
                 ('symmetric_relation', models.ForeignKey(blank=True, to='creme_core.Relation', null=True)),
                 ('type', models.ForeignKey(blank=True, to='creme_core.RelationType', null=True)),
-                #('user', creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Owner user', to=settings.AUTH_USER_MODEL)),
-                ('user', creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Owner user', to='auth.User')),
+                ('user', creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Owner user', to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'verbose_name': 'Relationship',
                 'verbose_name_plural': 'Relationships',
             },
-            bases=(models.Model,),
         ),
+        # migrations.AlterField(
+        #         model_name='relation',
+        #         name='user',
+        #         field=creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Owner user',
+        #                                                                  to=settings.AUTH_USER_MODEL),
+        # ),
         migrations.CreateModel(
             name='RelationBlockItem',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('block_id', models.CharField(verbose_name='Block ID', max_length=100, editable=False)),
                 ('json_cells_map', models.TextField(null=True, editable=False)),
-                ('relation_type', models.ForeignKey(verbose_name='Related type of relationship', to='creme_core.RelationType', unique=True)),
+                # ('relation_type', models.ForeignKey(verbose_name='Related type of relationship', to='creme_core.RelationType', unique=True)),
+                ('relation_type', models.OneToOneField(verbose_name='Related type of relationship', to='creme_core.RelationType')),
             ],
-            options={},
-            bases=(models.Model,),
         ),
+        # migrations.AlterField(
+        #         model_name='relationblockitem',
+        #         name='relation_type',
+        #         field=models.OneToOneField(verbose_name='Related type of relationship', to='creme_core.RelationType'),
+        # ),
         migrations.CreateModel(
             name='SearchConfigItem',
             fields=[
@@ -459,15 +548,27 @@ class Migration(migrations.Migration):
                 ('disabled', models.BooleanField(default=False, verbose_name='Disabled?')),
                 ('field_names', models.TextField(null=True)),
                 ('content_type', creme.creme_core.models.fields.EntityCTypeForeignKey(verbose_name='Related resource', to='contenttypes.ContentType')),
-                #('user', models.ForeignKey(verbose_name='Related user', to=settings.AUTH_USER_MODEL, null=True)),
-                ('user', models.ForeignKey(verbose_name='Related user', to='auth.User', null=True)),
+                # ('user', models.ForeignKey(verbose_name='Related user', to=settings.AUTH_USER_MODEL, null=True)),
+                ('role', models.ForeignKey(default=None, verbose_name='Related role', to='creme_core.UserRole', null=True)),
+                ('superuser', models.BooleanField(default=False, verbose_name='related to superusers', editable=False)),
             ],
             options={
-                # 'verbose_name': 'Search',
-                # 'verbose_name_plural': 'Searches',
-            },
-            bases=(models.Model,),
+                'unique_together': {('content_type', 'role', 'superuser')},
+            }
         ),
+        # migrations.AlterField(
+        #         model_name='searchconfigitem',
+        #         name='user',
+        #         field=models.ForeignKey(verbose_name='Related user', to=settings.AUTH_USER_MODEL, null=True),
+        # ),
+        # migrations.RemoveField(
+        #         model_name='searchconfigitem',
+        #         name='user',
+        # ),
+        # migrations.AlterUniqueTogether(
+        #         name='searchconfigitem',
+        #         unique_together={('content_type', 'role', 'superuser')},
+        # ),
         migrations.CreateModel(
             name='SemiFixedRelationType',
             fields=[
@@ -480,67 +581,40 @@ class Migration(migrations.Migration):
                 'ordering': ('predicate',),
                 'verbose_name': 'Semi-fixed type of relationship',
                 'verbose_name_plural': 'Semi-fixed types of relationship',
+                'unique_together': {('relation_type', 'object_entity')},
             },
-            bases=(models.Model,),
         ),
+        # migrations.AlterUniqueTogether(
+        #         name='semifixedrelationtype',
+        #         unique_together={('relation_type', 'object_entity')},
+        # ),
         migrations.CreateModel(
             name='SettingValue',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('key_id', models.CharField(max_length=100)),
                 ('value_str', models.TextField()),
-                #('user', models.ForeignKey(blank=True, to=settings.AUTH_USER_MODEL, null=True)),
-                ('user', models.ForeignKey(blank=True, to='auth.User', null=True)),
+                ('user', models.ForeignKey(blank=True, to=settings.AUTH_USER_MODEL, null=True)),
             ],
-            options={},
-            bases=(models.Model,),
         ),
-        migrations.CreateModel(
-            name='TeamM2M',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                #('team', models.ForeignKey(related_name='team_m2m_teamside', to=settings.AUTH_USER_MODEL)),
-                ('team', models.ForeignKey(related_name='team_m2m_teamside', to='auth.User')),
-                #('teammate', models.ForeignKey(related_name='team_m2m', to=settings.AUTH_USER_MODEL)),
-                ('teammate', models.ForeignKey(related_name='team_m2m', to='auth.User')),
-            ],
-            options={},
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
-            name='UserRole',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.CharField(max_length=100, verbose_name='Name')),
-                ('raw_allowed_apps', models.TextField(default=b'')),
-                ('raw_admin_4_apps', models.TextField(default=b'')),
-                ('creatable_ctypes', models.ManyToManyField(related_name='roles_allowing_creation', verbose_name='Creatable resources', to='contenttypes.ContentType')), # null=True
-                ('exportable_ctypes', models.ManyToManyField(related_name='roles_allowing_export', verbose_name='Exportable resources', to='contenttypes.ContentType')), # null=True
-            ],
-            options={},
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
-            name='SetCredentials',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('value', models.PositiveSmallIntegerField()),
-                ('set_type', models.PositiveIntegerField()),
-                ('ctype', creme.creme_core.models.fields.CTypeForeignKey(blank=True, to='contenttypes.ContentType', null=True)),
-                ('role', models.ForeignKey(related_name='credentials', to='creme_core.UserRole')),
-            ],
-            options={},
-            bases=(models.Model,),
-        ),
+        # migrations.AlterField(
+        #         model_name='settingvalue',
+        #         name='user',
+        #         field=models.ForeignKey(blank=True, to=settings.AUTH_USER_MODEL, null=True),
+        # ),
         migrations.CreateModel(
             name='HistoryConfigItem',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('relation_type', models.ForeignKey(to='creme_core.RelationType', unique=True)),
+                # ('relation_type', models.ForeignKey(to='creme_core.RelationType', unique=True)),
+                ('relation_type', models.OneToOneField(to='creme_core.RelationType')),
             ],
-            options={},
-            bases=(models.Model,),
         ),
+        # migrations.AlterField(
+        #         model_name='historyconfigitem',
+        #         name='relation_type',
+        #         field=models.OneToOneField(to='creme_core.RelationType'),
+        # ),
         migrations.CreateModel(
             name='Vat',
             fields=[
@@ -554,7 +628,6 @@ class Migration(migrations.Migration):
                 'verbose_name': 'VAT',
                 'verbose_name_plural': 'VAT',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Version',
@@ -562,17 +635,28 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('value', models.TextField()),
             ],
-            options={},
-            bases=(models.Model,),
         ),
-        migrations.AlterUniqueTogether(
-            name='semifixedrelationtype',
-            unique_together=set([('relation_type', 'object_entity')]),
+        migrations.CreateModel(
+            name='FieldsConfig',
+            fields=[
+                # ('content_type', creme.creme_core.models.fields.CTypeForeignKey(primary_key=True, serialize=False, editable=False, to='contenttypes.ContentType')),
+                ('content_type', creme.creme_core.models.fields.CTypeOneToOneField(primary_key=True, serialize=False,
+                                                                                   editable=False, to='contenttypes.ContentType',
+                                                                                  )
+                ),
+                ('raw_descriptions', models.TextField(editable=False)),
+            ],
         ),
-        migrations.AlterUniqueTogether(
-            name='blockstate',
-            unique_together=set([('user', 'block_id')]),
-        ),
+        # migrations.AlterField(
+        #         model_name='fieldsconfig',
+        #         name='content_type',
+        #         field=creme.creme_core.models.fields.CTypeOneToOneField(primary_key=True, serialize=False,
+        #                                                                 editable=False, to='contenttypes.ContentType'),
+        # ),
+
+        # migrations.RunPython(
+        #     code=creme.creme_core.migrations.0014_v1_6__set_version.set_version,
+        # ),
     ]
 
     if settings.TESTS_ON:
@@ -598,7 +682,7 @@ class Migration(migrations.Migration):
                     ('title', models.CharField(unique=True, max_length=100, verbose_name='Title')),
                     ('start', models.DateTimeField(null=True, verbose_name='Start', blank=True)),
                     ('end', models.DateTimeField(null=True, verbose_name='End', blank=True)),
-                    ('type', models.ForeignKey(verbose_name='Activity type', to='creme_core.FakeActivityType', on_delete=django.db.models.deletion.PROTECT)),
+                    ('type', models.ForeignKey(verbose_name='Activity type', to='creme_core.FakeActivityType', on_delete=deletion.PROTECT)),
                 ],
                 options={
                     'ordering': ('-start',),
@@ -625,8 +709,8 @@ class Migration(migrations.Migration):
                 fields=[
                     ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
-                    #('description', models.TextField(null=True, verbose_name='Description', blank=True)),
-                    ('category', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Category', blank=True, to='creme_core.FakeFolderCategory', null=True)), #related_name='folder_category_set'
+                    # ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
+                    ('category', models.ForeignKey(on_delete=deletion.SET_NULL, verbose_name='Category', blank=True, to='creme_core.FakeFolderCategory', null=True)), #related_name='folder_category_set'
                     ('parent', models.ForeignKey(related_name='children', verbose_name='Parent folder', blank=True, to='creme_core.FakeFolder', null=True)),
                 ],
                 options={
@@ -641,9 +725,9 @@ class Migration(migrations.Migration):
                 fields=[
                     ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
-                    #('description', models.TextField(null=True, verbose_name='Description', blank=True)),
+                    # ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
                     ('filedata', models.FileField(upload_to=b'upload/creme_core-tests', max_length=100, verbose_name='File')),
-                    ('folder', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Folder', to='creme_core.FakeFolder')),
+                    ('folder', models.ForeignKey(on_delete=deletion.PROTECT, verbose_name='Folder', to='creme_core.FakeFolder')),
                 ],
                 options={
                     'ordering': ('title',),
@@ -766,13 +850,13 @@ class Migration(migrations.Migration):
                     ('url_site', models.URLField(max_length=500, null=True, verbose_name='Web Site', blank=True)),
                     ('birthday', models.DateField(null=True, verbose_name='Birthday', blank=True)),
                     ('address', models.ForeignKey(related_name='+', blank=True, editable=False, to='creme_core.FakeAddress', null=True, verbose_name='Billing address')),
-                    ('civility', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Civility', blank=True, to='creme_core.FakeCivility', null=True)),
-                    ('position', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Position', blank=True, to='creme_core.FakePosition', null=True)),
-                    ('sector', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Line of business', blank=True, to='creme_core.FakeSector', null=True)),
-                    #('is_user', models.ForeignKey(related_name='+', on_delete=django.db.models.deletion.SET_NULL, blank=True, editable=False, to=settings.AUTH_USER_MODEL, null=True, verbose_name='Related user')),
-                    ('is_user', models.ForeignKey(related_name='+', on_delete=django.db.models.deletion.SET_NULL, blank=True, editable=False, to='auth.User', null=True, verbose_name='Related user')),
+                    ('civility', models.ForeignKey(on_delete=deletion.SET_NULL, verbose_name='Civility', blank=True, to='creme_core.FakeCivility', null=True)),
+                    ('position', models.ForeignKey(on_delete=deletion.SET_NULL, verbose_name='Position', blank=True, to='creme_core.FakePosition', null=True)),
+                    ('sector', models.ForeignKey(on_delete=deletion.SET_NULL, verbose_name='Line of business', blank=True, to='creme_core.FakeSector', null=True)),
+                    # ('is_user', models.ForeignKey(related_name='+', on_delete=deletion.SET_NULL, blank=True, editable=False, to='auth.User', null=True, verbose_name='Related user')),
+                    ('is_user', models.ForeignKey(related_name='+', on_delete=deletion.SET_NULL, blank=True, editable=False, to=settings.AUTH_USER_MODEL, null=True, verbose_name='Related user')),
                     ('languages', models.ManyToManyField(to='creme_core.Language', verbose_name='Spoken language(s)', blank=True)), # null=True
-                    ('image', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Photograph', blank=True, to='creme_core.FakeImage', null=True)),
+                    ('image', models.ForeignKey(on_delete=deletion.SET_NULL, verbose_name='Photograph', blank=True, to='creme_core.FakeImage', null=True)),
                 ],
                 options={
                     'ordering': ('last_name', 'first_name'),
@@ -873,9 +957,9 @@ class Migration(migrations.Migration):
                     ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
                     ('creation_date', models.DateField(null=True, verbose_name='Date of creation', blank=True)),
                     ('address', models.ForeignKey(related_name='+', blank=True, editable=False, to='creme_core.FakeAddress', null=True, verbose_name='Billing address')),
-                    ('image', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Logo', blank=True, to='creme_core.FakeImage', null=True)),
-                    ('legal_form', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Legal form', blank=True, to='creme_core.FakeLegalForm', null=True)),
-                    ('sector', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Sector', blank=True, to='creme_core.FakeSector', null=True)),
+                    ('image', models.ForeignKey(on_delete=deletion.SET_NULL, verbose_name='Logo', blank=True, to='creme_core.FakeImage', null=True)),
+                    ('legal_form', models.ForeignKey(on_delete=deletion.SET_NULL, verbose_name='Legal form', blank=True, to='creme_core.FakeLegalForm', null=True)),
+                    ('sector', models.ForeignKey(on_delete=deletion.SET_NULL, verbose_name='Sector', blank=True, to='creme_core.FakeSector', null=True)),
                 ],
                 options={
                     'ordering': ('name',),

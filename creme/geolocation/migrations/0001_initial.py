@@ -6,8 +6,12 @@ from django.db import models, migrations
 
 
 class Migration(migrations.Migration):
+    # replaces = [
+    #     (b'creme_core', '0001_initial'),
+    #     (b'creme_core', '0002_v1_6__fix_block_ids'),
+    # ]
+
     dependencies = [
-        #('persons', '0001_initial'),
         migrations.swappable_dependency(settings.PERSONS_ADDRESS_MODEL),
     ]
 
@@ -15,7 +19,6 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='GeoAddress',
             fields=[
-                #('address', models.OneToOneField(primary_key=True, serialize=False, to='persons.Address', verbose_name='Address')),
                 ('address', models.OneToOneField(primary_key=True, serialize=False, to=settings.PERSONS_ADDRESS_MODEL, verbose_name='Address')),
                 ('latitude', models.FloatField(null=True, verbose_name='Latitude', blank=True)),
                 ('longitude', models.FloatField(null=True, verbose_name='Longitude', blank=True)),

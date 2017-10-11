@@ -57,10 +57,18 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
+                name='TicketNumber',
+                fields=[
+                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ],
+        ),
+        migrations.CreateModel(
             name='Ticket',
             fields=[
                 ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
-                ('title', models.CharField(unique=True, max_length=100, verbose_name='Title', blank=True)),
+                ('number', models.PositiveIntegerField(verbose_name='Number', unique=True, editable=False)),
+                # ('title', models.CharField(unique=True, max_length=100, verbose_name='Title', blank=True)),
+                ('title', models.CharField(max_length=100, verbose_name='Title', blank=True)),
                 ('description', models.TextField(verbose_name='Description')),
                 ('solution', models.TextField(verbose_name='Solution', blank=True)),
                 ('closing_date', models.DateTimeField(verbose_name='Closing date', null=True, editable=False, blank=True)),
@@ -80,7 +88,8 @@ class Migration(migrations.Migration):
             name='TicketTemplate',
             fields=[
                 ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
-                ('title', models.CharField(unique=True, max_length=100, verbose_name='Title', blank=True)),
+                # ('title', models.CharField(unique=True, max_length=100, verbose_name='Title', blank=True)),
+                ('title', models.CharField(max_length=100, verbose_name='Title', blank=True)),
                 ('description', models.TextField(verbose_name='Description')),
                 ('solution', models.TextField(verbose_name='Solution', blank=True)),
                 ('criticity', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Criticity', to='tickets.Criticity')),

@@ -1,17 +1,25 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-#from django.conf import settings
+from django.conf import settings
 from django.db import models, migrations
-import django.db.models.deletion
+from django.db.models import deletion
 
 import creme.creme_core.models.fields
 
 
 class Migration(migrations.Migration):
+    # replaces = [
+    #     (b'activities', '0001_initial'),
+    #     (b'activities', '0002_v1_6__convert_user_FKs'),
+    #     (b'activities', '0003_v1_6__fk_on_delete_set'),
+    #     (b'activities', '0004_v_1_6__django18_hints'),
+    #     (b'activities', '0005_v1_6__field_place_is_longer'),
+    # ]
+
     dependencies = [
         ('auth', '0001_initial'),
-        #migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('creme_core', '0001_initial'),
     ]
 
@@ -71,8 +79,8 @@ class Migration(migrations.Migration):
                 ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('is_public', models.BooleanField(default=False, verbose_name='Is public?')),
                 ('color', models.CharField(max_length=100, null=True, verbose_name='Color', blank=True)),
-                #('user', creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Calendar owner', to=settings.AUTH_USER_MODEL)),
-                ('user', creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Calendar owner', to='auth.User')),
+                ('user', creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Calendar owner', to=settings.AUTH_USER_MODEL)),
+                # ('user', creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Calendar owner', to='auth.User')),
             ],
             options={
                 'ordering': ['name'],
@@ -90,15 +98,18 @@ class Migration(migrations.Migration):
                 ('end', models.DateTimeField(null=True, verbose_name='End', blank=True)),
                 ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
                 ('minutes', models.TextField(null=True, verbose_name='Minutes', blank=True)),
-                ('place', models.CharField(max_length=100, null=True, verbose_name='Activity place', blank=True)),
+                # ('place', models.CharField(max_length=100, null=True, verbose_name='Activity place', blank=True)),
+                ('place', models.CharField(max_length=500, null=True, verbose_name='Activity place', blank=True)),
                 ('duration', models.PositiveIntegerField(null=True, verbose_name='Duration (in hour)', blank=True)),
                 ('is_all_day', models.BooleanField(default=False, verbose_name='All day?')),
                 ('busy', models.BooleanField(default=False, verbose_name='Busy?')),
                 ('floating_type', models.PositiveIntegerField(default=1, verbose_name='Floating type', editable=False)),
-                ('type', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Activity type', to='activities.ActivityType')),
-                ('sub_type',models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Activity sub-type', blank=True, to='activities.ActivitySubType', null=True)),
-                ('status', models.ForeignKey(verbose_name='Status', blank=True, to='activities.Status', null=True)),
-                ('calendars', models.ManyToManyField(verbose_name='Calendars', editable=False, to='activities.Calendar')),
+                ('type', models.ForeignKey(on_delete=deletion.PROTECT, verbose_name='Activity type', to='activities.ActivityType')),
+                ('sub_type',models.ForeignKey(on_delete=deletion.SET_NULL, verbose_name='Activity sub-type', blank=True, to='activities.ActivitySubType', null=True)),
+                # ('status', models.ForeignKey(verbose_name='Status', blank=True, to='activities.Status', null=True)),
+                ('status', models.ForeignKey(on_delete=deletion.SET_NULL, verbose_name='Status', blank=True, to='activities.Status', null=True)),
+                # ('calendars', models.ManyToManyField(verbose_name='Calendars', editable=False, to='activities.Calendar')),
+                ('calendars', models.ManyToManyField(verbose_name='Calendars', editable=False, to='activities.Calendar', blank=True)),
             ],
             options={
                 'swappable': 'ACTIVITIES_ACTIVITY_MODEL',

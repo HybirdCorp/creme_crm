@@ -18,7 +18,8 @@ def fill_none_strings(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('geolocation', '0002_v1_6__fix_block_ids'),
+        # ('geolocation', '0002_v1_6__fix_block_ids'),
+        ('geolocation', '0001_initial'),
     ]
 
     operations = [
