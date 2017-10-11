@@ -29,7 +29,8 @@ def fill_none_strings(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('emails', '0005_v1_6__custom_n_body_blocks'),
+        # ('emails', '0005_v1_6__custom_n_body_blocks'),
+        ('emails', '0001_initial'),
     ]
 
     operations = [

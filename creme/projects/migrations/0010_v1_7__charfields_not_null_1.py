@@ -30,7 +30,8 @@ def fill_none_strings(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('projects', '0009_v1_6__clean_ctype'),
+        # ('projects', '0009_v1_6__clean_ctype'),
+        ('projects', '0001_initial'),
     ]
 
     operations = [

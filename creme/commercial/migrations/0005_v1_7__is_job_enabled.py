@@ -39,7 +39,8 @@ def convert_setting_value(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('commercial', '0004_v1_6__segment_nullable_ptype'),
+        # ('commercial', '0004_v1_6__segment_nullable_ptype'),
+        ('commercial', '0001_initial'),
         ('creme_core', '0015_v1_7__create_job_models'),
     ]
 

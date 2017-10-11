@@ -25,7 +25,8 @@ def fill_none_strings(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('products', '0002_v1_6__fk_on_delete_set'),
+        # ('products', '0002_v1_6__fk_on_delete_set'),
+        ('products', '0001_initial'),
     ]
 
     operations = [

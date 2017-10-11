@@ -21,7 +21,8 @@ def set_user(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('crudity', '0002_v1_6__convert_user_FKs'),
+        # ('crudity', '0002_v1_6__convert_user_FKs'),
+        ('crudity', '0001_initial'),
         ('creme_core', '0015_v1_7__create_job_models'),
     ]
 

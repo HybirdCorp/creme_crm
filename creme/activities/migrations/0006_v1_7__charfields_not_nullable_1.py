@@ -21,7 +21,8 @@ def fill_none_strings(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('activities', '0005_v1_6__field_place_is_longer'),
+        # ('activities', '0005_v1_6__field_place_is_longer'),
+        ('activities', '0001_initial'),
     ]
 
     operations = [

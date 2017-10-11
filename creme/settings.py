@@ -47,7 +47,7 @@ DATABASES = {
 }
 
 MIGRATION_MODULES = {
-    'auth': 'creme.creme_core.migrations_auth', # XXX: should be removed in Creme 1.7 ...
+    # 'auth': 'creme.creme_core.migrations_auth', # XXX: should be removed in Creme 1.7 ...
 }
 
 # When this number of Entities is reached (in some views), Creme switches to a fast-mode.

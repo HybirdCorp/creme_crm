@@ -28,7 +28,8 @@ def fill_none_strings(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('persons', '0007_v1_6__rm_address_relnames'),
+        # ('persons', '0007_v1_6__rm_address_relnames'),
+        ('persons', '0001_initial'),
     ]
 
     operations = [

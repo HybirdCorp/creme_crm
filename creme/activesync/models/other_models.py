@@ -2,7 +2,7 @@
 
 #################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,16 +28,16 @@ class EntityASData(CremeModel):
     For example: a Meeting hasn't an UID but on server side it has.
     """
     entity      = ForeignKey(CremeEntity, verbose_name=u'Target entity')
-    field_name  = CharField(u'Field name', max_length=100) #Exchange field name
-    field_value = CharField(u'Field value', max_length=300) #Exchange field value
+    field_name  = CharField(u'Field name', max_length=100)  # Exchange field name
+    field_value = CharField(u'Field value', max_length=300)  # Exchange field value
 
     def __unicode__(self):
-        return u"<EntityASData entity<%s>, field_name<%s>, field_value<%s> >" % (
+        return u'<EntityASData entity<%s>, field_name<%s>, field_value<%s> >' % (
                         self.entity, self.field_name, self.field_value
                     )
 
     class Meta:
         app_label = 'activesync'
-        verbose_name = u""
-        verbose_name_plural = u""
-        unique_together = ("entity", "field_name")
+        # verbose_name = u""
+        # verbose_name_plural = u""
+        unique_together = ('entity', 'field_name')

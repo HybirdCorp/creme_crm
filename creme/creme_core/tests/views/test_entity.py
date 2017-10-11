@@ -15,14 +15,14 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.bricks import TrashBrick
+    from creme.creme_core.forms.bulk import _CUSTOMFIELD_FORMAT, BulkDefaultEditForm
+    from creme.creme_core.gui.bulk_update import bulk_update_registry
     from creme.creme_core.models import (CremeEntity, RelationType, Relation, SetCredentials,
             CremePropertyType, CremeProperty, HistoryLine, FieldsConfig, history,
             CustomField, CustomFieldInteger, CustomFieldFloat, CustomFieldBoolean,
             CustomFieldString, CustomFieldDateTime,
             CustomFieldEnum, CustomFieldMultiEnum, CustomFieldEnumValue)
-    from creme.creme_core.gui.bulk_update import bulk_update_registry
-    from creme.creme_core.bricks import TrashBrick
-    from creme.creme_core.forms.bulk import _CUSTOMFIELD_FORMAT, BulkDefaultEditForm
     from creme.creme_core.utils import safe_unicode
 
     from ..fake_models import (FakeContact, FakeOrganisation, FakePosition, FakeSector,

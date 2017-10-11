@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models, migrations
-import django.db.models.deletion
+from django.db.models import deletion
 
 import creme.creme_core.models.fields
 
@@ -11,9 +11,7 @@ import creme.creme_core.models.fields
 class Migration(migrations.Migration):
     dependencies = [
         ('creme_core', '0001_initial'),
-        #('activities', '0001_initial'),
         migrations.swappable_dependency(settings.ACTIVITIES_ACTIVITY_MODEL),
-        #('persons', '0001_initial'),
         migrations.swappable_dependency(settings.PERSONS_CONTACT_MODEL),
     ]
 
@@ -43,7 +41,7 @@ class Migration(migrations.Migration):
                 ('start_date', models.DateTimeField(null=True, verbose_name='Estimated start', blank=True)),
                 ('end_date', models.DateTimeField(null=True, verbose_name='Estimated end', blank=True)),
                 ('effective_end_date', models.DateTimeField(null=True, verbose_name='Effective end date', blank=True)),
-                ('status', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Status', to='projects.ProjectStatus')),
+                ('status', models.ForeignKey(on_delete=deletion.PROTECT, verbose_name='Status', to='projects.ProjectStatus')),
             ],
             options={
                 'swappable': 'PROJECTS_PROJECT_MODEL',
@@ -73,15 +71,17 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ProjectTask',
             fields=[
-                ##('activity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='activities.Activity')),
-                #('activity_ptr', models.OneToOneField(parent_link=False, auto_created=True, primary_key=True, serialize=False, to='activities.Activity')),
-                ('activity_ptr', models.OneToOneField(parent_link=False, auto_created=True, primary_key=True, serialize=False, to=settings.ACTIVITIES_ACTIVITY_MODEL)),
-                ('order', models.PositiveIntegerField(verbose_name='Order', null=True, editable=False, blank=True)),
-                #('parent_tasks', models.ManyToManyField(related_name='children_set', null=True, editable=False, to='projects.ProjectTask', blank=True)),
-                ('parent_tasks', models.ManyToManyField(related_name='children_set', editable=False, to=settings.PROJECTS_TASK_MODEL)), # null=True, blank=True
-                #('project', models.ForeignKey(related_name='tasks_set', editable=False, to='projects.Project', verbose_name='Project')),
+                # ('activity_ptr', models.OneToOneField(parent_link=False, auto_created=True, primary_key=True, serialize=False, to=settings.ACTIVITIES_ACTIVITY_MODEL)),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('title', models.CharField(max_length=100, verbose_name='Title')),
                 ('project', models.ForeignKey(related_name='tasks_set', editable=False, to=settings.PROJECTS_PROJECT_MODEL, verbose_name='Project')),
-                ('tstatus', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Task situation', to='projects.TaskStatus')),
+                ('order', models.PositiveIntegerField(verbose_name='Order', null=True, editable=False, blank=True)),
+                ('parent_tasks', models.ManyToManyField(related_name='children_set', editable=False, to=settings.PROJECTS_TASK_MODEL)), # null=True, blank=True
+                ('start', models.DateTimeField(null=True, verbose_name='Start', blank=True)),
+                ('end',   models.DateTimeField(null=True, verbose_name='End', blank=True)),
+                ('duration', models.PositiveIntegerField(null=True, verbose_name='Duration (in hours)', blank=True)),
+                ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
+                ('tstatus', models.ForeignKey(on_delete=deletion.PROTECT, verbose_name='Task situation', to='projects.TaskStatus')),
             ],
             options={
                 'swappable': 'PROJECTS_TASK_MODEL',
@@ -89,18 +89,19 @@ class Migration(migrations.Migration):
                 'verbose_name': 'Task of project',
                 'verbose_name_plural': 'Tasks of project',
             },
-            #bases=('activities.activity',),
-            bases=(models.Model,), #TODO: ('creme_core.CremeEntity',) in creme1.7
+            # bases=(models.Model,),
+            bases=('creme_core.CremeEntity',),
         ),
         migrations.CreateModel(
             name='Resource',
             fields=[
                 ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
-                ('hourly_cost', models.PositiveIntegerField(null=True, verbose_name='Hourly cost', blank=True)),
-                #('linked_contact', models.ForeignKey(verbose_name='Contact', to='persons.Contact')),
-                ('linked_contact', models.ForeignKey(verbose_name='Contact', to=settings.PERSONS_CONTACT_MODEL)),
-                #('task', models.ForeignKey(related_name='resources_set', verbose_name='Task', to='projects.ProjectTask')),
-                ('task', models.ForeignKey(related_name='resources_set', verbose_name='Task', to=settings.PROJECTS_TASK_MODEL)),
+                # ('hourly_cost', models.PositiveIntegerField(null=True, verbose_name='Hourly cost', blank=True)),
+                ('hourly_cost', models.PositiveIntegerField(default=0, verbose_name='Hourly cost')),
+                # ('linked_contact', models.ForeignKey(verbose_name='Contact', to=settings.PERSONS_CONTACT_MODEL)),
+                ('linked_contact', models.ForeignKey(editable=False, to=settings.PERSONS_CONTACT_MODEL, verbose_name='Contact')),
+                # ('task', models.ForeignKey(related_name='resources_set', verbose_name='Task', to=settings.PROJECTS_TASK_MODEL)),
+                ('task', models.ForeignKey(related_name='resources_set', editable=False, to='projects.ProjectTask', verbose_name='Task')),
             ],
             options={
                 'verbose_name': 'Resource of project',
@@ -108,21 +109,20 @@ class Migration(migrations.Migration):
             },
             bases=('creme_core.cremeentity',),
         ),
-        migrations.CreateModel(
-            name='WorkingPeriod',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('start_date', models.DateTimeField(null=True, verbose_name='Between', blank=True)),
-                ('end_date', models.DateTimeField(null=True, verbose_name='And', blank=True)),
-                ('duration', models.PositiveIntegerField(null=True, verbose_name='Duration (in hours)', blank=True)),
-                ('resource', models.ForeignKey(verbose_name='Resource', to='projects.Resource')),
-                #('task', models.ForeignKey(related_name='tasks_set', verbose_name='Task', to='projects.ProjectTask')),
-                ('task', models.ForeignKey(related_name='tasks_set', verbose_name='Task', to=settings.PROJECTS_TASK_MODEL)),
-            ],
-            options={
-                'verbose_name': 'Working period',
-                'verbose_name_plural': 'Working periods',
-            },
-            bases=(models.Model,),
-        ),
+        # migrations.CreateModel(
+        #     name='WorkingPeriod',
+        #     fields=[
+        #         ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+        #         ('start_date', models.DateTimeField(null=True, verbose_name='Between', blank=True)),
+        #         ('end_date', models.DateTimeField(null=True, verbose_name='And', blank=True)),
+        #         ('duration', models.PositiveIntegerField(null=True, verbose_name='Duration (in hours)', blank=True)),
+        #         ('resource', models.ForeignKey(verbose_name='Resource', to='projects.Resource')),
+        #         ('task', models.ForeignKey(related_name='tasks_set', verbose_name='Task', to=settings.PROJECTS_TASK_MODEL)),
+        #     ],
+        #     options={
+        #         'verbose_name': 'Working period',
+        #         'verbose_name_plural': 'Working periods',
+        #     },
+        #     bases=(models.Model,),
+        # ),
     ]
