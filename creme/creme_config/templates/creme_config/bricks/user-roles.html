@@ -12,6 +12,13 @@
     {% brick_header_action id='add' url=create_url label=_('New role') enabled=admin_perm %}
 {% endblock %}
 
+{% block brick_before_content %}
+    <div class="help">
+        {% blocktrans %}The users which are not super-users must have a role.
+It limits what the concerned users can see, edit, delete…{% endblocktrans %}
+    </div>
+{% endblock %}
+
 {% block brick_table_columns %}
     {% brick_table_column_for_field ctype=objects_ctype field='name' status='primary nowrap' class='role-name' %}
     {% brick_table_column title=_('Allowed applications')       status='nowrap' class='role-apps' %}
@@ -41,7 +48,7 @@
                 </li>
             {% endfor %}
             </ul>
-            {% url 'creme_config__add_credentials_to_role' role.id as add_creds_url %}{% brick_action id='edit' url=add_creds_url label=_('New credentials') enabled=admin_perm %}
+            {% url 'creme_config__add_credentials_to_role' role.id as add_creds_url %}{% brick_action id='edit' url=add_creds_url icon='add' label=_('New credentials') display='both' enabled=admin_perm %}
         </td>
         <td {% brick_table_data_status action %}>{% url 'creme_config__edit_role' role.id as edit_url %}
             {% brick_table_action id='edit' url=edit_url label=_('Edit this role') enabled=admin_perm %}

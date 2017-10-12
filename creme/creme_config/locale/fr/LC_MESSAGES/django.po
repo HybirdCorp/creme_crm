@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-13 17:00+0200\n"
+"POT-Creation-Date: 2017-10-09 20:30+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -24,48 +24,48 @@ msgstr "Configuration générale"
 msgid "Portal of general configuration"
 msgstr "Portail de la configuration générale"
 
-#: apps.py:77 templates/creme_config/portal.html:19
+#: apps.py:77 templates/creme_config/portal.html:20
 msgid "Relation types settings"
 msgstr "Gestion des types de relation"
 
-#: apps.py:78 templates/creme_config/portal.html:20
+#: apps.py:78 templates/creme_config/portal.html:21
 msgid "Property types settings"
 msgstr "Gestion des types de propriété"
 
-#: apps.py:79 templates/creme_config/portal.html:21
+#: apps.py:79 templates/creme_config/portal.html:22
 msgid "Fields settings"
 msgstr "Gestion des champs"
 
-#: apps.py:80 templates/creme_config/portal.html:22
+#: apps.py:80 templates/creme_config/portal.html:23
 msgid "Custom fields settings"
 msgstr "Gestion des champs personnalisés (custom fields)"
 
-#: apps.py:81 templates/creme_config/portal.html:23
+#: apps.py:81 templates/creme_config/portal.html:24
 msgid "Blocks settings"
 msgstr "Gestion des blocs"
 
-#: apps.py:82 templates/creme_config/portal.html:28
-#: templates/creme_config/portal.html:30
+#: apps.py:82 templates/creme_config/portal.html:29
+#: templates/creme_config/portal.html:31
 msgid "Default preferred menu settings"
 msgstr "Gestion du menu rapide par défaut"
 
-#: apps.py:83 templates/creme_config/portal.html:35
+#: apps.py:83 templates/creme_config/portal.html:36
 msgid "Button menu settings"
 msgstr "Gestion du menu bouton"
 
-#: apps.py:84 templates/creme_config/portal.html:36
+#: apps.py:84 templates/creme_config/portal.html:37
 msgid "Search settings"
 msgstr "Gestion de la recherche"
 
-#: apps.py:85 templates/creme_config/portal.html:37
+#: apps.py:85 templates/creme_config/portal.html:38
 msgid "History settings"
 msgstr "Gestion de l'historique"
 
-#: apps.py:86 templates/creme_config/portal.html:51
+#: apps.py:86 templates/creme_config/portal.html:52
 msgid "Users settings"
 msgstr "Gestion des utilisateurs"
 
-#: apps.py:87 templates/creme_config/portal.html:52
+#: apps.py:87 templates/creme_config/portal.html:53
 msgid "Roles and credentials settings"
 msgstr "Gestion des rôles et des droits"
 
@@ -179,7 +179,7 @@ msgstr "Rôle"
 #: templates/creme_config/generics/model_portal.html:4
 #: templates/creme_config/generics/model_portal.html:8
 #: templates/creme_config/history_portal.html:6
-#: templates/creme_config/portal.html:3 templates/creme_config/portal.html:4
+#: templates/creme_config/portal.html:4 templates/creme_config/portal.html:5
 #: templates/creme_config/property_type_portal.html:6
 #: templates/creme_config/relation_type_portal.html:6
 #: templates/creme_config/search_portal.html:6
@@ -490,27 +490,27 @@ msgstr "Choisissez un utilisateur auquel transférer"
 msgid "Teams"
 msgstr "Équipes"
 
-#: forms/user_role.py:66 forms/user_role.py:316
+#: forms/user_role.py:66 forms/user_role.py:321
 msgid "Creatable resources"
 msgstr "Ressources créables"
 
-#: forms/user_role.py:67 forms/user_role.py:331
+#: forms/user_role.py:67 forms/user_role.py:336
 msgid "Exportable resources"
 msgstr "Ressources exportables"
 
 #: forms/user_role.py:68 forms/user_role.py:262
-#: templates/creme_config/bricks/user-roles.html:17
+#: templates/creme_config/bricks/user-roles.html:24
 #: templates/creme_config/templatetags/block_user_roles.html:22
 msgid "Allowed applications"
 msgstr "Applications autorisées"
 
 #: forms/user_role.py:69 forms/user_role.py:288
-#: templates/creme_config/bricks/user-roles.html:18
+#: templates/creme_config/bricks/user-roles.html:25
 #: templates/creme_config/templatetags/block_user_roles.html:23
 msgid "Administrated applications"
 msgstr "Applications administrées"
 
-#: forms/user_role.py:137 forms/user_role.py:351
+#: forms/user_role.py:137 forms/user_role.py:360
 msgid "Can view"
 msgstr "Peut voir"
 
@@ -573,11 +573,28 @@ msgstr ""
 "Ce rôle n'est utilisé par aucun utilisateur, vous pouvez le supprimer en "
 "toute sécurité."
 
-#: forms/user_role.py:346
+#: forms/user_role.py:289
+msgid ""
+"These applications can be configured. For example, the concerned users can "
+"create new choices available in forms (eg: position for contacts)."
+msgstr ""
+"Ces applications peuvent être configurés. Par exemple, les utilisateurs "
+"concernés peuvent créer de nouveaux choix disponibles dans les formulaires "
+"(ex: la fonction pour les contacts)."
+
+#: forms/user_role.py:337
+msgid ""
+"This types of entities can be downloaded as CSV/XLS files (in the "
+"corresponding list-views)."
+msgstr ""
+"Ces types de fiches peuvent être téléchargés en tant que fichiers CSV/XLS "
+"(dans les vues en liste correspondantes)."
+
+#: forms/user_role.py:355
 msgid "First credentials"
 msgstr "Premiers droits"
 
-#: forms/user_role.py:353
+#: forms/user_role.py:362
 #: templates/creme_config/templatetags/block_users.html:44
 msgid "Yes"
 msgstr "Oui"
@@ -797,7 +814,7 @@ msgstr "Application"
 #: templates/creme_config/bricks/relation-types.html:26
 #: templates/creme_config/bricks/semi-fixed-relation-types.html:19
 #: templates/creme_config/bricks/teams.html:26
-#: templates/creme_config/bricks/user-roles.html:22
+#: templates/creme_config/bricks/user-roles.html:29
 #: templates/creme_config/bricks/users.html:29
 #: templates/creme_config/templatetags/block_customblocksconfig.html:23
 #: templates/creme_config/templatetags/block_fields_configs.html:25
@@ -1409,59 +1426,68 @@ msgstr "Rôles"
 msgid "New role"
 msgstr "Nouveau rôle"
 
-#: templates/creme_config/bricks/user-roles.html:19
+#: templates/creme_config/bricks/user-roles.html:17
+msgid ""
+"The users which are not super-users must have a role.\n"
+"It limits what the concerned users can see, edit, delete…"
+msgstr ""
+"Les utilisateurs qui ne sont pas super-utilisateurs doivent avoir un rôle.\n"
+"Il limite ce que les utilisateurs concernés puevent voir, modifier, "
+"supprimer…"
+
+#: templates/creme_config/bricks/user-roles.html:26
 #: templates/creme_config/templatetags/block_user_roles.html:24
 msgid "Creation credentials"
 msgstr "Droits de création"
 
-#: templates/creme_config/bricks/user-roles.html:20
+#: templates/creme_config/bricks/user-roles.html:27
 #: templates/creme_config/templatetags/block_user_roles.html:25
 msgid "Export credentials"
 msgstr "Droits d'export"
 
-#: templates/creme_config/bricks/user-roles.html:21
+#: templates/creme_config/bricks/user-roles.html:28
 #: templates/creme_config/templatetags/block_user_roles.html:26
 msgid "Entities credentials"
 msgstr "Droits des fiches"
 
-#: templates/creme_config/bricks/user-roles.html:30
+#: templates/creme_config/bricks/user-roles.html:37
 #: templates/creme_config/templatetags/block_user_roles.html:33
 msgid "No allowed application"
 msgstr "Pas d'application autorisée"
 
-#: templates/creme_config/bricks/user-roles.html:31
+#: templates/creme_config/bricks/user-roles.html:38
 #: templates/creme_config/templatetags/block_user_roles.html:34
 msgid "No administrated application"
 msgstr "Pas d'application administrée"
 
-#: templates/creme_config/bricks/user-roles.html:32
+#: templates/creme_config/bricks/user-roles.html:39
 #: templates/creme_config/templatetags/block_user_roles.html:35
 msgid "No creation credential"
 msgstr "Pas de droit de création"
 
-#: templates/creme_config/bricks/user-roles.html:33
+#: templates/creme_config/bricks/user-roles.html:40
 #: templates/creme_config/templatetags/block_user_roles.html:36
 msgid "No export credential"
 msgstr "Pas de droit d'export"
 
-#: templates/creme_config/bricks/user-roles.html:39
+#: templates/creme_config/bricks/user-roles.html:46
 msgid "Edit these credentials"
 msgstr "Modifier ces droits"
 
-#: templates/creme_config/bricks/user-roles.html:40
+#: templates/creme_config/bricks/user-roles.html:47
 msgid "Delete these credentials"
 msgstr "Supprimer ces droits"
 
-#: templates/creme_config/bricks/user-roles.html:44
+#: templates/creme_config/bricks/user-roles.html:51
 #: templates/creme_config/templatetags/block_user_roles.html:46
 msgid "New credentials"
 msgstr "Nouveaux droits"
 
-#: templates/creme_config/bricks/user-roles.html:47
+#: templates/creme_config/bricks/user-roles.html:54
 msgid "Edit this role"
 msgstr "Modifier ce rôle"
 
-#: templates/creme_config/bricks/user-roles.html:50
+#: templates/creme_config/bricks/user-roles.html:57
 #: templates/creme_config/templatetags/block_blockdefmypagelocations.html:21
 #: templates/creme_config/templatetags/block_blockportallocations.html:22
 #: templates/creme_config/templatetags/block_button_menu.html:24
@@ -1479,7 +1505,7 @@ msgstr "Modifier ce rôle"
 msgid "Delete"
 msgstr "Supprimer"
 
-#: templates/creme_config/bricks/user-roles.html:57
+#: templates/creme_config/bricks/user-roles.html:64
 #: templates/creme_config/templatetags/block_user_roles.html:65
 msgid "No role for the moment"
 msgstr "Aucun rôle pour le moment"
@@ -1546,28 +1572,28 @@ msgstr "Configuration des champs"
 msgid "Type : %(model_name)s"
 msgstr "Type : %(model_name)s"
 
-#: templates/creme_config/portal.html:5
+#: templates/creme_config/portal.html:6
 msgid "Creme configuration portal"
 msgstr "Portail de Configuration de Creme"
 
-#: templates/creme_config/portal.html:13
+#: templates/creme_config/portal.html:14
 msgid "General"
 msgstr "Général"
 
-#: templates/creme_config/portal.html:45
+#: templates/creme_config/portal.html:46
 msgid "Credentials management"
 msgstr "Gestion des droits"
 
-#: templates/creme_config/portal.html:64
+#: templates/creme_config/portal.html:65
 msgid "Applications portals"
 msgstr "Portails des applications"
 
-#: templates/creme_config/portal.html:76 templates/creme_config/portal.html:78
+#: templates/creme_config/portal.html:77 templates/creme_config/portal.html:79
 #, python-format
 msgid "%(app_name)s configuration portal"
 msgstr "Portail configuration %(app_name)s"
 
-#: templates/creme_config/portal.html:86
+#: templates/creme_config/portal.html:87
 msgid "No application requires configuration"
 msgstr "Aucune application ne nécessite de configuration"
 
@@ -1961,8 +1987,8 @@ msgstr "Modifier la configuration de portail pour «%s»"
 # Already in creme_core
 #: views/bricks.py:279 views/bricks.py:302 views/bricks.py:398
 #: views/button_menu.py:111 views/creme_property_type.py:69
-#: views/prefered_menu.py:68 views/relation_type.py:78 views/user_role.py:118
-#: views/user_role.py:212
+#: views/prefered_menu.py:68 views/relation_type.py:78 views/user_role.py:119
+#: views/user_role.py:214
 msgid "Save the modifications"
 msgstr ""
 
@@ -2023,7 +2049,7 @@ msgstr "%s ne peut pas être effacé à cause de ses dépendances."
 msgid "Edit the default preferred menu"
 msgstr "Modifier le menu rapide par défaut"
 
-#: views/setting.py:61 views/user_role.py:134 views/user_settings.py:112
+#: views/setting.py:61 views/user_role.py:136 views/user_settings.py:112
 #, python-format
 msgid "Edit «%s»"
 msgstr "Modifier «%s»"
@@ -2070,26 +2096,26 @@ msgstr "Vous ne pouvez pas désactiver un super administrateur."
 msgid "You can't activate a staff user."
 msgstr "Vous ne pouvez pas activer un super administrateur."
 
-#: views/user_role.py:186
+#: views/user_role.py:188
 #, python-format
 msgid "Add credentials to «%s»"
 msgstr "Ajouter des droits à «%s»"
 
-#: views/user_role.py:187
+#: views/user_role.py:189
 msgid "Add the credentials"
 msgstr "Ajouter les droits"
 
-#: views/user_role.py:211
+#: views/user_role.py:213
 #, python-format
 msgid "Edit credentials for «%s»"
 msgstr "Modifier les droits de «%s»"
 
-#: views/user_role.py:234
+#: views/user_role.py:236
 #, python-format
 msgid "Delete role «%s»"
 msgstr "Supprimer le rôle «%s»"
 
-#: views/user_role.py:236
+#: views/user_role.py:238
 msgid "Delete the role"
 msgstr "Supprimer le rôle"
 

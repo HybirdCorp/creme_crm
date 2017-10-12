@@ -71,6 +71,7 @@ class UserRoleCreationWizard(PopupWizardMixin, SessionWizardView):
                  user_role_forms.UserRoleExportableCTypesStep,
                  _CredentialsStep,
                 )
+    template_name = 'creme_core/generics/blockform/add_wizard_popup.html'
     # wizard_title = _(u'New role')
     wizard_title = UserRole.creation_label
     # permission = 'creme_core.can_admin'  # TODO: 'superuser' perm ??
@@ -95,7 +96,7 @@ class UserRoleCreationWizard(PopupWizardMixin, SessionWizardView):
 
             form_list[4].save()
 
-        return HttpResponse('', content_type='text/javascript')
+        return HttpResponse(content_type='text/javascript')
 
     def get_form_instance(self, step):
         if step in ('0', '1', '2', '3'):
@@ -123,6 +124,7 @@ class UserRoleEditionWizard(PopupWizardMixin, SessionWizardView):
                  _ExportableCTypesStep,
                 )
 
+    template_name = 'creme_core/generics/blockform/edit_wizard_popup.html'
     wizard_title = u'Edit role'  # Overloaded in dispatch()
     # permission = 'creme_core.can_admin'  # TODO: 'superuser' perm ??
 

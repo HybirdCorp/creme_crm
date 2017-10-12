@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -251,7 +251,7 @@ class _UserRoleWizardFormStep(CremeModelForm):
                      )
 
     def partial_save(self):
-         pass
+        pass
 
     def save(self, *args, **kwargs):
         self.partial_save()
@@ -285,7 +285,12 @@ class UserRoleAppsStep(_UserRoleWizardFormStep):
 
 
 class UserRoleAdminAppsStep(_UserRoleWizardFormStep):
-    admin_4_apps = EmptyMultipleChoiceField(label=_(u'Administrated applications'))
+    admin_4_apps = EmptyMultipleChoiceField(label=_(u'Administrated applications'),
+                                            help_text=_(u'These applications can be configured. '
+                                                        u'For example, the concerned users can create new choices '
+                                                        u'available in forms (eg: position for contacts).'
+                                                       )
+                                           )
 
     class Meta(_UserRoleWizardFormStep.Meta):
         fields = ('admin_4_apps',)
@@ -328,7 +333,11 @@ class UserRoleCreatableCTypesStep(_UserRoleWizardFormStep):
 
 
 class UserRoleExportableCTypesStep(_UserRoleWizardFormStep):
-    exportable_ctypes = MultiEntityCTypeChoiceField(label=_(u'Exportable resources'), required=False)
+    exportable_ctypes = MultiEntityCTypeChoiceField(label=_(u'Exportable resources'), required=False,
+                                                    help_text=_(u'This types of entities can be downloaded as CSV/XLS '
+                                                                u'files (in the corresponding list-views).'
+                                                               )
+                                                   )
 
     class Meta(_UserRoleWizardFormStep.Meta):
         fields = ('exportable_ctypes',)
