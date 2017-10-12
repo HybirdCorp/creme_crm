@@ -71,21 +71,25 @@ class _BrickContext(object):
 
 class Brick(object):
     """ A block of information.
-    Blocks can be displayed on (see creme_core.templatetags.creme_block):
+
+    (NB: we use now the term 'brick' internally -- but 'block' in the GUI,
+         in order to avoid the confusion with the {% block %} templatetag)
+
+    Bricks can be displayed on (see creme_core.templatetags.creme_bricks):
         - a detail-view (and so are related to a CremeEntity),
         - a portal (related to the content types of an app)
         - the homepage - ie the portal of creme_core (related to all the apps).
 
-    A Block can be directly displayed on a page (this is the only solution for
+    A Brick can be directly displayed on a page (this is the only solution for
     pages that are not a detail-view, a portal or the home). But the better
-    solution is to use the configuration system (see creme_core.models.blocks
+    solution is to use the configuration system (see creme_core.models.bricks
     & creme_config).
 
-    Reloading after a change (deleting, adding, updating, etc...) in the block
-    can be done with ajax if the correct view is set : for this, each block has
+    Reloading after a change (deleting, adding, updating, etc...) in the brick
+    can be done with ajax if the correct view is set : for this, each brick has
     a unique id in a page.
 
-    When you inherit the Block class, you have to define these optionnal methods
+    When you inherit the Brick class, you have to define these optional methods
     to allow the different possibility of display:
 
     def detailview_display(self, context):
@@ -97,27 +101,46 @@ class Brick(object):
     def home_display(self, context):
         return 'VOID BLOCK FOR HOME: %s' % self.verbose_name
     """
-    id_           = None               # Overload with an unicode object ; use generate_id()
-    dependencies  = ()                 # List of the models on which the block depends
-                                       #   (ie: generally the block displays these models) ;
-                                       #   it also can be the '*' string, which is a wildcard meaning
-                                       #   'All models used in the page'.
-    relation_type_deps = ()            # List of id of RelationType objects on which the block depends ;
-                                       #   only used for Blocks which have 'Relation' in their dependencies
-    read_only     = False              # 'True' means : the block never causes a DB change on its dependencies models.
-                                       #   ---> so when this is reload (eg: to change the pagination), it does
-                                       #   not causes the dependant blocks to be reload (but it is still
-                                       #   reload when the dependant blocks are reload of course).
-    verbose_name  = 'BLOCK'            # Used in the user configuration
-                                       #   (see BlockDetailviewLocation/BlockPortalLocation)
-    template_name = 'OVERLOAD_ME.html' # Used to render the block of course
-    context_class = _BrickContext      # Store the context in the session.
-    configurable  = True               # True: the Block can be add/removed to detailview/portal by
-                                       #   configuration (see creme_config)
-    target_ctypes = ()                 # Tuple of CremeEntity classes that can have this type of block.
-                                       #  Empty tuple means that all types are ok. eg: (Contact, Organisation)
-    target_apps = ()                   # Tuple of name of the Apps that can have this Block on their portal.
-                                       #   Empty tuple means that all Apps are ok. eg: ('persons',)
+    # The ID of a brick (string) is used to retrieve the class of a Brick, and build the corresponding instance when:
+    #   - the configuration (detail-view/home/portal) is loaded (page creation).
+    #   - some bricks are reloaded.
+    # For regular brick classes, you just have to override this attribute by using the method generate_id().
+    id_ = None
+
+    # List of the models on which the brick depends (ie: generally the brick displays instances of these models) ;
+    # it also can be the '*' string, which is a wildcard meaning 'All models used in the page'.
+    dependencies = ()
+
+    # List of id of RelationType objects on which the block depends ;
+    # only used for Bricks which have the model 'Relation' in their dependencies.
+    relation_type_deps = ()
+
+    # 'True' means that the brick will never be used to change the instances of its dependencies models.
+    # (ie: the brick is only used to display these instances ; there is no inner-popup to create/edit/delete/...)
+    #   ---> so when this brick is reloaded (eg: to change the pagination), it does not causes the dependant bricks
+    #  to be reloaded (but it is still reloaded when the dependant bricks are reloaded of course).
+    read_only = False
+
+    template_name = 'OVERLOAD_ME.html'  # Used to render the brick of course
+    context_class = _BrickContext  # Class of the instance which stores the context in the session.
+
+    # ATTRIBUTES USED BY THE CONFIGURATION GUI FOR THE BRICKS (ie: in creme_config) ------------------------------------
+    # True means that the Brick appears in the configuration IHM (ie: it appears on classical detail-views/portals)
+    configurable = True
+
+    # Name used in the configuration GUI (so you should override it, excepted if <configurable = False>).
+    verbose_name = 'BLOCK'
+
+    # Sequence of classes inheriting CremeEntity which can have this type of brick on their detail-views.
+    # An empty sequence means that all types are OK.
+    # Example of value: target_ctypes = (Contact, Organisation)  # Available for detail-views of Contact & Organisation
+    target_ctypes = ()
+
+    # Sequence of names of the Apps which can have this Brick on their portal.
+    # A empty sequence means that all Apps are ok.
+    # Example of value: target_apps = ('persons',)  # Available for the portal of 'persons'
+    target_apps = ()
+    # ATTRIBUTES USED BY THE CONFIGURATION GUI FOR THE BRICKS [END] ----------------------------------------------------
 
     GENERIC_HAT_BRICK_ID = 'hatbrick'
 
@@ -150,15 +173,15 @@ class Brick(object):
         """Helper method to build a basic detailview_display() method for classes that inherit Block."""
         # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
-                                context,
-                                # update_url='/creme_core/blocks/reload/%s/%s/' % (
-                                #                     self.id_,
-                                #                     context['object'].pk,
-                                #                 ),
-                                update_url=reverse('creme_core__reload_detailview_blocks',
-                                                   args=(self.id_, context['object'].pk),
-                                                  ),
-                           ))
+                context,
+                # update_url='/creme_core/blocks/reload/%s/%s/' % (
+                #                     self.id_,
+                #                     context['object'].pk,
+                #                 ),
+                update_url=reverse('creme_core__reload_detailview_blocks',
+                                   args=(self.id_, context['object'].pk),
+                                   ),
+        ))
 
     def _iter_dependencies_info(self):
         for dep in self.dependencies:
@@ -172,6 +195,7 @@ class Brick(object):
             else:
                 yield unicode(dep)
 
+    # TODO: rename block_name => brick_id, block_context => brick_context
     def _build_template_context(self, context, block_name, block_context, **extra_kwargs):
         context['block_name'] = context['brick_id'] = block_name  # TODO: deprecate 'block_name'.
         context['state'] = BricksManager.get(context).get_state(self.id_, context['user'])
@@ -223,8 +247,8 @@ class Brick(object):
         if brick_context.update(template_context):
             # session.setdefault('blockcontexts_manager', {}) \
             session.setdefault('brickcontexts_manager', {}) \
-                   .setdefault(base_url, {}) \
-                   [brick_id] = brick_context.as_dict()
+                .setdefault(base_url, {}) \
+                [brick_id] = brick_context.as_dict()
 
             request.session.modified = True
 
@@ -260,7 +284,7 @@ class _PaginatedBrickContext(_BrickContext):
 
 
 class PaginatedBrick(Brick):
-    """This king of Block is generally represented by a paginated table.
+    """This king of Brick is generally represented by a paginated table.
     Ajax changes management is used to change page.
     """
     context_class = _PaginatedBrickContext
@@ -275,7 +299,7 @@ class PaginatedBrick(Brick):
             try:
                 page_index = int(page_index)
             except ValueError:
-                logger.debug('Invalid page number for block %s: %s', block_name, page_index)
+                logger.warn('PaginatedBrick: invalid page number for brick %s: %s', block_name, page_index)
                 page_index = 1
         else:
             page_index = block_context.page
@@ -298,7 +322,7 @@ class PaginatedBrick(Brick):
         return self.get_template_context(*args, **kwargs)
 
     def get_template_context(self, context, objects, update_url='', **extra_kwargs):
-        """@param objects Set of objects to display in the block."""
+        """@param objects: Sequence of objects to display in the brick."""
         return Brick.get_template_context(self, context, update_url=update_url, objects=objects, **extra_kwargs)
 
 
@@ -310,7 +334,7 @@ class _QuerysetBrickContext(_PaginatedBrickContext):
         self._order_by = ''
 
     def __repr__(self):
-        return '<QuerysetBlockContext: page=%s order_by=%s>' % (self.page, self._order_by)
+        return '<QuerysetBrickContext: page=%s order_by=%s>' % (self.page, self._order_by)
 
     def as_dict(self):
         d = super(_QuerysetBrickContext, self).as_dict()
@@ -343,22 +367,39 @@ class QuerysetBrick(PaginatedBrick):
     changes are done with ajax of course.
     """
     context_class = _QuerysetBrickContext
-    order_by      = ''  # Default order_by value ; '' means no order_by
+
+    # Default order_by value (eg: 'name', '-creation_date').
+    # '' means that no order_by() command will be added by the brick (but the natural ordering of the model
+    # is kept of course).
+    # BEWARE: if you want to use columns with the 'sort' feature (see the templatetags lib 'creme_bricks':
+    #  {% brick_table_column_for_field %} & {% brick_table_column_for_cell %}), you have to set this attribute.
+    order_by = ''
+
+    def _is_order_valid(self, model, order):
+        fname = order[1:] if order.startswith('-') else order
+        cell = EntityCellRegularField.build(model=model, name=fname)
+
+        if cell is None:
+            return False
+
+        if not cell.sortable:
+            logger.warn('QuerysetBrick: the field "{}" is not sortable.'.format(fname))
+            return False
+
+        return True
 
     def _build_template_context(self, context, block_name, block_context, **extra_kwargs):
         request = context['request']
-        order_by = self.order_by
+        order_by = ''
         objects = extra_kwargs['objects']
 
-        if order_by:
-            request_order_by = request.GET.get('%s_order' % block_name)
+        if self.order_by:
+            req_order_by = request.GET.get('%s_order' % block_name)
+            raw_order_by = block_context.get_order_by(self.order_by) if req_order_by is None else req_order_by
 
-            if request_order_by is not None:
-                order_by = request_order_by  # TODO: test if order_by is valid (field name) ????
-            else:
-                order_by = block_context.get_order_by(order_by)
-
-            extra_kwargs['objects'] = objects.order_by(order_by)
+            if self._is_order_valid(model=objects.model, order=raw_order_by):
+                order_by = raw_order_by
+                extra_kwargs['objects'] = objects.order_by(order_by)
 
         return super(QuerysetBrick, self)._build_template_context(
                 context, block_name, block_context,
@@ -663,7 +704,7 @@ class BricksManager(object):
 
     @used_relationtypes_ids.setter
     def used_relationtypes_ids(self, relationtypes_ids):
-        "@param relation_type_deps Sequence of RelationType objects' ids"
+        "@param relation_type_deps: Sequence of RelationType objects' IDs"
         self._used_relationtypes = set(relationtypes_ids)
 
 
@@ -689,7 +730,7 @@ class _BrickRegistry(object):
 
         for brick_cls in brick_classes:
             if isinstance(brick_cls, Brick):
-                warnings.warn('_BlockRegistry.register(): registered brick instance is deprecated ;'
+                warnings.warn('_BrickRegistry.register(): registered brick instance is deprecated ;'
                               'register brick class instead (brick ID=%s)' % brick_cls.id_,
                               DeprecationWarning
                              )
@@ -719,14 +760,14 @@ class _BrickRegistry(object):
     # def register_4_model(self, model, block):
     def register_4_model(self, model, brick_cls):  # TODO: had an 'overload' arg ??
         if isinstance(brick_cls, Brick):
-            warnings.warn('_BlockRegistry.register_4_model(): registered brick instance is deprecated ;'
+            warnings.warn('_BrikRegistry.register_4_model(): registered brick instance is deprecated ;'
                           'register brick class instead (model=%s)' % model,
                           DeprecationWarning
                          )
             brick_cls = brick_cls.__class__
 
         if brick_cls.id_ is not None:
-            warnings.warn('_BlockRegistry.register_4_model(): brick for model=%s should have '
+            warnings.warn('_BrickRegistry.register_4_model(): brick for model=%s should have '
                           'an id_ == None (currently: %s)' % ( model, brick_cls.id_),
                           DeprecationWarning
                          )
@@ -761,7 +802,7 @@ class _BrickRegistry(object):
 
             if not brick_id or not brick_id.startswith(Brick.GENERIC_HAT_BRICK_ID + '-'):
                 raise _BrickRegistry.RegistrationError('Secondary hat brick for model=%s must have an id_ '
-                                                       'generated by Block._generate_hat_id() (%s)' % (
+                                                       'generated by Brick._generate_hat_id() (%s)' % (
                                                             model, brick_cls,
                                                         )
                                                       )
@@ -1084,7 +1125,7 @@ class _BrickRegistry(object):
                 yield block
 
     def is_model_invalid(self, model):
-        "See register_invalid_model"
+        "See register_invalid_model()"
         return model in self._invalid_models
 
 

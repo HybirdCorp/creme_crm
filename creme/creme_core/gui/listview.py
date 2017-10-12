@@ -58,6 +58,7 @@ def simple_value(value):
 
 
 class ListViewState(object):
+    # TODO: in utils.meta + use instead of <.startswith('-')>
     class _OrderedField(object):
         def __init__(self, ord_field_str):
             "@param ord_field_str: something like 'name' or '-creation_date'"

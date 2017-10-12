@@ -2,14 +2,17 @@ try:
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
+    from django.contrib.sessions.backends.base import SessionBase
+    from django.test import RequestFactory
 
     from ..base import CremeTestCase
     from ..fake_models import FakeContact, FakeOrganisation, FakeImage
     from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
+    from creme.creme_core.gui.bricks import (Brick, SimpleBrick, QuerysetBrick,
+        SpecificRelationsBrick, CustomBrick, _BrickRegistry, BricksManager)
     from creme.creme_core.models import (Relation, RelationType,
         InstanceBlockConfigItem, RelationBlockItem, CustomBlockConfigItem)
-    from creme.creme_core.gui.bricks import (Brick, SimpleBrick,
-        SpecificRelationsBrick, CustomBrick, _BrickRegistry, BricksManager)
+    from creme.creme_core.views.bricks import build_context
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -992,6 +995,29 @@ class BlocksManagerTestCase(CremeTestCase):
 
 
 class BrickTestCase(CremeTestCase):
+    def setUp(self):
+        super(BrickTestCase, self).setUp()
+        self.factory = RequestFactory()
+
+    class OrderedBrick(QuerysetBrick):
+        id_ = QuerysetBrick.generate_id('creme_core', 'BrickTestCase-test_queryset_brick_order')
+        dependencies = (FakeContact,)
+        page_size = 10
+        order_by = 'last_name'
+
+    def _assertPageOrderedLike(self, page, ordered_instances):
+        ids = {c.id for c in ordered_instances}
+        self.assertEqual(ordered_instances,
+                         [c for c in page.object_list if c.id in ids]
+                        )
+
+    def _build_request(self, url='/'):  # TODO: factorise (see CremeBricksTagsTestCase)
+        request = self.factory.get(url)
+        request.session = SessionBase()
+        request.user = self.user
+
+        return request
+
     def test_custom_brick01(self):
         cbci = CustomBlockConfigItem.objects.create(
                 id='tests-organisations01', name='General',
@@ -1020,3 +1046,186 @@ class BrickTestCase(CremeTestCase):
         cbrick = CustomBrick(cbci.generate_id(), cbci)
         self.assertEqual([FakeOrganisation, Relation], cbrick.dependencies)
         self.assertEqual([rtype.id], cbrick.relation_type_deps)
+
+    def test_paginated_brick01(self):
+        user = self.login()
+
+        description = 'Dungeon explorer'
+        create_contact = partial(FakeContact.objects.create, user=user, description=description)
+        create_contact(first_name='Aiz',  last_name='Wallenstein')
+        create_contact(first_name='Bell', last_name='Cranel')
+        create_contact(first_name='Welf', last_name='Crozzo')
+
+        brick = self.OrderedBrick()
+        brick.page_size = 2
+        template_context = brick.get_template_context(build_context(self._build_request()),
+                                                      FakeContact.objects.filter(description=description),
+                                                     )
+
+        with self.assertNoException():
+            page = template_context['page']
+
+        self.assertEqual(2, page.paginator.per_page)
+        self.assertEqual(2, page.paginator.num_pages)
+        self.assertEqual(1, page.number)
+
+    def test_paginated_brick02(self):
+        "Page in request"
+        user = self.login()
+
+        description = 'Dungeon explorer'
+        create_contact = partial(FakeContact.objects.create, user=user, description=description)
+        create_contact(first_name='Aiz',  last_name='Wallenstein')
+        create_contact(first_name='Bell', last_name='Cranel')
+        create_contact(first_name='Welf', last_name='Crozzo')
+
+        brick = self.OrderedBrick()
+        brick.page_size = 2
+        request = self._build_request('/?{}_page=2'.format(brick.id_))
+        template_context = brick.get_template_context(build_context(request),
+                                                      FakeContact.objects.filter(description=description),
+                                                     )
+
+        page = template_context['page']
+        self.assertEqual(2, page.number)
+
+    def test_paginated_brick03(self):
+        "Page in request: invalid number (not int)"
+        user = self.login()
+
+        description = 'Dungeon explorer'
+        create_contact = partial(FakeContact.objects.create, user=user, description=description)
+        create_contact(first_name='Aiz', last_name='Wallenstein')
+        create_contact(first_name='Bell', last_name='Cranel')
+        create_contact(first_name='Welf', last_name='Crozzo')
+
+        brick = self.OrderedBrick()
+        brick.page_size = 2
+        request = self._build_request('/?{}_page=NaN'.format(brick.id_))
+        template_context = brick.get_template_context(build_context(request),
+                                                      FakeContact.objects.filter(description=description),
+                                                     )
+
+        page = template_context['page']
+        self.assertEqual(1, page.number)
+
+    def test_paginated_brick04(self):
+        "Page in request: number too great."
+        user = self.login()
+
+        description = 'Dungeon explorer'
+        create_contact = partial(FakeContact.objects.create, user=user, description=description)
+        create_contact(first_name='Aiz', last_name='Wallenstein')
+        create_contact(first_name='Bell', last_name='Cranel')
+        create_contact(first_name='Welf', last_name='Crozzo')
+
+        brick = self.OrderedBrick()
+        brick.page_size = 2
+        request = self._build_request('/?{}_page=3'.format(brick.id_))
+        template_context = brick.get_template_context(build_context(request),
+                                                      FakeContact.objects.filter(description=description),
+                                                     )
+
+        page = template_context['page']
+        self.assertEqual(2, page.number)
+
+    def test_queryset_brick_order01(self):
+        "No order in request"
+        user = self.login()
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        wallen = create_contact(first_name='Aiz',  last_name='Wallenstein')
+        cranel = create_contact(first_name='Bell', last_name='Cranel')
+        crozzo = create_contact(first_name='Welf', last_name='Crozzo')
+
+        brick = self.OrderedBrick()
+        template_context = brick.get_template_context(build_context(self._build_request()),
+                                                      FakeContact.objects.all(),
+                                                     )
+
+        with self.assertNoException():
+            page = template_context['page']
+            model = page.object_list.model
+
+        self.assertEqual(FakeContact, model)
+        self._assertPageOrderedLike(page, [cranel, crozzo, wallen])
+
+    def test_queryset_brick_order02(self):
+        "No order in request: invalid field in Brick class"
+        user = self.login()
+
+        class ProblematicBrick(QuerysetBrick):
+            id_ = QuerysetBrick.generate_id('creme_core', 'BrickTestCase-test_queryset_brick_order02')
+            dependencies = (FakeContact,)
+            order_by = 'unknown'  # < ===
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        wallen = create_contact(first_name='Aiz',  last_name='Wallenstein')
+        cranel = create_contact(first_name='Bell', last_name='Cranel')
+        crozzo = create_contact(first_name='Welf', last_name='Crozzo')
+
+        brick = ProblematicBrick()
+        template_context = brick.get_template_context(build_context(self._build_request()),
+                                                      FakeContact.objects.all(),
+                                                     )
+        self._assertPageOrderedLike(template_context['page'], [cranel, crozzo, wallen])
+
+    def test_queryset_brick_order03(self):
+        "Order in request: valid field"
+        user = self.login()
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        aiz  = create_contact(first_name='Aiz',      last_name='Wallenstein')
+        lili = create_contact(first_name='Liliruca', last_name='Arde')
+        bell = create_contact(first_name='Bell',     last_name='Cranel')
+        welf = create_contact(first_name='Welf',     last_name='Crozzo')
+
+        brick = self.OrderedBrick()
+
+        # ASC
+        request = self._build_request('/?{}_order=first_name'.format(brick.id_))
+        template_context = brick.get_template_context(build_context(request), FakeContact.objects.all())
+        self._assertPageOrderedLike(template_context['page'], [aiz, bell, lili, welf])
+
+        # DESC
+        request = self._build_request('/?{}_order=-first_name'.format(brick.id_))
+        template_context = brick.get_template_context(build_context(request), FakeContact.objects.all())
+        self._assertPageOrderedLike(template_context['page'], [welf, lili, bell, aiz])
+
+    def test_queryset_brick_order04(self):
+        "Order in request: invalid field"
+        user = self.login()
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        wallen = create_contact(first_name='Aiz',  last_name='Wallenstein')
+        cranel = create_contact(first_name='Bell', last_name='Cranel')
+        crozzo = create_contact(first_name='Welf', last_name='Crozzo')
+
+        brick = self.OrderedBrick()
+        request = self._build_request('/?{}_order=unknown'.format(brick.id_))
+        template_context = brick.get_template_context(build_context(request), FakeContact.objects.all())
+
+        with self.assertNoException():
+            page = template_context['page']
+            list(page.object_list)
+
+        self._assertPageOrderedLike(page, [cranel, crozzo, wallen])
+
+    def test_queryset_brick_order05(self):
+        "Order in request: not sortable field"
+        user = self.login()
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        wallen = create_contact(first_name='Aiz',  last_name='Wallenstein')
+        cranel = create_contact(first_name='Bell', last_name='Cranel')
+        crozzo = create_contact(first_name='Welf', last_name='Crozzo')
+
+        brick = self.OrderedBrick()
+        request = self._build_request('/?{}_order=languages'.format(brick.id_))
+        template_context = brick.get_template_context(build_context(request), FakeContact.objects.all())
+
+        with self.assertNoException():
+            page = template_context['page']
+            list(page.object_list)
+
+        self._assertPageOrderedLike(page, [cranel, crozzo, wallen])
