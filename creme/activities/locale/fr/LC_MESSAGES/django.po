@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-12 14:25+0200\n"
+"POT-Creation-Date: 2017-10-10 12:34+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: apps.py:30 apps.py:115 apps.py:141 models/activity.py:77
-#: templates/activities/portal.html:5
+#: templates/activities/portal.html:4
 msgid "Activities"
 msgstr "Activités"
 
@@ -25,7 +25,6 @@ msgid "Portal of activities"
 msgstr "Portail des activités"
 
 #: apps.py:102 apps.py:120 forms/calendar.py:73 models/calendar.py:43
-#: templates/activities/portal.html:11
 msgid "Calendar"
 msgstr "Calendrier"
 
@@ -105,31 +104,33 @@ msgctxt "activities-stats"
 msgid "%s in all"
 msgstr "%s en tout"
 
-#: bricks.py:54 forms/activity.py:294 forms/activity.py:556 forms/bricks.py:59
-#: forms/mass_import.py:589 templates/activities/bricks/participants.html:7
-msgid "Participants"
-msgstr "Participants"
-
-#: bricks.py:95 forms/activity.py:271 forms/bricks.py:175
-#: templates/activities/bricks/subjects.html:7
-msgid "Subjects"
-msgstr "Sujets"
-
-#: bricks.py:122 templates/activities/bricks/future-activities.html:8
+#: blocks.py:32 bricks.py:121
+#: templates/activities/bricks/future-activities.html:8
 #: templates/activities/bricks/future-activities.html:10
 #: templates/activities/templatetags/block_future_activities.html:11
 #: templates/activities/templatetags/block_future_activities.html:13
 msgid "Future activities"
 msgstr "Activités futures"
 
-#: bricks.py:210 templates/activities/bricks/past-activities.html:8
+#: blocks.py:107 bricks.py:189
+#: templates/activities/bricks/past-activities.html:8
 #: templates/activities/bricks/past-activities.html:10
 #: templates/activities/templatetags/block_past_activities.html:11
 #: templates/activities/templatetags/block_past_activities.html:13
 msgid "Past activities"
 msgstr "Activités passées"
 
-#: bricks.py:251
+#: bricks.py:53 forms/activity.py:294 forms/activity.py:556 forms/bricks.py:59
+#: forms/mass_import.py:589 templates/activities/bricks/participants.html:7
+msgid "Participants"
+msgstr "Participants"
+
+#: bricks.py:94 forms/activity.py:271 forms/bricks.py:175
+#: templates/activities/bricks/subjects.html:7
+msgid "Subjects"
+msgstr "Sujets"
+
+#: bricks.py:229
 msgid "On my calendars"
 msgstr "Sur mes calendriers"
 
@@ -699,16 +700,20 @@ msgstr ""
 "activités"
 
 #: setting_keys.py:21
-msgid "In the activities form, propose to keep users informed."
+msgid ""
+"In the activities form, propose to keep users informed with user messages "
+"(the application «Assistants» is needed)"
 msgstr ""
 "Dans le formulaire des activités, proposer de tenir les utilisateurs "
-"informés."
+"informés avec des messages utilisateurs (l'application «Assistants» est "
+"nécessaire)."
 
 #: templates/activities/bricks/base/activities.html:13
 #: templates/activities/templatetags/block_future_activities.html:22
 msgid "Link to an activity"
 msgstr "Lier à une activité"
 
+# Already in creme_core
 #: templates/activities/bricks/base/activities.html:43
 msgid "Unlink"
 msgstr ""
@@ -903,16 +908,20 @@ msgstr "Calendriers des collaborateurs"
 msgid "FILTER CALENDARS OR COLLABORATORS"
 msgstr "FILTRER LES CALENDRIERS OU LES COLLABORATEURS"
 
-#: templates/activities/frags/ical_list_view_button.html:4
+#: templates/activities/frags/ical_list_view_button.html:5
+msgid "iCalendar file"
+msgstr "Fichier iCalendar"
+
+#: templates/activities/frags/ical_list_view_button.html:5
 msgid "Download in iCalendar format"
 msgstr "Télécharger au format iCalendar"
 
-#: templates/activities/portal.html:6
+#: templates/activities/portal.html:5
 msgid "Activities portal"
 msgstr "Portail Activités"
 
-#: templates/activities/portal.html:12
-#: templates/activities/view_activity.html:7
+#: templates/activities/portal.html:10
+#: templates/activities/view_activity.html:18
 msgid "Go to the calendar"
 msgstr "Aller au calendrier"
 
@@ -1071,16 +1080,16 @@ msgstr "Ajout de participants pour l'activité «%s»"
 msgid "Add the participants"
 msgstr "Ajouter les participants"
 
-#: views/bricks.py:69
+#: views/bricks.py:70
 #, python-format
 msgid "Adding subjects to activity «%s»"
 msgstr "Ajout de sujets pour l'activité «%s»"
 
-#: views/bricks.py:71
+#: views/bricks.py:72
 msgid "Add the subjects"
 msgstr "Ajouter les sujets"
 
-#: views/bricks.py:84
+#: views/bricks.py:86
 msgid "One entity does not exist any more."
 msgstr "Une fiche n'existe plus."
 
