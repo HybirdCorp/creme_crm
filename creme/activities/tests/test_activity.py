@@ -5,6 +5,7 @@ try:
     from functools import partial
     from json import loads as json_loads
 
+    from django.apps import apps
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
@@ -24,14 +25,15 @@ try:
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
-    from creme.assistants.models import Alert, UserMessage
-    from creme.assistants.constants import PRIO_NOT_IMP_PK
-
     from .base import (_ActivitiesTestCase, skipIfCustomActivity, Activity,
            Contact, Organisation)
     from .. import constants
     from ..models import ActivityType, ActivitySubType, Calendar, Status
     from ..utils import check_activity_collisions
+
+    if apps.is_installed('creme.assistants'):
+        from creme.assistants.models import Alert, UserMessage
+        from creme.assistants.constants import PRIO_NOT_IMP_PK
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

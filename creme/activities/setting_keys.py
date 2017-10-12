@@ -18,6 +18,7 @@ auto_subjects_key = SettingKey(id=constants.SETTING_AUTO_ORGA_SUBJECTS,
                                app_label='activities', type=SettingKey.BOOL,
                               )
 form_user_messages_key = SettingKey(id=constants.SETTING_FORM_USERS_MSG,
-                                    description=_(u'In the activities form, propose to keep users informed'),
+                                    description=_(u'In the activities form, propose to keep users informed '
+                                                  u'with user messages (the application «Assistants» is needed)'),
                                     app_label='activities', type=SettingKey.BOOL,
                                    )

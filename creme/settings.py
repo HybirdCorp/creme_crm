@@ -261,21 +261,21 @@ INSTALLED_CREME_APPS = (
     'creme.creme_config',
     'creme.media_managers',  # NB: will be removed in Creme 1.8
     'creme.documents',
-    'creme.assistants',
-    'creme.activities',
+    'creme.activities',  # Extra features if 'assistants' is installed.
     'creme.persons',
 
     # CREME OPTIONAL APPS (can be safely commented)
+    'creme.assistants',
     'creme.graphs',
     'creme.reports',
     'creme.products',
     'creme.recurrents',
     'creme.billing',  # Need 'products'
-    'creme.opportunities',  # Need 'products'
+    'creme.opportunities',  # Need 'products'. Extra features if 'billing' is installed.
     'creme.commercial',  # Need 'opportunities'
     'creme.events',  # Need 'opportunities'
     'creme.crudity',
-    'creme.emails',
+    'creme.emails',  # Extra features if 'crudity' is installed.
     # 'creme.sms',  # Work In Progress
     'creme.projects',
     'creme.tickets',
