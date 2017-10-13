@@ -347,7 +347,7 @@ class CremeCoreConfig(CremeAppConfig):
     def register_bricks(self, brick_registry):
         # from .blocks import (relations_block, properties_block, customfields_block,
         #         history_block, trash_block)
-        from .import bricks
+        from . import bricks
 
         # block_registry.register(relations_block, properties_block, customfields_block,
         #                         history_block, trash_block,
@@ -469,6 +469,7 @@ class CremeCoreConfig(CremeAppConfig):
 
 
         Widget.build_attrs = build_attrs
+
 
 def creme_app_configs():
     for app_config in apps.get_app_configs():

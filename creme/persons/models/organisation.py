@@ -90,8 +90,8 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
 
     search_score = 102
 
-    creation_label = _('Create an organisation')
-    save_label = _('Save the organisation')
+    creation_label = _(u'Create an organisation')
+    save_label = _(u'Save the organisation')
 
     class Meta:
         abstract = True
