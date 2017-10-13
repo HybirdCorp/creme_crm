@@ -31,7 +31,7 @@ skeys = (
 # NB: keys hidden so the description will no be visible (so we do not use ugettext_lazy())
 #     they are set for testing purposes.
 build_user_skey = partial(UserSettingKey, app_label='activesync',
-                          type=SettingKey.STRING, hidden=True,
+                          type=UserSettingKey.STRING, hidden=True,
                          )
 user_msync_server_url_key    = build_user_skey(id=constants.USER_MOBILE_SYNC_SERVER_URL,
                                                description='URL of the server',
@@ -40,7 +40,7 @@ user_msync_server_domain_key = build_user_skey(id=constants.USER_MOBILE_SYNC_SER
                                                description='Domain of the server',
                                               )
 user_msync_server_ssl_key    = build_user_skey(id=constants.USER_MOBILE_SYNC_SERVER_SSL,
-                                               type=SettingKey.BOOL,
+                                               type=UserSettingKey.BOOL,
                                                description='Use SSL',
                                               )
 user_msync_server_login_key  = build_user_skey(id=constants.USER_MOBILE_SYNC_SERVER_LOGIN,
@@ -50,11 +50,11 @@ user_msync_server_pwd_key    = build_user_skey(id=constants.USER_MOBILE_SYNC_SER
                                                description='Password',
                                               )
 user_msync_activities_key    = build_user_skey(id=constants.USER_MOBILE_SYNC_ACTIVITIES,
-                                               type=SettingKey.BOOL,
+                                               type=UserSettingKey.BOOL,
                                                description='Synchronise activities?',
                                               )
 user_msync_contacts_key      = build_user_skey(id=constants.USER_MOBILE_SYNC_CONTACTS,
-                                               type=SettingKey.BOOL,
+                                               type=UserSettingKey.BOOL,
                                                description='Synchronise contacts?',
                                               )
 
