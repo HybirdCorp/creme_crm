@@ -108,7 +108,7 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
 
 # TODO: can we build the form once instead of build it each time ??
 # TODO: factorise with lv_import.py ?
-def get_merge_form_builder(model):
+def get_merge_form_builder(model, base_form_class=_PersonMergeForm):
     address_field_names = list(Address.info_field_names())
     # TODO: factorise with lv_import.py
     try:
@@ -142,4 +142,5 @@ def get_merge_form_builder(model):
                             ('shipping_address', _(u'Shipping address'), shipping_address_fnames),
                         )
 
-    return type('PersonMergeForm', (_PersonMergeForm,), attrs)
+    # return type('PersonMergeForm', (_PersonMergeForm,), attrs)
+    return type('PersonMergeForm', (base_form_class,), attrs)
