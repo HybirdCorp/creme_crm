@@ -16,7 +16,7 @@
 
 {% block brick_header_actions %}
 {% url 'creme_config__create_instance' app_name model_name as create_url %}
-    {% brick_header_action id='add' url=create_url label=_('New value') %}
+    {% brick_header_action id='add' url=create_url label=model.creation_label|or_op:_('New value') %}
 {% endblock %}
 
 {% block brick_table_columns %}

@@ -65,8 +65,11 @@ def _get_modelconf(app_config, model_name):
 
 
 def _popup_title(model_conf):
-    # TODO: creation label for all CremeModel ??
-    return _(u'New value: %s') % model_conf.model._meta.verbose_name
+    # return _(u'New value: %s') % model_conf.model._meta.verbose_name
+    model = model_conf.model
+    title = getattr(model, 'creation_label', None)
+
+    return title if title is not None else _(u'New value: %s') % model._meta.verbose_name
 
 
 @login_required

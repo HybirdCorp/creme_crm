@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-10 12:34+0200\n"
+"POT-Creation-Date: 2017-10-16 21:25+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -24,7 +24,7 @@ msgstr "Activités"
 msgid "Portal of activities"
 msgstr "Portail des activités"
 
-#: apps.py:102 apps.py:120 forms/calendar.py:73 models/calendar.py:43
+#: apps.py:102 apps.py:120 forms/calendar.py:73 models/calendar.py:45
 msgid "Calendar"
 msgstr "Calendrier"
 
@@ -454,7 +454,7 @@ msgstr "Début"
 msgid "End"
 msgstr "Fin"
 
-#: models/activity.py:46 models/other_models.py:77
+#: models/activity.py:46 models/other_models.py:81
 msgid "Description"
 msgstr "Description"
 
@@ -482,7 +482,7 @@ msgstr "Sous-type d'activité"
 msgid "Status"
 msgstr "Statut"
 
-#: models/activity.py:60 models/calendar.py:44
+#: models/activity.py:60 models/calendar.py:46
 #: templates/activities/bricks/user-calendars.html:7
 #: templates/activities/calendar.html:3
 #: templates/activities/templatetags/block_related_calendar.html:9
@@ -510,8 +510,8 @@ msgstr "Créer une activité"
 msgid "Save the activity"
 msgstr "Enregistrer l'activité"
 
-#: models/calendar.py:31 models/other_models.py:34 models/other_models.py:60
-#: models/other_models.py:76
+#: models/calendar.py:31 models/other_models.py:34 models/other_models.py:62
+#: models/other_models.py:80
 #: templates/activities/templatetags/block_related_calendar.html:24
 #: templates/activities/templatetags/block_user_calendars.html:27
 msgid "Name"
@@ -537,7 +537,11 @@ msgstr "Propriétaire du calendrier"
 msgid "Color"
 msgstr "Couleur"
 
-#: models/calendar.py:73
+#: models/calendar.py:41 views/calendar.py:253
+msgid "Create a calendar"
+msgstr "Créer un calendrier"
+
+#: models/calendar.py:75
 #, python-format
 msgid "%s's calendar"
 msgstr "Calendrier de %s"
@@ -550,33 +554,43 @@ msgstr "Durée en jours par défaut"
 msgid "Default hour duration"
 msgstr "Durée en heures/minutes/secondes par défaut"
 
-#: models/other_models.py:45 models/other_models.py:61
+#: models/other_models.py:40
+msgctxt "activities-type"
+msgid "Create a type"
+msgstr "Créer un type"
+
+#: models/other_models.py:47 models/other_models.py:63
 msgid "Type of activity"
 msgstr "Type d'activité"
 
-#: models/other_models.py:46
+#: models/other_models.py:48
 msgid "Types of activity"
 msgstr "Types d'activité"
 
-#: models/other_models.py:70
+#: models/other_models.py:67
+msgctxt "activities-type"
+msgid "Create a sub-type"
+msgstr "Créer un sous-type"
+
+#: models/other_models.py:74
 msgid "Sub-type of activity"
 msgstr "Sous-type d'activité"
 
-#: models/other_models.py:71
+#: models/other_models.py:75
 msgid "Sub-types of activity"
 msgstr "Sous-types d'activité"
 
-#: models/other_models.py:80
+#: models/other_models.py:84
 msgctxt "activities-status"
 msgid "Create a status"
 msgstr "Créer un statut"
 
-#: models/other_models.py:87
+#: models/other_models.py:91
 msgctxt "activities-singular"
 msgid "Status of activity"
 msgstr "Statut d'activité"
 
-#: models/other_models.py:88
+#: models/other_models.py:92
 msgctxt "activities-plural"
 msgid "Status of activity"
 msgstr "Statuts d'activité"
@@ -1092,10 +1106,6 @@ msgstr "Ajouter les sujets"
 #: views/bricks.py:86
 msgid "One entity does not exist any more."
 msgstr "Une fiche n'existe plus."
-
-#: views/calendar.py:253
-msgid "Create a calendar"
-msgstr "Créer un calendrier"
 
 #: views/calendar.py:255
 msgid "Save the calendar"

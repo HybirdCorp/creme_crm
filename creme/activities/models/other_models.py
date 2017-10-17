@@ -37,6 +37,8 @@ class ActivityType(CremeModel):
                                          .set_tags(viewable=False)
     is_custom             = BooleanField(default=True, editable=False).set_tags(viewable=False) # Used by creme_config
 
+    creation_label = pgettext_lazy('activities-type', u'Create a type')
+
     def __unicode__(self):
         return self.name
 
@@ -61,6 +63,8 @@ class ActivitySubType(CremeModel):
     type      = ForeignKey(ActivityType, verbose_name=_(u'Type of activity'))\
                           .set_tags(viewable=False)
     is_custom = BooleanField(default=True, editable=False).set_tags(viewable=False)  # Used by creme_config
+
+    creation_label = pgettext_lazy('activities-type', u'Create a sub-type')
 
     def __unicode__(self):
         return self.name

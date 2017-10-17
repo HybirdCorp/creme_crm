@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-03 14:44+0200\n"
+"POT-Creation-Date: 2017-10-16 21:40+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -122,7 +122,7 @@ msgstr "Champs personnalisés"
 msgid "Properties"
 msgstr "Propriétés"
 
-#: bricks.py:66 forms/relation.py:36 gui/bricks.py:422 models/relation.py:207
+#: bricks.py:66 forms/relation.py:36 gui/bricks.py:463 models/relation.py:207
 #: templates/creme_core/bricks/relations.html:7
 #: templates/creme_core/entity_cells_widget.html:85
 msgid "Relationships"
@@ -194,7 +194,7 @@ msgstr "Enlever la fin (N caractères)"
 #: forms/widgets.py:616 templates/creme_core/generics/blockform/add.html:8
 #: templates/creme_core/generics/blockform/add_popup.html:4
 #: templates/creme_core/generics/blockform/add_wizard.html:28
-#: templates/creme_core/generics/blockform/add_wizard_popup.html:4
+#: templates/creme_core/generics/blockform/add_wizard_popup.html:2
 #: templates/creme_core/generics/blockformset/add_popup.html:4
 #: templates/creme_core/generics/form/add.html:4
 #: templates/creme_core/generics/form/add.html:7
@@ -1103,29 +1103,29 @@ msgstr "Minute(s)"
 msgid "Second(s)"
 msgstr "Seconde(s)"
 
-#: gui/bricks.py:385
+#: gui/bricks.py:426
 msgid "Information on the entity (generic)"
 msgstr "Information sur la fuche (générique)"
 
-#: gui/bricks.py:407
+#: gui/bricks.py:448
 #, python-brace-format
 msgid "Information «{model}»"
 msgstr "Informations «{model}»"
 
-#: gui/bricks.py:434
+#: gui/bricks.py:475
 #, python-format
 msgid "Relationship block: «%s»"
 msgstr "Bloc de relation: «%s»"
 
-#: gui/bricks.py:802
+#: gui/bricks.py:843
 msgid "Unknown type of block (bad uninstall ?)"
 msgstr "Type de bloc inconnu (mauvaise désinstallation ?)"
 
-#: gui/bricks.py:972
+#: gui/bricks.py:1013
 msgid "Information on the entity"
 msgstr "Informations sur la fiche"
 
-#: gui/bricks.py:998
+#: gui/bricks.py:1039
 msgid "Title bar"
 msgstr "Barre de titre"
 
@@ -1497,7 +1497,7 @@ msgstr "Types de propriété"
 msgid "Property"
 msgstr "Propriété"
 
-#: models/currency.py:29 models/currency.py:39
+#: models/currency.py:29 models/currency.py:41
 msgid "Currency"
 msgstr "Devise"
 
@@ -1509,7 +1509,11 @@ msgstr "Symbole local"
 msgid "International symbol"
 msgstr "Symbol international"
 
-#: models/currency.py:40
+#: models/currency.py:34
+msgid "Create a currency"
+msgstr "Créer une devise"
+
+#: models/currency.py:42
 msgid "Currencies"
 msgstr "Devises"
 
@@ -1580,6 +1584,7 @@ msgstr "Fiche #%s (non visible)"
 #: templates/creme_core/generics/blockform/edit.html:8
 #: templates/creme_core/generics/blockform/edit.html:14
 #: templates/creme_core/generics/blockform/edit_popup.html:4
+#: templates/creme_core/generics/blockform/edit_wizard_popup.html:2
 #: templates/creme_core/generics/form/edit.html:8
 #: templates/creme_core/generics/form/edit.html:14
 #: templates/creme_core/generics/form/edit_innerpopup.html:3
@@ -2144,13 +2149,17 @@ msgstr "Configuration de recherche par défaut pour «%s»"
 msgid "Search configuration of «%(role)s» for «%(type)s»"
 msgstr "Configuration de recherche de «%(role)s» pour «%(type)s»"
 
-#: models/vat.py:30 models/vat.py:39 models/vat.py:40
+#: models/vat.py:30 models/vat.py:41 models/vat.py:42
 msgid "VAT"
 msgstr "TVA"
 
 #: models/vat.py:31
 msgid "Is default?"
 msgstr "Par défaut ?"
+
+#: models/vat.py:34
+msgid "Create a VAT value"
+msgstr "Créer une valeur de TVA"
 
 #: populate.py:44
 msgid "owns"

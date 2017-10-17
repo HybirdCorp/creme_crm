@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2015  Hybird
+#    Copyright (C) 2013-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,6 +30,8 @@ class Vat(CremeModel):
     value      = DecimalField(_(u'VAT'), max_digits=4, decimal_places=2, default=DEFAULT_VAT)
     is_default = BooleanField(_(u'Is default?'), default=False)
     is_custom  = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
+
+    creation_label = _(u'Create a VAT value')
 
     def __unicode__(self):
         return unicode(self.value)
