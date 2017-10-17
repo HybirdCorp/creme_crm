@@ -1,5 +1,6 @@
-{% extends "creme_core/generics/blockform/add.html" %}
+{% extends 'creme_core/generics/blockform/add.html' %}
 
 {% block content %}
-    {% include content_template with logo='images/add_64.png' %}
+{#    {% include content_template with logo='images/add_64.png' %} #}
+    {% include content_template with icon_name='add' %}
 {% endblock %}
