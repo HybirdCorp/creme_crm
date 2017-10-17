@@ -136,7 +136,7 @@ def fix_relation_blocks(apps, schema_editor):
 
     RelationBlockItem = apps.get_model('creme_core', 'RelationBlockItem')
 
-    for rbi in RelationBlockItem.objects.all():
+    for rbi in RelationBlockItem.objects.filter(json_cells_map__isnull=False):
         cells_map = json_load(rbi.json_cells_map)
         save = False
 
