@@ -57,13 +57,13 @@ if settings.TESTS_ON:
     from .tests import fake_views
 
     urlpatterns += [
-        # (r'^tests/folders$',                        'folder_listview'),
-        # (r'^tests/folder/add$',                     'folder_add'),
-        # (r'^tests/folder/edit/(?P<folder_id>\d+)$', 'folder_edit'),
-        url(r'^tests/folder/(?P<folder_id>\d+)$', fake_views.folder_detailview),
+        # url(r'^tests/folders[/]?$',                        'folder_listview', name='reports__list_fake_folders'),
+        # url(r'^tests/folder/add[/]?$',                     'folder_add',      name='reports__create_fake_folder'),
+        # url(r'^tests/folder/edit/(?P<folder_id>\d+)[/]?$', 'folder_edit',     name='reports__edit_fake_folder'),
+        url(r'^tests/folder/(?P<folder_id>\d+)[/]?$', fake_views.folder_detailview, name='reports__view_fake_folder'),
 
-        url(r'^tests/documents$', fake_views.document_listview),
-        # (r'^tests/document/add$',                       'document_add'),
-        # (r'^tests/document/edit/(?P<document_id>\d+)$', 'document_edit'),
-        # (r'^tests/document/(?P<object_id>\d+)$',        'document_detailview'),
+        url(r'^tests/documents[/]?$', fake_views.document_listview, name='reports__list_fake_documents'),
+        # url(r'^tests/document/add[/]?$',                       'document_add',        name='reports__create_fake_document),
+        # url(r'^tests/document/edit/(?P<document_id>\d+)[/]?$', 'document_edit',       name='reports__edit_fake_document'),
+        # url(r'^tests/document/(?P<object_id>\d+)[/]?$',        'document_detailview', name='reports__view_fake_document),
     ]

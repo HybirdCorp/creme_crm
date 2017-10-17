@@ -2030,11 +2030,12 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         fetcher = ReportGraph.get_fetcher_from_instance_block(item)
         self.assertIsNone(fetcher.error)
 
-        x, y = fetcher.fetch_4_entity(folder1) #TODO: order
+        x, y = fetcher.fetch_4_entity(folder1)  # TODO: order
 
         year = doc1.created.year
         self.assertEqual([unicode(year)], x)
-        self.assertEqual([[2, '/reports/tests/documents?q_filter={"created__year": %s}' % year]], y)
+        # self.assertEqual([[2, '/reports/tests/documents?q_filter={"created__year": %s}' % year]], y)
+        self.assertEqual([[2,  reverse('reports__list_fake_documents') + '?q_filter={"created__year": %s}' % year]], y)
 
     def test_add_graph_instance_block02_error01(self):
         "Volatile column (RFT_FIELD): invalid field"

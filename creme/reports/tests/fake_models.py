@@ -5,6 +5,7 @@ from django.conf import settings
 if not settings.TESTS_ON:
     __all__ = ()
 else:
+    from django.core.urlresolvers import reverse
     from django.db.models import CharField, TextField, ForeignKey, ManyToManyField, PROTECT  # FileField
     from django.utils.translation import ugettext_lazy as _
 
@@ -33,7 +34,8 @@ else:
             return self.title
 
         def get_absolute_url(self):
-            return "/reports/tests/folder/%s" % self.id
+            # return "/reports/tests/folder/%s" % self.id
+            return reverse('reports__view_fake_folder', args=(self.id,))
 
 
     class FakeReportsDocument(CremeEntity):
@@ -44,7 +46,7 @@ else:
 
         class Meta:
             app_label = 'reports'
-            verbose_name = 'Test (reports) Document'
+            verbose_name = u'Test (reports) Document'
             verbose_name_plural = u'Test (reports) Documents'
             ordering = ('title',)
 
@@ -59,7 +61,8 @@ else:
 
         @staticmethod
         def get_lv_absolute_url():
-            return '/reports/tests/documents'
+            # return '/reports/tests/documents'
+            return reverse('reports__list_fake_documents')
 
 
     class Guild(CremeEntity):
@@ -68,7 +71,7 @@ else:
 
         class Meta:
             app_label = 'reports'
-            verbose_name = 'Book'
+            verbose_name = u'Book'
             verbose_name_plural = u'Books'
             ordering = ('name',)
 
