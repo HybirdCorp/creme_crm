@@ -16,9 +16,9 @@
    version="1.1"
    inkscape:version="0.91 r13725"
    sodipodi:docname="remove.svg"
-   inkscape:export-filename="remove_22.png"
-   inkscape:export-xdpi="15.47"
-   inkscape:export-ydpi="15.47">
+   inkscape:export-filename="remove_16.png"
+   inkscape:export-xdpi="11.25"
+   inkscape:export-ydpi="11.25">
   <defs
      id="defs4">
     <linearGradient
@@ -141,8 +141,8 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="5.6568542"
-     inkscape:cx="36.593724"
-     inkscape:cy="68.035367"
+     inkscape:cx="50.117141"
+     inkscape:cy="67.505037"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
      showgrid="true"
@@ -256,7 +256,7 @@
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="outline"
-     style="display:none">
+     style="display:inline">
     <path
        sodipodi:nodetypes="ccccc"
        inkscape:connector-curvature="0"
