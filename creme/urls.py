@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 # from django.apps import apps
 from django.conf import settings
 from django.conf.urls import url, include
@@ -9,7 +11,7 @@ from django.views.static import serve
 # from creme.creme_core.registry import creme_registry
 from creme.creme_core.apps import creme_app_configs
 
-
+logger = logging.getLogger(__name__)
 handler500 = 'creme.creme_core.views.exceptions.server_error'
 
 urlpatterns = [
@@ -30,6 +32,10 @@ urlpatterns = [
 #     urlpatterns.append(url(regex_url, include('%s.urls' % app_name)))
 for app_config in creme_app_configs():
     app_name = app_config.name
-    regex_url = r'^' if app_name == 'creme.creme_core' else r'^%s/' % app_config.label
 
-    urlpatterns.append(url(regex_url, include('%s.urls' % app_name)))
+    try:
+        included = include(app_name + '.urls')
+    except ImportError:
+        logger.warn('The app "{}" has no "urls" module.'.format(app_name))
+    else:
+        urlpatterns.append(url(r'^' + app_config.url_root, included))
