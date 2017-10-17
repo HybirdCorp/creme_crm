@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-12 14:36+0200\n"
+"POT-Creation-Date: 2017-10-16 21:33+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps.py:28
+#: apps.py:28 templates/billing/portal.html:4
 msgid "Billing"
 msgstr "Facturation"
 
@@ -628,7 +628,7 @@ msgstr "Description"
 #: models/other_models.py:98
 msgctxt "billing-additional_info"
 msgid "Create information"
-msgstr "Informations sur le patron de document"
+msgstr "Créer une information"
 
 #: models/other_models.py:105
 msgctxt "billing-singular"
@@ -752,6 +752,11 @@ msgstr "Créer un devis"
 #: models/quote.py:35
 msgid "Save the quote"
 msgstr "Enregistrer le devis"
+
+# Already in creme_core
+#: models/quote.py:57
+msgid "N/A"
+msgstr ""
 
 #: models/quote.py:66
 msgid "Quote"
@@ -1326,30 +1331,30 @@ msgstr "ajouter au catalogue"
 msgid "add to catalog (forbidden)"
 msgstr "ajouter au catalogue (interdit)"
 
-#: templates/billing/frags/lines_errors.html:4
+#: templates/billing/frags/lines-errors.html:4
 #, python-format
 msgid "Errors on the line <strong>«%(item)s»:</strong>"
 msgstr "Erreurs sur la ligne <strong>«%(item)s» :</strong>"
 
-#: templates/billing/frags/lines_errors.html:6
+#: templates/billing/frags/lines-errors.html:6
 #, python-format
 msgid "Errors on the new «%(model)s»:"
 msgstr "Erreurs sur la nouvelle «%(model)s» :"
 
-#: templates/billing/frags/lines_errors.html:12
+#: templates/billing/frags/lines-errors.html:12
 msgid "General:"
 msgstr "Général :"
 
-#: templates/billing/frags/lines_errors.html:14
+#: templates/billing/frags/lines-errors.html:14
 #, python-format
 msgid "Field <em>«%(field_name)s»</em>:"
 msgstr "Champ <em>«%(field_name)s»</em> :"
 
-#: templates/billing/portal.html:4
+#: templates/billing/portal.html:5
 msgid "Billing portal"
 msgstr "Portail Facturation"
 
-#: templates/billing/portal.html:6
+#: templates/billing/portal.html:7
 msgid "List of invoices"
 msgstr "Liste des factures"
 

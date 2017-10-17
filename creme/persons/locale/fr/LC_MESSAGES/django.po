@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-13 15:40+0200\n"
+"POT-Creation-Date: 2017-10-16 21:45+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -313,11 +313,11 @@ msgstr "Créer un contact"
 msgid "Save the contact"
 msgstr "Enregistrer le contact"
 
-#: models/contact.py:109 templates/persons/portal.html:4
+#: models/contact.py:109
 msgid "Contact"
 msgstr "Contact"
 
-#: models/contact.py:110
+#: models/contact.py:110 templates/persons/portal.html:4
 msgid "Contacts"
 msgstr "Contacts"
 
@@ -446,7 +446,7 @@ msgstr "Intitulé"
 #: models/other_models.py:50
 msgctxt "persons-position"
 msgid "Create a position"
-msgstr "Fonction détaillée"
+msgstr "Créer une fonction"
 
 #: models/other_models.py:57
 msgid "People position"
@@ -940,17 +940,17 @@ msgstr "Détails"
 msgid "Modify %(object)s"
 msgstr "Modifier %(object)s"
 
-#: templates/persons/edit_contact_form.html:7
-#: templates/persons/edit_organisation_form.html:7
+#: templates/persons/edit_contact_form.html:8
+#: templates/persons/edit_organisation_form.html:8
 #, python-format
 msgid "Edit «%s»"
 msgstr "Modifier «%s»"
 
-#: templates/persons/frags/billing_block.html:13
+#: templates/persons/frags/billing_block.html:12
 msgid "Copy the address to right side"
 msgstr "Copier l'adresse à droite"
 
-#: templates/persons/frags/shipping_block.html:13
+#: templates/persons/frags/shipping_block.html:12
 msgid "Copy the address to left side"
 msgstr "Copier l'adresse à gauche"
 
