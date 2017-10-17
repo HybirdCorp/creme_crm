@@ -8,6 +8,7 @@ else:
     from decimal import Decimal
 
     from django.core.exceptions import ValidationError
+    from django.core.urlresolvers import reverse
     from django.db import models
     from django.db.models.query_utils import Q
     from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
@@ -87,7 +88,8 @@ else:
 
         @staticmethod
         def get_lv_absolute_url():
-            return '/tests/documents'
+            # return '/tests/documents'
+            return reverse('creme_core__list_fake_documents')
 
 #        def get_edit_absolute_url(self):
 #            return "/documents/document/edit/%s" % self.id
@@ -131,7 +133,7 @@ else:
                                              verbose_name=_(u'Categories'),
                                              related_name='+', blank=True,
                                             )
-        exif_date   = models.DateField(_(u"Exif date"), blank=True, null=True)\
+        exif_date   = models.DateField(_(u'Exif date'), blank=True, null=True)\
                             .set_tags(optional=True)
 
 #        creation_label = _('Create an image')
@@ -146,7 +148,8 @@ else:
             return self.name
 
         def get_absolute_url(self):
-            return '/tests/image/%s' % self.id
+            # return '/tests/image/%s' % self.id
+            return reverse('creme_core__view_fake_image', args=(self.id,))
 
         @staticmethod
         def get_clone_absolute_url():
@@ -154,7 +157,8 @@ else:
 
         @staticmethod
         def get_lv_absolute_url():
-            return '/tests/images'
+            # return '/tests/images'
+            return reverse('creme_core__list_fake_images')
 
 #        def get_edit_absolute_url(self):
 #            return "/media_managers/image/edit/%s" % self.id
@@ -190,7 +194,7 @@ else:
     class FakeSector(CremeModel):
         title     = models.CharField(_(u'Title'), max_length=100)
         is_custom = models.BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
-        order     = BasicAutoField(_('Order'))  # Used by creme_config
+        order     = BasicAutoField(_(u'Order'))  # Used by creme_config
 
         def __unicode__(self):
             return self.title
@@ -203,14 +207,14 @@ else:
 
 
     class FakeAddress(CremeModel):
-        value      = models.TextField(_(u"Address"), blank=True, null=True)
-        zipcode    = models.CharField(_(u"Zip code"), max_length=100, blank=True, null=True) \
+        value      = models.TextField(_(u'Address'), blank=True, null=True)
+        zipcode    = models.CharField(_(u'Zip code'), max_length=100, blank=True, null=True) \
                            .set_tags(optional=True)
-        city       = models.CharField(_(u"City"), max_length=100, blank=True, null=True) \
+        city       = models.CharField(_(u'City'), max_length=100, blank=True, null=True) \
                            .set_tags(optional=True)
-        department = models.CharField(_(u"Department"), max_length=100, blank=True, null=True) \
+        department = models.CharField(_(u'Department'), max_length=100, blank=True, null=True) \
                            .set_tags(optional=True)
-        country    = models.CharField(_(u"Country"), max_length=40, blank=True, null=True) \
+        country    = models.CharField(_(u'Country'), max_length=40, blank=True, null=True) \
                            .set_tags(optional=True)
 
         entity     = models.ForeignKey(CremeEntity, related_name='+', editable=False) \
@@ -225,7 +229,8 @@ else:
             return u' '.join(filter(None, [self.value, self.zipcode, self.city, self.department, self.country]))
 
         def get_edit_absolute_url(self):
-            return '/tests/address/edit/%s' % self.id
+            # return '/tests/address/edit/%s' % self.id
+            return reverse('creme_core__edit_fake_address', args=(self.id,))
 
         def get_related_entity(self):  # For generic views
             return self.entity
@@ -294,18 +299,22 @@ else:
                 raise ValidationError(ugettext('This Contact is related to a user and must have a first name.'))
 
         def get_absolute_url(self):
-            return '/tests/contact/%s' % self.id
+            # return '/tests/contact/%s' % self.id
+            return reverse('creme_core__view_fake_contact', args=(self.id,))
 
         @staticmethod
         def get_create_absolute_url():
-            return '/tests/contact/add'
+            # return '/tests/contact/add'
+            return reverse('creme_core__create_fake_contact')
 
         def get_edit_absolute_url(self):
-            return '/tests/contact/edit/%s' % self.id
+            # return '/tests/contact/edit/%s' % self.id
+            return reverse('creme_core__edit_fake_contact', args=(self.id,))
 
         @staticmethod
         def get_lv_absolute_url():
-            return '/tests/contacts'
+            # return '/tests/contacts'
+            return reverse('creme_core__list_fake_contacts')
 
 
     class FakeLegalForm(CremeModel):
@@ -357,7 +366,7 @@ else:
         address         = models.ForeignKey(FakeAddress, verbose_name=_(u'Billing address'),
                                             blank=True, null=True, editable=False,
                                             related_name='+',
-                                           ).set_tags(enumerable=False) #clonable=False useless
+                                           ).set_tags(enumerable=False)  # clonable=False useless
         description     = models.TextField(_(u'Description'), blank=True, null=True)
         creation_date   = models.DateField(_(u'Date of creation'), blank=True, null=True)
         image           = models.ForeignKey(FakeImage, verbose_name=_(u'Logo'),
@@ -381,23 +390,27 @@ else:
             return self.name
 
         def get_absolute_url(self):
-            return '/tests/organisation/%s' % self.id
+            # return '/tests/organisation/%s' % self.id
+            return reverse('creme_core__view_fake_organisation', args=(self.id,))
 
         @staticmethod
         def get_create_absolute_url():
-            return '/tests/organisation/add'
+            # return '/tests/organisation/add'
+            return reverse('creme_core__create_fake_organisation')
 
         def get_edit_absolute_url(self):
-            return '/tests/organisation/edit/%s' % self.id
+            # return '/tests/organisation/edit/%s' % self.id
+            return reverse('creme_core__edit_fake_organisation', args=(self.id,))
 
         @staticmethod
         def get_lv_absolute_url():
-            return '/tests/organisations'
+            # return '/tests/organisations'
+            return reverse('creme_core__list_fake_organisations')
 
 
     class FakeActivityType(CremeModel):
         name  = models.CharField(_(u'Name'), max_length=100, unique=True)
-        order = BasicAutoField(_('Order'))  # Used by creme_config
+        order = BasicAutoField(_(u'Order'))  # Used by creme_config
 
         class Meta:
             app_label = 'creme_core'
@@ -433,7 +446,8 @@ else:
 
         @staticmethod
         def get_lv_absolute_url():
-            return '/tests/activities'
+            # return '/tests/activities'
+            return reverse('creme_core__list_fake_activities')
 
 
     class FakeMailingList(CremeEntity):
@@ -480,14 +494,15 @@ else:
 
         @staticmethod
         def get_lv_absolute_url():
-            return '/tests/e_campaigns'
+            # return '/tests/e_campaigns'
+            return reverse('creme_core__list_fake_ecampaigns')
 
 
     class FakeInvoice(CremeEntity):
         name             = models.CharField(_(u'Name'), max_length=100)
         number           = models.CharField(_(u'Number'), max_length=100, blank=True, null=True)
-        issuing_date     = models.DateField(_(u"Issuing date"), blank=True, null=True)
-        expiration_date  = models.DateField(_(u"Expiration date"), blank=True, null=True)\
+        issuing_date     = models.DateField(_(u'Issuing date'), blank=True, null=True)
+        expiration_date  = models.DateField(_(u'Expiration date'), blank=True, null=True)\
                                  .set_tags(optional=True)
         periodicity      = DatePeriodField(_(u'Periodicity of the generation'), blank=True, null=True)
         total_vat        = MoneyField(_(u'Total with VAT'), max_digits=14, decimal_places=2,
@@ -508,14 +523,16 @@ else:
             return self.name
 
         def get_absolute_url(self):
-            return '/tests/invoice/%s' % self.id
+            # return '/tests/invoice/%s' % self.id
+            return reverse('creme_core__view_fake_invoice', args=(self.id,))
 
 #        def get_edit_absolute_url(self):
 #            return "/billing/invoice/edit/%s" % self.id
 
         @staticmethod
         def get_lv_absolute_url():
-            return '/tests/invoices'
+            # return '/tests/invoices'
+            return reverse('creme_core__list_fake_invoices')
 
 
     class FakeInvoiceLine(CremeEntity):
@@ -545,7 +562,8 @@ else:
 
         @staticmethod
         def get_lv_absolute_url():
-            return '/tests/invoice_lines'
+            # return '/tests/invoice_lines'
+            return reverse('creme_core__list_fake_invoicelines')
 
         def get_related_entity(self):  # For generic views & delete
             return self.invoice

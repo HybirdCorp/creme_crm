@@ -6,6 +6,7 @@ try:
     from time import sleep
 
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.utils.formats import date_format, number_format
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
@@ -743,7 +744,8 @@ about this fantastic animation studio."""
         old_count = HistoryLine.objects.count()
 
         city = 'Tokyo'
-        response = self.client.post('/tests/address/add/%s' % nerv.id,
+        # response = self.client.post('/tests/address/add/%s' % nerv.id,
+        response = self.client.post(reverse('creme_core__create_fake_address', args=(nerv.id,)),
                                     data={'city': city},
                                    )
         self.assertNoFormError(response)
