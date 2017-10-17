@@ -13,8 +13,8 @@ from creme.creme_core.apps import creme_app_configs
 handler500 = 'creme.creme_core.views.exceptions.server_error'
 
 urlpatterns = [
-    url(r'^creme_login/$',  login, {'template_name': 'authent/creme_login.html'}, name='creme_login'),
-    url(r'^creme_logout/$', logout_then_login, name='creme_logout'),
+    url(r'^creme_login[/]?$',  login, {'template_name': 'authent/creme_login.html'}, name='creme_login'),
+    url(r'^creme_logout[/]?$', logout_then_login, name='creme_logout'),
 
     url(r'^site_media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     # NB: in production, configure your web server to statically serve the files in the 'media/static/' dir
