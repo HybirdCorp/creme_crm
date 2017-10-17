@@ -30,8 +30,8 @@ from .checks import Tags, check_uninstalled_apps  # NB: it registers other check
 from .core.reminder import reminder_registry
 from .core.setting_key import setting_key_registry, user_setting_key_registry
 from .gui import (creme_menu, brick_registry, bulk_update_registry, button_registry,
-                  fields_config_registry, field_printers_registry, icon_registry, import_form_registry,
-                  merge_form_registry, quickforms_registry, smart_columns_registry, statistics_registry)
+        fields_config_registry, field_printers_registry, icon_registry, import_form_registry,
+        merge_form_registry, quickforms_registry, smart_columns_registry, statistics_registry)
 from .registry import creme_registry
 
 
@@ -58,6 +58,7 @@ def __get_extending_app_configs(self):
     return ext_app_configs
 
 AppConfig.get_extending_app_configs = __get_extending_app_configs
+
 
 # Hooking of AppConfig [end] ------------
 
@@ -140,7 +141,9 @@ class MediaGeneratorConfig(AppConfig):
 class CremeAppConfig(AppConfig):
     creme_app = True   # True => App can be used by some services
                        #        (urls.py automatically used, 'creme_populate command' etc...)
-    dependencies = ()  # Overload ; eg: ['creme.persons']
+    dependencies = ()  # Names of the apps on which this app depends ;
+                       # an error is raised if the dependencies are not installed.
+                       # Eg: ['creme.persons']
 
     CRED_NONE    = 0b00
     CRED_REGULAR = 0b01
@@ -150,6 +153,10 @@ class CremeAppConfig(AppConfig):
     # Lots of problems with ContentType table which can be not created yet.
     # MIGRATION_MODE = ('migrate' in argv)
     MIGRATION_MODE = any(cmd in argv for cmd in settings.NO_SQL_COMMANDS)  # TODO: rename
+
+    @property
+    def url_root(self):
+        return self.label + '/'
 
     def ready(self):
         # NB: it seems we cannot transform this a check_deps(self, **kwargs) method
@@ -279,6 +286,10 @@ class CremeAppConfig(AppConfig):
 class CremeCoreConfig(CremeAppConfig):
     name = 'creme.creme_core'
     verbose_name = _(u'Core')
+
+    @property
+    def url_root(self):
+        return ''  # We want to catch some URLs which do not start by 'creme_core/'
 
     def ready(self):
         super(CremeCoreConfig, self).ready()
