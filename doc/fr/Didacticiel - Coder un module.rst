@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 13-10-2017 pour la version 1.7 de Creme
+:Version: 17-10-2017 pour la version 1.7 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -308,12 +308,16 @@ Créons donc ce fichiers ``urls.py`` contenu dans ``beaver/`` : ::
     from .views import beaver
 
     urlpatterns = [
-        url(r'^beavers$', beaver.listview, name='beavers__list_beavers'),
+        url(r'^beavers[/]?$', beaver.listview, name='beavers__list_beavers'),
     ]
 
-Notez le dernier paramètre de ``url()``, qui permet de nommer notre URL. La
-conventions Creme est de la forme 'mon_app' + '__list_' + 'mes_modeles' pour la
-vue en liste.
+Notez :
+
+ - le dernier paramètre de ``url()``, qui permet de nommer notre URL. La
+   conventions Creme est de la forme 'mon_app' + '__list_' + 'mes_modeles' pour la
+   vue en liste.
+ - le '/' final de notre URL qui est optionel (c'est la politique des URLs
+   de Creme en général).
 
 Si nous essayons à nouveau d'accéder dans notre navigateur à la liste des
 castors (ou n'importe quelle autre en fait), en la tapant à la main dans la
@@ -418,8 +422,8 @@ ramener les ``import`` au début, avec les autres directives ``import`` bien sû
 Rajoutons l'entrée qui référence ``beaver.add`` dans ``beavers/urls.py`` : ::
 
     urlpatterns = [
-        url(r'^beavers$',    beaver.listview, name='beavers__list_beavers'),
-        url(r'^beaver/add$', beaver.add,      name='beavers__create_beaver'),
+        url(r'^beavers[/]?$',    beaver.listview, name='beavers__list_beavers'),
+        url(r'^beaver/add[/]?$', beaver.add,      name='beavers__create_beaver'),
     ]
 
 
@@ -465,9 +469,9 @@ Ajoutons cette fonction de vue (dans ``views/beaver.py`` donc, si vous suivez) :
 Il faut aussi éditer ``beavers/urls.py`` pour ajouter cette URL : ::
 
     urlpatterns = [
-        url(r'^beavers$',                   beaver.listview,   name='beavers__list_beavers'),
-        url(r'^beaver/add$',                beaver.add,        name='beavers__create_beaver'),
-        url(r'^beaver/(?P<beaver_id>\d+)$', beaver.detailview, name='beavers__view_beaver'),  # < -- NEW
+        url(r'^beavers[/]?$',                   beaver.listview,   name='beavers__list_beavers'),
+        url(r'^beaver/add[/]?$',                beaver.add,        name='beavers__create_beaver'),
+        url(r'^beaver/(?P<beaver_id>\d+)[/]?$', beaver.detailview, name='beavers__view_beaver'),  # < -- NEW
     ]
 
 En rafraîchissant notre page dans le navigateur, nous obtenons bien la vue
@@ -505,10 +509,10 @@ Ajoutons cette vue dans ``views/beaver.py`` : ::
 Rajoutons l'URL associée : ::
 
     urlpatterns = [
-        url(r'^beavers$',                        beaver.listview,   name='beavers__list_beavers'),
-        url(r'^beaver/add$',                     beaver.add,        name='beavers__create_beaver'),
-        url(r'^beaver/edit/(?P<beaver_id>\d+)$', beaver.edit,       name='beavers__edit_beaver'),  # < -- NEW
-        url(r'^beaver/(?P<beaver_id>\d+)$',      beaver.detailview, name='beavers__view_beaver'),
+        url(r'^beavers[/]?$',                        beaver.listview,   name='beavers__list_beavers'),
+        url(r'^beaver/add[/]?$',                     beaver.add,        name='beavers__create_beaver'),
+        url(r'^beaver/edit/(?P<beaver_id>\d+)[/]?$', beaver.edit,       name='beavers__edit_beaver'),  # < -- NEW
+        url(r'^beaver/(?P<beaver_id>\d+)[/]?$',      beaver.detailview, name='beavers__view_beaver'),
     ]
 
 
@@ -1490,7 +1494,7 @@ Dans ``beavers/urls.py`` : ::
 
     [...]
 
-        url(r'^ticket/add/(?P<beaver_id>\d+)$', ticket.add, name='beavers__create_ticket'),  # <- NEW
+        url(r'^ticket/add/(?P<beaver_id>\d+)[/]?$', ticket.add, name='beavers__create_ticket'),  # <- NEW
 
     [...]
 
@@ -2135,10 +2139,10 @@ d'URLs ne sont définies que lorsque le modèle n'est pas personnalisé : ::
         from .views import ticket
 
         urlpatterns += [
-            url(r'^tickets$',                        ticket.listview,   name='tickets__list_tickets'),
-            url(r'^ticket/add$',                     ticket.add,        name='tickets__create_ticket'),
-            url(r'^ticket/edit/(?P<ticket_id>\d+)$', ticket.edit,       name='tickets__edit_ticket'),
-            url(r'^ticket/(?P<ticket_id>\d+)$',      ticket.detailview, name='tickets__view_ticket'),
+            url(r'^tickets[/]?$',                        ticket.listview,   name='tickets__list_tickets'),
+            url(r'^ticket/add[/]?$',                     ticket.add,        name='tickets__create_ticket'),
+            url(r'^ticket/edit/(?P<ticket_id>\d+)[/]?$', ticket.edit,       name='tickets__edit_ticket'),
+            url(r'^ticket/(?P<ticket_id>\d+)[/]?$',      ticket.detailview, name='tickets__view_ticket'),
         ]
 
     [...]
@@ -2161,10 +2165,10 @@ pouvons définir ``my_tickets/urls.py`` tel que : ::
 
 
     urlpatterns += [
-        url(r'^my_tickets$',                        ticket.listview,   name='tickets__list_tickets'),
-        url(r'^my_ticket/add$',                     ticket.add,        name='tickets__create_ticket'),
-        url(r'^my_ticket/edit/(?P<ticket_id>\d+)$', ticket.edit,       name='tickets__edit_ticket'),
-        url(r'^my_ticket/(?P<ticket_id>\d+)$',      ticket.detailview, name='tickets__view_ticket'),
+        url(r'^my_tickets[/]?$',                        ticket.listview,   name='tickets__list_tickets'),
+        url(r'^my_ticket/add[/]?$',                     ticket.add,        name='tickets__create_ticket'),
+        url(r'^my_ticket/edit/(?P<ticket_id>\d+)[/]?$', ticket.edit,       name='tickets__edit_ticket'),
+        url(r'^my_ticket/(?P<ticket_id>\d+)[/]?$',      ticket.detailview, name='tickets__view_ticket'),
     ]
 
 **Note** : l'important est de définir des URLs avec le même *name* (utilisé par
