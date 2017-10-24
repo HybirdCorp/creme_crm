@@ -19,7 +19,8 @@
 (function($) {
 "use strict";
 
-var _DIRECTIONS = ['top', 'left', 'right', 'bottom'];
+var _DIRECTIONS = ['top', 'left', 'right',
+                   'bottom', 'bottom-left', 'bottom-right'];
 
 var _assertDirection = function(direction) {
     if (_DIRECTIONS.indexOf(direction) === -1) {
@@ -124,6 +125,15 @@ creme.dialog.Popover = creme.component.Component.sub({
                 position.top += anchorHeight;
                 position.left += (anchorWidth - width) / 2;
                 // position['min-width'] = anchorWidth;
+                break;
+            case 'bottom-left':
+                position.top += anchorHeight;
+                position.left -= (width - anchorWidth - 18);
+                // position['min-width'] = anchorWidth;
+                break;
+            case 'bottom-right':
+                position.top += anchorHeight;
+                position.left -= (anchorWidth / 2);
                 break;
             case 'top':
                 position.top -= height;

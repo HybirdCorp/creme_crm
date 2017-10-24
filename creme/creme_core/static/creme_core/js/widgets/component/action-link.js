@@ -129,7 +129,7 @@ creme.action.ActionLink = creme.component.Component.sub({
                     var action = builder(url, actiondata.options, actiondata.data, e);
 
                     if (Object.isNone(action) === false) {
-                        trigger('action-link-start', url, actiondata.options || {}, actiondata.data || {});
+                        trigger('action-link-start', url, actiondata.options || {}, actiondata.data || {}, e);
                         setRunning(true);
                         action.onComplete(function() {
                                    setRunning(false);
