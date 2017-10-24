@@ -679,7 +679,7 @@
     padding: 0;
 }
 
-.listview-actions-popover .listview-action {
+.listview-actions-popover .listview-action + .listview-action {
     border-top: 1px solid #ccc;
 }
 

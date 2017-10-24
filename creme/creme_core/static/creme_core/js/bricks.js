@@ -469,8 +469,6 @@ creme.bricks.BrickTable = creme.component.Component.sub({
 
     toggleSort: function(field, ascending) {
         if (!this._brick.isLoading()) {
-          var link = $(this);
-
           // TODO: simpler param -> key == 'order_by' ??
           var params = {};
           var order = ascending ? '' : '-';
@@ -706,7 +704,13 @@ creme.bricks.Brick = creme.component.Component.sub({
         this._state = {};
         this._dependencies = new creme.bricks.Dependencies();
         this._actionLinks = [];
-        this._deferredStateSave = $.debounce(this.saveState.bind(this), options.deferredStateSaveDelay);
+
+        if (options.deferredStateSaveDelay > 0) {
+            this._deferredStateSave = creme.utils.debounce(this.saveState.bind(this),
+                                                           options.deferredStateSaveDelay);
+        } else {
+            this._deferredStateSave = this.saveState.bind(this);
+        }
 
         this._overlay = new creme.dialog.Overlay();
         this._pager = new creme.bricks.BrickPager(this)

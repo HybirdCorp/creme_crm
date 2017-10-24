@@ -28,7 +28,7 @@
                 self._redirectCalls.push(url);
             };
 
-            var backend = this.backend = new creme.ajax.MockAjaxBackend({delay: 0});
+            var backend = this.backend = new creme.ajax.MockAjaxBackend({delay: 0, sync: true});
 
             var __mockBackendCall = function(aux) {
                 return function(url, data, options) {

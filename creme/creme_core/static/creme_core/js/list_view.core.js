@@ -24,6 +24,45 @@
 (function($) {
     "use strict";
 
+    var ListViewActionMenu = creme.component.Component.sub({
+        _init_: function(link, options) {
+            options = this._options = $.extend({
+                direction: 'bottom-right'
+            }, options || {});
+
+            var content = link.find('.listview-actions-container');
+
+            this._dialog = new creme.dialog.Popover(options).fill(content);
+            this._dialog.addClass(options.classes || '');
+
+            var toggle = this.toggle.bind(this);
+
+            link.on('click', function(e) {
+                e.stopPropagation();
+                toggle(options.anchor || e.target);
+            });
+        },
+
+        isOpened: function() {
+            return this._dialog.isOpened();
+        },
+
+        toggle: function(anchor) {
+            this._dialog.toggle(anchor);
+            return this;
+        },
+
+        close: function() {
+            this._dialog.close();
+            return this;
+        },
+
+        open: function(anchor) {
+            this._dialog.open(anchor);
+            return this;
+        }
+    });
+
     $.fn.list_view = function(options) {
         var isMethodCall = Object.isString(options);
         var args = Array.prototype.slice.call(arguments, 1);
@@ -44,7 +83,8 @@
             submitHandler:      null, // Use handleSubmit in it to easy list view's management
             kd_submitHandler:   null, // Same as submitHandler but for key down events,
             reload_url:         null,
-            historyHandler:     null
+            historyHandler:     null,
+            actionBuilders:     null
         };
 
         var _noop = function() {};
@@ -54,7 +94,7 @@
                              "option", "serializeMe", "ensureSelection",
                              "getSubmit", "getKdSubmit",
                              "setSubmit", "setKdSubmit",
-                             "setReloadUrl", "getReloadUrl", "isLoading"];
+                             "setReloadUrl", "getReloadUrl", "isLoading", "getActionBuilders"];
 
         if (isMethodCall && $.inArray(options, publicMethods) > -1) {
             var instance = $.data(this.get(0), 'list_view');
@@ -79,7 +119,13 @@
                 me.historyHandler   = (Object.isFunc(opts.historyHandler))   ? opts.historyHandler   : false;
                 me.is_loading = false;
 
+                this._actionBuilders = new creme.lv_widget.ListViewActionBuilders(this);
+
                 /* **************** Getters & Setters **************** */
+                this.getActionBuilders = function() {
+                    return self._actionBuilders;
+                };
+
                 this.getSelectedEntities = function() {
                     return $(opts.selected_rows, self).val();
                 };
@@ -147,7 +193,7 @@
 
                     var submit_opts = {
                         action:  url,
-                        success: function(data, status) {
+                        success: function(event, data, status) {
                             self.empty().html(data);
                         }
                     };
@@ -167,6 +213,7 @@
                     return true;
                 };
 
+                /* global creme_media_url */
                 this.enableFilters = function() {
                     self.find('.columns_bottom .column input[type="text"]')
                         .bind('keydown', function(event) {
@@ -220,93 +267,28 @@
 //                        }
 //                    });
 //                };
+
                 this.enableActions = function() {
-                    var createPopover = function(popoverClass, $target) {
-                        var popover = new creme.dialogs.Popover ({
-                            title: gettext("Actions"),
-                            content: $target.find('.listview-actions-container').html()
-                        });
-
-                        // TODO: the following use cases should be facilitated by APIs or features on popovers
-                        // Use case 1): differentiate popovers to style some of their content in CSS
-                        popover._dialog.addClass(popoverClass);
-
-                        // Use case 3): z-index handling in this specific case where the popover can trigger a confirmation overlay
-                        popover._dialog.css('z-index', 99);
-                        popover._glasspane.pane().css('z-index', 98);
-
-                        // Use case 4): more precise arrow positioning
-                        popover.one('opened', function(e) {
-                            var offset = $target.offset().left + $target.width() / 2 - this._dialog.offset().left;
-                            this._dialog.find('.arrow').css('left', offset);
-                        });
-
-                        return popover;
-                    };
-
-                    self.on('click', '.row-actions-trigger', function(e) {
-                        e.stopPropagation();
-
-                        var $target = $(e.target);
-                        var popover = createPopover('row-actions-popover listview-actions-popover', $target);
-
-                        // use case 2): interactions with the popover's content
-                        var listeners = {
-                            done: function() {
-                                if (this.options().link.is('.lv_reload')) {
-                                    me.reload();
-                                }
-                            }
-                        };
-
-                        popover._dialog.on('click', 'a', function(e) {
-                            e.preventDefault();
-
-                            var $target = $(e.target);
-                            var $a = $target.is('a') ? $target : $target.parents('a').first();
-                            var confirm = $a.hasClass('confirm');
-                            var action  = $a.hasClass('post') ? 'post' : 'get';
-                            var ajax    = $a.hasClass('ajax');
-                            var url     = $a.prop('href');
-
-                            if (ajax) {
-                                var queryOptions = $.extend({action:action, link:$a}, options.queryOptions || {});
-
-                                if (confirm) {
-                                    creme.utils.confirmAjaxQuery(url, queryOptions)
-                                               .on(listeners).start();
-                                } else {
-                                    creme.utils.ajaxQuery(url, queryOptions)
-                                               .on(listeners).start();
-                                }
-                            } else {
-                                if (confirm) {
-                                    creme.utils.confirmBeforeGo(url, ajax, opts);
-                                } else {
-                                    creme.utils.goTo(url);
-                                }
-                            }
-                        });
-
-                        popover.open(e.target);
+                    self.find('a[data-action]').each(function() {
+                        var link = new creme.action.ActionLink();
+                        link.on('action-link-start', function(event, url, options, data, e) {
+                                 $(e.target).parents('.popover:first').trigger('modal-close');
+                             })
+                            .builders(me._actionBuilders)
+                            .bind($(this));
                     });
 
-                    self.on('click', '.header-actions-trigger', function(e) {
-                        e.stopPropagation();
-
-                        var $target = $(e.target);
-                        if (!$target.is('.header-actions-trigger')) {
-                            $target = $target.parents('.header-actions-trigger').first();
-                        }
-
-                        var popover = createPopover('header-actions-popover listview-actions-popover', $target);
-
-                        // use case 2): interactions with the popover's content
-                        popover._dialog.on('click', 'a', function(e) {
-                            popover.close();
+                    self.find('.row-actions-trigger').map(function() {
+                        return new ListViewActionMenu($(this), {
+                            classes: 'row-actions-popover listview-actions-popover'
                         });
+                    });
 
-                        popover.open (e.target);
+                    self.find('.header-actions-trigger').map(function() {
+                        return new ListViewActionMenu($(this), {
+                            classes: 'header-actions-popover listview-actions-popover',
+                            anchor: $(this).find('span')
+                        });
                     });
                 };
 
@@ -466,7 +448,7 @@
                         me.addParameter(data, e.name, e.value);
                     });
 
-                    data['page'] = data['page'] || $(opts.user_page, self);
+                    data['page'] = data['page'] || $(opts.user_page, self).val();
                     data['selection'] = opts.o2m ? 'single' : 'multiple';
 
                     delete data['entity_id'];
@@ -480,7 +462,11 @@
                         return;
                     }
 
-                    options = options || {};
+                    options = $.extend({
+                        success: _noop,
+                        error: _noop,
+                        complete: _noop
+                    }, options || {});
 
                     var next_url = me.reload_url || window.location.pathname;
                     var parameters = $.extend(this.serializeMe(), extra_data || {});
@@ -507,12 +493,19 @@
                     me.disableEvents();
                     me.is_loading = true;
 
-                    creme.ajax.post($.extend(options, {
-                        url:  next_url,
-                        data: parameters,
-                        beforeComplete: beforeCompleteWrapper,
-                        complete: complete
-                    }));
+                    creme.utils.ajaxQuery(next_url, {
+                                              action: 'POST',
+                                              warnOnFail: false,
+                                              waitingOverlay: true
+                                          }, parameters)
+                               .onDone(options.success)
+                               .onFail(options.error)
+                               .onComplete(function(event, data, status) {
+                                   beforeCompleteWrapper(data, status);
+                                   complete(data, status);
+                                })
+                               .onComplete(options.complete)
+                               .start();
 
                     this.flushSelected();
                 };
