@@ -287,7 +287,9 @@ QUnit.test('creme.bricks.Brick.title', function(assert) {
 });
 
 QUnit.test('creme.bricks.Brick.setState', function(assert) {
-    var brick = new creme.bricks.Brick();
+    var brick = new creme.bricks.Brick({
+                    deferredStateSaveDelay: 0
+                });
     var element = $('<div></div>');
 
     var state_none = { collapsed: false, reduced: false };
@@ -317,7 +319,9 @@ QUnit.test('creme.bricks.Brick.setState', function(assert) {
 });
 
 QUnit.test('creme.bricks.Brick.toggleState', function(assert) {
-    var brick = new creme.bricks.Brick();
+    var brick = new creme.bricks.Brick({
+                    deferredStateSaveDelay: 0
+                });
     var element = $('<div></div>');
 
     var state_none = { collapsed: false, reduced: false };
@@ -358,7 +362,9 @@ QUnit.test('creme.bricks.Brick.toggleState', function(assert) {
 });
 
 QUnit.test('creme.bricks.Brick.saveState', function(assert) {
-    var brick = new creme.bricks.Brick();
+    var brick = new creme.bricks.Brick({
+                    deferredStateSaveDelay: 0
+                });
     var element = $('<div></div>');
 
     equal(false, brick.isBound());
@@ -377,7 +383,9 @@ QUnit.test('creme.bricks.Brick.saveState', function(assert) {
 });
 
 QUnit.test('creme.bricks.Brick.saveState (no save stateURL)', function(assert) {
-    var brick = new creme.bricks.Brick();
+    var brick = new creme.bricks.Brick({
+                    deferredStateSaveDelay: 0
+                });
     var element = $('<div></div>');
 
     this.setBrickStateUrl(null);
@@ -389,6 +397,35 @@ QUnit.test('creme.bricks.Brick.saveState (no save stateURL)', function(assert) {
 
     brick.saveState();
     equal(0, this.backend.counts.POST);
+});
+
+
+QUnit.test('creme.bricks.Brick.deferredSaveState', function(assert) {
+    var brick = new creme.bricks.Brick({
+                    deferredStateSaveDelay: 100
+                });
+    var element = $('<div></div>');
+
+    equal(false, brick.isBound());
+    equal(undefined, brick._stateSaveURL, 'stateSaveURL');
+
+    brick.saveState();
+    equal(0, this.backend.counts.POST);
+
+    brick.bind(element);
+    equal(true, brick.isBound());
+    equal('mock/brick/status', brick._stateSaveURL, 'stateSaveURL');
+    equal(0, this.backend.counts.POST);
+
+    brick.toggleState('collapsed');
+    equal(0, this.backend.counts.POST);
+
+    stop(1);
+
+    setTimeout(function() {
+        equal(1, this.backend.counts.POST);
+        start();
+    }.bind(this), 200);
 });
 
 QUnit.test('creme.bricks.Brick.setLoadingState', function(assert) {

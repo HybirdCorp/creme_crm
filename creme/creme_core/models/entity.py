@@ -287,7 +287,8 @@ class CremeEntity(CremeAbstractEntity):
                                         is_allowed=user.has_perm_to_delete(self),
                                         # icon='images/delete_16_button.png',
                                         icon='delete',
-                                        attrs={'class': 'confirm post ajax lv_reload'},
+                                        # attrs={'class': 'confirm post ajax lv_reload'},
+                                        attrs={'data-action': 'delete'},
                                        )
                           )
 

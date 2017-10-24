@@ -73,7 +73,9 @@ QUnit.module("creme.bricks.actions", $.extend({}, QUnitBrickMixin, {
 
 QUnit.test('creme.bricks.Brick.action (toggle collapse)', function(assert) {
     var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>').appendTo($('body'));
-    var brick = new creme.bricks.Brick();
+    var brick = new creme.bricks.Brick({
+                    deferredStateSaveDelay: 0
+                });
 
     equal(false, brick.isBound());
 
@@ -98,7 +100,9 @@ QUnit.test('creme.bricks.Brick.action (toggle collapse)', function(assert) {
 
 QUnit.test('creme.bricks.Brick.action (toggle content-reduced)', function(assert) {
     var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>').appendTo($('body'));
-    var brick = new creme.bricks.Brick();
+    var brick = new creme.bricks.Brick({
+                    deferredStateSaveDelay: 0
+                });
 
     equal(false, brick.isBound());
 
@@ -571,7 +575,9 @@ QUnit.test('creme.bricks.Brick.action (link, no data)', function(assert) {
     var collapse = $('<a data-action="collapse"></a>');
 
     element.append(collapse);
-    var brick = new creme.bricks.Brick().bind(element);
+    var brick = new creme.bricks.Brick({
+                    deferredStateSaveDelay: 0
+                }).bind(element);
 
     equal(true, brick.isBound());
     equal(false, element.is('.is-collapsed'));
@@ -593,7 +599,9 @@ QUnit.test('creme.bricks.Brick.action (link, no data)', function(assert) {
 QUnit.test('creme.bricks.Brick.action (link, unknown)', function(assert) {
     var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>');
     var a = $('<a data-action="unknown"></a>').appendTo(element);
-    var brick = new creme.bricks.Brick().bind(element);
+    var brick = new creme.bricks.Brick({
+                    deferredStateSaveDelay: 0
+                }).bind(element);
 
     equal(true, brick.isBound());
     equal(false, element.is('.is-collapsed'));
@@ -614,7 +622,10 @@ QUnit.test('creme.bricks.Brick.action (link, loading state)', function(assert) {
     var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>');
     var collapse = $('<a data-action="collapse"></a>').appendTo(element);
 
-    var brick = new creme.bricks.Brick().bind(element);
+    var brick = new creme.bricks.Brick({
+                    deferredStateSaveDelay: 0
+                }).bind(element);
+
     brick.setLoadingState(true, 'Loading test...');
 
     equal(true, brick.isBound());
@@ -654,14 +665,16 @@ QUnit.test('creme.bricks.Brick.action (link, async)', function(assert) {
 
     equal(true, brick.isLoading());
     this.assertOpenedDialog();
-    deepEqual([['action-link-start', "mock/brick/update", {}, {}]], this.mockListenerCalls('action-link-start'));
+    deepEqual([['action-link-start', "mock/brick/update", {}, {}]],
+              this.mockListenerCalls('action-link-start').map(function(d) { return d.slice(0, 4); }));
     deepEqual([], this.mockListenerCalls('action-link-complete'));
 
     this.closeDialog();
 
     equal(false, brick.isLoading());
     this.assertClosedDialog();
-    deepEqual([['action-link-start', "mock/brick/update", {}, {}]], this.mockListenerCalls('action-link-start'));
+    deepEqual([['action-link-start', "mock/brick/update", {}, {}]],
+              this.mockListenerCalls('action-link-start').map(function(d) { return d.slice(0, 4); }));
     deepEqual([['action-link-cancel', []]],
-              this.mockListenerCalls('action-link-complete').map(function(d) { return d.splice(0, 2); }));
+              this.mockListenerCalls('action-link-complete').map(function(d) { return d.slice(0, 2); }));
 });

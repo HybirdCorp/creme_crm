@@ -248,28 +248,28 @@
                                 <span>{% trans 'Actions' %}</span>
                                 <div class="listview-actions-container">
                                     <div class="listview-action">
-                                        <a onclick="creme.lv_widget.editSelectedLines(creme.lv_widget.findList(this), '{% url 'creme_core__bulk_update' content_type_id %}');">
+                                        <a data-action="edit-selection" href="{% url 'creme_core__bulk_update' content_type_id %}">
                                             {% widget_icon name='edit' label=_('Edit') size='listview-menu' class='listview-action-icon' %}{% trans 'Multiple update' %}
                                         </a>
                                     </div>
                                     <div class="listview-action">
-                                        <a onclick="creme.lv_widget.deleteSelectedLines(creme.lv_widget.findList(this), '{% url 'creme_core__delete_entities' %}');">
+                                        <a data-action="delete-selection" href="{% url 'creme_core__delete_entities' %}">
                                             {% widget_icon name='delete' label=_('Delete') size='listview-menu' class='listview-action-icon' %}{% trans 'Multiple deletion' %}
                                         </a>
                                     </div>
                                     <div class="listview-action">
-                                        <a onclick="creme.lv_widget.addToSelectedLines(creme.lv_widget.findList(this), '{% url 'creme_core__add_properties_bulk' content_type_id %}');">
+                                        <a data-action="addto-selection" href="{% url 'creme_core__add_properties_bulk' content_type_id %}">
                                             {% widget_icon name='property' label=_('Property') size='listview-menu' class='listview-action-icon' %}{% trans 'Multiple property adding' %}
                                         </a>
                                     </div>
                                     <div class="listview-action">
-                                        <a onclick="creme.lv_widget.addToSelectedLines(creme.lv_widget.findList(this), '{% url 'creme_core__create_relations_bulk' content_type_id %}');">
+                                        <a data-action="addto-selection" href="{% url 'creme_core__create_relations_bulk' content_type_id %}">
                                             {% widget_icon name='relations' label=_('Relationship') size='listview-menu' class='listview-action-icon' %}{% trans 'Multiple relationship adding' %}
                                         </a>
                                     </div>
                                     {% if content_type|ctype_can_be_merged %}
                                     <div class="listview-action">
-                                        <a onclick="creme.lv_widget.mergeSelectedLines(creme.lv_widget.findList(this), '{% url 'creme_core__merge_entities' %}');">
+                                        <a data-action="merge-selection" href="{% url 'creme_core__merge_entities' %}">
                                             {% widget_icon name='merge' label=_('Merge') size='listview-menu' class='listview-action-icon' %}{% trans 'Merge 2 entities' %}
                                         </a>
                                     </div>
