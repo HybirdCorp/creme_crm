@@ -223,7 +223,8 @@ class Job(Model):
 
     @property
     def stats(self):
-        return self.type.get_stats(self)
+        jtype = self.type
+        return jtype.get_stats(self) if jtype is not None else []
 
     @property
     def type(self):

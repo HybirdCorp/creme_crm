@@ -74,10 +74,12 @@
         {% endif %}
         </td>
         <td {% brick_table_data_status action %} >
+        {% if job.type %}
             {% brick_table_action id='redirect' url=job.get_absolute_url label=_('View this job') type='view' %}
+        {% endif %}
         </td>
         <td {% brick_table_data_status action %} >
-        {% if job.is_finished and job.user_id %}
+        {% if job.type and job.is_finished and job.user_id %}
             {% brick_table_action id='delete' url=job.get_delete_absolute_url label=_('Delete this job') %}
         {% endif %}
         </td>

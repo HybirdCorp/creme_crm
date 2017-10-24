@@ -125,6 +125,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertIsNone(job.type)
         self.assertIsNone(job.get_config_form_class())
         self.assertGET404(job.get_absolute_url())
+        self.assertEqual([], job.stats)
 
     def test_editview01(self):
         "Not periodic"
