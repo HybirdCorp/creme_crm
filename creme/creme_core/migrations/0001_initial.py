@@ -52,6 +52,10 @@ class Migration(migrations.Migration):
                      models.ManyToManyField(related_name='roles_allowing_export', verbose_name='Exportable resources',
                                             to=b'contenttypes.ContentType')),
                 ],
+                options={
+                    'verbose_name':        'Role',
+                    'verbose_name_plural': 'Roles',
+                },
         ),
         migrations.CreateModel(
                 name='SetCredentials',

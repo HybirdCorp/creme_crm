@@ -48,7 +48,7 @@ logger = logging.getLogger(__name__)
 
 
 class UserRole(Model):
-    name              = CharField(_(u'Name'), max_length=100) # TODO: unique=True
+    name              = CharField(_(u'Name'), max_length=100, unique=True)
     # superior         = ForeignKey('self', verbose_name=_(u"Superior"), null=True) #related_name='subordinates'
     creatable_ctypes  = ManyToManyField(ContentType, verbose_name=_(u'Creatable resources'),  related_name='roles_allowing_creation') # null=True,
     exportable_ctypes = ManyToManyField(ContentType, verbose_name=_(u'Exportable resources'), related_name='roles_allowing_export')   # null=True,
@@ -60,6 +60,8 @@ class UserRole(Model):
 
     class Meta:
         app_label = 'creme_core'
+        verbose_name = _(u'Role')
+        verbose_name_plural = _(u'Roles')
 
     def __init__(self, *args, **kwargs):
         super(UserRole, self).__init__(*args, **kwargs)
