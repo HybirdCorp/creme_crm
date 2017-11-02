@@ -84,8 +84,8 @@ def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filt
     if extra_q:
         try:
             queryset = queryset.filter(extra_q)
-        except Exception:
-            logger.exception('Error when build the search queryset. Invalid q_filter.')
+        except Exception as e:
+            logger.exception('Error when building the search queryset: invalid q_filter (%s).', e)
         else:
             filtered = True
             use_distinct = True
@@ -96,8 +96,8 @@ def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filt
     lv_state_q = list_view_state.get_q_with_research(model, header_filter.cells)
     try:
         queryset = queryset.filter(lv_state_q)
-    except Exception:
-        logger.exception('Error when build the search queryset.')
+    except Exception as e:
+        logger.exception('Error when building the search queryset with Q=%s (%s).', lv_state_q, e)
     else:
         if lv_state_q:
             filtered = True
@@ -190,6 +190,9 @@ def _build_extrafilter(request, extra_filter=None):
         json_q_filter = request.POST.get('q_filter', '{}')
         q_filter_as_dict = _clean_value(json_q_filter, json_load, {})
 
+    # TODO: better validation of q_filter ? (corresponding EntityCell allowed + searchable ?)
+    #  - limit the max depth of sub-fields chain ?
+    #  - do no allow all fields ?
     q_filter = get_q_from_dict(q_filter_as_dict)
 
     if extra_filter is not None:
