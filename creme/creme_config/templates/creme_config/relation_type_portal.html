@@ -1,9 +1,11 @@
 {% extends 'creme_config/portal.html' %}
 {% load i18n creme_core_tags creme_bricks %}
 
+{% block page_title %}{% trans 'Configuration of relationships' %} - {% endblock %}
+
 {% block title %}
     {% has_perm_to access 'creme_config' as conf_perm %}
-    {% if conf_perm %}<a href="{% url 'creme_config__portal' %}">{% trans 'Configuration' %} > </a>{% endif %}{% trans 'Types of relation' %}
+    {% if conf_perm %}<a href="{% url 'creme_config__portal' %}">{% trans 'Configuration' %} > </a>{% endif %}{% trans 'Types of relationship' %}
 {% endblock %}
 
 {% block before_statistics %}

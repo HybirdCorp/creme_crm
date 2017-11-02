@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-09 20:30+0200\n"
+"POT-Creation-Date: 2017-10-31 11:36+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -73,7 +73,7 @@ msgstr "Gestion des rôles et des droits"
 msgid "My settings"
 msgstr "Ma configuration"
 
-#: apps.py:108 templates/creme_config/bricks_portal.html:6
+#: apps.py:108 templates/creme_config/bricks_portal.html:8
 msgid "Blocks"
 msgstr "Blocs"
 
@@ -82,12 +82,12 @@ msgstr "Blocs"
 msgid "Fields"
 msgstr "Champs"
 
-#: apps.py:125 templates/creme_config/history_portal.html:6
+#: apps.py:125 templates/creme_config/history_portal.html:8
 #: templates/creme_config/templatetags/block_historyconfig.html:9
 msgid "History"
 msgstr "Historique"
 
-#: apps.py:130 templates/creme_config/button_menu_portal.html:6
+#: apps.py:130 templates/creme_config/button_menu_portal.html:8
 msgid "Button menu"
 msgstr "Menu bouton"
 
@@ -100,27 +100,27 @@ msgid "Roles and credentials"
 msgstr "Rôles et droits"
 
 #: apps.py:157 forms/user.py:180 templates/creme_config/bricks/users.html:7
-#: templates/creme_config/user_portal.html:5
+#: templates/creme_config/user_portal.html:7
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: bricks.py:142
+#: bricks.py:143
 msgid "Property types configuration"
 msgstr "Configuration des types de propriété"
 
-#: bricks.py:159
+#: bricks.py:160
 msgid "List of standard relation types"
 msgstr "Liste des types de relation standard"
 
-#: bricks.py:179
+#: bricks.py:180
 msgid "Custom relation types configuration"
 msgstr "Configuration des types de relation personnalisés"
 
-#: bricks.py:199
+#: bricks.py:200
 msgid "List of semi-fixed relation types"
 msgstr "Liste des types de relation semi-fixés"
 
-#: bricks.py:415 bricks.py:693 forms/bricks.py:230 forms/search.py:98
+#: bricks.py:416 bricks.py:694 forms/bricks.py:230 forms/search.py:98
 #: forms/user.py:64 forms/user.py:94
 #: templates/creme_config/bricks/search-config.html:31
 #: templates/creme_config/bricks/users.html:33
@@ -168,25 +168,25 @@ msgstr "Votre configuration est vide !"
 msgid "Role"
 msgstr "Rôle"
 
-#: forms/bricks.py:215 templates/creme_config/bricks_portal.html:6
-#: templates/creme_config/button_menu_portal.html:6
+#: forms/bricks.py:215 templates/creme_config/bricks_portal.html:8
+#: templates/creme_config/button_menu_portal.html:8
 #: templates/creme_config/custom_fields/portal.html:8
 #: templates/creme_config/custom_fields/view.html:8
-#: templates/creme_config/custom_fields_portal.html:6
-#: templates/creme_config/fields_config_portal.html:6
+#: templates/creme_config/custom_fields_portal.html:8
+#: templates/creme_config/fields_config_portal.html:8
 #: templates/creme_config/generics/app_portal.html:4
 #: templates/creme_config/generics/app_portal.html:8
 #: templates/creme_config/generics/model_portal.html:4
 #: templates/creme_config/generics/model_portal.html:8
-#: templates/creme_config/history_portal.html:6
+#: templates/creme_config/history_portal.html:8
 #: templates/creme_config/portal.html:4 templates/creme_config/portal.html:5
-#: templates/creme_config/property_type_portal.html:6
-#: templates/creme_config/relation_type_portal.html:6
-#: templates/creme_config/search_portal.html:6
+#: templates/creme_config/property_type_portal.html:8
+#: templates/creme_config/relation_type_portal.html:8
+#: templates/creme_config/search_portal.html:8
 #: templates/creme_config/templatetags/block_blocklocations.html:15
 #: templates/creme_config/templatetags/block_searchconfig.html:16
-#: templates/creme_config/user_portal.html:5
-#: templates/creme_config/user_role_portal.html:5
+#: templates/creme_config/user_portal.html:7
+#: templates/creme_config/user_role_portal.html:7
 #: templates/creme_config/user_settings.html:22
 msgid "Configuration"
 msgstr "Configuration"
@@ -1079,7 +1079,7 @@ msgid "{count} Types of property"
 msgstr "{count} Types de propriété"
 
 #: templates/creme_config/bricks/property-types.html:13
-#: templates/creme_config/property_type_portal.html:6
+#: templates/creme_config/property_type_portal.html:8
 msgid "Types of property"
 msgstr "Types de propriété"
 
@@ -1385,7 +1385,7 @@ msgstr ""
 "Une équipe contient des coéquipiers, qui doivent être de vrais utilisateurs "
 "pas des équipes.\n"
 "Quand une fiche appartient à une équipe, chaque coéquipier a les mêmes "
-"permissions que si elle lui appartenait.\n"
+"permissions que si elle lui appartenait."
 
 #: templates/creme_config/bricks/teams.html:34
 #: templates/creme_config/templatetags/block_teams.html:29
@@ -1416,7 +1416,7 @@ msgid "{count} Roles"
 msgstr "{count} Rôles"
 
 #: templates/creme_config/bricks/user-roles.html:7
-#: templates/creme_config/user_role_portal.html:5
+#: templates/creme_config/user_role_portal.html:7
 msgid "Roles"
 msgstr "Rôles"
 
@@ -1553,9 +1553,17 @@ msgstr "Modifier cette utilisateur"
 msgid "Delete this user"
 msgstr "Supprimer cet utilisateur"
 
+#: templates/creme_config/bricks_portal.html:4
+msgid "Configuration of blocks"
+msgstr "Configuration des blocs"
+
+#: templates/creme_config/button_menu_portal.html:4
+msgid "Configuration of buttons"
+msgstr "Configuration des boutons"
+
 #: templates/creme_config/custom_fields/portal.html:8
 #: templates/creme_config/custom_fields/view.html:10
-#: templates/creme_config/custom_fields_portal.html:6
+#: templates/creme_config/custom_fields_portal.html:8
 msgid "Custom fields"
 msgstr "Champs personnalisés"
 
@@ -1563,7 +1571,12 @@ msgstr "Champs personnalisés"
 msgid "Resource"
 msgstr "Ressource"
 
-#: templates/creme_config/fields_config_portal.html:6
+#: templates/creme_config/custom_fields_portal.html:4
+msgid "Configuration of custom fields"
+msgstr "Configuration des champs personnalisés"
+
+#: templates/creme_config/fields_config_portal.html:4
+#: templates/creme_config/fields_config_portal.html:8
 msgid "Configuration of fields"
 msgstr "Configuration des champs"
 
@@ -1571,6 +1584,10 @@ msgstr "Configuration des champs"
 #, python-format
 msgid "Type : %(model_name)s"
 msgstr "Type : %(model_name)s"
+
+#: templates/creme_config/history_portal.html:4
+msgid "Configuration of history"
+msgstr "Configuration de l'historique"
 
 #: templates/creme_config/portal.html:6
 msgid "Creme configuration portal"
@@ -1597,21 +1614,33 @@ msgstr "Portail configuration %(app_name)s"
 msgid "No application requires configuration"
 msgstr "Aucune application ne nécessite de configuration"
 
-#: templates/creme_config/relation_type_portal.html:6
-msgid "Types of relation"
+#: templates/creme_config/property_type_portal.html:4
+msgid "Configuration of properties"
+msgstr "Configuration des propriétés"
+
+#: templates/creme_config/relation_type_portal.html:4
+msgid "Configuration of relationships"
+msgstr "Configuration des relations"
+
+#: templates/creme_config/relation_type_portal.html:8
+msgid "Types of relationship"
 msgstr "Types de relation"
 
-#: templates/creme_config/search_portal.html:6
+#: templates/creme_config/search_portal.html:4
+msgid "Configuration of search"
+msgstr "Configuration de la recherche"
+
+#: templates/creme_config/search_portal.html:8
 msgid "Search in Creme"
 msgstr "Recherche dans Creme"
 
-#: templates/creme_config/search_portal.html:15
+#: templates/creme_config/search_portal.html:17
 msgid "Create search settings in order to make the global search faster."
 msgstr ""
 "Créez des configurations de recherche afin de rendre la recherche globale "
 "plus rapide."
 
-#: templates/creme_config/search_portal.html:16
+#: templates/creme_config/search_portal.html:18
 msgid ""
 "Limit the number of fields per type for better performance and better "
 "results visibility."
@@ -1619,7 +1648,7 @@ msgstr ""
 "Limitez le nombre de champs par type pour de meilleures performances et une "
 "meilleure visibilité des résultats."
 
-#: templates/creme_config/search_portal.html:19
+#: templates/creme_config/search_portal.html:21
 msgid "Edit a configuration to specify the search fields."
 msgstr "Modifiez une configuration pour spécifier des champs de recherche."
 
@@ -1914,6 +1943,14 @@ msgstr "Fuseau horaire"
 msgid "No"
 msgstr "Non"
 
+#: templates/creme_config/user_portal.html:4
+msgid "Configuration of users"
+msgstr "Configuration des utilisateurs"
+
+#: templates/creme_config/user_role_portal.html:4
+msgid "Configuration of roles"
+msgstr "Configuration des rôles"
+
 #: templates/creme_config/user_settings.html:4
 msgid "View your settings"
 msgstr "Voir vos réglages"
@@ -2035,12 +2072,12 @@ msgstr "Modifier le type «%s»"
 msgid "New custom field for «%s»"
 msgstr "Nouveau champ personnalisé pour «%s»"
 
-#: views/generics_views.py:69
+#: views/generics_views.py:72
 #, python-format
 msgid "New value: %s"
 msgstr "Nouvelle valeur : %s"
 
-#: views/generics_views.py:157
+#: views/generics_views.py:160
 #, python-format
 msgid "%s can not be deleted because of its dependencies."
 msgstr "%s ne peut pas être effacé à cause de ses dépendances."
@@ -2118,18 +2155,6 @@ msgstr "Supprimer le rôle «%s»"
 #: views/user_role.py:238
 msgid "Delete the role"
 msgstr "Supprimer le rôle"
-
-#~ msgid "%(count)s %(model)s"
-#~ msgstr "%(count)s %(model)s"
-
-#~ msgid "General configuration of custom fields"
-#~ msgstr "Configuration générale des champs personnalisés"
-
-#~ msgid "Custom fields configuration"
-#~ msgstr "Configuration des champs personnalisés"
-
-#~ msgid "Users configuration"
-#~ msgstr "Configuration des utilisateurs"
 
 #~ msgid "Information on the entity"
 #~ msgstr "Informations sur la fiche"
@@ -2271,9 +2296,6 @@ msgstr "Supprimer le rôle"
 
 #~ msgid "Creme applications credentials"
 #~ msgstr "Droits des applications Creme"
-
-#~ msgid "Role(s)"
-#~ msgstr "Rôle(s)"
 
 #~ msgid "Superiors"
 #~ msgstr "Supérieurs"
