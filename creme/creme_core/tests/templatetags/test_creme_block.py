@@ -242,7 +242,9 @@ class CremeBlockTagsTestCase(CremeTestCase):
         blocks = []
 
         gen_id = TestBlock.generate_id
-        for i, zone in enumerate(BlockDetailviewLocation.ZONES, start=1):
+        # for i, zone in enumerate(BlockDetailviewLocation.ZONES, start=1):
+        for i, zone in enumerate((BlockDetailviewLocation.TOP, BlockDetailviewLocation.LEFT,
+                                  BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM), start=1):
             block_class = type('TestBlock_%s' % i, (TestBlock,),
                                {'id_':      gen_id('creme_core', 'CremeBlockTagsTestCase__import_n_display_on_detail_from_conf03_%s' % i),
                                 'blockstr': '<p>BLOCK#%s</p>' % i,
@@ -295,7 +297,9 @@ class CremeBlockTagsTestCase(CremeTestCase):
         blocks = []
 
         gen_id = TestBlock.generate_id
-        for i, zone in enumerate(BlockDetailviewLocation.ZONES, start=1):
+        # for i, zone in enumerate(BlockDetailviewLocation.ZONES, start=1):
+        for i, zone in enumerate((BlockDetailviewLocation.TOP, BlockDetailviewLocation.LEFT,
+                                  BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM), start=1):
             block_class = type('TestBlock_%s' % i, (TestBlock,),
                                {'id_':      gen_id('creme_core', 'CremeBlockTagsTestCase__import_n_display_on_detail_from_conf04_%s' % i),
                                 'blockstr': '<p>BLOCK#%s</p>' % i,

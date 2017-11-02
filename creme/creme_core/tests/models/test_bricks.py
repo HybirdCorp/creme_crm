@@ -242,10 +242,11 @@ class BlockTestCase(CremeTestCase):
 
         BlockDetailviewLocation.create_empty_config()
         locs = BlockDetailviewLocation.objects.all()
-        self.assertEqual([('', 1, None)] * 4,
+        self.assertEqual([('', 1, None)] * 5,
                          [(bl.block_id, bl.order, bl.content_type) for bl in locs]
                          )
-        self.assertEqual({BlockDetailviewLocation.TOP,   BlockDetailviewLocation.LEFT,
+        self.assertEqual({BlockDetailviewLocation.HAT,
+                          BlockDetailviewLocation.TOP,   BlockDetailviewLocation.LEFT,
                           BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM,
                          },
                          {bl.zone for bl in locs}
@@ -266,12 +267,13 @@ class BlockTestCase(CremeTestCase):
         BlockDetailviewLocation.create_empty_config(model=model)
 
         locs = BlockDetailviewLocation.objects.filter(content_type=ContentType.objects.get_for_model(model))
-        self.assertEqual({BlockDetailviewLocation.TOP, BlockDetailviewLocation.LEFT,
+        self.assertEqual({BlockDetailviewLocation.HAT,
+                          BlockDetailviewLocation.TOP, BlockDetailviewLocation.LEFT,
                           BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM,
                          },
                          {bl.zone for bl in locs}
                         )
-        self.assertEqual(4, len(locs))
+        self.assertEqual(5, len(locs))
 
         loc = [loc for loc in locs if loc.zone == zone][0]
         self.assertEqual(model,  loc.content_type.model_class())
