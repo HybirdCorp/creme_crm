@@ -4,7 +4,6 @@ try:
     from json import loads as json_load
 
     from django.apps import apps
-    from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
     from django.db.models import Max
@@ -23,8 +22,7 @@ try:
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
     from creme.creme_core.creme_jobs import batch_process_type, reminder_type
     from creme.creme_core.creme_jobs.base import JobType
-    from creme.creme_core.models import Job, JobResult, EntityJobResult
-    from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
+    from creme.creme_core.models import Job, EntityJobResult
 
     if apps.is_installed('creme.crudity'):
         from creme.crudity.creme_jobs import crudity_synchronize_type
@@ -283,11 +281,11 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     def test_listview02(self):
         "Credentials"
         self.login(is_superuser=False)
-        job1 = self._create_batchprocess_job()
+        self._create_batchprocess_job()
         response = self.assertGET200(self.LIST_URL)
         self._assertCount(response, unicode(batch_process_type.verbose_name), 1)
 
-        job2 = self._create_batchprocess_job(user=self.other_user)
+        self._create_batchprocess_job(user=self.other_user)
         response = self.assertGET200(self.LIST_URL)
         self._assertCount(response, unicode(batch_process_type.verbose_name), 1)  # Only job1
 

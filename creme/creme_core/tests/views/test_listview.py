@@ -14,22 +14,17 @@ try:
     from django.utils.timezone import now
 
     from .base import ViewsTestCase
-    from ..fake_models import (FakeContact as Contact,
-            FakeOrganisation as Organisation, FakeAddress as Address,
-            FakeImage as Image, FakeImageCategory as ImageCategory,
-            FakeActivity as Activity, FakeActivityType as ActivityType,
-            FakeEmailCampaign as EmailCampaign, FakeMailingList as MailingList,
-            FakeCivility as Civility, FakeSector as Sector,
-            FakeDocument as Document,
-            FakeFolder as Folder, FakeFolderCategory as FolderCategory)
+    from ..fake_models import (FakeContact, FakeOrganisation, FakeAddress, FakeCivility, FakeSector,
+            FakeImage, FakeImageCategory, FakeActivity, FakeActivityType,
+            FakeEmailCampaign, FakeMailingList, FakeDocument, FakeFolder, FakeFolderCategory)
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.gui.listview import ListViewState
     from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
             HeaderFilter, RelationType, Relation, FieldsConfig,
             CremePropertyType, CremeProperty, CustomField, CustomFieldEnumValue)
-    from creme.creme_core.models.header_filter import HeaderFilterList
     from creme.creme_core.models.entity_filter import EntityFilterList
+    from creme.creme_core.models.header_filter import HeaderFilterList
     from creme.creme_core.utils import safe_unicode
     from creme.creme_core.utils.profiling import CaptureQueriesContext
 except Exception as e:
@@ -43,18 +38,18 @@ class ListViewTestCase(ViewsTestCase):
         super(ListViewTestCase, cls).setUpClass()
         # cls.populate('creme_core')
 
-        cls.url = Organisation.get_lv_absolute_url()
-        cls.ctype = ContentType.objects.get_for_model(Organisation)
+        cls.url = FakeOrganisation.get_lv_absolute_url()
+        cls.ctype = ContentType.objects.get_for_model(FakeOrganisation)
 
-        cls._civ_backup = list(Civility.objects.all())
-        Civility.objects.all().delete()
+        cls._civ_backup = list(FakeCivility.objects.all())
+        FakeCivility.objects.all().delete()
 
     @classmethod
     def tearDownClass(cls):
         # ViewsTestCase.tearDownClass()
         super(ListViewTestCase, cls).tearDownClass()
-        Civility.objects.all().delete()
-        Civility.objects.bulk_create(cls._civ_backup)
+        FakeCivility.objects.all().delete()
+        FakeCivility.objects.bulk_create(cls._civ_backup)
 
     # def setUp(self):
     #     super(ListViewTestCase, self).setUp()
@@ -108,20 +103,20 @@ class ListViewTestCase(ViewsTestCase):
         return page.paginator.object_list.query.get_compiler('default').as_sql()[0]
 
     def _build_hf(self, *args):
-        cells = [EntityCellRegularField.build(model=Organisation, name='name')]
+        cells = [EntityCellRegularField.build(model=FakeOrganisation, name='name')]
         cells.extend(args)
         return HeaderFilter.create(pk='test-hf_orga', name='Orga view',
-                                   model=Organisation, cells_desc=cells,
-                                  )
+                                   model=FakeOrganisation, cells_desc=cells,
+                                   )
 
     def test_content01(self):
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop     = create_orga(name='Bebop')
         swordfish = create_orga(name='Swordfish')
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         spike = create_contact(first_name='Spike', last_name='Spiegel')
         faye  = create_contact(first_name='Faye',  last_name='Valentine')
 
@@ -148,7 +143,7 @@ class ListViewTestCase(ViewsTestCase):
         cfield.get_value_class()(custom_field=cfield, entity=bebop).set_value_n_save(cfield_value)
 
         hf = self._build_hf(EntityCellRelation(rtype=rtype),
-                            EntityCellFunctionField.build(Organisation, 'get_pretty_properties'),
+                            EntityCellFunctionField.build(FakeOrganisation, 'get_pretty_properties'),
                             EntityCellCustomField(cfield),
                            )
 
@@ -201,14 +196,14 @@ class ListViewTestCase(ViewsTestCase):
         valid_fname = 'name'
         hidden_fname = 'url_site'
 
-        build_cell = partial(EntityCellRegularField.build, model=Organisation)
+        build_cell = partial(EntityCellRegularField.build, model=FakeOrganisation)
         hf = self._build_hf(build_cell(name=valid_fname), build_cell(name=hidden_fname))
 
-        FieldsConfig.create(Organisation,
+        FieldsConfig.create(FakeOrganisation,
                             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
                            )
 
-        bebop = Organisation.objects.create(user=user, name='Bebop', url_site='sww.bebop.mrs')
+        bebop = FakeOrganisation.objects.create(user=user, name='Bebop', url_site='sww.bebop.mrs')
 
         response = self.assertPOST200(self.url, data={'hfilter': hf.id})
 
@@ -219,9 +214,9 @@ class ListViewTestCase(ViewsTestCase):
     def test_selection_single(self):
         user = self.login()
 
-        create_contact = partial(Contact.objects.create, user=user)
-        _spike = create_contact(first_name='Spike', last_name='Spiegel')
-        _faye  = create_contact(first_name='Faye',  last_name='Valentine')
+        create_contact = partial(FakeContact.objects.create, user=user)
+        create_contact(first_name='Spike', last_name='Spiegel')
+        create_contact(first_name='Faye',  last_name='Valentine')
 
         def post(selection, is_single):
             response = self.assertPOST200(self.url, data={'selection': selection} if selection is not None else {})
@@ -237,9 +232,9 @@ class ListViewTestCase(ViewsTestCase):
     def test_selection_single_GET(self):
         user = self.login()
 
-        create_contact = partial(Contact.objects.create, user=user)
-        _spike = create_contact(first_name='Spike', last_name='Spiegel')
-        _faye  = create_contact(first_name='Faye',  last_name='Valentine')
+        create_contact = partial(FakeContact.objects.create, user=user)
+        create_contact(first_name='Spike', last_name='Spiegel')
+        create_contact(first_name='Faye',  last_name='Valentine')
 
         def get(selection, is_single):
             response = self.assertGET200(self.url, data={'selection': selection} if selection is not None else {})
@@ -255,7 +250,7 @@ class ListViewTestCase(ViewsTestCase):
     def test_ordering_regularfield(self):
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop     = create_orga(name='Bebop')
         swordfish = create_orga(name='Swordfish')
 
@@ -290,7 +285,7 @@ class ListViewTestCase(ViewsTestCase):
     def test_ordering_regularfield_GET(self):
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop     = create_orga(name='Bebop')
         swordfish = create_orga(name='Swordfish')
 
@@ -327,7 +322,7 @@ class ListViewTestCase(ViewsTestCase):
     def test_ordering_regularfield_transient(self):
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop     = create_orga(name='Bebop')
         swordfish = create_orga(name='Swordfish')
 
@@ -387,19 +382,19 @@ class ListViewTestCase(ViewsTestCase):
         "Sort by ForeignKey"
         user = self.login()
 
-        create_civ = Civility.objects.create
+        create_civ = FakeCivility.objects.create
         mister = create_civ(title='Mister')
         miss   = create_civ(title='Miss')
         self.assertLess(mister.id, miss.id)
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         spike = create_contact(first_name='Spike',  last_name='Spiegel',   civility=mister)
         faye  = create_contact(first_name='Faye',   last_name='Valentine', civility=miss)
         ed    = create_contact(first_name='Edward', last_name='Wong')
 
-        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=Contact)
+        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=FakeContact)
 
-        build_cell = partial(EntityCellRegularField.build, model=Contact)
+        build_cell = partial(EntityCellRegularField.build, model=FakeContact)
         cell_image    = build_cell(name='image')
         cell_img_name = build_cell(name='image__name')
         cell_civ      = build_cell(name='civility')
@@ -415,7 +410,7 @@ class ListViewTestCase(ViewsTestCase):
                    ]
         hf.save()
 
-        url = Contact.get_lv_absolute_url()
+        url = FakeContact.get_lv_absolute_url()
 
         # ---------------------------------------------------------------------
         response = self.assertPOST200(url, data={'hfilter': hf.id})
@@ -458,18 +453,18 @@ class ListViewTestCase(ViewsTestCase):
         user = self.login()
 
         # Bug on ORM with M2M happens only if there is at least one entity
-        EmailCampaign.objects.create(user=user, name='Camp01')
+        FakeEmailCampaign.objects.create(user=user, name='Camp01')
 
         fname = 'mailing_lists'
         func_field_name = 'get_pretty_properties'
-        HeaderFilter.create(pk='test-hf_camp', name='Campaign view', model=EmailCampaign,
+        HeaderFilter.create(pk='test-hf_camp', name='Campaign view', model=FakeEmailCampaign,
                             cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                                         (EntityCellRegularField, {'name': fname}),
                                         (EntityCellFunctionField, {'func_field_name': func_field_name}),
                                        ]
                            )
 
-        url = EmailCampaign.get_lv_absolute_url()
+        url = FakeEmailCampaign.get_lv_absolute_url()
         # We just check that it does not crash
         self.assertPOST200(url, data={'sort_field': 'regular_field-' + fname})
         self.assertPOST200(url, data={'sort_field': 'function_field-' + func_field_name})
@@ -478,16 +473,16 @@ class ListViewTestCase(ViewsTestCase):
     def test_ordering_regularfield_fastmode(self):
         "Ordering = '-fieldname'"
         user = self.login()
-        self.assertTrue('-start', Activity._meta.ordering[0])
+        self.assertTrue('-start', FakeActivity._meta.ordering[0])
 
-        act_type = ActivityType.objects.all()[0]
-        create_act = partial(Activity.objects.create, user=user, type=act_type)
+        act_type = FakeActivityType.objects.all()[0]
+        create_act = partial(FakeActivity.objects.create, user=user, type=act_type)
         act1 = create_act(title='Act#1', start=now())
         act2 = create_act(title='Act#2', start=act1.start + timedelta(hours=1))
 
         hf = self.get_object_or_fail(HeaderFilter, pk='creme_core-hf_fakeactivity')  # See fake populate
 
-        response = self.assertPOST200(Activity.get_lv_absolute_url(), {'hfilter': hf.pk})
+        response = self.assertPOST200(FakeActivity.get_lv_absolute_url(), {'hfilter': hf.pk})
         content = self._get_lv_content(response)
         first_idx  = self.assertFound(act2.title, content)
         second_idx = self.assertFound(act1.title, content)
@@ -512,19 +507,19 @@ class ListViewTestCase(ViewsTestCase):
     @override_settings(FAST_QUERY_MODE_THRESHOLD=100000)
     def test_ordering_default(self):
         user = self.login()
-        self.assertEqual(('last_name', 'first_name'), Contact._meta.ordering)
+        self.assertEqual(('last_name', 'first_name'), FakeContact._meta.ordering)
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         create_contact(first_name='Spike',  last_name='Spiegel')
         create_contact(first_name='Faye',   last_name='Valentine')
         create_contact(first_name='Edward', last_name='Wong')
 
-        url = Contact.get_lv_absolute_url()
+        url = FakeContact.get_lv_absolute_url()
         # For the filter to prevent an issue when HeaderFiltersTestCase is launched before this test
         hf = self.get_object_or_fail(HeaderFilter, pk='creme_core-hf_fakecontact')  # See fake populate
         response = self.assertPOST200(url, {'hfilter': hf.pk})
 
-        entries = Contact.objects.all()
+        entries = FakeContact.objects.all()
         self.assertListViewContentOrder(response, 'last_name', entries)
 
         listview_state = response.context['list_view_state']
@@ -540,28 +535,28 @@ class ListViewTestCase(ViewsTestCase):
                                 )
 
     def test_ordering_merge_column_and_default(self):
-        self.assertEqual(('last_name', 'first_name'), Contact._meta.ordering)
+        self.assertEqual(('last_name', 'first_name'), FakeContact._meta.ordering)
         user = self.login()
 
-        create_civ = Civility.objects.create
+        create_civ = FakeCivility.objects.create
         mister = create_civ(title='Mister')
         miss   = create_civ(title='Miss')
         self.assertLess(mister.id, miss.id)
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         spike = create_contact(first_name='Spike',  last_name='Spiegel',   civility=mister)
         faye = create_contact(first_name='Faye',   last_name='Valentine', civility=miss)
         ed = create_contact(first_name='Edward', last_name='Wong')
 
-        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=Contact,
+        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=FakeContact,
                                  cells_desc=[(EntityCellRegularField, {'name': 'civility'}),
                                              (EntityCellRegularField, {'name': 'last_name'}),
                                              (EntityCellRegularField, {'name': 'first_name'}),
                                             ],
                                 )
 
-        contacts = Contact.objects.filter(pk__in=(spike, faye, ed))
-        url = Contact.get_lv_absolute_url()
+        contacts = FakeContact.objects.filter(pk__in=(spike, faye, ed))
+        url = FakeContact.get_lv_absolute_url()
         response = self.assertPOST200(url, data={'hfilter': hf.id,
                                                  'sort_field': 'regular_field-civility',
                                                  'sort_order': ''})
@@ -593,12 +588,12 @@ class ListViewTestCase(ViewsTestCase):
     def test_ordering_related_column(self):
         user = self.login()
 
-        self.assertEqual(('last_name', 'first_name'), Contact._meta.ordering)
-        self.assertFalse(bool(Address._meta.ordering))
+        self.assertEqual(('last_name', 'first_name'), FakeContact._meta.ordering)
+        self.assertFalse(bool(FakeAddress._meta.ordering))
 
         def create_contact(first_name, last_name, address):
-            contact = Contact.objects.create(user=user, first_name=first_name, last_name=last_name)
-            contact.address = Address.objects.create(entity=contact, value=address)
+            contact = FakeContact.objects.create(user=user, first_name=first_name, last_name=last_name)
+            contact.address = FakeAddress.objects.create(entity=contact, value=address)
             contact.save()
             return contact
 
@@ -606,7 +601,7 @@ class ListViewTestCase(ViewsTestCase):
         create_contact(first_name='Faye',   last_name='Valentine', address='B')
         create_contact(first_name='Edward', last_name='Wong',      address='A')
 
-        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=Contact,
+        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=FakeContact,
                                  cells_desc=[(EntityCellRegularField, {'name': 'civility'}),
                                              (EntityCellRegularField, {'name': 'last_name'}),
                                              (EntityCellRegularField, {'name': 'first_name'}),
@@ -614,14 +609,14 @@ class ListViewTestCase(ViewsTestCase):
                                          ],
                                 )
 
-        url = Contact.get_lv_absolute_url()
+        url = FakeContact.get_lv_absolute_url()
         # For the filter to prevent an issue when HeaderFiltersTestCase is launched before this test
         response = self.assertPOST200(url, {'hfilter':     hf.id,
                                             'sort_field': 'regular_field-address',
                                             'sort_order': '',
                                            })
 
-        entries = Contact.objects.order_by('address_id', 'last_name', 'first_name')
+        entries = FakeContact.objects.order_by('address_id', 'last_name', 'first_name')
         self.assertListViewContentOrder(response, 'last_name', entries)
 
         listview_state = response.context['list_view_state']
@@ -661,7 +656,7 @@ class ListViewTestCase(ViewsTestCase):
         "Custom field ordering is ignored in current implementation"
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop     = create_orga(name='Bebop')
         swordfish = create_orga(name='Swordfish')
         redtail   = create_orga(name='Redtail')
@@ -682,38 +677,38 @@ class ListViewTestCase(ViewsTestCase):
         cfield_cell = EntityCellCustomField(cfield)
         hf = self._build_hf(cfield_cell)
 
-        url = Organisation.get_lv_absolute_url()
+        url = FakeOrganisation.get_lv_absolute_url()
         response = self.assertPOST200(url, {'hfilter': hf.pk,
                                             'sort_field': cfield_cell.key,
                                             'sort_order': '',
                                            }
                                      )
 
-        entries = Organisation.objects.order_by('name')
+        entries = FakeOrganisation.objects.order_by('name')
         self.assertListViewContentOrder(response, 'name', entries)
 
     def _aux_test_ordering_fastmode(self):
         user = self.login()
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         create_contact(first_name='Spike',  last_name='Spiegel')
         create_contact(first_name='Faye',   last_name='Valentine')
         create_contact(first_name='Edward', last_name='Wong')
 
-        build_cell = partial(EntityCellRegularField.build, model=Contact)
+        build_cell = partial(EntityCellRegularField.build, model=FakeContact)
         cell1 = build_cell(name='birthday')
         hf = HeaderFilter.create(pk='test-hf_contact', name='Contact view',
-                                 model=Contact,
+                                 model=FakeContact,
                                  cells_desc=[cell1,
                                              build_cell(name='last_name'),
                                              build_cell(name='first_name'),
                                             ],
-                                  )
+                                )
 
         context = CaptureQueriesContext()
 
         with context:
-            self.assertPOST200(Contact.get_lv_absolute_url(),
+            self.assertPOST200(FakeContact.get_lv_absolute_url(),
                                data={'hfilter': hf.pk,
                                      'sort_field': cell1.key,
                                      'sort_order': '',
@@ -758,17 +753,17 @@ class ListViewTestCase(ViewsTestCase):
     def test_efilter01(self):
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop   = create_orga(name='Bebop')
         redtail = create_orga(name='Redtail')
         dragons = create_orga(name='Red Dragons')
 
         self._build_hf()
 
-        efilter = EntityFilter.create('test-filter01', 'Red', Organisation,
+        efilter = EntityFilter.create('test-filter01', 'Red', FakeOrganisation,
                                       user=user, is_custom=False,
                                       conditions=[EntityFilterCondition.build_4_field(
-                                                        model=Organisation,
+                                                        model=FakeOrganisation,
                                                         operator=EntityFilterCondition.ISTARTSWITH,
                                                         name='name', values=['Red'],
                                                     ),
@@ -795,7 +790,7 @@ class ListViewTestCase(ViewsTestCase):
     def test_qfilter_GET(self):
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop   = create_orga(name='Bebop')
         redtail = create_orga(name='Redtail')
         dragons = create_orga(name='Red Dragons')
@@ -824,7 +819,7 @@ class ListViewTestCase(ViewsTestCase):
     def test_qfilter_POST(self):
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop   = create_orga(name='Bebop')
         redtail = create_orga(name='Redtail')
         dragons = create_orga(name='Red Dragons')
@@ -847,7 +842,7 @@ class ListViewTestCase(ViewsTestCase):
     def test_qfilter_invalid_json(self):
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop   = create_orga(name='Bebop')
         redtail = create_orga(name='Redtail')
         dragons = create_orga(name='Red Dragons')
@@ -865,7 +860,7 @@ class ListViewTestCase(ViewsTestCase):
     def test_qfilter_invalid_Q(self):
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop   = create_orga(name='Bebop')
         redtail = create_orga(name='Redtail')
         dragons = create_orga(name='Red Dragons')
@@ -884,13 +879,13 @@ class ListViewTestCase(ViewsTestCase):
     def test_search_regularfields01(self):
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop     = create_orga(name='Bebop')
         swordfish = create_orga(name='Swordfish',   phone='668899')
         redtail   = create_orga(name='Redtail',     phone='889977')
         dragons   = create_orga(name='Red Dragons', phone='123')
 
-        self._build_hf(EntityCellRegularField.build(model=Organisation, name='phone'))
+        self._build_hf(EntityCellRegularField.build(model=FakeOrganisation, name='phone'))
 
         url = self.url
 
@@ -973,12 +968,12 @@ class ListViewTestCase(ViewsTestCase):
     def test_search_regularfields02(self):
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop = create_orga(name='Bebop inc', subject_to_vat=False)
         nerv  = create_orga(name='NERV',      subject_to_vat=True)
         seele = create_orga(name='Seele',     subject_to_vat=True)
 
-        hf = self._build_hf(EntityCellRegularField.build(model=Organisation, name='subject_to_vat'))
+        hf = self._build_hf(EntityCellRegularField.build(model=FakeOrganisation, name='subject_to_vat'))
         url = self.url
         data = {'hfilter': hf.id}
         response = self.assertPOST200(url, data=dict(data, **{'regular_field-subject_to_vat': '1'}))
@@ -1004,16 +999,16 @@ class ListViewTestCase(ViewsTestCase):
         "ForeignKey (NULL or not)"
         user = self.login()
 
-        create_sector = Sector.objects.create
+        create_sector = FakeSector.objects.create
         mercenary = create_sector(title='Mercenary')
         robotics  = create_sector(title='Robotics')
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop = create_orga(name='Bebop inc', sector=mercenary)
         nerv  = create_orga(name='NERV',      sector=robotics)
         seele = create_orga(name='Seele')
 
-        hf = self._build_hf(EntityCellRegularField.build(model=Organisation, name='sector'))
+        hf = self._build_hf(EntityCellRegularField.build(model=FakeOrganisation, name='sector'))
 
         url = self.url
         data = {'hfilter': hf.id}
@@ -1032,13 +1027,13 @@ class ListViewTestCase(ViewsTestCase):
     def test_search_datefields01(self):
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop     = create_orga(name='Bebop',     creation_date=date(year=2075, month=3, day=26))
         swordfish = create_orga(name='Swordfish', creation_date=date(year=2074, month=6, day=5))
         redtail   = create_orga(name='Redtail',   creation_date=date(year=2076, month=7, day=25))
         dragons   = create_orga(name='Red Dragons')
 
-        hf = self._build_hf(EntityCellRegularField.build(model=Organisation, name='creation_date'))
+        hf = self._build_hf(EntityCellRegularField.build(model=FakeOrganisation, name='creation_date'))
         url = self.url
         build_data = lambda cdate: {'hfilter': hf.id, 'regular_field-creation_date': cdate}
 
@@ -1066,7 +1061,7 @@ class ListViewTestCase(ViewsTestCase):
     def test_search_datetimefields01(self):
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop      = create_orga(name='Bebop')
         swordfish  = create_orga(name='Swordfish')
         swordfish2 = create_orga(name='Swordfish II')
@@ -1074,7 +1069,7 @@ class ListViewTestCase(ViewsTestCase):
         redtail    = create_orga(name='Redtail')
 
         def set_created(orga, dt):
-            Organisation.objects.filter(pk=orga.id).update(created=dt)
+            FakeOrganisation.objects.filter(pk=orga.id).update(created=dt)
 
         create_dt = self.create_datetime
         set_created(bebop,      create_dt(year=2075, month=3, day=26))
@@ -1083,7 +1078,7 @@ class ListViewTestCase(ViewsTestCase):
         set_created(sf_alpha,   create_dt(year=2074, month=6, day=4, hour=23, minute=59))  # Previous day
         set_created(redtail,    create_dt(year=2076, month=7, day=25))
 
-        hf = self._build_hf(EntityCellRegularField.build(model=Organisation, name='created'))
+        hf = self._build_hf(EntityCellRegularField.build(model=FakeOrganisation, name='created'))
         url = self.url
 
         def post(created):
@@ -1118,23 +1113,23 @@ class ListViewTestCase(ViewsTestCase):
     def test_search_fk01(self):
         user = self.login()
 
-        create_civ = Civility.objects.create
+        create_civ = FakeCivility.objects.create
         mister = create_civ(title='Mister')
         miss   = create_civ(title='Miss')
         self.assertLess(mister.id, miss.id)
 
-        create_img = partial(Image.objects.create, user=user)
+        create_img = partial(FakeImage.objects.create, user=user)
         img_faye = create_img(name='Faye selfie')
         img_ed   = create_img(name='Ed selfie')
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         spike = create_contact(first_name='Spike',  last_name='Spiegel',   civility=mister)
         faye  = create_contact(first_name='Faye',   last_name='Valentine', civility=miss, image=img_faye)
         ed    = create_contact(first_name='Edward', last_name='Wong',                     image=img_ed)
 
-        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=Contact)
+        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=FakeContact)
 
-        build_cell = partial(EntityCellRegularField.build, model=Contact)
+        build_cell = partial(EntityCellRegularField.build, model=FakeContact)
         cell_image    = build_cell(name='image')
         cell_img_name = build_cell(name='image__name')
         cell_civ      = build_cell(name='civility')
@@ -1154,7 +1149,7 @@ class ListViewTestCase(ViewsTestCase):
                    ]
         hf.save()
 
-        url = Contact.get_lv_absolute_url()
+        url = FakeContact.get_lv_absolute_url()
 
         # ---------------------------------------------------------------------
         response = self.assertPOST200(url, data={'hfilter': hf.id})
@@ -1201,30 +1196,30 @@ class ListViewTestCase(ViewsTestCase):
         "Search on a subfield which is a FK too"
         user = self.login()
 
-        create_cat = FolderCategory.objects.create
+        create_cat = FakeFolderCategory.objects.create
         cat1 = create_cat(name='Maps')
         cat2 = create_cat(name='Blue prints')
 
-        create_folder = partial(Folder.objects.create, user=user)
+        create_folder = partial(FakeFolder.objects.create, user=user)
         folder1 = create_folder(title='Earth maps', category=cat1)
         folder2 = create_folder(title='Mars maps',  category=cat1)
         folder3 = create_folder(title='Ships',      category=cat2)
         folder4 = create_folder(title="Faye's pix")
 
-        create_doc = partial(Document.objects.create, user=user)
+        create_doc = partial(FakeDocument.objects.create, user=user)
         doc1 = create_doc(title='Japan map',   folder=folder1)
         doc2 = create_doc(title='Mars city 1', folder=folder2)
         doc3 = create_doc(title='Swordfish',   folder=folder3)
         doc4 = create_doc(title='Money!!.jpg', folder=folder4)
 
-        build_cell = partial(EntityCellRegularField.build, model=Document)
-        hf = HeaderFilter.create(pk='test-hf_doc', name='Doc view', model=Document,
+        build_cell = partial(EntityCellRegularField.build, model=FakeDocument)
+        hf = HeaderFilter.create(pk='test-hf_doc', name='Doc view', model=FakeDocument,
                                  cells_desc=[build_cell(name='title'),
                                              build_cell(name='folder__category'),
                                             ],
                                 )
 
-        response = self.assertPOST200(Document.get_lv_absolute_url(),
+        response = self.assertPOST200(FakeDocument.get_lv_absolute_url(),
                                       data={'hfilter': hf.id,
                                             'regular_field-folder__category': cat1.id,
                                            }
@@ -1236,7 +1231,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(doc4.title, content)
 
         # '*is empty*'
-        response = self.assertPOST200(Document.get_lv_absolute_url(),
+        response = self.assertPOST200(FakeDocument.get_lv_absolute_url(),
                                       data={'hfilter': hf.id,
                                             'regular_field-folder__category': 'NULL',
                                            }
@@ -1251,7 +1246,7 @@ class ListViewTestCase(ViewsTestCase):
         "Search on a subfield which is a FK on CremeEntity"
         user = self.login()
 
-        create_folder = partial(Folder.objects.create, user=user)
+        create_folder = partial(FakeFolder.objects.create, user=user)
         p_folder1 = create_folder(title='Maps')
         p_folder2 = create_folder(title='Pix')
 
@@ -1260,20 +1255,20 @@ class ListViewTestCase(ViewsTestCase):
         folder3 = create_folder(title='Ships')
         folder4 = create_folder(title="Faye's pix", parent=p_folder2)
 
-        create_doc = partial(Document.objects.create, user=user)
+        create_doc = partial(FakeDocument.objects.create, user=user)
         doc1 = create_doc(title='Japan',       folder=folder1)
         doc2 = create_doc(title='Mars city 1', folder=folder2)
         doc3 = create_doc(title='Swordfish',   folder=folder3)
         doc4 = create_doc(title='Money!!.jpg', folder=folder4)
 
-        build_cell = partial(EntityCellRegularField.build, model=Document)
-        hf = HeaderFilter.create(pk='test-hf_doc', name='Doc view', model=Document,
+        build_cell = partial(EntityCellRegularField.build, model=FakeDocument)
+        hf = HeaderFilter.create(pk='test-hf_doc', name='Doc view', model=FakeDocument,
                                  cells_desc=[build_cell(name='title'),
                                              build_cell(name='folder__parent'),
                                             ],
                                 )
 
-        response = self.assertPOST200(Document.get_lv_absolute_url(),
+        response = self.assertPOST200(FakeDocument.get_lv_absolute_url(),
                                       data={'hfilter': hf.id,
                                             'regular_field-folder__parent': p_folder1.title,
                                            }
@@ -1288,9 +1283,9 @@ class ListViewTestCase(ViewsTestCase):
         "M2M to CremeEntity model"
         user = self.login()
         hf = HeaderFilter.create(pk='test-hf_camp', name='Campaign view',
-                                 model=EmailCampaign,
+                                 model=FakeEmailCampaign,
                                 )
-        build_cell = partial(EntityCellRegularField.build, model=EmailCampaign)
+        build_cell = partial(EntityCellRegularField.build, model=FakeEmailCampaign)
 
         cell_m2m = build_cell(name='mailing_lists')
         self.assertTrue(cell_m2m.has_a_filter)
@@ -1302,11 +1297,11 @@ class ListViewTestCase(ViewsTestCase):
         hf.cells = [build_cell(name='name'), cell_m2m]
         hf.save()
 
-        create_mlist = partial(MailingList.objects.create, user=user)
+        create_mlist = partial(FakeMailingList.objects.create, user=user)
         ml1 = create_mlist(name='Bebop staff')
         ml2 = create_mlist(name='Mafia staff')
 
-        create_camp = partial(EmailCampaign.objects.create, user=user)
+        create_camp = partial(FakeEmailCampaign.objects.create, user=user)
         camp1 = create_camp(name='Ships')
         camp2 = create_camp(name='Bonzais')
         camp3 = create_camp(name='Mushrooms')
@@ -1315,7 +1310,7 @@ class ListViewTestCase(ViewsTestCase):
         camp2.mailing_lists = [ml1]
 
         def search(term):
-            response = self.assertPOST200(EmailCampaign.get_lv_absolute_url(),
+            response = self.assertPOST200(FakeEmailCampaign.get_lv_absolute_url(),
                                           data={'hfilter': hf.id,
                                                 'regular_field-mailing_lists': term,
                                                }
@@ -1342,8 +1337,8 @@ class ListViewTestCase(ViewsTestCase):
     def test_search_m2mfields02(self):
         "M2M to basic model"
         user = self.login()
-        hf = HeaderFilter.create(pk='test-hf_img', name='Image view', model=Image)
-        build_cell = partial(EntityCellRegularField.build, model=Image)
+        hf = HeaderFilter.create(pk='test-hf_img', name='Image view', model=FakeImage)
+        build_cell = partial(EntityCellRegularField.build, model=FakeImage)
 
         cell_m2m = build_cell(name='categories')
         self.assertTrue(cell_m2m.has_a_filter)
@@ -1352,9 +1347,9 @@ class ListViewTestCase(ViewsTestCase):
         hf.cells = [build_cell(name='name'), cell_m2m]
         hf.save()
 
-        cat1, cat2 = ImageCategory.objects.all()[:2]
+        cat1, cat2 = FakeImageCategory.objects.all()[:2]
 
-        create_img = partial(Image.objects.create, user=user)
+        create_img = partial(FakeImage.objects.create, user=user)
         img1 = create_img(name='Bebop image')
         img2 = create_img(name='Dragon logo')
         img3 = create_img(name='Mushrooms image')
@@ -1363,7 +1358,7 @@ class ListViewTestCase(ViewsTestCase):
         img2.categories = [cat1]
 
         def search(searched):
-            response = self.assertPOST200(Image.get_lv_absolute_url(),
+            response = self.assertPOST200(FakeImage.get_lv_absolute_url(),
                                           data={'hfilter': hf.id,
                                                 cell_m2m.key: searched,
                                                }
@@ -1392,8 +1387,8 @@ class ListViewTestCase(ViewsTestCase):
     def test_search_m2mfields03(self):
         "M2M to basic model + sub-field"
         user = self.login()
-        hf = HeaderFilter.create(pk='test-hf_img', name='Image view', model=Image)
-        build_cell = partial(EntityCellRegularField.build, model=Image)
+        hf = HeaderFilter.create(pk='test-hf_img', name='Image view', model=FakeImage)
+        build_cell = partial(EntityCellRegularField.build, model=FakeImage)
 
         cell_m2m = build_cell(name='categories__name')
         self.assertTrue(cell_m2m.has_a_filter)
@@ -1401,9 +1396,9 @@ class ListViewTestCase(ViewsTestCase):
         hf.cells = [build_cell(name='name'), cell_m2m]
         hf.save()
 
-        cat1, cat2 = ImageCategory.objects.all()[:2]
+        cat1, cat2 = FakeImageCategory.objects.all()[:2]
 
-        create_img = partial(Image.objects.create, user=user)
+        create_img = partial(FakeImage.objects.create, user=user)
         img1 = create_img(name='Bebop image')
         img2 = create_img(name='Dragon logo')
         img3 = create_img(name='Mushrooms image')
@@ -1412,7 +1407,7 @@ class ListViewTestCase(ViewsTestCase):
         img2.categories = [cat1]
 
         def search(searched):
-            response = self.assertPOST200(Image.get_lv_absolute_url(),
+            response = self.assertPOST200(FakeImage.get_lv_absolute_url(),
                                           data={'hfilter': hf.id,
                                                 cell_m2m.key: searched,
                                                }
@@ -1427,13 +1422,13 @@ class ListViewTestCase(ViewsTestCase):
     def test_search_relations01(self):
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop     = create_orga(name='Bebop')
         swordfish = create_orga(name='Swordfish')
         redtail   = create_orga(name='Redtail')
         dragons   = create_orga(name='Red Dragons')
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         spike = create_contact(first_name='Spike', last_name='Spiegel')
         faye  = create_contact(first_name='Faye',  last_name='Spiegel')
         jet   = create_contact(first_name='Jet',   last_name='Black')
@@ -1468,12 +1463,12 @@ class ListViewTestCase(ViewsTestCase):
         "2 searches at the same time"
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop     = create_orga(name='Bebop')
         swordfish = create_orga(name='Swordfish')
         redtail   = create_orga(name='Redtail')
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         spike = create_contact(first_name='Spike', last_name='Spiegel')
         faye  = create_contact(first_name='Faye',  last_name='Spiegel')
         jet   = create_contact(first_name='Jet',   last_name='Black')
@@ -1513,7 +1508,7 @@ class ListViewTestCase(ViewsTestCase):
         "INT"
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop     = create_orga(name='Bebop')
         swordfish = create_orga(name='Swordfish')
         redtail   = create_orga(name='Redtail')
@@ -1548,7 +1543,7 @@ class ListViewTestCase(ViewsTestCase):
         "INT & STR"
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop     = create_orga(name='Bebop')
         swordfish = create_orga(name='Swordfish')
         redtail   = create_orga(name='Redtail')
@@ -1586,7 +1581,7 @@ class ListViewTestCase(ViewsTestCase):
         "INT & INT"
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop     = create_orga(name='Bebop')
         swordfish = create_orga(name='Swordfish')
         redtail   = create_orga(name='Redtail')
@@ -1627,7 +1622,7 @@ class ListViewTestCase(ViewsTestCase):
         "ENUM"
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop     = create_orga(name='Bebop')
         swordfish = create_orga(name='Swordfish')
         redtail   = create_orga(name='Redtail')
@@ -1677,7 +1672,7 @@ class ListViewTestCase(ViewsTestCase):
         "MULTI_ENUM"
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop    = create_orga(name='Bebop')
         dragons  = create_orga(name='Red Dragons')
         eva01    = create_orga(name='Eva01')
@@ -1727,7 +1722,7 @@ class ListViewTestCase(ViewsTestCase):
         "2 x ENUM"
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop     = create_orga(name='Bebop')
         swordfish = create_orga(name='Swordfish')
         redtail   = create_orga(name='Redtail')
@@ -1791,7 +1786,7 @@ class ListViewTestCase(ViewsTestCase):
         "2 x MULTI_ENUM"
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop     = create_orga(name='Bebop')
         swordfish = create_orga(name='Swordfish')
         eva02     = create_orga(name='Eva02')
@@ -1856,7 +1851,7 @@ class ListViewTestCase(ViewsTestCase):
         "DATETIME"
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop     = create_orga(name='Bebop')
         swordfish = create_orga(name='Swordfish')
         redtail   = create_orga(name='Redtail')
@@ -1909,7 +1904,7 @@ class ListViewTestCase(ViewsTestCase):
         "2 x DATETIME"
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop      = create_orga(name='Bebop')
         swordfish  = create_orga(name='Swordfish')
         redtail    = create_orga(name='Redtail')
@@ -1950,7 +1945,7 @@ class ListViewTestCase(ViewsTestCase):
         "_PrettyPropertiesField"
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop     = create_orga(name='Bebop')
         swordfish = create_orga(name='Swordfish')
         eva01     = create_orga(name='Eva01')
@@ -1968,7 +1963,7 @@ class ListViewTestCase(ViewsTestCase):
         create_prop(type=is_fast, creme_entity=bebop)
 
         ff_name = 'get_pretty_properties'
-        hf = self._build_hf(EntityCellFunctionField.build(Organisation, ff_name))
+        hf = self._build_hf(EntityCellFunctionField.build(FakeOrganisation, ff_name))
 
         response = self.assertPOST200(self.url, data={'hfilter': hf.id,
                                                       'function_field-%s' % ff_name: 'red',
@@ -1984,11 +1979,11 @@ class ListViewTestCase(ViewsTestCase):
         "Can not search on this FunctionField"
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop     = create_orga(name='Bebop')
         swordfish = create_orga(name='Swordfish')
 
-        func_field = Organisation.function_fields.get('tests-get_fake_todos')
+        func_field = FakeOrganisation.function_fields.get('tests-get_fake_todos')
         self._build_hf(EntityCellFunctionField(func_field))
 
         response = self.assertPOST200(self.url, data={'regular_field-name': '',
@@ -2000,15 +1995,15 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(swordfish, orgas_set)
 
     def _build_orgas(self):
-        count = Organisation.objects.count()
+        count = FakeOrganisation.objects.count()
         expected_count = 13  # 13 = 10 (our page size) + 3
         self.assertLessEqual(count, expected_count)
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(FakeOrganisation.objects.create, user=self.user)
         for i in xrange(expected_count - count):
             create_orga(name='Mafia #%02i' % i)
 
-        organisations = list(Organisation.objects.all())
+        organisations = list(FakeOrganisation.objects.all())
         self.assertEqual(expected_count, len(organisations))
 
         return organisations
@@ -2154,24 +2149,24 @@ class ListViewTestCase(ViewsTestCase):
         rows = 10
         expected_count = rows + 3
 
-        count = Contact.objects.count()
+        count = FakeContact.objects.count()
         self.assertLessEqual(count, expected_count)
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         for i in xrange(expected_count - count):
             create_contact(first_name='Gally', last_name='Tuned%02i' % i)
 
-        contacts = list(Contact.objects.all())
+        contacts = list(FakeContact.objects.all())
         self.assertEqual(expected_count, len(contacts))
 
-        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=Contact,
+        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=FakeContact,
                                  cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
                                              (EntityCellRegularField, {'name': 'first_name'}),
                                             ],
                                 )
 
         def post(page_info=None):
-            return self.assertPOST200(Contact.get_lv_absolute_url(),
+            return self.assertPOST200(FakeContact.get_lv_absolute_url(),
                                       data={'hfilter': hf.id,
                                             'page': json_dump(page_info) if page_info else '',
                                             'rows': rows,
@@ -2217,29 +2212,29 @@ class ListViewTestCase(ViewsTestCase):
         rows = 10
         expected_count = rows + 3
 
-        count = Contact.objects.count()
+        count = FakeContact.objects.count()
         self.assertLessEqual(count, expected_count)
 
         ids = range(expected_count - count)
         shuffle(ids)
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         for i, id_ in enumerate(ids):
             # NB: we want the ordering by 'first_name' to be different from the 'last_name' one
             create_contact(first_name='Gally%02i' % id_, last_name='Tuned%02i' % i)
 
         ordering_fname = 'first_name'
-        contacts = list(Contact.objects.order_by(ordering_fname))
+        contacts = list(FakeContact.objects.order_by(ordering_fname))
         self.assertEqual(expected_count, len(contacts))
 
-        build_cell = partial(EntityCellRegularField.build, model=Contact)
+        build_cell = partial(EntityCellRegularField.build, model=FakeContact)
         cell2 = build_cell(name=ordering_fname)
-        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=Contact,
+        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=FakeContact,
                                  cells_desc=[build_cell(name='last_name'), cell2],
                                  )
 
         def post(page_info=None):
-            return self.assertPOST200(Contact.get_lv_absolute_url(),
+            return self.assertPOST200(FakeContact.get_lv_absolute_url(),
                                       data={'hfilter': hf.id,
                                             'sort_field': cell2.key,
                                             'sort_order': '',  # TODO: '-'
@@ -2275,25 +2270,25 @@ class ListViewTestCase(ViewsTestCase):
         rows = 10
         expected_count = rows + 3
 
-        count = Contact.objects.count()
+        count = FakeContact.objects.count()
         self.assertLessEqual(count, expected_count)
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         for i in xrange(expected_count - count):
             # NB: same last_name
             create_contact(first_name='Gally', last_name='Tuned', phone='11 22 33 #%02i' % i)
 
-        contacts = list(Contact.objects.order_by('last_name', 'first_name', 'cremeentity_ptr_id'))
+        contacts = list(FakeContact.objects.order_by('last_name', 'first_name', 'cremeentity_ptr_id'))
         self.assertEqual(expected_count, len(contacts))
 
-        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=Contact,
+        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=FakeContact,
                                  cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
                                              (EntityCellRegularField, {'name': 'first_name'}),
                                             ],
                                 )
 
         def post(page_info=None):
-            return self.assertPOST200(Contact.get_lv_absolute_url(),
+            return self.assertPOST200(FakeContact.get_lv_absolute_url(),
                                       data={'hfilter': hf.id,
                                             'page': json_dump(page_info) if page_info else '',
                                             'rows': rows,
@@ -2322,21 +2317,21 @@ class ListViewTestCase(ViewsTestCase):
         rows = 5
         expected_count = rows + 3
 
-        count = Contact.objects.count()
+        count = FakeContact.objects.count()
         self.assertLessEqual(count, expected_count)
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         for i in xrange(expected_count - count):
             create_contact(first_name='Gally', last_name='Tuned#%02i' % i)
 
-        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=Contact,
+        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=FakeContact,
                                  cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
                                              (EntityCellRegularField, {'name': 'first_name'}),
                                             ],
                                 )
 
         def post(page_info=''):
-            response = self.assertPOST200(Contact.get_lv_absolute_url(),
+            response = self.assertPOST200(FakeContact.get_lv_absolute_url(),
                                           data={'hfilter': hf.id,
                                                 'page': page_info,
                                                 'rows': rows,
@@ -2371,21 +2366,21 @@ class ListViewTestCase(ViewsTestCase):
         rows = 5
         expected_count = 2 * rows + 3
 
-        count = Contact.objects.count()
+        count = FakeContact.objects.count()
         self.assertLessEqual(count, expected_count)
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         for i in xrange(expected_count - count):
             create_contact(first_name='Gally', last_name='Tuned#%02i' % i)
 
-        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=Contact,
+        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=FakeContact,
                                  cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
                                              (EntityCellRegularField, {'name': 'first_name'}),
                                             ],
                                 )
 
         def post(page_info=''):
-            response = self.assertPOST200(Contact.get_lv_absolute_url(),
+            response = self.assertPOST200(FakeContact.get_lv_absolute_url(),
                                           data={'hfilter': hf.id,
                                                 'page': page_info,
                                                 'rows': rows,
@@ -2401,7 +2396,7 @@ class ListViewTestCase(ViewsTestCase):
         page3_info = page2.next_page_info()
 
         # We delete the content of the 2nd page
-        for c in Contact.objects.reverse()[:4]:
+        for c in FakeContact.objects.reverse()[:4]:
             c.delete()
 
         last_page = post(json_dump(page3_info))
@@ -2413,7 +2408,7 @@ class ListViewTestCase(ViewsTestCase):
         self.login()
         organisations = self._build_orgas()
         hf = self._build_hf()
-        url = Organisation.get_lv_absolute_url()
+        url = FakeOrganisation.get_lv_absolute_url()
 
         def post(page_info=''):
             data = {'hfilter': hf.id,
@@ -2440,7 +2435,7 @@ class ListViewTestCase(ViewsTestCase):
         user =  self.login()
         self._build_orgas()
         hf = self._build_hf()
-        url = Organisation.get_lv_absolute_url()
+        url = FakeOrganisation.get_lv_absolute_url()
 
         def post():
             response = self.assertPOST200(url,
@@ -2453,14 +2448,14 @@ class ListViewTestCase(ViewsTestCase):
         page1_slow = post()
         self.assertTrue(hasattr(page1_slow, 'number'))  # Means slow mode
 
-        Organisation.objects.create(user=user, name='Zalem')  # We exceed the threshold
+        FakeOrganisation.objects.create(user=user, name='Zalem')  # We exceed the threshold
         page1_fast = post()
         self.assertTrue(hasattr(page1_fast, 'next_page_info'))  # Means fast mode
 
     def test_listview_popup_GET(self):
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop   = create_orga(name='Bebop')
         redtail = create_orga(name='Redtail')
         dragons = create_orga(name='Red Dragons')
@@ -2488,7 +2483,7 @@ class ListViewTestCase(ViewsTestCase):
     def test_listview_popup_POST(self):
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop   = create_orga(name='Bebop')
         redtail = create_orga(name='Redtail')
         dragons = create_orga(name='Red Dragons')

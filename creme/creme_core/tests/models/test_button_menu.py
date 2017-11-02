@@ -2,7 +2,7 @@
 
 try:
     from ..base import CremeTestCase
-    from ..fake_models import FakeContact as Contact
+    from ..fake_models import FakeContact
     from creme.creme_core.models import ButtonMenuItem
     from creme.creme_core.gui.button_menu import Button
 except Exception as e:
@@ -21,15 +21,15 @@ class ButtonMenuItemTestCase(CremeTestCase):
         button = TestButton()
 
         order = 10
-        ButtonMenuItem.create_if_needed(pk, Contact, button, order)
+        ButtonMenuItem.create_if_needed(pk, FakeContact, button, order)
         bmi = self.get_object_or_fail(ButtonMenuItem, pk=pk)
 
-        self.assertEqual(Contact,    bmi.content_type.model_class())
+        self.assertEqual(FakeContact, bmi.content_type.model_class())
         self.assertEqual(button.id_, bmi.button_id)
         self.assertEqual(order,      bmi.order)
 
         old_count = ButtonMenuItem.objects.count()
-        bmi = ButtonMenuItem.create_if_needed(pk, Contact, button, order + 5)
+        bmi = ButtonMenuItem.create_if_needed(pk, FakeContact, button, order + 5)
         self.assertEqual(order,     bmi.order)
         self.assertEqual(old_count, ButtonMenuItem.objects.count())
 

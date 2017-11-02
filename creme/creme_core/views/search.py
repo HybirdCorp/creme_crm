@@ -155,7 +155,7 @@ def search(request):
         blocks.extend(FoundEntitiesBrick(searcher, model, research, user) for model in models)
 
     t_ctx['research'] = research
-    t_ctx['models'] = [model._meta.verbose_name for model in models]
+    t_ctx['models'] = [m._meta.verbose_name for m in models]
     t_ctx['blocks'] = blocks
     t_ctx['selected_ct_id'] = int(ct_id) if ct_id.isdigit() else None
 

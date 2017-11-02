@@ -20,12 +20,11 @@
 
 from itertools import chain
 
-from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, Relation
-from creme.creme_core.gui.bricks import SimpleBrick, QuerysetBrick, list4url
+from creme.creme_core.gui.bricks import SimpleBrick, QuerysetBrick
 
 from creme import persons
 

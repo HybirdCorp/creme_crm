@@ -19,12 +19,12 @@
 ################################################################################
 
 from django.http import HttpResponse
-from django.shortcuts import render
+# from django.shortcuts import render
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CustomField
-from creme.creme_core.utils import get_ct_or_404, get_from_POST_or_404 # jsonify
+from creme.creme_core.utils import get_ct_or_404, get_from_POST_or_404  # jsonify
 # from creme.creme_core.views.blocks import build_context
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
 

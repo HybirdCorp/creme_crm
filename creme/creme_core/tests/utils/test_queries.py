@@ -8,10 +8,9 @@ try:
     from django.db.models import Q
 
     from ..base import CremeTestCase
-    from ..fake_models import (FakeCivility as Civility, FakeContact as Contact,
-            FakeOrganisation as Organisation, FakePosition as Position,
-            FakeActivity as Activity, FakeActivityType as ActivityType)
-    from creme.creme_core.models import CremePropertyType
+    from ..fake_models import (FakeCivility, FakeContact,
+           FakeOrganisation, FakePosition, FakeActivity, FakeActivityType)
+    # from creme.creme_core.models import CremePropertyType
     from creme.creme_core.utils.queries import QSerializer  # get_first_or_None
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -23,15 +22,15 @@ class QueriesTestCase(CremeTestCase):
         # CremeTestCase.setUpClass()
         super(QueriesTestCase, cls).setUpClass()
 
-        cls._civ_backup = list(Civility.objects.all())
-        Civility.objects.all().delete()
+        cls._civ_backup = list(FakeCivility.objects.all())
+        FakeCivility.objects.all().delete()
 
     @classmethod
     def tearDownClass(cls):
         # CremeTestCase.tearDownClass()
         super(QueriesTestCase, cls).tearDownClass()
-        Civility.objects.all().delete()
-        Civility.objects.bulk_create(cls._civ_backup)
+        FakeCivility.objects.all().delete()
+        FakeCivility.objects.bulk_create(cls._civ_backup)
 
     # def test_get_first_or_None01(self):
     #     CremePropertyType.objects.create(text='Is cute', is_custom=True)
@@ -53,15 +52,15 @@ class QueriesTestCase(CremeTestCase):
                                 )
 
     def _create_activity_type(self):
-        return ActivityType.objects.create(name='Tournament')
+        return FakeActivityType.objects.create(name='Tournament')
 
     def _create_contacts(self):
-        create_pos = Position.objects.create
+        create_pos = FakePosition.objects.create
         self.baker   = create_pos(title='Baker')
         self.boxer   = create_pos(title='Boxer')
         self.fighter = create_pos(title='Fighter')
 
-        create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(FakeContact.objects.create, user=self.user)
         self.adrian   = create_contact(first_name='Adrian', last_name=u'Velba',
                                        birthday=date(year=2003, month=3, day=5),
                                        position=self.fighter,
@@ -86,13 +85,13 @@ class QueriesTestCase(CremeTestCase):
 
         q2 = QSerializer().loads(str_q)
         self.assertIsInstance(q2, Q)
-        self._assertQEqual(Contact, q1, q2)
+        self._assertQEqual(FakeContact, q1, q2)
 
     def test_q_serializer_02(self):
         "2 conditions + operator"
         user = self.login()
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         adrian = create_contact(first_name='Adrian', last_name=u'Velbà')
         create_contact(first_name='Marianne', last_name=u'Velbà')
         create_contact(first_name='Richard',  last_name='Aldana')
@@ -106,7 +105,7 @@ class QueriesTestCase(CremeTestCase):
 
         q2 = QSerializer().loads(str_q)
         self.assertIsInstance(q2, Q)
-        self._assertQEqual(Contact, q1, q2)
+        self._assertQEqual(FakeContact, q1, q2)
 
     def test_q_serializer_03(self):
         "AND"
@@ -118,7 +117,7 @@ class QueriesTestCase(CremeTestCase):
 
         str_q = QSerializer().dumps(q)
         # print(str_q)
-        self._assertQEqual(Contact, q, QSerializer().loads(str_q))
+        self._assertQEqual(FakeContact, q, QSerializer().loads(str_q))
 
     def test_q_serializer_04(self):
         "OR"
@@ -130,7 +129,7 @@ class QueriesTestCase(CremeTestCase):
 
         str_q = QSerializer().dumps(q)
         # print(str_q)
-        self._assertQEqual(Contact, q, QSerializer().loads(str_q))
+        self._assertQEqual(FakeContact, q, QSerializer().loads(str_q))
 
     def test_q_serializer_05(self):
         "NOT"
@@ -142,7 +141,7 @@ class QueriesTestCase(CremeTestCase):
 
         str_q = QSerializer().dumps(q)
         #print str_q
-        self._assertQEqual(Contact, q, QSerializer().loads(str_q))
+        self._assertQEqual(FakeContact, q, QSerializer().loads(str_q))
 
     def test_q_serializer_06(self):
         "Dates"
@@ -154,14 +153,14 @@ class QueriesTestCase(CremeTestCase):
 
         str_q = QSerializer().dumps(q)
         #print str_q
-        self._assertQEqual(Contact, q, QSerializer().loads(str_q))
+        self._assertQEqual(FakeContact, q, QSerializer().loads(str_q))
 
     def test_q_serializer_07(self): 
         "Datetimes"
         user = self.login()
 
         create_dt = partial(self.create_datetime, year=2015, month=2, minute=0)
-        create_act = partial(Activity.objects.create, user=user, type=self._create_activity_type())
+        create_act = partial(FakeActivity.objects.create, user=user, type=self._create_activity_type())
         acts = [create_act(title='T#1', start=create_dt(day=19, hour=8)),
                 create_act(title='T#2', start=create_dt(day=19, hour=12)),
                ]
@@ -171,30 +170,30 @@ class QueriesTestCase(CremeTestCase):
 
         str_q = QSerializer().dumps(q)
         # print(str_q)
-        self._assertQEqual(Activity, q, QSerializer().loads(str_q))
+        self._assertQEqual(FakeActivity, q, QSerializer().loads(str_q))
 
     def test_q_serializer_08(self): 
         "Range"
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
-        o1 = create_orga(name=u'Vallée des rois',     capital=15000)
-        o2 = create_orga(name=u'Paxtown',             capital=5000)
-        o3 = create_orga(name=u'Zotis incorporation', capital=200)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        create_orga(name=u'Vallée des rois',     capital=15000)
+        o2 = create_orga(name=u'Paxtown',        capital=5000)
+        create_orga(name=u'Zotis incorporation', capital=200)
 
         q = Q(capital__range=[1000, 10000])
         self._assertQIsOK(q, [o2])
 
         str_q = QSerializer().dumps(q)
         # print(str_q)
-        self._assertQEqual(Organisation, q, QSerializer().loads(str_q))
+        self._assertQEqual(FakeOrganisation, q, QSerializer().loads(str_q))
 
     def test_q_serializer_09(self): 
         "Datetime range"
         user = self.login()
 
         create_dt = partial(self.create_datetime, year=2015, month=2, minute=0)
-        create_act = partial(Activity.objects.create, user=user, type=self._create_activity_type())
+        create_act = partial(FakeActivity.objects.create, user=user, type=self._create_activity_type())
         acts = [create_act(title='T#1', start=create_dt(day=18, hour=8)),
                 create_act(title='T#2', start=create_dt(day=19, hour=8)),
                 create_act(title='T#3', start=create_dt(day=20, hour=8)),
@@ -208,7 +207,7 @@ class QueriesTestCase(CremeTestCase):
 
         str_q = QSerializer().dumps(q)
         # print(str_q)
-        self._assertQEqual(Activity, q, QSerializer().loads(str_q))
+        self._assertQEqual(FakeActivity, q, QSerializer().loads(str_q))
 
     def test_q_serializer_10(self): 
         "Value is a model instance"
@@ -221,7 +220,7 @@ class QueriesTestCase(CremeTestCase):
         qsr = QSerializer()
         str_q = qsr.dumps(q)
         #print str_q
-        self._assertQEqual(Contact, q, qsr.loads(str_q))
+        self._assertQEqual(FakeContact, q, qsr.loads(str_q))
 
     def test_q_serializer_11(self):
         "__in=[...] + model instance"
@@ -234,20 +233,20 @@ class QueriesTestCase(CremeTestCase):
         qsr = QSerializer()
         str_q = qsr.dumps(q)
         # print(str_q)
-        self._assertQEqual(Contact, q, qsr.loads(str_q))
+        self._assertQEqual(FakeContact, q, qsr.loads(str_q))
 
     def test_q_serializer_12(self):
         "__in=QuerySet -> error"
         self.login()
         self._create_contacts()
 
-        q = Q(position__in=Position.objects.filter(title__startswith='B'))
+        q = Q(position__in=FakePosition.objects.filter(title__startswith='B'))
         self._assertQIsOK(q, [self.richard, self.marianne])
 
         qsr = QSerializer()
         self.assertRaises(SerializationError, qsr.dumps, q)
 
-        q = Q(position__in=Position.objects.filter(title__startswith='B')
+        q = Q(position__in=FakePosition.objects.filter(title__startswith='B')
                                            .values_list('id', flat=True)
              )
         self._assertQIsOK(q, [self.richard, self.marianne])

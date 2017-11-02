@@ -3,7 +3,7 @@
 try:
     from django.contrib.contenttypes.models import ContentType
 
-    from ..fake_models import FakeContact as Contact
+    from ..fake_models import FakeContact
     from .base import FieldTestCase
     from creme.creme_core.forms.header_filter import EntityCellsField
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
@@ -18,7 +18,7 @@ class EntityCellsFieldTestCase(FieldTestCase):
     def setUpClass(cls):
         # FieldTestCase.setUpClass()
         super(EntityCellsFieldTestCase, cls).setUpClass()
-        cls.ct_contact = ContentType.objects.get_for_model(Contact)
+        cls.ct_contact = ContentType.objects.get_for_model(FakeContact)
 
     def test_clean_empty_required(self):
         clean = EntityCellsField(required=True, content_type=self.ct_contact).clean
@@ -64,7 +64,7 @@ class EntityCellsFieldTestCase(FieldTestCase):
                                                  field_type=CustomField.INT,
                                                  content_type=self.ct_contact,
                                                 )
-        funcfield = Contact.function_fields.get('get_pretty_properties')
+        funcfield = FakeContact.function_fields.get('get_pretty_properties')
 
         field = EntityCellsField(content_type=self.ct_contact)
         cells = field.clean('relation-%s,'

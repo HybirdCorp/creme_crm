@@ -15,7 +15,7 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.gui.field_printers import field_printers_registry
     from creme.creme_core.models import CremeEntity, RelationType, HeaderFilter, SetCredentials
-    from creme.creme_core.tests.fake_models import FakeOrganisation as Organisation
+    from creme.creme_core.tests.fake_models import FakeOrganisation
 
     from creme.persons.tests.base import skipIfCustomContact
     from creme.persons import get_contact_model
@@ -297,7 +297,7 @@ class DocumentTestCase(_DocumentsTestCase):
                         EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not EntityCredentials.LINK
                  )
 
-        orga = Organisation.objects.create(user=user, name='NERV')
+        orga = FakeOrganisation.objects.create(user=user, name='NERV')
         self.assertTrue(user.has_perm_to_view(orga))
         self.assertFalse(user.has_perm_to_link(orga))
 
@@ -305,7 +305,7 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertGET403(url)
 
         get_ct = ContentType.objects.get_for_model
-        create_sc(value=EntityCredentials.LINK, ctype=get_ct(Organisation))
+        create_sc(value=EntityCredentials.LINK, ctype=get_ct(FakeOrganisation))
         self.assertGET403(url)
 
         create_sc(value=EntityCredentials.LINK, ctype=get_ct(Document))
@@ -338,7 +338,7 @@ class DocumentTestCase(_DocumentsTestCase):
                                       set_type=SetCredentials.ESET_ALL
                                      )
 
-        orga = Organisation.objects.create(user=self.other_user, name='NERV')
+        orga = FakeOrganisation.objects.create(user=self.other_user, name='NERV')
         self.assertTrue(user.has_perm_to_link(orga))
         self.assertFalse(user.has_perm_to_view(orga))
         self.assertGET403(self._buid_addrelated_url(orga))
@@ -351,7 +351,7 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual(MAX_LEN, Folder._meta.get_field('title').max_length)
 
         with self.assertNoException():
-            entity = Organisation.objects.create(user=user, name='A' * MAX_LEN)
+            entity = FakeOrganisation.objects.create(user=user, name='A' * MAX_LEN)
 
         self.assertEqual(100, len(unicode(entity)))
 

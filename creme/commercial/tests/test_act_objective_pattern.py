@@ -7,8 +7,7 @@ try:
     from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.tests.fake_models import (FakeContact as Contact,
-            FakeOrganisation as Organisation)
+    from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation
     from creme.creme_core.models import EntityFilter
 
     from ..models import ActObjectivePatternComponent
@@ -133,7 +132,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         "Counted relation (no parent component)"
         pattern = self._create_pattern()
         name = 'Called contacts'
-        ct = ContentType.objects.get_for_model(Contact)
+        ct = ContentType.objects.get_for_model(FakeContact)
         response = self.client.post(self._build_addcomp_url(pattern),
                                     data={'name':            name,
                                           'entity_counting': self._build_ctypefilter_field(ct),
@@ -154,8 +153,8 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         "Counted relation with filter (no parent component)"
         pattern = self._create_pattern()
         name = 'Called contacts'
-        ct = ContentType.objects.get_for_model(Contact)
-        efilter = EntityFilter.create('test-filter01', 'Ninja', Contact, is_custom=True)
+        ct = ContentType.objects.get_for_model(FakeContact)
+        efilter = EntityFilter.create('test-filter01', 'Ninja', FakeContact, is_custom=True)
         response = self.client.post(self._build_addcomp_url(pattern),
                                     data={'name':            name,
                                           'entity_counting': self._build_ctypefilter_field(ct, efilter),
@@ -198,7 +197,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertIsNone(comp02.ctype)
 
         name = 'Called contacts'
-        ct   = ContentType.objects.get_for_model(Contact)
+        ct   = ContentType.objects.get_for_model(FakeContact)
         response = self.client.post(url, data={'name':            name,
                                                'entity_counting': self._build_ctypefilter_field(ct),
                                                'success_rate':    60,
@@ -252,7 +251,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         comp02 = create_comp(name='Spread Vcards',        success_rate=1, parent=comp01)
 
         name = 'Called contacts'
-        ct   = ContentType.objects.get_for_model(Contact)
+        ct   = ContentType.objects.get_for_model(FakeContact)
         response = self.client.post(self._build_parent_url(comp02),
                                     data={'name':            name,
                                           'entity_counting': self._build_ctypefilter_field(ct),
@@ -376,9 +375,9 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
     def test_actobjectivepattern_clone01(self):
         pattern = self._create_pattern()
 
-        ct_contact = ContentType.objects.get_for_model(Contact)
-        ct_orga    = ContentType.objects.get_for_model(Organisation)
-        efilter = EntityFilter.create('test-filter01', 'Ninja', Contact, is_custom=True)
+        ct_contact = ContentType.objects.get_for_model(FakeContact)
+        ct_orga    = ContentType.objects.get_for_model(FakeOrganisation)
+        efilter = EntityFilter.create('test-filter01', 'Ninja', FakeContact, is_custom=True)
 
         create_comp = partial(ActObjectivePatternComponent.objects.create,
                               pattern=pattern, success_rate=1,

@@ -7,7 +7,7 @@ try:
     from django.core.urlresolvers import reverse
 
     from ..base import CremeTestCase
-    from ..fake_models import FakeOrganisation as Organisation
+    from ..fake_models import FakeOrganisation
     from creme.creme_core.core.entity_cell import EntityCellCustomField
     from creme.creme_core.forms.bulk import _CUSTOMFIELD_FORMAT
     from creme.creme_core.forms.header_filter import EntityCellRegularField
@@ -40,7 +40,7 @@ class CremeListViewTagsTestCase(CremeTestCase):
         "{% get_listview_cell cell entity user %}"
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         bebop     = create_orga(name='Bebop')
         swordfish = create_orga(name='Swordfish')
 
@@ -71,10 +71,10 @@ class CremeListViewTagsTestCase(CremeTestCase):
 
     def test_get_field_editor_cell_regular(self):
         user = self.login()
-        orga = Organisation.objects.create(user=user, name='Amestris')
+        orga = FakeOrganisation.objects.create(user=user, name='Amestris')
         orga_field_name = orga.entity_type.model_class()._meta.get_field('name')
 
-        cell = EntityCellRegularField(Organisation, 'name', FieldInfo(Organisation, 'name'))
+        cell = EntityCellRegularField(FakeOrganisation, 'name', FieldInfo(FakeOrganisation, 'name'))
 
         with self.assertNoException():
             template = Template(r"{% load creme_block %}"
@@ -86,7 +86,7 @@ class CremeListViewTagsTestCase(CremeTestCase):
 
     def test_get_field_editor_cell_custom(self):
         user = self.login()
-        orga = Organisation.objects.create(user=user, name='Amestris')
+        orga = FakeOrganisation.objects.create(user=user, name='Amestris')
         custom_field_orga = CustomField.objects.create(name='custom 1',
                                                        content_type=orga.entity_type,
                                                        field_type=CustomField.STR,

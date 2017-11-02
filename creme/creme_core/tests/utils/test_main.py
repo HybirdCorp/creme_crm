@@ -14,7 +14,7 @@ try:
     from django.utils.translation import ugettext_lazy
 
     from ..base import CremeTestCase
-    from ..fake_models import FakeContact as Contact, FakeCivility as Civility
+    from ..fake_models import FakeContact, FakeCivility
     from creme.creme_core.models import PreferedMenuItem
     from creme.creme_core.utils import (find_first, truncate_str, split_filter,
         create_if_needed, update_model_instance, get_from_GET_or_404, get_from_POST_or_404,
@@ -74,18 +74,18 @@ class MiscTestCase(CremeTestCase):
     def test_create_if_needed01(self):
         title = 'Mister'
         pk = 1024
-        self.assertFalse(Civility.objects.filter(pk=pk).exists())
+        self.assertFalse(FakeCivility.objects.filter(pk=pk).exists())
 
-        civ = create_if_needed(Civility, {'pk': pk}, title=title)
-        self.assertIsInstance(civ, Civility)
+        civ = create_if_needed(FakeCivility, {'pk': pk}, title=title)
+        self.assertIsInstance(civ, FakeCivility)
         self.assertEqual(pk,       civ.pk)
         self.assertEqual(title,    civ.title)
 
-        civ = self.get_object_or_fail(Civility, pk=pk)  # Check has been saved
+        civ = self.get_object_or_fail(FakeCivility, pk=pk)  # Check has been saved
 
         self.assertEqual(title, civ.title)
 
-        civ = create_if_needed(Civility, {'pk': pk}, title=title + '2')
+        civ = create_if_needed(FakeCivility, {'pk': pk}, title=title + '2')
         self.assertEqual(title, civ.title)
 
     def test_create_if_needed02(self):
@@ -114,7 +114,7 @@ class MiscTestCase(CremeTestCase):
         self.login()
         first_name = 'punpun'
         last_name = 'punpunyama'
-        pupun = Contact.objects.create(user=self.user, first_name=first_name, last_name=last_name)
+        pupun = FakeContact.objects.create(user=self.user, first_name=first_name, last_name=last_name)
 
         first_name = first_name.title()
 
@@ -133,7 +133,7 @@ class MiscTestCase(CremeTestCase):
 
         first_name = 'punpun'
         last_name = 'punpunyama'
-        pupun = Contact.objects.create(user=self.user, first_name=first_name, last_name=last_name)
+        pupun = FakeContact.objects.create(user=self.user, first_name=first_name, last_name=last_name)
 
         first_name = first_name.title()
         last_name = last_name.title()

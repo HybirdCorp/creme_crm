@@ -3,7 +3,7 @@
 try:
     from creme.creme_core.models import SettingValue
 
-    from creme.creme_core.tests.fake_models import FakeContact as Contact
+    from creme.creme_core.tests.fake_models import FakeContact
 
     from .. import registry
     from ..backends.models import CrudityBackend
@@ -44,15 +44,15 @@ class BackendsTestCase(CrudityTestCase):
                                 )
 
     def test_is_configured01(self):
-        backend = self._get_backend(Contact)
+        backend = self._get_backend(FakeContact)
         self.assertFalse(backend.is_configured)
 
-        backend2 = self._get_backend(Contact, subject=u'contact', body_map={'user_id': 1})
+        backend2 = self._get_backend(FakeContact, subject=u'contact', body_map={'user_id': 1})
         self.assertTrue(backend2.is_configured)
 
     def test_check_configuration01(self):
         self.assertRaises(ImproperlyConfiguredBackend, self._get_backend,
-                          Contact, subject='contact',
+                          FakeContact, subject='contact',
                           body_map={'user_id': 1, 'di_resu': 1},
                          )
 

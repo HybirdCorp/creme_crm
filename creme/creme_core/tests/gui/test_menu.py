@@ -10,7 +10,7 @@ try:
     from django.test.client import RequestFactory
 
     from ..base import CremeTestCase
-    from creme.creme_core.utils.media import get_creme_media_url
+    # from creme.creme_core.utils.media import get_creme_media_url
     from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation, FakeDocument, FakeActivity
 
     if not settings.OLD_MENU:

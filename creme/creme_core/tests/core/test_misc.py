@@ -22,8 +22,7 @@ try:
     from creme.creme_core.creme_jobs import reminder_type
     from creme.creme_core.models import RelationType, CustomField, CustomFieldEnumValue, Job
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_models import (FakeContact as Contact,
-            FakeDocument as Document)
+    from creme.creme_core.tests.fake_models import FakeContact, FakeDocument
     from creme.creme_core.utils.dates import round_hour
     from creme.creme_core.utils.date_period import HoursPeriod
 except Exception as e:
@@ -36,16 +35,16 @@ class FunctionFieldsTestCase(CremeTestCase):
         ffm = FunctionFieldsManager()
         self.assertFalse(list(ffm))
 
-        fname01 = "name01"
-        fname02 = "name02"
+        fname01 = 'name01'
+        fname02 = 'name02'
 
         class TestFunctionField01(FunctionField):
             name         = fname01
-            verbose_name = "Verbose name 01"
+            verbose_name = 'Verbose name 01'
 
         class TestFunctionField02(FunctionField):
             name         = fname02
-            verbose_name = "Verbose name 02"
+            verbose_name = 'Verbose name 02'
 
         ff01 = TestFunctionField01()
         ff02 = TestFunctionField02()
@@ -59,12 +58,12 @@ class FunctionFieldsTestCase(CremeTestCase):
 
     def test_manager02(self):
         "Constructor with args"
-        fname01 = "name01"
-        fname02 = "name02"
+        fname01 = 'name01'
+        fname02 = 'name02'
 
         class TestFunctionField01(FunctionField):
             name         = fname01
-            verbose_name = "Verbose name 01"
+            verbose_name = 'Verbose name 01'
 
         class TestFunctionField02(FunctionField):
             name         = fname02
@@ -80,16 +79,16 @@ class FunctionFieldsTestCase(CremeTestCase):
 
     def test_manager03(self):
         "new() method"
-        fname01 = "name01"
-        fname02 = "name02"
+        fname01 = 'name01'
+        fname02 = 'name02'
 
         class TestFunctionField01(FunctionField):
             name         = fname01
-            verbose_name = "Verbose name 01"
+            verbose_name = 'Verbose name 01'
 
         class TestFunctionField02(FunctionField):
             name         = fname02
-            verbose_name = "Verbose name 02"
+            verbose_name = 'Verbose name 02'
 
         ff01 = TestFunctionField01()
         ff02 = TestFunctionField02()
@@ -107,16 +106,16 @@ class FunctionFieldsTestCase(CremeTestCase):
 
     def test_manager04(self):
         "new() method + add() on 'base instance'"
-        fname01 = "name01"
-        fname02 = "name02"
+        fname01 = 'name01'
+        fname02 = 'name02'
 
         class TestFunctionField01(FunctionField):
             name         = fname01
-            verbose_name = "Verbose name 01"
+            verbose_name = 'Verbose name 01'
 
         class TestFunctionField02(FunctionField):
             name         = fname02
-            verbose_name = "Verbose name 02"
+            verbose_name = 'Verbose name 02'
 
         ff01 = TestFunctionField01()
         ff02 = TestFunctionField02()
@@ -219,35 +218,35 @@ class BatchOperatorTestCase(CremeTestCase):
 
 class BatchActionTestCase(CremeTestCase):
     def test_changed01(self):
-        baction = BatchAction(Contact, 'first_name', 'upper', value='')
-        haruhi = Contact(first_name='Haruhi', last_name='Suzumiya')
+        baction = BatchAction(FakeContact, 'first_name', 'upper', value='')
+        haruhi = FakeContact(first_name='Haruhi', last_name='Suzumiya')
         self.assertTrue(baction(haruhi))
         self.assertEqual('HARUHI', haruhi.first_name)
 
     def test_changed02(self):
-        baction = BatchAction(Contact, 'last_name', 'rm_substr', value='Foobar')
+        baction = BatchAction(FakeContact, 'last_name', 'rm_substr', value='Foobar')
         first_name = 'Haruhi'
         last_name = 'Suzumiya'
-        haruhi = Contact(first_name=first_name, last_name=last_name)
+        haruhi = FakeContact(first_name=first_name, last_name=last_name)
         self.assertFalse(baction(haruhi))
         self.assertEqual(last_name,  haruhi.last_name)
         self.assertEqual(first_name, haruhi.first_name)
 
     def test_cast(self):
-        baction = BatchAction(Contact, 'last_name', 'rm_start', value='3')
-        haruhi = Contact(first_name='Haruhi', last_name='Suzumiya')
+        baction = BatchAction(FakeContact, 'last_name', 'rm_start', value='3')
+        haruhi = FakeContact(first_name='Haruhi', last_name='Suzumiya')
         baction(haruhi)
         self.assertEqual('umiya', haruhi.last_name)
 
     def test_null_field(self):
-        baction = BatchAction(Contact, 'first_name', 'upper', value='')
-        haruhi = Contact(first_name=None, last_name='Suzumiya')
+        baction = BatchAction(FakeContact, 'first_name', 'upper', value='')
+        haruhi = FakeContact(first_name=None, last_name='Suzumiya')
         self.assertFalse(baction(haruhi))
         self.assertIsNone(haruhi.first_name)
 
     def test_operand_error(self):
         with self.assertRaises(BatchAction.ValueError) as cm:
-            BatchAction(Contact, 'last_name', 'rm_start', value='three')  # Not int
+            BatchAction(FakeContact, 'last_name', 'rm_start', value='three')  # Not int
 
         self.assertEqual(_('%(operator)s : %(message)s.') % {
                                 'operator': _('Remove the start (N characters)'),
@@ -257,7 +256,7 @@ class BatchActionTestCase(CremeTestCase):
                         )
 
         with self.assertRaises(BatchAction.ValueError) as cm:
-            BatchAction(Contact, 'last_name', 'rm_end', value='-3')  # Not positive
+            BatchAction(FakeContact, 'last_name', 'rm_end', value='-3')  # Not positive
 
         self.assertEqual(_('%(operator)s : %(message)s.') % {
                                 'operator': _('Remove the end (N characters)'),
@@ -273,11 +272,11 @@ class EntityCellTestCase(CremeTestCase):
         # CremeTestCase.setUpClass()
         super(EntityCellTestCase, cls).setUpClass()
 
-        cls.contact_ct = ContentType.objects.get_for_model(Contact)
+        cls.contact_ct = ContentType.objects.get_for_model(FakeContact)
 
     def test_build_4_field01(self):
         field_name = 'first_name'
-        cell = EntityCellRegularField.build(model=Contact, name=field_name)
+        cell = EntityCellRegularField.build(model=FakeContact, name=field_name)
         self.assertIsInstance(cell, EntityCellRegularField)
         self.assertEqual(field_name,      cell.value)
         self.assertEqual(_('First name'), cell.title)
@@ -288,24 +287,24 @@ class EntityCellTestCase(CremeTestCase):
 
     def test_build_4_field02(self):
         "Date field"
-        cell = EntityCellRegularField.build(model=Contact, name='birthday')
+        cell = EntityCellRegularField.build(model=FakeContact, name='birthday')
         self.assertEqual('birthday__range', cell.filter_string)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,     cell.listview_css_class)
         self.assertEqual(settings.CSS_DATE_HEADER_LISTVIEW, cell.header_listview_css_class)
 
     def test_build_4_field03(self):
         "Boolean field"
-        cell = EntityCellRegularField.build(model=Contact, name='is_a_nerd')
+        cell = EntityCellRegularField.build(model=FakeContact, name='is_a_nerd')
         self.assertEqual('is_a_nerd__creme-boolean', cell.filter_string)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, cell.listview_css_class)
 
     def test_build_4_field04(self):
         "ForeignKey"
-        cell = EntityCellRegularField.build(model=Contact, name='position')
+        cell = EntityCellRegularField.build(model=FakeContact, name='position')
         self.assertEqual('position', cell.filter_string)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, cell.listview_css_class)
 
-        cell = EntityCellRegularField.build(model=Contact, name='image')
+        cell = EntityCellRegularField.build(model=FakeContact, name='image')
         self.assertEqual('image__header_filter_search_field__icontains',
                          cell.filter_string
                         )
@@ -313,39 +312,39 @@ class EntityCellTestCase(CremeTestCase):
 
     def test_build_4_field05(self):
         "Basic ForeignKey subfield"
-        cell = EntityCellRegularField.build(model=Contact, name='position__title')
+        cell = EntityCellRegularField.build(model=FakeContact, name='position__title')
         self.assertEqual('position__title__icontains', cell.filter_string)
 
-        cell = EntityCellRegularField.build(model=Contact, name='image__name')
+        cell = EntityCellRegularField.build(model=FakeContact, name='image__name')
         self.assertEqual('image__name__icontains', cell.filter_string)
 
     def test_build_4_field06(self):
         "Date ForeignKey subfield"
-        cell = EntityCellRegularField.build(model=Contact, name='image__created')
+        cell = EntityCellRegularField.build(model=FakeContact, name='image__created')
         self.assertEqual(u'%s - %s' % (_('Photograph'), _('Creation date')), cell.title)
         self.assertEqual('image__created__range', cell.filter_string)
 
     def test_build_4_field07(self):
         "ForeignKey subfield is a FK"
-        cell = EntityCellRegularField.build(model=Document, name='folder__category')
+        cell = EntityCellRegularField.build(model=FakeDocument, name='folder__category')
 
         self.assertTrue(cell.has_a_filter)
         self.assertEqual('folder__category', cell.filter_string)
 
     def test_build_4_field08(self):
         "ManyToMany"
-        cell = EntityCellRegularField.build(model=Contact, name='languages')
+        cell = EntityCellRegularField.build(model=FakeContact, name='languages')
         self.assertIs(cell.has_a_filter, True)
         self.assertEqual('languages', cell.filter_string)
         self.assertIs(cell.sortable, False)
 
-        cell = EntityCellRegularField.build(model=Contact, name='languages__name')
+        cell = EntityCellRegularField.build(model=FakeContact, name='languages__name')
         self.assertIs(cell.has_a_filter, True)
         self.assertEqual('languages__name__icontains', cell.filter_string)
         self.assertIs(cell.sortable, False)
 
     def test_build_4_field_errors(self):
-        build = partial(EntityCellRegularField.build, model=Contact)
+        build = partial(EntityCellRegularField.build, model=FakeContact)
         self.assertIsNone(build(name='unknown_field'))
         self.assertIsNone(build(name='user__unknownfield'))
 
@@ -367,11 +366,11 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(settings.CSS_NUMBER_LISTVIEW,         cell.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
-        cell = EntityCellCustomField.build(Contact, customfield.id)
+        cell = EntityCellCustomField.build(FakeContact, customfield.id)
         self.assertIsInstance(cell, EntityCellCustomField)
         self.assertEqual(str(customfield.id), cell.value)
 
-        self.assertIsNone(EntityCellCustomField.build(Contact, 1000))
+        self.assertIsNone(EntityCellCustomField.build(FakeContact, 1000))
 
     def test_build_4_customfield02(self):
         "FLOAT CustomField"
@@ -454,7 +453,7 @@ class EntityCellTestCase(CremeTestCase):
 
     def test_build_4_functionfield(self):
         name = 'get_pretty_properties'
-        funfield = Contact.function_fields.get(name)
+        funfield = FakeContact.function_fields.get(name)
         self.assertIsNotNone(funfield)
 
         cell = EntityCellFunctionField(func_field=funfield)
@@ -469,11 +468,11 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,        cell.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
-        cell = EntityCellFunctionField.build(Contact, func_field_name=name)
+        cell = EntityCellFunctionField.build(FakeContact, func_field_name=name)
         self.assertIsInstance(cell, EntityCellFunctionField)
         self.assertEqual(name, cell.value)
 
-        self.assertIsNone(EntityCellFunctionField.build(Contact, func_field_name='invalid'))
+        self.assertIsNone(EntityCellFunctionField.build(FakeContact, func_field_name='invalid'))
 
 
 class SettingKeyTestCase(CremeTestCase):

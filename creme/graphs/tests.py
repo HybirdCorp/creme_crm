@@ -10,8 +10,7 @@ try:
     from django.core.urlresolvers import reverse
 
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_models import (FakeContact as Contact,
-            FakeOrganisation as Organisation)
+    from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation
     from creme.creme_core.models import RelationType, Relation
 
     from . import graph_model_is_custom, get_graph_model
@@ -149,8 +148,8 @@ class GraphsTestCase(CremeTestCase):
     def test_download01(self):
         user = self.login()
 
-        contact = Contact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
-        orga = Organisation.objects.create(user=user, name='NERV')
+        contact = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
+        orga = FakeOrganisation.objects.create(user=user, name='NERV')
 
         # Tests an encoding error, pygraphviz supports unicode...
         rtype = RelationType.create(('test-subject_hate', u'déteste'),
@@ -193,8 +192,8 @@ class GraphsTestCase(CremeTestCase):
     def test_add_rootnode(self):
         user = self.login()
 
-        contact = Contact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
-        orga = Organisation.objects.create(user=user, name='NERV')
+        contact = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
+        orga = FakeOrganisation.objects.create(user=user, name='NERV')
 
         # TODO: factorise
         rtype_create = RelationType.create
@@ -241,7 +240,7 @@ class GraphsTestCase(CremeTestCase):
     def test_edit_rootnode(self):
         user = self.login()
 
-        orga = Organisation.objects.create(user=user, name='NERV')
+        orga = FakeOrganisation.objects.create(user=user, name='NERV')
 
         # TODO: factorise
         rtype_create = RelationType.create

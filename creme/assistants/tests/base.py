@@ -4,7 +4,7 @@ try:
     from functools import partial
 
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_models import FakeContact as Contact
+    from creme.creme_core.tests.fake_models import FakeContact
     from creme.creme_core.creme_jobs import reminder_type
     from creme.creme_core.models import Job
     from creme.creme_core.models.history import HistoryLine, TYPE_DELETION
@@ -20,11 +20,11 @@ class AssistantsTestCase(CremeTestCase):
 
     def setUp(self):
         self.login()
-        self.entity = Contact.objects.create(user=self.user, first_name='Ranma', last_name='Saotome')
+        self.entity = FakeContact.objects.create(user=self.user, first_name='Ranma', last_name='Saotome')
 
     def aux_test_merge(self, creator, assertor):
         user = self.user
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         contact01 = create_contact(first_name='Ryoga', last_name='Hibiki')
         contact02 = create_contact(first_name='Ryoag', last_name='Hibiik')
 

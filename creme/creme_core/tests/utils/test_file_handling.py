@@ -3,7 +3,7 @@
 try:
     from datetime import date, datetime
     from os import remove as delete_file, listdir, makedirs
-    from os.path import join, exists, basename
+    from os.path import join, exists
     from shutil import rmtree
 
     from django.conf import settings

@@ -191,7 +191,7 @@ class AddCredentialsForm(EditCredentialsForm):
     def __init__(self, role, *args, **kwargs):
         self.role = role
         super(AddCredentialsForm, self).__init__(*args, **kwargs)
-        fields = self.fields['set_type'].initial = SetCredentials.ESET_ALL
+        self.fields['set_type'].initial = SetCredentials.ESET_ALL
 
     def _get_allowed_apps(self):
         return self.role.allowed_apps

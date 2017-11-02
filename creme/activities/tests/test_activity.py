@@ -13,7 +13,7 @@ try:
     from django.utils.encoding import force_unicode
     from django.utils.formats import date_format
     from django.utils.html import escape
-    from django.utils.timezone import now, get_current_timezone, make_naive
+    from django.utils.timezone import now
     from django.utils.translation import ugettext as _, ungettext
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -1485,7 +1485,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         # url = self.build_bulkedit_url([activity1, activity2], 'type')
         url = self.build_bulkupdate_url(Activity, 'type')
-        response = self.assertGET200(url)
+        # response = \
+        self.assertGET200(url)
         # self.assertContains(response,
         #                     escape(ungettext(u'The type of %s activity cannot be changed because it is an indisponibility.',
         #                                      u'The type of %s activities cannot be changed because they are indisponibilities.',

@@ -8,15 +8,15 @@ try:
     from django.utils.translation import ugettext as _
 
     from .base import FieldTestCase
-    from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
+    from ..fake_models import FakeContact, FakeOrganisation
     from creme.creme_core.forms.fields import (DatePeriodField, DateRangeField,
-        DurationField, ColorField, ChoiceOrCharField,
-        OptionalChoiceField,
-        CTypeChoiceField, EntityCTypeChoiceField,
-        MultiCTypeChoiceField, MultiEntityCTypeChoiceField)
+            DurationField, ColorField, ChoiceOrCharField,
+            OptionalChoiceField,
+            CTypeChoiceField, EntityCTypeChoiceField,
+            MultiCTypeChoiceField, MultiEntityCTypeChoiceField)
     from creme.creme_core.models import RelationType, CremePropertyType, Currency
     from creme.creme_core.utils.date_period import (DatePeriod, MinutesPeriod, HoursPeriod, DaysPeriod,
-        DatePeriodRegistry, date_period_registry)
+            DatePeriodRegistry, date_period_registry)
     from creme.creme_core.utils.date_range import DateRange, CustomRange, CurrentYearRange
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -101,7 +101,7 @@ class DatePeriodFieldTestCase(FieldTestCase):
         with self.assertRaises(ValidationError) as cm:
             DatePeriodField().clean(['days', '0'])
 
-        self.assertEqual([_('Ensure this value is greater than or equal to %(limit_value)s.') % {
+        self.assertEqual([_(u'Ensure this value is greater than or equal to %(limit_value)s.') % {
                                 'limit_value': 1
                             },
                          ],
@@ -253,7 +253,7 @@ class OptionalChoiceFieldTestCase(FieldTestCase):
         with self.assertRaises(ValidationError) as cm:
             field.clean([False, 'invalid'])
 
-        self.assertEqual([_('Select a valid choice. %(value)s is not one of the available choices.') % {
+        self.assertEqual([_(u'Select a valid choice. %(value)s is not one of the available choices.') % {
                                 'value': 'invalid',
                             },
                          ],
@@ -360,8 +360,8 @@ class _EntityCTypeChoiceFieldTestCase(FieldTestCase):
         super(_EntityCTypeChoiceFieldTestCase, cls).setUpClass()
 
         get_ct = ContentType.objects.get_for_model
-        cls.ct1 = get_ct(Contact)
-        cls.ct2 = get_ct(Organisation)
+        cls.ct1 = get_ct(FakeContact)
+        cls.ct2 = get_ct(FakeOrganisation)
         cls.ct3 = get_ct(Currency)
 
 

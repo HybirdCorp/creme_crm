@@ -2,9 +2,9 @@
 
 try:
     from functools import partial
-    from os.path import join
+    # from os.path import join
 
-    from django.conf import settings
+    # from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.core.exceptions import ValidationError
     from django.core.urlresolvers import reverse

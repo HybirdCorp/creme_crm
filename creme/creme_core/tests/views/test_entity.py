@@ -1528,9 +1528,10 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         """Fix a bug with the field list when bulk editing user
         (ie: a field of the parent class CremeEntity)
         """
-        user = self.login()
+        # user = \
+        self.login()
 
-        mario = FakeContact.objects.create(user=user, first_name="Mario", last_name="Bros")
+        # FakeContact.objects.create(user=user, first_name="Mario", last_name="Bros")
         build_url = self._build_update_url
         url = build_url('user')
         response = self.assertGET200(url)

@@ -29,7 +29,7 @@ try:
             FakeFolderCategory, FakeFolder as FakeCoreFolder, FakeDocument as FakeCoreDocument)
 
     from .base import BaseReportsTestCase, skipIfCustomReport, Report
-    from .fake_models import FakeReportsFolder as Folder, FakeReportsDocument as Document, Guild
+    from .fake_models import FakeReportsFolder, FakeReportsDocument, Guild
 
     from ..constants import (RFT_FIELD, RFT_CUSTOM, RFT_RELATION, RFT_FUNCTION,
             RFT_AGG_FIELD, RFT_AGG_CUSTOM, RFT_RELATED)
@@ -1424,7 +1424,7 @@ class ReportTestCase(BaseReportsTestCase):
     def test_edit_fields_errors02(self):
         user = self.login()
         report = Report.objects.create(user=user, name="Report on docs",
-                                       ct=ContentType.objects.get_for_model(Document),
+                                       ct=ContentType.objects.get_for_model(FakeReportsDocument),
                                       )
         response = self.assertPOST200(self._build_editfields_url(report),
                                       data={'columns': 'regular_field-folder__parent'},
@@ -1448,7 +1448,7 @@ class ReportTestCase(BaseReportsTestCase):
         user = self.login()
 
         report = Report.objects.create(user=user, name="Report on docs",
-                                       ct=ContentType.objects.get_for_model(Document),
+                                       ct=ContentType.objects.get_for_model(FakeReportsDocument),
                                       )
 
         rfield = Field.objects.create(name='folder__parent', report=report, type=RFT_FIELD, order=2)
@@ -1552,7 +1552,7 @@ class ReportTestCase(BaseReportsTestCase):
         user = self.login()
 
         self.assertEqual([('fakereportsdocument', u'Test (reports) Document')],
-                         Report.get_related_fields_choices(Folder)
+                         Report.get_related_fields_choices(FakeReportsFolder)
                         )
 
         folder_report = Report.objects.create(name="Report on folders", user=user,
@@ -1806,11 +1806,11 @@ class ReportTestCase(BaseReportsTestCase):
                      sub_report=self.folder_report, selected=selected,
                     )
 
-        create_folder = partial(Folder.objects.create, user=self.user)
+        create_folder = partial(FakeReportsFolder.objects.create, user=self.user)
         self.folder1 = create_folder(title='Internal')
         self.folder2 = create_folder(title='External', description='Boring description')
 
-        create_doc = partial(Document.objects.create, user=self.user)
+        create_doc = partial(FakeReportsDocument.objects.create, user=self.user)
         self.doc1 = create_doc(title='Doc#1', folder=self.folder1, description='Blbalabla')
         self.doc2 = create_doc(title='Doc#2', folder=self.folder2)
 
@@ -1832,8 +1832,8 @@ class ReportTestCase(BaseReportsTestCase):
         "Sub report: sub-filter"
         self.login()
 
-        efilter = EntityFilter.create('test-filter', 'Internal folders', Folder, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Folder,
+        efilter = EntityFilter.create('test-filter', 'Internal folders', FakeReportsFolder, is_custom=True)
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=FakeReportsFolder,
                                                                     operator=EntityFilterCondition.ISTARTSWITH,
                                                                     name='title', values=['Inter'],
                                                                    )
@@ -2268,11 +2268,11 @@ class ReportTestCase(BaseReportsTestCase):
         if invalid_one:
             create_field(report=self.folder_report, name='invalid', order=3, type=RFT_RELATED)
 
-        create_folder = partial(Folder.objects.create, user=user)
+        create_folder = partial(FakeReportsFolder.objects.create, user=user)
         self.folder1 = create_folder(title='External')
         self.folder2 = create_folder(title='Internal')
 
-        create_doc = partial(Document.objects.create, user=user)
+        create_doc = partial(FakeReportsDocument.objects.create, user=user)
         self.doc11 = create_doc(title='Doc#1-1', folder=self.folder1, description='Boring !')
         self.doc12 = create_doc(title='Doc#1-2', folder=self.folder1, user=self.other_user)
         self.doc21 = create_doc(title='Doc#2-1', folder=self.folder2)
@@ -2300,7 +2300,7 @@ class ReportTestCase(BaseReportsTestCase):
         user = self.login_as_basic_user()
 
         self._aux_test_fetch_related(select_doc_report=True)
-        folder3 = Folder.objects.create(user=user, title='Empty')
+        folder3 = FakeReportsFolder.objects.create(user=user, title='Empty')
 
         folder1 = self.folder1; doc11 = self.doc11
         # Beware: folders are ordered by title
@@ -2320,7 +2320,7 @@ class ReportTestCase(BaseReportsTestCase):
         user = self.login_as_basic_user()
 
         self._aux_test_fetch_related(select_doc_report=False)
-        folder3 = Folder.objects.create(user=user, title='Empty')
+        folder3 = FakeReportsFolder.objects.create(user=user, title='Empty')
 
         folder1 = self.folder1; doc11 = self.doc11
         fmt = '%s: %%s/%s: %%s' % (_('Title'), _('Description'))
@@ -2559,9 +2559,9 @@ class ReportTestCase(BaseReportsTestCase):
                      selected=True, sub_report=self.report_contact,
                      )
 
-        folder = Folder.objects.create(user=user, title='Ned folder')
+        folder = FakeReportsFolder.objects.create(user=user, title='Ned folder')
 
-        create_doc = partial(Document.objects.create, user=user)
+        create_doc = partial(FakeReportsDocument.objects.create, user=user)
         doc1 = create_doc(title='Sword',  folder=folder, description='Blbalabla')
         doc2 = create_doc(title='Helmet', folder=folder)
 

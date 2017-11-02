@@ -8,11 +8,11 @@ try:
     from django.apps import apps
     from django.core.urlresolvers import reverse
     # from django.test.html import parse_html, Element
-    from django.utils.encoding import smart_unicode
+    # from django.utils.encoding import smart_unicode
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.models import RelationType, Relation, CremeProperty, FieldsConfig
+    from creme.creme_core.models import RelationType, Relation, FieldsConfig  # CremeProperty
     # from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import BrickTestCaseMixin

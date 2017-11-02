@@ -191,10 +191,10 @@ class StatsTree(SectionTree):
             for rline in replies_map[fline.id]:
                 rline_stats = rline.stats or []
 
-                for label, count in rline_stats:
-                    total += count
-                    stats[label] += count
+                for choice_label, choice_count in rline_stats:
+                    total += choice_count
+                    stats[choice_label] += choice_count
 
-            fline.answer_stats = [(label, count, round(float(count * 100) / float(total), 2))
-                                    for label, count in stats.iteritems()
+            fline.answer_stats = [(stat_label, stat_count, round(float(stat_count * 100) / float(total), 2))
+                                    for stat_label, stat_count in stats.iteritems()
                                  ] if total > 0 else []

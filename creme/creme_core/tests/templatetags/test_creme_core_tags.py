@@ -13,7 +13,7 @@ try:
     from creme.creme_core.forms.bulk import _CUSTOMFIELD_FORMAT
     from creme.creme_core.gui.bulk_update import bulk_update_registry
     from creme.creme_core.models import SetCredentials, CustomField
-    from ..fake_models import FakeOrganisation as Organisation
+    from ..fake_models import FakeOrganisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -32,7 +32,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
     # TODO: complete with other field types
     def test_print_field(self):
         self.login()
-        orga = Organisation.objects.create(user=self.user, name='<br/>Amestris', url_site='www.amestris.org')
+        orga = FakeOrganisation.objects.create(user=self.user, name='<br/>Amestris', url_site='www.amestris.org')
 
         with self.assertNoException():
             template = Template("{% load creme_core_tags %}"
@@ -52,7 +52,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
     def test_has_perm_to01(self):
         self.login()
-        orga = Organisation.objects.create(user=self.user, name='Xing')
+        orga = FakeOrganisation.objects.create(user=self.user, name='Xing')
 
         with self.assertNoException():
             template = Template("{% load creme_core_tags %}"
@@ -70,14 +70,14 @@ class CremeCoreTagsTestCase(CremeTestCase):
                                )
             render = template.render(Context({'entity': orga,
                                               'user':   self.user,
-                                              'ct':     ContentType.objects.get_for_model(Organisation),
+                                              'ct':     ContentType.objects.get_for_model(FakeOrganisation),
                                              }))
 
         self.assertEqual('True' * 11, render.strip())
 
     def test_has_perm_to02(self):
         self.login(is_superuser=False)
-        orga = Organisation.objects.create(user=self.user, name='Xerces')
+        orga = FakeOrganisation.objects.create(user=self.user, name='Xerces')
 
         with self.assertNoException():
             template = Template("{% load creme_core_tags %}"
@@ -95,19 +95,19 @@ class CremeCoreTagsTestCase(CremeTestCase):
                                )
             render = template.render(Context({'entity': orga,
                                               'user':   self.user,
-                                              'ct':     ContentType.objects.get_for_model(Organisation),
+                                              'ct':     ContentType.objects.get_for_model(FakeOrganisation),
                                              }))
 
         self.assertEqual('False' * 11, render.strip())
 
     def test_has_perm_to03(self):
-        self.login(is_superuser=False, allowed_apps=['creme_core'], creatable_models=[Organisation])
+        self.login(is_superuser=False, allowed_apps=['creme_core'], creatable_models=[FakeOrganisation])
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW,
                                       set_type=SetCredentials.ESET_ALL
                                      )
 
-        orga = Organisation.objects.create(user=self.user, name='Amestris')
+        orga = FakeOrganisation.objects.create(user=self.user, name='Amestris')
         self.assertTrue(self.user.has_perm_to_view(orga))
 
         with self.assertNoException():
@@ -126,7 +126,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
                                )
             render = template.render(Context({'entity': orga,
                                               'user':   self.user,
-                                              'ct':     ContentType.objects.get_for_model(Organisation),
+                                              'ct':     ContentType.objects.get_for_model(FakeOrganisation),
                                              }))
 
         self.assertEqual('True' + 'False' * 4 + 'True' * 2 + 'False' * 2 + 'True' + 'False',
@@ -150,7 +150,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
     def test_get_field_editor01(self):
         user = self.login()
-        orga = Organisation.objects.create(user=user, name='Amestris')
+        orga = FakeOrganisation.objects.create(user=user, name='Amestris')
 
         with self.assertNoException():
             template = Template(r"{% load creme_block %}"
@@ -162,7 +162,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
     def test_get_field_editor02(self):
         user = self.login()
-        orga = Organisation.objects.create(user=user, name='Amestris')
+        orga = FakeOrganisation.objects.create(user=user, name='Amestris')
 
         with self.assertNoException():
             template = Template(r"{% load creme_block %}"
@@ -178,7 +178,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
     def test_get_field_editor03(self):
         self.login()
-        orga = Organisation.objects.create(user=self.user, name='Amestris')
+        orga = FakeOrganisation.objects.create(user=self.user, name='Amestris')
         orga_field_name = orga.entity_type.model_class()._meta.get_field('name')
 
         with self.assertNoException():
@@ -191,7 +191,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
     def test_get_field_editor04(self):
         user = self.login()
-        orga = Organisation.objects.create(user=user, name='Amestris')
+        orga = FakeOrganisation.objects.create(user=user, name='Amestris')
         custom_field_orga = CustomField.objects.create(name='custom 1',
                                                        content_type=orga.entity_type,
                                                        field_type=CustomField.STR,
@@ -219,7 +219,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
     def test_get_field_editor05(self):
         self.login()
-        orga = Organisation.objects.create(user=self.user, name='Amestris')
+        orga = FakeOrganisation.objects.create(user=self.user, name='Amestris')
         cdict = {'object': orga, 'user': self.user}
 
         with self.assertRaises(TemplateSyntaxError):  # Invalid field type : Should be 'regular' or 'custom'
@@ -235,8 +235,8 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
     def test_get_field_editor06(self):
         self.login()
-        orga = Organisation.objects.create(user=self.user, name='Amestris')
-        bulk_update_registry.register(Organisation, exclude=['siren'])
+        orga = FakeOrganisation.objects.create(user=self.user, name='Amestris')
+        bulk_update_registry.register(FakeOrganisation, exclude=['siren'])
 
         # Not editable
         self._unauthorized_get_field_editor(orga, r"{% get_field_editor on regular 'created' for object %}")
@@ -265,7 +265,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
     def test_optionize_model_iterable_filter(self):
         user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga1 = create_orga(name='Amestris')
         orga2 = create_orga(name='Spectre')
         orgas = [orga1, orga2]

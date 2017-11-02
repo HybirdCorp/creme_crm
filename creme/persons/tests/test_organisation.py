@@ -1101,7 +1101,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertFormError(response, 'form', 'organisations', _(u'This entity does not exist.'))
 
     def test_set_orga_as_not_managed(self):
-        user = self.login()
+        self.login()
 
         mngd_orgas = Organisation.objects.filter(is_managed=True)
         self.assertEqual(1, len(mngd_orgas))
