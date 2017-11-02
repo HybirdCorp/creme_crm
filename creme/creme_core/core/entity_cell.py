@@ -222,10 +222,9 @@ class EntityCellRegularField(EntityCell):
         #     if isinstance(field, ManyToManyField):
         #         sortable = False
         if len(field_info) > 1:
-            if field.many_to_many:
-                sortable = False
+            # if field.many_to_many:
+            #     sortable = False
 
-            # TODO: forbids depth > 2  ?
             field = field_info[-1]  # The sub-field is considered as the main field
 
         # if isinstance(field, (DateField, DateTimeField)):
@@ -239,12 +238,19 @@ class EntityCellRegularField(EntityCell):
         # elif isinstance(field, (ForeignKey, ManyToManyField)) and \
         #      issubclass(field.rel.to, CremeEntity):
         #     pattern = '%s__header_filter_search_field__icontains'
-        # TODO: what about one_to_many & one_to_one ?
-        elif field.is_relation and field.related_model:
-            pattern = '%s__header_filter_search_field__icontains' \
-                      if issubclass(field.rel.to, CremeEntity) else '%s'  # TODO '%s__exact' ?
-            if field.many_to_many:
+        elif field.is_relation:
+            if not field.related_model:  # TODO: test
+                has_a_filter = False
                 sortable = False
+            else:
+                pattern = '%s__header_filter_search_field__icontains' \
+                          if issubclass(field.rel.to, CremeEntity) else '%s'  # TODO '%s__exact' ?
+
+            # if field.many_to_many:
+            #     sortable = False
+
+        if any(f.many_to_many or f.one_to_many for f in field_info):
+            sortable = False
 
         super(EntityCellRegularField, self).__init__(value=name,
                                                      title=field_info.verbose_name,

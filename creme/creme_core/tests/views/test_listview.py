@@ -1058,6 +1058,13 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
+        response = self.assertPOST200(url, data=build_data(['notadate']))
+        content = self._get_lv_content(response)
+        self.assertIn(bebop.name,     content)
+        self.assertIn(swordfish.name, content)
+        self.assertIn(redtail.name,   content)
+        self.assertIn(dragons.name,   content)
+
     def test_search_datetimefields01(self):
         user = self.login()
 

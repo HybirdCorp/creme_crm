@@ -1406,7 +1406,7 @@ class DateRangeField(fields.MultiValueField):
         'customized_invalid': _(u'Start date has to be before end date.'),
     }
 
-    def __init__(self, render_as="table", *args, **kwargs):
+    def __init__(self, render_as='table', *args, **kwargs):
         # TODO: are these attributes useful ??
         self.ranges = ranges = fields.ChoiceField(
                 required=False,

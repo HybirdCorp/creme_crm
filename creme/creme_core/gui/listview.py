@@ -84,12 +84,12 @@ class ListViewState(object):
         self.header_filter_id = get_arg('hfilter')
         self.page = get_arg('page')
         self.rows = get_arg('rows')
-        # self._search = get_arg('_search')  # TODO : no longer useful to enable search state.
+        # self._search = get_arg('_search')  # NB: no longer useful to enable search state.
         self.sort_order = get_arg('sort_order')
         self.sort_field = get_arg('sort_field')  # TODO: rename 'sort_cell_key'
-        # self._extra_sort_field = ''  # TODO : never used.
+        # self._extra_sort_field = ''  # NB: never used.
         self.url = get_arg('url')
-        self.research = ()
+        self.research = ()  # TODO: rename 'search'
         self.extra_q = None
         # self._ordering = []
 
@@ -195,14 +195,28 @@ class ListViewState(object):
 
     def _date_or_None(self, value, index):
         try:
-            return dt_from_str(value[index]).date()
-        except (IndexError, AttributeError):
+            str = value[index]
+        except IndexError:
             pass
+        else:
+            if str:
+                try:
+                    return dt_from_str(str).date()
+                except AttributeError:
+                    logger.warn('ListViewState: invalid date: %s', str)
 
     def _build_date_range_dict(self, name, value):
         don = partial(self._date_or_None, value=value)
-        return CustomRange(don(index=0), don(index=1)).get_q_dict(name, now())
+        start = don(index=0)
+        end = don(index=1)
 
+        if not start and not end:
+            logger.warn('ListViewState: date range need a start and/or a end.')
+            return {}
+
+        return CustomRange(start, end).get_q_dict(name, now())
+
+    # TODO: need a LV-search system (with logic -- what is here & GUI -- see templatetags) which is customisable.
     # TODO: move some parts of code to EntityCell (more object code) ?
     # TODO: 'filter_string' -> remove from Cell, or put all the search logic in Cells...
     def get_q_with_research(self, model, cells):
@@ -306,6 +320,8 @@ class ListViewState(object):
 
         return query
 
+    # TODO: move to RegularFieldEntityCell (check cell.sortable ; here it's already checked before the call)
+    #       VS a sort-system which allows to be customised (like the future Listview (+bricks ?) search system)
     # def _get_regular_sortfield(self, cell):
     @classmethod
     def _get_regular_sortfield(cls, cell):
@@ -318,9 +334,9 @@ class ListViewState(object):
         # if isinstance(cell.field_info[0], RelatedField) and len(cell.field_info) == 1:
         #     subfield_model = cell.field_info[0].rel.to
         if last_field.is_relation:
-            assert not last_field.many_to_many
-            assert not last_field.one_to_many
-            # TODO: what about 'one_to_one'
+            # NB: already checked (cell.sortable == True)
+            # assert not last_field.many_to_many
+            # assert not last_field.one_to_many
             # NB: many_to_one == ForeignKey
 
             subfield_model = last_field.rel.to
@@ -328,7 +344,7 @@ class ListViewState(object):
 
             if not subfield_ordering:
                 logger.critical('ListViewState: related field model %s should have Meta.ordering set'
-                                ' (use "pk" as fallback)', subfield_model,
+                                ' (we use "id" as fallback)', subfield_model,
                                )
                 # return cell.value + '__pk'
                 return cell.value + '_id'
@@ -351,6 +367,7 @@ class ListViewState(object):
             logger.warn('ListViewState: no such sortable column "%s"', cell_key)
             return None
 
+        # TODO: move to EntityCell
         if isinstance(cell, EntityCellRegularField):
             return cls._get_regular_sortfield(cell)
         else:

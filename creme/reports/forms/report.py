@@ -89,8 +89,8 @@ _CUSTOM_AGG_PREFIX  = _EntityCellCustomAggregate.type_id + '-'
 class ReportCreateForm(CremeEntityForm):
     hf     = AjaxModelChoiceField(label=_(u'Existing view'), queryset=HeaderFilter.objects.none(),
                                   required=False,
-                                  help_text=_('If you select a view of list, '
-                                              'the columns of the report will be copied from it.'
+                                  help_text=_(u'If you select a view of list, '
+                                              u'the columns of the report will be copied from it.'
                                              ),
                                  )
     filter = AjaxModelChoiceField(label=_(u'Filter'), queryset=EntityFilter.objects.none(), required=False)
@@ -149,7 +149,7 @@ class ReportEditForm(CremeEntityForm):
         if efilter and not efilter.can_view(self.user)[0]:
             fields['filter_label'] = CharField(label=fields['filter'].label,
                                                required=False, widget=Label,
-                                               initial=_('The filter cannot be changed because it is private.'),
+                                               initial=_(u'The filter cannot be changed because it is private.'),
                                               )
             del fields['filter']
 
@@ -326,8 +326,8 @@ class ReportExportPreviewFilterForm(CremeForm):
     date_filter = DateRangeField(label=_(u'Date filter'), required=False)
 
     error_messages = {
-        'custom_start': _(u"If you chose a Date field, and select «customized» "
-                          u"you have to specify a start date and/or an end date."
+        'custom_start': _(u'If you chose a Date field, and select «customized» '
+                          u'you have to specify a start date and/or an end date.'
                          ),
     }
 
