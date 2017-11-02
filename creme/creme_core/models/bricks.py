@@ -47,7 +47,6 @@ __all__ = ('BlockDetailviewLocation', 'BlockPortalLocation', 'BlockMypageLocatio
           )
 logger = logging.getLogger(__name__)
 
-# TODO: rename bricks.py
 
 class BlockDetailviewLocation(CremeModel):
     content_type = CTypeForeignKey(verbose_name=_(u'Related type'), null=True)
@@ -64,7 +63,7 @@ class BlockDetailviewLocation(CremeModel):
     BOTTOM = 4
     HAT    = 5
 
-    ZONES = (TOP, LEFT, RIGHT, BOTTOM)
+    ZONES = (HAT, TOP, LEFT, RIGHT, BOTTOM)
     ZONE_NAMES = {
         HAT:    'hat',
         TOP:    'top',
@@ -134,7 +133,7 @@ class BlockDetailviewLocation(CremeModel):
         return BlockDetailviewLocation.objects.filter(content_type=ct).exists()
 
     @staticmethod
-    def create_empty_config(model=None):
+    def create_empty_config(model=None):  # TODO: useless ? (remove ZONES too)
         ct = ContentType.objects.get_for_model(model) if model else None
 
         if not BlockDetailviewLocation.objects.filter(content_type=ct).exists():

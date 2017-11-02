@@ -72,7 +72,7 @@ def detailview_bricks(user, entity):
     # for brick in block_registry.get_blocks(list(chain.from_iterable(brick_ids for brick_ids in loc_map.itervalues())),
     for brick in brick_registry.get_bricks(list(chain.from_iterable(brick_ids for brick_ids in loc_map.itervalues())),
                                            entity=entity,
-                                           ):
+                                          ):
         target_ctypes = brick.target_ctypes
         if target_ctypes and not model in target_ctypes:
             logger.warn('This brick cannot be displayed on this content type (you have a config problem): %s' % brick.id_)
