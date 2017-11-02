@@ -8,8 +8,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from ..base import CremeTestCase
-    from ..fake_models import (FakeContact as Contact, FakeOrganisation as Organisation,
-            FakeCivility as Civility, FakePosition as Position)
+    from ..fake_models import FakeContact, FakeOrganisation, FakeCivility, FakePosition
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.models import RelationType, Relation, HeaderFilter, CremeEntity
@@ -26,8 +25,8 @@ class HeaderFiltersTestCase(CremeTestCase):
         # cls.populate('creme_core')
 
         get_ct = ContentType.objects.get_for_model
-        cls.contact_ct = get_ct(Contact)  # TODO: used once ?!
-        cls.orga_ct    = get_ct(Organisation)
+        cls.contact_ct = get_ct(FakeContact)  # TODO: used once ?!
+        cls.orga_ct    = get_ct(FakeOrganisation)
 
     def assertCellEqual(self, cell1, cell2):
         self.assertIs(cell1.__class__, cell2.__class__)
@@ -38,7 +37,7 @@ class HeaderFiltersTestCase(CremeTestCase):
 
         name = 'Contact view'
         pk   = 'tests-hf_contact'
-        hf   = HeaderFilter.create(pk=pk, name=name, model=Contact, is_custom=True)
+        hf   = HeaderFilter.create(pk=pk, name=name, model=FakeContact, is_custom=True)
         self.assertEqual(pk,   hf.pk)
         self.assertEqual(name, hf.name)
         self.assertIsNone(hf.user)
@@ -48,7 +47,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual('[]', hf.json_cells)
         self.assertFalse(hf.cells)
 
-        hf.cells = [EntityCellRegularField.build(model=Contact, name='first_name')]
+        hf.cells = [EntityCellRegularField.build(model=FakeContact, name='first_name')]
         hf.save()
 
         hf = self.refresh(hf)
@@ -68,13 +67,13 @@ class HeaderFiltersTestCase(CremeTestCase):
         create_rtype = RelationType.create
         loves = create_rtype(('test-subject_love', u'Is loving'),
                              ('test-object_love',  u'Is loved by')
-                            ) [0]
+                            )[0]
         likes = create_rtype(('test-subject_like', u'Is liking'),
                              ('test-object_like',  u'Is liked by')
-                            ) [0]
+                            )[0]
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
-                                 model=Contact, is_custom=True, is_private=True,
+                                 model=FakeContact, is_custom=True, is_private=True,
                                  user=user,
                                  cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
                                               EntityCellRelation(loves),
@@ -109,12 +108,12 @@ class HeaderFiltersTestCase(CremeTestCase):
         pk = 'tests-hf_contact'
         name = 'Contact view'
         hf = HeaderFilter.create(pk=pk, name=name,
-                                 model=Contact, is_custom=False,
+                                 model=FakeContact, is_custom=False,
                                  cells_desc=[(EntityCellRegularField, {'name': 'last_name'})],
                                 )
 
         hf = HeaderFilter.create(pk=pk, name='Contact view edited', user=self.user,
-                                 model=Contact, is_custom=False,
+                                 model=FakeContact, is_custom=False,
                                  cells_desc=[(EntityCellRegularField, {'name': 'first_name'}),
                                              (EntityCellRegularField, {'name': 'last_name'}),
                                             ],
@@ -129,21 +128,21 @@ class HeaderFiltersTestCase(CremeTestCase):
         # Private + no user => error
         with self.assertRaises(ValueError):
             HeaderFilter.create(pk='tests-hf_contact', name='Contact view edited',
-                                model=Contact, is_private=True,
+                                model=FakeContact, is_private=True,
                                 cells_desc=[(EntityCellRegularField, {'name': 'last_name'})],
                                )
 
         # Private + not is_custom => error
         with self.assertRaises(ValueError):
             HeaderFilter.create(pk='tests-hf_contact', name='Contact view edited',
-                                user=user, model=Contact,
+                                user=user, model=FakeContact,
                                 is_private=True, is_custom=False,
                                 cells_desc=[(EntityCellRegularField, {'name': 'last_name'})],
                                )
 
     def test_ct_cache(self):
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
-                                 model=Contact, is_custom=True,
+                                 model=FakeContact, is_custom=True,
                                 )
 
         with self.assertNumQueries(0):
@@ -155,9 +154,9 @@ class HeaderFiltersTestCase(CremeTestCase):
             hf.entity_type
 
     def test_cells_property01(self):
-        build_cell = partial(EntityCellRegularField.build, model=Contact)
+        build_cell = partial(EntityCellRegularField.build, model=FakeContact)
         cells = [build_cell(name=fn) for fn in ('first_name', 'last_name')]
-        hf = HeaderFilter.create(pk='test-hf01', name=u'Contact view', model=Contact,
+        hf = HeaderFilter.create(pk='test-hf01', name=u'Contact view', model=FakeContact,
                                  cells_desc=cells,
                                 )
 
@@ -168,9 +167,9 @@ class HeaderFiltersTestCase(CremeTestCase):
 
     def test_cells_property02(self):
         "None value are ignored"
-        hf = HeaderFilter.create(pk='test-hf01', name=u'Contact view', model=Contact)
+        hf = HeaderFilter.create(pk='test-hf01', name=u'Contact view', model=FakeContact)
 
-        build_cell = partial(EntityCellRegularField.build, model=Contact)
+        build_cell = partial(EntityCellRegularField.build, model=FakeContact)
         cell01 = build_cell(name='first_name')
         cell02 = build_cell(name='invalid_field')
         cell03 = build_cell(name='last_name')
@@ -188,7 +187,7 @@ class HeaderFiltersTestCase(CremeTestCase):
 
         ffield_name = 'get_pretty_properties'
         rfield_name = 'last_name'
-        hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=Contact,
+        hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=FakeContact,
                                  cells_desc=[(EntityCellFunctionField, {'func_field_name': ffield_name}),
                                              (EntityCellRegularField,  {'name': rfield_name}),
                                             ],
@@ -265,13 +264,13 @@ class HeaderFiltersTestCase(CremeTestCase):
     def test_populate_entities_fields01(self):
         "Regular fields: no FK"
         user = self.login()
-        hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=Contact,
+        hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=FakeContact,
                                  cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
                                              (EntityCellRegularField, {'name': 'first_name'}),
                                             ])
 
-        pos = Position.objects.create(title='Pilot')
-        create_contact = partial(Contact.objects.create, user=user, position_id=pos.id)
+        pos = FakePosition.objects.create(title='Pilot')
+        create_contact = partial(FakeContact.objects.create, user=user, position_id=pos.id)
         contacts = [create_contact(first_name='Nagate',  last_name='Tanikaze'),
                     create_contact(first_name='Shizuka', last_name='Hoshijiro'),
                    ]
@@ -285,17 +284,17 @@ class HeaderFiltersTestCase(CremeTestCase):
     def test_populate_entities_fields02(self):
         "Regular fields: FK"
         user = self.login()
-        build = partial(EntityCellRegularField.build, model=Contact)
-        hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=Contact,
+        build = partial(EntityCellRegularField.build, model=FakeContact)
+        hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=FakeContact,
                                  cells_desc=[build(name='last_name'), build(name='first_name'),
                                              build(name='position'),
                                              build(name='civility__title'),
                                             ],
                                 )
 
-        pos = Position.objects.create(title='Pilot')
-        civ = Civility.objects.all()[0]
-        create_contact = partial(Contact.objects.create, user=user, position_id=pos.id,
+        pos = FakePosition.objects.create(title='Pilot')
+        civ = FakeCivility.objects.all()[0]
+        create_contact = partial(FakeContact.objects.create, user=user, position_id=pos.id,
                                  civility_id=civ.id,
                                 )
         contacts = [create_contact(first_name='Nagate',  last_name='Tanikaze'),
@@ -315,16 +314,16 @@ class HeaderFiltersTestCase(CremeTestCase):
         "Regular fields: invalid fields are removed automatically."
         user = self.login()
 
-        cell1 = EntityCellRegularField.build(model=Contact, name='last_name')
+        cell1 = EntityCellRegularField.build(model=FakeContact, name='last_name')
 
-        cell2 = EntityCellRegularField.build(model=Contact, name='first_name')
+        cell2 = EntityCellRegularField.build(model=FakeContact, name='first_name')
         cell2.value = 'invalid'  # filter_string='invalid__icontains'
 
         hf = HeaderFilter.create(pk='test-hf', name=u'Contact view',
-                                 model=Contact, cells_desc=[cell1, cell2],
+                                 model=FakeContact, cells_desc=[cell1, cell2],
                                 )
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         contacts = [create_contact(first_name='Nagate',  last_name='Tanikaze'),
                     create_contact(first_name='Shizuka', last_name='Hoshijiro'),
                    ]
@@ -350,16 +349,16 @@ class HeaderFiltersTestCase(CremeTestCase):
         "Regular fields: invalid subfields."
         self.login()
 
-        cell1 = EntityCellRegularField.build(model=Contact, name='last_name')
+        cell1 = EntityCellRegularField.build(model=FakeContact, name='last_name')
 
-        cell2 = EntityCellRegularField.build(model=Contact, name='user__username')
+        cell2 = EntityCellRegularField.build(model=FakeContact, name='user__username')
         cell2.value = 'user__invalid'  # filter_string='__icontains'
 
-        hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=Contact,
+        hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=FakeContact,
                                  cells_desc=[cell1, cell2],
                                 )
 
-        create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(FakeContact.objects.create, user=self.user)
         create_contact(first_name='Nagate',  last_name='Tanikaze')
         create_contact(first_name='Shizuka', last_name='Hoshijiro')
 
@@ -375,14 +374,14 @@ class HeaderFiltersTestCase(CremeTestCase):
         loved = create_rt(('test-subject_love', u'Is loving'), ('test-object_love', u'Is loved by'))[1]
         hated = create_rt(('test-subject_hate', u'Is hating'), ('test-object_hate', u'Is hated by'))[1]
 
-        hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=Contact,
-                                 cells_desc=[EntityCellRegularField.build(model=Contact, name='last_name'),
+        hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=FakeContact,
+                                 cells_desc=[EntityCellRegularField.build(model=FakeContact, name='last_name'),
                                              EntityCellRelation(rtype=loved),
                                              EntityCellRelation(rtype=hated),
                                             ],
                                 )
 
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         nagate  = create_contact(first_name='Nagate',  last_name='Tanikaze')
         shizuka = create_contact(first_name='Shizuka', last_name='Hoshijiro')
         izana   = create_contact(first_name='Izana',   last_name='Shinatose')
@@ -420,15 +419,15 @@ class HeaderFiltersTestCase(CremeTestCase):
     def test_filterlist01(self):
         user = self.login()
         create_hf = partial(HeaderFilter.create, name='Orga view',
-                            model=Organisation,
+                            model=FakeOrganisation,
                             cells_desc=[EntityCellRegularField.build(
-                                                model=Organisation, name='name',
+                                                model=FakeOrganisation, name='name',
                                             ),
                                        ],
                            )
         hf1 = create_hf(pk='test-hf_orga1')
         hf2 = create_hf(pk='test-hf_orga2', user=user)
-        hf3 = create_hf(pk='test-hf_contact', model=Contact, name='Contact view')
+        hf3 = create_hf(pk='test-hf_contact', model=FakeContact, name='Contact view')
         hf4 = create_hf(pk='test-hf_orga3', user=self.other_user)
 
         ct = self.orga_ct
@@ -463,12 +462,12 @@ class HeaderFiltersTestCase(CremeTestCase):
         a_team = User.objects.create(username='A-Team', is_team=True)
         a_team.teammates = [other_user]
 
-        cells = [EntityCellRegularField.build(model=Organisation, name='name')]
+        cells = [EntityCellRegularField.build(model=FakeOrganisation, name='name')]
 
         def create_hf(id, **kwargs):
             return HeaderFilter.create(pk='test-hf_orga%s' % id,
                                        name='Orga view #%s' % id,
-                                       model=Organisation, cells_desc=cells,
+                                       model=FakeOrganisation, cells_desc=cells,
                                        **kwargs
                                       )
 
@@ -500,12 +499,12 @@ class HeaderFiltersTestCase(CremeTestCase):
         user = self.login(is_staff=True)
         other_user = self.other_user
 
-        cells = [EntityCellRegularField.build(model=Organisation, name='name')]
+        cells = [EntityCellRegularField.build(model=FakeOrganisation, name='name')]
 
         def create_hf(id, **kwargs):
             return HeaderFilter.create(pk='test-hf_orga%s' % id,
                                        name='Orga view #%s' % id,
-                                       model=Organisation, cells_desc=cells,
+                                       model=FakeOrganisation, cells_desc=cells,
                                        **kwargs
                                       )
 

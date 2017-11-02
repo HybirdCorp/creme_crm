@@ -30,7 +30,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 
 # from creme.creme_core.models import CremeEntity
-from creme.creme_core.gui.bricks import brick_registry, SimpleBrick
+from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.models import BlockDetailviewLocation
 

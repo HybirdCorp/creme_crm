@@ -8,9 +8,9 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
-    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
-    from creme.creme_core.models import (RelationType, CremeProperty, Vat,
-            SettingValue, BlockDetailviewLocation)  # CremePropertyType
+    # from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+    from creme.creme_core.models import (RelationType, Vat,
+            SettingValue, BlockDetailviewLocation)  # CremeProperty CremePropertyType
 
     from creme.persons.tests.base import skipIfCustomOrganisation
 

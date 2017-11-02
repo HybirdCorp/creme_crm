@@ -14,7 +14,7 @@ try:
     from creme.persons.models import Contact, Organisation
     from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from creme.products.models import Product, Service, Category, SubCategory
+    from creme.products.models import Product, Service, SubCategory
     from creme.products.tests.base import skipIfCustomProduct, skipIfCustomService
 
     from ..constants import (REL_SUB_HAS_LINE, REL_SUB_LINE_RELATED_ITEM,

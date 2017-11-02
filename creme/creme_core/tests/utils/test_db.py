@@ -12,8 +12,8 @@ try:
             FakeCivility, FakeFolder, FakeDocument)
     from creme.creme_core.models import Relation, CremeEntity
     from creme.creme_core.constants import REL_SUB_HAS
-    from creme.creme_core.utils.db import (get_indexes_columns, get_keyed_indexes_columns,
-           get_indexed_ordering, build_columns_key, populate_related, reorder_instances)
+    from creme.creme_core.utils.db import (get_indexes_columns, get_indexed_ordering,
+           build_columns_key, populate_related, reorder_instances)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

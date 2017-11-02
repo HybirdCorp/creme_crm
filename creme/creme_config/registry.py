@@ -76,7 +76,8 @@ class ModelConfig(object):
             else:
                 exclude = ('is_custom',)
 
-            self._form_class = form_class = modelform_factory(model, form=CremeModelForm, exclude=exclude)
+            # form_class = /
+            self._form_class = modelform_factory(model, form=CremeModelForm, exclude=exclude)
 
             # try:
             #     order_field = get_field('order')

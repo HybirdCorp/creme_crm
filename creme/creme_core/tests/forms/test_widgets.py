@@ -10,7 +10,7 @@ try:
     from django.utils.html import escape
     from django.utils.translation import ugettext as _, pgettext
 
-    from ..fake_models import FakeContact, FakeCivility
+    from ..fake_models import FakeContact
     from .base import FieldTestCase
     from creme.creme_core.forms.widgets import (ActionButtonList,
         DynamicSelect,

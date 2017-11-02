@@ -7,7 +7,7 @@ skip_organisation_tests = False
 try:
     from unittest import skipIf
 
-    from creme.creme_core.tests.base import CremeTestCase
+    # from creme.creme_core.tests.base import CremeTestCase
 
     from creme.documents import get_document_model
     from creme.documents.tests.base import _DocumentsTestCase

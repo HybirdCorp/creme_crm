@@ -17,14 +17,12 @@ try:
     from creme.creme_core.models import Job, JobResult, FakeContact, FakeImage
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
-    from creme.persons.tests.base import skipIfCustomContact
+    # from creme.persons.tests.base import skipIfCustomContact
 
     from .. import registry
     from ..backends.models import CrudityBackend
     from ..bricks import CrudityHistoryBrick
     from ..creme_jobs import crudity_synchronize_type
-    from ..fetchers.base import CrudityFetcher
-    from ..inputs.base import CrudityInput
     # from ..management.commands.crudity_synchronize import Command as SyncCommand
     from ..models import WaitingAction, History
     # from ..registry import FetcherInterface, crudity_registry

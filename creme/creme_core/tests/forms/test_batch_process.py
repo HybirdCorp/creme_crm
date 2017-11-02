@@ -4,7 +4,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from .base import FieldTestCase
-    from ..fake_models import FakeContact as Contact
+    from ..fake_models import FakeContact
     from creme.creme_core.forms.batch_process import BatchActionsField
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -35,7 +35,7 @@ class BatchActionsFieldTestCase(FieldTestCase):
         self.assertFieldValidationError(BatchActionsField, 'invalidtype', clean, '1')  # Not iterable
 
     def test_clean_incomplete_data_required(self):
-        clean = BatchActionsField(model=Contact).clean
+        clean = BatchActionsField(model=FakeContact).clean
 
         # No name
         self.assertFieldValidationError(BatchActionsField, 'required', clean, '[{"operator": "upper"}]')
@@ -47,7 +47,7 @@ class BatchActionsFieldTestCase(FieldTestCase):
         self.assertFieldValidationError(BatchActionsField, 'required', clean, '[{"operator": "upper", "name": "first_name"}]')
 
     def test_clean_invalid_field(self):
-        clean = BatchActionsField(model=Contact).clean
+        clean = BatchActionsField(model=FakeContact).clean
 
         self.assertFieldValidationError(BatchActionsField, 'invalidfield', clean,
                                         self.format_str % {'name':     'boobies_size',  # <---
@@ -69,7 +69,7 @@ class BatchActionsFieldTestCase(FieldTestCase):
                                         )
 
     def test_clean_invalid_operator01(self):
-        clean = BatchActionsField(model=Contact).clean
+        clean = BatchActionsField(model=FakeContact).clean
         self.assertFieldValidationError(BatchActionsField, 'invalidoperator', clean,
                                         self.format_str % {'name':     'first_name',
                                                            'operator': 'unknown_op',  # <--
@@ -84,7 +84,7 @@ class BatchActionsFieldTestCase(FieldTestCase):
                                        )
 
     def test_value_required(self):
-        clean = BatchActionsField(model=Contact).clean
+        clean = BatchActionsField(model=FakeContact).clean
         self.assertFieldValidationError(BatchActionsField, 'invalidvalue', clean,
                                         self.format_str % {'name':     'first_name',
                                                            'operator': 'suffix',
@@ -94,7 +94,7 @@ class BatchActionsFieldTestCase(FieldTestCase):
                                        )
 
     def test_value_typeerror(self):
-        clean = BatchActionsField(model=Contact).clean
+        clean = BatchActionsField(model=FakeContact).clean
         self.assertFieldValidationError(BatchActionsField, 'invalidvalue', clean,
                                         self.format_str % {'name':     'first_name',
                                                            'operator': 'rm_start',
@@ -109,7 +109,7 @@ class BatchActionsFieldTestCase(FieldTestCase):
 
     def test_ok01(self):
         with self.assertNumQueries(0):
-            field = BatchActionsField(model=Contact)
+            field = BatchActionsField(model=FakeContact)
 
         actions = field.clean(self.format_str % {'name':     'description',
                                                  'operator': 'upper',
@@ -118,7 +118,7 @@ class BatchActionsFieldTestCase(FieldTestCase):
                              )
         self.assertEqual(1, len(actions))
 
-        contact = Contact(first_name='faye', last_name='Valentine', description='yarglaaaaaaaaaaa')
+        contact = FakeContact(first_name='faye', last_name='Valentine', description='yarglaaaaaaaaaaa')
         actions[0](contact)
         self.assertEqual('YARGLAAAAAAAAAAA', contact.description)
 
@@ -126,7 +126,7 @@ class BatchActionsFieldTestCase(FieldTestCase):
         "Several actions"
         with self.assertNumQueries(0):
             field = BatchActionsField()
-            field.model = Contact
+            field.model = FakeContact
 
         actions = field.clean(
                         '[{"name": "%(name01)s", "operator": "%(operator01)s", "value": "%(value01)s"},'
@@ -137,7 +137,7 @@ class BatchActionsFieldTestCase(FieldTestCase):
                     )
         self.assertEqual(2, len(actions))
 
-        contact = Contact(first_name='Faye', last_name='Valentine')
+        contact = FakeContact(first_name='Faye', last_name='Valentine')
         for action in actions:
             action(contact)
 

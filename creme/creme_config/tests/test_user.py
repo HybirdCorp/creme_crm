@@ -6,7 +6,7 @@ try:
     from unittest import skipIf
 
     from django.conf import settings
-    from django.contrib.sessions.models import Session
+    # from django.contrib.sessions.models import Session
     from django.core.urlresolvers import reverse
     from django.test.utils import override_settings
     from django.utils import timezone as django_tz
@@ -557,7 +557,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         "user is staff"
         self.login()
         other_user = User.objects.create(username='deunan')
-        url = partial(self._build_activation_url, other_user.id)
+        # url = partial(self._build_activation_url, other_user.id)
 
         # self.assertPOST200(url('deactivate'))
         self.assertPOST200(self._build_activation_url(other_user.id, activation=False))
@@ -1103,7 +1103,6 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_edit_user_setting_value02(self):
         "hidden=True => error"
-        user = self.user
         sk = UserSettingKey('creme_config-test_edit_user_setting_value02',
                             description=u'Page displayed',
                             app_label='creme_core',
@@ -1115,7 +1114,6 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_edit_user_setting_value03(self):
         "Not blank + STRING"
-        user = self.user
         sk = UserSettingKey('creme_config-test_edit_user_setting_value03',
                             description=u'API key',
                             app_label='creme_core',

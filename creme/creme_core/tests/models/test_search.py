@@ -5,7 +5,7 @@ try:
 
     from creme.creme_core.models import SearchConfigItem, UserRole
     from ..base import CremeTestCase
-    from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
+    from ..fake_models import FakeContact, FakeOrganisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -28,12 +28,12 @@ class SearchConfigTestCase(CremeTestCase):
     def test_create_if_needed01(self):
         self.assertEqual(0, SearchConfigItem.objects.count())
 
-        SearchConfigItem.create_if_needed(Contact, ['first_name', 'last_name'])
+        SearchConfigItem.create_if_needed(FakeContact, ['first_name', 'last_name'])
         sc_items = SearchConfigItem.objects.all()
         self.assertEqual(1, len(sc_items))
 
         sc_item = sc_items[0]
-        self.assertEqual(Contact, sc_item.content_type.model_class())
+        self.assertEqual(FakeContact, sc_item.content_type.model_class())
         self.assertIsNone(sc_item.role)
         self.assertIs(sc_item.superuser, False)
         self.assertEqual('first_name,last_name', sc_item.field_names)
@@ -57,7 +57,7 @@ class SearchConfigTestCase(CremeTestCase):
                          unicode(sc_item)
                         )
 
-        SearchConfigItem.create_if_needed(Contact, ['first_name', 'last_name'])
+        SearchConfigItem.create_if_needed(FakeContact, ['first_name', 'last_name'])
         self.assertEqual(1, SearchConfigItem.objects.count())
 
     def test_create_if_needed02(self):
@@ -65,12 +65,12 @@ class SearchConfigTestCase(CremeTestCase):
         self.login()
 
         role = self.role
-        sc_item = SearchConfigItem.create_if_needed(Organisation, ['name'], role=role)
+        sc_item = SearchConfigItem.create_if_needed(FakeOrganisation, ['name'], role=role)
         self.assertIsInstance(sc_item, SearchConfigItem)
 
         self.assertEqual(1, SearchConfigItem.objects.count())
 
-        self.assertEqual(Organisation, sc_item.content_type.model_class())
+        self.assertEqual(FakeOrganisation, sc_item.content_type.model_class())
         self.assertEqual(role,         sc_item.role)
         self.assertFalse(sc_item.superuser)
 
@@ -85,9 +85,9 @@ class SearchConfigTestCase(CremeTestCase):
         "For super users"
         self.login()
 
-        sc_item = SearchConfigItem.create_if_needed(Organisation, ['name'], role='superuser')
+        sc_item = SearchConfigItem.create_if_needed(FakeOrganisation, ['name'], role='superuser')
 
-        self.assertEqual(Organisation, sc_item.content_type.model_class())
+        self.assertEqual(FakeOrganisation, sc_item.content_type.model_class())
         self.assertIsNone(sc_item.role)
         self.assertTrue(sc_item.superuser)
 
@@ -98,7 +98,7 @@ class SearchConfigTestCase(CremeTestCase):
 
     def test_create_if_needed04(self):
         "Invalid fields"
-        sc_item = SearchConfigItem.create_if_needed(Contact, ['invalid_field', 'first_name'])
+        sc_item = SearchConfigItem.create_if_needed(FakeContact, ['invalid_field', 'first_name'])
 
         sfields = sc_item.searchfields
         self.assertEqual(1, len(sfields))
@@ -106,7 +106,7 @@ class SearchConfigTestCase(CremeTestCase):
 
     def test_create_if_needed05(self):
         "Invalid fields : no subfield"
-        sc_item = SearchConfigItem.create_if_needed(Contact, ['last_name__invalid', 'first_name'])
+        sc_item = SearchConfigItem.create_if_needed(FakeContact, ['last_name__invalid', 'first_name'])
 
         sfields = sc_item.searchfields
         self.assertEqual(1, len(sfields))
@@ -116,13 +116,13 @@ class SearchConfigTestCase(CremeTestCase):
         "Disabled"
         self.login()
 
-        sc_item = SearchConfigItem.create_if_needed(Organisation, [], disabled=True)
+        sc_item = SearchConfigItem.create_if_needed(FakeOrganisation, [], disabled=True)
         self.assertTrue(sc_item.disabled)
         self.assertFalse(sc_item.field_names)
 
     def test_allfields01(self):
         "True"
-        sc_item = SearchConfigItem.create_if_needed(Organisation, [])
+        sc_item = SearchConfigItem.create_if_needed(FakeOrganisation, [])
         self.assertTrue(sc_item.all_fields)
 
         sfields = {sf.name for sf in sc_item.searchfields}
@@ -132,12 +132,12 @@ class SearchConfigTestCase(CremeTestCase):
 
     def test_allfields02(self):
         "False"
-        sc_item = SearchConfigItem.create_if_needed(Organisation, ['name', 'phone'])
+        sc_item = SearchConfigItem.create_if_needed(FakeOrganisation, ['name', 'phone'])
         self.assertFalse(sc_item.all_fields)
 
     def test_searchfields01(self):
         "Invalid field are deleted automatically"
-        sc_item = SearchConfigItem.create_if_needed(Organisation, ['name', 'phone'])
+        sc_item = SearchConfigItem.create_if_needed(FakeOrganisation, ['name', 'phone'])
 
         sc_item.field_names += ',invalid'
         sc_item.save()
@@ -149,7 +149,7 @@ class SearchConfigTestCase(CremeTestCase):
 
     def test_searchfields02(self):
         "Invalid field are deleted automatically => if no more valid field, all are used"
-        sc_item = SearchConfigItem.create_if_needed(Organisation, ['name', 'phone'])
+        sc_item = SearchConfigItem.create_if_needed(FakeOrganisation, ['name', 'phone'])
         sc_item.field_names = 'invalid01,invalid02'
         sc_item.save()
 
@@ -164,7 +164,7 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertIsNone(sc_item.field_names)
 
     def test_searchfields_setter01(self):
-        sc_item = SearchConfigItem.create_if_needed(Organisation, ['name', 'phone'])
+        sc_item = SearchConfigItem.create_if_needed(FakeOrganisation, ['name', 'phone'])
 
         sc_item.searchfields = ['capital', 'email', 'invalid']
         sc_item.save()
@@ -179,7 +179,7 @@ class SearchConfigTestCase(CremeTestCase):
 
     def test_searchfields_setter02(self):
         "No fields"
-        sc_item = SearchConfigItem.create_if_needed(Organisation, ['name', 'phone'])
+        sc_item = SearchConfigItem.create_if_needed(FakeOrganisation, ['name', 'phone'])
 
         sc_item.searchfields = []
         sc_item.save()
@@ -192,7 +192,7 @@ class SearchConfigTestCase(CremeTestCase):
 
     def test_searchfields_setter03(self):
         "Invalid fields"
-        sc_item = SearchConfigItem.create_if_needed(Organisation, ['name', 'phone'])
+        sc_item = SearchConfigItem.create_if_needed(FakeOrganisation, ['name', 'phone'])
 
         sc_item.searchfields = ['invalid']
         sc_item.save()
@@ -200,7 +200,7 @@ class SearchConfigTestCase(CremeTestCase):
 
     def test_searchfields_setter04(self):
         "Fields + disabled"
-        sc_item = SearchConfigItem.create_if_needed(Organisation, ['name', 'phone'],
+        sc_item = SearchConfigItem.create_if_needed(FakeOrganisation, ['name', 'phone'],
                                                     disabled=True,
                                                    )
         self.assertEqual(['name', 'phone'], [sf.name for sf in sc_item.searchfields])
@@ -216,12 +216,12 @@ class SearchConfigTestCase(CremeTestCase):
         "One model, no config in BD"
         user = self.login()
 
-        configs = list(SearchConfigItem.get_4_models([Contact], user))
+        configs = list(SearchConfigItem.get_4_models([FakeContact], user))
         self.assertEqual(1, len(configs))
 
         sc_item = configs[0]
         self.assertIsInstance(sc_item, SearchConfigItem)
-        self.assertEqual(Contact, sc_item.content_type.model_class())
+        self.assertEqual(FakeContact, sc_item.content_type.model_class())
         self.assertIsNone(sc_item.role)
         self.assertFalse(sc_item.superuser)
         self.assertTrue(sc_item.all_fields)
@@ -231,9 +231,9 @@ class SearchConfigTestCase(CremeTestCase):
         "One model, 1 config in DB"
         user = self.login()
 
-        sc_item = SearchConfigItem.create_if_needed(Contact, ['first_name', 'last_name'])
+        sc_item = SearchConfigItem.create_if_needed(FakeContact, ['first_name', 'last_name'])
 
-        configs = list(SearchConfigItem.get_4_models([Contact], user))
+        configs = list(SearchConfigItem.get_4_models([FakeContact], user))
         self.assertEqual(1, len(configs))
         self.assertEqual(sc_item, configs[0])
 
@@ -246,13 +246,13 @@ class SearchConfigTestCase(CremeTestCase):
         role3 = create_role(name='Office lady')
 
         create = SearchConfigItem.create_if_needed
-        create(Contact, ['description'], role='superuser')
-        create(Contact, ['first_name', 'last_name'])
-        create(Contact, ['first_name'], role=role2)
-        sc_item = create(Contact, ['last_name'], role=self.role)  # <===
-        create(Contact, ['first_name', 'description'], role=role3)
+        create(FakeContact, ['description'], role='superuser')
+        create(FakeContact, ['first_name', 'last_name'])
+        create(FakeContact, ['first_name'], role=role2)
+        sc_item = create(FakeContact, ['last_name'], role=self.role)  # <===
+        create(FakeContact, ['first_name', 'description'], role=role3)
 
-        configs = list(SearchConfigItem.get_4_models([Contact], self.other_user))
+        configs = list(SearchConfigItem.get_4_models([FakeContact], self.other_user))
         self.assertEqual(1, len(configs))
         self.assertEqual(sc_item, configs[0])
 
@@ -261,12 +261,12 @@ class SearchConfigTestCase(CremeTestCase):
         self.login()
 
         create = SearchConfigItem.create_if_needed
-        sc_item = create(Contact, ['last_name'], role=self.role)
-        create(Contact, ['first_name', 'last_name'])
-        create(Contact, ['description'], role='superuser')
+        sc_item = create(FakeContact, ['last_name'], role=self.role)
+        create(FakeContact, ['first_name', 'last_name'])
+        create(FakeContact, ['description'], role='superuser')
 
         self.assertEqual(sc_item,
-                         SearchConfigItem.get_4_models([Contact], self.other_user).next()
+                         SearchConfigItem.get_4_models([FakeContact], self.other_user).next()
                         )
 
     def test_get_4_models06(self):
@@ -278,13 +278,13 @@ class SearchConfigTestCase(CremeTestCase):
         role3 = create_role(name='Office lady')
 
         create = SearchConfigItem.create_if_needed
-        create(Contact, ['first_name', 'last_name'])
-        create(Contact, ['first_name'], role=role2)
-        sc_item = create(Contact, ['last_name'], role='superuser')  # <==
-        create(Contact, ['first_name', 'description'], role=role3)
+        create(FakeContact, ['first_name', 'last_name'])
+        create(FakeContact, ['first_name'], role=role2)
+        sc_item = create(FakeContact, ['last_name'], role='superuser')  # <==
+        create(FakeContact, ['first_name', 'description'], role=role3)
 
         self.assertEqual(sc_item,
-                         SearchConfigItem.get_4_models([Contact], user).next()
+                         SearchConfigItem.get_4_models([FakeContact], user).next()
                         )
 
     def test_get_4_models07(self):
@@ -292,18 +292,18 @@ class SearchConfigTestCase(CremeTestCase):
         user = self.login()
 
         create = SearchConfigItem.create_if_needed
-        sc_item = create(Contact, ['last_name'], role='superuser')
-        create(Contact, ['first_name', 'last_name'])
+        sc_item = create(FakeContact, ['last_name'], role='superuser')
+        create(FakeContact, ['first_name', 'last_name'])
 
         self.assertEqual(sc_item,
-                         SearchConfigItem.get_4_models([Contact], user).next()
+                         SearchConfigItem.get_4_models([FakeContact], user).next()
                         )
 
     def test_get_4_models08(self):
         "2 models"
         user = self.login()
 
-        configs = list(SearchConfigItem.get_4_models([Contact, Organisation], user))
+        configs = list(SearchConfigItem.get_4_models([FakeContact, FakeOrganisation], user))
         self.assertEqual(2, len(configs))
-        self.assertEqual(Contact,      configs[0].content_type.model_class())
-        self.assertEqual(Organisation, configs[1].content_type.model_class())
+        self.assertEqual(FakeContact, configs[0].content_type.model_class())
+        self.assertEqual(FakeOrganisation, configs[1].content_type.model_class())

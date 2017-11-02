@@ -5,8 +5,8 @@ try:
 
     # from ..registry import CRUDityRegistry, FetcherInterface
     from .. import registry
-    from .base import CrudityTestCase, FakeFetcher, ContactFakeBackend, FakeInput
-            # OrganisationFakeBackend, DocumentFakeBackend, Document, Contact, Organisation
+    from .base import CrudityTestCase, FakeFetcher, FakeInput
+            # ContactFakeBackend, OrganisationFakeBackend, DocumentFakeBackend, Document, Contact, Organisation
     from .fake_crudity_register import (FakeContact, FakeOrganisation, FakeDocument,
             FakeContactBackend, FakeOrganisationBackend, FakeDocumentBackend)
 except Exception as e:

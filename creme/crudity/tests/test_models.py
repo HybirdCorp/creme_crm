@@ -8,7 +8,7 @@ try:
     from django.utils.timezone import now
 
     from creme.creme_core.models import CremeEntity
-    from creme.creme_core.tests.fake_models import FakeContact as Contact
+    from creme.creme_core.tests.fake_models import FakeContact
 
     from ..models import WaitingAction
     from .base import CrudityTestCase
@@ -24,7 +24,7 @@ class WaitingActionTestCase(CrudityTestCase):
 
         get_ct = ContentType.objects.get_for_model
         cls.ct_entity  = get_ct(CremeEntity)
-        cls.ct_contact = get_ct(Contact)
+        cls.ct_contact = get_ct(FakeContact)
 
         cls.User = get_user_model()
         cls._staff_user_ids_backup = list(cls.User.objects.filter(is_staff=True)

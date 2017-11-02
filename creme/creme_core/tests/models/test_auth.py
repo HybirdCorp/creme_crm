@@ -13,8 +13,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from ..base import CremeTestCase
-    from ..fake_models import (FakeContact as Contact, FakeOrganisation as Organisation,
-           FakeInvoice, FakeInvoiceLine)
+    from ..fake_models import FakeContact, FakeOrganisation, FakeInvoice, FakeInvoiceLine
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import CremeUser
     from creme.creme_core.models import (CremeEntity, CremePropertyType,
@@ -40,7 +39,7 @@ class CredentialsTestCase(CremeTestCase):
                                               password='uselesspw',
                                              )  # TODO: remove from here ??
 
-        create_contact = Contact.objects.create
+        create_contact = FakeContact.objects.create
         self.contact1 = create_contact(user=user,  first_name='Musashi', last_name='Miyamoto')
         self.contact2 = create_contact(user=other, first_name='Kojiro',  last_name='Sasaki')
 
@@ -72,7 +71,7 @@ class CredentialsTestCase(CremeTestCase):
         return role
 
     def _build_contact_qs(self):
-        return Contact.objects.filter(pk__in=(self.contact1.id, self.contact2.id))
+        return FakeContact.objects.filter(pk__in=(self.contact1.id, self.contact2.id))
 
     def test_attributes01(self):
         user = self.user
@@ -568,7 +567,7 @@ class CredentialsTestCase(CremeTestCase):
     def test_ct_credentials(self):
         user = self.user
         self._create_role('Coder', ['creme_core'], users=[user],  # 'persons'
-                          set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_ALL, Contact)]
+                          set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_ALL, FakeContact)]
                          )
 
         contact1 = self.contact1
@@ -582,7 +581,7 @@ class CredentialsTestCase(CremeTestCase):
         self.assertTrue(user.has_perm_to_view(contact2))  # <=====
         self.assertFalse(user.has_perm_to_change(contact2))
 
-        orga = Organisation.objects.create(user=user, name='Yoshioka')
+        orga = FakeOrganisation.objects.create(user=user, name='Yoshioka')
         self.assertFalse(user.has_perm_to_view(orga))  # <=====
         self.assertFalse(user.has_perm_to_change(orga))
         self.assertFalse(user.has_perm_to_delete(orga))
@@ -596,9 +595,9 @@ class CredentialsTestCase(CremeTestCase):
                          self._ids_list(efilter(qs, perm=EntityCredentials.VIEW))
                         )
         self.assertFalse(efilter(qs, perm=EntityCredentials.CHANGE))
-        self.assertFalse(efilter(Organisation.objects.filter(pk=orga.id),
+        self.assertFalse(efilter(FakeOrganisation.objects.filter(pk=orga.id),
                                  perm=EntityCredentials.VIEW,
-                                )
+                                 )
                         )
 
     def test_creation_creds01(self):
@@ -650,21 +649,21 @@ class CredentialsTestCase(CremeTestCase):
 
         self.assertFalse(has_perm('persons.export_contact'))
         self.assertFalse(has_perm('persons.export_organisation'))
-        self.assertFalse(has_perm_to_export(Contact))  # Helper
+        self.assertFalse(has_perm_to_export(FakeContact))  # Helper
 
-        role.exportable_ctypes.add(ContentType.objects.get_for_model(Contact))
+        role.exportable_ctypes.add(ContentType.objects.get_for_model(FakeContact))
 
         user.role = self.refresh(role)  # Refresh cache
         self.assertTrue(has_perm('creme_core.export_fakecontact'))
         self.assertFalse(has_perm('creme_core.export_fakeorganisation'))
-        self.assertTrue(has_perm_to_export(Contact))
-        self.assertFalse(has_perm_to_export(Organisation))
+        self.assertTrue(has_perm_to_export(FakeContact))
+        self.assertFalse(has_perm_to_export(FakeOrganisation))
 
         # Helpers (with exception)
         with self.assertNoException():
-            user.has_perm_to_export_or_die(Contact)
+            user.has_perm_to_export_or_die(FakeContact)
 
-        self.assertRaises(PermissionDenied, user.has_perm_to_export_or_die, Organisation)
+        self.assertRaises(PermissionDenied, user.has_perm_to_export_or_die, FakeOrganisation)
 
     def test_export_creds02(self):
         user = self.user
@@ -859,7 +858,7 @@ class CredentialsTestCase(CremeTestCase):
         team = self._create_team('Teamee', [user])
 
         # entity = self.refresh(CremeEntity.objects.create(user=team))  # No cache
-        entity = self.refresh(Contact.objects.create(user=team, first_name='Ito', last_name=u'Ittosaï'))  # No cache
+        entity = self.refresh(FakeContact.objects.create(user=team, first_name='Ito', last_name=u'Ittosaï'))  # No cache
         user = self.refresh(user)  # Refresh cache
 
         with self.assertNumQueries(3):  # Role, SetCredentials & teams
@@ -880,7 +879,7 @@ class CredentialsTestCase(CremeTestCase):
         user = self.refresh(user)  # Refresh caches
 
         # qs = CremeEntity.objects.filter(pk=entity.id)
-        qs = Contact.objects.filter(pk=entity.id)
+        qs = FakeContact.objects.filter(pk=entity.id)
         efilter = EntityCredentials.filter
 
         with self.assertNumQueries(3):  # Role, SetCredentials & teams
@@ -907,13 +906,13 @@ class CredentialsTestCase(CremeTestCase):
         team3 = create_team('Teamee 3', [other])
 
         # entity1 = CremeEntity.objects.create(user=team1)
-        entity1 = Contact.objects.create(user=team1, first_name='Munisai', last_name='Shinmen')
+        entity1 = FakeContact.objects.create(user=team1, first_name='Munisai', last_name='Shinmen')
         self.assertTrue(user.has_perm_to_view(entity1))  # Belongs to the team
         self.assertFalse(user.has_perm_to_change(entity1))
         self.assertFalse(other.has_perm_to_view(entity1))
 
         # entity2 = CremeEntity.objects.create(user=team2)
-        entity2 = Contact.objects.create(user=team2, first_name='Kempo', last_name='Yoshioka')
+        entity2 = FakeContact.objects.create(user=team2, first_name='Kempo', last_name='Yoshioka')
         self.assertTrue(user.has_perm_to_view(entity2))  # Belongs to the team
         self.assertFalse(user.has_perm_to_change(entity2))
         self.assertTrue(other.has_perm_to_view(entity2))
@@ -929,10 +928,10 @@ class CredentialsTestCase(CremeTestCase):
 
         # Filtering ------------------------------------------------------------
         # entity3 = CremeEntity.objects.create(user=team3)
-        entity3 = Contact.objects.create(user=team3, first_name='Ryohei', last_name='Ueda')
+        entity3 = FakeContact.objects.create(user=team3, first_name='Ryohei', last_name='Ueda')
 
         # qs = CremeEntity.objects.filter(pk__in=[entity1.id, entity2.id, entity3.id])
-        qs = Contact.objects.filter(pk__in=[entity1.id, entity2.id, entity3.id])
+        qs = FakeContact.objects.filter(pk__in=[entity1.id, entity2.id, entity3.id])
         efilter = EntityCredentials.filter
         self.assertEqual([entity1.id, entity2.id],
                          self._ids_list(efilter(user, qs, perm=EntityCredentials.VIEW))
@@ -1011,10 +1010,10 @@ class CredentialsTestCase(CremeTestCase):
         user.is_superuser = True  # <====
 
         # self.assertTrue(user.has_perm_to_link()) TODO ??
-        self.assertTrue(user.has_perm_to_link(Organisation))
+        self.assertTrue(user.has_perm_to_link(FakeOrganisation))
 
         with self.assertNoException():
-            user.has_perm_to_link_or_die(Organisation)
+            user.has_perm_to_link_or_die(FakeOrganisation)
 
     def test_has_perm_to_link02(self):
         "No LINK perm at all"
@@ -1025,11 +1024,11 @@ class CredentialsTestCase(CremeTestCase):
 
         has_perm_to_link = user.has_perm_to_link
         # self.assertFalse(user.has_perm_to_link()) TODO ??
-        self.assertFalse(has_perm_to_link(Organisation))
-        self.assertFalse(has_perm_to_link(Organisation, owner=None))
-        self.assertFalse(has_perm_to_link(Organisation, owner=self.other_user))
+        self.assertFalse(has_perm_to_link(FakeOrganisation))
+        self.assertFalse(has_perm_to_link(FakeOrganisation, owner=None))
+        self.assertFalse(has_perm_to_link(FakeOrganisation, owner=self.other_user))
 
-        self.assertRaises(PermissionDenied, user.has_perm_to_link_or_die, Organisation)
+        self.assertRaises(PermissionDenied, user.has_perm_to_link_or_die, FakeOrganisation)
 
     def test_has_perm_to_link03(self):
         "Can LINK all"
@@ -1044,41 +1043,41 @@ class CredentialsTestCase(CremeTestCase):
         team = self._create_team('Teamee', [user, self.other_user])
 
         has_perm_to_link = user.has_perm_to_link
-        self.assertTrue(has_perm_to_link(Organisation))
-        self.assertTrue(has_perm_to_link(Organisation, owner=user))
-        self.assertTrue(has_perm_to_link(Organisation, owner=self.other_user))
-        self.assertTrue(has_perm_to_link(Organisation, owner=team))
+        self.assertTrue(has_perm_to_link(FakeOrganisation))
+        self.assertTrue(has_perm_to_link(FakeOrganisation, owner=user))
+        self.assertTrue(has_perm_to_link(FakeOrganisation, owner=self.other_user))
+        self.assertTrue(has_perm_to_link(FakeOrganisation, owner=team))
 
     def test_has_perm_to_link04(self):
         "With CT credentials -> has perm"
         user = self.user
         self._create_role('Worker', ['creme_core'], users=[user],
                           set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_ALL),
-                                     (EntityCredentials.LINK, SetCredentials.ESET_ALL, Organisation),
+                                     (EntityCredentials.LINK, SetCredentials.ESET_ALL, FakeOrganisation),
                                     ]
                          )
 
         has_perm_to_link = user.has_perm_to_link
-        self.assertTrue(has_perm_to_link(Organisation))
-        self.assertTrue(has_perm_to_link(Organisation, owner=None))
-        self.assertTrue(has_perm_to_link(Organisation, owner=user))
-        self.assertTrue(has_perm_to_link(Organisation, owner=self.other_user))
+        self.assertTrue(has_perm_to_link(FakeOrganisation))
+        self.assertTrue(has_perm_to_link(FakeOrganisation, owner=None))
+        self.assertTrue(has_perm_to_link(FakeOrganisation, owner=user))
+        self.assertTrue(has_perm_to_link(FakeOrganisation, owner=self.other_user))
 
     def test_has_perm_to_link05(self):
         "With CT credentials -> has not perm"
         user = self.user
         self._create_role('Worker', ['creme_core'], users=[user],
                           set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_ALL),
-                                     (EntityCredentials.LINK, SetCredentials.ESET_ALL, Contact),  # <= not Organisation
+                                     (EntityCredentials.LINK, SetCredentials.ESET_ALL, FakeContact),  # <= not Organisation
                                     ]
                          )
 
         has_perm_to_link = user.has_perm_to_link
-        self.assertFalse(has_perm_to_link(Organisation))
-        self.assertFalse(has_perm_to_link(Organisation, owner=user))
-        self.assertTrue(has_perm_to_link(Contact))
-        self.assertTrue(has_perm_to_link(Contact, owner=user))
-        self.assertTrue(has_perm_to_link(Contact, owner=self.other_user))
+        self.assertFalse(has_perm_to_link(FakeOrganisation))
+        self.assertFalse(has_perm_to_link(FakeOrganisation, owner=user))
+        self.assertTrue(has_perm_to_link(FakeContact))
+        self.assertTrue(has_perm_to_link(FakeContact, owner=user))
+        self.assertTrue(has_perm_to_link(FakeContact, owner=self.other_user))
 
     def test_has_perm_to_link06(self):
         "Can link only own entities"
@@ -1094,11 +1093,11 @@ class CredentialsTestCase(CremeTestCase):
         team2 = self._create_team('Team#2', [other_user])
 
         has_perm_to_link = user.has_perm_to_link
-        self.assertTrue(has_perm_to_link(Organisation, owner=None))
-        self.assertTrue(has_perm_to_link(Organisation, owner=user))
-        self.assertFalse(has_perm_to_link(Organisation, owner=other_user))
-        self.assertTrue(has_perm_to_link(Organisation, owner=team1))
-        self.assertFalse(has_perm_to_link(Organisation, owner=team2))
+        self.assertTrue(has_perm_to_link(FakeOrganisation, owner=None))
+        self.assertTrue(has_perm_to_link(FakeOrganisation, owner=user))
+        self.assertFalse(has_perm_to_link(FakeOrganisation, owner=other_user))
+        self.assertTrue(has_perm_to_link(FakeOrganisation, owner=team1))
+        self.assertFalse(has_perm_to_link(FakeOrganisation, owner=team2))
 
     def test_is_deleted(self):
         user = self.user
@@ -1127,9 +1126,9 @@ class CredentialsTestCase(CremeTestCase):
         user.is_superuser = True  # <====
 
         with self.assertRaises(ValueError):
-            EntityCredentials.filter_entities(user, Contact.objects.all())
+            EntityCredentials.filter_entities(user, FakeContact.objects.all())
 
-        create_orga = Organisation.objects.create
+        create_orga = FakeOrganisation.objects.create
         orga1 = create_orga(user=user, name='Yoshioka')
         orga2 = create_orga(user=self.other_user, name='Miyamoto')
 
@@ -1150,7 +1149,7 @@ class CredentialsTestCase(CremeTestCase):
                           set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_ALL)]
                          )
 
-        create_orga = Organisation.objects.create
+        create_orga = FakeOrganisation.objects.create
         orga1 = create_orga(user=user, name='Yoshioka')
         orga2 = create_orga(user=self.other_user, name='Miyamoto')
 
@@ -1178,14 +1177,14 @@ class CredentialsTestCase(CremeTestCase):
         CHANGE = EntityCredentials.CHANGE
         self._create_role('Coder', ['creme_core'], users=[user],
                           set_creds=[(VIEW,   SetCredentials.ESET_OWN),
-                                     (VIEW,   SetCredentials.ESET_ALL, Organisation),
+                                     (VIEW, SetCredentials.ESET_ALL, FakeOrganisation),
                                      (CHANGE, SetCredentials.ESET_ALL),
                                     ]
                          )
 
-        contact3 = Contact.objects.create(user=team, first_name='Sekishusai', last_name='Yagyu')
+        contact3 = FakeContact.objects.create(user=team, first_name='Sekishusai', last_name='Yagyu')
 
-        create_orga = Organisation.objects.create
+        create_orga = FakeOrganisation.objects.create
         orga1 = create_orga(user=user, name='Yoshioka')
         orga2 = create_orga(user=other, name='Miyamoto')
 
@@ -1226,16 +1225,16 @@ class CredentialsTestCase(CremeTestCase):
         "as_model"
         user = self.user
         self._create_role('Coder', ['creme_core'], users=[user],
-                          set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_OWN, Contact)]
+                          set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_OWN, FakeContact)]
                          )
 
-        create_orga = Organisation.objects.create
+        create_orga = FakeOrganisation.objects.create
         orga1 = create_orga(user=user, name='Yoshioka')
         orga2 = create_orga(user=self.other_user, name='Miyamoto')
 
         # Beware: filter_entities() should not be used like this ; 'qs' should not contain not Contact entities.
         qs = CremeEntity.objects.filter(pk__in=[self.contact1.id, self.contact2.id, orga1.id, orga2.id])
-        qs2 = EntityCredentials.filter_entities(user, qs, as_model=Contact)
+        qs2 = EntityCredentials.filter_entities(user, qs, as_model=FakeContact)
         self.assertEqual({self.contact1, orga1},
                          {e.get_real_entity() for e in qs2}
                         )

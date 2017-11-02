@@ -9,7 +9,7 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import SetCredentials
-    from creme.creme_core.tests.base import CremeTestCase
+    # from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
 
     from creme.documents import get_document_model

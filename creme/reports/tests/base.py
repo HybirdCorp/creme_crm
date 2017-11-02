@@ -19,14 +19,13 @@ try:
             HeaderFilter, Relation, RelationType)
     from creme.creme_core.constants import REL_SUB_HAS
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_models import (FakeContact as Contact,
-            FakeOrganisation as Organisation, FakeImage as Image,
-            FakeInvoice as Invoice, FakeInvoiceLine as InvoiceLine)
+    from creme.creme_core.tests.fake_models import (FakeContact, FakeOrganisation,
+            FakeImage, FakeInvoice, FakeInvoiceLine)
     from creme.creme_core.tests.fake_constants import (
             FAKE_REL_SUB_BILL_ISSUED as REL_SUB_BILL_ISSUED,
             FAKE_REL_SUB_BILL_RECEIVED as REL_SUB_BILL_RECEIVED)
 
-    from .fake_models import FakeReportsFolder as Folder, FakeReportsDocument as Document
+    from .fake_models import FakeReportsFolder, FakeReportsDocument
 
     from .. import (report_model_is_custom, rgraph_model_is_custom,
             get_report_model, get_rgraph_model)
@@ -61,27 +60,27 @@ class BaseReportsTestCase(CremeTestCase):
         # cls.populate('creme_core', 'reports')
 
         get_ct = ContentType.objects.get_for_model
-        cls.ct_contact = get_ct(Contact)
-        cls.ct_orga    = get_ct(Organisation)
-        cls.ct_image   = get_ct(Image)
-        cls.ct_folder  = get_ct(Folder)
+        cls.ct_contact = get_ct(FakeContact)
+        cls.ct_orga    = get_ct(FakeOrganisation)
+        cls.ct_image   = get_ct(FakeImage)
+        cls.ct_folder  = get_ct(FakeReportsFolder)
 
         cls.ADD_URL = reverse('reports__create_report')
 
     def _create_report(self, name='Report #1', efilter=None, extra_cells=()):
-        cells = [EntityCellRegularField.build(model=Contact, name='last_name'),
-                 EntityCellRegularField.build(model=Contact, name='user'),
+        cells = [EntityCellRegularField.build(model=FakeContact, name='last_name'),
+                 EntityCellRegularField.build(model=FakeContact, name='user'),
                  EntityCellRelation(RelationType.objects.get(pk=REL_SUB_HAS)),
-                 EntityCellFunctionField(Contact.function_fields.get('get_pretty_properties')),
+                 EntityCellFunctionField(FakeContact.function_fields.get('get_pretty_properties')),
                 ]
         cells.extend(extra_cells)
 
-        hf = HeaderFilter.create(pk='test_hf', name='name', model=Contact, cells_desc=cells)
+        hf = HeaderFilter.create(pk='test_hf', name='name', model=FakeContact, cells_desc=cells)
 
         response = self.client.post(self.ADD_URL, follow=True,
                                     data={'user':   self.user.pk,
                                           'name':   name,
-                                          'ct':     ContentType.objects.get_for_model(Contact).id,
+                                          'ct':     ContentType.objects.get_for_model(FakeContact).id,
                                           'hf':     hf.id,
                                           'filter': efilter.id if efilter else '',
                                          }
@@ -91,7 +90,7 @@ class BaseReportsTestCase(CremeTestCase):
         return self.get_object_or_fail(Report, name=name)
 
     def _create_simple_contacts_report(self, name='Contact report', efilter=None):
-        ct = ContentType.objects.get_for_model(Contact)
+        ct = ContentType.objects.get_for_model(FakeContact)
         report = Report.objects.create(user=self.user, name=name, ct=ct, filter=efilter)
         Field.objects.create(report=report, name='last_name', type=RFT_FIELD, order=1)
 
@@ -99,7 +98,7 @@ class BaseReportsTestCase(CremeTestCase):
 
     def _create_simple_documents_report(self):
         report = Report.objects.create(name="Documents report", user=self.user,
-                                           ct=ContentType.objects.get_for_model(Document)
+                                           ct=ContentType.objects.get_for_model(FakeReportsDocument)
                                           )
 
         create_field = partial(Field.objects.create, report=report, type=RFT_FIELD)
@@ -109,7 +108,7 @@ class BaseReportsTestCase(CremeTestCase):
         return report
 
     def _create_simple_organisations_report(self, name='Orga report', efilter=None):
-        ct = ContentType.objects.get_for_model(Organisation)
+        ct = ContentType.objects.get_for_model(FakeOrganisation)
         report = Report.objects.create(user=self.user, name=name, ct=ct, filter=efilter)
         Field.objects.create(report=report, name=u'name', type=RFT_FIELD, order=1)
 
@@ -123,12 +122,12 @@ class BaseReportsTestCase(CremeTestCase):
 
     def _create_persons(self):
         user = self.user
-        create_contact = partial(Contact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         create_contact(last_name='Langley', first_name='Asuka',  birthday=datetime(year=1981, month=7, day=25))
         rei    = create_contact(last_name='Ayanami',   first_name='Rei',    birthday=datetime(year=1981, month=3, day=26))
         misato = create_contact(last_name='Katsuragi', first_name='Misato', birthday=datetime(year=1976, month=8, day=12))
 
-        nerv = Organisation.objects.create(user=user, name='Nerv')
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
 
         ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text='Kawaii')
         CremeProperty.objects.create(type=ptype, creme_entity=rei)
@@ -141,15 +140,15 @@ class BaseReportsTestCase(CremeTestCase):
                         total_vat=Decimal("0"), issuing_date=None,
                        ):
         user = self.user
-        invoice = Invoice.objects.create(user=user,
-                                         issuing_date=issuing_date or now().date(),
-                                         name=name,
-                                         total_vat=total_vat,
-                                        )
+        invoice = FakeInvoice.objects.create(user=user,
+                                             issuing_date=issuing_date or now().date(),
+                                             name=name,
+                                             total_vat=total_vat,
+                                            )
 
-        InvoiceLine.objects.create(user=user, invoice=invoice, item='Stuff',
-                                   quantity=Decimal("1"), unit_price=total_vat,
-                                  )
+        FakeInvoiceLine.objects.create(user=user, invoice=invoice, item='Stuff',
+                                       quantity=Decimal("1"), unit_price=total_vat,
+                                      )
 
         create_rel = partial(Relation.objects.create, subject_entity=invoice, user=user)
         create_rel(type_id=REL_SUB_BILL_ISSUED,   object_entity=source)

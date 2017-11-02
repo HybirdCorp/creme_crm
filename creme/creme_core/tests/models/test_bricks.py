@@ -9,8 +9,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from ..base import CremeTestCase
-    from ..fake_models import (FakeContact as Contact,
-            FakeOrganisation as Organisation, FakeImage as Image)
+    from ..fake_models import FakeContact, FakeOrganisation, FakeImage
     from creme.creme_core.blocks import (relations_block, properties_block,
              customfields_block, history_block)
     from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellFunctionField
@@ -62,7 +61,7 @@ class BlockTestCase(CremeTestCase):
                               properties_block.id_, history_block.id_,
                               },
                              {loc.block_id for loc in self._bdl_backup}
-                             )
+                            )
         block_id = history_block.id_
         self.assertIn(block_id, {bpl.block_id for bpl in self._bpl_backup if bpl.app_name == ''})
         self.assertIn(block_id, {bpl.block_id for bpl in self._bpl_backup if bpl.app_name == 'creme_core'})
@@ -82,19 +81,19 @@ class BlockTestCase(CremeTestCase):
 
     def test_create_detailview02(self):
         "For a ContentType"
-        self.assertFalse(BlockDetailviewLocation.config_exists(Contact))
+        self.assertFalse(BlockDetailviewLocation.config_exists(FakeContact))
 
         order = 4
         zone = BlockDetailviewLocation.LEFT
         block_id = properties_block.id_
-        loc = BlockDetailviewLocation.create(block_id=block_id, order=order, zone=zone, model=Contact)
+        loc = BlockDetailviewLocation.create(block_id=block_id, order=order, zone=zone, model=FakeContact)
         loc = self.get_object_or_fail(BlockDetailviewLocation, pk=loc.pk)
-        self.assertEqual(Contact,  loc.content_type.model_class())
+        self.assertEqual(FakeContact, loc.content_type.model_class())
         self.assertEqual(block_id, loc.block_id)
         self.assertEqual(order,    loc.order)
         self.assertEqual(zone,     loc.zone)
 
-        self.assertTrue(BlockDetailviewLocation.config_exists(Contact))
+        self.assertTrue(BlockDetailviewLocation.config_exists(FakeContact))
 
     def test_create_detailview03(self):
         "Do not create if already exists (in any zone/order)"
@@ -102,13 +101,13 @@ class BlockTestCase(CremeTestCase):
         order = 5
         zone = BlockDetailviewLocation.RIGHT
 
-        create_bdl = partial(BlockDetailviewLocation.create, block_id=block_id, model=Contact)
+        create_bdl = partial(BlockDetailviewLocation.create, block_id=block_id, model=FakeContact)
         create_bdl(order=order, zone=zone)
         create_bdl(order=4,     zone=BlockDetailviewLocation.LEFT)
 
         locs = BlockDetailviewLocation.objects.filter(
                 block_id=block_id,
-                content_type=ContentType.objects.get_for_model(Contact),
+                content_type=ContentType.objects.get_for_model(FakeContact),
         )
         self.assertEqual(1, len(locs))
 
@@ -125,14 +124,14 @@ class BlockTestCase(CremeTestCase):
         zone = BlockDetailviewLocation.RIGHT
 
         create_bdl = partial(BlockDetailviewLocation.create, block_id=block_id,
-                             model=Contact, role=role,
-                             )
+                             model=FakeContact, role=role,
+                            )
         create_bdl(order=order, zone=zone)
         create_bdl(order=4,     zone=BlockDetailviewLocation.LEFT)
 
         locs = BlockDetailviewLocation.objects.filter(
                 block_id=block_id,
-                content_type=ContentType.objects.get_for_model(Contact),
+                content_type=ContentType.objects.get_for_model(FakeContact),
                 role=role, superuser=False,
         )
         self.assertEqual(1, len(locs))
@@ -144,9 +143,7 @@ class BlockTestCase(CremeTestCase):
         # Do not avoid default configuration creation
         count = BlockDetailviewLocation.objects.count()
         zone = BlockDetailviewLocation.BOTTOM
-        loc = create_bdl(order=order, zone=zone,
-                         role=None
-                         )
+        loc = create_bdl(order=order, zone=zone, role=None)
         self.assertEqual(count + 1, BlockDetailviewLocation.objects.count())
         self.assertEqual(zone,  loc.zone)
         self.assertIsNone(loc.role)
@@ -159,14 +156,14 @@ class BlockTestCase(CremeTestCase):
         zone = BlockDetailviewLocation.RIGHT
 
         create_bdl = partial(BlockDetailviewLocation.create, block_id=block_id,
-                             model=Contact, role='superuser',
-                             )
+                             model=FakeContact, role='superuser',
+                            )
         create_bdl(order=order, zone=zone)
         create_bdl(order=4,     zone=BlockDetailviewLocation.LEFT)
 
         locs = BlockDetailviewLocation.objects.filter(
                 block_id=block_id,
-                content_type=ContentType.objects.get_for_model(Contact),
+                content_type=ContentType.objects.get_for_model(FakeContact),
                 role=None, superuser=True,
         )
         self.assertEqual(1, len(locs))
@@ -178,9 +175,7 @@ class BlockTestCase(CremeTestCase):
         # Do not avoid default configuration creation
         count = BlockDetailviewLocation.objects.count()
         zone = BlockDetailviewLocation.BOTTOM
-        loc = create_bdl(order=order, zone=zone,
-                         role=None
-                         )
+        loc = create_bdl(order=order, zone=zone, role=None)
         self.assertEqual(count + 1, BlockDetailviewLocation.objects.count())
         self.assertEqual(zone,  loc.zone)
         self.assertIsNone(loc.role)
@@ -192,12 +187,12 @@ class BlockTestCase(CremeTestCase):
             BlockDetailviewLocation.create(block_id=properties_block.id_,
                                            order=5, zone=BlockDetailviewLocation.RIGHT,
                                            model=None, role='superuser', # <==
-                                           )
+                                          )
 
     def test_create_4_model_block(self):
         order = 5
         zone = BlockDetailviewLocation.RIGHT
-        model = Contact
+        model = FakeContact
         loc = BlockDetailviewLocation.create_4_model_block(order=order, zone=zone, model=model)
 
         self.assertEqual(1, BlockDetailviewLocation.objects.count())
@@ -211,7 +206,7 @@ class BlockTestCase(CremeTestCase):
     def test_create_4_model_brick01(self):
         order = 5
         zone = BlockDetailviewLocation.RIGHT
-        model = Contact
+        model = FakeContact
         loc = BlockDetailviewLocation.create_4_model_brick(order=order, zone=zone, model=model)
 
         self.assertEqual(1, BlockDetailviewLocation.objects.count())
@@ -235,7 +230,7 @@ class BlockTestCase(CremeTestCase):
         "With a Role"
         role = UserRole.objects.create(name='Viewer')
         loc = BlockDetailviewLocation.create_4_model_brick(
-                model=Contact, role=role,
+                model=FakeContact, role=role,
                 order=8, zone=BlockDetailviewLocation.BOTTOM,
         )
         self.assertEqual(1, BlockDetailviewLocation.objects.count())
@@ -252,9 +247,9 @@ class BlockTestCase(CremeTestCase):
                          )
         self.assertEqual({BlockDetailviewLocation.TOP,   BlockDetailviewLocation.LEFT,
                           BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM,
-                          },
+                         },
                          {bl.zone for bl in locs}
-                         )
+                        )
 
     def test_create_empty_detailview_config02(self):
         block_id = relations_block.id_
@@ -265,7 +260,7 @@ class BlockTestCase(CremeTestCase):
 
     def test_create_empty_detailview_config03(self):
         zone = BlockDetailviewLocation.BOTTOM
-        model = Organisation
+        model = FakeOrganisation
 
         BlockDetailviewLocation.create_empty_config()
         BlockDetailviewLocation.create_empty_config(model=model)
@@ -273,9 +268,9 @@ class BlockTestCase(CremeTestCase):
         locs = BlockDetailviewLocation.objects.filter(content_type=ContentType.objects.get_for_model(model))
         self.assertEqual({BlockDetailviewLocation.TOP, BlockDetailviewLocation.LEFT,
                           BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM,
-                          },
+                         },
                          {bl.zone for bl in locs}
-                         )
+                        )
         self.assertEqual(4, len(locs))
 
         loc = [loc for loc in locs if loc.zone == zone][0]
@@ -288,7 +283,7 @@ class BlockTestCase(CremeTestCase):
         loc = BlockPortalLocation.create(app_name=app_name, block_id=block_id, order=order)
         self.get_object_or_fail(BlockPortalLocation, pk=loc.pk, app_name=app_name,
                                 block_id=block_id, order=order,
-                                )
+                               )
 
     def test_create_portal02(self):
         order = 10
@@ -296,7 +291,7 @@ class BlockTestCase(CremeTestCase):
         loc = BlockPortalLocation.create(block_id=block_id, order=order)
         self.get_object_or_fail(BlockPortalLocation, pk=loc.pk, app_name='',
                                 block_id=block_id, order=order,
-                                )
+                               )
 
     def test_create_portal03(self):
         app_name = 'billing'
@@ -344,7 +339,7 @@ class BlockTestCase(CremeTestCase):
         loc = BlockMypageLocation.create(user=user, block_id=block_id, order=order)
         self.get_object_or_fail(BlockMypageLocation, pk=loc.pk, user=user,
                                 block_id=block_id, order=order,
-                                )
+                               )
 
         self.assertEqual(_('History'), unicode(loc.block_verbose_name))
 
@@ -354,7 +349,7 @@ class BlockTestCase(CremeTestCase):
         loc = BlockMypageLocation.create(block_id=block_id, order=order)
         self.get_object_or_fail(BlockMypageLocation, pk=loc.pk, user=None,
                                 block_id=block_id, order=order,
-                                )
+                               )
 
     def test_create_mypage03(self):
         block_id = history_block.id_
@@ -364,7 +359,7 @@ class BlockTestCase(CremeTestCase):
         loc = BlockMypageLocation.create(block_id=block_id, order=order)
         self.get_object_or_fail(BlockMypageLocation, pk=loc.pk, user=None,
                                 block_id=block_id, order=order,
-                                )
+                               )
 
     def test_mypage_new_user(self):
         block_id = history_block.id_
@@ -379,14 +374,14 @@ class BlockTestCase(CremeTestCase):
     def test_relation_block01(self):
         rtype = RelationType.create(('test-subject_loves', 'loves'),
                                     ('test-object_loved',  'is loved by')
-                                    )[0]
+                                   )[0]
 
         rbi = RelationBlockItem.create(rtype.id)
 
         get_ct = ContentType.objects.get_for_model
-        ct_contact = get_ct(Contact)
-        ct_orga = get_ct(Organisation)
-        ct_img = get_ct(Image)
+        ct_contact = get_ct(FakeContact)
+        ct_orga = get_ct(FakeOrganisation)
+        ct_img = get_ct(FakeImage)
 
         rbi = self.refresh(rbi)  # Test persistence
         self.assertIsNone(rbi.get_cells(ct_contact))
@@ -395,11 +390,11 @@ class BlockTestCase(CremeTestCase):
         self.assertIs(rbi.all_ctypes_configured, False)
 
         rbi.set_cells(ct_contact,
-                      [EntityCellRegularField.build(Contact, 'last_name'),
-                       EntityCellFunctionField.build(Contact, 'get_pretty_properties'),
-                       ],
-                      )
-        rbi.set_cells(ct_orga, [EntityCellRegularField.build(Organisation, 'name')])
+                      [EntityCellRegularField.build(FakeContact, 'last_name'),
+                       EntityCellFunctionField.build(FakeContact, 'get_pretty_properties'),
+                      ],
+                     )
+        rbi.set_cells(ct_orga, [EntityCellRegularField.build(FakeOrganisation, 'name')])
         rbi.save()
 
         rbi = self.refresh(rbi)  # Test persistence
@@ -422,31 +417,31 @@ class BlockTestCase(CremeTestCase):
     def test_relation_block02(self):
         "All ctypes configured"
         rtype = RelationType.create(('test-subject_rented', 'is rented by'),
-                                    ('test-object_rented',  'rents', [Contact, Organisation]),
-                                    )[0]
+                                    ('test-object_rented',  'rents', [FakeContact, FakeOrganisation]),
+                                   )[0]
 
         rbi = RelationBlockItem.create(rtype.id)
         get_ct = ContentType.objects.get_for_model
 
-        rbi.set_cells(get_ct(Contact), [EntityCellRegularField.build(Contact, 'last_name')])
+        rbi.set_cells(get_ct(FakeContact), [EntityCellRegularField.build(FakeContact, 'last_name')])
         rbi.save()
         self.assertFalse(self.refresh(rbi).all_ctypes_configured)
 
-        rbi.set_cells(get_ct(Organisation), [EntityCellRegularField.build(Organisation, 'name')])
+        rbi.set_cells(get_ct(FakeOrganisation), [EntityCellRegularField.build(FakeOrganisation, 'name')])
         rbi.save()
         self.assertTrue(self.refresh(rbi).all_ctypes_configured)
 
     def test_relation_block_errors(self):
         rtype = RelationType.create(('test-subject_rented', 'is rented by'),
                                     ('test-object_rented',  'rents'),
-                                    )[0]
-        ct_contact = ContentType.objects.get_for_model(Contact)
+                                   )[0]
+        ct_contact = ContentType.objects.get_for_model(FakeContact)
         rbi = RelationBlockItem.create(rtype.id)
 
-        build = partial(EntityCellRegularField.build, model=Contact)
+        build = partial(EntityCellRegularField.build, model=FakeContact)
         rbi.set_cells(ct_contact,
                       [build(name='last_name'), build(name='description')]
-                      )
+                     )
         rbi.save()
 
         # Inject error by bypassing checkings
@@ -463,13 +458,13 @@ class BlockTestCase(CremeTestCase):
 
         self.assertEqual({str(ct_contact.id): [{'type': 'regular_field', 'value': 'last_name'}]},
                          deserialized
-                         )
+                        )
 
     def test_custom_block(self):
         cbci = CustomBlockConfigItem.objects.create(
                 id='tests-organisations01', name='General',
-                content_type=ContentType.objects.get_for_model(Organisation),
-                cells=[EntityCellRegularField.build(Organisation, 'name')],
+                content_type=ContentType.objects.get_for_model(FakeOrganisation),
+                cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
         )
 
         cells = self.refresh(cbci).cells
@@ -482,10 +477,10 @@ class BlockTestCase(CremeTestCase):
     def test_custom_block_errors01(self):
         cbci = CustomBlockConfigItem.objects.create(
                 id='tests-organisations01', name='General',
-                content_type=ContentType.objects.get_for_model(Organisation),
-                cells=[EntityCellRegularField.build(Organisation, 'name'),
-                       EntityCellRegularField.build(Organisation, 'description'),
-                       ],
+                content_type=ContentType.objects.get_for_model(FakeOrganisation),
+                cells=[EntityCellRegularField.build(FakeOrganisation, 'name'),
+                       EntityCellRegularField.build(FakeOrganisation, 'description'),
+                      ],
         )
 
         # Inject error by bypassing checkings
@@ -500,15 +495,15 @@ class BlockTestCase(CremeTestCase):
 
         self.assertEqual([{'type': 'regular_field', 'value': 'name'}],
                          deserialized
-                         )
+                        )
 
     def test_custom_block_errors02(self):
         cbci = CustomBlockConfigItem.objects.create(
                 id='tests-organisations01', name='General',
-                content_type=ContentType.objects.get_for_model(Organisation),
-                cells=[EntityCellRegularField.build(Organisation, 'name'),
-                       EntityCellRegularField.build(Organisation, 'invalid'),
-                       ],
+                content_type=ContentType.objects.get_for_model(FakeOrganisation),
+                cells=[EntityCellRegularField.build(FakeOrganisation, 'name'),
+                       EntityCellRegularField.build(FakeOrganisation, 'invalid'),
+                      ],
         )
 
         cbci = self.refresh(cbci)

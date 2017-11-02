@@ -6,8 +6,6 @@ try:
     from json import dumps as json_dump
     from unittest import skipIf
 
-    from django.apps import apps
-
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.persons import get_contact_model, get_organisation_model

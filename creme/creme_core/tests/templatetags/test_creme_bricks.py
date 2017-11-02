@@ -12,9 +12,9 @@ try:
 
     from ..base import CremeTestCase
     from ..views.base import BrickTestCaseMixin
-    from ..fake_models import FakeContact, FakeOrganisation
+    from ..fake_models import FakeContact
     # from creme.creme_core.core.entity_cell import EntityCellRegularField
-    from creme.creme_core.gui.bricks import brick_registry, Brick, SimpleBrick, BricksManager
+    from creme.creme_core.gui.bricks import brick_registry, Brick
     # from creme.creme_core.models import (RelationType, Relation,
     #         BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
     #         InstanceBlockConfigItem, RelationBlockItem, CustomBlockConfigItem)

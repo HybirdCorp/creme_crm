@@ -2,9 +2,9 @@
 
 try:
     from email.mime.image import MIMEImage
-    from os.path import join, exists, basename
+    # from os.path import join, exists, basename
 
-    from django.conf import settings
+    # from django.conf import settings
     from django.core import mail as django_mail
 
     # from creme.media_managers.tests import create_image
