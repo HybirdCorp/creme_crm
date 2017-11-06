@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,6 +30,7 @@ from creme.creme_core.forms.widgets import DynamicSelect
 from creme.creme_core.models.custom_field import CustomField, CustomFieldEnumValue, _TABLES
 
 # TODO: User friendly order in choices fields
+# TODO: rename CustomField*Form (without 's')
 
 
 class CustomFieldsBaseForm(CremeModelForm):
@@ -96,6 +97,14 @@ class CustomFieldsAddForm(CustomFieldsBaseForm):
         super(CustomFieldsAddForm, self).__init__(*args, **kwargs)
         self.ct = self.initial['ct']
 
+    def clean_name(self):
+        name = self.cleaned_data['name']
+
+        if CustomField.objects.filter(content_type=self.ct, name=name).exists():
+            raise ValidationError(ugettext(u'There is already a custom field with this name.'))
+
+        return name
+
     def save(self):
         self.instance.content_type = self.ct
         return super(CustomFieldsAddForm, self).save()
@@ -121,6 +130,17 @@ class CustomFieldsEditForm(CremeModelForm):
                                               label=ugettext(u'New choices of the list'),
                                               help_text=ugettext(u'Give the new possible choices (one per line).'),
                                              )
+
+    def clean_name(self):
+        name = self.cleaned_data['name']
+        instance = self.instance
+
+        if CustomField.objects.filter(content_type=instance.content_type, name=name)\
+                              .exclude(id=instance.id)\
+                              .exists():
+            raise ValidationError(ugettext(u'There is already a custom field with this name.'))
+
+        return name
 
     def save(self):
         cfield = super(CustomFieldsEditForm, self).save()
