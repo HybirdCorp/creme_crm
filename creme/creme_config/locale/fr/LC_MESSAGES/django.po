@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-31 11:36+0100\n"
+"POT-Creation-Date: 2017-11-05 22:34+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -211,7 +211,7 @@ msgstr "Colonnes"
 msgid "This type of field can not be the first column."
 msgstr "Ce type de champ ne peut pas être la première colonne."
 
-#: forms/bricks.py:441 forms/button_menu.py:39 forms/custom_fields.py:76
+#: forms/bricks.py:441 forms/button_menu.py:39 forms/custom_fields.py:77
 #: forms/fields_config.py:49 forms/fields_config.py:73
 msgid "Related resource"
 msgstr "Ressource associée"
@@ -264,15 +264,15 @@ msgstr "Aucun type séléctionné signifiera que tous les types sont acceptés"
 msgid "A property type with this name already exists"
 msgstr "Un type de propriété avec ce nom existe déjà"
 
-#: forms/custom_fields.py:36
+#: forms/custom_fields.py:37
 msgid "Type of field"
 msgstr "Type du champ"
 
-#: forms/custom_fields.py:39
+#: forms/custom_fields.py:40
 msgid "Available choices"
 msgstr "Choix disponibles"
 
-#: forms/custom_fields.py:40
+#: forms/custom_fields.py:41
 msgid ""
 "Give the possible choices (one per line) if you choose the type \"Choice list"
 "\"."
@@ -280,14 +280,14 @@ msgstr ""
 "Mettez les choix possibles (un par ligne) si vous avez choisi le type  "
 "\"Liste de choix\"."
 
-#: forms/custom_fields.py:53
+#: forms/custom_fields.py:54
 msgid ""
 "The choices list must not be empty if you choose the type \"Choice list\"."
 msgstr ""
 "La liste de choix ne doit pas être vide si vous choisissez un type \"Liste "
 "de choix\""
 
-#: forms/custom_fields.py:77
+#: forms/custom_fields.py:78
 msgid ""
 "The other custom fields for this type of resource will be chosen by editing "
 "the configuration"
@@ -295,19 +295,23 @@ msgstr ""
 "Les autres champs personnalisés de ce type de ressource seront choisis en "
 "modifiant la configuration"
 
-#: forms/custom_fields.py:117
+#: forms/custom_fields.py:104 forms/custom_fields.py:141
+msgid "There is already a custom field with this name."
+msgstr "Il y a déjà un champ personnalisé avec ce nom."
+
+#: forms/custom_fields.py:126
 msgid "Existing choices of the list"
 msgstr "Choix existants de la liste"
 
-#: forms/custom_fields.py:118
+#: forms/custom_fields.py:127
 msgid "Uncheck the choices you want to delete."
 msgstr "Décochez les choix que vous voulez supprimer."
 
-#: forms/custom_fields.py:121
+#: forms/custom_fields.py:130
 msgid "New choices of the list"
 msgstr "Nouveaux choix de la liste"
 
-#: forms/custom_fields.py:122
+#: forms/custom_fields.py:131
 msgid "Give the new possible choices (one per line)."
 msgstr "Rentrez les nouveaux choix possibles (un par ligne)."
 

@@ -19,9 +19,10 @@
 ################################################################################
 
 from collections import defaultdict, OrderedDict
+import uuid
 
 from django.core.validators import EMPTY_VALUES
-from django.db.models import (ForeignKey, CharField, PositiveSmallIntegerField,
+from django.db.models import (UUIDField, ForeignKey, CharField, PositiveSmallIntegerField,
         IntegerField, DecimalField, DateTimeField, BooleanField, ManyToManyField)
 from django import forms
 from django.utils.formats import date_format
@@ -48,6 +49,7 @@ class CustomField(CremeModel):
     ENUM        = 100
     MULTI_ENUM  = 101
 
+    uuid          = UUIDField(unique=True, editable=False, default=uuid.uuid4)
     name          = CharField(_(u'Field name'), max_length=100)
     content_type  = CTypeForeignKey(verbose_name=_(u'Related type'))
     field_type    = PositiveSmallIntegerField(_(u'Field type'))  # See INT, FLOAT etc...
@@ -62,6 +64,7 @@ class CustomField(CremeModel):
         app_label = 'creme_core'
         verbose_name = _(u'Custom field')
         verbose_name_plural = _(u'Custom fields')
+        unique_together = ('content_type', 'name')
         ordering = ('id',)
 
     def __unicode__(self):

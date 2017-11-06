@@ -5,6 +5,7 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.models.custom_field import CustomField, CustomFieldEnumValue
     from creme.creme_core.tests.base import CremeTestCase
@@ -76,15 +77,20 @@ class CustomFieldsTestCase(CremeTestCase):
         self.assertFalse(CustomField.objects.filter(pk__in=[cfield1.pk, cfield2.pk]))
         self.assertStillExists(cfield3)
 
-    def test_add(self):
-        ct = ContentType.objects.get_for_model(FakeContact)
-        CustomField.objects.create(content_type=ct, name='CF#1', field_type=CustomField.INT)
-
-        # url = '/creme_config/custom_fields/add/%s' % ct.id
-        url = reverse('creme_config__create_custom_field', args=(ct.id,))
-        self.assertGET200(url)
+    def test_add01(self):
+        get_ct = ContentType.objects.get_for_model
+        contact_ct = get_ct(FakeContact)
+        orga_ct    = get_ct(FakeOrganisation)
 
         name = 'Eva'
+        create_cf = partial(CustomField.objects.create)
+        create_cf(content_type=contact_ct, field_type=CustomField.BOOL, name='Operational ?')
+        create_cf(content_type=orga_ct,    field_type=CustomField.INT,  name=name)  # <= same name but not same CT
+
+        # url = '/creme_config/custom_fields/add/%s' % ct.id
+        url = reverse('creme_config__create_custom_field', args=(contact_ct.id,))
+        self.assertGET200(url)
+
         field_type = CustomField.ENUM
         response = self.client.post(url, data={'name':        name,
                                                'field_type':  field_type,
@@ -93,7 +99,7 @@ class CustomFieldsTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
 
-        cfields = CustomField.objects.filter(content_type=ct).order_by('id')
+        cfields = CustomField.objects.filter(content_type=contact_ct).order_by('id')
         self.assertEqual(2, len(cfields))
 
         cfield2 = cfields[1]
@@ -106,6 +112,20 @@ class CustomFieldsTestCase(CremeTestCase):
                                                             .order_by('id')
                          ]
                         )
+
+    def test_add02(self):
+        "content_type + name => unique together"
+        ct = ContentType.objects.get_for_model(FakeContact)
+        name = 'Rating'
+        CustomField.objects.create(content_type=ct, name=name, field_type=CustomField.FLOAT)
+
+        field_type = CustomField.INT
+        response = self.assertPOST200(reverse('creme_config__create_custom_field', args=(ct.id,)),
+                                      data={'name':       name,
+                                            'field_type': field_type,
+                                           }
+                                     )
+        self.assertFormError(response, 'form', 'name', _(u'There is already a custom field with this name.'))
 
     def test_edit01(self):
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -163,6 +183,19 @@ class CustomFieldsTestCase(CremeTestCase):
                                                             .order_by('id')
                          ]
                         )
+
+    def test_edit03(self):
+        "content_type + name => unique together"
+        ct = ContentType.objects.get_for_model(FakeContact)
+        name = 'Nickname'
+        create_cfield = partial(CustomField.objects.create, content_type=ct, field_type=CustomField.STR)
+        create_cfield(name=name)
+        cfield2 = create_cfield(name='Label')
+
+        response = self.assertPOST200(reverse('creme_config__edit_custom_field', args=(cfield2.id,)),
+                                      data={'name': name},
+                                     )
+        self.assertFormError(response, 'form', 'name', _(u'There is already a custom field with this name.'))
 
     def test_delete(self):
         create_cf = partial(CustomField.objects.create,
