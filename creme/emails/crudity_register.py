@@ -36,8 +36,7 @@ from creme.crudity.inputs.base import CrudityInput
 from creme.crudity.inputs.email import CreateEmailInput
 from creme.crudity.models import History
 
-from . import get_entityemail_model
-from .bricks import WaitingSynchronizationMailsBrick, SpamSynchronizationMailsBrick
+from . import get_entityemail_model, bricks
 from .constants import MAIL_STATUS_SYNCHRONIZED_WAITING
 
 
@@ -49,7 +48,7 @@ EntityEmail = get_entityemail_model()
 
 class EntityEmailBackend(CrudityBackend):
     model           = EntityEmail
-    blocks          = (WaitingSynchronizationMailsBrick, SpamSynchronizationMailsBrick)
+    blocks          = (bricks.WaitingSynchronizationMailsBrick, bricks.SpamSynchronizationMailsBrick)
     attachment_path = ['upload', 'emails', 'attachments']
 
     def fetcher_fallback(self, email, current_user, *args, **kwargs):
@@ -107,5 +106,6 @@ class EntityEmailBackend(CrudityBackend):
                                description=_(u'Creation of %(entity)s') % {'entity': mail},
                                user=current_user,
                               )
+
 
 backends = [EntityEmailBackend]

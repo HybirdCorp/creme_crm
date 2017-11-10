@@ -35,8 +35,7 @@ from creme.creme_core.utils.date_period import date_period_registry
 from creme import persons
 
 from creme import commercial
-from . import bricks, buttons, constants, setting_keys
-from .creme_jobs import com_approaches_emails_send_type
+from . import bricks, buttons, constants, creme_jobs, setting_keys
 from .models import MarketSegment, ActType
 
 
@@ -104,7 +103,7 @@ class Populator(BasePopulator):
         SettingValue.objects.get_or_create(key_id=setting_keys.orga_approaches_key.id, defaults={'value': True})
 
         # ---------------------------
-        Job.objects.get_or_create(type_id=com_approaches_emails_send_type.id,
+        Job.objects.get_or_create(type_id=creme_jobs.com_approaches_emails_send_type.id,
                                   defaults={'language':    settings.LANGUAGE_CODE,
                                             'periodicity': date_period_registry.get_period('days', 1),
                                             'status':      Job.STATUS_OK,

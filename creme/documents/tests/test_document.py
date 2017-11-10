@@ -23,7 +23,7 @@ try:
     from .base import (_DocumentsTestCase, skipIfCustomDocument,
             skipIfCustomFolder, Folder, Document)
     from ..models import FolderCategory, DocumentCategory
-    from ..constants import REL_SUB_RELATED_2_DOC
+    from ..constants import REL_SUB_RELATED_2_DOC, UUID_FOLDER_RELATED2ENTITIES
     from ..utils import get_csv_folder_or_create
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -235,11 +235,14 @@ class DocumentTestCase(_DocumentsTestCase):
     def test_add_related_document01(self):
         user = self.login()
 
-        # folders = Folder.objects.all()
-        folders = Folder.objects.order_by('id')
-        # self.assertEqual(1, len(folders))
-        self.assertEqual(2, len(folders))
-        root_folder = folders[0]
+        # # folders = Folder.objects.all()
+        # folders = Folder.objects.order_by('id')
+        # # self.assertEqual(1, len(folders))
+        # self.assertEqual(2, len(folders))
+        # root_folder = folders[0]
+        root_folder = self.get_object_or_fail(Folder, uuid=UUID_FOLDER_RELATED2ENTITIES)
+
+        Folder.objects.create(user=user, title='Creme')  # Should not be used
 
         entity = CremeEntity.objects.create(user=user)
 

@@ -53,7 +53,7 @@ class Populator(BasePopulator):
                            )
 
         # ---------------------------
-        # TODO: pk string (+ move DOCUMENTS_FROM_EMAILS in 'emails' app) ??
+        # TODO: pk string (or UUID) (+ move DOCUMENTS_FROM_EMAILS in 'emails' app) ??
         entities_cat = create_if_needed(FolderCategory, {'pk': constants.DOCUMENTS_FROM_ENTITIES}, name=unicode(constants.DOCUMENTS_FROM_ENTITIES_NAME), is_custom=False)
         create_if_needed(FolderCategory,                {'pk': constants.DOCUMENTS_FROM_EMAILS},   name=unicode(constants.DOCUMENTS_FROM_EMAILS_NAME),   is_custom=False)
 
@@ -82,14 +82,29 @@ class Populator(BasePopulator):
                user_qs[0]
 
         if not folder_model_is_custom():
-            if not Folder.objects.filter(title='Creme').exists():  # TODO: UUID ??
-                # Folder.objects.create(user=get_user_model().objects.get(pk=1),
-                Folder.objects.create(user=user,
-                                      title='Creme', category=entities_cat,
-                                      description=_(u'Folder containing all the documents related to entities'),
-                                     )
-            else:
-                logger.info("A Folder with title 'Creme' already exists => no re-creation")
+            # if not Folder.objects.filter(title='Creme').exists():
+            #     # Folder.objects.create(user=get_user_model().objects.get(pk=1),
+            #     Folder.objects.create(user=user,
+            #                           title='Creme', category=entities_cat,
+            #                           description=_(u'Folder containing all the documents related to entities'),
+            #                          )
+            # else:
+            #     logger.info("A Folder with title 'Creme' already exists => no re-creation")
+            get_create_folder = Folder.objects.get_or_create
+            get_create_folder(uuid=constants.UUID_FOLDER_RELATED2ENTITIES,
+                              defaults={
+                                  'user':        user,
+                                  'title':       'Creme',
+                                  'category':    entities_cat,
+                                  'description': _(u'Folder containing all the documents related to entities'),
+                              }
+                             )
+            get_create_folder(uuid=constants.UUID_FOLDER_IMAGES,
+                              defaults={
+                                  'user':  user,
+                                  'title': _(u'Images'),
+                              }
+                             )
 
         # ---------------------------
         HeaderFilter.create(pk=constants.DEFAULT_HFILTER_DOCUMENT, model=Document,
@@ -125,8 +140,8 @@ class Populator(BasePopulator):
 
         # ---------------------------
         if not already_populated:
-            if not folder_model_is_custom():
-                Folder.objects.create(user=user, title=_(u'Images'))  # TODO: UUID ??
+            # if not folder_model_is_custom():
+                # Folder.objects.create(user=user, title=_(u'Images'))
 
             LEFT = BlockDetailviewLocation.LEFT
             RIGHT = BlockDetailviewLocation.RIGHT

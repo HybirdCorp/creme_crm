@@ -11,6 +11,7 @@ try:
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
     from .base import _DocumentsTestCase, skipIfCustomDocument, skipIfCustomFolder, Folder
+    from creme.documents import constants
     from creme.documents.models import FolderCategory
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -380,7 +381,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
     def test_folder_clone01(self):
         title = 'folder'
-        folder = Folder.objects.create(user=self.user, title=title, description="d")
+        folder = Folder.objects.create(user=self.user, title=title, description='d')
 
         stack = [folder]
         stack_append = stack.append
@@ -392,7 +393,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
     def test_deleteview01(self):
         "No doc inside"
-        folder = Folder.objects.create(user=self.user, title='ToBeDel', description="remove me")
+        folder = Folder.objects.create(user=self.user, title='ToBeDel', description='remove me')
         folder.trash()
 
         # response = self.assertPOST200('/creme_core/entity/delete/%s' % folder.pk, follow=True)
@@ -402,7 +403,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
     def test_deleteview02(self):
         "A doc inside protect from deletion"
-        folder = Folder.objects.create(user=self.user, title='ToBeDel', description="remove me")
+        folder = Folder.objects.create(user=self.user, title='ToBeDel', description='remove me')
 
         title = 'Boring title'
         doc = self._create_doc(title, folder=folder)
@@ -413,6 +414,18 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         # self.assertPOST403('/creme_core/entity/delete/%s' % folder.pk)
         self.assertPOST403(folder.get_delete_absolute_url())
         self.assertStillExists(folder)
+
+    def test_deleteview03(self):
+        "Un deletable folder: 'Creme'"
+        folder = self.get_object_or_fail(Folder, uuid=constants.UUID_FOLDER_RELATED2ENTITIES)
+
+        self.assertPOST403(folder.get_delete_absolute_url())
+
+    def test_deleteview04(self):
+        "Un deletable folder: 'Images'"
+        folder = self.get_object_or_fail(Folder, uuid=constants.UUID_FOLDER_IMAGES)
+
+        self.assertPOST403(folder.get_delete_absolute_url())
 
     # def test_block(self):
     def test_brick(self):

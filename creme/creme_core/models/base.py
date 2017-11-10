@@ -106,15 +106,15 @@ _SEARCH_FIELD_MAX_LENGTH = 200
 
 
 class CremeAbstractEntity(CremeModel):
-    created  = CreationDateTimeField(_('Creation date'), editable=False).set_tags(clonable=False)
-    modified = ModificationDateTimeField(_('Last modification'), editable=False).set_tags(clonable=False)
+    created  = CreationDateTimeField(_(u'Creation date'), editable=False).set_tags(clonable=False)
+    modified = ModificationDateTimeField(_(u'Last modification'), editable=False).set_tags(clonable=False)
 
     entity_type = CTypeForeignKey(editable=False).set_tags(viewable=False)
     header_filter_search_field = CharField(max_length=_SEARCH_FIELD_MAX_LENGTH, editable=False).set_tags(viewable=False)
 
     is_deleted = BooleanField(default=False, editable=False).set_tags(viewable=False)
     is_actived = BooleanField(default=False, editable=False).set_tags(viewable=False)
-    user       = CremeUserForeignKey(verbose_name=_('Owner user'))
+    user       = CremeUserForeignKey(verbose_name=_(u'Owner user'))
 
     # objects = CremeEntityManager()
     # objects = Manager()

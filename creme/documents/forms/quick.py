@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,7 @@ from creme.creme_core.forms.base import CremeModelWithUserForm
 from creme.creme_core.models.utils import assign_2_charfield
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
-from .. import get_document_model, get_folder_model
+from .. import get_document_model, get_folder_model, constants
 from ..utils import get_csv_folder_or_create
 
 
@@ -47,9 +47,9 @@ class DocumentQuickForm(CremeModelWithUserForm):
         folder_f = self.fields.get('folder')
 
         if folder_f:
-            folder = get_folder_model().objects.filter(title='Creme').first()
+            folder = get_folder_model().objects.get(uuid=constants.UUID_FOLDER_RELATED2ENTITIES)
 
-            if folder is not None and self.user.has_perm_to_view(folder):
+            if self.user.has_perm_to_view(folder):
                 self.fields['folder'].initial = folder
 
     # def clean_filedata(self):
@@ -114,7 +114,8 @@ class ImageQuickForm(CremeModelWithUserForm):
     def __init__(self, *args, **kwargs):
         super(ImageQuickForm, self).__init__(*args, **kwargs)
         fields = self.fields
-        fields['folder'].initial = get_folder_model().objects.filter(title=_(u'Images')).first()
+        # fields['folder'].initial = get_folder_model().objects.filter(title=_(u'Images')).first()
+        fields['folder'].initial = get_folder_model().objects.filter(uuid=constants.UUID_FOLDER_IMAGES).first()
         # TODO: hook django (create or own widget and set it on ImageField ?)
         fields['image'].widget.attrs = {'accept': ','.join('.' + ext for ext in settings.ALLOWED_IMAGES_EXTENSIONS)}
 

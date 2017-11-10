@@ -27,8 +27,7 @@ from creme.creme_core.models import BlockDetailviewLocation, BlockMypageLocation
 
 from creme import persons
 
-from . import bricks, setting_keys
-from .constants import DEFAULT_SEPARATING_NEIGHBOURS
+from . import bricks, constants, setting_keys
 from .management.commands.geolocation import Command as GeolocationCommand
 
 
@@ -43,7 +42,7 @@ class Populator(BasePopulator):
 
         # SettingValue.create_if_needed(key=NEIGHBOURHOOD_DISTANCE, user=None, value=DEFAULT_SEPARATING_NEIGHBOURS)
         create_skey = SettingValue.objects.get_or_create
-        create_skey(key_id=setting_keys.NEIGHBOURHOOD_DISTANCE.id, defaults={'value': DEFAULT_SEPARATING_NEIGHBOURS})
+        create_skey(key_id=setting_keys.NEIGHBOURHOOD_DISTANCE.id, defaults={'value': constants.DEFAULT_SEPARATING_NEIGHBOURS})
         create_skey(key_id=setting_keys.GOOGLE_API_KEY.id,         defaults={'value': ''})
 
         if not already_populated:

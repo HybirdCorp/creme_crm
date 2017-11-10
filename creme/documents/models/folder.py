@@ -24,12 +24,13 @@ from django.core.urlresolvers import reverse
 from django.db.models import CharField, TextField, ForeignKey, SET_NULL
 from django.utils.translation import ugettext_lazy as _, ugettext
 
+from creme.creme_core.core.exceptions import SpecificProtectedError
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.entity import EntityAction
 from creme.creme_core.utils import truncate_str
 
+from .. import constants
 from .other_models import FolderCategory
-
 
 MAXINT = 100000
 
@@ -49,6 +50,10 @@ class AbstractFolder(CremeEntity):
 
     allowed_related = CremeEntity.allowed_related | {'document'}
 
+    not_deletable_UUIDs = {constants.UUID_FOLDER_RELATED2ENTITIES,
+                           constants.UUID_FOLDER_IMAGES,
+                          }
+
     creation_label = _(u'Create a folder')
     save_label     = _(u'Save the folder')
 
@@ -62,6 +67,10 @@ class AbstractFolder(CremeEntity):
 
     def __unicode__(self):
         return self.title
+
+    def _check_deletion(self):
+        if str(self.uuid) in self.not_deletable_UUIDs:
+            raise SpecificProtectedError(ugettext(u'This folder is a system folder.'), [self])
 
     def get_absolute_url(self):
         return reverse('documents__view_folder', args=(self.id,))
@@ -115,6 +124,10 @@ class AbstractFolder(CremeEntity):
 
         return False
 
+    def delete(self, using=None):
+        self._check_deletion()  # Should not be useful (trashing should be blocked too)
+        super(AbstractFolder, self).delete(using=using)
+
     def get_parents(self):
         parents = []
         parent = self.parent_folder
@@ -124,6 +137,10 @@ class AbstractFolder(CremeEntity):
             parents.extend(parent.get_parents())
 
         return parents
+
+    def trash(self):
+        self._check_deletion()
+        super(AbstractFolder, self).trash()
 
 
 class Folder(AbstractFolder):
