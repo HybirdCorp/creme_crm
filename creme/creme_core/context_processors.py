@@ -89,3 +89,7 @@ def get_django_version(request):
 
 def get_old_menu(request):
     return {'OLD_MENU': settings.OLD_MENU}
+
+
+def get_site_domain(request):
+    return {'SITE_DOMAIN': settings.SITE_DOMAIN}

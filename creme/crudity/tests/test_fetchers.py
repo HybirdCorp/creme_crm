@@ -25,13 +25,13 @@ class FetcherFileSystemTestCase(CrudityTestCase):
     def test_error03(self):
         self.assertEqual([], FileSystemFetcher().fetch())
 
-    @override_settings(CRUDITY_FILESYS_FETCHER_DIR=join(settings.CREME_ROOT, 'static', 'icecream', 'fonts'))
+    @override_settings(CRUDITY_FILESYS_FETCHER_DIR=join(settings.CREME_ROOT, 'static', 'common', 'fonts'))
     def test_ok01(self):
         paths = FileSystemFetcher().fetch()
         self.assertIsInstance(paths, list)
         self.assertIn(join(settings.CRUDITY_FILESYS_FETCHER_DIR, 'LICENSE.txt'), paths)
 
-    @override_settings(MY_FILESYS_FETCHER_DIR=join(settings.CREME_ROOT, 'static', 'icecream', 'fonts'))
+    @override_settings(MY_FILESYS_FETCHER_DIR=join(settings.CREME_ROOT, 'static', 'common', 'fonts'))
     def test_ok02(self):
         "Setting passed to the constructor"
         paths = FileSystemFetcher(setting_name='MY_FILESYS_FETCHER_DIR').fetch()

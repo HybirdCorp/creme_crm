@@ -118,7 +118,7 @@ DEFAULT_ENCODING = 'UTF8'
 
 DATE_FORMAT         = 'd-m-Y'
 SHORT_DATE_FORMAT   = 'd-m-Y'
-DATE_FORMAT_VERBOSE = _(u'Format: Day-Month-Year (Ex:31-12-2016)')
+DATE_FORMAT_VERBOSE = _(u'Format: Day-Month-Year (Ex:31-12-2017)')
 DATE_FORMAT_JS      = {
     DATE_FORMAT: 'dd-mm-yy',
 }
@@ -132,7 +132,7 @@ DATE_INPUT_FORMATS = (
 )
 
 DATETIME_FORMAT         = '%s H:i:s' % DATE_FORMAT
-DATETIME_FORMAT_VERBOSE = _(u'Format: Day-Month-Year Hour:Minute:Second (Ex:31-12-2016 23:59:59)')
+DATETIME_FORMAT_VERBOSE = _(u'Format: Day-Month-Year Hour:Minute:Second (Ex:31-12-2017 23:59:59)')
 DATETIME_INPUT_FORMATS  = (
     '%d-%m-%Y', '%d/%m/%Y',
     '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M', '%Y-%m-%d',
@@ -204,6 +204,7 @@ TEMPLATES = [
                 'creme.creme_core.context_processors.get_version',
                 'creme.creme_core.context_processors.get_hidden_value',
                 'creme.creme_core.context_processors.get_django_version',
+                'creme.creme_core.context_processors.get_site_domain',
                 'creme.creme_core.context_processors.get_today',
                 'creme.creme_core.context_processors.get_css_theme',
                 # 'creme.creme_core.context_processors.get_blocks_manager',
@@ -215,9 +216,8 @@ TEMPLATES = [
             'loaders': [
                 # Don't use cached loader when developing (in your local_settings.py)
                 ('django.template.loaders.cached.Loader', (
-                    'django.template.loaders.filesystem.Loader',
                     'django.template.loaders.app_directories.Loader',
-                    # 'django.template.loaders.eggs.Loader',
+                    'django.template.loaders.filesystem.Loader',
                 )),
             ],
             'debug': DEBUG,
@@ -743,7 +743,7 @@ YUICOMPRESSOR_PATH = join(dirname(__file__), 'static', 'utils', 'yui', 'yuicompr
 
 COPY_MEDIA_FILETYPES = (
     'gif', 'jpg', 'jpeg', 'png', 'ico', 'cur',  # Images
-    'woff', 'tff', 'eot',  # Fonts
+    'woff', 'ttf', 'eot',  # Fonts
 )
 
 # MEDIA GENERATOR & THEME SETTINGS [END] #######################################
