@@ -974,3 +974,216 @@ div.hat-bar {
 }
 
 /* Title bar - end */
+
+/* (new) Footer */
+
+.footer {
+    margin-top: 15px;
+
+    padding-top: 30px;
+    padding-bottom: 25px;
+
+    padding-left: 24px;
+    padding-right: 24px;
+
+    color: #fff;
+    font-weight: 600;
+
+    background-color: hsl(197, 24%, 27%);
+    background-image: url(common/images/creme-pattern.png);
+    background-position: left -30px;
+}
+
+/*
+.footer:hover {
+    background-color: #333;
+}
+*/
+
+.footer .footer-baseline strong {
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: 700;
+    color: #479ef5;
+}
+
+.footer .footer-baseline-version {
+/*    float: right;*/
+
+    margin-left: 10px;
+
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 700;
+    color: #bbb;
+}
+
+.footer a {
+    color: #fff;
+}
+
+.footer .footer-baseline a {
+    color: inherit;
+}
+
+.footer a:hover {
+    color: #479ef5;
+}
+
+.footer ul {
+    list-style: none;
+    margin: 5px 0;
+    padding: 0;
+}
+
+.footer-columns {
+    margin-top: 40px;
+}
+
+.footer-columns .footer-column {
+    float: left;
+    width: 25%;
+}
+
+.footer-columns .footer-column.footer-column-hybird {
+    float: right;
+}
+
+.footer-columns .column-content {
+    max-width: 300px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.footer-columns .footer-column-creme .column-content {
+    margin: 0;
+}
+
+.footer .column-content::before {
+    content: '';
+    position: absolute;
+    height: 1px;
+    width: 100%;
+    background: #bfbfbf;
+    top: -10px;
+}
+
+.footer .footer-column-title {
+    display: inline-block;
+    position: relative;
+
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.footer .footer-column-title .icon-hybird {
+    position: absolute;
+    right: -25px;
+    top: -5px;
+}
+
+.footer .footer-client-logo {
+    max-height: 40px;
+    margin: 10px 0;
+}
+
+.footer .footer-client-logo img {
+    max-height: 40px;
+    background: white;
+}
+
+.footer .hybird-phone {
+    margin-top: 10px;
+}
+
+.footer .hybird-address {
+    margin-top: 10px;
+}
+
+.footer .footer-column-client .icon-phone {
+    margin-left: 5px;
+}
+
+.footer-columns .footer-column-client {
+    width: 50%;
+}
+
+.footer .footer-column-creme li,
+.footer .footer-column-client li {
+    margin-top: 5px;
+}
+
+/* (new) Footer */
+
+/* Footer decoration  */
+
+.icon-hybird {
+    width: 22px;
+    height: 20px;
+
+    fill: currentColor;
+    position: relative;
+    top: 2px;
+
+    transition: transform 0.5s ease-in-out 5s;
+}
+
+.icon-hybird:hover {
+    transform: rotate(720deg);
+}
+
+.footer .footer-column-hybird .icon-phone {
+    margin-right: 2px;
+}
+
+.icon.icon-phone {
+    width: 14px;
+    height: 14px;
+
+    top: 2px;
+}
+
+.icon.icon-email {
+    width: 14px;
+    height: 14px;
+
+    top: 3px;
+    opacity: 0.92;
+}
+
+.footer .footer-column-hybird .icon-email {
+    margin-right: 2px;
+}
+
+.icon.icon-phone:hover {
+    animation: shake 0.1s steps(2) 5 5s,
+               shake 0.1s steps(2) 8 6.5s,
+               shake 0.1s steps(2) 5 8s;
+}
+
+@keyframes shake {
+  from { transform: translateX(-1px); }
+  to   { transform: translateX(1px); }
+}
+
+.page-decoration {
+    margin: 15px 15px 0 15px;
+    color: #bbb;
+}
+
+.page-decoration > * {
+    display: inline-block;
+}
+
+.page-decoration div {
+    width: calc(50% - 20px);
+    border-top: 1px solid currentColor;
+    height: 7px;
+}
+
+.page-decoration .icon-hybird {
+    margin: 0 5px;
+}
+
+/* Footer decoration  */

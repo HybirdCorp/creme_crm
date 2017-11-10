@@ -1,3 +1,6 @@
+{% extends 'authent/base.html' %}
+
+{% comment %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html class="central_panel" xmlns="http://www.w3.org/1999/xhtml" lang="{{LANGUAGE_CODE}}" xml:lang="{{LANGUAGE_CODE}}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 {% load i18n %}
@@ -17,7 +20,7 @@
             <div id="branding">
                 <h1>{% trans 'Creme Login' %}</h1>
             </div>
-            <form {% comment %}action="{{app_path}}"{% endcomment %} method="post" id="login-form">
+            <form method="post" id="login-form">
                 {% csrf_token %}
                 <div class="form-row">
                     <label for="id_username">{% trans 'Username' %}</label>{{form.username}}
@@ -40,3 +43,4 @@
     </div>
 </body>
 </html>
+{% endcomment %}

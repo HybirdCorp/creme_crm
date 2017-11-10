@@ -1,4 +1,7 @@
+{% extends 'footer/base-footer.html' %}
+{% comment %}
 {% load i18n %}
 <div id="footer">
     <a href="http://hybird.org">{% trans "About Hybird" %}</a>&nbsp;&mdash;&nbsp;2009&hairsp;&ndash;&hairsp;2017 &nbsp;&nbsp;&nbsp;Creme v{{creme_version}} {% if django_version %}<i>&nbsp;&nbsp;&nbsp;(Django {{django_version}})</i>{% endif %}{% if THEME_VERBOSE_NAME %}&nbsp;&nbsp;&nbsp;{{ THEME_VERBOSE_NAME }}{% endif %}
 </div>
+{% endcomment %}

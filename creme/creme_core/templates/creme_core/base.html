@@ -1,4 +1,4 @@
-{% load i18n creme_menu creme_core_tags creme_search creme_quickforms %}
+{% load i18n media creme_menu creme_core_tags creme_search creme_quickforms %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{LANGUAGE_CODE}}" xml:lang="{{LANGUAGE_CODE}}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
@@ -16,7 +16,7 @@
     <!--script type="text/javascript" src="https://getfirebug.com/firebug-lite.js"></script-->
     {% include_creme_media "main.css" %}
     {% include "creme_core/frags/js_header.html" %}
-    <link rel="shortcut icon" href="{% creme_media_url 'images/favicon.ico' %}" type="image/x-icon" />
+    <link rel="shortcut icon" href="{% media_url 'common/images/favicon.ico' %}" type="image/x-icon" />
     <style type="text/css"> {# TODO: move to CSS #}
       {% if OLD_MENU %}
         .fg-menu-container { z-index: 100; }
@@ -131,7 +131,7 @@
         </div>
     </div>
 
-    {% include 'creme_core/frags/footer.html' %}
+    {% include 'footer/footer.html' %}
 
     <script type="text/javascript">
         $(document).ready(function() {
