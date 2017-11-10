@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,9 +25,9 @@ class InvalidFieldTag(Exception):
 
 def _add_tags_to_fields():
     """Hook Django models.Field to add a tag system.
-    DO NOT CALL THIS METHOD, CREME DO IT FOR YOU !!
+    DO NOT CALL THIS METHOD, CREME DOES IT FOR YOU !!
     """
-    from django.db.models import Field, AutoField, OneToOneField, ForeignKey, ManyToManyField
+    from django.db.models import Field, AutoField, OneToOneField, ForeignKey, ManyToManyField, UUIDField
     from django.contrib.contenttypes.models import ContentType
 
     def _set_tags(self, **kwargs):
@@ -59,6 +59,7 @@ def _add_tags_to_fields():
     Field._cremetag_clonable = True
     AutoField._cremetag_clonable = False
     OneToOneField._cremetag_clonable = False
+    UUIDField._cremetag_clonable = False
 
     # 'enumerable'
     Field._cremetag_enumerable = False

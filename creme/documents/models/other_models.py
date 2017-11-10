@@ -32,7 +32,7 @@ class FolderCategory(CremeModel):
     name      = CharField(_(u'Category name'), max_length=100, unique=True)
     is_custom = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
 
-    creation_label = pgettext_lazy('documents-folder_category', 'Create a category')
+    creation_label = pgettext_lazy('documents-folder_category', u'Create a category')
 
     class Meta:
         app_label = 'documents'
@@ -46,10 +46,10 @@ class FolderCategory(CremeModel):
 
 class DocumentCategory(CremeModel):
     name      = CharField(_(u'Name'), max_length=100, unique=True)
-    uuid      = UUIDField(default=uuid.uuid4, editable=False).set_tags(viewable=False)
+    uuid      = UUIDField(unique=True, default=uuid.uuid4, editable=False).set_tags(viewable=False)
     is_custom = BooleanField(default=True).set_tags(viewable=False)
 
-    creation_label = pgettext_lazy('documents-doc_category', 'Create a category')
+    creation_label = pgettext_lazy('documents-doc_category', u'Create a category')
 
     class Meta:
         app_label = 'documents'

@@ -12,6 +12,7 @@ from creme.creme_core.tests.base import CremeTestCase
 
 try:
     from creme import documents
+    from creme.documents import constants
 
     skip_document_tests = documents.document_model_is_custom()
     skip_folder_tests   = documents.folder_model_is_custom()
@@ -88,7 +89,8 @@ class _DocumentsTestCase(CremeTestCase):
 
         return self._create_doc(title=title or name,
                                 file_obj=image_file,
-                                folder=folder or Folder.objects.get(title=_('Images')),
+                                # folder=folder or Folder.objects.get(title=_('Images')),
+                                folder=folder or Folder.objects.get(uuid=constants.UUID_FOLDER_IMAGES),
                                 description=description,
                                 user=user,
                                )

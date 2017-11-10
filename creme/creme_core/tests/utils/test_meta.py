@@ -284,6 +284,7 @@ class MetaTestCase(CremeTestCase):
                     ('is_actived',                 'is actived'),
                     ('is_deleted',                 'is deleted'),
                     ('modified',                   _(u'Last modification')),
+                    ('uuid',                       'uuid'),
                    ]
         choices = meta.ModelFieldEnumerator(CremeEntity).choices()
         self.assertEqual(expected, choices, choices)
@@ -300,6 +301,7 @@ class MetaTestCase(CremeTestCase):
                           ('is_deleted',                 'is deleted'),
                           ('modified',                   _(u'Last modification')),
                           ('user',                       _(u'Owner user')),
+                          ('uuid',                       'uuid'),
                          ],
                          choices, choices
                         )

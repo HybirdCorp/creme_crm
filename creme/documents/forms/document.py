@@ -21,15 +21,17 @@
 import logging
 from os.path import basename
 
+from django.core.exceptions import ValidationError
+from django.db.transaction import atomic
 # from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import Relation
 from creme.creme_core.forms import CremeEntityForm
 # from creme.creme_core.forms.fields import CreatorEntityField
 from creme.creme_core.forms.validators import validate_linkable_model
+from creme.creme_core.models import Relation
 from creme.creme_core.models.utils import assign_2_charfield
-from creme.creme_core.views.file_handling import handle_uploaded_file
 from creme.creme_core.utils import ellipsis
+from creme.creme_core.views.file_handling import handle_uploaded_file
 
 from creme import documents
 from .. import constants
@@ -95,37 +97,50 @@ class RelatedDocumentCreateForm(_DocumentBaseForm):
     def __init__(self, *args, **kwargs):
         super(RelatedDocumentCreateForm, self).__init__(*args, **kwargs)
         self.related_entity = self.initial['entity']
+        self.folder_category = None
+        self.root_folder = None
 
     def clean_user(self):
         return validate_linkable_model(Document, self.user, owner=self.cleaned_data['user'])
 
+    def clean(self):
+        cleaned_data = super(RelatedDocumentCreateForm, self).clean()
+
+        if not self._errors:
+            self.folder_category = cat = FolderCategory.objects.filter(pk=constants.DOCUMENTS_FROM_ENTITIES).first()
+            if cat is None:
+                raise ValidationError('Populate script has not been run (unknown folder category pk=%s) ; '
+                                      'please contact your administrator' % constants.DOCUMENTS_FROM_ENTITIES
+                                     )
+
+            self.root_folder = folder = Folder.objects.filter(uuid=constants.UUID_FOLDER_RELATED2ENTITIES).first()
+            if folder is None:
+                raise ValidationError('Populate script has not been run (unknown folder uuid=%s) ; '
+                                      'please contact your administrator' % constants.UUID_FOLDER_RELATED2ENTITIES
+                                     )
+
+        return cleaned_data
+
+    @atomic
     def save(self, *args, **kwargs):
         instance = self.instance
-        entity = self.related_entity.get_real_entity()
-        user   = self.cleaned_data['user']
-        # entity_folder = None
+        entity   = self.related_entity.get_real_entity()
+        user     = self.cleaned_data['user']
+        category = self.folder_category
 
-        # TODO: reduce code depth
-        try:
-            creme_folder = Folder.objects.get(title='Creme')  # Unique title (created in populate.py)
-            category = FolderCategory.objects.get(pk=constants.DOCUMENTS_FROM_ENTITIES)
-            get_folder = Folder.objects.get_or_create
-            model_folder = get_folder(title=unicode(entity.entity_type),
-                                      parent_folder=creme_folder,
-                                      category=category,
-                                      defaults={'user': user},
-                                     )[0]
-            entity_folder = get_folder(title=ellipsis(u'%s_%s' % (entity.id, unicode(entity)),
-                                                      _TITLE_MAX_LEN,
-                                                     ),  # meh
-                                       parent_folder=model_folder,
-                                       category=category,
-                                       defaults={'user': user},
-                                      )[0]
-        except (Folder.DoesNotExist, FolderCategory.DoesNotExist) as e:
-            logger.warn("Populate.py had not been run ?! : %s", e)
-        else:
-            instance.folder = entity_folder
+        get_or_create_folder = Folder.objects.get_or_create
+        model_folder = get_or_create_folder(
+                            title=unicode(entity.entity_type),
+                            parent_folder=self.root_folder,
+                            category=category,
+                            defaults={'user': user},
+        )[0]
+        instance.folder = get_or_create_folder(
+                            title=ellipsis(u'%s_%s' % (entity.id, unicode(entity)), _TITLE_MAX_LEN),  # Meh
+                            parent_folder=model_folder,
+                            category=category,
+                            defaults={'user': user},
+        )[0]
 
         super(RelatedDocumentCreateForm, self).save(*args, **kwargs)
 

@@ -20,11 +20,13 @@
 
 from collections import defaultdict
 import logging
+import uuid
 import warnings
 
 from django.db.models import ForeignKey, Q
 from django.core.urlresolvers import reverse
 from django.forms.utils import flatatt
+from django.db.models import UUIDField
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -69,6 +71,8 @@ class _PrettyPropertiesField(FunctionField):
 
 
 class CremeEntity(CremeAbstractEntity):
+    uuid = UUIDField(unique=True, editable=False, default=uuid.uuid4).set_tags(viewable=False)
+
     function_fields = CremeAbstractEntity.function_fields.new(_PrettyPropertiesField())
 
     # Currently used in reports (can be used elsewhere ?) to allow reporting on those related fields
@@ -426,7 +430,7 @@ class CremeEntity(CremeAbstractEntity):
                 fname = field.name
                 fields_kv[fname] = getattr(self, fname)
 
-        new_entity = self.__class__(**fields_kv)
+        new_entity = self.__class__(uuid=uuid.uuid4(), **fields_kv)
         new_entity._pre_save_clone(self)
         new_entity.save()
         new_entity._post_save_clone(self)
@@ -434,6 +438,7 @@ class CremeEntity(CremeAbstractEntity):
         new_entity._clone_m2m(self)
 
         new_entity._clone_custom_values(self)
+
         return new_entity
 
     def _copy_properties(self, source):
@@ -464,13 +469,14 @@ class CremeEntity(CremeAbstractEntity):
         """Take an entity and makes it copy.
         @returns : A new entity (with a different pk) with sames values
         """
-        self = self.get_real_entity()
-        new_entity = self._clone_object()
+        real_self = self.get_real_entity()
+        new_entity = real_self._clone_object()
 
-        new_entity._copy_properties(self)
-        new_entity._copy_relations(self)
+        new_entity._copy_properties(real_self)
+        new_entity._copy_relations(real_self)
 
-        new_entity._post_clone(self)
+        new_entity._post_clone(real_self)
+
         return new_entity
 
     def restore(self):
