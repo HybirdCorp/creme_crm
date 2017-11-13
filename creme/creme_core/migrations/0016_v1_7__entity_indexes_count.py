@@ -12,6 +12,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterIndexTogether(
             name='cremeentity',
-            index_together=set([('entity_type', 'is_deleted')]),
+            index_together={('entity_type', 'is_deleted')},
         ),
     ]
