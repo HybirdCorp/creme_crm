@@ -85,6 +85,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         hfilter = hfilters[0]
         self.assertEqual(name, hfilter.name)
         self.assertIsNone(hfilter.user)
+        self.assertTrue(hfilter.is_custom)
         self.assertFalse(hfilter.is_private)
 
         cells = hfilter.cells
@@ -288,6 +289,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
         hf = self.refresh(hf)
         self.assertEqual(name, hf.name)
+        self.assertTrue(hf.is_custom)
 
         cells = hf.cells
         self.assertEqual(2,      len(cells))
@@ -300,12 +302,35 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         "Not custom -> can be still edited"
         self.login()
 
+        name = 'Contact view'
         field1 = 'first_name'
-        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
+        hf = HeaderFilter.create(pk='tests-hf_contact', name=name,
                                  model=FakeContact, is_custom=False,
                                  cells_desc=[EntityCellRegularField.build(model=FakeContact, name=field1)],
                                 )
-        self.assertGET200(self._build_edit_url(hf))
+
+        url = self._build_edit_url(hf)
+        self.assertGET200(url)
+
+        name += ' (edited)'
+        field2 = 'last_name'
+        response = self.client.post(url, data={'name':  name,
+                                               'cells': 'regular_field-%s,'
+                                                        'regular_field-%s' % (
+                                                                field2, field1,
+                                                            ),
+                                              },
+                                   )
+        self.assertNoFormError(response, status=302)
+
+        hf = self.refresh(hf)
+        self.assertEqual(name, hf.name)
+        self.assertFalse(hf.is_custom)
+
+        cells = hf.cells
+        self.assertEqual(2,      len(cells))
+        self.assertEqual(field2, cells[0].value)
+        self.assertEqual(field1, cells[1].value)
 
     def test_edit03(self):
         "Cannot edit HeaderFilter that belongs to another user"
