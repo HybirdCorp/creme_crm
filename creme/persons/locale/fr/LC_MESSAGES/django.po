@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-16 21:45+0200\n"
+"POT-Creation-Date: 2017-11-14 20:24+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -132,7 +132,7 @@ msgstr "Adresse de facturation"
 msgid "Shipping address"
 msgstr "Adresse de livraison"
 
-#: forms/contact.py:46 populate.py:333
+#: forms/contact.py:46 populate.py:337
 msgid "Contact details"
 msgstr "Coordonnées du contact"
 
@@ -343,13 +343,13 @@ msgstr "Ce Contact est lié à un utilisateur et doit avoir un prénom."
 msgid "This Contact is related to a user and must have an e-mail address."
 msgstr "Ce Contact est lié à un utilisateur et doit avoir une adresse e-mail."
 
-#: models/contact.py:193 populate.py:155
+#: models/contact.py:193 populate.py:156
 msgid "N/A"
 msgstr "NC"
 
 #: models/contact.py:194
-msgid "replaceMe@byYourAddress.com"
-msgstr "remplacezMoi@parVotreAdresse.fr"
+msgid "complete@Me.com"
+msgstr "completez@Moi.fr"
 
 #: models/organisation.py:47
 #: templates/persons/bricks/organisation-hat-card.html:17
@@ -611,67 +611,67 @@ msgstr "Mademoiselle"
 msgid "Ms."
 msgstr "Mlle"
 
-#: populate.py:154
+#: populate.py:155
 msgid "Mister"
 msgstr "Monsieur"
 
-#: populate.py:154
+#: populate.py:155
 msgid "Mr."
 msgstr "Mr"
 
-#: populate.py:170
+#: populate.py:172
 msgid "ReplaceByYourSociety"
 msgstr "RemplacezParVotreSociété"
 
-#: populate.py:173
+#: populate.py:177
 msgid "CEO"
 msgstr "PDG"
 
-#: populate.py:174
+#: populate.py:178
 msgid "Secretary"
 msgstr "Secrétaire"
 
-#: populate.py:175
+#: populate.py:179
 msgid "Technician"
 msgstr "Technicien"
 
-#: populate.py:178
+#: populate.py:182
 msgid "Food Industry"
 msgstr "Agro-Alimentaire"
 
-#: populate.py:179
+#: populate.py:183
 msgid "Industry"
 msgstr "Industrie"
 
-#: populate.py:180
+#: populate.py:184
 msgid "Software"
 msgstr "Logiciel"
 
-#: populate.py:181
+#: populate.py:185
 msgid "Telecom"
 msgstr "Télécom"
 
-#: populate.py:182
+#: populate.py:186
 msgid "Restoration"
 msgstr "Restauration"
 
-#: populate.py:225
+#: populate.py:229
 msgid "Organisation information"
 msgstr "Informations sur la société"
 
-#: populate.py:253
+#: populate.py:257
 msgid "Organisation details"
 msgstr "Coordonnées de la société"
 
-#: populate.py:263
+#: populate.py:267
 msgid "Organisation complementary information"
 msgstr "Informations complémentaires sur la société"
 
-#: populate.py:311
+#: populate.py:315
 msgid "Contact information"
 msgstr "Informations sur le contact"
 
-#: populate.py:345
+#: populate.py:349
 msgid "Contact complementary information"
 msgstr "Informations complémentaires sur le contact"
 

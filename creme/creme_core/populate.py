@@ -44,33 +44,31 @@ class Populator(BasePopulator):
         RelationType.create((constants.REL_SUB_HAS, _(u'owns')),
                             (constants.REL_OBJ_HAS, _(u'belongs to')))
 
-        User = get_user_model()
-
-        # TODO: if not already_populated  ??
-        try:
-            root = User.objects.get(pk=1)
-        except User.DoesNotExist:
-            login = password = 'root'
-
-            root = User(pk=1, username=login, is_superuser=True,
-                        first_name='Fulbert', last_name='Creme',
-                       )
-            root.set_password(password)
-            root.save()
-
-            if self.verbosity:
-                self.stdout.write('\n A super-user has been created with login="%(login)s"'
-                                  ' and password="%(password)s".' % {
-                                        'login':    login,
-                                        'password': password,
-                                    },
-                                  self.style.NOTICE,
-                                 )
-        else:
-            # TODO: useless with django 1.8 ??
-            if root.is_staff and User.objects.count() == 1:
-                root.is_staff = False
-                root.save()
+        # User = get_user_model()
+        #
+        # try:
+        #     root = User.objects.get(pk=1)
+        # except User.DoesNotExist:
+        #     login = password = 'root'
+        #
+        #     root = User(pk=1, username=login, is_superuser=True,
+        #                 first_name='Fulbert', last_name='Creme',
+        #                )
+        #     root.set_password(password)
+        #     root.save()
+        #
+        #     if self.verbosity:
+        #         self.stdout.write('\n A super-user has been created with login="%(login)s"'
+        #                           ' and password="%(password)s".' % {
+        #                                 'login':    login,
+        #                                 'password': password,
+        #                             },
+        #                           self.style.NOTICE,
+        #                          )
+        # else:
+        #     if root.is_staff and User.objects.count() == 1:
+        #         root.is_staff = False
+        #         root.save()
 
         # ---------------------------
         # SettingValue.create_if_needed(key=block_opening_key,   user=None, value=True)
@@ -92,6 +90,22 @@ class Populator(BasePopulator):
                                  )
 
         if not already_populated:
+            login = password = 'root'
+            root = get_user_model().objects.create_superuser(pk=1, username=login, password=password,
+                                                             first_name='Fulbert', last_name='Creme',
+                                                             email=_(u'replaceMe@byYourAddress.com'),
+                                                            )
+
+            if self.verbosity:
+                self.stdout.write('\n A super-user has been created with login="%(login)s"'
+                                  ' and password="%(password)s".' % {
+                                      'login':    login,
+                                      'password': password,
+                                  },
+                                  self.style.NOTICE,
+                                 )
+
+            # ---------------------------
             create_if_needed(Currency, {'pk': 2}, name=_(u'United States dollar'), local_symbol=_(u'$'), international_symbol=_(u'USD'))
 
             create_if_needed(Language, {'pk': 1}, name=_(u'French'),  code='FRA')

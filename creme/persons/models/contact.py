@@ -191,7 +191,7 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
         return get_contact_model().objects.create(user=user, is_user=user,
                                                   last_name=user.last_name or user.username.title(),
                                                   first_name=user.first_name or _(u'N/A'),
-                                                  email=user.email or _(u'replaceMe@byYourAddress.com'),
+                                                  email=user.email or _(u'complete@Me.com'),
                                                   **kwargs
                                                  )
 

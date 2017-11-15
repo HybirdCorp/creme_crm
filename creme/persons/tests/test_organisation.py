@@ -13,9 +13,9 @@ try:
 
     from .base import (_BaseTestCase, skipIfCustomAddress, skipIfCustomContact,
             skipIfCustomOrganisation, Organisation, Address, Contact)
+
+    from .. import constants
     from ..models import StaffSize, Sector, LegalForm
-    from ..constants import (REL_SUB_CUSTOMER_SUPPLIER, REL_OBJ_CUSTOMER_SUPPLIER,
-            REL_SUB_PROSPECT, REL_SUB_SUSPECT, REL_SUB_INACTIVE)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -77,6 +77,12 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual('', orga.rcs)
 
         self.assertEqual('', orga.tvaintra)
+
+    def test_populated_orga_uuid(self):
+        first_orga = Organisation.objects.order_by('id').first()
+        self.assertIsNotNone(first_orga)
+        self.assertTrue(first_orga.is_managed)
+        self.assertEqual(constants.UUID_FIRST_ORGA, str(first_orga.uuid))
 
     def test_staff_size(self):
         count = StaffSize.objects.count()
@@ -368,7 +374,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_become_customer01(self):
         # self._become_test('/persons/%s/become_customer', REL_SUB_CUSTOMER_SUPPLIER)
-        self._become_test('persons__become_customer', REL_SUB_CUSTOMER_SUPPLIER)
+        self._become_test('persons__become_customer', constants.REL_SUB_CUSTOMER_SUPPLIER)
 
     @skipIfCustomContact
     def test_become_customer02(self):
@@ -401,19 +407,19 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_become_prospect(self):
         # self._become_test('/persons/%s/become_prospect', REL_SUB_PROSPECT)
-        self._become_test('persons__become_prospect', REL_SUB_PROSPECT)
+        self._become_test('persons__become_prospect', constants.REL_SUB_PROSPECT)
 
     def test_become_suspect(self):
         # self._become_test('/persons/%s/become_suspect', REL_SUB_SUSPECT)
-        self._become_test('persons__become_suspect', REL_SUB_SUSPECT)
+        self._become_test('persons__become_suspect', constants.REL_SUB_SUSPECT)
 
     def test_become_inactive_customer(self):
         # self._become_test('/persons/%s/become_inactive_customer', REL_SUB_INACTIVE)
-        self._become_test('persons__become_inactive_customer', REL_SUB_INACTIVE)
+        self._become_test('persons__become_inactive_customer', constants.REL_SUB_INACTIVE)
 
     def test_become_supplier(self):
         # self._become_test('/persons/%s/become_supplier', REL_OBJ_CUSTOMER_SUPPLIER)
-        self._become_test('persons__become_supplier', REL_OBJ_CUSTOMER_SUPPLIER)
+        self._become_test('persons__become_supplier', constants.REL_OBJ_CUSTOMER_SUPPLIER)
 
     def test_leads_customers01(self):
         user = self.login()

@@ -24,7 +24,7 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
 # from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
-from creme.creme_core.models import Relation, CremeProperty
+from creme.creme_core.models import Relation  # CremeProperty
 from creme.creme_core.signals import pre_merge_related
 
 from creme.persons import get_organisation_model

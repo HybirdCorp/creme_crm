@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-05 19:33+0100\n"
+"POT-Creation-Date: 2017-11-14 20:26+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -57,7 +57,7 @@ msgstr "Fiches principales"
 
 #: apps.py:352
 msgid "Other type of entity"
-msgstr "Autre fiche de fiche"
+msgstr "Autre type de fiche"
 
 #: apps.py:355
 msgid "Recent entities"
@@ -110,7 +110,7 @@ msgstr "Fichier XLSX"
 msgid "XLSX file extension introduced by Microsoft Excel 2007."
 msgstr "Extension XLSX introduite par Microsoft Excel 2007."
 
-#: blocks.py:18 bricks.py:150 forms/bulk.py:150 models/custom_field.py:64
+#: blocks.py:18 bricks.py:150 forms/bulk.py:150 models/custom_field.py:66
 #: templates/creme_core/bricks/custom-fields.html:12
 #: templates/creme_core/entity_cells_widget.html:60
 #: templates/creme_core/templatetags/block_customfields.html:10
@@ -118,7 +118,7 @@ msgid "Custom fields"
 msgstr "Champs personnalisés"
 
 #: bricks.py:45 forms/mass_import.py:1238 models/creme_property.py:115
-#: models/entity.py:51 templates/creme_core/bricks/properties.html:7
+#: models/entity.py:53 templates/creme_core/bricks/properties.html:7
 msgid "Properties"
 msgstr "Propriétés"
 
@@ -1129,13 +1129,13 @@ msgstr "Informations sur la fiche"
 msgid "Title bar"
 msgstr "Barre de titre"
 
-#: gui/field_printers.py:144 models/custom_field.py:274 models/history.py:134
+#: gui/field_printers.py:144 models/custom_field.py:277 models/history.py:134
 #: models/history.py:135 templatetags/creme_listview.py:101
 #: utils/__init__.py:301
 msgid "Yes"
 msgstr "Oui"
 
-#: gui/field_printers.py:144 models/custom_field.py:274 models/history.py:134
+#: gui/field_printers.py:144 models/custom_field.py:277 models/history.py:134
 #: models/history.py:136 templatetags/creme_listview.py:105
 #: utils/__init__.py:304
 msgid "No"
@@ -1231,7 +1231,7 @@ msgstr "Voir"
 msgid "Change"
 msgstr "Modifier"
 
-#: models/auth.py:302 models/entity.py:286
+#: models/auth.py:302 models/entity.py:290
 #: templates/creme_core/bricks/base/hat-card.html:109
 #: templates/creme_core/bricks/generic/hat-bar.html:43
 #: templates/creme_core/frags/list_view_content.html:257
@@ -1420,7 +1420,7 @@ msgid "Last modification"
 msgstr "Dernière modification"
 
 #: models/bricks.py:52 models/bricks.py:433 models/button_menu.py:32
-#: models/custom_field.py:52
+#: models/custom_field.py:54
 msgid "Related type"
 msgstr "Type associé"
 
@@ -1521,68 +1521,68 @@ msgstr "Créer une devise"
 msgid "Currencies"
 msgstr "Devises"
 
-#: models/custom_field.py:51
+#: models/custom_field.py:53
 msgid "Field name"
 msgstr "Nom du champ"
 
-#: models/custom_field.py:53
+#: models/custom_field.py:55
 msgid "Field type"
 msgstr "Type du champ"
 
-#: models/custom_field.py:58
+#: models/custom_field.py:60
 msgid "Create a custom field"
 msgstr "Créer un champ personnalisé"
 
-#: models/custom_field.py:59
+#: models/custom_field.py:61
 msgid "Save the custom field"
 msgstr "Enregistrer le champ personnalisé"
 
-#: models/custom_field.py:63
+#: models/custom_field.py:65
 msgid "Custom field"
 msgstr "Champ personnalisé"
 
-#: models/custom_field.py:199
+#: models/custom_field.py:202
 msgid "String"
 msgstr "Chaîne de caractères"
 
-#: models/custom_field.py:215
+#: models/custom_field.py:218
 msgid "Integer"
 msgstr "Nombre entier"
 
-#: models/custom_field.py:232
+#: models/custom_field.py:235
 msgid "Decimal"
 msgstr "Nombre à virgule"
 
-#: models/custom_field.py:248
+#: models/custom_field.py:251
 msgid "Date and time"
 msgstr "Date et heure"
 
-#: models/custom_field.py:268
+#: models/custom_field.py:271
 msgid "Boolean (2 values: Yes/No)"
 msgstr "Booléen (2 valeurs: Oui/Non)"
 
-#: models/custom_field.py:306
+#: models/custom_field.py:309
 msgid "Choice list"
 msgstr "Liste de choix"
 
-#: models/custom_field.py:340
+#: models/custom_field.py:343
 msgid "Multiple choice list"
 msgstr "Liste de choix multiples"
 
-#: models/entity.py:78
+#: models/entity.py:82
 msgid "Create an entity"
 msgstr "Créer une fiche"
 
-#: models/entity.py:79 views/generic/add.py:65
+#: models/entity.py:83 views/generic/add.py:65
 msgid "Save the entity"
 msgstr "Enregistrer la fiche"
 
-#: models/entity.py:127 views/entity.py:74
+#: models/entity.py:131 views/entity.py:74
 #, python-format
 msgid "Entity #%s (not viewable)"
 msgstr "Fiche #%s (non visible)"
 
-#: models/entity.py:276 templates/creme_core/bricks/base/hat-card.html:101
+#: models/entity.py:280 templates/creme_core/bricks/base/hat-card.html:101
 #: templates/creme_core/bricks/generic/hat-bar.html:32
 #: templates/creme_core/frags/list_view_content.html:252
 #: templates/creme_core/generics/blockform/edit.html:8
@@ -1601,11 +1601,11 @@ msgstr "Fiche #%s (non visible)"
 msgid "Edit"
 msgstr "Modifier"
 
-#: models/entity.py:296 templates/creme_core/bricks/found-entities.html:20
+#: models/entity.py:300 templates/creme_core/bricks/found-entities.html:20
 msgid "See"
 msgstr "Voir"
 
-#: models/entity.py:300
+#: models/entity.py:304
 #, python-brace-format
 msgid "Go to the entity {entity}"
 msgstr "Accéder à la fiche {entity}"
@@ -2173,35 +2173,39 @@ msgstr "possède"
 msgid "belongs to"
 msgstr "appartient à"
 
-#: populate.py:85
+#: populate.py:83
 msgid "Euro"
 msgstr "Euro"
 
-#: populate.py:85
+#: populate.py:83
 msgid "€"
 msgstr "€"
 
-#: populate.py:85
+#: populate.py:83
 msgid "EUR"
 msgstr "EUR"
 
-#: populate.py:95
+#: populate.py:96
+msgid "replaceMe@byYourAddress.com"
+msgstr "remplacezMoi@parVotreAdresse.fr"
+
+#: populate.py:109
 msgid "United States dollar"
 msgstr "Dollar américain"
 
-#: populate.py:95
+#: populate.py:109
 msgid "$"
 msgstr "$"
 
-#: populate.py:95
+#: populate.py:109
 msgid "USD"
 msgstr "USD"
 
-#: populate.py:97
+#: populate.py:111
 msgid "French"
 msgstr "Français"
 
-#: populate.py:98
+#: populate.py:112
 msgid "English"
 msgstr "Anglais"
 
