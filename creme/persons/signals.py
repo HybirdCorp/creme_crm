@@ -26,10 +26,10 @@ from django.db.utils import DatabaseError
 from django.dispatch import receiver
 
 from creme.creme_core.models import CremeEntity
-from creme.creme_core.utils import update_model_instance
 from creme.creme_core.signals import pre_merge_related
+from creme.creme_core.utils import update_model_instance
 
-from . import get_address_model, get_contact_model
+from . import get_address_model, get_contact_model, constants
 # from .models.contact import _create_linked_contact
 
 logger = logging.getLogger(__name__)
@@ -46,7 +46,8 @@ def sync_with_user(sender, instance, created, **kwargs):
     try:
         if created:
             # instance._linked_contact_cache = _create_linked_contact(instance)
-            instance._linked_contact_cache = get_contact_model()._create_linked_contact(instance)
+            kwargs = {'uuid': constants.UUID_FIRST_CONTACT} if instance.id == 1 else {}
+            instance._linked_contact_cache = get_contact_model()._create_linked_contact(instance, **kwargs)
         else:
             update_model_instance(instance.linked_contact,
                                   last_name=instance.last_name,

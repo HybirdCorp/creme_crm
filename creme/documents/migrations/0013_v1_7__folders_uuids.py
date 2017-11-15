@@ -10,10 +10,8 @@ from django.utils.translation import activate as activate_trans, ugettext as _
 from ..constants import UUID_FOLDER_RELATED2ENTITIES, UUID_FOLDER_IMAGES, DOCUMENTS_FROM_ENTITIES
 
 
-def set_folders_UUIDs(apps, schema_editor):
-    get_model = apps.get_model
-    CremeEntity = get_model('creme_core', 'CremeEntity')
-    Folder      = get_model('documents',  'Folder')
+def fix_colliding_UUIDs(apps, schema_editor):
+    CremeEntity = apps.get_model('creme_core', 'CremeEntity')
 
     def fix_colliding_UUID(protected_uuid):
         colliding_entitity = CremeEntity.objects.filter(uuid=protected_uuid).first()
@@ -30,6 +28,13 @@ def set_folders_UUIDs(apps, schema_editor):
 
     fix_colliding_UUID(UUID_FOLDER_RELATED2ENTITIES)
     fix_colliding_UUID(UUID_FOLDER_IMAGES)
+
+
+def set_folders_UUIDs(apps, schema_editor):
+    if settings.DOCUMENTS_FOLDER_MODEL != 'documents.Folder':
+        return
+
+    Folder = apps.get_model('documents', 'Folder')
 
     if Folder.objects.exists():
         creme_folder = Folder.objects.filter(title='Creme', parent_folder=None, category=DOCUMENTS_FROM_ENTITIES).first()
@@ -56,5 +61,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(fix_colliding_UUIDs),
         migrations.RunPython(set_folders_UUIDs),
     ]

@@ -149,25 +149,29 @@ class Populator(BasePopulator):
 
         # ---------------------------
         if not already_populated:
-            create_if_needed(Civility,          {'pk': 1}, title=_(u'Madam'),  shortcut=_(u'Mrs.'))
-            create_if_needed(Civility,          {'pk': 2}, title=_(u'Miss'),   shortcut=_(u'Ms.'))
-            mister = create_if_needed(Civility, {'pk': 3}, title=_(u'Mister'), shortcut=_(u'Mr.'))
-            create_if_needed(Civility,          {'pk': 4}, title=_(u'N/A'),    shortcut=u'')
+            create_if_needed(Civility, {'pk': 1}, title=_(u'Madam'),  shortcut=_(u'Mrs.'))
+            create_if_needed(Civility, {'pk': 2}, title=_(u'Miss'),   shortcut=_(u'Ms.'))
+            # mister = \
+            create_if_needed(Civility, {'pk': 3}, title=_(u'Mister'), shortcut=_(u'Mr.'))
+            create_if_needed(Civility, {'pk': 4}, title=_(u'N/A'),    shortcut=u'')
 
             # ---------------------------
-            admin = get_user_model().objects.get(pk=1)
-
-            if not Contact.objects.filter(is_user=admin).exists():
-                Contact.objects.create(user=admin, is_user=admin,
-                                       first_name='Fulbert', last_name='Creme', email=admin.email,
-                                       civility_id=mister.pk, description='Creme master',
-                                      )
+            # admin = get_user_model().objects.get(pk=1)
+            #
+            # if not Contact.objects.filter(is_user=admin).exists():
+            #     Contact.objects.create(user=admin, is_user=admin,
+            #                            first_name='Fulbert', last_name='Creme', email=admin.email,
+            #                            civility_id=mister.pk, description='Creme master',
+            #                           )
 
             # TODO: add relation to admin ????
             if not Organisation.objects.exists():
                 # orga = Organisation.objects.create(user=admin, name=_('ReplaceByYourSociety'))
                 # core_models.CremeProperty.objects.create(type=managed_by_creme, creme_entity=orga)
-                Organisation.objects.create(user=admin, name=_(u'ReplaceByYourSociety'), is_managed=True)
+                Organisation.objects.create(user=get_user_model().objects.get_admin(),
+                                            name=_(u'ReplaceByYourSociety'), is_managed=True,
+                                            uuid=constants.UUID_FIRST_ORGA,
+                                           )
 
             # ---------------------------
             create_if_needed(Position, {'pk': 1}, title=_(u'CEO'))
