@@ -1365,7 +1365,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                }
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(response, 'form', None,
-                             _('This Contact is related to a user and must have an e-mail address.')
+                             _(u'This Contact is related to a user and must have an e-mail address.')
                             )
 
         response = self.client.post(url, follow=True,
@@ -1420,7 +1420,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                }
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(response, 'form', None,
-                             _('This Contact is related to a user and must have an e-mail address.')
+                             _(u'This Contact is related to a user and must have an e-mail address.')
                             )
 
         response = self.client.post(url, follow=True,

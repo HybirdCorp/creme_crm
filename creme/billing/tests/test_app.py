@@ -111,26 +111,26 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
-        orga1 = create_orga(name='NERV')
-        orga2 = create_orga(name='Nerv'); self._set_managed(orga2)
+        orga1 = create_orga(name='NERV'); self._set_managed(orga1)
+        orga2 = create_orga(name='Nerv')
 
         cba_filter = ConfigBillingAlgo.objects.filter
         sba_filter = SimpleBillingAlgo.objects.filter
-        self.assertFalse(cba_filter(organisation=orga1))
-        self.assertFalse(sba_filter(organisation=orga1))
+        self.assertFalse(cba_filter(organisation=orga2))
+        self.assertFalse(sba_filter(organisation=orga2))
 
-        cba_ids_list2 = self._ids_list(cba_filter(organisation=orga2), 3)
-        sba_ids_list2 = self._ids_list(sba_filter(organisation=orga2), 3)
+        cba_ids_list1 = self._ids_list(cba_filter(organisation=orga1), 3)
+        sba_ids_list1 = self._ids_list(sba_filter(organisation=orga1), 3)
 
         self._merge_organisations(orga1, orga2)
 
-        cba_list2 = list(cba_filter(pk__in=cba_ids_list2))
-        self.assertEqual(3, len(cba_list2))
-        self.assertEqual(orga1, cba_list2[0].organisation)
+        cba_list1 = list(cba_filter(pk__in=cba_ids_list1))
+        self.assertEqual(3, len(cba_list1))
+        self.assertEqual(orga1, cba_list1[0].organisation)
 
-        sba_list2 = list(sba_filter(pk__in=sba_ids_list2))
-        self.assertEqual(3, len(sba_list2))
-        self.assertEqual(orga1, sba_list2[0].organisation)
+        sba_list1 = list(sba_filter(pk__in=sba_ids_list1))
+        self.assertEqual(3, len(sba_list1))
+        self.assertEqual(orga1, sba_list1[0].organisation)
 
     @skipIfCustomOrganisation
     def test_merge_algoconfig02(self):
@@ -189,8 +189,8 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomOrganisation
     def test_merge_algoconfig04(self):
-        """Two organisations with algo config, but only the second is still managed
-            => we delete the config of the first one.
+        """Two organisations with algo config, but only one is still managed
+            => we delete the config of the other one.
         """
         user = self.login()
 
@@ -203,7 +203,7 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         # CremeProperty.objects.create(type=ptype, creme_entity=orga1)
 
         # self._remove_managed_prop(orga1)
-        self._set_managed(orga1, False)
+        self._set_managed(orga2, False)
 
         cba_filter = ConfigBillingAlgo.objects.filter
         sba_filter = SimpleBillingAlgo.objects.filter
@@ -215,11 +215,40 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
 
         self._merge_organisations(orga1, orga2)
 
-        self.assertFalse(cba_filter(pk__in=cba_ids_list1))
-        self.assertEqual(3, cba_filter(pk__in=cba_ids_list2).count())
+        self.assertEqual(3, cba_filter(pk__in=cba_ids_list1).count())
+        self.assertFalse(cba_filter(pk__in=cba_ids_list2))
 
-        self.assertFalse(sba_filter(pk__in=sba_ids_list1))
-        self.assertEqual(3, sba_filter(pk__in=sba_ids_list2).count())
+        self.assertEqual(3, sba_filter(pk__in=sba_ids_list1).count())
+        self.assertFalse(sba_filter(pk__in=sba_ids_list2))
+
+    @skipIfCustomOrganisation
+    def test_merge_algoconfig05(self):
+        "Second organisation has algo config (none is managed anymore)"
+        user = self.login()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        orga1 = create_orga(name='NERV')
+        orga2 = create_orga(name='Nerv'); self._set_managed(orga2)
+
+        self._set_managed(orga2, False)
+
+        cba_filter = ConfigBillingAlgo.objects.filter
+        sba_filter = SimpleBillingAlgo.objects.filter
+        self.assertFalse(cba_filter(organisation=orga1))
+        self.assertFalse(sba_filter(organisation=orga1))
+
+        cba_ids_list2 = self._ids_list(cba_filter(organisation=orga2), 3)
+        sba_ids_list2 = self._ids_list(sba_filter(organisation=orga2), 3)
+
+        self._merge_organisations(orga1, orga2)
+
+        cba_list1 = list(cba_filter(pk__in=cba_ids_list2))
+        self.assertEqual(3, len(cba_list1))
+        self.assertEqual(orga1, cba_list1[0].organisation)
+
+        sba_list1 = list(sba_filter(pk__in=sba_ids_list2))
+        self.assertEqual(3, len(sba_list1))
+        self.assertEqual(orga1, sba_list1[0].organisation)
 
     def _get_setting_value(self):
         return self.get_object_or_fail(SettingValue, key_id=constants.DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA)

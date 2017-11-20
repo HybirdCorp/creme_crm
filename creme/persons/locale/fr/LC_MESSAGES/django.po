@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-14 20:24+0100\n"
+"POT-Creation-Date: 2017-11-14 20:29+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -117,16 +117,16 @@ msgid "Create a related contact"
 msgstr "Créer un contact lié"
 
 #: forms/address.py:75 forms/base.py:44 forms/base.py:104
-#: forms/mass_import.py:79 forms/mass_import.py:118 forms/merge.py:99
-#: forms/merge.py:141 models/base.py:32
+#: forms/mass_import.py:79 forms/mass_import.py:118 forms/merge.py:104
+#: forms/merge.py:146 models/base.py:32
 #: templates/persons/bricks/base/addresses.html:29
 #: templates/persons/templatetags/block_address.html:21
 msgid "Billing address"
 msgstr "Adresse de facturation"
 
 #: forms/address.py:80 forms/base.py:45 forms/base.py:105
-#: forms/mass_import.py:80 forms/mass_import.py:119 forms/merge.py:100
-#: forms/merge.py:142 models/base.py:37
+#: forms/mass_import.py:80 forms/mass_import.py:119 forms/merge.py:105
+#: forms/merge.py:147 models/base.py:37
 #: templates/persons/bricks/base/addresses.html:42
 #: templates/persons/templatetags/block_address.html:22
 msgid "Shipping address"
@@ -160,7 +160,7 @@ msgstr "Impossible de fusionner 2 Contacts représentant des utilisateurs"
 msgid "Set as managed"
 msgstr "Marquer comme géré"
 
-#: forms/quick.py:40 models/organisation.py:100
+#: forms/quick.py:40 models/organisation.py:101
 msgid "Organisation"
 msgstr "Société"
 
@@ -192,7 +192,7 @@ msgstr "Vous n'êtes pas autorisé à lier avec une Société"
 msgid "Enter the name of an existing Organisation."
 msgstr "Entrez le nom d'une société existante"
 
-#: models/address.py:34 models/organisation.py:44
+#: models/address.py:34 models/organisation.py:45
 #: templates/persons/bricks/base/linked-people.html:12
 #: templates/persons/bricks/managed-organisations.html:20
 #: templates/persons/templatetags/block_linked_people.html:28
@@ -246,11 +246,11 @@ msgstr "Nom"
 msgid "First name"
 msgstr "Prénom"
 
-#: models/contact.py:55 models/organisation.py:46
+#: models/contact.py:55 models/organisation.py:47
 msgid "Description"
 msgstr "Description"
 
-#: models/contact.py:58 models/organisation.py:49
+#: models/contact.py:58 models/organisation.py:50
 msgid "Phone number"
 msgstr "Numéro de téléphone"
 
@@ -259,16 +259,16 @@ msgstr "Numéro de téléphone"
 msgid "Mobile"
 msgstr "Mobile"
 
-#: models/contact.py:61 models/organisation.py:50
+#: models/contact.py:61 models/organisation.py:51
 msgid "Fax"
 msgstr "Fax"
 
-#: models/contact.py:62 models/organisation.py:51
+#: models/contact.py:62 models/organisation.py:52
 #: templates/persons/bricks/contact-hat-card.html:52
 msgid "Email address"
 msgstr "Adresse e-mail"
 
-#: models/contact.py:63 models/organisation.py:52
+#: models/contact.py:63 models/organisation.py:53
 msgid "Web Site"
 msgstr "Site Web"
 
@@ -351,75 +351,79 @@ msgstr "NC"
 msgid "complete@Me.com"
 msgstr "completez@Moi.fr"
 
-#: models/organisation.py:47
+#: models/organisation.py:48
 #: templates/persons/bricks/organisation-hat-card.html:17
 msgid "Managed by Creme"
 msgstr "Gérée par creme"
 
-#: models/organisation.py:54
+#: models/organisation.py:55
 msgid "Sector"
 msgstr "Secteur"
 
-#: models/organisation.py:57 models/other_models.py:87
+#: models/organisation.py:58 models/other_models.py:87
 msgid "Legal form"
 msgstr "Forme juridique"
 
-#: models/organisation.py:60
+#: models/organisation.py:61
 msgid "Staff size"
 msgstr "Effectif"
 
-#: models/organisation.py:64
+#: models/organisation.py:65
 msgid "Capital"
 msgstr "Capital"
 
-#: models/organisation.py:66
+#: models/organisation.py:67
 msgid "Annual revenue"
 msgstr "Revenu annuel"
 
-#: models/organisation.py:69
+#: models/organisation.py:70
 msgid "SIREN"
 msgstr "SIREN"
 
-#: models/organisation.py:70
+#: models/organisation.py:71
 msgid "NAF code"
 msgstr "Code NAF"
 
-#: models/organisation.py:71
+#: models/organisation.py:72
 msgid "SIRET"
 msgstr "SIRET"
 
-#: models/organisation.py:72
+#: models/organisation.py:73
 msgid "RCS/RM"
 msgstr "RCS/RM"
 
-#: models/organisation.py:74
+#: models/organisation.py:75
 msgid "VAT number"
 msgstr "Numéro TVA"
 
-#: models/organisation.py:76
+#: models/organisation.py:77
 msgid "Subject to VAT"
 msgstr "Assujetti à la TVA"
 
-#: models/organisation.py:78
+#: models/organisation.py:79
 msgid "Date of creation of the organisation"
 msgstr "Date de création de la société"
 
-#: models/organisation.py:83
+#: models/organisation.py:84
 #: templates/persons/bricks/organisation-hat-bar.html:7
 msgid "Logo"
 msgstr "Logo"
 
-#: models/organisation.py:93
+#: models/organisation.py:94
 msgid "Create an organisation"
 msgstr "Créer une société"
 
-#: models/organisation.py:94
+#: models/organisation.py:95
 msgid "Save the organisation"
 msgstr "Enregistrer la société"
 
-#: models/organisation.py:101
+#: models/organisation.py:102
 msgid "Organisations"
 msgstr "Sociétés"
+
+#: models/organisation.py:110
+msgid "The last managed organisation cannot be deleted."
+msgstr "La dernière société gérée ne peut pas être supprimée."
 
 #: models/other_models.py:32
 msgctxt "persons-civility"
