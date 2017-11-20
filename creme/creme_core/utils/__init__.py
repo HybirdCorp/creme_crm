@@ -134,17 +134,21 @@ def update_model_instance(obj, **fields):
 
 def replace_related_object(old_instance, new_instance):
     "Replace the references to an instance by references to another one."
+    from ..models import HistoryLine
+
     pre_replace_related.send(sender=old_instance.__class__,
                              old_instance=old_instance,
                              new_instance=new_instance,
                             )  # send_robust() ??
 
     meta = old_instance._meta
+    mark = HistoryLine.mark_as_reassigned
 
     for rel_objects in (f for f in meta.get_fields() if f.one_to_many):
         field_name = rel_objects.field.name
 
         for rel_object in getattr(old_instance, rel_objects.get_accessor_name()).all():
+            mark(rel_object, old_reference=old_instance, new_reference=new_instance, field_name=field_name)
             setattr(rel_object, field_name, new_instance)
             rel_object.save()
 

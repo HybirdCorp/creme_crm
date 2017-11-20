@@ -49,7 +49,7 @@ class UserMessageForm(CremeModelForm):
 
     def save(self, *args, **kwargs):
         # NB: we do not call super() because we create several instances
-        cdata  = self.cleaned_data
+        cdata = self.cleaned_data
         UserMessage.create_messages(cdata['users'], cdata['title'], cdata['body'],
                                     cdata['priority'].id, self.user, self.entity,
                                    )

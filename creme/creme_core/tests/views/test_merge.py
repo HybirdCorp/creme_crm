@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from future_builtins import filter
+
+    from collections import defaultdict
     from datetime import timedelta
     from functools import partial
 
@@ -14,10 +17,8 @@ try:
     from creme.creme_core.gui import merge_form_registry
     from creme.creme_core.models import (RelationType, Relation, SetCredentials,
             CremePropertyType, CremeProperty, FieldsConfig,
+            HistoryLine, history,
             CustomField, CustomFieldEnumValue, Language)
-    from creme.creme_core.models.history import (HistoryLine, TYPE_EDITION,
-            TYPE_RELATION, TYPE_RELATION_DEL, TYPE_SYM_REL_DEL,
-            TYPE_PROP_ADD, TYPE_PROP_DEL)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -115,12 +116,19 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertGET409(self._build_select_url(image))
 
     def test_merge01(self):
-        "2 Organisations"
+        "2 (fake) Organisations, some relationships duplicates"
         user = self.login()
 
-        rtype = RelationType.create(('test-subject_member', 'is a member of'),
-                                    ('test-object_member',  'has as a member')
-                                   )[0]
+        create_rtype = RelationType.create
+        rtype01 = create_rtype(('test-subject_member', 'is a member of',  [FakeContact]),
+                               ('test-object_member',  'has as a member', [FakeOrganisation])
+                              )[0]
+        rtype02 = create_rtype(('test-subject_sponsors', 'sponsors',        [FakeOrganisation]),
+                               ('test-object_sponsors',  'is sponsored by', [FakeContact])
+                              )[0]
+        rtype03 = create_rtype(('test-subject_hight_member', 'is a hight member of',  [FakeContact]),
+                               ('test-object_hight_member',  'has as a hight member', [FakeOrganisation])
+                              )[0]
 
         create_ptype = CremePropertyType.create
         ptype01 = create_ptype(str_pk='test-prop_manga', text='Manga related')
@@ -136,16 +144,25 @@ class MergeViewsTestCase(ViewsTestCase):
 
         # contact01 linked with the 2 organisations -> after merge, we expect only one relation, not 2
         # contact02 should be linked to the merged entity
-        create_rel = partial(Relation.objects.create, user=user, type=rtype)
-        rel1 = create_rel(subject_entity=contact01, object_entity=orga01)
-        rel2 = create_rel(subject_entity=contact01, object_entity=orga02)
-        rel3 = create_rel(subject_entity=contact02, object_entity=orga02)
+        create_rel = partial(Relation.objects.create, user=user)
+        rel1_1 = create_rel(type=rtype01, subject_entity=contact01, object_entity=orga01)
+        rel1_2 = create_rel(type=rtype01, subject_entity=contact01, object_entity=orga02)
+        rel1_3 = create_rel(type=rtype01, subject_entity=contact02, object_entity=orga02)
+
+        rel2_1 = create_rel(type=rtype02, subject_entity=orga01, object_entity=contact01)
+        rel2_2 = create_rel(type=rtype02, subject_entity=orga02, object_entity=contact01)
+        rel2_3 = create_rel(type=rtype02, subject_entity=orga02, object_entity=contact02)
+
+        # contact01 is linked with orga01, too, but not with the same relation-type => Relation must not be deleted
+        rel3_1 = create_rel(type=rtype03, subject_entity=contact01, object_entity=orga02)
 
         # 'prop3 'should be deleted, because orga01 has already a property with the same type
         create_prop = CremeProperty.objects.create
         prop1 = create_prop(type=ptype01, creme_entity=orga01)
         prop2 = create_prop(type=ptype02, creme_entity=orga02)
         prop3 = create_prop(type=ptype01, creme_entity=orga02)
+
+        orga02_hlines = list(HistoryLine.objects.filter(entity=orga02.id))
 
         last_hline_id = HistoryLine.objects.order_by('-id')[0].id
 
@@ -197,23 +214,38 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertEqual(description,  new_orga01.description)
         self.assertEqual(orga02.email, new_orga01.email)
 
-        rel1 = self.refresh(rel1)
-        self.assertEqual(contact01.id,  rel1.subject_entity_id)
-        self.assertEqual(rtype,         rel1.type)
-        self.assertEqual(new_orga01.id, rel1.object_entity_id)
+        # Relationships --
+        rel1_1 = self.refresh(rel1_1)
+        self.assertEqual(contact01.id,  rel1_1.subject_entity_id)
+        self.assertEqual(rtype01,       rel1_1.type)
+        self.assertEqual(new_orga01.id, rel1_1.object_entity_id)
 
-        rel3 = self.refresh(rel3)
-        self.assertEqual(contact02.id,  rel3.subject_entity_id)
-        self.assertEqual(rtype,         rel3.type)
-        self.assertEqual(new_orga01.id, rel3.object_entity_id)
-        sym_rel3 = rel3.symmetric_relation
-        self.assertEqual(new_orga01.id, sym_rel3.subject_entity_id)
-        self.assertEqual(contact02.id,  sym_rel3.object_entity_id)
+        rel1_3 = self.assertStillExists(rel1_3)
+        self.assertEqual(contact02.id,  rel1_3.subject_entity_id)
+        self.assertEqual(rtype01,       rel1_3.type)
+        self.assertEqual(new_orga01.id, rel1_3.object_entity_id)
+        sym_rel1_3 = rel1_3.symmetric_relation
+        self.assertEqual(new_orga01.id, sym_rel1_3.subject_entity_id)
+        self.assertEqual(contact02.id,  sym_rel1_3.object_entity_id)
 
-        # rel2 should have been deleted (no doublon)
-        self.assertDoesNotExist(rel2)
-        self.assertRelationCount(1, contact01, rtype.id, orga01)
+        self.assertStillExists(rel2_1)
+        self.assertStillExists(rel2_3)
 
+        # rel2 should have been deleted (no duplicate)
+        self.assertDoesNotExist(rel1_2.symmetric_relation); self.assertDoesNotExist(rel1_2)
+        self.assertDoesNotExist(rel2_2.symmetric_relation); self.assertDoesNotExist(rel2_2)
+        self.assertRelationCount(1, contact01, rtype01.id, orga01)
+        self.assertRelationCount(1, orga01,    rtype02.id, contact01)
+
+        rel3_1 = self.assertStillExists(rel3_1)
+        self.assertEqual(contact01.id,  rel3_1.subject_entity_id)
+        self.assertEqual(rtype03,       rel3_1.type)
+        self.assertEqual(new_orga01.id, rel1_3.object_entity_id)
+        sym_rel3_1 = rel3_1.symmetric_relation
+        self.assertEqual(new_orga01.id, sym_rel3_1.subject_entity_id)
+        self.assertEqual(contact01.id,  sym_rel3_1.object_entity_id)
+
+        # Properties --
         prop1 = self.refresh(prop1)
         self.assertEqual(ptype01,   prop1.type)
         self.assertEqual(orga01.id, prop1.creme_entity_id)
@@ -222,18 +254,76 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertEqual(ptype02,   prop2.type)
         self.assertEqual(orga01.id, prop2.creme_entity_id)
 
-        # prop3 should have been deleted (no doublon)
+        # prop3 should have been deleted (no duplicate)
         self.assertDoesNotExist(prop3)
 
-        # HistoryLines: duplicated relations/properties that are deleted are do not generate line
-        hline_types = set(HistoryLine.objects.filter(id__gt=last_hline_id).values_list('type', flat=True))
-        self.assertIn(TYPE_EDITION,  hline_types)
-        self.assertIn(TYPE_RELATION, hline_types)
-        self.assertIn(TYPE_PROP_ADD, hline_types)
+        # History ----
+        new_hlines = defaultdict(list)
+        for hline in HistoryLine.objects.filter(id__gt=last_hline_id):
+            new_hlines[hline.type].append(hline)
 
-        self.assertNotIn(TYPE_PROP_DEL, hline_types)
-        self.assertNotIn(TYPE_RELATION_DEL, hline_types)
-        self.assertNotIn(TYPE_SYM_REL_DEL, hline_types)
+        edition_lines = new_hlines[history.TYPE_EDITION]
+        self.assertEqual(1, len(edition_lines))
+        self.assertEqual(orga01, edition_lines[0].entity.get_real_entity())
+        # TODO: complete
+
+        deletion_lines = new_hlines[history.TYPE_DELETION]
+        self.assertEqual(1, len(deletion_lines))
+        deletion_line = deletion_lines[0]
+        self.assertEqual(orga02.entity_type, deletion_line.entity_ctype)
+        self.assertEqual(unicode(orga02),    deletion_line.entity_repr)
+
+        prop_lines = new_hlines[history.TYPE_PROP_ADD]
+        self.assertEqual(1, len(prop_lines))
+        prop_line = prop_lines[0]
+        self.assertEqual(orga01,       prop_line.entity.get_real_entity())
+        self.assertEqual([ptype02.id], prop_line.modifications)
+
+        rel_lines = new_hlines[history.TYPE_RELATION]
+        self.assertEqual(3, len(rel_lines))
+
+        rel_line1 = next(filter(lambda hl: contact02 == hl.entity.get_real_entity(), rel_lines), None)
+        self.assertIsNotNone(rel_line1)
+        self.assertEqual([rtype01.id], rel_line1.modifications)
+
+        rel_line2 = next(filter(lambda hl: orga01 == hl.entity.get_real_entity(), rel_lines), None)
+        self.assertIsNotNone(rel_line2)
+        self.assertEqual([rtype02.id], rel_line2.modifications)
+
+        rel_line3 = next(filter(lambda hl: contact01 == hl.entity.get_real_entity(), rel_lines), None)
+        self.assertIsNotNone(rel_line3)
+        self.assertEqual([rtype03.id], rel_line3.modifications)
+
+        sym_rel_line_ids = [hl.id for hl in new_hlines[history.TYPE_SYM_RELATION]]
+        self.assertEqual(3, len(sym_rel_line_ids))
+
+        sym_rel_line1 = rel_line1.related_line
+        self.assertIn(sym_rel_line1.id, sym_rel_line_ids)
+        self.assertEqual(orga01,                      sym_rel_line1.entity.get_real_entity())
+        self.assertEqual([rtype01.symmetric_type_id], sym_rel_line1.modifications)
+
+        sym_rel_line2 = rel_line2.related_line
+        self.assertIn(sym_rel_line2.id, sym_rel_line_ids)
+        self.assertEqual(contact02,                   sym_rel_line2.entity.get_real_entity())
+        self.assertEqual([rtype02.symmetric_type_id], sym_rel_line2.modifications)
+
+        sym_rel_line3 = rel_line3.related_line
+        self.assertIn(sym_rel_line3.id, sym_rel_line_ids)
+        self.assertEqual(orga01,                      sym_rel_line3.entity.get_real_entity())
+        self.assertEqual([rtype03.symmetric_type_id], sym_rel_line3.modifications)
+
+        self.assertFalse(new_hlines[history.TYPE_CREATION])
+        self.assertFalse(new_hlines[history.TYPE_RELATED])
+        self.assertFalse(new_hlines[history.TYPE_PROP_DEL])
+        self.assertFalse(new_hlines[history.TYPE_RELATION_DEL])
+        self.assertFalse(new_hlines[history.TYPE_SYM_REL_DEL])
+        self.assertFalse(new_hlines[history.TYPE_AUX_CREATION])
+        self.assertFalse(new_hlines[history.TYPE_AUX_EDITION])
+        self.assertFalse(new_hlines[history.TYPE_AUX_DELETION])
+
+        for hline in orga02_hlines:
+            refreshed_hline = self.assertStillExists(hline)
+            self.assertIsNone(refreshed_hline.entity)
 
     def test_merge02(self):
         "2 Contacts, M2M, foreign key to CremeEntities"
@@ -410,12 +500,66 @@ class MergeViewsTestCase(ViewsTestCase):
 
         self.assertGET409(self.build_merge_url(image1, image2))
 
+    def test_merge_relations(self):
+        "No relationships duplicates"
+        user = self.login()
+
+        create_rtype = RelationType.create
+        rtype = create_rtype(('test-subject_member', 'is a member of',  [FakeContact]),
+                             ('test-object_member',  'has as a member', [FakeOrganisation])
+                            )[0]
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        orga01 = create_orga(name='Genshiken',   description='Otaku band.',   phone='8787878')
+        orga02 = create_orga(name='Gen-shi-ken', description='A great club.', email='genshiken@univ.jp')
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        contact01 = create_contact(first_name='Chika',       last_name='Ogiue')
+        contact02 = create_contact(first_name=u'Souichirou', last_name='Tanaka')
+
+        create_rel = partial(Relation.objects.create, user=user, type=rtype)
+        rel1 = create_rel(subject_entity=contact01, object_entity=orga01)
+        rel2 = create_rel(subject_entity=contact02, object_entity=orga02)
+
+        response = self.client.post(self.build_merge_url(orga01, orga02),
+                                    follow=True,
+                                    data={'user_1':      user.id,
+                                          'user_2':      user.id,
+                                          'user_merged': user.id,
+
+                                          'name_1':      orga01.name,
+                                          'name_2':      orga02.name,
+                                          'name_merged': orga01.name,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertRedirects(response, orga01.get_absolute_url())
+
+        self.assertDoesNotExist(orga02)
+
+        new_orga01 = self.refresh(orga01)
+        self.assertEqual(orga01.name,  new_orga01.name)
+
+        rel1 = self.refresh(rel1)
+        self.assertEqual(contact01.id,  rel1.subject_entity_id)
+        self.assertEqual(rtype,       rel1.type)
+        self.assertEqual(new_orga01.id, rel1.object_entity_id)
+
+        rel2 = self.assertStillExists(rel2)
+        self.assertEqual(contact02.id,  rel2.subject_entity_id)
+        self.assertEqual(rtype,       rel2.type)
+        self.assertEqual(new_orga01.id, rel2.object_entity_id)
+
+        sym_rel2 = rel2.symmetric_relation
+        self.assertEqual(new_orga01.id, sym_rel2.subject_entity_id)
+        self.assertEqual(contact02.id,  sym_rel2.object_entity_id)
+
     def test_merge_customfields(self):
         user = self.login()
 
         create_cf = partial(CustomField.objects.create, field_type=CustomField.INT,
                             content_type=ContentType.objects.get_for_model(FakeContact),
-                            )
+                           )
         cf_01 = create_cf(name='Number of manga')
         cf_02 = create_cf(name='Number of anime')
         cf_03 = create_cf(name='Club', field_type=CustomField.ENUM)
