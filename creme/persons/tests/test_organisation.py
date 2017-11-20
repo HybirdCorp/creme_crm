@@ -815,7 +815,8 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         orga01 = create_orga(name='NERV')
         orga02 = create_orga(name='Nerv')
 
-        response = self.assertGET200(self.build_merge_url(orga01, orga02))
+        url = self.build_merge_url(orga01, orga02)
+        response = self.assertGET200(url)
 
         with self.assertNoException():
             fields = response.context['form'].fields
@@ -824,8 +825,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertNotIn('billaddr_city',   fields)
         self.assertNotIn('billaddr_po_box', fields)
 
-        response = self.client.post(self.build_merge_url(orga01, orga02),
-                                    follow=True,
+        response = self.client.post(url, follow=True,
                                     data={'user_1':      user.id,
                                           'user_2':      user.id,
                                           'user_merged': user.id,
@@ -858,6 +858,103 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertNotIn('shipaddr_name',   fields)
         self.assertNotIn('shipaddr_city',   fields)
         self.assertNotIn('shipaddr_po_box', fields)
+
+    def test_merge07(self):
+        "The first organisation is managed"
+        user = self.login()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        orga01 = create_orga(name='NERV', is_managed=True)
+        orga02 = create_orga(name='Nerv')
+
+        response = self.client.post(self.build_merge_url(orga01, orga02),
+                                    follow=True,
+                                    data={'user_1':      user.id,
+                                          'user_2':      user.id,
+                                          'user_merged': user.id,
+
+                                          'name_1':      orga01.name,
+                                          'name_2':      orga02.name,
+                                          'name_merged': orga02.name,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertDoesNotExist(orga02)
+
+        orga01 = self.assertStillExists(orga01)
+        self.assertEqual(orga02.name, orga01.name)
+        self.assertTrue(orga01.is_managed)
+
+    def test_merge08(self):
+        "The second organisation is managed => swapped"
+        user = self.login()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        orga01 = create_orga(name='NERV')
+        orga02 = create_orga(name='Nerv', is_managed=True)
+
+        response = self.assertGET200(self.build_merge_url(orga01, orga02))
+
+        with self.assertNoException():
+            initial_name = response.context['form'].fields['name'].initial[0]
+
+        self.assertEqual(orga02.name, initial_name)
+
+    def test_merge09(self):
+        "The 2 organisations are managed => no swap"
+        user = self.login()
+
+        create_orga = partial(Organisation.objects.create, user=user, is_managed=True)
+        orga01 = create_orga(name='NERV')
+        orga02 = create_orga(name='Nerv')
+
+        response = self.assertGET200(self.build_merge_url(orga01, orga02))
+
+        with self.assertNoException():
+            initial_name = response.context['form'].fields['name'].initial[0]
+
+        self.assertEqual(orga01.name, initial_name)
+
+    def test_delete01(self):
+        user = self.login()
+        orga01 = Organisation.objects.create(user=user, name='Nerv')
+        url = orga01.get_delete_absolute_url()
+        self.assertPOST200(url, follow=True)
+
+        with self.assertNoException():
+            orga01 = self.refresh(orga01)
+
+        self.assertIs(orga01.is_deleted, True)
+
+        self.assertPOST200(url, follow=True)
+        self.assertDoesNotExist(orga01)
+
+    def test_delete02(self):
+        "Cannot delete the last managed organisation."
+        self.login()
+
+        managed_orgas = Organisation.objects.filter(is_managed=True)
+        self.assertEqual(1, len(managed_orgas))
+
+        managed_orga = managed_orgas[0]
+        self.assertPOST403(managed_orga.get_delete_absolute_url())  # follow=True
+        self.assertStillExists(managed_orga)
+
+    def test_delete03(self):
+        "A managed organisation ac be deleted if it's not the last one."
+        user = self.login()
+
+        managed_orga = Organisation.objects.create(user=user, name='Nerv', is_managed=True)
+        url = managed_orga.get_delete_absolute_url()
+        self.assertPOST200(url, follow=True)
+
+        with self.assertNoException():
+            managed_orga = self.refresh(managed_orga)
+
+        self.assertIs(managed_orga.is_deleted, True)
+
+        self.assertPOST200(url, follow=True)
+        self.assertDoesNotExist(managed_orga)
 
     def test_delete_sector(self):
         "Set to null"

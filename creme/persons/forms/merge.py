@@ -42,8 +42,13 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
         if isinstance(entity1, Contact):  # TODO: create a ContactMergeForm ?
             if entity2.is_user:
                 if entity1.is_user:
-                    raise self.CanNotMergeError(_('Can not merge 2 Contacts which represent some users.'))
+                    raise self.CanNotMergeError(_(u'Can not merge 2 Contacts which represent some users.'))
 
+                entity1, entity2 = entity2, entity1
+        else:
+            assert isinstance(entity1, persons.get_organisation_model())
+
+            if entity2.is_managed and not entity1.is_managed:
                 entity1, entity2 = entity2, entity1
 
         super(_PersonMergeForm, self).__init__(entity1, entity2, *args, **kwargs)
@@ -112,7 +117,7 @@ def get_merge_form_builder(model, base_form_class=_PersonMergeForm):
     address_field_names = list(Address.info_field_names())
     # TODO: factorise with lv_import.py
     try:
-       address_field_names.remove('name')
+        address_field_names.remove('name')
     except ValueError:
        pass
 
