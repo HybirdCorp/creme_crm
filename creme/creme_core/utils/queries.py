@@ -29,6 +29,7 @@ from django.db.models.query import QuerySet
 from .dates import DATE_ISO8601_FMT, DATETIME_ISO8601_FMT
 
 
+# TODO: deprecate ??
 def get_q_from_dict(dict, is_or=False):
     """
         @Returns: A Q instance from {'attr1':'val1', 'attr2':'val2',...}
