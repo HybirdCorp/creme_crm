@@ -7,6 +7,10 @@
     {% if not is_inner_popup %}
     <script type="text/javascript">
         $(document).ready(function() {
+            if (!$('span.required-mark').first().length) {
+               $('.required-help').attr('style', 'display:none');
+            }
+
             creme.forms.initialize($('#wizard_form form'));
         });
     </script>
@@ -35,7 +39,7 @@
             <div class="help_box">{{help_message|linebreaksbr}}</div>
         {% endif%}
 
-        <p>{% trans 'Fields marked with * are required.' %}</p>
+        <p class="required-help">{% trans 'Fields marked with * are required.' %}</p>
 
         <div id="wizard_form">
             <form action="" method="POST">{% csrf_token %}
