@@ -32,3 +32,10 @@ FILTER_CONTACT_ME   = 'persons-contact_me'
 
 DEFAULT_HFILTER_CONTACT = 'persons-hf_contact'
 DEFAULT_HFILTER_ORGA    = 'persons-hf_organisation'
+
+# NB: Beware you should probably not use thses UUIDs to retrieve these Contact/Organisation
+#     by their UUID (eg: they could be deleted).
+#     Its just a good thing that the first Contact/Organisation has the same UUID on
+#     different DB (eg: for importing/exporting data).
+UUID_FIRST_CONTACT = '498b1986-5f70-409e-82c0-a8df1b2b9c39'
+UUID_FIRST_ORGA    = 'bb93b21d-f7f1-46d7-a92f-7edda7b9ec2b'

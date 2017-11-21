@@ -255,7 +255,7 @@ class MergeEntitiesBaseForm(CremeForm):
 def mergefield_factory(modelfield):
     formfield = modelfield.formfield()
 
-    if not formfield:  # Happens for crementity_ptr (OneToOneField)
+    if not formfield:  # Happens for cremeentity_ptr (OneToOneField)
         return None
 
     return MergeField(formfield, modelfield, label=modelfield.verbose_name)

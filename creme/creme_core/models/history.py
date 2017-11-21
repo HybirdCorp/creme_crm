@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,6 +37,7 @@ from django.utils.timezone import make_naive, utc, localtime
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..global_info import get_global_info, set_global_info
+from ..signals import pre_merge_related
 from ..utils.dates import dt_to_ISO8601, dt_from_ISO8601, date_from_ISO8601, date_to_ISO8601
 from .entity import CremeEntity
 from .relation import RelationType, Relation
@@ -489,6 +490,8 @@ class _HLTAuxEdition(_HLTAuxCreation):
                     cls.type_id,
                     modifs=[cls._build_modifs(related)] + fields_modifs,
                 )
+        elif getattr(related, '_hline_reassigned', False):
+            _HLTAuxCreation.create_line(related)
 
     def verbose_modifications(self, modifications, entity_ctype, user):
         ct_id, aux_id, str_obj = modifications[0]  # TODO: idem (see _HLTAuxCreation)
@@ -549,6 +552,9 @@ class HistoryLine(Model):
                     self.entity_id, self.entity_owner_id, self.date, self.type, self.value
                 )
 
+    def __unicode__(self):
+        return repr(self)
+
     @staticmethod
     @atomic
     def delete_lines(line_qs):
@@ -600,6 +606,23 @@ class HistoryLine(Model):
         @type instance: Can be an instance of CremeEntity, Relation, CremeProperty, an auxiliary model.
         """
         instance._hline_disabled = True
+
+    @staticmethod
+    def mark_as_reassigned(instance, old_reference, new_reference, field_name):
+        """ Indicate to the history system that an instance has been modified by replacing a FK value.
+
+        It is useful when merging 2 entities with auxiliary instances, in order to detect a change
+        in these auxiliary instances (because if these FK are internal & so not considered as 'information'
+        fields the modifications will not caused a TYPE_AUX_EDITION line to be created) ;
+        so HistoryLines corresponding to the move of the auxiliary instances from the
+        deleted entity to the remaining one will be created.
+
+        @param instance: modified instance.
+        @param old_reference: object which was referenced by the FK.
+        @param new_reference: object which is referenced by the FK now.
+        @param field_name: name of the FK field.
+        """
+        instance._hline_reassigned = (old_reference, new_reference, field_name)
 
     @staticmethod
     def _encode_attrs(instance, modifs=(), related_line_id=None):
@@ -821,3 +844,10 @@ class HistoryConfigItem(Model):
 
     class Meta:
         app_label = 'creme_core'
+
+
+@receiver(pre_merge_related)
+def _handle_merge(sender, other_entity, **kwargs):
+    # We do not want these lines to be re-assigned to the remaining entity.
+    # TODO: should we clone/copy for TYPE_RELATED
+    HistoryLine.objects.filter(entity=other_entity.id).update(entity=None)
