@@ -334,9 +334,9 @@ def list_view(request, model, **kwargs):
     """See list_view_content() for arguments"""
 
     if request.method == 'POST':
-        mode  = get_from_POST_or_404(request.POST, 'selection', cast=str_to_mode, default='multiple')
+        mode = get_from_POST_or_404(request.POST, 'selection', cast=str_to_mode, default='multiple')
     else:
-        mode  = get_from_GET_or_404(request.GET, 'selection', cast=str_to_mode, default='multiple')
+        mode = get_from_GET_or_404(request.GET, 'selection', cast=str_to_mode, default='multiple')
 
     try:
         template_name, template_dict = list_view_content(request, model, mode=mode, **kwargs)

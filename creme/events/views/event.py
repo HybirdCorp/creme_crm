@@ -22,7 +22,7 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -92,16 +92,16 @@ def listview(request):
 
 
 INV_STATUS_MAP = {
-        constants.INV_STATUS_NOT_INVITED: _('Not invited'),
-        constants.INV_STATUS_NO_ANSWER:   _('Did not answer'),
-        constants.INV_STATUS_ACCEPTED:    _('Accepted the invitation'),
-        constants.INV_STATUS_REFUSED:     _('Refused the invitation'),
+        constants.INV_STATUS_NOT_INVITED: _(u'Not invited'),
+        constants.INV_STATUS_NO_ANSWER:   _(u'Did not answer'),
+        constants.INV_STATUS_ACCEPTED:    _(u'Accepted the invitation'),
+        constants.INV_STATUS_REFUSED:     _(u'Refused the invitation'),
     }
 
 PRES_STATUS_MAP = {
-        constants.PRES_STATUS_DONT_KNOW: _('N/A'),
-        constants.PRES_STATUS_COME:      _('Come'),
-        constants.PRES_STATUS_NOT_COME:  _('Not come'),
+        constants.PRES_STATUS_DONT_KNOW: _(u'N/A'),
+        constants.PRES_STATUS_COME:      pgettext_lazy('events-presence_status', u'Come'),
+        constants.PRES_STATUS_NOT_COME:  pgettext_lazy('events-presence_status', u'Not come'),
     }
 
 
@@ -304,7 +304,7 @@ def set_invitation_status(request, event_id, contact_id):
 @permission_required('events')
 def set_presence_status(request, event_id, contact_id):
     status = _get_status(request, PRES_STATUS_MAP)
-    user  = request.user
+    user = request.user
     event, contact = _get_event_n_contact(event_id, contact_id, user)
 
     event.set_presence_status(contact, status, user)
@@ -323,6 +323,7 @@ def abstract_add_related_opportunity(request, event_id, contact_id,
     return add_entity(request, form,
                       extra_initial={'event': event, 'contact': contact},
                      )
+
 
 @login_required
 @permission_required(('events', 'opportunities', cperm(Opportunity)))

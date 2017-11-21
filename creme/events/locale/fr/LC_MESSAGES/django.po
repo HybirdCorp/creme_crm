@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Events 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-12 15:04+0200\n"
+"POT-Creation-Date: 2017-11-21 18:23+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: apps.py:28
+#: apps.py:28 templates/events/portal.html:4
 msgid "Events"
 msgstr "Évènements"
 
@@ -234,19 +234,20 @@ msgstr "Voir les contacts en rapport"
 msgid "Forbidden"
 msgstr "Interdit"
 
+# Already in creme_core
+#: templates/events/lv_button_link_contacts.html:5
+msgid "Link"
+msgstr ""
+
 #: templates/events/lv_button_link_contacts.html:5
 msgid "Link contacts"
 msgstr "Lier des contacts"
 
-#: templates/events/portal.html:3
-msgid "Event"
-msgstr "Évènement"
-
-#: templates/events/portal.html:4
+#: templates/events/portal.html:5
 msgid "Events portal"
 msgstr "Portail des évènements"
 
-#: templates/events/portal.html:6
+#: templates/events/portal.html:7
 msgid "List of events"
 msgstr "Liste des évènements"
 
@@ -271,10 +272,12 @@ msgid "N/A"
 msgstr "NC"
 
 #: views/event.py:103
+msgctxt "events-presence_status"
 msgid "Come"
 msgstr "Venu"
 
 #: views/event.py:104
+msgctxt "events-presence_status"
 msgid "Not come"
 msgstr "Pas venu"
 
@@ -282,19 +285,19 @@ msgstr "Pas venu"
 msgid "See"
 msgstr "Voir"
 
-#: views/event.py:118
+#: views/event.py:119
 msgid "Create an opportunity"
 msgstr "Créer une opportunité"
 
-#: views/event.py:149
+#: views/event.py:151
 msgid "Invitation"
 msgstr "Invitation"
 
-#: views/event.py:150
+#: views/event.py:152
 msgid "Presence"
 msgstr "Présence"
 
-#: views/event.py:246
+#: views/event.py:248
 #, python-format
 msgid "List of contacts related to «%s»"
 msgstr "Liste des contacts liés à «%s»"
@@ -302,6 +305,9 @@ msgstr "Liste des contacts liés à «%s»"
 #: views/portal.py:32
 msgid "Number of events"
 msgstr "Nombre d'évènements"
+
+#~ msgid "Event"
+#~ msgstr "Évènement"
 
 #~ msgid "Add an event"
 #~ msgstr "Ajouter un évènement"
