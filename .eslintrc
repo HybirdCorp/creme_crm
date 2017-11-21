@@ -23,13 +23,25 @@
 
     "jQuery": true,
 
+    /* Django i18n */
     "gettext": true,
     "ngettext": true,
     "pluralidx": true,
 
+    /* Creme */
     "ArrayTools": true,
     "Generator": true,
-    "creme": true
+    "creme": true,
+
+    /* QUNIT TESTS */
+    /*
+    "$": true,
+    "QUnit": true,
+    "equal": true,
+    "deepEqual": true,
+    "ok": true,
+    "fail": true
+    */
   },
 
   "rules": {

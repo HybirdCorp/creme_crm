@@ -16,7 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.forms = {};
 
@@ -28,26 +29,30 @@ creme.forms.Select = {};
 creme.forms.Select.optionsFromData = function(data, option_label, option_value) {
     var options = [];
 
-    option_value = (option_value != undefined) ? option_value : 0;
-    option_label = (option_label != undefined) ? option_label : 1;
+    option_value = (option_value !== undefined) ? option_value : 0;
+    option_label = (option_label !== undefined) ? option_label : 1;
 
     var getter_builder = function(getter) {
-        if (typeof getter == 'function')
+        if (Object.isFunc('function')) {
             return getter;
+        }
 
-        return function(entry) {return entry[getter];}
+        return function(entry) {
+            return entry[getter];
+        };
     };
 
     var option_label_getter = getter_builder(option_label);
     var option_value_getter = getter_builder(option_value);
 
-    for(var index = 0; index < data.length; ++index) {
+    for (var index = 0; index < data.length; ++index) {
         var entry = data[index];
-         var entry_value = option_value_getter(entry);
-         var entry_label = option_label_getter(entry);
+        var entry_value = option_value_getter(entry);
+        var entry_label = option_label_getter(entry);
 
-         if ((entry_value == undefined) || (entry_label == undefined))
+        if ((entry_value === undefined) || (entry_label === undefined)) {
              continue;
+        }
 
         options.push([entry_value, entry_label]);
     }
@@ -56,37 +61,37 @@ creme.forms.Select.optionsFromData = function(data, option_label, option_value) 
 };
 
 creme.forms.Select.fill = function(self, options, selected) {
-    if ((self == undefined) || (options == undefined)) {
+    if ((self === undefined) || (options === undefined)) {
         return;
     }
 
     var old_value = self.val();
-    var value;
+    var value, index;
     self.empty();
 
-     for(var index = 0; index < options.length; ++index) {
-         var entry = options[index];
-         var entry_value = entry[0];
-         var entry_label = entry[1];
+    for (index = 0; index < options.length; ++index) {
+        var entry = options[index];
+        var entry_value = entry[0];
+        var entry_label = entry[1];
 
-         var option = $('<option/>').val(entry_value).text(entry_label);
+        var option = $('<option/>').val(entry_value).text(entry_label);
 
-         if (entry_value == selected) {
-             option.attr('selected', 'selected');
-             value = selected;
-         }
+        if (entry_value === selected) {
+            option.attr('selected', 'selected');
+            value = selected;
+        }
 
-         self.append(option);
-     }
+        self.append(option);
+    }
 
-     if (value == undefined) {
+     if (value === undefined) {
          if (options.length > 0) {
              value = options[0][0];
          }
 
-         if (old_value != undefined) {
-             for(var index = 0; index < options.length; ++index)    {
-                 if (options[index][0] == old_value) {
+         if (old_value !== undefined) {
+             for (index = 0; index < options.length; ++index) {
+                 if (options[index][0] === old_value) {
                      value = old_value;
                      break;
                  }
@@ -120,11 +125,14 @@ creme.forms.TimePicker.init = function(self) {
 };
 
 creme.forms.TimePicker.parseTime = function(value) {
-    var values = (value != undefined) ? value.split(':') : [];
+    var values = (value !== undefined) ? value.split(':') : [];
     var hour = (values.length > 1) ? values[0] : '';
     var minute = (values.length > 1) ? values[1] : '';
 
-    return {hour:hour, minute:minute};
+    return {
+        hour: hour,
+        minute: minute
+    };
 };
 
 creme.forms.TimePicker.val = function(self) {
@@ -158,8 +166,9 @@ creme.forms.TimePicker.set = function(self, hour, minute) {
  */
 creme.forms.DateTimePicker = {};
 creme.forms.DateTimePicker.init = function(self, format) {
+    format = format || 'yy-mm-dd';
+
     var datetime = creme.forms.DateTimePicker.datetimeval(self);
-    var format = format || 'yy-mm-dd';
 
     $('li.date input[type="text"]', self).val(datetime.date);
     $('li.hour input[type="text"]', self).val(datetime.hour);
@@ -197,10 +206,10 @@ creme.forms.DateTimePicker.datetimeval = function(self) {
 };
 
 creme.forms.DateTimePicker.parseDateTime = function(value) {
-    var values = (value != undefined) ? value.split(' ') : [];
+    var values = (value !== undefined) ? value.split(' ') : [];
     var date = (values.length > 1) ? values[0] : '';
     var time = creme.forms.TimePicker.parseTime((values.length > 1) ? values[1] : '');
-    return $.extend({date:date}, time);
+    return $.extend({date: date}, time);
 };
 
 creme.forms.DateTimePicker.update = function(self) {
@@ -232,17 +241,17 @@ creme.forms.DateTimePicker.set = function(self, year, month, day, hour, minute) 
     creme.forms.DateTimePicker.setDate(self, new Date(year, month, day, hour, minute));
 };
 
-//TODO: refactor in order the widget can be properly reload (see report.js)
+// TODO: refactor in order the widget can be properly reload (see report.js)
 creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumns, refreshStore, reduced) {
-    //Containers
+    // Containers
     var $div   = $('<div class="dcms_div"></div>');
     var $store = $('#' + store_id);
 
-    //Lists
+    // Lists
     var $available = $('<ul name="available"></ul>');
     var $chosen    = $('<ul name="chosen"></ul>');
 
-    //Buttons
+    // Buttons
     var button_html = '<input class="dcms_button" type="button"/>';
     var $add_button    = $(button_html).attr('value', gettext("Add"));
     var $rem_button    = $(button_html).attr('value', gettext("Remove"));
@@ -267,7 +276,7 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
             $li.hide();
         }
 
-        $available.append($li)
+        $available.append($li);
     }
 
     function addChosenLi(label, name) {
@@ -275,7 +284,7 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
     }
 
     function refreshButtons($sel) {
-        if ($sel == undefined) {
+        if ($sel === undefined) {
             $add_button.attr('disabled', 'disabled');
             $rem_button.attr('disabled', 'disabled');
             $up_button.attr('disabled', 'disabled');
@@ -284,19 +293,25 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
             var $parent = $sel.parent();
 
 //            if ($parent.attr('name') == $chosen.attr('name')) { /*TODO: comparison on name is ugly, but '==' and '===' don't work....*/
-            if ($parent.attr('name') == 'chosen') {
+            if ($parent.attr('name') === 'chosen') {
                 $add_button.attr('disabled', 'disabled');
 //                $rem_button.attr('disabled', '');
                 $rem_button.removeAttr('disabled');
 
                 var sel_name = $sel.attr('name');
 
-                if (sel_name == $chosen.find('li:first').attr('name')) { $up_button.attr('disabled', 'disabled');
-                } else                                                 { $up_button.removeAttr('disabled'); }
+                if (sel_name === $chosen.find('li:first').attr('name')) {
+                    $up_button.attr('disabled', 'disabled');
+                } else {
+                    $up_button.removeAttr('disabled');
+                }
 
-                if (sel_name == $chosen.find('li:last').attr('name')) { $down_button.attr('disabled', 'disabled');
-                } else                                                { $down_button.removeAttr('disabled'); }
-            } else { //$available list
+                if (sel_name === $chosen.find('li:last').attr('name')) {
+                    $down_button.attr('disabled', 'disabled');
+                } else {
+                    $down_button.removeAttr('disabled');
+                }
+            } else { // $available list
                 $add_button.removeAttr('disabled');
                 $rem_button.attr('disabled', 'disabled');
                 $up_button.attr('disabled', 'disabled');
@@ -306,11 +321,17 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
 
         var chosenCount = $chosen.find('li').size();
 
-        if (chosenCount == 0) { $remall_button.attr('disabled', 'disabled');
-        } else                { $remall_button.removeAttr('disabled'); }
+        if (chosenCount === 0) {
+            $remall_button.attr('disabled', 'disabled');
+        } else {
+            $remall_button.removeAttr('disabled');
+        }
 
-        if (($available.find('li').size() - chosenCount) == 0) { $addall_button.attr('disabled', 'disabled');
-        } else                                                 { $addall_button.removeAttr('disabled'); }
+        if (($available.find('li').size() - chosenCount) === 0) {
+            $addall_button.attr('disabled', 'disabled');
+        } else {
+            $addall_button.removeAttr('disabled');
+        }
     }
 
     function refreshWidget($sel) {
@@ -330,8 +351,8 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
         $available.find('li').each(function() {
             var name = $(this).attr('name');
 
-            if ($chosen.find('li[name="' + name + '"]').size() == 0) {
-                addChosenLi($(this).html(), name); // not "$(this).text()" (xss)
+            if ($chosen.find('li[name="' + name + '"]').size() === 0) {
+                addChosenLi($(this).html(), name);  // not "$(this).text()" (xss)
                 $(this).hide();
             }
         });
@@ -422,9 +443,10 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
 
     $div.append($store).append($layout);
 
-    //Set the same dimensions for the 2 columns
+    // Set the same dimensions for the 2 columns
     var height = Math.max($available.height() + $chosen.height(), $buttons.height());
-    if (height != 0) { //TODO: Problem with inner popups (computed dimensions are always 0) ....
+
+    if (height !== 0) { // TODO: Problem with inner popups (computed dimensions are always 0) ....
         $chosen.height(height);
         $available.height(height);
 
@@ -436,8 +458,9 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
         $available.css('min-height', 200);
     }
 
-    if (reduced === true)
+    if (reduced === true) {
         toggleRow();
+    }
 };
 
 creme.forms.toOrderedMultiSelect = function(table_id, reduced) {
@@ -447,18 +470,18 @@ creme.forms.toOrderedMultiSelect = function(table_id, reduced) {
         $table.find('tr').each(function(i) {
             var $this   = $(this);
             var checked = $this.find('.oms_check').is(':checked');
-            var label   = $this.find('.oms_value').html(); // not ".text()" (can cause xss)
+            var label   = $this.find('.oms_value').html();  // not ".text()" (can cause xss)
             var li_name = 'oms_row_' + i;
 
-            if (checked == true) {
+            if (checked === true) {
                 addAvailableLi(label, li_name, true);
-                selected_tmp.push([$this.find('.oms_order').attr('value'), label, li_name]); //[order, label, name]
+                selected_tmp.push([$this.find('.oms_order').attr('value'), label, li_name]);  // [order, label, name]
             } else {
                 addAvailableLi(label, li_name, false);
             }
         });
 
-        selected_tmp.sort(function(a, b) { return a[0] - b[0]; }); //sort by order value
+        selected_tmp.sort(function(a, b) { return a[0] - b[0]; });  // sort by order value
 
         for (var i = 0; i < selected_tmp.length; ++i) {
             addChosenLi(selected_tmp[i][1], selected_tmp[i][2]);
@@ -476,7 +499,7 @@ creme.forms.toOrderedMultiSelect = function(table_id, reduced) {
             var $this = $(this);
             var order = chosenMap[$this.attr('name')];
 
-            if (order != undefined) {
+            if (order !== undefined) {
                 $this.find('.oms_check').prop('checked', true);
                 $this.find('.oms_order').attr('value', order);
             } else {
@@ -513,25 +536,40 @@ creme.forms.toImportField = function(table_id) {
     $csv_select.change(handleColChange);
 };
 
-creme.forms.initialize = function(form)
-{
-    if (form.is(':not(.is-form-active)'))
-    {
-        form.addClass('.is-form-active');
+// TODO : create a real form controller with better lifecycle (not just a css class) and
+//        factorize some code with creme.dialog.FormDialog for html5 validation.
+creme.forms.initialize = function(form) {
+    if (form.is(':not(.is-form-active)')) {
+        form.addClass('is-form-active');
 
-        form.onFirst('submit', function() {
-            var html5Valid = Object.isFunc(this.checkValidity) ? this.checkValidity() : true;
-            var jqueryValid = Object.isFunc(this.valid) ? this.valid() : true;
+        // HACK : By default the browser aligns the page to the top position of the invalid HTML5 field.
+        //        and it will be hidden by the fixed header menu.
+        //        This listener will force browser to scroll from the BOTTOM (false argument) and "solve" the problem.
+        $('input,select,textarea', form).on('invalid', function(e) {
+            this.scrollIntoView(false);
+            $(e.target).addClass('is-field-invalid');
+        });
 
-            if (html5Valid && jqueryValid)
-            {
-                // When the submit button/input of a form is named "submit",
-                // the native function "submit()" of <form> element is replaced by the <input> element and will cause a crash.
-                // HACK : call directly the native function extracted from a newly created empty <form> element.
-                document.createElement('form').submit.call(this);
-                $("[type=submit]").prop("disabled", true);
-                return false;
+        // HACK : Prevent multiple submit and also preserve <button type="submit" value="..."/> behaviour in wizards.
+        form.on('click', '[type="submit"]', function(e) {
+            var button = $(this);
+
+            // A submit input/button can force deactivation of html5 validation.
+            if (button.is('[data-no-validate]')) {
+                form.attr('novalidate', 'novalidate');
             }
+
+            var isHtml5Valid = Object.isEmpty(form.validateHTML5());
+
+            if (isHtml5Valid === true) {
+                if (button.is(':not(.is-form-submit)')) {
+                    button.addClass('is-form-submit');
+                } else {
+                    e.preventDefault();
+                }
+            }
+        }).submit(function() {
+            form.find('[type="submit"]').addClass('is-form-submit');
         });
 
         creme.utils.scrollTo($('.errorlist:first, .non_field_errors', form));

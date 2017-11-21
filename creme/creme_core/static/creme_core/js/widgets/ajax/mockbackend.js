@@ -93,9 +93,10 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
     submit: function(form, on_success, on_error, options) {
         options = options || {};
         var action = options.action || form.attr('action');
+        var data = creme.ajax.serializeFormAsDict(form, options.data);
 
         this.counts.SUBMIT += 1;
-        return this.send(action, form, this.POST, on_success, on_error, options);
+        return this.send(action, data, this.POST, on_success, on_error, options);
     },
 
     response: function(status, data, header) {

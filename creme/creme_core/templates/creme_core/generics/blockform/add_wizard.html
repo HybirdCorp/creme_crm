@@ -93,9 +93,9 @@
 
                 <div class="submit_buttons">
                     {% if steps.prev %}
-                        <button name="wizard_goto_step" type="submit" value="{{steps.first}}">{% trans 'First step' %}</button>
+                        <button name="wizard_goto_step" type="submit" value="{{steps.first}}" data-no-validate>{% trans 'First step' %}</button>
                         {% if steps.count > 2 %}
-                            <button name="wizard_goto_step" type="submit" value="{{steps.prev}}">{% trans 'Previous step' %}</button>
+                            <button name="wizard_goto_step" type="submit" value="{{steps.prev}}" data-no-validate>{% trans 'Previous step' %}</button>
                         {% endif %}
                     {% endif %}
                     <input type="submit" name="submit" value="{% if steps.current != steps.last %}{% trans 'Next step' %}{% else %}{{submit_label|default:_('Save')}}{% endif %}" />

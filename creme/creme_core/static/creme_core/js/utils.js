@@ -268,10 +268,11 @@ creme.utils.handleDialogSubmit = function(dialog) {
 };
 
 creme.utils.scrollTo = function(element) {
-    var position = $(element).position();
+    if (Object.isNone(element) === false) {
+        var outer_height = $('.header-menu').outerHeight();
+        var position = $.extend({left: 0, top: 0}, $(element).position());
 
-    if (Object.isNone(position) === false) {
-        scrollTo(position.left, position.top);
+        scrollTo(position.left, position.top + outer_height);
     }
 };
 
