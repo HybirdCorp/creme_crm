@@ -62,6 +62,7 @@ def widget_render_hidden_input(widget, name, value, context):
 
 
 def widget_render_context(typename, attrs, css='', **kwargs):
+    # TODO: other atts are not used ?! (eg: ColorPickerWidget which only passes 'attrs' to widget_render_context())
     id   = attrs.get('id')
     auto = attrs.pop('auto', True)
     css = ' '.join((css, 'ui-creme-widget widget-auto' if auto else 'ui-creme-widget', typename)).strip()
