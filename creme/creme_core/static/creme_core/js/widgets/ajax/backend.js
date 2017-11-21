@@ -133,6 +133,32 @@ creme.ajax.cookieCSRF = function() {
     return creme.ajax.cookieAttr('csrftoken');
 };
 
+creme.ajax.serializeFormAsDict = function(form, extraData) {
+    extraData = extraData || {};
+    var data = {};
+    var addEntry = function(data, key, value) {
+        if (!Object.isEmpty(key) && !Object.isNone(value)) {
+            if (data[key] === undefined) {
+                data[key] = Array.isArray(value) ? value : [value];
+            } else if (Array.isArray(value)) {
+                data[key].extend(value);
+            } else {
+                data[key].push(value);
+            }
+        }
+    };
+
+    $(form).serializeArray().forEach(function(e) {
+        addEntry(data, e.name, e.value);
+    });
+
+    for (var key in extraData) {
+        addEntry(data, key, extraData[key]);
+    }
+
+    return data;
+};
+
 creme.ajax.jqueryFormSubmit = function(form, success_cb, error_cb, options) {
     options = options || {};
 

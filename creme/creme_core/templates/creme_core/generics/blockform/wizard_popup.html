@@ -78,10 +78,10 @@
             <div class="submit_buttons">
                 {% if steps.prev %}
                     {% if steps.count > 2 %}
-                        <button name="wizard_goto_step" type="submit" value="{{steps.first}}" class="ui-creme-dialog-action">{{first_label|default:_('First step')}}</button>
-                        <button name="wizard_goto_step" type="submit" value="{{steps.prev}}" class="ui-creme-dialog-action">{{prev_label|default:_('Previous step')}}</button>
+                        <button name="wizard_goto_step" type="submit" value="{{steps.first}}" class="ui-creme-dialog-action" data-no-validate>{{first_label|default:_('First step')}}</button>
+                        <button name="wizard_goto_step" type="submit" value="{{steps.prev}}" class="ui-creme-dialog-action" data-no-validate>{{prev_label|default:_('Previous step')}}</button>
                     {% else %}
-                        <button name="wizard_goto_step" type="submit" value="{{steps.prev}}" class="ui-creme-dialog-action" data-dialog-action-order="-1">{{prev_label|default:_('Previous step')}}</button>
+                        <button name="wizard_goto_step" type="submit" value="{{steps.prev}}" class="ui-creme-dialog-action" data-no-validate data-dialog-action-order="-1">{{prev_label|default:_('Previous step')}}</button>
                     {% endif %}
                 {% endif %}
                 <input type="submit" name="send" class="ui-creme-dialog-action" value="{% if steps.current != steps.last %}{{submit_label|default:_('Next step')}}{% else %}{{submit_label|default:_('Save')}}{% endif %}" />

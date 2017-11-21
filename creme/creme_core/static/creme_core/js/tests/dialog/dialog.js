@@ -11,46 +11,55 @@ var MOCK_FRAME_CONTENT_ACTION = '<div class="mock-content">' +
                                     '<a class="ui-creme-dialog-action" href="/mock/action/3">Action 3</a>' +
                                 '</div>';
 
-var MOCK_FRAME_CONTENT_FORM = '<form action="mock/submit">'
-                                   '<input type="text" id="firstname"></input>' +
-                                   '<input type="text" id="lastname"></input>' +
+var MOCK_FRAME_CONTENT_FORM = '<form action="mock/submit">' +
+                                   '<input type="text" name="firstname"></input>' +
+                                   '<input type="text" name="lastname" required></input>' +
                                    '<input type="submit" class="ui-creme-dialog-action"></input>' +
                                '</form>';
-var MOCK_FRAME_CONTENT_FORM_BUTTON = '<form action="mock/submit">'
-                                         '<input type="text" id="firstname"></input>' +
-                                         '<input type="text" id="lastname"></input>' +
+var MOCK_FRAME_CONTENT_FORM_REQUIRED = '<form action="mock/submit">' +
+                                           '<input type="text" name="firstname" required></input>' +
+                                           '<input type="text" name="lastname" required></input>' +
+                                           '<input type="submit" class="ui-creme-dialog-action"></input>' +
+                                       '</form>';
+var MOCK_FRAME_CONTENT_FORM_BUTTON = '<form action="mock/submit/button">' +
+                                         '<input type="text" name="firstname"></input>' +
+                                         '<input type="text" name="lastname" required></input>' +
                                          '<button type="submit" class="ui-creme-dialog-action"></button>' +
                                      '</form>';
 
-var MOCK_FRAME_CONTENT_FORM_MULTI = '<form action="mock/submit">' +
-                                        '<input type="text" id="firstname"></input>' +
-                                        '<input type="text" id="lastname"></input>' +
+var MOCK_FRAME_CONTENT_FORM_MULTI = '<form action="mock/submit/multi">' +
+                                        '<input type="text" name="firstname"></input>' +
+                                        '<input type="text" name="lastname" required></input>' +
                                         '<input type="submit" value="Submit !"></input>' +
                                         '<input class="ui-creme-dialog-action" type="submit" value="Button A"></input>' +
-                                        '<button class="ui-creme-dialog-action" type="submit">Button B</button>' +
+                                        '<button class="ui-creme-dialog-action" type="submit" value="bbb">Button B</button>' +
                                         '<input class="ui-creme-dialog-action" type="submit" name="send-c" value="Button C"></input>' +
                                         '<button class="ui-creme-dialog-action" type="submit" name="button-d">Button D</button>' +
+                                        '<button class="ui-creme-dialog-action" type="submit" name="button-e" value="eee">Button E</button>' +
                                    '</form>';
 
-var MOCK_FRAME_CONTENT_FORM_MULTI_UNNAMED = '<form action="mock/submit">' +
+var MOCK_FRAME_CONTENT_FORM_MULTI_UNNAMED = '<form action="mock/submit/multi">' +
                                                 '<input type="text" id="firstname"></input>' +
-                                                '<input type="text" id="lastname"></input>' +
+                                                '<input type="text" id="lastname" required></input>' +
                                                 '<input type="submit" class="ui-creme-dialog-action"></input>' +
                                                 '<input type="submit" class="ui-creme-dialog-action"></input>' +
                                                 '<button class="ui-creme-dialog-action" type="submit"></button>' +
                                                 '<button class="ui-creme-dialog-action" type="submit"></button>' +
                                             '</form>';
 
-var MOCK_FRAME_CONTENT_SUBMIT_JSON = '<json>' + $.toJSON({value:1, added:[1, 'John Doe']}) + '</json>';
-var MOCK_FRAME_CONTENT_SUBMIT_JSON_NOTAG = $.toJSON({value:1, added:[1, 'John Doe']});
-var MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID = '<json>' + '{"value":1, added:[1, "John Doe"}' + '</json>';
+var MOCK_FRAME_CONTENT_SUBMIT_JSON = '<json>' + $.toJSON({value: 1, added: [1, 'John Doe']}) + '</json>';
+// var MOCK_FRAME_CONTENT_SUBMIT_JSON_NOTAG = $.toJSON({value:1, added:[1, 'John Doe']});
+// var MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID = '<json>' + '{"value":1, added:[1, "John Doe"}' + '</json>';
 
 QUnit.module("creme.dialog.js", {
     setup: function() {
+        this.resetMockBackendCalls();
+        this.resetMockCalls();
+
         var MockFrame = function(backend) {
             return $.extend({}, creme.widget.Frame, {
                 options: {
-                    url:'',
+                    url: '',
                     backend: backend,
                     overlay_delay: 100
                 }
@@ -58,54 +67,97 @@ QUnit.module("creme.dialog.js", {
         };
 
         var self = this;
-        this.backend = new creme.ajax.MockAjaxBackend({delay:150, sync:true});
-        $.extend(this.backend.GET, {'mock/html': this.backend.response(200, MOCK_FRAME_CONTENT),
-                                    'mock/html2': this.backend.response(200, MOCK_FRAME_CONTENT_LIST),
-                                    'mock/widget': this.backend.response(200, MOCK_FRAME_CONTENT_WIDGET),
-                                    'mock/submit': this.backend.response(200, MOCK_FRAME_CONTENT_FORM),
-                                    'mock/submit/button': this.backend.response(200, MOCK_FRAME_CONTENT_FORM_BUTTON),
-                                    'mock/submit/multi': this.backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI),
-                                    'mock/submit/multi/unnamed': this.backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI_UNNAMED),
-                                    'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
-                                    'mock/error': this.backend.response(500, 'HTTP - Error 500'),
-                                    'mock/custom': function(url, data, options) {
-                                        return self._custom_GET(url, data, options);
-                                     }});
+        var backend = this.backend = new creme.ajax.MockAjaxBackend({delay: 150, sync: true});
 
-        $.extend(this.backend.POST, {'mock/submit/json': this.backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON),
-                                     'mock/submit': this.backend.response(200, MOCK_FRAME_CONTENT_FORM),
-                                     'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
-                                     'mock/error': this.backend.response(500, 'HTTP - Error 500')});
+        var __mockBackendCall = function(method, aux) {
+            return function(url, data, options) {
+                self._backendCalls.push([url, method, data, options]);
+                return aux(url, data, options);
+            };
+        };
+
+        var __mockResponseHtml = function(method, content) {
+            return __mockBackendCall(method, function(url, data, options) {
+                return backend.response(200, content);
+            });
+        };
+
+        $.extend(this.backend.GET, {
+            'mock/html': __mockResponseHtml('GET', MOCK_FRAME_CONTENT),
+            'mock/html2': __mockResponseHtml('GET', MOCK_FRAME_CONTENT_LIST),
+            'mock/widget': __mockResponseHtml('GET', MOCK_FRAME_CONTENT_WIDGET),
+            'mock/submit': __mockResponseHtml('GET', MOCK_FRAME_CONTENT_FORM),
+            'mock/submit/button': __mockResponseHtml('GET', MOCK_FRAME_CONTENT_FORM_BUTTON),
+            'mock/submit/required': __mockResponseHtml('GET', MOCK_FRAME_CONTENT_FORM_REQUIRED),
+            'mock/submit/multi': __mockResponseHtml('GET', MOCK_FRAME_CONTENT_FORM_MULTI),
+            'mock/submit/multi/unnamed': __mockResponseHtml('GET', MOCK_FRAME_CONTENT_FORM_MULTI_UNNAMED),
+            'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
+            'mock/error': this.backend.response(500, 'HTTP - Error 500'),
+            'mock/custom': __mockBackendCall('GET', function(url, data, options) {
+                return self._custom_GET(url, data, options);
+             })
+        });
+
+        $.extend(this.backend.POST, {
+            'mock/submit/json': __mockResponseHtml('POST', MOCK_FRAME_CONTENT_SUBMIT_JSON),
+            'mock/submit': __mockResponseHtml('POST', MOCK_FRAME_CONTENT_FORM),
+            'mock/submit/required': __mockResponseHtml('POST', MOCK_FRAME_CONTENT_FORM_REQUIRED),
+            'mock/submit/button': __mockResponseHtml('POST', MOCK_FRAME_CONTENT_FORM_BUTTON),
+            'mock/submit/multi': __mockResponseHtml('POST', MOCK_FRAME_CONTENT_FORM_MULTI),
+            'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
+            'mock/error': this.backend.response(500, 'HTTP - Error 500')
+        });
 
         creme.widget.unregister('ui-creme-frame');
         creme.widget.declare('ui-creme-frame', new MockFrame(this.backend));
-
-        this.resetMockCalls();
     },
 
     teardown: function() {
+        $('.ui-dialog-content').dialog('destroy');
+        creme.widget.shutdown($('body'));
     },
 
     _custom_GET: function(url, data, options) {
-        return this.backend.response(200, '<div>' + $.toJSON({url: url, method: 'GET', data: data}) + '</div>');
+        return '<div>' + $.toJSON({url: url, method: 'GET', data: data}) + '</div>';
     },
 
-    resetMockCalls: function() {
+    mockBackendCalls: function() {
+        return this._backendCalls;
+    },
+
+    mockBackendUrlCalls: function(url) {
+        return this._backendCalls.filter(function(e) {
+            return e[0] === url;
+        }).map(function(e) {
+            var method = e[1], data = e[2];
+            data = (data instanceof jQuery) ? data.html() : data;
+            return [method, data];
+        });
+    },
+
+    resetMockBackendCalls: function() {
+        this._backendCalls = [];
+    },
+
+    resetMockCalls: function() {
         this._eventListenerCalls = {};
     },
 
     mockListenerCalls: function(name) {
-        if (this._eventListenerCalls[name] === undefined)
+        if (this._eventListenerCalls[name] === undefined) {
             this._eventListenerCalls[name] = [];
+        }
 
         return this._eventListenerCalls[name];
     },
 
     mockListener: function(name) {
         var self = this;
-        return (function(name) {return function() {
-            self.mockListenerCalls(name).push(Array.copy(arguments));
-        }})(name);
+        return (function(name) {
+            return function() {
+                self.mockListenerCalls(name).push(Array.copy(arguments));
+            };
+        })(name);
     },
 
     assertRaises: function(block, expected, message) {
@@ -144,10 +196,12 @@ QUnit.test('creme.dialog.SelectionDialog (default)', function(assert) {
 });
 
 QUnit.test('creme.dialog.SelectionDialog (selector)', function(assert) {
-    var selector = function() {return $('option[value="2"]', this.content()).html();};
+    var selector = function() {
+        return $('option[value="2"]', this.content()).html();
+    };
     var dialog = new creme.dialog.SelectionDialog();
     dialog.fill('<option value="1">a</option><option value="2">b</option>')
-          .selector(selector)
+          .selector(selector);
 
     dialog.onOk(this.mockListener('ok'));
     dialog.onClose(this.mockListener('close'));
@@ -172,8 +226,12 @@ QUnit.test('creme.dialog.SelectionDialog (selector)', function(assert) {
 });
 
 QUnit.test('creme.dialog.SelectionDialog (validator)', function(assert) {
-    var selector = function() {return $('select', this.content()).val();};
-    var validator = function(data) {return data != null && data.length > 0;}
+    var selector = function() {
+        return $('select', this.content()).val();
+    };
+    var validator = function(data) {
+        return data !== null && data.length > 0;
+    };
     var dialog = new creme.dialog.SelectionDialog();
 
     dialog.fill('<select multiple><option value="1">a</option><option value="2">b</option></select>')
@@ -414,7 +472,7 @@ QUnit.test('creme.dialog.Dialog (center)', function(assert) {
     var top = dialog.cssPosition().top + 10;
 
     dialog.center({top: top});
-    deepEqual({my: 'center top', at: 'center top+'+top, of: window}, dialog.position());
+    deepEqual({my: 'center top', at: 'center top+' + top, of: window}, dialog.position());
 
     dialog.close();
 });
@@ -425,7 +483,7 @@ QUnit.test('creme.dialog.Dialog (scroll)', function(assert) {
 
     dialog.open();
 
-    equal(false, dialog._dialogBackground().is('.ui-dialog-scrollbackground'))
+    equal(false, dialog._dialogBackground().is('.ui-dialog-scrollbackground'));
     equal(true, dialog.dialog().css('overflow-y') !== 'hidden');
 
     dialog.close();
@@ -435,16 +493,16 @@ QUnit.test('creme.dialog.Dialog (scroll)', function(assert) {
 
     dialog.open();
 
-    equal(true, dialog._dialogBackground().is('.ui-dialog-scrollbackground'))
-    equal('hidden', dialog.dialog().css('overflow-y'))
+    equal(true, dialog._dialogBackground().is('.ui-dialog-scrollbackground'));
+    equal('hidden', dialog.dialog().css('overflow-y'));
 
     dialog.close();
 
-    equal(false, dialog._dialogBackground().is('.ui-dialog-scrollbackground'))
+    equal(false, dialog._dialogBackground().is('.ui-dialog-scrollbackground'));
 
     dialog.open({scroll: 'frame'});
 
-    equal(false, dialog._dialogBackground().is('.ui-dialog-scrollbackground'))
+    equal(false, dialog._dialogBackground().is('.ui-dialog-scrollbackground'));
     equal(true, dialog.dialog().css('overflow-y') !== 'hidden');
 
     dialog.close();
@@ -547,7 +605,7 @@ QUnit.test('creme.dialog.Dialog.fitToFrameSize (closed dialog)', function(assert
 });
 
 QUnit.test('creme.dialog.FormDialog (default validator)', function(assert) {
-    var options = $.extend({compatible: false}, options || {});
+    var options = {compatible: false};
     var dialog = new creme.dialog.FormDialog(options);
 
     equal(dialog._defaultValidator, dialog.validator());
@@ -559,7 +617,7 @@ QUnit.test('creme.dialog.FormDialog (default validator)', function(assert) {
 });
 
 QUnit.test('creme.dialog.FormDialog (compatible validator)', function(assert) {
-    var options = $.extend({compatible: true}, options || {});
+    var options = {compatible: true};
     var dialog = new creme.dialog.FormDialog(options);
 
     equal(dialog._compatibleValidator, dialog.validator());
@@ -576,6 +634,32 @@ QUnit.test('creme.dialog.FormDialog (compatible validator)', function(assert) {
     equal(true, dialog._validate('<div closing="true" class="in-popup"><form></form></div>', 'success', 'text/html'));
 
     equal(true, dialog._validate('"<div><form></form></div>"', 'success', 'text/json'));
+});
+
+QUnit.test('creme.dialog.FormDialog (custom validator)', function(assert) {
+    var validateAll = function() {
+        return true;
+    };
+    var options = {validator: validateAll};
+    var dialog = new creme.dialog.FormDialog(options);
+
+    equal(validateAll, dialog.validator());
+    equal(true, dialog._validate('', 'success', 'text/html'));
+    equal(true, dialog._validate('<div></div>', 'success', 'text/html'));
+    equal(true, dialog._validate('<div><form></form></div>', 'success', 'text/html'));
+    equal(true, dialog._validate('"<div><form></form></div>"', 'success', 'text/json'));
+});
+
+QUnit.test('creme.dialog.FormDialog (invalid validator)', function(assert) {
+    var options = {validator: 'string'};
+    var dialog = new creme.dialog.FormDialog(options);
+
+    // if not a function, use default validator.
+    equal(dialog._defaultValidator, dialog.validator());
+
+    this.assertRaises(function() {
+        dialog.validator('string');
+    }, Error, 'Error: validator is not a function');
 });
 
 QUnit.test('creme.dialog.FormDialog (default button, empty form)', function(assert) {
@@ -604,6 +688,19 @@ QUnit.test('creme.dialog.FormDialog (default button, unamed submit input)', func
     dialog.close();
 });
 
+QUnit.test('creme.dialog.FormDialog (default button, unamed submit input + click cancel)', function(assert) {
+    var dialog = new creme.dialog.FormDialog({url: 'mock/submit', backend: this.backend});
+
+    dialog.open();
+
+    equal(2, dialog.buttons().find('button').length);
+    equal(gettext('Save'), dialog.button('send').text());
+    equal(gettext('Cancel'), dialog.button('cancel').text());
+
+    dialog.button('cancel').click();
+    equal(false, dialog.isOpened());
+});
+
 QUnit.test('creme.dialog.FormDialog (default button, unamed submit button)', function(assert) {
     var dialog = new creme.dialog.FormDialog({url: 'mock/submit/button', backend: this.backend});
 
@@ -624,8 +721,8 @@ QUnit.test('creme.dialog.FormDialog (default button, multiple unamed submit)', f
     equal(4, dialog.buttons().find('button').length);
 
     equal(gettext('Save'), dialog.button('send').text());
-    equal(gettext('Button'), dialog.button('button').text());
-    equal(gettext('Button'), dialog.button('button-1').text());
+    equal(gettext('Save'), dialog.button('send-1').text());
+    equal(gettext('Save'), dialog.button('send-2').text());
     equal(gettext('Cancel'), dialog.button('cancel').text());
 
     dialog.close();
@@ -636,12 +733,325 @@ QUnit.test('creme.dialog.FormDialog (multiple submit input/buttons)', function(a
 
     dialog.open();
 
-    equal(5, dialog.buttons().find('button').length);
+    equal(6, dialog.buttons().find('button').length);
     equal(gettext('Cancel'), dialog.button('cancel').text());
+
     equal('Button A', dialog.button('send').text());
-    equal('Button B', dialog.button('button').text());
-    equal('Button C', dialog.button('send-c').text());
-    equal('Button D', dialog.button('button-d').text());
+    equal('Button B', dialog.button('send-bbb').text());   // unamed button with value "bbb"
+    equal('Button C', dialog.button('send-c').text());     // input named "button-c"
+    equal('Button D', dialog.button('button-d').text());   // button named "button-d"
+    equal('Button E', dialog.button('button-e').text());   // button named "button-e" with value "eee"
 
     dialog.close();
+});
+
+QUnit.test('creme.dialog.FormDialog (submit)', function(assert) {
+    var dialog = new creme.dialog.FormDialog({url: 'mock/submit/button', backend: this.backend});
+
+    dialog.open();
+
+    equal(2, dialog.buttons().find('button').length);
+    equal(gettext('Save'), dialog.button('send').text());
+    equal(gettext('Cancel'), dialog.button('cancel').text());
+
+    dialog.form().find('[name="firstname"]').val('John');
+    dialog.form().find('[name="lastname"]').val('Doe');
+
+    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    equal(false, dialog.form().find('[name="lastname"]').is(':invalid'));
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/submit/button'));
+
+    dialog.submit();
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {
+            firstname: ['John'],
+            lastname: ['Doe']
+        }]
+    ], this.mockBackendUrlCalls('mock/submit/button'));
+});
+
+QUnit.test('creme.dialog.FormDialog (submit lastname required)', function(assert) {
+    var dialog = new creme.dialog.FormDialog({url: 'mock/submit/button', backend: this.backend});
+
+    dialog.open();
+
+    equal(2, dialog.buttons().find('button').length);
+    equal(gettext('Save'), dialog.button('send').text());
+    equal(gettext('Cancel'), dialog.button('cancel').text());
+
+    dialog.form().find('[name="firstname"]').val('John');
+
+    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    equal(false, dialog.form().find('[name="firstname"]').is('.is-field-invalid'));
+
+    equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
+    equal(false, dialog.form().find('[name="lastname"]').is('.is-field-invalid'));
+
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/submit/button'));
+
+    dialog.submit();
+
+    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    equal(false, dialog.form().find('[name="firstname"]').is('.is-field-invalid'));
+
+    equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
+    equal(true, dialog.form().find('[name="lastname"]').is('.is-field-invalid'));
+
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/submit/button'));
+});
+
+QUnit.test('creme.dialog.FormDialog (submit all required)', function(assert) {
+    var dialog = new creme.dialog.FormDialog({url: 'mock/submit/required', backend: this.backend});
+
+    dialog.open();
+
+    equal(2, dialog.buttons().find('button').length);
+    equal(gettext('Save'), dialog.button('send').text());
+    equal(gettext('Cancel'), dialog.button('cancel').text());
+
+    dialog.form().find('[name="firstname"]').val('John');
+
+    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    equal(false, dialog.form().find('[name="firstname"]').is('.is-field-invalid'));
+
+    equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
+    equal(false, dialog.form().find('[name="lastname"]').is('.is-field-invalid'));
+
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/submit/required'));
+
+    dialog.submit();
+
+    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    equal(false, dialog.form().find('[name="firstname"]').is('.is-field-invalid'));
+
+    equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
+    equal(true, dialog.form().find('[name="lastname"]').is('.is-field-invalid'));
+
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/submit/required'));
+
+    dialog.form().find('[name="firstname"]').val('');
+    dialog.form().find('[name="lastname"]').val('Doe');
+
+    dialog.submit();
+
+    equal(true, dialog.form().find('[name="firstname"]').is(':invalid'));
+    equal(true, dialog.form().find('[name="firstname"]').is('.is-field-invalid'));
+
+    equal(false, dialog.form().find('[name="lastname"]').is(':invalid'));
+    equal(false, dialog.form().find('[name="lastname"]').is('.is-field-invalid'));
+
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/submit/required'));
+});
+
+QUnit.test('creme.dialog.FormDialog (submit + form[novalidate])', function(assert) {
+    var dialog = new creme.dialog.FormDialog({url: 'mock/submit/button', backend: this.backend});
+
+    dialog.open();
+
+    equal(2, dialog.buttons().find('button').length);
+    equal(gettext('Save'), dialog.button('send').text());
+    equal(gettext('Cancel'), dialog.button('cancel').text());
+
+    dialog.form().attr('novalidate', 'novalidate');
+
+    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/submit/button'));
+
+    dialog.submit();
+
+    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    equal(false, dialog.form().find('[name="firstname"]').is('.is-field-invalid'));
+
+    equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
+    equal(false, dialog.form().find('[name="lastname"]').is('.is-field-invalid'));
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {
+            firstname: [''],
+            lastname: ['']
+        }]
+    ], this.mockBackendUrlCalls('mock/submit/button'));
+});
+
+
+QUnit.test('creme.dialog.FormDialog (submit + options.noValidate)', function(assert) {
+    var dialog = new creme.dialog.FormDialog({
+        url: 'mock/submit/button',
+        backend: this.backend,
+        noValidate: true
+    });
+
+    dialog.open();
+
+    equal(2, dialog.buttons().find('button').length);
+    equal(gettext('Save'), dialog.button('send').text());
+    equal(gettext('Cancel'), dialog.button('cancel').text());
+
+    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/submit/button'));
+
+    dialog.submit();
+
+    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    equal(false, dialog.form().find('[name="firstname"]').is('.is-field-invalid'));
+
+    equal(true, dialog.form().find('[name="lastname"]').is(':invalid'));
+    equal(false, dialog.form().find('[name="lastname"]').is('.is-field-invalid'));
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {
+            firstname: [''],
+            lastname: ['']
+        }]
+    ], this.mockBackendUrlCalls('mock/submit/button'));
+});
+
+QUnit.test('creme.dialog.FormDialog (submit + extra data)', function(assert) {
+    var dialog = new creme.dialog.FormDialog({
+        url: 'mock/submit/button',
+        backend: this.backend,
+        submitData: {
+            extra: 12,
+            other: 'test'
+        }
+    });
+
+    dialog.open();
+
+    equal(2, dialog.buttons().find('button').length);
+    equal(gettext('Save'), dialog.button('send').text());
+    equal(gettext('Cancel'), dialog.button('cancel').text());
+
+    dialog.form().find('[name="firstname"]').val('John');
+    dialog.form().find('[name="lastname"]').val('Doe');
+
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/submit/button'));
+
+    dialog.submit();
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {
+            firstname: ['John'],
+            lastname: ['Doe'],
+            extra: [12],
+            other: ['test']
+        }]
+    ], this.mockBackendUrlCalls('mock/submit/button'));
+
+    dialog.form().find('[name="firstname"]').val('John');
+    dialog.form().find('[name="lastname"]').val('Doe');
+
+    dialog.submit({}, {
+        extra: 78,
+        custom: true,
+        lastname: 'Toe'
+    });
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {
+            firstname: ['John'],
+            lastname: ['Doe'],
+            extra: [12],
+            other: ['test']
+        }],
+        ['POST', {
+            firstname: ['John'],
+            lastname: ['Doe', 'Toe'],
+            extra: [78],
+            other: ['test'],
+            custom: [true]
+        }]
+    ], this.mockBackendUrlCalls('mock/submit/button'));
+
+});
+
+QUnit.test('creme.dialog.FormDialog (click + submit)', function(assert) {
+    var dialog = new creme.dialog.FormDialog({url: 'mock/submit/button', backend: this.backend});
+
+    dialog.open();
+
+    equal(2, dialog.buttons().find('button').length);
+    equal(gettext('Save'), dialog.button('send').text());
+    equal(gettext('Cancel'), dialog.button('cancel').text());
+
+    dialog.form().find('[name="firstname"]').val('John');
+    dialog.form().find('[name="lastname"]').val('Doe');
+
+    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    equal(false, dialog.form().find('[name="lastname"]').is(':invalid'));
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/submit/button'));
+
+    dialog.button('send').click();
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {
+            firstname: ['John'],
+            lastname: ['Doe'],
+            send: ['']
+        }]
+    ], this.mockBackendUrlCalls('mock/submit/button'));
+});
+
+QUnit.test('creme.dialog.FormDialog (prevent multiple submit click)', function(assert) {
+    var dialog = new creme.dialog.FormDialog({url: 'mock/submit/button', backend: this.backend});
+
+    dialog.open();
+
+    equal(2, dialog.buttons().find('button').length);
+    equal(gettext('Save'), dialog.button('send').text());
+    equal(gettext('Cancel'), dialog.button('cancel').text());
+
+    dialog.form().find('[name="firstname"]').val('John');
+    dialog.form().find('[name="lastname"]').val('Doe');
+
+    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    equal(false, dialog.form().find('[name="lastname"]').is(':invalid'));
+    equal(false, dialog.button('send').is('.ui-state-disabled'));
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/submit/button'));
+
+    dialog.button('send').click();
+    dialog.button('send').click();
+    dialog.button('send').click();
+    dialog.button('send').click();
+    dialog.button('send').click();
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {
+            firstname: ['John'],
+            lastname: ['Doe'],
+            send: ['']
+        }]
+    ], this.mockBackendUrlCalls('mock/submit/button'));
 });

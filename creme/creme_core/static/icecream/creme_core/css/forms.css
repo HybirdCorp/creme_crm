@@ -63,8 +63,16 @@ select,
 textarea {
     border-radius: 0;
     border: 1px solid #a9a9a9;
-
     background: white;
+}
+
+.is-field-invalid {
+    box-shadow: 0px 0px 4px #cd0a0a;
+    border: 1px solid #cd0a0a !important;
+}
+
+button.is-form-submit, input.is-form-submit {
+    color: grey;
 }
 
 /*
@@ -109,10 +117,12 @@ input[type="text"]:invalid,
 input[type="password"]:invalid,
 input[type="number"]:invalid,
 */
+/*
 input:invalid,
 textarea:invalid {
     border: 1px solid #ff0000;
 }
+*/
 
 ul.radio_select, ul.multi-select {
     list-style-type: none;

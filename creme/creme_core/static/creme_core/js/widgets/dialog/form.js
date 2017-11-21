@@ -32,7 +32,8 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         options = $.extend({
             autoFocus: true,
             submitOnKey: 13,
-            submitData: {}
+            submitData: {},
+            noValidate: false
         }, options || {});
 
         this._super_(creme.dialog.Dialog, '_init_', options);
@@ -102,13 +103,40 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         return $.extend({}, submitData, data);
     },
 
+    _validateHTML5: function(form) {
+        var options = this.options;
+        var errors = {};
+
+        if ((options.noValidate || form.is('[novalidate]')) === false) {
+            errors = $(form).validateHTML5();
+        }
+
+        $('.is-field-invalid', form).each(function() {
+            var item = $(this);
+
+            if (errors[item.attr('name')] === undefined) {
+                item.removeClass('is-field-invalid');
+            }
+        });
+
+        for (var name in errors) {
+            $('[name="' + name + '"]', form).addClass('is-field-invalid');
+        }
+
+        return errors;
+    },
+
+    form: function() {
+        return $('form:first', this.content());
+    },
+
     submit: function(options, data, listeners) {
         options = options || {};
 
-        var form = $('form:first', this.content());
-        var html5_errors = $(form).validateHTML5();
+        var form = this.form();
+        var errors = this._validateHTML5(form);
 
-        if (Object.isEmpty(html5_errors) === false) {
+        if (Object.isEmpty(errors) === false) {
             return this;
         }
 
@@ -129,20 +157,22 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
             this._super_(creme.dialog.Dialog, '_onFrameUpdate', event, data, dataType, action);
         }
 
+        var content = this.frame().delegate();
+
         if (this.options.autoFocus) {
-            var autofocus = $('[autofocus]:tabbable:first', this._frame.delegate());
+            var autofocus = $('[autofocus]:tabbable:first', content);
 
             if (autofocus.length > 0) {
                 autofocus.focus();
             } else {
-                $(':tabbable:first', this._frame.delegate()).focus();
+                $(':tabbable:first', content).focus();
             }
         } else {
-            $(':tabbable', this._frame.delegate()).blur();
+            $(':tabbable', content).blur();
         }
 
         if (this.options.submitOnKey) {
-            this.frame().delegate().on('keypress', this._submitKeyCb);
+            content.on('keypress', this._submitKeyCb);
         }
     },
 
@@ -191,6 +221,13 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         var self = this;
         var buttons = {};
         var index = 1;
+        var submitCb = function(button, e, options) {
+            options = $.extend({
+                noValidate: button.is('[novalidate]')
+            }, options || {});
+
+            this.submit(options, options.data);
+        };
 
         $('.ui-creme-dialog-action[type="submit"]', this.content()).each(function() {
             var item  = $(this);
@@ -204,11 +241,7 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
                 name = name || 'send';
                 label = value || gettext('Save');
             } else {
-                if (!Object.isEmpty(name)) {
-                    data[name] = value;
-                } else {
-                    name = 'button';
-                }
+                name = name || 'send';
 
                 if (name in buttons) {
                     if (!Object.isEmpty(value)) {
@@ -219,23 +252,23 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
                     }
                 }
 
-                label = label || gettext('Button');
+                label = label || gettext('Save');
+
+                if (!Object.isNone(value)) {
+                    data[name] = value;
+                }
             }
 
             if (name in buttons) {
                 console.warn('submit button/input "%s" appears multiple times'.format(name));
             } else {
-                self._appendButton(buttons, name, label, function(button, e, options) {
-                                       this.submit(options, options.data);
-                                   },
+                self._appendButton(buttons, name, label, submitCb,
                                    {data: data, order: order});
             }
         }).toggleAttr('disabled', true);
 
         if (Object.isEmpty(buttons)) {
-            this._appendButton(buttons, 'send', gettext('Save'), function(button, e, options) {
-                this.submit();
-            });
+            this._appendButton(buttons, 'send', gettext('Save'), submitCb);
         }
 
         return buttons;

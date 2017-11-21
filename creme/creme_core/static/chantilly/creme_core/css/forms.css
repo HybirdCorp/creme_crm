@@ -51,6 +51,15 @@ textarea {
             border-radius: 4px;
 }
 
+.is-field-invalid {
+    box-shadow: 0px 0px 4px #cd0a0a;
+    border: 1px solid #cd0a0a !important;
+}
+
+button.is-form-submit, input.is-form-submit {
+    color: grey;
+}
+
 /*
 input[type="text"]:disabled, input[type="text"][readonly] {
     border: 0px;
@@ -92,10 +101,12 @@ input[type="number"]:invalid,
 textarea:invalid {
     border: 1px solid #ff0000;
 }*/
+/*
 input:invalid,
 textarea:invalid {
     border: 1px solid #ff0000;
 }
+*/
 
 ul.radio_select, ul.multi-select {
     list-style-type: none;

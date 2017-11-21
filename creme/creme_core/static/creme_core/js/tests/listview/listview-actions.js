@@ -35,12 +35,12 @@ QUnit.module("creme.listview.actions", {
                 return backend.response(200, MOCK_FORM_ADDTO);
             }),
             'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
-            'mock/error': this.backend.response(500, 'HTTP - Error 500'),
+            'mock/error': this.backend.response(500, 'HTTP - Error 500')
         });
 
         $.extend(this.backend.POST, {
             'mock/listview/reload': __mockBackendCall(function(url, data, options) {
-                var content = self._listviewReloadContent[id] || '';
+                var content = self._listviewReloadContent[data.id] || '';
                 return backend.response(Object.isEmpty(content) ? 200 : 404, content);
             }),
             'mock/entity/delete':  __mockBackendCall(function(url, data, options) {
@@ -54,7 +54,9 @@ QUnit.module("creme.listview.actions", {
 
                 return backend.response(400, $.toJSON({
                     count: ids.length,
-                    errors: ids.map(function(id) {return id + ' cannot be deleted';})
+                    errors: ids.map(function(id) {
+                        return id + ' cannot be deleted';
+                    })
                 }));
             }),
             'mock/entity/delete/firstonly': __mockBackendCall(function(url, data, options) {
@@ -62,11 +64,14 @@ QUnit.module("creme.listview.actions", {
 
                 return backend.response(400, $.toJSON({
                     count: ids.length,
-                    errors: ids.slice(1).map(function(id) {return id + ' cannot be deleted';})
+                    errors: ids.slice(1).map(function(id) {
+                        return id + ' cannot be deleted';
+                    })
                 }));
             }),
             'mock/entity/edit': __mockBackendCall(function(url, data, options) {
-                var value = $('input[name="edit"]', data).val();
+                var value = data.edit[0];
+
                 if (Object.isEmpty(value)) {
                     return backend.response(200, MOCK_FORM_EDIT);
                 } else if (value === 'summary') {
@@ -76,12 +81,12 @@ QUnit.module("creme.listview.actions", {
                 }
             }),
             'mock/entity/addto': __mockBackendCall(function(url, data, options) {
-                if (Object.isEmpty($('input[name="addto"]', data).val())) {
+                if (Object.isEmpty(data.addto[0])) {
                     return backend.response(200, MOCK_FORM_ADDTO);
                 } else {
                     return backend.response(200, '');
                 }
-            }),
+            })
         });
 
         creme.ajax.defaultBackend(backend);
@@ -132,27 +137,27 @@ QUnit.module("creme.listview.actions", {
         };
 
         return (
-            '<form class="ui-creme-widget widget-auto ui-creme-listview" widget="ui-creme-listview" multiple>'
-          + '<div class="list-header-container sticky-container sticky-container-standalone"></div>'
-               + '<table id="${id}" class="list_view listview listview-standalone listview-selection-multiple" data-total-count="${rowcount}">'
-                   + '<thead>'
-                       + '<tr><th>${formdata}</th></tr>'
-                       + '<tr class="columns_top">'
-                           + '<th class="choices"><input name="select_all" value="all" type="checkbox" title="Select All"/></th>'
-                           + '<th class="actions">'
-                               + '<ul class="header-actions-list">'
-                                   + '<li class="header-actions-trigger" title="Actions on the selected entities">'
-                                       + '<span>Actions</span>'
-                                       + '<div class="listview-actions-container">${headeractions}</div>'
-                                   + '</li>'
-                               + '</ul>'
-                           + '</th>'
-                           + '${columns}'
-                       + '</tr>'
-                   + '</thead>'
-               + '<tbody>${rows}</tbody>'
-           + '</table>'
-           + '</form>').template({
+            '<form class="ui-creme-widget widget-auto ui-creme-listview" widget="ui-creme-listview" multiple>' +
+            '<div class="list-header-container sticky-container sticky-container-standalone"></div>' +
+                 '<table id="${id}" class="list_view listview listview-standalone listview-selection-multiple" data-total-count="${rowcount}">' +
+                     '<thead>' +
+                         '<tr><th>${formdata}</th></tr>' +
+                         '<tr class="columns_top">' +
+                             '<th class="choices"><input name="select_all" value="all" type="checkbox" title="Select All"/></th>' +
+                             '<th class="actions">' +
+                                 '<ul class="header-actions-list">' +
+                                     '<li class="header-actions-trigger" title="Actions on the selected entities">' +
+                                         '<span>Actions</span>' +
+                                         '<div class="listview-actions-container">${headeractions}</div>' +
+                                     '</li>' +
+                                 '</ul>' +
+                             '</th>' +
+                             '${columns}' +
+                         '</tr>' +
+                     '</thead>' +
+                 '<tbody>${rows}</tbody>' +
+             '</table>' +
+             '</form>').template({
                id: options.id,
                formdata: renderStatus($.extend({}, defaultStatus, options.status)),
                headeractions: options.actions.join(''),
@@ -187,7 +192,7 @@ QUnit.module("creme.listview.actions", {
         var html = this.createListViewHtml(list_options);
         var list = this.createListView(list_options);
 
-        this.setListviewReloadContent(html);
+        this.setListviewReloadContent(list_options.id || 'list', html);
         return list;
     },
 
@@ -249,7 +254,7 @@ QUnit.module("creme.listview.actions", {
         this._redirectCalls = [];
     },
 
-    resetMockCalls: function() {
+    resetMockCalls: function() {
         this._eventListenerCalls = {};
     },
 
@@ -275,12 +280,13 @@ QUnit.module("creme.listview.actions", {
     },
 
     mockListenerCalls: function(name) {
-        if (name == undefined) {
+        if (name === undefined) {
             return $.extend({}, this._eventListenerCalls);
         }
 
-        if (this._eventListenerCalls[name] === undefined)
+        if (this._eventListenerCalls[name] === undefined) {
             this._eventListenerCalls[name] = [];
+        }
 
         return this._eventListenerCalls[name];
     },
@@ -290,14 +296,16 @@ QUnit.module("creme.listview.actions", {
             var event = e[0];
             var data = e.slice(1);
             return Object.isEmpty(data) === false ? [event.type, data] : [event.type];
-        })
+        });
     },
 
     mockListener: function(name) {
         var self = this;
-        return (function(name) {return function() {
-            self.mockListenerCalls(name).push(Array.copy(arguments));
-        }})(name);
+        return (function(name) {
+            return function() {
+                self.mockListenerCalls(name).push(Array.copy(arguments));
+            };
+        })(name);
     },
 
     assertRaises: function(block, expected, message) {
@@ -590,10 +598,8 @@ QUnit.test('creme.listview.AddToSelectedAction (submit fail + cancel)', function
     deepEqual([{ids: ['2', '3'], persist: 'ids'}], this.mockBackendUrlCalls('mock/entity/addto'));
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
-    var formHtml = this.submitFormDialog();
-
     this.assertOpenedDialog();
-    deepEqual([{ids: ['2', '3'], persist: 'ids'}, formHtml], this.mockBackendUrlCalls('mock/entity/addto'));
+    deepEqual([{ids: ['2', '3'], persist: 'ids'}], this.mockBackendUrlCalls('mock/entity/addto'));
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     this.closeDialog();
@@ -622,13 +628,13 @@ QUnit.test('creme.listview.AddToSelectedAction (ok)', function(assert) {
     deepEqual([{ids: ['2', '3'], persist: 'ids'}], this.mockBackendUrlCalls('mock/entity/addto'));
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
-    var formHtml = this.submitFormDialog({
+    this.submitFormDialog({
         addto: 'ok'
     });
 
     this.assertClosedDialog();
 
-    deepEqual([{ids: ['2', '3'], persist: 'ids'}, formHtml], this.mockBackendUrlCalls('mock/entity/addto'));
+    deepEqual([{ids: ['2', '3'], persist: 'ids'}, {addto: ["ok"]}], this.mockBackendUrlCalls('mock/entity/addto'));
     deepEqual([['done']], this.mockListenerCalls('action-done'));
     deepEqual([{
         sort_field: ['regular_field-name'],
@@ -708,12 +714,10 @@ QUnit.test('creme.listview.AddToSelectedAction (submit => form error => close)',
     deepEqual([{}], this.mockBackendUrlCalls('mock/entity/edit'));
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
-    var formHtml = this.submitFormDialog();
-
     this.assertOpenedDialog();
 
     equal(0, $('.ui-dialog .bulk-selection-summary').length);
-    deepEqual([{}, formHtml], this.mockBackendUrlCalls('mock/entity/edit'));
+    deepEqual([{}], this.mockBackendUrlCalls('mock/entity/edit'));
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     this.closeDialog();
@@ -742,14 +746,17 @@ QUnit.test('creme.listview.AddToSelectedAction (submit => partially fail => clos
     deepEqual([{}], this.mockBackendUrlCalls('mock/entity/edit'));
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
-    var formHtml = this.submitFormDialog({
+    this.submitFormDialog({
         edit: 'summary'
     });
 
     this.assertOpenedDialog();
 
     equal(1, $('.ui-dialog .bulk-selection-summary').length);
-    deepEqual([{}, formHtml], this.mockBackendUrlCalls('mock/entity/edit'));
+    deepEqual([{}, {
+        entities: ['2', '3'],
+        edit: ['summary']
+    }], this.mockBackendUrlCalls('mock/entity/edit'));
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     this.closeDialog();
@@ -785,13 +792,16 @@ QUnit.test('creme.listview.EditSelectedAction (ok)', function(assert) {
     deepEqual([{}], this.mockBackendUrlCalls('mock/entity/edit'));
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
-    var formHtml = this.submitFormDialog({
+    this.submitFormDialog({
         edit: 'ok'
     });
 
     this.assertClosedDialog();
 
-    deepEqual([{}, formHtml], this.mockBackendUrlCalls('mock/entity/edit'));
+    deepEqual([{}, {
+        entities: ['2', '3'],
+        edit: ['ok']
+    }], this.mockBackendUrlCalls('mock/entity/edit'));
     deepEqual([['done']], this.mockListenerCalls('action-done'));
     deepEqual([{
         sort_field: ['regular_field-name'],
