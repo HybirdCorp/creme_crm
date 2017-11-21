@@ -29,6 +29,7 @@ from django.http import Http404
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..signals import pre_merge_related
+
 from .base import CremeModel, CremeAbstractEntity
 from .creme_property import CremePropertyType
 from .entity import CremeEntity
@@ -285,25 +286,83 @@ class SemiFixedRelationType(CremeModel):
         return self.predicate
 
 
+# @receiver(pre_merge_related)
+# def _handle_merge(sender, other_entity, **kwargs):
+#     """Delete 'Duplicated' Relations (ie: exist in the removed entity & the
+#     remaining entity).
+#     """
+#     from .history import HistoryLine
+#
+#     # TRICK: We use the related accessor 'relations_where_is_object' instead
+#     # of 'relations' because HistoryLine creates lines for relation with
+#     # types '*-subject_*' (symmetric with types '*-object_*')
+#     # If we'd use 'sender.relations' we should disable/delete
+#     # 'relation.symmetric_relation' that would take an additional query.
+#     relations_info = defaultdict(list)
+#     for rtype_id, entity_id in sender.relations_where_is_object \
+#                                      .values_list('type', 'subject_entity'):
+#         relations_info[rtype_id].append(entity_id)
+#
+#     rel_filter = other_entity.relations_where_is_object.filter
+#     for rtype_id, entity_ids in relations_info.iteritems():
+#         for relation in rel_filter(type=rtype_id, subject_entity__in=entity_ids):
+#             HistoryLine.disable(relation)
+#             relation.delete()
 @receiver(pre_merge_related)
 def _handle_merge(sender, other_entity, **kwargs):
-    """Delete 'Duplicated' Relations (ie: exist in the removed entity & the
-    remaining entity).
+    """The generic creme_core.utils.replace_related_object() cannot correctly
+    handle the Relation model :
+      - we have to keep the uniqueness of (subject, type, object)
+      - replacing the remaining entity as subject/object in the Relations of
+        'other_entity' should not create multiple HistoryLines.
+        (because with the symmetric relationships feature, its tricky).
+
+    So this handler does the job i the right way:
+      - it deletes the 'duplicated' Relations (ie: exist in the removed entity
+        & the remaining entity), without creating HistoryLines at all.
+      - it updates the relationships which reference the removed entity to
+        reference the remaining entity (History is managed by hand).
     """
-    from .history import HistoryLine
+    from .history import HistoryLine, _HLTRelation
 
-    # TRICK: We use the related accessor 'relations_where_is_object' instead
-    # of 'relations' because HistoryLine creates lines for relation with
-    # types '*-subject_*' (symmetric with types '*-object_*')
-    # If we'd use 'sender.relations' we should disable/delete
-    # 'relation.symmetric_relation' that would take an additional query.
-    relations_info = defaultdict(list)
-    for rtype_id, entity_id in sender.relations_where_is_object \
-                                     .values_list('type', 'subject_entity'):
-        relations_info[rtype_id].append(entity_id)
+    # Deletion of duplicates ---------------------------------------------------
 
-    rel_filter = other_entity.relations_where_is_object.filter
-    for rtype_id, entity_ids in relations_info.iteritems():
-        for relation in rel_filter(type=rtype_id, subject_entity__in=entity_ids):
+    # Key#1 => relation-type ID
+    # Key#2 => object_entity ID (linked to at least one of the merged entities)
+    # Value => set of merged entities IDs (so 1 or 2 IDs between [sender.id, other_entity.id])
+    entities_per_rtype_ids = defaultdict(lambda: defaultdict(set))
+
+    for merged_id, rtype_id, object_id in \
+            RelationType.objects.filter(relation__subject_entity__in=(sender.id, other_entity.id)) \
+                                .values_list('relation__subject_entity_id', 'id', 'relation__object_entity_id'):
+        entities_per_rtype_ids[rtype_id][object_id].add(merged_id)
+
+    duplicates_q = Q()
+    for rtype_id, entities_dict in entities_per_rtype_ids.iteritems():
+        for object_id, subject_ids in entities_dict.iteritems():
+            if len(subject_ids) > 1:
+                duplicates_q |= Q(type=rtype_id, object_entity=object_id)
+
+    del entities_per_rtype_ids  # free memory
+
+    if duplicates_q:
+        for relation in other_entity.relations.filter(duplicates_q) \
+                                    .select_related('symmetric_relation'):
+            # NB: HistoryLine.disable() work only on the '-subject_' side of the Relation
+            if '-subject_' not in relation.type_id:
+                relation = relation.symmetric_relation
+
             HistoryLine.disable(relation)
             relation.delete()
+
+    # Replacement of ForeignKeys -----------------------------------------------
+
+    for relation in other_entity.relations.select_related('symmetric_relation'):
+        relation.subject_entity = sender
+        relation.symmetric_relation.object_entity = sender
+        # NB: <created=False> because the function create lines only at edition
+        #     (to ensure the 2 linked Relation instances are created).
+        _HLTRelation.create_lines(relation, created=False)
+
+    other_entity.relations.update(subject_entity=sender)
+    other_entity.relations_where_is_object.update(object_entity=sender)

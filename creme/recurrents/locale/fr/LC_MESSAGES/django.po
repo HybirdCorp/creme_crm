@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Recurrents 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-23 15:28+0100\n"
+"POT-Creation-Date: 2017-11-15 14:28+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -53,7 +53,7 @@ msgstr "Date de la première récurrence"
 
 #: models/recurrentgenerator.py:34
 msgid "Date of the last generation"
-msgstr "Date de la première récurrence"
+msgstr "Date de la dernière récurrence"
 
 #: models/recurrentgenerator.py:35
 msgid "Periodicity of the generation"
@@ -87,19 +87,19 @@ msgstr "Générateur récurrent"
 msgid "Recurrent generators"
 msgstr "Générateurs récurrents"
 
-#: populate.py:41
+#: populate.py:40
 msgid "Generator view"
 msgstr "Vue des générateurs"
 
-#: templates/recurrents/portal.html:3
+#: templates/recurrents/portal.html:4
 msgid "Recurrent doc"
 msgstr "Doc récurrent"
 
-#: templates/recurrents/portal.html:4
+#: templates/recurrents/portal.html:5
 msgid "Recurrent documents portal"
 msgstr "Portail Documents Récurrents"
 
-#: templates/recurrents/portal.html:6
+#: templates/recurrents/portal.html:7
 msgid "List of recurrent generators"
 msgstr "Liste des générateurs récurrents"
 

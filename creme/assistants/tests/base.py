@@ -7,7 +7,7 @@ try:
     from creme.creme_core.tests.fake_models import FakeContact
     from creme.creme_core.creme_jobs import reminder_type
     from creme.creme_core.models import Job
-    from creme.creme_core.models.history import HistoryLine, TYPE_DELETION
+    from creme.creme_core.models.history import HistoryLine, TYPE_DELETION, TYPE_AUX_CREATION
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -22,7 +22,7 @@ class AssistantsTestCase(CremeTestCase):
         self.login()
         self.entity = FakeContact.objects.create(user=self.user, first_name='Ranma', last_name='Saotome')
 
-    def aux_test_merge(self, creator, assertor):
+    def aux_test_merge(self, creator, assertor, moved_count=1):
         user = self.user
         create_contact = partial(FakeContact.objects.create, user=user)
         contact01 = create_contact(first_name='Ryoga', last_name='Hibiki')
@@ -56,7 +56,13 @@ class AssistantsTestCase(CremeTestCase):
         assertor(contact01)
 
         hlines = list(HistoryLine.objects.order_by('id'))
-        self.assertEqual(old_count + 1, len(hlines))  # No edition for 'entity_id'
+        # self.assertEqual(old_count + 1, len(hlines))  # No edition for 'entity_id'
+        self.assertEqual(old_count + 1 + moved_count, len(hlines))  # 1 deletion line + N * TYPE_AUX_CREATION lines
+
+        if moved_count:
+            hline = hlines[-2]
+            self.assertEqual(TYPE_AUX_CREATION, hline.type)
+            self.assertEqual(contact01, hline.entity.get_real_entity())
 
         hline = hlines[-1]
         self.assertEqual(TYPE_DELETION, hline.type)

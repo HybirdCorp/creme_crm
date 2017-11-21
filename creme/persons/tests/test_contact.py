@@ -13,9 +13,9 @@ try:
 
     from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
     from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.forms.widgets import Label
     from creme.creme_core.gui.field_printers import field_printers_registry
     from creme.creme_core.gui.quick_forms import quickforms_registry
-    from creme.creme_core.forms.widgets import Label
     from creme.creme_core.models import RelationType, Relation, SetCredentials, FieldsConfig, CremeUser
 
     # from creme.media_managers.models import Image
@@ -24,7 +24,7 @@ try:
     from .base import (_BaseTestCase, skipIfCustomAddress, skipIfCustomContact,
             skipIfCustomOrganisation, Contact, Organisation, Address, Document)
     from ..models import Position, Civility, Sector
-    from ..constants import REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY
+    from ..constants import REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY, UUID_FIRST_CONTACT
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -96,7 +96,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         build_contact = partial(Contact, last_name=last_name)
         self.assertEqual(last_name, unicode(build_contact()))
         self.assertEqual(last_name, unicode(build_contact(first_name='')))
-        self.assertEqual(_('%(first_name)s %(last_name)s') % {
+        self.assertEqual(_(u'%(first_name)s %(last_name)s') % {
                                 'first_name': first_name,
                                 'last_name':  last_name,
                             },
@@ -104,7 +104,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                         )
 
         captain = Civility.objects.create(title='Captain')  # No shortcut
-        self.assertEqual(_('%(first_name)s %(last_name)s') % {
+        self.assertEqual(_(u'%(first_name)s %(last_name)s') % {
                                 'first_name': first_name,
                                 'last_name':  last_name,
                             },
@@ -113,13 +113,22 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         captain.shortcut = shortcut = 'Cpt'
         captain.save()
-        self.assertEqual(_('%(civility)s %(first_name)s %(last_name)s') % {
+        self.assertEqual(_(u'%(civility)s %(first_name)s %(last_name)s') % {
                             'civility':   shortcut,
                             'first_name': first_name,
                             'last_name':  last_name,
                             },
                          unicode(build_contact(first_name=first_name, civility=captain))
                         )
+
+    def test_populated_contact_uuid(self):
+        first_contact = Contact.objects.order_by('id').first()
+        self.assertIsNotNone(first_contact)
+
+        user = first_contact.is_user
+        self.assertIsNotNone(user)
+
+        self.assertEqual(UUID_FIRST_CONTACT, str(first_contact.uuid))
 
     def test_createview01(self):
         user = self.login()
@@ -1356,7 +1365,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                }
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(response, 'form', None,
-                             _('This Contact is related to a user and must have an e-mail address.')
+                             _(u'This Contact is related to a user and must have an e-mail address.')
                             )
 
         response = self.client.post(url, follow=True,
@@ -1411,7 +1420,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                }
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(response, 'form', None,
-                             _('This Contact is related to a user and must have an e-mail address.')
+                             _(u'This Contact is related to a user and must have an e-mail address.')
                             )
 
         response = self.client.post(url, follow=True,

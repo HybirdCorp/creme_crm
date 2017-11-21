@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2016  Hybird
+#    Copyright (C) 2015-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from django.db.models.signals import pre_delete, post_save
 from django.dispatch.dispatcher import receiver
 
-from creme.creme_core.models import CremeEntity
+from creme.creme_core.models import CremeEntity, HistoryLine
 from creme.creme_core.signals import pre_merge_related
 
 from .models import Action, Alert, Memo, ToDo, UserMessage
@@ -38,8 +38,11 @@ def dispose_instances(sender, instance, **kwargs):
 
 @receiver(pre_merge_related)
 def handle_merge(sender, other_entity, **kwargs):
+    mark = HistoryLine.mark_as_reassigned
+
     for model in MODELS:
         for instance in model.objects.filter(entity_id=other_entity.id):
+            mark(instance, old_reference=other_entity, new_reference=sender, field_name='creme_entity')
             instance.creme_entity = sender
             instance.save()
 

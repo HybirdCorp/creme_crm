@@ -24,9 +24,10 @@
 from django.core.urlresolvers import reverse
 from django.db.models import (ForeignKey, CharField, TextField, PositiveIntegerField,
         BooleanField, DateField, EmailField, URLField, SET_NULL)
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 # from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+from creme.creme_core.core.exceptions import SpecificProtectedError
 from creme.creme_core.global_info import get_per_request_cache
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.fields import PhoneField
@@ -34,7 +35,7 @@ from creme.creme_core.models.fields import PhoneField
 # from creme.media_managers.models import Image
 from creme.documents.models.fields import ImageEntityForeignKey
 
-from .. import get_contact_model, get_organisation_model
+from .. import get_contact_model  # get_organisation_model
 from .. import constants
 
 from . import base, other_models
@@ -104,6 +105,16 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
     def __unicode__(self):
         return self.name
 
+    def _check_deletion(self):
+        if self.is_managed and self.__class__.objects.filter(is_managed=True).count() == 1:
+            raise SpecificProtectedError(ugettext(u'The last managed organisation cannot be deleted.'),
+                                         [self]
+                                        )
+
+    def delete(self, using=None):
+        self._check_deletion()  # Should not be useful (trashing should be blocked too)
+        super(AbstractOrganisation, self).delete(using=using)
+
     def get_absolute_url(self):
         return reverse('persons__view_organisation', args=(self.id,))
 
@@ -135,8 +146,10 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
                                          )
 
     # TODO: move in a manager ??
-    @staticmethod
-    def get_all_managed_by_creme():
+    # @staticmethod
+    # def get_all_managed_by_creme():
+    @classmethod
+    def get_all_managed_by_creme(cls):
         cache = get_per_request_cache()
         cache_key = 'persons-organisation-all_managed'
         qs = cache.get(cache_key)
@@ -146,12 +159,16 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
             #                                                 .filter(is_deleted=False,
             #                                                         properties__type=PROP_IS_MANAGED_BY_CREME,
             #                                                        )
-            cache[cache_key] = qs = get_organisation_model().objects.filter(is_managed=True, is_deleted=False)
+            cache[cache_key] = qs = cls.objects.filter(is_managed=True, is_deleted=False)
 
         return qs
 
     def _post_save_clone(self, source):
         self._aux_post_save_clone(source)
+
+    def trash(self):
+        self._check_deletion()
+        super(AbstractOrganisation, self).trash()
 
 
 class Organisation(AbstractOrganisation):

@@ -31,12 +31,13 @@ INVALID_PK    = 3
 DUPLICATED_PK = 4
 WONTFIX_PK    = 5
 
-BASE_STATUS = ((OPEN_PK,        pgettext_lazy('tickets-status', u'Open')),
-               (CLOSED_PK,      _(u'Closed')),
-               (INVALID_PK,     _(u'Invalid')),
-               (DUPLICATED_PK,  _(u'Duplicated')),
-               (WONTFIX_PK,     _(u"Won't fix")),
-              )
+BASE_STATUS = (
+    (OPEN_PK,        pgettext_lazy('tickets-status', u'Open')),
+    (CLOSED_PK,      pgettext_lazy('tickets-status', u'Closed')),
+    (INVALID_PK,     pgettext_lazy('tickets-status', u'Invalid')),
+    (DUPLICATED_PK,  pgettext_lazy('tickets-status', u'Duplicated')),
+    (WONTFIX_PK,     _(u"Won't fix")),
+)
 
 
 class Status(CremeModel):

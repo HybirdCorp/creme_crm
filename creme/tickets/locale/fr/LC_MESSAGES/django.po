@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Tickets 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-12 15:20+0200\n"
+"POT-Creation-Date: 2017-11-14 18:47+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps.py:28 models/ticket.py:91
+#: apps.py:28 models/ticket.py:91 templates/tickets/portal.html:4
 msgid "Tickets"
 msgstr "Tickets"
 
@@ -38,11 +38,11 @@ msgstr "Informations sur le ticket"
 msgid "Is linked to a ticket"
 msgstr "Est lié à un ticket"
 
-#: models/criticity.py:30 models/priority.py:30 models/status.py:44
+#: models/criticity.py:30 models/priority.py:30 models/status.py:45
 msgid "Name"
 msgstr "Nom"
 
-#: models/criticity.py:31 models/priority.py:31 models/status.py:46
+#: models/criticity.py:31 models/priority.py:31 models/status.py:47
 msgid "Order"
 msgstr "Ordre"
 
@@ -72,37 +72,40 @@ msgstr "Priorité de ticket"
 msgid "Ticket priorities"
 msgstr "Priorités de ticket"
 
-#: models/status.py:34
+#: models/status.py:35
 msgctxt "tickets-status"
 msgid "Open"
 msgstr "Ouvert"
 
-#: models/status.py:35
+#: models/status.py:36
+msgctxt "tickets-status"
 msgid "Closed"
 msgstr "Fermé"
 
-#: models/status.py:36
+#: models/status.py:37
+msgctxt "tickets-status"
 msgid "Invalid"
 msgstr "Invalide"
 
-#: models/status.py:37
+#: models/status.py:38
+msgctxt "tickets-status"
 msgid "Duplicated"
 msgstr "Dupliqué"
 
-#: models/status.py:38
+#: models/status.py:39
 msgid "Won't fix"
 msgstr "Ne sera pas corrigé"
 
-#: models/status.py:48
+#: models/status.py:49
 msgctxt "tickets-status"
 msgid "Create a status"
 msgstr "Créer un statut"
 
-#: models/status.py:55
+#: models/status.py:56
 msgid "Ticket status"
 msgstr "Statut de ticket"
 
-#: models/status.py:56
+#: models/status.py:57
 msgid "Ticket statuses"
 msgstr "Statuts de ticket"
 
@@ -150,8 +153,7 @@ msgstr "Créer un ticket"
 msgid "Save the ticket"
 msgstr "Enregistrer le ticket"
 
-#: models/ticket.py:90 templates/tickets/portal.html:4
-#: templates/tickets/templatetags/button_linked.html:1
+#: models/ticket.py:90 templates/tickets/templatetags/button_linked.html:1
 msgid "Ticket"
 msgstr "Ticket"
 
@@ -235,7 +237,7 @@ msgstr "Erreur"
 msgid "Ticket portal"
 msgstr "Portail Ticket"
 
-#: templates/tickets/portal.html:9
+#: templates/tickets/portal.html:7
 msgid "List of tickets"
 msgstr "Liste des tickets"
 

@@ -248,7 +248,7 @@ class UserMessageTestCase(AssistantsTestCase):
             for msg in messages:
                 self.assertEqual(contact01, msg.creme_entity)
 
-        self.aux_test_merge(creator, assertor)
+        self.aux_test_merge(creator, assertor, moved_count=0)
 
     def test_delete_priority01(self):
         priority = UserMessagePriority.objects.create(title='Important')
