@@ -17,7 +17,7 @@
 <div class="footer">
     <div class="footer-baseline">
     {% block baseline %}
-        {% blocktrans with software='<a href="https://cremecrm.com">Crème</a>' creator='<a href="https://hybird.org">Hybird</a>' %}<strong>{{software}}</strong> is a free/OpenSource software, cooked in France since 2008, by <strong>{{creator}}</strong>{% endblocktrans %}
+        {% blocktrans with software='<a href="https://cremecrm.com">Crème</a>' creator='<a href="https://hybird.org">Hybird</a>' %}<strong>{{software}}</strong> is free/OpenSource software, cooked in France since 2008, by <strong>{{creator}}</strong>{% endblocktrans %}
         <span class='footer-baseline-version'>— {% blocktrans %}Version {{creme_version}}{% endblocktrans %}{# {% if THEME_VERBOSE_NAME %} / {{THEME_VERBOSE_NAME}}{% endif %} #}</span>
     {% endblock %}
     </div>

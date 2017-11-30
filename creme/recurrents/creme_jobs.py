@@ -30,7 +30,7 @@ from . import get_rgenerator_model
 
 class _GenerateDocsType(JobType):
     id           = JobType.generate_id('recurrents', 'generate_docs')
-    verbose_name = _('Generate recurrent documents')
+    verbose_name = _(u'Generate recurrent documents')
     periodic     = JobType.PSEUDO_PERIODIC
 
     # TODO: we could add a field RecurrentGenerator.next_generation => queries would be more efficient

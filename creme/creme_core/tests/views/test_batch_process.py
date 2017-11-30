@@ -13,12 +13,11 @@ try:
     from django.utils.translation import ugettext as _, ungettext
 
     from .base import ViewsTestCase
-    from ..fake_models import FakeContact, FakeOrganisation
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.core.job import job_type_registry, JobManagerQueue  # Should be a test queue
     from creme.creme_core.creme_jobs.batch_process import batch_process_type
     from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
-            SetCredentials, Job, EntityJobResult)
+            SetCredentials, Job, EntityJobResult, FakeContact, FakeOrganisation)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -173,10 +172,10 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         # self.assertEqual(count, form.read_objects_count)
         # self.assertEqual(0,     len(form.process_errors))
         orga_count = FakeOrganisation.objects.count()
-        self.assertEqual([ungettext(u'%s entity has been successfully modified.',
-                                    u'%s entities have been successfully modified.',
+        self.assertEqual([ungettext(u'{count} entity has been successfully modified.',
+                                    u'{count} entities have been successfully modified.',
                                     orga_count
-                                   ) % orga_count,
+                                   ).format(count=orga_count),
                          ],
                          job.stats
                         )
@@ -358,12 +357,21 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         # self.assertEqual(2, form.modified_objects_count)
         self.get_object_or_fail(EntityJobResult, job=job, entity=orga02)
         self.assertFalse(EntityJobResult.objects.filter(job=job, entity=orga01))
-        self.assertEqual([ungettext(u'%s entity has been successfully modified.',
-                                    u'%s entities have been successfully modified.',
+        self.assertEqual([ungettext(u'{count} entity has been successfully modified.',
+                                    u'{count} entities have been successfully modified.',
                                     2
-                                   ) % 2,
+                                   ).format(count=2),
                          ],
                          job.stats
+                        )
+
+        progress = job.progress
+        self.assertIsNone(progress.percentage)
+        self.assertEqual(ungettext(u'{count} entity has been processed.',
+                                   u'{count} entities have been processed.',
+                                   2
+                                  ).format(count=2),
+                         progress.label
                         )
 
     def test_with_filter02(self):
@@ -540,10 +548,10 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         # self.assertEqual([u'%s => %s' % (_('Last name'), _(u'This field cannot be blank.'))],
         #                  error[1]
         #                 )
-        self.assertEqual([ungettext(u'%s entity has been successfully modified.',
-                                    u'%s entities have been successfully modified.',
+        self.assertEqual([ungettext(u'{count} entity has been successfully modified.',
+                                    u'{count} entities have been successfully modified.',
                                     1
-                                   ) % 1,
+                                   ).format(count=1),
                          ],
                          job.stats
                         )

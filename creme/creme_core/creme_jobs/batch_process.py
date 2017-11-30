@@ -21,7 +21,7 @@
 from functools import partial
 import logging
 
-# TODO: move in function to do lazy loading (creation of see core/task_pool) ?
+# TODO: move in function to do lazy loading ?
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 from django.db.transaction import atomic
@@ -31,7 +31,7 @@ from ..core.batch_process import BatchAction
 from ..core.paginator import FlowPaginator
 from ..models import EntityFilter, EntityCredentials, EntityJobResult
 # from ..utils.chunktools import iter_as_slices
-from .base import JobType
+from .base import JobType, JobProgress
 
 
 logger = logging.getLogger(__name__)
@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 class _BatchProcessType(JobType):
     id           = JobType.generate_id('creme_core', 'batch_process')
-    verbose_name = _('Batch process')
+    verbose_name = _(u'Batch process')
 
     def _get_actions(self, model, job_data):
         for kwargs in job_data['actions']:
@@ -54,7 +54,7 @@ class _BatchProcessType(JobType):
                 efilter = EntityFilter.objects.get(id=efilter_id)
             except EntityFilter.DoesNotExist:
                 if raise_exception:
-                    raise self.Error(ugettext('The filter does not exist anymore'))
+                    raise self.Error(ugettext(u'The filter does not exist anymore'))
 
         return efilter
 
@@ -121,8 +121,16 @@ class _BatchProcessType(JobType):
                             entity.save()
                             create_result(entity=entity)
 
+    def progress(self, job):
+        count = EntityJobResult.objects.filter(job=job).count()
+        return JobProgress(percentage=None,
+                           label=ungettext(u'{count} entity has been processed.',
+                                           u'{count} entities have been processed.',
+                                           count
+                                          ).format(count=count)
+                          )
+
     @property
-    # def results_blocks(self):
     def results_bricks(self):
         from ..bricks import EntityJobErrorsBrick
         return [EntityJobErrorsBrick()]
@@ -147,10 +155,10 @@ class _BatchProcessType(JobType):
     def get_stats(self, job):
         count = EntityJobResult.objects.filter(job=job, raw_messages__isnull=True).count()
 
-        return [ungettext(u'%s entity has been successfully modified.',
-                          u'%s entities have been successfully modified.',
+        return [ungettext(u'{count} entity has been successfully modified.',
+                          u'{count} entities have been successfully modified.',
                           count
-                         ) % count,
+                         ).format(count=count),
                ]
 
 

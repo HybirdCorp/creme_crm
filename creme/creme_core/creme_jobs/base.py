@@ -21,12 +21,41 @@
 import logging
 
 from django.apps import apps
+from django.template.loader import get_template
 from django.utils.timezone import now
 
 from ..models import Job, JobResult
 
 
 logger = logging.getLogger(__name__)
+
+
+class JobProgress(object):
+    template_name = 'creme_core/job/progress.html'
+
+    def __init__(self, percentage, label=''):
+        """Constructor.
+
+        @param percentage: percentage of the progress (eg: 53 for '53%').
+               None means that we cannot precise a percentage (so an 'infinite' loop should be displayed).
+        @param label: string corresponding to the progress (eg: "53 entities have been processed").
+               If the label is empty, the percentage will be used.
+        """
+        self.percentage = percentage
+        self.label = label
+
+    @property
+    def data(self):
+        """Data stored a 'JSONifiable' dictionary."""
+        return {
+            'percentage': self.percentage,
+            'label':      self.label,
+        }
+
+    def render(self):
+        """HTML rendering."""
+        template = self.template_name
+        return get_template(template).render({'progress': self}) if template else ''
 
 
 class JobType(object):
@@ -135,6 +164,9 @@ class JobType(object):
             raise ValueError('JobType.next_wakeup() should only be called with PSEUDO_PERIODIC jobs.')
 
         raise NotImplementedError
+
+    def progress(self, job):
+        return JobProgress(percentage=None)
 
     def refresh_job(self):
         from ..models import Job

@@ -39,7 +39,7 @@ from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
 
 class _ComApproachesEmailsSendType(JobType):
     id           = JobType.generate_id('commercial', 'com_approaches_emails_send')
-    verbose_name = _('Send emails for commercials approaches')
+    verbose_name = _(u'Send emails for commercials approaches')
     periodic     = JobType.PERIODIC  # It would be too difficult/inefficient to
                                      # compute the next wake up, so it is not PSEUDO_PERIODIC.
 
@@ -137,10 +137,10 @@ class _ComApproachesEmailsSendType(JobType):
                                         )
 
     def get_description(self, job):
-        return [ugettext("For each customer organisation, an email is sent to its owner (ie: a Creme user), "
-                         "if there is no commercial approach since %s days linked to: "
-                         "the organisation, one of its managers/employees, "
-                         "or an Opportunity which targets this organisation."
+        return [ugettext(u"For each customer organisation, an email is sent to its owner (ie: a Creme user), "
+                         u"if there is no commercial approach since %s days linked to: "
+                         u"the organisation, one of its managers/employees, "
+                         u"or an Opportunity which targets this organisation."
                         ) % self.list_target_orga[0][1],
                ]
 

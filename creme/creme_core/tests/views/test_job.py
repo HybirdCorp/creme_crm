@@ -11,7 +11,7 @@ try:
     from django.utils.encoding import smart_unicode
     from django.utils.formats import date_format
     from django.utils.timezone import localtime, now
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import ugettext as _, ungettext
 
     from ..base import skipIfNotInstalled
     from ..fake_models import FakeOrganisation
@@ -95,7 +95,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         job = self._create_batchprocess_job()
         response = self.assertGET200(job.get_absolute_url())
-        self.assertTemplateUsed(response, 'creme_core/job.html')
+        self.assertTemplateUsed(response, 'creme_core/job/detail.html')
 
         with self.assertNoException():
             cxt_job = response.context['job']
@@ -420,18 +420,34 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         job = self._create_batchprocess_job()
         response = self.assertGET200(url, data={'id': [job.id]})
         self.assertEqual('text/javascript', response['Content-Type'])
-        self.assertEqual({str(job.id): {'status': Job.STATUS_WAIT,
-                                        'ack_errors': 0,
-                                       }
+        self.assertEqual({str(job.id): {
+                            'status': Job.STATUS_WAIT,
+                            'ack_errors': 0,
+                            'progress': {
+                                'label': ungettext(u'{count} entity has been processed.',
+                                                   u'{count} entities have been processed.',
+                                                   0
+                                                  ).format(count=0),
+                                'percentage': None
+                            },
+                          }
                          },
                          json_load(response.content)
                         )
 
         job = self._create_batchprocess_job(status=Job.STATUS_OK)
         response = self.assertGET200(url, data={'id': [job.id]})
-        self.assertEqual({str(job.id): {'status': Job.STATUS_OK,
-                                        'ack_errors': 0,
-                                       }
+        self.assertEqual({str(job.id): {
+                            'status': Job.STATUS_OK,
+                            'ack_errors': 0,
+                            'progress': {
+                                'label': ungettext(u'{count} entity has been processed.',
+                                                   u'{count} entities have been processed.',
+                                                   0
+                                                  ).format(count=0),
+                                'percentage': None,
+                            },
+                          }
                          },
                          json_load(response.content)
                         )
@@ -456,12 +472,32 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         job2 = self._create_batchprocess_job(status=Job.STATUS_OK)
         job3 = self._create_batchprocess_job(user=self.other_user)
         response = self.assertGET200(self.INFO_URL, data={'id': [job1.id, job3.id, job2.id]})
-        self.assertEqual({str(job1.id): {'status': Job.STATUS_WAIT, 'ack_errors': 0},
-                          str(job2.id): {'status': Job.STATUS_OK, 'ack_errors': 0},
-                          str(job3.id): 'Job is not allowed',
+
+        content = json_load(response.content)
+        self.assertEqual(3, len(content))
+
+        label = ungettext(u'{count} entity has been processed.',
+                          u'{count} entities have been processed.',
+                          0).format(count=0)
+        self.assertEqual({'status': Job.STATUS_WAIT,
+                          'ack_errors': 0,
+                          'progress': {
+                              'label': label,
+                              'percentage': None,
+                          },
                          },
-                         json_load(response.content)
+                         content[str(job1.id)]
                         )
+        self.assertEqual({'status': Job.STATUS_OK,
+                          'ack_errors': 0,
+                          'progress': {
+                              'label': label,
+                              'percentage': None,
+                          },
+                         },
+                         content[str(job2.id)]
+                        )
+        self.assertEqual('Job is not allowed', content[str(job3.id)])
 
     def test_status03(self):
         "Queue error"
@@ -482,9 +518,17 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(1, self.refresh(job).ack_errors)
 
         response = self.assertGET200(self.INFO_URL, data={'id': [job.id]})
-        self.assertEqual({str(job.id): {'status': Job.STATUS_WAIT,
-                                        'ack_errors': 1,
-                                       },
+        self.assertEqual({str(job.id): {
+                            'status': Job.STATUS_WAIT,
+                            'ack_errors': 1,
+                            'progress': {
+                                'label': ungettext(u'{count} entity has been processed.',
+                                                   u'{count} entities have been processed.',
+                                                   0
+                                                  ).format(count=0),
+                                'percentage': None,
+                            },
+                          },
                          },
                          json_load(response.content)
                         )

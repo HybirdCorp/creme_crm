@@ -1271,10 +1271,13 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         # 2 errors: retrieving of SalesPhase failed, creation of Opportunity failed
         self.assertEqual(2, len(result.messages))
 
-        vname= _('Opportunity')
-        self.assertEqual([_(u'No «%s» has been created.') % vname,
-                          _(u'No «%s» has been updated.') % vname,
-                          ungettext('%s line in the file.', '%s lines in the file.', 1) % 1,
+        vname= _(u'Opportunity')
+        self.assertEqual([_(u'No «{type}» has been created.').format(type=vname),
+                          _(u'No «{type}» has been updated.').format(type=vname),
+                          ungettext(u'{count} line in the file.',
+                                    u'{count} lines in the file.',
+                                    1
+                                   ).format(count=1),
                          ],
                          job.stats
                         )
@@ -1311,7 +1314,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                                )
                                      )
         self.assertFormError(response, 'form', 'sales_phase',
-                             _('This field is required.')
+                             _(u'This field is required.')
                             )
 
     def test_csv_import04(self):

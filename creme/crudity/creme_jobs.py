@@ -37,7 +37,7 @@ CremeUser = get_user_model()
 
 class _CruditySynchronizeType(JobType):
     id           = JobType.generate_id('crudity', 'synchronization')
-    verbose_name = _('Synchronize externals data sent to Creme')
+    verbose_name = _(u'Synchronize externals data sent to Creme')
     periodic     = JobType.PERIODIC
 
     def _execute(self, job):
