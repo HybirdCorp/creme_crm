@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 17-10-2017 pour la version 1.7 de Creme
+:Version: 29-11-2017 pour la version 1.7 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -1755,6 +1755,7 @@ version de Creme) ; en pratique vous pourrez copier les tests unitaires
 correspondants dans vos propres fichiers de tests, et simplement modifier ces
 copies selon vos besoins (plutôt que de partir de 0).
 
+
 Techniques générales
 ********************
 
@@ -2275,6 +2276,94 @@ sont assez sensibles).
 
 À ce moment, votre installation devrait être fonctionnelle ; si vous étiez parti
 d'une installation 1.6, il vous reste encore à ajouter les nouveaux champs.
+
+
+Masquage des URLs existantes
+****************************
+
+Il se peut que vous vouliez qu'une URL existante mène vers une vue que vous
+auriez vous même écrite entièrement. Comme nous l'avons vu, lorsque vous
+*swappez* un modèle, vous devez préciser un certain nombre des vues qui lui
+sont associées (création, vue de liste, etc…) ; mais vous pouvez être dans
+un cas différent :
+
+- vous n'avez pas *swappé* le modèle concerné, et ne voulez pas le faire
+  juste pour modifier une vue.
+- la vue en question n'est pas à re-définir en *swappant* un quelconque modèle.
+
+Dans la mesure où les URLs sont nommées dans les différents ``urls.py``, si votre
+app est avant (comprendre: dans ``settings.INSTALLED_CREME_APPS``) l'app qui contient l'URL que
+vous voulez masquer par votre propre vue, il suffit de déclarer une URL avec le même
+nom (elle devra aussi prendre les mêmes arguments). Dans la mesure où le code de Creme
+récupère partout les URLs par leur nom, votre URL sera donc donc utilisée.
+
+Par exemple, vous voulez modifier la vue de création d'un mémo. Dans
+``creme/assistants/urls.py``, on trouve le code suivant : ::
+
+    [...]
+
+    urlpatterns = [
+        url(r'^memo/', include([
+            url(r'^add/(?P<entity_id>\d+)[/]?$', memo.add,  name='assistants__create_memo'),
+            [...]
+        ])),
+
+        [...]
+    ]
+
+
+Dans votre app (qui doit être avant ``creme.assistants.py`` dans
+``settings.INSTALLED_CREME_APPS``, vous déclarez donc l'URL suivante : ::
+
+    urlpatterns = [
+        url(r'^my_memo/add/(?P<entity_id>\d+)[/]?$', views.add_my_memo, name='assistants__create_memo'),
+
+        [...]
+    ]
+
+Cela fonctionnera très bien, mais il existe un problème potentiel : l'URL d'origine
+existe toujours (c'est juste que l'interface de Creme se servira de la vôtre). Ce qui veut
+dire qu'on peut toujours accéder à la vue qu'on veut masquer. On peut penser à une application
+externe dont le code n'aurait pas été modifié, ou bien un utilisateur malveillant. Donc
+si par exemple la vue masquée permet des actions qui devraient être interdites (votre vue fait
+des vérifications supplémentaires), et ne se contente pas de proposer une ergonomie
+améliorée, alors il faut aller un peu plus loin, en utilisant exactement la même URL (et pas
+seulement son nom dans Creme).
+
+Par défaut, les URLs de votre app commencent par le nom de celle-ci. Mais nous pouvons préciser
+explicitement ce préfixe, pour utiliser le même que l'app ``assistants``. Comme cela va
+concerner l'ensemble des URLs de votre app, il va être plus propre de faire une app minimale
+qui ne fera que ça. Créez donc une app ``my_assistants`` ; dans son fichier ``my_assistants/apps.py``,
+nous allons préciser le préfixe des URLs de cette manière : ::
+
+    [...]
+
+    class MyAssistantsConfig(CremeAppConfig):
+        name = 'creme.my_assistants'
+
+        @property
+        def url_root(self):
+            return 'assistants/'
+
+        [...]
+
+
+Puis dans ``my_assistants/urls.py`` : ::
+
+    from django.conf.urls import url
+
+    from . import views
+
+    urlpatterns = [
+        # Notez que l'URL doit être la même que l'original.
+        # Dans notre cas, plus de 'my_memo/', remplacé par un 'memo/' comme dans "assistants"
+        url(r'^memo/add/(?P<entity_id>\d+)[/]?$', views.add_my_memo, name='assistants__create_memo'),
+    ]
+
+
+Cette méthode reste fragile, puisque si l'URL masquée vient à changer lors d'une version (majeure)
+ultérieure de Creme, votre vue ne la masquera plus sans que cela ne déclenche d'erreur (les 2 URLs
+cohabiteront). Il faudra donc l'utiliser avec parcimonie et faire attention lors des mises à jour.
 
 
 Plus loin avec les modèles: les Tags

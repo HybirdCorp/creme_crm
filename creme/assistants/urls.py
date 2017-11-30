@@ -7,7 +7,7 @@ from .views import memo, alert, todo, action, user_message
 
 urlpatterns = [
     url(r'^memo/', include([
-        url(r'^add/(?P<entity_id>\d+)[/]?$', memo.add, name='assistants__create_memo'),
+        url(r'^add/(?P<entity_id>\d+)[/]?$', memo.add,  name='assistants__create_memo'),
         url(r'^edit/(?P<memo_id>\d+)[/]?$',  memo.edit, name='assistants__edit_memo'),
     ])),
     url(r'^alert/', include([
