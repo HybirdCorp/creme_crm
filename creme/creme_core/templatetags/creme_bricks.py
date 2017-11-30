@@ -376,6 +376,7 @@ def brick_table_column(title, status='', **attrs):
     @param title: Title of the column (string).
     @param status: String use to tag the HTML node. Classical ones: 'primary', 'action'.
     @param attrs: keywords arguments are serialized to HTML attributes.
+           Beware: '_' are replaced by '-'.
 
     Example:
         {% extends 'creme_core/bricks/base/table.html' %}
@@ -392,11 +393,8 @@ def brick_table_column(title, status='', **attrs):
         ...
     """
     return {
-        'title':  title,
-        'status': status.split(' ') if status else (),
-        # TODO: write a true templatetag that accepts symbols with '-' ?
-        #  - data_fieldname in configurable-model.html
-        #  - etc...
+        'title':      title,
+        'status':     status.split(' ') if status else (),
         'attributes': mark_safe(' '.join('{}="{}"'.format(k.replace('_', '-'), v) for k, v in attrs.iteritems())),
     }
 
@@ -410,6 +408,7 @@ def brick_table_column_for_cell(context, cell, title='', status='', **attrs):
     @param title: Title of the column (string). By default, the cell's title is used.
     @param status: String use to tag the HTML node. Classical ones: 'primary', 'action'.
     @param attrs: keywords arguments are serialized to HTML attributes.
+           Beware: '_' are replaced by '-'.
     """
     assert isinstance(cell, EntityCellRegularField)
 
@@ -439,14 +438,11 @@ def brick_table_column_for_cell(context, cell, title='', status='', **attrs):
         attrs['data_type'] = cell.data_type
 
     return {
-        'title':   verbose_name,
-        'key':     cell.key,
-        'help':    help,
-        'sort_by': sort_data,
-        'status':  status.split(' ') if status else (),
-        # TODO: write a true templatetag that accepts symbols with '-' ?
-        #  - data_fieldname in configurable-model.html
-        #  - etc...
+        'title':      verbose_name,
+        'key':        cell.key,
+        'help':       help,
+        'sort_by':    sort_data,
+        'status':     status.split(' ') if status else (),
         'attributes': mark_safe(' '.join('{}="{}"'.format(k.replace('_', '-'), v) for k, v in attrs.iteritems())),
     }
 
@@ -874,7 +870,7 @@ def brick_display(context, *bricks, **kwargs):
         try:
             BricksManager.get(context).pop_group(brick_id)
         except KeyError:
-            raise ValueError('{%% brick_display %%}: it seems that this brick has not been declared/imported: %s' % brick_id)  # TODO: better exception
+            raise ValueError('{%% brick_display %%}: it seems that this brick has not been declared/imported: %s' % brick_id)
 
     for brick_or_seq in bricks:
         if brick_or_seq == '':
