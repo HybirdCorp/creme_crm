@@ -26,8 +26,9 @@ from django.utils.translation import ugettext_lazy as _, ugettext, ungettext
 
 from ..forms.mass_import import get_header, form_factory
 from ..models import MassImportJobResult
-from .base import JobType, JobProgress
 from ..utils.translation import get_model_verbose_name
+
+from .base import JobType, JobProgress
 
 from creme.documents import get_document_model
 
@@ -40,7 +41,7 @@ class _MassImportType(JobType):
     verbose_name = _(u'Mass import')
 
     def _build_POST(self, job_data):
-        return QueryDict(job_data['POST'])
+        return QueryDict(job_data['POST'].encode('utf8'))
 
     def _get_document(self, POST):
         return get_document_model().objects.get(id=POST['document'])
@@ -57,7 +58,7 @@ class _MassImportType(JobType):
         form = form_class(user=job.user, data=POST)
 
         if not form.is_valid():
-            raise self.Error(ugettext('Invalid data [%s]' % form.errors.as_text()))  # TODO: unit test
+            raise self.Error(ugettext(u'Invalid data [%s]' % form.errors.as_text()))  # TODO: unit test
 
         form.process(job)
 

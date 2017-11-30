@@ -58,7 +58,7 @@ relation_patterns = [
 
     url(r'^delete[/]?$',         relation.delete,         name='creme_core__delete_relation'),
     url(r'^delete/similar[/]?$', relation.delete_similar, name='creme_core__delete_similar_relations'),
-    url(r'^delete/all[/]*',      relation.delete_all,     name='creme_core__delete_all_relations'),
+    url(r'^delete/all[/]?$',     relation.delete_all,     name='creme_core__delete_all_relations'),
 
     url(r'^entity/(?P<entity_id>\d+)/json[/]?$',               relation.json_entity_get,    name='creme_core__entity_as_json'),  # TODO: move to entity_patterns ?
     url(r'^entity/(?P<entity_id>\d+)/rtypes/json[/]?$',        relation.json_entity_rtypes, name='creme_core__rtypes_compatible_with_entity'),
