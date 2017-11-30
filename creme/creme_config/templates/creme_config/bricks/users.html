@@ -50,7 +50,7 @@
             {% endif %}
         </td>
         <td {% brick_table_data_status action %} class="user-password">{% url 'creme_config__change_user_password' user.id as change_pw_url %}
-            {% brick_table_action id='edit' url=change_pw_url label=_('Change the password') enabled=admin_perm %}
+            {% brick_table_action id='edit' url=change_pw_url label=_('Change the password') icon='security' enabled=admin_perm %}
         </td>
         <td {% brick_table_data_status action %} class="user-edit">{% url 'creme_config__edit_user' user.id as edit_url %}
             {% brick_table_action id='edit' url=edit_url label=_('Edit this user') enabled=admin_perm %}
