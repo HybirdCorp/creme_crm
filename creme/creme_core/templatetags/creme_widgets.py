@@ -22,7 +22,8 @@ import logging, warnings
 
 from django.conf import settings
 from django.template import Library, TemplateSyntaxError, Node as TemplateNode
-from django.utils.html import escape
+from django.utils.html import escape, urlize as django_urlize
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
 from ..gui.icons import icon_registry, get_icon_size_px, get_icon_by_name
@@ -435,3 +436,14 @@ class JoinNode(TemplateNode):
         return behaviour(self.nodelist.render(context), counter=forloop['counter0'],
                          is_first=forloop['first'], is_last=forloop['last'],
                         )
+
+
+@register.filter
+def widget_urlize(value, trim_url_limit=None, nofollow=False, autoescape=None):
+    if settings.URLIZE_TARGET_BLANK:
+        url_ized = django_urlize(value, trim_url_limit=trim_url_limit, nofollow=False, autoescape=autoescape) \
+                                .replace('<a', '<a target="_blank" rel="noopener noreferrer"')
+    else:
+        url_ized = django_urlize(value, trim_url_limit=trim_url_limit, nofollow=nofollow, autoescape=autoescape)
+
+    return mark_safe(url_ized)

@@ -8,6 +8,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.contrib.sessions.models import Session
     from django.db import models
+    from django.test import override_settings
     from django.utils.formats import date_format, number_format
     from django.utils.html import escape
     from django.utils.timezone import localtime
@@ -197,10 +198,10 @@ class GuiTestCase(CremeTestCase):
 
         get_html_val = field_printers_registry.get_html_field_value
         result_fmt = '<ul><li>%s</li><li>%s</li></ul>'
-        self.assertEqual(result_fmt  % (lang1, lang2),
+        self.assertEqual(result_fmt % (lang1, lang2),
                          get_html_val(goku, 'languages', user)
                         )
-        self.assertEqual(result_fmt  % (lang1.name, lang2.name),
+        self.assertEqual(result_fmt % (lang1.name, lang2.name),
                          get_html_val(goku,  'languages__name', user)
                         )
 
@@ -366,6 +367,38 @@ class GuiTestCase(CremeTestCase):
                          get_csv_val(line1, 'discount_unit', user)
                         )
         self.assertEqual('', get_csv_val(line2, 'discount_unit', user))
+
+    @override_settings(URLIZE_TARGET_BLANK=False)
+    def test_field_printers08(self):
+        "Test TexField: link => no target"
+        user = self.login()
+        field_printers_registry = _FieldPrintersRegistry()
+
+        hawk = FakeOrganisation.objects.create(user=user, name='Hawk',
+                                               description='A powerful army.\nOfficial site: www.hawk-troop.org'
+                                              )
+
+        get_html_val = field_printers_registry.get_html_field_value
+        self.assertEqual('<p>A powerful army.<br />Official site: <a href="http://www.hawk-troop.org">www.hawk-troop.org</a></p>',
+                         get_html_val(hawk, 'description', user)
+                        )
+
+    @override_settings(URLIZE_TARGET_BLANK=True)
+    def test_field_printers09(self):
+        "Test TexField: link => target='_blank'"
+        user = self.login()
+        field_printers_registry = _FieldPrintersRegistry()
+
+        hawk = FakeOrganisation.objects.create(user=user, name='Hawk',
+                                               description='A powerful army.\nOfficial site: www.hawk-troop.org'
+                                              )
+
+        get_html_val = field_printers_registry.get_html_field_value
+        self.assertEqual('<p>A powerful army.<br />'
+                             'Official site: <a target="_blank" rel="noopener noreferrer" href="http://www.hawk-troop.org">www.hawk-troop.org</a>'
+                         '</p>',
+                         get_html_val(hawk, 'description', user)
+                        )
 
     def test_statistics01(self):
         user = self.login()

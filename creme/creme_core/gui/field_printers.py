@@ -26,12 +26,12 @@ from django.conf import settings
 from django.db import models
 from django.template.defaultfilters import linebreaks
 from django.utils.formats import date_format, number_format
-from django.utils.html import escape, urlize
+from django.utils.html import escape  # urlize
 from django.utils.timezone import localtime
 from django.utils.translation import ungettext, ugettext as _
 
 from ..models import CremeEntity, fields
-from ..templatetags.creme_widgets import widget_entity_hyperlink
+from ..templatetags.creme_widgets import widget_entity_hyperlink, widget_urlize
 from ..utils import bool_as_html
 from ..utils.collections import ClassKeyedMap
 from ..utils.meta import FieldInfo
@@ -351,7 +351,8 @@ def print_email_html(entity, fval, user, field):
 
 
 def print_text_html(entity, fval, user, field):
-    return linebreaks(urlize(fval, autoescape=True)) if fval else ''
+    # return linebreaks(urlize(fval, autoescape=True)) if fval else ''
+    return linebreaks(widget_urlize(fval, autoescape=True)) if fval else ''
 
 
 def print_unsafehtml_html(entity, fval, user, field):

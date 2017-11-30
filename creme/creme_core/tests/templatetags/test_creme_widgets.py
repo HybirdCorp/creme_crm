@@ -3,6 +3,7 @@
 try:
     from django.conf import settings
     from django.template import Template, Context
+    from django.test import override_settings
 
     from ..base import CremeTestCase
     from ..fake_models import FakeOrganisation, FakeSector
@@ -75,6 +76,28 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
                          u'<a href="/tests/organisation/%s" class="is_deleted">%s</a>' % (
                                 orga.id, unicode(orga)
                             )
+                        )
+
+    @override_settings(URLIZE_TARGET_BLANK=False)
+    def test_widget_urlize01(self):
+        "No target"
+        with self.assertNoException():
+            tpl = Template(r'{% load creme_widgets %}{{text|widget_urlize}}')
+            render = tpl.render(Context({'text': 'Do not forget to visit www.cremecrm.com'}))
+
+        self.assertEqual(render,
+                         u'Do not forget to visit <a href="http://www.cremecrm.com">www.cremecrm.com</a>'
+                        )
+
+    @override_settings(URLIZE_TARGET_BLANK=True)
+    def test_widget_urlize02(self):
+        "Target"
+        with self.assertNoException():
+            tpl = Template(r'{% load creme_widgets %}{{text|widget_urlize}}')
+            render = tpl.render(Context({'text': 'Do not forget to visit www.cremecrm.com'}))
+
+        self.assertEqual(render,
+                         u'Do not forget to visit <a target="_blank" rel="noopener noreferrer" href="http://www.cremecrm.com">www.cremecrm.com</a>'
                         )
 
     # TODO: complete

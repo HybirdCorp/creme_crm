@@ -425,6 +425,9 @@ HIDDEN_VALUE = u'??'  # Used to replace contents which a user is not allowed to 
 PAGE_SIZES = [10, 25, 50, 100, 200]  # Available page sizes  (list of integers)
 DEFAULT_PAGE_SIZE_IDX = 1  # Index (0-based, in PAGE_SIZES) of the default size of pages.
 
+# When <a> tags are generated in TextFields, add an attribute <target="_blank"> if the value is 'True'.
+URLIZE_TARGET_BLANK = False
+
 # GUI [END]#####################################################################
 
 
