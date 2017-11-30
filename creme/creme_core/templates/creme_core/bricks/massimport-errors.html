@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% if job.is_finished %}{% url 'creme_core__dl_mass_import_errors' job.id as dl_url %}
+    {% if job.is_finished and page.paginator.count %}{% url 'creme_core__dl_mass_import_errors' job.id as dl_url %}
     {% brick_header_action id='redirect' url=dl_url label=_('Download the errors file') icon='download' %}
     {% endif %}
 {% endblock %}

@@ -59,9 +59,10 @@ def mass_import(request, ct_id):
         # return HttpResponseRedirect('/creme_core/job/all')
         return HttpResponseRedirect(reverse('creme_core__jobs'))
 
-    user.has_perm_to_create_or_die(ct.model_class())
+    model = ct.model_class()
+    user.has_perm_to_create_or_die(model)
 
-    submit_label = _('Save the entities')
+    submit_label = _(u'Save the entities')
 
     if request.method == 'POST':
         POST = request.POST
@@ -79,7 +80,7 @@ def mass_import(request, ct_id):
                                           }
                                  )
             else:
-                submit_label = _('Import this file')
+                submit_label = _(u'Import this file')
         else:
             if step != 1:
                 raise Http404('Step should be in (0, 1)')
@@ -108,13 +109,14 @@ def mass_import(request, ct_id):
         cancel_url = POST.get('cancel_url')
     else:
         form = UploadForm(user=user, initial={'step': 0})
-        submit_label = _('Import this file')
+        submit_label = _(u'Import this file')
         # cancel_url = request.META.get('HTTP_REFERER')
         cancel_url = build_cancel_path(request)
 
     return render(request, 'creme_core/generics/blockform/add.html',
                   {'form':         form,
-                   'title':        _('Import data file'),
+                   # 'title':        _(u'Import data file'),
+                   'title':        _(u'Import «{model}» from data file').format(model=model._meta.verbose_name_plural),
                    'cancel_url':   cancel_url,
                    'submit_label': submit_label,
                   }
@@ -142,7 +144,7 @@ def download_errors(request, job_id):
                      get_export_backend(next(export_backend_registry.iterbackends()).id)
 
     if not export_backend:
-        return ConflictError(_('Unknown file type ; please contact your administrator.'))
+        return ConflictError(_(u'Unknown file type ; please contact your administrator.'))
 
     writer = export_backend()
     writerow = writer.writerow

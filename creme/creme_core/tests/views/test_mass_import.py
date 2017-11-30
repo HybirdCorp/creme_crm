@@ -461,6 +461,47 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         self.assertEqual(2, len(results))
         self._assertNoResultError(results)
 
+    def test_default_value(self):
+        "Use default value when CSV value is empty (+ fix unicode bug)"
+        self.login()
+        # contact_ids = list(FakeContact.objects.values_list('id', flat=True))
+        #
+        # orga_name = 'Nerv'
+        # self.assertFalse(FakeOrganisation.objects.filter(name=orga_name))
+
+        # doc = self._build_csv_doc([('Ayanami', 'Rei', orga_name)])
+        first_name = u'Gentoku'
+        last_name = u'Ryûbi'
+        doc = self._build_csv_doc([(first_name, '')])
+        response = self.client.post(self._build_import_url(FakeContact), follow=True,
+                                    data=dict(self.lv_import_data, document=doc.id,
+                                              user=self.user.id,
+
+                                              last_name_defval=last_name,
+                                             ),
+                                   )
+        self.assertNoFormError(response)
+
+        with self.assertNoException():
+            self._execute_job(response)
+
+        self.get_object_or_fail(FakeContact, last_name=last_name, first_name=first_name)
+
+        # contacts = FakeContact.objects.exclude(id__in=contact_ids)
+        # self.assertEqual(1, len(contacts))
+
+        # rei = contacts[0]
+        # relations = Relation.objects.filter(subject_entity=rei, type=employed)
+        # self.assertEqual(1, len(relations))
+        #
+        # employer = relations[0].object_entity.get_real_entity()
+        # self.assertIsInstance(employer, FakeOrganisation)
+        # self.assertEqual(orga_name, employer.name)
+        #
+        # results = self._get_job_results(job)
+        # self.assertEqual(1, len(results))
+        # self.assertFalse(results[0].messages)
+
     def _get_cf_values(self, cf, entity):
         return self.get_object_or_fail(cf.get_value_class(), custom_field=cf, entity=entity)
 
