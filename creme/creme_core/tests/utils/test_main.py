@@ -22,6 +22,7 @@ try:
     from creme.creme_core.utils.dates import (get_dt_from_str, dt_from_str, get_date_from_str, date_from_str,
         get_dt_from_iso8601_str, get_dt_to_iso8601_str, date_from_ISO8601, date_to_ISO8601, date_2_dict,
         get_dt_from_json_str, dt_from_ISO8601, dt_to_json_str, dt_to_ISO8601, round_hour, to_utc, make_aware_dt)
+    from creme.creme_core.utils.log import log_exceptions
     from creme.creme_core.utils.dependence_sort import dependence_sort, DependenciesLoopError
     from creme.creme_core.utils.url import TemplateURLBuilder
 except Exception as e:
@@ -266,6 +267,35 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual('(My unlocated prefix)Supercalif',
                          prefixed_truncate(s, ugettext_lazy('(My unlocated prefix)'), 31)
                         )
+
+    def test_log_exception(self):
+        class Logger(object):
+            def __init__(self):
+                self.data = []
+
+            def warn(self, s):
+                self.data.append(s)
+
+        my_logger = Logger()
+
+        @log_exceptions(printer=my_logger.warn)
+        def no_problemo(a, b):
+            return a + b
+
+        res = no_problemo(1, b=2)
+        self.assertEqual(3, res)
+        self.assertFalse(my_logger.data)
+
+        # ----
+        @log_exceptions(printer=my_logger.warn)
+        def error_paluzza():
+            raise ValueError('Mayday')
+
+        with self.assertRaises(ValueError):
+            error_paluzza()
+
+        self.assertEqual(1, len(my_logger.data))
+        self.assertTrue(my_logger.data[0].startswith('An exception occurred in <error_paluzza>.\n'))
 
 
 class DependenceSortTestCase(CremeTestCase):  # TODO: SimpleTestCase
