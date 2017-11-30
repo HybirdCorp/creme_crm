@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-22 21:49+0100\n"
+"POT-Creation-Date: 2017-11-28 19:43+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -316,52 +316,52 @@ msgid_plural "{count} entities have been successfully modified."
 msgstr[0] "{count} fiche a été modifiée avec succès."
 msgstr[1] "{count} fiches ont été modifiées avec succès."
 
-#: creme_jobs/mass_import.py:40
+#: creme_jobs/mass_import.py:41
 msgid "Mass import"
 msgstr "Import en masse"
 
-#: creme_jobs/mass_import.py:60
+#: creme_jobs/mass_import.py:61
 #, python-format
 msgid "Invalid data [%s]"
 msgstr "Données invalides [%s]"
 
-#: creme_jobs/mass_import.py:67
+#: creme_jobs/mass_import.py:68
 #, python-brace-format
 msgid "{count} line has been processed."
 msgid_plural "{count} lines have been processed."
 msgstr[0] "{count} ligne a été traitée."
 msgstr[1] "{count} lignes ont été traitées."
 
-#: creme_jobs/mass_import.py:81
+#: creme_jobs/mass_import.py:82
 #, python-brace-format
 msgid "Import «{type}» from {doc}"
 msgstr "Importer des «{type}» depuis {doc}"
 
-#: creme_jobs/mass_import.py:105
+#: creme_jobs/mass_import.py:106
 #, python-brace-format
 msgid "{counter} «{type}» has been created."
 msgid_plural "{counter} «{type}» have been created."
 msgstr[0] "{counter} «{type}» a été créé(e)"
 msgstr[1] "{counter} «{type}» ont été créé(e)s."
 
-#: creme_jobs/mass_import.py:113
+#: creme_jobs/mass_import.py:114
 #, python-brace-format
 msgid "No «{type}» has been created."
 msgstr "Aucun(e) «{type}» n'a été créé(e)"
 
-#: creme_jobs/mass_import.py:116
+#: creme_jobs/mass_import.py:117
 #, python-brace-format
 msgid "{counter} «{type}» has been updated."
 msgid_plural "{counter} «{type}» have been updated."
 msgstr[0] "{counter} «{type}» a été mis(e) à jour."
 msgstr[1] "{counter} «{type}» ont été mis(es) à jour."
 
-#: creme_jobs/mass_import.py:124
+#: creme_jobs/mass_import.py:125
 #, python-brace-format
 msgid "No «{type}» has been updated."
 msgstr "Aucun(e) «{type}» n'a été mis(e) à jour."
 
-#: creme_jobs/mass_import.py:126
+#: creme_jobs/mass_import.py:127
 #, python-brace-format
 msgid "{count} line in the file."
 msgid_plural "{count} lines in the file."
@@ -1119,7 +1119,7 @@ msgstr "Seconde(s)"
 
 #: gui/bricks.py:426
 msgid "Information on the entity (generic)"
-msgstr "Information sur la fuche (générique)"
+msgstr "Information sur la fiche (générique)"
 
 #: gui/bricks.py:448
 #, python-brace-format
@@ -2462,7 +2462,7 @@ msgstr "Modifier \"%(entity)s\""
 msgid "No history for the moment"
 msgstr "Aucun historique pour le moment"
 
-#: templates/creme_core/bricks/job-errors.html:10 views/mass_import.py:151
+#: templates/creme_core/bricks/job-errors.html:10 views/mass_import.py:153
 msgid "Errors"
 msgstr "Erreurs"
 
@@ -2756,20 +2756,6 @@ msgstr "Supprimer définitivement"
 msgid "The trash is empty"
 msgstr "La corbeille est vide"
 
-#: templates/creme_core/conflict_error.html:5
-#: templates/creme_core/forbidden.html:5
-msgid "Error !"
-msgstr "Erreur !"
-
-#: templates/creme_core/conflict_error.html:26
-msgid "Creme 409 Error"
-msgstr "Creme Erreur 409"
-
-#: templates/creme_core/conflict_error.html:34
-msgid "You can not perform this action because of business constraints."
-msgstr ""
-"Vous ne pouvez pas effectuer cette action à cause de contraintes métier."
-
 #: templates/creme_core/entity_cells_widget.html:11
 msgid "SEARCH"
 msgstr "RECHERCHE"
@@ -2820,11 +2806,7 @@ msgstr "Créer un filtre pour «%s»"
 msgid "Edit the filter «%s»"
 msgstr "Modifier le filtre «%s»"
 
-#: templates/creme_core/forbidden.html:26
-msgid "Creme 403 Error"
-msgstr "Creme Erreur 403"
-
-#: templates/creme_core/forbidden.html:52
+#: templates/creme_core/forbidden.html:25
 msgid "You do not have access to this page, please contact your administrator."
 msgstr ""
 "Vous n'avez pas accès à cette page, veuillez contacter votre administrateur."
@@ -3212,14 +3194,14 @@ msgstr "Première page"
 #: templates/creme_core/templatetags/listview/paginator_fast.html:5
 #: templates/creme_core/templatetags/listview/paginator_slow.html:4
 #: templates/creme_core/templatetags/widgets/block_footer.html:39
-#: templatetags/creme_bricks.py:703
+#: templatetags/creme_bricks.py:699
 msgid "Previous page"
 msgstr "Page précédente"
 
 #: templates/creme_core/templatetags/listview/paginator_fast.html:6
 #: templates/creme_core/templatetags/listview/paginator_slow.html:12
 #: templates/creme_core/templatetags/widgets/block_footer.html:101
-#: templatetags/creme_bricks.py:722
+#: templatetags/creme_bricks.py:718
 msgid "Next page"
 msgstr "Page suivante"
 
@@ -3306,8 +3288,8 @@ msgstr "Aller à la page %(p)s"
 #: templates/creme_core/templatetags/widgets/block_footer.html:69
 #: templates/creme_core/templatetags/widgets/block_footer.html:82
 #: templates/creme_core/templatetags/widgets/block_footer.html:91
-#: templatetags/creme_bricks.py:709 templatetags/creme_bricks.py:713
-#: templatetags/creme_bricks.py:717 templatetags/creme_bricks.py:719
+#: templatetags/creme_bricks.py:705 templatetags/creme_bricks.py:709
+#: templatetags/creme_bricks.py:713 templatetags/creme_bricks.py:715
 msgid "To another page"
 msgstr "Aller à une autre page"
 
@@ -3422,21 +3404,21 @@ msgstr "Cacher les champs vides"
 msgid "Show empty fields"
 msgstr "Montrer les champs vides"
 
-#: templatetags/creme_bricks.py:434
+#: templatetags/creme_bricks.py:433
 #, python-brace-format
 msgid "Sort «{model}» by «{field}»"
 msgstr "Trier «{model}» par «{field}»"
 
-#: templatetags/creme_bricks.py:683
+#: templatetags/creme_bricks.py:679
 #, python-format
 msgid "To page %s"
 msgstr "À la page %s"
 
-#: templatetags/creme_bricks.py:710 templatetags/creme_bricks.py:720
+#: templatetags/creme_bricks.py:706 templatetags/creme_bricks.py:716
 msgid "To last page"
 msgstr "À la dernière page"
 
-#: templatetags/creme_bricks.py:712 templatetags/creme_bricks.py:716
+#: templatetags/creme_bricks.py:708 templatetags/creme_bricks.py:712
 msgid "To first page"
 msgstr "À la première page"
 
@@ -3477,7 +3459,7 @@ msgstr[1] "%s seconde(s)"
 msgid "* is empty *"
 msgstr "* est vide *"
 
-#: templatetags/creme_widgets.py:409
+#: templatetags/creme_widgets.py:410
 msgid "and"
 msgstr "et"
 
@@ -3799,19 +3781,20 @@ msgstr "Type de job inconnu(%s). Veuillez contacter votre administrateur."
 msgid "Edit the job «%s»"
 msgstr "Modifier le job «%s»"
 
-#: views/mass_import.py:64
+#: views/mass_import.py:65
 msgid "Save the entities"
 msgstr "Enregistrer les fiches"
 
-#: views/mass_import.py:82 views/mass_import.py:111
+#: views/mass_import.py:83 views/mass_import.py:112
 msgid "Import this file"
 msgstr "Importer ce fichier"
 
-#: views/mass_import.py:117
-msgid "Import data file"
-msgstr "Importer un fichier de données"
+#: views/mass_import.py:119
+#, python-brace-format
+msgid "Import «{model}» from data file"
+msgstr "Importer des «{model}» depuis un fichier"
 
-#: views/mass_import.py:145
+#: views/mass_import.py:147
 msgid "Unknown file type ; please contact your administrator."
 msgstr "Type de fichier inconnu ; veuillez contacter votre administrateur."
 
@@ -3861,6 +3844,22 @@ msgstr "Recherche vide…"
 #, python-format
 msgid "Please enter at least %s characters"
 msgstr "Veuillez entrer au moins %s caractères"
+
+#~ msgid "Error !"
+#~ msgstr "Erreur !"
+
+#~ msgid "Creme 409 Error"
+#~ msgstr "Creme Erreur 409"
+
+#~ msgid "You can not perform this action because of business constraints."
+#~ msgstr ""
+#~ "Vous ne pouvez pas effectuer cette action à cause de contraintes métier."
+
+#~ msgid "Creme 403 Error"
+#~ msgstr "Creme Erreur 403"
+
+#~ msgid "Import data file"
+#~ msgstr "Importer un fichier de données"
 
 #~ msgid "%s entity has been successfully modified."
 #~ msgid_plural "%s entities have been successfully modified."

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-16 21:25+0200\n"
+"POT-Creation-Date: 2017-11-24 23:42+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -104,7 +104,7 @@ msgctxt "activities-stats"
 msgid "%s in all"
 msgstr "%s en tout"
 
-#: blocks.py:32 bricks.py:121
+#: blocks.py:32 bricks.py:120
 #: templates/activities/bricks/future-activities.html:8
 #: templates/activities/bricks/future-activities.html:10
 #: templates/activities/templatetags/block_future_activities.html:11
@@ -112,7 +112,7 @@ msgstr "%s en tout"
 msgid "Future activities"
 msgstr "Activités futures"
 
-#: blocks.py:107 bricks.py:189
+#: blocks.py:107 bricks.py:188
 #: templates/activities/bricks/past-activities.html:8
 #: templates/activities/bricks/past-activities.html:10
 #: templates/activities/templatetags/block_past_activities.html:11
@@ -120,17 +120,17 @@ msgstr "Activités futures"
 msgid "Past activities"
 msgstr "Activités passées"
 
-#: bricks.py:53 forms/activity.py:294 forms/activity.py:556 forms/bricks.py:59
+#: bricks.py:52 forms/activity.py:294 forms/activity.py:556 forms/bricks.py:59
 #: forms/mass_import.py:589 templates/activities/bricks/participants.html:7
 msgid "Participants"
 msgstr "Participants"
 
-#: bricks.py:94 forms/activity.py:271 forms/bricks.py:175
+#: bricks.py:93 forms/activity.py:271 forms/bricks.py:175
 #: templates/activities/bricks/subjects.html:7
 msgid "Subjects"
 msgstr "Sujets"
 
-#: bricks.py:229
+#: bricks.py:228
 msgid "On my calendars"
 msgstr "Sur mes calendriers"
 
@@ -162,7 +162,7 @@ msgstr "Créer un salon"
 msgid "Create a demo"
 msgstr "Créer une démo"
 
-#: forms/activity.py:52 forms/activity_type.py:186 forms/mass_import.py:571
+#: forms/activity.py:52 forms/activity_type.py:185 forms/mass_import.py:571
 msgid "Type"
 msgstr "Type"
 
@@ -287,27 +287,27 @@ msgstr "Type d'indisponibilité"
 msgid "Unavailable users"
 msgstr "Utilisateurs non-disponibles"
 
-#: forms/activity_type.py:40
+#: forms/activity_type.py:39
 msgid "Duration"
 msgstr "Durée"
 
-#: forms/activity_type.py:98
+#: forms/activity_type.py:97
 msgid "This type causes constraint error."
 msgstr "Ce type cause une erreur de contrainte"
 
-#: forms/activity_type.py:99
+#: forms/activity_type.py:98
 msgid "Sub-type is required."
 msgstr "Le sous-type est obligatoire"
 
-#: forms/activity_type.py:180
+#: forms/activity_type.py:179
 msgid "The type of an indisponibility cannot be changed."
 msgstr "Le type d'une indisponibilité ne peut pas être modifié."
 
-#: forms/activity_type.py:200
+#: forms/activity_type.py:199
 msgid "Beware !"
 msgstr "Attention !"
 
-#: forms/activity_type.py:202
+#: forms/activity_type.py:201
 #, python-format
 msgid ""
 "The type of %s activity cannot be changed because it is an indisponibility."
