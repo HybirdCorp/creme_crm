@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-23 18:00+0100\n"
+"POT-Creation-Date: 2017-11-28 19:39+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -24,33 +24,42 @@ msgstr "Format : Jour-Mois-Année (Ex:31-12-2017)"
 msgid "Format: Day-Month-Year Hour:Minute:Second (Ex:31-12-2017 23:59:59)"
 msgstr "Format : Jour-Mois-Année Heure:Minute:Seconde (Ex:31-12-2017 23:59:59)"
 
-#: settings.py:443
+#: settings.py:446
 msgid "Ice cream"
 msgstr "Crème glacée"
 
-#: settings.py:444
+#: settings.py:447
 msgid "Chantilly"
 msgstr "Chantilly"
 
-#: templates/404.html:6 templates/500.html:7
-msgid "Error !"
-msgstr "Erreur !"
+#: templates/403.html:6
+msgid "Creme — 403 Error"
+msgstr "Creme — Erreur 403"
 
-#: templates/404.html:28
-msgid "Creme 404 Error"
-msgstr "Creme Erreur 404"
+#: templates/403.html:8
+msgid "Your are not allowed to access this page."
+msgstr "Vous n'êtes pas authorisé à accéder à cette page."
 
-#: templates/404.html:32
-msgid "The page you have requested is unfoundable."
+#: templates/404.html:6
+msgid "Creme — 404 Error"
+msgstr "Creme — Erreur 404"
+
+#: templates/404.html:8
+msgid "The page you have requested is not found."
 msgstr "La page que vous avez demandée est introuvable."
 
-#: templates/500.html:28
-msgid "Creme 500 Error"
-msgstr "Creme Erreur 500"
+#: templates/409.html:6
+msgid "Creme — 409 Error"
+msgstr "Creme — Erreur 409"
 
-#: templates/500.html:29
-msgid "An internal error has occurred."
-msgstr "Une erreur interne s'est produite."
+#: templates/409.html:8
+msgid "You can not perform this action because of business constraints."
+msgstr ""
+"Vous ne pouvez pas effectuer cette action à cause de contraintes métier."
+
+#: templates/500.html:6
+msgid "Creme — 500 Error"
+msgstr "Creme — Erreur 500"
 
 #: templates/authent/base.html:7
 msgid "Connection"
@@ -72,11 +81,19 @@ msgstr "Mot de passe"
 msgid "Log in"
 msgstr "Se connecter"
 
+#: templates/error-base.html:6
+msgid "Error !"
+msgstr "Erreur !"
+
+#: templates/error-base.html:130
+msgid "An internal error has occurred."
+msgstr "Une erreur interne s'est produite."
+
 #: templates/footer/base-footer.html:20
 #, python-format
 msgid ""
-"<strong>%(software)s</strong> is free/OpenSource software, cooked in "
-"France since 2008, by <strong>%(creator)s</strong>"
+"<strong>%(software)s</strong> is free/OpenSource software, cooked in France "
+"since 2008, by <strong>%(creator)s</strong>"
 msgstr ""
 "<strong>%(software)s</strong> est un logiciel libre, cuisiné en France "
 "depuis 2008, par <strong>%(creator)s</strong>"

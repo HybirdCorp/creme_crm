@@ -8,14 +8,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Projects 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-15 16:57+0200\n"
+"POT-Creation-Date: 2017-11-24 23:49+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps.py:28 models/project.py:61
+#: apps.py:28 models/project.py:61 templates/projects/portal.html:4
 msgid "Projects"
 msgstr "Projets"
 
@@ -170,7 +170,7 @@ msgstr "Créer un projet"
 msgid "Save the project"
 msgstr "Enregistrer le projet"
 
-#: models/project.py:60 models/task.py:37 templates/projects/portal.html:3
+#: models/project.py:60 models/task.py:37
 msgid "Project"
 msgstr "Projet"
 
@@ -631,11 +631,11 @@ msgstr "Supprimer cette tâche"
 msgid "No task in this project for the moment"
 msgstr "Aucune tâche dans ce projet pour le moment"
 
-#: templates/projects/portal.html:4
+#: templates/projects/portal.html:5
 msgid "Projects portal"
 msgstr "Portail Projet"
 
-#: templates/projects/portal.html:6
+#: templates/projects/portal.html:7
 msgid "List of projects"
 msgstr "Liste des projets"
 
