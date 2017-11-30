@@ -1,0 +1,136 @@
+{% load i18n media %}<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html class="error" xmlns="http://www.w3.org/1999/xhtml" lang="{{LANGUAGE_CODE}}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <title>{% trans 'Error !' %}</title>
+    <link rel="shortcut icon" href="{% media_url 'common/images/favicon.ico' %}" type="image/x-icon" />
+</head>
+<style type="text/css">
+    {% block style %}
+        @font-face {
+          font-family: 'Open Sans';
+          font-style: normal;
+          font-weight: 400;
+          src: url('{% media_url "common/fonts/OpenSans-Regular-400.eot" %}'); /* IE9 Compat Modes */
+          src: url('{% media_url "common/fonts/OpenSans-Regular-400.woff" %}') format('woff'), /* Modern Browsers */
+               url('{% media_url "common/fonts/OpenSans-Regular.ttf" %}') format('truetype'); /* Safari, Android, iOS */
+        }
+
+        @font-face {
+          font-family: 'Open Sans';
+          font-style: normal;
+          font-weight: 600;
+          src: url('{% media_url "common/fonts/OpenSans-Semibold-600.eot" %}'); /* IE9 Compat Modes */
+          src: url('{% media_url "common/fonts/OpenSans-Semibold-600.woff" %}') format('woff'), /* Modern Browsers */
+               url('{% media_url "common/fonts/OpenSans-Semibold.ttf" %}') format('truetype'); /* Safari, Android, iOS */
+        }
+
+{% comment %}
+        @font-face {
+          font-family: 'Open Sans';
+          font-style: normal;
+          font-weight: 700;
+          src: url('{% media_url "common/fonts/OpenSans-Bold-700.eot" %}');
+          src: url('{% media_url "common/fonts/OpenSans-Bold-700.woff" %}') format('woff'),
+               url('{% media_url "common/fonts/OpenSans-Bold.ttf" %}') format('truetype');
+        }
+{% endcomment %}
+
+        html, body {
+            height: 100%;
+
+            margin: 0;
+            padding: 0;
+
+            color: black;
+
+            font-family: 'Open Sans', 'Verdana', sans-serif;
+            font-size: 14px;
+        }
+
+        body {
+            background-color: #333;
+            background-image: url({% media_url 'common/images/creme-pattern.png' %});
+            background-repeat: repeat-x;
+        }
+
+        .error .containers {
+            height: 100%;
+
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .error .error-container {
+            background: #fcfcfc;
+            background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(rgba(245, 245, 245, 0.8)));
+            background: -moz-linear-gradient(top, #fff 0%, rgba(245, 245, 245, 0.8) 100%);
+            background-repeat: repeat-x;
+
+            width: 500px;
+
+            margin-right: auto;
+            margin-left: auto;
+
+            border: 1px solid #000;
+            border-radius: 2px;
+
+            -webkit-box-sizing: border-box;
+               -moz-box-sizing: border-box;
+                    box-sizing: border-box;
+
+            padding-top: 20px;
+        }
+
+        .error .error-container .error-icon {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+        }
+
+        .error .error-container .error-icon img {
+            width: 200px;
+            height: 200px;
+        }
+
+        .error .main-content {
+            width: 350px;
+            margin: 0 auto;
+            margin-top: 30px;
+        }
+
+        .error .main-content .title {
+            padding-bottom: 10px;
+            padding-left: 20px;
+
+            color: #444;
+            font-size: 16px;
+            font-weight: 600;
+
+            border-bottom: 1px solid #999;
+        }
+
+        .error .main-content .message {
+            margin-top: 20px;
+            margin-bottom: 30px;
+        }
+    {% endblock %}
+    </style>
+<body>
+    <div class="containers">
+        <div class="error-container">
+            <div class="error-icon">{% block icon %}{% endblock %}</div>
+            <div class="main-content">
+                <div class="title">
+                    {% block title %}Creme Error{% endblock %}
+                </div>
+                <div class="message">
+                    {% block error_message %}{% trans 'An internal error has occurred.' %}{% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

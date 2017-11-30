@@ -97,7 +97,7 @@ class MiscViewsTestCase(ViewsTestCase):
     def test_404_middleware(self):
         self.login()
         response = self.assertGET404('/test_http_response?status=404')
-        self.assertContains(response, _('The page you have requested is unfoundable.'), status_code=404)
+        self.assertContains(response, _(u'The page you have requested is not found.'), status_code=404)
 
         response = self.assertGET404('/test_http_response?status=404', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertContains(response, 'Tests: no such result or unknown url', status_code=404)

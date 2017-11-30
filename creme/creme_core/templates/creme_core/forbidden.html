@@ -1,6 +1,34 @@
-{% extends "creme_core/base.html" %}
-{% load i18n %}
-{% load creme_core_tags creme_widgets %}
+{% extends '403.html' %}
+{% load i18n creme_core_tags creme_widgets %}
+
+{% block error_message %}
+    {% if error_message %}
+        {{error_message}}
+        {% if protected_objects %}{# TODO: use list_instances widget #}
+            <ul>
+            {% for object in protected_objects %}
+                <li>{{object|get_meta_value:'verbose_name'}} :
+                {% if object|is_entity %}
+                    {% widget_entity_hyperlink object.get_real_entity user %}
+                {% elif object|is_relation %}
+                    {% widget_entity_hyperlink object.subject_entity.get_real_entity user %}
+                    {{object.type.predicate}}
+                    {% widget_entity_hyperlink object.object_entity.get_real_entity user %}
+                {% else %}
+                    {{object}}
+                {% endif %}
+                </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% else %}
+        {% trans 'You do not have access to this page, please contact your administrator.' %}
+    {% endif %}
+{% endblock %}
+
+{% comment %}
+{% extends 'creme_core/base.html' %}
+{% load i18n creme_core_tags creme_widgets %}
 
 {% block page_title %}{% trans 'Error !' %} - {% endblock %}
 
@@ -28,31 +56,32 @@
 
                 <div>
                     <p>
-                        {% if error_message %}
-                            {{error_message}}
-                            {% if protected_objects %}{% comment %}TODO: use list_instances widget {% endcomment %}
-                                <ul>
-                                    {% for object in protected_objects%}
-                                        <li>{{object|get_meta_value:'verbose_name'}} :
-                                            {% if object|is_entity %}
-                                                {% widget_entity_hyperlink object.get_real_entity user %}
-                                            {% elif object|is_relation %}
-                                                {% widget_entity_hyperlink object.subject_entity.get_real_entity user %}
-                                                {{object.type.predicate}}
-                                                {% widget_entity_hyperlink object.object_entity.get_real_entity user %}
-                                            {% else %}
-                                                {{object}}
-                                            {% endif %}
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
-                        {% else %}
-                            {% trans "You do not have access to this page, please contact your administrator." %}
+                    {% if error_message %}
+                        {{error_message}}
+                        {% if protected_objects %}{# TODO: use list_instances widget #}
+                            <ul>
+                            {% for object in protected_objects %}
+                                <li>{{object|get_meta_value:'verbose_name'}} :
+                                {% if object|is_entity %}
+                                    {% widget_entity_hyperlink object.get_real_entity user %}
+                                {% elif object|is_relation %}
+                                    {% widget_entity_hyperlink object.subject_entity.get_real_entity user %}
+                                    {{object.type.predicate}}
+                                    {% widget_entity_hyperlink object.object_entity.get_real_entity user %}
+                                {% else %}
+                                    {{object}}
+                                {% endif %}
+                                </li>
+                            {% endfor %}
+                            </ul>
                         {% endif %}
+                    {% else %}
+                        {% trans 'You do not have access to this page, please contact your administrator.' %}
+                    {% endif %}
                     </p>
                 </div>
             </div>
         </div>
     </div>
 {% endblock %}
+{% endcomment %}

@@ -1,9 +1,19 @@
+{% extends 'error-base.html' %}
+{% load i18n media %}
+
+{% block icon %}<img width="200px" height="200px" src="{% media_url 'common/images/404_200.png' %}"/>{% endblock %}
+
+{% block title %}{% trans 'Creme — 404 Error' %}{% endblock %}
+
+{% block error_message %}{% trans 'The page you have requested is not found.' %}{% endblock %}
+
+{% comment %}
 {% load i18n creme_core_tags %}<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html class="central_panel" xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<html class="central_panel" xmlns="http://www.w3.org/1999/xhtml" lang="{{LANGUAGE_CODE}}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <title>Creme CRM - {% trans 'Error !' %}</title>
+    <title>{% trans 'Error !' %} - Creme CRM</title>
     <script type='text/javascript'>
         var THEME_NAME = "{{ THEME_NAME }}";
     </script>
@@ -29,9 +39,10 @@
             </div>
 
             <div>
-                <p>{% trans "The page you have requested is unfoundable." %}</p>
+                <p>{% trans 'The page you have requested is unfoundable.' %}</p>
             </div>
         </div>
     </div>
 </body>
 </html>
+{% endcomment %}
