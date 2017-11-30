@@ -58,6 +58,7 @@
         <td class="job-lastrun">{{job.last_run|default:''}}</td>
         <td class="job-status" data-job-id="{{job.id}}" data-job-status="{{job.status}}" data-job-ack-errors="{{job.ack_errors}}">
             {{job.get_status_display}}
+            {% if not job.is_finished %}{{job.progress.render}}{% endif %}
         </td>
         <td {% brick_table_data_status action %} >
         {% if not job.user %}

@@ -10,12 +10,9 @@ try:
     from django.core.urlresolvers import reverse
     from django.template.defaultfilters import slugify
     from django.test.utils import override_settings
+    from django.utils.encoding import smart_unicode
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _, ungettext
-    from django.utils.encoding import smart_unicode
-
-    from ..fake_models import (FakeContact, FakeOrganisation, FakeAddress,
-            FakePosition, FakeSector,FakeEmailCampaign)
 
     from .base import ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTestCaseMixin, skipIfNoXLSLib
 
@@ -23,7 +20,8 @@ try:
     from creme.creme_core.creme_jobs import mass_import_type, batch_process_type
     from creme.creme_core.models import (CremePropertyType, CremeProperty,
             RelationType, Relation, FieldsConfig, CustomField, CustomFieldEnumValue,
-            Job, MassImportJobResult)
+            Job, MassImportJobResult,
+            FakeContact, FakeOrganisation, FakeAddress, FakePosition, FakeSector, FakeEmailCampaign)
     from creme.creme_core.utils import update_model_instance
 
     from creme.documents.models import Document
@@ -149,10 +147,10 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
 
         # Properties
         self.assertIs(mass_import_type, job.type)
-        self.assertEqual([_(u'Import «%(type)s» from %(doc)s') % {
-                                'type': 'Test Contact',
-                                'doc':  doc,
-                            }
+        self.assertEqual([_(u'Import «{type}» from {doc}').format(
+                                type='Test Contact',
+                                doc=doc,
+                            )
                          ],
                          job.description
                         )  # TODO: description of columns ????
@@ -190,17 +188,27 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         self._assertNoResultError(results)
         self.assertIs(results[0].updated, False)
 
-        self.assertEqual([ungettext(u'%(counter)s «%(type)s» has been created.',
-                                    u'%(counter)s «%(type)s» have been created.',
+        self.assertEqual([ungettext(u'{counter} «{type}» has been created.',
+                                    u'{counter} «{type}» have been created.',
                                     lines_count
-                                   ) % {'counter': lines_count,
-                                        'type':    'Test Contacts',
-                                       },
-                          ungettext(u'%s line in the file.', u'%s lines in the file.',
+                                   ).format(counter=lines_count,
+                                            type='Test Contacts',
+                                           ),
+                          ungettext(u'{count} line in the file.',
+                                    u'{count} lines in the file.',
                                     lines_count,
-                                   ) % lines_count,
+                                   ).format(count=lines_count),
                          ],
                          job.stats
+                        )
+
+        progress = job.progress
+        self.assertIsNone(progress.percentage)
+        self.assertEqual(ungettext(u'{count} line has been processed.',
+                                   u'{count} lines have been processed.',
+                                   lines_count
+                                  ).format(count=lines_count),
+                         progress.label
                         )
 
         # Reload brick -----------
@@ -335,16 +343,14 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
 
         results = self._get_job_results(job)
         self.assertEqual(lines_count, len(results))
-        self.assertEqual([ungettext(u'%(counter)s «%(type)s» has been created.',
-                                    u'%(counter)s «%(type)s» have been created.',
+        self.assertEqual([ungettext(u'{counter} «{type}» has been created.',
+                                    u'{counter} «{type}» have been created.',
                                     lines_count
-                                  ) % {
-                              'counter': lines_count,
-                              'type':    'Test Contacts',
-                          },
-                          ungettext('%s line in the file.', '%s lines in the file.',
+                                  ).format(counter=lines_count, type='Test Contacts'),
+                          ungettext(u'{count} line in the file.',
+                                    u'{count} lines in the file.',
                                     lines_count,
-                                   ) % lines_count,
+                                   ).format(count=lines_count),
                          ],
                          job.stats
                         )
@@ -1029,19 +1035,18 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         jresult = self.get_object_or_fail(MassImportJobResult, job=job, entity=rei)
         self.assertTrue(jresult.updated)
 
-        self.assertEqual([ungettext(u'%(counter)s «%(type)s» has been created.',
-                                    u'%(counter)s «%(type)s» have been created.',
+        self.assertEqual([ungettext(u'{counter} «{type}» has been created.',
+                                    u'{counter} «{type}» have been created.',
                                     1
-                                   ) % {'counter': 1,
-                                        'type':    'Test Contact',
-                                       },
-                          ungettext(u'%(counter)s «%(type)s» has been updated.',
-                                    u'%(counter)s «%(type)s» have been updated.',
+                                   ).format(counter=1, type='Test Contact'),
+                          ungettext(u'{counter} «{type}» has been updated.',
+                                    u'{counter} «{type}» have been updated.',
                                     1
-                                   ) % {'counter': 1,
-                                        'type':    'Test Contact',
-                                       },
-                          ungettext(u'%s line in the file.', u'%s lines in the file.', 2) % 2,
+                                   ).format(counter=1, type='Test Contact'),
+                          ungettext(u'{count} line in the file.',
+                                    u'{count} lines in the file.',
+                                    2
+                                   ).format(count=2),
                          ],
                          job.stats
                         )

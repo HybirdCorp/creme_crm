@@ -39,7 +39,7 @@ from .generic import inner_popup
 
 @login_required
 def listview(request):
-    return render(request, 'creme_core/jobs.html',
+    return render(request, 'creme_core/job/list.html',
                   context={'bricks_reload_url': reverse('creme_core__reload_bricks')},
                   # {'back_url': request.META.get('HTTP_REFERER')} #problem when we come from a deleted job
                  )
@@ -55,7 +55,7 @@ def detailview(request, job_id):
 
     job.check_owner_or_die(request.user)
 
-    return render(request, 'creme_core/job.html',
+    return render(request, 'creme_core/job/detail.html',
                   {'job': job,
                    # 'results_blocks': jtype.results_blocks,
                    'results_bricks': jtype.results_bricks,
@@ -163,7 +163,6 @@ def get_info(request):
                 if not job.check_owner(user):
                     info[job_id] = 'Job is not allowed'
                 else:
-                    # TODO: other info -> progress, progress label, is finished
                     ack_errors = job.ack_errors
 
                     # NB: we check 'error' too, to avoid flooding queue/job_manager.
@@ -173,7 +172,13 @@ def get_info(request):
                             job.forget_ack_errors()
                             ack_errors = 0  # TODO: read again from DB ?
 
-                    info[job_id] = {'status': job.status, 'ack_errors': ack_errors}
+                    progress = job.progress
+
+                    info[job_id] = {
+                        'status':     job.status,
+                        'ack_errors': ack_errors,
+                        'progress':   progress.data,
+                    }
 
     return info
 

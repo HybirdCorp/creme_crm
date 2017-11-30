@@ -34,7 +34,7 @@ EntityEmail = get_entityemail_model()
 
 class _EntityEmailsSendType(JobType):
     id           = JobType.generate_id('emails', 'entity_emails_send')
-    verbose_name = _('Send entity emails')
+    verbose_name = _(u'Send entity emails')
     periodic     = JobType.PSEUDO_PERIODIC
 
     def _execute(self, job):

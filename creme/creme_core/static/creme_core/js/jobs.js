@@ -20,11 +20,12 @@
  * Requires : jQuery
  */
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.jobs = {};
 
-creme.jobs.decorateJobStatus = function(brick_elt, job_id, status, ack_errors) {
+creme.jobs.decorateJobStatus = function(brick_elt, job_id, status, ack_errors, progress) {
     var must_reload = false;
     var ack_errors_label = '';
 
@@ -49,13 +50,23 @@ creme.jobs.decorateJobStatus = function(brick_elt, job_id, status, ack_errors) {
       case 1: // STATUS_WAIT
         must_reload = true;
 
-        brick_elt.find('[data-job-status][data-job-id=' + job_id + ']').each(function(i, e) {
-            var elt = $(e);
+        if (progress) {
+            brick_elt.find('[data-job-status][data-job-id=' + job_id + ']').each(function(i, e) {
+                var elt = $(e);
+                var label = progress.label;
+                var percentage = progress.percentage;
 
-            if (!elt.find('.progress').length) {
-                elt.append('<img class="progress" src="' + creme_media_url("images/wait.gif") + '" />');
-            }
-        });
+                if (label) {
+                    elt.find('.job-progress-bar-label').text(label);
+                } else if (percentage !== null) {
+                    elt.find('.job-progress-percentage-value').text(percentage);
+                }
+
+                if (percentage !== null) {
+                    elt.find('progress.job-progress-bar').prop('value', percentage);
+                }
+            });
+        }
 
         break;
 
@@ -80,17 +91,19 @@ creme.jobs.checkJobManager = function(url, brick_id, reload_page) {
 
         if (creme.jobs.decorateJobStatus(brick_elt, job_id,
                                          Number(e.getAttribute('data-job-status')),
-                                         Number(e.getAttribute('data-job-ack-errors'))
+                                         Number(e.getAttribute('data-job-ack-errors')),
+                                         null
                                         )) {
             job_ids.push(job_id);
         }
     });
 
+    var uri = url;
     if (job_ids.length) {
-        url = url + '?' + $.param({'id': job_ids});
+        uri += '?' + $.param({'id': job_ids});
     }
 
-    $.ajax({url: url,
+    $.ajax({url: uri,
             dataType: 'json',
             error: function(request, status, error) {
                 var error_panel = brick_elt.find('.global-error');
@@ -114,7 +127,17 @@ creme.jobs.checkJobManager = function(url, brick_id, reload_page) {
                 job_ids.forEach(function (job_id, index, array) {
                     var job_info = data[job_id];
 
-                    if (!Object.isString(job_info) && creme.jobs.decorateJobStatus(brick_elt, job_id, job_info['status'], job_info['ack_errors'])) {
+                    if (Object.isString(job_info)) {
+                        console.log('Server returned an error for job <', job_id, '> => ', job_info);
+                        return;
+                    }
+
+                    if (Object.isNone(job_info)) {
+                        console.log('Invalid data for job <', job_id, '> => ', job_info);
+                        return;
+                    }
+
+                    if (creme.jobs.decorateJobStatus(brick_elt, job_id, job_info['status'], job_info['ack_errors'], job_info['progress'])) {
                         alright = false;
                     }
                 });
@@ -127,4 +150,5 @@ creme.jobs.checkJobManager = function(url, brick_id, reload_page) {
             }
     });
 };
+
 }(jQuery));

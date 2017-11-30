@@ -1,0 +1,11 @@
+{% load creme_widgets %}
+<div class="job-progress">
+{% with label=progress.label percentage=progress.percentage %}
+    <progress class="job-progress-bar" {% if percentage != None %}value="{{percentage}}"{% endif %} max="100"></progress>
+    {% if label %}
+        <span class="job-progress-bar-label">{{label}}</span>
+    {% elif percentage != None %}
+        <span class="job-progress-percentage-value">{{percentage}}</span><span class="job-progress-percentage-mark percentage-mark">%</span>
+    {% endif %}
+{% endwith %}
+</div>

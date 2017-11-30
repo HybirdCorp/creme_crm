@@ -1028,10 +1028,10 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         #
         # self.assertEqual(len(lines), form.imported_objects_count)
         job = self._execute_job(response)
-        self.assertEqual([_(u'Import «%(type)s» from %(doc)s') % {
-                                'type': _('Organisation'),
-                                'doc':  doc,
-                            }
+        self.assertEqual([_(u'Import «{type}» from {doc}').format(
+                                type=_(u'Organisation'),
+                                doc=doc,
+                            )
                          ],
                          job.description
                         )
@@ -1043,24 +1043,24 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         billing_address = self.get_object_or_fail(Organisation, name=name1).billing_address
         self.assertIsNotNone(billing_address)
-        self.assertEqual(_('Billing address'), billing_address.name)
+        self.assertEqual(_(u'Billing address'), billing_address.name)
         self.assertEqual(city1,                billing_address.city)
 
         shipping_address = self.get_object_or_fail(Organisation, name=name2).shipping_address
         self.assertIsNotNone(shipping_address)
-        self.assertEqual(_('Shipping address'), shipping_address.name)
+        self.assertEqual(_(u'Shipping address'), shipping_address.name)
         self.assertEqual(city2,                 shipping_address.city)
 
-        self.assertEqual([ungettext(u'%(counter)s «%(type)s» has been created.',
-                                    u'%(counter)s «%(type)s» have been created.',
+        self.assertEqual([ungettext(u'{counter} «{type}» has been created.',
+                                    u'{counter} «{type}» have been created.',
                                     lines_count
-                                   ) % {'counter': lines_count,
-                                        'type':    _('Organisations'),
-                                       },
-                          ungettext('%s line in the file.',
-                                    '%s lines in the file.',
+                                   ).format(counter=lines_count,
+                                            type=_(u'Organisations'),
+                                           ),
+                          ungettext(u'{count} line in the file.',
+                                    u'{count} lines in the file.',
                                     lines_count
-                                   ) % lines_count,
+                                   ).format(count=lines_count),
                          ],
                          job.stats
                         )

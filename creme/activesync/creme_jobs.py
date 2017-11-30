@@ -30,7 +30,7 @@ from .sync import Synchronization
 
 class _ActiveSyncType(JobType):
     id           = JobType.generate_id('activesync', 'synchronise')
-    verbose_name = _('ActiveSync synchronisation')
+    verbose_name = _(u'ActiveSync synchronisation')
     periodic     = JobType.PERIODIC
 
     def _execute(self, job):
@@ -45,7 +45,7 @@ class _ActiveSyncType(JobType):
                                         )
 
     def get_description(self, job):
-        return [ugettext('Synchronise data with the ActiveSync server')]
+        return [ugettext(u'Synchronise data with the ActiveSync server')]
 
     # def get_stats(self, job): TODO ??
 

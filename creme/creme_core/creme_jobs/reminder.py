@@ -28,7 +28,7 @@ from .base import JobType
 
 class _ReminderType(JobType):
     id           = JobType.generate_id('creme_core', 'reminder')
-    verbose_name = _('Reminders')
+    verbose_name = _(u'Reminders')
     periodic     = JobType.PSEUDO_PERIODIC
 
     def _execute(self, job):
@@ -36,7 +36,7 @@ class _ReminderType(JobType):
             reminder.execute(job)
 
     def get_description(self, job):
-        return [ugettext('Execute all reminders')]
+        return [ugettext(u'Execute all reminders')]
 
     def next_wakeup(self, job, now_value):  # We have to implement it because it is a PSEUDO_PERIODIC JobType
         total_wakeup = None

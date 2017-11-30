@@ -79,28 +79,28 @@ class Job(Model):
     STATUS_ERROR = 10
     STATUS_OK    = 20
 
-    type_id       = CharField(_('Type of job'), max_length=48, editable=False)
-    user          = CremeUserForeignKey(verbose_name=_('User'), null=True, editable=False)
-    enabled       = BooleanField(_('Enabled'), default=True, editable=False)
-    language      = CharField(_('Language'), max_length=10, editable=False)
+    type_id       = CharField(_(u'Type of job'), max_length=48, editable=False)
+    user          = CremeUserForeignKey(verbose_name=_(u'User'), null=True, editable=False)
+    enabled       = BooleanField(_(u'Enabled'), default=True, editable=False)
+    language      = CharField(_(u'Language'), max_length=10, editable=False)
     # created      = CreationDateTimeField(_('Creation date'))
-    reference_run = DateTimeField(_('Reference run'))
-    periodicity   = DatePeriodField(_('Periodicity'), null=True)
-    last_run      = DateTimeField(_('Last run'), null=True, editable=False)
-    ack_errors    = PositiveIntegerField(default=0, editable=False)
-    status        = PositiveSmallIntegerField(_('Status'), editable=False,
+    reference_run = DateTimeField(_(u'Reference run'))
+    periodicity   = DatePeriodField(_(u'Periodicity'), null=True)
+    last_run      = DateTimeField(_(u'Last run'), null=True, editable=False)
+    ack_errors    = PositiveIntegerField(default=0, editable=False)  # Number of errors of communication with the queue.
+    status        = PositiveSmallIntegerField(_(u'Status'), editable=False,
                                               default=STATUS_WAIT,
                                               choices=((STATUS_WAIT,  _(u'Waiting')),
                                                        (STATUS_ERROR, _(u'Error')),
                                                        (STATUS_OK,    _(u'Completed successfully')),
                                                       ),
                                              )
-    error         = TextField(_('Error'), null=True, editable=False)
+    error         = TextField(_(u'Error'), null=True, editable=False)
     raw_data      = TextField(editable=False)  # It stores the Job's parameters  # TODO: use a JSONField ?
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _('Job')
+        verbose_name = _(u'Job')
         verbose_name_plural = _(u'Jobs')
         # ordering = ('created',)
         ordering = ('id',)
@@ -121,17 +121,15 @@ class Job(Model):
         return unicode(self.type)
 
     def __repr__(self):
-        return u'<Job type="%s" id="%s">' % (self.type.id, self.id)
+        return u'<Job type="{type}" id="{id}">'.format(type=self.type_id, id=self.id)
 
     def get_absolute_url(self):
-        # return '/creme_core/job/%s' % self.id
         return reverse('creme_core__job', args=(self.id,))
 
     def get_delete_absolute_url(self):
         return reverse('creme_core__delete_job', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        # return '/creme_core/job/%s/edit' % self.id
         return reverse('creme_core__edit_job', args=(self.id,))
 
     @property
@@ -161,6 +159,13 @@ class Job(Model):
     @property
     def is_finished(self):
         return self.status != self.STATUS_WAIT
+
+    @property
+    def progress(self):
+        jtype = self.type
+
+        if jtype is not None:
+            return jtype.progress(self)
 
     @property
     def real_periodicity(self):
@@ -246,8 +251,8 @@ class BaseJobResult(Model):
         abstract = True
 
     def __repr__(self):
-        return 'JobResult(job=%s, raw_messages="%s")' % (
-                    self.job_id, self.raw_messages,
+        return 'JobResult(job={job}, raw_messages="{msg}")'.format(
+                    job=self.job_id, msg=self.raw_messages,
                 )
 
     @property
@@ -273,8 +278,8 @@ class EntityJobResult(BaseJobResult):
     #     abstract = False
 
     def __repr__(self):
-        return 'EntityJobResult(job=%s, raw_messages="%s", entity=%s)' % (
-                    self.job_id, self.raw_messages, self.entity_id,
+        return 'EntityJobResult(job={job}, raw_messages="{msg}", entity={entity})'.format(
+                    job=self.job_id, msg=self.raw_messages, entity=self.entity_id,
                 )
 
 
@@ -288,8 +293,10 @@ class MassImportJobResult(BaseJobResult):
     #     abstract = False
 
     def __repr__(self):
-        return 'MassImportJobResult(job=%s, raw_messages="%s", entity=%s, raw_line="%s", updated=%s)' % (
-                    self.job_id, self.raw_messages, self.entity_id, self.raw_line, self.updated,
+        return 'MassImportJobResult(job={job}, raw_messages="{msg}", entity={entity}, ' \
+                                   'raw_line="{line}", updated={updated})'.format(
+                    job=self.job_id, msg=self.raw_messages, entity=self.entity_id,
+                    line=self.raw_line, updated=self.updated,
                 )
 
     @property

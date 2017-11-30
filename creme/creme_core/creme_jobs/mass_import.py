@@ -26,7 +26,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext, ungettext
 
 from ..forms.mass_import import get_header, form_factory
 from ..models import MassImportJobResult
-from .base import JobType
+from .base import JobType, JobProgress
 from ..utils.translation import get_model_verbose_name
 
 from creme.documents import get_document_model
@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 class _MassImportType(JobType):
     id           = JobType.generate_id('creme_core', 'mass_import')
-    verbose_name = _('Mass import')
+    verbose_name = _(u'Mass import')
 
     def _build_POST(self, job_data):
         return QueryDict(job_data['POST'])
@@ -61,8 +61,16 @@ class _MassImportType(JobType):
 
         form.process(job)
 
+    def progress(self, job):
+        count = MassImportJobResult.objects.filter(job=job).count()
+        return JobProgress(percentage=None,
+                           label=ungettext(u'{count} line has been processed.',
+                                           u'{count} lines have been processed.',
+                                           count
+                                          ).format(count=count)
+                          )
+
     @property
-    # def results_blocks(self):
     def results_bricks(self):
         from ..bricks import MassImportJobErrorsBrick
         return [MassImportJobErrorsBrick()]
@@ -70,19 +78,16 @@ class _MassImportType(JobType):
     def get_description(self, job):
         try:
             job_data = job.data
-            desc = [ugettext(u'Import «%(type)s» from %(doc)s') % {
-                        'type': self._get_ctype(job_data).model_class()._meta.verbose_name,
-                        'doc':  self._get_document(self._build_POST(job_data)),
-                    }
+            desc = [ugettext(u'Import «{type}» from {doc}').format(
+                        type=self._get_ctype(job_data).model_class()._meta.verbose_name,
+                        doc=self._get_document(self._build_POST(job_data)),
+                    )
                    ]
         except Exception:  # TODO: unit test
             logger.exception('Error in _MassImportType.get_description')
             desc = ['?']
 
         return desc
-
-    # def _get_verbose_name(self, meta, count):
-    #     return ungettext(meta.verbose_name, meta.verbose_name_plural, count)
 
     def get_stats(self, job):
         stats = []
@@ -94,37 +99,34 @@ class _MassImportType(JobType):
         created_count = entity_result_qs.filter(updated=False).count()
         updated_count = entity_result_qs.filter(updated=True).count()
 
-        # meta = self._get_ctype(job.data).model_class()._meta
         model = self._get_ctype(job.data).model_class()
-        meta = model._meta
 
         if created_count:
-            stats.append(ungettext(u'%(counter)s «%(type)s» has been created.',
-                                   u'%(counter)s «%(type)s» have been created.',
+            stats.append(ungettext(u'{counter} «{type}» has been created.',
+                                   u'{counter} «{type}» have been created.',
                                    created_count
-                                  ) % {'counter': created_count,
-                                       # 'type':    self._get_verbose_name(meta, created_count),
-                                       'type':    get_model_verbose_name(model, created_count),
-                                      }
+                                  ).format(counter=created_count,
+                                           type=get_model_verbose_name(model, created_count),
+                                          )
                         )
         elif updated_count != lines_count:
-            stats.append(ugettext(u'No «%s» has been created.') % meta.verbose_name)
+            stats.append(ugettext(u'No «{type}» has been created.').format(type=model._meta.verbose_name))
 
         if updated_count:
-            stats.append(ungettext(u'%(counter)s «%(type)s» has been updated.',
-                                   u'%(counter)s «%(type)s» have been updated.',
+            stats.append(ungettext(u'{counter} «{type}» has been updated.',
+                                   u'{counter} «{type}» have been updated.',
                                    updated_count
-                                  ) % {'counter': updated_count,
-                                       # 'type':    self._get_verbose_name(meta, updated_count),
-                                       'type':    get_model_verbose_name(model, updated_count),
-                                      }
+                                  ).format(counter=updated_count,
+                                           type=get_model_verbose_name(model, updated_count),
+                                          )
                         )
         elif created_count != lines_count:
-            stats.append(ugettext(u'No «%s» has been updated.') % meta.verbose_name)
+            stats.append(ugettext(u'No «{type}» has been updated.').format(type=model._meta.verbose_name))
 
-        stats.append(ungettext('%s line in the file.', '%s lines in the file.',
+        stats.append(ungettext(u'{count} line in the file.',
+                               u'{count} lines in the file.',
                                lines_count,
-                              ) % lines_count
+                              ).format(count=lines_count)
                     )
 
         return stats
