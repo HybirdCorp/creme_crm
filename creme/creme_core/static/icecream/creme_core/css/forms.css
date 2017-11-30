@@ -129,6 +129,12 @@ ul.radio_select, ul.multi-select {
     padding: 0;
 }
 
+table.block-form thead tr th {
+    text-transform: uppercase;
+    color: #666;
+    font-weight: 600;
+}
+
 .block-form td button {
     padding: 0 6px;
 }
