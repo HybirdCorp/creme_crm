@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016  Hybird
+#    Copyright (C) 2016-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -96,9 +96,14 @@ def get_user(entity):
 
 def or_None(f):
     def _aux(*args, **kwargs):
-        if random() > 0.9:
-            return f(*args, **kwargs)
-        return None
+        return f(*args, **kwargs) if random() > 0.9 else None
+
+    return _aux
+
+
+def or_blank(f):
+    def _aux(*args, **kwargs):
+        return f(*args, **kwargs) if random() > 0.9 else ''
 
     return _aux
 
@@ -149,7 +154,8 @@ def _get_contact_n_factory(locale):
         user       = factory.LazyAttribute(get_user)
         first_name = factory.Faker('first_name', locale=locale)
         last_name  = factory.Faker('last_name', locale=locale)
-        email      = factory.LazyAttribute(or_None(build_email))
+        # email      = factory.LazyAttribute(or_None(build_email))
+        email      = factory.LazyAttribute(or_blank(build_email))
 
         # email = factory.Sequence(lambda n: 'person{0}@example.com'.format(n))
         # author = factory.SubFactory(UserFactory)
@@ -173,7 +179,8 @@ def _get_organisation_n_factory(locale):
 
         user  = factory.LazyAttribute(get_user)
         name  = factory.Faker('company', locale=locale)
-        email = factory.LazyAttribute(or_None(build_email))
+        # email = factory.LazyAttribute(or_None(build_email))
+        email = factory.LazyAttribute(or_blank(build_email))
 
     return Organisation, OrganisationFactory
 
