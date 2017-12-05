@@ -12,11 +12,11 @@ try:
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.core.job import JobManager
     from creme.creme_core.core.batch_process import batch_operator_manager, BatchAction
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
-    from creme.creme_core.core.function_field import FunctionField, FunctionFieldsManager
+    from creme.creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldsManager
+    from creme.creme_core.core.job import JobManager
     from creme.creme_core.core.reminder import Reminder, reminder_registry
     from creme.creme_core.core.setting_key import SettingKey, _SettingKeyRegistry
     from creme.creme_core.creme_jobs import reminder_type
@@ -279,10 +279,11 @@ class EntityCellTestCase(CremeTestCase):
         cell = EntityCellRegularField.build(model=FakeContact, name=field_name)
         self.assertIsInstance(cell, EntityCellRegularField)
         self.assertEqual(field_name,      cell.value)
-        self.assertEqual(_('First name'), cell.title)
+        self.assertEqual(_(u'First name'), cell.title)
         self.assertIs(cell.has_a_filter, True)
         self.assertIs(cell.editable, True)
         self.assertIs(cell.sortable, True)
+        self.assertIs(cell.is_multiline, False)
         self.assertEqual('first_name__icontains', cell.filter_string)
 
     def test_build_4_field02(self):
@@ -334,14 +335,16 @@ class EntityCellTestCase(CremeTestCase):
     def test_build_4_field08(self):
         "ManyToMany"
         cell = EntityCellRegularField.build(model=FakeContact, name='languages')
-        self.assertIs(cell.has_a_filter, True)
+        self.assertTrue(cell.has_a_filter)
+        self.assertFalse(cell.sortable)
+        self.assertTrue(cell.is_multiline)
         self.assertEqual('languages', cell.filter_string)
-        self.assertIs(cell.sortable, False)
 
         cell = EntityCellRegularField.build(model=FakeContact, name='languages__name')
-        self.assertIs(cell.has_a_filter, True)
+        self.assertTrue(cell.has_a_filter)
+        self.assertFalse(cell.sortable)
+        self.assertTrue(cell.is_multiline)
         self.assertEqual('languages__name__icontains', cell.filter_string)
-        self.assertIs(cell.sortable, False)
 
     def test_build_4_field_errors(self):
         build = partial(EntityCellRegularField.build, model=FakeContact)
@@ -362,9 +365,10 @@ class EntityCellTestCase(CremeTestCase):
         self.assertIs(cell.has_a_filter, True)
         self.assertIs(cell.editable,     False)
         self.assertIs(cell.sortable,     False)
+        self.assertIs(cell.is_multiline, False)
         self.assertEqual('customfieldinteger__value__icontains', cell.filter_string)
-        self.assertEqual(settings.CSS_NUMBER_LISTVIEW,         cell.listview_css_class)
-        self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
+        self.assertEqual(settings.CSS_NUMBER_LISTVIEW,           cell.listview_css_class)
+        self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW,   cell.header_listview_css_class)
 
         cell = EntityCellCustomField.build(FakeContact, customfield.id)
         self.assertIsInstance(cell, EntityCellCustomField)
@@ -446,12 +450,13 @@ class EntityCellTestCase(CremeTestCase):
         self.assertIs(cell.has_a_filter, True)
         self.assertIs(cell.editable,     False)
         self.assertIs(cell.sortable,     False)
+        self.assertIs(cell.is_multiline, True)
         self.assertEqual('',    cell.filter_string)
         self.assertEqual(loves, cell.relation_type)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,        cell.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
-    def test_build_4_functionfield(self):
+    def test_build_4_functionfield01(self):
         name = 'get_pretty_properties'
         funfield = FakeContact.function_fields.get(name)
         self.assertIsNotNone(funfield)
@@ -464,6 +469,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertIs(cell.editable,     False)
         self.assertIs(cell.sortable,     False)
         self.assertIs(cell.is_hidden,    False)
+        self.assertIs(cell.is_multiline, True)
         self.assertEqual('', cell.filter_string)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,        cell.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
@@ -473,6 +479,20 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(name, cell.value)
 
         self.assertIsNone(EntityCellFunctionField.build(FakeContact, func_field_name='invalid'))
+
+    def test_build_4_functionfield02(self):
+        class PhoneFunctionField(FunctionField):
+            name         = 'phone_or_mobile'
+            verbose_name = 'Phone or mobile'
+
+            def __call__(self, entity, user):
+                return FunctionFieldResult(entity.phone or entity.mobile)
+
+        funfield = PhoneFunctionField()
+        cell = EntityCellFunctionField(func_field=funfield)
+        self.assertEqual(funfield.name,         cell.value)
+        self.assertEqual(funfield.verbose_name, cell.title)
+        self.assertFalse(cell.is_multiline)
 
 
 class SettingKeyTestCase(CremeTestCase):

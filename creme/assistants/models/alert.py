@@ -85,6 +85,7 @@ class Alert(CremeModel):
 class _GetAlerts(FunctionField):
     name         = 'assistants-get_alerts'
     verbose_name = _(u'Alerts')
+    result_type  = FunctionFieldResultsList
 
     # def __call__(self, entity):
     def __call__(self, entity, user):

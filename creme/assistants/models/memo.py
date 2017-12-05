@@ -79,6 +79,7 @@ class Memo(CremeModel):
 class _GetMemos(FunctionField):
     name         = 'assistants-get_memos'
     verbose_name = _(u'Memos')
+    result_type  = FunctionFieldResultsList
 
     # def __call__(self, entity):
     def __call__(self, entity, user):

@@ -332,8 +332,9 @@ else:
 
     class _GetFakeTodos(FunctionField):
         name         = 'tests-get_fake_todos'
-        verbose_name = _(u"Fake Todos")
+        verbose_name = _(u'Fake Todos')
         # has_filter   = False #==> cannot search
+        result_type  = FunctionFieldResultsList
 
         # def __call__(self, entity):
         def __call__(self, entity, user):
