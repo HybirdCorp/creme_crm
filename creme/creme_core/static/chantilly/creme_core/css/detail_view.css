@@ -51,13 +51,16 @@
 }
 
 /* Buttons lists (global, entity, business) */
+/*
 .detailview .global-buttons {
     padding-top: 5px;
     padding-bottom: 5px;
 }
+*/
+
 .detailview .instance-buttons,
 .portal .instance-buttons /* HACK: remove when portals are gone */ {
-    padding-top: 5px;
+    /* padding-top: 5px; */
     padding-bottom: 20px;
 }
 
@@ -155,9 +158,15 @@
     min-width: 350px;
 }
 
+/*
 .brick-hat-card .hat-card-sidebar .card-button-icon {
     padding-right: 10px;
     padding-left: 25px;
+
+}
+*/
+.brick-hat-card .hat-card-sidebar .card-button-icon {
+    margin-left: 4px;
 }
 
 .brick-hat-card .hat-card-sidebar .card-button-icon img {
@@ -392,13 +401,16 @@
 }
 
 .brick.brick-hat-card {
-    border: 0;
     margin: 0;
+    margin-bottom: 15px;
+
+/*    border: 0; */
     padding: 0;
+
     box-shadow: none;
     background: none;
-
     background-color: #fff3f2;
+
     border: 3px solid #fdedeb;
     border-radius: 10px;
 }

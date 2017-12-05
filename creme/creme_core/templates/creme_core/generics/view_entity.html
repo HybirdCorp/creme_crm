@@ -18,9 +18,9 @@
         {% if url %}
             <li>{% has_perm_to create object.entity_type as create_perm %}
                 {% if create_perm %}
-                <a class="menu_button" href="{{url}}">
+                <a class="menu_button menu-button-icon" href="{{url}}">
                 {% else %}
-                <a class="menu_button forbidden is-disabled">
+                <a class="menu_button menu-button-icon forbidden is-disabled">
                 {% endif %}
                     {% widget_icon name='add' size='global-button' label=_('Create') %} {{object.creation_label}}
                 </a>

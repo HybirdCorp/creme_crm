@@ -432,19 +432,6 @@ ul.button_list.vbox li {
     top: 3px;
 }
 
-/* .menu_button.card-button-icon { */
-.card-button.card-button-icon {
-    padding-left: 35px;
-    position: relative;
-}
-
-/* .menu_button.card-button-icon img { */
-.card-button.card-button-icon img {
-    position: absolute;
-    top: calc(50% - 7px);
-    left: 13px;
-}
-
 .global-buttons {
     margin-bottom: 10px;
 }
@@ -469,9 +456,24 @@ ul.button_list.vbox li {
     padding-right: 3px
 }
 
+/* .menu_button.card-button-icon { */
+.card-button.card-button-icon,
+.buttons-list .menu_button.menu-button-icon {
+    padding-left: 35px;
+    position: relative;
+}
+
+/* .menu_button.card-button-icon img { */
+.card-button.card-button-icon img,
+.menu_button.menu-button-icon img {
+    position: absolute;
+    top: calc(50% - 7px);
+    left: 13px;
+}
+
 /* Page header and top areas - end */
 
-/* Error pages */
+/* Error pages */ /* TODO: remove in 1.8 */
 
 .central_panel #branding h1 {
     padding: 0 10px;
@@ -482,16 +484,20 @@ ul.button_list.vbox li {
 }
 
 .central_panel #container {
-    margin-left: -128px;
-    background-color: #f4fafd;
-    border: 3px solid #b3d2df;
     width: 28em;
     min-width: 300px;
+
+    margin-left: -128px;
     margin-left: auto;
     margin-right: auto;
     margin-top: 100px;
-    -moz-border-radius: 10px;
+
+    background-color: #f4fafd;
+
+    border: 3px solid #b3d2df;
     -webkit-border-radius: 10px;
+       -moz-border-radius: 10px;
+            border-radius: 10px;
 }
 
 .central_panel #content-main {
@@ -607,8 +613,13 @@ ul.button_list.vbox li {
     height: auto;
     /* padding-top: 0; guit: uncomment/fix when old menu is removed */
 
-    /* 289px = 269px footer + 20px margin-top; 24px = page decoration, 50px #top margin-top, 10px = weird margin between content and the page decoration - wtf ?! 5px ds IE, 0px dans IE; et dépend de la page */
-    min-height: calc(100vh - 289px - 24px - 50px - 10px); /* TODO: check if we can remove this '10px', at least in js ? */
+    /* 269px = 269px footer
+       39px = page decoration
+       40px = main-content's padding-top
+       10px = weird margin between content and the page decoration - wtf ?! 5px in IE, 0px in IE(?!); & depends on the page
+     */
+/*    min-height: calc(100vh - 284px - 39px - 40px - 10px); TODO: check if we can remove this '10px', at least in js ? */
+    min-height: calc(100vh - 284px - 39px - 40px);
 
     width: 98%;
 
@@ -1035,6 +1046,7 @@ div.hat-bar {
 }
 
 .hat-bar .bar-action {
+    height: 50px;
     margin-left: 10px;
 
     border: 1px solid #d7d7d7;

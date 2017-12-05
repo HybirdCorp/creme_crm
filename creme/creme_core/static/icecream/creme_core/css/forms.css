@@ -130,6 +130,8 @@ ul.radio_select, ul.multi-select {
 }
 
 table.block-form thead tr th {
+    border-bottom: 1px solid #dedede;
+
     text-transform: uppercase;
     color: #666;
     font-weight: 600;

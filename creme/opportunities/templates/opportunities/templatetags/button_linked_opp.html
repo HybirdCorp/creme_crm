@@ -1,11 +1,11 @@
 {% load i18n creme_core_tags creme_widgets %}{% has_perm_to link object as link_perm %}
 {% if has_perm and link_perm %}
-    <a class="menu_button" href="{% url 'opportunities__create_related_opportunity' object.id %}" title="{% blocktrans %}Create an opportunity which targets «{{object}}»{% endblocktrans  %}" >
+    <a class="menu_button menu-button-icon" href="{% url 'opportunities__create_related_opportunity' object.id %}" title="{% blocktrans %}Create an opportunity which targets «{{object}}»{% endblocktrans  %}" >
         {% widget_icon name='opportunity' size='instance-button' label=_('Opportunity') %}
         {% trans 'Create a linked opportunity' %}
     </a>
 {% else %}
-    <span class="menu_button forbidden" title="{% trans 'forbidden' %}">
+    <span class="menu_button menu-button-icon forbidden" title="{% trans 'forbidden' %}">
         {% widget_icon name='opportunity' size='instance-button' label=_('Opportunity') %}
         {% trans 'Create a linked opportunity' %}
     </span>
