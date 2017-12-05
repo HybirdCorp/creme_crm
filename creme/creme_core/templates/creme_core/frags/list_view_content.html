@@ -278,10 +278,9 @@
                             </li>
                         </ul>
                     </th>
-                {% else %}
-                    {# NB: TMP - this header currently adds the css class cell.listview_css_class until semantic information is provided in the template context #}
+                {% else %}{# NB: TMP - this header currently adds the css class cell.listview_css_class until semantic information is provided in the template context #}
                     {# TODO: should this header also add the cell.header_listview_css_class ? #}
-                    <th class="{% if cell.key == list_view_state.sort_field %}sorted {% if list_view_state.sort_order == '-' %} reverse{% endif %}{% endif %} column{% if cell.key in research_cellkeys %} search{% endif %}{% if cell.sortable %} sortable{% endif %} cl_lv"
+                    <th class="{% if cell.key == list_view_state.sort_field %}sorted {% if list_view_state.sort_order == '-' %} reverse{% endif %}{% endif %} column{% if cell.key in research_cellkeys %} search{% endif %}{% if cell.sortable %} sortable{% endif %} cl_lv {{cell.listview_css_class}}"
                         colspan="{{cell|listview_column_colspan:is_popup_view}}">
                         <button type="button" {% if cell.sortable %}title="{% blocktrans with cell.title as col_title %}Sort by {{col_title}}{% endblocktrans %}" onclick="creme.lv_widget.handleSort('#sort_field', '#sort_order', '{{cell.key}}', this, creme.lv_widget.findList(this).list_view('getSubmit'));"{% else %}disabled="true"{% endif %}>
                             <div>
