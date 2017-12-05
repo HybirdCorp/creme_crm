@@ -227,9 +227,14 @@ class PersonsConfig(CremeAppConfig):
                                     empty_label=None,
                                     widget=DynamicSelect(attrs={'autocomplete': True}),
                                  )
-            fields['first_name'].required = True
-            fields['last_name'].required = True
-            fields['email'].required = True
+
+            def set_required(name):
+                field = fields[name]
+                field.required = field.widget.is_required = True
+
+            set_required('first_name')
+            set_required('last_name')
+            set_required('email')
 
         def _save_related_orga_fields(form):
             from creme.creme_core.models import Relation
