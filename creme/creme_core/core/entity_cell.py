@@ -31,7 +31,7 @@ from ..models.fields import DatePeriodField
 from ..utils.collections import ClassKeyedMap
 from ..utils.db import populate_related
 from ..utils.meta import FieldInfo
-from .function_field import FunctionFieldDecimal
+from .function_field import FunctionFieldDecimal, FunctionFieldResultsList
 
 
 logger = logging.getLogger(__name__)
@@ -287,6 +287,10 @@ class EntityCellRegularField(EntityCell):
         return self._field_info
 
     @property
+    def is_multiline(self):
+        return any(isinstance(f, MULTILINE_FIELDS) for f in self._field_info)
+
+    @property
     def model(self):
         return self._model
 
@@ -392,7 +396,7 @@ class EntityCellCustomField(EntityCell):
 class EntityCellFunctionField(EntityCell):
     type_id = 'function_field'
 
-    _FUNFIELD_CSS = { # TODO: ClassKeyedMap ?
+    _FUNFIELD_CSS = {  # TODO: ClassKeyedMap ?
         FunctionFieldDecimal: models.DecimalField,
     }
 
@@ -421,6 +425,10 @@ class EntityCellFunctionField(EntityCell):
 
     def _get_field_class(self):
         return self._FUNFIELD_CSS.get(self._functionfield.result_type, Field)
+
+    @property
+    def is_multiline(self):
+        return issubclass(self._functionfield.result_type, FunctionFieldResultsList)
 
     @staticmethod
     # def populate_entities(cells, entities):
@@ -451,7 +459,7 @@ class EntityCellRelation(EntityCell):
                                                 )
 
     @staticmethod
-    def build(model, rtype_id, is_hidden=False):
+    def build(model, rtype_id, is_hidden=False):  # TODO: store 'model' in instance
         try:
             rtype = RelationType.objects.get(pk=rtype_id)
         except RelationType.DoesNotExist:

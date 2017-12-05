@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -44,10 +44,10 @@ class FunctionFieldDecimal(FunctionFieldResult):
         val = self._data
         # TODO: factorise with field_printers ?
         # TODO remove 'use_l10n' when settings.USE_L10N == True
-        return number_format(val, use_l10n=True) # TODO: ?? "if val is not None else ''"
+        return number_format(val, use_l10n=True)  # TODO: ?? "if val is not None else ''"
 
     def for_html(self):
-        return self._format_decimal() # TODO: escape() ?
+        return self._format_decimal()  # TODO: escape() ?
 
     def for_csv(self):
         return self._format_decimal()
@@ -65,7 +65,8 @@ class FunctionField(object):
     has_filter   = False  # See EntityCell.has_a_filter
     is_hidden    = False  # See EntityCell.is_hidden
     choices      = None  # Choices for list_view filtering. Has to be like django choices (e.g: [(1, 'First choice', ...), ] )
-    result_type  = FunctionFieldResult
+    result_type  = FunctionFieldResult  # TODO: what about FunctionFieldResultsList([FunctionFieldDecimal(...), ...])
+                                        #         ==> FunctionFieldResultsList or FunctionFieldDecimal ??
 
     @classmethod
     def filter_in_result(cls, search_string):

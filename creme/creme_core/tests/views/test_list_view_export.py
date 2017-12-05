@@ -5,6 +5,8 @@ try:
     from functools import partial
     from unittest import skipIf
 
+    import html5lib
+
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
@@ -509,12 +511,32 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertIn(u'"Bebop","%s"' % _(u'Percent'), lines)
         self.assertIn(u'"Swordfish","%s"' % _(u'Amount'), lines)
 
-    def _get_lv_content(self, response):  # NB: copied from ListViewTestCase
-        content = response.content
-        start_idx = content.find('<table id="list"')
-        self.assertNotEqual(-1, start_idx)
+    # TODO: factorise with ListViewTestCase
+    def _get_lv_content(self, response):
+        page_tree = html5lib.parse(response.content, namespaceHTMLElements=False)
 
-        return content[start_idx:]
+        content_node = page_tree.find(".//table[@id='list']")
+        self.assertIsNotNone(content_node, 'The table id="list" is not found.')
+
+        tbody = content_node.find(".//tbody")
+        self.assertIsNotNone(tbody)
+
+        content = []
+
+        for tr_node in tbody.findall('tr'):
+            for td_node in tr_node.findall('td'):
+                class_attr = td_node.attrib.get('class')
+
+                if class_attr:
+                    classes = class_attr.split()
+
+                    if 'lv-cell-content' in classes:
+                        div_node = td_node.find(".//div")
+
+                        if div_node is not None:
+                            content.append(div_node.text.strip())
+
+        return content
 
     @override_settings(PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
     def test_quick_search(self):
@@ -541,8 +563,8 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                            }
                                      )
         content = self._get_lv_content(response)
-        self.assertFound(spike.last_name, content)
-        self.assertFound(jet.last_name, content)
+        self.assertCountOccurrences(spike.last_name, content, count=1)
+        self.assertCountOccurrences(jet.last_name, content, count=1)
         self.assertNotIn(faye.last_name, content)
 
         # ----------------------
@@ -585,11 +607,9 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                       data={'regular_field-mailing_lists': 'staff'}
                                      )
         content = self._get_lv_content(response)
-        # self.assertCountOccurrences(camp1.name, content, count=1)  # Not 2
-        # TODO: search only in 'content' td instead
-        self.assertCountOccurrences('<div>%s</div>' % camp1.name, content, count=1)  # Not 2
-        # self.assertCountOccurrences(camp2.name, content, count=1)
-        self.assertCountOccurrences('<div>%s</div>' % camp2.name, content, count=1)
+
+        self.assertCountOccurrences(camp1.name, content, count=1)  # Not 2
+        self.assertCountOccurrences(camp2.name, content, count=1)
         self.assertNotIn(camp3.name, content)
 
         # ------

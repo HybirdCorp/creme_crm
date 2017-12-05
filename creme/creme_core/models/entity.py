@@ -52,6 +52,7 @@ class _PrettyPropertiesField(FunctionField):
     name         = 'get_pretty_properties'
     verbose_name = _(u'Properties')
     has_filter   = True  # ==> quick search in ListView
+    result_type  = FunctionFieldResultsList
 
     @classmethod
     def filter_in_result(cls, search_string):

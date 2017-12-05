@@ -86,6 +86,7 @@ class ToDo(CremeModel):
 class _GetTodos(FunctionField):
     name         = 'assistants-get_todos'
     verbose_name = _(u'Todos')
+    result_type  = FunctionFieldResultsList
 
     # def __call__(self, entity):
     def __call__(self, entity, user):
