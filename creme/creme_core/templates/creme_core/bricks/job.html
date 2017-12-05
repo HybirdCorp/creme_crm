@@ -40,7 +40,7 @@
 {% block brick_before_content %}
     <div class="global-error" style="display: none;"></div>
 
-    {% if job.enabled and user.is_superuser and job.status == JOB_WAIT %}
+    {% if job.enabled and not job.user and user.is_superuser and job.status == JOB_WAIT %}
     <div class="help-box">{% trans 'Disabling takes effect only after the current execution.' %}</div>
     {% endif %}
 {% endblock %}
