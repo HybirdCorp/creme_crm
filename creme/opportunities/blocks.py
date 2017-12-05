@@ -3,7 +3,7 @@
 import warnings
 
 from django.apps import apps
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.gui.block import SimpleBlock
 
@@ -32,7 +32,7 @@ class OpportunityBlock(SimpleBlock):
 class OppTargetBlock(SimpleBlock):
     id_           = SimpleBlock.generate_id('opportunities', 'target')
     dependencies  = (Opportunity, get_organisation_model())
-    verbose_name  = _(u'Target organisation')
+    verbose_name  = pgettext_lazy('opportunities', u'Target organisation')
     template_name = 'opportunities/templatetags/block_target.html'
     target_ctypes = (Opportunity,)
 

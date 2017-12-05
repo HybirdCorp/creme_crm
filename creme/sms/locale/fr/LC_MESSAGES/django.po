@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme SMS 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-14 23:03+0200\n"
+"POT-Creation-Date: 2017-11-30 18:33+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -472,8 +472,9 @@ msgid "Add manually"
 msgstr "Ajouter à la main"
 
 #: templates/sms/bricks/recipients.html:28
+msgctxt "sms"
 msgid "Delete this recipient"
-msgstr "Enlever ce destinataire"
+msgstr "Supprimer ce destinataire"
 
 #: templates/sms/bricks/recipients.html:35
 #: templates/sms/templatetags/block_recipients.html:44
@@ -531,7 +532,7 @@ msgstr "Synchronisation interdite"
 
 #: templates/sms/bricks/sendings.html:57
 msgid "Delete this sending"
-msgstr "Supprimer cette envoi"
+msgstr "Supprimer cet envoi"
 
 #: templates/sms/bricks/sendings.html:64
 #: templates/sms/templatetags/block_sendings.html:63

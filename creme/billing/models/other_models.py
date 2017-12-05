@@ -108,7 +108,7 @@ class AdditionalInformation(CremeModel):
 
 
 class PaymentTerms(CremeModel):
-    name        = CharField(_(u'Payment terms'), max_length=100)
+    name        = CharField(pgettext_lazy('billing-singular', u'Payment terms'), max_length=100)
     description = TextField(verbose_name=_(u'Description'), blank=True)
     is_custom   = BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
 
@@ -137,7 +137,8 @@ class PaymentInformation(CremeModel):
     bic                   = CharField(_(u'BIC'), max_length=100, blank=True)
 
     is_default            = BooleanField(_(u'Is default?'), default=False)
-    organisation          = ForeignKey(settings.PERSONS_ORGANISATION_MODEL, verbose_name=_(u'Target organisation'),
+    organisation          = ForeignKey(settings.PERSONS_ORGANISATION_MODEL,
+                                       verbose_name=pgettext_lazy('billing', u'Target organisation'),
                                        related_name='PaymentInformationOrganisation_set',
                                       )
 

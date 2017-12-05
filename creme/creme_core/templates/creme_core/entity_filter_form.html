@@ -1,14 +1,15 @@
 {% extends 'creme_core/base.html' %}
 {% load i18n creme_core_tags %}
 
-{% block page_title %}{% trans 'Filter' %} - {{form.instance.entity_type}} - {% endblock %}
+{% block page_title %}{% trans 'Filter' context 'creme_core-noun' %} - {{form.instance.entity_type}} - {% endblock %}
 
 {% block content %}
+{% trans 'Filter' context 'creme_core-noun' as icon_label %}
     {% if not form.instance.pk %}
 {#        {% include "creme_core/generics/blockform/base.html" with logo='images/filter_64.png' title=form.instance.entity_type|format:_('Create a filter for «%s»') %} #}
-        {% include 'creme_core/generics/blockform/base.html' with icon_name='filter' icon_label=_('Filter') title=form.instance.entity_type|format:_('Create a filter for «%s»') %}
+        {% include 'creme_core/generics/blockform/base.html' with icon_name='filter' icon_label=icon_label title=form.instance.entity_type|format:_('Create a filter for «%s»') %}
     {% else %}
 {#        {% include "creme_core/generics/blockform/base.html" with logo='images/filter_64.png' title=form.instance|format:_('Edit the filter «%s»') %} #}
-        {% include 'creme_core/generics/blockform/base.html' with icon_name='filter' icon_label=_('Filter') title=form.instance|format:_('Edit the filter «%s»') %}
+        {% include 'creme_core/generics/blockform/base.html' with icon_name='filter' icon_label=icon_label title=form.instance|format:_('Edit the filter «%s»') %}
     {% endif %}
 {% endblock %}

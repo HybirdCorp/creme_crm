@@ -19,8 +19,9 @@
     {% brick_table_column title=_('Concerned entity') %}
     {% endif %}
 
+{% trans 'Created on' context 'assistants-todo' as creation_label %}
     {% brick_table_column_for_field ctype=objects_ctype field='user'          title=_('User') status='primary' %}
-    {% brick_table_column_for_field ctype=objects_ctype field='creation_date' title=_('Created on')%}
+    {% brick_table_column_for_field ctype=objects_ctype field='creation_date' title=creation_label %}
     {% brick_table_column_for_field ctype=objects_ctype field='title' %}
     {% brick_table_column_for_field ctype=objects_ctype field='description'   title=_('Todo text') %}
     {% brick_table_column_for_field ctype=objects_ctype field='deadline' %}

@@ -22,7 +22,7 @@ import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404, HttpResponse
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from formtools.wizard.views import SessionWizardView
 
@@ -56,7 +56,7 @@ def add(request):
 
 class ButtonMenuWizard(PopupWizardMixin, SessionWizardView):
     class _ResourceStep(ButtonMenuAddForm):
-        step_submit_label = _(u'Select')
+        step_submit_label = pgettext_lazy('creme_config-verb', u'Select')
 
     class _ConfigStep(ButtonMenuEditForm):
         step_prev_label = _(u'Previous step')
@@ -100,7 +100,8 @@ def edit(request, ct_id):
     else:
         buttons_form = ButtonMenuEditForm(bmi, ct_id, user=request.user)
 
-    title = _(u'Edit configuration for «%s»') % ContentType.objects.get_for_id(ct_id) \
+    # TODO: lazy interpolation ??
+    title = ugettext(u'Edit configuration for «%s»') % ContentType.objects.get_for_id(ct_id) \
             if ct_id else \
             _(u'Edit default configuration')
 

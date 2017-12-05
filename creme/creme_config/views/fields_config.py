@@ -24,7 +24,7 @@ from django.core.urlresolvers import reverse
 # from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from formtools.wizard.views import SessionWizardView
 
@@ -79,7 +79,7 @@ def delete(request):
 
 class FieldConfigWizard(PopupWizardMixin, SessionWizardView):
     class _ModelStep(FieldsConfigAddForm):
-        step_submit_label = _(u'Select')
+        step_submit_label = pgettext_lazy('creme_config-verb', u'Select')
 
         def __init__(self, *args, **kwargs):
             super(FieldConfigWizard._ModelStep, self).__init__(*args, **kwargs)

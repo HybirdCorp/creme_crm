@@ -7,11 +7,11 @@
     <tbody class="collapsable">
     {% with target=object.target emitter=object.emitter %}
         <tr>
-            <th class="block_header_line_light th_info" align="center" valign="center" style="width: 60%;"><h1>{% trans "Target organisation" %}</h1></th>
+            <th class="block_header_line_light th_info" align="center" valign="center" style="width: 60%;"><h1>{% trans "Target organisation" context 'opportunities' %}</h1></th>
             <td class="block_line_light td_info" text-align="center" valign="center" style="width: 40%;"><h1>{% if target %}{% widget_entity_hyperlink target user %}{% endif %}</h1></td>
         </tr>
         <tr>
-            <th class="block_header_line_dark th_info" align="center" valign="center" style="width: 60%;"><h3>{% trans "Source organisation" %}</h3></th>
+            <th class="block_header_line_dark th_info" align="center" valign="center" style="width: 60%;"><h3>{% trans "Source organisation" context 'opportunities' %}</h3></th>
             <td class="block_line_dark td_info" align="center" valign="center" style="width: 40%;"><h3>{% if emitter %}{% widget_entity_hyperlink emitter user %}{% endif %}</h3></td>
         </tr>
     {% endwith %}

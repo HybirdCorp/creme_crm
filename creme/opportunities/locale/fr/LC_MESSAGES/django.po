@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Opportunities 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-12 15:11+0200\n"
+"POT-Creation-Date: 2017-11-30 21:58+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -18,6 +18,7 @@ msgstr ""
 #: templates/opportunities/bricks/opportunities.html:8
 #: templates/opportunities/bricks/opportunities.html:10
 #: templates/opportunities/bricks/opportunities.html:12
+#: templates/opportunities/portal.html:4
 msgid "Opportunities"
 msgstr "Opportunités"
 
@@ -49,6 +50,7 @@ msgstr "%s en tout"
 
 #: blocks.py:35 templates/opportunities/bricks/target.html:21
 #: templates/opportunities/templatetags/block_target.html:10
+msgctxt "opportunities"
 msgid "Target organisation"
 msgstr "Société réceptrice"
 
@@ -86,7 +88,7 @@ msgstr "Total"
 
 #: bricks.py:220 templates/opportunities/bricks/target.html:8
 msgid "Target and source"
-msgstr "Société réceptrice"
+msgstr "Cible et source"
 
 #: bricks.py:263
 msgid "Quotes linked to the opportunity"
@@ -100,10 +102,10 @@ msgstr "Bons de commande liés à l'opportunité"
 msgid "Invoices linked to the opportunity"
 msgstr "Factures liées à l'opportunité"
 
-#: buttons.py:34 templates/opportunities/bricks/opportunities.html:19
+#: buttons.py:31 templates/opportunities/bricks/opportunities.html:19
 #: templates/opportunities/templatetags/block_opportunities.html:13
-#: templates/opportunities/templatetags/button_linked_opp.html:7
-#: templates/opportunities/templatetags/button_linked_opp.html:12
+#: templates/opportunities/templatetags/button_linked_opp.html:5
+#: templates/opportunities/templatetags/button_linked_opp.html:10
 msgid "Create a linked opportunity"
 msgstr "Créer une opportunité reliée"
 
@@ -247,9 +249,10 @@ msgstr "Créer une opportunité"
 msgid "Save the opportunity"
 msgstr "Enregistrer l'opportunité"
 
-#: models/opportunity.py:146 templates/opportunities/portal.html:3
+#: models/opportunity.py:146
 #: templates/opportunities/templatetags/block_opportunities.html:10
-#: templates/opportunities/templatetags/button_linked_opp.html:3
+#: templates/opportunities/templatetags/button_linked_opp.html:4
+#: templates/opportunities/templatetags/button_linked_opp.html:9
 msgid "Opportunity"
 msgstr "Opportunité"
 
@@ -400,9 +403,10 @@ msgstr "E-mail direct"
 msgid "Direct phone call"
 msgstr "Appel direct"
 
+# Already in persons
 #: populate.py:174
 msgid "Employee"
-msgstr "Employé"
+msgstr ""
 
 #: populate.py:175
 msgid "Partner"
@@ -560,7 +564,7 @@ msgstr "{count} Opportunités qui ciblent la fiche"
 msgid "Action"
 msgstr "Action"
 
-#: templates/opportunities/bricks/opportunities.html:52
+#: templates/opportunities/bricks/opportunities.html:64
 #: templates/opportunities/templatetags/block_opportunities.html:49
 msgid "No opportunity for the moment"
 msgstr "Aucune opportunité pour le moment"
@@ -737,11 +741,13 @@ msgid "No related service for the moment"
 msgstr "Aucun service concerné pour le moment"
 
 #: templates/opportunities/bricks/target.html:21
+msgctxt "opportunities"
 msgid "Target contact"
-msgstr "Contact cible"
+msgstr "Contact récepteur"
 
 #: templates/opportunities/bricks/target.html:33
 #: templates/opportunities/templatetags/block_target.html:14
+msgctxt "opportunities"
 msgid "Source organisation"
 msgstr "Société émettrice"
 
@@ -760,11 +766,11 @@ msgstr "Total HT"
 msgid "Total (inclusive of tax)"
 msgstr "Total TTC"
 
-#: templates/opportunities/portal.html:4
+#: templates/opportunities/portal.html:5
 msgid "Opportunities portal"
 msgstr "Portail Opportunités"
 
-#: templates/opportunities/portal.html:6
+#: templates/opportunities/portal.html:7
 msgid "List of opportunities"
 msgstr "Liste des opportunités"
 
@@ -927,12 +933,12 @@ msgstr "Service"
 msgid "Link to an existing service"
 msgstr "Lier à un service existant"
 
-#: templates/opportunities/templatetags/button_linked_opp.html:5
+#: templates/opportunities/templatetags/button_linked_opp.html:3
 #, python-format
 msgid "Create an opportunity which targets «%(object)s»"
 msgstr "Créer une opportunité qui cible «%(object)s»"
 
-#: templates/opportunities/templatetags/button_linked_opp.html:10
+#: templates/opportunities/templatetags/button_linked_opp.html:8
 msgid "forbidden"
 msgstr "interdit"
 
@@ -947,6 +953,11 @@ msgid "%(count)s opportunity"
 msgid_plural "%(count)s opportunities"
 msgstr[0] "%(count)s opportunité"
 msgstr[1] "%(count)s opportunités"
+
+#: views/billing.py:127
+#, python-brace-format
+msgid "{number} ({opportunity})"
+msgstr "{number} ({opportunity})"
 
 #: views/opportunity.py:50
 #, python-format

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from itertools import chain
 import logging
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.forms import CremeEntityForm, GenericEntityField, CreatorEntityField
 # from creme.creme_core.forms.validators import validate_linkable_entity
@@ -53,8 +53,8 @@ def first_managed_orga_id():
 
 
 class BaseEditForm(CremeEntityForm):
-    source = CreatorEntityField(label=_(u'Source organisation'), model=get_organisation_model())
-    target = GenericEntityField(label=_(u'Target'),
+    source = CreatorEntityField(label=pgettext_lazy('billing', u'Source organisation'), model=get_organisation_model())
+    target = GenericEntityField(label=pgettext_lazy('billing', u'Target'),
                                 models=[get_organisation_model(), get_contact_model()],
                                )
 

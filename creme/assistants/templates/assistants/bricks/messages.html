@@ -21,8 +21,9 @@
     {% brick_table_column title=_('Concerned entity') %}
     {% endif %}
 
+{% trans 'Created on' context 'assistants-message' as creation_label %}
     {% brick_table_column_for_field ctype=objects_ctype field='sender'        status='primary' %}
-    {% brick_table_column_for_field ctype=objects_ctype field='creation_date' title=_('Created on') data_type='date' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='creation_date' title=creation_label data_type='date' %}
     {% brick_table_column_for_field ctype=objects_ctype field='title' %}
     {% brick_table_column_for_field ctype=objects_ctype field='body'          title=_('Body') %}
     {% brick_table_column title=_('Action') status='action' %}

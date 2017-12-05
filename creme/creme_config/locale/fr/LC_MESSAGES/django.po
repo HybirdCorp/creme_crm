@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-05 22:34+0100\n"
+"POT-Creation-Date: 2017-12-01 18:15+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -449,20 +449,6 @@ msgstr "Champs concernés"
 #: templates/creme_config/templatetags/block_settings.html:13
 msgid "Value"
 msgstr "Valeur"
-
-#: forms/user.py:40
-msgid "Username"
-msgstr "Nom d'utilisateur"
-
-# Already in Django
-#: forms/user.py:41
-msgid "Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only."
-msgstr ""
-
-# Already in Django
-#: forms/user.py:44
-msgid "This value may contain only letters, numbers and @/./+/-/_ characters."
-msgstr ""
 
 #: forms/user.py:49 forms/user.py:107
 #: templates/creme_config/templatetags/block_users.html:29
@@ -1980,6 +1966,7 @@ msgstr "Enregistrer la configuration"
 
 #: views/bricks.py:95 views/bricks.py:160 views/bricks.py:339
 #: views/button_menu.py:59 views/fields_config.py:82
+msgctxt "creme_config-verb"
 msgid "Select"
 msgstr "Sélectionner"
 
@@ -2008,7 +1995,7 @@ msgstr "Modifier la configuration de «%(role)s» pour «%(type)s»"
 msgid "Edit default configuration for «%s»"
 msgstr "Modifier la configuration par défaut pour «%s»"
 
-#: views/bricks.py:228 views/button_menu.py:105
+#: views/bricks.py:228 views/button_menu.py:106
 msgid "Edit default configuration"
 msgstr "Modifier la configuration par défaut"
 
@@ -2027,7 +2014,7 @@ msgstr "Modifier la configuration de portail pour «%s»"
 
 # Already in creme_core
 #: views/bricks.py:279 views/bricks.py:302 views/bricks.py:398
-#: views/button_menu.py:111 views/creme_property_type.py:69
+#: views/button_menu.py:112 views/creme_property_type.py:69
 #: views/prefered_menu.py:68 views/relation_type.py:78 views/user_role.py:119
 #: views/user_role.py:214
 msgid "Save the modifications"
@@ -2061,7 +2048,7 @@ msgstr "Modifier la configuration de «%s»"
 msgid "Edit the block «%s»"
 msgstr "Modifier le bloc «%s»"
 
-#: views/button_menu.py:103
+#: views/button_menu.py:104
 #, python-format
 msgid "Edit configuration for «%s»"
 msgstr "Modifier la configuration pour «%s»"
@@ -2159,6 +2146,9 @@ msgstr "Supprimer le rôle «%s»"
 #: views/user_role.py:238
 msgid "Delete the role"
 msgstr "Supprimer le rôle"
+
+#~ msgid "Username"
+#~ msgstr "Nom d'utilisateur"
 
 #~ msgid "Information on the entity"
 #~ msgstr "Informations sur la fiche"

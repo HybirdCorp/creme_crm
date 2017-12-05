@@ -18,7 +18,7 @@
     <tr>
         <td>
             <h1 class="opportunities-target opportunities-target-label">{% ctype_for_swappable 'PERSONS_ORGANISATION_MODEL' as orga_ctype %}
-            {% if target.entity_type == orga_ctype %}{% trans 'Target organisation' %}{% else %}{% trans 'Target contact' %}{% endif %}
+            {% if target.entity_type == orga_ctype %}{% trans 'Target organisation' context 'opportunities' %}{% else %}{% trans 'Target contact' context 'opportunities' %}{% endif %}
             </h1>
         </td>
         <td>
@@ -30,7 +30,7 @@
     {% if display_source %}
     <tr>
         <td>
-            <h2 class="opportunities-source opportunities-source-label">{% trans 'Source organisation' %}</h2>
+            <h2 class="opportunities-source opportunities-source-label">{% trans 'Source organisation' context 'opportunities' %}</h2>
         </td>
         <td>
             <h2 class="opportunities-source opportunities-source-value">

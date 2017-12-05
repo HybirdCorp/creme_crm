@@ -246,7 +246,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                                          }
                                    )
         self.assertFormError(response, 'form', 'username',
-                             _("This value may contain only letters, numbers and @/./+/-/_ characters.")
+                             _(u'Enter a valid username. This value may contain only letters, numbers '
+                               u'and @/./+/-/_ characters.')
                             )
 
     @skipIfNotCremeUser

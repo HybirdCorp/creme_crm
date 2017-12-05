@@ -24,7 +24,7 @@ from django.apps import apps
 from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from formtools.wizard.views import SessionWizardView
 
@@ -92,7 +92,7 @@ def add_portal(request):
 
 class PortalBricksWizard(PopupWizardMixin, SessionWizardView):
     class _RelationStep(bricks.BlockPortalLocationsAddForm):
-        step_submit_label = _(u'Select')
+        step_submit_label = pgettext_lazy('creme_config-verb', u'Select')
 
     class _ConfigStep(bricks.BlockPortalLocationsEditForm):
         step_prev_label = _(u'Previous step')
@@ -157,7 +157,7 @@ def add_custom_block(request):
 
 class CustomBrickWizard(PopupWizardMixin, SessionWizardView):
     class _ResourceStep(bricks.CustomBrickConfigItemCreateForm):
-        step_submit_label = _(u'Select')
+        step_submit_label = pgettext_lazy('creme_config-verb', u'Select')
 
     class _ConfigStep(bricks.CustomBrickConfigItemEditForm):
         class Meta(bricks.CustomBrickConfigItemEditForm.Meta):
@@ -336,7 +336,7 @@ def add_ctypes_2_relation_block(request, rbi_id):
 
 class RelationCTypeBrickWizard(PopupWizardMixin, SessionWizardView):
     class _ContentTypeStep(bricks.RTypeBrickItemAddCtypeForm):
-        step_submit_label = _(u'Select')
+        step_submit_label = pgettext_lazy('creme_config-verb', u'Select')
 
     class _FieldsStep(bricks.RTypeBrickItemEditCtypeForm):
         step_prev_label = _(u'Previous step')

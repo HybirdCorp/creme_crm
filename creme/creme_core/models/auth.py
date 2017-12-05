@@ -527,7 +527,9 @@ class CremeUser(AbstractBaseUser):
                                      u'Letters, digits and @/./+/-/_ only.'
                                     ),
                          validators=[RegexValidator(re_compile('^[\w.@+-]+$'),
-                                                    _(u'Enter a valid username.'),
+                                                    _(u'Enter a valid username. '
+                                                      u'This value may contain only letters, numbers '
+                                                      u'and @/./+/-/_ characters.'),
                                                     'invalid',
                                                    ),
                                     ],
