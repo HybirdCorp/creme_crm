@@ -299,12 +299,10 @@ msgstr ""
 msgid "Filter"
 msgstr "Filtre"
 
-# from creme_core
+# Already in creme_core
 #: forms/report.py:110 forms/report.py:114
 msgid "Select a valid choice. That choice is not one of the available choices."
 msgstr ""
-"Sélectionnez un choix valide. Ce choix ne fait pas partie de ceux "
-"disponibles."
 
 #: forms/report.py:158
 msgid "Sub-report linked to the column"

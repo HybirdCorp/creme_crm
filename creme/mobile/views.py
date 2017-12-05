@@ -83,7 +83,7 @@ def lw_exceptions(view):
             msg = _(u'You do not have access to this page, please contact your administrator.')
         except Http404 as e:
             status = 404
-            msg = _(u'The page you have requested is unfoundable.')
+            msg = _(u'The page you have requested is not found.')
         except ConflictError as e:
             status = 409
             msg = _(u'You can not perform this action because of business constraints.')

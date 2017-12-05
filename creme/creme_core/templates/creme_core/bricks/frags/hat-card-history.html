@@ -7,7 +7,7 @@
     </div>
     {% with creation_date=history_info.creation.date creation_user=history_info.creation.user %}
     <div class='history-info'>
-        {% trans 'Created on' %} <span class="history-info-value">{{creation_date|date:'DATE_FORMAT'}}</span> {% trans 'at' %} <span class="history-info-value">{{creation_date|time:'H:i'}}</span>{% if creation_user %} {% trans 'by' %} <span class="history-info-value">{% widget_hyperlink creation_user %}</span>{% endif %}
+        {% trans 'Created on' context 'creme_core-entity' %} <span class="history-info-value">{{creation_date|date:'DATE_FORMAT'}}</span> {% trans 'at' %} <span class="history-info-value">{{creation_date|time:'H:i'}}</span>{% if creation_user %} {% trans 'by' %} <span class="history-info-value">{% widget_hyperlink creation_user %}</span>{% endif %}
     </div>
     {% endwith %}
     {% if history_info.last_edition %}

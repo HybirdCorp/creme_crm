@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Mobile 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-12 15:07+0200\n"
+"POT-Creation-Date: 2017-11-30 19:51+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -237,7 +237,7 @@ msgstr ""
 # Already in persons
 #: templates/mobile/directory.html:47 templates/mobile/search.html:47
 msgid "Create an organisation"
-msgstr "Ajouter la société"
+msgstr ""
 
 #: templates/mobile/directory.html:55
 #, python-format
@@ -372,7 +372,7 @@ msgstr[1] "%(counter)s activités prévues ce %(today_date)s"
 msgid "No activity planned this %(today_date)s"
 msgstr "Aucune activité prévue ce %(today_date)s"
 
-# Already in creme_core
+# Already in creme/locale
 #: templates/mobile/login.html:10 templates/mobile/login.html.py:32
 msgid "Connection"
 msgstr ""
@@ -395,7 +395,7 @@ msgstr ""
 msgid "The password must be filled."
 msgstr "Le mot de passe doit être rempli."
 
-# Already in creme_core
+# Already in creme/locale
 #: templates/mobile/login.html:55
 msgid "Log in"
 msgstr ""
@@ -543,12 +543,12 @@ msgstr "Ne pas sauvegarder"
 msgid "You do not have access to this page, please contact your administrator."
 msgstr ""
 
-# Already in creme_core
+# Already in creme/locale
 #: views.py:86
-msgid "The page you have requested is unfoundable."
+msgid "The page you have requested is not found."
 msgstr ""
 
-# Already in creme_core
+# Already in creme/locale
 #: views.py:89
 msgid "You can not perform this action because of business constraints."
 msgstr ""

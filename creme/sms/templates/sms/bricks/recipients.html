@@ -21,11 +21,12 @@
 
 {% block brick_table_rows %}
 {% has_perm_to change object as has_perm %}{% url 'creme_core__delete_related_to_entity' objects_ctype.id as del_recipients_url %}
+{% trans 'Delete this recipient' context 'sms' as del_label %}
     {% for recipient in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>{{recipient.phone|formatphone}}</td>
         <td {% brick_table_data_status action %}>
-            {% brick_table_action id='delete' url=del_recipients_url __id=recipient.id label=_('Delete this recipient') icon='unlink' enabled=has_perm %}
+            {% brick_table_action id='delete' url=del_recipients_url __id=recipient.id label=del_label icon='unlink' enabled=has_perm %}
         </td>
     </tr>
     {% endfor %}

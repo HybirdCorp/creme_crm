@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-16 21:33+0200\n"
+"POT-Creation-Date: 2017-11-30 22:12+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -206,14 +206,16 @@ msgstr "Pourcentage"
 msgid "Amount"
 msgstr "Montant"
 
-#: forms/base.py:56 forms/mass_import.py:59
+#: forms/base.py:56 forms/mass_import.py:60
 #: templates/billing/bricks/target.html:23
 #: templates/billing/templatetags/block_target.html:17
+msgctxt "billing"
 msgid "Source organisation"
 msgstr "Société émettrice"
 
-#: forms/base.py:57 forms/mass_import.py:61
+#: forms/base.py:57 forms/mass_import.py:63
 #: templates/billing/templatetags/block_target.html:8
+msgctxt "billing"
 msgid "Target"
 msgstr "Cible"
 
@@ -225,12 +227,12 @@ msgstr "Remise globale (en %)"
 msgid "Organisations"
 msgstr "Sociétés"
 
-#: forms/base.py:161 forms/mass_import.py:92 forms/mass_import.py:118
+#: forms/base.py:161 forms/mass_import.py:94 forms/mass_import.py:120
 #: forms/templatebase.py:72 models/base.py:61
 msgid "Billing address"
 msgstr "Adresse de facturation"
 
-#: forms/base.py:162 forms/mass_import.py:93 forms/mass_import.py:123
+#: forms/base.py:162 forms/mass_import.py:95 forms/mass_import.py:125
 #: forms/templatebase.py:73 models/base.py:66
 msgid "Shipping address"
 msgstr "Adresse de livraison"
@@ -315,20 +317,20 @@ msgstr ""
 "Vous n'êtes pas autorisé à ajouter cet élément au catalogue car il ne s'agit "
 "pas d'une ligne à la volée"
 
-#: forms/mass_import.py:64
+#: forms/mass_import.py:66
 msgid "Update the billing address"
 msgstr "Mettre à jour l'adresse de facturation"
 
-#: forms/mass_import.py:65
+#: forms/mass_import.py:67
 msgid "In update mode, update the billing address from the target."
 msgstr ""
 "En mode mise-à-jour, mettre à jour l'adresse de facturation depuis la cible."
 
-#: forms/mass_import.py:67
+#: forms/mass_import.py:69
 msgid "Update the shipping address"
 msgstr "Mettre à jour l'adresse de livraison"
 
-#: forms/mass_import.py:68
+#: forms/mass_import.py:70
 msgid "In update mode, update the shipping address from the target."
 msgstr ""
 "En mode mise-à-jour, mettre à jour l'adresse de livraison depuis la cible."
@@ -640,18 +642,14 @@ msgctxt "billing-plural"
 msgid "Additional information"
 msgstr "Informations additionnelles"
 
-#: models/other_models.py:111
+#: models/other_models.py:111 models/other_models.py:122
+msgctxt "billing-singular"
 msgid "Payment terms"
 msgstr "Condition de règlement"
 
 #: models/other_models.py:115
 msgid "Create payment terms"
 msgstr "Créer une condition de règlement"
-
-#: models/other_models.py:122
-msgctxt "billing-singular"
-msgid "Payment terms"
-msgstr "Condition de règlement"
 
 #: models/other_models.py:123
 msgctxt "billing-plural"
@@ -704,17 +702,18 @@ msgstr "BIC"
 msgid "Is default?"
 msgstr "Par défaut ?"
 
-#: models/other_models.py:140 templates/billing/bricks/target.html:17
+#: models/other_models.py:141 templates/billing/bricks/target.html:17
 #: templates/billing/templatetags/block_target.html:13
+msgctxt "billing"
 msgid "Target organisation"
 msgstr "Société réceptrice"
 
-#: models/other_models.py:149
+#: models/other_models.py:150
 msgctxt "billing-singular"
 msgid "Payment information"
 msgstr "Information de paiement"
 
-#: models/other_models.py:150
+#: models/other_models.py:151
 msgctxt "billing-plural"
 msgid "Payment information"
 msgstr "Informations de paiement"
@@ -1207,9 +1206,10 @@ msgstr "Total HT"
 msgid "Total (inclusive of tax)"
 msgstr "Total TTC"
 
+# Already in creme_core
 #: templates/billing/bricks/credit-notes.html:35
 msgid "Action"
-msgstr "Actions"
+msgstr ""
 
 #: templates/billing/bricks/credit-notes.html:52
 msgid "Edit this credit note"
@@ -1296,6 +1296,7 @@ msgid "No service in this document"
 msgstr "Aucun service dans ce document"
 
 #: templates/billing/bricks/target.html:17
+msgctxt "billing"
 msgid "Target contact"
 msgstr "Contact récepteur"
 
@@ -1614,9 +1615,6 @@ msgstr "Créer un bon de commande pour «%s»"
 
 #~ msgid "Add a line"
 #~ msgstr "Ajouter une ligne"
-
-#~ msgid "Payments terms"
-#~ msgstr "Conditions de règlement"
 
 #~ msgid "Add a quote"
 #~ msgstr "Ajouter un devis"

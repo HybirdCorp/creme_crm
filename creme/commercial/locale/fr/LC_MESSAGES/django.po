@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-12 14:40+0200\n"
+"POT-Creation-Date: 2017-11-30 18:33+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
@@ -628,6 +628,7 @@ msgstr "{count} Atouts commerciaux"
 msgid "New commercial asset"
 msgstr "Nouvel atout commercial"
 
+# Already in creme_core
 #: templates/commercial/bricks/assets.html:17
 #: templates/commercial/bricks/charms.html:17
 #: templates/commercial/bricks/objectives.html:23
@@ -639,7 +640,7 @@ msgstr "Nouvel atout commercial"
 #: templates/commercial/templatetags/block_segment_info.html:28
 #: templates/commercial/templatetags/block_segments.html:20
 msgid "Actions"
-msgstr "Actions"
+msgstr ""
 
 #: templates/commercial/bricks/assets.html:26
 msgid "Edit this asset"
@@ -812,11 +813,12 @@ msgstr "{count} Opportunités liées"
 msgid "Opportunities"
 msgstr "Opportunités"
 
+# Already translated in 'opportunities'
 #: templates/commercial/bricks/opportunities.html:14
 #: templates/commercial/templatetags/block_opportunities.html:16
 #: views/act.py:93
 msgid "Create a linked opportunity"
-msgstr "Créer une opportunité liée"
+msgstr ""
 
 #: templates/commercial/bricks/opportunities.html:15
 #: templates/commercial/templatetags/block_opportunities.html:12
@@ -882,9 +884,10 @@ msgstr "Modifier ce segment"
 msgid "Remove this segment"
 msgstr "Enlever ce segment"
 
+# Already in creme_core"
 #: templates/commercial/bricks/segments.html:20
 msgid "Action"
-msgstr "Actions"
+msgstr ""
 
 #: templates/commercial/bricks/segments.html:34
 msgid "Delete this segment"

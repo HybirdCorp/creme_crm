@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-28 19:43+0100\n"
+"POT-Creation-Date: 2017-12-01 17:39+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -408,9 +408,9 @@ msgstr "Valeur invalide => %(error)s"
 
 #: forms/batch_process.py:190 forms/widgets.py:1109
 #: templates/creme_core/entity_filter_form.html:4
-#: templates/creme_core/entity_filter_form.html:9
-#: templates/creme_core/entity_filter_form.html:12
+#: templates/creme_core/entity_filter_form.html:7
 #: templates/creme_core/templatetags/listview_entityfilters.html:4
+msgctxt "creme_core-noun"
 msgid "Filter"
 msgstr "Filtre"
 
@@ -483,9 +483,9 @@ msgstr "Aucun champ personnalisé pour le moment."
 msgid "No date custom field at present."
 msgstr "Aucun champ personnalisé de date pour le moment."
 
-#: forms/entity_filter.py:425 forms/widgets.py:763
-msgid "Select"
-msgstr "Sélectionnez"
+#: forms/entity_filter.py:425
+msgid "(no filter)"
+msgstr "(pas de filtre)"
 
 #: forms/entity_filter.py:478 forms/entity_filter.py:781
 msgid "This value is invalid."
@@ -1057,6 +1057,11 @@ msgstr "Créer"
 msgid "Can't create"
 msgstr "Création interdite"
 
+#: forms/widgets.py:763
+msgctxt "creme_core-verb"
+msgid "Select"
+msgstr "Sélectionner"
+
 #: forms/widgets.py:826
 msgid "On"
 msgstr "Le"
@@ -1087,33 +1092,33 @@ msgstr "Aucun choix disponible."
 msgid "More"
 msgstr "Plus"
 
-#: forms/widgets.py:1109 templates/creme_core/search_results.html:49
+#: forms/widgets.py:1110 templates/creme_core/search_results.html:49
 msgctxt "creme_core-noun"
 msgid "Search"
 msgstr "Recherche"
 
-#: forms/widgets.py:1121
+#: forms/widgets.py:1122
 msgid "Check all"
 msgstr "Tout sélectionner"
 
-#: forms/widgets.py:1122
+#: forms/widgets.py:1123
 msgid "Check none"
 msgstr "Tout déselectionner"
 
-#: forms/widgets.py:1311
+#: forms/widgets.py:1312
 #, python-format
 msgid "%(dateperiod_value)s%(dateperiod_type)s"
 msgstr "%(dateperiod_value)s%(dateperiod_type)s"
 
-#: forms/widgets.py:1381 utils/date_period.py:104
+#: forms/widgets.py:1382 utils/date_period.py:104
 msgid "Hour(s)"
 msgstr "Heure(s)"
 
-#: forms/widgets.py:1382 utils/date_period.py:95
+#: forms/widgets.py:1383 utils/date_period.py:95
 msgid "Minute(s)"
 msgstr "Minute(s)"
 
-#: forms/widgets.py:1383
+#: forms/widgets.py:1384
 msgid "Second(s)"
 msgstr "Seconde(s)"
 
@@ -1245,7 +1250,7 @@ msgstr "Voir"
 msgid "Change"
 msgstr "Modifier"
 
-#: models/auth.py:302 models/entity.py:290
+#: models/auth.py:302 models/entity.py:291
 #: templates/creme_core/bricks/base/hat-card.html:109
 #: templates/creme_core/bricks/generic/hat-bar.html:43
 #: templates/creme_core/frags/list_view_content.html:257
@@ -1293,7 +1298,9 @@ msgstr ""
 
 # Already in django.auth
 #: models/auth.py:530
-msgid "Enter a valid username."
+msgid ""
+"Enter a valid username. This value may contain only letters, numbers and @/./"
+"+/-/_ characters."
 msgstr ""
 
 #: models/auth.py:535
@@ -1583,20 +1590,20 @@ msgstr "Liste de choix"
 msgid "Multiple choice list"
 msgstr "Liste de choix multiples"
 
-#: models/entity.py:82
+#: models/entity.py:83
 msgid "Create an entity"
 msgstr "Créer une fiche"
 
-#: models/entity.py:83 views/generic/add.py:65
+#: models/entity.py:84 views/generic/add.py:65
 msgid "Save the entity"
 msgstr "Enregistrer la fiche"
 
-#: models/entity.py:131 views/entity.py:74
+#: models/entity.py:132 views/entity.py:74
 #, python-format
 msgid "Entity #%s (not viewable)"
 msgstr "Fiche #%s (non visible)"
 
-#: models/entity.py:280 templates/creme_core/bricks/base/hat-card.html:101
+#: models/entity.py:281 templates/creme_core/bricks/base/hat-card.html:101
 #: templates/creme_core/bricks/generic/hat-bar.html:32
 #: templates/creme_core/frags/list_view_content.html:252
 #: templates/creme_core/generics/blockform/edit.html:8
@@ -1615,11 +1622,11 @@ msgstr "Fiche #%s (non visible)"
 msgid "Edit"
 msgstr "Modifier"
 
-#: models/entity.py:300 templates/creme_core/bricks/found-entities.html:20
+#: models/entity.py:301 templates/creme_core/bricks/found-entities.html:20
 msgid "See"
 msgstr "Voir"
 
-#: models/entity.py:304
+#: models/entity.py:305
 #, python-brace-format
 msgid "Go to the entity {entity}"
 msgstr "Accéder à la fiche {entity}"
@@ -1735,20 +1742,32 @@ msgid_plural ""
 "private sub-filters which belong to this team. So these private sub-filters "
 "cannot be chosen: %s"
 msgstr[0] ""
+"Un filtre privé qui appartient à une équipe peut seulement utiliser des sous-"
+"filtres publiques& des sous-filtres privés qui appartiennent à cette équipe. "
+"Donc ce sous-filtre privé ne peut pas être choisi: %s"
 msgstr[1] ""
+"Un filtre privé qui appartient à une équipe peut seulement utiliser des sous-"
+"filtres publiques& des sous-filtres privés qui appartiennent à cette équipe. "
+"Donc ces sous-filtres privés ne peuvent pas être choisis: %s"
 
 #: models/entity_filter.py:308
 #, python-format
 msgid ""
-"A private filter which can use public sub-filters, & private sub-filters "
+"A private filter can only use public sub-filters, & private sub-filters "
 "which belong to the same user and his teams. So this private sub-filter "
 "cannot be chosen: %s"
 msgid_plural ""
-"A private filter which can use public sub-filters, & private sub-filters "
+"A private filter can only use public sub-filters, & private sub-filters "
 "which belong to the same user and his teams. So these private sub-filters "
 "cannot be chosen: %s"
 msgstr[0] ""
+"Un filtre privé peut seulement utiliser des sous-filtres publiques& des sous-"
+"filtres privés qui appartiennent au même utilisateur ou à une de ses "
+"équipes. Donc ce sous-filtre privé ne peut pas être choisi: %s"
 msgstr[1] ""
+"Un filtre privé peut seulement utiliser des sous-filtres publiques& des sous-"
+"filtres privés qui appartiennent au même utilisateur ou à une de ses "
+"équipes. Donc ces sous-filtres privés ne peuvent pas être choisis: %s"
 
 #: models/entity_filter.py:324
 #, python-format
@@ -1756,7 +1775,10 @@ msgid "Your filter must be private in order to use this private sub-filter: %s"
 msgid_plural ""
 "Your filter must be private in order to use these private sub-filters: %s"
 msgstr[0] ""
+"Votre filtre doit être privé pour pouvoir utiliser ce sous-filtre privé: %s"
 msgstr[1] ""
+"Votre filtre doit être privé pour pouvoir utiliser ces sous-filtres privés: "
+"%s"
 
 #: models/entity_filter.py:445
 #, python-format
@@ -2409,6 +2431,7 @@ msgid "Information on Creme entity"
 msgstr "Informations fiche Crème"
 
 #: templates/creme_core/bricks/frags/hat-card-history.html:10
+msgctxt "creme_core-entity"
 msgid "Created on"
 msgstr "Créée le"
 
@@ -2795,13 +2818,13 @@ msgstr "FILTRER"
 msgid "Remove all columns"
 msgstr "Enlever toutes les colonnes"
 
-#: templates/creme_core/entity_filter_form.html:9
+#: templates/creme_core/entity_filter_form.html:10
 #, python-format
 msgid "Create a filter for «%s»"
 msgstr "Créer un filtre pour «%s»"
 
 # beware makemessages seems to add a '%' (msgid "Edit «%%s»") => remove it
-#: templates/creme_core/entity_filter_form.html:12
+#: templates/creme_core/entity_filter_form.html:13
 #, python-format
 msgid "Edit the filter «%s»"
 msgstr "Modifier le filtre «%s»"
@@ -2892,28 +2915,28 @@ msgstr "Ajout de relation multiple"
 msgid "Merge 2 entities"
 msgstr "Fusionner 2 fiches"
 
-#: templates/creme_core/frags/list_view_content.html:286
+#: templates/creme_core/frags/list_view_content.html:285
 #, python-format
 msgid "Sort by %(col_title)s"
 msgstr "Trier par %(col_title)s"
 
-#: templates/creme_core/frags/list_view_content.html:324
+#: templates/creme_core/frags/list_view_content.html:328
 msgid "No entity exists / matches your search"
 msgstr "Aucun élément n'existe / ne correspond à votre recherche"
 
-#: templates/creme_core/frags/list_view_content.html:369
+#: templates/creme_core/frags/list_view_content.html:373
 #, python-format
 msgid "Recordings %(start_index)s - %(end_index)s on %(entities_count)s"
 msgstr "Enregistrements %(start_index)s - %(end_index)s sur %(entities_count)s"
 
-#: templates/creme_core/frags/list_view_content.html:371
+#: templates/creme_core/frags/list_view_content.html:375
 #, python-format
 msgid "%(entities_count)s recording"
 msgid_plural "%(entities_count)s recordings"
 msgstr[0] "%(entities_count)s enregistrement"
 msgstr[1] "%(entities_count)s enregistrements"
 
-#: templates/creme_core/frags/list_view_content.html:383
+#: templates/creme_core/frags/list_view_content.html:387
 msgid "Nb / Page"
 msgstr "Nb / Page"
 

@@ -760,7 +760,7 @@ class MultiEntityCreatorWidget(SelectorList):
             delegate = Label(empty_label=u'Model is not set')
         else:
             self.clear_actions()  # TODO: indicate that we do not want actions in __init__
-            self.add_action('add', getattr(model, 'selection_label', _(u'Select')))
+            self.add_action('add', getattr(model, 'selection_label', pgettext('creme_core-verb', u'Select')))
 
             delegate = EntitySelector(unicode(ContentType.objects.get_for_model(model).id),
                                       {'auto':       False,
@@ -1106,7 +1106,8 @@ u"""<div class="%(css)s" style="%(style)s" widget="%(typename)s" %(viewless)s>
         if not filtertype:
             return ''
 
-        filtername = _('Filter') if filtertype == 'filter' else pgettext('creme_core-noun', 'Search')
+        filtername = pgettext('creme_core-noun', u'Filter') if filtertype == 'filter' else \
+                     pgettext('creme_core-noun', u'Search')
         return u'<input type="search" class="checklist-filter" placeholder="%s">' % filtername.upper()
 
     def _render_header(self, attrs, filtertype, count):

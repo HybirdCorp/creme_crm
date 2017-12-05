@@ -25,7 +25,7 @@ from functools import partial
 from django.core.exceptions import ValidationError
 from django.forms import ModelChoiceField
 from django.forms.fields import CallableChoiceIterator
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 from django.contrib.contenttypes.models import ContentType
 
 from ..core.batch_process import batch_operator_manager, BatchAction
@@ -187,7 +187,7 @@ class BatchActionsField(JSONField):
 
 # class BatchProcessForm(CremeForm):
 class BatchProcessForm(CremeModelForm):
-    filter  = ModelChoiceField(label=_(u'Filter'), queryset=EntityFilter.objects.none(),
+    filter  = ModelChoiceField(label=pgettext_lazy('creme_core-noun', u'Filter'), queryset=EntityFilter.objects.none(),
                                empty_label=_(u'All'), required=False,
                               )
     actions = BatchActionsField(label=_(u'Actions'))

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2016  Hybird
+#    Copyright (C) 2013-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from functools import partial
 
 from django.forms.fields import BooleanField
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.forms.mass_import import ImportForm4CremeEntity, EntityExtractorField
 from creme.creme_core.models import Relation
@@ -56,16 +56,18 @@ def _copy_or_update_address(source, dest, attr_name, addr_name):
 
 def get_import_form_builder(header_dict, choices):
     class InvoiceMassImportForm(ImportForm4CremeEntity):
-        source = EntityExtractorField([(Organisation, 'name')], choices, label=_('Source organisation'))
+        source = EntityExtractorField([(Organisation, 'name')], choices,
+                                      label=pgettext_lazy('billing', u'Source organisation'),
+                                     )
         target = EntityExtractorField([(Organisation, 'name'), (Contact, 'last_name')],
-                                      choices, label=_('Target'),
+                                      choices, label=pgettext_lazy('billing', u'Target'),
                                      )
 
-        override_billing_addr  = BooleanField(label=_('Update the billing address'), required=False,
-                                              help_text=_('In update mode, update the billing address from the target.')
+        override_billing_addr  = BooleanField(label=_(u'Update the billing address'), required=False,
+                                              help_text=_(u'In update mode, update the billing address from the target.')
                                              )
-        override_shipping_addr = BooleanField(label=_('Update the shipping address'), required=False,
-                                              help_text=_('In update mode, update the shipping address from the target.')
+        override_shipping_addr = BooleanField(label=_(u'Update the shipping address'), required=False,
+                                              help_text=_(u'In update mode, update the shipping address from the target.')
                                              )
 
         def _post_instance_creation(self, instance, line, updated):

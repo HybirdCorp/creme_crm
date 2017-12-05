@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-26 14:34+0200\n"
+"POT-Creation-Date: 2017-11-30 18:13+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -344,7 +344,7 @@ msgstr "Action"
 
 #: static/creme_core/js/widgets/dialog/dialog.js:701
 msgid "Alert"
-msgstr "Message"
+msgstr "Alerte"
 
 #: static/creme_core/js/widgets/dialog/dialog.js:719
 msgid "Warning"
@@ -369,7 +369,7 @@ msgstr "Sélection"
 #: static/creme_core/js/widgets/entityselector.js:143
 #, javascript-format
 msgid "Entity #%s (not viewable)"
-msgstr "Entité #%s (non visible)"
+msgstr "Fiche #%s (non visible)"
 
 #: static/creme_core/js/widgets/plot.js:114
 msgid "Canvas image"

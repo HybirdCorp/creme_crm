@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Assistants 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-18 19:05+0200\n"
+"POT-Creation-Date: 2017-11-30 20:30+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -18,17 +18,17 @@ msgstr ""
 msgid "Assistants (Todos, Memo, ...)"
 msgstr "Assistants (Todos, Mémo, ...)"
 
-#: bricks.py:110 models/todo.py:53 models/todo.py:84
+#: bricks.py:110 models/todo.py:53 models/todo.py:88
 #: templates/assistants/bricks/todos.html:7
 msgid "Todos"
 msgstr "Todos"
 
-#: bricks.py:130 models/memo.py:49 models/memo.py:77
+#: bricks.py:130 models/memo.py:49 models/memo.py:81
 #: templates/assistants/bricks/memos.html:7
 msgid "Memos"
 msgstr "Mémos"
 
-#: bricks.py:150 models/alert.py:53 models/alert.py:85
+#: bricks.py:150 models/alert.py:53 models/alert.py:87
 #: templates/assistants/bricks/alerts.html:7
 msgid "Alerts"
 msgstr "Alertes"
@@ -94,8 +94,8 @@ msgstr ""
 #: templates/assistants/block_actions_it.html:23
 #: templates/assistants/block_actions_nit.html:15
 #: templates/assistants/block_alerts.html:24
-#: templates/assistants/block_messages.html:29
-#: templates/assistants/block_todos.html:28
+#: templates/assistants/block_messages.html:30
+#: templates/assistants/block_todos.html:29
 msgid "Title"
 msgstr "Titre"
 
@@ -119,7 +119,7 @@ msgstr "Action cible"
 #: models/action.py:38 models/todo.py:42
 #: templates/assistants/block_actions_it.html:31
 #: templates/assistants/block_actions_nit.html:23
-#: templates/assistants/block_todos.html:30
+#: templates/assistants/block_todos.html:31
 msgid "Deadline"
 msgstr "Échéance"
 
@@ -133,20 +133,20 @@ msgstr "Utilisateur propriétaire"
 
 #: models/action.py:50 templates/assistants/block_actions_it.html:9
 #: templates/assistants/bricks/base/actions.html:7
-#: templates/assistants/bricks/messages.html:28
+#: templates/assistants/bricks/messages.html:29
 msgid "Action"
 msgstr "Action"
 
 #: models/action.py:51 templates/assistants/block_actions_it.html:33
 #: templates/assistants/block_actions_nit.html:25
 #: templates/assistants/block_alerts.html:32
-#: templates/assistants/block_memos.html:29
-#: templates/assistants/block_todos.html:32
+#: templates/assistants/block_memos.html:30
+#: templates/assistants/block_todos.html:33
 #: templates/assistants/bricks/actions-on-time.html:7
 #: templates/assistants/bricks/alerts.html:28
 #: templates/assistants/bricks/base/actions.html:23
-#: templates/assistants/bricks/memos.html:25
-#: templates/assistants/bricks/todos.html:28
+#: templates/assistants/bricks/memos.html:26
+#: templates/assistants/bricks/todos.html:29
 msgid "Actions"
 msgstr "Actions"
 
@@ -159,7 +159,7 @@ msgstr "Description"
 
 #: models/alert.py:39 templates/assistants/bricks/alerts.html:44
 #: templates/assistants/bricks/base/actions.html:40
-#: templates/assistants/bricks/todos.html:48
+#: templates/assistants/bricks/todos.html:49
 msgid "Validated"
 msgstr "Validée"
 
@@ -175,7 +175,7 @@ msgstr "Date de déclenchement de l'alerte"
 msgid "Alert"
 msgstr "Alerte"
 
-#: models/memo.py:36 templates/assistants/block_memos.html:28
+#: models/memo.py:36 templates/assistants/block_memos.html:29
 msgid "Content"
 msgstr "Contenu"
 
@@ -252,12 +252,12 @@ msgstr "Une erreur s'est produite pendant l'envoi des e-mails"
 msgid "Original error: %s"
 msgstr "Erreur originale : %s"
 
-#: reminders.py:46
+#: reminders.py:54
 #, python-format
 msgid "Reminder concerning a Creme CRM alert related to %s"
 msgstr "Rappel concernant une alerte Crème CRM à propos de %s"
 
-#: reminders.py:49
+#: reminders.py:57
 #, python-format
 msgid ""
 "This mail is automatically sent by Crème CRM to remind you that an alert "
@@ -274,12 +274,12 @@ msgstr ""
 "\n"
 "            qui est rattachée à la fiche : %(entity)s"
 
-#: reminders.py:84
+#: reminders.py:93
 #, python-format
 msgid "Reminder concerning a Creme CRM todo related to %s"
 msgstr "Rappel concernant une todo Crème CRM à propos de %s"
 
-#: reminders.py:87
+#: reminders.py:96
 #, python-format
 msgid ""
 "This mail is automatically sent by Crème CRM to remind you that a todo "
@@ -336,8 +336,8 @@ msgstr "Fiche concernée"
 #: templates/assistants/block_todos.html:26
 #: templates/assistants/bricks/alerts.html:24
 #: templates/assistants/bricks/base/actions.html:18
-#: templates/assistants/bricks/memos.html:22
-#: templates/assistants/bricks/todos.html:22
+#: templates/assistants/bricks/memos.html:23
+#: templates/assistants/bricks/todos.html:23
 msgid "User"
 msgstr "Utilisateur"
 
@@ -434,16 +434,13 @@ msgid "New memo"
 msgstr "Nouveau mémo"
 
 #: templates/assistants/block_memos.html:27
-#: templates/assistants/block_messages.html:28
-#: templates/assistants/block_todos.html:27
-#: templates/assistants/bricks/memos.html:23
-#: templates/assistants/bricks/messages.html:25
-#: templates/assistants/bricks/todos.html:23
+#: templates/assistants/bricks/memos.html:22
+msgctxt "assistants-memo"
 msgid "Created on"
 msgstr "Créé le"
 
-#: templates/assistants/block_memos.html:50
-#: templates/assistants/bricks/memos.html:48
+#: templates/assistants/block_memos.html:51
+#: templates/assistants/bricks/memos.html:49
 msgid "No memo for the moment"
 msgstr "Aucun mémo enregistré pour le moment"
 
@@ -471,22 +468,28 @@ msgstr "Envoyer un nouveau message"
 msgid "New message"
 msgstr "Nouveau message"
 
-#: templates/assistants/block_messages.html:30
-#: templates/assistants/bricks/messages.html:27
+#: templates/assistants/block_messages.html:28
+#: templates/assistants/bricks/messages.html:24
+msgctxt "assistants-message"
+msgid "Created on"
+msgstr "Créé le"
+
+#: templates/assistants/block_messages.html:31
+#: templates/assistants/bricks/messages.html:28
 msgid "Body"
 msgstr "Corps"
 
-#: templates/assistants/block_messages.html:31
+#: templates/assistants/block_messages.html:32
 msgid "Delete"
 msgstr "Supprimer"
 
-#: templates/assistants/block_messages.html:42
-#: templates/assistants/bricks/messages.html:39
+#: templates/assistants/block_messages.html:43
+#: templates/assistants/bricks/messages.html:40
 msgid "(None)"
 msgstr "(Aucune)"
 
-#: templates/assistants/block_messages.html:59
-#: templates/assistants/bricks/messages.html:55
+#: templates/assistants/block_messages.html:60
+#: templates/assistants/bricks/messages.html:56
 msgid "No received message for the moment"
 msgstr "Aucun message reçu pour le moment"
 
@@ -505,28 +508,34 @@ msgstr "%s Todos"
 msgid "New todo"
 msgstr "Nouveau todo"
 
-#: templates/assistants/block_todos.html:29
-#: templates/assistants/bricks/todos.html:25
+#: templates/assistants/block_todos.html:27
+#: templates/assistants/bricks/todos.html:22
+msgctxt "assistants-todo"
+msgid "Created on"
+msgstr "Créé le"
+
+#: templates/assistants/block_todos.html:30
+#: templates/assistants/bricks/todos.html:26
 msgid "Todo text"
 msgstr "Texte du Todo"
 
-#: templates/assistants/block_todos.html:31
+#: templates/assistants/block_todos.html:32
 #: templates/assistants/bricks/alerts.html:46
 #: templates/assistants/bricks/base/actions.html:42
-#: templates/assistants/bricks/todos.html:50
+#: templates/assistants/bricks/todos.html:51
 msgid "Validate"
 msgstr "Valider"
 
-#: templates/assistants/block_todos.html:55
+#: templates/assistants/block_todos.html:56
 msgid "The Todo is validated."
 msgstr "Le Todo est validé."
 
-#: templates/assistants/block_todos.html:61
+#: templates/assistants/block_todos.html:62
 msgid "Submit"
 msgstr "Envoyer"
 
-#: templates/assistants/block_todos.html:77
-#: templates/assistants/bricks/todos.html:64
+#: templates/assistants/block_todos.html:78
+#: templates/assistants/bricks/todos.html:65
 msgid "No Todo for the moment"
 msgstr "Aucun Todo enregistré pour le moment"
 
@@ -574,12 +583,12 @@ msgstr "{count} Alertes"
 
 #: templates/assistants/bricks/alerts.html:27
 #: templates/assistants/bricks/base/actions.html:22
-#: templates/assistants/bricks/todos.html:27
+#: templates/assistants/bricks/todos.html:28
 msgid "Status"
 msgstr "Statut"
 
 #: templates/assistants/bricks/alerts.html:46
-#: templates/assistants/bricks/todos.html:50
+#: templates/assistants/bricks/todos.html:51
 msgid "Are you sure?"
 msgstr "Êtes-vous sûr ?"
 
@@ -613,11 +622,11 @@ msgstr "{count} Mémo"
 msgid "{count} Memos"
 msgstr "{count} Mémos"
 
-#: templates/assistants/bricks/memos.html:38
+#: templates/assistants/bricks/memos.html:39
 msgid "Edit this memo"
 msgstr "Modifier ce mémo"
 
-#: templates/assistants/bricks/memos.html:41
+#: templates/assistants/bricks/memos.html:42
 msgid "Delete this memo"
 msgstr "Supprimer ce mémo"
 
@@ -635,7 +644,7 @@ msgstr "{count} Messages utilisateur"
 msgid "Messages"
 msgstr "Messages"
 
-#: templates/assistants/bricks/messages.html:48
+#: templates/assistants/bricks/messages.html:49
 msgid "Delete this message"
 msgstr "Supprimer ce message"
 
@@ -649,11 +658,11 @@ msgstr "{count} Todo"
 msgid "{count} Todos"
 msgstr "{count} Todos"
 
-#: templates/assistants/bricks/todos.html:54
+#: templates/assistants/bricks/todos.html:55
 msgid "Edit this todo"
 msgstr "Modifier ce todo"
 
-#: templates/assistants/bricks/todos.html:57
+#: templates/assistants/bricks/todos.html:58
 msgid "Delete this todo"
 msgstr "Supprimer ce todo"
 
@@ -708,7 +717,7 @@ msgstr "Nouveau Todo pour «%s»"
 msgid "Save the todo"
 msgstr "Enregistrer le Todo"
 
-#: views/todo.py:39
+#: views/todo.py:40
 #, python-format
 msgid "Todo for «%s»"
 msgstr "Todo pour «%s»"

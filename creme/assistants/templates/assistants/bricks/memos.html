@@ -19,8 +19,9 @@
     {% brick_table_column title=_('Concerned entity') %}
     {% endif %}
 
+{% trans 'Created on' context 'assistants-memo' as creation_label %}
     {% brick_table_column_for_field ctype=objects_ctype field='user'          title=_('User')       status='primary' %}
-    {% brick_table_column_for_field ctype=objects_ctype field='creation_date' title=_('Created on') %}
+    {% brick_table_column_for_field ctype=objects_ctype field='creation_date' title=creation_label %}
     {% brick_table_column_for_field ctype=objects_ctype field='content' %}
     {% brick_table_column title=_('Actions') status='action' colspan=2 %}
 {% endblock %}

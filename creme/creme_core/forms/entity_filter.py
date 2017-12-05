@@ -55,7 +55,7 @@ from .widgets import (DynamicInput, SelectorList, ChainedInput,
 TRUE = 'true'
 FALSE = 'false'
 
-_BOOL_OPTIONS = ((TRUE, _('True')), (FALSE, _('False')))
+_BOOL_OPTIONS = ((TRUE, _(u'True')), (FALSE, _(u'False')))
 _HAS_PROPERTY_OPTIONS = OrderedDict([
         (TRUE,  _(u'Has the property')),
         (FALSE, _(u'Does not have the property')),
@@ -352,7 +352,7 @@ class DateCustomFieldsConditionsWidget(SelectorList):
         options = list(self.date_fields_options)
 
         if not options:
-            return _('No date custom field at present.')
+            return _(u'No date custom field at present.')
 
         self.selector = chained_input = ChainedInput()
         sub_attrs = {'auto': False}
@@ -422,7 +422,7 @@ class RelationSubfiltersConditionsWidget(SelectorList):
         add_dselect('filter',
                     # options='/creme_core/entity_filter/get_for_ctype/${%s}' % ctype_name,
                     options=reverse('creme_core__efilters') + '?ct_id=${%s}' % ctype_name,
-                    attrs={'auto': False, 'autocomplete': True, 'data-placeholder': _(u'Select')},
+                    attrs={'auto': False, 'autocomplete': True, 'data-placeholder': _(u'(no filter)')},
                    )
 
         return super(RelationSubfiltersConditionsWidget, self).render(name, value, attrs)

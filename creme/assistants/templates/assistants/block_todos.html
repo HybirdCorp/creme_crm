@@ -24,7 +24,8 @@
                     <th class="block_header_line_dark">{% trans "Concerned entity" %}</th>
                 {% endif %}
                 {% get_column_header _('User') 'user' %}
-                {% get_column_header _('Created on') 'creation_date' %}
+                {% trans 'Created on' context 'assistants-todo' as creation_label %}
+                {% get_column_header creation_label 'creation_date' %}
                 {% get_column_header _('Title') 'title' %}
                 {% get_column_header _('Todo text') 'description' %}
                 {% get_column_header _('Deadline') 'deadline' %}

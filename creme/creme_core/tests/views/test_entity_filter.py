@@ -378,10 +378,13 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                ),
                                      )
         self.assertFormError(response, 'form', None, 
-                             _(u'A private filter which can use public sub-filters, & private sub-filters'
-                               u' which belong to the same user and his teams.'
-                               u' So this private sub-filter cannot be chosen: %s'
-                              ) % subfilter.name,
+                             ungettext(
+                                 u'A private filter can only use public sub-filters, & private sub-filters which belong to the same user and his teams.'
+                                 u' So this private sub-filter cannot be chosen: %s',
+                                 u'A private filter can only use public sub-filters, & private sub-filters which belong to the same user and his teams.'
+                                 u' So these private sub-filters cannot be chosen: %s',
+                                 1
+                                ) % subfilter.name
                             )
 
         response = self.client.post(self._build_add_url(ct=self.ct_contact), follow=True, data=data)

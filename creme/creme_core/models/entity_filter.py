@@ -305,12 +305,12 @@ class EntityFilter(Model):  # CremeModel ???
 
                 if invalid_filter_names:
                     raise EntityFilter.PrivacyError(
-                                ungettext(u'A private filter which can use public sub-filters, & private sub-filters which belong to the same user and his teams.'
-                                         u' So this private sub-filter cannot be chosen: %s',
-                                         u'A private filter which can use public sub-filters, & private sub-filters which belong to the same user and his teams.'
-                                         u' So these private sub-filters cannot be chosen: %s',
-                                         len(invalid_filter_names)
-                                        ) % u', '.join(invalid_filter_names)
+                                ungettext(u'A private filter can only use public sub-filters, & private sub-filters which belong to the same user and his teams.'
+                                          u' So this private sub-filter cannot be chosen: %s',
+                                          u'A private filter can only use public sub-filters, & private sub-filters which belong to the same user and his teams.'
+                                          u' So these private sub-filters cannot be chosen: %s',
+                                          len(invalid_filter_names)
+                                         ) % u', '.join(invalid_filter_names)
                             )
         else:
             invalid_filter_names = EntityFilter.objects \

@@ -1,7 +1,7 @@
 {% load i18n creme_widgets %}{# creme_core_tags #}
 <fieldset title="{% trans 'Filter the lines of the table' %}">
     <div class="legend">
-        {% trans 'Filter' as label %}{% widget_icon name='filter' label=label size='listview-filter' %}{{label}}
+        {% trans 'Filter' context 'creme_core-noun' as label %}{% widget_icon name='filter' label=label size='listview-filter' %}{{label}}
     </div>
 {#    <select name="filter" id="list_filter" onchange="$(this.form).list_view('getSubmit')(this);"> #}
     <select name="filter" id="list_filter" onchange="creme.lv_widget.findList(this).list_view('getSubmit')(this);">
