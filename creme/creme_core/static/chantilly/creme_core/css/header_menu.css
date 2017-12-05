@@ -7,7 +7,7 @@
 }
 
 .header-menu {
-    font: 12px 'Open Sans', sans-serif;
+/*     font: 12px 'Open Sans', sans-serif; */
 
     height: 35px;
     background: #fcffff;
@@ -59,12 +59,12 @@
     padding-left: 10px;
     vertical-align: top;
 
-    margin-top: 8px;
+/*    margin-top: 8px; */
     margin-right: 15px;
 }
 
 .search-box input[type="text"] {
-    font: 12px 'Open Sans', sans-serif;
+    /* font: 12px 'Open Sans', sans-serif; */
     height: auto;
     /*  padding: 5px 5px;*/
     padding-left: 5px;

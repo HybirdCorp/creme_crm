@@ -2,6 +2,7 @@
     opacity: 0.5;
 }
 
+/* Errors */ /* TODO: remove in creme 1.8 */
 html.central_panel {
     background-color: #e6f2f7;
 }
@@ -75,13 +76,17 @@ body.central_panel {
     margin-right: auto;
     padding: 1em 0 1em 0;
 }
-
+/* Errors - end */
 
 html {
-    color: black;
+    margin: 0;
+    padding: 0;
+
     background-color: #f6fcff;
-    margin:0;
-    padding:0;
+
+    color: black;
+    font-size: 0.8em;
+    font-family: "Lucida Grande","DejaVu Sans","Bitstream Vera Sans",Verdana,Arial,sans-serif;
 }
 
 h2  {
@@ -119,12 +124,14 @@ a img.text_icon {
 }
 
 body {
-    color: black;
+/*    color: black; */
     background-color: #f6fcff;
     padding: 0px;
     margin: 0;
+/*
     font-family:  Verdana, Tahoma, Arial, Helvetica, sans-serif;
     font-size: 0.8em;
+ */
 }
 
 body.is_deleted {
@@ -322,19 +329,6 @@ ul.button_list.vbox li {
     top: 3px;
 }
 
-/* .menu_button.card-button-icon { */
-.card-button.card-button-icon {
-    padding-left: 35px;
-    position: relative;
-}
-
-/* .menu_button.card-button-icon img { */
-.card-button.card-button-icon img {
-    position: absolute;
-    top: calc(50% - 7px);
-    left: 13px;
-}
-
 .global-buttons {
     margin-bottom: 10px;
 }
@@ -349,6 +343,10 @@ ul.button_list.vbox li {
     padding-left: 10px;
     margin-top: 10px;
     margin-right: 5px;
+
+    color: #34687e;
+    font-size: 12.5px;
+    font-weight: 500;
 }
 
 .buttons-list.instance-buttons ul {
@@ -357,6 +355,22 @@ ul.button_list.vbox li {
 
 .buttons-list.instance-buttons .menu_button img {
     padding-right: 3px
+}
+
+/* .menu_button.card-button-icon { */
+.card-button.card-button-icon,
+.buttons-list .menu_button.menu-button-icon {
+    padding-left: 38px;
+    position: relative;
+}
+
+/* .menu_button.card-button-icon img { */
+.card-button.card-button-icon img,
+.menu_button.menu-button-icon img {
+    position: absolute;
+/*    top: calc(50% - 7px); */
+    top: 2px;
+    left: 8px;
 }
 
 /*
@@ -451,7 +465,15 @@ ul.button_list.vbox li {
 .main_content {
     clear: both;
 
-    height: 80%;
+    /* height: 80%; */
+    height: auto;
+    /*
+      264px = footer
+      38px = page decoration
+      40px: top padding
+     */
+    min-height: calc(100vh - 264px - 38px - 40px);
+
     width: 98%;
     margin-left: 1.2%;
 
@@ -913,6 +935,7 @@ span.enumerator-item {
 
 .hat-bar-container {
 /*    padding: 10px; */
+    margin-bottom: 10px;
 
     color: #311714;
     background-color: #fff3f2;
@@ -923,7 +946,7 @@ span.enumerator-item {
 div.hat-bar {
     display: flex;
     flex-direction: row;
-    height: 58px;
+    /* height: 58px; */
 }
 
 .hat-bar .bar-icon {
@@ -935,9 +958,15 @@ div.hat-bar {
     border-radius: 32px;
 }
 
+.hat-bar .bar-title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
 .hat-bar .bar-title h1 {
     margin: 0;
-    margin-top: 10px;
+/*    margin-top: 10px; */
     font-size: 1.8em;
 }
 

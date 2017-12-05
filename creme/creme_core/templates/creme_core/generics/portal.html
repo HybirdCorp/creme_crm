@@ -61,9 +61,9 @@
             <ul>
                 <li>{% trans 'Configure' as config_label %}
                     {% if can_admin %}
-                    <a class="menu_button" href="{{config_url}}">
+                    <a class="menu_button menu-button-icon" href="{{config_url}}">
                     {% else %}
-                    <a class="menu_button forbidden is-disabled">
+                    <a class="menu_button menu-button-icon forbidden is-disabled">
                     {% endif %}
                     {% widget_icon name='config' size='instance-button' label=config_label %} {{config_label}}
                     </a>

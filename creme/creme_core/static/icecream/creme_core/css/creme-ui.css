@@ -121,11 +121,19 @@
 ul.ui-layout { margin:0; padding:0; list-style:none; }
 ul.ui-layout li { margin:0; padding:0; list-style:none; }
 
-ul.ui-layout.hbox li { position:relative; display:inline-block; vertical-align:middle; }
+ul.ui-layout.hbox li {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+    padding-right: 4px;
+}
 /*ul.ui-layout.hbox li button { margin: 0px 2px; }*/
 ul.ui-layout.hbox li input { margin: 0px 2px; }
 
-ul.ui-layout.vbox li { position:relative; display:block; }
+ul.ui-layout.vbox li {
+    position: relative;
+    display: block;
+}
 
 .ui-layout.resize-sensor, .ui-layout.resize-sensor > div {
     position: absolute;

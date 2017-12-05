@@ -15,7 +15,7 @@
 
 {% block global_buttons %}
     <li>
-        <a class="menu_button" href="{% url 'activities__calendar' %}">{% trans 'Go to the calendar' as go_label %}
+        <a class="menu_button menu-button-icon" href="{% url 'activities__calendar' %}">{% trans 'Go to the calendar' as go_label %}
             {% widget_icon name='calendar' size='global-button' label=go_label %}
             {{go_label}}
         </a>
