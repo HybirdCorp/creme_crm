@@ -123,7 +123,10 @@
 
 .detailview .listviews-breadcrumbs {
 /*    margin-bottom: 10px; */
+    padding-top: 10px;
     padding-left: 10px;
+    padding-bottom: 0px;
+
     color: #888;
 }
 

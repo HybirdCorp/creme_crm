@@ -69,7 +69,7 @@ table.table_detail_view + table.table_detail_view {
     color: #666;
     font-weight: 600;
 
-    /* _border-right: 1px solid #d9d9d9;  right border of the block */
+    /* border-right: 1px solid #d9d9d9;  right border of the block */
 }
 
 .brick .brick-content {
@@ -78,8 +78,8 @@ table.table_detail_view + table.table_detail_view {
     overflow-y: auto;
     overflow-x: hidden;
 
-    /* _border-left: 1px solid #d9d9d9;  left border of the block */
-    /* _border-right: 1px solid #d9d9d9;  right border of the block */
+    /* border-left: 1px solid #d9d9d9;  left border of the block */
+    /* border-right: 1px solid #d9d9d9;  right border of the block */
 }
 
 .brick .brick-content.is-paginated {
@@ -100,7 +100,7 @@ table.table_detail_view + table.table_detail_view {
     overflow: hidden;
     text-overflow: ellipsis;
 
-    /* _border-left: 1px solid #d9d9d9; left border of the block */
+    /* border-left: 1px solid #d9d9d9; left border of the block */
 }
 
 .brick .brick-header-menu:not(.is-disabled):hover {
@@ -343,21 +343,21 @@ table.table_detail_view + table.table_detail_view {
 
 .brick.brick-table .brick-content {
     padding: 0;
-    /* _border-left: 0;  reset left border of the block */
-    /* _border-right: 0;  reset right border of the block */
+    /* border-left: 0;  reset left border of the block */
+    /* border-right: 0;  reset right border of the block */
 }
 
 /* .brick-content padding and block left border distributed into the table's first column */
 .brick-table .brick-table-content > tbody > tr > :first-child,
 .brick-table .brick-table-content > thead > tr > :first-child {
     padding-left: 10px;
-    /* _border-left: 1px solid #d9d9d9;  left border of the block */
+    /* border-left: 1px solid #d9d9d9;  left border of the block */
 }
 
 /* distribute block right border into the table's last column */
 .brick-table .brick-table-content > tbody > tr > :last-child,
 .brick-table .brick-table-content > thead > tr > :last-child {
-    /* _border-right: 1px solid #d9d9d9;  right border of the block */
+    /* border-right: 1px solid #d9d9d9;  right border of the block */
     padding-right: 10px;
 }
 
@@ -575,8 +575,8 @@ table.table_detail_view + table.table_detail_view {
 .brick .brick-footer {
     padding: 5px 10px;
 
-    /* _border-left: 1px solid #d9d9d9;  right border of the block */
-    /* _border-right: 1px solid #d9d9d9;  right border of the block */
+    /* border-left: 1px solid #d9d9d9;  right border of the block */
+    /* border-right: 1px solid #d9d9d9;  right border of the block */
 }
 
 .brick .brick-pagination {
@@ -1355,11 +1355,13 @@ svg.icon {
     border-bottom: 1px solid #dedede;
 }
 
+/*
 .creme_core-specific-relations-brick .brick-table .brick-table-content .brick-table-action {
-/*    display: inline-block; */
-/*    width: 100%; */
+     display: inline-block;
+     width: 100%;
     padding: 0px;
 }
+*/
 
 /*
 .creme_core-specific-relations-brick .relation-schedule-beginning {

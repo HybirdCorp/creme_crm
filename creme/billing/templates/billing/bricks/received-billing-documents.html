@@ -15,7 +15,7 @@
     {% endif %}
 
     {% brick_table_column_for_field ctype=objects_ctype field='status' title=_('Status') %}
-    {% brick_table_column_for_field ctype=objects_ctype field='total_no_vat' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='total_no_vat' data_type='money' %}
 {% endblock %}
 
 {% block brick_table_rows %}
