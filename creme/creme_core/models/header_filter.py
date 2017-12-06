@@ -100,31 +100,6 @@ class HeaderFilter(Model):  # CremeModel ???
     def __unicode__(self):
         return self.name
 
-    # def can_edit_or_delete(self, user):
-    #     warnings.warn("HeaderFilter.can_edit_or_delete() method is deprecated; use can_edit()/can_delete() methods instead",
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     if not self.is_custom:
-    #         return (False, ugettext(u"This view can't be edited/deleted"))
-    #
-    #     if not self.user_id: #all users allowed
-    #         return (True, 'OK')
-    #
-    #     if user.is_superuser:
-    #         return (True, 'OK')
-    #
-    #     if not user.has_perm(self.entity_type.app_label):
-    #         return (False, ugettext(u"You are not allowed to access to this app"))
-    #
-    #     if not self.user.is_team:
-    #         if self.user_id == user.id:
-    #             return (True, 'OK')
-    #     elif self.user.team_m2m_teamside.filter(teammate=user).exists():
-    #         return (True, 'OK')
-    #
-    #     return (False, ugettext(u"You are not allowed to edit/delete this view"))
-
     def can_delete(self, user):
         if not self.is_custom:
             return (False, ugettext(u"This view can't be deleted"))

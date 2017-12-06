@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-01 17:39+0100\n"
+"POT-Creation-Date: 2017-12-06 11:21+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -30,7 +30,7 @@ msgstr "Accueil"
 msgid "My page"
 msgstr "Ma page"
 
-#: apps.py:331 models/auth.py:588 models/job.py:83 models/prefered_menu.py:27
+#: apps.py:331 models/auth.py:590 models/job.py:83 models/prefered_menu.py:27
 #: templates/creme_core/bricks/job.html:59
 msgid "User"
 msgstr "Utilisateur"
@@ -1225,7 +1225,7 @@ msgstr "Créer un rôle"
 msgid "Save the role"
 msgstr "Enregistrer le rôle"
 
-#: models/auth.py:63 models/auth.py:553
+#: models/auth.py:63 models/auth.py:555
 msgid "Role"
 msgstr "Rôle"
 
@@ -1303,118 +1303,118 @@ msgid ""
 "+/-/_ characters."
 msgstr ""
 
-#: models/auth.py:535
+#: models/auth.py:537
 msgid "Last name"
 msgstr "Nom"
 
-#: models/auth.py:536
+#: models/auth.py:538
 msgid "First name"
 msgstr "Prénom"
 
-#: models/auth.py:538
+#: models/auth.py:540
 msgid "Email address"
 msgstr "Adresse e-mail"
 
-#: models/auth.py:540
+#: models/auth.py:542
 msgid "Date joined"
 msgstr "Date d'inscription"
 
-#: models/auth.py:541
+#: models/auth.py:543
 msgid "Active?"
 msgstr "Actif ?"
 
-#: models/auth.py:547
+#: models/auth.py:549
 msgid "Is staff?"
 msgstr "Est administrateur ?"
 
-#: models/auth.py:550
+#: models/auth.py:552
 msgid "Is a superuser?"
 msgstr "Est un super-utilisateur ?"
 
-#: models/auth.py:557
+#: models/auth.py:559
 msgid "Is a team?"
 msgstr "Est une équipe ?"
 
-#: models/auth.py:558
+#: models/auth.py:560
 msgid "Teammates"
 msgstr "Coéquipiers"
 
-#: models/auth.py:562
+#: models/auth.py:564
 msgid "Time zone"
 msgstr "Fuseau horaire"
 
-#: models/auth.py:565
+#: models/auth.py:567
 msgid "Theme"
 msgstr "Thème"
 
-#: models/auth.py:578
+#: models/auth.py:580
 msgid "Create a user"
 msgstr "Créer un utilisateur"
 
-#: models/auth.py:579
+#: models/auth.py:581
 msgid "Save the user"
 msgstr "Enregistrer l'utilisateur"
 
-#: models/auth.py:589
+#: models/auth.py:591
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: models/auth.py:597
+#: models/auth.py:599
 #, python-format
 msgid "%s (team)"
 msgstr "%s (équipe)"
 
-#: models/auth.py:604
+#: models/auth.py:606
 #, python-format
 msgid "%(first_name)s %(last_name)s."
 msgstr "%(first_name)s %(last_name)s."
 
-#: models/auth.py:729
+#: models/auth.py:731
 #, python-format
 msgid "Invalid app \"%s\""
 msgstr "App invalide \"%s\""
 
-#: models/auth.py:731
+#: models/auth.py:733
 #, python-format
 msgid "You are not allowed to configure this app: %s"
 msgstr "Vous n'êtes pas autorisé à configurer cette app: %s"
 
-#: models/auth.py:749
+#: models/auth.py:751
 #, python-format
 msgid "You are not allowed to edit this entity: %s"
 msgstr "Vous n'êtes pas autorisé à modifier cette fiche: %s"
 
-#: models/auth.py:762
+#: models/auth.py:764
 #, python-format
 msgid "You are not allowed to create: %s"
 msgstr "Vous n'avez pas la permission de créer : %s"
 
-#: models/auth.py:777 views/entity.py:618
+#: models/auth.py:779 views/entity.py:618
 #, python-format
 msgid "You are not allowed to delete this entity: %s"
 msgstr "Vous n'êtes pas autorisé à supprimer cette fiche: %s"
 
-#: models/auth.py:790
+#: models/auth.py:792
 #, python-format
 msgid "You are not allowed to export: %s"
 msgstr "Vous n'avez pas la permission d'exporter: %s"
 
-#: models/auth.py:819
+#: models/auth.py:821
 #, python-format
 msgid "You are not allowed to link this entity: %s"
 msgstr "Vous n'êtes pas autorisé à relier cette fiche: %s"
 
-#: models/auth.py:822
+#: models/auth.py:824
 #, python-format
 msgid "You are not allowed to link: %s"
 msgstr "Vous n'avez pas la permission de lier: %s"
 
-#: models/auth.py:833
+#: models/auth.py:835
 #, python-format
 msgid "You are not allowed to unlink this entity: %s"
 msgstr "Vous n'êtes pas autorisé à délier cette fiche: %s"
 
-#: models/auth.py:843
+#: models/auth.py:845
 #, python-format
 msgid "You are not allowed to view this entity: %s"
 msgstr "Vous n'êtes pas autorisé à voir cette fiche: %s"
@@ -3257,8 +3257,8 @@ msgid "Create a custom filter"
 msgstr "Créer un filtre personnalisé"
 
 #: templates/creme_core/templatetags/listview_entityfilters.html:21
-msgid "Edit this custom filter"
-msgstr "Modifier ce filtre personnalisé"
+msgid "Edit this filter"
+msgstr "Modifier ce filtre"
 
 #: templates/creme_core/templatetags/listview_entityfilters.html:27
 msgid "Delete this custom filter"
@@ -3273,8 +3273,8 @@ msgid "Create a custom view"
 msgstr "Créer une vue personnalisée"
 
 #: templates/creme_core/templatetags/listview_headerfilters.html:20
-msgid "Edit this custom view"
-msgstr "Modifier cette vue personnalisée"
+msgid "Edit this view"
+msgstr "Modifier cette vue"
 
 #: templates/creme_core/templatetags/listview_headerfilters.html:26
 msgid "Delete this custom view"
