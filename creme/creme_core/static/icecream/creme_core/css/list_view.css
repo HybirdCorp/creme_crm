@@ -7,7 +7,7 @@
     border: none;
 }
 
-.in-popup .list_view { /* Tweaks for popups */
+.ui-dialog-content .list_view { /* Tweaks for popups */
     min-width: 800px;
 
     border-top: 0;

@@ -151,10 +151,10 @@ form .table_detail_view .td_info > textarea {
 form .table_detail_view.dual_column .td_info > input,
 form .table_detail_view.dual_column .td_info > select,
 form .table_detail_view.dual_column .td_info > textarea,
-.in-popup form .table_detail_view .td_info > input,
-.in-popup form .table_detail_view .td_info > select,
-.in-popup form .table_detail_view .td_info span > select,
-.in-popup form .table_detail_view .td_info > textarea {
+.ui-dialog-content form .table_detail_view .td_info > input,
+.ui-dialog-content form .table_detail_view .td_info > select,
+.ui-dialog-content form .table_detail_view .td_info span > select,
+.ui-dialog-content form .table_detail_view .td_info > textarea {
 /*    width: 100%; */
     width: 98.5%;
 }
@@ -167,12 +167,12 @@ form .table_detail_view .td_info > textarea {
 The forms templates need to be cleaned up, in addition to the previous rules about input widths.
 */
 .table_detail_view .td_info > input[type="checkbox"],
-.table_detail_view.dual_column .td_info > input[type="checkbox"], .in-popup form .table_detail_view .td_info > input[type="checkbox"] {/* Fix for chrome & opera */
+.table_detail_view.dual_column .td_info > input[type="checkbox"], .ui-dialog-content form .table_detail_view .td_info > input[type="checkbox"] {/* Fix for chrome & opera */
     width: auto;
     margin-left: 0;
 }
 
-.in-popup form .table_detail_view .td_info > input.hasDatepicker,
+.ui-dialog-content form .table_detail_view .td_info > input.hasDatepicker,
 form .table_detail_view.dual_column .td_info > input.hasDatepicker {
     width: 75%;
 }
