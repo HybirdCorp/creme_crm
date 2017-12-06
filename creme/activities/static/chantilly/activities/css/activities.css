@@ -347,9 +347,13 @@
 .brick .activity-calendar-color-square {
     width: 13px;
     height: 13px;
+
+    margin-top: -3px;
+    margin-right: 3px;
+
     display: inline-block;
     vertical-align: middle;
-    margin-top: -3px;
+
     background: white;
 }
 

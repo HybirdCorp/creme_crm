@@ -435,7 +435,10 @@ def brick_table_column_for_cell(context, cell, title='', status='', **attrs):
                                                            )
 
     if 'data_type' not in attrs:
-        attrs['data_type'] = cell.data_type
+        data_type = cell.data_type
+
+        if data_type:
+            attrs['data_type'] = data_type
 
     return {
         'title':      verbose_name,

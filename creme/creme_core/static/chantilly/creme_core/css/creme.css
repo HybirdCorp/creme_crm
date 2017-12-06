@@ -1206,7 +1206,7 @@ div.hat-bar {
 }
 
 .page-decoration div {
-    width: calc(50% - 20px);
+    width: calc(50% - 21px);
     border-top: 1px solid currentColor;
     height: 7px;
 }
