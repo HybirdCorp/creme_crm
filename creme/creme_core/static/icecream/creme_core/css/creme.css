@@ -970,29 +970,29 @@ ul.button_list.vbox li {
 /* Dialogs */
 
 /* TODO: remove all 'table_header' stuffes in 1.8  */
-.in-popup .table_header h1,
-.in-popup .hat-bar-container .hat-bar .bar-title h1 {
+.ui-dialog-content .table_header h1,
+.ui-dialog-content .hat-bar-container .hat-bar .bar-title h1 {
     font-size: 15px;
 }
 
-.in-popup .table_header td:first-child img,
-.in-popup .hat-bar-container .hat-bar .bar-icon img {
+.ui-dialog-content .table_header td:first-child img,
+.ui-dialog-content .hat-bar-container .hat-bar .bar-icon img {
     height: 20px;
     width: 20px;
     position: relative;
     top: 2px;
 }
 
-.in-popup .table_detail_view thead,
-.in-popup form .table_detail_view .th_info {
+.ui-dialog-content .table_detail_view thead,
+.ui-dialog-content form .table_detail_view .th_info {
     font-size: 13px;
 }
 
-.in-popup div.hat-bar {
+.ui-dialog-content div.hat-bar {
     height: 30px;
 }
 
-.in-popup .hat-bar .bar-title h1 {
+.ui-dialog-content .hat-bar .bar-title h1 {
     margin-top: 3px;
 }
 
