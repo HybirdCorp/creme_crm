@@ -32,7 +32,24 @@
                 }
 
                 select.model().reset(data);
-            })
+            });
+
+            $('#required-validate').click(function() {
+                var form = $('#required-selector').parents('form:first');
+                var errors = form.validateHTML5();
+
+                $('.is-field-invalid', form).each(function() {
+                    var item = $(this);
+
+                    if (errors[item.attr('name')] === undefined) {
+                        item.removeClass('is-field-invalid');
+                    }
+                });
+
+                for (var name in errors) {
+                    $('[name="' + name + '"]', form).addClass('is-field-invalid');
+                }
+            });
 
             $('#sector-selector').on('creme-widget-create', function(e, widget) {
                 creme.ajax.query('{% url "creme_core__list_enumerable" TEST_CONTENTTYPES.sector %}')
@@ -95,6 +112,32 @@
                 <ul class="checklist-content"></ul>
             </div>
         </div>
+    </li>
+    <li>
+        <form>
+        <h3>No group - required&nbsp;<button id="required-validate">Validate</button></h3>
+        <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect" id="required-selector">
+            <select class="ui-creme-input" name="required-selector" multiple required>
+                <option value='activities-object_activity_subject'>a pour sujet</option>
+                <option value='activities-object_linked_2_activity'>activité reliée à</option>
+                <option value='activities-object_participates_to_activity'>a comme participant</option>
+                <option value='activities-subject_activity_subject'>est sujet de</option>
+                <option value='activities-subject_linked_2_activity'>relié à l'activité</option>
+                <option value='activities-subject_participates_to_activity'>participe à</option>
+                <option value='commercial-object_complete_goal'>remplie grace à</option>
+                <option value='commercial-object_sold_by'>vendu par</option>
+                <option value='commercial-subject_sold_by'>a vendu</option>
+            </select>
+            <div class="checklist-counter"></div>
+            <div class="checklist-header">
+                <a class="checklist-check-all">Tout sélectionner</a>
+                <a class="checklist-check-none">Tout déselectionner</a>
+            </div>
+            <div class="checklist-body">
+                <ul class="checklist-content"></ul>
+            </div>
+        </div>
+        </form>
     </li>
     <li>
         <h3>No group - disabled options</h3>
@@ -458,7 +501,7 @@
         </div>
     </li>
     <li>
-        <h3>Bench&nbsp;<button id="bench-reload">Reload</button><input type="number" value="250" id="bench-count-input"></input></h3>
+        <h3>Bench&nbsp;<button id="bench-reload">Reload</button>&nbsp;<input type="number" value="250" id="bench-count-input"></input></h3>
         <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect" id="bench-selector">
             <select class="ui-creme-input" multiple>
                 {% for index in 250|xrange:1 %}

@@ -561,8 +561,25 @@ span.ui-creme-datepicker-trigger {
     display: none;
 }
 
-.ui-creme-checklistselect select.ui-creme-input {
-    display: none;
+.ui-creme-checklistselect {
+    padding: 1px;
+}
+
+.ui-creme-checklistselect.is-field-invalid {
+    padding: 0;
+}
+
+.ui-creme-checklistselect select.ui-creme-input,
+.ui-creme-checklistselect select.is-field-invalid {
+    -webkit-appearance: none;
+       -moz-appearance: none;
+            appearance: none;
+    width: 0;
+    height: 0;
+    border: 0 !important;
+    padding: 0 !important;
+    overflow: hidden;
+    box-shadow: none !important;
 }
 
 .checklist-content .checkbox-group {
