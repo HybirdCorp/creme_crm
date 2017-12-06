@@ -358,7 +358,7 @@ class _CremeTestCase(object):
                              )
 
     def assertNoWizardFormError(self, response, status=200, wizard='wizard'):
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(status, response.status_code)
 
         try:
             errors = response.context[wizard]['form'].errors
