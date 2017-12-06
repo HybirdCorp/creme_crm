@@ -33,25 +33,23 @@ creme.geolocation.PersonsBlock = creme.component.Component.sub({
     },
 
 //    _init_: function(block, addresses)
-    _init_: function(block, addresses, set_address_info_url) {
+    _init_: function(brick, addresses, set_address_info_url) {
         if (set_address_info_url === undefined) {
             console.warn('creme.geolocation.PersonsBlock(): hard-coded "set_address_info_url" is deprecated ; give it as parameter.');
         }
 
         var self = this;
 
-        this._block = block;
+        this._brick = brick;
         this._addresses = addresses;
 
 //        var controller = this._controller = new creme.geolocation.GoogleMapController();
         var controller = this._controller = new creme.geolocation.GoogleMapController(set_address_info_url);
-        var container = $('.block-geoaddress-canvas', block);
+        var canvas = $('.block-geoaddress-canvas', brick.element());
 
-        if (container.length) {
-            controller.enableMap(container.get(0));
+        if (canvas.length) {
+            controller.enableMap(canvas.get(0));
         }
-
-        $('.block-geoaddress-item .block-geoaddress-reset', block).click(this._onRefreshLocation.bind(this));
 
         addresses.forEach(this._geocodeAddress.bind(this));
 
@@ -59,16 +57,22 @@ creme.geolocation.PersonsBlock = creme.component.Component.sub({
             self._showPosition(address.id, marker);
             self._showStatus(address.id, status);
 
-            block.trigger('block-geoaddress-location', [address, marker]);
+            brick.trigger('geoaddress-location', [address, marker]);
         });
 
-        $('.block-geoaddress-item input[type="checkbox"]', block).each(function() {
-                                                                      self._toggleLocation($(this).val(), $(this).is(':checked'));
-                                                                  })
-                                                                 .change(this._onToggleLocation.bind(this));
+        $('.block-geoaddress-item').each(function() {
+            var checkbox = $('input[type="checkbox"]', this);
+            var resetbutton = $('.block-geoaddress-reset', this);
 
-        block.bind('creme-table-collapse', function(e, status) {
-            if (status.action === 'show') {
+            resetbutton.click(self._onRefreshLocation.bind(self));
+            checkbox.change(self._onToggleLocation.bind(self));
+
+            // initialize map with current checkbox state.
+            self._toggleLocation(checkbox.val(), checkbox.is(':checked'));
+        });
+
+        brick.on('state-update', function(event, state) {
+            if (!state.collapsed) {
                 controller.resize();
                 controller.adjustMap();
             }
@@ -99,7 +103,7 @@ creme.geolocation.PersonsBlock = creme.component.Component.sub({
     },
 
     addressItem: function(address_id) {
-        return $('.block-geoaddress-item[data-addressid="' + address_id + '"]', this._block);
+        return $('.block-geoaddress-item[data-addressid="' + address_id + '"]', this._brick.element());
     },
 
     _showStatus: function(address_id, status) {
@@ -155,7 +159,7 @@ creme.geolocation.PersonsBlock = creme.component.Component.sub({
 
 creme.geolocation.AddressesBlock = creme.component.Component.sub({
 //    _init_: function(block) {
-    _init_: function(block, addresses_url, set_address_info_url) {
+    _init_: function(brick, addresses_url, set_address_info_url) {
         if (addresses_url === undefined) {
             console.warn('creme.geolocation.AddressesBlock(): hard-coded "addresses_url" is deprecated ; give it as the second parameter.');
             this.addresses_url = '/geolocation/get_addresses/';
@@ -167,21 +171,24 @@ creme.geolocation.AddressesBlock = creme.component.Component.sub({
             console.warn('creme.geolocation.AddressesBlock(): hard-coded "set_address_info_url" is deprecated ; give it as the third parameter.');
         }
 
+        this._brick = brick;
+
 //        var controller = this._controller = new creme.geolocation.GoogleMapController();
         var controller = this._controller = new creme.geolocation.GoogleMapController(set_address_info_url);
-        var filterSelector = this._filterSelector = $('.block-geoaddress-filter', block);
-        var container = $('.block-geoaddress-canvas', block);
+        var container = brick.element();
+        var filterSelector = this._filterSelector = $('.block-geoaddress-filter', container);
+        var canvas = $('.block-geoaddress-canvas', container);
 
         filterSelector.change(this._onFilterChange.bind(this));
 
-        if (container.length) {
-            controller.enableMap(container.get(0));
+        if (canvas.length) {
+            controller.enableMap(canvas.get(0));
         }
 
         this._updateFilter(filterSelector.val());
 
-        block.bind('creme-table-collapse', function(e, status) {
-            if (status.action === 'show') {
+        brick.on('state-update', function(event, state) {
+            if (!state.collapsed) {
                 controller.resize();
                 controller.adjustMap();
             }
@@ -254,14 +261,14 @@ creme.geolocation.AddressesBlock = creme.component.Component.sub({
 
     _showCount: function(count) {
         var content = !count ? gettext('No address from') : ngettext('%0$d address from', '%0$d addresses from', count).format(count);
-        $('.block-geoaddress-counter', this._block).html(content);
+        $('.block-geoaddress-counter', this._brick.element()).html(content);
     }
 });
 
 
 creme.geolocation.PersonsNeighborhoodBlock = creme.component.Component.sub({
 //    _init_: function(block, radius) {
-    _init_: function(block, radius, neighbours_url, set_address_info_url) {
+    _init_: function(brick, radius, neighbours_url, set_address_info_url) {
         if (neighbours_url === undefined) {
             console.warn('creme.geolocation.PersonsNeighborhoodBlock(): hard-coded "neighbours_url" is deprecated ; give it as the third parameter.');
             this.neighbours_url = '/geolocation/get_neighbours/';
@@ -273,24 +280,25 @@ creme.geolocation.PersonsNeighborhoodBlock = creme.component.Component.sub({
             console.warn('creme.geolocation.PersonsNeighborhoodBlock(): hard-coded "set_address_info_url" is deprecated ; give it as the fourth parameter.');
         }
 
-//        var controller = this._controller = new creme.geolocation.GoogleMapController();
-        var controller = this._controller = new creme.geolocation.GoogleMapController(set_address_info_url);
         this._radius = radius;
-        this._block = block;
+        this._brick = brick;
 
-        var container = $('.block-geoaddress-canvas', block);
+        //        var controller = this._controller = new creme.geolocation.GoogleMapController();
+        var controller = this._controller = new creme.geolocation.GoogleMapController(set_address_info_url);
+        var container = brick.element();
+        var canvas = $('.block-geoaddress-canvas', container);
 
-        if (container.length) {
-            controller.enableMap(container.get(0));
+        if (canvas.length) {
+            controller.enableMap(canvas.get(0));
         }
 
-        this._sourceSelector = $('.block-geoaddress-source', block).change(this._onChange.bind(this));
-        this._filterSelector = $('.block-geoaddress-filter', block).change(this._onChange.bind(this));
+        this._sourceSelector = $('.block-geoaddress-source', container).change(this._onChange.bind(this));
+        this._filterSelector = $('.block-geoaddress-filter', container).change(this._onChange.bind(this));
 
         this._onChange();
 
-        block.bind('creme-table-collapse', function(e, status) {
-            if (status.action === 'show') {
+        brick.on('state-update', function(event, state) {
+            if (!state.collapsed) {
                 controller.resize();
                 controller.shape_manager.adjustMap('NeighbourhoodCircle');
             }
@@ -415,7 +423,7 @@ creme.geolocation.PersonsNeighborhoodBlock = creme.component.Component.sub({
 
     _showCount: function(count) {
         var counter = !count ? gettext('None of') : ngettext('%0$d of', '%0$d of', count).format(count);
-        $('.block-geoaddress-counter', this._block).html(counter);
+        $('.block-geoaddress-counter', this._brick.element()).html(counter);
     }
 });
 
