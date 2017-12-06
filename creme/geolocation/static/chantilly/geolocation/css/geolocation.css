@@ -108,3 +108,16 @@
     color: #777;
     padding: 5px 10px;
 }
+
+.geolocation-brick .block-geoaddress-error {
+    padding: 3px 10px;
+    display: none;
+}
+
+.geolocation-brick .block-geoaddress-error a {
+    color: #ff6a6a;
+}
+
+.geolocation-brick.is-geolocation-disabled .block-geoaddress-error {
+    display: block;
+}

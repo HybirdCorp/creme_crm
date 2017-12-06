@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Geolocation 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-12 15:04+0200\n"
+"POT-Creation-Date: 2017-12-04 21:00+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -24,11 +24,11 @@ msgstr "Géolocalisation"
 msgid "Addresses on Google Maps ®"
 msgstr "Adresses sur Google Maps ®"
 
-#: bricks.py:97
+#: bricks.py:98
 msgid "Filtered addresses on Google Maps ®"
 msgstr "Adresses filtrées sur Google Maps ®"
 
-#: bricks.py:115
+#: bricks.py:117
 msgid "Neighbours on Google Maps ®"
 msgstr "Voisins sur Google Maps ®"
 
@@ -112,62 +112,75 @@ msgstr "Ville"
 msgid "Towns"
 msgstr "Villes"
 
-#: setting_keys.py:27
-msgid "Maximum distance to find neighbours in meters."
-msgstr "Distance maximale pour trouver des voisins en mètres."
+msgid "Maximum distance to find neighbours in meters"
+msgstr "Distance maximale pour trouver des voisins en mètres"
 
-#: templates/geolocation/bricks/google/detail-map.html:17
+#: setting_keys.py:15
+msgid "Google Maps ® API key (optional)"
+msgstr "Clé API Google Maps ® (optionnelle)"
+
+#: templates/geolocation/bricks/google/detail-map.html:19
 #: templates/geolocation/templatetags/block_persons_filters_google_map.html:14
 #: templates/geolocation/templatetags/block_persons_google_map.html:13
 msgid "Map"
 msgstr "Carte"
 
-#: templates/geolocation/bricks/google/detail-map.html:22
-#: templates/geolocation/bricks/google/neighbours-map.html:26
+#: templates/geolocation/bricks/google/detail-map.html:24
+#: templates/geolocation/bricks/google/neighbours-map.html:29
 #: templates/geolocation/templatetags/block_persons_google_map.html:56
 #: templates/geolocation/templatetags/block_persons_neighbours_map.html:54
 msgid "No address defined for now"
 msgstr "Aucune adresse enregistrée pour le moment"
 
-#: templates/geolocation/bricks/google/detail-map.html:39
+#: templates/geolocation/bricks/google/detail-map.html:41
 #: templates/geolocation/templatetags/block_persons_google_map.html:35
 msgid "Retrieve location"
 msgstr "Localiser"
 
-#: templates/geolocation/bricks/google/filtered-map.html:17
+#: templates/geolocation/bricks/google/detail-map.html:57
+#: templates/geolocation/bricks/google/filtered-map.html:38
+#: templates/geolocation/bricks/google/neighbours-map.html:56
+msgid ""
+"Google API key may be missing or invalid. Please try to configure it or "
+"contact your administrator."
+msgstr ""
+"La clé de l'API Google semble être manquante ou invalide. Essayez de la "
+"configurer ou contactez votre administrateur."
+
+#: templates/geolocation/bricks/google/filtered-map.html:19
 msgid "Maps By Filter"
 msgstr "Cartes par filtre"
 
-#: templates/geolocation/bricks/google/filtered-map.html:23
+#: templates/geolocation/bricks/google/filtered-map.html:25
 #: templates/geolocation/templatetags/block_persons_filters_google_map.html:21
 msgid "No address from"
 msgstr "Aucune adresse de"
 
-#: templates/geolocation/bricks/google/neighbours-map.html:21
+#: templates/geolocation/bricks/google/neighbours-map.html:24
 #: templates/geolocation/templatetags/block_persons_neighbours_map.html:17
 msgid "Around this place"
 msgstr "Autour de ce lieu"
 
-#: templates/geolocation/bricks/google/neighbours-map.html:30
+#: templates/geolocation/bricks/google/neighbours-map.html:33
 #: templates/geolocation/templatetags/block_persons_neighbours_map.html:25
 msgid "None of"
 msgstr "Aucune adresse de"
 
-#: templates/geolocation/bricks/google/neighbours-map.html:32
+#: templates/geolocation/bricks/google/neighbours-map.html:35
 msgid "All the contacts and organisations"
 msgstr "Tous les contacts et sociétés"
 
-#: templates/geolocation/bricks/google/neighbours-map.html:41
+#: templates/geolocation/bricks/google/neighbours-map.html:44
 #: templates/geolocation/templatetags/block_persons_neighbours_map.html:36
 msgid "around"
 msgstr "autour de"
 
-#: templates/geolocation/bricks/google/neighbours-map.html:46
+#: templates/geolocation/bricks/google/neighbours-map.html:49
 #: templates/geolocation/templatetags/block_persons_neighbours_map.html:41
 msgid "No geolocated address for now"
 msgstr "Aucune adresse géolocalisée pour le moment"
 
-#: templates/geolocation/bricks/google/neighbours-map.html:49
+#: templates/geolocation/bricks/google/neighbours-map.html:52
 #: templates/geolocation/templatetags/block_persons_neighbours_map.html:45
 #, python-format
 msgid "within a radius of %(radius_distance)s."
