@@ -23,53 +23,78 @@ creme.geolocation = creme.geolocation || {};
 
 /* TODO: rename google-geolocation ?? */
 
-var __googleAPI_loader_status = false;
-var __googleAPI_loader_callbacks = [];
-
-creme.geolocation.__initAPI = function() {
-    __googleAPI_loader_status = 'done';
-
-    var callbacks = __googleAPI_loader_callbacks.splice(0, __googleAPI_loader_callbacks.length);
-
-    callbacks.forEach(function(callback) {
-        try {
-            callback();
-        } catch (e) {
-            console.warn(e);
-        }
-    });
+var __googleAPILoadStatus = {
+    NONE: 0,
+    RUNNING: 1,
+    LOADED: 2
 };
 
-/* global LANGUAGE_CODE */
-creme.geolocation.ready = function(callback, google_api_key) {
-    $(document).ready(function() {
-        if (window['google'] !== undefined || __googleAPI_loader_status === 'done') {
-            return callback();
+
+var __googleAPI = {
+    loadStatus: __googleAPILoadStatus.NONE,
+    available: false
+};
+
+var __googleAPIEvents = new creme.component.EventHandler();
+
+window.__googleAPILoaderCb = function() {
+    __googleAPI.loadStatus = __googleAPILoadStatus.LOADED;
+    __googleAPI.available = true;
+    __googleAPIEvents.trigger('google-api-loaded', [$({}, __googleAPI)]);
+};
+
+window.gm_authFailure = function() {
+    __googleAPI.available = false;
+    __googleAPIEvents.trigger('google-api-error', [$({}, __googleAPI)]);
+};
+
+creme.geolocation.googleAPIState = function() {
+    return $.extend({}, __googleAPI);
+};
+
+creme.geolocation.GoogleAPILoader = creme.component.Action.sub({
+    _init_: function(options) {
+        this._super_(creme.component.Action, '_init_', this._loadAPI, options);
+    },
+
+    /* global LANGUAGE_CODE */
+    _loadAPI: function(options) {
+        options = $.extend({
+            language: LANGUAGE_CODE || 'en'
+        }, this.options(), options);
+
+        var self = this;
+
+        if (__googleAPI.loadStatus === __googleAPILoadStatus.LOADED) {
+            return self.done($({}, __googleAPI));
         }
 
-        __googleAPI_loader_callbacks.push(callback);
+        __googleAPIEvents.on('google-api-loaded', function(event, status) {
+            self.done(status);
+        });
 
-        if (!__googleAPI_loader_status) {
-            __googleAPI_loader_status = 'loading';
-            var script = document.createElement('script');
-            var GET_args = {
-                v: '3.exp',
-                callback: 'creme.geolocation.__initAPI',
-                language: LANGUAGE_CODE || 'en'
-            };
+        if (__googleAPI.status !== __googleAPILoadStatus.RUNNING) {
+            __googleAPI.status = __googleAPILoadStatus.RUNNING;
 
-            if (google_api_key) {
-                GET_args.key = google_api_key;
+            if (!options.apiKey) {
+                console.warn('creme.geolocation.googleAPILoader(): empty "apiKey" is deprecated ; configure it in settings.');
             }
 
-            script.type = 'text/javascript';
-//            script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&language=%s&callback=initialize'.format(LANGUAGE_CODE || 'en');
-            script.src = 'https://maps.googleapis.com/maps/api/js?' + $.param(GET_args);
+            var script = document.createElement('script');
+            var parameters = {
+                v: '3.exp',
+                callback: '__googleAPILoaderCb',
+                language: options.language,
+                key: options.apiKey || ''
+            };
 
-            document.body.appendChild(script);
+            script.type = 'text/javascript';
+            script.src = 'https://maps.googleapis.com/maps/api/js?' + $.param(parameters);
+
+            document.head.appendChild(script);
         }
-    });
-};
+    }
+});
 
 creme.geolocation.LocationStatus = {
     UNDEFINED: 0,
@@ -101,14 +126,11 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
         }
     ],
 
-    /* global google */
+    /* global google setTimeout */
 //  _init_: function () {
-    _init_: function (set_address_info_url) {
-        if (set_address_info_url === undefined) {
-            console.warn('creme.geolocation.GoogleMapController(): hard-coded "set_address_info_url" is deprecated ; give it as parameter.');
-            this.set_address_info_url = '/geolocation/set_address_info/';
-        } else {
-            this.set_address_info_url = set_address_info_url;
+    _init_: function (options) {
+        if (!options.infoUrl) {
+            console.warn('creme.geolocation.GoogleMapController(): hard-coded "infoUrl" is deprecated ; give it as parameter.');
         }
 
         this.defaultZoomValue = 12;
@@ -116,27 +138,73 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
         this.defaultLn = 2;
         this.defaultLargeZoom = 4;
 
+        this._infoUrl = options.infoUrl || '/geolocation/set_address_info/';
         this._events = new creme.component.EventHandler();
 
-        this.geocoder = new google.maps.Geocoder();
         this.marker_manager = new creme.geolocation.GoogleMapMarkerManager(this);
         this.shape_manager = new creme.geolocation.GoogleMapShapeRegistry(this);
     },
 
     /* global google */
+    loadAPI: function(options, listeners) {
+        options = options || {};
+
+        var events = this._events;
+        var _APILoadedCb = function() {
+            var status = false;
+
+            try {
+                if (Object.isNone(this.geocoder)) {
+                    this.geocoder = new google.maps.Geocoder();
+                }
+
+                status = true;
+            } catch (e) {
+                console.warn('creme.geolocation.GoogleMapController(): unable to build google.maps.Geocoder instance', e);
+            }
+
+            if (status && !Object.isNone(options.container)) {
+                this.enableMap(options.container, options.styles);
+            }
+        }.bind(this);
+
+        events.one(listeners || {});
+
+        if (this.isAPILoaded()) {
+            setTimeout(_APILoadedCb, 200);
+            return this;
+        }
+
+        __googleAPIEvents.on('google-api-error', function(event, status) {
+            console.warn('creme.geolocation.GoogleMapController(): google map API is now disabled');
+            events.trigger('api-status', [false]);
+        });
+
+        new creme.geolocation.GoogleAPILoader({
+                                  apiKey: options.apiKey
+                              }).on('done', function() {
+                                  setTimeout(_APILoadedCb, 200);
+                              }).on('fail', function() {
+                                  events.trigger('api-status', [false]);
+                              }).start();
+
+        return this;
+    },
+
     enableMap: function(container, styles) {
         if (this.isMapEnabled()) {
             return this;
         }
 
         styles = styles || this.MAPSTYLES.slice();
+        container = (container instanceof jQuery) ? container.get(0) : container;
 
         var styleIds = styles.map(function(style) {
                                   return style.id;
                               })
                              .concat(google.maps.MapTypeId.SATELLITE);
 
-        var map = this.map = new google.maps.Map(container, {
+        var map = this._map = new google.maps.Map(container, {
             zoom: this.defaultZoomValue,
             mapTypeControlOptions: {
                 mapTypeIds: styleIds
@@ -149,10 +217,11 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
 
         map.setMapTypeId(styleIds[0]);
 
-        this.mapContainer = container;
+        this._mapContainer = container;
 
         this.resize();
         this.adjustMap();
+        this._events.trigger('map-status', [true]);
         return this;
     },
 
@@ -161,16 +230,31 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
             return this;
         }
 
-        delete this.map;
+        delete this._map;
 
-        this.mapContainer.empty();
-        this.mapContainer = undefined;
+        this._mapContainer.empty();
+        this._mapContainer = undefined;
 
+        this._events.trigger('map-status', [false]);
         return this;
     },
 
+    assertAPIAvailable: function() {
+        if (!this.isAPIAvailable()) {
+            throw new Error('The google API is not available');
+        }
+    },
+
     isMapEnabled: function() {
-        return Object.isNone(this.map) === false;
+        return Object.isNone(this._map) === false;
+    },
+
+    isAPILoaded: function() {
+        return __googleAPI.loadStatus === __googleAPILoadStatus.LOADED;
+    },
+
+    isAPIAvailable: function() {
+        return __googleAPI.available;
     },
 
     on: function(event, listener, decorator) {
@@ -197,20 +281,29 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
 
         if (n_markers === 0) {
             var default_location = new google.maps.LatLng(this.defaultLat, this.defaultLn);
-            this.map.setCenter(default_location);
-            this.map.setZoom(this.defaultLargeZoom);
+            this._map.setCenter(default_location);
+            this._map.setZoom(this.defaultLargeZoom);
         } else {
             var boundbox = this.marker_manager.getBoundBox();
-            this.map.setCenter(boundbox.getCenter());
+            this._map.setCenter(boundbox.getCenter());
 
             if (n_markers === 1) {
-                this.map.setZoom(this.defaultZoomValue);
+                this._map.setZoom(this.defaultZoomValue);
             } else {
-                this.map.fitBounds(boundbox);
+                this._map.fitBounds(boundbox);
             }
         }
 
         return this;
+    },
+
+    adjustMapToShape: function(shape) {
+        if (!this.isMapEnabled()) {
+            return this;
+        }
+
+        this._map.setCenter(shape.getCenter());
+        this._map.fitBounds(shape.getBounds());
     },
 
     _isPartialMatch: function(results) {
@@ -279,7 +372,7 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
         var self = this;
 
 //        creme.ajax.query('/geolocation/set_address_info/%s'.format(options.address.id), {}, {
-        creme.ajax.query(this.set_address_info_url, {}, {
+        creme.ajax.query(this._infoUrl, {}, {
                              id:        options.address.id,
                              latitude:  marker.position.lat(),
                              longitude: marker.position.lng(),
@@ -311,12 +404,16 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
         return this.marker_manager.get(id);
     },
 
+    map: function() {
+        return this._map;
+    },
+
     isAddressLocated: function(address) {
         return address && !Object.isNone(address.latitude) && !Object.isNone(address.longitude);
     },
 
     resize: function() {
-        google.maps.event.trigger(this.map, 'resize');
+        google.maps.event.trigger(this._map, 'resize');
         return this;
     }
 });
@@ -352,9 +449,8 @@ creme.geolocation.GoogleMapShapeRegistry = creme.component.Component.sub({
     },
 
     adjustMap: function(shape_id) {
-        var shape = this.get(shape_id);
-        this._controller.map.setCenter(shape.getCenter());
-        this._controller.map.fitBounds(shape.getBounds());
+        this._controller.adjustMapToShape(this.get(shape_id));
+        return this;
     }
 });
 
@@ -392,7 +488,7 @@ creme.geolocation.GoogleMapMarkerManager = creme.component.Component.sub({
 
     Marker: function(options) {
         options = $.extend({
-            map:       this._controller.map,
+            map:       this._controller.map(),
             draggable: false
         }, options || {});
 

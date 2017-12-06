@@ -1,17 +1,16 @@
 {% extends 'creme_core/bricks/base/base.html' %}
-{% load i18n creme_bricks %}
+{% load i18n creme_bricks creme_core_tags %}
 
 {% block brick_extra_class %}geolocation-brick geolocation-google-filtered-brick{% endblock %}
 
 {% block brick_script %}
     <script type="text/javascript">
          $('.brick[id="{{brick_id}}"]').on('brick-ready', function(event, brick) {
-             creme.geolocation.ready(
-                function() {
-                    new creme.geolocation.AddressesBlock(brick, '{% url 'geolocation__addresses' %}', '{% url 'geolocation__set_address_info' %}');
-                },
-                '{{google_api_key}}'
-             );
+             new creme.geolocation.AddressesBlock(brick, {
+                 apiKey: '{{google_api_key}}',
+                 addressesUrl: '{% url 'geolocation__addresses' %}',
+                 infoUrl: '{% url 'geolocation__set_address_info' %}'
+             });
          });
     </script>
 {% endblock %}
@@ -33,6 +32,10 @@
             </optgroup>
         {% endfor %}
         </select>
+    </div>
+    <div class="block-geoaddress-error">
+        {% has_perm_to admin 'geolocation' as admin_perm %}{% url 'creme_config__app_portal' 'geolocation' as config_url %}
+        {% brick_action id='redirect' display='text' url=config_url label=_('Google API key may be missing or invalid. Please try to configure it or contact your administrator.') enabled=admin_perm %}
     </div>
     <div class="block-geoaddress-canvas"></div>
 {% endblock %}
