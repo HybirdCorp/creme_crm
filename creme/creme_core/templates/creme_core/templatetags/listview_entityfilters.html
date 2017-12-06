@@ -18,7 +18,7 @@
         {% if can_edit %}
 {#            <a href="/creme_core/entity_filter/edit/{{efilter_id}}" id="filter_edit"> #}
             <a href="{{entity_filters.selected.get_edit_absolute_url}}" id="filter_edit">
-                {% widget_icon name='edit' label=_('Edit this custom filter') size='listview-filter-action' %}
+                {% widget_icon name='edit' label=_('Edit this filter') size='listview-filter-action' %}
             </a>
         {% endif %}
         {% if can_delete %}
