@@ -38,6 +38,7 @@ creme.ajax.MockAjaxBackend.prototype.constructor = creme.ajax.Backend;
 $.extend(creme.ajax.MockAjaxBackend.prototype, {
     send: function(url, data, method, on_success, on_error, options) {
         var self = this;
+        var method_urls = this[method] || {};
         options = $.extend({}, this.options, options);
 
         if (options.sync !== true) {
@@ -53,9 +54,10 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
             }
         }
 
-        var response = method !== undefined ? method[url] : undefined;
+        var response = method_urls[url];
 
         if (response === undefined) {
+            console.warn('MockAjaxBackend (404) : ' + method + ' ' + url);
             response = this.response(404, '');
         }
 
@@ -82,12 +84,12 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
 
     get: function(url, data, on_success, on_error, options) {
         this.counts.GET += 1;
-        return this.send(url, data, this.GET, on_success, on_error, options);
+        return this.send(url, data, 'GET', on_success, on_error, options);
     },
 
     post: function(url, data, on_success, on_error, options) {
         this.counts.POST += 1;
-        return this.send(url, data, this.POST, on_success, on_error, options);
+        return this.send(url, data, 'POST', on_success, on_error, options);
     },
 
     submit: function(form, on_success, on_error, options) {
@@ -96,7 +98,7 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
         var data = creme.ajax.serializeFormAsDict(form, options.data);
 
         this.counts.SUBMIT += 1;
-        return this.send(action, data, this.POST, on_success, on_error, options);
+        return this.send(action, data, 'POST', on_success, on_error, options);
     },
 
     response: function(status, data, header) {

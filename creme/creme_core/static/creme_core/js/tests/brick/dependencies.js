@@ -1,13 +1,4 @@
-QUnit.module("creme.bricks.dependencies", {
-    assertRaises: function(block, expected, message) {
-        QUnit.assert.raises(block,
-               function(error) {
-                    ok(error instanceof expected, 'error is ' + expected);
-                    equal(message, '' + error);
-                    return true;
-               });
-    }
-});
+QUnit.module("creme.bricks.dependencies", new QUnitMixin());
 
 QUnit.test('creme.bricks.Dependencies (empty)', function(assert) {
     var deps = new creme.bricks.Dependencies();

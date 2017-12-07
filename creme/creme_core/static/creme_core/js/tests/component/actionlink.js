@@ -1,6 +1,5 @@
-QUnit.module("creme.actionlink.js", {
-    setup: function() {
-        this.resetMockCalls();
+QUnit.module("creme.actionlink.js", new QUnitMixin(QUnitEventMixin, {
+    beforeEach: function() {
         this.resetMockActionCalls();
 
         var actionCalls = this._mockActionCalls;
@@ -52,18 +51,12 @@ QUnit.module("creme.actionlink.js", {
         };
     },
 
-    teardown: function() {},
-
     resetMockActionCalls: function() {
         this._mockActionCalls = [];
     },
 
     mockActionCalls: function() {
         return this._mockActionCalls;
-    },
-
-    resetMockCalls: function() {
-        this._eventListenerCalls = {};
     },
 
     mapLinkStartEventType: function(d) {
@@ -75,31 +68,8 @@ QUnit.module("creme.actionlink.js", {
         }
 
         return data;
-    },
-
-    mockListenerCalls: function(name) {
-        if (this._eventListenerCalls[name] === undefined)
-            this._eventListenerCalls[name] = [];
-
-        return this._eventListenerCalls[name];
-    },
-
-    mockListener: function(name) {
-        var self = this;
-        return (function(name) {return function() {
-            self.mockListenerCalls(name).push(Array.copy(arguments));
-        }})(name);
-    },
-
-    assertRaises: function(block, expected, message) {
-        QUnit.assert.raises(block,
-               function(error) {
-                    ok(error instanceof expected, 'error is ' + expected);
-                    equal(message, '' + error);
-                    return true;
-               });
     }
-});
+}));
 
 QUnit.test('creme.action.ActionLink', function(assert) {
     var action = new creme.action.ActionLink();

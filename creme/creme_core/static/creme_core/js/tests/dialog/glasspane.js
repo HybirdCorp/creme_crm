@@ -1,40 +1,15 @@
-QUnit.module("creme.popover.js", {
-    setup: function() {
-        this.resetMockCalls();
-        this.anchor = $('<div></div>').appendTo($('body'));
+QUnit.module("creme.glasspane.js", new QUnitMixin(QUnitEventMixin, {
+    beforeEach: function() {
+        // The "position" is needed by Chromium to set "z-index" (or remains to "auto" value).
+        // No problem Firefox.
+        this.anchor = $('<div style="position:relative;"></div>').appendTo($('body'));
     },
 
-    teardown: function() {
+    afterEach: function() {
         this.anchor.detach();
+        $('.glasspane').detach();
     },
-
-    resetMockCalls: function() {
-        this._eventListenerCalls = {};
-    },
-
-    mockListenerCalls: function(name) {
-        if (this._eventListenerCalls[name] === undefined)
-            this._eventListenerCalls[name] = [];
-
-        return this._eventListenerCalls[name];
-    },
-
-    mockListener: function(name) {
-        var self = this;
-        return (function(name) {return function() {
-            self.mockListenerCalls(name).push(Array.copy(arguments));
-        }})(name);
-    },
-
-    assertRaises: function(block, expected, message) {
-        QUnit.assert.raises(block.bind(this),
-               function(error) {
-                    ok(error instanceof expected, 'error is ' + expected);
-                    equal(message, '' + error);
-                    return true;
-               });
-    }
-});
+}));
 
 QUnit.test('creme.dialog.GlassPane (open)', function(assert) {
     var glasspane = new creme.dialog.GlassPane();
