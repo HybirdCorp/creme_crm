@@ -141,13 +141,13 @@
     top: 3px;
 }
 
-.list-header-buttons a:enabled:hover,
+.list-header-buttons a:hover,
 .list-header-buttons button:enabled:hover {
     background: linear-gradient(#ffffff, #f3f3f3);
     color: #4d4d4d;
 }
 
-.list-header-buttons a:enabled:active,
+.list-header-buttons a:active,
 .list-header-buttons button:enabled:active {
     background: linear-gradient(#f9f9f9, #ededed);
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);

@@ -200,14 +200,14 @@
     left: 13px;
 }
 
-.list-header-buttons a:enabled:hover,
+.list-header-buttons a:hover,
 .list-header-buttons button:enabled:hover {
     background: linear-gradient(#ffffff, #f3f3f3);
     color: #4d4d4d;
     cursor: pointer;
 }
 
-.list-header-buttons a:enabled:active,
+.list-header-buttons a:active,
 .list-header-buttons button:enabled:active {
     border-bottom-color: #d7d7d7;
     border-top-color: #bdbdbd;
