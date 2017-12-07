@@ -1,5 +1,5 @@
 
-QUnit.module("creme.bricks.menu", QUnitBrickMixin);
+QUnit.module("creme.bricks.menu", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, QUnitBrickMixin));
 
 QUnit.test('creme.bricks.Brick.menu (bind/unbind)', function(assert) {
     var brick = new creme.bricks.Brick();

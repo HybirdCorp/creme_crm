@@ -51,11 +51,12 @@ var MOCK_FRAME_CONTENT_SUBMIT_JSON = '<json>' + $.toJSON({value: 1, added: [1, '
 // var MOCK_FRAME_CONTENT_SUBMIT_JSON_NOTAG = $.toJSON({value:1, added:[1, 'John Doe']});
 // var MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID = '<json>' + '{"value":1, added:[1, "John Doe"}' + '</json>';
 
-QUnit.module("creme.dialog.js", {
-    setup: function() {
-        this.resetMockBackendCalls();
-        this.resetMockCalls();
+QUnit.module("creme.dialog.js", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, {
+    buildMockBackend: function() {
+        return new creme.ajax.MockAjaxBackend({delay: 150, sync: true});
+    },
 
+    beforeEach: function() {
         var MockFrame = function(backend) {
             return $.extend({}, creme.widget.Frame, {
                 options: {
@@ -67,43 +68,29 @@ QUnit.module("creme.dialog.js", {
         };
 
         var self = this;
-        var backend = this.backend = new creme.ajax.MockAjaxBackend({delay: 150, sync: true});
 
-        var __mockBackendCall = function(method, aux) {
-            return function(url, data, options) {
-                self._backendCalls.push([url, method, data, options]);
-                return aux(url, data, options);
-            };
-        };
-
-        var __mockResponseHtml = function(method, content) {
-            return __mockBackendCall(method, function(url, data, options) {
-                return backend.response(200, content);
-            });
-        };
-
-        $.extend(this.backend.GET, {
-            'mock/html': __mockResponseHtml('GET', MOCK_FRAME_CONTENT),
-            'mock/html2': __mockResponseHtml('GET', MOCK_FRAME_CONTENT_LIST),
-            'mock/widget': __mockResponseHtml('GET', MOCK_FRAME_CONTENT_WIDGET),
-            'mock/submit': __mockResponseHtml('GET', MOCK_FRAME_CONTENT_FORM),
-            'mock/submit/button': __mockResponseHtml('GET', MOCK_FRAME_CONTENT_FORM_BUTTON),
-            'mock/submit/required': __mockResponseHtml('GET', MOCK_FRAME_CONTENT_FORM_REQUIRED),
-            'mock/submit/multi': __mockResponseHtml('GET', MOCK_FRAME_CONTENT_FORM_MULTI),
-            'mock/submit/multi/unnamed': __mockResponseHtml('GET', MOCK_FRAME_CONTENT_FORM_MULTI_UNNAMED),
+        this.setMockBackendGET({
+            'mock/html': this.backend.response(200, MOCK_FRAME_CONTENT),
+            'mock/html2': this.backend.response(200, MOCK_FRAME_CONTENT_LIST),
+            'mock/widget': this.backend.response(200, MOCK_FRAME_CONTENT_WIDGET),
+            'mock/submit': this.backend.response(200, MOCK_FRAME_CONTENT_FORM),
+            'mock/submit/button': this.backend.response(200, MOCK_FRAME_CONTENT_FORM_BUTTON),
+            'mock/submit/required': this.backend.response(200, MOCK_FRAME_CONTENT_FORM_REQUIRED),
+            'mock/submit/multi': this.backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI),
+            'mock/submit/multi/unnamed': this.backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI_UNNAMED),
             'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
             'mock/error': this.backend.response(500, 'HTTP - Error 500'),
-            'mock/custom': __mockBackendCall('GET', function(url, data, options) {
+            'mock/custom': function(url, data, options) {
                 return self._custom_GET(url, data, options);
-             })
+             }
         });
 
-        $.extend(this.backend.POST, {
-            'mock/submit/json': __mockResponseHtml('POST', MOCK_FRAME_CONTENT_SUBMIT_JSON),
-            'mock/submit': __mockResponseHtml('POST', MOCK_FRAME_CONTENT_FORM),
-            'mock/submit/required': __mockResponseHtml('POST', MOCK_FRAME_CONTENT_FORM_REQUIRED),
-            'mock/submit/button': __mockResponseHtml('POST', MOCK_FRAME_CONTENT_FORM_BUTTON),
-            'mock/submit/multi': __mockResponseHtml('POST', MOCK_FRAME_CONTENT_FORM_MULTI),
+        this.setMockBackendPOST({
+            'mock/submit/json': this.backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON),
+            'mock/submit': this.backend.response(200, MOCK_FRAME_CONTENT_FORM),
+            'mock/submit/required': this.backend.response(200, MOCK_FRAME_CONTENT_FORM_REQUIRED),
+            'mock/submit/button': this.backend.response(200, MOCK_FRAME_CONTENT_FORM_BUTTON),
+            'mock/submit/multi': this.backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI),
             'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
             'mock/error': this.backend.response(500, 'HTTP - Error 500')
         });
@@ -112,63 +99,15 @@ QUnit.module("creme.dialog.js", {
         creme.widget.declare('ui-creme-frame', new MockFrame(this.backend));
     },
 
-    teardown: function() {
+    afterEach: function() {
         $('.ui-dialog-content').dialog('destroy');
         creme.widget.shutdown($('body'));
     },
 
     _custom_GET: function(url, data, options) {
         return '<div>' + $.toJSON({url: url, method: 'GET', data: data}) + '</div>';
-    },
-
-    mockBackendCalls: function() {
-        return this._backendCalls;
-    },
-
-    mockBackendUrlCalls: function(url) {
-        return this._backendCalls.filter(function(e) {
-            return e[0] === url;
-        }).map(function(e) {
-            var method = e[1], data = e[2];
-            data = (data instanceof jQuery) ? data.html() : data;
-            return [method, data];
-        });
-    },
-
-    resetMockBackendCalls: function() {
-        this._backendCalls = [];
-    },
-
-    resetMockCalls: function() {
-        this._eventListenerCalls = {};
-    },
-
-    mockListenerCalls: function(name) {
-        if (this._eventListenerCalls[name] === undefined) {
-            this._eventListenerCalls[name] = [];
-        }
-
-        return this._eventListenerCalls[name];
-    },
-
-    mockListener: function(name) {
-        var self = this;
-        return (function(name) {
-            return function() {
-                self.mockListenerCalls(name).push(Array.copy(arguments));
-            };
-        })(name);
-    },
-
-    assertRaises: function(block, expected, message) {
-        QUnit.assert.raises(block,
-               function(error) {
-                    ok(error instanceof expected, 'error is ' + expected);
-                    equal(message, '' + error);
-                    return true;
-               });
     }
-});
+}));
 
 
 QUnit.test('creme.dialog.SelectionDialog (default)', function(assert) {
@@ -187,7 +126,7 @@ QUnit.test('creme.dialog.SelectionDialog (default)', function(assert) {
     deepEqual([['ok', []]], this.mockListenerCalls('ok'));
     deepEqual([], this.mockListenerCalls('close'));
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
 
     dialog.close();
 
@@ -217,7 +156,7 @@ QUnit.test('creme.dialog.SelectionDialog (selector)', function(assert) {
     deepEqual([['ok', 'b']], this.mockListenerCalls('ok'));
     deepEqual([], this.mockListenerCalls('close'));
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
 
     dialog.close();
 
@@ -260,7 +199,7 @@ QUnit.test('creme.dialog.SelectionDialog (validator)', function(assert) {
     deepEqual([['ok', ['2']]], this.mockListenerCalls('ok'));
     deepEqual([], this.mockListenerCalls('close'));
 
-    this.resetMockCalls();
+    this.resetMockListenerCalls();
 
     dialog.close();
 

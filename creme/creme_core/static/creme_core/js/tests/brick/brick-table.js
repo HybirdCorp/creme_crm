@@ -1,9 +1,5 @@
 
-QUnit.module("creme.bricks.table", $.extend({}, QUnitBrickMixin, {
-    setupBrick: function() {
-        
-    },
-
+QUnit.module("creme.bricks.table", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, QUnitBrickMixin, {
     createBrickTableHtml: function(options) {
         options = $.extend({
             id: 'brick-for-test',
@@ -398,7 +394,7 @@ QUnit.test('creme.bricks.Brick.table (toggle sort)', function(assert) {
     $('th[data-sort-field="created"]', brick.element()).click();
 
     deepEqual([
-        {'brick-for-test_order': '-created', brick_id: ['brick-for-test'], extra_data: '{}'}
+        ['GET', {'brick-for-test_order': '-created', brick_id: ['brick-for-test'], extra_data: '{}'}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     brick = $('#brick-for-test').creme().widget().brick();
@@ -407,8 +403,8 @@ QUnit.test('creme.bricks.Brick.table (toggle sort)', function(assert) {
     $('th[data-sort-field="name"]', brick.element()).click();
 
     deepEqual([
-        {'brick-for-test_order': '-created', brick_id: ['brick-for-test'], extra_data: '{}'},
-        {'brick-for-test_order': 'name', brick_id: ['brick-for-test'], extra_data: '{}'}
+        ['GET', {'brick-for-test_order': '-created', brick_id: ['brick-for-test'], extra_data: '{}'}],
+        ['GET', {'brick-for-test_order': 'name', brick_id: ['brick-for-test'], extra_data: '{}'}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 

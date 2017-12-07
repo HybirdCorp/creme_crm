@@ -1,5 +1,5 @@
 
-QUnit.module("creme.bricks", QUnitBrickMixin);
+QUnit.module("creme.bricks", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, QUnitBrickMixin));
 
 QUnit.test('creme.bricks.Brick (empty)', function(assert) {
     var brick = new creme.bricks.Brick();
@@ -709,7 +709,7 @@ QUnit.test('creme.bricks.Brick.refresh', function(assert) {
 
     brick.refresh();
     deepEqual([
-        {"brick_id": ["brick-for-test"], "extra_data": "{}"}
+        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
@@ -735,14 +735,14 @@ QUnit.test('creme.bricks.Brick.refresh (no deps)', function(assert) {
     brickA.refresh();
 
     deepEqual([
-        {"brick_id": ["brick-A"], "extra_data": "{}"}
+        ['GET', {"brick_id": ["brick-A"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.resetMockBackendCalls();
     brickB.refresh();
 
     deepEqual([
-        {"brick_id": ["brick-B"], "extra_data": "{}"}
+        ['GET', {"brick_id": ["brick-B"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
@@ -768,14 +768,14 @@ QUnit.test('creme.bricks.Brick.refresh (no deps intersection)', function(assert)
     brickA.refresh();
 
     deepEqual([
-        {"brick_id": ["brick-A"], "extra_data": "{}"}
+        ['GET', {"brick_id": ["brick-A"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.resetMockBackendCalls();
     brickB.refresh();
 
     deepEqual([
-        {"brick_id": ["brick-B"], "extra_data": "{}"}
+        ['GET', {"brick_id": ["brick-B"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
@@ -801,7 +801,7 @@ QUnit.test('creme.bricks.Brick.refresh (single instersection)', function(assert)
     brickA.refresh();
 
     deepEqual([
-        {"brick_id": ["brick-A", "brick-B"], "extra_data": "{}"}    // refresh A and B (=> "dep1" dependency)
+        ['GET', {"brick_id": ["brick-A", "brick-B"], "extra_data": "{}"}]    // refresh A and B (=> "dep1" dependency)
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.resetMockBackendCalls();
@@ -812,7 +812,7 @@ QUnit.test('creme.bricks.Brick.refresh (single instersection)', function(assert)
     brickB.refresh();
 
     deepEqual([
-        {"brick_id": ["brick-A", "brick-B"], "extra_data": "{}"}    // refresh B and A (=> "dep1" dependency)
+        ['GET', {"brick_id": ["brick-A", "brick-B"], "extra_data": "{}"}]    // refresh B and A (=> "dep1" dependency)
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
@@ -847,7 +847,7 @@ QUnit.test('creme.bricks.Brick.refresh (wildcard deps)', function(assert) {
     brickA.refresh();
 
     deepEqual([
-        {"brick_id": ["brick-A", "brick-B"], "extra_data": "{}"}
+        ['GET', {"brick_id": ["brick-A", "brick-B"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.resetMockBackendCalls();
@@ -858,7 +858,7 @@ QUnit.test('creme.bricks.Brick.refresh (wildcard deps)', function(assert) {
     brickB.refresh();
 
     deepEqual([
-        {"brick_id": ["brick-A", "brick-B", "brick-C"], "extra_data": "{}"},
+        ['GET', {"brick_id": ["brick-A", "brick-B", "brick-C"], "extra_data": "{}"}],
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.resetMockBackendCalls();
@@ -869,7 +869,7 @@ QUnit.test('creme.bricks.Brick.refresh (wildcard deps)', function(assert) {
     brickC.refresh();
 
     deepEqual([
-        {"brick_id": ["brick-B", "brick-C"], "extra_data": "{}"}
+        ['GET', {"brick_id": ["brick-B", "brick-C"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
