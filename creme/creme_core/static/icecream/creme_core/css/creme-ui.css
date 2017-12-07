@@ -1,9 +1,18 @@
 .ui-widget {
+/*    font-family: 'Open Sans', 'Verdana', sans-serif; */
+    font-family: 'Open Sans', 'Verdana', sans-serif;
+}
+
+/* TODO: modify jquery-css/creme-theme/jquery-ui-1.11.4.custom.css instead ?? */
+.ui-widget input,
+.ui-widget select,
+.ui-widget textarea,
+.ui-widget button {
     font-family: 'Open Sans', 'Verdana', sans-serif;
 }
 
 .ui-state-default, .ui-widget-content .ui-state-default {
-    font-size: 1.1em;/* Old 1.2em*/
+    font-size: 1.1em; /* Old 1.2em */
 }
 
 .ui-dialog.ui-widget {
