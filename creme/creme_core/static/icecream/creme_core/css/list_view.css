@@ -736,6 +736,8 @@
 
 .listview .row-actions-list {
     font-size: 0;
+    display: flex;
+    align-items: baseline;
 }
 
 .listview .row-actions-trigger {
@@ -810,7 +812,9 @@
 }
 
 .listview .default-row-action {
-    display: inline-block;
+/*    display: inline-block; */
+    display: flex;
+    flex: 1;
     height: 21px;
 
     position: relative;
@@ -844,6 +848,7 @@
 
 .listview .default-row-action a {
     display: inline-block;
+    flex: 1;
     height: 21px;
     padding-right: 15px;
 }
