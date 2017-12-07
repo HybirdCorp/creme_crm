@@ -35,20 +35,7 @@
             });
 
             $('#required-validate').click(function() {
-                var form = $('#required-selector').parents('form:first');
-                var errors = form.validateHTML5();
-
-                $('.is-field-invalid', form).each(function() {
-                    var item = $(this);
-
-                    if (errors[item.attr('name')] === undefined) {
-                        item.removeClass('is-field-invalid');
-                    }
-                });
-
-                for (var name in errors) {
-                    $('[name="' + name + '"]', form).addClass('is-field-invalid');
-                }
+                creme.forms.validateHtml5Field($('#required-selector .ui-creme-input'));
             });
 
             $('#sector-selector').on('creme-widget-create', function(e, widget) {

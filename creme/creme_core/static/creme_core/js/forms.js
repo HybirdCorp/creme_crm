@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+
 (function($) {
 "use strict";
 
@@ -574,5 +575,43 @@ creme.forms.initialize = function(form) {
 
         creme.utils.scrollTo($('.errorlist:first, .non_field_errors', form));
     }
+};
+
+
+creme.forms.validateHtml5Field = function(field, options) {
+    options = options || {};
+    var errors = {};
+
+    if (options.noValidate || field.is('[novalidate]')) {
+        return errors;
+    }
+
+    if (field.is(':invalid')) {
+        var message = field.get(0).validationMessage || '';
+
+        errors[$(field).prop('name')] = message;
+
+        field.addClass('is-field-invalid');
+        field.trigger('html5-invalid', [true, message]);
+    } else {
+        field.removeClass('is-field-invalid');
+        field.trigger('html5-invalid', [false]);
+    }
+
+    return errors;
+};
+
+creme.forms.validateHtml5Form = function(form, options) {
+    options = options || {};
+    var errors = {};
+    var fieldOptions = {
+         noValidate: options.noValidate || form.is('[novalidate]')
+    };
+
+    $('input, select, textarea, datalist, output', form).each(function() {
+        $.extend(errors, creme.forms.validateHtml5Field($(this), fieldOptions));
+    });
+
+    return errors;
 };
 }(jQuery));

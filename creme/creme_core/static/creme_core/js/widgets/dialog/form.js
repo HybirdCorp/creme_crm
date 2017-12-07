@@ -103,32 +103,6 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         return $.extend({}, submitData, data);
     },
 
-    _validateHTML5: function(form) {
-        var options = this.options;
-        var errors = {};
-
-        if ((options.noValidate || form.is('[novalidate]')) === false) {
-            errors = $(form).validateHTML5();
-        }
-
-        $('.is-field-invalid', form).each(function() {
-            var item = $(this);
-
-            if (errors[item.attr('name')] === undefined) {
-                item.removeClass('is-field-invalid');
-                item.trigger('html5-invalid', [false]);
-            }
-        });
-
-        for (var name in errors) {
-            var item = $('[name="' + name + '"]', form);
-            item.addClass('is-field-invalid');
-            item.trigger('html5-invalid', [true]);
-        }
-
-        return errors;
-    },
-
     form: function() {
         return $('form:first', this.content());
     },
@@ -137,7 +111,7 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         options = options || {};
 
         var form = this.form();
-        var errors = this._validateHTML5(form);
+        var errors = creme.forms.validateHtml5Form(form, this.options);
 
         if (Object.isEmpty(errors) === false) {
             return this;
