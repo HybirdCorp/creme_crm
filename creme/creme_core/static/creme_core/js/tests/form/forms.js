@@ -1,10 +1,8 @@
-var SIMPLE_FORM = 
-
-QUnit.module("creme.forms.js", {
-    setup: function() {
+QUnit.module("creme.forms.js", new QUnitMixin(QUnitEventMixin, {
+    beforeEach: function() {
         var self = this;
 
-        this.resetMockSubmitCalls();
+        this.resetMockFormSubmitCalls();
         this.anchor = $('<div></div>').appendTo($('body'));
         this.form = $('<form action="mock/submit">' +
                           '<input type="text" name="firstname"></input>' +
@@ -15,31 +13,22 @@ QUnit.module("creme.forms.js", {
 
         this.form.on('submit', function(e) {
             e.preventDefault();
-            self._mockSubmitCalls.push($(e.target).attr('action'));
+            self._mockFormSubmitCalls.push($(e.target).attr('action'));
         });
     },
 
-    teardown: function() {
+    afterEach: function() {
         this.anchor.detach();
     },
 
-    resetMockSubmitCalls: function() {
-        this._mockSubmitCalls = [];
+    resetMockFormSubmitCalls: function() {
+        this._mockFormSubmitCalls = [];
     },
 
-    mockSubmitCalls: function() {
-        return this._mockSubmitCalls;
-    },
-
-    assertRaises: function(block, expected, message) {
-        QUnit.assert.raises(block.bind(this),
-               function(error) {
-                    ok(error instanceof expected, 'error is ' + expected);
-                    equal(message, '' + error);
-                    return true;
-               });
+    mockFormSubmitCalls: function() {
+        return this._mockFormSubmitCalls;
     }
-});
+}));
 
 QUnit.test('creme.forms.initialize', function(assert) {
     equal(false, this.form.is('.is-form-active'));
@@ -76,7 +65,7 @@ QUnit.test('creme.forms (submit + required)', function(assert) {
     equal(false, email.is(':invalid'));
     equal(false, email.is('.is-field-invalid'));
 
-    deepEqual([], this.mockSubmitCalls());
+    deepEqual([], this.mockFormSubmitCalls());
 });
 
 QUnit.test('creme.forms (submit + invalid email)', function(assert) {
@@ -103,7 +92,7 @@ QUnit.test('creme.forms (submit + invalid email)', function(assert) {
     equal(true, email.is(':invalid'));
     equal(true, email.is('.is-field-invalid'));
 
-    deepEqual([], this.mockSubmitCalls());
+    deepEqual([], this.mockFormSubmitCalls());
 });
 
 QUnit.test('creme.forms (novalidation)', function(assert) {
@@ -130,7 +119,7 @@ QUnit.test('creme.forms (novalidation)', function(assert) {
     equal(true, email.is(':invalid'));
     equal(false, email.is('.is-field-invalid'));  // skip validation step
 
-    deepEqual(['mock/submit'], this.mockSubmitCalls());
+    deepEqual(['mock/submit'], this.mockFormSubmitCalls());
 });
 
 QUnit.test('creme.forms (submit)', function(assert) {
@@ -157,7 +146,7 @@ QUnit.test('creme.forms (submit)', function(assert) {
     equal(false, email.is(':invalid'));
     equal(false, email.is('.is-field-invalid'));
 
-    deepEqual(['mock/submit'], this.mockSubmitCalls());
+    deepEqual(['mock/submit'], this.mockFormSubmitCalls());
 });
 
 QUnit.test('creme.forms (multiple submit)', function(assert) {
@@ -188,5 +177,186 @@ QUnit.test('creme.forms (multiple submit)', function(assert) {
     equal(false, email.is(':invalid'));
     equal(false, email.is('.is-field-invalid'));
 
-    deepEqual(['mock/submit'], this.mockSubmitCalls());
+    deepEqual(['mock/submit'], this.mockFormSubmitCalls());
+});
+
+QUnit.test('creme.forms.validateHtml5Field (no constraint)', function(assert) {
+    var field = $('<input type="text" name="name"/>');
+    field.on('html5-invalid', this.mockListener('invalid'));
+
+    equal(false, field.is(':invalid'));
+    equal(false, field.is('.is-field-invalid'));
+    deepEqual([], this.mockListenerCalls('invalid'));
+
+    deepEqual({}, creme.forms.validateHtml5Field(field));
+
+    equal(false, field.is(':invalid'));
+    equal(false, field.is('.is-field-invalid'));
+    deepEqual([
+        ['html5-invalid', [false]]
+    ], this.mockListenerJQueryCalls('invalid'));
+});
+
+QUnit.test('creme.forms.validateHtml5Field (invalid)', function(assert) {
+    var field = $('<input type="text" name="name" required/>');
+    field.on('html5-invalid', this.mockListener('invalid'));
+
+    equal(true, field.is(':invalid'));
+    equal(false, field.is('.is-field-invalid'));
+    deepEqual([], this.mockListenerCalls('invalid'));
+
+    deepEqual({
+        'name': field.get(0).validationMessage
+    }, creme.forms.validateHtml5Field(field));
+
+    equal(true, field.is(':invalid'));
+    equal(true, field.is('.is-field-invalid'));
+    deepEqual([
+        ['html5-invalid', [true, field.get(0).validationMessage]]
+    ], this.mockListenerJQueryCalls('invalid'));
+});
+
+QUnit.test('creme.forms.validateHtml5Field (invalid => valid)', function(assert) {
+    var field = $('<input type="text" name="name" required/>');
+    creme.forms.validateHtml5Field(field);
+
+    equal(true, field.is(':invalid'));
+    equal(true, field.is('.is-field-invalid'));
+
+    field.on('html5-invalid', this.mockListener('invalid'));
+    field.val('not empty');
+
+    deepEqual({}, creme.forms.validateHtml5Field(field));
+
+    equal(false, field.is(':invalid'));
+    equal(false, field.is('.is-field-invalid'));
+    deepEqual([
+        ['html5-invalid', [false]]
+    ], this.mockListenerJQueryCalls('invalid'));
+});
+
+QUnit.test('creme.forms.validateHtml5Field ([novalidate])', function(assert) {
+    var field = $('<input type="text" name="name" required novalidate/>');
+    field.on('html5-invalid', this.mockListener('invalid'));
+
+    equal(true, field.is(':invalid'));
+    equal(false, field.is('.is-field-invalid'));
+    deepEqual([], this.mockListenerCalls('invalid'));
+
+    deepEqual({}, creme.forms.validateHtml5Field(field));
+
+    equal(true, field.is(':invalid'));
+    equal(false, field.is('.is-field-invalid'));
+    deepEqual([], this.mockListenerJQueryCalls('invalid'));
+});
+
+
+QUnit.test('creme.forms.validateHtml5Field (options.noValidate)', function(assert) {
+    var field = $('<input type="text" name="name" required/>');
+    field.on('html5-invalid', this.mockListener('invalid'));
+
+    equal(true, field.is(':invalid'));
+    equal(false, field.is('.is-field-invalid'));
+    deepEqual([], this.mockListenerCalls('invalid'));
+
+    deepEqual({}, creme.forms.validateHtml5Field(field, {noValidate: true}));
+
+    equal(true, field.is(':invalid'));
+    equal(false, field.is('.is-field-invalid'));
+    deepEqual([], this.mockListenerJQueryCalls('invalid'));
+});
+
+QUnit.test('creme.forms.validateHtml5Form (empty)', function(assert) {
+    var form = $('<form>');
+    deepEqual({}, creme.forms.validateHtml5Form(form));
+});
+
+QUnit.test('creme.forms.validateHtml5Form (no error)', function(assert) {
+    var firstname = this.form.find('[name="firstname"]').on('html5-invalid', this.mockListener('firstname-invalid'));
+    var lastname = this.form.find('[name="lastname"]').on('html5-invalid', this.mockListener('lastname-invalid'));
+    var email = this.form.find('[name="email"]').on('html5-invalid', this.mockListener('email-invalid'));
+
+    lastname.val('Doe');
+    email.val('john.doe@unknown.com');
+
+    deepEqual({}, creme.forms.validateHtml5Form(this.form));
+
+    equal(false, firstname.is(':invalid'));
+    equal(false, firstname.is('.is-field-invalid'));
+    equal(false, lastname.is(':invalid'));
+    equal(false, lastname.is('.is-field-invalid'));
+    equal(false, email.is(':invalid'));
+    equal(false, email.is('.is-field-invalid'));
+
+    deepEqual({
+        'firstname-invalid': [['html5-invalid', [false]]],
+        'lastname-invalid': [['html5-invalid', [false]]],
+        'email-invalid': [['html5-invalid', [false]]]
+    }, this.mockListenerJQueryCalls());
+});
+
+QUnit.test('creme.forms.validateHtml5Form (errors)', function(assert) {
+    var firstname = this.form.find('[name="firstname"]').on('html5-invalid', this.mockListener('firstname-invalid'));
+    var lastname = this.form.find('[name="lastname"]').on('html5-invalid', this.mockListener('lastname-invalid'));
+    var email = this.form.find('[name="email"]').on('html5-invalid', this.mockListener('email-invalid'));
+
+    email.val('not email');
+
+    deepEqual({
+        'lastname': lastname.get(0).validationMessage,
+        'email': email.get(0).validationMessage
+    }, creme.forms.validateHtml5Form(this.form));
+
+    equal(false, firstname.is(':invalid'));
+    equal(false, firstname.is('.is-field-invalid'));
+    equal(true, lastname.is(':invalid'));
+    equal(true, lastname.is('.is-field-invalid'));
+    equal(true, email.is(':invalid'));
+    equal(true, email.is('.is-field-invalid'));
+
+    deepEqual({
+        'firstname-invalid': [['html5-invalid', [false]]],
+        'lastname-invalid': [['html5-invalid', [true, lastname.get(0).validationMessage]]],
+        'email-invalid': [['html5-invalid', [true, email.get(0).validationMessage]]]
+    }, this.mockListenerJQueryCalls());
+});
+
+QUnit.test('creme.forms.validateHtml5Form (errors + novalidate)', function(assert) {
+    var firstname = this.form.find('[name="firstname"]').on('html5-invalid', this.mockListener('firstname-invalid'));
+    var lastname = this.form.find('[name="lastname"]').on('html5-invalid', this.mockListener('lastname-invalid'));
+    var email = this.form.find('[name="email"]').on('html5-invalid', this.mockListener('email-invalid'));
+
+    email.val('not email');
+
+    this.form.attr('novalidate', 'novalidate');
+
+    deepEqual({}, creme.forms.validateHtml5Form(this.form));
+
+    equal(false, firstname.is(':invalid'));
+    equal(false, firstname.is('.is-field-invalid'));
+    equal(true, lastname.is(':invalid'));
+    equal(false, lastname.is('.is-field-invalid'));
+    equal(true, email.is(':invalid'));
+    equal(false, email.is('.is-field-invalid'));
+
+    deepEqual({}, this.mockListenerJQueryCalls());
+});
+
+QUnit.test('creme.forms.validateHtml5Form (errors + options.noValidate)', function(assert) {
+    var firstname = this.form.find('[name="firstname"]').on('html5-invalid', this.mockListener('firstname-invalid'));
+    var lastname = this.form.find('[name="lastname"]').on('html5-invalid', this.mockListener('lastname-invalid'));
+    var email = this.form.find('[name="email"]').on('html5-invalid', this.mockListener('email-invalid'));
+
+    email.val('not email');
+
+    deepEqual({}, creme.forms.validateHtml5Form(this.form, {noValidate: true}));
+
+    equal(false, firstname.is(':invalid'));
+    equal(false, firstname.is('.is-field-invalid'));
+    equal(true, lastname.is(':invalid'));
+    equal(false, lastname.is('.is-field-invalid'));
+    equal(true, email.is(':invalid'));
+    equal(false, email.is('.is-field-invalid'));
+
+    deepEqual({}, this.mockListenerJQueryCalls());
 });

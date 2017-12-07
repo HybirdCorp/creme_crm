@@ -673,16 +673,20 @@ creme.dialogs = $.extend(creme.dialogs, {
     },
 
     choice: function(message, options) {
-        options = options || {};
+        options = $.extend({
+            required: false
+        }, options || {});
 
         var data = options.choices || [];
         var selected = options.selected || (data ? data[0] : null);
         var selector = new creme.model.ChoiceGroupRenderer($("<select style='width:100%;'>"), data).redraw().target();
         var content = $('<div>');
 
-        if (selected) {
-            selector.val(selected);
-        } else {
+        selector.toggleAttr('required', options.required);
+
+        if (Object.isEmpty(selected.value) === false) {
+            selector.val(selected.value);
+        } else if (options.required) {
             selector.val($('option:first', selector).attr('value'));
         }
 
@@ -694,8 +698,11 @@ creme.dialogs = $.extend(creme.dialogs, {
 
         return new creme.dialog.SelectionDialog(options)
                                     .fill(content)
+                                    .validator(function(value) {
+                                         return Object.isEmpty(creme.forms.validateHtml5Field(selector));
+                                     })
                                     .selector(function(frame) {
-                                         return $('select', frame).val();
+                                         return selector.val();
                                      });
     },
 

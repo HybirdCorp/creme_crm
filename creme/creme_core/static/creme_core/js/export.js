@@ -20,26 +20,29 @@
  * Requires : creme declaration
  */
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.exports = creme.exports || {};
 
-creme.exports.exportAs = function(url, formats, argument_name) {
-    var formats = !Object.isEmpty(formats) ? formats : [['', 'No backend found']];
+creme.exports.exportAs = function(url, formats, fieldname) {
+    formats = formats || [['', 'No backend found']];
 
-    return creme.dialogs
-                .choice(gettext("Select the export format"), {
-                    title: gettext("Export"),
-                    choices: formats.map(function(item) {return {value:item[0], label:item[1]}})
-                })
-                .onOk(function(event, data) {
-                    if (argument_name === undefined) {
-                        console.warn('creme.exports.exportAs(): URL as format string is deprecated ; use the the "argument_name" parameter instead.');
-                        window.location.href = url.format(data);
-                    } else {
-                        window.location.href = url + '&' + argument_name + '=' + data;
-                    }
-                })
-                .open();
+    return creme.dialogs.choice(gettext("Select the export format"), {
+                             title: gettext("Export"),
+                             choices: formats.map(function(item) {
+                                 return {value: item[0], label: item[1]};
+                             }),
+                             required: true
+                         })
+                        .onOk(function(event, data) {
+                             if (Object.isEmpty(fieldname)) {
+                                 console.warn('creme.exports.exportAs(): URL as format string is deprecated ; use the the "fieldname" parameter instead.');
+                                 creme.utils.goTo(url.format(data));
+                             } else {
+                                 creme.utils.goTo(url + '&' + fieldname + '=' + data);
+                             }
+                         })
+                        .open();
 };
 }(jQuery));
