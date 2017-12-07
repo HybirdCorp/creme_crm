@@ -1059,6 +1059,10 @@ div.hat-bar {
     background: linear-gradient(#fcfcfc, #f0f0f0);
 }
 
+.hat-bar .bar-action:hover {
+    background: linear-gradient(#ffffff, #f3f3f3);
+}
+
 .bar-deleted-indicator {
     font-size: 0.8em;
     color: #888;
