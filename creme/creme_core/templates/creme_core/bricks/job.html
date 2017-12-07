@@ -75,7 +75,7 @@
     {% if job.type.periodic != NOT_PERIODIC %}
     <tr>
         <td>{% trans 'Periodicity' %}</td>
-        <td>
+        <td data-type="list">
             <ul>
                 <li>{% trans 'Reference run' %}: {{job.reference_run}}</li>
                 <li>{% trans 'Every' %}: {{job.real_periodicity}}</li>

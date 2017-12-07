@@ -1,6 +1,8 @@
 {% extends 'creme_core/base.html' %}
 {% load i18n creme_bricks %}
 
+{% block page_title %}{% trans 'List of jobs' %} - {% endblock %}
+
 {% block content %}
     <div class="help_box">{% trans 'Disabling a job takes effect only after its current execution.' %}</div>
 
