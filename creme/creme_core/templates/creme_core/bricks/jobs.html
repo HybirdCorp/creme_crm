@@ -47,7 +47,7 @@
         <td class="job-app">{{job.type.app_config.verbose_name|default:'?'}}</td>
         <td class="job-type">{{job.type|default:'?'}}</td>
         <td class="job-owner">{{job.user|default:''}}</td>
-        <td class="job-periodicity">
+        <td class="job-periodicity" data-type="list">
         {% if job.type.periodic != NOT_PERIODIC %}
             <ul>
                 <li>{% trans 'Reference run' %}: {{job.reference_run}}</li>
