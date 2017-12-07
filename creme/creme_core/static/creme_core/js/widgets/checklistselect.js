@@ -236,7 +236,7 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
         input.bind('change', function() {
                   self._updateViewSelection(element);
               })
-             .bind('invalid', function() {
+             .bind('invalid html5-invalid', function() {
                   self._updateViewErrorState(element);
               });
 

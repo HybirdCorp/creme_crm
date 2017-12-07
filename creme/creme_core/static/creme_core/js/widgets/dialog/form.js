@@ -116,11 +116,14 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
 
             if (errors[item.attr('name')] === undefined) {
                 item.removeClass('is-field-invalid');
+                item.trigger('html5-invalid', [false]);
             }
         });
 
         for (var name in errors) {
-            $('[name="' + name + '"]', form).addClass('is-field-invalid');
+            var item = $('[name="' + name + '"]', form);
+            item.addClass('is-field-invalid');
+            item.trigger('html5-invalid', [true]);
         }
 
         return errors;
