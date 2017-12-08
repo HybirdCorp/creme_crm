@@ -72,7 +72,7 @@
 {% block brick_table_rows %}
 {% has_perm_to admin 'reports' as admin_perm %}{% url 'creme_core__delete_entities' as delete_multi_url %}
 {% widget_icon name='expandme' label=_('Expand') size='brick-table-action' class='graph-row-toggle-icon graph-row-expand' as expand_icon %}
-{% widget_icon name='expandme' label=_('Close') size='brick-table-action' class='graph-row-toggle-icon graph-row-collapse' as collapse_icon %}
+{% widget_icon name='expanded' label=_('Close') size='brick-table-action' class='graph-row-toggle-icon graph-row-collapse' as collapse_icon %}
     {% for graph in page.object_list %}
     {% with hand=graph.hand %}
     <tr class="graph-row-header graph-row-collapsed" data-graph-id="{{graph.id}}">
@@ -94,13 +94,13 @@
         <td class="reports-graph-brick" colspan="7">
             <div class="brick-graph-header clearfix">
                 <div class="graph-controls graph-controls-type">
-                    <span class="graph-control-name">{% trans "Graph" context "reports-graphs" %}<span class="typography-colon">:</span></span>
+                    <span class="graph-control-name">{% trans 'Graph' context 'reports-graphs' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
                     <a class="graph-control-value" title="{% trans 'Select the type of visualisation for this graph' %}">
                         {% trans 'Histogram' %}
                     </a>
                 </div>
                 <div class="graph-controls graph-controls-sort">
-                    <span class="graph-control-name">{% trans 'Sorting' %} <span class="typography-colon">:</span></span>
+                    <span class="graph-control-name">{% trans 'Sorting' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
                     <a class="graph-control-value" title="{% trans 'Select the sort order' %}">
                         {% trans 'Ascending' %}
                     </a>
