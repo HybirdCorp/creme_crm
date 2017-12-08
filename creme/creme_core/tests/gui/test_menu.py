@@ -943,7 +943,7 @@ class MenuTestCase(CremeTestCase):
         # ElementTree.dump(elt) >>>
         # <html><head /><body>
         #         <img alt="Contact" class="header-menu-icon"
-        #              src="/static_media/icecream/images/contact_16-....png" title="Contact" width="16dpx" />
+        #              src="/static_media/icecream/images/contact_16-....png" title="Contact" width="16px" />
         #         Contacts
         #         <ul>
         #             <li class="ui-creme-navigation-item-level2 ui-creme-navigation-item-id_home">

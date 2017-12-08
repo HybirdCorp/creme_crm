@@ -179,7 +179,7 @@ class Icon(BaseIcon):
     def render(self, css_class=''):
         final_css_class = self.css_class + css_class
 
-        return mark_safe(u'<img src="{url}" {attrs} title="{label}" alt="{label}" width="{size}dpx"/>'.format(
+        return mark_safe(u'<img src="{url}" {attrs} title="{label}" alt="{label}" width="{size}px"/>'.format(
                 size=self.size,
                 label=escape(self.label),
                 attrs=u' class="{}"'.format(final_css_class) if final_css_class else '',
