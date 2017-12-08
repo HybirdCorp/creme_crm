@@ -1,7 +1,7 @@
 {% extends "creme_core/tests/testbase.html" %}
 {% load i18n %}
 {% load media %}
-{% load creme_core_tags creme_block creme_widgets %}
+{% load creme_core_tags creme_bricks creme_widgets %}
 
 {% block test_title %}Creme Frame Widget{% endblock %}
 {% block test_header %}
@@ -55,6 +55,8 @@
                    "magna. Etiam eget nulla sit amet ligula fringilla ornare. In euismod adipiscing lacus, nec congue" +
                    "elit vulputate vel. Phasellus et velit lacus, id ultricies odio. Fusce imperdiet vehicula justo, " +
                    "nec gravida velit bibendum porta.").split(" ");
+
+    MOCK_BLOCK_LIST = "{% filter escapejs %}{% include 'creme_core/tests/bricks/dummy-list-frame.html' %}{% endfilter %}";
 
     function randomText(words)
     {
@@ -218,7 +220,7 @@
         });
 
         $('#popup .popup-block').click(function() {
-            var dialog = creme.dialogs.html($('#mock-blocklist').text(), {
+            var dialog = creme.dialogs.html(MOCK_BLOCK_LIST, {
                 width: '80%',
                 title: 'Static',
                 scroll: $('#popup input.popup-scroll-background').is(':checked') ? 'background' : 'frame',
@@ -418,13 +420,6 @@
             <a class="ui-creme-dialog-action" href="mock/wizard/B">Step B</button>
             <input class="ui-creme-dialog-action" type="submit" value="Finish"/>
         </form>
-    </script>
-    <script type="text/html" id="mock-blocklist">
-        <button class="block-refresh">Refresh</button>
-        <input type="number" id="test-blocklist-min" value="1" min="1" max="100"/>
-        {% import_block from_app 'creme_core' named 'test_dummy_list' as 'test_dummy_list_block' %}
-        {% display_block_detailview 'test_dummy_list_block' %}
-        {% get_blocks_dependencies %}
     </script>
     <ul>
         <li id="static-frame">

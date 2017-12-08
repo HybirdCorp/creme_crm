@@ -1,7 +1,7 @@
 {% extends "creme_core/tests/testbase.html" %}
 {% load i18n %}
 {% load media %}
-{% load creme_core_tags creme_block creme_widgets %}
+{% load creme_core_tags creme_bricks creme_widgets %}
 
 {% block test_title %}Creme Block List{% endblock %}
 {% block test_header %}
@@ -24,9 +24,7 @@
 
 <button id="test-blocklist-refresh">Refresh</button>
 <input type="number" id="test-blocklist-min" value="1" min="1" max="100" />
-{% import_block from_app 'creme_core' named 'test_dummy_list' as 'test_dummy_list_block' %}
-{% display_block_detailview 'test_dummy_list_block' %}
-
-{% get_blocks_dependencies %}
+{% brick_import app='creme_core' name='test_dummy_list' as test_dummy_list_brick %}
+{% brick_display test_dummy_list_brick %}
 
 {% endblock %}

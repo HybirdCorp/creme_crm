@@ -132,7 +132,10 @@
 
         {% block test_header %}{% endblock %}
     </head>
-    <body>
+    {% url 'creme_core__reload_bricks' as bricks_reload_url %}
+    {% url_join bricks_reload_url base_url=request.path as bricks_reload_uri %}
+    <body data-bricks-reload-url="{{bricks_reload_uri}}"
+          data-brick-state-url="{% url 'creme_core__set_brick_state' %}">
         <h1 class="creme-test-header">
             <div class="title">
                 {% block test_title %}{% endblock %}
