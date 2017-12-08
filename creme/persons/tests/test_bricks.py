@@ -520,3 +520,73 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         customer = self._build_customer_orga(mng_orga, 'Konoha')
         self._build_customer_orga(mng_orga, 'Suna', is_deleted=True)
         self.assertEqual([customer], list(self._get_neglected_orgas()))
+
+    def _oldify(self, entity, days_delta):
+        entity.created -= timedelta(days=days_delta)
+        return entity
+
+    def test_neglected_indicator01(self):
+        "Young entity => special label"
+        contact = self._oldify(Contact.objects.create(user=self.user, first_name='Gaara', last_name='???'),
+                               days_delta=10
+                              )
+        indicator = bricks.NeglectedContactIndicator(context={'today': now()}, contact=contact)
+        self.assertEqual(_(u'Never contacted'), indicator.label)
+
+    def test_neglected_indicator02(self):
+        "regular label for neglected"
+        user = self.user
+        contact = self._oldify(Contact.objects.create(user=self.user, first_name='Gaara', last_name='???'),
+                               days_delta=16
+                              )
+
+        now_value = now()
+        one_month_ago = now_value - timedelta(days=30)
+        meeting = Activity.objects.create(user=user, type_id=act_constants.ACTIVITYTYPE_MEETING,
+                                          title='meet01',
+                                          start=one_month_ago,
+                                          end=one_month_ago + timedelta(hours=2),
+                                         )
+
+        Relation.objects.create(user=user, subject_entity=contact, object_entity=meeting, type_id=act_constants.REL_SUB_PART_2_ACTIVITY)
+
+        indicator = bricks.NeglectedContactIndicator(context={'today': now_value}, contact=contact)
+        self.assertEqual(_(u'Not contacted since 15 days'), indicator.label)
+
+    def test_neglected_indicator03(self):
+        "Not neglected"
+        user = self.user
+        contact = self._oldify(Contact.objects.create(user=self.user, first_name='Gaara', last_name='???'),
+                               days_delta=16
+                              )
+
+        now_value = now()
+        one_week_ago = now_value - timedelta(days=7)
+        meeting = Activity.objects.create(user=user, type_id=act_constants.ACTIVITYTYPE_MEETING,
+                                          title='meet01',
+                                          start=one_week_ago,
+                                          end=one_week_ago + timedelta(hours=2),
+                                         )
+
+        Relation.objects.create(user=user, subject_entity=contact, object_entity=meeting, type_id=act_constants.REL_SUB_PART_2_ACTIVITY)
+
+        indicator = bricks.NeglectedContactIndicator(context={'today': now_value}, contact=contact)
+        self.assertFalse(indicator.label)
+
+    def test_neglected_indicator04(self):
+        "User-contacts are ignored"
+        user = self.user
+        contact = self._oldify(user.linked_contact, days_delta=16)
+
+        now_value = now()
+        one_month_ago = now_value - timedelta(days=30)
+        meeting = Activity.objects.create(user=user, type_id=act_constants.ACTIVITYTYPE_MEETING,
+                                          title='meet01',
+                                          start=one_month_ago,
+                                          end=one_month_ago + timedelta(hours=2),
+                                         )
+
+        Relation.objects.create(user=user, subject_entity=contact, object_entity=meeting, type_id=act_constants.REL_SUB_PART_2_ACTIVITY)
+
+        indicator = bricks.NeglectedContactIndicator(context={'today': now_value}, contact=contact)
+        self.assertFalse(indicator.label)

@@ -75,11 +75,35 @@ if apps.is_installed('creme.activities'):
             }
 
 
-    def contact_is_neglected(context, contact):
-        return not Activity.get_future_linked(contact, today=context['today'] - timedelta(days=15)).exists()
+    class NeglectedContactIndicator(object):
+        delta = timedelta(days=15)
+        label_not = _(u'Not contacted since 15 days')
+        label_never = _(u'Never contacted')
+
+        def __init__(self, context, contact):
+            self.context = context
+            self.contact = contact
+
+        @property  # TODO: cached_property ??
+        def label(self):
+            contact = self.contact
+
+            if not contact.is_user_id:
+                time_limit = self.context['today'] - self.delta
+
+                if not Activity.get_future_linked(contact, today=time_limit).exists():
+                    return self.label_not if time_limit > contact.created else self.label_never
+
+            return ''
 else:
-    def contact_is_neglected(context, contact):
-        return None
+    class NeglectedContactIndicator(object):
+        def __init__(self, context, contact):
+            pass
+
+        @property
+        def label(self):
+            return ''
+
 
     class Activities4Card(object):
         dependencies = []
@@ -193,7 +217,6 @@ class ContactCardHatBrick(Brick):
         contact = context['object']
         is_hidden = context['fields_configs'].get_4_model(Contact).is_fieldname_hidden
 
-        # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context,
                     hidden_fields={fname
@@ -201,7 +224,7 @@ class ContactCardHatBrick(Brick):
                                            if is_hidden(fname)
                                   },
                     activities=Activities4Card.get(context, contact),
-                    is_neglected=contact_is_neglected(context, contact),
+                    neglected_indicator=NeglectedContactIndicator(context, contact),
                     opportunities=Opportunities4Card.get(context, contact),
                     acts=CommercialActs4Card.get(context, contact),
         ))
@@ -228,7 +251,6 @@ class OrganisationCardHatBrick(Brick):
         get_fconfigs = context['fields_configs'].get_4_model
         is_hidden = get_fconfigs(Organisation).is_fieldname_hidden
 
-        # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context,
                     hidden_fields={fname

@@ -12,9 +12,9 @@
 {% endblock %}
 
 {% block card_indicators %}
-    {% if is_neglected %}
-    <div class='business-card-indicator business-card-warning-indicator'>{% trans 'Not contacted since 15 days' %}</div>
-    {% endif %}
+{% with neg_label=neglected_indicator.label %}
+    {% if neg_label %}<div class='business-card-indicator business-card-warning-indicator'>{{neg_label}}</div>{% endif %}
+{% endwith %}
 {% endblock %}
 
 {% block card_secondary %}

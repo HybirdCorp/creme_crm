@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-14 20:29+0100\n"
+"POT-Creation-Date: 2017-12-08 16:31+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -52,43 +52,51 @@ msgstr "Société de l'utilisateur"
 msgid "Position in the organisation"
 msgstr "Statut dans la société"
 
-#: blocks.py:28 bricks.py:372
+#: blocks.py:28 bricks.py:394
 msgid "Addresses (detailed)"
 msgstr "Adresses (détaillées)"
 
-#: blocks.py:88 bricks.py:403
+#: blocks.py:88 bricks.py:425
 msgid "Other addresses (detailed)"
 msgstr "Adresses supplémentaires (détaillées)"
 
-#: bricks.py:189 bricks.py:220
+#: bricks.py:80
+msgid "Not contacted since 15 days"
+msgstr "Pas contacté depuis 15j"
+
+#: bricks.py:81
+msgid "Never contacted"
+msgstr "Jamais contacté"
+
+#: bricks.py:213 bricks.py:243
 msgid "Card header block"
 msgstr "Bloc «carte de visite»"
 
-#: bricks.py:262
+#: bricks.py:284
 msgid "Organisation managers"
 msgstr "Responsables d'une société"
 
-#: bricks.py:271
+#: bricks.py:293
 msgid "Create a manager"
 msgstr "Créer un responsable"
 
-#: bricks.py:295
+#: bricks.py:317
 msgid "Organisation employees"
 msgstr "Salariés d'une société"
 
-#: bricks.py:303
+#: bricks.py:325
 msgid "Create an employee"
 msgstr "Créer un salarié"
 
-#: bricks.py:378
+#: bricks.py:400
 msgid "Addresses (pretty)"
 msgstr "Adresses (jolies)"
 
-#: bricks.py:410
+#: bricks.py:432
 msgid "Other addresses (pretty)"
 msgstr "Adresses supplémentaires (jolies)"
 
-#: bricks.py:446 templates/persons/bricks/neglected-organisations.html:7
+#: bricks.py:468 templates/persons/bricks/neglected-organisations.html:7
 msgid "Neglected organisations"
 msgstr "Sociétés délaissées"
 
@@ -753,10 +761,6 @@ msgstr "Créer une adresse"
 msgid "No other address set for the moment"
 msgstr "Aucune addresse supplémentaire enregistrée pour le moment"
 
-#: templates/persons/bricks/contact-hat-card.html:16
-msgid "Not contacted since 15 days"
-msgstr "Pas contacté depuis 15j"
-
 #: templates/persons/bricks/contact-hat-card.html:24
 #: templates/persons/bricks/organisation-hat-card.html:41
 #: templates/persons/bricks/organisation-hat-card.html:48
@@ -1192,9 +1196,6 @@ msgstr "Nombre de client(s) de %s"
 
 #~ msgid "Assigned to"
 #~ msgstr "Assigné à"
-
-#~ msgid "New contact"
-#~ msgstr "Nouveau contact"
 
 #~ msgid "Employed by"
 #~ msgstr "Est salarié chez"
