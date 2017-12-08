@@ -53,7 +53,7 @@ logger = logging.getLogger(__name__)
 
 
 TEST_TEMPLATE_PATH = join(settings.CREME_ROOT, 'creme_core', 'templates', 'creme_core', 'tests')
-TEST_TEMPLATE_BLOCK_PATH = join(TEST_TEMPLATE_PATH, 'blocks')
+TEST_TEMPLATE_BRICK_PATH = join(TEST_TEMPLATE_PATH, 'bricks')
 TEST_IMAGE_URLS = ('images/add_32.png',
                    'images/404.png',
                    'images/500.png',
@@ -110,7 +110,7 @@ class DummyListBlock(PaginatedBrick):
     verbose_name  = u'Dummies'
     dependencies  = ()
     permission    = 'creme_config.can_admin'
-    template_name = join(TEST_TEMPLATE_BLOCK_PATH, 'block_dummy_list.html')
+    template_name = join(TEST_TEMPLATE_BRICK_PATH, 'dummy-list.html')
     data          = None
     configurable  = False
 

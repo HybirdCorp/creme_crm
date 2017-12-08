@@ -1,0 +1,5 @@
+{% load creme_bricks %}
+
+<button class="block-refresh">Refresh</button>&nbsp;<input type="number" id="test-blocklist-min" value="1" min="1" max="100"/>
+{% brick_import app='creme_core' name='test_dummy_list' as test_dummy_list_brick %}
+{% brick_display test_dummy_list_brick %}

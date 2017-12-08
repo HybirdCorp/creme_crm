@@ -1,0 +1,40 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_core-dummy-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('Dummy') icon='commercial' %}
+{% endblock %}
+
+{% block brick_header_actions %}{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Name') %}
+    {% brick_table_column title=_('Image') %}
+    {% brick_table_column title=_('URL') %}
+    {% brick_table_column title=_('Hour') %}
+    {% brick_table_column title=_('Date') %}
+    {% brick_table_column title=_('Duration') %}
+    {% brick_table_column title=_('ForeignKey') %}
+    {% brick_table_column title=_('ManyToMany') %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for object in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{{object.name}}</td>
+        <td>{{object.image}}</td>
+        <td>{{object.url}}</td>
+        <td data-type="date">{{object.datetime}}</td>
+        <td data-type="date">{{object.date}}</td>
+        <td>{{object.duration}}</td>
+        <td>{{object.foreignkey}}</td>
+        <td data-type="list">{{object.manytomany}}</td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans "No dummy for the moment" %}
+{% endblock %}
