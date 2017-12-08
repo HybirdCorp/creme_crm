@@ -513,9 +513,7 @@
 }
 
 .list_view .columns_bottom th.search input,
-.list_view .columns_bottom th.search select,
-.list_view .columns_top th.search input,
-.list_view .columns_top th.search select {
+.list_view .columns_top th.search input {
     background-color: #e6e6e6;
 }
 
@@ -1008,9 +1006,7 @@
 }
 
 .list_view input:hover,
-.list_view select:hover,
-.list_view input:focus,
-.list_view select:focus {
+.list_view input:focus {
     border: #548295 1px solid;
     background-color: #D7E2E7;
 }

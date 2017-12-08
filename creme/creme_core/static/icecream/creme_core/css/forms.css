@@ -59,7 +59,6 @@ select {
     border: 1px solid #6eaac4;
 } */
 input:not([type="submit"]):not([type="file"]),
-select,
 textarea {
     border-radius: 0;
     border: 1px solid #a9a9a9;
