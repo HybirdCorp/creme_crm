@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-06 11:21+0100\n"
+"POT-Creation-Date: 2017-12-11 17:35+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2883,7 +2883,7 @@ msgid "Search"
 msgstr "Rechercher"
 
 #: templates/creme_core/frags/list_view_content.html:143
-msgid "Clean the search"
+msgid "Clear search"
 msgstr "Effacer la recherche"
 
 #: templates/creme_core/frags/list_view_content.html:239

@@ -31,9 +31,9 @@ from django.db.models.signals import pre_save
 
 from creme.creme_core.apps import creme_app_configs
 # from creme.creme_core.registry import creme_registry
+from creme.creme_core.utils import safe_unicode_error, safe_unicode
 from creme.creme_core.utils.collections import OrderedSet
 from creme.creme_core.utils.dependence_sort import dependence_sort
-from creme.creme_core.utils import safe_unicode_error, safe_unicode
 
 
 def _checked_app_label(app_label, app_labels):

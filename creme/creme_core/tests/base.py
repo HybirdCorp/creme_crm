@@ -41,7 +41,7 @@ class _AssertNoExceptionContext(object):
         if exc_type:
             print_traceback()
 
-            raise self.exception('An exception <%s> occured: %s' % (exc_type.__name__, exc_value))
+            raise self.exception('An exception <%s> occurred: %s' % (exc_type.__name__, exc_value))
 
         return True
 

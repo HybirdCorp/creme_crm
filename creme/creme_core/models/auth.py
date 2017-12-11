@@ -380,7 +380,6 @@ class SetCredentials(Model):
 
         return queryset.none()
 
-
     # @staticmethod
     # def filter(sc_sequence, user, queryset, perm):
     @classmethod

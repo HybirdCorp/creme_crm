@@ -31,7 +31,7 @@ from creme.creme_core.utils.dates import make_aware_dt
 from ..models import Action
 
 
-# TODO: alright, we need a real date time widget that this shit !
+# TODO: alright, we need a real date time widget that does this shit !
 class ActionForm(CremeModelWithUserForm):
 #     deadline      = CremeDateTimeField(label=_(u"Deadline"))
     deadline_time = TimeField(label=_(u'Hour'), required=False)
