@@ -346,7 +346,7 @@ LOGGING_FORMATTERS = {
     },
 }
 
-# This filter remove all logs containing '/static_media/' string (usefull when log level is DEBUG)
+# This filter removes all logs containing '/static_media/' string (useful when log level is DEBUG)
 # LOGGING_FILTERS = {
 #     'media': {
 #         '()':      'creme.utils.loggers.RegexFilter',

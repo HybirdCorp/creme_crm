@@ -31,7 +31,7 @@ from creme.creme_core.utils.dates import make_aware_dt
 from ..models import Alert
 
 
-# TODO: alright, we need a real date time widget that this shit !
+# TODO: alright, we need a real date time widget that does this shit !
 class AlertForm(CremeModelWithUserForm):
 #     trigger_date = CremeDateTimeField(label=_(u'Trigger date'))
     trigger_time = TimeField(label=_(u'Hour'), required=False)
@@ -42,7 +42,7 @@ class AlertForm(CremeModelWithUserForm):
 
     def __init__(self, entity, *args, **kwargs):
         super(AlertForm, self).__init__(*args, **kwargs)
-        instance  =self.instance
+        instance = self.instance
         instance.creme_entity = entity
 
         trigger_date = instance.trigger_date

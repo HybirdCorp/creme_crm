@@ -23,6 +23,7 @@ from django.utils.translation import ungettext
 
 register = Library()
 
+
 @register.filter
 def format_distance(value):
     if value < 1000:

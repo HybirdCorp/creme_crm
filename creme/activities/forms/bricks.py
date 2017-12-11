@@ -21,8 +21,8 @@
 from functools import partial
 import logging
 
-from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.forms import ModelMultipleChoiceField  # BooleanField, ModelChoiceField
 from django.utils.translation import ugettext_lazy as _, ungettext
 

@@ -160,7 +160,7 @@ class OpportunitiesConfig(CremeAppConfig):
             linked_quote      = get_rtype(id=REL_SUB_LINKED_QUOTE)
         # except RelationType.DoesNotExist as e:
         except Exception as e:
-            logger.info("A problem occured: %s\n"
+            logger.info("A problem occurred: %s\n"
                         "It can happen during unitests or during the 'populate' phase. "
                         "Otherwise, has the database correctly been populated?", e
                        )

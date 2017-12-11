@@ -51,14 +51,14 @@
                             {% endfor %}
 
                             {% for form_block in form.get_blocks %}
-                                {% include "creme_core/generics/blockform/content.html" %}
+                                {% include 'creme_core/generics/blockform/content.html' %}
                             {% endfor %}
 
                             {% if form.non_field_errors %}
                                 <table class="table_detail_view ui-corner-all">
                                     <thead>
                                         <tr>
-                                            <th valign="middle">{% trans "Global errors"%}</th>
+                                            <th valign="middle">{% trans 'Global errors' %}</th>
                                         </tr>
                                     </thead>
                                     <tbody class="collapsable">
@@ -78,11 +78,11 @@
         {% block submit_buttons %}
             {% if not is_inner_popup %}
                 <div class="submit_buttons">
-                    <input type="submit" value="{{submit_label|default:_("Save")}}"/>
-                    {% if cancel_url %}<a href="{{cancel_url}}" >{% trans "Cancel" %}</a>{% endif %}
+                    <input type="submit" value="{{submit_label|default:_('Save')}}"/>
+                    {% if cancel_url %}<a href="{{cancel_url}}" >{% trans 'Cancel' %}</a>{% endif %}
                 </div>
             {% else %}
-                <input type="submit" value="{{submit_label|default:_("Save")}}" class="ui-creme-dialog-action"/>
+                <input type="submit" value="{{submit_label|default:_('Save')}}" class="ui-creme-dialog-action"/>
             {% endif %}
         {% endblock %}
     </form>

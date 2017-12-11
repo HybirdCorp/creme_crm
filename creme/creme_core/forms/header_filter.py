@@ -175,7 +175,7 @@ class EntityCellsField(Field):
             ffields_choices.append((field_id, f.verbose_name))
             builders[field_id] = EntityCellsField._build_4_functionfield
 
-    def _regular_fields_enum(self, model):  # This separated method make overloading easier (see reports)
+    def _regular_fields_enum(self, model):  # This separated method makes overloading easier (see reports)
 #        return ModelFieldEnumerator(model, deep=1, only_leafs=False).filter(viewable=True)
 
         # NB: we enumerate all the fields of the model, with a deep=1 (ie: we
