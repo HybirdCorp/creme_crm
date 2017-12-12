@@ -147,7 +147,16 @@ else:
 
 
     class ViewableItem(Item):
-        def __init__(self, id, label='', icon=None, icon_label='', perm=''):
+        def __init__(self, id, label='', icon=None, icon_label='', perm=None):
+            """
+            @param id: Identifier (string). Must be unique in a container. A good way is to prefix with app label + '-'.
+            @param label: Text displayed for this entry (should be a ugettext_lazy or something like that).
+            @param icon: Icon identifier (string -- see icon system). Size used is 'brick-header'.
+            @param icon_label: Label of the related icon (not used if 'icon' is None).
+            @param perm: Permission (a not allowed entry will be disabled). Can be a classical permission string
+                   (eg: 'persons', 'persons.add_contact') or a callable which takes one argument (user) & returns
+                   a boolean.
+            """
             super(ViewableItem, self).__init__(id)
             # TODO: assert there is at least an icon or a label ????
             self.label = label
@@ -539,12 +548,21 @@ else:
                            **kwargs
                           )
 
+        def _has_perm(self, context):
+            perm = self.perm
+
+            if perm:
+                user = context['user']
+
+                return perm(user) if callable(perm) else user.has_perm(perm)
+
+            return True
+
         def render(self, context, level=0):
             img = self.render_icon(context)
             label = self.render_label(context)
 
-            perm = self.perm
-            if perm and not context['user'].has_perm(perm):
+            if not self._has_perm(context):
                 return u'<span class="ui-creme-navigation-text-entry forbidden">%s%s</span>' % (img, label)
 
             # TODO: escape url ??
@@ -693,7 +711,7 @@ else:
             def to_dict(self, user):
                 d = {'label': unicode(self.label)}
 
-                if user.has_perm(self.perm):
+                if user.has_perm(self.perm):  # TODO: accept callable too ?
                     d['url'] = self.url
 
                 return d

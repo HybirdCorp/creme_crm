@@ -55,7 +55,8 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual(my_label, ViewableItem('add_contact', label=my_label).label)
 
     def test_item_perm(self):
-        self.assertEqual('', ViewableItem('add_contact').perm)  # TODO: None ??
+        # self.assertEqual('', ViewableItem('add_contact').perm)
+        self.assertIsNone(ViewableItem('add_contact').perm)
 
         my_perm = 'persons.add_contact'
         self.assertEqual(my_perm, ViewableItem('add_contact', perm=my_perm).perm)
@@ -812,7 +813,7 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual(my_label,           img_node.tail)
 
     def test_render_url_item03(self):
-        "Not allowed"
+        "Not allowed (string perm)"
         self.login(is_superuser=False, allowed_apps=['creme_core'])
 
         # icon = 'images/creme_30.png'
@@ -835,6 +836,27 @@ class MenuTestCase(CremeTestCase):
         children = list(span_node)
         self.assertEqual(1, len(children))
         self.assertEqual('img', children[0].tag)
+
+    def test_render_url_item04(self):
+        "Perm is callable"
+        self.login(is_superuser=False)
+
+        url = '/creme/add_contact'
+        item = URLItem('home', url=url, label='Create contact',
+                       perm=lambda user: user.is_superuser
+                      )
+
+        elt = html5lib.parse(item.render(self.build_context()), namespaceHTMLElements=False)
+        span_node = elt.find('.//span')
+        self.assertEqual('ui-creme-navigation-text-entry forbidden', span_node.get('class'))
+
+        # ---
+        item.perm = lambda user: True
+        elt = html5lib.parse(item.render(self.build_context()), namespaceHTMLElements=False)
+        self.assertIsNone(elt.find('.//span'))
+
+        a_node = elt.find('.//a')
+        self.assertEqual(url, a_node.get('href'))
 
     def test_render_label_item(self):
         item_id = 'tools-title'
