@@ -25,10 +25,8 @@ from django.utils.translation import ugettext as _
 
 from ..auth.decorators import login_required, superuser_required
 from ..bricks import JobBrick
-# from ..creme_jobs.base import JobType
 from ..core.exceptions import ConflictError
 from ..core.job import JobManagerQueue
-# from ..forms.job import JobForm
 from ..models import Job
 from ..utils import jsonify
 
@@ -38,8 +36,17 @@ from .generic import inner_popup
 
 
 @login_required
-def listview(request):
-    return render(request, 'creme_core/job/list.html',
+@superuser_required
+def list_all(request):
+    return render(request, 'creme_core/job/list-all.html',
+                  context={'bricks_reload_url': reverse('creme_core__reload_bricks')},
+                  # {'back_url': request.META.get('HTTP_REFERER')} #problem when we come from a deleted job
+                 )
+
+
+@login_required
+def list_mine(request):
+    return render(request, 'creme_core/job/list-mine.html',
                   context={'bricks_reload_url': reverse('creme_core__reload_bricks')},
                   # {'back_url': request.META.get('HTTP_REFERER')} #problem when we come from a deleted job
                  )
@@ -57,11 +64,11 @@ def detailview(request, job_id):
 
     return render(request, 'creme_core/job/detail.html',
                   {'job': job,
-                   # 'results_blocks': jtype.results_blocks,
                    'results_bricks': jtype.results_bricks,
                    'bricks_reload_url': reverse('creme_core__reload_job_bricks', args=(job.id,)),
                    # 'back_url': request.META.get('HTTP_REFERER'),
                    # 'back_url': '/', #TODO: improve (page before form, not form itself)
+                   'list_url': request.GET.get('list_url') or reverse('creme_core__my_jobs'),
                   }
                  )
 
@@ -74,20 +81,16 @@ def edit(request, job_id):
     if job.user_id is not None:
         raise ConflictError('A non-system job cannot be edited')
 
-    # if job.type.periodic != JobType.PERIODIC:
-    #     raise ConflictError('A non-periodic job cannot be edited')
     config_form = job.get_config_form_class()
     if config_form is None:
         raise ConflictError('This job cannot be edited')
 
     if request.method == 'POST':
-        # edit_form = JobForm(user=request.user, data=request.POST, instance=job)
         edit_form = config_form(user=request.user, data=request.POST, instance=job)
 
         if edit_form.is_valid():
             edit_form.save()
     else:  # GET request
-        # edit_form = JobForm(user=request.user, instance=job)
         edit_form = config_form(user=request.user, instance=job)
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
@@ -130,10 +133,9 @@ def delete(request, job_id):
 
     job.delete()
 
-    url = reverse('creme_core__jobs')
+    url = request.POST.get('back_url') or reverse('creme_core__my_jobs')
 
     if request.is_ajax():
-        # return HttpResponse()
         return HttpResponse(content=url, content_type='text/javascript')
 
     return HttpResponseRedirect(url)
@@ -198,9 +200,9 @@ def reload_bricks(request, job_id):
             if results_bricks is None:
                 results_bricks = job.type.results_bricks
 
-            for err_block in results_bricks:
-                if brick_id == err_block.id_:
-                    bricks.append(err_block)
+            for err_brick in results_bricks:
+                if brick_id == err_brick.id_:
+                    bricks.append(err_brick)
                     break
             else:
                 raise Http404('Invalid brick ID')

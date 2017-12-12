@@ -7,7 +7,7 @@
     <div class="buttons-list global-buttons">
         <ul>
             <li>
-                <a class="menu_button menu-button-icon" href="{% url 'creme_core__jobs' %}">{% trans 'List of jobs' as list_label %}
+                <a class="menu_button menu-button-icon" href="{{list_url}}">{% trans 'List of jobs' as list_label %}
                     {% widget_icon name='listview' size='global-button' label=list_label %}
                     {{list_label}}
                 </a>

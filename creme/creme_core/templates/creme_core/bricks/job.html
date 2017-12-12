@@ -23,7 +23,7 @@
     {% endif %}
 
     {% if job.is_finished and job.user %}
-        {% brick_header_action id='update-redirect' url=job.get_delete_absolute_url type='delete' label=_('Delete the job') %}
+        {% brick_header_action id='update-redirect' url=job.get_delete_absolute_url type='delete' label=_('Delete the job') __back_url=list_url %}
     {% endif %}
 
     {% if not job.user %}

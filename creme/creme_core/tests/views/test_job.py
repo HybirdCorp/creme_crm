@@ -26,31 +26,18 @@ try:
 
     if apps.is_installed('creme.crudity'):
         from creme.crudity.creme_jobs import crudity_synchronize_type
-    #     crudity_installed = True
-    # else:
-    #     crudity_installed = False
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
 class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
-    # LIST_URL = '/creme_core/job/all'
     LIST_URL = reverse('creme_core__jobs')
-    # INFO_URL = '/creme_core/job/info'
+    MINE_URL = reverse('creme_core__my_jobs')
     INFO_URL = reverse('creme_core__jobs_info')
 
     @classmethod
     def setUpClass(cls):
-        # ViewsTestCase.setUpClass()
         super(JobViewsTestCase, cls).setUpClass()
-        # Job.objects.all().delete()
-
-        # apps = ['creme_core', 'creme_config']
-        #
-        # if crudity_installed:
-        #     apps.append('crudity')
-        #
-        # cls.populate(*apps)
 
         cls.queue = queue = JobManagerQueue.get_main_queue()
         cls._original_queue_ping = queue.ping
@@ -63,15 +50,12 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(count, smart_unicode(response.content).count(found))
 
     def _build_enable_url(self, job):
-        # return '/creme_core/job/%s/enable' % job.id
         return reverse('creme_core__enable_job', args=(job.id,))
 
     def _build_delete_url(self, job):
-        # return '/creme_core/job/%s/delete' % job.id
         return reverse('creme_core__delete_job', args=(job.id,))
 
     def _build_disable_url(self, job):
-        # return '/creme_core/job/%s/disable' % job.id
         return reverse('creme_core__disable_job', args=(job.id,))
 
     def _create_batchprocess_job(self, user=None, status=Job.STATUS_WAIT):
@@ -98,14 +82,29 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'creme_core/job/detail.html')
 
         with self.assertNoException():
-            cxt_job = response.context['job']
+            context = response.context
+            cxt_job = context['job']
+            cxt_url = context['list_url']
 
         self.assertEqual(job, cxt_job)
+        self.assertEqual(self.MINE_URL, cxt_url)
 
         doc = self.get_html_tree(response.content)
         self.get_brick_node(doc, EntityJobErrorsBrick.id_)
 
     def test_detailview02(self):
+        "List URL"
+        self.login()
+
+        job = self._create_batchprocess_job()
+        response = self.assertGET200(job.get_absolute_url(), data={'list_url': self.LIST_URL})
+
+        with self.assertNoException():
+            cxt_url = response.context['list_url']
+
+        self.assertEqual(self.LIST_URL, cxt_url)
+
+    def test_detailview03(self):
         "Credentials"
         self.login(is_superuser=False)
 
@@ -115,7 +114,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         job = self._create_batchprocess_job(user=self.other_user)
         self.assertGET403(job.get_absolute_url())
 
-    def test_detailview03(self):
+    def test_detailview04(self):
         "Invalid type"
         self.login()
 
@@ -267,37 +266,39 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         job = self.get_object_or_fail(Job, type_id=crudity_synchronize_type.id)
         self.assertGET403(job.get_edit_absolute_url())
 
-    def test_listview01(self):
+    def test_jobs_all01(self):
         self.login()
         job_count = 2
         for i in xrange(job_count):
             self._create_batchprocess_job()
 
         response = self.assertGET200(self.LIST_URL)
-        self.assertTemplateUsed('creme_core/jobs.html')
+        self.assertTemplateUsed(response, 'creme_core/job/list-all.html')
 
         self._assertCount(response, unicode(batch_process_type.verbose_name), job_count)
 
-    def test_listview02(self):
-        "Credentials"
+    def test_jobs_all02(self):
+        "Not super-user: forbidden"
+        # "Credentials"
         self.login(is_superuser=False)
-        self._create_batchprocess_job()
-        response = self.assertGET200(self.LIST_URL)
-        self._assertCount(response, unicode(batch_process_type.verbose_name), 1)
-
-        self._create_batchprocess_job(user=self.other_user)
-        response = self.assertGET200(self.LIST_URL)
-        self._assertCount(response, unicode(batch_process_type.verbose_name), 1)  # Only job1
+        # self._create_batchprocess_job()
+        # response = self.assertGET200(self.LIST_URL)
+        # self._assertCount(response, unicode(batch_process_type.verbose_name), 1)
+        #
+        # self._create_batchprocess_job(user=self.other_user)
+        # response = self.assertGET200(self.LIST_URL)
+        # self._assertCount(response, unicode(batch_process_type.verbose_name), 1)  # Only job1
+        self.assertGET403(self.LIST_URL)
 
     @override_settings(MAX_JOBS_PER_USER=1)
-    def test_listview03(self):
+    def test_jobs_all03(self):
         "Max job message"
         self.login()
 
         Job.objects.create(type_id=batch_process_type.id)  # No user -> not counted in max
 
         response = self.assertGET200(self.LIST_URL)
-        self.assertTemplateUsed('creme_core/jobs.html')
+        self.assertTemplateUsed(response, 'creme_core/job/list-all.html')
 
         msg = _(u'You must delete your job in order to create a new one.')
         self.assertNotContains(response, msg)
@@ -305,11 +306,11 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self._create_batchprocess_job()
 
         response = self.assertGET200(self.LIST_URL)
-        self.assertTemplateUsed('creme_core/jobs.html')
+        self.assertTemplateUsed(response, 'creme_core/job/list-all.html')
         self.assertContains(response, msg)
 
     @override_settings(MAX_JOBS_PER_USER=2)
-    def test_listview04(self):
+    def test_jobs_all04(self):
         "Max job message (several messages)"
         self.login()
 
@@ -321,11 +322,72 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                             _(u'You must delete one of your jobs in order to create a new one.')
                            )
 
-    def test_listview05(self):
+    def test_jobs_all05(self):
         "Invalid type"
         self.login()
         self._create_invalid_job()
         self.assertGET200(self.LIST_URL)
+
+    def test_my_jobs01(self):
+        self.login()
+
+        job_count = 2
+        for i in xrange(job_count):
+            self._create_batchprocess_job()
+
+        response = self.assertGET200(self.MINE_URL)
+        self.assertTemplateUsed(response, 'creme_core/job/list-mine.html')
+
+        self._assertCount(response, unicode(batch_process_type.verbose_name), job_count)
+
+    def test_my_jobs02(self):
+        "Credentials"
+        self.login(is_superuser=False)
+        self._create_batchprocess_job()
+        response = self.assertGET200(self.MINE_URL)
+        self._assertCount(response, unicode(batch_process_type.verbose_name), 1)
+
+        self._create_batchprocess_job(user=self.other_user)
+        response = self.assertGET200(self.MINE_URL)
+        self._assertCount(response, unicode(batch_process_type.verbose_name), 1)  # Only job1
+
+    @override_settings(MAX_JOBS_PER_USER=1)
+    def test_my_jobs03(self):
+        "Max job message"
+        self.login()
+
+        Job.objects.create(type_id=batch_process_type.id)  # No user -> not counted in max
+
+        response = self.assertGET200(self.MINE_URL)
+        self.assertTemplateUsed(response, 'creme_core/job/list-mine.html')
+
+        msg = _(u'You must delete your job in order to create a new one.')
+        self.assertNotContains(response, msg)
+
+        self._create_batchprocess_job()
+
+        response = self.assertGET200(self.MINE_URL)
+        self.assertTemplateUsed(response, 'creme_core/job/list-mine.html')
+        self.assertContains(response, msg)
+
+    @override_settings(MAX_JOBS_PER_USER=2)
+    def test_my_jobs04(self):
+        "Max job message (several messages)"
+        self.login()
+
+        for i in xrange(2):
+            self._create_batchprocess_job()
+
+        response = self.assertGET200(self.MINE_URL)
+        self.assertContains(response,
+                            _(u'You must delete one of your jobs in order to create a new one.')
+                           )
+
+    def test_my_jobs05(self):
+        "Invalid type"
+        self.login()
+        self._create_invalid_job()
+        self.assertGET200(self.MINE_URL)
 
     def test_clear01(self):
         user = self.login()
@@ -340,9 +402,23 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self.assertPOST200(del_url, follow=True)
         self.assertDoesNotExist(job)
         self.assertDoesNotExist(jresult)
-        self.assertRedirects(response, self.LIST_URL)
+        # self.assertRedirects(response, self.LIST_URL)
+        self.assertRedirects(response, self.MINE_URL)
 
     def test_clear02(self):
+        "Redirection"
+        user = self.login()
+        job = self._create_batchprocess_job(status=Job.STATUS_OK)
+
+        orga = FakeOrganisation.objects.create(user=user)
+        jresult = EntityJobResult.objects.create(job=job, entity=orga)
+
+        response = self.assertPOST200(self._build_delete_url(job), data={'back_url': self.LIST_URL}, follow=True)
+        self.assertDoesNotExist(job)
+        self.assertDoesNotExist(jresult)
+        self.assertRedirects(response, self.LIST_URL)
+
+    def test_clear03(self):
         "status = Job.STATUS_ERROR + ajax"
         self.login()
         job = self._create_batchprocess_job(status=Job.STATUS_ERROR)
@@ -352,13 +428,13 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                           )
         self.assertDoesNotExist(job)
 
-    def test_clear03(self):
+    def test_clear04(self):
         "Can only clear finished jobs"
         self.login()
         job = self._create_batchprocess_job()
         self.assertPOST409(self._build_delete_url(job))
 
-    def test_clear04(self):
+    def test_clear05(self):
         "Credentials"
         self.login(is_superuser=False)
 
@@ -368,7 +444,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         job = self._create_batchprocess_job(status=Job.STATUS_OK)
         self.assertPOST200(self._build_delete_url(job), follow=True)
 
-    def test_clear05(self):
+    def test_clear06(self):
         "Can not clear a system job"
         self.login()
 
@@ -548,7 +624,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertIsInstance(result, list)
         self.assertEqual(2, len(result))
         self.assertEqual(brick_id, result[0])
-        # self.assertIn(' id="%s"' % brick_id, result[1])
 
         doc = self.get_html_tree(result[1])
         self.get_brick_node(doc, brick_id)

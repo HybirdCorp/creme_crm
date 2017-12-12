@@ -83,7 +83,11 @@
                     <a href="{% url 'creme_core__trash' %}">
                         {% trans 'Trash' as trash_label %} <img src="{% creme_media_url 'images/delete_16.png' %}" alt="{{trash_label}}" title="{{trash_label}}" />{{trash_label}}
                     </a> -
-                    <a href="{% url 'creme_core__jobs' %}">{% trans 'My jobs' %}</a>
+                    {% if user.is_superuser %}
+                        <a href="{% url 'creme_core__my_jobs' %}">{% trans 'Jobs' %}</a>
+                    {% else %}
+                        <a href="{% url 'creme_core__jobs' %}">{% trans 'My jobs' %}</a>
+                    {% endif %}
                 {% endblock %}
             </div>
             <div class="widget major">

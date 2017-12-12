@@ -72,8 +72,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                           )
 
         response = self.assertGET200(self._build_add_url(FakeOrganisation), follow=True)
-        # self.assertRedirects(response, '/creme_core/job/all')
-        self.assertRedirects(response, reverse('creme_core__jobs'))
+        self.assertRedirects(response, reverse('creme_core__my_jobs'))
 
     def test_batching_upper01(self):
         queue = JobManagerQueue.get_main_queue()
@@ -673,8 +672,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response)
 
         response = self.assertGET200(self._build_add_url(FakeOrganisation), follow=True)
-        # self.assertRedirects(response, '/creme_core/job/all')
-        self.assertRedirects(response, reverse('creme_core__jobs'))
+        self.assertRedirects(response, reverse('creme_core__my_jobs'))
 
     def test_fatalerror(self):
         self.login()

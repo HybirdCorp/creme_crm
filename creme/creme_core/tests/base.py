@@ -304,7 +304,12 @@ class _CremeTestCase(object):
         status_code = response.status_code
 
         if status_code != status:
-            self.fail('Response status=%s (expected: %s)' % (status_code, status))
+            self.fail('Response status={status} (expected: {expected}) [redirections={redirect}; content={content}]'.format(
+                            status=status_code,
+                            expected=status,
+                            redirect=response.redirect_chain,
+                            content=response.content
+                     ))
 
         try:
             errors = response.context[form].errors

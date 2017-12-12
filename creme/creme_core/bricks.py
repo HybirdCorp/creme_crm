@@ -87,7 +87,7 @@ class RelationsBrick(QuerysetBrick):
             self._reloading_info = info
         else:
             self._reloading_info = {}  # We do not let leave 'None' (because it means 'first render').
-            logger.warn('Invalid reloading extra_data for RelationsBlock: %s', info)
+            logger.warn('Invalid reloading extra_data for RelationsBrick: %s', info)
 
     def _iter_dependencies_info(self):
         # In order a JS dependencies intelligence want to get the real dependence.
@@ -326,8 +326,29 @@ class JobBrick(Brick):
     template_name = 'creme_core/bricks/job.html'
     configurable  = False
 
+    @QuerysetBrick.reloading_info.setter
+    def reloading_info(self, info):
+        info_are_ok = False
+
+        if isinstance(info, dict):
+            info_are_ok = isinstance(info.get('list_url', ''), basestring)
+
+        if info_are_ok:
+            self._reloading_info = info
+        else:
+            self._reloading_info = {}  # We do not let leave 'None' (because it means 'first render').
+            logger.warn('Invalid reloading extra_data for JobBrick: %s', info)
+
     def detailview_display(self, context):
         job = context['job']
+
+        reloading_info = self._reloading_info
+
+        if reloading_info is None:  # NB: it's not a reload, it's the initial render()
+            list_url = context.get('list_url')
+            self._reloading_info = {'list_url': list_url}
+        else:
+            list_url = reloading_info.get('list_url')
 
         return self._render(self.get_template_context(
                     context, job=job,
@@ -336,6 +357,7 @@ class JobBrick(Brick):
                     JOB_WAIT=Job.STATUS_WAIT,
                     # PERIODIC=JobType.PERIODIC,
                     NOT_PERIODIC=JobType.NOT_PERIODIC,
+                    list_url=list_url,
         ))
 
 
@@ -394,7 +416,7 @@ class JobsBrick(QuerysetBrick):
     dependencies  = (Job,)
     # order_by      = '-created'
     verbose_name  = 'Jobs'
-    template_name = 'creme_core/bricks/jobs.html'
+    template_name = 'creme_core/bricks/jobs-all.html'
     configurable  = False
     page_size     = 50
     permission    = None
@@ -406,13 +428,30 @@ class JobsBrick(QuerysetBrick):
         if not user.is_superuser:
             jobs = jobs.filter(user=user)
 
-        # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context, jobs,
                     # TODO: computed twice when user is not superuser...
                     user_jobs_count=Job.objects.filter(user=user).count(),
                     MAX_JOBS_PER_USER=settings.MAX_JOBS_PER_USER,
-                    JOB_WAIT=Job.STATUS_WAIT,
+                    # JOB_WAIT=Job.STATUS_WAIT,
                     # PERIODIC=JobType.PERIODIC,
                     NOT_PERIODIC=JobType.NOT_PERIODIC,
+        ))
+
+
+class MyJobsBrick(QuerysetBrick):
+    id_           = QuerysetBrick.generate_id('creme_core', 'my_jobs')
+    dependencies  = (Job,)
+    # order_by      = '-created'
+    verbose_name  = 'Jobs'
+    template_name = 'creme_core/bricks/jobs-mine.html'
+    configurable  = False
+    page_size     = 50
+    permission    = None
+
+    def detailview_display(self, context):
+        return self._render(self.get_template_context(
+                    context,
+                    Job.objects.filter(user=context['user']),
+                    MAX_JOBS_PER_USER=settings.MAX_JOBS_PER_USER,
         ))

@@ -44,8 +44,7 @@ def batch_process(request, ct_id):
         raise PermissionDenied(_(u"You are not allowed to access to this app"))
 
     if Job.objects.filter(user=user).count() >= settings.MAX_JOBS_PER_USER:
-        # return HttpResponseRedirect('/creme_core/job/all')
-        return HttpResponseRedirect(reverse('creme_core__jobs'))
+        return HttpResponseRedirect(reverse('creme_core__my_jobs'))
 
     if request.method == 'POST':
         POST = request.POST
