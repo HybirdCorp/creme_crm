@@ -28,10 +28,11 @@
             <div class='column-content'>
                 <span class='footer-column-title'>{% block creme_title %}Crème{% endblock %}</span>
                 <ul>
+                    {% block creme_about %}<li><a href="{% url 'creme_about' %}">{% trans 'About' %}</a></li>{% endblock %}
                     {% block creme_documentation %}{# <li><a href="">{% trans 'Documentation' %}</a></li> #}{% endblock %}
                     {% block creme_support %}{# <li><a href="">{% trans 'Reamaze support' %}</a></li> #}{% endblock %}
                     {% block creme_forum %}<li><a href="https://www.cremecrm.com/forum/">{% trans 'Forum' %}</a></li>{% endblock %}
-                    {% block creme_source_code %}<li><a href="https://bitbucket.org/hybird/creme_crm/src/">{% trans 'Source code' %}</a></li>{% endblock %}
+{#                    {% block creme_source_code %}<li><a href="{{REPOSITORY}}">{% trans 'Source code' %}</a></li>{% endblock %} #}
                     {% block creme_website %}<li class="creme-site">— <a href="https://cremecrm.com">cremecrm.com</a></li>{% endblock %}
                 </ul>
             </div>
@@ -40,7 +41,7 @@
         <div class='footer-column footer-column-client'>
         {% block column_client %}
 {% comment %}
-IF YOUR WANT A "CLIENT" COLUMN, MASK 'footer.hml' WITH YOUR OWN TEMPLATE, EXTENDS 'base-footer.hml', & WRITE THE BLOCK 'column_client'.
+IF YOUR WANT A "CLIENT" COLUMN, MASK 'footer.hml' WITH YOUR OWN TEMPLATE, EXTENDS 'footer/base.html', & WRITE THE BLOCK 'column_client'.
 YOU CAN COPY THIS AS CONTENT, & MODIFY IT AS YOU WISH.
                 {% load media %}
             <div class='column-content'>
@@ -62,7 +63,6 @@ YOU CAN COPY THIS AS CONTENT, & MODIFY IT AS YOU WISH.
         <div class='footer-column footer-column-hybird'>
         {% block column_hybird %}
             <div class='column-content'>
-
                 <span class='footer-column-title'>
                     Hybird
                     <span title='Cui !'>

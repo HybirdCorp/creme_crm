@@ -93,3 +93,7 @@ def get_old_menu(request):
 
 def get_site_domain(request):
     return {'SITE_DOMAIN': settings.SITE_DOMAIN}
+
+
+def get_repository(request):
+    return {'REPOSITORY': settings.REPOSITORY}

@@ -6,6 +6,7 @@ import logging
 from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib.auth.views import login, logout_then_login
+from django.shortcuts import render
 from django.views.static import serve
 
 # from creme.creme_core.registry import creme_registry
@@ -17,6 +18,7 @@ handler500 = 'creme.creme_core.views.exceptions.server_error'
 urlpatterns = [
     url(r'^creme_login[/]?$',  login, {'template_name': 'authent/creme_login.html'}, name='creme_login'),
     url(r'^creme_logout[/]?$', logout_then_login, name='creme_logout'),
+    url(r'^creme_about[/]?$',  render, {'template_name': 'about/about.html'}, name='creme_about'),
 
     url(r'^site_media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     # NB: in production, configure your web server to statically serve the files in the 'media/static/' dir

@@ -522,3 +522,10 @@ def get_export_backends():
 @register.assignment_tag
 def get_import_backends():
     return json_dump([[backend.id] for backend in import_backend_registry.iterbackends()])
+
+
+@register.assignment_tag(name='hg_info')
+def get_hg_info():
+    from ..utils.version import get_hg_info
+
+    return get_hg_info

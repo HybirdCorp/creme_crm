@@ -320,7 +320,7 @@ ul.button_list.hbox {
 
 ul.button_list.hbox li {
     position: relative;
-    display:inline-table;
+    display: inline-table;
 }
 
 ul.button_list.vbox li {

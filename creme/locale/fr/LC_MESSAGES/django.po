@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-28 19:39+0100\n"
+"POT-Creation-Date: 2017-12-11 17:23+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -24,11 +24,11 @@ msgstr "Format : Jour-Mois-Année (Ex:31-12-2017)"
 msgid "Format: Day-Month-Year Hour:Minute:Second (Ex:31-12-2017 23:59:59)"
 msgstr "Format : Jour-Mois-Année Heure:Minute:Seconde (Ex:31-12-2017 23:59:59)"
 
-#: settings.py:446
+#: settings.py:450
 msgid "Ice cream"
 msgstr "Crème glacée"
 
-#: settings.py:447
+#: settings.py:451
 msgid "Chantilly"
 msgstr "Chantilly"
 
@@ -61,6 +61,51 @@ msgstr ""
 msgid "Creme — 500 Error"
 msgstr "Creme — Erreur 500"
 
+#: templates/about/base.html:6 templates/about/base.html.py:142
+msgid "About CremeCRM"
+msgstr "À propos de CremeCRM"
+
+#: templates/about/base.html:146
+#, python-format
+msgid ""
+"<strong>%(software)s</strong> is a <a href=\"https://en.wikipedia.org/wiki/"
+"Free_software\">free</a> <a href=\"https://en.wikipedia.org/wiki/"
+"Customer_relationship_management\"><abbr title=\"Customer relationship "
+"management\">CRM</abbr></a>, cooked in France since 2008, by <strong>"
+"%(creator)s</strong>."
+msgstr ""
+"<strong>%(software)s</strong> est un <a href=\"https://fr.wikipedia.org/wiki/"
+"Gestion_de_la_relation_client\"><abbr title=\"Customer relationship "
+"management\">CRM</abbr></a> <a href=\"https://fr.wikipedia.org/wiki/"
+"Logiciel_libre\">libre</a>, cuisiné en France depuis 2008, par <strong>"
+"%(creator)s</strong>."
+
+#: templates/about/base.html:147
+#, python-format
+msgid ""
+"Its recipe uses delicious & free ingredients like the %(python)s language, "
+"the web framework %(django)s or the library %(jquery)s."
+msgstr ""
+"Sa recette uilise des ingredients délicieux & libres comme le langage "
+"%(python)s, le framework web %(django)s ou la bibliothèque %(jquery)s."
+
+#: templates/about/base.html:151 templates/footer/base.html:21
+#, python-format
+msgid "Version %(creme_version)s"
+msgstr "Version %(creme_version)s"
+
+#: templates/about/base.html:155
+msgid "Source code"
+msgstr "Code source"
+
+#: templates/about/base.html:156
+msgid "Ask questions"
+msgstr "Poser des questions"
+
+#: templates/about/base.html:157
+msgid "Talk with us"
+msgstr "Discuter avec nous"
+
 #: templates/authent/base.html:7
 msgid "Connection"
 msgstr "Connexion"
@@ -89,7 +134,7 @@ msgstr "Erreur !"
 msgid "An internal error has occurred."
 msgstr "Une erreur interne s'est produite."
 
-#: templates/footer/base-footer.html:20
+#: templates/footer/base.html:20
 #, python-format
 msgid ""
 "<strong>%(software)s</strong> is free/OpenSource software, cooked in France "
@@ -98,24 +143,10 @@ msgstr ""
 "<strong>%(software)s</strong> est un logiciel libre, cuisiné en France "
 "depuis 2008, par <strong>%(creator)s</strong>"
 
-#: templates/footer/base-footer.html:21
-#, python-format
-msgid "Version %(creme_version)s"
-msgstr "Version %(creme_version)s"
+#: templates/footer/base.html:31
+msgid "About"
+msgstr "À propos"
 
-#: templates/footer/base-footer.html:33
+#: templates/footer/base.html:34
 msgid "Forum"
 msgstr "Forum"
-
-#: templates/footer/base-footer.html:34
-msgid "Source code"
-msgstr "Code source"
-
-#~ msgid "Creme admin"
-#~ msgstr "Creme admin"
-
-#~ msgid "Creme administration"
-#~ msgstr "Creme administration"
-
-#~ msgid "Creme Login"
-#~ msgstr "Creme Login"
