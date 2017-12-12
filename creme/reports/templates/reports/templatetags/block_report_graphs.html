@@ -63,7 +63,7 @@
                                     <li class="ui-creme-chainedselect-item" style="float:right;">
                                         {% if admin_perm %}
 {#                                            <button onclick="creme.blocks.form('/reports/graph/{{graph.id}}/block/add', {blockReloadUrl:{% get_block_reload_uri %}}).open();"> #}
-                                            <button onclick="creme.blocks.form('{% url 'reports__create_instance_block' graph.id %}', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
+                                            <button onclick="creme.blocks.form('{% url 'reports__create_instance_brick' graph.id %}', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
                                                 <img src="{% creme_media_url 'images/add_16.png' %}" alt="{{addblock_label}}" style="vertical-align:middle;"/>
                                                 {{addblock_label}}
                                             </button>

@@ -111,8 +111,8 @@
                     <span class="graph-relation-entity">{{volatile_column}}</span>
                 </div>
                 {% endif %}
-                <div class="graph-action">{% url 'reports__create_instance_block' graph.id as create_block_url %}
-                    {% brick_action id='add' url=create_block_url label=_('Create a block with this graph') enabled=admin_perm %}
+                <div class="graph-action">{% url 'reports__create_instance_brick' graph.id as create_brick_url %}
+                    {% brick_action id='add' url=create_brick_url label=_('Create a block with this graph') enabled=admin_perm %}
                 </div>
             </div>
             <div>
