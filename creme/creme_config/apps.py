@@ -94,7 +94,7 @@ class CremeConfigConfig(CremeAppConfig):
             creme_menu.get('creme', 'user') \
                       .add(TimezoneItem('creme_config-timezone'), priority=5) \
                       .add(URLItem('my_settings', url=reverse('creme_config__user_settings'), label=_(u'My settings')),
-                           priority=20
+                           priority=30,
                           )
             creme_menu.get('features') \
                       .add(ConfigContainerItem('creme_config')

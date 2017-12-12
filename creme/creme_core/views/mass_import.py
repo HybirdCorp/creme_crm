@@ -56,8 +56,7 @@ def mass_import(request, ct_id):
     user = request.user
 
     if Job.objects.filter(user=user).count() >= settings.MAX_JOBS_PER_USER:
-        # return HttpResponseRedirect('/creme_core/job/all')
-        return HttpResponseRedirect(reverse('creme_core__jobs'))
+        return HttpResponseRedirect(reverse('creme_core__my_jobs'))
 
     model = ct.model_class()
     user.has_perm_to_create_or_die(model)

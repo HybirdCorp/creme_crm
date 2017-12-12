@@ -331,6 +331,9 @@ class CremeCoreConfig(CremeAppConfig):
                               .add(ItemGroup('user', label=_(u'User'))
                                       .add(URLItem('my_page', url=reverse('creme_core__my_page'), label=_(u'My page')),
                                            priority=10,
+                                          )
+                                      .add(URLItem('my_jobs', url=reverse('creme_core__my_jobs'), label=_(u'My jobs')),
+                                           priority=20,
                                           ),
                                    priority=30,
                                   )
@@ -339,7 +342,9 @@ class CremeCoreConfig(CremeAppConfig):
                           ) \
                       .add(ItemGroup('features')
                                 .add(ContainerItem('tools', label=_(u'Tools'))
-                                        .add(URLItem('creme_core-jobs', url=reverse('creme_core__jobs'), label=_(u'My jobs')),
+                                        .add(URLItem('creme_core-jobs', url=reverse('creme_core__jobs'),
+                                                     label=_(u'Jobs'), perm=lambda user: user.is_superuser  # TODO: '*superuser*'' ?
+                                                    ),
                                              priority=5,
                                             ),
                                      priority=100,
@@ -371,6 +376,7 @@ class CremeCoreConfig(CremeAppConfig):
                                 bricks.StatisticsBrick,
                                 bricks.JobBrick,
                                 bricks.JobsBrick,
+                                bricks.MyJobsBrick,
                                )
 
     # def register_buttons(self, button_registry):

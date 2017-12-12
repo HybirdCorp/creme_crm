@@ -138,8 +138,9 @@ enumerable_patterns = [
 ]
 
 job_patterns = [
-    url(r'^all[/]?$',  job.listview, name='creme_core__jobs'),
-    url(r'^info[/]?$', job.get_info, name='creme_core__jobs_info'),
+    url(r'^all[/]?$',  job.list_all,  name='creme_core__jobs'),
+    url(r'^mine[/]?$', job.list_mine, name='creme_core__my_jobs'),
+    url(r'^info[/]?$', job.get_info,  name='creme_core__jobs_info'),
 
     url(r'^(?P<job_id>\d+)', include([
         url(r'^[/]?$',         job.detailview,                 name='creme_core__job'),

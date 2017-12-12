@@ -76,7 +76,8 @@
         </td>
         <td {% brick_table_data_status action %} >
         {% if job.type %}
-            {% brick_table_action id='redirect' url=job.get_absolute_url label=_('View this job') type='view' %}
+            {% url_join job.get_absolute_url list_url=request.path as view_uri %}
+            {% brick_table_action id='redirect' url=view_uri label=_('View this job') type='view' %}
         {% endif %}
         </td>
         <td {% brick_table_data_status action %} >

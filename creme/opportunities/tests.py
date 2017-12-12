@@ -13,6 +13,7 @@ try:
     from django.core.exceptions import ValidationError
     from django.core.urlresolvers import reverse
     from django.db.models import Max
+    from django.test.utils import override_settings
     from django.utils.formats import number_format
     from django.utils.translation import ugettext as _, ungettext
 
@@ -1368,6 +1369,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         # self.assertEqual(0, form.imported_objects_count)
 
+    @override_settings(MAX_JOBS_PER_USER=2)
     def test_csv_import05(self):
         "Creation credentials for Organisation & SalesPhase are forbidden."
         self.login(is_superuser=False,

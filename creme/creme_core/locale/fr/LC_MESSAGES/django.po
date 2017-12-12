@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-11 20:29+0100\n"
+"POT-Creation-Date: 2017-12-12 12:58+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -35,31 +35,38 @@ msgstr "Ma page"
 msgid "User"
 msgstr "Utilisateur"
 
-#: apps.py:337 templates/creme_core/base.html:83
-msgid "Log out"
-msgstr "Se déconnecter"
-
-#: apps.py:341
-msgid "Tools"
-msgstr "Outils"
-
-#: apps.py:342 templates/creme_core/base.html:87
+#: apps.py:335 templates/creme_core/base.html:90
+#: templates/creme_core/bricks/jobs-mine.html:17
+#: templates/creme_core/job/list-mine.html:4
 msgid "My jobs"
 msgstr "Mes jobs"
 
-#: apps.py:349
+#: apps.py:340 templates/creme_core/base.html:83
+msgid "Log out"
+msgstr "Se déconnecter"
+
+#: apps.py:344
+msgid "Tools"
+msgstr "Outils"
+
+#: apps.py:346 models/job.py:104 templates/creme_core/base.html:88
+#: templates/creme_core/bricks/jobs-all.html:17
+msgid "Jobs"
+msgstr "Jobs"
+
+#: apps.py:354
 msgid "+ Creation"
 msgstr "+ Création"
 
-#: apps.py:350
+#: apps.py:355
 msgid "Main entities"
 msgstr "Fiches principales"
 
-#: apps.py:352
+#: apps.py:357
 msgid "Other type of entity"
 msgstr "Autre type de fiche"
 
-#: apps.py:355
+#: apps.py:360
 msgid "Recent entities"
 msgstr "Fiches récentes"
 
@@ -133,7 +140,7 @@ msgstr "Relations"
 msgid "History"
 msgstr "Historique"
 
-#: bricks.py:282 gui/menu.py:584 templates/creme_core/base.html:85
+#: bricks.py:282 gui/menu.py:602 templates/creme_core/base.html:85
 #: templates/creme_core/trash.html:4 templates/creme_core/trash.html.py:8
 msgid "Trash"
 msgstr "Corbeille"
@@ -232,7 +239,8 @@ msgid "%(field)s => %(operator)s"
 msgstr "%(field)s => %(operator)s"
 
 #: core/entity_cell.py:192 forms/batch_process.py:193
-#: templates/creme_core/bricks/jobs.html:27
+#: templates/creme_core/bricks/jobs-all.html:27
+#: templates/creme_core/bricks/jobs-mine.html:24
 #: templates/creme_core/bricks/trash.html:18
 #: templates/creme_core/frags/list_view_content.html:248
 #: templates/creme_core/templatetags/widgets/entity_actions.html:32
@@ -1178,26 +1186,26 @@ msgid_plural "seconds"
 msgstr[0] "seconde"
 msgstr[1] "secondes"
 
-#: gui/menu.py:585
+#: gui/menu.py:603
 #, python-format
 msgid "%s entity"
 msgid_plural "%s entities"
 msgstr[0] "%s fiche"
 msgstr[1] "%s fiches"
 
-#: gui/menu.py:607 templates/creme_core/templatetags/quickforms_panel.html:3
+#: gui/menu.py:625 templates/creme_core/templatetags/quickforms_panel.html:3
 msgid "Quick creation"
 msgstr "Création rapide"
 
-#: gui/menu.py:630
+#: gui/menu.py:648
 msgid "No type available"
 msgstr "Aucun type disponible."
 
-#: gui/menu.py:801
+#: gui/menu.py:819
 msgid "Create an entity of any type"
 msgstr "Créer une fiche de n'importe quel type"
 
-#: gui/menu.py:835
+#: gui/menu.py:853
 msgid "No recently visited entity"
 msgstr "Aucune fiche récemment visitée"
 
@@ -2029,7 +2037,8 @@ msgid "Date"
 msgstr "Date"
 
 #: models/history.py:534 templates/creme_core/bricks/job.html:50
-#: templates/creme_core/bricks/jobs.html:22
+#: templates/creme_core/bricks/jobs-all.html:22
+#: templates/creme_core/bricks/jobs-mine.html:22
 #: templates/creme_core/bricks/trash.html:16
 #: templates/creme_core/templatetags/block_history.html:19
 #: templates/creme_core/templatetags/block_trash.html:25
@@ -2065,22 +2074,23 @@ msgid "Enabled"
 msgstr "Activé"
 
 #: models/job.py:87 templates/creme_core/bricks/job.html:80
-#: templates/creme_core/bricks/jobs.html:53
+#: templates/creme_core/bricks/jobs-all.html:53
 msgid "Reference run"
 msgstr "Exécution de référence"
 
 #: models/job.py:88 templates/creme_core/bricks/job.html:77
-#: templates/creme_core/bricks/jobs.html:24
+#: templates/creme_core/bricks/jobs-all.html:24
 msgid "Periodicity"
 msgstr "Périodicité"
 
 #: models/job.py:89 templates/creme_core/bricks/job.html:87
-#: templates/creme_core/bricks/jobs.html:25
+#: templates/creme_core/bricks/jobs-all.html:25
 msgid "Last run"
 msgstr "Dernière exécution"
 
 #: models/job.py:91 templates/creme_core/bricks/job.html:91
-#: templates/creme_core/bricks/jobs.html:26
+#: templates/creme_core/bricks/jobs-all.html:26
+#: templates/creme_core/bricks/jobs-mine.html:23
 msgid "Status"
 msgstr "Statut"
 
@@ -2103,10 +2113,6 @@ msgstr "Terminé avec succès"
 #: models/job.py:103 templates/creme_core/bricks/job.html:17
 msgid "Job"
 msgstr "Job"
-
-#: models/job.py:104 templates/creme_core/bricks/jobs.html:17
-msgid "Jobs"
-msgstr "Jobs"
 
 #: models/prefered_menu.py:28
 msgid "Label"
@@ -2275,11 +2281,11 @@ msgstr "Bienvenue, <strong>%(user)s</strong> (Fuseau horaire : %(TIME_ZONE)s)"
 msgid "My settings"
 msgstr "Ma configuration"
 
-#: templates/creme_core/base.html:141
+#: templates/creme_core/base.html:145
 msgid "Menu"
 msgstr "Menu"
 
-#: templates/creme_core/base.html:142
+#: templates/creme_core/base.html:146
 msgid "Back to Top"
 msgstr "Revenir au début"
 
@@ -2534,12 +2540,12 @@ msgid "Delete the job"
 msgstr "Supprimer le job"
 
 #: templates/creme_core/bricks/job.html:31
-#: templates/creme_core/bricks/jobs.html:66
+#: templates/creme_core/bricks/jobs-all.html:66
 msgid "Disable"
 msgstr "Désactiver"
 
 #: templates/creme_core/bricks/job.html:33
-#: templates/creme_core/bricks/jobs.html:68
+#: templates/creme_core/bricks/jobs-all.html:68
 msgid "Enable"
 msgstr "Activer"
 
@@ -2549,7 +2555,8 @@ msgstr ""
 "La désactivation ne prendra seulement effet qu'après l'exécution courante."
 
 #: templates/creme_core/bricks/job.html:54
-#: templates/creme_core/bricks/jobs.html:21
+#: templates/creme_core/bricks/jobs-all.html:21
+#: templates/creme_core/bricks/jobs-mine.html:21
 msgid "App"
 msgstr "App"
 
@@ -2558,7 +2565,7 @@ msgid "Description"
 msgstr "Description"
 
 #: templates/creme_core/bricks/job.html:81
-#: templates/creme_core/bricks/jobs.html:54
+#: templates/creme_core/bricks/jobs-all.html:54
 msgid "Every"
 msgstr "Chaque"
 
@@ -2566,43 +2573,57 @@ msgstr "Chaque"
 msgid "Not run yet"
 msgstr "Pas encore exécuté"
 
-#: templates/creme_core/bricks/jobs.html:17
+#: templates/creme_core/bricks/jobs-all.html:17
 #, python-brace-format
 msgid "{count} Job"
 msgstr "{count} Job"
 
-#: templates/creme_core/bricks/jobs.html:17
+#: templates/creme_core/bricks/jobs-all.html:17
 #, python-brace-format
 msgid "{count} Jobs"
 msgstr "{count} Jobs"
 
-#: templates/creme_core/bricks/jobs.html:23
+#: templates/creme_core/bricks/jobs-all.html:23
 msgid "Owner"
 msgstr "Propriétaire"
 
-#: templates/creme_core/bricks/jobs.html:36
+#: templates/creme_core/bricks/jobs-all.html:36
+#: templates/creme_core/bricks/jobs-mine.html:34
 msgid "You must delete your job in order to create a new one."
 msgstr "Vous devez supprimer votre job pour pouvoir en créer un nouveau"
 
-#: templates/creme_core/bricks/jobs.html:38
+#: templates/creme_core/bricks/jobs-all.html:38
+#: templates/creme_core/bricks/jobs-mine.html:36
 msgid "You must delete one of your jobs in order to create a new one."
 msgstr "Vous devez supprimer un de vos jobs pour pouvoir en créer un nouveau"
 
-#: templates/creme_core/bricks/jobs.html:74
+#: templates/creme_core/bricks/jobs-all.html:74
 msgid "Edit this job"
 msgstr "Modifier ce job"
 
-#: templates/creme_core/bricks/jobs.html:79
+#: templates/creme_core/bricks/jobs-all.html:80
+#: templates/creme_core/bricks/jobs-mine.html:54
 msgid "View this job"
 msgstr "Voir ce job"
 
-#: templates/creme_core/bricks/jobs.html:84
+#: templates/creme_core/bricks/jobs-all.html:85
+#: templates/creme_core/bricks/jobs-mine.html:59
 msgid "Delete this job"
 msgstr "Supprimer ce job"
 
-#: templates/creme_core/bricks/jobs.html:92
+#: templates/creme_core/bricks/jobs-all.html:93
+#: templates/creme_core/bricks/jobs-mine.html:67
 msgid "No job for the moment"
 msgstr "Aucun job pour le moment"
+
+#: templates/creme_core/bricks/jobs-mine.html:17
+msgid "My job"
+msgstr "Mon job"
+
+#: templates/creme_core/bricks/jobs-mine.html:17
+#, python-brace-format
+msgid "My jobs ({count})"
+msgstr "Mes jobs ({count})"
 
 #: templates/creme_core/bricks/massimport-errors.html:8
 #, python-brace-format
@@ -3092,11 +3113,12 @@ msgstr "Ligne du fichier"
 msgid "No error when importing."
 msgstr "Aucune erreur lors de l'import."
 
-#: templates/creme_core/job/detail.html:10 templates/creme_core/job/list.html:4
+#: templates/creme_core/job/detail.html:10
+#: templates/creme_core/job/list-all.html:4
 msgid "List of jobs"
 msgstr "Liste des jobs"
 
-#: templates/creme_core/job/list.html:7
+#: templates/creme_core/job/list-all.html:7
 msgid "Disabling a job takes effect only after its current execution."
 msgstr ""
 "La désactivation d'un job ne prendra seulement effet qu'après son exécution "
@@ -3799,12 +3821,12 @@ msgstr "Enregistrer la vue modifiée"
 msgid "View successfully deleted"
 msgstr "Vue supprimée avec succès"
 
-#: views/job.py:54
+#: views/job.py:61
 #, python-format
 msgid "Unknown job type (%s). Please contact your administrator."
 msgstr "Type de job inconnu(%s). Veuillez contacter votre administrateur."
 
-#: views/job.py:95
+#: views/job.py:98
 #, python-format
 msgid "Edit the job «%s»"
 msgstr "Modifier le job «%s»"

@@ -925,8 +925,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                           )
 
         response = self.assertGET200(self._build_import_url(FakeContact), follow=True)
-        # self.assertRedirects(response, '/creme_core/job/all')
-        self.assertRedirects(response, reverse('creme_core__jobs'))
+        self.assertRedirects(response, reverse('creme_core__my_jobs'))
 
     def test_credentials01(self):
         "Creation credentials for imported model"
