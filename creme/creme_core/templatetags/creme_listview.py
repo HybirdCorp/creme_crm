@@ -79,9 +79,9 @@ def get_listview_headerfilters(context):
     return context
 
 
-DEFAULT_PAGINATOR_TEMPLATE = 'creme_core/templatetags/listview/paginator_slow.html'
+DEFAULT_PAGINATOR_TEMPLATE = 'creme_core/templatetags/listview/paginator-slow.html'
 PAGINATOR_TEMPLATES = {
-    FlowPaginator: 'creme_core/templatetags/listview/paginator_fast.html',
+    FlowPaginator: 'creme_core/templatetags/listview/paginator-fast.html',
 }
 
 
@@ -247,7 +247,7 @@ def get_column_colspan(cell, is_readonly):
     return 2 if cell.type_id != 'actions' and not is_readonly else 1
 
 
-@register.inclusion_tag('creme_core/templatetags/listview/td_action.html')
+@register.inclusion_tag('creme_core/templatetags/listview/td-action.html')
 def listview_td_action_for_cell(cell, instance, user):
     return {
         'edit_url':  bulk_update_registry.inner_uri(cell=cell, instance=instance, user=user),

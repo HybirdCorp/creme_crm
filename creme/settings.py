@@ -412,10 +412,9 @@ TEST_RUNNER = 'creme.creme_core.utils.test.CremeDiscoverRunner'
 # GUI ##########################################################################
 
 # Main menu
-# LOGO_URL = 'images/creme_256_cropped.png'  # Big image in the side menu (for OLD_MENU = True)
-LOGO_URL = 'images/creme_30.png'  # Small image in the side menu
-# USE_STRUCT_MENU = True  # True = use the per app menu # DEPRECATED
 OLD_MENU = False  # True use pre 1.7 menu (left side menu, with items per app)
+LOGO_URL = 'images/creme_256_cropped.png'  # Big image in the side menu (only used when OLD_MENU = True)
+# USE_STRUCT_MENU = True  # True = use the per app menu
 
 BLOCK_SIZE = 10  # Lines number in common blocks
 MAX_LAST_ITEMS = 9  # Max number of items in the 'Last viewed items' bar

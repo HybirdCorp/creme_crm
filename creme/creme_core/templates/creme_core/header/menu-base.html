@@ -1,11 +1,22 @@
 {% load i18n creme_core_tags creme_menu creme_widgets %}
 <div class="header-menu">
+    {% block home_link %}
     <a id="logo" href="/" alt="{% trans 'Home' %}">
-        <img src="{% creme_media_url logo_url %}" height="30" width="30" alt="{% trans 'Home' %}">
+        {% block home_icon %}
+{% comment %} One way to customize the icon without having an icon per theme: (need to ooad 'media')
+        <img src="{% media_url 'common/images/my_icon_30.png' %}" height="30px" width="30px" alt="{% trans 'Home' %}">
+{% endcomment %}
+{#        <img src="{% creme_media_url logo_url %}" height="30px" width="30px" alt="{% trans 'Home' %}"> #}
+        {% widget_icon name='creme' size='header-menu-home' label=_('Home') class='header-menu-home-icon' %}
+        {% endblock %}
     </a>
-    {% get_header_menu %}
+    {% endblock %}
 
+    {% menu_display %}
+
+    {% block accessories %}
     <div class="accessories-box">
+        {% block search %}
         <div class="search-box">
             <input type="text" placeholder="{% trans 'Search' %}">
             <span class="search-box-icon default">
@@ -24,8 +35,12 @@
                 </div>
             </div>
         </div>
+        {% endblock %}
     </div>
+    {% endblock %}
+
     <script>
+    {% block script %}
         $(function () {
             creme.menu.bindEvents();
 
@@ -41,5 +56,6 @@
 
             new creme.search.SearchBox('.search-box', '{% url 'creme_core__light_search' %}', '{% url 'creme_core__search' %}');
         })
+    {% endblock %}
     </script>
 </div>
