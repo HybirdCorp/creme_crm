@@ -72,7 +72,8 @@ _ICON_SIZES_MAP = {
         'tiny':   16,
 
         # Semantic sizes (use these ones)
-        'header-menu': 22,
+        'header-menu-home': 30,
+        'header-menu':      22,
 
         # Brick sizes
         'brick-header':        48,
@@ -119,7 +120,8 @@ _ICON_SIZES_MAP = {
         'tiny':   12,
 
         # Semantic sizes (use these ones)
-        'header-menu': 16,
+        'header-menu-home': 30,
+        'header-menu':      16,
 
         # Brick sizes
         'brick-header':           16,

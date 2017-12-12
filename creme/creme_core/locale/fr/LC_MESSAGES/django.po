@@ -20,8 +20,8 @@ msgstr ""
 msgid "Core"
 msgstr "Cœur"
 
-#: apps.py:320 apps.py:329 templates/creme_core/frags/header_menu.html:3
-#: templates/creme_core/frags/header_menu.html:4
+#: apps.py:320 apps.py:329 templates/creme_core/frags/header-menu.html:3
+#: templates/creme_core/frags/header-menu.html:4
 #: templates/creme_core/home.html:8
 msgid "Home"
 msgstr "Accueil"
@@ -426,7 +426,7 @@ msgstr "Filtre"
 #: templates/creme_core/templatetags/listview_columns_header.html:14
 #: templates/creme_core/templatetags/listview_columns_header.html:21
 #: templates/creme_core/templatetags/listview_entityfilters.html:8
-#: templates/creme_core/templatetags/search_form.html:7
+#: templates/creme_core/templatetags/search-form.html:7
 #: templates/creme_core/templatetags/search_panel.html:9
 #: views/entity_filter.py:150 views/entity_filter.py:184
 msgid "All"
@@ -1621,7 +1621,7 @@ msgstr "Fiche #%s (non visible)"
 #: templates/creme_core/generics/form/edit.html:8
 #: templates/creme_core/generics/form/edit.html:14
 #: templates/creme_core/generics/form/edit_innerpopup.html:3
-#: templates/creme_core/templatetags/listview/td_action.html:1
+#: templates/creme_core/templatetags/listview/td-action.html:1
 #: templates/creme_core/templatetags/widgets/block_field_editor.html:6
 #: templates/creme_core/templatetags/widgets/block_line_editor.html:7
 #: templates/creme_core/templatetags/widgets/edit_button.html:10
@@ -2868,18 +2868,18 @@ msgstr ""
 msgid "Information"
 msgstr "Informations"
 
-#: templates/creme_core/frags/header_menu.html:10
-#: templates/creme_core/frags/header_menu.html:15
+#: templates/creme_core/frags/header-menu.html:10
+#: templates/creme_core/frags/header-menu.html:15
 msgid "Search"
 msgstr "Recherche"
 
-#: templates/creme_core/frags/header_menu.html:13
+#: templates/creme_core/frags/header-menu.html:13
 #: templates/creme_core/templatetags/bricks/title.html:2
 #: templates/creme_core/templatetags/bricks/title.html:8
 msgid "Loading…"
 msgstr "Chargement…"
 
-#: templates/creme_core/frags/header_menu.html:22
+#: templates/creme_core/frags/header-menu.html:22
 msgid "Advanced search"
 msgstr "Recherche avancée"
 
@@ -2902,7 +2902,7 @@ msgid "Import"
 msgstr "Importer"
 
 #: templates/creme_core/frags/list_view_content.html:138
-#: templates/creme_core/templatetags/search_form.html:4
+#: templates/creme_core/templatetags/search-form.html:4
 #: templates/creme_core/templatetags/search_panel.html:5
 msgctxt "creme_core-verb"
 msgid "Search"
@@ -3236,30 +3236,30 @@ msgstr "Fusion interdite"
 msgid "Last viewed pages:"
 msgstr "Dernières fiches consultées:"
 
-#: templates/creme_core/templatetags/listview/paginator_fast.html:4
-#: templates/creme_core/templatetags/listview/paginator_slow.html:5
+#: templates/creme_core/templatetags/listview/paginator-fast.html:4
+#: templates/creme_core/templatetags/listview/paginator-slow.html:5
 msgid "First page"
 msgstr "Première page"
 
-#: templates/creme_core/templatetags/listview/paginator_fast.html:5
-#: templates/creme_core/templatetags/listview/paginator_slow.html:4
+#: templates/creme_core/templatetags/listview/paginator-fast.html:5
+#: templates/creme_core/templatetags/listview/paginator-slow.html:4
 #: templates/creme_core/templatetags/widgets/block_footer.html:39
 #: templatetags/creme_bricks.py:702
 msgid "Previous page"
 msgstr "Page précédente"
 
-#: templates/creme_core/templatetags/listview/paginator_fast.html:6
-#: templates/creme_core/templatetags/listview/paginator_slow.html:12
+#: templates/creme_core/templatetags/listview/paginator-fast.html:6
+#: templates/creme_core/templatetags/listview/paginator-slow.html:12
 #: templates/creme_core/templatetags/widgets/block_footer.html:101
 #: templatetags/creme_bricks.py:721
 msgid "Next page"
 msgstr "Page suivante"
 
-#: templates/creme_core/templatetags/listview/paginator_slow.html:8
+#: templates/creme_core/templatetags/listview/paginator-slow.html:8
 msgid "«Enter» to submit"
 msgstr "Touche «Entrée» pour valider"
 
-#: templates/creme_core/templatetags/listview/paginator_slow.html:11
+#: templates/creme_core/templatetags/listview/paginator-slow.html:11
 msgid "Last page"
 msgstr "Dernière page"
 

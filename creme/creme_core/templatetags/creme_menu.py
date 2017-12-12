@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2017  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,25 +18,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from sys import maxint as MAXINT
-
 from django.conf import settings
 from django.db.models import Q
 from django.template import Library
 
-from ..models import PreferedMenuItem, ButtonMenuItem
 from ..gui.button_menu import button_registry
 from ..gui.menu import creme_menu
-from ..gui.last_viewed import LastViewedItem
-from ..utils.unicode_collation import collator
+from ..models import ButtonMenuItem
 
 
 register = Library()
 
 
 if settings.OLD_MENU:
+    from sys import maxint as MAXINT
+
     from django.template.context import RequestContext
 
+    from ..utils.unicode_collation import collator
 
     class MenuItem(object):
         __slots__ = ('url', 'name', 'has_perm')
@@ -92,7 +91,7 @@ if settings.OLD_MENU:
 
 
     @register.simple_tag
-    def get_header_menu():
+    def menu_display():
         return '<p>NEW MENU DISABLED</p>'
 else:
     @register.simple_tag
@@ -101,13 +100,15 @@ else:
 
 
     @register.simple_tag(takes_context=True)
-    def get_header_menu(context):
+    def menu_display(context):
         return creme_menu.render(context)
 
 
 # TODO: remove when old menu is removed (template too)
 @register.inclusion_tag('creme_core/templatetags/prefered_menu.html')
 def get_prefered_menu(request):
+    from ..models import PreferedMenuItem
+
     return {'items': PreferedMenuItem.objects.filter(Q(user=request.user) |
                                                      Q(user__isnull=True)
                                                     ).order_by('order'),
@@ -117,9 +118,13 @@ def get_prefered_menu(request):
 # TODO: remove when old menu is removed (template too)
 @register.inclusion_tag('creme_core/templatetags/last_items_menu.html')
 def get_last_items_menu(request):
+    from ..gui.last_viewed import LastViewedItem
+
     return {'items': LastViewedItem.get_all(request)}
 
 
+# TODO: rename (menu_button(s)_display ?)
+# TODO: rename template file (menu-buttons.html)
 @register.inclusion_tag('creme_core/templatetags/menu_buttons.html', takes_context=True)
 def get_button_menu(context):
     entity = context['object']

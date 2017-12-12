@@ -47,7 +47,7 @@ def get_search_panel(context):
     return context
 
 
-@register.inclusion_tag('creme_core/templatetags/search_form.html')
+@register.inclusion_tag('creme_core/templatetags/search-form.html')
 def search_form(user, selected_ct_id=None, search_terms=''):
     get_ct = ContentType.objects.get_for_model
     content_types = [{'id':           get_ct(model).id,
