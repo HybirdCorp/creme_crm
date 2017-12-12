@@ -204,6 +204,7 @@ TEMPLATES = [
                 'creme.creme_core.context_processors.get_version',
                 'creme.creme_core.context_processors.get_hidden_value',
                 'creme.creme_core.context_processors.get_django_version',
+                'creme.creme_core.context_processors.get_repository',
                 'creme.creme_core.context_processors.get_site_domain',
                 'creme.creme_core.context_processors.get_today',
                 'creme.creme_core.context_processors.get_css_theme',
@@ -427,6 +428,9 @@ DEFAULT_PAGE_SIZE_IDX = 1  # Index (0-based, in PAGE_SIZES) of the default size 
 
 # When <a> tags are generated in TextFields, add an attribute <target="_blank"> if the value is 'True'.
 URLIZE_TARGET_BLANK = False
+
+# URL used in the GUI to indicate the repository address
+REPOSITORY = 'https://bitbucket.org/hybird/creme_crm/src/'
 
 # GUI [END]#####################################################################
 

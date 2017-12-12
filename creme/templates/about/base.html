@@ -1,9 +1,9 @@
 {% load i18n media %}<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html class="error" xmlns="http://www.w3.org/1999/xhtml" lang="{{LANGUAGE_CODE}}" xml:lang="{{LANGUAGE_CODE}}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<html class="about" xmlns="http://www.w3.org/1999/xhtml" lang="{{LANGUAGE_CODE}}" xml:lang="{{LANGUAGE_CODE}}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <title>{% trans 'Error !' %}</title>
+    <title>{% trans 'About CremeCRM' %}</title>
     <link rel="shortcut icon" href="{% media_url 'common/images/favicon.ico' %}" type="image/x-icon" />
 </head>
 <style type="text/css">
@@ -55,7 +55,12 @@
             background-repeat: repeat-x;
         }
 
-        .error .containers {
+        .about a {
+            color: #167ee7;
+            text-decoration: none;
+        }
+
+        .about .containers {
             height: 100%;
 
             display: flex;
@@ -63,13 +68,13 @@
             align-items: center;
         }
 
-        .error .error-container {
+        .about .about-container {
             background: #fcfcfc;
             background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(rgba(245, 245, 245, 0.8)));
             background: -moz-linear-gradient(top, #fff 0%, rgba(245, 245, 245, 0.8) 100%);
             background-repeat: repeat-x;
 
-            width: 500px;
+            width: 512px;
 
             margin-right: auto;
             margin-left: auto;
@@ -84,26 +89,26 @@
             padding-top: 20px;
         }
 
-        .error .error-container .error-icon {
+        .about .about-container .about-icon {
             width: 200px;
             height: 200px;
             margin: 0 auto;
         }
 
-        .error .error-container .error-icon img {
+        .about .about-container .about-icon img {
             width: 200px;
             height: 200px;
         }
 
-        .error .main-content {
-            width: 350px;
+        .about .main-content {
+            width: 420px;
             margin: 0 auto;
             margin-top: 30px;
         }
 
-        .error .main-content .title {
+        .about .main-content .title {
             padding-bottom: 10px;
-            padding-left: 20px;
+            /* padding-left: 20px; */
 
             color: #444;
             font-size: 16px;
@@ -112,22 +117,45 @@
             border-bottom: 1px solid #999;
         }
 
-        .error .main-content .message {
+        .about .main-content .message {
             margin-top: 20px;
             margin-bottom: 30px;
+        }
+
+        .about .main-content .version {
+            margin-bottom: 30px;
+        }
+
+        .about .main-content .links {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
         }
     {% endblock %}
     </style>
 <body>
     <div class="containers">
-        <div class="error-container">
-            <div class="error-icon">{% block icon %}{% endblock %}</div>
+        <div class="about-container">
+            <div class="about-icon">{% block icon %}<img src="{% media_url 'common/images/creme_200.png' %}"/>{% endblock %}</div>
             <div class="main-content">
                 <div class="title">
-                    {% block title %}Creme Error{% endblock %}
+                    {% block title %}{% trans 'About CremeCRM' %}{% endblock %}
                 </div>
                 <div class="message">
-                    {% block error_message %}{% trans 'An internal error has occurred.' %}{% endblock %}
+                    {% block message %}
+                        <p>{% blocktrans with software='<a href="https://cremecrm.com">Crème</a>' creator='<a href="https://hybird.org">Hybird</a>' %}<strong>{{software}}</strong> is a <a href="https://en.wikipedia.org/wiki/Free_software">free</a> <a href="https://en.wikipedia.org/wiki/Customer_relationship_management"><abbr title="Customer relationship management">CRM</abbr></a>, cooked in France since 2008, by <strong>{{creator}}</strong>.{% endblocktrans %}</p>
+                        <p>{% blocktrans with python='<a href="https://www.python.org">Python</a>' django='<a href="https://www.djangoproject.com">Django</a>' jquery='<a href="https://jquery.com/">jQuery</a>' %}Its recipe uses delicious & free ingredients like the {{python}} language, the web framework {{django}} or the library {{jquery}}.{% endblocktrans %}</p>
+                    {% endblock %}
+                </div>
+                <div class="version">
+                    {% block version %}{% blocktrans %}Version {{creme_version}}{% endblocktrans %}{% endblock %}
+                </div>
+                <div class="links">
+                    {% block links %}
+                        {% block creme_source_code %}<div><a href="{{REPOSITORY}}">{% trans 'Source code' %}</a></div>{% endblock %}
+                        {% block creme_forum %}<div><a href="https://www.cremecrm.com/forum/">{% trans 'Ask questions' %}</a></div>{% endblock %}
+                        {% block creme_irc %}<div><a href="https://webchat.freenode.net/?channels=cremecrm">{% trans 'Talk with us' %}</a></div>{% endblock %}
+                    {% endblock %}
                 </div>
             </div>
         </div>
