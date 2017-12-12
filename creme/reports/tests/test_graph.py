@@ -54,9 +54,10 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
     def _build_add_graph_url(self, report):
         return reverse('reports__create_graph', args=(report.id,))
 
-    def _build_add_block_url(self, rgraph):
+    # def _build_add_block_url(self, rgraph):
+    def _build_add_brick_url(self, rgraph):
         # return '/reports/graph/%s/block/add' % rgraph.id
-        return reverse('reports__create_instance_block', args=(rgraph.id,))
+        return reverse('reports__create_instance_brick', args=(rgraph.id,))
 
     def _build_edit_url(self, rgraph):
         return reverse('reports__edit_graph', args=(rgraph.id,))
@@ -1877,7 +1878,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         rgraph = self._create_invoice_report_n_graph()
         self.assertFalse(InstanceBlockConfigItem.objects.filter(entity=rgraph.id).exists())
 
-        url = self._build_add_block_url(rgraph)
+        url = self._build_add_brick_url(rgraph)
         self.assertGET200(url)
         self.assertNoFormError(self.client.post(url))
 
@@ -1977,7 +1978,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         "Volatile column (RFT_FIELD)"
         rgraph = self._create_documents_rgraph()
 
-        url = self._build_add_block_url(rgraph)
+        url = self._build_add_brick_url(rgraph)
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -2111,7 +2112,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                                             ordinate='', is_count=True,
                                            )
 
-        url = self._build_add_block_url(rgraph)
+        url = self._build_add_brick_url(rgraph)
         response = self.assertGET200(url)
 
         with self.assertNoException():

@@ -4,7 +4,7 @@ from django.conf import settings
 from django.conf.urls import url
 
 from . import report_model_is_custom, rgraph_model_is_custom
-from .views import portal, export, report, graph, blocks
+from .views import portal, export, report, graph, bricks
 
 
 urlpatterns = [
@@ -35,7 +35,7 @@ urlpatterns = [
         graph.fetch_graph_from_instanceblock, name='reports__fetch_graph_from_block',
        ),  # DEPRECATED
 
-    url(r'^graph/(?P<graph_id>\d+)/block/add[/]?$', blocks.add_graph_instance_block, name='reports__create_instance_block'),
+    url(r'^graph/(?P<graph_id>\d+)/block/add[/]?$', bricks.add_graph_instance_brick, name='reports__create_instance_brick'),
 ]
 
 if not report_model_is_custom():
