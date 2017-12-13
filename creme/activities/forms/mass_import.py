@@ -586,9 +586,9 @@ def get_massimport_form_builder(header_dict, choices):
                                                        required=False,
                                                        # widget=UnorderedMultipleChoiceWidget,
                                                       )
-        participants        = ParticipantsExtractorField(choices, label=_('Participants'), required=False)
+        participants        = ParticipantsExtractorField(choices, label=_(u'Participants'), required=False)
 
-        subjects = SubjectsExtractorField(choices, label=_('Subjects (organisations only)'), required=False)
+        subjects = SubjectsExtractorField(choices, label=_(u'Subjects (organisations only)'), required=False)
 
         class Meta:
             exclude = ('type', 'sub_type', 'busy')
@@ -649,7 +649,7 @@ def get_massimport_form_builder(header_dict, choices):
                     instance.end = start + instance.type.as_timedelta()
                 elif start > instance.end:
                     instance.end = start + instance.type.as_timedelta()
-                    self.append_error(line, _('End time is before start time'), instance)
+                    self.append_error(line, _(u'End time is before start time'), instance)
             else:
                 instance.floating_type = constants.FLOATING
 

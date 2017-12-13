@@ -30,6 +30,7 @@ from django.core import validators
 from django.core.urlresolvers import reverse_lazy as reverse
 from django.db.models import Q, ManyToManyField, BooleanField as ModelBooleanField
 from django.db.models.fields import FieldDoesNotExist
+from django.db.transaction import atomic
 from django.forms.models import modelform_factory
 from django.forms import (ValidationError, Field, BooleanField, MultipleChoiceField,
         ModelChoiceField, ModelMultipleChoiceField, IntegerField)
@@ -427,11 +428,11 @@ class EntityExtractor(object):
                 created = model(user=user, **kwargs)
 
                 try:
-                    created.full_clean() # Can raise ValidationError
+                    created.full_clean()  # Can raise ValidationError
                     created.save()  # TODO should we use save points for this line ?
                 except Exception as e:
                     error_msg = _(u'Error while extracting value [%(raw_error)s]: '
-                                   'tried to retrieve and then build "%(value)s" on %(model)s') % {
+                                  u'tried to retrieve and then build "%(value)s" on %(model)s') % {
                                         'raw_error': e,
                                         'value': value,
                                         'model': model._meta.verbose_name,
@@ -440,7 +441,7 @@ class EntityExtractor(object):
                     extracted = created
             else:
                 error_msg = _(u'Error while extracting value [%(raw_error)s]: '
-                               'tried to retrieve "%(value)s" on %(model)s') % {
+                              u'tried to retrieve "%(value)s" on %(model)s') % {
                                     'raw_error': e,
                                     'value':     value,
                                     'model':     model._meta.verbose_name,
@@ -479,10 +480,10 @@ class EntityExtractorWidget(ExtractorWidget):
         return model._meta.app_label, model.__name__.lower()
 
     def _build_colselect_id(self, name, model_id):
-        return "{0}_{1}_{2}_colselect".format(name, *model_id)
+        return '{0}_{1}_{2}_colselect'.format(name, *model_id)
 
     def _build_create_id(self, name, model_id):
-        return "{0}_{1}_{2}_create".format(name, *model_id)
+        return '{0}_{1}_{2}_create'.format(name, *model_id)
 
     def _render_column_select(self, name, cmd, choices, model_id):
         sel_val = 0
@@ -551,8 +552,8 @@ class EntityExtractorField(Field):
 
     # TODO: default values + properties which update widget
     def __init__(self, models_info, choices, *args, **kwargs):
-        """@param model_info Sequence of tuple (Entity class, field name)
-                             Field name if used to get or create class instances.
+        """@param model_info: Sequence of tuple (Entity class, field name)
+                  Field name if used to get or create class instances.
         """
         super(EntityExtractorField, self).__init__(*args, **kwargs)
         self.models_info = models_info
@@ -624,9 +625,9 @@ class RelationExtractor(object):
             try:
                 object_entity = EntityCredentials.filter(user, model.objects.filter(**data)).first()
             except Exception as e:
-                err_msg = ugettext('Error while extracting value to build a Relation: '
-                                   'tried to retrieve %(field)s="%(value)s" (column %(column)s) on %(model)s. '
-                                   'Raw error: [%(raw_error)s]') % {
+                err_msg = ugettext(u'Error while extracting value to build a Relation: '
+                                   u'tried to retrieve %(field)s="%(value)s" (column %(column)s) on %(model)s. '
+                                   u'Raw error: [%(raw_error)s]') % {
                                         'raw_error': e,
                                         'column':    self._column_index,
                                         'field':     self._subfield_search,
@@ -643,18 +644,18 @@ class RelationExtractor(object):
                     if creator.is_valid():
                         object_entity = creator.save()
                     else:
-                        err_msg = ugettext('Error while extracting value: '
-                                           'tried to build %(model)s with data=%(data)s '
-                                           '(column %(column)s) => errors=%(errors)s') % {
+                        err_msg = ugettext(u'Error while extracting value: '
+                                           u'tried to build %(model)s with data=%(data)s '
+                                           u'(column %(column)s) => errors=%(errors)s') % {
                                                     'model':  model._meta.verbose_name,
                                                     'column': self._column_index,
                                                     'data':   data,
                                                     'errors': creator.errors,
                                                 }
                 else:
-                    err_msg = ugettext('Error while extracting value to build a Relation: '
-                                       'tried to retrieve %(field)s="%(value)s" '
-                                       '(column %(column)s) on %(model)s') % {
+                    err_msg = ugettext(u'Error while extracting value to build a Relation: '
+                                       u'tried to retrieve %(field)s="%(value)s" '
+                                       u'(column %(column)s) on %(model)s') % {
                                             'field': self._subfield_search,
                                             'column': self._column_index,
                                             'value': value,
@@ -862,8 +863,8 @@ class CustomFieldExtractor(object):
                                )
                     else:
                         err_msg = ugettext(u'Error while extracting value: tried to retrieve '
-                                            'the choice "%(value)s" (column %(column)s). '
-                                            'Raw error: [%(raw_error)s]') % {
+                                           u'the choice "%(value)s" (column %(column)s). '
+                                           u'Raw error: [%(raw_error)s]') % {
                                                         'raw_error': e,
                                                         'column':    self._column_index,
                                                         'value':     value,
@@ -909,7 +910,7 @@ class CustomFieldExtractorWidget(ExtractorWidget):
                         }
                       )
 
-        defval_id = "%s_defval" % attrs['id']
+        defval_id = '%s_defval' % attrs['id']
         out_append(u'</td><td>&nbsp;<label for="%s">%s:%s</label></td></tr></tbody></table>' % (
                         defval_id,
                         ugettext('Default value'),
@@ -1016,16 +1017,16 @@ class ImportForm(CremeModelForm):
     key_fields = MultipleChoiceField(label=_(u'Key fields'), required=False,
                                      choices=(),
                                      widget=UnorderedMultipleChoiceWidget(columntype='wide'),
-                                     help_text=_('Select at least one field if you want to use the "update" mode. '
-                                                 'If an entity already exists with the same field values, it will be simply updated '
-                                                 '(ie: a new entity will not be created).\n'
-                                                 'But if several entities are found, a new entity is created (in order to avoid errors).'
+                                     help_text=_(u'Select at least one field if you want to use the "update" mode. '
+                                                 u'If an entity already exists with the same field values, it will be simply updated '
+                                                 u'(ie: a new entity will not be created).\n'
+                                                 u'But if several entities are found, a new entity is created (in order to avoid errors).'
                                                 ),
                                     )
 
     error_messages = {
-        'invalid_document': _("This document doesn't exist or doesn't exist any more."),
-        'forbidden_read': _("You have not the credentials to read this document."),
+        'invalid_document': _(u"This document doesn't exist or doesn't exist any more."),
+        'forbidden_read': _(u"You have not the credentials to read this document."),
     }
 
     choices = [(0, 'Not in the file')] + [(i, 'Column %s' % i) for i in xrange(1, 21)]  # Overloaded by factory
@@ -1137,77 +1138,77 @@ class ImportForm(CremeModelForm):
 
         append_error = self.append_error
         key_fields = frozenset(get_cleaned('key_fields'))
-        i = 0
-
         is_empty_value = lambda s: s is None or isinstance(s, basestring) and not s.strip()
 
         for i, line in enumerate(filter(None, lines), start=1):
+            job_result = MassImportJobResult(job=job, line=line)
+
             try:
-                instance = model_class()
-                updated = False  # 'True' means: object has been updated, not created from scratch
+                with atomic():
+                    instance = model_class()
+                    updated = False  # 'True' means: object has been updated, not created from scratch
 
-                extr_values = []
-                for fname, extractor in extractor_fields:
-                    extr_value, err_msg = extractor.extract_value(line)
+                    extr_values = []
+                    for fname, extractor in extractor_fields:
+                        extr_value, err_msg = extractor.extract_value(line)
 
-                    # TODO: Extractor.extract_value() should return a ExtractedValue
-                    #       instead of a tuple (an so we could remove the ugly following line...)
-                    is_empty = not extractor._column_index or is_empty_value(line[extractor._column_index - 1])
-                    extr_values.append((fname, extr_value, is_empty))
+                        # TODO: Extractor.extract_value() should return a ExtractedValue
+                        #       instead of a tuple (an so we could remove the ugly following line...)
+                        is_empty = not extractor._column_index or is_empty_value(line[extractor._column_index - 1])
+                        extr_values.append((fname, extr_value, is_empty))
 
-                    append_error(line, err_msg, instance)
+                        append_error(line, err_msg, instance)
 
-                if key_fields:
-                    try:
-                        instance = model_class.objects.exclude(is_deleted=True) \
-                                                      .get(**dict((fname, extr_value) 
+                    if key_fields:
+                        # We avoid using exception within 'atomic' block
+                        found = model_class.objects.exclude(is_deleted=True) \
+                                                   .filter(**dict((fname, extr_value)
                                                                     for fname, extr_value, __ in extr_values
                                                                         if fname in key_fields
                                                                  )
-                                                          )
-                        updated = True
-                    except model_class.MultipleObjectsReturned:
-                        append_error(line,
-                                     ugettext('Several entities corresponding to the search have been found. '
-                                              'So a new entity have been created to avoid errors.'
-                                             ),
-                                     instance
-                                    )
-                    except model_class.DoesNotExist:
-                        pass
-                    except Exception as e:  # Should not happen
-                        append_error(line, str(e), instance)
+                                                          )[:2]
 
-                for fname, cleaned_value in regular_fields:
-                    setattr(instance, fname, cleaned_value)
+                        if found:
+                            if len(found) == 1:
+                                instance = found[0]
+                                job_result.updated = updated = True
+                            else:
+                                append_error(line,
+                                             ugettext(u'Several entities corresponding to the search have been found. '
+                                                      u'So a new entity have been created to avoid errors.'
+                                                     ),
+                                             instance
+                                            )
 
-                for fname, extr_value, is_empty in extr_values:
-                    if updated and is_empty:
-                        continue
+                    for fname, cleaned_value in regular_fields:
+                        setattr(instance, fname, cleaned_value)
 
-                    setattr(instance, fname, extr_value)
+                    for fname, extr_value, is_empty in extr_values:
+                        if updated and is_empty:
+                            continue
 
-                self._pre_instance_save(instance, line)
+                        setattr(instance, fname, extr_value)
 
-                instance.full_clean()
-                instance.save()
+                    self._pre_instance_save(instance, line)
 
-                # if updated:
-                #     self.updated_objects_count += 1
-                # else:
-                #     self.imported_objects_count += 1
+                    instance.full_clean()
+                    instance.save()
 
-                self._post_instance_creation(instance, line, updated)
+                    self._post_instance_creation(instance, line, updated)
 
-                for m2m in self._meta.model._meta.many_to_many:
-                    extractor = get_cleaned(m2m.name)  # Can be a regular_field ????
-                    if extractor:
-                        # TODO: factorise
-                        extr_value, err_msg = extractor.extract_value(line)
-                        setattr(instance, m2m.name, extr_value)
-                        append_error(line, err_msg, instance)
+                    for m2m in self._meta.model._meta.many_to_many:
+                        extractor = get_cleaned(m2m.name)  # Can be a regular_field ????
+                        if extractor:
+                            # TODO: factorise
+                            extr_value, err_msg = extractor.extract_value(line)
+                            setattr(instance, m2m.name, extr_value)
+                            append_error(line, err_msg, instance)
+
+                    job_result.entity = instance
+                    if self.import_errors:
+                        job_result.messages = self.import_errors
+                    job_result.save()
             except Exception as e:
-                # logger.exception('Exception in CSV importing')
                 logger.exception('Exception in Mass importing')
 
                 try:
@@ -1217,14 +1218,8 @@ class ImportForm(CremeModelForm):
                 except:
                     append_error(line, str(e), instance)
 
-            kwargs = {}
-            if instance.pk:
-                kwargs['entity'] = instance
-
-            if self.import_errors:
-                kwargs['messages'] = self.import_errors
-
-            MassImportJobResult.objects.create(job=job, line=line, updated=updated, **kwargs)
+                job_result.messages = self.import_errors
+                job_result.save()
 
             self.import_errors[:] = ()
 
@@ -1232,7 +1227,7 @@ class ImportForm(CremeModelForm):
 
 
 class ImportForm4CremeEntity(ImportForm):
-    user            = ModelChoiceField(label=_('Owner user'), empty_label=None,
+    user            = ModelChoiceField(label=_(u'Owner user'), empty_label=None,
                                        queryset=get_user_model().objects.filter(is_staff=False),
                                       )
     property_types  = ModelMultipleChoiceField(label=_(u'Properties'), required=False,
@@ -1252,7 +1247,7 @@ class ImportForm4CremeEntity(ImportForm):
        )
 
     error_messages = dict(ImportForm.error_messages,
-                          creation_forbidden=_('You are not allowed to create: %(model)s'),
+                          creation_forbidden=_(u'You are not allowed to create: %(model)s'),
                          )
 
     def __init__(self, *args, **kwargs):
