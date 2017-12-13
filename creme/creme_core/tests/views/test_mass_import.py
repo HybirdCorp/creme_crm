@@ -922,6 +922,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         Job.objects.create(user=user,
                            type_id=mass_import_type.id,
                            language='en',
+                           status=Job.STATUS_WAIT,
                           )
 
         response = self.assertGET200(self._build_import_url(FakeContact), follow=True)

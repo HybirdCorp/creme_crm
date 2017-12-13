@@ -421,37 +421,22 @@ class JobsBrick(QuerysetBrick):
     page_size     = 50
     permission    = None
 
+    def _jobs_qs(self, context):
+        return Job.objects.all()
+
     def detailview_display(self, context):
-        user = context['user']
-        jobs = Job.objects.all()
-
-        if not user.is_superuser:
-            jobs = jobs.filter(user=user)
-
         return self._render(self.get_template_context(
-                    context, jobs,
-                    # TODO: computed twice when user is not superuser...
-                    user_jobs_count=Job.objects.filter(user=user).count(),
+                    context, self._jobs_qs(context),
+                    not_finished_user_jobs_count=Job.not_finished_jobs(context['user']).count(),
                     MAX_JOBS_PER_USER=settings.MAX_JOBS_PER_USER,
-                    # JOB_WAIT=Job.STATUS_WAIT,
-                    # PERIODIC=JobType.PERIODIC,
                     NOT_PERIODIC=JobType.NOT_PERIODIC,
         ))
 
 
-class MyJobsBrick(QuerysetBrick):
+class MyJobsBrick(JobsBrick):
     id_           = QuerysetBrick.generate_id('creme_core', 'my_jobs')
-    dependencies  = (Job,)
-    # order_by      = '-created'
-    verbose_name  = 'Jobs'
+    verbose_name  = 'My jobs'
     template_name = 'creme_core/bricks/jobs-mine.html'
-    configurable  = False
-    page_size     = 50
-    permission    = None
 
-    def detailview_display(self, context):
-        return self._render(self.get_template_context(
-                    context,
-                    Job.objects.filter(user=context['user']),
-                    MAX_JOBS_PER_USER=settings.MAX_JOBS_PER_USER,
-        ))
+    def _jobs_qs(self, context):
+        return Job.objects.filter(user=context['user'])

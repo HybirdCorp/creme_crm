@@ -57,13 +57,15 @@ MIGRATION_MODULES = {
 FAST_QUERY_MODE_THRESHOLD = 100000
 
 # JOBS #########################################################################
-# Maximum number of jobs each user can have at the same time. When this number
-# is reached for a user, he must terminate one of his jobs in order to create a
-# new one (ie: generally he'll wait that one of his existing jobs to be
-# finished before he terminate it, of course).
-# It allows you to avoid that a user, for example, create a lots of CSV imports
-# & does not understand why they do not start immediately (see MAX_USER_JOBS).
-MAX_JOBS_PER_USER = 1
+# Maximum number of not finished jobs each user can have at the same time.
+#  When this number is reached for a user, he must wait one of his
+# running/waiting jobs is finished in order to create a new one
+# It allows you :
+#  - to avoid that a user, for example, create a lots of CSV imports
+#    & does not understand why they do not start immediately (see MAX_USER_JOBS).
+#  - avoid that a user creates several jobs which hold all the slots for
+#    user-jobs (see MAX_USER_JOBS), avoiding other user to run their own jobs.
+MAX_JOBS_PER_USER = 2
 
 # Maximum of jobs which can run at the same time. When this number is reached,
 # a new created job will have to wait that a running jobs is finished).
@@ -71,7 +73,7 @@ MAX_JOBS_PER_USER = 1
 # Notice that system jobs (sending mails, retrieving mails...) count is not
 # limited (because they are created at installation, so their number &
 # periodicity can be precisely managed).
-MAX_USER_JOBS = 2
+MAX_USER_JOBS = 5
 
 # 'security' period for pseudo-periodic jobs : they will be run at least with
 # this periodicity, even if they do not receive a new request (in order to reduce

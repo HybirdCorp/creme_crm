@@ -295,15 +295,17 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         "Max job message"
         self.login()
 
-        Job.objects.create(type_id=batch_process_type.id)  # No user -> not counted in max
+        # Not counted in max
+        self._create_batchprocess_job(status=Job.STATUS_OK)  # Finished
+        Job.objects.create(type_id=batch_process_type.id)  # No user
 
         response = self.assertGET200(self.LIST_URL)
         self.assertTemplateUsed(response, 'creme_core/job/list-all.html')
 
-        msg = _(u'You must delete your job in order to create a new one.')
+        msg = _(u'You must wait that your job is finished in order to create a new one.')
         self.assertNotContains(response, msg)
 
-        self._create_batchprocess_job()
+        self._create_batchprocess_job(status=Job.STATUS_WAIT)
 
         response = self.assertGET200(self.LIST_URL)
         self.assertTemplateUsed(response, 'creme_core/job/list-all.html')
@@ -315,11 +317,11 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.login()
 
         for i in xrange(2):
-            self._create_batchprocess_job()
+            self._create_batchprocess_job(status=Job.STATUS_WAIT)
 
         response = self.assertGET200(self.LIST_URL)
         self.assertContains(response,
-                            _(u'You must delete one of your jobs in order to create a new one.')
+                            _(u'You must wait that one of your jobs is finished in order to create a new one.')
                            )
 
     def test_jobs_all05(self):
@@ -356,15 +358,17 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         "Max job message"
         self.login()
 
-        Job.objects.create(type_id=batch_process_type.id)  # No user -> not counted in max
+        # Not counted in max
+        self._create_batchprocess_job(status=Job.STATUS_ERROR)  # Finished
+        Job.objects.create(type_id=batch_process_type.id, status=Job.STATUS_OK)  # No user
 
         response = self.assertGET200(self.MINE_URL)
         self.assertTemplateUsed(response, 'creme_core/job/list-mine.html')
 
-        msg = _(u'You must delete your job in order to create a new one.')
+        msg = _(u'You must wait that your job is finished in order to create a new one.')
         self.assertNotContains(response, msg)
 
-        self._create_batchprocess_job()
+        self._create_batchprocess_job(status=Job.STATUS_WAIT)
 
         response = self.assertGET200(self.MINE_URL)
         self.assertTemplateUsed(response, 'creme_core/job/list-mine.html')
@@ -376,11 +380,11 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.login()
 
         for i in xrange(2):
-            self._create_batchprocess_job()
+            self._create_batchprocess_job(status=Job.STATUS_WAIT)
 
         response = self.assertGET200(self.MINE_URL)
         self.assertContains(response,
-                            _(u'You must delete one of your jobs in order to create a new one.')
+                            _(u'You must wait that one of your jobs is finished in order to create a new one.')
                            )
 
     def test_my_jobs05(self):
