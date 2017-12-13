@@ -69,64 +69,30 @@ creme.bricks.dialogActionButtons = function(dialog) {
 
 creme.bricks.DialogAction = creme.dialog.DialogAction.sub({
     _init_: function(options, listeners) {
-        this._super_(creme.dialog.DialogAction, '_init_', options);
-        this._listeners = listeners || {};
-        // TODO : remove specific code, dialog.DialogAction now supports listeners:
-        /*
-        listeners = $.extend({
-            'frame-activated': function() {
-                creme.bricks.dialogActionButtons(this);
-                creme.bricks.dialogCenterPosition(this);
-            }
-        }, listeners || {});
         this._super_(creme.dialog.DialogAction, '_init_', options, listeners);
-        */
     },
 
-    _openPopup: function(options) {
-        options = $.extend(this.options(), options || {});
+    _buildPopup: function(options) {
+        var popup = this._super_(creme.dialog.DialogAction, '_buildPopup', options);
 
-        this._dialog = new creme.dialog.Dialog(options).onClose(this._onClose.bind(this))
-                                                       .on('frame-activated', function() {
-                                                            creme.bricks.dialogActionButtons(this);
-                                                            creme.bricks.dialogCenterPosition(this);
-                                                        })
-                                                       .on(this._listeners)
-                                                       .open();
+        return popup.on('frame-activated', function() {
+            creme.bricks.dialogActionButtons(this);
+            creme.bricks.dialogCenterPosition(this);
+        });
     }
 });
 
 creme.bricks.FormDialogAction = creme.dialog.FormDialogAction.sub({
     _init_: function(options, listeners) {
-        this._super_(creme.dialog.FormDialogAction, '_init_', options);
-        this._listeners = listeners || {};
-        // TODO : remove specific code, dialog.FormDialogAction now supports listeners:
-        /*
-        listeners = $.extend({
-            'frame-update': function() {
-                creme.bricks.dialogCenterPosition(this);
-            }
-        }, listeners || {});
         this._super_(creme.dialog.FormDialogAction, '_init_', options, listeners);
-        */
     },
 
-    _openPopup: function(options) {
-        var self = this;
-        options = $.extend(this.options(), options || {});
+    _buildPopup: function(options) {
+        var popup = this._super_(creme.dialog.FormDialogAction, '_buildPopup', options);
 
-        this._dialog = new creme.dialog.FormDialog(options);
-        this._dialog.onFormSuccess(function(event, data) {
-                         self._onSubmit(data);
-                     })
-                    .onClose(function() {
-                         self.cancel();
-                     })
-                    .on('frame-update', function() {
-                         creme.bricks.dialogCenterPosition(this);
-                     })
-                    .on(this._listeners)
-                    .open();
+        return popup.on('frame-update', function() {
+            creme.bricks.dialogCenterPosition(this);
+        });
     }
 });
 

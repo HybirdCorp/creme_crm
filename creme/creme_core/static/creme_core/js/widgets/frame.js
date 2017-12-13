@@ -16,29 +16,32 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.widget.Frame = creme.widget.declare('ui-creme-frame', {
 
     options: {
-        backend:        new creme.ajax.Backend({dataType: 'html'}),
+        backend:        creme.ajax.defaultBackend(),
         url:            undefined,
         overlay_delay:  100
     },
 
-    _create: function(element, options, cb, sync)
-    {
+    _create: function(element, options, cb, sync) {
         this._overlay = new creme.dialog.Overlay();
         this._overlay.bind(element)
                      .addClass('frame-loading');
 
         var frame = this._frame = new creme.dialog.Frame({backend: options.backend});
 
-        frame.on('update', function(event, data, type) {
+        frame.onUpdate(function(event, data, type) {
                   element.trigger('update', [data, type]);
               })
-             .on('fetch-fail submit-fail', function(event, data, error) {
-                  element.trigger('fetch-fail' === event ? 'reloadError' : 'submitError', [data, error]);
+             .onFetchFail(function(event, data, error) {
+                  element.trigger('reloadError', [data, error]);
+              })
+             .onSubmitFail(function(event, data, error) {
+                  element.trigger('submitError', [data, error]);
               })
              .bind(element)
              .overlayDelay(options.overlay_delay)
@@ -66,35 +69,26 @@ creme.widget.Frame = creme.widget.declare('ui-creme-frame', {
         creme.object.invoke(cb, data);
     },
 
-    reset: function(element, cb)
-    {
+    reset: function(element, cb) {
         this._frame.clear();
         this._lasturl = undefined;
         creme.object.invoke(cb);
     },
 
-    reload: function(element, url, data, listeners)
-    {
-        var self = this;
-        var options = this.options;
-        var url = url || this.url();
-        var listeners = listeners || {};
+    reload: function(element, url, data, listeners) {
+        listeners = listeners || {};
+        url = url || this.url();
 
         this._lasturl = url;
 
-        if (Object.isNone(url) === false) {
+        if (Object.isEmpty(url) === false) {
             this._frame.fetch(url, {}, data, listeners);
         }
     },
 
-    submit: function(element, form, listeners)
-    {
-        var self = this;
-        var options = this.options;
-        var listeners = listeners || {};
-        var url = this.url();
-
-        this._frame.submit(url, {}, form, listeners);
+    submit: function(element, form, listeners) {
+        listeners = listeners || {};
+        this._frame.submit(this.url(), {}, form, listeners);
     }
 });
 

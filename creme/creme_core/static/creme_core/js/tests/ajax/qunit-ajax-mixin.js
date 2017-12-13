@@ -14,11 +14,14 @@
             };
 
             this.backend = this.buildMockBackend();
+
+            // console.info('[qunit-ajax-mixin] setup backend', this.backend.options);
             creme.ajax.defaultBackend(this.backend);
         },
 
         afterEach: function(env) {
             creme.utils.goTo = this.__goTo;
+            // console.info('[qunit-ajax-mixin] teardown backend');
             creme.ajax.defaultBackend(new creme.ajax.Backend());
         },
 

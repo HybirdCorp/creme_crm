@@ -52,8 +52,8 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         this.frame().on('before-submit before-fetch', disable_buttons);
 
         this._submitListeners = {
-            done: this._onSubmitDone.bind(this),
-            fail: this._onSubmitFail.bind(this)
+            'submit-done': this._onSubmitDone.bind(this),
+            'submit-fail': this._onSubmitFail.bind(this)
         };
 
         this._submitKeyCb = this._onSubmitKey.bind(this);
@@ -282,22 +282,28 @@ creme.dialog.FormDialogAction = creme.component.Action.sub({
         this._listeners = listeners || {};
     },
 
-    _onSubmit: function(data, statusText, dataType) {
+    _onSubmit: function(event, data, statusText, dataType) {
         if ($.matchIEVersion(7, 8, 9)) {
             data = data.endsWith('</json>') || data.endsWith('</JSON>') ? data.substr(0, data.length - '</json>'.length) : data;
+            dataType = 'text/json';
         }
 
-        this.done(data);
+        this.done(data, dataType);
     },
 
-    _openPopup: function(options) {
+    _buildPopup: function(options) {
         var self = this;
         options = $.extend(this.options(), options || {});
 
-        new creme.dialog.FormDialog(options).onFormSuccess(function(event, data) { self._onSubmit(data); })
-                                            .onClose(function() { self.cancel(); })
-                                            .on(this._listeners)
-                                            .open();
+        return new creme.dialog.FormDialog(options).onFormSuccess(this._onSubmit.bind(this))
+                                                   .onClose(function() {
+                                                        self.cancel();
+                                                    })
+                                                   .on(this._listeners);
+    },
+
+    _openPopup: function(options) {
+        this._buildPopup(options).open();
     }
 });
 }(jQuery));

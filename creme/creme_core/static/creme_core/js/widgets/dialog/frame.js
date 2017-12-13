@@ -23,6 +23,11 @@
 (function($) {
 "use strict";
 
+var __WRAPPED_JSON_RESPONSE_PATTERNS = [
+    '^[\s]*<json>(.*)</json>[\s]*$',
+    '^[\s]*<pre[^>]*>(.*)</pre>[\s]*$'
+];
+
 creme.dialog = creme.dialog || {};
 
 creme.dialog.Frame = creme.component.Component.sub({
@@ -70,20 +75,28 @@ creme.dialog.Frame = creme.component.Component.sub({
         return this.on('submit-fail', listener);
     },
 
-    _cleanJSONResponse: function(response) {
-        var json_matches = response.match('^[\s]*<json>(.*)</json>[\s]*$');
-        var json_data = (json_matches !== null && json_matches.length === 2) ? json_matches[1] : undefined;
+    _cleanJSONResponse: function(response, dataType) {
+        for (var i in __WRAPPED_JSON_RESPONSE_PATTERNS) {
+            var pattern = new RegExp(__WRAPPED_JSON_RESPONSE_PATTERNS[i], 'i');
 
-        if (json_data && this._json.isJSON(json_data)) {
-            return {content: json_data, type: 'text/json'};
+            var json_matches = response.match(pattern);
+            var json_data = (json_matches !== null && json_matches.length === 2) ? json_matches[1] : undefined;
+
+            if (json_data && this._json.isJSON(json_data)) {
+                return {content: json_data, type: 'text/json'};
+            }
         }
 
-        return null;
+        if (this._json.isJSON(response)) {
+            return {content: response, type: 'text/json'};
+        }
+
+        return {content: response, type: dataType};
     },
 
     _cleanResponse: function(response, statusText, dataType) {
-        if (Object.isString(response)) {
-            return this._cleanJSONResponse(response) || {content: response, type: dataType || 'text/html'};
+        if (Object.isString(response) && !Object.isEmpty(response)) {
+            return this._cleanJSONResponse(response, dataType || 'text/html');
         } else if (Object.isType(response, 'object')) {
             if (creme.utils.isHTMLDataType(response.type)) {
                 return response;
@@ -212,6 +225,8 @@ creme.dialog.Frame = creme.component.Component.sub({
         query.one(listeners)
              .url(url || '')
              .get(data, options);
+
+        return this;
     },
 
     submit: function(url, options, form, listeners) {
@@ -224,11 +239,13 @@ creme.dialog.Frame = creme.component.Component.sub({
         var overlay = this._overlay;
         var events = this._events;
 
+        this._events.one(listeners);
         this._events.trigger('before-submit', [form, options], this);
 
         if (Object.isEmpty(options.action)) {
             overlay.update(true, 404, 0);
             events.trigger('submit-fail', ['', new creme.ajax.XHR({responseText: '', status: 404})], this);
+            return this;
         }
 
         this._overlay.content('')
@@ -239,18 +256,17 @@ creme.dialog.Frame = creme.component.Component.sub({
                              function(response, statusText, xhr) {
                                  var dataType = xhr.getResponseHeader('Content-Type').split(';')[0];
                                  var cleaned = self._cleanResponse(response, statusText, dataType);
-
                                  self.fill(cleaned, 'submit');
                                  events.trigger('submit-done', [cleaned.content, statusText, cleaned.type], this);
-                                 creme.object.invoke(listeners.done, 'done', cleaned.content, statusText, cleaned.type);
                              },
                              function(response, error) {
                                  overlay.update(true, error ? error.status : 500, 0)
                                         .content(self._formatOverlayContent(url, response, error));
                                  events.trigger('submit-fail', [response, error], this);
-                                 creme.object.invoke(listeners.fail, 'fail', response, error);
                              },
                              options);
+
+        return this;
     },
 
     bind: function(delegate) {

@@ -584,13 +584,18 @@ creme.dialog.DialogAction = creme.component.Action.sub({
         this.done();
     },
 
-    _openPopup: function(options) {
+    _buildPopup: function(options) {
         var self = this;
         options = $.extend(this.options(), options || {});
 
         this._dialog = new creme.dialog.Dialog(options).onClose(function() { self._onClose(); })
-                                                       .on(this._listeners)
-                                                       .open();
+                                                       .on(this._listeners);
+
+        return this._dialog;
+    },
+
+    _openPopup: function(options) {
+        this._buildPopup(options).open();
     }
 });
 
