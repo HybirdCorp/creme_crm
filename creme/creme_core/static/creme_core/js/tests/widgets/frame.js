@@ -1,12 +1,4 @@
-MockFrame = function(backend) {
-    return $.extend({}, creme.widget.Frame, {
-        options: {
-            url:'',
-            backend: backend,
-            overlay_delay: 100
-        }
-    });
-};
+(function($) {
 
 function mock_frame_create(url, noauto) {
     var select = $('<div widget="ui-creme-frame" class="ui-creme-frame ui-creme-widget"/>');
@@ -23,63 +15,80 @@ function mock_frame_create(url, noauto) {
 var MOCK_FRAME_CONTENT = '<div class="mock-content"><h1>This a frame test</h1></div>';
 var MOCK_FRAME_CONTENT_LIST = '<div class="mock-content"><ul><li>Item 1</li><li>Item 2</li></ul></div>';
 var MOCK_FRAME_CONTENT_FORM = '<form action="mock/submit"><input type="text" id="firstname"/><input type="text" id="lastname"/></form>'
+var MOCK_FRAME_CONTENT_FORM_NOACTION = '<form action=""><input type="text" id="firstname"/><input type="text" id="lastname"/></form>'
 var MOCK_FRAME_CONTENT_SUBMIT_JSON = '<json>' + $.toJSON({value:1, added:[1, 'John Doe']}) + '</json>';
 var MOCK_FRAME_CONTENT_SUBMIT_JSON_NOTAG = $.toJSON({value:1, added:[1, 'John Doe']});
 var MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID = '<json>' + '{"value":1, added:[1, "John Doe"}' + '</json>';
 
-QUnit.module("creme.widget.frame.js", {
-    setup: function() {
-        var self = this;
-        this.backend = new creme.ajax.MockAjaxBackend({delay:150, sync:true});
-        $.extend(this.backend.GET, {'mock/html': this.backend.response(200, MOCK_FRAME_CONTENT),
-                                    'mock/html2': this.backend.response(200, MOCK_FRAME_CONTENT_LIST),
-                                    'mock/submit': this.backend.response(200, MOCK_FRAME_CONTENT_FORM),
-                                    'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
-                                    'mock/error': this.backend.response(500, 'HTTP - Error 500'),
-                                    'mock/custom': function(url, data, options) {
-                                        return self._custom_GET(url, data, options);
-                                     }});
-
-        $.extend(this.backend.POST, {'mock/submit/json': this.backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON),
-                                     'mock/submit': this.backend.response(200, MOCK_FRAME_CONTENT_FORM),
-                                     'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
-                                     'mock/error': this.backend.response(500, 'HTTP - Error 500')});
-
-        creme.widget.unregister('ui-creme-frame');
-        creme.widget.declare('ui-creme-frame', new MockFrame(this.backend));
+QUnit.module("creme.widget.frame.js", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, {
+    buildMockBackend: function() {
+        return new creme.ajax.MockAjaxBackend({delay: 150, sync: true, name: 'creme.widget.frame.js'});
     },
 
-    teardown: function() {
+    beforeEach: function() {
+        var self = this;
+        this.setMockBackendGET({
+            'mock/html': this.backend.response(200, MOCK_FRAME_CONTENT),
+            'mock/html2': this.backend.response(200, MOCK_FRAME_CONTENT_LIST),
+            'mock/submit': this.backend.response(200, MOCK_FRAME_CONTENT_FORM),
+            'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
+            'mock/error': this.backend.response(500, 'HTTP - Error 500'),
+            'mock/custom': function(url, data, options) {
+                return self._custom_GET(url, data, options);
+            }
+        });
+
+        this.setMockBackendPOST({
+            'mock/submit/json': this.backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON),
+            'mock/submit': this.backend.response(200, MOCK_FRAME_CONTENT_FORM),
+            'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
+            'mock/error': this.backend.response(500, 'HTTP - Error 500')
+        });
+    },
+
+    afterEach: function() {
+        $('.ui-dialog-content').dialog('destroy');
+        creme.widget.shutdown($('body'));
     },
 
     _custom_GET: function(url, data, options) {
         return this.backend.response(200, '<div>' + $.toJSON({url: url, method: 'GET', data: data}) + '</div>');
     }
-});
+}));
 
-function assertOverlay(element, status, active)
-{
+function assertOverlay(element, status, active) {
     var overlay = $('.ui-creme-overlay', element);
     equal(overlay.length, active ? 1 : 0, 'has overlay');
     equal(overlay.attr('status'), status, 'overlay status:' + status);
     equal(overlay.hasClass('overlay-active'), active || false, 'overlay isactive');
 }
 
-QUnit.test('creme.widget.Frame.create (empty)', function(assert) {
+QUnit.test('creme.widget.Frame.create (undefined)', function(assert) {
     var element = mock_frame_create();
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, '404', true);
+    assertOverlay(element, undefined, false);
+    equal(0, $('h1', element).length);
+});
+
+QUnit.test('creme.widget.Frame.create (empty)', function(assert) {
+    var element = mock_frame_create();
+
+    creme.widget.create(element, {url: '', backend: this.backend});
+    equal(element.hasClass('widget-active'), true);
+    equal(element.hasClass('widget-ready'), true);
+
+    assertOverlay(element, undefined, false);
     equal(0, $('h1', element).length);
 });
 
 QUnit.test('creme.widget.Frame.create (url)', function(assert) {
     var element = mock_frame_create('mock/html');
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
@@ -91,7 +100,7 @@ QUnit.test('creme.widget.Frame.create (404)', function()
 {
     var element = mock_frame_create('mock/unknown');
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
@@ -102,7 +111,7 @@ QUnit.test('creme.widget.Frame.create (404)', function()
 QUnit.test('creme.widget.Frame.create (403)', function(assert) {
     var element = mock_frame_create('mock/forbidden');
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
@@ -113,7 +122,7 @@ QUnit.test('creme.widget.Frame.create (403)', function(assert) {
 QUnit.test('creme.widget.Frame.create (500)', function(assert) {
     var element = mock_frame_create('mock/error');
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
@@ -127,7 +136,7 @@ QUnit.test('creme.widget.Frame.create (url, overlay not shown, async)', function
 
     var element = mock_frame_create('mock/html');
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
     equal(element.creme().widget().options().overlay_delay, 100);
@@ -156,7 +165,7 @@ QUnit.test('creme.widget.Frame.create (url, overlay shown, async)', function(ass
 
     var element = mock_frame_create('mock/html');
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
     equal(element.creme().widget().options().overlay_delay, 100);
@@ -191,7 +200,7 @@ QUnit.test('creme.widget.Frame.create (url, overlay shown, async, error)', funct
 
     var element = mock_frame_create('mock/forbidden');
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
     equal(element.creme().widget().options().overlay_delay, 100);
@@ -223,11 +232,11 @@ QUnit.test('creme.widget.Frame.create (url, overlay shown, async, error)', funct
 QUnit.test('creme.widget.Frame.fill', function(assert) {
     var element = mock_frame_create();
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, 404, true);
+    assertOverlay(element, undefined);
     equal(0, $('h1', element).length);
     equal(0, $('ul', element).length);
 
@@ -253,7 +262,7 @@ QUnit.test('creme.widget.Frame.fill', function(assert) {
 QUnit.test('creme.widget.Frame.reload (none)', function(assert) {
     var element = mock_frame_create('mock/html');
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
@@ -273,7 +282,7 @@ QUnit.test('creme.widget.Frame.reload (none)', function(assert) {
 QUnit.test('creme.widget.Frame.reload (none, async)', function(assert) {
     var element = mock_frame_create('mock/html');
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
@@ -314,7 +323,7 @@ QUnit.test('creme.widget.Frame.reload (none, async)', function(assert) {
 QUnit.test('creme.widget.Frame.reload (url)', function(assert) {
     var element = mock_frame_create('mock/html');
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
@@ -332,7 +341,7 @@ QUnit.test('creme.widget.Frame.reload (url)', function(assert) {
 QUnit.test('creme.widget.Frame.reload (url, data)', function(assert) {
     var element = mock_frame_create('mock/html');
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
@@ -354,7 +363,7 @@ QUnit.test('creme.widget.Frame.reload (url, data)', function(assert) {
 QUnit.test('creme.widget.Frame.reload (url, async)', function(assert) {
     var element = mock_frame_create('mock/html');
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
@@ -394,7 +403,7 @@ QUnit.test('creme.widget.Frame.reload (url, async)', function(assert) {
 QUnit.test('creme.widget.Frame.reload (invalid url)', function(assert) {
     var element = mock_frame_create('mock/html');
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
@@ -411,7 +420,7 @@ QUnit.test('creme.widget.Frame.reload (invalid url)', function(assert) {
 
 QUnit.test('creme.widget.Frame.reload (invalid url, async)', function(assert) {
     var element = mock_frame_create('mock/html');
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
@@ -448,11 +457,10 @@ QUnit.test('creme.widget.Frame.reload (invalid url, async)', function(assert) {
     }, 600);
 });
 
-
 QUnit.test('creme.widget.Frame.submit', function(assert) {
     var element = mock_frame_create('mock/submit');
 
-    creme.widget.create(element);
+    creme.widget.create(element, {backend: this.backend});
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
@@ -460,39 +468,120 @@ QUnit.test('creme.widget.Frame.submit', function(assert) {
     equal(1, $('form', element).length);
 
     var listeners = {
-        done: function(event, data, statusText, dataType) {response.push([data, dataType]);},
-        fail: function(event, data, error) {response.push('error')}
+        'submit-done': this.mockListener('success'),
+        'submit-fail': this.mockListener('error')
     };
 
-    var response = [];
     element.creme().widget().submit($('form', element), listeners);
-    deepEqual(response, [[MOCK_FRAME_CONTENT_FORM, 'text/html']], 'form html');
-
-    this.backend.POST['mock/submit'] = this.backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON);
-
-    response = [];
-    element.creme().widget().reload('mock/submit');
-    element.creme().widget().submit($('form', element), listeners);
-    deepEqual(response, [[$.toJSON({value:1, added:[1, 'John Doe']}), 'text/json']], 'form json');
-
-    this.backend.POST['mock/submit'] = this.backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON_NOTAG);
-
-    response = [];
-    element.creme().widget().reload('mock/submit');
-    element.creme().widget().submit($('form', element), listeners);
-    deepEqual(response, [[MOCK_FRAME_CONTENT_SUBMIT_JSON_NOTAG, 'text/html']], 'form json no tag');
-
-    this.backend.POST['mock/submit'] = this.backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID);
-
-    response = [];
-    element.creme().widget().reload('mock/submit');
-    element.creme().widget().submit($('form', element), listeners);
-    deepEqual(response, [[MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID, 'text/html']], 'form json invalid');
-
-    this.backend.POST['mock/submit'] = this.backend.response(500, 'HTTP - Error 500');
-
-    response = [];
-    element.creme().widget().reload('mock/submit');
-    element.creme().widget().submit($('form', element), listeners);
-    deepEqual(response, ['error']);
+    deepEqual(this.mockListenerCalls('success'), [
+        ['submit-done', MOCK_FRAME_CONTENT_FORM, 'ok', 'text/html']
+    ], 'form html');
 });
+
+QUnit.test('creme.widget.Frame.submit (empty action)', function(assert) {
+    var element = mock_frame_create('');
+
+    creme.widget.create(element, {backend: this.backend});
+    equal(element.hasClass('widget-active'), true);
+    equal(element.hasClass('widget-ready'), true);
+
+    element.creme().widget().fill(MOCK_FRAME_CONTENT_FORM_NOACTION);
+
+    assertOverlay(element, undefined);
+    equal(1, $('form', element).length);
+
+    var listeners = {
+        'submit-done': this.mockListener('success'),
+        'submit-fail': this.mockListener('error')
+    };
+
+
+    // <form> action is empty. returns 404
+    this.resetMockListenerCalls();
+    this.setMockBackendPOST({
+        'mock/submit': this.backend.response(200, MOCK_FRAME_CONTENT_FORM_NOACTION)
+    });
+
+    element.creme().widget().submit($('form', element), listeners);
+    deepEqual(this.mockListenerCalls('error').map(function(e) { return e.slice(0, 1); }), [
+        ['submit-fail']
+    ]);
+});
+
+QUnit.test('creme.widget.Frame.submit (json)', function(assert) {
+    var element = mock_frame_create('mock/submit');
+
+    creme.widget.create(element, {backend: this.backend});
+    equal(element.hasClass('widget-active'), true);
+    equal(element.hasClass('widget-ready'), true);
+
+    assertOverlay(element, undefined);
+    equal(1, $('form', element).length);
+
+    var listeners = {
+        'submit-done': this.mockListener('success'),
+        'submit-fail': this.mockListener('error')
+    };
+
+    // <json>{...}</json> response
+    this.setMockBackendPOST({
+        'mock/submit': this.backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON)
+    });
+
+    element.creme().widget().submit($('form', element), listeners);
+    deepEqual(this.mockListenerCalls('success'), [
+        ['submit-done', $.toJSON({value:1, added:[1, 'John Doe']}), 'ok', 'text/json']
+    ], 'form json');
+
+    // {...} response
+    this.resetMockListenerCalls();
+    this.setMockBackendPOST({
+        'mock/submit': this.backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON_NOTAG)
+    });
+
+    element.creme().widget().reload('mock/submit');
+    element.creme().widget().submit($('form', element), listeners);
+    deepEqual(this.mockListenerCalls('success'), [
+        ['submit-done', $.toJSON({value:1, added:[1, 'John Doe']}), 'ok', 'text/json']
+    ], 'form json no tag');
+
+    // {invalid json} response
+    this.resetMockListenerCalls();
+    this.setMockBackendPOST({
+        'mock/submit': this.backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID)
+    });
+
+    response = [];
+    element.creme().widget().reload('mock/submit');
+    element.creme().widget().submit($('form', element), listeners);
+    deepEqual(this.mockListenerCalls('success'), [
+        ['submit-done', MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID, 'ok', 'text/html']
+    ], 'form json invalid');
+});
+
+QUnit.test('creme.widget.Frame.submit (error)', function(assert) {
+    var element = mock_frame_create('mock/submit');
+
+    creme.widget.create(element, {backend: this.backend});
+    equal(element.hasClass('widget-active'), true);
+    equal(element.hasClass('widget-ready'), true);
+
+    assertOverlay(element, undefined);
+    equal(1, $('form', element).length);
+
+    var listeners = {
+        'submit-done': this.mockListener('success'),
+        'submit-fail': this.mockListener('error')
+    };
+
+    this.setMockBackendPOST({
+        'mock/submit': this.backend.response(500, 'HTTP - Error 500')
+    });
+
+    element.creme().widget().submit($('form', element), listeners);
+    deepEqual(this.mockListenerCalls('error').map(function(e) { return e.slice(0, 1); }), [
+        ['submit-fail']
+    ]);
+});
+
+}(jQuery));

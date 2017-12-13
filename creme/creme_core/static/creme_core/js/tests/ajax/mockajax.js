@@ -20,12 +20,11 @@ QUnit.module("creme.mockajax.js", {
                                      'mock/custom': function(url, data, options) {
                                          return self._custom_POST(url, data, options);
                                      }});
-
-        creme.widget.unregister('ui-creme-frame');
-        creme.widget.declare('ui-creme-frame', new MockFrame(this.backend));
     },
 
     teardown: function() {
+        $('.ui-dialog-content').dialog('destroy');
+        creme.widget.shutdown($('body'));
     },
 
     _custom_GET: function(url, data, options) {
