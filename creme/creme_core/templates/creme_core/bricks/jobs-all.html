@@ -30,12 +30,12 @@
 {% block brick_before_content %}
     <div class="global-error" style="display: none;"></div>
 
-    {% if user_jobs_count >= MAX_JOBS_PER_USER %}
+    {% if not_finished_user_jobs_count >= MAX_JOBS_PER_USER %}
     <div class="help-box">
-        {% if user_jobs_count == 1 %}
-            {% trans 'You must delete your job in order to create a new one.' %}
+        {% if not_finished_user_jobs_count == 1 %}
+            {% trans 'You must wait that your job is finished in order to create a new one.' %}
         {% else %}
-            {% trans 'You must delete one of your jobs in order to create a new one.' %}
+            {% trans 'You must wait that one of your jobs is finished in order to create a new one.' %}
         {% endif %}
     </div>
     {% endif %}

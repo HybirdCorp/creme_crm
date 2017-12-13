@@ -65,7 +65,7 @@ class Job(Model):
           credentials of this User.
         - A view which creates a Job should check settings.MAX_JOBS_PER_USER
           before creating a Job, and redirect to the jobs list view if the Job
-          can not be created.
+          can not be created (tip: you can use Job.not_finished_jobs()).
         - They have to be deleted once they are finished, in order to create
           other user Jobs.
 
@@ -159,6 +159,10 @@ class Job(Model):
     @property
     def is_finished(self):
         return self.status != self.STATUS_WAIT
+
+    @classmethod
+    def not_finished_jobs(cls, user):
+        return cls.objects.filter(user=user, status=cls.STATUS_WAIT)
 
     @property
     def progress(self):

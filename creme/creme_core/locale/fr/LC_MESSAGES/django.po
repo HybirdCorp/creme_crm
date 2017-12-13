@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-12 12:58+0100\n"
+"POT-Creation-Date: 2017-12-13 13:03+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -20,8 +20,8 @@ msgstr ""
 msgid "Core"
 msgstr "Cœur"
 
-#: apps.py:320 apps.py:329 templates/creme_core/frags/header-menu.html:3
-#: templates/creme_core/frags/header-menu.html:4
+#: apps.py:320 apps.py:329 templates/creme_core/header/menu-base.html:4
+#: templates/creme_core/header/menu-base.html:10
 #: templates/creme_core/home.html:8
 msgid "Home"
 msgstr "Accueil"
@@ -36,7 +36,7 @@ msgid "User"
 msgstr "Utilisateur"
 
 #: apps.py:335 templates/creme_core/base.html:90
-#: templates/creme_core/bricks/jobs-mine.html:17
+#: templates/creme_core/bricks/jobs-mine.html:7
 #: templates/creme_core/job/list-mine.html:4
 msgid "My jobs"
 msgstr "Mes jobs"
@@ -240,7 +240,7 @@ msgstr "%(field)s => %(operator)s"
 
 #: core/entity_cell.py:192 forms/batch_process.py:193
 #: templates/creme_core/bricks/jobs-all.html:27
-#: templates/creme_core/bricks/jobs-mine.html:24
+#: templates/creme_core/bricks/jobs-mine.html:14
 #: templates/creme_core/bricks/trash.html:18
 #: templates/creme_core/frags/list_view_content.html:248
 #: templates/creme_core/templatetags/widgets/entity_actions.html:32
@@ -2038,7 +2038,7 @@ msgstr "Date"
 
 #: models/history.py:534 templates/creme_core/bricks/job.html:50
 #: templates/creme_core/bricks/jobs-all.html:22
-#: templates/creme_core/bricks/jobs-mine.html:22
+#: templates/creme_core/bricks/jobs-mine.html:12
 #: templates/creme_core/bricks/trash.html:16
 #: templates/creme_core/templatetags/block_history.html:19
 #: templates/creme_core/templatetags/block_trash.html:25
@@ -2090,7 +2090,7 @@ msgstr "Dernière exécution"
 
 #: models/job.py:91 templates/creme_core/bricks/job.html:91
 #: templates/creme_core/bricks/jobs-all.html:26
-#: templates/creme_core/bricks/jobs-mine.html:23
+#: templates/creme_core/bricks/jobs-mine.html:13
 msgid "Status"
 msgstr "Statut"
 
@@ -2556,7 +2556,7 @@ msgstr ""
 
 #: templates/creme_core/bricks/job.html:54
 #: templates/creme_core/bricks/jobs-all.html:21
-#: templates/creme_core/bricks/jobs-mine.html:21
+#: templates/creme_core/bricks/jobs-mine.html:11
 msgid "App"
 msgstr "App"
 
@@ -2588,39 +2588,36 @@ msgid "Owner"
 msgstr "Propriétaire"
 
 #: templates/creme_core/bricks/jobs-all.html:36
-#: templates/creme_core/bricks/jobs-mine.html:34
-msgid "You must delete your job in order to create a new one."
-msgstr "Vous devez supprimer votre job pour pouvoir en créer un nouveau"
+msgid "You must wait that your job is finished in order to create a new one."
+msgstr "Vous devez attendre que votre job soit fini pour pouvoir en créer un nouveau."
 
 #: templates/creme_core/bricks/jobs-all.html:38
-#: templates/creme_core/bricks/jobs-mine.html:36
-msgid "You must delete one of your jobs in order to create a new one."
-msgstr "Vous devez supprimer un de vos jobs pour pouvoir en créer un nouveau"
+"You must wait that one of your jobs is finished in order to create a new one."
+msgstr "Vous devez attendre qu'un de vos jobs soit fini pour pouvoir en créer un nouveau."
 
 #: templates/creme_core/bricks/jobs-all.html:74
 msgid "Edit this job"
 msgstr "Modifier ce job"
 
 #: templates/creme_core/bricks/jobs-all.html:80
-#: templates/creme_core/bricks/jobs-mine.html:54
+#: templates/creme_core/bricks/jobs-mine.html:28
 msgid "View this job"
 msgstr "Voir ce job"
 
 #: templates/creme_core/bricks/jobs-all.html:85
-#: templates/creme_core/bricks/jobs-mine.html:59
+#: templates/creme_core/bricks/jobs-mine.html:33
 msgid "Delete this job"
 msgstr "Supprimer ce job"
 
 #: templates/creme_core/bricks/jobs-all.html:93
-#: templates/creme_core/bricks/jobs-mine.html:67
 msgid "No job for the moment"
 msgstr "Aucun job pour le moment"
 
-#: templates/creme_core/bricks/jobs-mine.html:17
+#: templates/creme_core/bricks/jobs-mine.html:7
 msgid "My job"
 msgstr "Mon job"
 
-#: templates/creme_core/bricks/jobs-mine.html:17
+#: templates/creme_core/bricks/jobs-mine.html:7
 #, python-brace-format
 msgid "My jobs ({count})"
 msgstr "Mes jobs ({count})"
@@ -2868,21 +2865,6 @@ msgstr ""
 msgid "Information"
 msgstr "Informations"
 
-#: templates/creme_core/frags/header-menu.html:10
-#: templates/creme_core/frags/header-menu.html:15
-msgid "Search"
-msgstr "Recherche"
-
-#: templates/creme_core/frags/header-menu.html:13
-#: templates/creme_core/templatetags/bricks/title.html:2
-#: templates/creme_core/templatetags/bricks/title.html:8
-msgid "Loading…"
-msgstr "Chargement…"
-
-#: templates/creme_core/frags/header-menu.html:22
-msgid "Advanced search"
-msgstr "Recherche avancée"
-
 #: templates/creme_core/frags/list_view_content.html:111
 #: templates/creme_core/frags/list_view_content.html:114
 #: templates/creme_core/frags/list_view_content.html:122
@@ -3040,6 +3022,21 @@ msgstr "Aller à la liste"
 #: templates/creme_core/generics/portal.html:62
 msgid "Configure"
 msgstr "Configurer"
+
+#: templates/creme_core/header/menu-base.html:21
+#: templates/creme_core/header/menu-base.html:26
+msgid "Search"
+msgstr "Recherche"
+
+#: templates/creme_core/header/menu-base.html:24
+#: templates/creme_core/templatetags/bricks/title.html:2
+#: templates/creme_core/templatetags/bricks/title.html:8
+msgid "Loading…"
+msgstr "Chargement…"
+
+#: templates/creme_core/header/menu-base.html:33
+msgid "Advanced search"
+msgstr "Recherche avancée"
 
 #: templates/creme_core/header_filter_form.html:4
 #: templates/creme_core/header_filter_form.html:9
