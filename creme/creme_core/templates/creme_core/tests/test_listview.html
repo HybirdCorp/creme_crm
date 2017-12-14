@@ -22,6 +22,41 @@
         }
     </style>
     <script type="text/javascript">
+    (function() {
+        var openFilterSelection = function(ct_id, q_filter, multiple, listeners) {
+            var url = "{% url 'creme_core__listview_popup' %}";
+
+            creme.lv_widget.listViewAction(url, {multiple: multiple}, {
+                                ct_id: ct_id,
+                                selection: multiple ? 'multiple' : 'single',
+                                q_filter: q_filter
+                            })
+                           .one(listeners)
+                           .start();
+        };
+
+        var openFilterView = function(ct_id, q_filter) {
+            var url = "{% url 'creme_core__listview_popup' %}";
+            var options = {
+                closeOnEscape: true,
+                open: function() {},
+                buttons: [{text: gettext("Ok"),
+                    click: function() {
+                        $(this).dialog("close");
+                    }
+                }]
+            };
+            var ajax_options = {
+                data: {
+                    ct_id: ct_id,
+                    selection: 'single',
+                    q_filter: q_filter
+                }
+            };
+
+            creme.utils.showInnerPopup(url, options, null, ajax_options);
+        };
+
         $(document).ready(function() {
             $('.listview-open.select').click(function() {
                 var multiple = $(this).is('[multiple]');
@@ -29,7 +64,7 @@
                 var target = $(this).attr('target') || '';
                 var filter = $(this).attr('filter') || '';
 
-                creme.lv_widget.openFilterSelection(ctype, filter, multiple, {
+                openFilterSelection(ctype, filter, multiple, {
                     done: function(event, data) {
                         $('#' + target).val(data.join(','));
                     }
@@ -41,13 +76,14 @@
                 var target = $(this).attr('target') || '';
                 var filter = $(this).attr('filter') || '';
 
-                creme.lv_widget.openFilterView(ctype, filter);
+                openFilterView(ctype, filter);
             });
 
             $('.listview-test .ui-icon-close').click(function() {
                 $('#' + $(this).attr('target')).val('');
-            })
+            });
         });
+    }());
     </script>
 {% endblock %}
 {% block test_content %}

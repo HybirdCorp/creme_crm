@@ -22,30 +22,6 @@
 // if(!creme.relations) creme.relations = {}  ???
 creme.lv_widget = {};
 
-// TODO: useful ? (only used in tests)
-creme.lv_widget.openFilterSelection = function(ct_id, q_filter, multiple, listeners) {
-    var url = '/creme_core/list_view/popup/%s/%s?q_filter=%s'.format(ct_id, multiple ? 0 : 1, q_filter);
-
-    creme.lv_widget.listViewAction(url, {multiple: multiple})
-                   .one(listeners)
-                   .start();
-};
-
-// TODO: useful ? (only used in tests)
-creme.lv_widget.openFilterView = function(ct_id, q_filter) {
-    var url = '/creme_core/list_view/popup/%s/%s?q_filter=%s'.format(ct_id, 1, q_filter);
-
-    creme.utils.showInnerPopup(url, {
-                                   closeOnEscape: true,
-                                   open: function() {},
-                                   buttons: [{text: gettext("Ok"),
-                                              click: function() {
-                                                         $(this).dialog("close");
-                                                     }
-                                             }]
-                               });
-};
-
 // TODO: beware it won't work from a Popover element with would be displayed in a popup list-view
 //       (because popovers are detached from their original root in the DOM)
 //       It should be fixed with the new action system like the bricks' one.

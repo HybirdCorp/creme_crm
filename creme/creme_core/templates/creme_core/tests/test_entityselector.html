@@ -19,7 +19,7 @@
                 <h5>entity</h5>
                 <div class="ui-creme-widget ui-creme-entityselector widget-auto" widget="ui-creme-entityselector"
                       labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                      popupURL="/creme_core/list_view/popup/?ct_id={{TEST_CONTENTTYPES.contact}}&selection=${selection}&q_filter=${qfilter}" qfilter="">
+                      popupURL="{% url 'creme_core__listview_popup' %}?ct_id={{TEST_CONTENTTYPES.contact}}&selection=${selection}&q_filter=${qfilter}" qfilter="">
                     <input multiple="True" name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
                     <button type="button">Sélectionner...</button>
                 </div>
@@ -28,7 +28,7 @@
                 <h5>entity (disabled)</h5>
                 <div class="ui-creme-widget ui-creme-entityselector widget-auto" widget="ui-creme-entityselector"
                       labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                      popupURL="/creme_core/list_view/popup/?ct_id={{TEST_CONTENTTYPES.contact}}&selection=${selection}&q_filter=${qfilter}" qfilter="" disabled>
+                      popupURL="{% url 'creme_core__listview_popup' %}?ct_id={{TEST_CONTENTTYPES.contact}}&selection=${selection}&q_filter=${qfilter}" qfilter="" disabled>
                     <input multiple="True" name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" value="2"/>
                     <button type="button">Sélectionner...</button>
                 </div>
@@ -39,7 +39,7 @@
                     <li class="delegate">
                         <div class="ui-creme-widget ui-creme-entityselector widget-auto" widget="ui-creme-entityselector"
                               labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                              popupURL="/creme_core/list_view/popup/?ct_id={{TEST_CONTENTTYPES.contact}}&selection=${selection}&q_filter=${qfilter}" qfilter="">
+                              popupURL="{% url 'creme_core__listview_popup' %}?ct_id={{TEST_CONTENTTYPES.contact}}&selection=${selection}&q_filter=${qfilter}" qfilter="">
                             <input name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
                             <button type="button">Sélectionner...</button>
                         </div>
@@ -57,7 +57,7 @@
                     <li class="delegate">
                         <div class="ui-creme-widget ui-creme-entityselector widget-auto" widget="ui-creme-entityselector"
                               labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                              popupURL="/creme_core/list_view/popup/?ct_id={{TEST_CONTENTTYPES.contact}}&selection=${selection}&q_filter=${qfilter}" qfilter="">
+                              popupURL="{% url 'creme_core__listview_popup' %}?ct_id={{TEST_CONTENTTYPES.contact}}&selection=${selection}&q_filter=${qfilter}" qfilter="">
                             <input name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
                             <button type="button">Sélectionner...</button>
                         </div>
@@ -80,7 +80,7 @@
                     <li class="delegate">
                         <div class="ui-creme-widget ui-creme-entityselector widget-auto" widget="ui-creme-entityselector"
                               labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                              popupURL="/creme_core/list_view/popup/?ct_id={{TEST_CONTENTTYPES.document}}&selection=${selection}&q_filter=${qfilter}" qfilter="">
+                              popupURL="{% url 'creme_core__listview_popup' %}?ct_id={{TEST_CONTENTTYPES.document}}&selection=${selection}&q_filter=${qfilter}" qfilter="">
                             <input name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
                             <button type="button">Sélectionner...</button>
                         </div>
@@ -98,7 +98,7 @@
                     <li class="delegate">
                         <div class="ui-creme-widget ui-creme-entityselector widget-auto" widget="ui-creme-entityselector"
                               labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                              popupURL="/creme_core/list_view/popup/?ct_id={{TEST_CONTENTTYPES.contact}}&selection=${selection}&q_filter=${qfilter}" qfilter="">
+                              popupURL="{% url 'creme_core__listview_popup' %}?ct_id={{TEST_CONTENTTYPES.contact}}&selection=${selection}&q_filter=${qfilter}" qfilter="">
                             <input name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
                             <button type="button">Sélectionner...</button>
                         </div>
@@ -144,7 +144,7 @@
                         <li chained-name="entity" class="ui-creme-chainedselect-item">
                             <span class="ui-creme-widget ui-creme-entityselector" widget="ui-creme-entityselector"
                                   labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                                  popupURL="/creme_core/list_view/popup/?ct_id=${ctype}&selection=${selection}&q_filter=${qfilter}" qfilter="">
+                                  popupURL="{% url 'creme_core__listview_popup' %}?ct_id=${ctype}&selection=${selection}&q_filter=${qfilter}" qfilter="">
                                 <input name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
                                 <button type="button">Sélectionner...</button>
                             </span>
@@ -166,7 +166,7 @@
                         <li chained-name="entity" class="ui-creme-chainedselect-item">
                             <span class="ui-creme-widget ui-creme-entityselector" widget="ui-creme-entityselector"
                                   labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                                  popupURL="/creme_core/list_view/popup/?ct_id=${ctype}&selection=${selection}&q_filter=${qfilter}" qfilter="">
+                                  popupURL="{% url 'creme_core__listview_popup' %}?ct_id=${ctype}&selection=${selection}&q_filter=${qfilter}" qfilter="">
                                 <input name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
                                 <button type="button">Sélectionner...</button>
                             </span>
@@ -194,7 +194,7 @@
                                 <li class="delegate">
                                     <span class="ui-creme-widget ui-creme-entityselector" widget="ui-creme-entityselector"
                                           labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                                          popupURL="/creme_core/list_view/popup/?ct_id=${ctype}&selection=${selection}&q_filter=${qfilter}" qfilter="">
+                                          popupURL="{% url 'creme_core__listview_popup' %}?ct_id=${ctype}&selection=${selection}&q_filter=${qfilter}" qfilter="">
                                         <input name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
                                         <button type="button">Sélectionner...</button>
                                     </span>
@@ -223,7 +223,7 @@
                     <div class="inner-selector-model" style="display:none;">
                         <span class="ui-creme-widget ui-creme-entityselector" widget="ui-creme-entityselector"
                               labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                              popupURL="/creme_core/list_view/popup/?ct_id={{TEST_CONTENTTYPES.contact}}&selection=${selection}">
+                              popupURL="{% url 'creme_core__listview_popup' %}?ct_id={{TEST_CONTENTTYPES.contact}}&selection=${selection}">
                             <input name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
                             <button type="button">Sélectionner...</button>
                         </span>
@@ -240,7 +240,7 @@
                             <li class="delegate">
                                 <span class="ui-creme-widget ui-creme-entityselector" widget="ui-creme-entityselector"
                                       labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                                      popupURL="/creme_core/list_view/popup/?ct_id={{TEST_CONTENTTYPES.contact}}&selection=${selection}">
+                                      popupURL="{% url 'creme_core__listview_popup' %}?ct_id={{TEST_CONTENTTYPES.contact}}&selection=${selection}">
                                     <input multiple="True" name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
                                     <button type="button">Sélectionner...</button>
                                 </span>
@@ -265,7 +265,7 @@
                     <div class="inner-selector-model" style="display:none;">
                         <span class="ui-creme-widget ui-creme-entityselector" widget="ui-creme-entityselector"
                               labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                              popupURL="/creme_core/list_view/popup/?ct_id={{TEST_CONTENTTYPES.contact}}&selection=${selection}">
+                              popupURL="{% url 'creme_core__listview_popup' %}?ct_id={{TEST_CONTENTTYPES.contact}}&selection=${selection}">
                             <input name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
                             <button type="button">Sélectionner...</button>
                         </span>
@@ -280,7 +280,7 @@
                     <div class="inner-selector-model" style="display:none;">
                         <span class="ui-creme-widget ui-creme-entityselector" widget="ui-creme-entityselector"
                               labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                              popupURL="/creme_core/list_view/popup/?ct_id={{TEST_CONTENTTYPES.contact}}&selection=${selection}">
+                              popupURL="{% url 'creme_core__listview_popup' %}?ct_id={{TEST_CONTENTTYPES.contact}}&selection=${selection}">
                             <input name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
                             <button type="button">Sélectionner...</button>
                         </span>
@@ -295,7 +295,7 @@
                     <div class="inner-selector-model" style="display:none;">
                         <span class="ui-creme-widget ui-creme-entityselector" style="" widget="ui-creme-entityselector"
                               labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                              popupURL="/creme_core/list_view/popup/?ct_id={{TEST_CONTENTTYPES.contact}}&selection=${selection}" popupSelection="multiple">
+                              popupURL="{% url 'creme_core__listview_popup' %}?ct_id={{TEST_CONTENTTYPES.contact}}&selection=${selection}" popupSelection="multiple">
                             <input name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
                             <button type="button">Sélectionner...</button>
                         </span>
@@ -312,7 +312,7 @@
                             <li class="delegate">
                                 <span class="ui-creme-widget ui-creme-entityselector" style="" widget="ui-creme-entityselector"
                                       labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                                      popupURL="/creme_core/list_view/popup/?ct_id={{TEST_CONTENTTYPES.contact}}&selection=${selection}" popupSelection="multiple">
+                                      popupURL="{% url 'creme_core__listview_popup' %}?ct_id={{TEST_CONTENTTYPES.contact}}&selection=${selection}" popupSelection="multiple">
                                     <input name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
                                     <button type="button">Sélectionner...</button>
                                 </span>
@@ -368,7 +368,7 @@
                                 <li chained-name="entity" class="ui-creme-chainedselect-item">
                                     <span class="ui-creme-widget ui-creme-entityselector" style="" widget="ui-creme-entityselector"
                                           labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                                          popupURL="/creme_core/list_view/popup/?ct_id=${ctype}&selection=${selection}&q_filter=${qfilter}" popupSelection="multiple" qfilter="">
+                                          popupURL="{% url 'creme_core__listview_popup' %}?ct_id=${ctype}&selection=${selection}&q_filter=${qfilter}" popupSelection="multiple" qfilter="">
                                         <input multiple="True" name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
                                         <button type="button">Sélectionner...</button>
                                     </span>
@@ -412,7 +412,7 @@
                                 <li chained-name="entity" class="ui-creme-chainedselect-item">
                                     <span class="ui-creme-widget ui-creme-entityselector" style="" widget="ui-creme-entityselector"
                                           labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                                          popupURL="/creme_core/list_view/popup/?ct_id=${ctype}&selection=${selection}&q_filter=${qfilter}" popupSelection="multiple" qfilter="">
+                                          popupURL="{% url 'creme_core__listview_popup' %}?ct_id=${ctype}&selection=${selection}&q_filter=${qfilter}" popupSelection="multiple" qfilter="">
                                         <input multiple="True" name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
                                         <button type="button">Sélectionner...</button>
                                     </span>
@@ -456,7 +456,7 @@
                                 <li chained-name="entity" class="ui-creme-chainedselect-item">
                                     <span class="ui-creme-widget ui-creme-entityselector" style="" widget="ui-creme-entityselector"
                                           labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                                          popupURL="/creme_core/list_view/popup/?ct_id=${ctype}&selection=${selection}&q_filter=${qfilter}" popupSelection="multiple" qfilter="">
+                                          popupURL="{% url 'creme_core__listview_popup' %}?ct_id=${ctype}&selection=${selection}&q_filter=${qfilter}" popupSelection="multiple" qfilter="">
                                         <input multiple="True" name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
                                         <button type="button">Sélectionner...</button>
                                     </span>
