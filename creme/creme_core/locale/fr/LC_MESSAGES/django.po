@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-13 13:03+0100\n"
+"POT-Creation-Date: 2017-12-15 20:04+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -124,7 +124,7 @@ msgstr "Extension XLSX introduite par Microsoft Excel 2007."
 msgid "Custom fields"
 msgstr "Champs personnalisés"
 
-#: bricks.py:45 forms/mass_import.py:1238 models/creme_property.py:115
+#: bricks.py:45 forms/mass_import.py:1233 models/creme_property.py:115
 #: models/entity.py:53 templates/creme_core/bricks/properties.html:7
 msgid "Properties"
 msgstr "Propriétés"
@@ -390,7 +390,7 @@ msgstr "Exécuter tous les mémentos"
 msgid "General information"
 msgstr "Informations générales"
 
-#: forms/base.py:262 forms/mass_import.py:1235 models/base.py:117
+#: forms/base.py:262 forms/mass_import.py:1230 models/base.py:117
 #: models/entity_filter.py:112 models/header_filter.py:73
 msgid "Owner user"
 msgstr "Utilisateur propriétaire"
@@ -716,7 +716,7 @@ msgid "Select a valid choice. That choice is not one of the available choices."
 msgstr ""
 "Sélectionnez un choix valide. Ce choix n'est pas un des choix disponibles."
 
-#: forms/header_filter.py:140 forms/mass_import.py:301 forms/mass_import.py:548
+#: forms/header_filter.py:140 forms/mass_import.py:302 forms/mass_import.py:549
 msgid "Enter a valid value."
 msgstr "Saisissez une valeur valide."
 
@@ -747,27 +747,27 @@ msgid "A private view of list must belong to you (or one of your teams)."
 msgstr ""
 "Une vue de liste privée doit vous être attribuée (ou à une des vos équipe)."
 
-#: forms/mass_import.py:68
+#: forms/mass_import.py:69
 #, python-format
 msgid "Error reading document, unsupported file type: %(file)s."
 msgstr ""
 "Erreur lors de la lecture du document, type de fichier non supporté: "
 "%(file)s."
 
-#: forms/mass_import.py:88
+#: forms/mass_import.py:89
 #, python-format
 msgid "Error reading document: %(error)s."
 msgstr "Erreur lors de la lecture du document: %(error)s."
 
-#: forms/mass_import.py:97
+#: forms/mass_import.py:98
 msgid "File to import"
 msgstr "Fichier à importer"
 
-#: forms/mass_import.py:102
+#: forms/mass_import.py:103
 msgid "Header present ?"
 msgstr "Entête présent ?"
 
-#: forms/mass_import.py:103
+#: forms/mass_import.py:104
 msgid ""
 "Does the first line of the line contain the header of the columns (eg: "
 "\"Last name\",\"First name\") ?"
@@ -775,7 +775,7 @@ msgstr ""
 "La 1ère ligne du fichier contient-il l'entête des colonnes de valeurs (ex: "
 "\"Nom\",\"Prénom\") ?"
 
-#: forms/mass_import.py:184
+#: forms/mass_import.py:185
 #, python-format
 msgid ""
 "Error while extracting value: tried to retrieve and then build \"%(value)s"
@@ -785,7 +785,7 @@ msgstr ""
 "construire \"%(value)s\" (colonne %(column)s) sur %(model)s. Erreur brute: "
 "[%(raw_error)s]"
 
-#: forms/mass_import.py:193
+#: forms/mass_import.py:194
 #, python-format
 msgid ""
 "Error while extracting value: tried to retrieve \"%(value)s\" (column "
@@ -794,19 +794,19 @@ msgstr ""
 "Erreur lors de l'extraction de valeur: a essayé de retrouver \"%(value)s"
 "\" (colonne %(column)s) sur %(model)s. Erreur brute: [%(raw_error)s]"
 
-#: forms/mass_import.py:265
+#: forms/mass_import.py:266
 msgid "Search by:"
 msgstr "Chercher selon:"
 
-#: forms/mass_import.py:272 forms/mass_import.py:509 forms/mass_import.py:907
+#: forms/mass_import.py:273 forms/mass_import.py:510 forms/mass_import.py:908
 msgid "Create if not found ?"
 msgstr "Créer si non trouvé ?"
 
-#: forms/mass_import.py:280 forms/mass_import.py:915
+#: forms/mass_import.py:281 forms/mass_import.py:916
 msgid "Default value"
 msgstr "Valeur par défaut"
 
-#: forms/mass_import.py:433
+#: forms/mass_import.py:434
 #, python-format
 msgid ""
 "Error while extracting value [%(raw_error)s]: tried to retrieve and then "
@@ -815,7 +815,7 @@ msgstr ""
 "Erreur lors de l'extraction de valeur (%(raw_error)s) : a essayé de "
 "retrouver et puis de construire \"%(value)s\" sur %(model)s"
 
-#: forms/mass_import.py:442
+#: forms/mass_import.py:443
 #, python-format
 msgid ""
 "Error while extracting value [%(raw_error)s]: tried to retrieve \"%(value)s"
@@ -824,12 +824,12 @@ msgstr ""
 "Erreur lors de l'extraction de valeur (%(raw_error)s) : a essayé de "
 "retrouver \"%(value)s\" sur %(model)s"
 
-#: forms/mass_import.py:549 forms/mass_import.py:1255
+#: forms/mass_import.py:550 forms/mass_import.py:1250
 #, python-format
 msgid "You are not allowed to create: %(model)s"
 msgstr "Vous n'avez pas la permission de créer : %(model)s"
 
-#: forms/mass_import.py:627
+#: forms/mass_import.py:628
 #, python-format
 msgid ""
 "Error while extracting value to build a Relation: tried to retrieve "
@@ -840,7 +840,7 @@ msgstr ""
 "essayé de retrouver %(field)s=\"%(value)s\" (colonne %(column)s) sur "
 "%(model)s Erreur brute: [%(raw_error)s]"
 
-#: forms/mass_import.py:646
+#: forms/mass_import.py:647
 #, python-format
 msgid ""
 "Error while extracting value: tried to build %(model)s with data=%(data)s "
@@ -849,7 +849,7 @@ msgstr ""
 "Erreur lors de l'extraction  de valeur: a essayé de construire %(model)s "
 "avec données=%(data)s (colonne %(column)s) => erreurrs=%(errors)s"
 
-#: forms/mass_import.py:655
+#: forms/mass_import.py:656
 #, python-format
 msgid ""
 "Error while extracting value to build a Relation: tried to retrieve "
@@ -858,19 +858,19 @@ msgstr ""
 "Erreur lors de l'extraction de valeur pour construire une Relation: a essayé "
 "de retrouver %(field)s=\"%(value)s\" (column %(column)s) sur %(model)s"
 
-#: forms/mass_import.py:692
+#: forms/mass_import.py:693
 msgid "The entity"
 msgstr "La fiche"
 
-#: forms/mass_import.py:702
+#: forms/mass_import.py:703
 msgid "which field"
 msgstr "quel champs"
 
-#: forms/mass_import.py:704
+#: forms/mass_import.py:705
 msgid "equals to"
 msgstr "Est égal à"
 
-#: forms/mass_import.py:710
+#: forms/mass_import.py:711
 msgid ""
 "Create entities if they are not found ? (only fields followed by [CREATION] "
 "allows you to create, if they exist)"
@@ -878,15 +878,15 @@ msgstr ""
 "Créer les fiches si elle ne sont pas trouvées ? (seuls les champs suivi de "
 "[CRÉATION] vous permettent de créer, si ils existent)"
 
-#: forms/mass_import.py:728
+#: forms/mass_import.py:729
 msgid "This field doesn't exist in this ContentType."
 msgstr "Ce champ n'existe pas dans ce type de fiche."
 
-#: forms/mass_import.py:729
+#: forms/mass_import.py:730
 msgid "This column is not a valid choice."
 msgstr "Cette colonne n'est pas un choix valide'."
 
-#: forms/mass_import.py:864
+#: forms/mass_import.py:865
 #, python-format
 msgid ""
 "Error while extracting value: tried to retrieve the choice \"%(value)s"
@@ -895,11 +895,11 @@ msgstr ""
 "Erreur lors de l'extraction de valeur: a essayé de retrouver le choix "
 "\"%(value)s\" (colonne %(column)s). Erreur brute: [%(raw_error)s]"
 
-#: forms/mass_import.py:1016
+#: forms/mass_import.py:1017
 msgid "Key fields"
 msgstr "Champs clé"
 
-#: forms/mass_import.py:1019
+#: forms/mass_import.py:1020
 msgid ""
 "Select at least one field if you want to use the \"update\" mode. If an "
 "entity already exists with the same field values, it will be simply updated "
@@ -913,23 +913,23 @@ msgstr ""
 "Mais si plusieurs fiches sont trouvées, une nouvelle fiche sera créée (pour "
 "éviter les erreurs)."
 
-#: forms/mass_import.py:1027
+#: forms/mass_import.py:1028
 msgid "This document doesn't exist or doesn't exist any more."
 msgstr "Ce document n'existe pas/plus."
 
-#: forms/mass_import.py:1028
+#: forms/mass_import.py:1029
 msgid "You have not the credentials to read this document."
 msgstr "Vous n'avez pas les droits pour lire ce document."
 
-#: forms/mass_import.py:1035
+#: forms/mass_import.py:1036
 msgid "Update mode"
 msgstr "Mode mise-à-jour"
 
-#: forms/mass_import.py:1036 forms/mass_import.py:1249
+#: forms/mass_import.py:1037 forms/mass_import.py:1244
 msgid "Field values"
 msgstr "Valeurs de champ"
 
-#: forms/mass_import.py:1171
+#: forms/mass_import.py:1177
 msgid ""
 "Several entities corresponding to the search have been found. So a new "
 "entity have been created to avoid errors."
@@ -937,36 +937,36 @@ msgstr ""
 "Plusieurs fiches correspondant à la recherche ont été trouvées. Donc une "
 "nouvelle fiche a été créée pour éviter les erreurs."
 
-#: forms/mass_import.py:1242
+#: forms/mass_import.py:1237
 msgid "Fixed relationships"
 msgstr "Relations fixes"
 
-#: forms/mass_import.py:1245
+#: forms/mass_import.py:1240
 msgid "Relationships from the file"
 msgstr "Relations depuis le fichier"
 
-#: forms/mass_import.py:1248
+#: forms/mass_import.py:1243
 msgid "General"
 msgstr "Général"
 
-#: forms/mass_import.py:1250
+#: forms/mass_import.py:1245
 msgid "Related properties"
 msgstr "Propriétés associées"
 
-#: forms/mass_import.py:1251
+#: forms/mass_import.py:1246
 msgid "Associated relationships"
 msgstr "Relations associées"
 
-#: forms/mass_import.py:1380
+#: forms/mass_import.py:1375
 msgid "Not in the file"
 msgstr "Pas dans le fichier"
 
-#: forms/mass_import.py:1384
+#: forms/mass_import.py:1379
 #, python-format
 msgid "Column %(index)s - %(name)s"
 msgstr "Colonne %(index)s - %(name)s"
 
-#: forms/mass_import.py:1391
+#: forms/mass_import.py:1386
 #, python-format
 msgid "Column %i"
 msgstr "Colonne %i"
@@ -1671,7 +1671,7 @@ msgstr "Ce filtre ne peut être modifié/effacé"
 #: models/entity_filter.py:169 models/header_filter.py:121
 #: views/batch_process.py:44 views/batch_process.py:98 views/entity.py:174
 #: views/entity_filter.py:56 views/entity_filter.py:182
-#: views/generic/listview.py:382 views/header_filter.py:50
+#: views/generic/listview.py:373 views/header_filter.py:50
 #: views/header_filter.py:147
 msgid "You are not allowed to access to this app"
 msgstr "Vous n'êtes autorisé à accéder à cette application: %s"
@@ -2074,7 +2074,7 @@ msgid "Enabled"
 msgstr "Activé"
 
 #: models/job.py:87 templates/creme_core/bricks/job.html:80
-#: templates/creme_core/bricks/jobs-all.html:53
+#: templates/creme_core/bricks/jobs-all.html:54
 msgid "Reference run"
 msgstr "Exécution de référence"
 
@@ -2496,7 +2496,7 @@ msgstr "Modifier \"%(entity)s\""
 msgid "No history for the moment"
 msgstr "Aucun historique pour le moment"
 
-#: templates/creme_core/bricks/job-errors.html:10 views/mass_import.py:153
+#: templates/creme_core/bricks/job-errors.html:10 views/mass_import.py:152
 msgid "Errors"
 msgstr "Erreurs"
 
@@ -2540,12 +2540,12 @@ msgid "Delete the job"
 msgstr "Supprimer le job"
 
 #: templates/creme_core/bricks/job.html:31
-#: templates/creme_core/bricks/jobs-all.html:66
+#: templates/creme_core/bricks/jobs-all.html:74
 msgid "Disable"
 msgstr "Désactiver"
 
 #: templates/creme_core/bricks/job.html:33
-#: templates/creme_core/bricks/jobs-all.html:68
+#: templates/creme_core/bricks/jobs-all.html:76
 msgid "Enable"
 msgstr "Activer"
 
@@ -2565,7 +2565,7 @@ msgid "Description"
 msgstr "Description"
 
 #: templates/creme_core/bricks/job.html:81
-#: templates/creme_core/bricks/jobs-all.html:54
+#: templates/creme_core/bricks/jobs-all.html:59
 msgid "Every"
 msgstr "Chaque"
 
@@ -2589,27 +2589,35 @@ msgstr "Propriétaire"
 
 #: templates/creme_core/bricks/jobs-all.html:36
 msgid "You must wait that your job is finished in order to create a new one."
-msgstr "Vous devez attendre que votre job soit fini pour pouvoir en créer un nouveau."
+msgstr ""
+"Vous devez attendre que votre job soit fini pour pouvoir en créer un nouveau."
 
 #: templates/creme_core/bricks/jobs-all.html:38
+msgid ""
 "You must wait that one of your jobs is finished in order to create a new one."
-msgstr "Vous devez attendre qu'un de vos jobs soit fini pour pouvoir en créer un nouveau."
+msgstr ""
+"Vous devez attendre qu'un de vos jobs soit fini pour pouvoir en créer un "
+"nouveau."
 
-#: templates/creme_core/bricks/jobs-all.html:74
+#: templates/creme_core/bricks/jobs-all.html:57
+msgid "Every (at least)"
+msgstr "Chaque (au moins)"
+
+#: templates/creme_core/bricks/jobs-all.html:82
 msgid "Edit this job"
 msgstr "Modifier ce job"
 
-#: templates/creme_core/bricks/jobs-all.html:80
+#: templates/creme_core/bricks/jobs-all.html:88
 #: templates/creme_core/bricks/jobs-mine.html:28
 msgid "View this job"
 msgstr "Voir ce job"
 
-#: templates/creme_core/bricks/jobs-all.html:85
+#: templates/creme_core/bricks/jobs-all.html:93
 #: templates/creme_core/bricks/jobs-mine.html:33
 msgid "Delete this job"
 msgstr "Supprimer ce job"
 
-#: templates/creme_core/bricks/jobs-all.html:93
+#: templates/creme_core/bricks/jobs-all.html:101
 msgid "No job for the moment"
 msgstr "Aucun job pour le moment"
 
@@ -3796,12 +3804,12 @@ msgstr "Nouveau"
 msgid "You can not edit this model"
 msgstr "Vous ne pouvez pas modifier ce modèle"
 
-#: views/generic/listview.py:297
+#: views/generic/listview.py:288
 #, python-format
 msgid "List of %s"
 msgstr "Liste des %s"
 
-#: views/generic/listview.py:346 views/generic/listview.py:410
+#: views/generic/listview.py:337 views/generic/listview.py:401
 msgid "The desired list does not have any view, please create one."
 msgstr "La liste souhaitée n'a aucune vue, veuillez en créer au moins une."
 
@@ -3828,20 +3836,20 @@ msgstr "Type de job inconnu(%s). Veuillez contacter votre administrateur."
 msgid "Edit the job «%s»"
 msgstr "Modifier le job «%s»"
 
-#: views/mass_import.py:65
+#: views/mass_import.py:64
 msgid "Save the entities"
 msgstr "Enregistrer les fiches"
 
-#: views/mass_import.py:83 views/mass_import.py:112
+#: views/mass_import.py:82 views/mass_import.py:111
 msgid "Import this file"
 msgstr "Importer ce fichier"
 
-#: views/mass_import.py:119
+#: views/mass_import.py:118
 #, python-brace-format
 msgid "Import «{model}» from data file"
 msgstr "Importer des «{model}» depuis un fichier"
 
-#: views/mass_import.py:147
+#: views/mass_import.py:146
 msgid "Unknown file type ; please contact your administrator."
 msgstr "Type de fichier inconnu ; veuillez contacter votre administrateur."
 

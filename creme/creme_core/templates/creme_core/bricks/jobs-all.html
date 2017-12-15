@@ -48,12 +48,20 @@
         <td class="job-type">{{job.type|default:'?'}}</td>
         <td class="job-owner">{{job.user|default:''}}</td>
         <td class="job-periodicity" data-type="list">
-        {% if job.type.periodic != NOT_PERIODIC %}
+        {% with periodic=job.type.periodic %}
+        {% if periodic != NOT_PERIODIC %}
             <ul>
                 <li>{% trans 'Reference run' %}: {{job.reference_run}}</li>
-                <li>{% trans 'Every' %}: {{job.real_periodicity}}</li>
+                <li>
+                    {% if periodic == PSEUDO_PERIODIC %}
+                        {% trans 'Every (at least)' %}: {{job.real_periodicity}}
+                    {% else %}{# PERIODIC #}
+                        {% trans 'Every' %}: {{job.real_periodicity}}
+                    {% endif %}
+                </li>
             </ul>
         {% endif %}
+        {% endwith %}
         </td>
         <td class="job-lastrun">{{job.last_run|default:''}}</td>
         <td class="job-status" data-job-id="{{job.id}}" data-job-status="{{job.status}}" data-job-ack-errors="{{job.ack_errors}}">
