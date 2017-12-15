@@ -43,6 +43,11 @@ class MiscViewsTestCase(ViewsTestCase):
         response = self.assertGET200('/my_page')
         self.assertTemplateUsed(response, 'creme_core/my_page.html')
 
+    def test_about(self):
+        self.login()
+        response = self.assertGET200('/creme_about')
+        self.assertTemplateUsed(response, 'about/about.html')
+
     def test_logout(self):
         self.login()
 
