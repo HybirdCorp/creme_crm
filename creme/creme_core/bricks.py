@@ -430,6 +430,7 @@ class JobsBrick(QuerysetBrick):
                     not_finished_user_jobs_count=Job.not_finished_jobs(context['user']).count(),
                     MAX_JOBS_PER_USER=settings.MAX_JOBS_PER_USER,
                     NOT_PERIODIC=JobType.NOT_PERIODIC,
+                    PSEUDO_PERIODIC=JobType.PSEUDO_PERIODIC,
         ))
 
 
