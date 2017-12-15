@@ -59,25 +59,34 @@ def get_hg_info():
     # root = parser.close()
     # log_entry = root.find('.//logentry')
     # ...
+
+    # NB: it seems the date format does not work on very old HG (ok with 3.7+ at least)
     hg_log = subprocess.Popen("""hg log -r tip --template '{date(date, "%Y-%m-%dT%H:%M%z")}#{node}'""",
                               stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                               shell=True, cwd=repo_dir,
                               universal_newlines=True,
                              )
 
-    try:
-        date_str, changeset_id = hg_log.communicate()[0].split('#', 1)
-    except Exception as e:
-        logger.warn('Error in creme_core.utils.version.get_hg_info(): %s', e)
-    else:
-        info['id'] = changeset_id
+    raw_result, error = hg_log.communicate()
 
+    if error:
+        logger.warn('Error in creme_core.utils.version.get_hg_info(): %s', error)
+    else:
         try:
-            date_obj = localtime(parse_datetime(date_str))
-        except ValueError as e:
-            logger.warn('Error in creme_core.utils.version.get_hg_info(): invalid date info (%s)', e)
+            date_str, changeset_id = raw_result.split('#', 1)
+        except ValueError:
+            logger.warn('Error in creme_core.utils.version.get_hg_info() ; received: %s', raw_result)
         else:
-            if date_obj:
-                info['date'] = date_obj
+            info['id'] = changeset_id
+
+            try:
+                date_obj = parse_datetime(date_str)
+            except ValueError as e:
+                logger.warn('Error in creme_core.utils.version.get_hg_info(): invalid date info (%s)', e)
+            else:
+                if date_obj is None:
+                    logger.warn('Error in creme_core.utils.version.get_hg_info(): date info is not well formatted (%s)', date_str)
+                else:
+                    info['date'] = localtime(date_obj)
 
     return info
