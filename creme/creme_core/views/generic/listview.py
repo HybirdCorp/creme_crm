@@ -72,7 +72,7 @@ def _clean_value(value, converter, default=None):
         raise e
 
 
-def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filter, header_filter):
+def _build_entity_queryset(user, model, list_view_state, extra_q, entity_filter, header_filter):
     filtered = False
     use_distinct = False
     queryset = model.objects.filter(is_deleted=False)
@@ -103,7 +103,6 @@ def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filt
             filtered = True
             use_distinct = True
 
-    user = request.user
     # queryset = EntityCredentials.filter(user, queryset).distinct()
     queryset = EntityCredentials.filter(user, queryset)
     # queryset = list_view_state.sort_query(queryset)
@@ -182,13 +181,9 @@ def _build_entities_page(arguments, list_view_state, queryset, size, count, orde
     return entities_page
 
 
-def _build_extrafilter(request, extra_filter=None):
-    json_q_filter = request.GET.get('q_filter')
+def _build_extrafilter(arguments, extra_filter=None):
+    json_q_filter = arguments.get('q_filter')
     q_filter_as_dict = _clean_value(json_q_filter, json_load, {})
-
-    if not q_filter_as_dict:
-        json_q_filter = request.POST.get('q_filter', '{}')
-        q_filter_as_dict = _clean_value(json_q_filter, json_load, {})
 
     # TODO: better validation of q_filter ? (corresponding EntityCell allowed + searchable ?)
     #  - limit the max depth of sub-fields chain ?
@@ -201,12 +196,8 @@ def _build_extrafilter(request, extra_filter=None):
     return json_dump(q_filter_as_dict, separators=(',', ':')), q_filter
 
 
-def _select_entityfilter(request, entity_filters, default_filter):
-    efilter_id = request.GET.get('filter')
-
-    if not efilter_id:
-        efilter_id = request.POST.get('filter', default_filter)
-
+def _select_entityfilter(arguments, entity_filters, default_filter):
+    efilter_id = arguments.get('filter', default_filter)
     return entity_filters.select_by_id(efilter_id)
 
 
@@ -271,12 +262,12 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
     #                     )
 
     entity_filters = EntityFilterList(ct, user)
-    efilter = _select_entityfilter(request, entity_filters, current_lvs.entity_filter_id)
+    efilter = _select_entityfilter(arguments, entity_filters, current_lvs.entity_filter_id)
     current_lvs.entity_filter_id = efilter.id if efilter else None
 
-    json_q_filter, extra_filter = _build_extrafilter(request, extra_q)
+    json_q_filter, extra_filter = _build_extrafilter(arguments, extra_q)
 
-    entities, count = _build_entity_queryset(request, model, current_lvs, extra_filter, efilter, hf)
+    entities, count = _build_entity_queryset(user, model, current_lvs, extra_filter, efilter, hf)
     fast_mode = (count >= settings.FAST_QUERY_MODE_THRESHOLD)
     ordering = current_lvs.set_sort(model, cells,
                                     cell_key=arguments.get('sort_field', current_lvs.sort_field),
