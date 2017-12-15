@@ -25,7 +25,11 @@
 
     window.onpopstate = function(e) {
         if (!e.state) {
-            return __previous(e);
+            if (Object.isFunc(__previous)) {
+                return __previous(e);
+            } else {
+                window.location = document.location;
+            }
         } else {
             window.location.href = e.state.url;
         }
