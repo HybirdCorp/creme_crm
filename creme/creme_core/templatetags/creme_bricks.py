@@ -35,6 +35,7 @@ from django.utils.translation import ugettext as _, ugettext_lazy
 from ..core.entity_cell import EntityCellRegularField  # EntityCellCustomField
 from ..gui.bricks import Brick, brick_registry, BricksManager
 from ..gui.bulk_update import bulk_update_registry
+from ..gui.pager import PagerContext
 from ..utils.media import get_current_theme_from_context
 from ..utils.translation import plural as is_plural
 from ..views.bricks import render_detailview_brick, render_home_brick, render_portal_brick
@@ -665,70 +666,13 @@ def brick_tile_for_cell(cell, instance, user):
     }
 
 
-def _brick_pager_links(page):
-    page_count = page.paginator.num_pages
-    page_current = page.number
-    page_previous = page.previous_page_number() if page.has_previous() else None
-    page_next = page.next_page_number() if page.has_next() else None
-
-    class PagerLink(object):
-        def __init__(self, page, label=None, help=None, group=None, enabled=True):
-            self.page = page
-            self.group = group
-            self.enabled = enabled
-            self.label = label or unicode(page)
-
-            if help is None:
-                help = _(u'To page %s') % page if page else ''
-
-            self.help = help
-
-        def css(self):
-            css = ['is-disabled'] if not self.enabled else []
-
-            if self.group:
-                css.append('brick-pagination-%s' % self.group)
-
-            return ' '.join(css)
-
-        def is_current(self):
-            return self.page == page_current
-
-        def __unicode__(self):
-            return u'PagerLink(label={label}, help={help}, group={group}, enabled={enabled}, page={page})'.format(
-                label=self.label, help=self.help, group=self.group, enabled=self.enabled, page=self.page,
-            )
-
-    links = [PagerLink(page_previous, _(u'Previous page'), group='previous', enabled=page.has_previous())]
-
-    if page_count < 5:
-        links.extend([PagerLink(index) for index in xrange(1, page_count + 1)])
-    elif page_current <= 4:
-        links.extend([PagerLink(index) for index in xrange(1, page_next)])
-        links.append(PagerLink(page_next + 1, help=_(u'To another page'), group='choose'))
-        links.append(PagerLink(page_count, help=_(u'To last page')))
-    elif page_current >= page_count - 3:
-        links.append(PagerLink(1, help=_(u'To first page')))
-        links.append(PagerLink(page_previous - 1, help=_(u'To another page'), group='choose'))
-        links.extend([PagerLink(index) for index in xrange(page_previous, page_count + 1)])
-    else:
-        links.append(PagerLink(1, help=_(u'To first page')))
-        links.append(PagerLink(page_previous - 1, help=_(u'To another page'), group='choose'))
-        links.extend([PagerLink(index) for index in xrange(page_previous, page_next)])
-        links.append(PagerLink(page_next + 1, help=_(u'To another page'), group='choose'))
-        links.append(PagerLink(page_count, help=_(u'To last page')))
-
-    links.append(PagerLink(page_next, _(u'Next page'), group='next', enabled=page.has_next()))
-
-    return links
-
-
 @register.inclusion_tag('creme_core/templatetags/bricks/pager.html')
 def brick_pager(page):
+    context = PagerContext(page)
     return {
-        'links': _brick_pager_links(page),
-        'first_page': 1,
-        'last_page': page.paginator.num_pages,
+        'links': context.links,
+        'first': context.first,
+        'last': context.last,
     }
 
 

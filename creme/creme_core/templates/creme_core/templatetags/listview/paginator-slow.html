@@ -1,3 +1,19 @@
+<div class="listview-pagination">
+    {% for link in pager.links %}
+        {% if link.is_current %}
+            <span class="{{link.css}}">{{link.label}}</span>
+        {% elif link.is_choose %}
+            <span class="{{link.css}}">
+                <span>…</span>
+                <input type="text" min="{{pager.first}}" max="{{pager.last}}" data-initial-value="{{link.page}}" />
+            </span>
+        {% else %}
+            <a class="{{link.css}}" href="" title="{{link.help}}" {% if link.enabled %}data-page="{{link.page}}"{% endif %}>{{link.label}}</a>
+        {% endif %}
+    {% endfor %}
+</div>
+
+{% comment %}
 {% load i18n %}
 {% with num_pages=page.paginator.num_pages %}
 <div class="listview-pagination">
@@ -12,24 +28,6 @@
     <button class="listview-pagination-next" name="page" {% if page.has_next %}value="{{page.next_page_number}}" onclick="creme.lv_widget.findList(this).list_view('getSubmit')(this);"{% else %}disabled{% endif %} type="button">{% trans 'Next page' %}</button>
 </div>
 {% endwith %}
-
-{% comment %} TODO (based on bricks/footer-pager.html)
-{% load creme_listview %}
-{% listview_slow_pager page as pager %}
-<div class="listview-pagination">
-    {% for link in pager.links %}
-        {% if link.is_current %}
-            <span class="listview-pagination-current">{{link.label}}</span>
-        {% elif link.group == 'choose' %}
-            <span class="listview-pagination-choose">
-                <span>…</span>
-                <input type="text" min="{{pager.first_page}}" max="{{pager.last_page}}" data-initial-value="{{link.page}}" />
-            </span>
-        {% else %}
-            <a class="{{link.css}}" href="" title="{{link.help}}" data-page="{{link.page}}">{{link.label}}</a>
-        {% endif %}
-    {% endfor %}
-</div>
 {% endcomment %}
 
 {% comment %}

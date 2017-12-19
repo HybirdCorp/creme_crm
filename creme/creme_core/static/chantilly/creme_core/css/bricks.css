@@ -636,15 +636,15 @@ table.table_detail_view + table.table_detail_view {
     border-bottom-right-radius: 2px;
 }
 
-.brick .brick-pagination .brick-pagination-current {
+.brick .brick-pagination .pager-link-current {
     font-weight: 700;
     background: #e1e9ec;
     cursor: default;
     z-index: 1;
 }
 
-.brick .brick-pagination .brick-pagination-previous.is-disabled,
-.brick .brick-pagination .brick-pagination-next.is-disabled {
+.brick .brick-pagination .pager-link-previous.is-disabled,
+.brick .brick-pagination .pager-link-next.is-disabled {
     color: #ccc;
     background: #f8fdff;
     cursor: default;
@@ -658,11 +658,11 @@ table.table_detail_view + table.table_detail_view {
     z-index: 1;
 }
 
-.brick .brick-pagination .brick-pagination-choose span {
+.brick .brick-pagination .pager-link-choose span {
     padding: 3px 10px;
 }
 
-.brick .brick-pagination .brick-pagination-choose input {
+.brick .brick-pagination .pager-link-choose input {
     display: none;
 
     font-weight: 700;
@@ -681,15 +681,15 @@ table.table_detail_view + table.table_detail_view {
     outline: 0px;
 }
 
-.brick .brick-pagination .brick-pagination-choose.active span {
+.brick .brick-pagination .pager-link-choose.active span {
     display: none;
 }
 
-.brick .brick-pagination .brick-pagination-choose.active input {
+.brick .brick-pagination .pager-link-choose.active input {
     display: inline-block;
 }
 
-.brick .brick-pagination .brick-pagination-choose.active .invalid-page {
+.brick .brick-pagination .pager-link-choose.active .invalid-page {
     color: #FF851B;
 }
 

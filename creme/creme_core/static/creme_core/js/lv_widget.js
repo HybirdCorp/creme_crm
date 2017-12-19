@@ -505,25 +505,7 @@ creme.lv_widget.ListViewLauncher = creme.widget.declare('ui-creme-listview', {
             return;
         }
 
-//        // pagination
-//        var pager = new creme.bricks.BrickPager().on('refresh', function(event, url) {
-//            console.log('Change page to: %s', url);
-//
-//            // hack
-//            var page = url.match (/\d+/g) [0];
-//            var form = $element.get(0);
-//
-//            // hack to get getSubmit to actually submit: send it a dom element duck-typed as an input
-//            var input = $list.find('.brick-pagination a').first().get(0);
-//            input.name = 'page';
-//            input.value = page;
-//            input.form = form;
-//
-//            $element.list_view('getSubmit')(input);
-//        });
-
         var $footer = $list.find('.list-footer-container');
-//        pager.bind($footer);
 
         // pagination in popups
         if (!this._isStandalone) {
@@ -609,6 +591,12 @@ creme.lv_widget.ListViewLauncher = creme.widget.declare('ui-creme-listview', {
             // NB it would be great if we could get the bottom of '.floatThead-container' & set the same bottom to the anchor...
             'top': headTop + headerHeight - anchorHeight
         });
+
+        this._pager = new creme.list.Pager();
+        this._pager.on('refresh', function(event, page) {
+                        $element.data('list_view').getSubmit()(null, {page: page});
+                    })
+                   .bind($list.find('.listview-pagination'));
     }
 });
 

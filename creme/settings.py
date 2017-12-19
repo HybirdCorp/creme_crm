@@ -613,6 +613,8 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/widgets/dialog/glasspane.js',
                     'creme_core/js/widgets/dialog/popover.js',
 
+                    'creme_core/js/widgets/list/pager.js',
+
                     'creme_core/js/widgets/frame.js',
                     'creme_core/js/widgets/toggle.js',
                     'creme_core/js/widgets/pluginlauncher.js',
@@ -694,24 +696,30 @@ TEST_CREME_CORE_JS = ('testcore.js',
                         'creme_core/js/tests/component/action.js',
                         'creme_core/js/tests/component/actionlink.js',
                         'creme_core/js/tests/component/chosen.js',
+
                         'creme_core/js/tests/utils/template.js',
                         'creme_core/js/tests/utils/lambda.js',
                         'creme_core/js/tests/utils/converter.js',
                         'creme_core/js/tests/utils/utils.js',
+
                         'creme_core/js/tests/ajax/qunit-ajax-mixin.js',
                         'creme_core/js/tests/ajax/mockajax.js',
                         'creme_core/js/tests/ajax/cacheajax.js',
                         'creme_core/js/tests/ajax/query.js',
                         'creme_core/js/tests/ajax/localize.js',
+
                         'creme_core/js/tests/model/collection.js',
                         'creme_core/js/tests/model/renderer.js',
                         'creme_core/js/tests/model/query.js',
                         'creme_core/js/tests/model/controller.js',
+
                         'creme_core/js/tests/dialog/dialog.js',
                         'creme_core/js/tests/dialog/popover.js',
                         'creme_core/js/tests/dialog/glasspane.js',
+
                         'creme_core/js/tests/fallbacks.js',
                         'creme_core/js/tests/generators.js',
+
                         'creme_core/js/tests/widgets/base.js',
                         'creme_core/js/tests/widgets/widget.js',
                         'creme_core/js/tests/widgets/plot.js',
@@ -727,6 +735,12 @@ TEST_CREME_CORE_JS = ('testcore.js',
                         'creme_core/js/tests/widgets/actionlist.js',
                         'creme_core/js/tests/widgets/plotselector.js',
                         'creme_core/js/tests/widgets/container.js',
+
+                        'creme_core/js/tests/form/forms.js',
+
+                        'creme_core/js/tests/list/list-pager.js',
+                        'creme_core/js/tests/list/listview-actions.js',
+
                         'creme_core/js/tests/brick/qunit-brick-mixin.js',
                         'creme_core/js/tests/brick/brick.js',
                         'creme_core/js/tests/brick/brick-actions.js',

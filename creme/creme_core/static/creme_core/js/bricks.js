@@ -96,125 +96,6 @@ creme.bricks.FormDialogAction = creme.dialog.FormDialogAction.sub({
     }
 });
 
-creme.bricks.BrickPager = creme.component.Component.sub({
-    _init_: function(brick, options) {
-        this._brick = brick;
-        this._options = options || {};
-        this._events = new creme.component.EventHandler();
-    },
-
-    on: function(event, listener, decorator) {
-        this._events.on(event, listener, decorator);
-        return this;
-    },
-
-    off: function(event, listener) {
-        this._events.off(event, listener);
-        return this;
-    },
-
-    one: function(event, listener) {
-        this._events.one(event, listener);
-        return this;
-    },
-
-    canvas2d: function() {
-        if (Object.isNone(this._canvas2d)) {
-            this._canvas2d = document.createElement('canvas').getContext('2d');
-        }
-
-        return this._canvas2d;
-    },
-
-    _getPage: function(input) {
-        var page = parseInt(input.val());
-        var max = parseInt(input.attr('max'));
-
-        if (isNaN(page) || page < 1 || (!isNaN(max) && page > max)) {
-            return null;
-        }
-
-        return page;
-    },
-
-    _goToChosenPage: function(input) {
-        var page = this._getPage(input);
-
-        if (page !== null) {
-            this.refresh(page);
-        }
-    },
-
-    _resizeChooseInput: function(input) {
-        var canvas2d = this.canvas2d();
-        var value = Object.isNone(input.val()) ? '' : input.val();
-
-        canvas2d.font = input.css('font-size') + ' ' + input.css('font-family');
-        var width = canvas2d.measureText(value).width;
-
-        input.css('width', width + 25);
-    },
-
-    _initializeChooseLink: function(choose) {
-        var self = this;
-        var input = $('input:first', choose);
-
-        choose.click(function(e) {
-                   e.stopPropagation();
-                   choose.addClass('active');
-
-                   input.val(input.attr('data-initial-value'));
-                   self._resizeChooseInput(input);
-
-                   input.toggleClass('invalid-page', Object.isNone(self._getPage(input)))
-                        .select()
-                        .focus();
-                });
-
-        input.bind('propertychange input change paste', $.debounce(function() {
-                  input.toggleClass('invalid-page', Object.isNone(self._getPage(input)));
-             }, 50))
-             .bind('propertychange input change paste keydown', $.debounce(function() {
-                  self._resizeChooseInput(input);
-             }, 50))
-             .bind('keyup', function(e) {
-                 if (e.keyCode === 13) {
-                     e.preventDefault();
-                     self._goToChosenPage(input);
-                 } else if (e.keyCode === 27) {
-                     e.preventDefault();
-                     input.focusout();
-                 }
-             })
-             .bind('focusout', function() {
-                 choose.removeClass('active');
-             });
-    },
-
-    refresh: function(page) {
-        // TODO: simpler param -> key == 'page' ??
-        var extra_params = {};
-        extra_params[this._brick._id + '_page'] = page;
-
-        this._events.trigger('refresh', extra_params);
-    },
-
-    bind: function(element) {
-        var self = this;
-
-        $('.brick-pagination > a', element).each(function() {
-            $(this).click(function(e) {
-                        e.preventDefault();
-                        self.refresh($(this).attr('data-page'));
-                    });
-        });
-
-        $('.brick-pagination .brick-pagination-choose', element).each(function() {
-            self._initializeChooseLink($(this));
-        });
-    }
-});
-
 creme.bricks.BrickMenu = creme.component.Component.sub({
     _init_: function(brick, options) {
         this._options = $.extend({
@@ -510,14 +391,14 @@ creme.bricks.BrickTable = creme.component.Component.sub({
                 var state = ui.item.data('creme-layout-state');
 
                 ui.item.find('td').each(function (index) {
-                    $(this).css('width', state.widths [index]);
+                    $(this).css('width', state.widths[index]);
                 });
 
                 // The placeholder suffers the same problem, it has no content so the table is relaid out and the columns widths are lost
                 // So: make the placeholder size match the item's original size more closely
                 ui.placeholder.find('td').each(function (index, element) {
                     // 1): pretend columns with the same widths are still in the table
-                    $(this).css('width', state.widths [index]);
+                    $(this).css('width', state.widths[index]);
                 });
 
                 // 2: pretend the row still has the same height, in order to not offset the siblings
@@ -679,10 +560,12 @@ creme.bricks.Brick = creme.component.Component.sub({
         }
 
         this._overlay = new creme.dialog.Overlay();
-        this._pager = new creme.bricks.BrickPager(this)
-                                      .on('refresh', function(event, url) {
-                                            self.refresh(url);
-                                      });
+        this._pager = new creme.list.Pager()
+                                      .on('refresh', function(event, page) {
+                                           var data = {};
+                                           data[self._id + '_page'] = page;
+                                           self.refresh(data);
+                                       });
         this._table = new creme.bricks.BrickTable(this);
         this._menu = new creme.bricks.BrickMenu(this);
     },
