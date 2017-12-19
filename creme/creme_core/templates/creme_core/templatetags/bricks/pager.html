@@ -1,14 +1,14 @@
 <div class="brick-pagination">
     {% for link in links %}
         {% if link.is_current %}
-            <span class="brick-pagination-current">{{link.label}}</span>
-        {% elif link.group == 'choose' %}
-            <span class="brick-pagination-choose">
+            <span class="{{link.css}}">{{link.label}}</span>
+        {% elif link.is_choose %}
+            <span class="{{link.css}}">
                 <span>…</span>
-                <input type="text" min="{{first_page}}" max="{{last_page}}" data-initial-value="{{link.page}}" />
+                <input type="text" min="{{first}}" max="{{last}}" data-initial-value="{{link.page}}" />
             </span>
         {% else %}
-            <a class="{{link.css}}" href="" title="{{link.help}}" data-page="{{link.page}}">{{link.label}}</a>
+            <a class="{{link.css}}" href="" title="{{link.help}}" {% if link.enabled %}data-page="{{link.page}}"{% endif %}>{{link.label}}</a>
         {% endif %}
     {% endfor %}
 </div>

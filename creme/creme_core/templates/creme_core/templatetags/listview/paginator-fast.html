@@ -1,10 +1,18 @@
 {% load i18n creme_core_tags %}
 <div class="listview-pagination">
+    <a class="pager-link pager-link-first {% if not page.has_previous %}is-disabled{% endif %}" href="" title="{% trans 'First page' %}" {% if page.has_previous %}data-page="{{page.first_page_info|jsonify}}"{% endif %}>{% trans 'First page' %}</a>
+    <a class="pager-link pager-link-previous {% if not page.has_previous %}is-disabled{% endif %}" href="" title="{% trans 'Previous page' %}" {% if page.has_previous %}data-page="{{page.previous_page_info|jsonify}}"{% endif %}>{% trans 'Previous page' %}</a>
+    <a class="pager-link pager-link-next {% if not page.has_next %}is-disabled{% endif %}" href="" title="{% trans 'Next page' %}" {% if page.has_next %}data-page="{{page.next_page_info|jsonify}}"{% endif %}>{% trans 'Next page' %}</a>
+</div>
+{% comment %}
+{% load i18n creme_core_tags %}
+<div class="listview-pagination">
     <input value="{{page.info|jsonify}}" name="page" type="hidden" />
     <button class="listview-pagination-first" name="page" value="{{page.first_page_info|jsonify}}" {% if page.has_previous %} onclick="creme.lv_widget.findList(this).list_view('getSubmit')(this);" title="{% trans 'First page' %}"{% else %}disabled="true"{% endif %} type="button">|<</button>
     <button class="listview-pagination-previous" name="page" {% if page.has_previous %}value="{{page.previous_page_info|jsonify}}" onclick="creme.lv_widget.findList(this).list_view('getSubmit')(this);" title="{% trans 'Previous page' %}"{% else %} disabled="true"{% endif %} type="button"><<</button>
     <button class="listview-pagination-next" name="page" {% if page.has_next %}value="{{page.next_page_info|jsonify}}" onclick="creme.lv_widget.findList(this).list_view('getSubmit')(this);" title="{% trans 'Next page' %}"{% else %}disabled="true"{% endif %} type="button">>></button>
 </div>
+{% endcomment %}
 
 {% comment %}
 {% load i18n creme_core_tags %}

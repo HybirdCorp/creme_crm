@@ -3,12 +3,16 @@
 try:
     from functools import partial
 
-    from django.template import Template, Context
+    from django.core.paginator import Paginator
     from django.core.urlresolvers import reverse
+    from django.template import Template, Context
+    from django.utils.translation import ugettext as _
+    from django.utils.html import escape
 
     from ..base import CremeTestCase
     from ..fake_models import FakeOrganisation
     from creme.creme_core.core.entity_cell import EntityCellCustomField
+    from creme.creme_core.core.paginator import FlowPaginator
     from creme.creme_core.forms.bulk import _CUSTOMFIELD_FORMAT
     from creme.creme_core.forms.header_filter import EntityCellRegularField
     from creme.creme_core.models import CustomField, CustomFieldEnumValue
@@ -101,3 +105,57 @@ class CremeListViewTagsTestCase(CremeTestCase):
             render = template.render(Context({'object': orga, 'user': user, 'cell': cell}))
 
         self.assertFieldEditorTag(render, orga, _CUSTOMFIELD_FORMAT % custom_field_orga.id)
+
+    def test_listview_pager_slow(self):
+        user = self.login()
+
+        for i in xrange(1, 20):
+            FakeOrganisation.objects.create(user=user, name='A%d' % i)
+
+        paginator = Paginator(FakeOrganisation.objects.all(), 5)
+
+        with self.assertNoException():
+            template = Template(r"{% load creme_listview %}"
+                                r"{% listview_pager page %}"
+                               )
+            rendered = template.render(Context({'page': paginator.page(1)}))
+
+        self.assertInHTML(u'<a class="pager-link is-disabled pager-link-previous" href="" title="" >{label}</a>'.format(
+                              label=_(u'Previous page')
+                          ), rendered)
+
+        self.assertInHTML(u'<span class="pager-link is-disabled pager-link-current">1</span>',
+                          rendered)
+
+        self.assertInHTML(u'<a class="pager-link pager-link-next" href="" title="{help}" data-page="2">{label}</a>'.format(
+                              help=_(u'To page %s') % 2,
+                              label=_(u'Next page')
+                          ), rendered)
+
+    def test_listview_pager_fast(self):
+        user = self.login()
+
+        for i in xrange(1, 20):
+            FakeOrganisation.objects.create(user=user, name='A%d' % i)
+
+        paginator = FlowPaginator(queryset=FakeOrganisation.objects.all(),
+                                  key='name', per_page=5, count=20)
+
+        with self.assertNoException():
+            template = Template(r"{% load creme_listview %}"
+                                r"{% listview_pager page %}"
+                               )
+            rendered = template.render(Context({
+                'page': paginator.page({
+                    'type': 'first'
+                })
+            }))
+
+        self.assertInHTML(u'<a class="pager-link is-disabled pager-link-first" href="" title="{label}" >{label}</a>'.format(
+                              label=_(u'First page')
+                          ), rendered)
+
+        self.assertInHTML(u'<a class="pager-link is-disabled pager-link-previous" href="" title="{label}" >{label}</a>'.format(
+                              label=_(u'Previous page')
+                          ), rendered)
+

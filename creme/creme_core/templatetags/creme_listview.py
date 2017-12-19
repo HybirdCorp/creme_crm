@@ -34,6 +34,7 @@ from ..gui.bulk_update import bulk_update_registry
 from ..gui.listview import NULL_FK
 from ..gui.mass_import import import_form_registry
 from ..gui.merge import merge_form_registry
+from ..gui.pager import PagerContext
 from ..models import CustomField
 from ..models.fields import EntityCTypeForeignKey
 from ..utils import creme_entity_content_types, build_ct_choices
@@ -79,16 +80,36 @@ def get_listview_headerfilters(context):
     return context
 
 
-DEFAULT_PAGINATOR_TEMPLATE = 'creme_core/templatetags/listview/paginator-slow.html'
-PAGINATOR_TEMPLATES = {
-    FlowPaginator: 'creme_core/templatetags/listview/paginator-fast.html',
+class PagerRenderer(object):
+    template_name = ''
+
+    def render(self, page):
+        return get_template(self.template_name).render(self.get_context(page))
+
+    def get_context(self, page):
+        return {'page': page}
+
+
+class FlowPagerRenderer(PagerRenderer):
+    template_name = 'creme_core/templatetags/listview/paginator-fast.html'
+
+
+class DefaultPagerRenderer(PagerRenderer):
+    template_name = 'creme_core/templatetags/listview/paginator-slow.html'
+
+    def get_context(self, page):
+        return {'pager': PagerContext(page)}
+
+
+PAGINATOR_RENDERERS = {
+    FlowPaginator: FlowPagerRenderer,
 }
 
 
 @register.simple_tag
 def listview_pager(page):
-    return get_template(PAGINATOR_TEMPLATES.get(page.paginator.__class__, DEFAULT_PAGINATOR_TEMPLATE))\
-                       .render({'page': page})
+    renderer_class = PAGINATOR_RENDERERS.get(page.paginator.__class__, DefaultPagerRenderer)
+    return renderer_class().render(page)
 
 
 # get_listview_columns_header --------------------------------------------------

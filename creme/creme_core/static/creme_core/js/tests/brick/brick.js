@@ -11,7 +11,7 @@ QUnit.test('creme.bricks.Brick (empty)', function(assert) {
 
     deepEqual({}, brick.state());
     ok(brick._overlay.is(creme.dialog.Overlay), 'overlay');
-    ok(brick._pager.is(creme.bricks.BrickPager), 'pager');
+    ok(brick._pager.is(creme.list.Pager), 'pager');
     ok(brick._table.is(creme.bricks.BrickTable), 'table');
     equal(undefined, brick._id);
     equal(undefined, brick._stateSaveURL, 'stateSaveURL');
@@ -159,7 +159,6 @@ QUnit.test('creme.bricks.Brick.unbind', function(assert) {
 
 QUnit.test('creme.bricks.Brick.unbind (not bound)', function(assert) {
     var brick = new creme.bricks.Brick();
-    var element = $('<div id="brick_01"></div>');
 
     equal(false, brick.isBound());
 
@@ -274,13 +273,13 @@ QUnit.test('creme.bricks.Brick.title', function(assert) {
 
     equal(undefined, new brick().title());
     equal(undefined, new brick().bind($('<div>' +
-            '<div class="brick-header">' + 
+            '<div class="brick-header">' +
                 '<div class="brick-title">This is a title</div>' +
             '</div>' +
         '</div>')).title());
 
     equal('This is a alt title', new brick().bind($('<div>' +
-            '<div class="brick-header">' + 
+            '<div class="brick-header">' +
                 '<div class="brick-title" title="This is a alt title">This is a title</div>' +
             '</div>' +
         '</div>')).title());
@@ -513,11 +512,11 @@ QUnit.test('creme.bricks.Brick.setDownloadStatus', function(assert) {
 
 QUnit.test('creme.bricks.Brick.setSelectionState (no title data)', function(assert) {
     var brick = new creme.bricks.Brick();
-    var element = $('<div>'
-            + '<div class="brick-selection-indicator">'
-               + '<span class="brick-selection-title"></span>'
-            + '</div>'
-        + '</div>');
+    var element = $('<div>' +
+            '<div class="brick-selection-indicator">' +
+               '<span class="brick-selection-title"></span>' +
+            '</div>' +
+        '</div>');
 
     brick.setSelectionState(0, 10);
 
@@ -541,11 +540,11 @@ QUnit.test('creme.bricks.Brick.setSelectionState (no title data)', function(asse
 
 QUnit.test('creme.bricks.Brick.setSelectionState (no plural data)', function(assert) {
     var brick = new creme.bricks.Brick();
-    var element = $('<div>'
-            + '<div class="brick-selection-indicator">'
-               + '<span class="brick-selection-title" data-title-format="%d entry"></span>'
-            + '</div>'
-        + '</div>');
+    var element = $('<div>' +
+            '<div class="brick-selection-indicator">' +
+               '<span class="brick-selection-title" data-title-format="%d entry"></span>' +
+            '</div>' +
+        '</div>');
 
     brick.setSelectionState(0, 10);
 
@@ -569,11 +568,11 @@ QUnit.test('creme.bricks.Brick.setSelectionState (no plural data)', function(ass
 
 QUnit.test('creme.bricks.Brick.setSelectionState (plural data)', function(assert) {
     var brick = new creme.bricks.Brick();
-    var element = $('<div>'
-            + '<div class="brick-selection-indicator">'
-               + '<span class="brick-selection-title" data-title-format="%d entry on %d" data-plural-format="%d entries on %d"></span>'
-            + '</div>'
-        + '</div>');
+    var element = $('<div>' +
+            '<div class="brick-selection-indicator">' +
+               '<span class="brick-selection-title" data-title-format="%d entry on %d" data-plural-format="%d entries on %d"></span>' +
+            '</div>' +
+        '</div>');
 
     brick.setSelectionState(0, 10);
 
@@ -605,7 +604,6 @@ QUnit.test('creme.bricks.Brick.setSelectionState (plural data)', function(assert
 
 QUnit.test('creme.bricks.Brick.redirect', function(assert) {
     var brick = new creme.bricks.Brick();
-    var element = $('<div></div>');
 
     brick.redirect('mock/redirected');
     deepEqual(['mock/redirected'], this.mockRedirectCalls());
@@ -858,7 +856,7 @@ QUnit.test('creme.bricks.Brick.refresh (wildcard deps)', function(assert) {
     brickB.refresh();
 
     deepEqual([
-        ['GET', {"brick_id": ["brick-A", "brick-B", "brick-C"], "extra_data": "{}"}],
+        ['GET', {"brick_id": ["brick-A", "brick-B", "brick-C"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.resetMockBackendCalls();

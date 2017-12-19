@@ -1310,9 +1310,7 @@
     border: 0;
 }
 
-/*.listview .list-footer-container .listview-pagination > a,
-.listview .list-footer-container .listview-pagination > span */
-.listview .list-footer-container .listview-pagination > button,
+.listview .list-footer-container .listview-pagination > a,
 .listview .list-footer-container .listview-pagination > span {
     margin-left: -1px;
     padding: 3px 10px;
@@ -1336,45 +1334,35 @@
     border-bottom-right-radius: 2px;
 }
 
-/* TODO: with action system (like bricks)
-.listview .list-footer-container .listview-pagination .listview-pagination-current {
+.listview .list-footer-container .listview-pagination .pager-link-current {
     font-weight: 700;
     background: #ededed;
     cursor: default;
     z-index: 1;
 }
-*/
 
-/* TODO: idem
-.listview .list-footer-container .listview-pagination .listview-pagination-first.is-disabled,
-.listview .list-footer-container .listview-pagination .listview-pagination-previous.is-disabled,
-.listview .list-footer-container .listview-pagination .listview-pagination-next.is-disabled { */
-.listview .list-footer-container .listview-pagination .listview-pagination-first[disabled],
-.listview .list-footer-container .listview-pagination .listview-pagination-previous[disabled],
-.listview .list-footer-container .listview-pagination .listview-pagination-next[disabled] {
+.listview .list-footer-container .listview-pagination .pager-link-first.is-disabled,
+.listview .list-footer-container .listview-pagination .pager-link-previous.is-disabled,
+.listview .list-footer-container .listview-pagination .pager-link-next.is-disabled {
     color: #ccc;
     background: #fcfcfc;
     cursor: default;
     border: 1px solid #dedede;
 }
 
-/* TODO: idem
-.listview .list-footer-container .listview-pagination a:hover { */
-.listview .list-footer-container .listview-pagination button:hover {
+.listview .list-footer-container .listview-pagination a:hover {
     color: #fff;
     background: #414141;
     border-color: #414141;
     z-index: 1;
 }
 
-/* TODO
-.listview .list-footer-container .listview-pagination .listview-pagination-choose span {
+.listview .list-footer-container .listview-pagination .pager-link-choose span {
     padding: 3px 10px;
 }
-*/
 
-.listview .list-footer-container .listview-pagination .listview-pagination-choose input {
-/*    display: none;  TODO */
+.listview .list-footer-container .listview-pagination .pager-link-choose input {
+    display: none;
 
     width: 40px;
     margin: -1px 0 0 0;
@@ -1393,18 +1381,16 @@
     outline: 0px;
 }
 
-/* TODO: idem
-.listview .list-footer-container .listview-pagination .listview-pagination-choose.active span {
+.listview .list-footer-container .listview-pagination .pager-link-choose.active span {
     display: none;
 }
 
-.listview .list-footer-container .listview-pagination .listview-pagination-choose.active input {
+.listview .list-footer-container .listview-pagination .pager-link-choose.active input {
     display: inline-block;
 }
 
-.listview .list-footer-container .listview-pagination .listview-pagination-choose.active .invalid-page {
+.listview .list-footer-container .listview-pagination .pager-link-choose.active .invalid-page {
     color: #ff851b;
 }
-*/
 
 /* Listview - footer & pager -end */
