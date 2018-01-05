@@ -162,7 +162,9 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         self.assertEqual(criticity, tpl.criticity)
         self.assertFalse(tpl.solution)
 
-        self.assertEqual([self._get_job()], queue.refreshed_jobs)
+        jobs = queue.refreshed_jobs
+        self.assertEqual(1, len(jobs))
+        self.assertEqual(self._get_job(), jobs[0][0])
 
     @skipIfNotInstalled('creme.tickets')
     def test_editview01(self):
@@ -211,7 +213,7 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         self.assertEqual(tpl1, gen.template.get_real_entity())
         self.assertEqual({'type': 'months', 'value': 1}, gen.periodicity.as_dict())
 
-        self.assertEqual([self._get_job()], queue.refreshed_jobs)
+        self.assertEqual(1, len(queue.refreshed_jobs))
 
     @skipIfNotInstalled('creme.tickets')
     def test_editview02(self):
@@ -397,22 +399,24 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         queue.clear()
         gen.name = 'My Generator'
         gen.save()
-        self.assertEqual([], queue.refreshed_jobs)
+        self.assertFalse(queue.refreshed_jobs)
 
         gen.first_generation = now_value + timedelta(hours=3)
         gen.save()
-        self.assertEqual([job], queue.refreshed_jobs)
+        refreshed_jobs = queue.refreshed_jobs
+        self.assertEqual(1, len(refreshed_jobs))
+        self.assertEqual(job, refreshed_jobs[0][0])
 
         queue.clear()
         gen.name = 'My Generator again'
         gen.save()
-        self.assertEqual([], queue.refreshed_jobs)  # The new value of 'first_generation' is cached -> no new refreshing
+        self.assertFalse(queue.refreshed_jobs)  # The new value of 'first_generation' is cached -> no new refreshing
 
-        gen.periodicity=date_period_registry.get_period('weeks', 1)
+        gen.periodicity = date_period_registry.get_period('weeks', 1)
         gen.save()
-        self.assertEqual([job], queue.refreshed_jobs)
+        self.assertEqual(1, len(queue.refreshed_jobs))
 
         queue.clear()
         gen.name = 'My Generator again & again'
         gen.save()
-        self.assertEqual([], queue.refreshed_jobs)  # The new value of 'periodicity' is cached -> no new refreshing
+        self.assertFalse(queue.refreshed_jobs)  # The new value of 'periodicity' is cached -> no new refreshing

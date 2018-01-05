@@ -448,7 +448,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=recipient)
         self.assertEqual(MAIL_STATUS_SENDINGERROR, email.status)
 
-        self.assertEqual([self._get_job()], queue.refreshed_jobs)
+        self.assertTrue(queue.refreshed_jobs)
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -715,7 +715,10 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         email.restore()
         self.assertFalse(self.refresh(email).is_deleted)
-        self.assertEqual([job], queue.refreshed_jobs)
+
+        jobs = queue.refreshed_jobs
+        self.assertEqual(1, len(jobs))
+        self.assertEqual(job, jobs[0][0])
 
     def test_refresh_job02(self):
         "Mail is restored + do not have to be send => do not refresh the job"
@@ -732,6 +735,6 @@ class EntityEmailTestCase(_EmailsTestCase):
         queue.clear()
 
         email.restore()
-        self.assertEqual([], queue.refreshed_jobs)
+        self.assertFalse(queue.refreshed_jobs)
 
     # TODO: test other views

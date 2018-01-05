@@ -23,6 +23,7 @@ try:
     from creme.creme_core.creme_jobs import batch_process_type, reminder_type
     from creme.creme_core.creme_jobs.base import JobType
     from creme.creme_core.models import Job, EntityJobResult
+    from creme.creme_core.utils.dates import dt_to_ISO8601
 
     if apps.is_installed('creme.crudity'):
         from creme.crudity.creme_jobs import crudity_synchronize_type
@@ -189,10 +190,18 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertNoFormError(response)
 
         job = self.refresh(job)
-        self.assertEqual({'type': 'minutes', 'value': 180}, job.periodicity.as_dict())
+        periodicity_dict = {'type': 'minutes', 'value': 180}
+        self.assertEqual(periodicity_dict, job.periodicity.as_dict())
         self.assertEqual(old_reference_run, job.reference_run)
-
-        self.assertEqual([job], queue.refreshed_jobs)
+        self.assertEqual([(job,
+                           {'enabled':       True,
+                            'reference_run': dt_to_ISO8601(job.reference_run),
+                            'periodicity':   periodicity_dict,
+                           },
+                          ),
+                         ],
+                         queue.refreshed_jobs
+                        )
 
     @skipIfNotInstalled('creme.crudity')
     def test_editview04(self):
@@ -224,7 +233,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                          job.reference_run
                         )
 
-        self.assertEqual([job], queue.refreshed_jobs)
+        self.assertTrue(queue.refreshed_jobs)
 
     @skipIfNotInstalled('creme.crudity')
     def test_editview05(self):
@@ -471,13 +480,29 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         self.assertPOST200(disable_url)
         self.assertIs(self.refresh(job).enabled, False)
-        self.assertEqual([job], queue.refreshed_jobs)
+        self.assertEqual([(job,
+                           {'enabled':       False,
+                            'reference_run': dt_to_ISO8601(job.reference_run),
+                           },
+                          ),
+                         ],
+                         queue.refreshed_jobs
+                        )
 
         enable_url = self._build_enable_url(job)
         self.assertGET404(enable_url)
 
+        queue.clear()
         self.assertPOST200(enable_url)
         self.assertIs(self.refresh(job).enabled, True)
+        self.assertEqual([(job,
+                           {'enabled':       True,
+                            'reference_run': dt_to_ISO8601(job.reference_run),
+                           },
+                          ),
+                         ],
+                         queue.refreshed_jobs
+                        )
 
     def test_disable02(self):
         "Cannot disable a non-system job"

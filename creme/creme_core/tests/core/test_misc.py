@@ -23,8 +23,8 @@ try:
     from creme.creme_core.models import RelationType, CustomField, CustomFieldEnumValue, Job
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import FakeContact, FakeDocument
-    from creme.creme_core.utils.dates import round_hour
     from creme.creme_core.utils.date_period import HoursPeriod
+    from creme.creme_core.utils.dates import round_hour
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -571,20 +571,10 @@ class JobManagerTestCase(CremeTestCase):
         reminder_registry.register(reminder)
         self.reminders.append(reminder)
 
-    def _get_nows(self):
-        now_value = now()
-        rounded_hour = round_hour(now_value)
-
-        if rounded_hour == now_value:
-            sleep(1)
-            now_value = now()
-
-        return now_value, rounded_hour
-
     @override_settings(PSEUDO_PERIOD=1)
     def test_next_wake_up01(self):
         "PSEUDO_PERIODIC job"
-        now_value, rounded_hour = self._get_nows()
+        rounded_hour = round_hour(now())
         job = Job.objects.get(type_id=reminder_type.id)
 
         # self.assertEqual(rounded_hour, job.reference_run)
@@ -592,23 +582,20 @@ class JobManagerTestCase(CremeTestCase):
             job.reference_run = rounded_hour
             job.save()
 
-        self.assertEqual(HoursPeriod(value=1),
-                         job.real_periodicity
-                        )
+        self.assertEqual(HoursPeriod(value=1), job.real_periodicity)
 
-        mngr = JobManager()
-        next_wakeup = mngr._next_wakeup
+        next_wakeup = JobManager()._next_wakeup
 
         next_hour = rounded_hour + timedelta(hours=1)
-        self.assertEqual(next_hour, next_wakeup(job, now_value))
+        self.assertEqual(next_hour, next_wakeup(job))
 
         job.reference_run = rounded_hour - timedelta(hours=1)  # should not be used because "rounded_hour" is given
-        self.assertEqual(next_hour, next_wakeup(job, now_value, reference_run=rounded_hour))
+        self.assertEqual(next_hour, next_wakeup(job, reference_run=rounded_hour))
 
     @override_settings(PSEUDO_PERIOD=1)
     def test_next_wake_up02(self):
         "PSEUDO_PERIODIC job + reminder return a wake up date before the new security period"
-        now_value, rounded_hour = self._get_nows()
+        rounded_hour = round_hour(now())
         job = Job.objects.get(type_id=reminder_type.id)
 
         wake_up = rounded_hour + timedelta(minutes=20)
@@ -620,12 +607,12 @@ class JobManagerTestCase(CremeTestCase):
                 return wake_up
 
         self._register_reminder(TestReminder())
-        self.assertEqual(wake_up, JobManager()._next_wakeup(job, now_value))
+        self.assertEqual(wake_up, JobManager()._next_wakeup(job))
 
     @override_settings(PSEUDO_PERIOD=1)
     def test_next_wake_up03(self):
         "PSEUDO_PERIODIC job + reminder return a wake up date after the new security period"
-        now_value, rounded_hour = self._get_nows()
+        rounded_hour = round_hour(now())
         job = Job.objects.get(type_id=reminder_type.id)
 
         class TestReminder(Reminder):
@@ -637,5 +624,5 @@ class JobManagerTestCase(CremeTestCase):
         self._register_reminder(TestReminder())
 
         self.assertEqual(rounded_hour + timedelta(hours=1),
-                         JobManager()._next_wakeup(job, now_value)
+                         JobManager()._next_wakeup(job)
                         )

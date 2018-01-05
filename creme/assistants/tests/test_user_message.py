@@ -101,7 +101,9 @@ class UserMessageTestCase(AssistantsTestCase):
 
         self.assertEqual(title, unicode(message))
 
-        self.assertEqual([self._get_usermessages_job()], queue.refreshed_jobs)
+        jobs = queue.refreshed_jobs
+        self.assertEqual(1, len(jobs))
+        self.assertEqual(self._get_usermessages_job(), jobs[0][0])
 
     def test_create02(self):
         now_value = now()

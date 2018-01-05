@@ -20,6 +20,7 @@
 
 from django.core.management.base import BaseCommand
 
+
 class Command(BaseCommand):
     help = 'Run a pool of task workers (batch processing, CSV importing etc...).'
     args = ''

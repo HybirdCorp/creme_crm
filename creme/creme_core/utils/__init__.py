@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2017 Hybird
+# Copyright (c) 2009-2018 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,12 +24,12 @@
 #
 ################################################################################
 
-import logging
-import warnings
-import traceback
-import sys
-from json import dumps as json_dump
 from decimal import Decimal
+from json import dumps as json_dump
+import logging
+import sys
+import traceback
+import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied  # ObjectDoesNotExist
@@ -447,14 +447,14 @@ def safe_unicode_error(err, encodings=None):
     except:
         pass
 
-    # TODO : keep this deprecated method until migration to python 3.*,
-    #        because some old APIs may use it in python 2.*
+    # TODO: keep this deprecated method until migration to python 3.*,
+    #       because some old APIs may use it in python 2.*
     msg = err.message
 
     return safe_unicode(msg, encodings)
 
 
-def log_traceback(logger, limit=10):
+def log_traceback(logger, limit=10):  # TODO: use traceback.format_exc() ?
     exc_type, exc_value, exc_traceback = sys.exc_info()
 
     for line in traceback.format_exception(exc_type, exc_value, exc_traceback, limit=limit):
