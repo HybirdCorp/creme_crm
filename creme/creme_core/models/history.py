@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,7 @@ from django.db.models.signals import post_save, post_init, pre_delete
 from django.db.transaction import atomic
 from django.dispatch import receiver
 from django.utils.formats import date_format, number_format
-from django.utils.timezone import make_naive, utc, localtime
+from django.utils.timezone import localtime  # make_naive, utc
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..global_info import get_global_info, set_global_info
@@ -89,8 +89,8 @@ class _JSONEncoder(JSONEncoder):
             return unicode(o)
 
         if isinstance(o, datetime):
-            # TODO: if is_aware ?
-            return dt_to_ISO8601(make_naive(o, timezone=utc))
+            # return dt_to_ISO8601(make_naive(o, timezone=utc))
+            return dt_to_ISO8601(o)
 
         if isinstance(o, date):
             return date_to_ISO8601(o)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ import warnings
 
 from django.utils import formats
 from django.utils.dateparse import parse_datetime
-from django.utils.timezone import get_current_timezone, make_aware, make_naive, is_naive, utc
+from django.utils.timezone import get_current_timezone, make_aware, make_naive, is_naive, is_aware, utc
 
 
 DATE_ISO8601_FMT     = '%Y-%m-%d'
@@ -83,11 +83,14 @@ def dt_to_json_str(dt):
                   DeprecationWarning
                  )
 
-    return dt_to_ISO8601(dt)
+    return dt.strftime(DATETIME_ISO8601_FMT)
 
 
 def dt_to_ISO8601(dt):
     """Converts a datetime instance to a string, using the ISO 8601 format."""
+    if is_aware(dt):
+        dt = to_utc(dt)
+
     return dt.strftime(DATETIME_ISO8601_FMT)
 
 
