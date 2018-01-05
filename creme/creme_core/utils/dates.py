@@ -154,7 +154,7 @@ def date_from_str(d_str):
             break
 
 
-def make_aware_dt(dt, is_dst=True):
+def make_aware_dt(dt, is_dst=False):
     """Returns an aware datetime in the current time-zone.
     @param dt: A (naive) datetime instance.
     @param is_dst: If there is an ambiguity on DST transition
@@ -164,7 +164,7 @@ def make_aware_dt(dt, is_dst=True):
     @return A (aware) datetime.
     """
     # return make_aware(dt, get_current_timezone())
-    return get_current_timezone().localize(dt, is_dst=False)
+    return get_current_timezone().localize(dt, is_dst=is_dst)
 
 
 def to_utc(dt):
