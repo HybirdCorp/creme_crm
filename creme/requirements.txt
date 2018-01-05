@@ -3,13 +3,13 @@ redis>=2.10,<2.10.1024
 MySQL-python>=1.2,<1.2.1024
 Pillow>=3.4.2,<3.4.1024
 django-mediagenerator==1.12
-django-formtools==1.0
-pycrypto>=2.6,<2.6.1024
-pygraphviz==1.1
 python-dateutil==1.5
 pytz
 bleach>=1.4.3,<1.4.1024
-restkit==4.2.2
+django-formtools==1.0
+pygraphviz==1.1
+#pycrypto>=2.6,<2.6.1024
+#restkit==4.2.2
 wsgiref==0.1.2
 xlrd>=0.9,<0.9.1024
 xlwt>=1.0,<1.0.1024
