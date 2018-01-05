@@ -21,7 +21,7 @@ try:
             TYPE_AUX_CREATION, TYPE_AUX_EDITION, TYPE_AUX_DELETION,
             TYPE_RELATED, TYPE_PROP_ADD, TYPE_PROP_DEL,
             TYPE_RELATION, TYPE_SYM_RELATION, TYPE_RELATION_DEL, TYPE_SYM_REL_DEL)
-    from creme.creme_core.utils.dates import dt_to_ISO8601, to_utc
+    from creme.creme_core.utils.dates import dt_to_ISO8601 # to_utc
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -387,8 +387,11 @@ about this fantastic animation studio."""
         hline = hlines[-1]
         self.assertEqual(meeting.id,  hline.entity.id)
         self.assertEqual(TYPE_EDITION, hline.type)
-        self.assertEqual([['start', dt_to_ISO8601(to_utc(old_start)), dt_to_ISO8601(to_utc(start))],
-                          ['end', dt_to_ISO8601(to_utc(end))],
+        # self.assertEqual([['start', dt_to_ISO8601(to_utc(old_start)), dt_to_ISO8601(to_utc(start))],
+        #                   ['end', dt_to_ISO8601(to_utc(end))],
+        #                  ],
+        self.assertEqual([['start', dt_to_ISO8601(old_start), dt_to_ISO8601(start)],
+                          ['end', dt_to_ISO8601(end)],
                          ],
                          hline.modifications
                         )

@@ -10,7 +10,7 @@ try:
     from django.conf import settings
     from django.core.urlresolvers import reverse
     from django.http import Http404
-    from django.utils.timezone import is_naive, is_aware, override as override_tz
+    from django.utils.timezone import is_naive, is_aware, override as override_tz, make_aware
     from django.utils.translation import ugettext_lazy
 
     from ..base import CremeTestCase
@@ -425,6 +425,21 @@ class DatesTestCase(CremeTestCase):
                                                  )
                             )
                         )
+        self.assertEqual('2018-02-04T18:41:25.123000Z',
+                         dt_to_ISO8601(
+                             make_aware(datetime(year=2018, month=2, day=4, hour=19,
+                                                 minute=41, second=25, microsecond=123000,
+                                                ),
+                                        timezone=timezone('Europe/Paris'),  # DST: +1h
+                                       )
+                            )
+                        )
+        self.assertEqual('2018-03-05T19:41:25.123000Z',
+                         dt_to_ISO8601(datetime(year=2018, month=3, day=5, hour=19,
+                                                minute=41, second=25, microsecond=123000,
+                                               ),
+                                      )
+                         )
 
     def test_get_dt_from_str(self):
         create_dt = self.create_datetime
