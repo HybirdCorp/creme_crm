@@ -1,4 +1,23 @@
-Creme is a free/open-source Customer Relationship Management software developped by Hybird (www.hybird.org).
+Creme is a free/open-source Customer Relationship Management software developed by Hybird (www.hybird.org).
+
+It is designed with an entities/relationships architecture, and is highly configurable, which allows
+to adapt Creme to many different work-flows. It provides apps (ie: modules) to manage:
+    - Contacts & organisations.
+    - Documents & folders.
+    - Activities (meetings, phone calls, tasks...) with a calendar.
+    - Products & services.
+    - Invoices, quotes, sales orders & credit notes.
+    - Opportunities.
+    - Commercial actions.
+    - Email campaigns.
+    - Reports.
+    - Tickets.
+    - Alerts, todos & memos.
+    - Geolocation.
+    - ...
+
+Creme has powerful tools to filter, search or import data ; it can also be used a CRM framework
+you can use to code your own CRM.
 
 Creme is coded in Python, and uses the Django web framework (http://www.djangoproject.com/) and
 the JQuery javascript library (http://jquery.com/).
@@ -41,52 +60,86 @@ DEPENDENCIES:
         - creme.recurrents:
             - django-formtools 1.0
 
-        - creme.activesync:
+        - creme.activesync (deprecated):
             - restkit 4.2
             - pycrypto 2.6
 
 Installation with 'pip':
     - If you use MySQL, you can use the file 'creme/requirements.txt' to install all the libraries
-      needed by a classical installation with the command:
+      needed by a classical installation with the command (better in a virtualenv):
         >> pip install -r creme/requirements.txt
     - If you want a customised installation, you'll have to install the package yourself,
       depending on which apps or SQL server you want. For PostGreSQL, install the package 'psycopg2':
         >> pip install psycopg2
+    - Notice some of these python packages need system libraries to be installed.
+      For example, here a list of Debian/Ubuntu packages you'll have to install before:
+        - python-dev
+        - mysql_config & libmysqlclient-dev (or libpq5 if you want to use PostGreSQL)
+        - libxslt1-dev
+        - default-jre
+        - libjpeg-dev
+        - graphviz & graphviz-dev (if you want the optional app 'graphs')
 
 
 INSTALL:
-You have to know how to install a Django application.
 
-Upgrade notice : if you already have a Creme installation, upgrade the version one by one
-(eg: do not try to upgrade from 1.1 to 1.3, upgrade to 1.2 and then 1.3).
+Global remarks:
+    - You should know how to install/deploy a Django application.
+    - Upgrade note: if you already have a Creme installation, upgrade the version one by one
+      (eg: do not try to upgrade from 1.1 to 1.3, upgrade to 1.2 and then 1.3).
 
-See the creme/settings.py and set your parameters (or put them in a new file called 'creme/local_settings.py' instead).
-When you have chosen the creme apps you want (by commenting the unwanted ones), and configured the DB parameters
-run the following commands in the root directory:
+Database configuration:
+For a new install, you have to create a new database & a new DB user (who is allowed to create/drop tables, indices...).
 
-If you are upgrading from Creme 1.6:
-    >> python manage.py migrate --fake-initial
-else (ie: new installation):
+Settings:
+See the file creme/settings.py and set your parameters in a new file called 'creme/local_settings.py'.
+Here the minimal information you must fill :
+
+    # -*- coding: utf-8 -*-
+
+    DATABASES = {
+        'default': {
+            'ENGINE':   'django.db.backends.mysql',  # NB: 'django.db.backends.postgresql_psycopg2' for PGSQL
+            'NAME':     'name_of_your_db',           # <== TO BE REPLACED
+            'USER':     'name_of_your_user',         # <== TO BE REPLACED
+            'PASSWORD': 'password_of_the_user',      # <== TO BE REPLACED
+            'HOST':     '',                          # Leave empty for localhost.
+            'PORT':     '',                          # Leave empty for default port.
+        },
+
+    SECRET_KEY = ''  # <== TO BE REPLACED (see below).
+
+To generate the value of SECRET_KEY, run the following command in the root directory & copy its result:
+    >> python manage.py build_secret_key
+
+You can chose precisely the creme apps you want, by copying INSTALLED_CREME_APPS & commenting the unwanted apps ;
+beware to only comment app in the 'optional' section, & respect the dependencies which are indicated.
+
+Filling the DB tables:
+Run the following commands in the root directory:
     >> python manage.py migrate
+    >> python manage.py generatemedia
+    [Do not worry about 'URL not found' messages]
+    >> python manage.py creme_populate
 
->> python manage.py generatemedia
-[Do not worry about 'URL not found' messages]
->> python manage.py creme_populate
-
-And if you are upgrading from Creme 1.6:
- - Clean all existing sessions, for example like this:
+If you are upgrading from Creme 1.6, clean all existing sessions, for example like this:
     >> python manage.py shell
     > from django.contrib.sessions.models import Session
     > Session.objects.all().delete()
 
-
-NOTE for MySQL users:
-You should load the time zone tables. On Unix servers, it can be done with :
-    >> mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root -p mysql
-
-For Windows environment, see https://stackoverflow.com/questions/14454304/convert-tz-returns-null
+Note for MySQL users: you should load the time zone tables.
+ - On Unix servers, it can be done with:
+       >> mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root -p mysql
+ - For Windows environment, see https://stackoverflow.com/questions/14454304/convert-tz-returns-null
 
 
-TROUBLESHOOTING:
-- If you got some problems with PIL, check if you are using the legacy PIL (that was in our old requirements) or
-  its fork Pillow (new requirement). The best thing to do is first to uninstall PIL, and then install Pillow.
+LAUNCH:
+
+To run the development server, you just have to run this command:
+    >> python manage.py runserver
+You can then go to http://localhost:8000 & log in with root/root.
+
+For a production deployment (Apache, Nginx...), you should read https://docs.djangoproject.com/en/1.8/howto/deployment/
+
+In order to use the job system (eg: sending emails campaign, CSV import...), run the job manager too:
+    >> python manage.py creme_job_manager
