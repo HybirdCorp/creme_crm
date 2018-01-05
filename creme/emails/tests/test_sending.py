@@ -366,9 +366,11 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertFalse(django_mail.outbox)
         self.assertIs(job.type.next_wakeup(job, now_value), now_value)
 
-        self.assertEqual([job], queue.refreshed_jobs)
-        queue.clear()
+        jobs = queue.refreshed_jobs
+        self.assertEqual(1, len(jobs))
+        self.assertEqual(job, jobs[0][0])
 
+        queue.clear()
         # EmailsSendCommand().execute(verbosity=0)
         self._send_mails(job)
 
@@ -395,7 +397,7 @@ class SendingsTestCase(_EmailsTestCase):
                         )
 
         self.assertIsNone(job.type.next_wakeup(job, now_value))
-        self.assertEqual([], queue.refreshed_jobs)  # Other save() in job should not send REFRESH signals
+        self.assertFalse(queue.refreshed_jobs)  # Other save() in job should not send REFRESH signals
 
     def test_create04(self):
         "Test deferred"
@@ -578,7 +580,10 @@ class SendingsTestCase(_EmailsTestCase):
 
         camp.restore()
         self.assertFalse(self.refresh(camp).is_deleted)
-        self.assertEqual([job], queue.refreshed_jobs)
+
+        jobs = queue.refreshed_jobs
+        self.assertEqual(1, len(jobs))
+        self.assertEqual(job, jobs[0][0])
 
     def test_refresh_job02(self):
         "Restore campaign with sending which does not have to be sent"
@@ -594,4 +599,4 @@ class SendingsTestCase(_EmailsTestCase):
         queue.clear()
 
         camp.restore()
-        self.assertEqual([], queue.refreshed_jobs)
+        self.assertFalse(queue.refreshed_jobs)

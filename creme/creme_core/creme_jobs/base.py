@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2017  Hybird
+#    Copyright (C) 2016-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -168,7 +168,7 @@ class JobType(object):
     def progress(self, job):
         return JobProgress(percentage=None)
 
-    def refresh_job(self):
+    def refresh_job(self, force=True):
         from ..models import Job
 
         try:
@@ -178,5 +178,6 @@ class JobType(object):
                             self.id,
                            )
         else:
-            if job.enabled:
-                job.refresh()
+            # if job.enabled:
+            #     job.refresh()
+            job.refresh(force=force)

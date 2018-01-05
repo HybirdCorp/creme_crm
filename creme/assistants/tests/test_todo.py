@@ -107,12 +107,12 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertIsNone(todo.deadline)
         self.assertIs(todo.reminded, False)
 
-        self.assertEqual([], queue.refreshed_jobs)  # Because there is no deadline
+        self.assertFalse(queue.refreshed_jobs)  # Because there is no deadline
 
         self.assertEqual(title, unicode(todo))
 
     def test_create02(self):
-        "Dealine"
+        "Deadline"
         queue = JobManagerQueue.get_main_queue()
         queue.clear()
 
@@ -134,8 +134,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertEqual(self.create_datetime(year=2013, month=6, day=7, hour=9),
                          todo.deadline
                         )
-
-        self.assertEqual([self.get_reminder_job()], queue.refreshed_jobs)
+        self.assertTrue(queue.refreshed_jobs)
 
     def test_edit01(self):
         title       = 'Title'

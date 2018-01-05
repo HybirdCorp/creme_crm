@@ -66,7 +66,9 @@ class AlertTestCase(AssistantsTestCase):
 
         self.assertEqual(title, unicode(alert))
 
-        self.assertEqual([self.get_reminder_job()], queue.refreshed_jobs)
+        jobs = queue.refreshed_jobs
+        self.assertEqual(1, len(jobs))
+        self.assertEqual(self.get_reminder_job(), jobs[0][0])
 
     def test_create02(self):
         "Errors"
