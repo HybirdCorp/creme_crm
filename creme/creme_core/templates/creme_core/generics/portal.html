@@ -26,16 +26,17 @@
             <div class="bar-title">
                 <h1>{% block title %}{% endblock %}</h1>
             </div>
+            {% block bar_actions %}
             <div class="bar-actions">
                 <div class='bar-action'>
                     {% block header_link %}
                         <a class="bar-button" href="{% block list_url %}{% endblock %}">
                             {% widget_icon name='next' size='brick-hat-bar-button' label=_('Go to the list') %}
-{#                            {% block list_msg %}{% endblock %} #}
                         </a>
                     {% endblock %}
                 </div>
             </div>
+            {% endblock %}
         </div>
     </div>
 
