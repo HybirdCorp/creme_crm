@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -463,6 +463,8 @@ class VcfImportForm(CremeModelWithUserForm):
             img_path = None
 
             if image_encoded.startswith(URL_START):
+                tmp_img_path = None
+
                 try:
                     if int(urlopen(image_encoded).info()['content-length']) <= settings.VCF_IMAGE_MAX_SIZE:
                         # os_path = os.path

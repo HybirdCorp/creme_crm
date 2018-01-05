@@ -1350,15 +1350,18 @@ END:VCARD"""
     def test_add_contact_vcf17(self):
         self.login()
 
+        img_path = os_path.join(settings.CREME_ROOT, 'static', 'chantilly', 'images', '500.png')
+        self.assertTrue(os_path.exists(img_path))
+
         vcf_forms.URL_START = vcf_forms.URL_START + ('file',)
 
         contact_count = Contact.objects.count()
         # image_count   = Image.objects.count()
         image_count   = Document.objects.count()
-        content  = """BEGIN:VCARD
+        content = """BEGIN:VCARD
 FN:Satomi HAKASE
 PHOTO;VALUE=URL:file:///%s
-END:VCARD""" % os_path.normpath(os_path.join(settings.CREME_ROOT, 'static', 'images', '500.png'))
+END:VCARD""" % os_path.normpath(img_path)
         fields = self._post_step0(content).context['form'].fields
         self._post_step1(data={'user':          fields['user'].initial,
                                'first_name':    fields['first_name'].initial,
