@@ -25,6 +25,13 @@
 
 .list-title-container {
     margin-bottom: 10px;
+    padding-left: 7px;
+
+    background-color: #fff3f2;
+    color: #311714;
+
+    border: 3px solid #fdedeb;
+    border-radius: 10px;
 }
 
 .list-title {
