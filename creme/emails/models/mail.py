@@ -86,7 +86,6 @@ class _Email(CremeModel):
         return self.status in constants.MAIL_SYNC_STATUSES
 
 
-
 class AbstractEntityEmail(_Email, CremeEntity):
     identifier  = CharField(_(u'Email ID'), unique=True, max_length=ID_LENGTH,
                             null=False, blank=False, editable=False,

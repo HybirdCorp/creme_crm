@@ -3,7 +3,7 @@
 
 {% block brick_extra_class %}emails-email-brick emails-html-body-brick{% if not object.body_html %} is-empty{% endif %}{% endblock %}
 
-{% comment %} TODO: toggle images as menu action when its state is saved (must improve BlockState system
+{% comment %} TODO: toggle images as menu action when its state is saved (must improve BlockState system)
 {% block brick_menu_actions %}
     {{block.super}}
     {% brick_menu_action id='email-toggle-images' label=_('View external images') __inlabel=_('View external images') __outlabel=_('Hide external images') icon='view' %}
@@ -15,7 +15,9 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% brick_header_action id='email-toggle-images' label=_('View external images') __inlabel=_('View external images') __outlabel=_('Hide external images') icon='view' %}
+    {% if '<img ' in object.body_html %}
+        {% brick_header_action id='email-toggle-images' label=_('View external images') __inlabel=_('View external images') __outlabel=_('Hide external images') icon='view' %}
+    {% endif %}
 {% endblock %}
 
 {% block brick_content %}
