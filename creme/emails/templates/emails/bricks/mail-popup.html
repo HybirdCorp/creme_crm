@@ -29,9 +29,11 @@
     {% if object.body_html %}
     <div class="brick-tile brick-tile-multiline-value" data-type="html" data-key="regular_field-body_html">
         <span class="brick-tile-name">{% get_field_verbose_name object 'body_html' %}</span>
+        {% if '<img ' in object.body_html %}
         <span class="emails-popup-brick-tile-body-html-action">
             {% brick_action id='email-toggle-images' label=_('View external images') __inlabel=_('View external images') __outlabel=_('Hide external images') display='text' %}
         </span>
+        {% endif %}
         <span class="brick-tile-value">
             <iframe sandbox data-html-field="body_html" src="{% url 'creme_core__sanitized_html_field' object.id 'body_html' %}" frameborder="0" width="100%" {#height="100%"#} {#style="min-height:350px"#}></iframe>
         </span>
