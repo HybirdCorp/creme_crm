@@ -697,7 +697,10 @@ function Calendar(element, options, eventSources) {
 	------------------------------------------------------------------------*/
 	
 	if (options.droppable) {
-		$(document)
+	    /* HACK : whole document event handling cause issues with popup
+	     * dragndrop */
+	    // $(document)
+		$(element)
 			.bind('dragstart', function(ev, ui) {
 				var _e = ev.target;
 				var e = $(_e);
