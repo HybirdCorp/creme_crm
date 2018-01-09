@@ -67,6 +67,8 @@ QUnit.module("creme.dialog.js", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, 
         var self = this;
         var backend = this.backend;
 
+        $('<div class="ui-dialog-within-container"></div>').appendTo('body');
+
         this.setMockBackendGET({
             'mock/html': this.backend.response(200, MOCK_FRAME_CONTENT),
             'mock/html2': this.backend.response(200, MOCK_FRAME_CONTENT_LIST),
@@ -108,6 +110,7 @@ QUnit.module("creme.dialog.js", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, 
     afterEach: function() {
         $('.ui-dialog-content').dialog('destroy');
         creme.widget.shutdown($('body'));
+        $('.ui-dialog-within-container').detach();
     }
 }));
 
@@ -402,18 +405,38 @@ QUnit.test('creme.dialog.Dialog (center)', function(assert) {
     dialog.center();
 
     equal(true, dialog.isOpened());
-    deepEqual({my: 'center center', at: 'center center', of: window}, dialog.position());
+    deepEqual({
+        my: 'center center',
+        at: 'center center',
+        collision: 'fit',
+        within: $('.ui-dialog-within-container')
+    }, dialog.position());
 
     dialog.center({top: 5});
-    deepEqual({my: 'center center', at: 'center center', of: window}, dialog.position());
+    deepEqual({
+        my: 'center center',
+        at: 'center center',
+        collision: 'fit',
+        within: $('.ui-dialog-within-container')
+    }, dialog.position());
 
-    dialog.position({my: 'center top', at: 'center center', of: window});
-    deepEqual({my: 'center top', at: 'center center', of: window}, dialog.position());
+    dialog.position({my: 'center top', at: 'center center'});
+    deepEqual({
+        my: 'center top',
+        at: 'center center',
+        collision: 'fit',
+        within: $('.ui-dialog-within-container')
+    }, dialog.position());
 
     var top = dialog.cssPosition().top + 10;
 
     dialog.center({top: top});
-    deepEqual({my: 'center top', at: 'center top+' + top, of: window}, dialog.position());
+    deepEqual({
+        my: 'center top',
+        at: 'center top+' + top,
+        collision: 'fit',
+        within: $('.ui-dialog-within-container')
+    }, dialog.position());
 
     dialog.close();
 });

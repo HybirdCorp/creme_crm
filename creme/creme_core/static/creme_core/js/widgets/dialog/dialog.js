@@ -46,7 +46,8 @@ creme.dialog.Dialog = creme.component.Component.sub({
             width:      640,
             height:     350,
             scroll:     'frame',
-            fitFrame:    true,
+            within:     $('.ui-dialog-within-container'),
+            fitFrame:   true,
             useFrameActions: true,
             compatible: false,
             closeOnEscape: false,
@@ -356,9 +357,9 @@ creme.dialog.Dialog = creme.component.Component.sub({
             var position = this.cssPosition();
 
             if (constraint.top > 0 && position.top < constraint.top) {
-                this.position({my: 'center top', at: 'center top+' + (constraint.top), of: window});
+                this.position({my: 'center top', at: 'center top+' + (constraint.top)});
             } else {
-                this.position({my: "center center", at: "center center", of: window});
+                this.position({my: "center center", at: "center center"});
             }
         }
 
@@ -376,7 +377,10 @@ creme.dialog.Dialog = creme.component.Component.sub({
             return this._dialog ? this._dialog.dialog('option', 'position') : undefined;
         }
 
-        this._dialog.dialog('option', 'position', position);
+        this._dialog.dialog('option', 'position', $.extend({}, position, {
+            collision: 'fit',
+            within: this.options.within
+        }));
         return this;
     },
 
@@ -497,6 +501,14 @@ creme.dialog.Dialog = creme.component.Component.sub({
         return this;
     },
 
+    _onDragStop: function(dialog) {
+        this.position(this.position());
+    },
+
+    _onResizeStop: function(dialog) {
+        this.position(this.position());
+    },
+
     open: function(options) {
         if (this._dialog !== undefined) {
             throw Error('dialog already opened !');
@@ -511,10 +523,16 @@ creme.dialog.Dialog = creme.component.Component.sub({
         var buttons = $.extend(this._defaultButtons({}, options), options.buttons || {});
         var content = $('<div/>').append(container);
         var scroll = _assertScrollType(options.scroll);
+        var is_framescroll = (scroll === 'frame');
 
-        var position = {my: "center center", at: "center center", of: window};
-        var resizable = scroll === 'frame' ? options.resizable : false;
-        var draggable = scroll === 'frame' ? options.draggable : false;
+        var position = {
+            my: "center top",
+            at: "center center",
+            collision: 'fit',
+            within: options.within
+        };
+        var resizable = is_framescroll ? options.resizable : false;
+        var draggable = is_framescroll ? options.draggable : false;
         var width = options.minWidth > 0 ? Math.max(options.minWidth, options.width) : options.width;
         var height = options.minHeight > 0 ? Math.max(options.minHeight, options.height) : options.height;
 
@@ -525,7 +543,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
                                        draggable: draggable,
                                        width:     width,
                                        height:    height,
-                                       maxHeight: options.scroll === 'frame' ? options.maxHeight : false,
+                                       maxHeight: is_framescroll ? options.maxHeight : false,
                                        maxWidth:  options.maxWidth,
                                        minHeight: options.minHeight,
                                        minWidth:  options.minWidth,
@@ -533,7 +551,9 @@ creme.dialog.Dialog = creme.component.Component.sub({
                                        closeOnEscape: options.closeOnEscape,
                                        open:      function() { self._onOpen($(this), frame, options); },
                                        resize:    function() { self._onResize($(this), frame); },
-                                       close:     function() { self._onClose($(this), frame, options); }
+                                       close:     function() { self._onClose($(this), frame, options); },
+                                       dragStop:  function() { self._onDragStop($(this)); },
+                                       resizeStop: function() { self._onResizeStop($(this)); }
                                       });
 
         return this;
