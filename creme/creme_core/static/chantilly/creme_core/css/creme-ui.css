@@ -669,6 +669,15 @@ span.ui-creme-datepicker-trigger {
     background-color: rgba(0, 255, 0, 0.3);
 }
 
+.ui-dialog-within-container {
+    position: fixed;
+    top: 35px;
+    left: 0;
+    width: 100vw;
+    height: calc(100vh - 35px);
+    pointer-events: none;
+}
+
 /*----------------------------------*/
 select[readonly] {
     color: gray;
