@@ -17,11 +17,12 @@
 *******************************************************************************/
 
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.activities = {};
 
-//creme.activities.exportAsICal = function(list) {
+// creme.activities.exportAsICal = function(list) {
 creme.activities.exportAsICal = function(list, url) {
     var selection = $(list).list_view('getSelectedEntities').trim();
 
@@ -30,7 +31,7 @@ creme.activities.exportAsICal = function(list, url) {
         return false;
     }
 
-    if (url === undefined ) {
+    if (url === undefined) {
         console.warn('creme.activities.exportAsICal(): implicit "url" argument is deprecated ; give the URL as second argument.');
         document.location.href = '/activities/activities/%s/ical'.format(selection);
     } else {
@@ -40,19 +41,21 @@ creme.activities.exportAsICal = function(list, url) {
 
 creme.activities.calendar = {};
 
-creme.activities.calendar.loading = function(loading_done) {
-  $('.calendar .loading-indicator').css('visibility', loading_done ? 'hidden' : 'visible');
+creme.activities.calendar.loading = function(state) {
+  $('.calendar .loading-indicator').toggleClass('is-loading', state);
 };
 
 creme.activities.calendar.filterEvents = function(widget, calendar, events) {
     console.warn('activities.calendar.filterEvents() is deprecated.');
 
-    widget.fullCalendar('removeEvents', function(event) {return calendar == event.calendar;});
+    widget.fullCalendar('removeEvents', function(event) {
+        return calendar === event.calendar;
+    });
 
     if (events) {
         // TODO: test server behavior - is this test still needed ?
         var calendarEvents = events.filter(function (event) {
-          return calendar == event.calendar;
+          return calendar === event.calendar;
         });
 
         widget.fullCalendar('addEventSource', calendarEvents);
@@ -66,7 +69,7 @@ creme.activities.calendar.addFilteringInput = function(input, filter_callable) {
     input.bind('propertychange input paste', function() {
         var val = input.val();
 
-        if (input.data('oldVal') == val) {
+        if (input.data('oldVal') === val) {
             return;
         }
 
@@ -77,31 +80,34 @@ creme.activities.calendar.addFilteringInput = function(input, filter_callable) {
 };
 
 creme.activities.calendar.loadCalendarEventListeners = function(user, creme_calendars_by_user) {
-    creme.activities.calendar.floatingEventFilter = function(input_value) {
+    var floatingEventFilter = function(input_value) {
         $('.floating_event').each(function(index, element) {
             var event = $(element);
-            event.toggleClass('hidden', event.text().toUpperCase().indexOf(input_value) == -1);
+            event.toggleClass('hidden', event.text().toUpperCase().indexOf(input_value) === -1);
         });
-    }
+    };
 
-    creme.activities.calendar.othersCalendarsFilter = function(input_value){
+    var othersCalendarsFilter = function(input_value) {
         for (var calendar_user in creme_calendars_by_user) {
             var calendars = creme_calendars_by_user[calendar_user];
-            var username_match = calendar_user.toUpperCase().indexOf(input_value) != -1;
+            var username_match = calendar_user.toUpperCase().indexOf(input_value) !== -1;
             var match_count = 0;
 
             for (var i = 0, size = calendars.length; i < size; ++i) {
                 var calendar = calendars[i];
                 var calendar_name = calendar.name.toUpperCase();
-                var match = (calendar_name.indexOf(input_value) != -1) || username_match;
+                var match = (calendar_name.indexOf(input_value) !== -1) || username_match;
 
-                if (match) {match_count++;}
+                if (match) {
+                    match_count++;
+                }
+
                 $('.calendar_label_container[data-calendar=' + calendar.id + ']').toggleClass('hidden', !match);
             }
 
-            $('.calendar_label_owner[data-user="' + calendar_user + '"]').toggleClass('hidden', match_count == 0);
+            $('.calendar_label_owner[data-user="' + calendar_user + '"]').toggleClass('hidden', match_count === 0);
         }
-    }
+    };
 
     $('input[type="checkbox"]').change(function(event) {
         var widget = $('.calendar');
@@ -140,16 +146,18 @@ creme.activities.calendar.loadCalendarEventListeners = function(user, creme_cale
             widget.fullCalendar('refetchEvents');
         } else {
 //            creme.activities.calendar.filterEvents(widget, calendar_id);
-            widget.fullCalendar('removeEvents', function(event) {return calendar_id == event.calendar;});
+            widget.fullCalendar('removeEvents', function(event) {
+                return calendar_id === event.calendar;
+            });
         }
     });
 
     $('.floating_event_filter input').each(function() {
-        creme.activities.calendar.addFilteringInput($(this), creme.activities.calendar.floatingEventFilter);
+        creme.activities.calendar.addFilteringInput($(this), floatingEventFilter);
     });
 
     $('.calendar_filter input').each(function() {
-        creme.activities.calendar.addFilteringInput($(this), creme.activities.calendar.othersCalendarsFilter);
+        creme.activities.calendar.addFilteringInput($(this), othersCalendarsFilter);
     });
 
     $('.floating_event').each(function () {
@@ -190,7 +198,7 @@ creme.activities.calendar.chooseForeground = function(target, bgColor) {
     target.css('color', creme.color.maxContrastingColor(rgb.r, rgb.g, rgb.b));
 };
 
-//creme.activities.calendar.updater = function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
+// creme.activities.calendar.updater = function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
 creme.activities.calendar.updater = function(update_url, event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
 //    creme.ajax.query('/activities/calendar/activity/update', {action: 'POST'},
     creme.ajax.query(update_url, {action: 'POST'},
@@ -200,20 +208,20 @@ creme.activities.calendar.updater = function(update_url, event, dayDelta, minute
                       allDay: allDay
                      })
               .onFail(function(event, data, error) {
-                  if (error.status == 403) {
+                  if (error.status === 403) {
                       creme.dialogs.warning(gettext("You do not have permission, the change will not be saved.")).open();
-                  } else if (error.status == 409) {
+                  } else if (error.status === 409) {
                       creme.dialogs.warning(unescape(data)).open();
-                  } else if (error.status >= 300 || error.status == 0) {
+                  } else if (error.status >= 300 || error.status === 0) {
                       creme.dialogs.warning(gettext("Error, please reload the page.")).open();
                   }
                   revertFunc();
                })
               .onStart(function() {
-                  creme.activities.calendar.loading(false);
+                  creme.activities.calendar.loading(true);
                })
               .onComplete(function() {
-                  creme.activities.calendar.loading(true);
+                  creme.activities.calendar.loading(false);
                   creme.activities.calendar.resizeSidebar();
                }).start();
 /*
@@ -257,7 +265,7 @@ creme.activities.calendar.resizeSidebar = function() {
     sidebar.css('height', (calendarHeight - sidebarMargin) + 'px');
 };
 
-//creme.activities.calendar.fullCalendar = function(events_url, creation_url) {
+// creme.activities.calendar.fullCalendar = function(events_url, creation_url) {
 creme.activities.calendar.fullCalendar = function(events_url, creation_url, update_url) {
     if (update_url === undefined) {
         console.warn('creme.activities.calendar.fullCalendar(): implicit "update_url" argument is deprecated ; give the URL as last argument.');
@@ -275,7 +283,7 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url, upda
         firstDay: 1,
         weekMode: 'fixed',
         aspectRatio: 2,
-        defaultView: 'month',//'agendaWeek',
+        defaultView: 'month', // 'agendaWeek',
         allDaySlot: true,
         allDayText: gettext("All day"),
         axisFormat: "H'h'mm",
@@ -284,7 +292,7 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url, upda
         firstHour: new Date().toString("HH"),
         minTime: 0,
         maxTime: 24,
-        timeFormat: "H'h'mm", //TODO: use l110n time format
+        timeFormat: "H'h'mm", // TODO: use l110n time format
         columnFormat: {
             "month": "dddd",
             "agendaWeek": "dddd d MMMM",
@@ -329,7 +337,7 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url, upda
             gettext("Saturday")
         ],
         events: function(start, end, callback) {
-            var chk_boxes_q = 'input[type="checkbox"][name="selected_calendars"]'
+            var chk_boxes_q = 'input[type="checkbox"][name="selected_calendars"]';
 
 //            var cal_ids = $('input[type="checkbox"][name="selected_calendars"]:checked').map(function() {
             var cal_ids = $(chk_boxes_q + ':checked').map(function() {
@@ -377,13 +385,13 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url, upda
             var cancel_drop = function() {
                 elem.show();
                 $('.calendar').fullCalendar('removeEvents', event.id);
-            }
+            };
 
 //            creme.activities.calendar.updater(event, null, null, allDay, cancel_drop);
             creme.activities.calendar.updater(update_url, event, null, null, allDay, cancel_drop);
         },
         loading: function(isLoading, view) {
-            creme.activities.calendar.loading(!isLoading);
+            creme.activities.calendar.loading(isLoading);
         },
         dayClick: function(date, allDay, jsEvent, view) {
             var data = {
@@ -394,15 +402,19 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url, upda
                 'minute': date.getMinutes()
             };
 
-            creme.dialogs.form(creation_url, {reloadOnSuccess: true}, data).open({width: '80%'});
+            creme.dialogs.form(creation_url, {}, data)
+                         .onFormSuccess(function() {
+                             $('.calendar').fullCalendar('refetchEvents');
+                          })
+                         .open({width: '80%'});
         },
         eventRender: function(event, element, view) {
             if (event.type) {
                 var eventType = $('<span>').addClass('fc-event-type').text(event.type);
                 var eventTime = element.find('.fc-event-time');
 
-                if (eventTime.length != 0) {
-                    if (view.name == 'month') {
+                if (eventTime.length > 0) {
+                    if (view.name === 'month') {
                         eventType.text(' – ' + eventType.text());
                     }
 
@@ -421,8 +433,7 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url, upda
             creme.activities.calendar.updater(update_url, event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view);
         },
         eventClick: function(event) {
-            creme.dialogs.url(event.url).open({width:'80%'});
-
+            creme.dialogs.url(event.url).open({width: '80%'});
             return false;
         },
         eventResize: function(event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, view) {
@@ -432,7 +443,7 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url, upda
     });
 
     // insert 'loading...' indicator
-    var loadingImage = $('<img>').attr ('src', creme_media_url('images/wait.gif'));
+    var loadingImage = $('<img>').attr('src', creme_media_url('images/wait.gif'));
     $('<div class="loading-indicator">').append(loadingImage, '<div class="loading-label">' + gettext("Loading...") + '</div>')
                                         .insertBefore('.fc-content');
 };

@@ -152,6 +152,11 @@
     top: -10px;
 
     margin-bottom: -7px;
+    visibility: hidden;
+}
+
+.calendar .loading-indicator.is-loading {
+    visibility: visible;
 }
 
 .calendar .loading-indicator .loading-label {
