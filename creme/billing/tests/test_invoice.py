@@ -653,18 +653,23 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(target, cloned.get_target().get_real_entity())
 
         # Lines are cloned
-        self.assertEqual(2, len(invoice.service_lines))
-        self.assertEqual(2, len(invoice.product_lines))
+        # self.assertEqual(2, len(invoice.service_lines))
+        # self.assertEqual(2, len(invoice.product_lines))
+        src_line_ids = [l.id for l in invoice.iter_all_lines()]
+        self.assertEqual(4, len(src_line_ids))
 
-        self.assertEqual(2, len(cloned.service_lines))
-        self.assertEqual(2, len(cloned.product_lines))
+        # self.assertEqual(2, len(cloned.service_lines))
+        # self.assertEqual(2, len(cloned.product_lines))
+        cloned_line_ids = [l.id for l in cloned.iter_all_lines()]
+        self.assertEqual(4, len(cloned_line_ids))
 
-        self.assertFalse({p.pk for p in invoice.service_lines} &
-                         {p.pk for p in cloned.service_lines}
-                        )
-        self.assertFalse({p.pk for p in invoice.product_lines} &
-                         {p.pk for p in cloned.product_lines}
-                        )
+        # self.assertFalse({p.pk for p in invoice.service_lines} &
+        #                  {p.pk for p in cloned.service_lines}
+        #                 )
+        # self.assertFalse({p.pk for p in invoice.product_lines} &
+        #                  {p.pk for p in cloned.product_lines}
+        #                 )
+        self.assertFalse(set(src_line_ids) & set(cloned_line_ids))
 
         # Addresses are cloned
         billing_address = cloned.billing_address
