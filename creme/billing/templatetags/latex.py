@@ -24,6 +24,10 @@ from django import template
 
 register = template.Library()
 
+warnings.warn('{% load latex %} is deprecated ; use tags of {% load creme_latex %} instead.',
+              DeprecationWarning
+             )
+
 
 @register.filter(name="latexnewline")
 def latexnewline(x):
