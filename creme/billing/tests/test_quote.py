@@ -287,8 +287,11 @@ class QuoteTestCase(_BillingTestCase):
         self.assertEqual(target, cloned.get_target().get_real_entity())
 
         # Lines are cloned
-        self.assertEqual(1, len(cloned.service_lines))
-        self.assertNotEqual([sl], list(cloned.service_lines))
+        # self.assertEqual(1, len(cloned.service_lines))
+        # self.assertNotEqual([sl], list(cloned.service_lines))
+        cloned_lines = list(cloned.iter_all_lines())
+        self.assertEqual(1, len(cloned_lines))
+        self.assertNotEqual([sl], cloned_lines)
 
         # Addresses are cloned
         billing_address = cloned.billing_address
