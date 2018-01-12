@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -130,14 +130,6 @@ def create_rtype_brick(request):
                                 title=_(u'New type of block'),
                                 submit_label=_(u'Save the block'),
                                )
-
-
-def add_relation_block(request):
-    warnings.warn('creme_config.views.blocks/bricks.add_relation_block() is now deprecated ; '
-                  'use create_rtype_brick() instead.',
-                  DeprecationWarning
-                 )
-    return create_rtype_brick(request)
 
 
 @login_required
@@ -403,14 +395,6 @@ def edit_cells_of_rtype_brick(request, rbi_id, ct_id):
                       )
 
 
-def edit_ctype_of_relation_block(request, rbi_id, ct_id):
-    warnings.warn('creme_config.views.blocks/bricks.edit_ctype_of_relation_block() is now deprecated ; '
-                  'use edit_cells_of_rtype_brick() instead.',
-                  DeprecationWarning
-                 )
-    return edit_cells_of_rtype_brick(request, rbi_id, ct_id)
-
-
 @POST_only
 @login_required
 @permission_required('creme_core.can_admin')
@@ -428,14 +412,6 @@ def delete_cells_of_rtype_brick(request, rbi_id):
     return HttpResponse()
 
 
-def delete_ctype_of_relation_block(request, rbi_id):
-    warnings.warn('creme_config.views.blocks/bricks.delete_ctype_of_relation_block() is now deprecated ; '
-                  'use delete_cells_of_rtype_brick() instead.',
-                  DeprecationWarning
-                 )
-    return delete_cells_of_rtype_brick(request, rbi_id)
-
-
 @login_required
 @permission_required('creme_core.can_admin')
 def edit_custom_brick(request, cbci_id):
@@ -444,14 +420,6 @@ def edit_custom_brick(request, cbci_id):
                                  bricks.CustomBrickConfigItemEditForm,
                                  ugettext(u'Edit the block «%s»'),
                                 )
-
-
-def edit_custom_block(request, cbci_id):
-    warnings.warn('creme_config.views.blocks/bricks.edit_custom_block() is now deprecated ; '
-                  'use edit_custom_brick() instead.',
-                  DeprecationWarning
-                 )
-    return edit_custom_brick(request, cbci_id)
 
 
 @login_required
@@ -538,13 +506,6 @@ def delete_rtype_brick(request):
     return HttpResponse()
 
 
-def delete_relation_block(request):
-    warnings.warn('creme_config.views.blocks/bricks.delete_relation_block() is now deprecated ; '
-                  'use delete_rtype_brick() instead.',
-                  DeprecationWarning
-                 )
-    return delete_rtype_brick(request)
-
 
 @login_required
 @permission_required('creme_core.can_admin')
@@ -556,14 +517,6 @@ def delete_instance_brick(request):
     return HttpResponse()
 
 
-def delete_instance_block(request):
-    warnings.warn('creme_config.views.blocks/bricks.delete_instance_block() is now deprecated ; '
-                  'use delete_instance_brick() instead.',
-                  DeprecationWarning
-                 )
-    return delete_instance_brick(request)
-
-
 @login_required
 @permission_required('creme_core.can_admin')
 def delete_custom_brick(request):
@@ -571,11 +524,3 @@ def delete_custom_brick(request):
     get_object_or_404(CustomBlockConfigItem, pk=cbci_id).delete()
 
     return HttpResponse()
-
-
-def delete_custom_block(request):
-    warnings.warn('creme_config.views.blocks/bricks.delete_custom_block() is now deprecated ; '
-                  'use delete_custom_brick() instead.',
-                  DeprecationWarning
-                 )
-    return delete_custom_brick(request)
