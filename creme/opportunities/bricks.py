@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from datetime import timedelta
 
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.bricks import Brick, SimpleBrick, QuerysetBrick, EntityBrick
@@ -109,8 +109,8 @@ class _LinkedStuffBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     self._get_queryset(entity),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
                     predicate_id=self.relation_type_deps[0],
                     ct=_get_ct(self._model),  # DEPRECATED (use 'objects_ctype' instead)
         ))
@@ -190,8 +190,8 @@ class TargettingOpportunitiesBrick(QuerysetBrick):
                     Opportunity.objects.filter(relations__object_entity=entity.id,
                                                relations__type=constants.REL_SUB_TARGETS,
                                               ),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
                     predicate_id=self.relation_type_deps[0],
                     ct=_get_ct(Opportunity),  # DEPRECATED (use 'objects_ctype' instead)
                     hidden_fields={fname

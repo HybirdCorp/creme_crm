@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.bricks import QuerysetBrick
@@ -43,8 +43,8 @@ class _RelatedEntitesBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(
                     context, self._get_queryset(entity),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
         ))
 
 
@@ -74,8 +74,8 @@ class RecipientsBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                 context,
                 Recipient.objects.filter(messaging_list=pk),  # get_recipients() ??? related_name() ?
-                # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pk)),
+                # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+                # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pk)),
                 ct_id=ContentType.objects.get_for_model(Recipient).id,  # DEPRECATED (use 'objects_ctype.id' instead)
         ))
 
@@ -105,8 +105,8 @@ class MessagesBrick(QuerysetBrick):
         sending = context['object']
         return self._render(self.get_template_context(
                 context, sending.messages.all(),
-                # update_url='/sms/campaign/sending/%s/messages/reload/' % sending.pk
-                update_url=reverse('sms__reload_messages_block', args=(sending.id,)),
+                # # update_url='/sms/campaign/sending/%s/messages/reload/' % sending.pk
+                # update_url=reverse('sms__reload_messages_block', args=(sending.id,)),
         ))
 
 
@@ -124,6 +124,6 @@ class SendingsBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     Sending.objects.filter(campaign=campaign),  # get_sendings() ??
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, campaign.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, campaign.pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, campaign.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, campaign.pk)),
         ))

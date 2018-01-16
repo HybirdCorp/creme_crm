@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
@@ -70,8 +70,8 @@ class ParentTasksBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     task.parent_tasks.all(),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, task.pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, task.pk)),
         ))
 
 
@@ -90,8 +90,8 @@ class ProjectTasksBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(
                     context, project.get_tasks(),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, project.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, project.id)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, project.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, project.id)),
                     creation_perm=creation_perm,  # TODO: use a tempatetag instead ??
         ))
 
@@ -110,8 +110,8 @@ class TaskResourcesBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     task.get_resources().select_related('linked_contact'),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, task.pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, task.pk)),
         ))
 
 
@@ -129,6 +129,6 @@ class TaskActivitiesBrick(PaginatedBrick):
         return self._render(self.get_template_context(
                     context,
                     task.related_activities,
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, task.pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, task.pk)),
         ))

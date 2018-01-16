@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 import logging
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 
 from creme.creme_core.gui.bricks import Brick, QuerysetBrick
 # from creme.creme_core.models import SettingValue
@@ -113,8 +113,8 @@ class UserMobileSyncConfigBrick(Brick):
                     password=get_setting_value(setting_keys.user_msync_server_pwd_key),
                     sync_cal=get_setting_value(setting_keys.user_msync_activities_key),
                     sync_con=get_setting_value(setting_keys.user_msync_contacts_key),
-                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 
@@ -143,8 +143,8 @@ class MobileSyncConfigBrick(Brick):
                     url=values['url'],
                     domain=values['domain'],
                     ssl=values['ssl'],
-                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 

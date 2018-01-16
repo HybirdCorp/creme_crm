@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,12 +24,12 @@ import logging
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from .core.entity_cell import EntityCellCustomField
 from .creme_jobs.base import JobType
-from .gui.bricks import Brick, QuerysetBrick, BricksManager, list4url
+from .gui.bricks import Brick, QuerysetBrick, BricksManager  # list4url
 from .gui.statistics import statistics_registry
 from .models import (CremeEntity, RelationType, Relation, CremeProperty, CustomField,
         Job, JobResult, MassImportJobResult, EntityJobResult)
@@ -51,8 +51,8 @@ class PropertiesBrick(QuerysetBrick):
         # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context, entity.properties.select_related('type'),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
                     ct_id=ContentType.objects.get_for_model(CremeProperty).id,  # DEPRECATED (use 'objects_ctype.id' instead)
         ))
 
@@ -125,16 +125,16 @@ class RelationsBrick(QuerysetBrick):
             excluded_rtype_ids.extend(get('exclude', ()))
 
         if excluded_rtype_ids:
-            # update_url = '/creme_core/blocks/reload/relations_block/%s/%s/' % (entity.pk, ','.join(excluded_types))
-            update_url = reverse('creme_core__reload_relations_block', args=(entity.id, ','.join(excluded_rtype_ids)))
-            relations  = relations.exclude(type__in=excluded_rtype_ids)
-        else:
-            # update_url = '/creme_core/blocks/reload/relations_block/%s/' % entity.pk
-            update_url = reverse('creme_core__reload_relations_block', args=(entity.id,))
+            # # update_url = '/creme_core/blocks/reload/relations_block/%s/%s/' % (entity.pk, ','.join(excluded_types))
+            # update_url = reverse('creme_core__reload_relations_block', args=(entity.id, ','.join(excluded_rtype_ids)))
+            relations = relations.exclude(type__in=excluded_rtype_ids)
+        # else:
+        #     # update_url = '/creme_core/blocks/reload/relations_block/%s/' % entity.pk
+        #     update_url = reverse('creme_core__reload_relations_block', args=(entity.id,))
 
         # btc = self.get_block_template_context(context, relations,
         btc = self.get_template_context(context, relations,
-                                        update_url=update_url,
+                                        # update_url=update_url,
                                         excluded_rtype_ids=excluded_rtype_ids,
                                        )
 
@@ -225,8 +225,8 @@ class HistoryBrick(QuerysetBrick):
         btc = self.get_template_context(
                     context,
                     HistoryLine.objects.filter(entity=pk),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pk)),
                    )
         hlines = btc['page'].object_list
 
@@ -243,8 +243,8 @@ class HistoryBrick(QuerysetBrick):
         btc = self.get_template_context(
                     context,
                     HistoryLine.objects.filter(entity_ctype__in=ct_ids),
-                    # update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
-                    update_url=reverse('creme_core__reload_portal_blocks', args=(self.id_, list4url(ct_ids))),
+                    # # update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                    # update_url=reverse('creme_core__reload_portal_blocks', args=(self.id_, list4url(ct_ids))),
                     HIDDEN_VALUE=settings.HIDDEN_VALUE,
                    )
         hlines = btc['page'].object_list
@@ -261,8 +261,8 @@ class HistoryBrick(QuerysetBrick):
         btc = self.get_template_context(
                     context,
                     HistoryLine.objects.exclude(type__in=(TYPE_SYM_RELATION, TYPE_SYM_REL_DEL)),
-                    # update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_home_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_home_blocks', args=(self.id_,)),
                     HIDDEN_VALUE=settings.HIDDEN_VALUE,
                    )
         hlines = btc['page'].object_list
@@ -291,8 +291,8 @@ class TrashBrick(QuerysetBrick):
         btc = self.get_template_context(
                 context,
                 CremeEntity.objects.filter(is_deleted=True),
-                # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
          )
         CremeEntity.populate_real_entities(btc['page'].object_list)
 
@@ -308,14 +308,12 @@ class StatisticsBrick(Brick):
     def home_display(self, context):
         has_perm = context['user'].has_perm
 
-        # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context,
                     items=[item
                             for item in statistics_registry
                                 if not item.perm or has_perm(item.perm)
                           ],
-                    update_url=reverse('creme_core__reload_home_blocks', args=(self.id_,)),
         ))
 
 

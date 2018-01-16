@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,7 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -124,8 +124,8 @@ class SettingsBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                                 context,
                                 SettingValue.objects.filter(key_id__in=skeys_ids, user=None),
-                                # update_url='/creme_config/settings/%s/reload/' % app_name,
-                                update_url=reverse('creme_config__reload_settings_block', args=(app_name,)),
+                                # # update_url='/creme_config/settings/%s/reload/' % app_name,
+                                # update_url=reverse('creme_config__reload_settings_block', args=(app_name,)),
                                 app_name=app_name,
                            ))
 
@@ -149,8 +149,8 @@ class PropertyTypesBrick(_ConfigAdminBrick):
         return self._render(self.get_template_context(
                     context,
                     CremePropertyType.objects.annotate(stats=Count('cremeproperty')),
-                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 
@@ -168,8 +168,8 @@ class RelationTypesBrick(_ConfigAdminBrick):
                     RelationType.objects.filter(is_custom=False,
                                                 pk__contains='-subject_',
                                                ),
-                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
                     custom=False,
         ))
 
@@ -188,8 +188,8 @@ class CustomRelationTypesBrick(_ConfigAdminBrick):
                     RelationType.objects.filter(is_custom=True,
                                                 pk__contains='-subject_',
                                                ),
-                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
                     custom=True,
         ))
 
@@ -205,8 +205,8 @@ class SemiFixedRelationTypesBrick(_ConfigAdminBrick):
         # btc = self.get_block_template_context(
         btc = self.get_template_context(
                     context, SemiFixedRelationType.objects.all(),
-                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         )
 
         CremeEntity.populate_real_entities([sfrt.object_entity for sfrt in btc['page'].object_list])
@@ -237,8 +237,8 @@ class FieldsConfigsBrick(PaginatedBrick):
         # btc = self.get_block_template_context(
         btc = self.get_template_context(
                     context, fconfigs,
-                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
                     # display_add_button=any(ct not in used_ctypes and any(_get_fields_enum(ct))
                     #                             for ct in fields_config_registry.ctypes
                     #                       ),
@@ -324,8 +324,8 @@ class UsersBrick(_ConfigAdminBrick):
         # btc = self.get_block_template_context(
         btc = self.get_template_context(
                     context, users,
-                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         )
         page = btc['page']
         page_users = page.object_list
@@ -351,8 +351,8 @@ class TeamsBrick(_ConfigAdminBrick):
         # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context, User.objects.filter(is_team=True),
-                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 
@@ -394,8 +394,8 @@ class BlockDetailviewLocationsBrick(PaginatedBrick):
         # btc = self.get_block_template_context(
         btc = self.get_template_context(
                     context, ctypes,
-                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
                     max_conf_count=UserRole.objects.count() + 1,  # NB: '+ 1' is for super-users config.
         )
 
@@ -481,8 +481,8 @@ class BlockPortalLocationsBrick(PaginatedBrick):
                     context,
                     # apps,
                     app_configs,
-                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 
@@ -493,11 +493,9 @@ class BlockHomeLocationsBrick(_ConfigAdminBrick):
     template_name = 'creme_config/bricks/bricklocations-home.html'
 
     def detailview_display(self, context):
-        # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context,
                     BlockPortalLocation.objects.filter(app_name='creme_core'),
-                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 
@@ -513,8 +511,8 @@ class BlockDefaultMypageLocationsBrick(_ConfigAdminBrick):
         return self._render(self.get_template_context(
                     context,
                     BlockMypageLocation.objects.filter(user=None),
-                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 
@@ -530,8 +528,8 @@ class BlockMypageLocationsBrick(_ConfigAdminBrick):
         return self._render(self.get_template_context(
                     context,
                     BlockMypageLocation.objects.filter(user=context['user']),
-                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 
@@ -547,8 +545,8 @@ class RelationBlocksConfigBrick(_ConfigAdminBrick):
         # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context, RelationBlockItem.objects.all(),
-                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 
@@ -564,8 +562,8 @@ class InstanceBlocksConfigBrick(_ConfigAdminBrick):
         # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context, InstanceBlockConfigItem.objects.all(),
-                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 
@@ -607,8 +605,8 @@ class CustomBlocksConfigBrick(PaginatedBrick):
         # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                 context, ctypes,
-                # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 
@@ -642,8 +640,8 @@ class ButtonMenuBrick(Brick):
                     context,
                     default_buttons=default_buttons,
                     buttons=buttons,
-                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 
@@ -677,8 +675,8 @@ class SearchConfigBrick(PaginatedBrick):
         # btc = self.get_block_template_context(
         btc = self.get_template_context(
                 context, ctypes,
-                # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
                 # NB: '+ 2' is for default config + super-users config.
                 max_conf_count=UserRole.objects.count() + 2,
         )
@@ -719,8 +717,8 @@ class HistoryConfigBrick(_ConfigAdminBrick):
         # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context, HistoryConfigItem.objects.all(),
-                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 
@@ -736,8 +734,8 @@ class UserRolesBrick(_ConfigAdminBrick):
         # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context, UserRole.objects.all(),
-                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 
@@ -759,8 +757,8 @@ class UserPreferredMenusBrick(QuerysetBrick):
                     context,
                     PreferedMenuItem.objects.filter(user=context['user']),
                     page_size=self.page_size,
-                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 
@@ -801,8 +799,8 @@ class UserSettingValuesBrick(Brick):
         # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context,
-                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
                     values_per_app=[
                         # (get_app(app_label, silent_fail=True).verbose_name, svalues)
                         (get_app_config(app_label).verbose_name, svalues)

@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.gui.bricks import QuerysetBrick, list4url
+from creme.creme_core.gui.block import QuerysetBlock, list4url
 from creme.creme_core.models import CremeEntity, Relation
 
 from .bricks import (
@@ -25,8 +25,8 @@ from .constants import (REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY,
 warnings.warn('activities.blocks is deprecated ; use activities.bricks instead.', DeprecationWarning)
 
 
-class FutureActivitiesBlock(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('activities', 'future_activities')
+class FutureActivitiesBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('activities', 'future_activities')
     dependencies  = (Relation, Activity)
     relation_type_deps = (REL_SUB_LINKED_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY)
     verbose_name  = _(u'Future activities')

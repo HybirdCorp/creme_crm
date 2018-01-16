@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,10 +21,10 @@
 from collections import defaultdict
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.gui.bricks import QuerysetBrick, list4url
+from creme.creme_core.gui.bricks import QuerysetBrick  # list4url
 
 from .models import Action, Alert, Memo, ToDo, UserMessage
 
@@ -67,8 +67,8 @@ class _AssistantsBrick(QuerysetBrick):
         entity = context['object']
         btc = self.get_template_context(
                 context, self._get_queryset_for_detailview(entity, context),
-                # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
+                # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
                 ct_id=self._get_contenttype_id(),  # DEPRECATED (use 'objects_ctype.id' instead)
         )
 
@@ -81,8 +81,8 @@ class _AssistantsBrick(QuerysetBrick):
     def portal_display(self, context, ct_ids):
         btc = self.get_template_context(
             context, self._get_queryset_for_portal(ct_ids, context),
-            # update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
-            update_url=reverse('creme_core__reload_portal_blocks', args=(self.id_, list4url(ct_ids))),
+            # # update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+            # update_url=reverse('creme_core__reload_portal_blocks', args=(self.id_, list4url(ct_ids))),
             ct_id=self._get_contenttype_id(),  # DEPRECATED
         )
         # self._populate_related_real_entities(btc['page'].object_list, context['request'].user)
@@ -93,8 +93,8 @@ class _AssistantsBrick(QuerysetBrick):
     def home_display(self, context):
         btc = self.get_template_context(
                 context, self._get_queryset_for_home(context),
-                # update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
-                update_url=reverse('creme_core__reload_home_blocks', args=(self.id_,)),
+                # # update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                # update_url=reverse('creme_core__reload_home_blocks', args=(self.id_,)),
                 ct_id=self._get_contenttype_id(),  # DEPRECATED
         )
         # self._populate_related_real_entities(btc['page'].object_list, context['request'].user)

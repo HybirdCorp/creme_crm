@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,10 +22,10 @@ from collections import defaultdict
 from itertools import chain
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.gui.bricks import Brick, PaginatedBrick, QuerysetBrick, list4url
+from creme.creme_core.gui.bricks import Brick, PaginatedBrick, QuerysetBrick  # list4url
 from creme.creme_core.models import Relation, SettingValue
 
 from creme.persons import get_organisation_model
@@ -93,16 +93,16 @@ class ApproachesBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(
                     context, approaches,
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pk)),
         ))
 
     def portal_display(self, context, ct_ids):
         btc = self.get_template_context(
                     context,
                     CommercialApproach.get_approaches_for_ctypes(ct_ids),
-                    # update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
-                    update_url=reverse('creme_core__reload_portal_blocks', args=(self.id_, list4url(ct_ids))),
+                    # # update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                    # update_url=reverse('creme_core__reload_portal_blocks', args=(self.id_, list4url(ct_ids))),
          )
         self._populate_related_real_entities(btc['page'].object_list, context['user'])
 
@@ -111,8 +111,8 @@ class ApproachesBrick(QuerysetBrick):
     def home_display(self, context):
         btc = self.get_template_context(
                     context, CommercialApproach.get_approaches(),
-                    # update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_home_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_home_blocks', args=(self.id_,)),
         )
         self._populate_related_real_entities(btc['page'].object_list, context['user'])
 
@@ -132,8 +132,8 @@ class SegmentsBrick(QuerysetBrick):
     def detailview_display(self, context):
         return self._render(self.get_template_context(
                     context, MarketSegment.objects.all(),
-                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 
@@ -151,8 +151,8 @@ class SegmentDescriptionsBrick(PaginatedBrick):
         strategy = context['object']
         return self._render(self.get_template_context(
                     context, strategy.get_segment_descriptions_list(),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, strategy.pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, strategy.pk)),
                     # ct_id=self._SEGMENTDESC_CT_ID,
                     ct_id=get_ct(MarketSegmentDescription).id,
         ))
@@ -173,8 +173,8 @@ class AssetsBrick(QuerysetBrick):
         strategy = context['object']
         return self._render(self.get_template_context(
                     context, strategy.assets.all(),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, strategy.pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, strategy.pk)),
                     # ct_id=self._ASSET_CT_ID,
                     ct_id=get_ct(CommercialAsset).id,  # DEPRECATED (use 'objects_ctype.id' instead)
         ))
@@ -195,8 +195,8 @@ class CharmsBrick(QuerysetBrick):
         strategy = context['object']
         return self._render(self.get_template_context(
                     context, strategy.charms.all(),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, strategy.pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, strategy.pk)),
                     # ct_id=self._CHARM_CT_ID,
                     ct_id=get_ct(MarketSegmentCharm).id,  # DEPRECATED (use 'objects_ctype.id' instead)
         ))
@@ -216,8 +216,8 @@ class EvaluatedOrgasBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(
                 context, strategy.evaluated_orgas.all(),
-                # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
-                update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, strategy.pk)),
+                # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
+                # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, strategy.pk)),
         ))
 
 
@@ -238,8 +238,8 @@ class AssetsMatrixBrick(Brick):
                         assets=strategy.get_assets_list(),
                         segment_info=strategy.get_segment_descriptions_list(),
                         totals=strategy.get_assets_totals(orga),
-                        # update_url='/commercial/blocks/assets_matrix/%s/%s/' % (strategy.pk, orga.pk),
-                        update_url=reverse('commercial__reload_assets_matrix', args=(strategy.id, orga.id)),
+                        # # update_url='/commercial/blocks/assets_matrix/%s/%s/' % (strategy.pk, orga.pk),
+                        # update_url=reverse('commercial__reload_assets_matrix', args=(strategy.id, orga.id)),
                        )
                     )
 
@@ -261,8 +261,8 @@ class CharmsMatrixBrick(Brick):
                         charms=strategy.get_charms_list(),
                         segment_info=strategy.get_segment_descriptions_list(),  # TODO: remove in 1.8
                         totals=strategy.get_charms_totals(orga),
-                        # update_url='/commercial/blocks/charms_matrix/%s/%s/' % (strategy.pk, orga.pk),
-                        update_url=reverse('commercial__reload_charms_matrix', args=(strategy.pk, orga.pk),)
+                        # # update_url='/commercial/blocks/charms_matrix/%s/%s/' % (strategy.pk, orga.pk),
+                        # update_url=reverse('commercial__reload_charms_matrix', args=(strategy.pk, orga.pk),)
                        )
                     )
 
@@ -282,8 +282,8 @@ class AssetsCharmsMatrixBrick(Brick):
         return self._render(self.get_template_context(
                         context,
                         segment_info=strategy.get_segment_descriptions_list(),
-                        # update_url='/commercial/blocks/assets_charms_matrix/%s/%s/' % (strategy.pk, orga.pk),
-                        update_url=reverse('commercial__reload_assets_charms_matrix', args=(strategy.pk, orga.pk)),
+                        # # update_url='/commercial/blocks/assets_charms_matrix/%s/%s/' % (strategy.pk, orga.pk),
+                        # update_url=reverse('commercial__reload_assets_charms_matrix', args=(strategy.pk, orga.pk)),
                        )
                     )
 
@@ -306,8 +306,8 @@ class ActObjectivesBrick(QuerysetBrick):
                     context,
                     # NB: "act.objectives.all()" causes a strange additional query...
                     ActObjective.objects.filter(act=act_id),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, act_id),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, act_id)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, act_id),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, act_id)),
                     # ct_id=self._OBJECTIVE_CT_ID,
                     ct_id=get_ct(ActObjective).id,  # DEPRECATED (use 'objects_ctype.id' instead)
         ))
@@ -355,8 +355,8 @@ class PatternComponentsBrick(Brick):
         return self._render(self.get_template_context(
                     context,
                     components=flattened_tree,
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pattern.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pattern.id)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pattern.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pattern.id)),
                     # ct_id=self._PATTERNCOMP_CT_ID,
                     ct_id=get_ct(ActObjectivePatternComponent).id,
         ))

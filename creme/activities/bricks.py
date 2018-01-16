@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from itertools import chain
 
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, Relation
@@ -61,8 +61,8 @@ class ParticipantsBrick(QuerysetBrick):
                     context,
                     activity.relations.filter(type=constants.REL_OBJ_PART_2_ACTIVITY)
                                       .select_related('type', 'object_entity'),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, activity.pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, activity.pk)),
         )
         relations = btc['page'].object_list
         # TODO: remove civility with better entity repr system ??
@@ -101,8 +101,8 @@ class SubjectsBrick(QuerysetBrick):
                     context,
                     activity.relations.filter(type=constants.REL_OBJ_ACTIVITY_SUBJECT)
                             .select_related('type', 'object_entity'),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, activity.pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, activity.pk)),
         )
 
         Relation.populate_real_object_entities(btc['page'].object_list)
@@ -216,8 +216,8 @@ class UserCalendarsBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     Calendar.objects.filter(user=user),
-                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
                     has_app_perm=user.has_perm('activities'),
         ))
 
@@ -238,6 +238,6 @@ class RelatedCalendarBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     activity.calendars.filter(user=user),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, activity.pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, activity.pk)),
         ))

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2017  Hybird
+#    Copyright (C) 2012-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 # from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext, ungettext
 
@@ -83,8 +83,8 @@ class PollFormLinesBrick(Brick):
 
         return self._render(self.get_template_context(
                     context,
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pform.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pform.pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pform.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pform.pk)),
                     nodes=nodes,
                     # title=mark_safe(self._build_title(nodes)),
                     title=self._build_title(nodes),
@@ -110,8 +110,8 @@ class PollReplyLinesBrick(Brick):
 
         return self._render(self.get_template_context(
                     context,
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, preply.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, preply.pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, preply.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, preply.pk)),
                     nodes=nodes,
                     style=NodeStyle(),
         ))
@@ -132,8 +132,8 @@ class PollRepliesBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     PollReply.objects.filter(pform=pform),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pform.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pform.pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pform.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pform.pk)),
                     ct_reply=get_ct(PollReply),  # DEPRECATED (use 'objects_ctype' instead)
                     # TODO: reuse nodes (PollFormLinesBlock) to avoid a query
                     propose_creation=pform.lines.exists(),
@@ -153,8 +153,8 @@ class _RelatedRepliesBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     self._get_replies(pk),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pk)),
                     ct_reply=get_ct(PollReply),  # DEPRECATED (use 'objects_ctype' instead)
                     propose_creation=True,
         ))
