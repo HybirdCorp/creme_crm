@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ import logging, warnings
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.db.models import Model
 from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -36,16 +36,6 @@ from ..models import (Relation, RelationBlockItem, CremeEntity,
 
 
 logger = logging.getLogger(__name__)
-
-
-def list4url(list_):
-    "Special url list-to-string function"
-    return ','.join(str(i) for i in list_)
-
-
-def str2list(string):
-    "'1,2,3'  -> [1, 2, 3]"
-    return [int(i) for i in string.split(',') if i.isdigit()]
 
 
 class _BrickContext(object):
@@ -170,17 +160,17 @@ class Brick(object):
         return get_template(self.template_name).render(template_context)
 
     def _simple_detailview_display(self, context):
-        """Helper method to build a basic detailview_display() method for classes that inherit Block."""
+        """Helper method to build a basic detailview_display() method for classes that inherit Brick."""
         # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                 context,
-                # update_url='/creme_core/blocks/reload/%s/%s/' % (
-                #                     self.id_,
-                #                     context['object'].pk,
-                #                 ),
-                update_url=reverse('creme_core__reload_detailview_blocks',
-                                   args=(self.id_, context['object'].pk),
-                                   ),
+                # # update_url='/creme_core/blocks/reload/%s/%s/' % (
+                # #                     self.id_,
+                # #                     context['object'].pk,
+                # #                 ),
+                # update_url=reverse('creme_core__reload_detailview_blocks',
+                #                    args=(self.id_, context['object'].pk),
+                #                    ),
         ))
 
     def _iter_dependencies_info(self):
@@ -208,17 +198,17 @@ class Brick(object):
 
         return context
 
-    def get_block_template_context(self, *args, **kwargs):
-        warnings.warn('Brick.get_block_template_context() is deprecated ; use get_template_context() instead.',
+    def get_block_template_context(self, context, update_url='', **extra_kwargs):
+        warnings.warn('Brick.get_block_template_context() is deprecated ; '
+                      'use get_template_context() instead '
+                      '(notice that the argument "update_url" has been removed).',
                       DeprecationWarning
                      )
-        return self.get_template_context(*args, **kwargs)
+        return self.get_template_context(context, **extra_kwargs)
 
-    def get_template_context(self, context, update_url='', **extra_kwargs):
+    def get_template_context(self, context, **extra_kwargs):
         """ Build the brick template context.
         @param context: Template context (contains 'request' etc...).
-        @param update_url: String containing url to reload this block with ajax.
-                           USELESS with new brick system (should be deprecated in creme1.8).
         """
         brick_id = self.id_
         request = context['request']
@@ -235,7 +225,7 @@ class Brick(object):
 
         template_context = self._build_template_context(context, brick_id, brick_context,
                                                         base_url=base_url,  # TODO: remove in creme 1.8
-                                                        update_url=update_url,  # TODO: remove in creme 1.8
+                                                        # update_url=update_url,
                                                         **extra_kwargs
                                                        )
 
@@ -321,9 +311,11 @@ class PaginatedBrick(Brick):
                      )
         return self.get_template_context(*args, **kwargs)
 
-    def get_template_context(self, context, objects, update_url='', **extra_kwargs):
+    # def get_template_context(self, context, objects, update_url='', **extra_kwargs):
+    def get_template_context(self, context, objects, **extra_kwargs):
         """@param objects: Sequence of objects to display in the brick."""
-        return Brick.get_template_context(self, context, update_url=update_url, objects=objects, **extra_kwargs)
+        # return Brick.get_template_context(self, context, update_url=update_url, objects=objects, **extra_kwargs)
+        return Brick.get_template_context(self, context, objects=objects, **extra_kwargs)
 
 
 class _QuerysetBrickContext(_PaginatedBrickContext):
@@ -414,10 +406,11 @@ class QuerysetBrick(PaginatedBrick):
                      )
         return self.get_template_context(*args, **kwargs)
 
-    def get_template_context(self, context, queryset, update_url='', **extra_kwargs):
+    # def get_template_context(self, context, queryset, update_url='', **extra_kwargs):
+    def get_template_context(self, context, queryset, **extra_kwargs):
         """@param queryset Set of objects to display in the block."""
         return PaginatedBrick.get_template_context(self, context, objects=queryset,
-                                                   update_url=update_url,
+                                                   # update_url=update_url,
                                                    **extra_kwargs
                                                   )
 
@@ -491,10 +484,10 @@ class SpecificRelationsBrick(QuerysetBrick):
                     context,
                     entity.relations.filter(type=relation_type)
                                     .select_related('type', 'object_entity'),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks',
-                                       args=(self.id_, entity.pk),
-                                      ),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks',
+                    #                    args=(self.id_, entity.pk),
+                    #                   ),
                     config_item=config_item,
                     relation_type=relation_type,
                    )
@@ -564,10 +557,10 @@ class CustomBrick(Brick):
         # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context,
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks',
-                                       args=(self.id_, entity.pk),
-                                      ),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks',
+                    #                    args=(self.id_, entity.pk),
+                    #                   ),
                     config_item=self.config_item,
         ))
 

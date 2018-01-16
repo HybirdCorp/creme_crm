@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.forms.models import modelformset_factory
 from django.utils.translation import ugettext_lazy as _
 
@@ -114,8 +114,8 @@ class _LinesBrick(SimpleBrick):
         get_ct = ContentType.objects.get_for_model
         return self._render(self.get_template_context(
                     context,
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, document.id)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, document.id)),
                     ct_id=get_ct(line_model).id,  # TODO:  templatetag instead ?
                     formset=lineformset,
                     # item_count=lines.count(),
@@ -173,10 +173,10 @@ class CreditNotesBrick(PaginatedBrick):
         return self._render(self.get_template_context(
                     context,
                     billing_document.get_credit_notes(),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (
-                    #                 self.id_, billing_document.pk,
-                    #             ),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, billing_document.id)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (
+                    # #                 self.id_, billing_document.pk,
+                    # #             ),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, billing_document.id)),
                     rtype_id=self.relation_type_deps[0],
                     ct=ContentType.objects.get_for_model(CreditNote),  # DEPRECATED
                     add_title=_(u'Create a credit note'),
@@ -199,8 +199,8 @@ class TotalBrick(Brick):
     def detailview_display(self, context):
         return self._render(self.get_template_context(
                     context,
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, context['object'].pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, context['object'].id)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, context['object'].pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, context['object'].id)),
                     cell_class=getattr(settings, 'CSS_NUMBER_LISTVIEW', ''),
         ))
 
@@ -233,8 +233,8 @@ class ReceivedInvoicesBrick(QuerysetBrick):
                     Invoice.objects.filter(relations__object_entity=person_id,
                                            relations__type=constants.REL_SUB_BILL_RECEIVED,
                                           ),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person_id),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, person_id)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person_id),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, person_id)),
                     hidden_fields={fname for fname in ('expiration_date',) if is_hidden(fname)},
         ))
 
@@ -265,8 +265,8 @@ class _ReceivedBillingDocumentsBrick(QuerysetBrick):
                     model.objects.filter(relations__object_entity=person_id,
                                          relations__type=constants.REL_SUB_BILL_RECEIVED,
                                         ),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person_id),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, person_id)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person_id),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, person_id)),
                     title=self._title,
                     title_plural=self._title_plural,
                     empty_title=self._empty_title,
@@ -343,8 +343,8 @@ class PaymentInformationBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(context,
                     PaymentInformation.objects.filter(organisation=organisation),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, organisation.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, organisation.id)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, organisation.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, organisation.id)),
                     ct_id=ContentType.objects.get_for_model(PaymentInformation).id,  # DEPRECATED
         ))
 
@@ -373,8 +373,8 @@ class BillingPaymentInformationBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(
                     context, pi_qs,
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, billing.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, billing.id)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, billing.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, billing.id)),
                     ct_id=ContentType.objects.get_for_model(PaymentInformation).id,  # DEPRECATED
                     organisation=organisation,
                     field_hidden=hidden,
@@ -403,8 +403,8 @@ class PersonsStatisticsBrick(Brick):
         user = context['user']
         return self._render(self.get_template_context(
                     context,
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, person.id)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, person.id)),
                     total_pending=function_fields.get_total_pending(person, user),
                     total_won_quote_last_year=function_fields.get_total_won_quote_last_year(person, user),
                     total_won_quote_this_year=function_fields.get_total_won_quote_this_year(person, user),

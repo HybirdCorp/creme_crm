@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -102,8 +102,8 @@ class FoundEntitiesBrick(QuerysetBrick):
         # btc = self.get_block_template_context(
         btc = self.get_template_context(
                     context, qs,
-                    # update_url='/creme_core/search/reload_block/%s/%s' % (self.id_, research),
-                    update_url=reverse('creme_core__reload_search_block', args=(self.id_, research)),
+                    # # update_url='/creme_core/search/reload_block/%s/%s' % (self.id_, research),
+                    # update_url=reverse('creme_core__reload_search_block', args=(self.id_, research)),
                     # sfields=searcher.get_fields(model),
                     cells=[EntityCellRegularField.build(model, field.name) for field in searcher.get_fields(model)],
                     # If the model is inserted in the context, the template call it and create an instance...

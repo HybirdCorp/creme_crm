@@ -27,7 +27,7 @@ from django.template.context import make_context
 from django.template.engine import Engine
 
 from ..auth.decorators import login_required
-from ..gui.bricks import brick_registry, str2list, BricksManager
+from ..gui.bricks import brick_registry, BricksManager
 from ..models import CremeEntity, BlockState
 from ..utils import jsonify, get_ct_or_404
 
@@ -162,6 +162,8 @@ def reload_portal(request, block_id, ct_ids):
                   'use creme_core.views.bricks.reload_portal() instead.',
                   DeprecationWarning
                  )
+
+    from ..gui.block import str2list
 
     context = build_context(request)
     ct_ids = str2list(ct_ids)

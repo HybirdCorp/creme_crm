@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,10 +21,10 @@
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.gui.bricks import SimpleBrick, QuerysetBrick, list4url
+from creme.creme_core.gui.bricks import SimpleBrick, QuerysetBrick  # list4url
 from creme.creme_core.models import Relation
 
 from creme import documents, persons, emails
@@ -84,8 +84,8 @@ class _RelatedEntitesBrick(QuerysetBrick):
         entity = context['object']
         btc = self.get_template_context(
                     context, self._get_queryset(entity),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
         )
 
         self._update_context(btc)
@@ -119,8 +119,8 @@ class EmailRecipientsBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     EmailRecipient.objects.filter(ml=mailing_list.id), #get_recipients() ???
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, mailing_list.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, mailing_list.pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, mailing_list.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, mailing_list.pk)),
                     ct_id=ContentType.objects.get_for_model(EmailRecipient).id,  # DEPRECATED (use 'objects_ctype.id' instead)
         ))
 
@@ -211,8 +211,8 @@ class SendingsBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     EmailSending.objects.filter(campaign=campaign.id),  # TODO: use related_name i.e:campaign.sendings_set.all()
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, campaign.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, campaign.pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, campaign.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, campaign.pk)),
                     ct_id=ContentType.objects.get_for_model(EmailSending).id,
         ))
 
@@ -232,8 +232,8 @@ class MailsBrick(QuerysetBrick):
         return self._render(self.get_template_context(
             context,
             sending.get_mails().select_related('recipient_entity'),
-            # update_url='/emails/campaign/sending/%s/mails/reload/' % sending.pk,
-            update_url=reverse('emails__reload_lw_mails_brick', args=(sending.id,)),
+            # # update_url='/emails/campaign/sending/%s/mails/reload/' % sending.pk,
+            # update_url=reverse('emails__reload_lw_mails_brick', args=(sending.id,)),
             ct_id=ContentType.objects.get_for_model(LightWeightEmail).id,  # DEPRECATED (use 'objects_ctype.id ' instead)
         ))
 
@@ -290,8 +290,8 @@ class LwMailsHistoryBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     LightWeightEmail.objects.filter(recipient_entity=pk).select_related('sending'),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pk)),
         ))
 
 
@@ -312,8 +312,8 @@ class SignaturesBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(
                     context, EmailSignature.objects.filter(user=user),
-                    # update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
-                    update_url=reverse('creme_core__reload_portal_blocks', args=(self.id_, list4url(ct_ids))),
+                    # # update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                    # update_url=reverse('creme_core__reload_portal_blocks', args=(self.id_, list4url(ct_ids))),
                     has_app_perm=True,  # We've just checked it.
         ))
 
@@ -336,8 +336,8 @@ class MySignaturesBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     EmailSignature.objects.filter(user=user),
-                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
                     has_app_perm=user.has_perm('emails'),
        ))
 

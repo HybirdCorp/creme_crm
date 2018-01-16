@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2017  Hybird
+#    Copyright (C) 2014-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from collections import defaultdict
 from json import dumps as encode_json
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _  # ugettext
 
 from creme.creme_core.gui.bricks import Brick
@@ -85,8 +85,8 @@ class GoogleDetailMapBrick(_MapBrick):
         addresses = [address for address in self.get_addresses_as_dict(entity) if address.get('content')]
         return self._render(self.get_template_context(
                     context,
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
                     addresses=addresses,
                     geoaddresses=encode_json(addresses),
                     google_api_key=get_google_api_key(),  # TODO: factorise
@@ -102,8 +102,8 @@ class GoogleFilteredMapBrick(_MapBrick):
     def home_display(self, context):
         return self._render(self.get_template_context(
                     context,
-                    # update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
-                    update_url=reverse('creme_core__reload_home_blocks', args=(self.id_,)),
+                    # # update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                    # update_url=reverse('creme_core__reload_home_blocks', args=(self.id_,)),
                     address_filters=self.get_filter_choices(context['user'],
                                                             Contact, Organisation,
                                                            ),
@@ -132,8 +132,8 @@ class GoogleNeighboursMapBrick(_MapBrick):
 
         return self._render(self.get_template_context(
                     context,
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
                     ref_addresses=self.get_addresses_as_dict(entity),
                     address_filters=self.get_filter_choices(context['user'],
                                                             Contact, Organisation,

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -202,8 +202,8 @@ class PropertyTypeInfoBrick(Brick):
         # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context,
-                    # update_url='/creme_core/property/type/%s/reload_block/%s/' % (ptype.id, self.id_),
-                    update_url=reverse('creme_core__reload_ptype_blocks', args=(ptype.id, self.id_)),
+                    # # update_url='/creme_core/property/type/%s/reload_block/%s/' % (ptype.id, self.id_),
+                    # update_url=reverse('creme_core__reload_ptype_blocks', args=(ptype.id, self.id_)),
                     ctypes=self.ctypes,
                     count_stat=CremeEntity.objects.filter(properties__type=ptype).count(),
         ))
@@ -249,8 +249,8 @@ class TaggedEntitiesBrick(QuerysetBrick):
         btc = self.get_template_context(
                     context,
                     model.objects.filter(properties__type=ptype),
-                    # update_url='/creme_core/property/type/%s/reload_block/%s/' % (ptype.id, self.id_),
-                    update_url=reverse('creme_core__reload_ptype_blocks', args=(ptype.id, self.id_)),
+                    # # update_url='/creme_core/property/type/%s/reload_block/%s/' % (ptype.id, self.id_),
+                    # update_url=reverse('creme_core__reload_ptype_blocks', args=(ptype.id, self.id_)),
                     ptype_id=ptype.id,
                     ctype=ctype,  # If the model is inserted in the context,
                                   #  the template call it and create an instance...
@@ -286,8 +286,8 @@ class TaggedMiscEntitiesBrick(QuerysetBrick):
                     context,
                     CremeEntity.objects.filter(properties__type=ptype)
                                        .exclude(entity_type__in=self.excluded_ctypes),
-                    # update_url='/creme_core/property/type/%s/reload_block/%s/' % (ptype.id, self.id_),
-                    update_url=reverse('creme_core__reload_ptype_blocks', args=(ptype.id, self.id_)),
+                    # # update_url='/creme_core/property/type/%s/reload_block/%s/' % (ptype.id, self.id_),
+                    # update_url=reverse('creme_core__reload_ptype_blocks', args=(ptype.id, self.id_)),
                     ptype_id=ptype.id,
                     ctype=None,
                 )

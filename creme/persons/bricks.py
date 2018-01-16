@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,12 +24,12 @@ from functools import partial
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import EntityCellRegularField
-from creme.creme_core.gui.bricks import Brick, SimpleBrick, PaginatedBrick, QuerysetBrick, list4url
+from creme.creme_core.gui.bricks import Brick, SimpleBrick, PaginatedBrick, QuerysetBrick  # list4url
 from creme.creme_core.models import Relation
 from creme.creme_core.utils.db import populate_related
 
@@ -299,8 +299,8 @@ class ManagersBrick(QuerysetBrick):
         # return self._render(self.get_block_template_context(context,
         return self._render(self.get_template_context(context,
                     self._get_people_qs(orga).select_related('civility'),
-                    # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, orga.pk),
-                    update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, orga.id)),
+                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, orga.pk),
+                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, orga.id)),
                     rtype_id=self.relation_type_deps[0],
                     ct=ContentType.objects.get_for_model(Contact),  # DEPRECATED (use 'objects_ctype' instead)
                     add_title=self._get_add_title(),
@@ -528,10 +528,10 @@ if apps.is_installed('creme.activities'):
             return self._render(self.get_template_context(
                         context,
                         self._get_neglected(context['today']),
-                        # update_url='/creme_core/blocks/reload/portal/%s/%s/' % (
-                        #                     self.id_, list4url(ct_ids),
-                        #                 ),
-                        update_url=reverse('creme_core__reload_portal_blocks', args=(self.id_, list4url(ct_ids))),
+                        # # update_url='/creme_core/blocks/reload/portal/%s/%s/' % (
+                        # #                     self.id_, list4url(ct_ids),
+                        # #                 ),
+                        # update_url=reverse('creme_core__reload_portal_blocks', args=(self.id_, list4url(ct_ids))),
             ))
 
         def home_display(self, context):
@@ -540,8 +540,8 @@ if apps.is_installed('creme.activities'):
             return self._render(self.get_template_context(
                         context,
                         self._get_neglected(context['today']),
-                        # update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
-                        update_url=reverse('creme_core__reload_home_blocks', args=(self.id_,)),
+                        # # update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                        # update_url=reverse('creme_core__reload_home_blocks', args=(self.id_,)),
             ))
 
     bricks_list += (
