@@ -25,7 +25,7 @@ team_patterns = [
 ]
 
 user_settings_patterns = [
-    url(r'^[/]?$',                                   user_settings.view,               name='creme_config__user_settings'),
+    url(r'^[/]?$',                                user_settings.view,               name='creme_config__user_settings'),
     url(r'^/set_theme[/]?$',                      user_settings.set_theme,          name='creme_config__set_user_theme'),
     url(r'^/set_timezone[/]?$',                   user_settings.set_timezone,       name='creme_config__set_user_timezone'),
     url(r'^/edit_value/(?P<skey_id>[\w-]+)[/]?$', user_settings.edit_setting_value, name='creme_config__edit_user_setting'),
