@@ -75,6 +75,7 @@ Installation with 'pip':
       For example, here a list of Debian/Ubuntu packages you'll have to install before:
         - python-dev
         - mysql_config & libmysqlclient-dev (or libpq5 if you want to use PostGreSQL)
+        - redis-server
         - libxslt1-dev
         - default-jre
         - libjpeg-dev
@@ -108,12 +109,18 @@ Here the minimal information you must fill :
         },
 
     SECRET_KEY = ''  # <== TO BE REPLACED (see below).
+    LANGUAGE_CODE = 'en'  # Also available : 'fr'
+    TIME_ZONE = 'Europe/Paris'  # See http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 
 To generate the value of SECRET_KEY, run the following command in the root directory & copy its result:
     >> python manage.py build_secret_key
 
 You can chose precisely the creme apps you want, by copying INSTALLED_CREME_APPS & commenting the unwanted apps ;
 beware to only comment app in the 'optional' section, & respect the dependencies which are indicated.
+
+The information from the section "EMAILS [internal]" of 'settings.py' should be overridden in
+your 'local_settings.py' if you want that your users receive e-mails from Creme (ToDos, Alerts...).
+But these information can be filled/changed later.
 
 Filling the DB tables:
 Run the following commands in the root directory:

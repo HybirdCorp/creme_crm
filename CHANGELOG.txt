@@ -1,3 +1,810 @@
+== Version 1.7 ==
+
+  Users side :
+  ------------
+    # A new page header has been created ; it contains a new main menu which replaces the old main menu on the left side.
+        - Menu entries are now grouped by features, and not by app anymore ; the creation entries are grouped together.
+        - This new menu manages the user info, the log-out entry, the last viewed items, the trash.
+        - The global search is now integrated to this header, and propose quick results (but the complete results are proposed too).
+        - The old menu is still available (by configuration), but it will probably be removed in Creme 1.8.
+    # A Job (ie: background process) system has been added.
+        - A Job can be spawned by users (JobType.NOT_PERIODIC) in order to safely manage a long server work
+          (no web-server timeout, resume on failure, true results page when the task is finished, process limitation...).
+        - The system Jobs are run periodically (JobType.PERIODIC), and can be woke up by user events (JobType.PSEUDO_PERIODIC).
+          It avoids to have to setup a cron task (or worse under Windows systems...) which runs django commands ;
+          & we get a GUI to enable/disable the job, and configure its periodicity. The possibility to refresh the wake up date
+          allows very accurate execution (with a cron based execution the precision depends on the task periodicity).
+          The results page is also better than server logs.
+      Mass import (ie; CSV/XLS import) & batch process use now jobs.
+      The command 'reminder' has been replaced by a Job too (see "Apps" section for apps commands changes).
+    # The list-views have been improved :
+        - The header scrolls in order to always be visible.
+        - The UI for actions has been improved.
+        - The ordering management has been improved :
+            - The ordering is built by using the DB-indexes of the model in order to be as efficient as possible.
+            - When a model use several fields for its default ordering (eg: Contact uses last_name+first_name),
+              all related direction (ASC/DESC) are inverted together (it's more logic & queries are faster).
+            - ManyToManyFields columns are not sortable anymore ; it was probably confusing, slow & annoying for some future performance improvements.
+        - When there are too many entities in the current list, a fast mode is used (see settings.FAST_QUERY_MODE_THRESHOLD) :
+            - A new type of paginator is used. It does not allow to go to random page (only next & previous page are available),
+              but it avoids/limits SQL's OFFSET whenever it's possible.
+            - If no optimal ordering is found (not related SQL index), simpler ordering is used.
+        - In the main SQL queries, the DISTINCT directive has been removed in simple cases to go fast.
+        - When there is no filter or search, the COUNT query (to display the total number of entities) is fast because we avoid a JOIN.
+        - All the parameters (view, filter, search...) are stored in the URI as argument, which is useful for bookmarking for example.
+        - Two settings to customise the page sizes have been added : PAGE_SIZES & DEFAULT_PAGE_SIZE_IDX.
+    # The blocks system has been heavily reworked (they are called 'bricks' now in the code, because 'block' was confusing because of templates {% block %}).
+      Most of the changes are under the hood (& so concern the developers) ; nevertheless many improvements are still visible to the end-users :
+        - The global look & feel is much better ; the layout of many blocks have been reworked.
+        - The blocks provide now a menu when you click on their icon ; it's the new way to collapse the blocks
+          (instead of clicking of the block's header) & it allows some blocks to be directly configured without using the global blocks configuration.
+        - The title bar is now a block. So it can be reloaded if some changes happen, & alternative bricks can be proposed (like the new "Card" blocks).
+        - The reloading system is now smarter :
+            - The page needs to be entirely reloaded less often.
+            - It avoids some old strange (but generally not noticed) behaviours.
+    # The UI has been improved :
+        - The 2 themes have been heavily reworked.
+        - The login page is faster & theme agnostic ; so do the error pages.
+        - The page footer is nicer & displays more information.
+        - An "About" page has been created.
+    # In the History, DateFields/TimeFields/DateTimeFields/FloatFields are better managed : old & new values are displayed now.
+    # In EntityFilters, the ManyToManyFields have now the operator "is empty".
+    # The errors of mass import can be downloaded as a file now (thanks to the new job results page) ;
+      it contains the lines with erroneous data, and with an additional column with the error messages.
+    # A new (home) block "Statistics", which regroups statistics from several apps, has been added.
+    # The inner-popup dialogs have been improved :
+        - The "escape" key closes the dialog.
+        - When a dialog is closed, the page scrolls back to the opening position.
+    # In forms, entities can be created in the multi-selection widgets (if a quick-form is available for this kind of entity).
+    # The Merge feature has been improved :
+        - The entities can now be merged from the list-view.
+        - The widgets to select entities have been improved in the merge view (the "disabled" state works, so does the copy feature).
+    # On the 'Relationships' block, the button "Delete all relationships" has been removed.
+    # The XLS export backend has been improved, to be more robust against concurrent accesses.
+    # Apps:
+        * Documents :
+            - The models Image & Document have been merged ;
+              the model Image is removed & the existing instances are transformed into Document instances.
+            - The forms of Document have been improved :
+                - The file is now written during the 'save' step, not the 'clean' one.
+                - The field 'title' is not required in the creation forms any more ; if the user does not fill it, the filename is used.
+        * Persons :
+            - Contacts & Organisations get a "Card" brick (use in the new install) to replace the classical title bar in their detail-views.
+            - A new field has been added to Organisation in order to mark them as managed by Creme (instead of a CremeProperty).
+            - An EntityFilter for Contacts has been added : "Me".
+            - The model Contact & Organisation have new indexes which correspond to their default list-views,
+              in order to improve the performances of the classical use.
+        * Creme_config :
+            - Several forms are wizards now :
+                - It allows smarter creation forms. Eg: no need to edit an empty custom block just after its creation.
+                - The UserRole forms is more friendly. Eg: it only proposes apps to administrate among the allowed apps.
+            - The ContentTypes are now filtered in the credentials form (only entity types related to allowed apps are proposed) ; the credentials can now be edited.
+        * Activities :
+            - An EntityFilter for Activities has been added : "In which I participate".
+            - In Activity forms :
+                - The field "Users to keep informed" can now be removed by configuration (not displayed by default).
+                - The fields for your own participation has been improved (now 1 field instead of 2).
+                - The fields for Alerts have been improved.
+        * Billing :
+            - Inline billing-line form has been improved (user & dev sides) ; errors in the form are better managed.
+              Eg: the name of the related item is checked (cannot be empty) on new line & the errors are detected as soon as inputs are modified, not leaved.
+            - The PDF generation has been improved ; the concurrent creation of temporary file has no more collision.
+              The auxiliary files are now deleted when the PDF is OK.
+            - Some small information leaking in FunctionFields have been fixed ; you could get the total of Invoices/Quote which you cannot view.
+        * Products :
+            - Products & Services can no be imported from CSV/XLS files.
+            - The possibility to create Category/SubCategory directly in the forms of Product & Service.
+        * Opportunities :
+            - Opportunities get a "Card" brick (use in the new install) to replace the classical title bar in their detail-views.
+        * Assistants :
+            - The Reminders for ToDos & Alerts send now their emails to the related users.
+            - The command 'usermessages_send' has been replaced by a job.
+        * Emails :
+            - The commands are now jobs.
+            - The HTML body of Emails does not support links to 'Image' entities anymore (use external images instead).
+        * Geolocation :
+            - The possibility to use your Google API key has been added.
+        * Projects :
+            - The model Project has now a field 'currency', which is used to display costs.
+            - The color of the related TaskStatus is displayed if the 'tasks' block.
+            - The color of the related ProjectStatus is displayed in the list-view of Projects.
+        * Commercial :
+            - The command 'com_approaches_emails_send' has been replaced by a job.
+        * Crudity :
+            - The command 'crudity_synchronize' has been replaced by a job.
+        * Recurrents :
+            - The command 'recurrents_gendocs' has been replaced by a job.
+        * Events :
+            - The form for Event has been improved : 'end' must be after 'start'.
+        * Activesync :
+            - This app is deprecated ; it is not in the default install any more.
+              It will probably be removed in the next release if nobody works on it.
+            - A job which does the synchronisation has been added ; the commands are still available, for debugging purpose.
+
+  Developers side :
+  -----------------
+    Non breaking changes :
+    ----------------------
+        # Deprecations :
+            - The setting DEFAULT_THEME (use THEMES[0](0] instead).
+            - creme_core.apps.CremeAppConfig.register_blocks() has been renamed 'register_bricks()' ; if you inherit this class,
+              your old method 'register_blocks()' will still be automatically called at started (but it is deprecated, & you should rename it).
+            - In all apps :
+                - The module '*.blocks' is deprecated (use '*.bricks' instead).
+                - The template files '*/templatetags/block_*.html' are now deprecated (new templates are generally in '*/bricks/').
+            - These modules :
+                - creme_core.gui.block (use 'creme_core.gui.bricks' instead).
+                - creme_core.gui.icon_registry (use 'creme_core.gui.icons' instead).
+                - creme_core.models.block (use 'creme_core.models.bricks' instead).
+                - creme_core.views.blocks (use 'creme_core.views.bricks' instead).
+            - In 'creme_core.constants' :
+                - PROP_IS_MANAGED_BY_CREME (the related CremePropertyType is not created in new instances, & is deletable in old ones).
+                - ICON_SIZE_MAP.
+            - In 'creme_core.models' :
+                - CremeEntity.populate_fk_fields() (use 'creme_core.utils.db.populate_related()' instead).
+                - BlockDetailviewLocation.create_4_model_block() (use create_4_model_brick() instead).
+                - BlockMypageLocation.block_verbose_name (use brick_verbose_name instead).
+                - InstanceBlockConfigItem.block (use "brick" instead).
+                - CustomBlockConfigItem.id_from_block_id() (use id_from_brick_id() instead).
+                - BlockState :
+                    - The property 'classes' (use the templatetag creme_bricks.brick_state_classes instead).
+                    - get_for_block_id() (use get_for_brick_id() instead).
+                    - get_for_block_ids() (use get_for_brick_ids() instead).
+                - SettingValue.create_if_needed() (use SettingValue.objects.get_or_create() instead).
+                - The field 'SettingValue.user' (use the new 'UserSettingValueManager' system instead -- ie: user.settings).
+                  BEWARE: if your UserSettingValue is not hidden, it can be viewed/edited in "My settings".
+            - creme_core.urls.blocks_patterns
+            - In 'creme_core.views' :
+                - generic.listview.list_view_popup_from_widget().
+                - creme_property.reload_block() (use 'reload_bricks()' instead).
+                - entity.bulk_edit_field() (use 'bulk_update_field()' instead.
+                - In 'entity.select_entity_for_merge()' the argument 'entity1_id' (use the GET parameter 'id1' instead).
+                - In 'entity.merge()', the arguments 'entity1_id' & 'entity2_id' (use the GET parameters 'id1' & 'id2' instead).
+                - In 'entity_filter.get_for_ctype()', the arguments 'ct_id' & 'include_all' (use the GET parameters 'ct_id/all' instead).
+                - In 'header_filter.get_for_ctype()', the argument 'ct_id' (use the GET parameter instead).
+                - In 'list_view_export.dl_listview()', the arguments 'ct_id' & 'doc_type' (use the GET parameters 'ct_id/type' instead).
+                - list_view_export.dl_listview_header() (use the GET parameter 'header' with 'dl_listview()' instead).
+                - In 'quick_forms.add_from_widget()', the arg 'count'.
+                - quick_forms.json_quickform_response().
+                - In 'relation.add_relations_bulk()', the argument 'relations_types' (use the GET parameter 'rtype' instead).
+                - relation.objects_to_link_selection() (use creme_core.views.select_relations_objects() instead).
+                - search.reload_block() (use 'reload_brick()' instead).
+            - In 'creme_core.forms' :
+                - fields.CremeDateField, fields.CremeTimeField, fields.CremeDateTimeField.
+                - The support for non-iterable values as 'allowed_models' argument for the property '[Multi]GenericEntityField.allowed_models'.
+                - In 'fields.DatePeriodField.init()', the argument 'choices' (use 'period_names' instead).
+                - merge.MergeFieldset_merge_initial() (set directly MergeField.initial property instead).
+            - In 'creme_core.gui' :
+                - In 'block' (which is now an alias to 'bricks' for compatibility) :
+                    - In Block/PaginatedBlock/QuerysetBlock (alias for 'bricks.*Brick'), the method 'get_block_template_context()'
+                     (use 'get_template_context()' instead ; notice that it has no argument "update_url").
+                    - BlocksManager (alias for 'bricks.BricksManager') :
+                        - block_is_registered() (use brick_is_registered() instead).
+                    - _BlockRegistry (alias for 'bricks._BrickRegistry') :
+                        - get_blocks() (use get_bricks() instead).
+                        - get_block_4_instance() (use get_brick_4_instance() instead).
+                        - get_block_4_object() (use get_brick_4_object() instead).
+                        - get_compatible_blocks() (use get_compatible_bricks() instead).
+                        - register() & register_4_model(): registering brick instances is deprecated (register brick classes instead).
+                        - register_4_model(): registering brick class with an ID.
+                        - get_compatible_blocks() (use get_compatible_bricks() instead  -- beware, it returns object-brick too).
+                - In 'fields_config.FieldsConfigRegistry' (the valid models are now just models with contain any optional field) :
+                    - is_model_valid() (use 'creme_core.models.FieldsConfig.is_model_valid()' instead).
+                    - The property 'ctypes'.
+                - In 'field_printers' :
+                    - simple_print() (use simple_print_html() instead).
+                    - print_image() (use print_image_html() instead).
+                    - print_boolean() (use print_boolean_html() instead).
+                    - print_urlfield() (use print_url_html() instead).
+                    - print_foreignkey() (use print_foreignkey_html() instead).
+                    - print_many2many() (use print_many2many_html() instead).
+                - icons.IconRegistry.get() (use 'IconRegistry.get_4_model()' instead).
+            - In 'creme_core.templatetags' :
+                - The library 'creme_block' (use 'creme_bricks' instead).
+                - In the library 'creme_widgets' :
+                    - {% get_image_for_ctype ... %} & {% get_image_path_for_ctype ... %} (use {% widget_icon_for_ctype ... %} instead).
+                    - {% get_image_for_object ... %} (use {% widget_icon_for_object ... %} instead).
+                    - _get_image_path_for_model() & _get_image_for_model().
+                    - {% get_add_button %} & its template.
+                    - {% get_edit_button %} & its template.
+                    - {% get_delete_button %} & its template.
+                    - {% get_restore_button %} & its template.
+                    - {% get_clone_button %} & its template.
+                - In the library 'creme_listview' : {% get_listview_cell %} (use {% render_cell %} from the lib 'creme_cells' instead).
+                - The library 'creme_queryset' (& its only one templatetag 'order_by').
+            - These template files :
+                - 'creme/creme_core/templates/creme_core/generics/blockform/add_popup2.html' (use 'add_popup2.html' instead).
+                - 'creme/creme_core/templates/creme_core/batch_process_report.html'.
+                - 'creme/creme_core/templates/creme_core/importing_report.html'.
+            - The context processor 'creme.creme_core.context_processor.get_blocks_manager'.
+              (use 'creme.creme_core.context_processor.get_bricks_manager' in your settings instead if you override setting.TEMPLATES).
+            - In 'creme_core.utils' :
+                - is_testenvironment() (use settings.TESTS_ON instead).
+                - imports.find_n_import() (use import_apps_sub_modules() instead).
+                - meta.get_instance_field_info() (use the new method FieldInfo.value_from() instead).
+                - media.get_current_theme_vb().
+            - The button 'creme_core.buttons.MergeEntitiesButton' (& the related template too).
+            - JavaScript :
+                - creme.component.is() (use Object.isSubClass instead).
+                - creme.object.isempty().
+                - creme.object.isnone().
+                - creme.blocks : this lib is globally deprecated (bindEvents() is not yet deprecated because it is still used for compatibility purpose).
+                - In 'creme.exports.exportAs()' URL as format string is deprecated (use the the "argument_name" parameter instead).
+                - creme.merge.selectOtherEntityNRedirect().
+                - In 'creme.lv_widget' :
+                    - deleteEntityFilter() (use creme.lv_widget.deleteFilter() instead).
+                    - deleteHeaderFilter() (use creme.lv_widget.deleteFilter() instead).
+                - creme.relations.addRelationTo() :
+                    - The option "blockReloadUrl" (remove it, so the Bricks will be automatically to reloaded).
+                    - The hard-coded URLs are deprecated (the URLs as the <body> attributes "data-save-relations-url"/"data-select-relations-objects-url" -- see base.html).
+                - In 'creme.utils' : innerPopupNReload(), toggleCheckallState(), autoCheckallState(), decorateSearchResult(), openQuickForms().
+            - creme_core.tests.base._CremeTestCase.populate() (because it's useless if you are not in a CremeTransactionTestCase).
+            - Apps :
+                * Creme_config :
+                    - The following URLs & the related views :
+                        - 'creme_config/blocks/custom/add' (use 'creme_config/blocks/custom/wizard' instead).
+                        - 'creme_config/blocks/portal/add' (use 'creme_config/blocks/portal/wizard' instead).
+                        - 'creme_config/blocks/relation_block/add_ctypes/rbi_id' (use 'creme_config/blocks/relation_block/rbi_id/wizard' instead).
+                        - 'creme_config/button_menu/add' (use 'creme_config/button_menu/wizard' instead).
+                        - 'creme_config/fields/add/' (use 'creme_config/fields/wizard' instead).
+                        - 'creme_config/role/add/' (use 'creme_config/role/wizard' instead).
+                        - 'creme_config/role/edit/<role_id> (use 'creme_config/role/wizard/<role_id>' instead).
+                    - The views :
+                        - generics_views.swap_order() (use reorder() instead).
+                        - generics_views.reload_block() (use reload_brick() instead).
+                        - setting.reload_block() (use 'generic_views.reload_app_bricks()' instead).
+                    - In 'forms.user_role', 'UserRoleCreateForm' & 'UserRoleEditForm' (use the wizard instead).
+                    - forms.fields_config._get_fields_enum() (use 'FieldsConfig.field_enumerator()' instead).
+                    - These modules :
+                        - views.blocks (use 'views.bricks' instead).
+                        - forms.blocks (use 'forms.bricks' instead).
+                    - The variable 'urls.blocks_patterns' (use 'urls.bricks_patterns' instead).
+                    - The template files 'custom_fields/*'.
+                    - The template file 'blocks_portal.html' (use 'bricks_portal.html' instead).
+                    - The templatetags {% import_usersettings_blocks %} & {% do_usersettings_blocks_displayer %}.
+                    - In registry.AppConfigRegistry :
+                        - register_block() (use 'register_brick()' instead).
+                        - The property 'blocks' (use 'bricks' instead -- beware it returns an iterator).
+                    - In registry._ConfigRegistry :
+                        - register_blocks() (use 'register_bricks()' instead).
+                        - register_userblocks() (use 'register_user_bricks()' instead).
+                        - In 'register_bricks()' & 'register_user_bricks()', registering brick instances is deprecated (register brick classes instead).
+                        - The property 'userblocks' (use 'user_bricks' instead).
+                * Documents :
+                    - In 'views.quick_forms.abstract_add_doc_from_widget()', the arg 'count'.
+                    - In 'views.quick_forms.add_csv_from_widget()', the arg 'count'.
+                * Activities :
+                    - models.AbstractActivity.count_lines_display_block().
+                    - The module 'views.blocks' (use 'views.bricks' instead).
+                    - The module 'forms.blocks' (use 'forms.bricks' instead).
+                    - The templates files :
+                        - 'templatetags/activity_date.html'.
+                        - 'templatetags/activity_relations_field.html'.
+                    - The templatetag library 'activities_tag'.
+                    - In 'views.activity.download_ical()', the URL argument 'ids' (use the GET parameter "id" instead).
+                    - In JavaScript :
+                        - In 'exportAsICal()', implicit argument 'url' (give the URL as second argument).
+                        - In 'fullCalendar()', implicit argument 'update_url' (give the URL as last argument).
+                * Persons :
+                    - models.contact._create_linked_contact() (use 'AbstractContact._create_linked_contact()' instead).
+                * Products :
+                    - forms.fields.CategorySelector (use 'CreatorCategorySelector' instead).
+                * Billing :
+                    - models.Base.product_lines()/service_lines() (use get_lines() instead).
+                    - models.Base._build_lines() (use _post_clone() instead).
+                    - models.Base.get_product_lines_total_price_exclusive_of_tax().
+                    - models.Base.get_product_lines_total_price_inclusive_of_tax().
+                    - models.Base.get_service_lines_total_price_exclusive_of_tax().
+                    - models.Base.get_service_lines_total_price_inclusive_of_tax().
+                    - models.TemplateBase.build().
+                    - The template files :
+                        - 'frags/generic_billing_line_frag.html'.
+                        - 'templatetags/line.html'.
+                    - The templatetag library 'latex' (use 'creme_latex' -- from creme_core -- instead).
+                    - The 'billing_register' feature is deprecated ; register your algorithms in your AppConfig instead.
+                    - In JavaScript :
+                        - multiSaveLines() (use the new brick action "billing-line-saveall" instead).
+                        - selectDefaultPayment().
+                        - convertAs().
+                        - redirect().
+                        - reload().
+                * Commercial :
+                    - In views.strategy : reload_assets_matrix(), reload_charms_matrix(), reload_assets_charms_matrix(), _reload_matrix().
+                    - These templatetags :
+                        - {% get_segments_for_category %} (use {% commercial_segments_for_category %} instead).
+                        - {% widget_segment_category %}.
+                        - {% widget_asset_score %} (use {% commercial_widget_asset_score %} instead).
+                        - {% widget_charm_score %} (use {% commercial_widget_charm_score %} instead).
+                    - The templates files :
+                        - 'templatetags/widget_score.html'.
+                        - 'templatetags/widget_category.html'.
+                    - In JavaScript :
+                        - postCategory() (use bricks actions instead).
+                        - increaseObjectiveCounter() (idem).
+                        - postScore() (use 'setScore()' & bricks actions instead).
+                * Reports :
+                    - The module 'forms.blocks' (use 'forms.bricks' instead).
+                    - The module 'views.blocks' (use 'views.bricks' instead).
+                    - In 'views' :
+                        - report.change_field_order() (use reorder_field() instead).
+                        - graph.fetch_graph(): the URL parameter "order" (use the GET parameter instead).
+                        - graph.fetch_graph_from_instanceblock(): the "order" URL parameter (use the GET parameter instead).
+                        - graph._check_order().
+                    - In JavaScript :
+                        - changeOrder() (use the new bricks ordering system instead).
+                        - unlink_report() (use the new bricks action system instead).
+                        - setSelected().
+                        - doAjaxAction() (use bricks & actions instead).
+                        - openGraphEdition() (use bricks & actions instead).
+                * Geolocation :
+                    - In the module 'views' :
+                        - set_address_info(): the URL argument "address_id" (use the GET parameter "id" instead).
+                        - get_addresses_from_filter(): the URL argument "filter_id" (use the GET parameter "id" instead).
+                        - get_neighbours(): the URL arguments "address_id"/"filter_id" are deprecated (use GET parameters instead).
+                    - In JavaScript :
+                        - AddressesBlock() : hard-coded URL to get addresses.
+                        - PersonsNeighborhoodBlock() : hard-coded URL to get neighbours.
+                        - GoogleMapController() : hard-coded URL to store information.
+                * Assistants :
+                    - In JavaScript : creme.assistants.validateEntity() (use the new brick action system instead).
+                * Emails :
+                    - views.crudity.reload_sync_blocks() (use reload_bricks() instead).
+                    - views.sending.reload_block_mails() (use reload_mails_brick() instead).
+                    - The template file 'creme/emails/templates/emails/frags/ajax/synchronize.html'.
+                    - In JavaScript :
+                        - allowExternalImages() (use the action "email-toggle-images" instead).
+                        - confirmResend() & resend() (use an action with the url "emails__resend_emails" instead).
+                * Crudity :
+                    - registry.FetcherInterface.add_fetcher() (use 'add_fetchers()' instead).
+                    - These functions of 'views.actions' : fetch(), _fetch(), reload_block().
+                    - crudity.views.history.reload() (use 'crudity.views.history.reload_bricks()' instead).
+                    - These templates files :
+                        - 'frags/ajax/waiting_actions.html'.
+                        - 'waiting_actions.html'.
+                * Polls :
+                    - The template file 'templatetags/stats_pollreply_chart.html'.
+                    - The templatetag {% print_node_chart %} (use {% poll_stats_chart %} instead).
+                * Projects :
+                    - The module 'views.utils'.
+                    - The template file 'frag_task_delay_td.html'.
+                * Sms :
+                    - views.sending.reload_block_messages() (use reload_messages_brick() instead).
+        # An UUID field has been added to 'models.CremeEntity' ; it can be useful for synchronisation purposes.
+        # The management of the URLs has been improved :
+            - Reversed URLs are used everywhere ; you should get existing URLs in your code, and name your URLs too.
+            - An app can override its URL-root ; it's useful to mask some URLs of another app.
+            - An app can have no file 'urls.py'.
+        # ForeignKey & ManyToManyField are hooked to automatically use (Multi)CreatorEntityField in related forms when if makes sense
+          (ie: they are related to a CremeEntity model).
+          The attribute 'limit_choices_to' is managed, but it must be a dict or a callable returning a dict.
+        # A (model) ColorField has been added.
+        # A new system for icons has been created :
+            - It allows to have different sizes for a same icon in different themes.
+            - Its possible to have inline SVG for an icon in a given theme.
+        # About field printers :
+            - The printer for ForeignKeys can now be precisely customised.
+            - In _FieldPrintersRegistry.register(), printers can now be registered for the CSV output.
+        # These form-fields with retrieve entities have been improved, by checking automatically the permissions :
+            - (Multi)GenericEntityField.
+            - (Multi)RelationEntityField.
+            - (Multi)CreatorEntityField.
+        # The SettingKeys can now be 'blank'.
+        # The setting values of a user can now be stored in the user model directly.
+          The time zone & the theme of the users are now stored directly in the model CremeUser.
+        # In JavaScript :
+            - An ESLint configuration has been added (needs nodejs).
+            - In 'creme.dialog.Dialog':
+                - Two options "minWidth" & "minHeight" have been added (they only works when the option "fitFrame" is disabled).
+                - The possibility to redirect to an URL (static or in the response) on the form dialog success (options "redirectOnSuccess"/"redirectOnSuccessUrl").
+            - In 'creme.widget.ActionButtonList', the update of delegate widget has been added (used for CreationButton).
+            - In 'creme.widget.ChainedSelect', the update of subwidgets has been added.
+            - A function 'creme.lv_widget.findList()' has been added to replace "$('form[name=list_view_form')" and "$('form:first')".
+        # A class which creates files atomically has been added : creme_core.utils.file_handling.FileCreator.
+        # Two context managers which help profiling queries have beebn added in 'creme.creme_core.utils.profiling'.
+            - 'CaptureQueriesContext' is a helper for the context with the same name in django.
+            - 'QueriesPrinter' is context/decorator which prints SQL queries.
+        # A new templatetag has been added: 'creme_latex.latex_escape'.
+        # About commands :
+            - A command which creates a lot of random entities (Contacts & Organisations) has been added (for performance benchmarking): 'entity_factory'.
+            - A command which searches not translated messages has been added : 'i18n_empty'.
+            - The command 'i18n_overload' has been improved :
+                - A new option '--comment_useless', which helps to remove useless messages, has been added.
+                - A new option '--js' to inspect & create files djangojs.po has been added.
+        # Apps:
+            * Emails :
+                - The mandatory dependency to 'crudity' has been removed.
+            * Billing :
+                - It's now easier to add a new child class of Line in custom code (see apps.BillingConfig.register_billing_lines()).
+                - The paths of latex-template files can now be more easily overloaded by another app.
+            * Commercial :
+                - The command 'com_approaches_emails_send' has been removed (new job system).
+            * Crudity :
+                - The setting CREME_GET_EMAIL_JOB_USER_ID is now only useful during the installation ; it will be removed in the next version.
+
+    Breaking changes :
+    ------------------
+        # Deprecated stuffs which have been removed :
+            - creme_core.autodiscover().
+            - In 'creme_core.models' :
+                - CremeEntity.get_real_entity_by_id().
+                - lock.mutexify().
+            - In 'creme_core.utils' :
+                - create_or_update().
+                - In 'dates' :
+                    - get_dt_to_iso8601_str().
+                    - get_dt_to_iso8601_str().
+                    - get_dt_from_json_str() (use dt_from_ISO8601() instead).
+                    - dt_to_json_str() (use dt_to_ISO8601() instead).
+                    - get_dt_from_str() (use dt_from_str() instead).
+                    - get_date_from_str() (use date_from_str() instead).
+                - meta.get_date_fields().
+                - queries.get_first_or_None().
+            - In 'creme_core.views.generic.detailview' :
+                - view_real_entity().
+                - In 'detailview.view_entity()', the  argument 'path'.
+            - In 'creme_core.forms.fields' :
+                - JSONField._build_widget().
+                - The support of attribute 'user' with value 'None' in the method 'FilteredEntityTypeField.clean()'.
+            - creme_core.forms.widgets.AdaptiveWidget.
+            - The support of the template variable 'path' in the templatetag 'creme_widgets.get_add_button' (which is deprecated anyway).
+            - The following template files :
+                - creme/creme_core/templates/creme_core/frags/list_view_popup.html
+                - creme/creme_core/templates/creme_core/generics/list_entities_popup.html
+            - These methods of 'creme_core.tests.base.CremeTestCase' :
+                - assertFormSetError().
+                - autodiscover().
+                - create_image().
+            - Apps :
+                * Creme_config :
+                    - The argument 'ct_id' of the method registry.AppConfigRegistry.get_model_conf().
+                    - The auto-increment feature on model-fields named 'order' (models registered with creme_config_register).
+                    - views.custom_fields.view() has been removed.
+                    - In 'views.generic_views.portal_app()', the context variable 'app_config_blocks' has been renamed 'app_config_bricks'.
+                    - In 'views.generics_views.portal_model()', the context variable 'model_name' has ben removed.
+                * Persons :
+                    - These blocks: ContactBlock, ContactCoordinatesBlock, OrganisationBlock, OrgaCoordinatesBlock.
+                    - These template files from  'persons/templates/persons/templatetags/':
+                      block_contact.html, block_contact_coordinates.html, block_organisation.html, block_orga_coordinates.html.
+                    - The method models.Address._get_info_fields().
+                * Activities :
+                    - The model field 'Calendar.color' has now a max_length of 6.
+                    - The form field 'Calendar.color' is now required in the Calendar forms.
+                    - The files "activities_register.py" are not automatically loaded any more.
+                * Billing :
+                    - views.workflow._add_with_relations().
+                    - models.AbstractTemplateBase.get_generator().
+                    - creme.billing.linkToDocument() in billing.js.
+                * Emails :
+                    - models.mail._Email.get_status_str().
+                    - models.mail._Email.get_body().
+                    - models.mail.AbstractEntityEmail.get_body().
+                    - models.sending.LightWeightEmail.get_body().
+                    - models.sending.LightWeightEmail.get_body_html().
+                    - models.sending.EmailSending.get_type_str().
+                    - models.sending.EmailSending.get_state_str().
+                    - views.mail.get_entity_mail_body().
+                    - The block EntityEmailBlock and its template 'emails/templatetags/block_mail.html'.
+                * Crudity :
+                    - The command 'crudity_synchronize' has been removed (the new job system is used instead).
+                    - The method CrudityInput.handle() returns a backend instance or None (instead of a boolean).
+                      So the handling methods (create() etc...) of child classes must return a backend/None.
+                * CTI :
+                    - Some breaking changes in the view respond_to_a_call() (a true brick has been created, the context vars have been moved to this brick).
+        # In settings.py:
+            - USE_STRUCT_MENU has been removed & the old tree menu API has been removed (it was hidden & probably used by no one).
+            - The JavaScript bundles has been split into several parts: lib & main.
+        # In CremeAppConfig.register_menu(), the argument 'creme_menu' uses the new menu API.
+          You can get the old API with 'settings.OLD_MENU = True' ('False' by default).
+        # The apps are not registered in 'creme_core.registry.creme_registry' anymore ; only the apps registry of Django is used now.
+            - 'creme_core.apps.CremeAppConfig.register_creme_app()' is not called by 'all_apps_ready()' anymore ;
+              use the class attributes 'AppConfig.extended_app' & 'AppConfig.credentials' (added by Creme) if in your old code you used specific values for 'register_creme_app()' arguments.
+            - These attributes of 'creme_core.registry.CremeRegistry' has been removed :
+                register_app(), get_app(), get_extending_apps(), iter_apps() (use 'creme.creme_core.apps.creme_app_configs()' instead) , CRED_NONE, CRED_REGULAR, CRED_ADMIN.
+            - The class 'creme_core.registry.CremeApp' has been removed.
+        # In all apps :
+            - The methods '*Config.register_blocks()' have been renamed 'register_bricks()'.
+            - The blocks use some new templates files, which are in '*/bricks/' (instead of '*/templatetags/' generally).
+        # The templates loader configuration (settings.TEMPLATES) has changed ; templates from apps directories are now loaded first.
+        # A 'ForeignKey' or a 'ManyToManyField' related to a CremeEntity model & with an attribute 'limit_choices_to' which is a Q() (or a callable returning one)
+          will cause an error when its form-field is generated (but it indicates a buggy code in your old Creme 1.6 based code).
+        # In 'creme_core.models' :
+            - If the ordering of a class inheriting CremeEntity is empty or uses the field 'id', it causes an error a starting (before there was just a log message).
+            - Instances of 'CremeProperty' are now unique for couple (type, creme_entity).
+            - Instances of 'UserRole' is now unique by 'name'.
+            - Instances of 'CustomFields' are now unique for couple (content_type, name).
+            - The attribute 'entity.EntityAction.icon' must be a new-style icon name (not a old-style icon path).
+        # The behaviour of ordering NULL values is now uniform between the different RDBMS : NULL values are now considered as low.
+          On PostgreSQL (where we use the SQL instructions NULLS FIRST/LAST), ordering of CremeEntity QuerySets has changed with order_by() on fields with NULL values.
+        # In 'creme_core/templates' :
+            - The <body> of the pages should now have an attribute 'data-bricks-reload-url' which contains the bricks-reloading URL.
+            - In 'base.html', {% block bodyclass %} has been removed ; use {% block body_classes %} instead (beware, you have to remove 'class="').
+            - Many changes in 'detailview.html' :
+                - The <div> for buttons have changed their CSS class.
+                - The class 'zone_spacer_5px' is not used anymore & the related <div> has been removed.
+                - Several template {% block %} have been removed:
+            - In 'generics/view_entity.html', if you override some {% block %} ('title', 'logo', 'entity_buttons'),
+              you have now to use the header brick feature instead (by creating your own or override an existing one).
+            - In 'generics/blockform/base.html', 'generics/blockformset/base.html' & 'generics/form/base.html',
+              the context variable 'logo' is replaced by 'icon_name' (eg: 'images/add_64.png' => 'add')
+            - In form pages, the tags <table class="table_header" ...>  have been replaced by <div> tags.
+            - Many changes in the HTML of list-views ; mostly in header & footer.
+        # In 'creme_core.gui' :
+            - The constructor of 'bricks.Brick' (aliased to 'block.Block' for compatibility) should be called if you write your own 'Brick' class.
+            - In 'bricks._BrickRegistry.register_4_model()' the argument 'block' has been renamed 'brick_class'. A registered bricks should have an id_ == None.
+            - 'fields_config.FieldsConfigRegistry.register()' has been removed.
+            - The module 'list_view_import' has been renamed to 'mass_import'.
+            - In the method 'listview.ListViewState.set_sort()', the argument 'field_name' has been renamed 'cell_key'.
+        # The URL '/creme_core/list_view/import/..' became '/creme_core/mass_import/...' ; the GET argument 'list_url' is not used anymore.
+        # In 'creme_core.views' :
+            - In 'generic.listview.list_view()' the parameter '*args' has been removed.
+            - The function 'list_view_export.dl_listview_header()' has been removed.
+            - In 'quick_forms.add_from_widget()' there is no "<json>" tag in the response anymore.
+        # The key 'usertheme' has been removed from 'creme_core.global_info'.
+        # In 'creme_core.forms' :
+            - In 'fields' :
+                - The property 'user' is required by the method 'clean()' of: (Multi)GenericEntityField, (Multi)RelationEntityField, (Multi)CreatorEntityField.
+                - The method 'GenericEntityField._update_wigets_choices()' has been renamed '_update_widget_choices()'.
+                - The method 'CreatorEntityField.create_action_url()' now returns '' if no related quick-form is registered (& no custom URL is provided).
+            - In 'bulk' :
+                - The 'VIEW' permission is not checked explicitly anymore (so 'LINK' is checked instead by default by the field itself).
+                - The classes inheriting 'BulkForm' must set the attributes 'bulk_cleaned_entities' & 'bulk_invalid_entities' or use the method '_bulk_clean()'.
+                - The constructor of 'BulkForm' now requires the model as first argument ; don't forget to update registered custom inner/bulk forms.
+                - The method 'BulkForm._bulk_related_formfield()' has been removed.
+                - The global variable '_BULK_FIELD_WIDGETS' has been removed.
+            - In 'widgets' :
+                - The class attribute 'RelationSelector._CTYPES_URL_FMT' has been removed.
+                - In the constructor of 'RelationSelector' & 'MultiRelationSelector', the default value for 'content_types' is now 'None'.
+                - The class 'EnchancedSelectOptions' has been renamed to 'EnhancedSelectOption'.
+                - In the class 'DependentSelect' :
+                    - The attribute '_source_val' has been removed (& the property 'source_val' & the method _set_source() too).
+                    - The attribute '_target_val' has been removed (& the property 'target_val' & the method _set_target() too).
+            - The module 'list_view_import' has been renamed to 'mass_import'.
+            - The constructor of 'merge.MergeField' takes an additional positional argument : 'user'.
+        # In 'creme_core.core' :
+            - In 'function_field' :
+                - The method 'FunctionField.call()' takes an additional argument : 'user'.
+                - The method 'FunctionField.populate_entities()' takes an additional argument : 'user'.
+            # In 'reminder' :
+                - The methods 'Reminder.execute()' & 'Reminder.send_mails()' take an additional 'job' argument.
+                - The method 'Reminder.next_wakeup()' must be implemented by child classes.
+        # '_BackendRegistry', 'import_backend_registry' & 'export_backend_registry' have moved from 'creme_core.registry' to 'creme_core.backends'.
+        # The function print_hour() has moved from 'creme_core.models.setting_value' to 'creme_core.core.setting_key'.
+        # About commands :
+            - The command 'reminder' has been removed (the new job system is used).
+            - The command 'i18n_doublons' has been renamed to 'i18n_duplicates'.
+        # The method 'creme_core.core.entity_cell.EntityCell.populate_entities()' takes an additional argument: 'user'.
+        # In 'creme_core.utils' :
+            - The signature of 'chunktools.iter_splitchunks()' has changed :
+              the arguments (chunks, sep, filter) are now (chunks, sep, parser=None, limit=None). See the docstring for details.
+            - 'meta.FieldInfo' : slicing with a step (or a step!=1) raises now a ValueError (because it probably does not mean anything).
+        # In JavaScript :
+            - The method 'ArrayTools.insertOrReplace()' has been removed.
+            - 'creme.component.ActionRegistry' has been removed (it was not used and is now replaced by the builders of ActionLink in bricks code).
+            - The method 'creme.dialog.FormDialog.submit()' now expects (options, data, listeners) arguments like 'creme.widgets.Dialog.fetch()'.
+            - In 'creme.lv_widget' :
+                - 'editSelectedLines()' has been replaced by 'EditSelectedAction()'.
+                - 'addToSelectedLines()' has been replaced by 'AddToSelectedAction()'.
+                - 'deleteSelectedLines()' has been replaced by 'DeleteSelectedAction()'.
+                - 'openFilterSelection()' & 'openFilterView()' have been removed.
+            - Values of 'creme.widget.EntitySelectorMode' constants have changed (0/1 became 'multiple'/'single') ; so if you use your own URL you'll have to change it.
+        # In 'creme_core.tests' :
+            - The ordering of 'FakeInvoice' is now ('name', '-expiration_date').
+            - The command 'creme_populate' is now run just once (excepted for TransactionTestCases).
+              So running all the tests is much faster, & tests are run with more realistic data (because all other apps are populated too).
+        # Apps :
+            * Creme_config :
+                - The global variables 'constants.USER_THEME_NAME' & 'constants.USER_TIMEZONE' have been removed.
+                - The global variables 'settings_key.theme_key' & 'settings_key.timezone_key' have been removed.
+                - The functions 'utils.get_user_timezone_config()' & 'utils.get_user_theme()' have been removed.
+                - The view 'views.generics_views.add_model_from_widget()' has no "<json>" tag in its response anymore.
+            * Documents :
+                - The field 'AbstractFolder.description' is not 'null' any more.
+                - The field 'AbstractDocument.description' is not 'null' any more.
+                - The method 'forms.documents._DocumentBaseForm.clean_filedata()' has been removed.
+                - The method 'forms.quick.DocumentQuickForm.clean_filedata()' has been removed.
+                - The view 'views.quick_forms.add_csv_from_widget()' has no "<json>" tag in its response anymore.
+            * Media_managers :
+                - This app has been emptied & will be definitively removed in Creme 1.8.
+                  Notice that the form 'ImageQuickForm' has been modified & moved to 'documents.forms.quick'.
+            * Persons :
+                - In models (AbstractContact/AbstractOrganisation/AbstractAddress), CharFields & TexFields are not nullable anymore.
+                - The result of 'Organisation.get_all_managed_by_creme()' is cached (per request).
+                - The module 'forms.lv_import' has been renamed to 'forms.mass_import' ;
+                  its function 'get_csv_form_builder()' has been renamed 'get_massimport_form_builder()'.
+                - In 'buttons.CrmButton', the attribute 'become_url' is replaced by 'url_name' (it's now the name of the wanted URL).
+            * Activities :
+                - In models :
+                    - The field 'Activity.description' & 'Activity.minutes' are not 'null' anymore.
+                    - The field 'Activity.place' is not 'null' anymore.
+                    - The field 'Calendar.color' is not 'null' & not 'blank' anymore.
+                - In forms :
+                    - In ActivityCreateForm/ParticipantCreateForm/ActivityMassImportForm:
+                        - The field 'my_participation' is now a UserParticipationField.
+                        - The field 'my_calendar' has been removed.
+                    - In the ActivityCreateForm :
+                        - The following fields have been removed : alert_day, alert_start_time, alert_trigger_number, alert_trigger_unit.
+                        - The 'error_messages' has no message with key='no_alert_start' anymore.
+                    - The constant 'activity.MINUTES' has been removed.
+                    - The module 'forms.lv_import' has been renamed to 'forms.mass_import' ;
+                      its function 'get_csv_form_builder()' has been renamed to 'get_massimport_form_builder()'.
+                - The module 'tests.lv_import' has been renamed to 'tests.mass_import' ;
+                  its class 'CSVImportActivityTestCase' has been renamed to 'MassImportActivityTestCase'.
+                - In JavaScript :
+                    - calendar.loading() behaviour has changed (loading(false) means "not loading" & new 'is-loading' CSS class is used).
+                    - In 'calendar.updater()', the URL must be given as first argument.
+            * Products :
+                - The fields 'models.AbstractProduct.web_site' & 'models.AbstractService.web_site' are not 'null' anymore.
+                - The method 'models.Category.get_absolute_url()'' has been removed (but the returned URL did not work, so nobody uses this method).
+                - In 'blocks.ImagesBlock' (alias for 'bricks.ImagesBrick'), the variable "object_type" is not injected in the template context anymore.
+            * Billing :
+                - In models :
+                    - The fields 'Base.number' & 'Base.comment' (and so in 'CreditNote/Invoice/Quote/SalesOrder/TemplateBase') are not 'null' anymore.
+                    - The fields 'Line.unit' & 'Line.comment' (and so in 'ProductLine/ServiceLine') are not 'null' anymore.
+                    - The field 'Line.on_the_fly_item' (and so in 'ProductLine/ServiceLine') is not 'blank' anymore.
+                    - The following fields of PaymentInformation are not 'null' any more : bank_code, counter_code, account_number, rib_key, banking_domiciliation, iban, bic.
+                    - The field 'AdditionalInformation.description' is not 'null' any more.
+                    - The field 'PaymentTerms.description' is not 'null' any more.
+                    - The classes inheriting 'Line' must implement the method 'related_item_class()'.
+                - The method 'models.Base.get_lines()' uses now a cache ; 'invalidate_cache()' has been updated to work with it.
+                - The detail-views do not inject a variable 'can_download' in their template context anymore.
+                - In blocks.py :
+                    - The Blocks use now templates files in 'billing/bricks/'.
+                    - _ReceivedBillingDocumentsBlock & its child classes : _title & _title_plural use now a format with brackets (ie: %s => {count}).
+                - In function_fields.py, these functions take an additional 'user' argument :
+                    - sum_totals_no_vat().
+                    - get_total_pending().
+                    - get_total_won_quote_last_year().
+                    - get_total_won_quote_this_year().
+                - In 'forms.line.ProductLineMultipleAddForm' & 'forms.line.ServiceLineMultipleAddForm', the block IDs "additionnal" become "additional".
+                - The module 'tests.lv_import' has been renamed to 'tests.mass_import'.
+                - In JavaScript :
+                    - The function 'creme.billing.initBlockLines()'' has been replaced by initLinesBrick() (beware, it takes an additional argument 'block').
+                    - In 'creme.billing.multiSaveLines()', the argument has changed.
+            * Opportunities :
+                - These fields of 'AbstractOpportunity' are not 'null' anymore : reference, description.
+                - The module 'tests.lv_import' has been renamed to 'tests.mass_import'.
+                  its function 'get_csv_form_builder()'' has been renamed to 'get_mass_form_builder()'.
+            * Commercial :
+                - The field 'AbstractAct.goal' is not 'null' any more.
+                - The field 'CommercialApproach.description' is not 'null' any more.
+                - These fields of 'MarketSegmentDescription' are not 'null' any more : product, place, price, promotion.
+                - In the JavaScript function 'creme.commercial.increaseObjectiveCounter()', the first argument has changed (ID of objective replaced by URL).
+            * Emails :
+                - In models :
+                    - The field 'EmailRecipient.address' is not 'null' any more.
+                    - The field '_Email.subject' is not 'null' any more (& so does LightWeightEmail/AbstractEntityEmail/EntityEmail).
+                    - The fields 'AbstractEntityEmail.attachments' & 'AbstractEmailCampaign.mailing_lists' are now 'blank' (the related form-fields were not required).
+                - The commands 'emails_send' & 'entity_emails_send' have been removed (new job system).
+                - The method 'tests.test_sending.SendingsTestCase.repopulate_email()' has been removed.
+                - The functions 'forms.utils.validate_images_in_html()' & 'forms.utils.create_image_validation_error()' have been removed.
+                - The function 'utils.get_images_from_html()' has been removed.
+                - In 'buttons.EntityEmailLinkButton.render()', the template variable 'rtypes' in now a list (it was a string with comma as separator).
+                  The template 'emails/templatetags/button_entityemail_link.html' has been adapted.
+                - In JavaScript, 'confirmResend()' & 'resend()' take an additional argument 'resend_url'.
+            * Assistants :
+                - In models, these fields :
+                    - The fields 'Action.description' & 'Action.expected_reaction' are not 'null' any more .
+                    - The field 'Alert.description' is not 'null' any more .
+                    - The field 'ToDo.description' is not 'null' any more.
+                    - The field 'Memo.content' is not 'null' and not 'blank' any more.
+                - The command 'usermessages_send' has been removed (new job system).
+            * Reports :
+                - JavaScript :
+                    - The function 'creme.reports.load()'' takes 2 additional parameters.
+                    - The function 'creme.reports.unlink_report()' takes an additional parameter ('url').
+                    - The function 'creme.reports.changeOrder()' takes an additional parameter ('url').
+                    - The function 'creme.reports.setSelected()' takes an additional parameter ('url').
+                    - The functions 'creme.reports.exportReport()' & 'creme.reports.PreviewController()' completely changed their signatures.
+            * Geolocation :
+                - The fields 'Town.country' & 'Town.zipcode' are not 'null' any more.
+                - In JavaScript :
+                    - The parameter 'block' (DOM element) in 'creme.geolocation.*Block' is replaced by 'brick (instance of 'creme.bricks.Brick').
+                    - In block/brick controllers, 'this._block' (Jquery element) has bene replaced by 'this._brick' (instance of 'creme.brick.Brick').
+                    - The DOM event "block-geoaddress-location" has been replaced by "brick-geoaddress-location".
+            * Projects :
+                - The new field AbstractProject.currency is required.
+                - The field 'AbstractProject.description' is not 'null' any more.
+                - The field 'AbstractProjectTask.description' is not 'null' any more.
+                - The field 'ProjectStatus.color_code' is not 'null' any more ; its max_length is now 6.
+                - The field 'TaskStatus.color_code' is not 'null' any more.
+                - the function 'views.resource.add()' now returns a 409 error when the task is not alive (instead of a 200 page with an error message).
+                - In the constructor of 'forms.resource.ResourceEditForm', the first argument is now 'entity' (it was 'task').
+            * Crudity :
+                - In the constructor of 'fetchers.pop.PopEmail', the default subject is now ''.
+                - In the class 'fetchers.pop.PopFetcher', the following class attributes have been removed : server, username, password, port, is_ssl, ssl_keyfile, ssl_certfile.
+                - In the module 'fetchers.pop', the 'constants' CREME_GET_* have been removed.
+            * Polls :
+                - The field 'AbstractPollCampaign.goal' is not 'null' any more.
+                - The field 'PollFormSection.body' is not 'null' any more.
+                - The field 'PollReplySection.body' is not 'null' any more.
+            * Recurrents :
+                - These fields of 'AbstractRecurrentGenerator' are not 'null' any more : name, description.
+                - The command 'recurrents_gendocs' has been removed (new job system).
+            * SMS :
+                - The fields 'Recipient.phone' & 'Message.status_message' are not 'null' any more.
+                - The field 'AbstractSMSCampaign.lists' is now 'blank' (the related form-field was not required).
+
+    Internal breaking changes :
+    ---------------------------
+    (they should not cause problem if you have not deeply modified the source code of Creme)
+
+        # There are many changes in 'creme_core.forms.list_view_import.ImportForm'.
+        # There are many changes in 'creme_core.forms.batch_process.BatchProcessForm' ;
+          the constructor of 'BatchOperator' takes an additional argument 'id'.
+        # There are many changes in the class 'creme_core.gui.listview.ListViewState'.
+        # In 'creme_core.gui.bricks' :
+            - These attributes/methods of '_BrickRegistry' have been renamed :
+                - '_blocks' became '_brick_classes'.
+                - '_object_blocks' became '_object_bricks'.
+                - '_instance_block_classes' became '_instance_brick_classes'.
+                - '_generate_modelblock_id()' became '_generate_modelblock_id()'.
+            - In 'BricksManager' :
+                 - get_state(): the argument 'block_id' has been renamed 'brick_id'.
+                 - The attributes '_blocks' & '_blocks_groups' have been renamed '_bricks' & '_bricks_groups'.
+        # In 'creme_core.views' :
+            - The internal class in 'creme_property' have been renamed from '*Block' into '*Brick' ;
+              In TaggedEntitiesBrick, the variables 'short_title' & 'title' are not injected in the context anymore.
+            - The internal class 'search.FoundEntitiesBlock' has been renamed 'FoundEntitiesBrick' ;
+              In FoundEntitiesBrick, the variables 'short_title' & 'title'  are not injected in the context anymore.
+            - The module 'list_view_import' has been renamed 'views.mass_import' ;
+              its function 'import_listview()' has been renamed 'mass_import()'.
+            - In 'testjs.js_testview_or_404()', the argument 'request' has been removed.
+            - In 'generic.listview', POST & GET arguments are not used at the same time any more ; only POST requests change the information stored in the session.
+                - In '_build_extrafilter()' & '_select_entityfilter()', the parameter 'request' has been replaced by 'arguments'.
+                - _build_entity_queryset() :
+                    - The parameter 'request' has been replaced by 'user'.
+                    - It returns the count too.
+                - '_build_entities_page()' takes 2 additional arguments 'count' & 'ordering'.
+        # The module 'creme_core.tests.views.test_list_view_import' has been renamed 'creme_core.tests.views.test_mass_import' ;
+          its class 'CSVImportViewsTestCase' became 'MassImportViewsTestCase'.
+        # The function 'creme_core.checks.check_creme_core_registers()' has been removed.
+        # The method 'creme.creme_core.management.commands.creme_populate.BasePopulator._get_populate_module()' has been removed.
+        # In JavaScript :
+            - In 'creme.dialog.FormDialogAction', the event "done" now returns (data, dataType) instead of (data).
+            - The parameter "url" has been renamed "lv_state_id" in the following functions :
+                - creme_core.views.generic.listview.list_view_content()
+                - creme_core.views.generic.listview.list_view_popup()
+        # Apps:
+            * Creme_config :
+                - In 'registry' :
+                    - The method 'ModelConfig._manage_order()' has been removed.
+                    - The attribute 'AppConfigRegistry._blocks' hss been renamed '_bricks_classes'.
+                    - The method '_ConfigRegistry.get_app()' raises now a 'LookUpError' exception instead of a 'NotRegistered' one.
+                    - The attribute '_ConfigRegistry._block_registry' has been renamed '_brick_registry'.
+                    - The attribute '_ConfigRegistry._userblocks' has been renamed '_user_brick_classes'.
+                - In the function 'views.user_settings._set_usersetting()', the argument 'session_key' has been removed.
+                - In forms :
+                    - In 'user_settings', the base class of 'UserThemeForm' & 'UserTimeZoneForm' is now 'CremeModelForm' (it was CremeForm).
+                    - In 'blocks._BlockLocationsForm._save_locations()', the argument 'blocks_partitions' has been renamed 'bricks_partitions'.
+            * Persons :
+                - The class '_PersonCSVImportForm' has been renamed '_PersonMassImportForm'.
+                - The function 'tests.test_bricks.find_node_by_attr()' has been removed.
+            * Activities :
+                - The class 'forms.lv_import.SplittedColumnParticipantsExtractor' has been renamed to 'SplitColumnParticipantsExtractor'.
+            * Billing :
+                - The file billing/billing_register.py has been removed.
+                - The attributes models.Base._productlines_cache/_productlines_cache have been removed (use 'lines_cache' instead).
+                - In function_fields '_get_quote_fieldsconfig()' & '_BaseTotalWonQuote' have been removed.
+                - In JavaScript :
+                    - New CSS classes are used instead of "td_error" : "bline-deletion-mark" & "bline-input-error".
+                    - The class "item_modified" is replaced by "bline-input-modified".
+            * Opportunities :
+                - The method 'models.AbstractOpportunity.__get_fieldsconfig()' & the attribute 'models.AbstractOpportunity._fconfig_cache' have been removed.
+            * Commercial :
+                - The constant IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABLED has been removed.
+                - The SettingKey 'notification_key' has been removed ; the related SettingValue has been removed from the DB.
+                -  The template 'commercial/templatetags/widget_score.html' needs a variable "view_name" to work correctly.
+            * Assistants :
+                - The method 'UserMessage.send_mails()'' takes now an additional argument 'job'.
+                  It catches the exceptions when e-mails are sent, & do not send again the same e-mails.
+            * Reports :
+                - JavaScript:
+                    - The function 'creme.reports.loadHeaderFilters()' takes an additional parameter ('url').
+                    - The function 'creme.reports.loadFilters()' has been renamed 'loadEntityFilters' & takes an additional parameter ('url').
+            * Activesync :
+                - utils._is_user_sync() has been removed.
+
+
 == Version 1.6 ==
 
   Users side :
@@ -47,7 +854,7 @@
         * Commercial :
             - A Market Segment can now be deleted (by replacing them by another one). The related property type is also replaced.
             - A Market Segment "All the organisations" has been added, with no related PropertyType.
-        * Billing:
+        * Billing :
             - Invoice's total can now be negative.
             - The blocks for entity information are now built with the CustomBlock feature.
             - The model TemplateBase has now a 'Status' FunctionField.
@@ -523,7 +1330,7 @@
     Breaking changes :
     ------------------
         # Python 2.7 is now the only supported version.
-        # Deprecated stuffes which have been removed :
+        # Deprecated stuffs which have been removed :
             - The function creme_core.utils.Q_creme_entity_content_types().
             - Two methods in Opportunity: get_target() & get_source().
             - All the deprecated credentials methods in CremeEntity :.
