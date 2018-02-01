@@ -1393,7 +1393,9 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertGET200(url)
 
         response = self.client.post(url, data={'field_value': plumbing.id,
-                                               'entities': [mario.id, luigi.id, nintendo.id]})
+                                               'entities': [mario.id, luigi.id, nintendo.id],
+                                              }
+                                   )
         self.assertNoFormError(response)
         self.assertEqual(plumbing, self.refresh(mario).sector)
         self.assertEqual(plumbing, self.refresh(luigi).sector)
@@ -1553,12 +1555,10 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertListEqual(list(image1.categories.all()), categories)
         self.assertListEqual(list(image2.categories.all()), categories[:1])
 
-        url = self.build_bulkedit_url([image1, image2], 'categories')
-        response = self.client.post(url, data={'field_value': [categories[0].pk,
-                                                               categories[2].pk,
-                                                              ],
-                                               'entities': [image1.id, image2.id]
-                                              },
+        response = self.client.post(reverse('creme_core__bulk_update', args=(image1.entity_type_id, 'categories')),
+                                    data={'field_value': [categories[0].pk, categories[2].pk],
+                                          'entities': [image1.id, image2.id],
+                                         },
                                    )
         self.assertNoFormError(response)
 
@@ -1577,7 +1577,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertListEqual(list(image1.categories.all()), categories)
         self.assertListEqual(list(image2.categories.all()), categories[:1])
 
-        url = self.build_bulkedit_url([image1, image2], 'categories')
+        url = reverse('creme_core__bulk_update', args=(image1.entity_type_id, 'categories'))
         invalid_pk = (FakeImageCategory.objects.aggregate(Max('id'))['id__max'] or 0) + 1
 
         response = self.client.post(url, data={'field_value': [categories[0].pk, invalid_pk],

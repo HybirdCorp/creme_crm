@@ -537,9 +537,6 @@ class GuiTestCase(CremeTestCase):
         phone_label = 'Contact with phone'
         email_label = 'Contact with email'
 
-        def callback(instance):
-            return ('phone', phone_label) if instance.phone else ('email', email_label)
-
         icon_reg.register_4_instance(
                 FakeContact,
                 lambda instance: ('phone', phone_label) if instance.phone else ('email', email_label)

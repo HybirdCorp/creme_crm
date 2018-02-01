@@ -753,24 +753,29 @@ class BrickRegistryTestCase(CremeTestCase):
     # TODO different keys
 
 
-class BlocksManagerTestCase(CremeTestCase):
+# class BlocksManagerTestCase(CremeTestCase):
+class BricksManagerTestCase(CremeTestCase):
     def test_manage01(self):
         class TestBlock(SimpleBrick):
             verbose_name  = u'Testing purpose'
 
         class FoobarBlock1(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage01_1')
+            # id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage01_1')
+            id_ = TestBlock.generate_id('creme_core', 'BricksManagerTestCase__manage01_1')
 
         class FoobarBlock2(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage01_2')
+            # id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage01_2')
+            id_ = TestBlock.generate_id('creme_core', 'BricksManagerTestCase__manage01_2')
             dependencies = (FakeContact,)
 
         class FoobarBlock3(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage01_3')
+            # id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage01_3')
+            id_ = TestBlock.generate_id('creme_core', 'BricksManagerTestCase__manage01_3')
             dependencies = (FakeOrganisation,)
 
         class FoobarBlock4(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage01_4')
+            # id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage01_4')
+            id_ = TestBlock.generate_id('creme_core', 'BricksManagerTestCase__manage01_4')
             dependencies = (FakeContact, FakeOrganisation)
 
         block1 = FoobarBlock1()
@@ -803,18 +808,18 @@ class BlocksManagerTestCase(CremeTestCase):
             verbose_name  = u'Testing purpose'
 
         class FoobarBlock1(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage02_1')
+            id_ = TestBlock.generate_id('creme_core', 'BricksManagerTestCase__manage02_1')
 
         class FoobarBlock2(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage02_2')
+            id_ = TestBlock.generate_id('creme_core', 'BricksManagerTestCase__manage02_2')
             dependencies = (FakeContact,)
 
         class FoobarBlock3(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage02_3')
+            id_ = TestBlock.generate_id('creme_core', 'BricksManagerTestCase__manage02_3')
             dependencies = (FakeOrganisation,)
 
         class FoobarBlock4(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage02_4')
+            id_ = TestBlock.generate_id('creme_core', 'BricksManagerTestCase__manage02_4')
             dependencies = (FakeContact, FakeOrganisation)
 
         block1 = FoobarBlock1()
@@ -853,25 +858,25 @@ class BlocksManagerTestCase(CremeTestCase):
             verbose_name  = u'Testing purpose'
 
         class FoobarBlock1(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage03_1')
+            id_ = TestBlock.generate_id('creme_core', 'BricksManagerTestCase__manage03_1')
 
         class FoobarBlock2(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage03_2')
+            id_ = TestBlock.generate_id('creme_core', 'BricksManagerTestCase__manage03_2')
             dependencies = (FakeContact,)
 
         class FoobarBlock3(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage03_3')
+            id_ = TestBlock.generate_id('creme_core', 'BricksManagerTestCase__manage03_3')
             dependencies = (Relation,)
 
         self.assertEqual((), FoobarBlock3.relation_type_deps)
 
         class FoobarBlock4(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage03_4')
+            id_ = TestBlock.generate_id('creme_core', 'BricksManagerTestCase__manage03_4')
             dependencies = (Relation,)
             relation_type_deps = (rtype1_pk,)
 
         class FoobarBlock5(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage03_5')
+            id_ = TestBlock.generate_id('creme_core', 'BricksManagerTestCase__manage03_5')
             dependencies = (Relation,)
             relation_type_deps = (rtype1_pk, rtype2_pk)
 
@@ -905,7 +910,7 @@ class BlocksManagerTestCase(CremeTestCase):
 
     def test_wildcard01(self):
         "Wildcard dependencies, read-only"
-        id_fmt = 'BlocksManagerTestCase__wildcard01_%s'
+        id_fmt = 'BricksManagerTestCase__wildcard01_%s'
 
         class FoobarBlock1(SimpleBrick):
             id_ = SimpleBrick.generate_id('creme_core', id_fmt % 1)
@@ -952,21 +957,21 @@ class BlocksManagerTestCase(CremeTestCase):
     def test_read_only01(self):
         "Read-only dependencies"
         class FoobarBlock1(SimpleBrick):
-            id_ = SimpleBrick.generate_id('creme_core', 'BlocksManagerTestCase__read_only01_1')
+            id_ = SimpleBrick.generate_id('creme_core', 'BricksManagerTestCase__read_only01_1')
 
         class FoobarBlock2(SimpleBrick):
-            id_ = SimpleBrick.generate_id('creme_core', 'BlocksManagerTestCase__read_only01_2')
+            id_ = SimpleBrick.generate_id('creme_core', 'BricksManagerTestCase__read_only01_2')
             dependencies = (FakeContact,)
 
         block1 = FoobarBlock1(); block2 = FoobarBlock2()
         self.assertIs(block1.read_only, False)
 
         class FoobarBlock3(SimpleBrick):
-            id_ = SimpleBrick.generate_id('creme_core', 'BlocksManagerTestCase__read_only01_3')
+            id_ = SimpleBrick.generate_id('creme_core', 'BricksManagerTestCase__read_only01_3')
             dependencies = (FakeOrganisation,)
 
         class FoobarBlock4(SimpleBrick):
-            id_ = SimpleBrick.generate_id('creme_core', 'BlocksManagerTestCase__read_only01_4')
+            id_ = SimpleBrick.generate_id('creme_core', 'BricksManagerTestCase__read_only01_4')
             dependencies = (FakeOrganisation, FakeContact)
             read_only = True  # <=====
 

@@ -344,6 +344,7 @@ class BlockTestCase(CremeTestCase):
                                )
 
         self.assertEqual(_('History'), unicode(loc.block_verbose_name))
+        self.assertEqual(_('History'), unicode(loc.brick_verbose_name))
 
     def test_create_mypage02(self):
         order = 10
