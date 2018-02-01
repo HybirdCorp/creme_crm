@@ -122,7 +122,7 @@ class SettingTestCase(CremeTestCase):
         "Hidden => not editable (value=True)"
         self.login()
 
-        sk = SettingKey(id='persons-test_edit_hidden01', description=u"Display logo ?",
+        sk = SettingKey(id='persons-test_edit_hidden01', description=u'Display logo ?',
                         app_label='persons', type=SettingKey.BOOL, hidden=True,
                        )
         setting_key_registry.register(sk)
@@ -132,14 +132,14 @@ class SettingTestCase(CremeTestCase):
 
     def test_edit_hidden02(self):
         "Hidden => not editable (value=False)"
-        user = self.login()
+        self.login()
 
-        sk = SettingKey(id='persons-test_edit_hidden02', description=u"Display logo ?",
-                        app_label='persons', type=SettingKey.BOOL, hidden=False,
+        sk = SettingKey(id='persons-test_edit_hidden02', description=u'Display logo ?',
+                        app_label='persons', type=SettingKey.BOOL, hidden=True,
                        )
         setting_key_registry.register(sk)
 
-        sv = SettingValue.objects.create(key=sk, user=user, value=True)
+        sv = SettingValue.objects.create(key=sk, value=False)
         self.assertGET404(self._build_edit_url(sv))
 
     def test_edit_blank01(self):
