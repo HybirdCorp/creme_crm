@@ -16,7 +16,7 @@
 {% block card_secondary %}
     <div class="card-targets">
         {% if target_is_organisation %}
-        <span class="card-function">{% trans 'Targets the organisation' %}</span>{% widget_entity_hyperlink target user %}
+        <span class="card-function">{% trans 'Targets the organisation' %}</span> {% widget_entity_hyperlink target user %}
         {% else %}
         <span class="card-function">{% trans 'Targets the contact' %}</span>{% has_perm_to view target as target_view_perm %}
             {% if target_view_perm %}
