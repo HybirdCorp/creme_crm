@@ -287,6 +287,9 @@ class BlockTestCase(CremeTestCase):
                                 block_id=block_id, order=order,
                                )
 
+        self.assertEqual(_('History'), unicode(loc.block_verbose_name))
+        self.assertEqual(_('History'), unicode(loc.brick_verbose_name))
+
     def test_create_portal02(self):
         order = 10
         block_id = history_block.id_
