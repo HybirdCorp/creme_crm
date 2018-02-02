@@ -144,15 +144,16 @@
                 - ICON_SIZE_MAP.
             - In 'creme_core.models' :
                 - CremeEntity.populate_fk_fields() (use 'creme_core.utils.db.populate_related()' instead).
-                - BlockDetailviewLocation.create_4_model_block() (use create_4_model_brick() instead).
-                - BlockMypageLocation.block_verbose_name (use brick_verbose_name instead).
-                - InstanceBlockConfigItem.block (use "brick" instead).
-                - CustomBlockConfigItem.id_from_block_id() (use id_from_brick_id() instead).
+                - BlockDetailviewLocation.create_4_model_block() (use 'create_4_model_brick()' instead).
+                - BlockPortalLocation.block_verbose_name (use 'brick_verbose_name' instead).
+                - BlockMypageLocation.block_verbose_name (use 'brick_verbose_name' instead).
+                - InstanceBlockConfigItem.block (use 'brick' instead).
+                - CustomBlockConfigItem.id_from_block_id() (use 'id_from_brick_id()' instead).
                 - BlockState :
-                    - The property 'classes' (use the templatetag creme_bricks.brick_state_classes instead).
-                    - get_for_block_id() (use get_for_brick_id() instead).
-                    - get_for_block_ids() (use get_for_brick_ids() instead).
-                - SettingValue.create_if_needed() (use SettingValue.objects.get_or_create() instead).
+                    - The property 'classes' (use the templatetag 'creme_bricks.brick_state_classes' instead).
+                    - get_for_block_id() (use 'get_for_brick_id()' instead).
+                    - get_for_block_ids() (use 'get_for_brick_ids()' instead).
+                - SettingValue.create_if_needed() (use 'SettingValue.objects.get_or_create()' instead).
                 - The field 'SettingValue.user' (use the new 'UserSettingValueManager' system instead -- ie: user.settings).
                   BEWARE: if your UserSettingValue is not hidden, it can be viewed/edited in "My settings".
             - creme_core.urls.blocks_patterns

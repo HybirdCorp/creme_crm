@@ -21,7 +21,7 @@
 {% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_home_brick' as delete_url %}
     {% for loc in page.object_list %}
     <tr>
-        <td {% brick_table_data_status primary %}>{{loc.block_verbose_name}}</td>
+        <td {% brick_table_data_status primary %}>{{loc.brick_verbose_name}}</td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='delete' url=delete_url __id=loc.id label=_('Remove this block') enabled=admin_perm %}
         </td>
