@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-23 17:52+0100\n"
+"POT-Creation-Date: 2018-02-01 17:59+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -140,7 +140,7 @@ msgstr "Relations"
 msgid "History"
 msgstr "Historique"
 
-#: bricks.py:282 gui/menu.py:602 templates/creme_core/base.html:85
+#: bricks.py:282 gui/menu.py:628 templates/creme_core/base.html:85
 #: templates/creme_core/trash.html:4 templates/creme_core/trash.html.py:8
 msgid "Trash"
 msgstr "Corbeille"
@@ -1186,26 +1186,26 @@ msgid_plural "seconds"
 msgstr[0] "seconde"
 msgstr[1] "secondes"
 
-#: gui/menu.py:603
+#: gui/menu.py:629
 #, python-format
 msgid "%s entity"
 msgid_plural "%s entities"
 msgstr[0] "%s fiche"
 msgstr[1] "%s fiches"
 
-#: gui/menu.py:625 templates/creme_core/templatetags/quickforms_panel.html:3
+#: gui/menu.py:656 templates/creme_core/templatetags/quickforms_panel.html:3
 msgid "Quick creation"
 msgstr "Création rapide"
 
-#: gui/menu.py:648
+#: gui/menu.py:679
 msgid "No type available"
 msgstr "Aucun type disponible."
 
-#: gui/menu.py:819
+#: gui/menu.py:857
 msgid "Create an entity of any type"
 msgstr "Créer une fiche de n'importe quel type"
 
-#: gui/menu.py:853
+#: gui/menu.py:896
 msgid "No recently visited entity"
 msgstr "Aucune fiche récemment visitée"
 
@@ -1242,7 +1242,7 @@ msgstr "À la première page"
 msgid "Next page"
 msgstr "Page suivante"
 
-#: models/auth.py:51 models/bricks.py:434 models/entity_filter.py:111
+#: models/auth.py:51 models/bricks.py:441 models/entity_filter.py:111
 #: models/i18n.py:28 templates/creme_core/bricks/relations.html:17
 #: templates/creme_core/bricks/trash.html:17
 #: templates/creme_core/templatetags/block_specific_relations.html:55
@@ -1481,7 +1481,7 @@ msgstr "Date de création"
 msgid "Last modification"
 msgstr "Dernière modification"
 
-#: models/bricks.py:52 models/bricks.py:433 models/button_menu.py:32
+#: models/bricks.py:52 models/bricks.py:440 models/button_menu.py:32
 #: models/custom_field.py:54
 msgid "Related type"
 msgstr "Type associé"
@@ -1490,23 +1490,23 @@ msgstr "Type associé"
 msgid "Related role"
 msgstr "Rôle associé"
 
-#: models/bricks.py:254 models/bricks.py:518
+#: models/bricks.py:261 models/bricks.py:525
 msgid "Block ID"
 msgstr "Identifiant de bloc"
 
-#: models/bricks.py:255
+#: models/bricks.py:262
 msgid "Related type of relationship"
 msgstr "Type de relation associé"
 
-#: models/bricks.py:359
+#: models/bricks.py:366
 msgid "Brick ID"
 msgstr "Identifiant de bloc"
 
-#: models/bricks.py:360
+#: models/bricks.py:367
 msgid "Block related entity"
 msgstr "Fiche associée au bloc"
 
-#: models/bricks.py:362
+#: models/bricks.py:369
 msgid "Verbose"
 msgstr "Verbeux"
 
@@ -3034,6 +3034,7 @@ msgid "Cancel"
 msgstr "Annuler"
 
 #: templates/creme_core/generics/blockform/edit.html:6
+#: templates/creme_core/generics/form/edit.html:6
 #, python-format
 msgid "Edit «%(object)s»"
 msgstr "Modifier «%(object)s»"
@@ -3050,11 +3051,6 @@ msgstr "Enregistrer les modifications"
 #, python-format
 msgid "Edit «%s»"
 msgstr "Modifier «%s»"
-
-#: templates/creme_core/generics/form/edit.html:6
-#, python-format
-msgid "Modify %(object)s"
-msgstr "Modifier %(object)s"
 
 #: templates/creme_core/generics/portal.html:34
 msgid "Go to the list"
@@ -3887,6 +3883,9 @@ msgstr "Recherche vide…"
 #, python-format
 msgid "Please enter at least %s characters"
 msgstr "Veuillez entrer au moins %s caractères"
+
+#~ msgid "Modify %(object)s"
+#~ msgstr "Modifier %(object)s"
 
 #~ msgid "«Enter» to submit"
 #~ msgstr "Touche «Entrée» pour valider"
