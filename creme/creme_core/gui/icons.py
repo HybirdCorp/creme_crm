@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,8 +20,8 @@
 
 import logging, warnings
 
-from django.utils.html import escape
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html  # escape
+# from django.utils.safestring import mark_safe
 
 from ..utils.media import get_creme_media_url
 
@@ -29,7 +29,7 @@ from ..utils.media import get_creme_media_url
 logger = logging.getLogger(__name__)
 
 
-# TODO: Creme1.8 these info will be retrieved from theme data
+# TODO: these info should be retrieved from theme data (future asset manager Creme2.0+)
 _SVG_ICONS = {
     'chantilly': {
         'goto': {
@@ -181,12 +181,19 @@ class Icon(BaseIcon):
     def render(self, css_class=''):
         final_css_class = self.css_class + css_class
 
-        return mark_safe(u'<img src="{url}" {attrs} title="{label}" alt="{label}" width="{size}px"/>'.format(
-                size=self.size,
-                label=escape(self.label),
-                attrs=u' class="{}"'.format(final_css_class) if final_css_class else '',
-                url=self.url,
-        ))
+        # return mark_safe(u'<img src="{url}" {attrs} title="{label}" alt="{label}" width="{size}px"/>'.format(
+        #         size=self.size,
+        #         label=escape(self.label),
+        #         attrs=u' class="{}"'.format(final_css_class) if final_css_class else '',
+        #         url=self.url,
+        # ))
+        return format_html(
+            u'<img src="{url}" {attrs} title="{label}" alt="{label}" width="{size}px"/>',
+            size=self.size,
+            label=self.label,
+            attrs=format_html(u' class="{}"', final_css_class) if final_css_class else '',
+            url=self.url,
+        )
 
 
 class SVGIcon(BaseIcon):
@@ -198,15 +205,25 @@ class SVGIcon(BaseIcon):
     def render(self, css_class=''):
         final_css_class = self.css_class + css_class
 
-        return mark_safe('<svg xmlns="http://www.w3.org/2000/svg" viewBox="{box}" {attrs} title="{label}" alt="{label}" height="{size}px" width="{size}px">'
-                            '<path d="{path}"></path>'
-                         '</svg>'.format(
-                size=self.size,
-                label=escape(self.label),
-                attrs=u' class="{}"'.format(final_css_class) if final_css_class else '',
-                box=self.view_box,
-                path=self.svg_path,
-        ))
+        # return mark_safe('<svg xmlns="http://www.w3.org/2000/svg" viewBox="{box}" {attrs} title="{label}" alt="{label}" height="{size}px" width="{size}px">'
+        #                     '<path d="{path}"></path>'
+        #                  '</svg>'.format(
+        #         size=self.size,
+        #         label=escape(self.label),
+        #         attrs=u' class="{}"'.format(final_css_class) if final_css_class else '',
+        #         box=self.view_box,
+        #         path=self.svg_path,
+        # ))
+        return format_html(
+            u'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{box}" {attrs} title="{label}" alt="{label}" height="{size}px" width="{size}px">'
+                u'<path d="{path}"></path>'
+            u'</svg>',
+            size=self.size,
+            label=self.label,
+            attrs=format_html(u' class="{}"', final_css_class) if final_css_class else '',
+            box=self.view_box,
+            path=self.svg_path,
+        )
 
 
 def get_icon_size_px(theme, size='medium'):

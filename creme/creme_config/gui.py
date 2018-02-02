@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext as _
 
 from creme.creme_core.gui.menu import ViewableItem, ContainerItem
 
@@ -12,12 +14,18 @@ class TimezoneItem(ViewableItem):
         super(TimezoneItem, self).__init__(id=id, icon=icon, icon_label=icon_label)
 
     def render(self, context, level=0):
-        return u'<a href="%s">%s%s</a>' % (
-                    # '/creme_config/my_settings/',
-                    reverse('creme_config__user_settings'),
-                    self.render_icon(context),
-                    _(u'Time zone: %s') % context['TIME_ZONE'],
-                )
+        # return u'<a href="%s">%s%s</a>' % (
+        #             # '/creme_config/my_settings/',
+        #             reverse('creme_config__user_settings'),
+        #             self.render_icon(context),
+        #             _(u'Time zone: %s') % context['TIME_ZONE'],
+        #         )
+        return format_html(u'<a href="{url}">{icon}{label}</a>',
+                           url=reverse('creme_config__user_settings'),
+                           icon=self.render_icon(context),
+                           label=_(u'Time zone: %s') % context['TIME_ZONE'],
+                          )
+
 
 class ConfigContainerItem(ContainerItem):
     # NB: http://google.github.io/material-design-icons/action/svg/ic_settings_24px.svg
@@ -31,7 +39,7 @@ class ConfigContainerItem(ContainerItem):
 </svg>"""
 
     def render_icon(self, context):
-        return "<svg viewBox='0 0 24 24' ><use xlink:href='#creme_config-menu_icon' /></svg>"
+        return mark_safe("<svg viewBox='0 0 24 24' ><use xlink:href='#creme_config-menu_icon' /></svg>")
 
     def render(self, context, level=0):
-        return self.SVG_DATA + super(ConfigContainerItem, self).render(context)
+        return mark_safe(self.SVG_DATA + super(ConfigContainerItem, self).render(context))
