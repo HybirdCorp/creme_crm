@@ -35,7 +35,7 @@
             <table class="brick-table-content">
                 <tbody>
                     <tr>
-                        <td class="brickloc-config-role">{{ctype|format:_('Default configuration for «%s»')}}</td>
+                        <td class="brickloc-config-role">{% blocktrans %}Default configuration for «{{ctype}}»{% endblocktrans %}</td>
                         <td class="brickloc-config-count">
                             {% if ctype_default_count %}
                                 {% blocktrans count count=ctype_default_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktrans %}
