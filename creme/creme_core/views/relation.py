@@ -218,8 +218,11 @@ def add_relations_bulk(request, model_ct_id, relations_types=None):
     model = utils.get_ct_or_404(model_ct_id).model_class()
 
     # TODO: rename 'ids' -> 'entity' ?
-    # TODO: do not use GET args on POST request.
-    entities = get_list_or_404(model, pk__in=request.POST.getlist('ids') or request.GET.getlist('ids'))
+    # entities = get_list_or_404(model, pk__in=request.POST.getlist('ids') or request.GET.getlist('ids'))
+    entities = get_list_or_404(model,
+                               pk__in=request.POST.getlist('ids') if request.method == 'POST' else
+                                      request.GET.getlist('ids'),
+                              )
 
     CremeEntity.populate_real_entities(entities)
 
