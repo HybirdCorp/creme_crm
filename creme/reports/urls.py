@@ -14,7 +14,7 @@ urlpatterns = [
     url(r'^export/filter/(?P<report_id>\d+)[/]?$',  export.filter,  name='reports__export_report_filter'),
     url(r'^export/(?P<report_id>\d+)[/]?$',         export.export,  name='reports__export_report'),
 
-    # Fields block
+    # Fields brick
     # TODO: put field_id even on POST urls (instead of POST arg)
     url(r'^report/field/unlink_report[/]?$',                 report.unlink_report,      name='reports__unlink_report'),
     url(r'^report/field/change_order[/]?$',                  report.change_field_order, name='reports__change_field_order'),  # DEPRECATED
@@ -29,10 +29,10 @@ urlpatterns = [
     url(r'^graph/fetch_graph/(?P<graph_id>\d+)/(?P<order>\w+)[/]?$', graph.fetch_graph, name='reports__fetch_graph'),  # DEPRECATED
 
     url(r'^graph/fetch_from_instance_block/(?P<instance_block_id>\d+)/(?P<entity_id>\d+)[/]?$',
-        graph.fetch_graph_from_instanceblock, name='reports__fetch_graph_from_block',
+        graph.fetch_graph_from_instanceblock, name='reports__fetch_graph_from_brick',
        ),
     url(r'^graph/fetch_from_instance_block/(?P<instance_block_id>\d+)/(?P<entity_id>\d+)/(?P<order>\w+)[/]?$',
-        graph.fetch_graph_from_instanceblock, name='reports__fetch_graph_from_block',
+        graph.fetch_graph_from_instanceblock, name='reports__fetch_graph_from_brick',
        ),  # DEPRECATED
 
     url(r'^graph/(?P<graph_id>\d+)/block/add[/]?$', bricks.add_graph_instance_brick, name='reports__create_instance_brick'),

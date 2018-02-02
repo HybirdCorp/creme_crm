@@ -35,7 +35,7 @@
                             <div class="ui-widget-content ui-creme-widget ui-creme-plotselector" widget="ui-creme-plotselector"
                                  {% if object %}
 {#                                 plot-data-url="/reports/graph/fetch_from_instance_block/{{instance_block_id}}/{{object.id}}/${sort}" #}
-                                 plot-data-url="{% url 'reports__fetch_graph_from_block' instance_block_id object.id %}?order=${sort}"
+                                 plot-data-url="{% url 'reports__fetch_graph_from_brick' instance_block_id object.id %}?order=${sort}"
                                  {% else %}
 {#                                 plot-data-url="/reports/graph/fetch_graph/{{graph.id}}/${sort}" #}
                                  plot-data-url="{% url 'reports__fetch_graph' graph.id %}?order=${sort}"
