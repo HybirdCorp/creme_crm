@@ -738,8 +738,11 @@ TEST_CREME_CORE_JS = ('testcore.js',
 
                         'creme_core/js/tests/form/forms.js',
 
+                        'creme_core/js/tests/list/qunit-listview-mixin.js',
                         'creme_core/js/tests/list/list-pager.js',
                         'creme_core/js/tests/list/listview-actions.js',
+                        'creme_core/js/tests/list/listview-header.js',
+                        'creme_core/js/tests/list/listview-core.js',
 
                         'creme_core/js/tests/brick/qunit-brick-mixin.js',
                         'creme_core/js/tests/brick/brick.js',

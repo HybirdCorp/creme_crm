@@ -1,4 +1,4 @@
-QUnit.module("creme.bricks.pager", new QUnitMixin(QUnitEventMixin, {
+QUnit.module("creme.list.pager", new QUnitMixin(QUnitEventMixin, {
     beforeEach: function() {
         this.anchor = $('<div></div>').appendTo($('body'));
     },
@@ -34,7 +34,7 @@ QUnit.test('creme.list.Pager.bind (already bound)', function() {
 
     this.assertRaises(function() {
         pager.bind(element);
-    }, Error, 'Error: BrickPager is already bound');
+    }, Error, 'Error: Pager is already bound');
 });
 
 QUnit.test('creme.list.Pager (link, no data)', function() {
