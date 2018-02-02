@@ -470,7 +470,7 @@ class BlockPortalLocationsBrick(PaginatedBrick):
             try:
                 app_configs.append(apps.get_app_config(label))
             except LookupError:
-                logger.warn('BlockPortalLocationsBlock: the app "%s" is not installed')
+                logger.warn('BlockPortalLocationsBlock: the app "%s" is not installed', label)
 
         sort_key = collator.sort_key
         # apps.sort(key=lambda app: sort_key(app.verbose_name))
