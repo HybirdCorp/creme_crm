@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse_lazy as reverse
 from django.utils.encoding import smart_unicode
-from django.utils.html import escape  # escapejs
+from django.utils.html import format_html, format_html_join, mark_safe  # escape escapejs
 from django.utils.translation import ugettext as _, ungettext, ugettext_lazy
 
 from ..auth import build_creation_perm as cperm
@@ -179,7 +179,8 @@ else:
             img = self.render_icon(context)
             label = self.render_label(context)
 
-            return u'<span>%s%s</span>' % (img, label)
+            # return u'<span>%s%s</span>' % (img, label)
+            return format_html(u'<span>{}{}</span>', img, label)
 
         def render_icon(self, context):
             icon = self.icon
@@ -388,7 +389,7 @@ else:
             return '--'
 
         def render(self, context, level=0):
-            return u'<hr class="ui-creme-navigation-separator ui-creme-navigation-separator-id_%s"/>' % self.id
+            return mark_safe(u'<hr class="ui-creme-navigation-separator ui-creme-navigation-separator-id_%s"/>' % self.id)
 
 
     class ContainerItem(ViewableItem, ItemList):
@@ -450,17 +451,31 @@ else:
         def render(self, context, level=0):
             level += 1
 
-            return u'%s%s<ul>%s</ul>' % (
-                    self.render_icon(context),
-                    self.render_label(context),
-                    # TODO: attr 'no_wrapping' instead of isinstance() ??
-                    u''.join(item.render(context, level) if isinstance(item, ItemSeparator) else
-                             u'<li class="ui-creme-navigation-item-level%s ui-creme-navigation-item-id_%s">%s</li>' % (
-                                level,
-                                item.id,
-                                item.render(context, level),
-                            ) for item in self
-                        ),
+            # return u'%s%s<ul>%s</ul>' % (
+            #         self.render_icon(context),
+            #         self.render_label(context),
+            #         # todo: attr 'no_wrapping' instead of isinstance() ??
+            #         u''.join(item.render(context, level) if isinstance(item, ItemSeparator) else
+            #                  u'<li class="ui-creme-navigation-item-level%s ui-creme-navigation-item-id_%s">%s</li>' % (
+            #                     level,
+            #                     item.id,
+            #                     item.render(context, level),
+            #                 ) for item in self
+            #             ),
+            # )
+            return format_html(
+                u'{icon}{label}<ul>{li_tags}</ul>',
+                icon=self.render_icon(context),
+                label=self.render_label(context),
+                # TODO: attr 'no_wrapping' instead of isinstance() ??
+                li_tags=mark_safe(u''.join(item.render(context, level) if isinstance(item, ItemSeparator) else
+                                           format_html(u'<li class="ui-creme-navigation-item-level{level} ui-creme-navigation-item-id_{id}">{item}</li>',
+                                                      level=level,
+                                                      id=item.id,
+                                                      item=item.render(context, level),
+                                                    )
+                                               for item in self
+                                 )),
             )
 
 
@@ -470,7 +485,8 @@ else:
             self.css_class = css_classes
 
         def render(self, context, level=0):
-            return u'<span class="%s">%s</span>' % (self.css_class, self.render_label(context))
+            # return u'<span class="%s">%s</span>' % (self.css_class, self.render_label(context))
+            return format_html(u'<span class="{}">{}</span>', self.css_class, self.render_label(context))
 
 
     class GroupLabelItem(LabelItem):
@@ -563,10 +579,11 @@ else:
             label = self.render_label(context)
 
             if not self._has_perm(context):
-                return u'<span class="ui-creme-navigation-text-entry forbidden">%s%s</span>' % (img, label)
+                # return u'<span class="ui-creme-navigation-text-entry forbidden">%s%s</span>' % (img, label)
+                return format_html(u'<span class="ui-creme-navigation-text-entry forbidden">{}{}</span>', img, label)
 
-            # TODO: escape url ??
-            return u'<a href="%s">%s%s</a>' % (self.url, img, label)
+            # return u'<a href="%s">%s%s</a>' % (self.url, img, label)
+            return format_html(u'<a href="{url}">{img}{label}</a>', url=self.url, img=img, label=label)
 
 
     # class OnClickItem(Item):
@@ -594,15 +611,23 @@ else:
         def render(self, context, level=0):
             count = CremeEntity.objects.filter(is_deleted=True).count()
 
-            return '<a href="%s">' \
-                      '%s <span class="ui-creme-navigation-punctuation">(</span>' \
-                      '%s<span class="ui-creme-navigation-punctuation">)</span>' \
-                   '</a>' % (
-                        self.url,
-                        _(u'Trash'),
-                        ungettext(u'%s entity', u'%s entities', count) % count,
-                    )
-
+            # return '<a href="%s">' \
+            #           '%s <span class="ui-creme-navigation-punctuation">(</span>' \
+            #           '%s<span class="ui-creme-navigation-punctuation">)</span>' \
+            #        '</a>' % (
+            #             self.url,
+            #             _(u'Trash'),
+            #             ungettext(u'%s entity', u'%s entities', count) % count,
+            #         )
+            return format_html(
+                u'<a href="{url}">'
+                    u'{label} <span class="ui-creme-navigation-punctuation">(</span>'
+                    u'{count}<span class="ui-creme-navigation-punctuation">)</span>'
+                u'</a>',
+                    url=self.url,
+                    label=_(u'Trash'),
+                    count=ungettext(u'%s entity', u'%s entities', count) % count,
+            )
 
     class QuickCreationItemGroup(ItemGroup):  # TODO: 'is_group' + do not inherit ItemGroup ?
         """Item group with a dynamic content, yielded from a QuickFormsRegistry instance."""
@@ -614,13 +639,19 @@ else:
                 self.model = model
 
             def render(self, context, level=0):
-                # return u'<a href="" class="quickform-menu-link" data-ct-id="%s">%s</a>' % (
-                return u'<a href="%s" class="quickform-menu-link">%s</a>' % (
-                                # self.ct_id,
-                                reverse('creme_core__quick_forms', args=(self.ct_id, 1)),
-                                self.label,
-                            ) if context['user'].has_perm_to_create(self.model) else \
-                       u'<span class="ui-creme-navigation-text-entry forbidden">%s</span>' % self.label
+                # # return u'<a href="" class="quickform-menu-link" data-ct-id="%s">%s</a>' % (
+                # return u'<a href="%s" class="quickform-menu-link">%s</a>' % (
+                #                 # self.ct_id,
+                #                 reverse('creme_core__quick_forms', args=(self.ct_id, 1)),
+                #                 self.label,
+                #             ) if context['user'].has_perm_to_create(self.model) else \
+                #        u'<span class="ui-creme-navigation-text-entry forbidden">%s</span>' % self.label
+                return format_html(u'<a href="{url}" class="quickform-menu-link">{label}</a>',
+                                   url=reverse('creme_core__quick_forms', args=(self.ct_id, 1)),
+                                   label=self.label,
+                                  ) \
+                       if context['user'].has_perm_to_create(self.model) else \
+                       format_html(u'<span class="ui-creme-navigation-text-entry forbidden">{}</span>', self.label)
 
         def __init__(self, id, registry, label=ugettext_lazy(u'Quick creation')):
             """@param registry: QuickFormsRegistry instance (indeed, we only need a iter_models() method)."""
@@ -682,8 +713,8 @@ else:
                         raise TypeError('Link: missing parameter %s' % e)
 
             def __unicode__(self):
-                return u'<Link: id="%s" label="%s" priority=%s>' % (
-                                self.id, self.label, self._priority
+                return u'<Link: id="{}" label="{}" priority={}>'.format(
+                                self.id, self.label, self._priority,
                         )
 
             @property
@@ -813,14 +844,21 @@ else:
             self._groups.remove(*group_ids)
 
         def render(self, context, level=0):
-            return u'<a href="" class="anyform-menu-link" title="%s"' \
-                   u' data-grouped-links="%s"' \
-                   u'>%s%s</a>' % (
-                        escape(_(u'Create an entity of any type')),
-                        escape(json_dump(self.as_grid(context['user']))),
-                        self.render_icon(context),
-                        self.render_label(context),
-                    )
+            # return u'<a href="" class="anyform-menu-link" title="%s"' \
+            #        u' data-grouped-links="%s"' \
+            #        u'>%s%s</a>' % (
+            #             escape(_(u'Create an entity of any type')),
+            #             escape(json_dump(self.as_grid(context['user']))),
+            #             self.render_icon(context),
+            #             self.render_label(context),
+            #         )
+            return format_html(
+                u'<a href="" class="anyform-menu-link" title="{title}" data-grouped-links="{links}">{icon}{label}</a>',
+                title=_(u'Create an entity of any type'),
+                links=json_dump(self.as_grid(context['user'])),
+                icon=self.render_icon(context),
+                label=self.render_label(context),
+            )
 
         @property
         def verbose_unicode(self):
@@ -843,20 +881,31 @@ else:
             lv_items = LastViewedItem.get_all(context['request'])
 
             if lv_items:
-                li_tags = u''.join(u'<li><a href="%s">%s</a></li>' % (
-                                        lvi.url,
-                                        lvi.name
-                                    ) for lvi in lv_items
-                                  )
+                # li_tags = u''.join(u'<li><a href="{}">{}</a></li>'.format(
+                #                         lvi.url,
+                #                         escape(lvi.name),
+                #                     ) for lvi in lv_items
+                #                   )
+                li_tags = format_html_join(u'', u'<li><a href="{}">{}</a></li>',
+                                           ((lvi.url, lvi.name) for lvi in lv_items)
+                                          )
             else:
-                li_tags = u'<li><span class="ui-creme-navigation-text-entry">%s</span></li>' % \
-                            _(u'No recently visited entity')
+                # li_tags = u'<li><span class="ui-creme-navigation-text-entry">%s</span></li>' % \
+                #             _(u'No recently visited entity')
+                li_tags = format_html(u'<li><span class="ui-creme-navigation-text-entry">{}</span></li>',
+                                      _(u'No recently visited entity')
+                                     )
 
-            return u'%s%s<ul>%s</ul>' % (
-                    self.render_icon(context),
-                    self.render_label(context),
-                    li_tags,
-            )
+            # return u'%s%s<ul>%s</ul>' % (
+            #         self.render_icon(context),
+            #         self.render_label(context),
+            #         li_tags,
+            # )
+            return format_html(u'{icon}{label}<ul>{li_tags}</ul>',
+                               icon=self.render_icon(context),
+                               label=self.render_label(context),
+                               li_tags=li_tags,
+                              )
 
 
     class Menu(ItemList):
@@ -896,13 +945,21 @@ else:
             return res
 
         def render(self, context, level=0):
-            return u'<ul class="ui-creme-navigation">%s</ul>' % (
-                u''.join(u'<li class="ui-creme-navigation-item-level%s ui-creme-navigation-item-id_%s">%s</li>' % (
-                                level,
-                                item.id,
-                                item.render(context, level),
-                            ) for item in self
-                        ),
+            # return u'<ul class="ui-creme-navigation">%s</ul>' % (
+            #     u''.join(u'<li class="ui-creme-navigation-item-level%s ui-creme-navigation-item-id_%s">%s</li>' % (
+            #                     level,
+            #                     item.id,
+            #                     item.render(context, level),
+            #                 ) for item in self
+            #             ),
+            # )
+            return format_html(
+                u'<ul class="ui-creme-navigation">{}</ul>',
+                format_html_join(
+                        u'',
+                        u'<li class="ui-creme-navigation-item-level{} ui-creme-navigation-item-id_{}">{}</li>',
+                        ((level, item.id, item.render(context, level)) for item in self)
+                ),
             )
 
     creme_menu = Menu()
