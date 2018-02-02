@@ -853,11 +853,7 @@ body .ui-tooltip {
     /*color: #222222;*/
 }
 .ui-widget-header {
-    /* ---- creme theme ----
-    border: 1px solid #aaaaaa;
-    background: #cccccc url("images/ui-bg_highlight-soft_75_cccccc_1x100.png") 50% 50% repeat-x;
-    color: #222222;
-    */
+    /* ---- creme theme ---- */
     border: 1px solid #6eaac4;
     background: #b4d2df url(images/ui-bg_glass_75_b4d2df_1x400.png) 50% 50% repeat-x;
     color: #5a90a7; 
@@ -875,11 +871,7 @@ body .ui-tooltip {
 .ui-state-default,
 .ui-widget-content .ui-state-default,
 .ui-widget-header .ui-state-default {
-    /* ---- creme theme ----
-    border: 1px solid #d3d3d3;
-    background: #e6e6e6 url("images/ui-bg_glass_75_e6e6e6_1x400.png") 50% 50% repeat-x;
-    font-weight: normal;
-    */
+    /* ---- creme theme ---- */
     border: 1px solid #6eaac4;
     background: #89bfd7 url("images/ui-bg_glass_75_89bfd7_1x400.png") 50% 50% repeat-x;
     font-weight: bold;
@@ -897,11 +889,7 @@ body .ui-tooltip {
 .ui-state-focus,
 .ui-widget-content .ui-state-focus,
 .ui-widget-header .ui-state-focus {
-    /* ---- creme theme ----
-    border: 1px solid #999999;
-    background: #dadada url("images/ui-bg_glass_75_dadada_1x400.png") 50% 50% repeat-x;
-    font-weight: normal;
-    */
+    /* ---- creme theme ---- */
     border: 1px solid #6eaac4;
     background: #f7d6d2 url(images/ui-bg_glass_75_f7d6d2_1x400.png) 50% 50% repeat-x;
     font-weight: bold;
@@ -922,10 +910,6 @@ body .ui-tooltip {
 .ui-widget-content .ui-state-active,
 .ui-widget-header .ui-state-active {
     border: 1px solid #6eaac4; background: #f6fcff url(images/ui-bg_glass_65_f6fcff_1x400.png) 50% 50% repeat-x;
-    /* 
-    border: 1px solid #aaaaaa;
-    background: #ffffff url("images/ui-bg_glass_65_ffffff_1x400.png") 50% 50% repeat-x;
-    */
     font-weight: bold;
     color: #212121;
 }
