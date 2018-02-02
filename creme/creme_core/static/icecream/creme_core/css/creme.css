@@ -25,7 +25,7 @@
     font-style: normal;
     font-weight: 700;
     src: url('common/fonts/OpenSans-Bold-700.eot'); /* IE9 Compat Modes */
-    src: /* url('icecream/fonts/OpenSans-Bold-700.eot?#iefix') format('embedded-opentype'), IE6-IE8 */
+    src: /* url('common/fonts/OpenSans-Bold-700.eot?#iefix') format('embedded-opentype'), IE6-IE8 */
          url('common/fonts/OpenSans-Bold-700.woff') format('woff'), /* Modern Browsers */
          url('common/fonts/OpenSans-Bold.ttf') format('truetype'); /* Safari, Android, iOS */
 }

@@ -723,7 +723,7 @@ class _BrickRegistry(object):
 
         for brick_cls in brick_classes:
             if isinstance(brick_cls, Brick):
-                warnings.warn('_BrickRegistry.register(): registered brick instance is deprecated ;'
+                warnings.warn('_BrickRegistry.register(): registering brick instance is deprecated ;'
                               'register brick class instead (brick ID=%s)' % brick_cls.id_,
                               DeprecationWarning
                              )
@@ -753,7 +753,7 @@ class _BrickRegistry(object):
     # def register_4_model(self, model, block):
     def register_4_model(self, model, brick_cls):  # TODO: had an 'overload' arg ??
         if isinstance(brick_cls, Brick):
-            warnings.warn('_BrikRegistry.register_4_model(): registered brick instance is deprecated ;'
+            warnings.warn('_BrikRegistry.register_4_model(): registering brick instance is deprecated ;'
                           'register brick class instead (model=%s)' % model,
                           DeprecationWarning
                          )

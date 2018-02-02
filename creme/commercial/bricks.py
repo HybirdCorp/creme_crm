@@ -259,7 +259,7 @@ class CharmsMatrixBrick(Brick):
         return self._render(self.get_template_context(
                         context,
                         charms=strategy.get_charms_list(),
-                        segment_info=strategy.get_segment_descriptions_list(),  # TODO: remove in 1.8
+                        segment_info=strategy.get_segment_descriptions_list(),
                         totals=strategy.get_charms_totals(orga),
                         # # update_url='/commercial/blocks/charms_matrix/%s/%s/' % (strategy.pk, orga.pk),
                         # update_url=reverse('commercial__reload_charms_matrix', args=(strategy.pk, orga.pk),)

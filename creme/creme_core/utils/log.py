@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2017 Hybird
+# Copyright (c) 2017-2018 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -46,7 +46,7 @@ def log_exceptions(printer, limit=10):
         def _aux(*args, **kwargs):
             try:
                 return function(*args, **kwargs)
-            except Exception as e:
+            except Exception:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
 
                 printer('An exception occurred in <{}>.\n{}'.format(

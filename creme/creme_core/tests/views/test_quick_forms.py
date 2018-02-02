@@ -66,7 +66,7 @@ class QuickFormTestCase(CremeTestCase):
 
         self.assertPOST404(self._build_quickform_url(FakeCivility), data)
 
-    def test_add_unallowed(self):
+    def test_add_forbidden(self):
         self.login(is_superuser=False,
                    creatable_models=[FakeOrganisation],
                   )

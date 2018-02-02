@@ -275,7 +275,7 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertFieldValidationError(GenericEntityField, 'invalidformat', clean, '{"ctype":{"id": "notanumber", "create":""},"entity":"1"}')
         self.assertFieldValidationError(GenericEntityField, 'invalidformat', clean, '{"ctype":{"id": "12", "create":""},"entity":"notanumber"}')
 
-    def test_clean_unallowed_ctype(self):
+    def test_clean_forbidden_ctype(self):
         self.login()
 
         contact = self.create_contact()
@@ -612,7 +612,7 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertFieldValidationError(MultiGenericEntityField, 'invalidformat', clean, '[{"ctype":{"id": "notanumber", "create": ""},"entity":"1"}]')
         self.assertFieldValidationError(MultiGenericEntityField, 'invalidformat', clean, '[{"ctype":{"id": "12", "create": ""},"entity":"notanumber"}]')
 
-    def test_clean_unallowed_ctype(self):
+    def test_clean_forbidden_ctype(self):
         self.login()
         contact = self.create_contact()
         orga    = self.create_orga()
@@ -2224,7 +2224,7 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
                                         self.format_str % (1024, '')
                                        )
 
-    def test_clean_unallowed_ctype01(self):
+    def test_clean_forbidden_ctype01(self):
         "Allowed ContentTypes given as a list of ContentType instances"
         ctypes = [self.ct_contact]
         error_msg = self.format_str % (self.ct_orga.id, '')
@@ -2246,7 +2246,7 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
                                         field.clean, error_msg
                                        )
 
-    def test_clean_unallowed_ctype02(self):
+    def test_clean_forbidden_ctype02(self):
         "Allowed ContentTypes given as a list of ID"
         ctypes = [self.ct_contact.id]
         error_msg = self.format_str % (self.ct_orga.id, '')
@@ -2263,7 +2263,7 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
                                         field.clean, error_msg
                                        )
 
-    def test_clean_unallowed_ctype03(self):
+    def test_clean_forbidden_ctype03(self):
         "Allowed ContentTypes given as a list of ID & instances"
         ctypes = [self.ct_contact.id, self.ct_orga]
 
