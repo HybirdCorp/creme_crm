@@ -572,15 +572,18 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEntiTyHasRelation(subject, allowed_rtype, self.object01)
         self.assertEntiTyHasRelation(subject, allowed_rtype, self.object02)
 
-    def _build_bulk_add_url(self, ct_id, *subjects):
-        # return '/creme_core/relation/add_to_entities/%(ct_id)s/?%(sub_ids)s&persist=ids' % {
-        #                 'ct_id':   ct_id,
-        #                 'sub_ids': ''.join('ids=%s&' % subject.id for subject in subjects),
-        #             }
-        return '%s?persist=ids%s' % (
-                reverse('creme_core__create_relations_bulk', args=(ct_id,)),
-                ''.join('&ids=%s' % subject.id for subject in subjects),
-        )
+    # def _build_bulk_add_url(self, ct_id, *subjects):
+    #     return '/creme_core/relation/add_to_entities/%(ct_id)s/?%(sub_ids)s&persist=ids' % {
+    #                     'ct_id':   ct_id,
+    #                     'sub_ids': ''.join('ids=%s&' % subject.id for subject in subjects),
+    #                 }
+    def _build_bulk_add_url(self, ct_id, *subjects, **kwargs):
+        url = reverse('creme_core__create_relations_bulk', args=(ct_id,))
+
+        if kwargs.get('GET', False):
+            url += '?persist=ids' + ''.join('&ids={}'.format(e.id) for e in subjects)
+
+        return url
 
     def test_add_relations_bulk01(self):
         self._aux_test_add_relations()
@@ -592,15 +595,20 @@ class RelationViewsTestCase(ViewsTestCase):
                                 object_entity=self.object02
                                )
         ct_id = self.ct_id
-        url = self._build_bulk_add_url(ct_id, self.subject01, self.subject02)
-        self.assertGET200(url)
+        # url = self._build_bulk_add_url(ct_id, self.subject01, self.subject02)
+        # self.assertGET200(url)
+        self.assertGET200(self._build_bulk_add_url(ct_id, self.subject01, self.subject02, GET=True))
 
-        response = self.client.post(url, data={'entities_lbl': 'wtf',
-                                               'relations':    self.format_str_2x % (
-                                                                    self.rtype01.id, ct_id, self.object01.id,
-                                                                    self.rtype02.id, ct_id, self.object02.id,
-                                                                ),
-                                              })
+        # response = self.client.post(url,
+        response = self.client.post(self._build_bulk_add_url(ct_id),
+                                    data={'entities_lbl': 'wtf',
+                                          'relations':    self.format_str_2x % (
+                                                              self.rtype01.id, ct_id, self.object01.id,
+                                                              self.rtype02.id, ct_id, self.object02.id,
+                                                            ),
+                                          'ids': [self.subject01.id, self.subject02.id],
+                                         }
+                                   )
         self.assertNoFormError(response)
 
         self.assertEqual(2, self.subject01.relations.count())
@@ -617,22 +625,27 @@ class RelationViewsTestCase(ViewsTestCase):
         unviewable = CremeEntity.objects.create(user=self.other_user)
         self.assertFalse(self.user.has_perm_to_view(unviewable))
 
-        url = self._build_bulk_add_url(self.ct_id, self.subject01, unviewable)
-        response = self.assertGET200(url)
+        # url = self._build_bulk_add_url(self.ct_id, self.subject01, unviewable)
+        # response = self.assertGET200(url)
+        ct_id = self.ct_id
+        response = self.assertGET200(self._build_bulk_add_url(ct_id, self.subject01, unviewable, GET=True))
 
         with self.assertNoException():
             label = response.context['form'].fields['bad_entities_lbl']
 
         self.assertTrue(label.initial)
 
-        ct_id = self.ct_id
-        response = self.client.post(url, data={'entities_lbl':     'do not care',
-                                               'bad_entities_lbl': 'do not care',
-                                               'relations':        self.format_str_2x % (
-                                                                        self.rtype01.id, ct_id, self.object01.id,
-                                                                        self.rtype02.id, ct_id, self.object02.id,
-                                                                    ),
-                                              })
+        # response = self.client.post(url,
+        response = self.client.post(self._build_bulk_add_url(self.ct_id),
+                                    data={'entities_lbl':     'do not care',
+                                          'bad_entities_lbl': 'do not care',
+                                          'relations':        self.format_str_2x % (
+                                                                   self.rtype01.id, ct_id, self.object01.id,
+                                                                   self.rtype02.id, ct_id, self.object02.id,
+                                                               ),
+                                          'ids': [self.subject01.id, unviewable.id]
+                                         }
+                                   )
         self.assertNoFormError(response)
         self.assertEqual(2, self.subject01.relations.count())
         self.assertEqual(0, unviewable.relations.count())
@@ -645,7 +658,8 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertTrue(self.user.has_perm_to_view(unlinkable))
         self.assertFalse(self.user.has_perm_to_link(unlinkable))
 
-        response = self.assertGET200(self._build_bulk_add_url(self.ct_id, self.subject01, unlinkable))
+        # response = self.assertGET200(self._build_bulk_add_url(self.ct_id, self.subject01, unlinkable))
+        response = self.assertGET200(self._build_bulk_add_url(self.ct_id, self.subject01, unlinkable, GET=True))
 
         with self.assertNoException():
             label = response.context['form'].fields['bad_entities_lbl']
@@ -655,19 +669,23 @@ class RelationViewsTestCase(ViewsTestCase):
     def test_add_relations_bulk04(self):
         self._aux_test_add_relations(is_superuser=False)
 
-        url =  self._build_bulk_add_url(self.ct_id, self.subject01)
-        self.assertGET200(url)
+        # url = self._build_bulk_add_url(self.ct_id, self.subject01)
+        # self.assertGET200(url)
+        self.assertGET200(self._build_bulk_add_url(self.ct_id, self.subject01, GET=True))
 
         self._set_all_creds_except_one(excluded=EntityCredentials.LINK)
         unlinkable = CremeEntity.objects.create(user=self.other_user)
 
-        response = self.assertPOST200(url, data={'entities_lbl': 'wtf',
-                                                 'relations':    self.format_str % (
-                                                                    self.rtype01.id,
-                                                                    self.ct_id,
-                                                                    unlinkable.id
-                                                                  ),
-                                                }
+        # response = self.assertPOST200(url,
+        response = self.assertPOST200(self._build_bulk_add_url(self.ct_id),
+                                      data={'entities_lbl': 'wtf',
+                                            'relations':    self.format_str % (
+                                                               self.rtype01.id,
+                                                               self.ct_id,
+                                                               unlinkable.id
+                                                             ),
+                                            'ids': [self.subject01.id],
+                                           }
                                      )
         self.assertFormError(response, 'form', 'relations',
                              _(u'Some entities are not linkable: %s') % unlinkable
@@ -680,12 +698,14 @@ class RelationViewsTestCase(ViewsTestCase):
         ct_id = self.ct_id
         subject01 = self.subject01
         subject02 = self.subject02
-        response = self.client.post(self._build_bulk_add_url(ct_id, subject01, subject02),
+        # response = self.client.post(self._build_bulk_add_url(ct_id, subject01, subject02),
+        response = self.client.post(self._build_bulk_add_url(ct_id),
                                     data={'entities_lbl': 'wtf',
                                           'relations':    self.format_str_2x % (
                                                                 self.rtype01.id, ct_id, subject01.id,
                                                                 self.rtype02.id, ct_id, subject02.id,
                                                             ),
+                                          'ids': [subject01.id, subject02.id],
                                          }
                                    )
         self.assertFormError(response, 'form', 'relations',
@@ -694,7 +714,9 @@ class RelationViewsTestCase(ViewsTestCase):
                                   }
                             )
 
-    def test_add_relations_bulk_with_semifixed01(self):
+    # def test_add_relations_bulk_with_semifixed01(self):
+    def test_add_relations_bulk06(self):
+        "With SemiFixedRelationType"
         self._aux_test_add_relations()
 
         # This relation should not be recreated by the view
@@ -709,12 +731,14 @@ class RelationViewsTestCase(ViewsTestCase):
                                                     object_entity=self.object01,
                                                    )
 
-        response = self.client.post(self._build_bulk_add_url(self.ct_id, self.subject01, self.subject02),
+        # response = self.client.post(self._build_bulk_add_url(self.ct_id, self.subject01, self.subject02),
+        response = self.client.post(self._build_bulk_add_url(self.ct_id),
                                     data={'entities_lbl':     'wtf',
                                           'relations':        self.format_str % (
                                                                   self.rtype02.id, self.ct_id, self.object02.id,
                                                                 ),
                                           'semifixed_rtypes': [sfrt.id],
+                                          'ids': [self.subject01.id, self.subject02.id],
                                          }
                                    )
         self.assertNoFormError(response)
@@ -727,7 +751,8 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEntiTyHasRelation(self.subject02, self.rtype01, self.object01)
         self.assertEntiTyHasRelation(self.subject02, self.rtype02, self.object02)
 
-    def test_add_relations_bulk_fixedrtypes01(self):
+    def test_add_relations_bulk07(self):
+        "Choices of RelationTypes limited by the GUI"
         self._aux_test_add_relations()
 
         # This relation should not be recreated by the view
@@ -740,27 +765,35 @@ class RelationViewsTestCase(ViewsTestCase):
         # url = '/creme_core/relation/add_to_entities/%s/%s,%s,/?ids=%s&ids=%s&persist=ids' % (
         #             self.ct_id, self.rtype01.id, self.rtype02.id, self.subject01.id, self.subject02.id
         #         )
-        url = reverse('creme_core__create_relations_bulk',args=(self.ct_id,)) + \
-              '?persist=ids&ids=%s&ids=%s&rtype=%s&rtype=%s' % (
-                        self.subject01.id,
-                        self.subject02.id,
-                        self.rtype01.id,
-                        self.rtype02.id,
-                 )
-        response = self.assertGET200(url)
+        # response = self.assertGET200(url)
+
+        # url = reverse('creme_core__create_relations_bulk', args=(self.ct_id,)) + \
+        #       '?persist=ids&ids=%s&ids=%s&rtype=%s&rtype=%s' % (
+        #                 self.subject01.id,
+        #                 self.subject02.id,
+        #                 self.rtype01.id,
+        #                 self.rtype02.id,
+        #          )
+        ct_id = self.ct_id
+        response = self.assertGET200(self._build_bulk_add_url(ct_id, self.subject01, self.subject02, GET=True)
+                                     + '&rtype={}&rtype={}'.format(self.rtype01.id, self.rtype02.id)
+                                    )
 
         with self.assertNoException():
             allowed_rtypes = response.context['form'].fields['relations'].allowed_rtypes
 
         self.assertEqual({self.rtype01, self.rtype02}, set(allowed_rtypes))
 
-        ct_id = self.ct_id
-        response = self.client.post(url, data={'entities_lbl': 'wtf',
-                                               'relations':    self.format_str_2x % (
-                                                                    self.rtype01.id, ct_id, self.object01.id,
-                                                                    self.rtype02.id, ct_id, self.object02.id,
-                                                                   ),
-                                              })
+        # response = self.client.post(url,
+        response = self.client.post(self._build_bulk_add_url(ct_id),
+                                    data={'entities_lbl': 'wtf',
+                                          'relations':    self.format_str_2x % (
+                                                               self.rtype01.id, ct_id, self.object01.id,
+                                                               self.rtype02.id, ct_id, self.object02.id,
+                                                              ),
+                                          'ids': [self.subject01.id, self.subject02.id]
+                                         }
+                                   )
         self.assertNoFormError(response)
 
         self.assertEqual(2, self.subject01.relations.count())
@@ -771,7 +804,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEntiTyHasRelation(self.subject02, self.rtype01, self.object01)
         self.assertEntiTyHasRelation(self.subject02, self.rtype02, self.object02)
 
-    def test_add_relations_bulk_fixedrtypes01_legacy(self):  # TODO: delete in 1.8
+    def test_add_relations_bulk_legacy01(self):  # TODO: delete in 1.8
         self._aux_test_add_relations()
 
         # This relation should not be recreated by the view
@@ -797,6 +830,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                                                     self.rtype01.id, ct_id, self.object01.id,
                                                                     self.rtype02.id, ct_id, self.object02.id,
                                                                    ),
+                                               'ids': [self.subject01.id, self.subject02.id],
                                               })
         self.assertNoFormError(response)
 
@@ -810,7 +844,7 @@ class RelationViewsTestCase(ViewsTestCase):
 
     # XXX: the relation types given in GET request are only to make the GUI simpler,
     #      & could not be used at validation => remove this test if this behavior is removed.
-    def test_add_relations_bulk_fixedrtypes02_legacy(self):  # TODO: remove in 1.8
+    def test_add_relations_bulk_legacy02(self):  # TODO: remove in 1.8
         self._aux_test_add_relations()
 
         # url = '/creme_core/relation/add_to_entities/%s/%s/?ids=%s&ids=%s&persist=ids' % (
@@ -828,6 +862,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                                                 self.rtype02.id, ct_id, self.object01.id,
                                                                 self.rtype02.id, ct_id, self.object02.id,
                                                                ),
+                                                 'ids': [self.subject01.id, self.subject02.id],
                                                 }
                                      )
         self.assertFormError(response, 'form', 'relations',

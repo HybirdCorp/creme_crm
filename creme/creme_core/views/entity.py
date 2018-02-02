@@ -329,7 +329,7 @@ def bulk_update_field(request, ct_id, field_name=None):
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':  form,
                         'title': _(u'Multiple update'),
-                        'help_message': mark_safe(help_message)
+                        'help_message': mark_safe(help_message),
                        },
                        is_valid=form.is_valid(),
                        reload=False, delegate_reload=True,

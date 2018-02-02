@@ -35,15 +35,18 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     def assertEntityHasntProperty(self, ptype, entity):
         self.assertFalse(entity.properties.filter(type=ptype).exists())
 
-    def _build_bulk_url(self, ct, *entities):
-        # return '/creme_core/property/add_to_entities/%s/?persist=ids&ids=%s' % (
-        #             ct.id,
-        #             '&ids='.join(str(e.id) for e in entities)
-        #         )
-        return (reverse('creme_core__add_properties_bulk', args=(ct.id,)) +
-                '?persist=ids&ids=' +
-                '&ids='.join(str(e.id) for e in entities)
-               )
+    # def _build_bulk_url(self, ct, *entities):
+    #     return '/creme_core/property/add_to_entities/%s/?persist=ids&ids=%s' % (
+    #                 ct.id,
+    #                 '&ids='.join(str(e.id) for e in entities)
+    #             )
+    def _build_bulk_url(self, ct, *entities, **kwargs):
+        url = reverse('creme_core__add_properties_bulk', args=(ct.id,))
+
+        if kwargs.get('GET', False):
+            url += '?persist=ids' + ''.join('&ids={}'.format(e.id) for e in entities)
+
+        return url
 
     def test_add(self):
         user = self.login()
@@ -244,15 +247,20 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         for entity in entities:
             self.assertEqual(0, entity.properties.count())
 
-        url = self._build_bulk_url(self.centity_ct, *entities)
-        self.assertGET200(url)
+        self.assertGET200(self._build_bulk_url(self.centity_ct, *entities, GET=True))
+        url = self._build_bulk_url(self.centity_ct)
+        # self.assertGET200(url)
 
-        response = self.assertPOST200(self._build_bulk_url(self.centity_ct, *entities),
-                                      data={'types': []}
-                                    )
+        ids = [e.id for e in entities]
+        response = self.assertPOST200(url,
+                                      data={'types': [],
+                                            'ids':   ids,
+                                           }
+                                     )
         self.assertFormError(response, 'form', 'types', _(u'This field is required.'))
 
         response = self.client.post(url, data={'types': [ptype01.id, ptype02.id],
+                                               'ids': ids,
                                                'entities_lbl': '',
                                               }
                                    )
@@ -282,8 +290,9 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertFalse(has_perm(entity02))
         self.assertTrue(has_perm(entity03))
 
-        url = self._build_bulk_url(self.centity_ct, entity01, entity02, entity03, entity04)
-        response = self.assertGET200(url)
+        # url = self._build_bulk_url(self.centity_ct, entity01, entity02, entity03, entity04)
+        # response = self.assertGET200(url)
+        response = self.assertGET200(self._build_bulk_url(self.centity_ct, entity01, entity02, entity03, entity04, GET=True))
 
         with self.assertNoException():
             label = response.context['form'].fields['bad_entities_lbl']
@@ -295,10 +304,12 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                          label.initial
                         )
 
-        response = self.client.post(url,
+        # response = self.client.post(url,
+        response = self.client.post(self._build_bulk_url(self.centity_ct),
                                     data={'entities_lbl':     'do not care',
                                           'bad_entities_lbl': 'do not care',
                                           'types':            [ptype01.id, ptype02.id],
+                                          'ids':              [entity01.id, entity02.id, entity03.id, entity04.id],
                                          }
                                    )
         self.assertNoFormError(response)
@@ -327,7 +338,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertTrue(self.user.has_perm_to_view(uneditable))
         self.assertFalse(self.user.has_perm_to_change(uneditable))
 
-        response = self.assertGET200(self._build_bulk_url(self.centity_ct, uneditable))
+        response = self.assertGET200(self._build_bulk_url(self.centity_ct, uneditable, GET=True))
 
         with self.assertNoException():
             label = response.context['form'].fields['bad_entities_lbl']
@@ -345,12 +356,16 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         entity01 = CremeEntity.objects.create(user=self.user)
         uneditable = CremeEntity.objects.create(user=self.other_user)
 
-        url = self._build_bulk_url(self.centity_ct, entity01, uneditable)
-        self.assertGET200(url)
+        # url = self._build_bulk_url(self.centity_ct, entity01, uneditable)
+        # self.assertGET200(url)
+        self.assertGET200(self._build_bulk_url(self.centity_ct, entity01, uneditable, GET=True))
 
-        response = self.client.post(url, data={'entities_lbl': 'd:p',
-                                               'types':        [ptype01.id, ptype02.id],
-                                              }
+        # response = self.client.post(url,
+        response = self.client.post(self._build_bulk_url(self.centity_ct),
+                                    data={'entities_lbl': 'd:p',
+                                          'types':        [ptype01.id, ptype02.id],
+                                          'ids':          [entity01.id, uneditable.id],
+                                         }
                                    )
         self.assertNoFormError(response)
 

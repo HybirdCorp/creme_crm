@@ -539,8 +539,10 @@
         # The URL '/creme_core/list_view/import/..' became '/creme_core/mass_import/...' ; the GET argument 'list_url' is not used anymore.
         # In 'creme_core.views' :
             - In 'generic.listview.list_view()' the parameter '*args' has been removed.
+            - In 'creme_property.add_properties_bulk()',: the IDs of entities are not read in GET arguments if not found in POST data anymore.
             - The function 'list_view_export.dl_listview_header()' has been removed.
             - In 'quick_forms.add_from_widget()' there is no "<json>" tag in the response anymore.
+            - In 'relation.add_relations_bulk()', the IDs of subject-entities are not read in GET arguments if not found in POST data anymore.
         # The key 'usertheme' has been removed from 'creme_core.global_info'.
         # In 'creme_core.forms' :
             - In 'fields' :
