@@ -112,6 +112,8 @@
             - The command 'com_approaches_emails_send' has been replaced by a job.
         * Crudity :
             - The command 'crudity_synchronize' has been replaced by a job.
+            - Beware: the owner of WaitingAction, History or EntityEmail instances can be different (compared to Creme 1.6)
+              when the email sender does not correspond to a User/Contact.
         * Recurrents :
             - The command 'recurrents_gendocs' has been replaced by a job.
         * Events :

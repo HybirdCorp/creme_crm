@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -163,16 +163,21 @@ class CreateEmailInput(EmailInput):
     @staticmethod
     def get_owner(is_sandbox_by_user, sender=None):
         """Returns the owner to assign to waiting actions and history"""
-        if is_sandbox_by_user:
-            # TODO: use first()
-            User = get_user_model()
-            try:
-                return User.objects.filter(email=sender)[0]
-            except IndexError:
-                # TODO: use get_admin()
-                return User.objects.filter(is_superuser=True).order_by('-pk')[0] # No need to catch IndexError
+        # if is_sandbox_by_user:
+        #     User = get_user_model()
+        #     try:
+        #         return User.objects.filter(email=sender)[0]
+        #     except IndexError:
+        #         return User.objects.filter(is_superuser=True).order_by('-pk')[0] # No need to catch IndexError
+        #
+        # return None
+        owner = None
 
-        return None
+        if is_sandbox_by_user:
+            User = get_user_model()
+            owner = User.objects.filter(email=sender).first() or User.objects.get_admin()
+
+        return owner
 
     def is_allowed_password(self, password, split_body):
         allowed = False

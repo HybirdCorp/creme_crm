@@ -51,7 +51,7 @@ class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
         return self._get_input(CreateEmailInput, backend, **backend_cfg)
 
     def test_create_email_input01(self):
-        "Unallowed user"
+        "Unauthorized user"
         email_input = self._get_email_input(ContactFakeBackend, limit_froms=('creme@crm.org',))
 
         self.assertEqual(0, WaitingAction.objects.count())
@@ -436,7 +436,7 @@ description3=[[<br>]]
                         )
 
     def test_create_email_input13(self):
-        "Text mail sandboxed by user"
+        "Text mail sandboxed by user o user found by its email address)"
         user = self.user
         self._set_sandbox_by_user()
 
@@ -449,12 +449,15 @@ description3=[[<br>]]
                                                senders=('user@cremecrm.com',), subject='create_ce',
                                               )
                           )
-        self.assertEqual(1, WaitingAction.objects.filter(user=user).count())
+        # self.assertEqual(1, WaitingAction.objects.filter(user=user).count())
+        admin = get_user_model().objects.get_admin()
+        self.assertEqual(1, WaitingAction.objects.filter(user=admin).count())
         self.assertEqual(0, WaitingAction.objects.filter(user=None).count())
 
         wa = WaitingAction.objects.all()[0]
         self.assertEqual({'user_id': unicode(user.id), 'created': '01/02/2003'}, wa.get_data())
-        self.assertEqual(user, wa.user)
+        # self.assertEqual(user, wa.user)
+        self.assertEqual(admin, wa.user)
 
     @skipIfCustomContact
     def test_create_email_input14(self):
@@ -596,27 +599,30 @@ description3=[[<br>]]
                                                       'created': '',
                                                      }
                                            )
-        self.assertEqual(user, email_input.get_owner(True, sender='another_user@cremecrm.com'))
+        # self.assertEqual(user, email_input.get_owner(True, sender='another_user@cremecrm.com'))
+        self.assertEqual(get_user_model().objects.get_admin(),
+                         email_input.get_owner(True, sender='another_user@cremecrm.com')
+                        )
 
-    def test_get_owner04(self):
-        "The user doesn't match and multiple superuser exists"
-        self._set_sandbox_by_user()
-        superuser1 = self.user
-
-        superuser2 = get_user_model().objects.create(username='Kirika2')
-        superuser2.set_password('Kirika2')
-        superuser2.is_superuser = True
-        superuser2.save()
-
-        self.assertGreater(superuser2.pk, superuser1.pk)
-
-        email_input = self._get_email_input(ContactFakeBackend, password='creme',
-                                            subject='create_ce',
-                                            body_map={'user_id': superuser1.id,
-                                                      'created': '',
-                                                     }
-                                           )
-        self.assertEqual(superuser2, email_input.get_owner(True, sender='another_user@cremecrm.com'))
+    # def test_get_owner04(self):
+    #     "The user doesn't match and multiple superuser exists"
+    #     self._set_sandbox_by_user()
+    #     superuser1 = self.user
+    #
+    #     superuser2 = get_user_model().objects.create(username='Kirika2')
+    #     superuser2.set_password('Kirika2')
+    #     superuser2.is_superuser = True
+    #     superuser2.save()
+    #
+    #     self.assertGreater(superuser2.pk, superuser1.pk)
+    #
+    #     email_input = self._get_email_input(ContactFakeBackend, password='creme',
+    #                                         subject='create_ce',
+    #                                         body_map={'user_id': superuser1.id,
+    #                                                   'created': '',
+    #                                                  }
+    #                                        )
+    #     self.assertEqual(superuser2, email_input.get_owner(True, sender='another_user@cremecrm.com'))
 
     @skipIfCustomContact
     def test_create_contact01(self):
@@ -928,7 +934,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
                         )
 
     def test_create08(self):
-        "Allowed with valid xml with sandbox by user"
+        "Allowed with valid xml with sandbox by user (no user found by its email address)"
         user = self.user
         other_user = self.other_user
         self._set_sandbox_by_user()
@@ -958,7 +964,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
         self.assertEqual(0, WaitingAction.objects.count())
         infopath_input.create(self._get_pop_email(body=u'password=creme',
-                                                  senders=('creme@cremecrm.com',),
+                                                  senders=('creme@cremecrm.com',),  # <== no user has this address
                                                   subject='create_ce_infopath',
                                                   attachments=[self._build_attachment(content=xml_content)],
                                                  )
@@ -972,7 +978,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
                          },
                          wa.get_data()
                         )
-        self.assertEqual(user, wa.user)
+        # self.assertEqual(user, wa.user)
+        self.assertEqual(get_user_model().objects.get_admin(), wa.user)
 
     def test_create09(self):
         "Allowed with valid xml with sandbox by user with real match on email"
