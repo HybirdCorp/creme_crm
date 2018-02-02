@@ -36,7 +36,7 @@
                             <ul>
                                 {% with block_count=ctw.default_count %}
                                     <li>
-                                        <em>{{ct|format:_("Default configuration for «%s»")}}</em> :
+                                        <em>{% blocktrans with ctype=ct %}Default configuration for «{{ctype}}»{% endblocktrans %}</em> :
                                         {% if block_count %}
                                             {% blocktrans count count=block_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktrans %}
                                         {% else %}
