@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'PERSONS' APP
-# Copyright (C) 2017 Hybird
+# Copyright (C) 2018 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*" -i "migrations/*"
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-08 16:31+0100\n"
+"POT-Creation-Date: 2018-02-01 17:23+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -942,11 +942,12 @@ msgctxt "persons-organisation"
 msgid "Details"
 msgstr "Détails"
 
+# Already in creme_core
 #: templates/persons/edit_contact_form.html:4
 #: templates/persons/edit_organisation_form.html:4
-#, python-format
-msgid "Modify %(object)s"
-msgstr "Modifier %(object)s"
+#, fuzzy, python-format
+msgid "Edit «%(object)s»"
+msgstr ""
 
 #: templates/persons/edit_contact_form.html:8
 #: templates/persons/edit_organisation_form.html:8
@@ -1142,6 +1143,9 @@ msgstr "Nombre de société(s)"
 #, python-format
 msgid "Number of customers of %s"
 msgstr "Nombre de client(s) de %s"
+
+#~ msgid "Modify %(object)s"
+#~ msgstr "Modifier %(object)s"
 
 #~ msgid "Field"
 #~ msgstr "Champ"
