@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,9 +39,9 @@ class Button(object):
 
     def get_ctypes(self):
         """
-        @return a sequence of CremeEntity class that can have this type of button.
-        Void sequence means that all types are ok.
-        eg: (Contact, Organisation)
+        @return A sequence of CremeEntity class that can have this type of button.
+                Void sequence means that all types are ok.
+                eg: (Contact, Organisation)
         """
         return ()
 
@@ -50,9 +50,9 @@ class Button(object):
         return context['request'].user.has_perm(permission) if permission else True
 
     def ok_4_display(self, entity):
-        """
-        @param entity CremeEntity which detailview is displayed.
-        @return True The button can be displayed for 'entity'.
+        """Can this button be displayed on this entity's detail-view ?
+        @param entity: CremeEntity which detail-view is displayed.
+        @return True if the button can be displayed for 'entity'.
         """
         return True
 
@@ -68,7 +68,7 @@ class ButtonsRegistry(object):
 
     def register(self, *buttons):
         """
-        @type buttons creme_core.gui.menu_buttons.Button objects.
+        @type buttons: creme_core.gui.menu_buttons.Button objects.
         """
         buttons_dic = self._buttons
 
@@ -76,7 +76,7 @@ class ButtonsRegistry(object):
             button_id = button.id_
 
             if buttons_dic.has_key(button_id):
-                #TODO: exception instead ?
+                # TODO: exception instead ?
                 logger.warning("Duplicate button's id or button registered twice : %s", button_id)
 
             buttons_dic[button_id] = button
@@ -85,11 +85,11 @@ class ButtonsRegistry(object):
         return self._buttons.get(button_id)
 
     def get_buttons(self, id_list, entity):
-        """Get the list of Buttons to be displayed on the detailview of an entity.
-        Deprecated buttons & buttons that should not be displyed for this entity
+        """Get the list of Buttons to be displayed on the detail-view of an entity.
+        Deprecated buttons & buttons that should not be displayed for this entity
         are ignored.
-        @param id_list Sequence of button IDs
-        @param entity CremeEntity instance.
+        @param id_list: Sequence of button IDs.
+        @param entity: CremeEntity instance.
         @return List of creme_core.gui.button_menu.Button instances.
         """
         buttons = self._buttons
@@ -107,5 +107,6 @@ class ButtonsRegistry(object):
 
     def __iter__(self):
         return self._buttons.iteritems()
+
 
 button_registry = ButtonsRegistry()

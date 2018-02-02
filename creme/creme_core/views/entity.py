@@ -277,14 +277,14 @@ def bulk_update_field(request, ct_id, field_name=None):
             initial_count = len(entity_ids)
             success_count = len(form.bulk_cleaned_entities)
             invalid_count = len(form.bulk_invalid_entities)
-            unallowed_count = initial_count - success_count - invalid_count
+            forbidden_count = initial_count - success_count - invalid_count
 
             # context = {'model': meta.verbose_name_plural if success_count > 1 else meta.verbose_name,
             context = {'model': get_model_verbose_name(model, success_count),
                        'success': success_count,
                        'initial': initial_count,
                        'invalid': invalid_count,
-                       'unallowed': unallowed_count,
+                       'forbidden': forbidden_count,
                       }
 
             # TODO: modification_label/bulk_label/... in model instead (fr: masculin/féminin)
@@ -299,16 +299,16 @@ def bulk_update_field(request, ct_id, field_name=None):
                                     success_count
                                    )
 
-                if unallowed_count:
-                    summary += u' ' + ungettext(u'%(unallowed)s was not editable.',
-                                                u'%(unallowed)s were not editable.',
-                                                unallowed_count,
+                if forbidden_count:
+                    summary += u' ' + ungettext(u'%(forbidden)s was not editable.',
+                                                u'%(forbidden)s were not editable.',
+                                                forbidden_count
                                                )
 
                 if invalid_count: 
                     summary += u' ' + ungettext(u'%(invalid)s has returned an error.',
                                                 u'%(invalid)s have returned an error.',
-                                                invalid_count,
+                                                invalid_count
                                                )
 
             return render(request, 'creme_core/frags/bulk_process_report.html',

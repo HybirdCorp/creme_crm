@@ -977,17 +977,17 @@ class BulkEditTestCase(_BulkEditTestCase):
         luigi = create_bros(user=user,       first_name='Luigi')
 
         create_img = FakeImage.objects.create
-        unallowed = create_img(user=other_user, name='unallowed')
+        forbidden = create_img(user=other_user, name='forbidden')
         allowed   = create_img(user=user,       name='allowed')
-        self.assertFalse(user.has_perm_to_view(unallowed))
+        self.assertFalse(user.has_perm_to_view(forbidden))
         self.assertTrue(user.has_perm_to_view(allowed))
 
         url = self._build_contact_url('image', mario.id, luigi.id)
-        response = self.assertPOST200(url, data={'field_value': unallowed.id})
+        response = self.assertPOST200(url, data={'field_value': forbidden.id})
         self.assertFormError(response, 'form', 'field_value',
                              # _(u"You can't view this value, so you can't set it.")
                              _(u'You are not allowed to link this entity: %s') % (
-                                    _(u'Entity #%s (not viewable)') % unallowed.id,
+                                    _(u'Entity #%s (not viewable)') % forbidden.id,
                                 )
                             )
 
@@ -1438,7 +1438,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertEqual('', self.refresh(mario).description)
         self.assertEqual('', self.refresh(luigi).description)
 
-    def test_regular_field_ignore_unallowed_entity(self):
+    def test_regular_field_ignore_forbidden_entity(self):
         user = self.login(is_superuser=False)
 
         mario_desc = u"Luigi's brother"
@@ -1474,7 +1474,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertEqual(birthday, self.refresh(mario).birthday)
         self.assertEqual(birthday, self.refresh(luigi).birthday)
 
-    def test_regular_field_ignore_unallowed_field(self):
+    def test_regular_field_ignore_forbidden_field(self):
         user = self.login(is_superuser=False)
         other_user = self.other_user
 
@@ -1483,20 +1483,20 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         luigi = create_bros(user=user,       first_name='Luigi')
 
         create_img = FakeImage.objects.create
-        unallowed = create_img(user=other_user, name='unallowed')
+        forbidden = create_img(user=other_user, name='forbidden')
         allowed   = create_img(user=user,       name='allowed')
-        self.assertFalse(user.has_perm_to_view(unallowed))
+        self.assertFalse(user.has_perm_to_view(forbidden))
         self.assertTrue(user.has_perm_to_view(allowed))
 
         url = self._build_update_url('image')
-        response = self.assertPOST200(url, data={'field_value': unallowed.id,
+        response = self.assertPOST200(url, data={'field_value': forbidden.id,
                                                  'entities': [mario.id, luigi.id]
                                                 }
                                      )
         self.assertFormError(response, 'form', 'field_value',
                              # _(u"You can't view this value, so you can't set it.")
                              _(u'You are not allowed to link this entity: %s') % (
-                                    _(u'Entity #%s (not viewable)') % unallowed.id,
+                                    _(u'Entity #%s (not viewable)') % forbidden.id,
                                 )
                             )
 

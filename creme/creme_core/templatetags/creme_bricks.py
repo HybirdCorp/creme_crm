@@ -838,7 +838,7 @@ def brick_display(context, *bricks, **kwargs):
 
 @register.simple_tag(takes_context=True)
 def brick_end(context):
-    """You should use this tag in verey view which uses some bricks,
+    """You should use this tag in every view which uses some bricks,
     after all Bricks have been displayed.
     """
     bricks_manager = BricksManager.get(context)
