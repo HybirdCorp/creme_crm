@@ -131,11 +131,12 @@
                 };
 
                 this.getSelectedEntitiesAsArray = function() {
-                    return ($(opts.selected_rows, self).val() !== "") ? $(opts.selected_rows, self).val().split(opts.entity_separator) : [];
+                    var selected = this.getSelectedEntities();
+                    return (selected !== "") ? selected.split(opts.entity_separator) : [];
                 };
 
                 this.countEntities = function() {
-                    return ($(opts.selected_rows, self).val() !== "") ? $(opts.selected_rows, self).val().split(opts.entity_separator).length : 0;
+                    return this.getSelectedEntitiesAsArray().length;
                 };
 
                 this.option = function(key, value) {
@@ -188,17 +189,8 @@
                 };
 
                 /* **************** Helpers *************************** */
-                this.reload = function(is_ajax) {
-                    var url = this.reload_url || window.location.pathname;
-
-                    var submit_opts = {
-                        action:  url,
-                        success: function(event, data, status) {
-                            self.empty().html(data);
-                        }
-                    };
-
-                    this.handleSubmit(submit_opts, null);
+                this.reload = function() {
+                    me.getSubmit()(null);
                 };
 
                 this.hasSelection = function() {
@@ -305,7 +297,7 @@
                             }
 
                             var entity_id = $(this).find(opts.id_container).val();
-                            var entity_id_index = $.inArray(entity_id, selected_ids); // selected_ids.indexOf(entity_id);
+                            var entity_id_index = $.inArray(entity_id, selected_ids);  // selected_ids.indexOf(entity_id);
 
                             if (!$(this).hasClass(opts.selected_class)) {
                                 if (entity_id_index === -1) {

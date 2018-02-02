@@ -354,6 +354,8 @@ creme.lv_widget.initialize = function(options, listview) {
         }
     });
 
+    listview.list_view('setReloadUrl', submit_url);
+
     // TODO : WTF ??
     $('.magnify', listview).imageMagnifier();
 };
@@ -466,6 +468,174 @@ creme.lv_widget.ListViewActionBuilders = creme.component.Component.sub({
     }
 });
 
+
+creme.lv_widget.ListViewHeader = creme.component.Component.sub({
+    _init_: function(options) {
+        options = $.extend({
+            standalone: false,
+            headTop: 0
+        }, options || {});
+
+        this._isStandalone = options.standalone;
+        this._headTop = options.headTop;
+
+        this._rowListeners = {
+            mouseenter: this._onEnterSelectableRow.bind(this),
+            mouseleave: this._onLeaveSelectableRow.bind(this),
+            selection: this._onRowSelectionChange.bind(this)
+        };
+        this._floatListeners = {
+            floatHead: this._onHeadFloatEnabled.bind(this)
+        };
+        this._documentListeners = {
+            scroll: this._onDocumentScroll.bind(this)
+        };
+    },
+
+    isBound: function() {
+        return this._list !== undefined;
+    },
+
+    _onEnterSelectableRow: function(e) {
+        this._list.addClass('first-row-hovered');
+
+        if (this._isStandalone) {
+            $('.listview.floatThead-table').addClass('first-row-hovered');
+        }
+    },
+
+    _onLeaveSelectableRow: function(e) {
+        this._list.removeClass('first-row-hovered');
+
+        if (this._isStandalone) {
+            $('.listview.floatThead-table').removeClass('first-row-hovered');
+        }
+    },
+
+    _onRowSelectionChange: function(e, data) {
+        this._list.toggleClass('first-row-selected', data.selected);
+
+        if (this._isStandalone) {
+            $('.listview.floatThead-table').toggleClass('first-row-selected', data.selected);
+        }
+    },
+
+    _onHeadFloatEnabled: function(e, isFloated, container) {
+        if (isFloated) {
+            container.addClass('floated');
+            this._list.addClass('floated');
+
+            // vertical constraint 2 : close header actions popovers when they would collide with the floating header scrolling
+            $('.header-actions-popover').trigger('modal-close');
+        } else {
+            container.removeClass('floated');
+            this._list.removeClass('floated');
+        }
+    },
+
+    _onDocumentScroll: function(e) {
+        this.updateAnchorPosition();
+    },
+
+    bind: function(list) {
+        if (this.isBound()) {
+            throw new Error('ListViewHeader is already bound');
+        }
+
+        var isStandalone = this._isStandalone;
+        var headTop = this._headTop;
+        this._list = list;
+
+        // handle selection and hover border on floating header so that the first row is correctly styled
+        this._list.on('mouseenter', 'tr.selectable:first-child', this._rowListeners.mouseenter);
+        this._list.on('mouseleave', 'tr.selectable:first-child', this._rowListeners.mouseleave);
+        this._list.on('row-selection-changed', 'tbody tr:first-child', this._rowListeners.selection);
+
+        // listview-popups have no floatThead, stickiness, vertical constraints etc
+        if (isStandalone) {
+            list.floatThead({
+                top: headTop,
+                zIndex: 97, // under the popups overlays, under the popovers and their glasspanes
+                scrollContainer: function (table) {
+                    return table.closest('.sub_content');
+                }
+            });
+
+            var floatContainer = $('.floatThead-container');
+            var isFloating = $(document).scrollTop() > list.offset().top;
+
+            // when the page is loaded and the scrollbar is already scrolled past the header, notify it is already floated
+            if (isFloating) {
+                floatContainer.addClass('floated');
+                list.addClass('floated');
+            }
+
+            // or when the floatThead script floats it automatically
+            list.on('floatThead', this._floatListeners.floatHead);
+
+            // the anchor will hold the header shadow
+            var anchor = this._floatAnchor = $('<div class="floated-header-anchor">');
+            anchor.insertAfter(floatContainer)
+                  .css({
+                      'position': 'fixed'
+                  });
+
+            this.updateAnchorPosition();
+
+            $(document).on('scroll', this._documentListeners.scroll);
+        }
+
+        return this;
+    },
+
+    unbind: function() {
+        if (this.isBound() === false) {
+            throw new Error('ListViewHeader is not bound');
+        }
+
+        this._list.off('mouseenter', 'tr.selectable:first-child', this._rowListeners.mouseenter);
+        this._list.off('mouseleave', 'tr.selectable:first-child', this._rowListeners.mouseleave);
+        this._list.off('row-selection-changed', 'tbody tr:first-child', this._rowListeners.selection);
+
+        if (this._isStandalone) {
+            this._floatAnchor.detach();
+            this._list.off('floatThead', this._floatListeners.floatHead);
+            $(document).on('scroll', this._documentListeners.scroll);
+        }
+
+        this._floatAnchor = undefined;
+        this._list = undefined;
+
+        return this;
+    },
+
+    updateAnchorPosition: function() {
+        if (this._isStandalone) {
+            var scrollLeft = $(document).scrollLeft();
+            var viewportWidth = $(window).width();
+
+            // complex stickiness between two absolute values modeled as position: fixed over the viewport
+            var listAnchorStickingStart = this._list.offset().left;
+            var listAnchorStickingEnd = listAnchorStickingStart + this._list.width();
+
+            var overShooting = scrollLeft + viewportWidth >= listAnchorStickingEnd;
+            var overshoot = Math.abs(Math.ceil(listAnchorStickingEnd - viewportWidth - scrollLeft));
+
+            var floatContainer = $('.floatThead-container');
+            var headerHeight = $(floatContainer.children().get(0)).height(); // we use the height of the contained table because it excludes its own padding
+            var anchorHeight = this._floatAnchor.height();
+
+            this._floatAnchor.css({
+                'left': Math.max(0, listAnchorStickingStart - scrollLeft),
+                'right': overShooting ? overshoot : 0,
+                // NB it would be great if we could get the bottom of '.floatThead-container' & set the same bottom to the anchor...
+                // 'top': 35 /* menu height */ + $('.floatThead-container').innerHeight() - 4 /* padding + borders */ - 10 /* shadow height */
+                'top': this._headTop + headerHeight - anchorHeight
+            });
+        }
+    }
+});
+
 creme.lv_widget.ListViewLauncher = creme.widget.declare('ui-creme-listview', {
     options: {
         multiple:     false,
@@ -473,130 +643,117 @@ creme.lv_widget.ListViewLauncher = creme.widget.declare('ui-creme-listview', {
         'reload-url': ''
     },
 
-    _destroy: function($element) {
-        $element.removeClass('widget-ready');
+    _destroy: function(element) {
+        $(document).off('scroll', this._scrollListener);
+        element.removeClass('widget-ready');
     },
 
-    _create: function($element, options, cb, sync, args) {
+    _create: function(element, options, cb, sync, args) {
         // var dialog = options.whoami ? $('#' + options.whoami) : undefined;
-        var multiple = $element.is('[multiple]') || options.multiple;
-        var $list = $element.find('.listview');
+        var multiple = element.is('[multiple]') || options.multiple;
+        var list = this._list = element.find('.listview');
+
+        this._isStandalone = list.hasClass('listview-standalone');
+        this._pager = new creme.list.Pager();
+        this._header = new creme.lv_widget.ListViewHeader({
+            standalone: this._isStandalone,
+            headTop: $('.header-menu').height()
+        });
+
+        this._rowCount = parseInt(list.attr('data-total-count'));
+        this._rowCount = isNaN(this._rowCount) ? 0 : this._rowCount;
+
+        this._scrollListener = this._onDocumentScroll.bind(this);
 
         // handle popup differentiation
-        this._isStandalone = $list.hasClass('listview-standalone');
-        $element.addClass(this._isStandalone ? 'ui-creme-listview-standalone'
-                                             : 'ui-creme-listview-popup');
-
         if (this._isStandalone) {
-            $list.find('.sticks-horizontally').css('transform', 'translateX(0)');
+            element.addClass('ui-creme-listview-standalone');
+            $(document).on('scroll', this._scrollListener);
+            this._handleHorizontalStickiness();
+        } else {
+            element.addClass('ui-creme-listview-popup');
         }
 
         // Only init the $.fn.list_view once per form, not on every listview reload
-        if (!$element.data('list_view')) {
+        if (!element.data('list_view')) {
             creme.lv_widget.initialize({
                 multiple:  multiple,
                 reloadurl: options['reload-url']
-            }, $element);
+            }, element);
         }
 
         // only hook up list behavior when there are rows
-        var rowCount = $list.attr('data-total-count');
-        if (rowCount <= 0) {
-            return;
-        }
-
-        var $footer = $list.find('.list-footer-container');
-
-        // pagination in popups
-        if (!this._isStandalone) {
-            var $popup = $element.parents('.ui-dialog').first();
-            $footer.css('max-width', $popup.width());
-        }
-
-        // handle selection and hover border on floating header so that the first row is correctly styled
-        $list.on('mouseenter', 'tr.selectable:first-child', function(e) {
-            $list.addClass('first-row-hovered');
-            if (this._isStandalone) {
-                $('.listview.floatThead-table').addClass('first-row-hovered');
-            }
-        }.bind(this));
-
-        $list.on('mouseleave', 'tr.selectable:first-child', function(e) {
-            $list.removeClass('first-row-hovered');
-
-            if (this._isStandalone) {
-                $('.listview.floatThead-table').removeClass('first-row-hovered');
-            }
-        }.bind(this));
-
-        $list.on('row-selection-changed', 'tbody tr:first-child', function(e, data) {
-            $list.toggleClass('first-row-selected', data.selected);
-
-            if (this._isStandalone) {
-                $('.listview.floatThead-table').toggleClass('first-row-selected', data.selected);
-            }
-        }.bind(this));
-
-        $element.addClass('widget-ready');
-
-        // listview-popups have no floatThead, stickiness, vertical constraints etc
-        if (!this._isStandalone) {
-            return;
-        }
-
-        var headTop = $('.header-menu').height();
-
-        $list.floatThead({
-//            top: 35,
-            top: headTop,
-            zIndex: 97, // under the popups overlays, under the popovers and their glasspanes
-            scrollContainer: function ($table) {
-                return $table.closest('.sub_content');
-            }
-        });
-
-        // when the page is loaded and the scrollbar is already scrolled past the header, notify it is already floated
-        if ($(document).scrollTop() > $list.offset().top) {
-            $('.floatThead-container').addClass('floated');
-            $list.addClass('floated');
-        }
-
-        // or when the floatThead script floats it automatically
-        $list.on('floatThead', function(e, isFloated, $floatContainer) {
-            if (isFloated) {
-                $floatContainer.addClass('floated');
-                $(this).addClass('floated');
-
-                // vertical constraint 2 : close header actions popovers when they would collide with the floating header scrolling
-                $('.header-actions-popover').trigger('modal-close');
+        if (this._rowCount > 0) {
+            if (!this._isStandalone) {
+                // pagination in popups
+                var popup = element.parents('.ui-dialog').first();
+                list.find('.list-footer-container').css('max-width', popup.width());
             } else {
-                $floatContainer.removeClass('floated');
-                $(this).removeClass('floated');
+                // left/right in standalone mode
+                this._handleHorizontalStickiness();
+            }
+
+            this._header.bind(list);
+            this._pager.on('refresh', function(event, page) {
+                            element.data('list_view').getSubmit()(null, {page: page});
+                        })
+                       .bind(list.find('.listview-pagination'));
+        }
+    },
+
+    _onDocumentScroll: function(e) {
+        this._handleHorizontalStickiness();
+        this._handleActionPopoverConstraints();
+    },
+
+    _handleHorizontalStickiness: function() {
+        var scrollLeft = $(document).scrollLeft();
+        // Simple stickiness to left: 0
+        $('.sticky-container-standalone .sticks-horizontally, .listview-standalone .sticks-horizontally, .footer, .page-decoration').css('transform', 'translateX(' + scrollLeft + 'px)');
+    },
+
+    _handleActionPopoverConstraints: function() {
+        $('.listview-actions-popover').each(function() {
+            var popover = $(this);
+            var offset = popover.offset();
+
+            var floatContainer = $('.floatThead-container');
+            var floatingOffset = floatContainer.offset();
+
+            // Check for collisions
+            if (offset.top < floatingOffset.top + floatContainer.innerHeight() + 5/* safe zone */) {
+                var isRowPopover = popover.hasClass('row-actions-popover');
+                var isHeaderPopover = popover.hasClass('header-actions-popover');
+                var containerIsFloating = floatContainer.hasClass('floated');
+
+                // Vertical constraint 1 : close row actions popovers when they collide with the floating header
+                // Vertical constraint 3 : close header actions popovers when they are opened while the header is floating, and the document is scrolled
+                var popoverNeedsClosing = isRowPopover || (isHeaderPopover && containerIsFloating);
+                if (popoverNeedsClosing) {
+                    popover.trigger('modal-close');
+                }
             }
         });
+    },
 
-        // the anchor will hold the header shadow
-//        $('<div class="floated-header-anchor">').css({
-//            'position': 'fixed',
-//            'top': 35 /* menu height */ + $('.floatThead-container').innerHeight() - 4 /* padding + borders */ - 10 /* shadow height */
-//        }).insertAfter('.floatThead-container');
-        var anchor = $('<div class="floated-header-anchor">');
-        anchor.insertAfter('.floatThead-container');
+    isStandalone: function(element) {
+        return this._isStandalone;
+    },
 
-        var headerHeight = $($('.floatThead-container').children().get(0)).height(); // we use the height of the contained table because it excludes its own padding
-        var anchorHeight = anchor.height();
+    count: function(element) {
+        return this._rowCount;
+    },
 
-        anchor.css({
-            'position': 'fixed',
-            // NB it would be great if we could get the bottom of '.floatThead-container' & set the same bottom to the anchor...
-            'top': headTop + headerHeight - anchorHeight
-        });
+    header: function(element) {
+        return this._header;
+    },
 
-        this._pager = new creme.list.Pager();
-        this._pager.on('refresh', function(event, page) {
-                        $element.data('list_view').getSubmit()(null, {page: page});
-                    })
-                   .bind($list.find('.listview-pagination'));
+    pager: function(element) {
+        return this._pager;
+    },
+
+    controller: function(element) {
+        return element.data('list_view');
     }
 });
 

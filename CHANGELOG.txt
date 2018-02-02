@@ -766,9 +766,10 @@
         # The method 'creme.creme_core.management.commands.creme_populate.BasePopulator._get_populate_module()' has been removed.
         # In JavaScript :
             - In 'creme.dialog.FormDialogAction', the event "done" now returns (data, dataType) instead of (data).
-            - The parameter "url" has been renamed "lv_state_id" in the following functions :
+            - The parameter 'url' has been renamed 'lv_state_id' in the following functions :
                 - creme_core.views.generic.listview.list_view_content()
                 - creme_core.views.generic.listview.list_view_popup()
+            - The argument 'is_ajax' of $.fn.list_view.reload() has been removed (it was not used).
         # Apps:
             * Creme_config :
                 - In 'registry' :

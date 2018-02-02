@@ -9,6 +9,7 @@
 
 {% if not is_popup_view %}
 {% block extrahead %}
+{% comment %}
 <script>
     $(function() {
         var $list = $('.listview-standalone#list');
@@ -74,6 +75,7 @@
         handleHorizontalStickiness();
     });
 </script>
+{% endcomment %}
 {% endblock %}
 {% endif %}
 

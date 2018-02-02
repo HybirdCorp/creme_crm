@@ -132,7 +132,7 @@ creme.list.Pager = creme.component.Component.sub({
 
     bind: function(element) {
         if (this.isBound()) {
-            throw new Error('BrickPager is already bound');
+            throw new Error('Pager is already bound');
         }
 
         var self = this;
