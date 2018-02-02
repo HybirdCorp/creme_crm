@@ -67,13 +67,13 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         return reverse('reports__fetch_graph', args=(rgraph.id,)) + '?order=%s' % order if use_GET else \
                reverse('reports__fetch_graph', args=(rgraph.id, order))
 
-    def _build_fetchfromblock_url_(self, ibi, entity, order='ASC', use_GET=False):
+    def _build_fetchfrombrick_url(self, ibi, entity, order='ASC', use_GET=False):
         # return '/reports/graph/fetch_from_instance_block/%s/%s/%s' % (
         #                 ibi.id, entity.id, order,
         #             )
-        return reverse('reports__fetch_graph_from_block', args=(ibi.id, entity.id)) + '?order=%s' % order \
+        return reverse('reports__fetch_graph_from_brick', args=(ibi.id, entity.id)) + '?order=%s' % order \
                if use_GET else \
-               reverse('reports__fetch_graph_from_block', args=(ibi.id, entity.id, order))
+               reverse('reports__fetch_graph_from_brick', args=(ibi.id, entity.id, order))
 
     def _build_graph_types_url(self, ct):
         # return '/reports/graph/get_available_types/%s' % ct.id
@@ -1936,7 +1936,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.get_brick_node(self.get_html_tree(response.content), item.block_id)
 
         # ---------------------------------------------------------------------
-        response = self.assertGET200(self._build_fetchfromblock_url_(item, invoice, 'ASC', use_GET=True))
+        response = self.assertGET200(self._build_fetchfrombrick_url(item, invoice, 'ASC', use_GET=True))
 
         result = json_load(response.content)
         self.assertIsInstance(result, dict)
@@ -1953,11 +1953,11 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                        }
                       )
 
-        response = self.assertGET200(self._build_fetchfromblock_url_(item, invoice, 'ASC'))
+        response = self.assertGET200(self._build_fetchfrombrick_url(item, invoice, 'ASC'))
         self.assertEqual(result, json_load(response.content))
 
         # ---------------------------------------------------------------------
-        response = self.assertGET200(self._build_fetchfromblock_url_(item, invoice, 'DESC'))
+        response = self.assertGET200(self._build_fetchfrombrick_url(item, invoice, 'DESC'))
         result = json_load(response.content)
         self.assertEqual([x_fmt % 11, x_fmt % 10], result.get('x'))
 
@@ -1970,8 +1970,8 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                       )
 
         # ---------------------------------------------------------------------
-        self.assertGET404(self._build_fetchfromblock_url_(item, invoice, 'FOOBAR', use_GET=True))
-        self.assertGET404(self._build_fetchfromblock_url_(item, invoice, 'FOOBAR'))
+        self.assertGET404(self._build_fetchfrombrick_url(item, invoice, 'FOOBAR', use_GET=True))
+        self.assertGET404(self._build_fetchfrombrick_url(item, invoice, 'FOOBAR'))
 
     # def test_add_graph_instance_block02(self):
     def test_add_graph_instance_brick02(self):
