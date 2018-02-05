@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,8 @@ from mimetypes import guess_type
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import CharField, TextField, FileField, ForeignKey, ManyToManyField, PROTECT
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
+# from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, Relation
@@ -89,11 +90,15 @@ class AbstractDocument(CremeEntity):
             return self.allowed_unicode(user)
 
         if self.mime_type.is_image:
-            return mark_safe(u'<img class="entity-summary" src="%(url)s" alt="%(name)s" title="%(name)s"/>' % {
-                                    'url':  self.get_dl_url(),
-                                    'name': self.title,
-                                }
-                            )
+            # return mark_safe(u'<img class="entity-summary" src="%(url)s" alt="%(name)s" title="%(name)s"/>' % {
+            #                         'url':  self.get_dl_url(),
+            #                         'name': self.title,
+            #                     }
+            #                 )
+            return format_html(u'<img class="entity-summary" src="{url}" alt="{name}" title="{name}"/>',
+                               url=self.get_dl_url(),
+                               name=self.title,
+                              )
 
         return super(AbstractDocument, self).get_entity_summary(user)
 
