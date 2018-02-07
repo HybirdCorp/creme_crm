@@ -67,7 +67,7 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual('', item.icon_label)
 
     def test_item_icon02(self):
-        my_icon = 'images/contact_32.png'
+        my_icon = 'contact'
         my_icon_label = 'Contact'
         item = ViewableItem('add_contact', icon=my_icon, icon_label=my_icon_label)
         self.assertEqual(my_icon, item.icon)
@@ -76,7 +76,7 @@ class MenuTestCase(CremeTestCase):
     def test_item_icon03(self):
         "No icon_label => use label"
         my_label = 'Contact'
-        item = ViewableItem('add_contact', icon='images/contact_32.png', label=my_label)
+        item = ViewableItem('add_contact', icon='contact', label=my_label)
         self.assertEqual(my_label, item.icon_label)
 
     def test_add_items01(self):
@@ -943,7 +943,6 @@ class MenuTestCase(CremeTestCase):
         context = self.build_context()
 
         label = 'Contacts'
-        # icon = 'images/contact_32.png'
         icon = 'contact'
         icon_label = 'Contact'
         parent = ContainerItem('persons', label=label, icon=icon, icon_label=icon_label) \
