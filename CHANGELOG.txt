@@ -47,6 +47,7 @@
         - The login page is faster & theme agnostic ; so do the error pages.
         - The page footer is nicer & displays more information.
         - An "About" page has been created.
+    # Creme uses now named URLs everywhere in its code ; so it can be deployed in a sub-domain.
     # In the History, DateFields/TimeFields/DateTimeFields/FloatFields are better managed : old & new values are displayed now.
     # In EntityFilters, the ManyToManyFields have now the operator "is empty".
     # The errors of mass import can be downloaded as a file now (thanks to the new job results page) ;
@@ -352,6 +353,7 @@
                     - In JavaScript : creme.assistants.validateEntity() (use the new brick action system instead).
                 * Emails :
                     - views.crudity.reload_sync_blocks() (use reload_bricks() instead).
+                    - In 'views.crudity.synchronisation()' the template variable "entityemail_ct_id" is deprecated.
                     - views.sending.reload_block_mails() (use reload_mails_brick() instead).
                     - The template file 'creme/emails/templates/emails/frags/ajax/synchronize.html'.
                     - In JavaScript :
@@ -870,6 +872,9 @@
             - The max length of the field Activity.place is now 500 (it was 100).
         * Mobile :
             - The call minutes can be added from the call form.
+    # Upgrade notes:
+        - If you changed the setting INSTALLED_APPS (or INSTALLED_DJANGO_APPS), "mediagenerator" must be replaced by "creme.creme_core.apps.MediaGeneratorConfig",
+          as in the vanilla creme.settings.py file.
 
   Developers side :
   -----------------
