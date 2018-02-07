@@ -43,6 +43,7 @@ from creme.creme_core.views.file_handling import handle_uploaded_file
 
 # from creme.media_managers.models import Image
 from creme.documents import get_document_model, get_folder_model
+from creme.documents.constants import UUID_FOLDER_IMAGES
 from creme.documents.utils import get_image_format
 
 from creme.persons import get_contact_model, get_organisation_model, get_address_model
@@ -508,17 +509,19 @@ class VcfImportForm(CremeModelWithUserForm):
                 #                             image=img_path,
                 #                            )
                 user = cleaned_data['user']
-                return Document.objects.create(user=user,
-                                               title=ugettext(u'Image of %s') % contact,
-                                               filedata=img_path,
-                                               folder=Folder.objects.get_or_create(title=ugettext('Images'),
-                                                                                   parent_folder=None,
-                                                                                   defaults={
-                                                                                       'user': user,
-                                                                                   },
-                                                                                  )[0],
-                                               description=ugettext('Imported by VCFs'),
-                                              )
+                return Document.objects.create(
+                    user=user,
+                    title=ugettext(u'Image of %s') % contact,
+                    filedata=img_path,
+                    # folder=Folder.objects.get_or_create(title=ugettext('Images'),
+                    #                                    parent_folder=None,
+                    #                                    defaults={
+                    #                                        'user': user,
+                    #                                    },
+                    #                                   )[0],
+                    folder=Folder.objects.get(uuid=UUID_FOLDER_IMAGES),
+                    description=ugettext(u'Imported by VCFs'),
+                )
 
     def _create_orga(self, contact):
         cleaned_data = self.cleaned_data
