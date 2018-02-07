@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 29-11-2017 pour la version 1.7 de Creme
+:Version: 05-02-2018 pour la version 1.7 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -719,7 +719,7 @@ Puis créons un fichier : ``beavers/populate.py``. ::
     from creme.creme_core.management.commands.creme_populate import BasePopulator
     from creme.creme_core.models import HeaderFilter, SearchConfigItem
 
-    from .constants implémentation DEFAULT_HFILTER_BEAVER
+    from .constants import DEFAULT_HFILTER_BEAVER
     from .models import Beaver
 
 
@@ -1575,17 +1575,16 @@ Quelques explications :
 
 Maintenant au tour du fichier template associé, ``beavers/templates/beavers/templatetags/button_ticket.html``: ::
 
-    {% load i18n %}
-    {% load creme_core_tags %}
+    {% load i18n creme_widgets %}
     {% if has_perm %}
-        <a class="menu_button" href="{% url 'beavers__create_ticket' object.id %}">
-            <img src="{% creme_media_url 'images/ticket_32.png' %}" border="0" title="{% trans "Linked ticket" %}" alt="{% trans "Linked ticket" %}" />
-            {% trans "Notify a veterinary" %}
+        <a class="menu_button menu-button-icon" href="{% url 'beavers__create_ticket' object.id %}">
+            {% widget_icon name='ticket' size='instance-button' label=_('Linked ticket') %}
+            {% trans 'Notify a veterinary' %}
         </a>
     {% else %}
-        <span class="menu_button forbidden" title="{% trans "forbidden" %}">
-            <img src="{% creme_media_url 'images/ticket_32.png' %}" border="0" title="{% trans "Linked ticket" %}" alt="{% trans "Linked ticket" %}" />
-            {% trans "Notify a veterinary" %}
+        <span class="menu_button menu-button-icon forbidden" title="{% trans 'forbidden' %}">
+            {% widget_icon name='ticket' size='instance-button' label=_('Linked ticket') %}
+            {% trans 'Notify a veterinary' %}
         </span>
     {% endif %}
 
