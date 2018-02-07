@@ -209,7 +209,7 @@ if settings.TESTS_ON:
 else:
     from functools import wraps
     from json import dumps as json_dump, loads as json_load
-    import sys
+    # import sys
     import traceback
     from time import sleep
 
