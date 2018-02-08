@@ -1585,8 +1585,8 @@ class ReportTestCase(BaseReportsTestCase):
 
         orga_report = self._build_orga_report()
         create_field(report=orga_report, name=FAKE_REL_OBJ_EMPLOYED_BY, order=3,
-                     sub_report=contact_report, title="Employs",
-                     )
+                     sub_report=contact_report, # title="Employs",
+                    )
 
         url = self._build_linkreport_url(rel_rfield)
         self.assertGET200(url)

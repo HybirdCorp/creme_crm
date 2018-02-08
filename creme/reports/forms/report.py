@@ -125,7 +125,7 @@ class ReportCreateForm(CremeEntityForm):
 
             for i, cell in enumerate(self.cleaned_data['hf'].filtered_cells, start=1):
                 # TODO: check in clean() that id is OK
-                build_field(name=cell.value, title=cell.title, order=i,
+                build_field(name=cell.value, order=i,  # title=cell.title
                             type=_CELL_2_HAND_MAP[cell.type_id],
                            )
 
