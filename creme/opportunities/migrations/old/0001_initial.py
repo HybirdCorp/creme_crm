@@ -2,22 +2,12 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-from django.db.models.deletion import PROTECT, SET_NULL
+import django.db.models.deletion
 
-from creme.creme_core.models import fields as creme_fields
+import creme.creme_core.models.fields
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     (b'opportunities', '0001_initial'),
-    #     (b'opportunities', '0002_v1_7__reference_not_null_1'),
-    #     (b'opportunities', '0003_v1_7__reference_not_null_2'),
-    #     (b'opportunities', '0004_v1_7__description_not_null_1'),
-    #     (b'opportunities', '0005_v1_7__description_not_null_2'),
-    #     (b'opportunities', '0006_v1_7__salesphase_lost_1'),
-    #     (b'opportunities', '0007_v1_7__salesphase_lost_2'),
-    # ]
-
     dependencies = [
         ('creme_core', '0001_initial'),
     ]
@@ -41,9 +31,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
-                ('order', creme_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
+                ('order', creme.creme_core.models.fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
                 ('won', models.BooleanField(default=False, verbose_name='Won')),
-                ('lost', models.BooleanField(default=False, verbose_name='Lost')),
             ],
             options={
                 'ordering': ('order',),
@@ -57,17 +46,17 @@ class Migration(migrations.Migration):
             fields=[
                 ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the opportunity')),
-                ('reference', models.CharField(max_length=100, verbose_name='Reference', blank=True)),
+                ('reference', models.CharField(max_length=100, null=True, verbose_name='Reference', blank=True)),
                 ('estimated_sales', models.PositiveIntegerField(null=True, verbose_name='Estimated sales', blank=True)),
                 ('made_sales', models.PositiveIntegerField(null=True, verbose_name='Made sales', blank=True)),
                 ('chance_to_win', models.PositiveIntegerField(null=True, verbose_name='% of chance to win', blank=True)),
                 ('expected_closing_date', models.DateField(null=True, verbose_name='Expected closing date', blank=True)),
                 ('closing_date', models.DateField(null=True, verbose_name='Actual closing date', blank=True)),
-                ('description', models.TextField(verbose_name='Description', blank=True)),
+                ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
                 ('first_action_date', models.DateField(null=True, verbose_name='Date of the first action', blank=True)),
-                ('currency', models.ForeignKey(on_delete=PROTECT, default=1, verbose_name='Currency', to='creme_core.Currency')),
-                ('origin', models.ForeignKey(on_delete=SET_NULL, verbose_name='Origin', blank=True, to='opportunities.Origin', null=True)),
-                ('sales_phase', models.ForeignKey(on_delete=PROTECT, verbose_name='Sales phase', to='opportunities.SalesPhase')),
+                ('currency', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, default=1, verbose_name='Currency', to='creme_core.Currency')),
+                ('origin', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Origin', blank=True, to='opportunities.Origin', null=True)),
+                ('sales_phase', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Sales phase', to='opportunities.SalesPhase')),
             ],
             options={
                 'swappable': 'OPPORTUNITIES_OPPORTUNITY_MODEL',

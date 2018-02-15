@@ -5,13 +5,13 @@ from django.conf import settings
 from django.db import models, migrations
 import django.db.models.deletion
 
-from creme.creme_core.models import fields as creme_fields
+import creme.creme_core.models.fields
 
 
 class Migration(migrations.Migration):
     # replaces = [
     #     (b'reports', '0001_initial'),
-    #     (b'reports', '0003_v1_7__image_to_doc'),
+    #     (b'reports', '0002_v1_6__type_choices'),
     # ]
 
     dependencies = [
@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the report')),
-                ('ct', creme_fields.EntityCTypeForeignKey(verbose_name='Entity type', to='contenttypes.ContentType')),
+                ('ct', creme.creme_core.models.fields.EntityCTypeForeignKey(verbose_name='Entity type', to='contenttypes.ContentType')),
                 ('filter', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Filter', blank=True, to='creme_core.EntityFilter', null=True)),
             ],
             options={
@@ -59,8 +59,11 @@ class Migration(migrations.Migration):
             fields=[
                 ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the graph')),
+                # ('abscissa', models.CharField(verbose_name='Abscissa axis', max_length=100, editable=False)),
                 ('abscissa', models.CharField(verbose_name='X axis', max_length=100, editable=False)),
+                # ('ordinate', models.CharField(verbose_name='Ordinate axis', max_length=100, editable=False)),
                 ('ordinate', models.CharField(verbose_name='Y axis', max_length=100, editable=False)),
+                # ('type', models.PositiveIntegerField(verbose_name='Type', editable=False)),
                 ('type', models.PositiveIntegerField(verbose_name='Grouping', editable=False,
                                                      choices=[(1, 'By days'), (2, 'By months'), (3, 'By years'), (4, 'By X days'),
                                                               (5, 'By values'), (6, 'By values (of related entities)'),
@@ -73,6 +76,7 @@ class Migration(migrations.Migration):
                 ('days', models.PositiveIntegerField(null=True, verbose_name='Days', blank=True)),
                 ('is_count', models.BooleanField(default=False, verbose_name='Make a count instead of aggregate?')),
                 ('chart', models.CharField(max_length=100, null=True, verbose_name='Chart type')),
+                #('report', models.ForeignKey(editable=False, to='reports.Report')),
                 ('report', models.ForeignKey(editable=False, to=settings.REPORTS_REPORT_MODEL)),
             ],
             options={

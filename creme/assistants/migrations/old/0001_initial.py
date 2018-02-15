@@ -3,18 +3,16 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models, migrations
-from django.db.models.deletion import PROTECT
+from django.db.models import deletion
 from django.utils.timezone import now
 
-from creme.creme_core.models import fields as creme_fields
+import creme.creme_core.models.fields
 
 
 class Migration(migrations.Migration):
     # replaces = [
     #     (b'assistants', '0001_initial'),
-    #     (b'assistants', '0003_v1_7__textfields_not_null_1'),
-    #     (b'assistants', '0004_v1_7__textfields_not_null_2'),
-    #     (b'assistants', '0005_v1_7__image_to_doc'),
+    #     (b'assistants', '0002_v1_6__convert_user_FKs'),
     # ]
 
     dependencies = [
@@ -30,14 +28,15 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=200, verbose_name='Title')),
                 ('is_ok', models.BooleanField(default=False, verbose_name='Expected reaction has been done', editable=False)),
-                ('description', models.TextField(verbose_name='Source action', blank=True)),
-                ('creation_date', creme_fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True)),
-                ('expected_reaction', models.TextField(verbose_name='Target action', blank=True)),
+                ('description', models.TextField(null=True, verbose_name='Source action', blank=True)),
+                ('creation_date', creme.creme_core.models.fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True)),
+                ('expected_reaction', models.TextField(null=True, verbose_name='Target action', blank=True)),
                 ('deadline', models.DateTimeField(verbose_name='Deadline')),
                 ('validation_date', models.DateTimeField(verbose_name='Validation date', null=True, editable=False, blank=True)),
                 ('entity_id', models.PositiveIntegerField(editable=False)),
                 ('entity_content_type', models.ForeignKey(related_name='action_entity_set', editable=False, to='contenttypes.ContentType')),
-                ('user', creme_fields.CremeUserForeignKey(verbose_name='Owner user', to=settings.AUTH_USER_MODEL)),
+                ('user', creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Owner user', to=settings.AUTH_USER_MODEL)),
+                # ('user', creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Owner user', to='auth.User')),
             ],
             options={
                 'verbose_name': 'Action',
@@ -50,13 +49,14 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=200, verbose_name='Title')),
-                ('description', models.TextField(verbose_name='Description', blank=True)),
+                ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
                 ('is_validated', models.BooleanField(default=False, verbose_name='Validated', editable=False)),
                 ('reminded', models.BooleanField(default=False, editable=False, verbose_name=u'Notification sent')),
                 ('trigger_date', models.DateTimeField(verbose_name='Trigger date')),
                 ('entity_id', models.PositiveIntegerField(editable=False)),
                 ('entity_content_type', models.ForeignKey(related_name='alert_entity_set', editable=False, to='contenttypes.ContentType')),
-                ('user', creme_fields.CremeUserForeignKey(verbose_name='Owner user', to=settings.AUTH_USER_MODEL)),
+                ('user', creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Owner user', to=settings.AUTH_USER_MODEL)),
+                # ('user', creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Owner user', to='auth.User')),
             ],
             options={
                 'verbose_name': 'Alert',
@@ -68,12 +68,13 @@ class Migration(migrations.Migration):
             name='Memo',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('content', models.TextField(verbose_name='Content')),
+                ('content', models.TextField(null=True, verbose_name='Content', blank=True)),
                 ('on_homepage', models.BooleanField(default=False, verbose_name='Displayed on homepage')),
-                ('creation_date', creme_fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True)),
+                ('creation_date', creme.creme_core.models.fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True)),
                 ('entity_id', models.PositiveIntegerField(editable=False)),
                 ('entity_content_type', models.ForeignKey(related_name='memo_entity_set', editable=False, to='contenttypes.ContentType')),
-                ('user', creme_fields.CremeUserForeignKey(verbose_name='Owner user', to=settings.AUTH_USER_MODEL)),
+                ('user', creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Owner user', to=settings.AUTH_USER_MODEL)),
+                # ('user', creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Owner user', to='auth.User')),
             ],
             options={
                 'verbose_name': 'Memo',
@@ -88,12 +89,13 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(max_length=200, verbose_name='Title')),
                 ('is_ok', models.BooleanField(default=False, verbose_name='Done ?', editable=False)),
                 ('reminded', models.BooleanField(default=False, editable=False, verbose_name=u'Notification sent')),
-                ('description', models.TextField(verbose_name='Description', blank=True)),
-                ('creation_date', creme_fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True)),
+                ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
+                ('creation_date', creme.creme_core.models.fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True)),
                 ('deadline', models.DateTimeField(null=True, verbose_name='Deadline', blank=True)),
                 ('entity_id', models.PositiveIntegerField(editable=False)),
                 ('entity_content_type', models.ForeignKey(related_name='todo_entity_set', editable=False, to='contenttypes.ContentType')),
-                ('user', creme_fields.CremeUserForeignKey(verbose_name='Owner user', to=settings.AUTH_USER_MODEL)),
+                ('user', creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Owner user', to=settings.AUTH_USER_MODEL)),
+                # ('user', creme.creme_core.models.fields.CremeUserForeignKey(verbose_name='Owner user', to='auth.User')),
             ],
             options={
                 'verbose_name': 'Todo',
@@ -125,15 +127,11 @@ class Migration(migrations.Migration):
                 ('email_sent', models.BooleanField(default=False)),
                 ('entity_id', models.PositiveIntegerField(null=True)),
                 ('entity_content_type', models.ForeignKey(to='contenttypes.ContentType', null=True)),
-                ('priority', models.ForeignKey(on_delete=PROTECT, verbose_name='Priority', to='assistants.UserMessagePriority')),
-                ('recipient', creme_fields.CremeUserForeignKey(to=settings.AUTH_USER_MODEL, verbose_name='Recipient',
-                                                               related_name='received_assistants_messages_set',
-                                                              )
-                ),
-                ('sender', creme_fields.CremeUserForeignKey(to=settings.AUTH_USER_MODEL, verbose_name='Sender',
-                                                            related_name='sent_assistants_messages_set',
-                                                           )
-                ),
+                ('priority', models.ForeignKey(on_delete=deletion.PROTECT, verbose_name='Priority', to='assistants.UserMessagePriority')),
+                ('recipient', creme.creme_core.models.fields.CremeUserForeignKey(related_name='received_assistants_messages_set', verbose_name='Recipient', to=settings.AUTH_USER_MODEL)),
+                # ('recipient', creme.creme_core.models.fields.CremeUserForeignKey(related_name='received_assistants_messages_set', verbose_name='Recipient', to='auth.User')),
+                ('sender', creme.creme_core.models.fields.CremeUserForeignKey(related_name='sent_assistants_messages_set', verbose_name='Sender', to=settings.AUTH_USER_MODEL)),
+                # ('sender', creme.creme_core.models.fields.CremeUserForeignKey(related_name='sent_assistants_messages_set', verbose_name='Sender', to='auth.User')),
             ],
             options={
                 'verbose_name': 'User message',

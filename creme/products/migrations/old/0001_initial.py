@@ -1,28 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.conf import settings
 from django.db import models, migrations
 from django.db.models.deletion import PROTECT
 
-from creme.documents.models.fields import ImageEntityManyToManyField
-
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     (b'products', '0001_initial'),
-    #     (b'products', '0003_v1_7__charfields_not_nullable_1'),
-    #     (b'products', '0004_v1_7__charfields_not_nullable_2'),
-    #     (b'products', '0005_v1_7__image_to_doc_1'),
-    #     (b'products', '0006_v1_7__image_to_doc_2'),
-    #     (b'products', '0007_v1_7__image_to_doc_3'),
-    #     (b'products', '0008_v1_7__image_to_doc_4'),
-    # ]
-
     dependencies = [
-        # ('media_managers', '0001_initial'),
-        # ('documents', '0001_initial'),
-        migrations.swappable_dependency(settings.DOCUMENTS_DOCUMENT_MODEL),
+        ('media_managers', '0001_initial'),
         ('creme_core', '0001_initial'),
     ]
 
@@ -68,11 +53,11 @@ class Migration(migrations.Migration):
                 ('quantity_per_unit', models.IntegerField(null=True, verbose_name='Quantity/Unit', blank=True)),
                 ('weight', models.DecimalField(null=True, verbose_name='Weight', max_digits=8, decimal_places=2, blank=True)),
                 ('stock', models.IntegerField(null=True, verbose_name='Quantity/Stock', blank=True)),
-                ('web_site', models.CharField(max_length=100, verbose_name='Web Site', blank=True)),
+                ('web_site', models.CharField(max_length=100, null=True, verbose_name='Web Site', blank=True)),
+                # ('category', models.ForeignKey(verbose_name='Category', to='products.Category')),
                 ('category', models.ForeignKey(on_delete=PROTECT, verbose_name='Category', to='products.Category')),
                 ('sub_category', models.ForeignKey(on_delete=PROTECT, verbose_name='Sub-category', to='products.SubCategory')),
-                # ('images', models.ManyToManyField(related_name='ProductImages_set', verbose_name='Images', to='media_managers.Image', blank=True)),
-                ('images', ImageEntityManyToManyField(to=settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name='Images', blank=True)),
+                ('images', models.ManyToManyField(related_name='ProductImages_set', verbose_name='Images', to='media_managers.Image', blank=True)), # null=True
             ],
             options={
                 'swappable': 'PRODUCTS_PRODUCT_MODEL',
@@ -93,11 +78,11 @@ class Migration(migrations.Migration):
                 ('unit', models.CharField(max_length=100, verbose_name='Unit', blank=True)),
                 ('quantity_per_unit', models.IntegerField(null=True, verbose_name='Quantity/Unit', blank=True)),
                 ('unit_price', models.DecimalField(verbose_name='Unit price', max_digits=8, decimal_places=2)),
-                ('web_site', models.CharField(max_length=100, verbose_name='Web Site', blank=True)),
+                ('web_site', models.CharField(max_length=100, null=True, verbose_name='Web Site', blank=True)),
+                # ('category', models.ForeignKey(verbose_name='Category', to='products.Category')),
                 ('category', models.ForeignKey(on_delete=PROTECT, verbose_name='Category', to='products.Category')),
                 ('sub_category', models.ForeignKey(on_delete=PROTECT, verbose_name='Sub-category', to='products.SubCategory')),
-                # ('images', models.ManyToManyField(related_name='ServiceImages_set', verbose_name='Images', to='media_managers.Image', blank=True)),
-                ('images', ImageEntityManyToManyField(to=settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name='Images', blank=True)),
+                ('images', models.ManyToManyField(related_name='ServiceImages_set', verbose_name='Images', to='media_managers.Image', blank=True)), # null=True
             ],
             options={
                 'swappable': 'PRODUCTS_SERVICE_MODEL',

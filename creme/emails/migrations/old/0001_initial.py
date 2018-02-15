@@ -3,11 +3,9 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models, migrations
-from django.db.models.deletion import SET_NULL
+import django.db.models.deletion
 
 import creme.creme_core.models.fields
-
-from creme.documents.models.fields import ImageEntityManyToManyField
 
 import creme.emails.utils
 
@@ -15,12 +13,10 @@ import creme.emails.utils
 class Migration(migrations.Migration):
     # replaces = [
     #     ('emails', '0001_initial'),
-    #     ('emails', '0006_v1_7__charfields_not_null_1'),
-    #     ('emails', '0007_v1_7__charfields_not_null_2'),
-    #     ('emails', '0008_v1_7__image_to_doc_1'),
-    #     ('emails', '0009_v1_7__image_to_doc_2'),
-    #     ('emails', '0010_v1_7__image_to_doc_3'),
-    #     ('emails', '0011_v1_7__image_to_doc_4'),
+    #     ('emails', '0002_v1_6__convert_user_FKs'),
+    #     ('emails', '0003_v1_6__fk_on_delete_set'),
+    #     ('emails', '0004_v1_6__not_editable_n_choices'),
+    #     ('emails', '0005_v1_6__custom_n_body_blocks'),
     # ]
 
     dependencies = [
@@ -28,7 +24,7 @@ class Migration(migrations.Migration):
         ('auth', '0001_initial'),
         ('creme_core', '0001_initial'),
         migrations.swappable_dependency(settings.DOCUMENTS_DOCUMENT_MODEL),
-        # ('media_managers', '0001_initial'),
+        ('media_managers', '0001_initial'),
         migrations.swappable_dependency(settings.PERSONS_CONTACT_MODEL),
         migrations.swappable_dependency(settings.PERSONS_ORGANISATION_MODEL),
     ]
@@ -40,12 +36,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('body', models.TextField(verbose_name='Body')),
-                # ('images', models.ManyToManyField(to='media_managers.Image', verbose_name='Images', blank=True)),
-                ('images', ImageEntityManyToManyField(help_text='Images embedded in emails (but not as attached).',
-                                                      to=settings.DOCUMENTS_DOCUMENT_MODEL,
-                                                      verbose_name='Images', blank=True,
-                                                     )
-                ),
+                ('images', models.ManyToManyField(to='media_managers.Image', verbose_name='Images', blank=True)), # null=True
+                # ('user', models.ForeignKey(verbose_name='User', to='auth.User')),
                 ('user', models.ForeignKey(verbose_name='User', to=settings.AUTH_USER_MODEL)),
             ],
             options={
@@ -92,8 +84,10 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('sender', models.EmailField(max_length=100, verbose_name='Sender address')),
+                # ('type', models.PositiveSmallIntegerField(verbose_name='Sending type')),
                 ('type', models.PositiveSmallIntegerField(default=1, verbose_name='Sending type', choices=[(1, 'Immediate'), (2, 'Deferred')])),
                 ('sending_date', models.DateTimeField(verbose_name='Sending date')),
+                # ('state', models.PositiveSmallIntegerField(verbose_name='Sending state', editable=False)),
                 ('state', models.PositiveSmallIntegerField(default=3, verbose_name='Sending state', editable=False,
                                                            choices=[(1, 'Done'), (2, 'In progress'), (3, 'Planned'), (4, 'Error during sending')],
                                                           ),
@@ -103,7 +97,8 @@ class Migration(migrations.Migration):
                 ('body_html', models.TextField(verbose_name='Body (HTML)', null=True, editable=False, blank=True)),
                 ('attachments', models.ManyToManyField(verbose_name='Attachments', editable=False, to=settings.DOCUMENTS_DOCUMENT_MODEL)),
                 ('campaign', models.ForeignKey(related_name='sendings_set', editable=False, to=settings.EMAILS_CAMPAIGN_MODEL, verbose_name='Related campaign')),
-                ('signature', models.ForeignKey(on_delete=SET_NULL, blank=True, editable=False, to='emails.EmailSignature', null=True, verbose_name='Signature')),
+                # ('signature', models.ForeignKey(blank=True, editable=False, to='emails.EmailSignature', null=True, verbose_name='Signature')),
+                ('signature', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, blank=True, editable=False, to='emails.EmailSignature', null=True, verbose_name='Signature')),
             ],
             options={
                 'verbose_name': 'Email campaign sending',
@@ -120,7 +115,7 @@ class Migration(migrations.Migration):
                 ('body', models.TextField(verbose_name='Body')),
                 ('body_html', creme.creme_core.models.fields.UnsafeHTMLField(verbose_name='Body (HTML)')),
                 ('attachments', models.ManyToManyField(to=settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name='Attachments')),
-                ('signature', models.ForeignKey(on_delete=SET_NULL, verbose_name='Signature', blank=True, to='emails.EmailSignature', null=True)),
+                ('signature', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Signature', blank=True, to='emails.EmailSignature', null=True)),
             ],
             options={
                 'swappable': 'EMAILS_TEMPLATE_MODEL',
@@ -134,7 +129,9 @@ class Migration(migrations.Migration):
             name='EntityEmail',
             fields=[
                 ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                # ('reads', models.PositiveIntegerField(default=0, null=True, verbose_name='Number of reads', blank=True)),
                 ('reads', models.PositiveIntegerField(default=0, verbose_name='Number of reads', null=True, editable=False, blank=True)),
+                # ('status', models.PositiveSmallIntegerField(default=2, verbose_name='Status')),
                 ('status', models.PositiveSmallIntegerField(default=2, verbose_name='Status', editable=False,
                                                             choices=[(1, 'Sent'), (2, 'Not sent'), (3, 'Sending error'),
                                                                      (4, 'Synchronized'), (5, 'Synchronized - Marked as SPAM'),
@@ -144,9 +141,11 @@ class Migration(migrations.Migration):
                 ),
                 ('sender', models.CharField(max_length=100, verbose_name='Sender')),
                 ('recipient', models.CharField(max_length=100, verbose_name='Recipient')),
-                ('subject', models.CharField(max_length=100, verbose_name='Subject', blank=True)),
+                ('subject', models.CharField(max_length=100, null=True, verbose_name='Subject', blank=True)),
                 ('body', models.TextField(verbose_name='Body')),
+                # ('sending_date', models.DateTimeField(null=True, verbose_name='Sending date', blank=True)),
                 ('sending_date', models.DateTimeField(verbose_name='Sending date', null=True, editable=False, blank=True)),
+                # ('reception_date', models.DateTimeField(null=True, verbose_name='Reception date', blank=True)),
                 ('reception_date', models.DateTimeField(verbose_name='Reception date', null=True, editable=False, blank=True)),
                 ('identifier', models.CharField(default=creme.emails.utils.generate_id, verbose_name='Email ID', unique=True, max_length=32, editable=False)),
                 ('body_html', creme.creme_core.models.fields.UnsafeHTMLField(verbose_name='Body (HTML)')),
@@ -165,7 +164,9 @@ class Migration(migrations.Migration):
             name='LightWeightEmail',
             fields=[
                 ('id', models.CharField(verbose_name='Email ID', max_length=32, serialize=False, editable=False, primary_key=True)),
+                # ('reads', models.PositiveIntegerField(default=0, null=True, verbose_name='Number of reads', blank=True)),
                 ('reads', models.PositiveIntegerField(default=0, verbose_name='Number of reads', null=True, editable=False, blank=True)),
+                # ('status', models.PositiveSmallIntegerField(default=2, verbose_name='Status')),
                 ('status', models.PositiveSmallIntegerField(default=2, verbose_name='Status', editable=False,
                                                             choices=[(1, 'Sent'), (2, 'Not sent'), (3, 'Sending error'),
                                                                      (4, 'Synchronized'), (5, 'Synchronized - Marked as SPAM'),
@@ -175,9 +176,11 @@ class Migration(migrations.Migration):
                 ),
                 ('sender', models.CharField(max_length=100, verbose_name='Sender')),
                 ('recipient', models.CharField(max_length=100, verbose_name='Recipient')),
-                ('subject', models.CharField(max_length=100, verbose_name='Subject', blank=True)),
+                ('subject', models.CharField(max_length=100, null=True, verbose_name='Subject', blank=True)),
                 ('body', models.TextField(verbose_name='Body')),
+                # ('sending_date', models.DateTimeField(null=True, verbose_name='Sending date', blank=True)),
                 ('sending_date', models.DateTimeField(verbose_name='Sending date', null=True, editable=False, blank=True)),
+                # ('reception_date', models.DateTimeField(null=True, verbose_name='Reception date', blank=True)),
                 ('reception_date', models.DateTimeField(verbose_name='Reception date', null=True, editable=False, blank=True)),
                 ('recipient_entity', models.ForeignKey(related_name='received_lw_mails', editable=False, to='creme_core.CremeEntity', null=True)),
                 ('sending', models.ForeignKey(related_name='mails_set', editable=False, to='emails.EmailSending', verbose_name='Related sending')),
@@ -192,7 +195,7 @@ class Migration(migrations.Migration):
             name='EmailRecipient',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('address', models.CharField(max_length=100, verbose_name='Email address')),
+                ('address', models.CharField(max_length=100, null=True, verbose_name='Email address', blank=True)),
                 ('ml', models.ForeignKey(verbose_name='Related mailing list', to=settings.EMAILS_MLIST_MODEL)),
             ],
             options={
