@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -50,23 +50,21 @@ USER_HISTORY_TYPE = (
 
 USER_HISTORY_TYPE_VERBOSE = dict(USER_HISTORY_TYPE)
 
-# DEPRECATED
-USER_HISTORY_TYPE_IMG = {
-    CREATE: "images/add_22.png",
-    UPDATE: "images/edit_22_button.png",
-    DELETE: "images/delete_22_button.png",
-}
+# USER_HISTORY_TYPE_IMG = {
+#     CREATE: "images/add_22.png",
+#     UPDATE: "images/edit_22_button.png",
+#     DELETE: "images/delete_22_button.png",
+# }
 
 USER_HISTORY_WHERE = (
     (IN_CREME, _(u'In Creme')),
     (ON_SERVER, _(u'On server')),
 )
 
-# DEPRECATED
-USER_HISTORY_WHERE_IMG = {
-    IN_CREME:  "images/creme_22.png",
-    ON_SERVER: "images/organisation_22.png",  # todo: Change this icon for a server icon
-}
+# USER_HISTORY_WHERE_IMG = {
+#     IN_CREME:  "images/creme_22.png",
+#     ON_SERVER: "images/organisation_22.png",  # todo: Change this icon for a server icon
+# }
 
 USER_HISTORY_WHERE_VERBOSE = dict(USER_HISTORY_WHERE)
 
