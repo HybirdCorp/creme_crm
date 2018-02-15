@@ -32,9 +32,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
         camp = PollCampaign.objects.create(user=self.user, name='Camp#1')
         response = self.assertGET200(camp.get_absolute_url())
         self.assertContains(response, camp.name)
-        # self.assertTemplateUsed(response, 'polls/templatetags/block_campaign_preplies.html')
         self.assertTemplateUsed(response, 'polls/bricks/campaign-preplies.html')
-        # self.assertContains(response, 'id="%s"' % pcampaign_replies_block.id_)
         self.get_brick_node(self.get_html_tree(response.content), PollCampaignRepliesBrick.id_)
 
     def test_createview01(self):

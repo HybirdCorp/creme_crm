@@ -101,7 +101,6 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual(unicode(invoice_status), status_str)
 
         with self.assertNumQueries(0):
-            # funf(tpl).for_html()
             funf(tpl, self.user).for_html()
 
     @skipIfCustomInvoice

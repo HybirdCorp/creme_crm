@@ -46,9 +46,7 @@ DATABASES = {
     },
 }
 
-MIGRATION_MODULES = {
-    # 'auth': 'creme.creme_core.migrations_auth', # XXX: should be removed in Creme 1.7 ...
-}
+# MIGRATION_MODULES = {}
 
 # When this number of Entities is reached (in some views), Creme switches to a fast-mode.
 # Currently, this fast-mode involves the following optimisations in list-views:
@@ -210,7 +208,6 @@ TEMPLATES = [
                 'creme.creme_core.context_processors.get_site_domain',
                 'creme.creme_core.context_processors.get_today',
                 'creme.creme_core.context_processors.get_css_theme',
-                # 'creme.creme_core.context_processors.get_blocks_manager',
                 'creme.creme_core.context_processors.get_bricks_manager',
                 'creme.creme_core.context_processors.get_fields_configs',
                 'creme.creme_core.context_processors.get_shared_data',
@@ -416,7 +413,6 @@ TEST_RUNNER = 'creme.creme_core.utils.test.CremeDiscoverRunner'
 # Main menu
 OLD_MENU = False  # True use pre 1.7 menu (left side menu, with items per app)
 LOGO_URL = 'images/creme_256_cropped.png'  # Big image in the side menu (only used when OLD_MENU = True)
-# USE_STRUCT_MENU = True  # True = use the per app menu
 
 BLOCK_SIZE = 10  # Lines number in common blocks
 MAX_LAST_ITEMS = 9  # Max number of items in the 'Last viewed items' bar
@@ -628,7 +624,6 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/widgets/selectorlist.js',
                     'creme_core/js/widgets/entityselector.js',
                     'creme_core/js/widgets/pselect.js',
-                    # 'creme_core/js/widgets/adaptivewidget.js',
                     'creme_core/js/widgets/actionlist.js',
                     'creme_core/js/widgets/plotdata.js',
                     'creme_core/js/widgets/plot.js',
@@ -1077,24 +1072,6 @@ _LOCALE_OVERLOAD = join(CREME_ROOT, 'locale_overload', 'locale')
 LOCALE_PATHS = [join(CREME_ROOT, 'locale')]
 if exists(_LOCALE_OVERLOAD):
     LOCALE_PATHS.append(_LOCALE_OVERLOAD)
-# LOCALE_PATHS.extend(join(CREME_ROOT, app.rsplit('.')[-1], "locale") for app in INSTALLED_CREME_APPS)
 
 INSTALLED_APPS = INSTALLED_DJANGO_APPS + INSTALLED_CREME_APPS
 
-
-# MEDIA GENERATOR [FINAL SETTINGS]----------------------------------------------
-
-# NB: done in MediaGeneratorConfig now
-# MEDIA_BUNDLES = (
-#                  CREME_I18N_JS,
-#                  CREME_CORE_JS + tuple(js for app, js in CREME_OPT_JS if app in INSTALLED_CREME_APPS)
-#                 )
-# if FORCE_JS_TESTVIEW:
-#     MEDIA_BUNDLES += (TEST_CREME_CORE_JS,)
-#
-# MEDIA_BUNDLES += CREME_OPT_MEDIA_BUNDLES
-#
-# CREME_CSS = CREME_CORE_CSS + tuple(css for app, css in CREME_OPT_CSS if app in INSTALLED_CREME_APPS)
-# MEDIA_BUNDLES += tuple((theme_dir + CREME_CSS[0], ) + tuple(theme_dir + '/' + css_file if not isinstance(css_file, dict) else css_file for css_file in CREME_CSS[1:])
-#                         for theme_dir, theme_vb_name in THEMES
-#                        )

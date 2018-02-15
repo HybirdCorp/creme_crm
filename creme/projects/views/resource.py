@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,7 +32,6 @@ from .. import get_task_model
 from ..constants import REL_SUB_PART_AS_RESOURCE
 from ..forms import resource as resource_forms
 from ..models import Resource
-# from . import utils
 
 
 # TODO: improve add_to_entity (see: "if not task.is_alive() etc...") ???
@@ -74,7 +73,6 @@ def add(request, task_id):
 @login_required
 @permission_required('projects')
 def edit(request, resource_id):
-    # return utils._edit_generic(request, resource_forms.ResourceEditForm, resource_id, Resource, _(u'Edition of a resource'))
     return generic.edit_related_to_entity(request, pk=resource_id, model=Resource,
                                           form_class=resource_forms.ResourceEditForm,
                                           title_format=_(u'Resource for «%s»'),

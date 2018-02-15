@@ -31,15 +31,11 @@ Activity = get_activity_model()
 
 
 class CTITestCase(CremeTestCase, BrickTestCaseMixin):
-#    ADD_PCALL_URL = '/cti/add_phonecall'
-#     RESPOND_URL = '/cti/respond_to_a_call'
     RESPOND_URL = reverse('cti__respond_to_a_call')
 
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
         super(CTITestCase, cls).setUpClass()
-        # cls.populate('creme_core', 'activities')
 
         cls.ADD_PCALL_URL = reverse('cti__create_phonecall_as_caller')
 
@@ -59,22 +55,6 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         "Should not ne available when creating UserRoles"
         self.login()
 
-        # response = self.assertGET200('/creme_config/role/add/')
-        #
-        # with self.assertNoException():
-        #     fields = response.context['form'].fields
-        #     apps_choices  = set(c[0] for c in fields['allowed_apps'].choices)
-        #     admin_choices = set(c[0] for c in fields['admin_4_apps'].choices)
-        #
-        # self.assertIn('creme_core', apps_choices)
-        # self.assertIn('persons',    apps_choices)
-        # self.assertNotIn('cti',    apps_choices) #<==
-        #
-        # self.assertIn('creme_core', admin_choices)
-        # self.assertIn('persons',    admin_choices)
-        # self.assertNotIn('cti',    admin_choices) #<==
-
-        # response = self.assertGET200('/creme_config/role/wizard/')
         response = self.assertGET200(reverse('creme_config__create_role'))
 
         with self.assertNoException():
@@ -164,15 +144,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.assertGET200(self.RESPOND_URL, data={'number': phone})
         self.assertTemplateUsed(response, 'cti/respond_to_a_call.html')
 
-        # with self.assertNoException():
-        #     callers = response.context['callers']
-        #
-        # self.assertEqual(1, len(callers))
-        # self.assertEqual(contact.id, callers[0].id)
         brick_id = CallersBrick.id_
-        # self.assertContains(response, 'id="%s"' % brick_id)
-        # self.assertContains(response, unicode(contact))
-        # self.assertNotContains(response, unicode(user.linked_contact))
         brick_node = self.get_brick_node(self.get_html_tree(response.content), brick_id)
         self.assertInstanceLink(brick_node, contact)
         self.assertNoInstanceLink(brick_node, user.linked_contact)
@@ -188,10 +160,6 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(2, len(sub_content))
         self.assertEqual(brick_id, sub_content[0])
 
-        # brick_content = sub_content[1]
-        # self.assertIn('id="%s"' % brick_id, brick_content)
-        # self.assertIn(unicode(contact), brick_content)
-        # self.assertNotIn(unicode(user.linked_contact), brick_content)
         l_brick_node = self.get_brick_node(self.get_html_tree(sub_content[1]), brick_id)
         self.assertInstanceLink(l_brick_node, contact)
         self.assertNoInstanceLink(l_brick_node, user.linked_contact)
@@ -204,7 +172,6 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         phone = '558899'
         contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit', mobile=phone)
         response = self.assertGET200(self.RESPOND_URL, data={'number': phone})
-        # self.assertEqual([contact.id], [c.id for c in response.context['callers']])
         self.assertContains(response, unicode(contact))
         self.assertNotContains(response, unicode(user.linked_contact))
 
@@ -217,7 +184,6 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         orga1 = Organisation.objects.all()[0]
         orga2 = Organisation.objects.create(user=user, name='Gunsmith Cats', phone=phone)
         response = self.client.get(self.RESPOND_URL, data={'number': phone})
-        # self.assertEqual([orga2.id], [o.id for o in response.context['callers']])
         self.assertContains(response, unicode(orga2))
         self.assertNotContains(response, unicode(orga1))
 
@@ -251,7 +217,6 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         phone = '558899'
         contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit', phone=phone)
         response = self.assertGET200(self.RESPOND_URL, data={'number': phone})
-        # self.assertFalse(response.context['callers'])
         self.assertNotContains(response, unicode(contact))
 
     @skipIfCustomContact
@@ -259,7 +224,6 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         user = self.login()
 
         phone = '121366'
-#        url = '/cti/contact/add/%s' % phone
         url = reverse('cti__create_contact', args=(phone,))
         response = self.assertGET200(url)
 
@@ -283,7 +247,6 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         user = self.login()
 
         phone = '987654'
-#        url = '/cti/organisation/add/%s' % phone
         url = reverse('cti__create_organisation', args=(phone,))
         response = self.assertGET200(url)
 

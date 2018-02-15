@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,6 @@ from creme.creme_core.models.fields import BasicAutoField, ColorField
 
 class ProjectStatus(CremeModel):
     name        = CharField(_('Name'), max_length=100)
-    # color_code  = CharField(_('Color'), max_length=100, blank=True)
     color_code  = ColorField(_('Color'), blank=True)
     description = TextField(_('Description'))
     order       = BasicAutoField(_('Order'))  # Used by creme_config

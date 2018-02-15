@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,17 +34,8 @@ from .base import CrudityFetcher
 
 logger = logging.getLogger(__name__)
 
-# CREME_GET_EMAIL_SERVER       = settings.CREME_GET_EMAIL_SERVER
-# CREME_GET_EMAIL_USERNAME     = settings.CREME_GET_EMAIL_USERNAME
-# CREME_GET_EMAIL_PASSWORD     = settings.CREME_GET_EMAIL_PASSWORD
-# CREME_GET_EMAIL_PORT         = settings.CREME_GET_EMAIL_PORT
-# CREME_GET_EMAIL_SSL          = settings.CREME_GET_EMAIL_SSL
-# CREME_GET_EMAIL_SSL_KEYFILE  = settings.CREME_GET_EMAIL_SSL_KEYFILE
-# CREME_GET_EMAIL_SSL_CERTFILE = settings.CREME_GET_EMAIL_SSL_CERTFILE
-
 
 class PopEmail(object):
-    # def __init__(self, body=u"", body_html=u'', senders=(), tos=(), ccs=(), subject=None, dates=(), attachments=()):
     def __init__(self, body=u'', body_html=u'', senders=(), tos=(), ccs=(), subject='', dates=(), attachments=()):
         self.body        = body
         self.body_html   = body_html
@@ -57,18 +48,8 @@ class PopEmail(object):
 
 
 class PopFetcher(CrudityFetcher):
-    # server       = CREME_GET_EMAIL_SERVER
-    # username     = CREME_GET_EMAIL_USERNAME
-    # password     = CREME_GET_EMAIL_PASSWORD
-    # port         = CREME_GET_EMAIL_PORT
-    # is_ssl       = CREME_GET_EMAIL_SSL,
-    # ssl_keyfile  = CREME_GET_EMAIL_SSL_KEYFILE,
-    # ssl_certfile = CREME_GET_EMAIL_SSL_CERTFILE
-
     def fetch(self, delete=True):  # TODO: args read from configuration instead ?
         client = None
-        # message_count = mailbox_size = 0
-        # response = messages = total_size = ''
         emails = []
 
         CREME_GET_EMAIL_SERVER = settings.CREME_GET_EMAIL_SERVER
@@ -86,7 +67,6 @@ class PopFetcher(CrudityFetcher):
             client.user(settings.CREME_GET_EMAIL_USERNAME)
             client.pass_(settings.CREME_GET_EMAIL_PASSWORD)
 
-            # message_count, mailbox_size = client.stat()
             client.stat()  # TODO: useful ?
             response, messages, total_size = client.list()
         except Exception:  # TODO: Define better exception
@@ -116,23 +96,10 @@ class PopFetcher(CrudityFetcher):
             from_emails = [addr for name, addr in getaddresses(get_all('from', []))]
             cc_emails   = [addr for name, addr in getaddresses(get_all('cc', []))]
 
-            # subject    = email_message.get('subject', [])
-            #
-            # decode_subject = []
-            # for s, enc in email.Header.decode_header(subject):
-            #     if enc is not None:
-            #         s = s.decode(enc)
-            #     decode_subject.append(s)
-            #
-            # subject = ''.join(decode_subject)
             subject = ''.join(s.decode(enc) if enc is not None else s
                                 for s, enc in email.Header.decode_header(email_message.get('subject', []))
                              )
 
-            # dates = []
-            # for d in get_all('date', []):
-            #     if d is not None:
-            #         dates.append(datetime(*parsedate(d)[:-3]))
             dates = [datetime(*parsedate(d)[:-3]) for d in get_all('date', []) if d is not None]
 
             body_html = u''
@@ -140,7 +107,6 @@ class PopFetcher(CrudityFetcher):
             # CONTENT HTML / PLAIN
             if email_message.is_multipart():
                 for part in email_message.walk():
-                    # encodings = set(part.get_charsets()) - {None}
                     encodings = set(part.get_charsets())
                     encodings.discard(None)
 
@@ -169,7 +135,6 @@ class PopFetcher(CrudityFetcher):
                             body = content
                         # else:  TODO ??
             else:
-                # encodings = set(email_message.get_charsets()) - {None}
                 encodings = set(email_message.get_charsets())
                 encodings.discard(None)
 

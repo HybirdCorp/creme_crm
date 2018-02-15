@@ -53,7 +53,6 @@ class Memo(CremeModel):
         return ellipsis(self.content.strip().replace('\n', ''), 25)
 
     def get_edit_absolute_url(self):
-        # return '/assistants/memo/edit/%s/' % self.id
         return reverse('assistants__edit_memo', args=(self.id,))
 
     @staticmethod
@@ -62,13 +61,11 @@ class Memo(CremeModel):
 
     @staticmethod
     def get_memos_for_home(user):
-        # return Memo.objects.filter(on_homepage=True, user=user).select_related('user')
         return Memo.objects.filter(on_homepage=True, user__in=[user] + user.teams) \
                           .select_related('user')
 
     @staticmethod
     def get_memos_for_ctypes(ct_ids, user):
-        # return Memo.objects.filter(entity_content_type__in=ct_ids, user=user).select_related('user')
         return Memo.objects.filter(entity_content_type__in=ct_ids, user__in=[user] + user.teams) \
                            .select_related('user')
 
@@ -81,7 +78,6 @@ class _GetMemos(FunctionField):
     verbose_name = _(u'Memos')
     result_type  = FunctionFieldResultsList
 
-    # def __call__(self, entity):
     def __call__(self, entity, user):
         cache = getattr(entity, '_memos_cache', None)
 
@@ -94,7 +90,6 @@ class _GetMemos(FunctionField):
         return FunctionFieldResultsList(FunctionFieldResult(content) for content in cache)
 
     @classmethod
-    # def populate_entities(cls, entities):
     def populate_entities(cls, entities, user):
         memos_map = defaultdict(list)
 

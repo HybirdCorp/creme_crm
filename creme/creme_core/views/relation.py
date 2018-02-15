@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,7 +32,7 @@ from .. import utils
 from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
 from ..forms.relation import RelationCreateForm, MultiEntitiesRelationCreateForm
-from ..models import Relation, RelationType, CremeEntity  # EntityCredentials
+from ..models import Relation, RelationType, CremeEntity
 
 from .generic import inner_popup, listview
 
@@ -94,9 +94,6 @@ JSON_ENTITY_FIELDS = {'unicode':     lambda e, user: e.allowed_unicode(user),
 @utils.jsonify
 def json_entity_get(request, entity_id):
     getters, range, sort = _clean_fields_values_args(request.GET, JSON_ENTITY_FIELDS)
-    # query = EntityCredentials.filter(request.user, CremeEntity.objects.filter(pk=entity_id))
-    #
-    # return _fields_values(query, getters, (0, 1), sort, request.user)
     user = request.user
     instances = []
     entity = CremeEntity.objects.filter(pk=entity_id).first()
@@ -186,7 +183,6 @@ def add_relations(request, subject_id, rtype_id=None):
                                  )
 
     return inner_popup(request,
-                       # 'creme_core/generics/blockform/add_popup.html',
                        'creme_core/generics/blockform/link_popup.html',
                        {'form':  form,
                         'title': _(u'Relationships for «%s»') % subject,

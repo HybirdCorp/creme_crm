@@ -14,25 +14,16 @@ except Exception, e:
 
 
 class RelationTypeTestCase(CremeTestCase):
-    # ADD_URL = '/creme_config/relation_type/add/'
     ADD_URL = reverse('creme_config__create_rtype')
-    # DEL_URL = '/creme_config/relation_type/delete'
     DEL_URL = reverse('creme_config__delete_rtype')
-
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('creme_core')
 
     def setUp(self):  # In CremeConfigTestCase ??
         self.login()
 
     def _build_edit_url(self, rtype):
-        # return '/creme_config/relation_type/edit/%s' % rtype.id
         return reverse('creme_config__edit_rtype', args=(rtype.id,))
 
     def test_portal(self):
-        # self.assertGET200('/creme_config/relation_type/portal/')
         self.assertGET200(reverse('creme_config__rtypes'))
 
     def test_create01(self):
@@ -192,14 +183,8 @@ class RelationTypeTestCase(CremeTestCase):
 
 
 class SemiFixedRelationTypeTestCase(CremeTestCase):
-    # ADD_URL = '/creme_config/relation_type/semi_fixed/add/'
     ADD_URL = reverse('creme_config__create_semifixed_rtype')
     format_str = '{"rtype": "%s", "ctype": %s,"entity": %s}'
-
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('creme_core')
 
     def setUp(self):
         self.login()
@@ -288,7 +273,6 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
                                                     relation_type=self.loves,
                                                     object_entity=self.iori,
                                                    )
-        # self.assertPOST200('/creme_config/relation_type/semi_fixed/delete',
         self.assertPOST200(reverse('creme_config__delete_semifixed_rtype'),
                            data={'id': sfrt.id}
                           )

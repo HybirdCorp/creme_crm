@@ -33,13 +33,7 @@ class LineTestCase(_BillingTestCase):
 
     DEL_VAT_URL = reverse('creme_config__delete_instance', args=('creme_core', 'vat_value'))
 
-    # @classmethod
-    # def setUpClass(cls):
-    #     _BillingTestCase.setUpClass()
-    #     cls.populate('products', 'billing')
-
     def _build_msave_url(self, bdocument):
-        # return '/billing/%s/multi_save_lines' % bdocument.id
         return reverse('billing__multi_save_lines', args=(bdocument.id,))
 
     @skipIfCustomProduct
@@ -50,7 +44,6 @@ class LineTestCase(_BillingTestCase):
         invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
         url = reverse('billing__create_product_lines', args=(invoice.id,))
         self.assertGET200(url)
-        # self.assertFalse(invoice.service_lines)
         self.assertFalse(invoice.get_lines(ServiceLine))
 
         product1 = self.create_product()
@@ -66,11 +59,9 @@ class LineTestCase(_BillingTestCase):
         self.assertNoFormError(response)
 
         invoice = self.refresh(invoice)  # Refresh lines cache
-        # self.assertEqual(2, len(invoice.product_lines))
         lines = invoice.get_lines(ProductLine)
         self.assertEqual(2, len(lines))
 
-        # line0, line1 = invoice.product_lines
         line0, line1 = lines
         self.assertEqual(quantity,        line0.quantity)
         self.assertEqual(quantity,        line1.quantity)
@@ -146,13 +137,10 @@ class LineTestCase(_BillingTestCase):
         product_line = ProductLine.objects.create(user=self.user, related_document=invoice,
                                                   on_the_fly_item='Flyyyyy',
                                                  )
-        # self.assertPOST404('/creme_core/entity/delete_related/%s' % product_line.entity_type_id,
         self.assertPOST404(reverse('creme_core__delete_related_to_entity', args=(product_line.entity_type_id,)),
                            data={'id': product_line.id},
                           )
-        # self.assertPOST200('/creme_core/entity/delete/%s' % product_line.id, data={}, follow=True)
         self.assertPOST200(product_line.get_delete_absolute_url(), follow=True)
-        # self.assertFalse(self.refresh(invoice).product_lines)
         self.assertFalse(self.refresh(invoice).get_lines(ProductLine))
         self.assertFalse(ProductLine.objects.exists())
 
@@ -164,7 +152,6 @@ class LineTestCase(_BillingTestCase):
         invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
         url = reverse('billing__create_service_lines', args=(invoice.id,))
         self.assertGET200(url)
-        # self.assertFalse(invoice.service_lines)
         self.assertFalse(invoice.get_lines(Service))
 
         service1 = self.create_service()
@@ -180,7 +167,6 @@ class LineTestCase(_BillingTestCase):
         self.assertNoFormError(response)
 
         invoice = self.refresh(invoice)  # Refresh lines cache
-        # self.assertEqual(2, len(invoice.service_lines))
         lines = invoice.get_lines(ServiceLine)
         self.assertEqual(2, len(lines))
 
@@ -325,20 +311,17 @@ class LineTestCase(_BillingTestCase):
 
         invoice.save()  # Updates totals
 
-        # self.assertEqual(2, len(invoice.product_lines))
         self.assertEqual(2, len(invoice.get_lines(ProductLine)))
         expected_total = Decimal('30')
         self.assertEqual(expected_total, invoice.total_no_vat)
         self.assertEqual(expected_total, invoice.total_vat)
 
-        # self.assertPOST200('/creme_core/entity/delete/multi', follow=True,
         self.assertPOST200(reverse('creme_core__delete_entities'), follow=True,
                            data={'ids': '%s,%s' % ids}
                           )
         self.assertFalse(ProductLine.objects.filter(pk__in=ids))
 
         invoice = self.refresh(invoice)
-        # self.assertFalse(invoice.product_lines)
         self.assertFalse(invoice.get_lines(ProductLine))
 
         expected_total = Decimal('0')
@@ -369,7 +352,6 @@ class LineTestCase(_BillingTestCase):
                                ).id for price in ('10', '20')
                    )
 
-        # self.assertPOST403('/creme_core/entity/delete/multi', follow=True,
         self.assertPOST403(reverse('creme_core__delete_entities'), follow=True,
                            data={'ids': '%s,%s' % ids}
                           )
@@ -379,7 +361,6 @@ class LineTestCase(_BillingTestCase):
         self.login()
 
         vat = Vat.objects.create(value=Decimal('5.0'), is_default=True, is_custom=True)
-        # self.assertPOST200('/creme_config/creme_core/vat_value/delete', data={'id': vat.pk})
         self.assertPOST200(self.DEL_VAT_URL, data={'id': vat.pk})
         self.assertDoesNotExist(vat)
 
@@ -393,7 +374,6 @@ class LineTestCase(_BillingTestCase):
                                           on_the_fly_item='Flyyyyy', vat_value=vat,
                                          )
 
-        # self.assertPOST404('/creme_config/creme_core/vat_value/delete', data={'id': vat.pk})
         self.assertPOST404(self.DEL_VAT_URL, data={'id': vat.pk})
         self.assertStillExists(vat)
 
@@ -410,7 +390,6 @@ class LineTestCase(_BillingTestCase):
         self.assertGET404(self._build_import_url(ProductLine))
 
     def _build_add2catalog_url(self, line):
-        # return '/billing/line/%s/add_to_catalog' % line.id
         return reverse('billing__add_to_catalog', args=(line.id,))
 
     def _build_dict_cat_subcat(self, cat, subcat):

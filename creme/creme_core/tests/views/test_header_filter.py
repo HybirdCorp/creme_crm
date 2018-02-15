@@ -16,20 +16,17 @@ try:
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.models import (HeaderFilter, FieldsConfig,
-            RelationType, CustomField)  # CremeEntity
+            RelationType, CustomField)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
 class HeaderFilterViewsTestCase(ViewsTestCase):
-    # DELETE_URL = '/creme_core/header_filter/delete'
     DELETE_URL = reverse('creme_core__delete_hfilter')
 
     @classmethod
     def setUpClass(cls):
-        # ViewsTestCase.setUpClass()
         super(HeaderFilterViewsTestCase, cls).setUpClass()
-        # cls.populate('creme_core')
         cls.contact_ct = ContentType.objects.get_for_model(FakeContact)
 
         cls._hf_backup = list(HeaderFilter.objects.all())
@@ -37,7 +34,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        # ViewsTestCase.tearDownClass()
         super(HeaderFilterViewsTestCase, cls).tearDownClass()
         HeaderFilter.objects.all().delete()
         HeaderFilter.objects.bulk_create(cls._hf_backup)
@@ -50,22 +46,18 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
             self.assertEqual(cell1.value, cell2.value)
 
     def _build_add_url(self, ctype):
-        # return '/creme_core/header_filter/add/%s' % ctype.id
         return reverse('creme_core__create_hfilter', args=(ctype.id,))
 
     def _build_edit_url(self, hf):
-        # return '/creme_core/header_filter/edit/%s' % hf.id
         return reverse('creme_core__edit_hfilter', args=(hf.id,))
 
     def _build_get4ctype_url(self, ctype, use_GET=False):
-        # return '/creme_core/header_filter/get_for_ctype/%s' % ctype.id
         return reverse('creme_core__hfilters', args=(ctype.id,)) if not use_GET else \
                reverse('creme_core__hfilters') + '?ct_id=%s' % ctype.id
 
     def test_create01(self):
         self.login()
 
-        # ct = ContentType.objects.get_for_model(CremeEntity)
         ct = ContentType.objects.get_for_model(FakeOrganisation)
         self.assertFalse(HeaderFilter.objects.filter(entity_type=ct))
 
@@ -97,7 +89,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertEqual('created__range', cell.filter_string)
         self.assertIs(cell.is_hidden, False)
 
-        # self.assertRedirects(response, '/')
         self.assertRedirects(response, FakeOrganisation.get_lv_absolute_url())
 
     def test_create02(self):

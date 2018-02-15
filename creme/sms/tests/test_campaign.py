@@ -5,7 +5,6 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
 
-    # from ..models import SMSCampaign
     from .base import skipIfCustomSMSCampaign, SMSCampaign
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -19,7 +18,6 @@ class SMSCampaignTestCase(CremeTestCase):
     def test_createview(self):
         user = self.login()
 
-#        url = '/sms/campaign/add'
         url = reverse('sms__create_campaign')
         self.assertGET200(url)
 

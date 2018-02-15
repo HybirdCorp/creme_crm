@@ -70,12 +70,10 @@ fields_config_patterns = [
 custom_fields_patterns = [
     url(r'^portal[/]?$',                 custom_fields.portal,       name='creme_config__custom_fields'),
     url(r'^ct/add[/]?$',                 custom_fields.add_ct,       name='creme_config__create_first_ctype_custom_field'),
-    # url(r'^ct/(?P<ct_id>\d+)$',      custom_fields.view,         name='creme_config__ctype_custom_fields'),
     url(r'^ct/delete[/]?$',              custom_fields.delete_ct,    name='creme_config__delete_ctype_custom_fields'),
     url(r'^add/(?P<ct_id>\d+)[/]?$',     custom_fields.add,          name='creme_config__create_custom_field'),
     url(r'^edit/(?P<field_id>\d+)[/]?$', custom_fields.edit,         name='creme_config__edit_custom_field'),
     url(r'^delete[/]?$',                 custom_fields.delete,       name='creme_config__delete_custom_field'),
-    # url(r'^(?P<ct_id>\d+)/reload/$', custom_fields.reload_block, name='creme_config__reload_custom_field_block'),
 ]
 
 # "blocks_patterns" is DEPRECATED

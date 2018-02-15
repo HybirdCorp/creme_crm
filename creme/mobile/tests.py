@@ -42,22 +42,15 @@ Activity = get_activity_model()
 
 
 class MobileTestCase(CremeTestCase):
-    # PORTAL_URL            = '/mobile/'
     PORTAL_URL            = reverse('mobile__portal')
-    # PERSONS_PORTAL_URL    = '/mobile/persons'
     PERSONS_PORTAL_URL    = reverse('mobile__directory')
-    # SEARCH_PERSON_URL     = '/mobile/person/search'
     SEARCH_PERSON_URL     = reverse('mobile__search_person')
-    # ACTIVITIES_PORTAL_URL = '/mobile/activities'
     ACTIVITIES_PORTAL_URL = reverse('mobile__activities')
-    # PCALL_PANEL_URL       = '/mobile/phone_call/panel'
     PCALL_PANEL_URL       = reverse('mobile__pcall_panel')
 
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
         super(MobileTestCase, cls).setUpClass()
-        # cls.populate('persons', 'activities')  # 'mobile'
 
         cls.CREATE_CONTACT_URL = reverse('mobile__create_contact')
         cls.CREATE_ORGA_URL    = reverse('mobile__create_organisation')
@@ -67,21 +60,17 @@ class MobileTestCase(CremeTestCase):
         cls.WF_LASTED5MIN_URL = reverse('mobile__pcall_wf_lasted_5_minutes')
         cls.WF_JUSTDONE_URL   = reverse('mobile__pcall_wf_just_done')
 
-    # def login(self, is_superuser=True, other_is_owner=False):
     def login(self, is_superuser=True, is_staff=False, allowed_apps=('activities', 'persons'), *args, **kwargs):
         return super(MobileTestCase, self).login(is_superuser=is_superuser,
                                                  is_staff=is_staff,
-                                                 # allowed_apps=['activities', 'persons'],
                                                  allowed_apps=allowed_apps,
                                                  *args, **kwargs
-                                                )  # 'creme_core'
+                                                )
 
     def _build_start_url(self, activity):
-        # return '/mobile/activity/%s/start' % activity.id
         return reverse('mobile__start_activity', args=(activity.id,))
 
     def _build_stop_url(self, activity):
-        # return '/mobile/activity/%s/stop' % activity.id
         return reverse('mobile__stop_activity', args=(activity.id,))
 
     def _create_floating(self, title, participant, status_id=None):
@@ -187,7 +176,6 @@ class MobileTestCase(CremeTestCase):
 
     def test_logout(self):
         self.login()
-        # response = self.assertGET200('/mobile/logout/', follow=True)
         response = self.assertGET200(reverse('mobile__logout'), follow=True)
         self.assertRedirects(response, settings.LOGIN_URL)
 
@@ -499,7 +487,6 @@ class MobileTestCase(CremeTestCase):
         meeting = self._create_meeting('Meeting#1', participant=self.user.linked_contact, 
                                        start=now() + timedelta(minutes=30),
                                       )
-        # old_end = meeting.end
         old_end = self.refresh(meeting).end  # NB: MySQL does not record milliseconds...
 
         self.assertPOST200(self._build_start_url(meeting), follow=True)
@@ -794,8 +781,6 @@ class MobileTestCase(CremeTestCase):
 
         pcall = self._create_pcall('Phone call#1', participant=contact)
 
-        # url_fmt = '/mobile/phone_call/%s/done'
-        # url = url_fmt % pcall.id
         url = reverse('mobile__pcall_wf_done', args=(pcall.id,))
         self.assertGET404(url)
 
@@ -806,7 +791,6 @@ class MobileTestCase(CremeTestCase):
 
         # ------
         meeting = self._create_meeting('Meeting#1', participant=contact)
-        # self.assertPOST404(url_fmt % meeting.id)
         self.assertPOST404(reverse('mobile__pcall_wf_done', args=(meeting.id,)))
 
     @skipIfCustomActivity
@@ -1257,7 +1241,6 @@ class MobileTestCase(CremeTestCase):
                                     )
         fav = MobileFavorite.objects.create(entity=may, user=user)
 
-        # url = '/mobile/unmark_favorite/%s' % may.id
         url = reverse('mobile__unmark_favorite', args=(may.id,))
         self.assertGET404(url)
 

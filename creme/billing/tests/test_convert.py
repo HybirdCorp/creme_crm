@@ -30,13 +30,7 @@ except Exception as e:
 
 @skipIfCustomOrganisation
 class ConvertTestCase(_BillingTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     _BillingTestCase.setUpClass()
-    #     cls.populate('creme_core', 'persons', 'billing')
-
     def _convert(self, status_code, src, dest_type):
-        # self.assertPOST(status_code, '/billing/%s/convert/' % src.id,
         self.assertPOST(status_code, reverse('billing__convert', args=(src.id,)),
                         data={'type': dest_type}, follow=True
                        )
@@ -145,7 +139,6 @@ class ConvertTestCase(_BillingTestCase):
     def test_convert03(self):
         "Credentials (creation) errors"
         self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
-        # Invoice = get_invoice_model()
 
         get_ct = ContentType.objects.get_for_model
         self.role.creatable_ctypes = [get_ct(Quote)]  # Not get_ct(Invoice)
@@ -330,7 +323,7 @@ class ConvertTestCase(_BillingTestCase):
         self.assertEqual(1, Relation.objects.filter(type=rtype5).count())
         self.assertEqual(1, Relation.objects.filter(type=rtype6).count())
 
-        #Contact2 < ---- > Orga
+        # Contact2 < ---- > Orga
         self._convert(200, quote, 'invoice')
         self.assertEqual(2, Relation.objects.filter(type=rtype1).count())
         self.assertEqual(2, Relation.objects.filter(type=rtype2).count())

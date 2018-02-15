@@ -10,7 +10,5 @@ except Exception as e:
 
 class PortalTestCase(CremeTestCase):
     def test_portal(self):
-        # self.populate('creme_core')
         self.login()
-        # self.assertGET200('/creme_config/')
         self.assertGET200(reverse('creme_config__portal'))

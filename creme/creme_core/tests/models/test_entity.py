@@ -22,18 +22,11 @@ try:
             RelationType, Relation, Language, CustomField, CustomFieldEnumValue,
             CustomFieldInteger, CustomFieldFloat, CustomFieldBoolean, CustomFieldString,
             CustomFieldDateTime, CustomFieldEnum, CustomFieldMultiEnum)
-
-
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
 class EntityTestCase(CremeTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('creme_core')
-
     def setUp(self):
         self.login()
 

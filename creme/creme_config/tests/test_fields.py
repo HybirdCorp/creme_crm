@@ -9,22 +9,13 @@ try:
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import FakePosition
 
-#    from creme.persons.models import Position
-
     from ..forms.fields import CreatorModelChoiceField, CreatorModelMultipleChoiceField
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
 class CreatorModelChoiceFieldTestCase(CremeTestCase):
-    # ADD_URL = '/creme_config/creme_core/fake_position/add_widget/'
     ADD_URL = reverse('creme_config__create_instance_from_widget', args=('creme_core', 'fake_position'))
-
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     # cls.populate('creme_core', 'persons')
-    #     cls.populate('creme_core')
 
     def _create_superuser(self):
         return get_user_model().objects.create_superuser(username='averagejoe',
@@ -36,8 +27,6 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
     def test_actions_not_admin(self):
         with self.assertNumQueries(0):
             field = CreatorModelChoiceField(queryset=FakePosition.objects.all())
-
-#        self.assertFalse(hasattr(field.widget, 'actions'))
 
         role = UserRole(name='CEO')
         role.allowed_apps = ['persons']  # Not admin
@@ -51,15 +40,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         user.role = role
 
         field.user = user
-#        self.assertEqual([('create', _(u'Add'), False,
-#                           {'title': _(u"Can't add"),
-# #                            'url':   '/creme_config/persons/position/add_widget/',
-#                            'url':   self.ADD_URL,
-#                           }
-#                          )
-#                         ],
-#                         field.widget.actions
-#                        )
+
         render_str = field.widget.render('position', None)
         self.assertIn(_(u'Cannot create'), render_str)
 
@@ -70,10 +51,8 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
 
     def test_actions_admin(self):
         field = CreatorModelChoiceField(queryset=FakePosition.objects.all())
-#        self.assertFalse(hasattr(field.widget, 'actions'))
 
         role = UserRole(name='CEO')
-#        role.admin_4_apps = ['persons']
         role.admin_4_apps = ['creme_core']
         role.save()
 
@@ -81,22 +60,12 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         admin.role = role
 
         field.user = admin
-#        self.assertEqual([('create', _(u'Add'), True,
-#                           {'title': _(u'Add'),
-##                            'url':   '/creme_config/persons/position/add_widget/',
-#                            'url':   self.ADD_URL,
-#                           },
-#                          )
-#                         ],
-#                         field.widget.actions
-#                        )
 
         render_str = field.widget.render('position', None)
         self.assertIn(self.ADD_URL, render_str)
         self.assertIn(_(u'Create'), render_str)
 
         field.user = None
-        # self.assertFalse(hasattr(field.widget, 'actions'))
         render_str = field.widget.render('position', None)
         self.assertNotIn(self.ADD_URL, render_str)
 
@@ -120,7 +89,6 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         positions.extend((p.pk, unicode(p)) for p in FakePosition.objects.all())
 
         with self.assertNoException():
-#            options = field.widget.delegate._get_options()
             options = list(field.choices)
 
         self.assertEqual(positions, options)
@@ -148,21 +116,11 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
 
     def test_filtered_queryset02(self):
         "With action"
-#        pk = Position.objects.first().pk
         first = FakePosition.objects.all()[0]
         second = FakePosition.objects.exclude(title=first.title)[0]
-#        field = CreatorModelChoiceField(queryset=Position.objects.filter(pk=pk))
         field = CreatorModelChoiceField(queryset=FakePosition.objects.filter(pk=first.pk))
         field.user = self._create_superuser()
 
-#        with self.assertNoException():
-#            options = field.widget.delegate._get_options()
-#
-#        self.assertEqual([(u'', u'---------'),
-#                          (pk, Position.objects.get(pk=pk).title),
-#                         ],
-#                         options
-#                        )
         render_str = field.widget.render('position', None)
         self.assertIn(u'---------', render_str)
         self.assertIn(first.title, render_str)
@@ -189,23 +147,17 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         field.user = self._create_superuser()
 
         positions = [(u'', u'---------')]
-#        self.assertEqual([(u'', u'---------')], field.widget.delegate._get_options())
         self.assertEqual(positions, list(field.widget.choices))
 
         field.queryset = FakePosition.objects.all()
-#        self.assertEqual(positions, field.widget.delegate._get_options())
         positions.extend((p.pk, unicode(p)) for p in FakePosition.objects.all())
         self.assertEqual(positions, list(field.widget.choices))
 
     def test_create_action_url(self):
         field = CreatorModelChoiceField(FakePosition.objects.all())
 
-#        self.assertIsNone(field.create_action_url)
         self.assertEqual('', field.create_action_url)
         self.assertEqual(('', False), field.creation_url_n_allowed)
-#        self.assertEqual('/creme_config/persons/position/add_widget/',
-#                         field._build_create_action_url('persons', 'position')
-#                        )
 
         field.create_action_url = url = self.ADD_URL
         self.assertEqual((url, False), field.creation_url_n_allowed)
@@ -356,12 +308,8 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         user = self.login()
         field = CreatorModelMultipleChoiceField(FakePosition.objects.all())
 
-#        self.assertIsNone(field.create_action_url)
         self.assertEqual('', field.create_action_url)
         self.assertEqual(('', False), field.creation_url_n_allowed)
-#        self.assertEqual('/creme_config/persons/position/add_widget/',
-#                         field._build_create_action_url('persons', 'position')
-#                        )
 
         url = '/other_url'
         field.create_action_url = url

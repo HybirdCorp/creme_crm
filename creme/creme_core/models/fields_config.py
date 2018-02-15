@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2017  Hybird
+#    Copyright (C) 2015-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -134,9 +134,6 @@ class FieldsConfig(CremeModel):
 
     @classmethod
     def create(cls, model, descriptions=()):  # TODO: in a manager ?
-        # from ..gui.fields_config import fields_config_registry
-
-        # if not fields_config_registry.is_model_valid(model):
         if not cls.is_model_valid(model):
             raise cls.InvalidModel("This model cannot have a FieldsConfig")
 
@@ -226,21 +223,13 @@ class FieldsConfig(CremeModel):
         return cls.get_4_models((model,))[model]
 
     # TODO: in a manager ?
-    # @staticmethod
-    # def get_4_models(models):
     @classmethod
     def get_4_models(cls, models):
-        # from ..gui.fields_config import fields_config_registry
-
         result = {}
         get_ct = ContentType.objects.get_for_model
         cache_key_fmt = 'creme_core-fields_config-%s'
         not_cached_ctypes = []
 
-        # cache = get_global_info('per_request_cache')
-        # if cache is None:
-        #     cache = {}
-        #     set_global_info(per_request_cache=cache)
         cache = get_per_request_cache()
 
         # Step 1: fill 'result' with cached configs

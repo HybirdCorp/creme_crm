@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -244,7 +244,6 @@ def inner_edit_field(request, ct_id, id, field_name):
 
 
 @login_required
-# def bulk_update_field(request, ct_id, field_name):
 def bulk_update_field(request, ct_id, field_name=None):
     user = request.user
     model = get_ct_or_404(ct_id).model_class()
@@ -279,7 +278,6 @@ def bulk_update_field(request, ct_id, field_name=None):
             invalid_count = len(form.bulk_invalid_entities)
             forbidden_count = initial_count - success_count - invalid_count
 
-            # context = {'model': meta.verbose_name_plural if success_count > 1 else meta.verbose_name,
             context = {'model': get_model_verbose_name(model, success_count),
                        'success': success_count,
                        'initial': initial_count,
@@ -348,7 +346,6 @@ def bulk_edit_field(request, ct_id, id, field_name):
     user = request.user
     model = get_ct_or_404(ct_id).model_class()
     entities = get_list_or_404(model, pk__in=id.split(','))
-    # edit_url = '/creme_core/entity/edit/bulk/%(ct)s/%(entities)s/field/%(field)s'
     viewname = 'creme_core__bulk_edit_field_legacy'
 
     filtered = [e for e in entities if _bulk_has_perm(e, user)]
@@ -364,7 +361,6 @@ def bulk_edit_field(request, ct_id, id, field_name):
 
         if request.method == 'POST':
             form = form_class(entities=filtered, user=user, data=request.POST, is_bulk=True)
-            # form.bulk_url = edit_url
             form.bulk_viewname = viewname
 
             if form.is_valid():
@@ -376,7 +372,6 @@ def bulk_edit_field(request, ct_id, id, field_name):
                              )
         else:
             form = form_class(entities=filtered, user=user, is_bulk=True)
-            # form.bulk_url = edit_url
             form.bulk_viewname = viewname
 
     except (FieldDoesNotExist, FieldNotAllowed):
@@ -392,7 +387,6 @@ def bulk_edit_field(request, ct_id, id, field_name):
 
 
 @login_required
-# def select_entity_for_merge(request, entity1_id):
 def select_entity_for_merge(request, entity1_id=None):
     if entity1_id is None:
         entity1_id = get_from_GET_or_404(request.GET, 'id1', cast=int)
@@ -412,9 +406,6 @@ def select_entity_for_merge(request, entity1_id=None):
     user.has_perm_to_view_or_die(entity1); user.has_perm_to_change_or_die(entity1)
 
     # TODO: filter viewable & deletable entities + (manage swapping ?)
-    # return listview.list_view_popup_from_widget(request, entity1.entity_type_id, o2m=True,
-    #                                             extra_q=~Q(pk=entity1_id)
-    #                                            )
     return listview.list_view_popup(request,
                                     model=entity1.entity_type.model_class(),  # NB: avoid retrieving real entity...
                                     mode=listview.MODE_SINGLE_SELECTION,
@@ -423,7 +414,6 @@ def select_entity_for_merge(request, entity1_id=None):
 
 
 @login_required
-# def merge(request, entity1_id, entity2_id):
 def merge(request, entity1_id=None, entity2_id=None):
     GET = request.GET
 
@@ -488,7 +478,6 @@ def merge(request, entity1_id=None, entity2_id=None):
         except MergeEntitiesBaseForm.CanNotMergeError as e:
             raise ConflictError(e)
 
-        # cancel_url = request.META.get('HTTP_REFERER')
         cancel_url = build_cancel_path(request)
 
     return render(request, 'creme_core/merge.html',
@@ -530,10 +519,6 @@ def empty_trash(request):
         progress = False
         errors = []  # TODO: LimitedList
         # NB: we do not use delete() method of queryset in order to send signals
-        # entities = EntityCredentials.filter(user,
-        #                                     CremeEntity.objects.filter(is_deleted=True),
-        #                                     EntityCredentials.DELETE,
-        #                                    )
         entities = EntityCredentials.filter_entities(
                         user,
                         CremeEntity.objects.filter(is_deleted=True),
@@ -543,14 +528,11 @@ def empty_trash(request):
                                   key='id', per_page=1024,
                                  )
 
-        # for entities_slice in iter_as_slices(entities, 1024):
         for entities_page in paginator.pages():
             entities = entities_page.object_list
 
-            # CremeEntity.populate_real_entities(entities_slice)
             CremeEntity.populate_real_entities(entities)
 
-            # for entity in entities_slice:
             for entity in entities:
                 entity = entity.get_real_entity()
 

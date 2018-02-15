@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2017  Hybird
+#    Copyright (C) 2014-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,14 +26,13 @@ import logging
 
 from django.contrib.auth import get_user_model
 from django.db.models.query_utils import Q
-from django.forms import Field, ModelMultipleChoiceField, ValidationError  # BooleanField, ModelChoiceField
+from django.forms import Field, ModelMultipleChoiceField, ValidationError
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _, ugettext_lazy
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.forms.mass_import import ImportForm4CremeEntity, ExtractorWidget
 from creme.creme_core.forms.validators import validate_linkable_entities
-# from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.utils.dates import make_aware_dt
 
@@ -572,19 +571,11 @@ def get_massimport_form_builder(header_dict, choices):
                                           types=ActivityType.objects.exclude(pk=constants.ACTIVITYTYPE_INDISPO),
                                          )
 
-        # my_participation = BooleanField(required=False, initial=True,
-        #                                 label=_(u'Do I participate to this activity?'),
-        #                                )
-        # my_calendar      = ModelChoiceField(queryset=Calendar.objects.none(), required=False,
-        #                                     label=_(u'On which of my calendar this activity will appears?'),
-        #                                     empty_label=None,
-        #                                    )
         my_participation    = UserParticipationField(label=_(u'Do I participate to this activity?'), empty_label=None)
 
         participating_users = ModelMultipleChoiceField(label=_(u'Other participating users'),
                                                        queryset=get_user_model().objects.filter(is_staff=False),
                                                        required=False,
-                                                       # widget=UnorderedMultipleChoiceWidget,
                                                       )
         participants        = ParticipantsExtractorField(choices, label=_(u'Participants'), required=False)
 
@@ -602,22 +593,9 @@ def get_massimport_form_builder(header_dict, choices):
 
         def __init__(self, *args, **kwargs):
             super(ActivityMassImportForm, self).__init__(*args, **kwargs)
-            # user = self.user
-            # fields = self.fields
-            #
-            # my_calendar_field = fields['my_calendar']
-            # my_calendar_field.queryset = Calendar.objects.filter(user=user)
-            # my_calendar_field.initial  = Calendar.get_user_default_calendar(user)
-            #
-            # fields['my_participation'].widget.attrs['onclick'] = \
-            #     "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}" \
-            #     "else{$('#id_my_calendar').attr('disabled', 'disabled');}"
             self.fields['my_participation'].initial = (True, Calendar.get_user_default_calendar(self.user))
 
             self.user_participants = []
-
-        # def clean_my_participation(self):
-        #     return self.cleaned_data.get('my_participation', False)
 
         def clean_participating_users(self):
             users = self.cleaned_data['participating_users']
@@ -625,15 +603,6 @@ def get_massimport_form_builder(header_dict, choices):
                 validate_linkable_entities(Contact.objects.filter(is_user__in=users), self.user)
             )
             return users
-
-        # def clean(self):
-        #     cdata = super(ActivityMassImportForm, self).clean()
-        #
-        #     if not self._errors:
-        #         if cdata['my_participation'] and not cdata.get('my_calendar'):
-        #             self.add_error('my_calendar', ugettext_lazy(u'If you participate, you have to choose one of your calendars.'))
-        #
-        #     return cdata
 
         def _pre_instance_save(self, instance, line):
             instance.type, instance.sub_type = self.cleaned_data['type_selector']
@@ -697,9 +666,6 @@ def get_massimport_form_builder(header_dict, choices):
 
                 instance.calendars.add(calendar)
 
-            # if cdata['my_participation']:
-            #     add_participant(user.linked_contact)
-            #     instance.calendars.add(cdata['my_calendar'])
             i_participate, my_calendar = cdata['my_participation']
             if i_participate:
                 add_participant(user.linked_contact)

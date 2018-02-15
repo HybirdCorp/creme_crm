@@ -16,15 +16,8 @@ except Exception as e:
 
 
 class CommercialTestCase(CremeTestCase):
-    # ADD_SALESMAN_URL = '/commercial/salesman/add'
     ADD_SALESMAN_URL = reverse('commercial__create_salesman')
-    # SALESMEN_URL = '/commercial/salesmen'
     SALESMEN_URL = reverse('commercial__list_salesmen')
-
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('commercial')
 
     def test_populate(self):
         self.get_relationtype_or_fail(REL_SUB_SOLD_BY)
@@ -105,5 +98,4 @@ class CommercialTestCase(CremeTestCase):
 
     def test_portal(self):
         self.login()
-        # self.assertGET200('/commercial/')
         self.assertGET200(reverse('commercial__portal'))

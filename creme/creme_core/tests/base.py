@@ -63,13 +63,9 @@ class _CremeTestCase(object):
             makedirs(documents_dir, 0755)
             cls.existing_doc_files = set()
 
-        # warnings.filterwarnings('error', r"DateTimeField received a naive datetime",
         warnings.filterwarnings('error', r"(.)* received a naive datetime (.)*",
                                 RuntimeWarning, r'django\.db\.models\.fields',
                                )
-
-        # from .fake_apps import ready
-        # ready()
 
     def tearDown(self):
         if getattr(self, 'clean_files_in_teardown', False):
@@ -126,12 +122,6 @@ class _CremeTestCase(object):
                      )
 
         PopulateCommand().execute(*args, verbosity=0)
-
-    # @staticmethod
-    # def autodiscover():
-    #     warnings.warn("_CremeTestCase.autodiscover() method is deprecated.",
-    #                   DeprecationWarning
-    #                  )
 
     def assertCountOccurrences(self, member, container, count, msg=None):
         """Like self.assertEqual(count, container.count(member),
@@ -248,56 +238,6 @@ class _CremeTestCase(object):
             print_traceback()
 
             raise self.failureException('An exception <%s> occured: %s' % (e.__class__.__name__, e))
-
-    # def assertFormSetError(self, response, form, index, fieldname, expected_errors=None):
-    #     """Warning : this method has not the same behaviour than assertFormError()
-    #     It checks both error and no error tests.
-    #     """
-    #     warnings.warn("_CremeTestCase.assertFormSetError() method is deprecated; use assertFormsetError() instead",
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     self.assertIn(form, response.context)
-    #     fieldname = fieldname or '__all__'
-    #
-    #     self.assertIsInstance(response.context[form], BaseFormSet, "context field '%s' is not a FormSet")
-    #     self.assertGreaterEqual(index, 0)
-    #
-    #     all_errors = response.context[form].errors
-    #
-    #     if not all_errors:
-    #         if expected_errors:
-    #             self.fail("The field '%s' on formset '%s' number %d contains no errors, expected:%s" % (
-    #                             fieldname, form, index, expected_errors
-    #                         )
-    #                      )
-    #         return
-    #
-    #     self.assertLess(index, len(all_errors))
-    #
-    #     errors = all_errors[index]
-    #     has_field_error = fieldname in errors.keys()
-    #
-    #     if not has_field_error and not expected_errors:
-    #         return
-    #
-    #     if not has_field_error and expected_errors:
-    #         self.fail("The field '%s' on formset '%s' number %d contains no errors, expected:%s" % (
-    #                         fieldname, form, index, expected_errors
-    #                     )
-    #                  )
-    #
-    #     if has_field_error and not expected_errors:
-    #         self.fail("The field '%s' on formset '%s' number %d contains errors:%s, expected none" % (
-    #                         fieldname, form, index, errors[fieldname]
-    #                     )
-    #                  )
-    #
-    #     self.assertItemsEqual(expected_errors, errors[fieldname],
-    #                           "The field '%s' on formset '%s' number %d errors are:%s, expected:%s" % (
-    #                                 fieldname, form, index, errors[fieldname], expected_errors
-    #                             )
-    #                          )
 
     # TODO: add an argument 'field' like assertNoFormsetError()
     def assertNoFormError(self, response, status=200, form='form'):
@@ -451,21 +391,11 @@ class _CremeTestCase(object):
             raise self.failureException('XML are not equal\n%s' % msg)
 
     def build_merge_url(self, entity1, entity2):
-        # return '/creme_core/entity/merge/%s,%s' % (entity1.id, entity2.id)
         return reverse('creme_core__merge_entities') + '?id1=%s&id2=%s' % (entity1.id, entity2.id)
 
     def create_datetime(self, *args, **kwargs):
         tz = utc if kwargs.pop('utc', False) else get_current_timezone()
         return make_aware(datetime(*args, **kwargs), tz)
-
-    # def create_image(self, ident=1, user=None):
-    #     warnings.warn("_CremeTestCase.create_image() method is deprecated; "
-    #                   "use creme.media_managers.tests.create_image() instead",
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     from creme.media_managers.tests import create_image
-    #     return create_image(user or self.user, ident)
 
     def get_object_or_fail(self, model, **kwargs):
         try:
@@ -524,11 +454,6 @@ class _CremeTestCase(object):
 
     @staticmethod
     def build_inneredit_url(entity, fieldname):
-        # return '/creme_core/entity/edit/inner/%d/%d/field/%s' % (
-        #             ContentType.objects.get_for_model(entity).pk,
-        #             entity.pk,
-        #             fieldname,
-        #         )
         return reverse('creme_core__inner_edition',
                        args=(ContentType.objects.get_for_model(entity).pk,
                              entity.pk,
@@ -538,15 +463,6 @@ class _CremeTestCase(object):
 
     @staticmethod
     def build_bulkedit_url(entities, fieldname=None):
-        # url = '/creme_core/entity/edit/bulk/%d/%s' % (
-        #             ContentType.objects.get_for_model(entities[0]).pk,
-        #             ','.join(str(e.pk) for e in entities),
-        #         )
-        #
-        # if fieldname:
-        #     url += '/field/%s' % fieldname
-        #
-        # return url
         args = [ContentType.objects.get_for_model(entities[0]).pk,
                 ','.join(str(e.pk) for e in entities),
                ]
@@ -557,13 +473,6 @@ class _CremeTestCase(object):
 
     @staticmethod
     def build_bulkupdate_url(model, fieldname=None):
-        # ct = ContentType.objects.get_for_model(model)
-        # url = '/creme_core/entity/update/bulk/%s' % ct.id
-        #
-        # if fieldname:
-        #     url += '/field/%s' % fieldname
-        #
-        # return url
         args = [ContentType.objects.get_for_model(model).id]
         if fieldname:
             args.append(fieldname)
@@ -571,12 +480,9 @@ class _CremeTestCase(object):
         return reverse('creme_core__bulk_update', args=args)
 
 
-# class CremeTestCase(_CremeTestCase, TestCase):
 class CremeTestCase(TestCase, _CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # TestCase.setUpClass()
-        # _CremeTestCase.setUpClass()
         super(CremeTestCase, cls).setUpClass()
         _CremeTestCase.setUpClass()
 
@@ -585,12 +491,9 @@ class CremeTestCase(TestCase, _CremeTestCase):
         _CremeTestCase.tearDown(self)
 
 
-# class CremeTransactionTestCase(_CremeTestCase, TransactionTestCase):
 class CremeTransactionTestCase(TransactionTestCase, _CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # TransactionTestCase.setUpClass()
-        # _CremeTestCase.setUpClass()
         super(CremeTransactionTestCase, cls).setUpClass()
         _CremeTestCase.setUpClass()
 

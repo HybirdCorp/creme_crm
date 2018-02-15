@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,6 @@ from django.http import HttpResponse, Http404
 from django.utils.translation import ugettext as _
 
 from ..auth.decorators import login_required
-# from ..utils.secure_filename import secure_filename
 from ..utils.file_handling import FileCreator
 
 
@@ -38,7 +37,6 @@ def handle_uploaded_file(f, path=None, name=None, max_length=None):
     """Handle an uploaded file by a form and return the complete file's path
     path has to be iterable
     """
-    # def get_name(file, exists=False):
     def get_name(file):
         if hasattr(file, 'name'):
             name = file.name
@@ -46,9 +44,6 @@ def handle_uploaded_file(f, path=None, name=None, max_length=None):
             name = file._name
         else:
             name = 'file_%08x' % randint(0, MAXINT)
-
-        # if exists or not name:
-        #     name = "%08x%s" % (randint(0, MAXINT), name)
 
         if name.rpartition('.')[2] not in settings.ALLOWED_EXTENSIONS:
             name = '%s.txt' % name
@@ -66,9 +61,6 @@ def handle_uploaded_file(f, path=None, name=None, max_length=None):
         dir_path = join(settings.MEDIA_ROOT, *path)
         dir_path_length += len('/'.join(relative_dir_path))  # The storage uses '/' even on Windows.
 
-    # if not os.path.exists(dir_path):
-    #     os.makedirs(dir_path, 0755)
-
     if not name:
         name = get_name(f)
 
@@ -78,20 +70,12 @@ def handle_uploaded_file(f, path=None, name=None, max_length=None):
         if max_length <= 0:
             raise ValueError('The max length is too small.')
 
-    # name = secure_filename(name)
-    # final_path = join(path, name)
-    #
-    # while os.path.exists(final_path):
-    #     name = secure_filename(get_name(f, True))
-    #     final_path = join(path, name)
     final_path = FileCreator(dir_path=dir_path, name=name, max_length=max_length).create()
 
-    # with open(final_path, 'wb+', 0755) as destination:
     with open(final_path, 'wb', 0755) as destination:
         for chunk in f.chunks():
             destination.write(chunk)
 
-    # return join(relative_dir_path, name)
     return join(relative_dir_path, basename(final_path))
 
 

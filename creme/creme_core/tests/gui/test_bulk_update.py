@@ -32,18 +32,6 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.bulk_update_registry = _BulkUpdateRegistry()
         self.maxDiff = None
 
-    # def tearDown(self):
-    #     self.remove_field_attr(Contact, 'image', 'limit_choices_to')
-    #     self.remove_field_attr(Contact, 'civility', 'limit_choices_to')
-    #     self.remove_field_attr(Image, 'categories', 'limit_choices_to')
-    #     self.remove_field_attr(EmailCampaign, 'mailing_lists', 'limit_choices_to')
-
-    # def remove_field_attr(self, model, fieldname, attr):
-    #     field = model._meta.get_field(fieldname)
-    #
-    #     if hasattr(field, attr):
-    #         delattr(field, attr)
-
     def sortFields(self, fields):
         sort_key = collator.sort_key
         return sorted(fields, key=lambda f: sort_key(f.verbose_name))

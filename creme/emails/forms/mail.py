@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,7 +30,6 @@ from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.forms.base import CremeForm, CremeEntityForm, FieldBlockManager
 from creme.creme_core.forms.fields import MultiCreatorEntityField, CreatorEntityField
-# from creme.creme_core.forms.validators import validate_linkable_entities
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import Relation, FieldsConfig
 
@@ -41,7 +40,6 @@ from creme.persons import get_contact_model, get_organisation_model
 from .. import get_entityemail_model, get_emailtemplate_model
 from ..constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED, MAIL_STATUS_SENDINGERROR
 from ..creme_jobs import entity_emails_send_type
-# from ..forms.utils import validate_images_in_html
 
 
 logger = logging.getLogger(__name__)
@@ -61,8 +59,7 @@ class EntityEmailForm(CremeEntityForm):
     c_recipients = MultiCreatorEntityField(label=_(u'Contacts'),      required=False, model=Contact,      q_filter={'email__gt': ''})
     o_recipients = MultiCreatorEntityField(label=_(u'Organisations'), required=False, model=Organisation, q_filter={'email__gt': ''})
 
-    # attachments = MultiCreatorEntityField(label=_(u'Attachments'), required=False, model=Document)
-    send_me     = BooleanField(label=_(u'Send me a copy of this mail'), required=False)
+    send_me = BooleanField(label=_(u'Send me a copy of this mail'), required=False)
 
     error_messages = {
         'no_person': _(u'Select at least a Contact or an Organisation'),
@@ -116,10 +113,6 @@ class EntityEmailForm(CremeEntityForm):
             return []
 
         recipients = self.cleaned_data.get(field_name) or []
-        # user = self.user
-
-        # validate_linkable_entities(recipients, user)
-
         bad_entities = []
 
         for entity in recipients:
@@ -136,14 +129,6 @@ class EntityEmailForm(CremeEntityForm):
                 self.add_error(field_name, msg_format % entity.allowed_unicode(user))
 
         return recipients
-
-    # def clean_body_html(self):
-    #     body = self.cleaned_data['body_html']
-    #     images = validate_images_in_html(body, self.user)
-    #
-    #     logger.debug('EntityEmail will be created with images: %s', images)
-    #
-    #     return body
 
     def clean_c_recipients(self):
         return self._clean_recipients('c_recipients')

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -47,7 +47,6 @@ def edit_entity(request, object_id, model, edit_form,
         cancel_url = POST.get('cancel_url')
     else:  # GET
         form = edit_form(user=user, instance=entity)
-        # cancel_url = request.META.get('HTTP_REFERER')
         cancel_url = build_cancel_path(request)
 
     return render(request, template,

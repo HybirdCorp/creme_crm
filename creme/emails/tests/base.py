@@ -60,13 +60,7 @@ def skipIfCustomMailingList(test_func):
 
 
 class _EmailsTestCase(CremeTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('creme_core', 'emails')
-
     def _build_create_entitymail_url(self, entity):
-        # return '/emails/mail/add/%s' % entity.id
         return reverse('emails__create_email', args=(entity.id,))
 
     @skipIfCustomContact

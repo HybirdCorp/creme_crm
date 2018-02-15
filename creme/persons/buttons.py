@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -60,7 +60,6 @@ class CrmButton(Button):
         context['managed_orga'] = self.__managed_orga
         context['what'] = self.what
         context['verbose_name'] = self.verbose_name
-        # context['become_url'] = self.become_url % context['object'].id
         context['become_url'] = reverse(self.url_name, args=(context['object'].id,))
 
         return super(CrmButton, self).render(context)
@@ -71,7 +70,6 @@ class BecomeCustomerButton(CrmButton):
     verbose_name     = _(u'Transform into a customer')
     relation_type_id = constants.REL_SUB_CUSTOMER_SUPPLIER
     what = 'customer'
-    # become_url = '/persons/%s/become_customer'
     url_name = 'persons__become_customer'
 
 
@@ -80,7 +78,6 @@ class BecomeProspectButton(CrmButton):
     verbose_name     = _(u'Transform into a prospect')
     relation_type_id = constants.REL_SUB_PROSPECT
     what = 'prospect'
-    # become_url = "/persons/%s/become_prospect"
     url_name = 'persons__become_prospect'
 
 
@@ -89,7 +86,6 @@ class BecomeSuspectButton(CrmButton):
     verbose_name     = _(u'Transform into a suspect')
     relation_type_id = constants.REL_SUB_SUSPECT
     what = 'suspect'
-    # become_url = "/persons/%s/become_suspect"
     url_name = 'persons__become_suspect'
 
 
@@ -98,7 +94,6 @@ class BecomeInactiveButton(CrmButton):
     verbose_name     = _(u'Transform into an inactive customer')
     relation_type_id = constants.REL_SUB_INACTIVE
     what = 'inactive_customer'
-    # become_url = "/persons/%s/become_inactive_customer"
     url_name = 'persons__become_inactive_customer'
 
 
@@ -107,7 +102,6 @@ class BecomeSupplierButton(CrmButton):
     verbose_name     = _(u'Transform into a supplier')
     relation_type_id = constants.REL_OBJ_CUSTOMER_SUPPLIER
     what = 'supplier'
-    # become_url = "/persons/%s/become_supplier"
     url_name = 'persons__become_supplier'
 
     def get_ctypes(self):

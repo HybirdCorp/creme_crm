@@ -73,7 +73,6 @@ class Sending(CremeModel):
         items = ((self.messages.filter(status=status).count(), status_name) for status, status_name in MESSAGE_STATUS.iteritems())
         return ', '.join((u'%s %s' % (count, label[1] if count > 1 else label[0]) for count, label in items if count > 0))
 
-    # def delete(self):
     def delete(self, using=None):
         ws = SamoussaBackEnd()
         ws.connect()

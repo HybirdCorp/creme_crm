@@ -12,7 +12,7 @@ def ready():
     already_run = True
 
     from ..gui import (brick_registry, import_form_registry,
-            merge_form_registry, quickforms_registry, smart_columns_registry)  # fields_config_registry
+            merge_form_registry, quickforms_registry, smart_columns_registry)
     from ..registry import creme_registry
 
     from .fake_bricks import FakeAppPortalBrick
@@ -20,7 +20,7 @@ def ready():
     from .fake_forms import (FakeContactQuickForm, FakeOrganisationQuickForm,
             get_csv_form_builder, get_merge_form_builder)
     from .fake_models import (FakeContact, FakeOrganisation, FakeImage,
-            FakeActivity, FakeEmailCampaign, FakeMailingList, FakeInvoice, FakeInvoiceLine)  # FakeAddress
+            FakeActivity, FakeEmailCampaign, FakeMailingList, FakeInvoice, FakeInvoiceLine)
 
     from creme.creme_config.tests.fake_models import FakeConfigEntity
 
@@ -37,8 +37,6 @@ def ready():
 
     brick_registry.register(FakeAppPortalBrick)
     brick_registry.register_invalid_models(FakeInvoiceLine)  # See creme_config tests
-
-    # fields_config_registry.register(FakeAddress)
 
     reg_qform = quickforms_registry.register
     reg_qform(FakeContact,      FakeContactQuickForm)

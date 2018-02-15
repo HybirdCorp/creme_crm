@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2017  Hybird
+#    Copyright (C) 2015-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,8 +34,6 @@ class EventsConfig(CremeAppConfig):
         self.Event = get_event_model()
         super(EventsConfig, self).all_apps_ready()
 
-    # def register_creme_app(self, creme_registry):
-    #     creme_registry.register_app('events', _(u'Events'), '/events')
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Event)
@@ -59,7 +57,6 @@ class EventsConfig(CremeAppConfig):
             from creme.creme_core.auth import build_creation_perm
 
             reg_item = creme_menu.register_app('events', '/events/').register_item
-            # reg_item('/events/',                      _(u'Portal of events'), 'events')
             reg_item(reverse('events__portal'),       _(u'Portal of events'), 'events')
             reg_item(reverse('events__list_events'),  _(u'All events'),       'events')
             reg_item(reverse('events__create_event'), Event.creation_label,   build_creation_perm(Event))

@@ -28,7 +28,6 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core import forms as core_forms
 from creme.creme_core.forms.fields import MultiCreatorEntityField
-# from creme.creme_core.forms.validators import validate_linkable_entities
 from creme.creme_core.models import Relation, Vat
 
 from creme import products
@@ -63,9 +62,6 @@ class _LineMultipleAddForm(core_forms.CremeForm):
         super(_LineMultipleAddForm, self).__init__(*args, **kwargs)
         self.billing_document = entity
         self.fields['vat'].initial = Vat.get_default_vat()  # Not in field declaration because default value can change
-
-    # def clean_items(self):
-    #     return validate_linkable_entities(self.cleaned_data['items'], self.user)
 
     def save(self):
         cdata = self.cleaned_data

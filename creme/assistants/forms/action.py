@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from datetime import datetime, time
 
 from django.forms.fields import TimeField
-from django.utils.timezone import localtime #now
+from django.utils.timezone import localtime
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeModelWithUserForm
@@ -33,7 +33,6 @@ from ..models import Action
 
 # TODO: alright, we need a real date time widget that does this shit !
 class ActionForm(CremeModelWithUserForm):
-#     deadline      = CremeDateTimeField(label=_(u"Deadline"))
     deadline_time = TimeField(label=_(u'Hour'), required=False)
 
     class Meta(CremeModelWithUserForm.Meta):

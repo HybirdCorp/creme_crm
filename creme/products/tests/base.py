@@ -9,7 +9,6 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import SetCredentials
-    # from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
 
     from creme.documents import get_document_model
@@ -31,13 +30,7 @@ def skipIfCustomService(test_func):
     return skipIf(skip_service_tests, 'Custom Service model in use')(test_func)
 
 
-# class _ProductsTestCase(CremeTestCase):
 class _ProductsTestCase(_DocumentsTestCase, CSVImportBaseTestCaseMixin):
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('products')
-
     def _cat_field(self, category, sub_category):
         return '{"category": %s, "subcategory": %s}' % (category.id, sub_category.id)
 

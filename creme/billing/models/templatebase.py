@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,6 @@ from datetime import timedelta
 import logging
 import warnings
 
-# from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db.models import PositiveIntegerField
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
@@ -78,18 +77,6 @@ class AbstractTemplateBase(Base):
     @staticmethod
     def get_lv_absolute_url():
         return reverse('billing__list_templates')
-
-    # def get_generator(self):
-    #     warnings.warn('TemplateBase.get_generator() method is deprecated; '
-    #                   'use RecurrentGenerator.objects.get(template=obj) instead',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     from creme.recurrents.models import RecurrentGenerator
-    #     try:
-    #         return RecurrentGenerator.objects.get(template=self)
-    #     except ObjectDoesNotExist:
-    #         return None
 
     def get_verbose_status(self):
         vstatus = self._verbose_status_cache

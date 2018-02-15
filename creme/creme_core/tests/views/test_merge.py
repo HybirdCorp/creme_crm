@@ -24,13 +24,7 @@ except Exception as e:
 
 
 class MergeViewsTestCase(ViewsTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     ViewsTestCase.setUpClass()
-    #     cls.populate('creme_core')  # HeaderFilter for FakeContact/FakeOrganisation
-
     def _build_select_url(self, e1):
-        # return '/creme_core/entity/merge/select_other/%s' % e1.id
         return reverse('creme_core__select_entity_for_merge') + '?id1=%s' % e1.id
 
     def _oldify(self, entity, hours_delta=1):
@@ -201,7 +195,6 @@ class MergeViewsTestCase(ViewsTestCase):
                                           'email_1':      orga01.email,
                                           'email_2':      orga02.email,
                                           'email_merged': orga02.email,  # <======
-
                                          }
                                    )
         self.assertNoFormError(response)

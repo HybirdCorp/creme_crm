@@ -12,31 +12,22 @@ try:
     from creme.creme_core.tests.fake_models import (FakeContact, FakeAddress,
             FakeCivility, FakeEmailCampaign)
     from creme.creme_core.forms.widgets import Label
-    # from creme.creme_core.gui.fields_config import fields_config_registry
     from creme.creme_core.models import FieldsConfig
-    # from creme.creme_core.registry import creme_registry
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
 class FieldsConfigTestCase(CremeTestCase):
-    # ADD_CTYPE_URL = '/creme_config/fields/add/'
     ADD_CTYPE_URL = reverse('creme_config__create_fields_config_legacy')
-    # WIZARD_URL = '/creme_config/fields/wizard'
     WIZARD_URL = reverse('creme_config__create_fields_config')
 
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
         super(FieldsConfigTestCase, cls).setUpClass()
-        # cls.populate('creme_core')
 
         cls.ct = ContentType.objects.get_for_model(FakeContact)
 
-        # fields_config_registry.register(FakeAddress)
-
     def _build_edit_url(self, fconf):
-        # return '/creme_config/fields/edit/%s' % fconf.pk
         return reverse('creme_config__edit_fields_config', args=(fconf.pk,))
 
     def _create_fconf(self):
@@ -46,11 +37,6 @@ class FieldsConfigTestCase(CremeTestCase):
 
     def _configure_all_models(self):
         used_ct_ids = set(FieldsConfig.objects.values_list('content_type', flat=True))
-        # FieldsConfig.objects.bulk_create([FieldsConfig(content_type=ct, descriptions=())
-        #                                     for ct in fields_config_registry.ctypes
-        #                                         if ct.id not in used_ct_ids
-        #                                  ]
-        #                                 )
         FieldsConfig.objects.bulk_create([FieldsConfig(content_type=ct, descriptions=())
                                               for ct in map(ContentType.objects.get_for_model,
                                                             filter(FieldsConfig.is_model_valid, apps.get_models())
@@ -62,7 +48,6 @@ class FieldsConfigTestCase(CremeTestCase):
     def test_portal01(self):
         self.login()
 
-        # response = self.assertGET200('/creme_config/fields/portal/')
         response = self.assertGET200(reverse('creme_config__fields'))
         self.assertTemplateUsed(response, 'creme_config/fields_config_portal.html')
         self.assertContains(response, self.WIZARD_URL)
@@ -72,7 +57,6 @@ class FieldsConfigTestCase(CremeTestCase):
         self._configure_all_models()
         self.login()
 
-        # response = self.assertGET200('/creme_config/fields/portal/')
         response = self.assertGET200(reverse('creme_config__fields'))
         self.assertNotContains(response, self.WIZARD_URL)
 
@@ -90,7 +74,6 @@ class FieldsConfigTestCase(CremeTestCase):
 
         self.assertIn(ct, ctypes)
 
-        # self.assertIn(FakeEmailCampaign, creme_registry.iter_entity_models())
         self.assertFalse(FieldsConfig.is_model_valid(FakeEmailCampaign))
         self.assertNotIn(ContentType.objects.get_for_model(FakeEmailCampaign), ctypes)
 
@@ -182,7 +165,6 @@ class FieldsConfigTestCase(CremeTestCase):
         self.login()
         fconf = self._create_fconf()
 
-        # self.assertPOST200('/creme_config/fields/delete', data={'id': fconf.pk})
         self.assertPOST200(reverse('creme_config__delete_fields_config'), data={'id': fconf.pk})
         self.assertDoesNotExist(fconf)
 

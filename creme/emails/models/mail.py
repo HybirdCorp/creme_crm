@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,6 @@
 ################################################################################
 
 import logging
-# import warnings
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -66,17 +65,6 @@ class _Email(CremeModel):
                     self.sender, self.recipient, self.sending_date, self.id,
                 )
 
-    # def get_status_str(self):
-    #     warnings.warn("_Email.get_status_str() method is deprecated ; use get_status_display() instead.",
-    #                   DeprecationWarning
-    #                  )
-    #     return MAIL_STATUS[self.status]
-
-    # def get_body(self):
-    #     warnings.warn("_Email.get_body() method is deprecated.", DeprecationWarning)
-    #
-    #     return self.body
-
     @property
     def sent(self):
         return self.status == constants.MAIL_STATUS_SENT
@@ -84,7 +72,6 @@ class _Email(CremeModel):
     @property
     def synchronised(self):
         return self.status in constants.MAIL_SYNC_STATUSES
-
 
 class AbstractEntityEmail(_Email, CremeEntity):
     identifier  = CharField(_(u'Email ID'), unique=True, max_length=ID_LENGTH,
@@ -120,7 +107,7 @@ class AbstractEntityEmail(_Email, CremeEntity):
                 return
 
     def __unicode__(self):
-        return ugettext('EMail <from: %(from)s> <to: %(to)s> <status: %(status)s>') % {
+        return ugettext(u'EMail <from: %(from)s> <to: %(to)s> <status: %(status)s>') % {
                                 'from':   self.sender,
                                 'to':     self.recipient,
                                 'status': self.get_status_display(),
@@ -159,19 +146,6 @@ class AbstractEntityEmail(_Email, CremeEntity):
 
     def _pre_save_clone(self, source):
         self.genid_n_save()
-
-    # def get_body(self):
-    #     warnings.warn("AbstractEntityEmail.get_body() method is deprecated.",
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     from django.template.defaultfilters import removetags
-    #     from django.utils.safestring import mark_safe
-    #
-    #     if self.body_html:
-    #         return mark_safe(removetags(self.body_html, 'script'))
-    #     else:
-    #         return mark_safe(removetags(self.body.replace('\n', '</br>'), 'script'))
 
     def restore(self):
         CremeEntity.restore(self)

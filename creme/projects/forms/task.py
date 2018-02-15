@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,12 +20,11 @@
 
 from functools import partial
 
-from django.forms import BooleanField, ValidationError  # DateTimeField
+from django.forms import BooleanField, ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms import CremeForm, CremeEntityForm, CreatorEntityField, MultiCreatorEntityField
-# from creme.creme_core.forms.widgets import DateTimeWidget
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import ellipsis_multi
 
@@ -56,9 +55,6 @@ def _link_contact_n_activity(contact, activity, user):
 
 
 class _TaskForm(CremeEntityForm):
-    # start = DateTimeField(label=_(u'Start'), widget=DateTimeWidget(), required=True)
-    # end   = DateTimeField(label=_(u'End'), widget=DateTimeWidget(), required=True)
-
     class Meta(CremeEntityForm.Meta):
         model = ProjectTask
 
@@ -120,8 +116,6 @@ class TaskAddParentForm(CremeForm):
 
 class RelatedActivityEditForm(CremeEntityForm):
     resource      = CreatorEntityField(label=_(u'Allocated resource'), model=Resource)
-    # start         = DateTimeField(label=_(u'Start'), widget=DateTimeWidget())
-    # end           = DateTimeField(label=_(u'End'), widget=DateTimeWidget())
     type_selector = ActivityTypeField(label=_(u'Type'))
 
     class Meta(CremeEntityForm.Meta):
@@ -165,9 +159,6 @@ class RelatedActivityEditForm(CremeEntityForm):
             get_relation = Relation.objects.get
 
             try:
-                # task = get_relation(subject_entity=pk, type=REL_SUB_LINKED_2_PTASK) \
-                #                .object_entity \
-                #                .get_real_entity()
                 self.old_relation = get_relation(type=REL_SUB_PART_AS_RESOURCE,
                                                  object_entity=pk,
                                                 )
@@ -225,7 +216,6 @@ class RelatedActivityEditForm(CremeEntityForm):
 class RelatedActivityCreateForm(RelatedActivityEditForm):
     def __init__(self, *args, **kwargs):
         super(RelatedActivityCreateForm, self).__init__(*args, **kwargs)
-        # self._task = self.initial['task']
         self._task = self._get_task()  # TODO: remove
 
     def _get_task(self):

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,13 +21,12 @@
 from collections import defaultdict
 
 from django.contrib.auth import get_user_model
-from django.forms import CharField, ModelChoiceField, ModelMultipleChoiceField # RegexField
+from django.forms import CharField, ModelChoiceField, ModelMultipleChoiceField
 from django.forms.utils import ValidationError
 from django.forms.widgets import PasswordInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import CremeForm, CremeModelForm
-# from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.models import UserRole, Mutex
 from creme.creme_core.models.fields import CremeUserForeignKey
 
@@ -36,16 +35,6 @@ CremeUser = get_user_model()
 
 # TODO: inherit from django.contrib.auth.forms.UserCreationForm
 class UserAddForm(CremeModelForm):
-    # # NB: field copied from django.contrib.auth.forms.UserCreationForm
-    # username = RegexField(label=_(u'Username'), max_length=30, regex=r'^[\w.@+-]+$',
-    #                       help_text=_("Required. 30 characters or fewer. Letters, "
-    #                                   "digits and @/./+/-/_ only."
-    #                                  ),
-    #                       error_messages={'invalid': _("This value may contain only letters, "
-    #                                                    "numbers and @/./+/-/_ characters."
-    #                                                   ),
-    #                                      },
-    #                      )
     password_1   = CharField(label=_(u'Password'), min_length=6, widget=PasswordInput())
     password_2   = CharField(label=_(u'Confirm password'), min_length=6, widget=PasswordInput())
     role         = ModelChoiceField(label=_(u'Role'), required=False,
@@ -132,7 +121,6 @@ class UserChangePwForm(CremeForm):
 
 class TeamCreateForm(CremeModelForm):
     teammates = ModelMultipleChoiceField(queryset=CremeUser.objects.filter(is_team=False, is_staff=False),
-                                         # widget=UnorderedMultipleChoiceWidget,
                                          label=_(u'Teammates'), required=False,
                                         )
 

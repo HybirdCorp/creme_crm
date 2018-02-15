@@ -599,30 +599,9 @@ description3=[[<br>]]
                                                       'created': '',
                                                      }
                                            )
-        # self.assertEqual(user, email_input.get_owner(True, sender='another_user@cremecrm.com'))
         self.assertEqual(get_user_model().objects.get_admin(),
                          email_input.get_owner(True, sender='another_user@cremecrm.com')
                         )
-
-    # def test_get_owner04(self):
-    #     "The user doesn't match and multiple superuser exists"
-    #     self._set_sandbox_by_user()
-    #     superuser1 = self.user
-    #
-    #     superuser2 = get_user_model().objects.create(username='Kirika2')
-    #     superuser2.set_password('Kirika2')
-    #     superuser2.is_superuser = True
-    #     superuser2.save()
-    #
-    #     self.assertGreater(superuser2.pk, superuser1.pk)
-    #
-    #     email_input = self._get_email_input(ContactFakeBackend, password='creme',
-    #                                         subject='create_ce',
-    #                                         body_map={'user_id': superuser1.id,
-    #                                                   'created': '',
-    #                                                  }
-    #                                        )
-    #     self.assertEqual(superuser2, email_input.get_owner(True, sender='another_user@cremecrm.com'))
 
     @skipIfCustomContact
     def test_create_contact01(self):
@@ -694,8 +673,6 @@ description3=[[<br>]]
     @skipIfCustomActivity
     def test_create_activity01(self):
         "Datetimes with or without timezone"
-        # self.populate('activities')
-
         title = 'My Meeting'
         self.assertFalse(Activity.objects.filter(title=title))
 
@@ -987,8 +964,6 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         other_user = self.other_user
         self._set_sandbox_by_user()
 
-        #Contact.objects.create(is_user=other_user, user=other_user, email="other_user@cremecrm.com")
-
         xml_content = """
 <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\Raph\Desktop\Infopath\create_contact.xsn" name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xml:lang="fr">
     <my:user_id>%s</my:user_id>
@@ -1151,7 +1126,6 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         expected_data = {"user_id": "%s"  % (user.id,), "created": "2003-02-01", "last_name": "Bros",
                          "first_name": "Mario", "email": "mario@bros.com", "url_site": "http://mario.com",
                          "is_actived": True, "birthday": "02/08/1987", "description": "A plumber",
-#                        "image": img_content,
                          "image": (filename, blob),
                         }
         self.maxDiff = None
@@ -1171,20 +1145,9 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual('A plumber', contact.description)
         self.assertTrue(contact.image)
 
-#        filename, blob = decode_b64binary(img_content)
-
-        # self.assertEqual(blob, contact.image.image.read())
         self.assertEqual(blob, contact.image.filedata.read())
 
     def _get_languages(self):
-        # Language.objects.all().delete()
-        #
-        # create = Language.objects.create
-        #
-        # return [create(code=u'en', name=u'English'),
-        #         create(code=u'fr', name=u'French'),
-        #         create(code=u'es', name=u'Spanish'),
-        #        ]
         languages = list(Language.objects.all())
         length = len(languages)
 
@@ -1266,7 +1229,6 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertIs(contact.is_actived, True)
         self.assertEqual(self.create_datetime(year=1987, month=8, day=2).date(), contact.birthday)
         self.assertEqual('A plumber', contact.description)
-        # self.assertEqual(set(languages[:2]), set(contact.language.all()))
         self.assertEqual({languages[0], languages[1]}, set(contact.language.all()))
 
     def test_create_contact03(self):
@@ -1442,7 +1404,6 @@ class FileSystemInputTestCase(CrudityTestCase):
         with self.assertNoException():
             ok = IniFileInput().create(join(dirname(__file__), 'data', 'unknown.ini'))
 
-        # self.assertIs(ok, False)
         self.assertIsNone(ok)
 
     def test_error02(self):
@@ -1456,7 +1417,6 @@ class FileSystemInputTestCase(CrudityTestCase):
         with self.assertNoException():
             ok = IniFileInput().create(self.get_deletable_file_path('test_error_01'))
 
-        # self.assertIs(ok, False)
         self.assertIsNone(ok)
         # TODO: assertLog
 
@@ -1471,7 +1431,6 @@ class FileSystemInputTestCase(CrudityTestCase):
         with self.assertNoException():
             ok = IniFileInput().create(self.get_deletable_file_path('test_error_02'))
 
-        # self.assertIs(ok, False)
         self.assertIsNone(ok)
         # TODO: assertLog
 
@@ -1510,7 +1469,6 @@ class FileSystemInputTestCase(CrudityTestCase):
         with self.assertNoException():
             ok = inifile_input.create(file_path)
 
-        # self.assertIs(ok, True)
         self.assertIsInstance(ok, CrudityBackend)
 
         wactions = WaitingAction.objects.all()
@@ -1552,7 +1510,6 @@ class FileSystemInputTestCase(CrudityTestCase):
         with self.assertNoException():
             ok = inifile_input.create(self.get_deletable_file_path('test_ok_01'))
 
-        # self.assertIs(ok, True)
         self.assertIsNotNone(ok)
 
         wactions = WaitingAction.objects.all()
@@ -1657,7 +1614,6 @@ class FileSystemInputTestCase(CrudityTestCase):
         with self.assertNoException():
             ok = inifile_input.create(self.get_deletable_file_path('test_ok_01'))
 
-        # self.assertIs(ok, True)
         self.assertIsNotNone(ok)
         self.assertFalse(WaitingAction.objects.all())
 

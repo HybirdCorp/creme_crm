@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,6 @@
 ################################################################################
 
 from future_builtins import filter
-# import warnings
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -81,13 +80,6 @@ class AbstractAddress(CremeModel):
 
     def __nonzero__(self):  # Used by forms to detect empty addresses
         return any(fvalue for fname, fvalue in self.info_fields)
-
-    # def _get_info_fields(self):
-    #     warnings.warn("Address._get_info_fields() method is deprecated ; use Address.info_fields instead",
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     return self.info_fields
 
     def clone(self, entity):
         """Returns a new cloned (saved) address for a (saved) entity"""

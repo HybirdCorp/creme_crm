@@ -166,14 +166,11 @@ creme_core_patterns = [
     url(r'^list_view/popup[/]?$', entity.list_view_popup, name='creme_core__listview_popup'),
     url(r'^list_view/popup/(?P<ct_id>\d+)/(?P<o2m>0|1)[/]?$', listview.list_view_popup_from_widget, name='creme_core__listview_popup'),  # DEPRECATED
 
-    # url(r'^list_view/import/(?P<ct_id>\d+)$', list_view_import.import_listview),  # see mass_import/
-
     url(r'^list_view/download[/]?$', list_view_export.dl_listview, name='creme_core__dl_listview'),
     url(r'^list_view/download/(?P<ct_id>\d+)/(?P<doc_type>[\w-]+)[/]?$',
         list_view_export.dl_listview, {'header_only': False},
         name='creme_core__dl_listview',
        ),  # DEPRECATED
-    # url(r'^list_view/download_header/(?P<ct_id>\d+)/(?P<doc_type>[\w-]+)$', list_view_export.dl_listview_header),
     url(r'^list_view/download_header/(?P<ct_id>\d+)/(?P<doc_type>[\w-]+)[/]?$',
         list_view_export.dl_listview, {'header_only': True},
         name='creme_core__dl_listview_header',
@@ -193,7 +190,6 @@ creme_core_patterns = [
     url(r'^search/reload_block/(?P<block_id>[\w\-\|]+)/(?P<research>.+)[/]?$', search.reload_block, name='creme_core__reload_search_block'),  # DEPRECATED
 
     url(r'^quickforms/(?P<ct_id>\d+)/(?P<count>\d)[/]?$',                  quick_forms.add,             name='creme_core__quick_forms'),
-    # url(r'^quickforms/from_widget/(?P<ct_id>\d+)/add/(?P<count>\d)$', quick_forms.add_from_widget),
     url(r'^quickforms/from_widget/(?P<ct_id>\d+)/add/(?P<count>\d)*[/]?$', quick_forms.add_from_widget, name='creme_core__quick_form'),  # TODO: remove 'count' in creme1.8
 ]
 

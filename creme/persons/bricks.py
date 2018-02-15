@@ -24,12 +24,11 @@ from functools import partial
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
-# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import EntityCellRegularField
-from creme.creme_core.gui.bricks import Brick, SimpleBrick, PaginatedBrick, QuerysetBrick  # list4url
+from creme.creme_core.gui.bricks import Brick, SimpleBrick, PaginatedBrick, QuerysetBrick
 from creme.creme_core.models import Relation
 from creme.creme_core.utils.db import populate_related
 
@@ -169,29 +168,6 @@ else:
             return None
 
 
-# class ContactBlock(SimpleBlock):
-#     template_name = 'persons/templatetags/block_contact.html'
-
-
-# class ContactCoordinatesBlock(SimpleBlock):
-#     id_           = SimpleBlock.generate_id('persons', 'contact_coordinates')
-#     dependencies  = (Contact,)
-#     verbose_name  = _(u'Coordinates of a contact')
-#     template_name = 'persons/templatetags/block_contact_coordinates.html'
-#     target_ctypes = (Contact,)
-
-
-# class OrganisationBlock(SimpleBlock):
-#     template_name = 'persons/templatetags/block_organisation.html'
-
-
-# class OrgaCoordinatesBlock(SimpleBlock):
-#     id_           = SimpleBlock.generate_id('persons', 'orga_coordinates')
-#     dependencies  = (Organisation,)
-#     verbose_name  = _(u'Coordinates of an organisation')
-#     template_name = 'persons/templatetags/block_orga_coordinates.html'
-#     target_ctypes = (Organisation,)
-
 class ContactBarHatBrick(SimpleBrick):
     # NB: we do not set an ID because it's the main Header Brick.
     template_name = 'persons/bricks/contact-hat-bar.html'
@@ -282,7 +258,6 @@ class ManagersBrick(QuerysetBrick):
     dependencies  = (Relation, Contact)
     relation_type_deps = (constants.REL_OBJ_MANAGES, )
     verbose_name  = _(u'Organisation managers')
-    # template_name = 'persons/templatetags/block_managers.html'
     template_name = 'persons/bricks/managers.html'
     target_ctypes = (Organisation,)
 
@@ -296,11 +271,8 @@ class ManagersBrick(QuerysetBrick):
         orga = context['object']
         is_hidden = context['fields_configs'].get_4_model(Contact).is_fieldname_hidden
 
-        # return self._render(self.get_block_template_context(context,
         return self._render(self.get_template_context(context,
                     self._get_people_qs(orga).select_related('civility'),
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, orga.pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, orga.id)),
                     rtype_id=self.relation_type_deps[0],
                     ct=ContentType.objects.get_for_model(Contact),  # DEPRECATED (use 'objects_ctype' instead)
                     add_title=self._get_add_title(),
@@ -315,7 +287,6 @@ class EmployeesBrick(ManagersBrick):
     id_           = QuerysetBrick.generate_id('persons', 'employees')
     relation_type_deps = (constants.REL_OBJ_EMPLOYED_BY, )
     verbose_name  = _(u'Organisation employees')
-    # template_name = 'persons/templatetags/block_employees.html'
     template_name = 'persons/bricks/employees.html'
 
     def _get_people_qs(self, orga):
@@ -441,11 +412,9 @@ class ManagedOrganisationsBrick(PaginatedBrick):
     configurable  = False
 
     def detailview_display(self, context):
-        # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context,
                     Organisation.get_all_managed_by_creme(),
-                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 
@@ -466,7 +435,6 @@ if apps.is_installed('creme.activities'):
         id_           = PaginatedBrick.generate_id('persons', 'neglected_orgas')
         dependencies  = (Activity,)
         verbose_name  = _(u'Neglected organisations')
-        # template_name = 'persons/templatetags/block_neglected_orgas.html'
         template_name = 'persons/bricks/neglected-organisations.html'
         target_apps   = ('persons', 'creme_core')
 
@@ -524,14 +492,9 @@ if apps.is_installed('creme.activities'):
             if not context['user'].has_perm('persons'):
                 raise PermissionDenied('Error: you are not allowed to view this block: %s' % self.id_)
 
-            # return self._render(self.get_block_template_context(
             return self._render(self.get_template_context(
                         context,
                         self._get_neglected(context['today']),
-                        # # update_url='/creme_core/blocks/reload/portal/%s/%s/' % (
-                        # #                     self.id_, list4url(ct_ids),
-                        # #                 ),
-                        # update_url=reverse('creme_core__reload_portal_blocks', args=(self.id_, list4url(ct_ids))),
             ))
 
         def home_display(self, context):

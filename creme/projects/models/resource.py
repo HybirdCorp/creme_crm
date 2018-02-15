@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,6 @@ from creme.creme_core.models import CremeEntity
 class Resource(CremeEntity):
     # TODO: set a editable (& use automatic formfield()) + not bulk_editable ?
     linked_contact = ForeignKey(settings.PERSONS_CONTACT_MODEL, verbose_name=_(u'Contact'), editable=False)
-    # hourly_cost    = PositiveIntegerField(_(u'Hourly cost (in €)'), default=0)
     hourly_cost    = PositiveIntegerField(_(u'Hourly cost'), default=0)
     task           = ForeignKey(settings.PROJECTS_TASK_MODEL, verbose_name=_(u'Task'),
                                 related_name='resources_set',  # TODO: rename 'resources'
@@ -58,7 +57,6 @@ class Resource(CremeEntity):
         return ''
 
     def get_edit_absolute_url(self):
-        # return "/projects/resource/edit/%s" % self.id
         return reverse('projects__edit_resource', args=(self.id,))
 
     def get_related_entity(self):

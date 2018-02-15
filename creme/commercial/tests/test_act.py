@@ -8,9 +8,9 @@ try:
     from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.constants import DEFAULT_CURRENCY_PK  # PROP_IS_MANAGED_BY_CREME
+    from creme.creme_core.constants import DEFAULT_CURRENCY_PK
     from creme.creme_core.models import (RelationType, Relation,
-            EntityFilter, EntityFilterCondition)  # CremeProperty
+            EntityFilter, EntityFilterCondition)
 
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
@@ -33,26 +33,20 @@ except Exception as e:
 class ActTestCase(CommercialBaseTestCase):
     @classmethod
     def setUpClass(cls):
-        # CommercialBaseTestCase.setUpClass()
         super(CommercialBaseTestCase, cls).setUpClass()
-        # cls.populate('activities', 'opportunities', 'commercial')
 
         cls.ADD_URL = reverse('commercial__create_act')
 
     def _build_addobjective_url(self, act):
-        # return '/commercial/act/%s/add/objective' % act.id
         return reverse('commercial__create_objective', args=(act.id,))
 
     def _build_addobjectivefrompattern_url(self, act):
-        # return '/commercial/act/%s/add/objectives_from_pattern' % act.id
         return reverse('commercial__create_objective_from_pattern', args=(act.id,))
 
     def _build_create_related_entity_url(self, objective):
-        # return '/commercial/objective/%s/create_entity' % objective.id
         return reverse('commercial__create_entity_from_objective', args=(objective.id,))
 
     def _build_incr_url(self, objective):
-        # return '/commercial/objective/%s/incr' % objective.id
         return reverse('commercial__incr_objective_counter', args=(objective.id,))
 
     def test_create(self):
@@ -222,7 +216,6 @@ class ActTestCase(CommercialBaseTestCase):
         emitter = create_orga(name='Ferraille corp')
         target  = create_orga(name='World company')
 
-        # CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
         emitter.is_managed = True
         emitter.save()
 
@@ -717,7 +710,7 @@ class ActTestCase(CommercialBaseTestCase):
         opp02 = create_opp(name='OPP02', closing_date=date.today(), made_sales=500, estimated_sales=3000)
         create_rel(subject_entity=opp02)
 
-        act  = self.refresh(act) #refresh cache
+        act  = self.refresh(act)  # Refresh cache
         opps = act.get_related_opportunities()
         self.assertEqual(2, len(opps))
         self.assertEqual({opp01, opp02}, set(opps))
@@ -731,7 +724,6 @@ class ActTestCase(CommercialBaseTestCase):
         act = self.create_act()
         atype = act.act_type
 
-        # self.assertPOST404('/creme_config/commercial/act_type/delete', data={'id': atype.pk})
         self.assertPOST404(reverse('creme_config__delete_instance', args=('commercial', 'act_type')),
                            data={'id': atype.pk}
                           )

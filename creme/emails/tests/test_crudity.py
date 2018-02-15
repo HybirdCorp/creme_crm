@@ -10,8 +10,6 @@ try:
     from creme.creme_core.models import SettingValue
     from creme.creme_core.tests.base import skipIfNotInstalled
 
-#    from creme.documents import get_folder_model
-#    from creme.documents.constants import DOCUMENTS_FROM_EMAILS, DOCUMENTS_FROM_EMAILS_NAME
     from creme.documents.models import FolderCategory
 
     from creme.crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
@@ -30,9 +28,7 @@ except Exception as e:
 class EmailsCrudityTestCase(_EmailsTestCase):
     @classmethod
     def setUpClass(cls):
-        # _EmailsTestCase.setUpClass()
         super(EmailsCrudityTestCase, cls).setUpClass()
-        # cls.populate('documents', 'crudity')
 
         from ..crudity_register import EntityEmailBackend
         cls.EntityEmailBackend = EntityEmailBackend
@@ -67,12 +63,10 @@ class EmailsCrudityTestCase(_EmailsTestCase):
           }
 
     def test_spam(self):
-        # self.login()
         emails = self._create_emails()
 
         self.assertEqual([MAIL_STATUS_SENT] * 4, [e.status for e in emails])
 
-        # url = '/emails/mail/spam'
         url = reverse('emails__crudity_spam')
         self.assertPOST200(url)
         self.assertPOST200(url, data={'ids': [e.id for e in emails]})
@@ -83,10 +77,8 @@ class EmailsCrudityTestCase(_EmailsTestCase):
                         )
 
     def test_validated(self):
-        # self.login()
         emails = self._create_emails()
 
-        # self.assertPOST200('/emails/mail/validated', data={'ids': [e.id for e in emails]})
         self.assertPOST200(reverse('emails__crudity_validated'), data={'ids': [e.id for e in emails]})
 
         refresh = self.refresh
@@ -95,10 +87,8 @@ class EmailsCrudityTestCase(_EmailsTestCase):
                         )
 
     def test_waiting(self):
-        # self.login()
         emails = self._create_emails()
 
-        # self.assertPOST200('/emails/mail/waiting', data={'ids': [e.id for e in emails]})
         self.assertPOST200(reverse('emails__crudity_waiting'), data={'ids': [e.id for e in emails]})
 
         refresh = self.refresh
@@ -171,53 +161,6 @@ class EmailsCrudityTestCase(_EmailsTestCase):
 
         history = self.get_object_or_fail(History, entity=e_email.id)
         self.assertEqual(other_user, history.user)  # <== not 'user' !
-
-#    def test_create_with_deleted_category01(self):
-#        "Create category if it has been deleted"
-#        self._category_to_restore = old_cat = self.get_object_or_fail(FolderCategory, pk=DOCUMENTS_FROM_EMAILS)
-#        old_cat.delete()
-#
-#        user = self.user
-#        other_user = self.other_user
-#
-#        backend = EntityEmailBackend(self.cfg)
-#        email = PopEmail(body='Hi', body_html='<i>Hi</i>', subject='Test email crudity',
-#                         senders=[other_user.email], ccs=[user.email],
-#                         tos=['natsuki.hagiwara@ichigo.jp', 'kota.ochiai@ichigo.jp'],
-#                        )
-#        backend.fetcher_fallback(email, user)
-#        self.get_object_or_fail(EntityEmail, subject=email.subject)
-#
-#        cat = self.get_object_or_fail(FolderCategory, pk=DOCUMENTS_FROM_EMAILS)
-#        self.assertEqual(DOCUMENTS_FROM_EMAILS_NAME, cat.name)
-#
-#    def test_create_with_deleted_category02(self):
-#        "Create category if it has been deleted, and another one created with the same name"
-#        user = self.user
-#        other_user = self.other_user
-#
-#        backend = EntityEmailBackend(self.cfg)
-#        email = PopEmail(body='Hi', body_html='<i>Hi</i>', subject='Test email crudity',
-#                         senders=[other_user.email], ccs=[user.email],
-#                         tos=['natsuki.hagiwara@ichigo.jp', 'kota.ochiai@ichigo.jp'],
-#                        )
-#        backend.fetcher_fallback(email, user)
-#        self.get_object_or_fail(EntityEmail, subject=email.subject)
-#
-#        folder = self.get_object_or_fail(get_folder_model(), title=_(u"%(username)s's files received by email") % {
-#                                                                'username': user.username,
-#                                                            },
-#                                        )
-#
-#        self._category_to_restore = old_cat = folder.category
-#        old_cat.delete()
-#        self.assertIsNone(self.refresh(folder).category)
-#
-#        FolderCategory.objects.create(name=unicode(DOCUMENTS_FROM_EMAILS_NAME))
-#
-#        email.subject += '#2'
-#        backend.fetcher_fallback(email, user)
-#        self.get_object_or_fail(EntityEmail, subject=email.subject)
 
     # TODO: authorize_senders return False
     # TODO: attachments

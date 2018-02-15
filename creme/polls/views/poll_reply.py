@@ -33,7 +33,7 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.templatetags.creme_widgets import get_icon_by_name, get_icon_size_px
 from creme.creme_core.utils import get_from_POST_or_404, update_model_instance
-from creme.creme_core.utils.media import get_current_theme  # creme_media_themed_url as media_url
+from creme.creme_core.utils.media import get_current_theme
 from creme.creme_core.views.generic import (add_model_with_popup, edit_entity,
         inner_popup, view_entity, list_view, add_to_entity)
 from creme.creme_core.views.utils import build_cancel_path
@@ -71,7 +71,6 @@ def abstract_add_pollreply(request, form=PollRepliesCreateForm,
         cancel_url = POST.get('cancel_url')
     else:  # GET
         reply_form = form(user=request.user)
-        # cancel_url = request.META.get('HTTP_REFERER')
         cancel_url = build_cancel_path(request)
 
     return render(request, template,
@@ -87,7 +86,6 @@ def abstract_add_pollreply(request, form=PollRepliesCreateForm,
 def abstract_add_preply_from_campaign(request, campaign_id,
                                       form=PollRepliesCreateForm,
                                       title=_(u'New replies for «%s»'),
-                                      # submit_label=_('Save the replies'),
                                       submit_label=PollReply.multi_save_label,
                                      ):
     campaign = get_object_or_404(get_pollcampaign_model(), pk=campaign_id)
@@ -106,7 +104,6 @@ def abstract_add_preply_from_campaign(request, campaign_id,
 # TODO: factorise ? (see documents.views)
 def abstract_add_preply_from_pform(request, pform_id, form=PollRepliesCreateForm,
                                    title=_(u'New replies for «%s»'),
-                                   # submit_label=_('Save the replies'),
                                    submit_label=PollReply.multi_save_label,
                                   ):
     pform = get_object_or_404(get_pollform_model(), pk=pform_id)
@@ -125,7 +122,6 @@ def abstract_add_preply_from_pform(request, pform_id, form=PollRepliesCreateForm
 def abstract_add_preply_from_person(request, person_id,
                                     form=PollRepliesCreateForm,
                                     title=_(u'New replies for «%s»'),
-                                    # submit_label=_('Save the replies'),
                                     submit_label=PollReply.multi_save_label,
                                    ):
     person = get_object_or_404(CremeEntity, pk=person_id)
@@ -223,7 +219,6 @@ def _format_previous_answered_question(preply_id, line, style):
 
     return mark_safe(u'<b>%(title)s</b><br>'
                       '%(label)s : %(number)s %(question)s<br>'
-                      # '%(answer_str)s : %(answer)s <a class="add" href="/polls/poll_reply/%(mreply_id)s/line/%(line_id)s/edit_wizard"><img src="%(img_src)s" alt="Edit" title="Edit"></a>'
                       '%(answer_str)s : %(answer)s <a class="add" href="%(url)s">%(icon)s</a>'
                         % {'title':         ugettext(u'Reminder of the previous answered question :'),
                            'label':         ugettext('Question'),
@@ -232,9 +227,6 @@ def _format_previous_answered_question(preply_id, line, style):
                            'answer_str':    ugettext('Answer'),
                            'answer':        answer,
                            'url':           reverse('polls__edit_reply_line_wizard', args=(preply_id, line.id)),
-                           # 'mreply_id':     preply_id,
-                           # 'line_id':       line.id,
-                           # 'img_src':       media_url('images/edit_16.png'),
                            'icon':          get_icon_by_name('edit', theme=theme, label=_(u'Edit'),
                                                              size_px=get_icon_size_px(theme, size='instance-button'),
                                                             ).render(css_class='polls-previous-edition'),
@@ -281,7 +273,6 @@ def edit_line_wizard(request, preply_id, line_id):
                     url = preply.get_absolute_url()
                 else:
                     is_complete = False
-                    # url = '/polls/poll_reply/fill/%s' % preply_id
                     url = reverse('polls__fill_reply', args=(preply_id,))
 
                 update_model_instance(preply, is_complete=is_complete)

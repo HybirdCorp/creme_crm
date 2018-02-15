@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2017  Hybird
+#    Copyright (C) 2015-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,6 @@ from django.conf import settings
 from django.db.models import signals
 from django.dispatch import receiver
 
-# from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme.creme_core.models import Relation
 
 from creme.persons import get_organisation_model, constants as persons_constants
@@ -50,9 +49,7 @@ def _set_null_calendar_on_delete_participant(sender, instance, **kwargs):
         return
 
     if contact.is_user:
-        # Why only from default calendar?
-        # activity.calendars.remove(Calendar.get_user_default_calendar(contact.is_user))
-        for calendar_id in activity.calendars.filter(user=contact.is_user).values_list('id', flat=True): 
+        for calendar_id in activity.calendars.filter(user=contact.is_user).values_list('id', flat=True):
             activity.calendars.remove(calendar_id)
 
 
@@ -82,10 +79,7 @@ def _set_orga_as_subject(sender, instance, **kwargs):
                                                                 ),
                                             relations__object_entity=instance.subject_entity_id,
                                            ) \
-                                    .exclude(is_deleted=False,
-                                             # properties__type=PROP_IS_MANAGED_BY_CREME,
-                                             is_managed=True,
-                                            ):
+                                    .exclude(is_deleted=False, is_managed=True):
         create_rel(subject_entity=orga)
 
 

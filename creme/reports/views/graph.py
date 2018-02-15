@@ -23,7 +23,7 @@ import logging, warnings
 from django.db.models import FieldDoesNotExist, DateField, DateTimeField, ForeignKey
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext as _  # pgettext_lazy
+from django.utils.translation import ugettext as _
 
 from creme.creme_core import utils
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -44,7 +44,6 @@ ReportGraph = get_rgraph_model()
 
 def abstract_add_rgraph(request, report_id, form=ReportGraphForm,
                         title=_(u'Create a graph for «%s»'),
-                        # submit_label=pgettext_lazy('reports-graphs', 'Save the graph'),
                         submit_label=ReportGraph.save_label,
                        ):
     return generic.add_to_entity(request, report_id, form, title, submit_label=submit_label)

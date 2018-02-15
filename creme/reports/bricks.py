@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.bricks import Brick, SimpleBrick, QuerysetBrick
@@ -41,7 +40,6 @@ class ReportFieldsBrick(Brick):
     id_           = Brick.generate_id('reports', 'fields')
     dependencies  = (Field,)
     verbose_name  = _(u'Columns of the report')
-    # template_name = 'reports/templatetags/block_report_fields.html'
     template_name = 'reports/bricks/fields.html'
     target_ctypes = (Report,)
 
@@ -51,8 +49,6 @@ class ReportFieldsBrick(Brick):
 
         return self._render(self.get_template_context(
                     context,
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, report.pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, report.pk)),
                     columns=columns,
                     expand=any(field.sub_report_id for field in columns),
         ))
@@ -62,7 +58,6 @@ class ReportGraphsBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('reports', 'graphs')
     dependencies  = (ReportGraph,)
     verbose_name  = _(u"Report's graphs")
-    # template_name = 'reports/templatetags/block_report_graphs.html'
     template_name = 'reports/bricks/graphs.html'
     order_by      = 'name'
     target_ctypes = (Report,)
@@ -73,8 +68,6 @@ class ReportGraphsBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     ReportGraph.objects.filter(report=report),
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, report.pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, report.pk)),
                     report_charts=report_chart_registry,
         ))
 
@@ -83,7 +76,6 @@ class ReportGraphBrick(Brick):
     id_           = InstanceBlockConfigItem.generate_base_id('reports', 'graph')
     dependencies  = (ReportGraph,)
     verbose_name  = "Report's graph"  # Overloaded by __init__()
-    # template_name = 'reports/templatetags/block_report_graph.html'
     template_name = 'reports/bricks/graph.html'
 
     def __init__(self, instance_block_config):
@@ -109,8 +101,6 @@ class ReportGraphBrick(Brick):
                     error=fetcher.error,
                     volatile_column=fetcher.verbose_volatile_column,
                     instance_block_id=self.instance_block_id,
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
                     report_charts=report_chart_registry,
         ))
 

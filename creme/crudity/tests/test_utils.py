@@ -52,36 +52,3 @@ JBTi5OHuzb/iXXkgWZlnk1qTVaC+9tzy9ZsV8ojCTLGGKvj/4nvaMlx38jF2lz5AeijU5LdeKkiQiO3x
 7LzY6XwDj2HfXPP0DUgAAAAASUVORK5CYII="
         filename, blob = decode_b64binary(encoded_utf8_name)
         self.assertEqual(img_blob, blob)
-
-#    def test_get_unicode_decoded_str01(self):
-#        self.login()
-#        payload = """password=contact
-#                first_name=aaaaa
-#                last_name=
-#                email="""
-#        s = get_unicode_decoded_str(payload, set(['iso-8859-1']))
-#        self.assertEqual(payload, s)
-#
-#        #try:
-#            #c = Contact.objects.create(user=self.user, first_name=s)
-#        #except Exception, e:
-#            #self.fail(e)
-#        with self.assertNoException():
-#            Contact.objects.create(user=self.user, first_name=s)
-#
-#    def test_get_unicode_decoded_str02(self):
-#        self.login()
-#        payload = """password=contact
-#                first_name=éàè
-#                last_name=
-#                email="""
-#        s = get_unicode_decoded_str(payload, set(['iso-8859-1']))
-#        #self.assertEqual(unicode, type(s))
-#        self.assertIsInstance(s, unicode)
-#
-#        #try:
-#            #c = Contact.objects.create(user=self.user, first_name=s)
-#        #except Exception, e:
-#            #self.fail(e)
-#        with self.assertNoException():
-#            Contact.objects.create(user=self.user, first_name=s)

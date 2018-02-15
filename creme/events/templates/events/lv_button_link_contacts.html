@@ -1,6 +1,5 @@
 {% load i18n creme_core_tags creme_widgets %}
 {% has_perm_to change event_entity as edit_perm %}
-{# <a {% if edit_perm %}href="/events/event/{{event_entity.id}}/link_contacts"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}> #}
 <a {% if edit_perm %}class="with-icon" href="{% url 'events__link_contacts' event_entity.id %}"{% else %}class="with-icon forbidden" title="{% trans 'Forbidden' %}"{% endif %}>
     {% widget_icon name='link' label=_('Link') size='listview-button' %}{% trans 'Link contacts' %}
 </a>&nbsp;

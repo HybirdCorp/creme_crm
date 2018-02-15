@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,6 @@ class Calendar(CremeModel):
     is_custom   = BooleanField(default=True, editable=False).set_tags(viewable=False)  # Used by creme_config
     is_public   = BooleanField(default=False, verbose_name=_(u'Is public?'))
     user        = CremeUserForeignKey(verbose_name=_(u'Calendar owner'))
-    # color       = CharField(_(u'Color'), max_length=100)
     color       = ColorField(_(u'Color'))
 
     _enable_default_checking = True
@@ -54,9 +53,7 @@ class Calendar(CremeModel):
         "color can be null, so in this case a default color is used in templates"
         return self.color if self.color else DEFAULT_CALENDAR_COLOR
 
-    # def delete(self):
     def delete(self, using=None):
-        # super(Calendar, self).delete()
         super(Calendar, self).delete(using=using)
 
         if self.is_default:

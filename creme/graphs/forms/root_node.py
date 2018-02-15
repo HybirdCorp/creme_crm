@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,6 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.models import RelationType
 from creme.creme_core.forms import CremeForm, CremeModelForm
 from creme.creme_core.forms.fields import MultiGenericEntityField
-# from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
 from ..models import RootNode
 
@@ -39,7 +38,6 @@ class AddRootNodesForm(CremeForm):
     entities       = MultiGenericEntityField(label=_(u'Root entities'))
     relation_types = RelationTypeMultipleChoiceField(label=_('Related types of relations'),
                                                      queryset=RelationType.objects.all(),
-                                                     # widget=UnorderedMultipleChoiceWidget,
                                                     )
 
     def __init__(self, entity, *args, **kwargs):
@@ -63,7 +61,6 @@ class AddRootNodesForm(CremeForm):
 class EditRootNodeForm(CremeModelForm):
     relation_types = RelationTypeMultipleChoiceField(label=_('Related types of relations'),
                                                      queryset=RelationType.objects.all(),
-                                                     # widget=UnorderedMultipleChoiceWidget,
                                                     )
 
     class Meta:

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -55,14 +55,12 @@ def add(request):
                  )
 
     return add_model_with_popup(request, UserRoleCreateForm, _(u'New role'),
-                                # submit_label=_('Save the role'),
                                 submit_label=UserRole.save_label,
                                )
 
 
 class UserRoleCreationWizard(PopupWizardMixin, SessionWizardView):
     class _CredentialsStep(user_role_forms.UserRoleCredentialsStep):
-        # step_submit_label = _('Save the role')
         step_submit_label = UserRole.save_label
 
     form_list = (user_role_forms.UserRoleAppsStep,
@@ -72,7 +70,6 @@ class UserRoleCreationWizard(PopupWizardMixin, SessionWizardView):
                  _CredentialsStep,
                 )
     template_name = 'creme_core/generics/blockform/add_wizard_popup.html'
-    # wizard_title = _(u'New role')
     wizard_title = UserRole.creation_label
     # permission = 'creme_core.can_admin'  # TODO: 'superuser' perm ??
 

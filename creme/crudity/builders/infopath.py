@@ -191,8 +191,6 @@ class InfopathFormField(object):
             tpl_dict.update({'allowed_file_types': settings.ALLOWED_EXTENSIONS})
             template_name = "crudity/infopath/create_template/frags/editing/file_field.xml"
 
-        # elif isinstance(model_field, models.ImageField) or \
-        #   (isinstance(model_field, models.ForeignKey) and issubclass(model_field.rel.to, Image)):
         elif isinstance(model_field, models.ImageField) or \
             (isinstance(model_field, models.ForeignKey) and issubclass(model_field.rel.to, Document)):
             tpl_dict.update({'allowed_file_types': settings.ALLOWED_IMAGES_EXTENSIONS})
@@ -235,7 +233,6 @@ class InfopathFormField(object):
         model_field = self.model_field
         return issubclass(model_field.__class__, models.FileField) \
                or (isinstance(model_field, models.ForeignKey) and
-                   # issubclass(model_field.rel.to, Image)
                    issubclass(model_field.rel.to, Document)
                   )
 

@@ -29,7 +29,6 @@ class ActiveSyncImageTestCase(CremeTestCase):
 
         self.assertLess(len(b64_content), settings.PICTURE_LIMIT_SIZE)
 
-        #image = open(self.image_path, 'r')
         image_str = StringIO()
         with open(self.image_path) as f:
             for ch in f.read(1024):

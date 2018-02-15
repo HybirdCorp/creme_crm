@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 
-from creme.creme_core.models import CremeModel  # CremeEntity
+from creme.creme_core.models import CremeModel
 from creme.creme_core.models.fields import CremeUserForeignKey, CreationDateTimeField
 
 
@@ -43,24 +43,17 @@ class Action(CremeModel):
     entity_id           = PositiveIntegerField(editable=False).set_tags(viewable=False)
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
 
-    user                = CremeUserForeignKey(verbose_name=_(u'Owner user')) #verbose_name=_(u"Assigned to")
+    user                = CremeUserForeignKey(verbose_name=_(u'Owner user'))
 
     class Meta:
         app_label = 'assistants'
         verbose_name = _(u'Action')
         verbose_name_plural = _(u'Actions')
 
-    # def __init__ (self, *args , **kwargs):
-    #     super(Action, self).__init__(*args, **kwargs)
-    #
-    #     if self.pk is None:
-    #         self.is_ok = False
-
     def __unicode__(self):
         return self.title
 
     def get_edit_absolute_url(self):
-        # return '/assistants/action/edit/%s/' % self.id
         return reverse('assistants__edit_action', args=(self.id,))
 
     @staticmethod
@@ -75,19 +68,16 @@ class Action(CremeModel):
 
     @staticmethod
     def get_actions_it_for_home(user, today):
-        # return Action.objects.filter(is_ok=False, deadline__gt=today, user=user) \
         return Action.objects.filter(is_ok=False, deadline__gt=today, user__in=[user] + user.teams) \
                              .select_related('user')
 
     @staticmethod
     def get_actions_nit_for_home(user, today):
-        # return Action.objects.filter(is_ok=False, deadline__lte=today, user=user) \
         return Action.objects.filter(is_ok=False, deadline__lte=today, user__in=[user] + user.teams) \
                              .select_related('user')
 
     @staticmethod
     def get_actions_it_for_ctypes(ct_ids, user, today):
-        # return Action.objects.filter(entity_content_type__in=ct_ids, user=user, is_ok=False, deadline__gt=today) \
         return Action.objects.filter(entity_content_type__in=ct_ids,
                                      user__in=[user] + user.teams,
                                      is_ok=False,
@@ -97,7 +87,6 @@ class Action(CremeModel):
 
     @staticmethod
     def get_actions_nit_for_ctypes(ct_ids, user, today):
-        # return Action.objects.filter(entity_content_type__in=ct_ids, user=user, is_ok=False, deadline__lte=today) \
         return Action.objects.filter(entity_content_type__in=ct_ids,
                                      user__in=[user] + user.teams,
                                      is_ok=False,

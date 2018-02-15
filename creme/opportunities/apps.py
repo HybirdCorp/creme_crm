@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2017  Hybird
+#    Copyright (C) 2015-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -53,9 +53,6 @@ class OpportunitiesConfig(CremeAppConfig):
 
         from . import signals
 
-    # def register_creme_app(self, creme_registry):
-    #     creme_registry.register_app('opportunities', _(u'Opportunities'), '/opportunities')
-
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Opportunity)
 
@@ -90,7 +87,6 @@ class OpportunitiesConfig(CremeAppConfig):
             from creme.creme_core.auth import build_creation_perm as cperm
 
             reg_item = creme_menu.register_app('opportunities', '/opportunities/').register_item
-            # reg_item('/opportunities/',                            _(u'Portal of opportunities'), 'opportunities')
             reg_item(reverse('opportunities__portal'),             _(u'Portal of opportunities'), 'opportunities')
             reg_item(reverse('opportunities__list_opportunities'), _(u'All opportunities'),       'opportunities')
             reg_item(reverse('opportunities__create_opportunity'), Opportunity.creation_label,    cperm(Opportunity))
@@ -158,7 +154,6 @@ class OpportunitiesConfig(CremeAppConfig):
             linked_salesorder = get_rtype(id=REL_SUB_LINKED_SALESORDER)
             linked_invoice    = get_rtype(id=REL_SUB_LINKED_INVOICE)
             linked_quote      = get_rtype(id=REL_SUB_LINKED_QUOTE)
-        # except RelationType.DoesNotExist as e:
         except Exception as e:
             logger.info("A problem occurred: %s\n"
                         "It can happen during unitests or during the 'populate' phase. "

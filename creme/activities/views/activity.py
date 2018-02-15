@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -63,14 +63,12 @@ def _add_activity(request, form_class,
         cancel_url = POST.get('cancel_url')
     else:
         form = form_class(activity_type_id=type_id, user=request.user, **form_args)
-        # cancel_url = request.META.get('HTTP_REFERER')
         cancel_url = build_cancel_path(request)
 
     return render(request, 'activities/add_activity_form.html',
                   {'form':             form,
                    'title':            Activity.get_creation_title(type_id),
                    'content_template': content_template,
-                   # 'submit_label':     _('Save the activity'),
                    'submit_label':     Activity.save_label,
                    'cancel_url':       cancel_url,
                   },
@@ -133,7 +131,6 @@ def abstract_add_related_activity(request, entity_id, form=act_forms.RelatedActi
 def abstract_add_activity_popup(request, form=act_forms.CalendarActivityCreateForm,
                                 template='activities/add_popup_activity_form.html',
                                 title=_(u'New activity'),
-                                # submit_label=_('Save the activity'),
                                 submit_label=Activity.save_label,
                                ):
     if request.method == 'POST':
@@ -241,7 +238,6 @@ def listview(request, type_id=None):
 
 @login_required
 @permission_required('activities')
-# def download_ical(request, ids):
 def download_ical(request, ids=None):
     if ids is not None:
         warnings.warn('download_ical(): the URL argument "ids" is deprecated ; '
@@ -269,7 +265,5 @@ def get_types(request, type_id):
         return []
 
     get_object_or_404(ActivityType, pk=type_id)
-    return list(ActivitySubType.objects.filter(type=type_id)
-                                       # .order_by('id')
-                                       .values_list('id', 'name')
-               )
+
+    return list(ActivitySubType.objects.filter(type=type_id).values_list('id', 'name'))

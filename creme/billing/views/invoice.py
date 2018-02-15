@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,7 +39,6 @@ Invoice = get_invoice_model()
 
 def abstract_add_invoice(request, form=invoice_forms.InvoiceCreateForm,
                          initial_status=constants.DEFAULT_DRAFT_INVOICE_STATUS,
-                         # submit_label=_(u'Save the invoice'),
                          submit_label=Invoice.save_label,
                         ):
     return generic.add_entity(request, form,
@@ -51,7 +50,6 @@ def abstract_add_invoice(request, form=invoice_forms.InvoiceCreateForm,
 def abstract_add_related_invoice(request, target_id, form=invoice_forms.InvoiceCreateForm,
                                  initial_status=constants.DEFAULT_DRAFT_INVOICE_STATUS,
                                  title=_(u'Create an invoice for «%s»'),
-                                 # submit_label=_(u'Save the invoice'),
                                  submit_label=Invoice.save_label,
                                 ):
     return generic_add_related(request, target_id=target_id,
@@ -65,11 +63,9 @@ def abstract_edit_invoice(request, invoice_id, form=invoice_forms.InvoiceEditFor
     return generic.edit_entity(request, invoice_id, Invoice, form)
 
 
-# def abstract_view_invoice(request, invoice_id, template='billing/view_billing.html'):
 def abstract_view_invoice(request, invoice_id, template='billing/view_invoice.html'):
     return generic.view_entity(request, invoice_id, Invoice,
                                template=template,
-                               # extra_template_dict={'can_download': True},
                               )
 
 

@@ -1,70 +1,8 @@
 {% extends 'creme_core/base.html' %}
 {% load creme_bricks %}
-{# {% load i18n creme_block creme_core_tags %} #}
 
 {% block content %}
     {% brick_import app='cti' name='callers' as callers_bricks %}
     {% brick_display callers_bricks %}
     {% brick_end %}
-
-{% comment %}
-    <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
-        {% get_block_header colspan=8 %}
-            <th class="label">
-                {% with callers|length as count %}
-                    {% get_block_title _('%s Potential caller') _('%s Potential callers') 'phone_48.png' _('Caller') count %}
-                {% endwith %}
-            </th>
-            <th class="actions"></th>
-        {% end_get_block_header %}
-        <tbody class="collapsable">
-            <tr class="header">
-                <th class="block_header_line_dark">{% trans "Entity" %}</th>
-                <th class="block_header_line_dark action">{% trans "Actions" %}</th>
-            </tr>
-            {% for caller in callers %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
-                <tr class="content">
-                    <td class="{{row_color}}"><a href="{{caller.get_absolute_url}}">{{caller}}</a></td>
-                    <td class="{{row_color}} action">{% trans "Create a phone call" as label %}
-                        {% if can_create_activity %}
-{#                            <a href="/cti/phonecall/add/{{caller.id}}"> #}
-                            <a href="{% url 'cti__create_phonecall' caller.id %}">
-                                <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{label}}" alt="{{label}}" />{{label}}
-                            </a>
-                        {% else %}
-                            <span class="forbidden" >
-                                <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{label}}" alt="{{label}}" />{{label}}
-                            </span>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% empty %}
-                <tr class="content empty">
-                    <td class="{{row_color}}">{% blocktrans %}No contact/organisation corresponds to this number : {{number}}{% endblocktrans %}</td>
-                    <td class="{{row_color}} action">{% trans "Create a contact" as label %}
-                        {% if can_create_contact %}
-                            <a href="{% url 'cti__create_contact' number %}">
-                                <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{label}}" alt="{{label}}" />{{label}}
-                            </a>
-                        {% else %}
-                            <span class="forbidden" >
-                                <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{label}}" alt="{{label}}" />{{label}}
-                            </span>
-                        {% endif %}
-                        &nbsp;&nbsp;&nbsp;
-                        {% if can_create_orga %}
-                            <a href="{% url 'cti__create_organisation' number %}">{% trans "Create an organisation" as label %}
-                                <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{label}}" alt="{{label}}" />{{label}}
-                            </a>
-                        {% else %}
-                            <span class="forbidden" >
-                                <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{label}}" alt="{{label}}" />{{label}}
-                            </span>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-{% endcomment %}
 {% endblock %}

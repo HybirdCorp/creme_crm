@@ -36,7 +36,6 @@ except Exception as e:
 class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
     @classmethod
     def setUpClass(cls):
-        # BaseReportsTestCase.setUpClass()
         super(ReportGraphTestCase, cls).setUpClass()
         cls.ct_invoice = ContentType.objects.get_for_model(FakeInvoice)
 
@@ -54,29 +53,22 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
     def _build_add_graph_url(self, report):
         return reverse('reports__create_graph', args=(report.id,))
 
-    # def _build_add_block_url(self, rgraph):
     def _build_add_brick_url(self, rgraph):
-        # return '/reports/graph/%s/block/add' % rgraph.id
         return reverse('reports__create_instance_brick', args=(rgraph.id,))
 
     def _build_edit_url(self, rgraph):
         return reverse('reports__edit_graph', args=(rgraph.id,))
 
     def _builf_fetch_url(self, rgraph, order='ASC', use_GET=False):
-        # return '/reports/graph/fetch_graph/%s/%s' % (rgraph.id, order)
         return reverse('reports__fetch_graph', args=(rgraph.id,)) + '?order=%s' % order if use_GET else \
                reverse('reports__fetch_graph', args=(rgraph.id, order))
 
     def _build_fetchfrombrick_url(self, ibi, entity, order='ASC', use_GET=False):
-        # return '/reports/graph/fetch_from_instance_block/%s/%s/%s' % (
-        #                 ibi.id, entity.id, order,
-        #             )
         return reverse('reports__fetch_graph_from_brick', args=(ibi.id, entity.id)) + '?order=%s' % order \
                if use_GET else \
                reverse('reports__fetch_graph_from_brick', args=(ibi.id, entity.id, order))
 
     def _build_graph_types_url(self, ct):
-        # return '/reports/graph/get_available_types/%s' % ct.id
         return reverse('reports__graph_types', args=(ct.id,))
 
     def _create_invoice_report_n_graph(self, abscissa='issuing_date', ordinate='total_no_vat__sum'):
@@ -1908,9 +1900,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         BlockPortalLocation.objects.all().delete()
         BlockPortalLocation.create(app_name='creme_core', block_id=item.block_id, order=1)
         response = self.assertGET200('/')
-        # self.assertTemplateUsed(response, 'reports/templatetags/block_report_graph.html')
         self.assertTemplateUsed(response, 'reports/bricks/graph.html')
-        # self.assertContains(response, ' id="%s"' % item.block_id)
         self.get_brick_node(self.get_html_tree(response.content), item.block_id)
 
         # ---------------------------------------------------------------------
@@ -1930,9 +1920,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self._create_invoice(orga1, orga3, issuing_date='2014-11-03')
 
         response = self.assertGET200(invoice.get_absolute_url())
-        # self.assertTemplateUsed(response, 'reports/templatetags/block_report_graph.html')
         self.assertTemplateUsed(response, 'reports/bricks/graph.html')
-        # self.assertContains(response, ' id="%s"' % item.block_id)
         self.get_brick_node(self.get_html_tree(response.content), item.block_id)
 
         # ---------------------------------------------------------------------
@@ -1973,7 +1961,6 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertGET404(self._build_fetchfrombrick_url(item, invoice, 'FOOBAR', use_GET=True))
         self.assertGET404(self._build_fetchfrombrick_url(item, invoice, 'FOOBAR'))
 
-    # def test_add_graph_instance_block02(self):
     def test_add_graph_instance_brick02(self):
         "Volatile column (RFT_FIELD)"
         rgraph = self._create_documents_rgraph()
@@ -2025,7 +2012,6 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                                       )
 
         response = self.assertGET200(folder1.get_absolute_url())
-        # self.assertTemplateUsed(response, 'reports/templatetags/block_report_graph.html')
         self.assertTemplateUsed(response, 'reports/bricks/graph.html')
 
         fetcher = ReportGraph.get_fetcher_from_instance_block(item)
@@ -2035,7 +2021,6 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         year = doc1.created.year
         self.assertEqual([unicode(year)], x)
-        # self.assertEqual([[2, '/reports/tests/documents?q_filter={"created__year": %s}' % year]], y)
         self.assertEqual([[2,  reverse('reports__list_fake_documents') + '?q_filter={"created__year": %s}' % year]], y)
 
     def test_add_graph_instance_block02_error01(self):

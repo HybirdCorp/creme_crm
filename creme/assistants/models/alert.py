@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -56,7 +56,6 @@ class Alert(CremeModel):
         return self.title
 
     def get_edit_absolute_url(self):
-        # return '/assistants/alert/edit/%s/' % self.id
         return reverse('assistants__edit_alert', args=(self.id,))
 
     @staticmethod
@@ -65,12 +64,10 @@ class Alert(CremeModel):
 
     @staticmethod
     def get_alerts_for_home(user):
-        # return Alert.objects.filter(is_validated=False, user=user).select_related('user')
         return Alert.objects.filter(is_validated=False, user__in=[user] + user.teams).select_related('user')
 
     @staticmethod
     def get_alerts_for_ctypes(ct_ids, user):
-        # return Alert.objects.filter(entity_content_type__in=ct_ids, user=user, is_validated=False) \
         return Alert.objects.filter(entity_content_type__in=ct_ids, user__in=[user] + user.teams, is_validated=False) \
                             .select_related('user')
 
@@ -87,7 +84,6 @@ class _GetAlerts(FunctionField):
     verbose_name = _(u'Alerts')
     result_type  = FunctionFieldResultsList
 
-    # def __call__(self, entity):
     def __call__(self, entity, user):
         cache = getattr(entity, '_alerts_cache', None)
 
@@ -101,7 +97,6 @@ class _GetAlerts(FunctionField):
         return FunctionFieldResultsList(FunctionFieldResult(title) for title in cache)
 
     @classmethod
-    # def populate_entities(cls, entities):
     def populate_entities(cls, entities, user):
         alerts_map = defaultdict(list)
 

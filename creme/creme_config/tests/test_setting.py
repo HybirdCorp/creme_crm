@@ -13,11 +13,7 @@ except Exception as e:
 
 # TODO: clean registry in teardDown...
 class SettingTestCase(CremeTestCase):
-    # def setUp(self):
-    #     self.populate('creme_core')
-
     def _build_edit_url(self, setting_value):
-        # return '/creme_config/settings/edit/%s' % setting_value.id
         return reverse('creme_config__edit_setting', args=(setting_value.id,))
 
     def test_edit_string(self):

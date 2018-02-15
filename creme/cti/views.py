@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,10 +20,8 @@
 
 from datetime import timedelta
 from functools import partial
-# from operator import or_
 
 from django.core.urlresolvers import reverse
-# from django.db.models.query_utils import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.timezone import now
@@ -31,9 +29,7 @@ from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.auth.decorators import login_required, permission_required
-# from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.models import CremeEntity, RelationType, Relation  # EntityCredentials, FieldsConfig
-# from creme.creme_core.models.fields import PhoneField
+from creme.creme_core.models import CremeEntity, RelationType, Relation
 from creme.creme_core.utils import jsonify, get_from_POST_or_404, get_from_GET_or_404
 from creme.creme_core.views.bricks import build_context, bricks_render_info
 from creme.creme_core.views.generic import add_entity
@@ -153,34 +149,9 @@ def create_phonecall_as_caller(request):
 @login_required
 def respond_to_a_call(request):
     number = get_from_GET_or_404(request.GET, 'number')
-    # user = request.user
-    # filter_viewable = EntityCredentials.filter
-    # fconfigs = FieldsConfig.get_4_models(RESPOND_TO_A_CALL_MODELS)
-    # all_fields_hidden = True
-    # callers = []
-    #
-    # for model in RESPOND_TO_A_CALL_MODELS:
-    #     is_hidden = fconfigs[model].is_field_hidden
-    #     queries = [Q(**{field.name: number})
-    #                    for field in model._meta.fields
-    #                        if isinstance(field, PhoneField) and not is_hidden(field)
-    #               ]
-    #
-    #     if queries:
-    #         all_fields_hidden = False
-    #         callers.extend(filter_viewable(user, model.objects.filter(reduce(or_, queries))))
-    #
-    # if all_fields_hidden:
-    #     raise ConflictError(_(u'All phone fields are hidden ; please contact your administrator.'))
-
-    # can_create = user.has_perm_to_create
 
     return render(request, 'cti/respond_to_a_call.html',
-                  {# 'callers':              callers,
-                   'number':               number,
-                   # 'can_create_contact':   can_create(Contact),
-                   # 'can_create_orga':      can_create(Organisation),
-                   # 'can_create_activity':  can_create(Activity),
+                  {'number':            number,
                    'bricks_reload_url': reverse('cti__reload_callers_brick', args=(number,)),
                   }
                  )
@@ -189,9 +160,6 @@ def respond_to_a_call(request):
 @login_required
 @jsonify
 def reload_callers_brick(request, number):
-    # brick_id = get_from_GET_or_404(request.GET, 'brick_id')  is useless
-    # brick = CallersBrick()
-    # return [(brick.id_, brick.detailview_display(build_context(request, number=number)))]
     return bricks_render_info(request, bricks=[CallersBrick()],
                               context=build_context(request, number=number),
                              )

@@ -22,10 +22,9 @@ from collections import defaultdict
 from itertools import chain
 
 from django.contrib.contenttypes.models import ContentType
-# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.gui.bricks import Brick, PaginatedBrick, QuerysetBrick  # list4url
+from creme.creme_core.gui.bricks import Brick, PaginatedBrick, QuerysetBrick
 from creme.creme_core.models import Relation, SettingValue
 
 from creme.persons import get_organisation_model
@@ -51,7 +50,6 @@ class ApproachesBrick(QuerysetBrick):
     dependencies  = (CommercialApproach,)
     order_by      = 'title'
     verbose_name  = _(u'Commercial approaches')
-    # template_name = 'commercial/templatetags/block_approaches.html'
     template_name = 'commercial/bricks/approaches.html'
 
     # TODO: factorise with assistants blocks (CremeEntity method ??)
@@ -93,16 +91,12 @@ class ApproachesBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(
                     context, approaches,
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pk)),
         ))
 
     def portal_display(self, context, ct_ids):
         btc = self.get_template_context(
                     context,
                     CommercialApproach.get_approaches_for_ctypes(ct_ids),
-                    # # update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
-                    # update_url=reverse('creme_core__reload_portal_blocks', args=(self.id_, list4url(ct_ids))),
          )
         self._populate_related_real_entities(btc['page'].object_list, context['user'])
 
@@ -111,8 +105,6 @@ class ApproachesBrick(QuerysetBrick):
     def home_display(self, context):
         btc = self.get_template_context(
                     context, CommercialApproach.get_approaches(),
-                    # # update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
-                    # update_url=reverse('creme_core__reload_home_blocks', args=(self.id_,)),
         )
         self._populate_related_real_entities(btc['page'].object_list, context['user'])
 
@@ -124,7 +116,6 @@ class SegmentsBrick(QuerysetBrick):
     dependencies  = (MarketSegment,)
     order_by      = 'name'
     verbose_name  = u'Market segments'
-    # template_name = 'commercial/templatetags/block_segments.html'
     template_name = 'commercial/bricks/segments.html'
     configurable  = False
     permission    = 'commercial'  # NB: used by the view creme_core.views.blocks.reload_basic
@@ -132,8 +123,6 @@ class SegmentsBrick(QuerysetBrick):
     def detailview_display(self, context):
         return self._render(self.get_template_context(
                     context, MarketSegment.objects.all(),
-                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 
@@ -141,19 +130,13 @@ class SegmentDescriptionsBrick(PaginatedBrick):
     id_           = QuerysetBrick.generate_id('commercial', 'segment_info')
     dependencies  = (MarketSegment,)  # MarketSegmentDescription ??
     verbose_name  = _(u'Market segment descriptions')
-    # template_name = 'commercial/templatetags/block_segment_info.html'
     template_name = 'commercial/bricks/segments-info.html'
     target_ctypes = (Strategy,)
-
-    # _SEGMENTDESC_CT_ID = get_ct(MarketSegmentDescription).id
 
     def detailview_display(self, context):
         strategy = context['object']
         return self._render(self.get_template_context(
                     context, strategy.get_segment_descriptions_list(),
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, strategy.pk)),
-                    # ct_id=self._SEGMENTDESC_CT_ID,
                     ct_id=get_ct(MarketSegmentDescription).id,
         ))
 
@@ -163,19 +146,13 @@ class AssetsBrick(QuerysetBrick):
     dependencies  = (CommercialAsset,)
     order_by      = 'name'
     verbose_name  = _(u'Commercial assets')
-    # template_name = 'commercial/templatetags/block_assets.html'
     template_name = 'commercial/bricks/assets.html'
     target_ctypes = (Strategy,)
-
-    # _ASSET_CT_ID = get_ct(CommercialAsset).id
 
     def detailview_display(self, context):
         strategy = context['object']
         return self._render(self.get_template_context(
                     context, strategy.assets.all(),
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, strategy.pk)),
-                    # ct_id=self._ASSET_CT_ID,
                     ct_id=get_ct(CommercialAsset).id,  # DEPRECATED (use 'objects_ctype.id' instead)
         ))
 
@@ -185,19 +162,13 @@ class CharmsBrick(QuerysetBrick):
     dependencies  = (MarketSegmentCharm,)
     order_by      = 'name'
     verbose_name  = _(u'Segment charms')
-    # template_name = 'commercial/templatetags/block_charms.html'
     template_name = 'commercial/bricks/charms.html'
     target_ctypes = (Strategy,)
-
-    # _CHARM_CT_ID = get_ct(MarketSegmentCharm).id
 
     def detailview_display(self, context):
         strategy = context['object']
         return self._render(self.get_template_context(
                     context, strategy.charms.all(),
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, strategy.pk)),
-                    # ct_id=self._CHARM_CT_ID,
                     ct_id=get_ct(MarketSegmentCharm).id,  # DEPRECATED (use 'objects_ctype.id' instead)
         ))
 
@@ -207,7 +178,6 @@ class EvaluatedOrgasBrick(QuerysetBrick):
     dependencies  = (MarketSegmentCharm,)
     order_by      = 'name'
     verbose_name  = _(u'Evaluated organisations')
-    # template_name = 'commercial/templatetags/block_evalorgas.html'
     template_name = 'commercial/bricks/evaluated-organisations.html'
     target_ctypes = (Strategy,)
 
@@ -216,8 +186,6 @@ class EvaluatedOrgasBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(
                 context, strategy.evaluated_orgas.all(),
-                # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
-                # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, strategy.pk)),
         ))
 
 
@@ -225,7 +193,6 @@ class AssetsMatrixBrick(Brick):
     id_           = Brick.generate_id('commercial', 'assets_matrix')
     # dependencies  = (CommercialAsset,) #useless (custom reload view....)
     verbose_name  = u'Assets / segments matrix'
-    # template_name = 'commercial/templatetags/block_assets_matrix.html'
     template_name = 'commercial/bricks/assets-matrix.html'
     configurable  = False
 
@@ -238,8 +205,6 @@ class AssetsMatrixBrick(Brick):
                         assets=strategy.get_assets_list(),
                         segment_info=strategy.get_segment_descriptions_list(),
                         totals=strategy.get_assets_totals(orga),
-                        # # update_url='/commercial/blocks/assets_matrix/%s/%s/' % (strategy.pk, orga.pk),
-                        # update_url=reverse('commercial__reload_assets_matrix', args=(strategy.id, orga.id)),
                        )
                     )
 
@@ -248,7 +213,6 @@ class CharmsMatrixBrick(Brick):
     id_           = Brick.generate_id('commercial', 'charms_matrix')
     # dependencies  = (MarketSegmentCharm,) #useless (custom reload view....)
     verbose_name  = u'Charms / segments matrix'
-    # template_name = 'commercial/templatetags/block_charms_matrix.html'
     template_name = 'commercial/bricks/charms-matrix.html'
     configurable  = False
 
@@ -261,8 +225,6 @@ class CharmsMatrixBrick(Brick):
                         charms=strategy.get_charms_list(),
                         segment_info=strategy.get_segment_descriptions_list(),
                         totals=strategy.get_charms_totals(orga),
-                        # # update_url='/commercial/blocks/charms_matrix/%s/%s/' % (strategy.pk, orga.pk),
-                        # update_url=reverse('commercial__reload_charms_matrix', args=(strategy.pk, orga.pk),)
                        )
                     )
 
@@ -271,7 +233,6 @@ class AssetsCharmsMatrixBrick(Brick):
     id_           = Brick.generate_id('commercial', 'assets_charms_matrix')
     # dependencies  = (CommercialAsset, MarketSegmentCharm,) #useless (custom reload view....)
     verbose_name  = u'Assets / Charms segments matrix'
-    # template_name = 'commercial/templatetags/block_assets_charms_matrix.html'
     template_name = 'commercial/bricks/assets-charms-matrix.html'
     configurable  = False
 
@@ -282,8 +243,6 @@ class AssetsCharmsMatrixBrick(Brick):
         return self._render(self.get_template_context(
                         context,
                         segment_info=strategy.get_segment_descriptions_list(),
-                        # # update_url='/commercial/blocks/assets_charms_matrix/%s/%s/' % (strategy.pk, orga.pk),
-                        # update_url=reverse('commercial__reload_assets_charms_matrix', args=(strategy.pk, orga.pk)),
                        )
                     )
 
@@ -293,11 +252,8 @@ class ActObjectivesBrick(QuerysetBrick):
     dependencies  = (ActObjective,)
     order_by      = 'name'
     verbose_name  = _(u'Objectives of a Commercial Action')
-    # template_name = 'commercial/templatetags/block_objectives.html'
     template_name = 'commercial/bricks/objectives.html'
     target_ctypes = (Act,)
-
-    # _OBJECTIVE_CT_ID = get_ct(ActObjective).id
 
     def detailview_display(self, context):
         act_id = context['object'].id
@@ -306,9 +262,6 @@ class ActObjectivesBrick(QuerysetBrick):
                     context,
                     # NB: "act.objectives.all()" causes a strange additional query...
                     ActObjective.objects.filter(act=act_id),
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, act_id),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, act_id)),
-                    # ct_id=self._OBJECTIVE_CT_ID,
                     ct_id=get_ct(ActObjective).id,  # DEPRECATED (use 'objects_ctype.id' instead)
         ))
 
@@ -334,11 +287,8 @@ class PatternComponentsBrick(Brick):
     id_           = Brick.generate_id('commercial', 'pattern_components')
     dependencies  = (ActObjectivePatternComponent,)
     verbose_name  = _(u'Components of an Objective Pattern')
-    # template_name = 'commercial/templatetags/block_components.html'
     template_name = 'commercial/bricks/components.html'
     target_ctypes = (ActObjectivePattern,)
-
-    # _PATTERNCOMP_CT_ID = get_ct(ActObjectivePatternComponent).id
 
     def detailview_display(self, context):
         pattern = context['object']
@@ -355,10 +305,5 @@ class PatternComponentsBrick(Brick):
         return self._render(self.get_template_context(
                     context,
                     components=flattened_tree,
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pattern.pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pattern.id)),
-                    # ct_id=self._PATTERNCOMP_CT_ID,
                     ct_id=get_ct(ActObjectivePatternComponent).id,
         ))
-
-# del get_ct

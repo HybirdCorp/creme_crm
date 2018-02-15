@@ -6,7 +6,6 @@ from unittest import skipIf
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
-# from django.utils.translation import ugettext as _
 
 from creme.creme_core.tests.base import CremeTestCase
 
@@ -38,9 +37,7 @@ class _DocumentsTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
         super(_DocumentsTestCase, cls).setUpClass()
-        # cls.populate('creme_core', 'documents')
         cls.ADD_DOC_URL = reverse('documents__create_document')
 
     def _build_filedata(self, content_str, suffix='.txt'):
@@ -89,7 +86,6 @@ class _DocumentsTestCase(CremeTestCase):
 
         return self._create_doc(title=title or name,
                                 file_obj=image_file,
-                                # folder=folder or Folder.objects.get(title=_('Images')),
                                 folder=folder or Folder.objects.get(uuid=constants.UUID_FOLDER_IMAGES),
                                 description=description,
                                 user=user,

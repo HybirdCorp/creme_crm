@@ -10,7 +10,6 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    # from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
     from creme.creme_core.core.entity_cell import EntityCellFunctionField
     from creme.creme_core.core.function_field import FunctionField
     from creme.creme_core.models import FieldsConfig, SetCredentials  # CremeProperty
@@ -30,18 +29,11 @@ except Exception as e:
 @skipIfCustomOrganisation
 class FunctionFieldTestCase(_BillingTestCase):
     def setUp(self):
-        # _BillingTestCase.setUp(self)
-        # self.login()
         self.won_status = QuoteStatus.objects.create(name='won_status', won=True)
         self.pending_payment_status = InvoiceStatus.objects.create(name='pending_payment',
                                                                    pending_payment=True,
                                                                   )
         self.today_date = date.today()
-
-    # def _set_manages_by_creme(self, entity):
-    #     CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME,
-    #                                  creme_entity=entity,
-    #                                 )
 
     def create_line(self, related_document, unit_price, quantity):
         return ProductLine.objects.create(user=self.user,
@@ -60,7 +52,6 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.assertEqual(0, get_total_pending(target, user))
 
         source01 = create_orga(name='Source#1')
-        # self._set_manages_by_creme(source01)
         self._set_managed(source01)
 
         def set_status(invoice):
@@ -71,7 +62,6 @@ class FunctionFieldTestCase(_BillingTestCase):
         set_status(invoice01)
 
         source02 = create_orga(name='Source#2')
-        # self._set_manages_by_creme(source02)
         self._set_managed(source02)
 
         invoice02 = self.create_invoice('Invoice #2', source02, target, user=user)
@@ -131,8 +121,6 @@ class FunctionFieldTestCase(_BillingTestCase):
         target01 = create_orga(name='Target #1')
         target02 = create_orga(name='Target #2')
 
-        # source01 = create_orga(name='Source#1'); self._set_manages_by_creme(source01)
-        # source02 = create_orga(name='Source#2'); self._set_manages_by_creme(source02)
         source01 = create_orga(name='Source#1'); self._set_managed(source01)
         source02 = create_orga(name='Source#2'); self._set_managed(source02)
 
@@ -321,7 +309,6 @@ class FunctionFieldTestCase(_BillingTestCase):
         invoice.status = self.pending_payment_status
         invoice.save()
 
-        # self._set_manages_by_creme(source)
         self._set_managed(source)
         self.create_line(invoice, 2000, 1)
 
@@ -363,7 +350,6 @@ class FunctionFieldTestCase(_BillingTestCase):
 
         quote01, source, target = self.create_quote_n_orgas('Quote #1', status=self.won_status)
         set_date(quote01)
-        # self._set_manages_by_creme(source)
         self._set_managed(source)
 
         quote02 = self.create_quote('Quote #2', source, target, status=self.won_status)
@@ -412,19 +398,14 @@ class FunctionFieldTestCase(_BillingTestCase):
                            )
 
         quote.acceptation_date = self.today_date
-        # self._set_manages_by_creme(source)
         self._set_managed(source)
 
         FieldsConfig.get_4_model(Quote)  # Fill cache
 
-        # with self.assertNumQueries(1):
         with self.assertNumQueries(0):
             total = get_total_won_quote_last_year(target, user)
 
         self.assertEqual(_(u'Error: «Acceptation date» is hidden'), total)
-
-        # with self.assertNumQueries(0):
-        #     get_total_won_quote_last_year(target)
 
     @skipIfCustomQuote
     @skipIfCustomProductLine
@@ -453,8 +434,6 @@ class FunctionFieldTestCase(_BillingTestCase):
         set_date(quote02)
         set_date(quote03)
 
-        # self._set_manages_by_creme(source01)
-        # self._set_manages_by_creme(source02)
         self._set_managed(source01)
         self._set_managed(source02)
 
@@ -518,7 +497,6 @@ class FunctionFieldTestCase(_BillingTestCase):
 
         quote01, source, target = self.create_quote_n_orgas('Quote #1', status=self.won_status)
         set_date(quote01)
-        # self._set_manages_by_creme(source)
         self._set_managed(source)
 
         quote02 = self.create_quote('Quote #2', source, target, status=self.won_status)
@@ -601,8 +579,6 @@ class FunctionFieldTestCase(_BillingTestCase):
         quote04.acceptation_date = self.today_date - timedelta(days=366)
         quote04.save()
 
-        # self._set_manages_by_creme(source01)
-        # self._set_manages_by_creme(source02)
         self._set_managed(source01)
         self._set_managed(source02)
 

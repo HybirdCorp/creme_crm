@@ -27,7 +27,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.shortcuts import render
-from django.utils.translation import ugettext as _  # ungettext
+from django.utils.translation import ugettext as _
 
 from .. import utils
 from ..auth.decorators import login_required
@@ -36,7 +36,6 @@ from ..core.entity_cell import EntityCellRegularField
 from ..gui.bricks import QuerysetBrick
 from ..models import CremeEntity, EntityCredentials
 from ..registry import creme_registry
-# from ..utils.translation import get_model_verbose_name
 from ..utils.unicode_collation import collator
 
 from .bricks import bricks_render_info
@@ -45,9 +44,7 @@ from .bricks import bricks_render_info
 MIN_RESEARCH_LENGTH = 3
 
 
-# class FoundEntitiesBlock(QuerysetBrick):
 class FoundEntitiesBrick(QuerysetBrick):
-    # template_name = 'creme_core/templatetags/block_found_entities.html'
     template_name = 'creme_core/bricks/found-entities.html'
 
     def __init__(self, searcher, model, research, user, id=None):
@@ -87,8 +84,6 @@ class FoundEntitiesBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         model = self.model
-        # meta = model._meta
-        # verbose_name = meta.verbose_name
         research = self.research
         searcher = self.searcher
         results = searcher.search(model, research)
@@ -99,26 +94,12 @@ class FoundEntitiesBrick(QuerysetBrick):
         else:
             qs = EntityCredentials.filter(self.user, results)
 
-        # btc = self.get_block_template_context(
-        btc = self.get_template_context(
+        return self._render(self.get_template_context(
                     context, qs,
-                    # # update_url='/creme_core/search/reload_block/%s/%s' % (self.id_, research),
-                    # update_url=reverse('creme_core__reload_search_block', args=(self.id_, research)),
-                    # sfields=searcher.get_fields(model),
                     cells=[EntityCellRegularField.build(model, field.name) for field in searcher.get_fields(model)],
                     # If the model is inserted in the context, the template call it and create an instance...
                     ctype=self.ctype,
-                    # short_title=verbose_name,
-                )
-
-        # count = btc['page'].paginator.count
-        # btc['title'] = _(u'%(count)s %(model)s') % {
-        #                     'count': count,
-        #                     # 'model': ungettext(verbose_name, meta.verbose_name_plural, count),
-        #                     'model': get_model_verbose_name(model, count),
-        #                 }
-
-        return self._render(btc)
+        ))
 
 
 @login_required
@@ -207,8 +188,8 @@ def reload_brick(request):
     model = ctype.model_class()
     brick = FoundEntitiesBrick(Searcher([model], user), model, search, user, id=brick_id)
 
-    # return [(brick.id_, brick.detailview_display(bricks.build_context(request)))]
     return bricks_render_info(request, bricks=[brick])
+
 
 @login_required
 @utils.jsonify

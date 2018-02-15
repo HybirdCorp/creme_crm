@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,13 +24,13 @@ import logging
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
-from django.forms import ModelChoiceField, ModelMultipleChoiceField, DateTimeField, TimeField, ValidationError  # IntegerField DateField ChoiceField BooleanField
+from django.forms import ModelChoiceField, ModelMultipleChoiceField, DateTimeField, TimeField, ValidationError
 from django.utils.timezone import localtime
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import (validators, CremeEntityForm,
     MultiCreatorEntityField, MultiGenericEntityField, DatePeriodField)
-from creme.creme_core.forms.widgets import CalendarWidget  # UnorderedMultipleChoiceWidget
+from creme.creme_core.forms.widgets import CalendarWidget
 from creme.creme_core.models import RelationType, Relation, SettingValue
 from creme.creme_core.utils.dates import make_aware_dt
 
@@ -53,11 +53,7 @@ class _ActivityForm(CremeEntityForm):
                                       types=ActivityType.objects.exclude(pk=constants.ACTIVITYTYPE_INDISPO),
                                      )
 
-#     start      = CremeDateTimeField(label=_(u'Start'), required=False)
     start_time = TimeField(label=_(u'Start time'), required=False)
-#     end        = CremeDateTimeField(label=_(u'End'), required=False,
-#                                     help_text=_(u'Default duration of the type will be used if you leave blank.'),
-#                                    )
     end_time   = TimeField(label=_(u'End time'), required=False)
 
     error_messages = {
@@ -226,7 +222,6 @@ class _ActivityCreateForm(_ActivityForm):
     participating_users = ModelMultipleChoiceField(label=_(u'Other participating users'),
                                                    queryset=get_user_model().objects.filter(is_staff=False),
                                                    required=False,
-                                                   # widget=UnorderedMultipleChoiceWidget,
                                                   )
 
     # TODO: factorise with ParticipantCreateForm
@@ -256,46 +251,23 @@ class _ActivityCreateForm(_ActivityForm):
         return instance
 
 
-# MINUTES = 'minutes'
-
-
 class ActivityCreateForm(_ActivityCreateForm):
-    # my_participation    = BooleanField(required=False, label=_(u'Do I participate to this activity?'), initial=True)
-    # my_calendar         = ModelChoiceField(queryset=Calendar.objects.none(), required=False,
-    #                                        label=_(u'On which of my calendar this activity will appears?'),
-    #                                        empty_label=None,
-    #                                       )
     my_participation = UserParticipationField(label=_(u'Do I participate to this activity?'), empty_label=None)
 
     other_participants  = MultiCreatorEntityField(label=_(u'Other participants'), model=Contact, required=False)
     subjects            = MultiGenericEntityField(label=_(u'Subjects'), required=False)
     linked_entities     = MultiGenericEntityField(label=_(u'Entities linked to this activity'), required=False)
 
-    # alert_day            = DateField(label=_(u'Alert day'), required=False)
-    # alert_start_time     = TimeField(label=_(u"Alert time"), required=False)
-    # alert_trigger_number = IntegerField(label=_(u'Value'), required=False,
-    #                                     help_text=_(u'Your alert will be raised X units (X = Value) before the start of the activity'),
-    #                                    )
-    # alert_trigger_unit   = ChoiceField(label=_(u'Unit'), required=False,
-    #                                    choices=[(MINUTES, _(u'Minute')),
-    #                                             ('hours', _(u'Hour')),
-    #                                             ('days',  _(u'Day',)),
-    #                                             ('weeks', _(u'Week')),
-    #                                            ],
-    #                                   )
-
     error_messages = dict(_ActivityCreateForm.error_messages,
                           no_participant=_('No participant'),
-                          # no_alert_start=_('If you want this alert you must specify date and time'),
                          )
 
     blocks = _ActivityForm.blocks.new(
         ('datetime',       _(u'When'),         ['start', 'start_time', 'end', 'end_time', 'is_all_day']),
-        ('participants',   _(u'Participants'), ['my_participation',  # 'my_calendar',
-                                                'participating_users',
+        ('participants',   _(u'Participants'), ['my_participation', 'participating_users',
                                                 'other_participants', 'subjects', 'linked_entities']),
-        ('alert_datetime', _(u'Generate an alert on a specific date'), ['alert_start']),  # 'alert_day', 'alert_start_time'
-        ('alert_period',   _(u'Generate an alert in a while'),         ['alert_period']),  # 'alert_trigger_number', 'alert_trigger_unit'
+        ('alert_datetime', _(u'Generate an alert on a specific date'), ['alert_start']),
+        ('alert_period',   _(u'Generate an alert in a while'),         ['alert_period']),
         ('informed_users', _(u'Users to keep informed'),               ['informed_users']),
     )
 
@@ -308,12 +280,6 @@ class ActivityCreateForm(_ActivityCreateForm):
             # TODO: improve help_text of end (we know the type default duration)
             fields['type_selector'].types = ActivityType.objects.filter(pk=activity_type_id)
 
-        # my_calendar_field = fields['my_calendar']
-        # my_calendar_field.queryset = Calendar.objects.filter(user=user)
-        # my_calendar_field.initial  = Calendar.get_user_default_calendar(user)
-        #
-        # fields['my_participation'].widget.attrs['onclick'] = \
-        #     "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
         fields['my_participation'].initial = (True, Calendar.get_user_default_calendar(user))
 
         subjects_field = fields['subjects']
@@ -369,10 +335,8 @@ class ActivityCreateForm(_ActivityCreateForm):
                                                                    )
 
     def clean_my_participation(self):
-        # my_participation = self.cleaned_data.get('my_participation', False)
         my_participation = self.cleaned_data['my_participation']
 
-        # if my_participation:
         if my_participation[0]:
             user = self.user
             self.participants.add(validators.validate_linkable_entity(user.linked_contact, user))
@@ -381,31 +345,15 @@ class ActivityCreateForm(_ActivityCreateForm):
 
     def clean_other_participants(self):
         participants = self.cleaned_data['other_participants']
-        # self.participants.update(validate_linkable_entities(participants, self.user))
         self.participants.update(participants)
         return participants
-
-    # def clean_subjects(self):
-    #     return validate_linkable_entities(self.cleaned_data['subjects'], self.user)
-
-    # def clean_linked_entities(self):
-    #     return validate_linkable_entities(self.cleaned_data['linked_entities'], self.user)
 
     def clean(self):
         if not self._errors:
             cdata = self.cleaned_data
-            # my_participation = cdata['my_participation']
-            # if my_participation and not cdata.get('my_calendar'):
-            #     self.add_error('my_calendar', _(u'If you participate, you have to choose one of your calendars.'))
 
-            # if not my_participation and not cdata['participating_users']:
             if not cdata['my_participation'][0] and not cdata['participating_users']:
                 raise ValidationError(self.error_messages['no_participant'], code='no_participant')
-
-            # if cdata.get('alert_day') and cdata.get('alert_start_time') is None:
-            #     self.add_error('alert_start_time',
-            #                    ValidationError(self.error_messages['no_alert_start'], code='no_alert_start'),
-            #                   )
 
         return super(ActivityCreateForm, self).clean()
 
@@ -417,8 +365,6 @@ class ActivityCreateForm(_ActivityCreateForm):
 
         cdata = self.cleaned_data
 
-        # if cdata['my_participation']:
-        #     instance.calendars.add(cdata['my_calendar'])
         i_participate, my_calendar = cdata['my_participation']
         if i_participate:
             instance.calendars.add(my_calendar)
@@ -450,27 +396,11 @@ class ActivityCreateForm(_ActivityCreateForm):
     def _generate_alerts(self):
         get = self.cleaned_data.get
         activity = self.instance
-        # specific_date_alert = get('alert_day')
         alert_start = get('alert_start')
 
-        # if specific_date_alert:
         if alert_start:
-            # start_time = get('alert_start_time')
-            self._create_alert(activity,
-                               # make_aware_dt(datetime.combine(specific_date_alert,
-                               #                                time(hour=start_time.hour,
-                               #                                     minute=start_time.minute,
-                               #                                    ),
-                               #              ))
-                               alert_start,
-                              )
+            self._create_alert(activity, alert_start)
 
-        # amount = get('alert_trigger_number')
-        #
-        # if amount:
-        #     self._create_alert(activity,
-        #                        activity.start - timedelta(**{get('alert_trigger_unit') or MINUTES: amount})
-        #                       )
         period = get('alert_period')
         if period:
             self._create_alert(activity, activity.start - period.as_timedelta())
@@ -527,8 +457,6 @@ class CalendarActivityCreateForm(ActivityCreateForm):
 
     def __init__(self, start=None, *args, **kwargs):
         super(CalendarActivityCreateForm, self).__init__(*args, **kwargs)
-        # fields = self.fields
-        # fields['participating_users'].widget.attrs = {'reduced': 'true'}
 
         if start:  # Normally there's always a start_date for this kind of add
             fields = self.fields
@@ -549,7 +477,7 @@ class IndisponibilityCreateForm(_ActivityCreateForm):
         exclude = _ActivityCreateForm.Meta.exclude + (
                         'place', 'description', 'minutes', 'busy', 'status',
                         'duration',
-                    )  # 'sub_type' #TODO: test
+                    )  # TODO: test
 
     blocks = _ActivityCreateForm.blocks.new(
         ('datetime',     _(u'When'),         ['is_all_day', 'start', 'start_time', 'end', 'end_time']),

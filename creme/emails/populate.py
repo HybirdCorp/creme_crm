@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -59,7 +59,6 @@ class Populator(BasePopulator):
         Organisation = persons.get_organisation_model()
 
         # ---------------------------
-        # SettingValue.create_if_needed(key=emailcampaign_sender, user=None, value="")
         SettingValue.objects.get_or_create(key_id=emailcampaign_sender.id, defaults={'value': ''})
 
         # ---------------------------
@@ -184,7 +183,6 @@ class Populator(BasePopulator):
             create_bdl(block_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=EmailCampaign)
             create_bdl(block_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=EmailCampaign)
 
-            # BlockDetailviewLocation.create_4_model_block(order=5,          zone=LEFT,  model=EmailTemplate)
             create_bdl(block_id=cbci_template.generate_id(),       order=5,   zone=LEFT,  model=EmailTemplate)
             create_bdl(block_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=EmailTemplate)
             create_bdl(block_id=bricks.AttachmentsBrick.id_,       order=60,  zone=LEFT,  model=EmailTemplate)

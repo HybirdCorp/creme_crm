@@ -21,10 +21,9 @@
 from collections import defaultdict
 
 from django.contrib.contenttypes.models import ContentType
-# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.gui.bricks import QuerysetBrick  # list4url
+from creme.creme_core.gui.bricks import QuerysetBrick
 
 from .models import Action, Alert, Memo, ToDo, UserMessage
 
@@ -67,8 +66,6 @@ class _AssistantsBrick(QuerysetBrick):
         entity = context['object']
         btc = self.get_template_context(
                 context, self._get_queryset_for_detailview(entity, context),
-                # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
                 ct_id=self._get_contenttype_id(),  # DEPRECATED (use 'objects_ctype.id' instead)
         )
 
@@ -81,11 +78,8 @@ class _AssistantsBrick(QuerysetBrick):
     def portal_display(self, context, ct_ids):
         btc = self.get_template_context(
             context, self._get_queryset_for_portal(ct_ids, context),
-            # # update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
-            # update_url=reverse('creme_core__reload_portal_blocks', args=(self.id_, list4url(ct_ids))),
             ct_id=self._get_contenttype_id(),  # DEPRECATED
         )
-        # self._populate_related_real_entities(btc['page'].object_list, context['request'].user)
         self._populate_related_real_entities(btc['page'].object_list, context['user'])
 
         return self._render(btc)
@@ -93,11 +87,8 @@ class _AssistantsBrick(QuerysetBrick):
     def home_display(self, context):
         btc = self.get_template_context(
                 context, self._get_queryset_for_home(context),
-                # # update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
-                # update_url=reverse('creme_core__reload_home_blocks', args=(self.id_,)),
                 ct_id=self._get_contenttype_id(),  # DEPRECATED
         )
-        # self._populate_related_real_entities(btc['page'].object_list, context['request'].user)
         self._populate_related_real_entities(btc['page'].object_list, context['user'])
 
         return self._render(btc)
@@ -108,18 +99,15 @@ class TodosBrick(_AssistantsBrick):
     dependencies  = (ToDo,)
     order_by      = '-creation_date'
     verbose_name  = _(u'Todos')
-    # template_name = 'assistants/block_todos.html'
     template_name = 'assistants/bricks/todos.html'
 
     def _get_queryset_for_detailview(self, entity, context):
         return ToDo.get_todos(entity)
 
     def _get_queryset_for_home(self, context):
-        # return ToDo.get_todos_for_home(context['request'].user)
         return ToDo.get_todos_for_home(context['user'])
 
     def _get_queryset_for_portal(self, ct_ids, context):
-        # return ToDo.get_todos_for_ctypes(ct_ids, context['request'].user)
         return ToDo.get_todos_for_ctypes(ct_ids, context['user'])
 
 
@@ -128,18 +116,15 @@ class MemosBrick(_AssistantsBrick):
     dependencies  = (Memo,)
     order_by      = '-creation_date'
     verbose_name  = _(u'Memos')
-    # template_name = 'assistants/block_memos.html'
     template_name = 'assistants/bricks/memos.html'
 
     def _get_queryset_for_detailview(self, entity, context):
         return Memo.get_memos(entity)
 
     def _get_queryset_for_home(self, context):
-        # return Memo.get_memos_for_home(context['request'].user)
         return Memo.get_memos_for_home(context['user'])
 
     def _get_queryset_for_portal(self, ct_ids, context):
-        # return Memo.get_memos_for_ctypes(ct_ids, context['request'].user)
         return Memo.get_memos_for_ctypes(ct_ids, context['user'])
 
 
@@ -148,18 +133,15 @@ class AlertsBrick(_AssistantsBrick):
     dependencies  = (Alert,)
     order_by      = '-trigger_date'
     verbose_name  = _(u'Alerts')
-    # template_name = 'assistants/block_alerts.html'
     template_name = 'assistants/bricks/alerts.html'
 
     def _get_queryset_for_detailview(self, entity, context):
         return Alert.get_alerts(entity)
 
     def _get_queryset_for_home(self, context):
-        # return Alert.get_alerts_for_home(context['request'].user)
         return Alert.get_alerts_for_home(context['user'])
 
     def _get_queryset_for_portal(self, ct_ids, context):
-        # return Alert.get_alerts_for_ctypes(ct_ids, context['request'].user)
         return Alert.get_alerts_for_ctypes(ct_ids, context['user'])
 
 
@@ -168,18 +150,15 @@ class ActionsOnTimeBrick(_AssistantsBrick):
     dependencies  = (Action,)
     order_by      = 'deadline'
     verbose_name  = _(u'Actions in time')
-    # template_name = 'assistants/block_actions_it.html'
     template_name = 'assistants/bricks/actions-on-time.html'
 
     def _get_queryset_for_detailview(self, entity, context):
         return Action.get_actions_it(entity, context['today'])
 
     def _get_queryset_for_home(self, context):
-        # return Action.get_actions_it_for_home(context['request'].user, context['today'])
         return Action.get_actions_it_for_home(context['user'], context['today'])
 
     def _get_queryset_for_portal(self, ct_ids, context):
-        # return Action.get_actions_it_for_ctypes(ct_ids, context['request'].user, context['today'])
         return Action.get_actions_it_for_ctypes(ct_ids, context['user'], context['today'])
 
 
@@ -188,18 +167,15 @@ class ActionsNotOnTimeBrick(_AssistantsBrick):
     dependencies  = (Action,)
     order_by      = 'deadline'
     verbose_name  = _(u'Reactions not in time')
-    # template_name = 'assistants/block_actions_nit.html'
     template_name = 'assistants/bricks/actions-not-on-time.html'
 
     def _get_queryset_for_detailview(self, entity, context):
         return Action.get_actions_nit(entity, context['today'])
 
     def _get_queryset_for_home(self, context):
-        # return  Action.get_actions_nit_for_home(context['request'].user, context['today'])
         return  Action.get_actions_nit_for_home(context['user'], context['today'])
 
     def _get_queryset_for_portal(self, ct_ids, context):
-        # return Action.get_actions_nit_for_ctypes(ct_ids, context['request'].user, context['today'])
         return Action.get_actions_nit_for_ctypes(ct_ids, context['user'], context['today'])
 
 
@@ -208,17 +184,13 @@ class UserMessagesBrick(_AssistantsBrick):
     dependencies  = (UserMessage,)
     order_by      = '-creation_date'
     verbose_name  = _(u'User messages')
-    # template_name = 'assistants/block_messages.html'
     template_name = 'assistants/bricks/messages.html'
 
     def _get_queryset_for_detailview(self, entity, context):
-        # return UserMessage.get_messages(entity, context['request'].user)
         return UserMessage.get_messages(entity, context['user'])
 
     def _get_queryset_for_home(self, context):
-        # return UserMessage.get_messages_for_home(context['request'].user)
         return UserMessage.get_messages_for_home(context['user'])
 
     def _get_queryset_for_portal(self, ct_ids, context):
-        # return UserMessage.get_messages_for_ctypes(ct_ids, context['request'].user)
         return UserMessage.get_messages_for_ctypes(ct_ids, context['user'])

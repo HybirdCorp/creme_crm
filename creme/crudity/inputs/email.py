@@ -157,7 +157,6 @@ class CreateEmailInput(EmailInput):
             is_created, instance = backend._create_instance_n_history(data, user=owner, source='email - %s' % self.name)
             self._post_create(backend, data, instance)
 
-        # return True
         return backend
 
     @staticmethod
@@ -215,9 +214,6 @@ class CreateInfopathInput(CreateEmailInput):
             except FieldDoesNotExist:
                 continue
 
-            # if field_value is not None \
-            #    and (isinstance(field, ForeignKey) and issubclass(field.rel.to, Image)) \
-            #    or issubclass(field.__class__, FileField):
             if field_value is not None \
                and (isinstance(field, ForeignKey) and issubclass(field.rel.to, Document)) \
                or isinstance(field, FileField):
@@ -227,7 +223,6 @@ class CreateInfopathInput(CreateEmailInput):
         backend = self.get_backend(CrudityBackend.normalize_subject(email.subject)) or self.get_backend("*")
 
         if backend is None:
-            # return False
             return None
 
         MIME_TYPES = self.MIME_TYPES
@@ -244,11 +239,9 @@ class CreateInfopathInput(CreateEmailInput):
                                         for name, attachment in attachments
                                    )
                                   ):
-                    # is_created |= self._create(backend, data, email.senders[0])
                     self._create(backend, data, email.senders[0])
                     is_created = True
 
-                # return is_created
                 if is_created:
                     return backend
 

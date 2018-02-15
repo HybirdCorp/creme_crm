@@ -88,7 +88,6 @@ else:
 
         @staticmethod
         def get_lv_absolute_url():
-            # return '/tests/documents'
             return reverse('creme_core__list_fake_documents')
 
 #        def get_edit_absolute_url(self):
@@ -148,7 +147,6 @@ else:
             return self.name
 
         def get_absolute_url(self):
-            # return '/tests/image/%s' % self.id
             return reverse('creme_core__view_fake_image', args=(self.id,))
 
         @staticmethod
@@ -157,7 +155,6 @@ else:
 
         @staticmethod
         def get_lv_absolute_url():
-            # return '/tests/images'
             return reverse('creme_core__list_fake_images')
 
 #        def get_edit_absolute_url(self):
@@ -229,7 +226,6 @@ else:
             return u' '.join(filter(None, [self.value, self.zipcode, self.city, self.department, self.country]))
 
         def get_edit_absolute_url(self):
-            # return '/tests/address/edit/%s' % self.id
             return reverse('creme_core__edit_fake_address', args=(self.id,))
 
         def get_related_entity(self):  # For generic views
@@ -299,16 +295,13 @@ else:
                 raise ValidationError(ugettext('This Contact is related to a user and must have a first name.'))
 
         def get_absolute_url(self):
-            # return '/tests/contact/%s' % self.id
             return reverse('creme_core__view_fake_contact', args=(self.id,))
 
         @staticmethod
         def get_create_absolute_url():
-            # return '/tests/contact/add'
             return reverse('creme_core__create_fake_contact')
 
         def get_edit_absolute_url(self):
-            # return '/tests/contact/edit/%s' % self.id
             return reverse('creme_core__edit_fake_contact', args=(self.id,))
 
         @staticmethod
@@ -336,7 +329,6 @@ else:
         # has_filter   = False #==> cannot search
         result_type  = FunctionFieldResultsList
 
-        # def __call__(self, entity):
         def __call__(self, entity, user):
             return FunctionFieldResultsList(FunctionFieldResult('Todo %s #%s' % (entity, i))
                                                 for i in xrange(1, 3)
@@ -391,21 +383,17 @@ else:
             return self.name
 
         def get_absolute_url(self):
-            # return '/tests/organisation/%s' % self.id
             return reverse('creme_core__view_fake_organisation', args=(self.id,))
 
         @staticmethod
         def get_create_absolute_url():
-            # return '/tests/organisation/add'
             return reverse('creme_core__create_fake_organisation')
 
         def get_edit_absolute_url(self):
-            # return '/tests/organisation/edit/%s' % self.id
             return reverse('creme_core__edit_fake_organisation', args=(self.id,))
 
         @staticmethod
         def get_lv_absolute_url():
-            # return '/tests/organisations'
             return reverse('creme_core__list_fake_organisations')
 
 
@@ -447,7 +435,6 @@ else:
 
         @staticmethod
         def get_lv_absolute_url():
-            # return '/tests/activities'
             return reverse('creme_core__list_fake_activities')
 
 
@@ -524,7 +511,6 @@ else:
             return self.name
 
         def get_absolute_url(self):
-            # return '/tests/invoice/%s' % self.id
             return reverse('creme_core__view_fake_invoice', args=(self.id,))
 
 #        def get_edit_absolute_url(self):
@@ -563,7 +549,6 @@ else:
 
         @staticmethod
         def get_lv_absolute_url():
-            # return '/tests/invoice_lines'
             return reverse('creme_core__list_fake_invoicelines')
 
         def get_related_entity(self):  # For generic views & delete

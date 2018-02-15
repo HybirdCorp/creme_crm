@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -82,7 +82,6 @@ class ActivityTypeWidget(ChainedInput):
     def render(self, name, value, attrs=None):
         add = partial(self.add_dselect, attrs={'auto': False})
         add('type', options=self.types)
-        # add('sub_type', options='/activities/type/${type}/json')
         add('sub_type',
             options=TemplateURLBuilder(type_id=(TemplateURLBuilder.Word, '${type}'))
                                       .resolve('activities__get_types'),

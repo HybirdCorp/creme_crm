@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -129,14 +129,8 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
         self.locations = ()
         model = ct.model_class() if ct else None
 
-        # self.modelblock_vname = modelblock_vname = ugettext('Information on the entity')
-        # choices = [(MODELBLOCK_ID, modelblock_vname)]
-        # choices.extend((brick.id_, unicode(brick.verbose_name))
-        #                    for brick in block_registry.get_compatible_blocks(model=ct.model_class() if ct else None)
-        #               )
         self.choices = choices = [
             (brick.id_, unicode(brick.verbose_name))
-               # for brick in block_registry.get_compatible_bricks(model=ct.model_class() if ct else None)
                for brick in gui_bricks.brick_registry.get_compatible_bricks(model=model)
         ]
 
@@ -171,10 +165,6 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
                         break
 
                 raise ValidationError(self.error_messages['duplicated_block'],
-                                      # params={'block': self.modelblock_vname
-                                      #                  if brick_id == MODELBLOCK_ID else
-                                      #                  block_registry[brick_id].verbose_name,
-                                      #        },
                                       params={'block': verbose_name},
                                       code='duplicated_block',
                                      )
@@ -288,10 +278,6 @@ class BlockPortalLocationsAddForm(_BlockPortalLocationsForm):
         excluded_apps.add('creme_core')
         excluded_apps.add('creme_config')
 
-        # self.fields['app_name'].choices = [(app.name, app.verbose_name)
-        #                                        for app in creme_registry.iter_apps()
-        #                                            if not app.name in excluded_apps
-        #                                   ]
         self.fields['app_name'].choices = [(app_config.label, app_config.verbose_name)
                                                for app_config in creme_app_configs()
                                                    if not app_config.label in excluded_apps

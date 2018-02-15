@@ -1,11 +1,6 @@
 <div class="in-popup" {% if is_valid %}closing="true"{% endif %} {% if callback_url %}redirect="{{callback_url}}"{% endif %} {% if reload %}force-reload{% endif %} {% if delegate_reload %}delegate-reload{% endif %}>
     <div id="inner_header" style="display: none;">
         <input name="inner_header_from_url" value="{{from_url}}" type="hidden"/>
-{% comment %}
-            Let you define your own beforeClose with default close callback
-            OR (entire own) close callback think about set.
-            Think to set delegate_reload to True in your view
-{% endcomment %}
     </div>
     <div name="inner_body">
         <input type="hidden" name="whoami" value="{{whoami}}"/>

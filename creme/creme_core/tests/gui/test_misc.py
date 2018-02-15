@@ -21,7 +21,7 @@ try:
             FakeInvoice, FakeInvoiceLine)
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.gui.field_printers import (_FieldPrintersRegistry,
-            FKPrinter, simple_print_html)  # print_foreignkey_html field_printers_registry
+            FKPrinter, simple_print_html)
     from creme.creme_core.gui.icons import Icon, IconRegistry
     from creme.creme_core.gui.last_viewed import LastViewedItem
     from creme.creme_core.gui.statistics import _StatisticsRegistry
@@ -31,11 +31,6 @@ except Exception as e:
 
 
 class GuiTestCase(CremeTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('creme_core')
-
     def test_last_viewed_items(self):
         settings.MAX_LAST_ITEMS = 5
         user = self.login()

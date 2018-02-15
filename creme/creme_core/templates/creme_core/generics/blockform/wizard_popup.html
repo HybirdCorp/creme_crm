@@ -2,15 +2,6 @@
 
 {% with form=wizard.form steps=wizard.steps %}
     {% block title %}
-{% comment %}
-        <table class="table_header" cellpadding="0" cellspacing="0">
-            <tr>
-                {% if logo %}<td width="5%"><img src="{% creme_media_url logo %}" alt=""/></td><td width="95%">{% else %}<td>{% endif %}
-                    <h1>{% blocktrans with current_step=steps.step1 step_count=steps.count %}{{title}}: step {{current_step}} of {{step_count}}{% endblocktrans %}</h1>
-                </td>
-            </tr>
-        </table>
-{% endcomment %}
         <div class="hat-bar-container">
             <div class="hat-bar">
                 {% if icon_name %}<div class="bar-icon">{% widget_icon name=icon_name size='brick-hat-bar' label=icon_label|or_op:title %}</div>{% endif %}

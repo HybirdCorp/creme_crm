@@ -8,8 +8,7 @@ try:
 
     from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    # from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
-    from creme.creme_core.models import Relation, SetCredentials, FieldsConfig  # CremeProperty
+    from creme.creme_core.models import Relation, SetCredentials, FieldsConfig
 
     from .base import (_BaseTestCase, skipIfCustomAddress, skipIfCustomContact,
             skipIfCustomOrganisation, Organisation, Address, Contact)
@@ -116,9 +115,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertIsNone(orga.billing_address)
         self.assertIsNone(orga.shipping_address)
 
-        abs_url = orga.get_absolute_url()
-        # self.assertEqual('/persons/organisation/%s' % orga.id, abs_url)
-        self.assertRedirects(response, abs_url)
+        self.assertRedirects(response, orga.get_absolute_url())
 
     @skipIfCustomAddress
     def test_createview02(self):
@@ -329,13 +326,6 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
             self.assertAddressOnlyContentEqual(address, address2)
 
     def _build_managed_orga(self, user=None, name='Bebop'):
-        # user = user or self.user
-        #
-        # with self.assertNoException():
-        #     mng_orga = Organisation.objects.create(user=user, name=name)
-        #     CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=mng_orga)
-        #
-        # return mng_orga
         return Organisation.objects.create(user=user or self.user, name=name, is_managed=True)
 
     def test_get_all_managed_by_creme(self):
@@ -360,20 +350,17 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertEqual(id(qs1), id(qs2))
 
-    # def _become_test(self, url, relation_type):
     def _become_test(self, url_name, relation_type):
         user = self.login()
 
         mng_orga = self._build_managed_orga()
         customer = Contact.objects.create(user=user, first_name='Jet', last_name='Black')
 
-        # response = self.assertPOST200(url % customer.id, data={'id': mng_orga.id}, follow=True)
         response = self.assertPOST200(reverse(url_name, args=(customer.id,)), data={'id': mng_orga.id}, follow=True)
         self.assertTrue(response.redirect_chain)
         self.get_object_or_fail(Relation, subject_entity=customer, object_entity=mng_orga, type=relation_type)
 
     def test_become_customer01(self):
-        # self._become_test('/persons/%s/become_customer', REL_SUB_CUSTOMER_SUPPLIER)
         self._become_test('persons__become_customer', constants.REL_SUB_CUSTOMER_SUPPLIER)
 
     @skipIfCustomContact
@@ -406,19 +393,15 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(0, Relation.objects.filter(subject_entity=customer02.id).count())
 
     def test_become_prospect(self):
-        # self._become_test('/persons/%s/become_prospect', REL_SUB_PROSPECT)
         self._become_test('persons__become_prospect', constants.REL_SUB_PROSPECT)
 
     def test_become_suspect(self):
-        # self._become_test('/persons/%s/become_suspect', REL_SUB_SUSPECT)
         self._become_test('persons__become_suspect', constants.REL_SUB_SUSPECT)
 
     def test_become_inactive_customer(self):
-        # self._become_test('/persons/%s/become_inactive_customer', REL_SUB_INACTIVE)
         self._become_test('persons__become_inactive_customer', constants.REL_SUB_INACTIVE)
 
     def test_become_supplier(self):
-        # self._become_test('/persons/%s/become_supplier', REL_OBJ_CUSTOMER_SUPPLIER)
         self._become_test('persons__become_supplier', constants.REL_OBJ_CUSTOMER_SUPPLIER)
 
     def test_leads_customers01(self):
@@ -962,7 +945,6 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         hunting = Sector.objects.create(title='Bounty hunting')
         bebop = Organisation.objects.create(user=user, name='Bebop', sector=hunting)
 
-        # self.assertPOST200('/creme_config/persons/sector/delete', data={'id': hunting.pk})
         self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'sector')),
                            data={'id': hunting.pk}
                           )
@@ -977,7 +959,6 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         band = LegalForm.objects.create(title='Bounty hunting band')
         bebop = Organisation.objects.create(user=user, name='Bebop', legal_form=band)
 
-        # self.assertPOST200('/creme_config/persons/legal_form/delete', data={'id': band.pk})
         self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'legal_form')),
                            data={'id': band.pk}
                           )
@@ -992,7 +973,6 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         size = StaffSize.objects.create(size='4 and a dog')
         bebop = Organisation.objects.create(user=user, name='Bebop', staff_size=size)
 
-        # self.assertPOST200('/creme_config/persons/staff_size/delete', data={'id': size.pk})
         self.assertPOST200(reverse('creme_config__delete_instance', args=('persons', 'staff_size')),
                            data={'id': size.pk}
                           )
@@ -1023,10 +1003,6 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                    )
         self.assertNoFormError(response)
 
-        # with self.assertNoException():
-        #     form = response.context['form']
-        #
-        # self.assertEqual(len(lines), form.imported_objects_count)
         job = self._execute_job(response)
         self.assertEqual([_(u'Import «{type}» from {doc}').format(
                                 type=_(u'Organisation'),
@@ -1175,10 +1151,6 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         orga = self.get_object_or_fail(Organisation, name=name)
         self.assertIsNone(orga.billing_address)
 
-        # with self.assertNoException():
-        #     form = response.context['form']
-        #
-        # self.assertFalse(list(form.import_errors))
         self._assertNoResultError(self._get_job_results(job))
 
     def test_set_orga_as_managed(self):

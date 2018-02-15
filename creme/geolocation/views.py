@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2017  Hybird
+#    Copyright (C) 2014-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,17 +33,13 @@ from creme.creme_core.views.decorators import POST_only
 
 from creme.persons import get_contact_model, get_organisation_model, get_address_model
 
-# from .constants import DEFAULT_SEPARATING_NEIGHBOURS
-# from .setting_keys import NEIGHBOURHOOD_DISTANCE
-
 from .models import GeoAddress
-from .utils import address_as_dict, addresses_from_persons, get_radius  # get_setting
+from .utils import address_as_dict, addresses_from_persons, get_radius
 
 
 @login_required
 @permission_required('persons')
 @POST_only
-# def set_address_info(request, address_id):
 def set_address_info(request, address_id=None):
     get = partial(get_from_POST_or_404, request.POST)
 
@@ -76,7 +72,6 @@ def set_address_info(request, address_id=None):
 @login_required
 @permission_required('persons')
 @jsonify
-# def get_addresses_from_filter(request, filter_id):
 def get_addresses_from_filter(request, filter_id=None):  # TODO: rename 'get_addresses()'
     if filter_id is None:
         filter_id = request.GET.get('id')
@@ -105,7 +100,6 @@ def get_addresses_from_filter(request, filter_id=None):  # TODO: rename 'get_add
 @login_required
 @permission_required('persons')
 @jsonify
-# def get_neighbours(request, address_id, filter_id):
 def get_neighbours(request, address_id=None, filter_id=None):
     GET = request.GET
 
@@ -126,7 +120,6 @@ def get_neighbours(request, address_id=None, filter_id=None):
                      )
 
     source = get_object_or_404(get_address_model(), id=address_id)
-    # distance = get_setting(NEIGHBOURHOOD_DISTANCE, DEFAULT_SEPARATING_NEIGHBOURS)
     distance = get_radius()
     entity_filter = get_object_or_404(EntityFilter, id=filter_id) if filter_id else None
 
@@ -145,7 +138,6 @@ def get_neighbours(request, address_id=None, filter_id=None):
         owner_ids = entity_filter.filter(model.objects.filter(is_deleted=False, pk__in=owner_ids))\
                                  .values_list('pk', flat=True)
 
-        # neighbours = neighbours.filter(address__content_type_id=ContentType.objects.get_for_model(model).pk,
         neighbours = neighbours.filter(address__content_type=ContentType.objects.get_for_model(model),
                                        address__object_id__in=owner_ids,
                                       )

@@ -18,7 +18,6 @@ except Exception as e:
 class MetaTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
         super(MetaTestCase, cls).setUpClass()
         cls._lang = translation.get_language()
         cls._translation_deactivated = False
@@ -263,11 +262,6 @@ class MetaTestCase(CremeTestCase):
         self.assertEqual([l1.name, l3.name], FieldInfo(FakeContact, 'languages__name').value_from(al))
 
     # TODO: test mtom1__mtom2
-
-    # def test_get_date_fields(self):
-    #     datefields = meta.get_date_fields(CremeEntity())
-    #     self.assertEqual(2, len(datefields))
-    #     self.assertEqual({'created', 'modified'}, {f.name for f in datefields})
 
     def test_is_date_field(self):
         entity = CremeEntity()

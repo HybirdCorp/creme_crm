@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,10 +32,6 @@ MessagingList = get_messaginglist_model()
 
 
 class CampaignCreateForm(CremeEntityForm):
-    # lists = MultiCreatorEntityField(label=_(u'Related messaging lists'),
-    #                                 required=False, model=MessagingList,
-    #                                )
-
     class Meta(CremeEntityForm.Meta):
         model = SMSCampaign
 

@@ -20,7 +20,6 @@ except Exception as e:
 class PollsAppTestCase(_PollsTestCase, BrickTestCaseMixin):
     def test_portal(self):
         self.login()
-        # self.assertGET200('/polls/')
         self.assertGET200(reverse('polls__portal'))
 
     def test_populate(self):
@@ -39,10 +38,8 @@ class PollsAppTestCase(_PollsTestCase, BrickTestCaseMixin):
                                        last_name='Vance',
                                       )
         response = self.assertGET200(leina.get_absolute_url())
-        # self.assertTemplateUsed(response, 'polls/templatetags/block_person_preplies.html')
         self.assertTemplateUsed(response, 'polls/bricks/person-preplies.html')
 
-        # self.assertContains(response, 'id="%s"' % PersonPollRepliesBlock.id_)
         self.get_brick_node(self.get_html_tree(response.content), PersonPollRepliesBrick.id_)
 
     @skipIfCustomOrganisation
@@ -51,5 +48,4 @@ class PollsAppTestCase(_PollsTestCase, BrickTestCaseMixin):
         gaimos = Organisation.objects.create(user=user, name='Gaimos')
         response = self.assertGET200(gaimos.get_absolute_url())
 
-        # self.assertContains(response, 'id="%s"' % PersonPollRepliesBlock.id_)
         self.get_brick_node(self.get_html_tree(response.content), PersonPollRepliesBrick.id_)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,9 +35,6 @@ class SimpleAlgo(Algo):
         # We cannot use F() to increment the number, because it's return the number of lines, not the lines themselves
         # ( & we need the line to get the incremented value without race condition)
         while True:
-            # old_conf = max(SimpleBillingAlgo.objects.filter(organisation=organisation, ct=ct),
-            #                key=lambda algo: algo.last_number
-            #               )
             old_conf = SimpleBillingAlgo.objects.filter(organisation=organisation, ct=ct)\
                                                 .order_by('-last_number')[0]
             conf = SimpleBillingAlgo(organisation=old_conf.organisation,

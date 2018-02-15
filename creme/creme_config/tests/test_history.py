@@ -11,19 +11,12 @@ except Exception as e:
 
 
 class HistoryConfigTestCase(CremeTestCase):
-    # ADD_URL = '/creme_config/history/add/'
     ADD_URL = reverse('creme_config__create_history_configs')
-
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('creme_core')
 
     def setUp(self):
         self.login()
 
     def test_portal(self):
-        # self.assertGET200('/creme_config/history/portal/')
         self.assertGET200(reverse('creme_config__history'))
 
     def test_add01(self):
@@ -63,6 +56,5 @@ class HistoryConfigTestCase(CremeTestCase):
         rtype = RelationType.create(('test-subject_foo', 'fooes'), ('test-object_foo', 'fooed'))[0]
         hci = HistoryConfigItem.objects.create(relation_type=rtype)
 
-        # self.assertPOST200('/creme_config/history/delete', data={'id': hci.id})
         self.assertPOST200(reverse('creme_config__remove_history_config'), data={'id': hci.id})
         self.assertDoesNotExist(hci)

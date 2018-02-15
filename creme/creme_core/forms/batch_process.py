@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,6 @@
 
 from collections import OrderedDict
 from functools import partial
-# import logging
 
 from django.core.exceptions import ValidationError
 from django.forms import ModelChoiceField
@@ -39,9 +38,6 @@ from .fields import JSONField
 from .widgets import DynamicInput, SelectorList, ChainedInput, PolymorphicInput
 
 
-# logger = logging.getLogger(__name__)
-
-
 class BatchActionsWidget(SelectorList):
     def __init__(self, model=CremeEntity, fields=(), attrs=None):
         super(BatchActionsWidget, self).__init__(selector=None, attrs=attrs)
@@ -55,8 +51,6 @@ class BatchActionsWidget(SelectorList):
         # TODO: improve SelectorList.add_* to avoid attribute 'auto'
         chained_input.add_dselect('name', attrs=sub_attrs, options=self.fields)
         chained_input.add_dselect('operator', attrs=sub_attrs,
-                                  # options='/creme_core/list_view/batch_process/%s/get_ops/${name}' %
-                                  #               ContentType.objects.get_for_model(self.model).id
                                   # TODO: use a GET arg instead of using a TemplateURLBuilder ?
                                   options=TemplateURLBuilder(field=(TemplateURLBuilder.Word, '${name}'))\
                                             .resolve('creme_core__batch_process_ops',
@@ -185,15 +179,11 @@ class BatchActionsField(JSONField):
         return actions
 
 
-# class BatchProcessForm(CremeForm):
 class BatchProcessForm(CremeModelForm):
     filter  = ModelChoiceField(label=pgettext_lazy('creme_core-noun', u'Filter'), queryset=EntityFilter.objects.none(),
                                empty_label=_(u'All'), required=False,
                               )
     actions = BatchActionsField(label=_(u'Actions'))
-
-    # _modified_objects_count = 0
-    # _read_objects_count = 0
 
     class Meta:
         model = Job
@@ -206,73 +196,6 @@ class BatchProcessForm(CremeModelForm):
         fields = self.fields
         fields['filter'].queryset = EntityFilter.get_for_user(self.user, ct)
         fields['actions'].model = self._entity_type = ct.model_class()
-
-        # self.process_errors = LimitedList(50)
-
-    # def _humanize_validation_error(self, ve):
-    #     meta = self._entity_type._meta
-    #
-    #     try:
-    #         # TODO: NON_FIELD_ERRORS need to be unit tested...
-    #         humanized = [unicode(errors) if field == NON_FIELD_ERRORS else
-    #                      u'%s => %s' % (meta.get_field(field).verbose_name, u', '.join(errors))
-    #                          for field, errors in ve.message_dict.iteritems()
-    #                     ]
-    #     except Exception as e:
-    #         logger.debug('BatchProcessForm._humanize_validation_error: %s', e)
-    #         humanized = [unicode(ve)]
-    #
-    #     return humanized
-    #
-    # @property
-    # def entity_type(self):
-    #     return self._entity_type
-    #
-    # @property
-    # def modified_objects_count(self):
-    #     return self._modified_objects_count
-    #
-    # @property
-    # def read_objects_count(self):
-    #     return self._read_objects_count
-    #
-    # def save(self, *args, **kwargs):
-    #     cdata = self.cleaned_data
-    #     entities = self._entity_type.objects.all()
-    #     process_errors = self.process_errors
-    #     efilter = cdata.get('filter')
-    #
-    #     if efilter:
-    #         entities = efilter.filter(entities)
-    #
-    #     entities = EntityCredentials.filter(self.user, entities, EntityCredentials.CHANGE)
-    #     actions = cdata['actions']
-    #     mod_count = read_count = 0
-    #
-    #     for entities_slice in iter_as_slices(entities, 1024):
-    #         for entity in entities_slice:
-    #             read_count += 1
-    #             changed = False
-    #
-    #             # We snapshot the unicode representation here, because the
-    #             # actions could modify the field used to build it.
-    #             entity_repr = unicode(entity)
-    #
-    #             for action in actions:
-    #                 if action(entity):
-    #                     changed = True
-    #
-    #             if changed:
-    #                 try:
-    #                     entity.full_clean()
-    #                 except ValidationError as e:
-    #                     process_errors.append((unicode(entity_repr), self._humanize_validation_error(e)))
-    #                 else:
-    #                     entity.save()
-    #                     mod_count += 1
-    #
-    #     self._read_objects_count = read_count
-    #     self._modified_objects_count = mod_count
 
     def save(self, *args, **kwargs):
         instance = self.instance
@@ -295,4 +218,3 @@ class BatchProcessForm(CremeModelForm):
         instance.data = job_data
 
         return super(BatchProcessForm, self).save(*args, **kwargs)
-

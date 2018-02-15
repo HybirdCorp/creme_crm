@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -101,7 +101,6 @@ class Populator(BasePopulator):
                          (constants.REL_OBJ_CURRENT_DOC,       _(u'has as current accounting document'),    [Opportunity]))
 
         # ---------------------------
-        # SettingValue.create_if_needed(key=quote_key, user=None, value=False)
         SettingValue.objects.get_or_create(key_id=quote_key.id, defaults={'value': False})
 
         # ---------------------------
@@ -176,41 +175,6 @@ class Populator(BasePopulator):
             create_origin(name=pgettext('opportunities-origin', u'Other'))
 
             # ---------------------------
-            # EntityFilter.create('opportunities-opportunities_won',
-            #                     name=_(u'Opportunities won'),
-            #                     model=Opportunity, user='admin',
-            #                     conditions=[EntityFilterCondition.build_4_field(
-            #                                       model=Opportunity,
-            #                                       operator=EntityFilterCondition.EQUALS,
-            #                                       name='sales_phase',
-            #                                       values=[won.pk],
-            #                                   ),
-            #                                ],
-            #                    )
-            # EntityFilter.create('opportunities-opportunities_lost',
-            #                     name=_(u'Opportunities lost'),
-            #                     model=Opportunity, user='admin',
-            #                     conditions=[EntityFilterCondition.build_4_field(
-            #                                       model=Opportunity,
-            #                                       operator=EntityFilterCondition.EQUALS,
-            #                                       name='sales_phase',
-            #                                       values=[lost.pk],
-            #                                   ),
-            #                                ]
-            #                    )
-            # EntityFilter.create('opportunities-neither_won_nor_lost_opportunities',
-            #                     name=_(u'Neither won nor lost opportunities'),
-            #                     model=Opportunity, user='admin',
-            #                     conditions=[EntityFilterCondition.build_4_field(
-            #                                       model=Opportunity,
-            #                                       operator=EntityFilterCondition.EQUALS_NOT,
-            #                                       name='sales_phase',
-            #                                       values=[won.pk, lost.pk],
-            #                                   )
-            #                                ],
-            #                    )
-
-            # ---------------------------
             create_button = ButtonMenuItem.create_if_needed
             create_button(pk='opportunities-linked_opp_button',         model=Organisation, button=linked_opportunity_button, order=30)  # TODO: This pk is kept for compatibility
             create_button(pk='opportunities-linked_opp_button_contact', model=Contact,      button=linked_opportunity_button, order=30)
@@ -220,7 +184,6 @@ class Populator(BasePopulator):
             LEFT = BlockDetailviewLocation.LEFT
             RIGHT = BlockDetailviewLocation.RIGHT
 
-            # BlockDetailviewLocation.create_4_model_brick(          order=5,   zone=LEFT,  model=Opportunity)
             create_bdl(block_id=bricks.OpportunityCardHatBrick.id_, order=1,   zone=BlockDetailviewLocation.HAT, model=Opportunity)
             create_bdl(block_id=core_bricks.CustomFieldsBrick.id_,  order=40,  zone=LEFT,  model=Opportunity)
             create_bdl(block_id=bricks.BusinessManagersBrick.id_,   order=60,  zone=LEFT,  model=Opportunity)

@@ -21,10 +21,9 @@
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
-# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.gui.bricks import SimpleBrick, QuerysetBrick  # list4url
+from creme.creme_core.gui.bricks import SimpleBrick, QuerysetBrick
 from creme.creme_core.models import Relation
 
 from creme import documents, persons, emails
@@ -42,9 +41,6 @@ EntityEmail   = emails.get_entityemail_model()
 MailingList   = emails.get_mailinglist_model()
 
 
-# class EntityEmailBlock(SimpleBlock):
-#     template_name = 'emails/templatetags/block_mail.html'
-
 class EntityEmailBarHatBrick(SimpleBrick):
     # NB: we do not set an ID because it's the main Header Brick.
     template_name = 'emails/bricks/mail-hat-bar.html'
@@ -52,7 +48,6 @@ class EntityEmailBarHatBrick(SimpleBrick):
 
 class _HTMLBodyBrick(SimpleBrick):
     verbose_name  = _(u'HTML body')
-    # template_name = 'emails/templatetags/block_html_body.html'
     template_name = 'emails/bricks/html-body.html'
 
 
@@ -74,20 +69,14 @@ class _RelatedEntitesBrick(QuerysetBrick):
     # verbose_name  = 'SET ME'
     # template_name = 'SET ME'
 
-    def _get_queryset(self, entity): # OVERLOAD ME
+    def _get_queryset(self, entity):  # OVERLOAD ME
         raise NotImplementedError
 
     def _update_context(self, context):
         pass
 
     def detailview_display(self, context):
-        entity = context['object']
-        btc = self.get_template_context(
-                    context, self._get_queryset(entity),
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
-        )
-
+        btc = self.get_template_context(context, self._get_queryset(context['object']))
         self._update_context(btc)
 
         return self._render(btc)
@@ -97,7 +86,6 @@ class MailingListsBrick(_RelatedEntitesBrick):
     id_           = QuerysetBrick.generate_id('emails', 'mailing_lists')
     dependencies  = (MailingList,)
     verbose_name  = _(u'Mailing lists')
-    # template_name = 'emails/templatetags/block_mailing_lists.html'
     template_name = 'emails/bricks/mailing-lists.html'
     target_ctypes = (EmailCampaign,)
     order_by      = 'name'
@@ -110,7 +98,6 @@ class EmailRecipientsBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('emails', 'recipients')
     dependencies  = (EmailRecipient,)
     verbose_name  = _(u'Unlinked recipients')
-    # template_name = 'emails/templatetags/block_recipients.html'
     template_name = 'emails/bricks/recipients.html'
     target_ctypes = (MailingList,)
 
@@ -119,8 +106,6 @@ class EmailRecipientsBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     EmailRecipient.objects.filter(ml=mailing_list.id), #get_recipients() ???
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, mailing_list.pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, mailing_list.pk)),
                     ct_id=ContentType.objects.get_for_model(EmailRecipient).id,  # DEPRECATED (use 'objects_ctype.id' instead)
         ))
 
@@ -129,7 +114,6 @@ class ContactsBrick(_RelatedEntitesBrick):
     id_           = QuerysetBrick.generate_id('emails', 'contacts')
     dependencies  = (Contact,)
     verbose_name  = _(u'Contacts recipients')
-    # template_name = 'emails/templatetags/block_contacts.html'
     template_name = 'emails/bricks/contacts.html'
     target_ctypes = (MailingList,)
 
@@ -146,7 +130,6 @@ class OrganisationsBrick(_RelatedEntitesBrick):
     id_           = QuerysetBrick.generate_id('emails', 'organisations')
     dependencies  = (Organisation,)
     verbose_name  = _(u'Organisations recipients')
-    # template_name = 'emails/templatetags/block_organisations.html'
     template_name = 'emails/bricks/organisations.html'
     target_ctypes = (MailingList,)
 
@@ -162,7 +145,6 @@ class ChildListsBrick(_RelatedEntitesBrick):
     id_           = QuerysetBrick.generate_id('emails', 'child_lists')
     dependencies  = (MailingList,)
     verbose_name  = _(u'Child mailing lists')
-    # template_name = 'emails/templatetags/block_child_lists.html'
     template_name = 'emails/bricks/child-lists.html'
     target_ctypes = (MailingList,)
     order_by      = 'name'
@@ -175,7 +157,6 @@ class ParentListsBrick(_RelatedEntitesBrick):
     id_           = QuerysetBrick.generate_id('emails', 'parent_lists')
     dependencies  = (MailingList,)
     verbose_name  = _(u'Parent mailing lists')
-    # template_name = 'emails/templatetags/block_parent_lists.html'
     template_name = 'emails/bricks/parent-lists.html'
     target_ctypes = (MailingList,)
     order_by      = 'name'
@@ -188,7 +169,6 @@ class AttachmentsBrick(_RelatedEntitesBrick):
     id_           = QuerysetBrick.generate_id('emails', 'attachments')
     dependencies  = (Document,)
     verbose_name  = _(u'Attachments')
-    # template_name = 'emails/templatetags/block_attachments.html'
     template_name = 'emails/bricks/attachments.html'
     target_ctypes = (EmailTemplate,)
     order_by      = 'title'
@@ -202,7 +182,6 @@ class SendingsBrick(QuerysetBrick):
     dependencies  = (EmailSending,)
     order_by      = '-sending_date'
     verbose_name  = _(u'Sendings')
-    # template_name = 'emails/templatetags/block_sendings.html'
     template_name = 'emails/bricks/sendings.html'
     target_ctypes = (EmailCampaign,)
 
@@ -211,8 +190,6 @@ class SendingsBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     EmailSending.objects.filter(campaign=campaign.id),  # TODO: use related_name i.e:campaign.sendings_set.all()
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, campaign.pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, campaign.pk)),
                     ct_id=ContentType.objects.get_for_model(EmailSending).id,
         ))
 
@@ -222,7 +199,6 @@ class MailsBrick(QuerysetBrick):
     dependencies  = (LightWeightEmail,)
     page_size     = 12
     verbose_name  = u'Emails of a sending'
-    # template_name = 'emails/templatetags/block_mails.html'
     template_name = 'emails/bricks/lw-mails.html'
     configurable  = False
 
@@ -232,8 +208,6 @@ class MailsBrick(QuerysetBrick):
         return self._render(self.get_template_context(
             context,
             sending.get_mails().select_related('recipient_entity'),
-            # # update_url='/emails/campaign/sending/%s/mails/reload/' % sending.pk,
-            # update_url=reverse('emails__reload_lw_mails_brick', args=(sending.id,)),
             ct_id=ContentType.objects.get_for_model(LightWeightEmail).id,  # DEPRECATED (use 'objects_ctype.id ' instead)
         ))
 
@@ -243,7 +217,6 @@ class MailsHistoryBrick(QuerysetBrick):
     dependencies  = (EntityEmail, Relation)
     order_by      = '-sending_date'
     verbose_name  = _(u'Emails history')
-    # template_name = 'emails/templatetags/block_mails_history.html'
     template_name = 'emails/bricks/mails-history.html'
     relation_type_deps = (constants.REL_OBJ_MAIL_SENDED,
                           constants.REL_OBJ_MAIL_RECEIVED,
@@ -282,7 +255,6 @@ class LwMailsHistoryBrick(QuerysetBrick):
     dependencies  = (LightWeightEmail,)
     order_by      = '-sending_date'
     verbose_name  = _(u'Campaigns emails history')
-    # template_name = 'emails/templatetags/block_lw_mails_history.html'
     template_name = 'emails/bricks/lw-mails-history.html'
 
     def detailview_display(self, context):
@@ -290,8 +262,6 @@ class LwMailsHistoryBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     LightWeightEmail.objects.filter(recipient_entity=pk).select_related('sending'),
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pk)),
         ))
 
 
@@ -300,7 +270,6 @@ class SignaturesBrick(QuerysetBrick):
     dependencies  = (EmailSignature,)
     order_by      = 'name'
     verbose_name  = _(u'Email signatures')
-    # template_name = 'emails/templatetags/block_signatures.html'
     template_name = 'emails/bricks/signatures.html'
     target_apps   = ('emails',)
 
@@ -312,8 +281,6 @@ class SignaturesBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(
                     context, EmailSignature.objects.filter(user=user),
-                    # # update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
-                    # update_url=reverse('creme_core__reload_portal_blocks', args=(self.id_, list4url(ct_ids))),
                     has_app_perm=True,  # We've just checked it.
         ))
 
@@ -323,7 +290,6 @@ class MySignaturesBrick(QuerysetBrick):
     dependencies  = (EmailSignature,)
     order_by      = 'name'
     verbose_name  = 'My Email signatures'
-    # template_name = 'emails/templatetags/block_signatures.html'
     template_name = 'emails/bricks/signatures.html'
     configurable  = False
     # NB: used by the view creme_core.views.blocks.reload_basic ; None means 'No special permission required'.
@@ -336,29 +302,9 @@ class MySignaturesBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     EmailSignature.objects.filter(user=user),
-                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
                     has_app_perm=user.has_perm('emails'),
        ))
 
-
-# bricks_list = (
-#     EmailHTMLBodyBrick,
-#     TemplateHTMLBodyBrick,
-#     MailingListsBrick,
-#     EmailRecipientsBrick,
-#     ContactsBrick,
-#     OrganisationsBrick,
-#     ChildListsBrick,
-#     ParentListsBrick,
-#     AttachmentsBrick,
-#     SendingsBrick,
-#     MailsBrick,
-#     MailsHistoryBrick,
-#     LwMailsHistoryBrick,
-#     SignaturesBrick,
-#     MySignaturesBrick,
-# )
 
 if apps.is_installed('creme.crudity'):
     from creme.crudity.bricks import CrudityQuerysetBrick
@@ -415,8 +361,3 @@ if apps.is_installed('creme.crudity'):
                         context, waiting_mails,
                         backend=self.backend,
             ))
-
-    # bricks_list += (
-    #     WaitingSynchronizationMailsBrick,
-    #     SpamSynchronizationMailsBrick,
-    # )

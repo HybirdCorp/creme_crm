@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,6 @@
 ################################################################################
 
 import logging
-# from collections import defaultdict
 
 from django.utils.datastructures import OrderedSet
 
@@ -30,56 +29,11 @@ class NotRegistered(Exception):
     pass
 
 
-# class CremeApp(object):
-#     __slots__ = ('name', 'verbose_name', 'url', 'credentials', 'extended_app')
-#
-#     def __init__(self, name, verbose_name, url, credentials, extended_app=None):
-#         self.name = name
-#         self.verbose_name = verbose_name
-#         self.url = url
-#         self.credentials = credentials
-#         self.extended_app = extended_app
-
-
 class CremeRegistry(object):
     """Registry for Creme Applications and Entities."""
-    # CRED_NONE    = 0b00
-    # CRED_REGULAR = 0b01
-    # CRED_ADMIN   = 0b10
-
     def __init__(self):
         self._entity_models = OrderedSet()
-        # self._apps = {}
-        # self._extending_apps = defaultdict(list)
         self._generic_registry = {}
-
-    # def register_app(self, name, verbose_name, url=None,
-    #                  credentials=CRED_REGULAR|CRED_ADMIN,
-    #                  extended_app=None,
-    #                 ):
-    #     if extended_app is not None:
-    #         credentials = self.CRED_NONE
-    #         self._extending_apps[extended_app].append(name)
-    #
-    #     self._apps[name] = CremeApp(name, verbose_name, url, credentials, extended_app)
-
-    # def get_app(self, name, silent_fail=False):
-    #     app = self._apps.get(name)
-    #
-    #     if app is None:
-    #         error_msg = "%s.get_app(): No app registered with this name: %s" % (self.__class__, name)
-    #         if silent_fail:
-    #             logger.critical(error_msg)
-    #         else:
-    #             raise NotRegistered(error_msg)
-    #
-    #     return app
-
-    # def get_extending_apps(self, name):
-    #     return iter(self._extending_apps[name])
-
-    # def iter_apps(self):
-    #     return self._apps.itervalues()
 
     def register_entity_models(self, *models):
         """Register CremeEntity models."""
@@ -93,14 +47,6 @@ class CremeRegistry(object):
                                 ' a subclass of CremeEntity, so we ignore it', model,
                                )
                 continue
-
-            # ordering = model._meta.ordering
-            # if not ordering or ordering[0] == 'id':
-            #     logger.warn('CremeRegistry.register_entity_models: "%s" should'
-            #                 ' have a Meta.ordering different from "id", so we'
-            #                 ' give it a default one', model,
-            #                )
-            #     model._meta.ordering = ('header_filter_search_field',)
 
             entity_models.add(model)
 

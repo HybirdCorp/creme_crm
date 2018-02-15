@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2017  Hybird
+#    Copyright (C) 2012-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,6 @@ from creme.creme_core.forms import (CremeForm, CremeEntityForm,
         CreatorEntityField, MultiCreatorEntityField,
         GenericEntityField, MultiGenericEntityField)
 from creme.creme_core.forms.bulk import BulkDefaultEditForm
-# from creme.creme_core.forms import validators
 from creme.creme_core.forms.widgets import Label
 
 from creme import persons, polls
@@ -86,7 +85,6 @@ class PollRepliesCreateForm(CremeForm):
     def clean_campaign(self):
         self.campaign = campaign = self.cleaned_data['campaign']
 
-        # return validators.validate_linkable_entity(campaign, self.user) if campaign else campaign
         return campaign
 
     def clean_number(self):
@@ -95,12 +93,10 @@ class PollRepliesCreateForm(CremeForm):
     def clean_persons(self):
         self.persons = linked_persons = self.cleaned_data['persons']
 
-        # return validators.validate_linkable_entities(linked_persons, self.user)
         return linked_persons
 
     def clean_pform(self):
         pform = self.cleaned_data['pform']
-        # validators.validate_linkable_entity(pform, self.user)
         self._set_pform_n_validate(pform, ValidationError)
 
         return pform
@@ -147,9 +143,6 @@ class PollRepliesCreateForm(CremeForm):
 
 
 class PollReplyEditForm(CremeEntityForm):
-    # campaign = CreatorEntityField(label=pgettext_lazy('polls', u'Related campaign'),
-    #                               model=PollCampaign, required=False,
-    #                              )
     # TODO: rename it 'person' when initial works well + remove from exclude + remove save()
     related_person = GenericEntityField(label=_(u'Person who filled'),
                                         required=False,
@@ -163,10 +156,6 @@ class PollReplyEditForm(CremeEntityForm):
     def __init__(self, *args, **kwargs):
         super(PollReplyEditForm, self).__init__(*args, **kwargs)
         self.fields['related_person'].initial = self.instance.person
-
-    # def clean_related_person(self):
-    #     person = self.cleaned_data['related_person']
-    #     return validators.validate_linkable_entity(person, self.user) if person else person
 
     def save(self, *args, **kwargs):
         self.instance.person = self.cleaned_data['related_person']
@@ -186,9 +175,6 @@ class PersonAddRepliesForm(CremeForm):
             raise Http404('You can only link to Contacts & Organisations')
 
         self.person = entity
-
-    # def clean_replies(self):
-    #     return validators.validate_editable_entities(self.cleaned_data['replies'], self.user)
 
     def save(self, *args, **kwargs):
         for reply in self.cleaned_data['replies']:
@@ -266,11 +252,3 @@ class InnerEditPersonForm(BulkDefaultEditForm):
             person_field.initial = entities[0].person
 
         self.fields['field_value'] = person_field
-
-    # def clean_field_value(self):
-    #     person = super(InnerEditPersonForm, self).clean_field_value()
-    #
-    #     if person:
-    #         validators.validate_linkable_entity(person, self.user)
-    #
-    #     return person

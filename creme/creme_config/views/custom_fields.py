@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,16 +19,13 @@
 ################################################################################
 
 from django.http import HttpResponse
-# from django.shortcuts import render
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CustomField
-from creme.creme_core.utils import get_ct_or_404, get_from_POST_or_404  # jsonify
-# from creme.creme_core.views.blocks import build_context
+from creme.creme_core.utils import get_ct_or_404, get_from_POST_or_404
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
 
-# from ..blocks import custom_fields_block
 from ..forms.custom_fields import CustomFieldsCTAddForm, CustomFieldsAddForm, CustomFieldsEditForm
 from .portal import _config_portal
 
@@ -50,21 +47,12 @@ def add(request, ct_id):
     return add_model_with_popup(request, CustomFieldsAddForm,
                                 _(u'New custom field for «%s»') % ct,
                                 initial={'ct': ct},
-                                # submit_label=_(u'Save the custom field'),
                                )
 
 
 @login_required
 def portal(request):
-    # return render(request, 'creme_config/custom_fields/portal.html')
     return _config_portal(request, 'creme_config/custom_fields_portal.html')
-
-# @login_required
-# def view(request, ct_id):
-#     ct = get_ct_or_404(ct_id)
-#     # TODO: test app creds ??
-#
-#     return render(request, 'creme_config/custom_fields/view.html', {'content_type': ct})
 
 
 @login_required
@@ -95,11 +83,3 @@ def delete(request):
         return HttpResponse(content_type='text/javascript')
 
     return HttpResponse()
-
-
-# @jsonify
-# @login_required
-# def reload_block(request, ct_id):
-#     context = build_context(request, content_type=get_ct_or_404(ct_id))
-#
-#     return [(custom_fields_block.id_, custom_fields_block.detailview_display(context))]

@@ -1,23 +1,14 @@
 # -*- coding: utf-8 -*-
 
 try:
-    # from functools import partial
-    # import json
-    #
-    # from django.contrib.contenttypes.models import ContentType
     from django.contrib.sessions.backends.base import SessionBase
     from django.template import Template, RequestContext
     from django.test.client import RequestFactory
-    # from django.utils.translation import ugettext as _
 
     from ..base import CremeTestCase
     from ..views.base import BrickTestCaseMixin
     from ..fake_models import FakeContact
-    # from creme.creme_core.core.entity_cell import EntityCellRegularField
     from creme.creme_core.gui.bricks import brick_registry, Brick
-    # from creme.creme_core.models import (RelationType, Relation,
-    #         BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
-    #         InstanceBlockConfigItem, RelationBlockItem, CustomBlockConfigItem)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,16 +20,14 @@
 
 from email.mime.image import MIMEImage
 import logging
-from os.path import basename, join  # exists
+from os.path import basename, join
 from random import choice
-from re import compile as re_compile  # findall as re_findall
+from re import compile as re_compile
 from string import ascii_letters, digits
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.utils.timezone import now
-
-# from creme.media_managers.models import Image
 
 from .constants import MAIL_STATUS_SENT, MAIL_STATUS_SENDINGERROR
 
@@ -54,49 +52,6 @@ class ImageFromHTMLError(Exception):
     @property
     def filename(self):
         return self._filename
-
-
-# def get_images_from_html(html):
-#     """Extract references to Image entities in an HTML string:
-#
-#         <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-#         <html>
-#             <head>
-#                 <title>My title</title>
-#             </head>
-#             <body>
-#                 <p>blabla</p>
-#                 <p><img title="My image" src="http://127.0.0.1:8000/site_media/upload/images/12_imagename.jpg" alt="Image esc" width="159" height="130" /></p>
-#             </body>
-#         </html>
-#
-#     => {'12_imagename.jpg': (<Image object (id=12)>), 'http://127.0.0.1:8000/site_media/upload/images/12_imagename.jpg'}
-#
-#     @return Dict where keys are filenames, and values are tuples (Image object, source)
-#             Image object can be None if the Image entity was not found.
-#     """
-#     MEDIA_URL  = settings.MEDIA_URL
-#     MEDIA_ROOT = settings.MEDIA_ROOT
-#     images_info = {}  # key=relative_file_path  Value=(source, basefilename)
-#
-#     for source in re_findall(_IMG_PATTERN, html):
-#         if not source.startswith(MEDIA_URL):
-#             continue  # External image
-#
-#         filename = basename(source)
-#
-#         if not exists(join(MEDIA_ROOT, 'upload', 'images', filename)):
-#             raise ImageFromHTMLError(filename)
-#
-#         images_info['upload/images/' + filename] = (source, filename)
-#
-#     images_map = {e_image.image.name: e_image
-#                     for e_image in Image.objects.filter(image__in=images_info.iterkeys())
-#                  }
-#
-#     return {filename: (images_map.get(rel_path), source)
-#                 for rel_path, (source, filename) in images_info.iteritems()
-#            }
 
 
 _MIME_IMG_CACHE = '_mime_image_cache'
@@ -127,19 +82,6 @@ class EMailSender(object):
     def __init__(self, body, body_html, signature=None, attachments=()):
         "@throws ImageFromHTMLError"
         mime_images = []
-
-        # # Replacing image sources with embedded images
-        # for filename, (image_entity, src) in get_images_from_html(body_html).iteritems():  # Can throws ImageFromHTMLError
-        #     if image_entity is None:
-        #         logger.error('Image with filename <%s> do not exist any more.')
-        #     else:
-        #         mime_image = get_mime_image(image_entity)
-        #
-        #         if mime_image is None:
-        #             logger.error('Error during reading attached image: %s', filename)
-        #         else:
-        #             mime_images.append(mime_image)
-        #             body_html = body_html.replace(src, 'cid:img_%s' % image_entity.id)
 
         if signature:
             signature_body = '\n--\n' + signature.body

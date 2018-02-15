@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2017  Hybird
+#    Copyright (C) 2015-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,9 +37,6 @@ class ReportsConfig(CremeAppConfig):
         self.Report = get_report_model()
         self.ReportGraph = get_rgraph_model()
         super(ReportsConfig, self).all_apps_ready()
-
-    # def register_creme_app(self, creme_registry):
-    #     creme_registry.register_app('reports', _(u'Reports'), '/reports')
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Report)
@@ -77,7 +74,6 @@ class ReportsConfig(CremeAppConfig):
             from creme.creme_core.auth import build_creation_perm as cperm
 
             reg_item = creme_menu.register_app('reports', '/reports/').register_item
-            # reg_item('/reports/',                       _(u'Portal of reports'), 'reports')
             reg_item(reverse('reports__portal'),        _(u'Portal of reports'), 'reports')
             reg_item(reverse('reports__list_reports'),  _(u'All reports'),       'reports')
             reg_item(reverse('reports__create_report'), Report.creation_label,   cperm(Report))

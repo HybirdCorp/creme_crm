@@ -13,14 +13,12 @@ except Exception as e:
 class SearchConfigTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
         super(SearchConfigTestCase, cls).setUpClass()
         cls._sci_backup = list(SearchConfigItem.objects.all())
         SearchConfigItem.objects.all().delete()
 
     @classmethod
     def tearDownClass(cls):
-        # CremeTestCase.tearDownClass()
         super(SearchConfigTestCase, cls).tearDownClass()
         SearchConfigItem.objects.all().delete()
         SearchConfigItem.objects.bulk_create(cls._sci_backup)

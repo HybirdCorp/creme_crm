@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2016  Hybird
+#    Copyright (C) 2014-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,11 +21,8 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeEntityForm, CremeForm
-# from creme.creme_core.forms.fields import MultiCreatorEntityField
-# from creme.creme_core.forms.validators import validate_linkable_entities
 
 from creme.documents.forms.fields import MultiImageEntityField
-# from creme.media_managers.models import Image
 
 from .fields import CategoryField
 
@@ -49,10 +46,6 @@ class _BaseForm(CremeEntityForm):
 
 class _BaseCreateForm(_BaseForm):  # TODO: remove
     pass
-    # images = MultiCreatorEntityField(label=_(u'Images'), model=Image, required=False)
-
-    # def clean_images(self):
-    #     return validate_linkable_entities(self.cleaned_data['images'], self.user)
 
 
 class _BaseEditForm(_BaseForm):
@@ -66,7 +59,6 @@ class _BaseEditForm(_BaseForm):
 
 
 class AddImagesForm(CremeForm):
-    # images = MultiCreatorEntityField(label=_(u'Images'), model=Image)
     images = MultiImageEntityField(label=_(u'Images'))
 
     def __init__(self, entity, *args, **kwargs):
@@ -76,9 +68,6 @@ class AddImagesForm(CremeForm):
         images_f = self.fields['images']
         images_f.q_filter = {'~id__in': list(entity.images.values_list('id', flat=True))}
         images_f.force_creation = True
-
-    # def clean_images(self):
-    #     return validate_linkable_entities(self.cleaned_data['images'], self.user)
 
     def save(self):
         add_image = self.entity.images.add

@@ -10,7 +10,6 @@ try:
     from django.test.client import RequestFactory
 
     from ..base import CremeTestCase
-    # from creme.creme_core.utils.media import get_creme_media_url
     from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation, FakeDocument, FakeActivity
 
     if not settings.OLD_MENU:
@@ -55,7 +54,6 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual(my_label, ViewableItem('add_contact', label=my_label).label)
 
     def test_item_perm(self):
-        # self.assertEqual('', ViewableItem('add_contact').perm)
         self.assertIsNone(ViewableItem('add_contact').perm)
 
         my_perm = 'persons.add_contact'
@@ -753,24 +751,6 @@ class MenuTestCase(CremeTestCase):
 
     def test_render_url_item01(self):
         "URLItem with icon"
-#         context = self.build_context()
-#
-#         icon = 'images/creme_30.png'
-#         html_fmt = \
-# """<a href="/">
-#     <img src="%s" height="30" width="30" alt="Home" />
-# </a>"""
-#
-#         def render(theme):
-#             context['THEME_NAME'] = theme
-#             item = URLItem('home', url='/', icon=icon, icon_label='Home')
-#
-#             self.assertHTMLEqual(html_fmt % get_creme_media_url(theme, icon),
-#                                  item.render(context)
-#                                 )
-#
-#         render('chantilly')
-#         render('icecream')
         url = '/'
         icon = 'creme'
         label = 'Home'
@@ -793,7 +773,6 @@ class MenuTestCase(CremeTestCase):
 
     def test_render_url_item02(self):
         "URLItem with icon and label"
-        # icon = 'images/creme_30.png'
         icon = 'creme'
         my_label = 'HOME'
         item = URLItem('home', url='/', label=my_label,
@@ -801,12 +780,6 @@ class MenuTestCase(CremeTestCase):
                        perm='creme_core',
                       )
 
-        # self.assertHTMLEqual('<a href="/">'
-        #                          '<img src="%s" height="30" width="30" alt="Home" />'
-        #                          '%s'
-        #                      '</a>' % (get_creme_media_url(self.theme, icon), my_label),
-        #                      item.render(self.build_context())
-        #                     )
         elt = html5lib.parse(item.render(self.build_context()), namespaceHTMLElements=False)
         img_node = elt.find('.//a/img')
         self.assertEqual('header-menu-icon', img_node.get('class'))
@@ -816,19 +789,12 @@ class MenuTestCase(CremeTestCase):
         "Not allowed (string perm)"
         self.login(is_superuser=False, allowed_apps=['creme_core'])
 
-        # icon = 'images/creme_30.png'
         icon = 'creme'
         my_label = 'HOME'
         item = URLItem('home', url='/', label=my_label, icon=icon, icon_label='Home',
                        perm='creme_core.add_fakecontact',
                       )
 
-        # self.assertHTMLEqual('<span class="ui-creme-navigation-text-entry forbidden">'
-        #                          '<img src="%s" height="30" width="30" alt="Home" />'
-        #                          '%s'
-        #                      '</span>' % (get_creme_media_url(self.theme, icon), my_label),
-        #                      item.render(self.build_context())
-        #                     )
         elt = html5lib.parse(item.render(self.build_context()), namespaceHTMLElements=False)
         span_node = elt.find('.//span')
         self.assertEqual('ui-creme-navigation-text-entry forbidden', span_node.get('class'))
@@ -949,16 +915,6 @@ class MenuTestCase(CremeTestCase):
                     .add(URLItem('home', url='/persons/contacts', label='List of contacts'))
 
         render = parent.render(context, level=1)
-        # idx = render.find('/>')
-        # self.assertNotEqual(idx, -1)
-        #
-        # img_end = idx + 2  # 2 == len('/>')
-        # self.assertHTMLEqual('<img src="%s" height="30" width="30" alt="%s" />' % (
-        #                             get_creme_media_url(self.theme, icon),
-        #                             icon_label,
-        #                         ),
-        #                      render[:img_end]
-        #                     )
         elt = html5lib.parse(render, namespaceHTMLElements=False)
 
         # ElementTree.dump(elt) >>>
@@ -980,9 +936,6 @@ class MenuTestCase(CremeTestCase):
         self.assertIn(icon,                  img_node.get('src', ''))
         self.assertIn(label,                 img_node.tail)
 
-        # ul_start = render.find('<', img_end)
-        # self.assertNotEqual(idx, -1)
-        # self.assertEqual(label, render[img_end:ul_start])
         ul_node = elt.find('.//ul')
         self.assertIsNotNone(ul_node, 'No <ul> tag.')
         self.assertHTMLEqual('<ul>'
@@ -990,7 +943,6 @@ class MenuTestCase(CremeTestCase):
                                      '<a href="/persons/contacts">List of contacts</a>'
                                  '</li>'
                              '</ul>',
-                             # render[ul_start:]
                              ElementTree.tostring(ul_node)
                             )
 

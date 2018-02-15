@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from datetime import datetime, time
 
 from django.forms import TypedChoiceField
 from django.utils.timezone import localtime
-from django.utils.translation import ugettext_lazy as _ # ugettext
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeModelWithUserForm
 from creme.creme_core.forms.widgets import CalendarWidget
@@ -32,7 +32,6 @@ from ..models import ToDo
 
 
 class ToDoForm(CremeModelWithUserForm):
-#     deadline      = CremeDateTimeField(label=_(u'Deadline'), required=False)
     deadline_hour = TypedChoiceField(label=_(u'Deadline hour'), coerce=int,
                                      choices=[(i, '%ih' % i) for i in xrange(0, 24)],
                                      required=False, empty_value=None, initial=8,
@@ -62,9 +61,6 @@ class ToDoForm(CremeModelWithUserForm):
                 deadline_hour = get_data('deadline_hour') 
 
                 if deadline_hour is None:
-#                    self._errors['deadline_hour'] = self.error_class(
-#                            [ugettext(u'The hour is required if you set a date.')]
-#                        )
                     self.add_error('deadline_hour', _(u'The hour is required if you set a date.'))
                 else:
                     cdata['deadline'] = make_aware_dt(datetime.combine(deadline,

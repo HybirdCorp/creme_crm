@@ -47,12 +47,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
             'minutes_colselect':        0,
         }
 
-    # @classmethod
-    # def setUpClass(cls):
-    #     cls.populate('creme_core', 'activities', 'persons')
-    #     _ActivitiesTestCase.setUpClass()
-    #     # CSVImportBaseTestCaseMixin.setUpClass()
-
     def test_import01(self):
         user = self.login()
 
@@ -93,11 +87,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
                                    )
         self.assertNoFormError(response)
 
-        # with self.assertNoException():
-        #     form = response.context['form']
         job = self._execute_job(response)
 
-        # self.assertEqual(len(lines), form.imported_objects_count)
         results = self._get_job_results(job)
         self.assertEqual(len(lines), len(results))
 
@@ -163,14 +154,9 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
                         )
         self.assertEqual(constants.NARROW, act7.floating_type)
 
-        # errors = list(form.import_errors)
-        # self.assertEqual(1, len(errors), [e for e in errors])
         jr_errors = [r for r in results if r.messages]
         self.assertEqual(1, len(jr_errors))
 
-        # error = errors[0]
-        # self.assertEqual(act3, error.instance)
-        # self.assertEqual(_('End time is before start time'), error.message)
         jr_error = jr_errors[0]
         self.assertEqual([_('End time is before start time')],
                          jr_error.messages
@@ -222,7 +208,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
                                                             constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
                                                            ),
 
-                    # my_participation=True,
                     my_participation_0=True,
                     participating_users=other_user.pk,
 
@@ -235,9 +220,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
 
         # Validation errors ----------
         response = self.client.post(self._build_import_url(Activity), data=data)
-        # self.assertFormError(response, 'form', 'my_calendar',
-        #                      _(u'If you participate, you have to choose one of your calendars.')
-        #                     )
         self.assertFormError(response, 'form', 'my_participation', _(u'Enter a value if you check the box.'))
 
         response = self.client.post(self._build_import_url(Activity), follow=True,
@@ -249,13 +231,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
 
         # ---------
         response = self.client.post(self._build_import_url(Activity), follow=True,
-                                    # data=dict(data, my_calendar=my_calendar.pk)
                                     data=dict(data, my_participation_1=my_calendar.pk)
                                    )
         self.assertNoFormError(response)
 
-        # with self.assertNoException():
-        #     form = response.context['form']
         job = self._execute_job(response)
 
         act1 = self.get_object_or_fail(Activity, title=title1)
@@ -283,20 +262,12 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         act3 = self.get_object_or_fail(Activity, title=title3)
         self.assertFalse(Contact.objects.filter(last_name=unfoundable).exists()) #not created
 
-        # self.assertEqual(len(lines), form.imported_objects_count)
         results = self._get_job_results(job)
         self.assertEqual(len(lines), len(results))
 
-        # errors = list(form.import_errors)
-        # self.assertEqual(1, len(errors), [e for e in errors])
         jr_errors = [r for r in results if r.messages]
         self.assertEqual(1, len(jr_errors))
 
-        # error = errors[0]
-        # self.assertEqual(act3, error.instance)
-        # self.assertEqual(_(u'The participant «%s» is unfoundable') % unfoundable,
-        #                  error.message
-        #                 )
         jr_error = jr_errors[0]
         self.assertEqual([_(u'The participant «%s» is unfoundable') % unfoundable,],
                          jr_error.messages
@@ -396,26 +367,12 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
 
         self.assertFalse(Contact.objects.filter(last_name=unfoundable).exists())
 
-        # with self.assertNoException():
-        #     form = response.context['form']
         results = self._get_job_results(job)
         self.assertEqual(len(lines), len(results))
 
-        # errors = list(form.import_errors)
-        # self.assertEqual(2, len(errors))
         jr_errors = [r for r in results if r.messages]
         self.assertEqual(1, len(jr_errors))
 
-        # error = errors[0]
-        # self.assertEqual(act4, error.instance)
-        # err_fmt = _(u'The participant «%s» is unfoundable')
-        # self.assertEqual(err_fmt % ('%s %s' % (unfoundable, unfoundable)),
-        #                  error.message
-        #                 )
-        #
-        # error = errors[1]
-        # self.assertEqual(act4, error.instance)
-        # self.assertEqual(err_fmt % unfoundable2, error.message)
         jr_error = jr_errors[0]
         err_fmt = _(u'The participant «%s» is unfoundable')
         self.assertEqual([err_fmt % ('%s %s' % (unfoundable, unfoundable)),
@@ -493,10 +450,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
                                    )
         self.assertNoFormError(response)
 
-        # with self.assertNoException():
-        #     form = response.context['form']
-        #
-        # self.assertFalse([unicode(e) for e in form.import_errors])
         job = self._execute_job(response)
         self._assertNoResultError(self._get_job_results(job))
 
@@ -536,10 +489,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
                                    )
         self.assertNoFormError(response)
 
-        # with self.assertNoException():
-        #     form = response.context['form']
-        #
-        # self.assertFalse([unicode(e) for e in form.import_errors])
         job = self._execute_job(response)
         self._assertNoResultError(self._get_job_results(job))
 
@@ -671,35 +620,18 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         self.assertRelationCount(1, task6, constants.REL_OBJ_ACTIVITY_SUBJECT, clan1)
         self.assertRelationCount(1, task6, constants.REL_OBJ_ACTIVITY_SUBJECT, clan2)
 
-        # with self.assertNoException():
-        #     form = response.context['form']
-        #
-        # errors = list(form.import_errors)
-        # self.assertEqual(4, len(errors))
         job = self._execute_job(response)
         results = self._get_job_results(job)
         jr_errors = [r for r in results if r.messages]
         self.assertEqual(4, len(jr_errors))
 
-        # error = errors[0]
-        # self.assertEqual(task3, error.instance)
-        # self.assertEqual(_(u'The subject «%s» is unfoundable') % name,
-        #                  error.message
-        #                 )
         jr_error = jr_errors[0]
         self.assertEqual(task3, jr_error.entity.get_real_entity())
         self.assertEqual([_(u'The subject «%s» is unfoundable') % name],
                          jr_error.messages
                         )
 
-        # error = errors[1]
-        # self.assertEqual(task4, error.instance)
         err_fmt = _(u'Several «%(type)s» were found for the search «%(search)s»')
-        # self.assertEqual(err_fmt % {'type':   _('Organisations'),
-        #                             'search': clan1.name,
-        #                            },
-        #                  error.message
-        #                 )
         jr_error = jr_errors[1]
         self.assertEqual(task4, jr_error.entity.get_real_entity())
         self.assertEqual([err_fmt % {'type':   _('Organisations'),
@@ -709,13 +641,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
                          jr_error.messages
                         )
 
-        # error = errors[2]
-        # self.assertEqual(task5, error.instance)
-        # self.assertEqual(err_fmt % {'type':   _('Contacts'),
-        #                             'search': furyo1.last_name,
-        #                            },
-        #                  error.message
-        #                 )
         jr_error = jr_errors[2]
         self.assertEqual(task5, jr_error.entity.get_real_entity())
         self.assertEqual([err_fmt % {'type':   _('Contacts'),
@@ -725,13 +650,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
                          jr_error.messages
                         )
 
-        # error = errors[3]
-        # self.assertEqual(task6, error.instance)
-        # self.assertEqual(err_fmt % {'type':   _('Organisations'),
-        #                             'search': clan1.name,
-        #                            },
-        #                  error.message
-        #                 )
         jr_error = jr_errors[3]
         self.assertEqual(task6, jr_error.entity.get_real_entity())
         self.assertEqual([err_fmt % {'type':   _('Organisations'),
@@ -825,10 +743,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
                                    )
         self.assertNoFormError(response)
 
-        # with self.assertNoException():
-        #     form = response.context['form']
-        #
-        # self.assertEqual(0, len(form.import_errors))
         job = self._execute_job(response)
         self._assertNoResultError(self._get_job_results(job))
 
@@ -1252,8 +1166,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
     def test_subjects_extractor03(self):
         "Other ContentType"
         from creme.tickets.models import Ticket, Priority, Criticity
-
-        # self.populate('tickets')
 
         rtype = self.get_object_or_fail(RelationType, pk=constants.REL_OBJ_ACTIVITY_SUBJECT)
         self.assertIn(Ticket, (ct.model_class() for ct in rtype.object_ctypes.all()))

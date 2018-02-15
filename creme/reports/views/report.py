@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,7 +46,6 @@ Report = get_report_model()
 def abstract_add_report(request, form=ReportCreateForm,
                         # TODO: improve widgets & drop this template
                         template='reports/add_report.html',
-                        # submit_label=_('Save the report'),
                         submit_label=Report.save_label,
                        ):
     return generic.add_entity(request, form, template=template,
@@ -136,7 +135,6 @@ def link_report(request, field_id):
         link_form = LinkFieldToReportForm(rfield, ctypes, user=user)
 
     return generic.inner_popup(request,
-                               # 'creme_core/generics/blockform/add_popup.html',
                                'creme_core/generics/blockform/link_popup.html',
                                {'form': link_form,
                                 'title': ugettext(u'Link of the column «%s»') % rfield,

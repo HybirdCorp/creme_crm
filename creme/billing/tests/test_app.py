@@ -8,9 +8,8 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
-    # from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
     from creme.creme_core.models import (RelationType, Vat,
-            SettingValue, BlockDetailviewLocation)  # CremeProperty CremePropertyType
+            SettingValue, BlockDetailviewLocation)
 
     from creme.persons.tests.base import skipIfCustomOrganisation
 
@@ -55,7 +54,6 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
 
     def test_portal(self):
         self.login()
-        # self.assertGET200('/billing/')
         self.assertGET200(reverse('billing__portal'))
 
     @skipIfCustomOrganisation
@@ -95,9 +93,6 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         self.assertNoFormError(response)
         self.assertStillExists(orga1)
         self.assertDoesNotExist(orga2)
-
-    # def _remove_managed_prop(self, orga):
-    #     CremeProperty.objects.get(type=PROP_IS_MANAGED_BY_CREME, creme_entity=orga).delete()
 
     def _ids_list(self, queryset, length):
         ids_list = list(queryset.values_list('id', flat=True))
@@ -166,8 +161,6 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         orga1 = create_orga(name='NERV'); self._set_managed(orga1)
         orga2 = create_orga(name='Nerv'); self._set_managed(orga2)
 
-        # self._remove_managed_prop(orga1)
-        # self._remove_managed_prop(orga2)
         self._set_managed(orga1, False)
         self._set_managed(orga2, False)
 
@@ -198,11 +191,6 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         orga1 = create_orga(name='NERV'); self._set_managed(orga1)
         orga2 = create_orga(name='Nerv'); self._set_managed(orga2)
 
-        # # Only the "Is managed by Creme" property should be used.
-        # ptype = CremePropertyType.create('billing-test_merge_algoconfig04', "I'm annoying")
-        # CremeProperty.objects.create(type=ptype, creme_entity=orga1)
-
-        # self._remove_managed_prop(orga1)
         self._set_managed(orga2, False)
 
         cba_filter = ConfigBillingAlgo.objects.filter
@@ -264,11 +252,8 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         orga = Organisation.objects.create(user=self.user, name='NERV')
 
         response = self.assertGET200(orga.get_absolute_url())
-        # payment_info_tlpt = 'billing/templatetags/block_payment_information.html'
         payment_info_tlpt = 'billing/bricks/orga-payment-information.html'
         self.assertTemplateNotUsed(response, payment_info_tlpt)
-        # self.assertTemplateUsed(response, 'billing/templatetags/block_received_invoices.html')
-        # self.assertTemplateUsed(response, 'billing/templatetags/block_received_billing_document.html')
         self.assertTemplateUsed(response, 'billing/bricks/received-invoices.html')
         self.assertTemplateUsed(response, 'billing/bricks/received-billing-documents.html')
 
@@ -279,7 +264,6 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, payment_info_tlpt)
 
     @skipIfCustomOrganisation
-    # def test_block_orga02(self):
     def test_brick_orga02(self):
         "Managed organisation"
         self.login()
@@ -288,11 +272,8 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         self._set_managed(orga)
 
         response = self.assertGET200(orga.get_absolute_url())
-        # payment_info_tlpt = 'billing/templatetags/block_payment_information.html'
         payment_info_tlpt = 'billing/bricks/orga-payment-information.html'
         self.assertTemplateUsed(response, payment_info_tlpt)
-        # self.assertTemplateUsed(response, 'billing/templatetags/block_received_invoices.html')
-        # self.assertTemplateUsed(response, 'billing/templatetags/block_received_billing_document.html')
         self.assertTemplateUsed(response, 'billing/bricks/received-invoices.html')
         self.assertTemplateUsed(response, 'billing/bricks/received-billing-documents.html')
 
@@ -304,7 +285,6 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, payment_info_tlpt)
 
     @skipIfCustomOrganisation
-    # def test_block_orga03(self):
     def test_brick_orga03(self):
         "Statistics"
         self.login()
@@ -317,8 +297,7 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
                                       )
 
         response = self.assertGET200(orga.get_absolute_url())
-        # self.assertTemplateUsed(response, 'billing/templatetags/block_persons_statistics.html')
         self.assertTemplateUsed(response, 'billing/bricks/persons-statistics.html')
-        # self.assertContains(response, 'id="%s"' % block_id)
+
         tree = self.get_html_tree(response.content)
         self.get_brick_node(tree, brick_id)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,20 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import logging
-
-# from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext_lazy as _, ugettext, ungettext
 
 from creme.creme_core.creme_jobs.base import JobType
 from creme.creme_core.models import JobResult
 
-# from .views.actions import _fetch
 
-
-# logger = logging.getLogger(__name__)
-# User = get_user_model()
 CremeUser = get_user_model()
 
 
@@ -42,11 +35,7 @@ class _CruditySynchronizeType(JobType):
 
     def _execute(self, job):
         try:
-            # user = User.objects.get(pk=settings.CREME_GET_EMAIL_JOB_USER_ID)
             user = CremeUser.objects.get(pk=job.data['user'])
-        # except User.DoesNotExist:
-            # logger.critical("The setting 'CREME_GET_EMAIL_JOB_USER_ID' is invalid (not an user's ID)")
-        # except:
         except CremeUser.DoesNotExist:
             JobResult.objects.create(job=job,
                                      messages=[ugettext(u"The configured default user is invalid. "
@@ -57,8 +46,6 @@ class _CruditySynchronizeType(JobType):
 
             user = CremeUser.objects.get_admin()
 
-        # self.stdout.write("There are %s new item(s)" % _fetch(user))
-        # count = _fetch(user)
         from . import registry
 
         count = len(registry.crudity_registry.fetch(user))

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2017  Hybird
+#    Copyright (C) 2013-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -168,7 +168,6 @@ class EntityCell(object):
         return issubclass(self._get_field_class(), MULTILINE_FIELDS)
 
     @staticmethod
-    # def populate_entities(cells, entities):
     def populate_entities(cells, entities, user):
         pass
 
@@ -210,24 +209,9 @@ class EntityCellRegularField(EntityCell):
         sortable = True
         pattern = '%s__icontains'
 
-        # if isinstance(field, (ForeignKey, ManyToManyField)):
-        #     if len(field_info) == 1:
-        #         pattern = "%s"  # todo: factorise
-        #     else:
-        #         field = field_info[1]  # The sub-field is considered as the main field
-        #
-        #         if isinstance(field, (ForeignKey, ManyToManyField)):
-        #             pattern = '%s'  # todo: '%s__exact' ?
-        #
-        #     if isinstance(field, ManyToManyField):
-        #         sortable = False
         if len(field_info) > 1:
-            # if field.many_to_many:
-            #     sortable = False
-
             field = field_info[-1]  # The sub-field is considered as the main field
 
-        # if isinstance(field, (DateField, DateTimeField)):
         if isinstance(field, DateField):
             pattern = '%s__range'  # TODO: quick search overload this, to use gte/lte when it is needed
         elif isinstance(field, BooleanField):
@@ -235,9 +219,6 @@ class EntityCellRegularField(EntityCell):
         elif isinstance(field, DatePeriodField):
             has_a_filter = False
             sortable = False
-        # elif isinstance(field, (ForeignKey, ManyToManyField)) and \
-        #      issubclass(field.rel.to, CremeEntity):
-        #     pattern = '%s__header_filter_search_field__icontains'
         elif field.is_relation:
             if not field.related_model:  # TODO: test
                 has_a_filter = False
@@ -245,9 +226,6 @@ class EntityCellRegularField(EntityCell):
             else:
                 pattern = '%s__header_filter_search_field__icontains' \
                           if issubclass(field.rel.to, CremeEntity) else '%s'  # TODO '%s__exact' ?
-
-            # if field.many_to_many:
-            #     sortable = False
 
         if any(f.many_to_many or f.one_to_many for f in field_info):
             sortable = False
@@ -298,9 +276,7 @@ class EntityCellRegularField(EntityCell):
         return self._field_info[-1].__class__
 
     @staticmethod
-    # def populate_entities(cells, entities):
     def populate_entities(cells, entities, user):
-        # CremeEntity.populate_fk_fields(entities, [cell.field_info[0].name for cell in cells])
         populate_related(entities, [cell.value for cell in cells])
 
     def render_html(self, entity, user):
@@ -379,7 +355,6 @@ class EntityCellCustomField(EntityCell):
         return self._CF_CSS.get(self._customfield.field_type, Field)
 
     @staticmethod
-    # def populate_entities(cells, entities):
     def populate_entities(cells, entities, user):
         CremeEntity.populate_custom_values(entities, [cell.custom_field for cell in cells]) # NB: not itervalues()
 
@@ -431,18 +406,14 @@ class EntityCellFunctionField(EntityCell):
         return issubclass(self._functionfield.result_type, FunctionFieldResultsList)
 
     @staticmethod
-    # def populate_entities(cells, entities):
     def populate_entities(cells, entities, user):
         for cell in cells:
-            # cell.function_field.populate_entities(entities)
             cell.function_field.populate_entities(entities, user)
 
     def render_html(self, entity, user):
-        # return self.function_field(entity).for_html()
         return self.function_field(entity, user).for_html()
 
     def render_csv(self, entity, user):
-        # return self.function_field(entity).for_csv()
         return self.function_field(entity, user).for_csv()
 
 
@@ -477,7 +448,6 @@ class EntityCellRelation(EntityCell):
         return self._rtype
 
     @staticmethod
-    # def populate_entities(cells, entities):
     def populate_entities(cells, entities, user):
         CremeEntity.populate_relations(entities, [cell.relation_type.id for cell in cells])
 

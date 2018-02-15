@@ -13,8 +13,7 @@ try:
     from creme.creme_core.tests.base import CremeTransactionTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import (CremeEntity, RelationType, Relation,
-            SetCredentials, Currency, Vat)  # CremeProperty
-    # from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+            SetCredentials, Currency, Vat)
 
     from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
     from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
@@ -84,12 +83,7 @@ class InvoiceTestCase(_BillingTestCase):
         user = self.login()
 
         name = 'Invoice001'
-
-        # # source = Organisation.objects.create(user=self.user, name='Source Orga')
-        # # CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=source)
-        # source = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
         source = Organisation.objects.filter(is_managed=True)[0]
-
         target = Organisation.objects.create(user=user, name='Target Orga')
 
         create_addr = partial(Address.objects.create, owner=target)
@@ -116,14 +110,11 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertAddressContentEqual(target.shipping_address, invoice.shipping_address)
         self.assertEqual(invoice, invoice.shipping_address.owner)
 
-        url = invoice.get_absolute_url()
-        # self.assertEqual('/billing/invoice/%s' % invoice.id, url)
-        self.assertGET200(url)
+        self.assertGET200(invoice.get_absolute_url())
 
     def test_createview03(self):
         "Credentials errors with Organisation"
         user = self.login(is_superuser=False, creatable_models=[Invoice])
-        # role = user.role
         create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
                         EntityCredentials.DELETE | EntityCredentials.UNLINK,  # Not LINK
@@ -351,13 +342,6 @@ class InvoiceTestCase(_BillingTestCase):
         name = 'invoice001'
         invoice = self.create_invoice_n_orgas(name, user=user)[0]
 
-        # url_fmt = '/creme_core/entity/edit/inner/%(ct)s/%(id)s/field/%(field)s'
-        # ct_id = invoice.entity_type_id
-        #
-        # def build_url(field_name):
-        #     return url_fmt % {'ct': ct_id, 'id': invoice.id, 'field': field_name}
-        #
-        # url = build_url('name')
         build_url = partial(self.build_inneredit_url, entity=invoice)
         url = build_url(fieldname='name')
         self.assertGET200(url)
@@ -371,8 +355,6 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(name, self.refresh(invoice).name)
 
         # Addresses should not be editable
-        # self.assertGET(400, build_url('billing_address'))
-        # self.assertGET(400, build_url('shipping_address'))
         self.assertGET(400, build_url(fieldname='billing_address'))
         self.assertGET(400, build_url(fieldname='shipping_address'))
 
@@ -381,11 +363,6 @@ class InvoiceTestCase(_BillingTestCase):
         user = self.login()
 
         invoice = self.create_invoice_n_orgas('Invoice001', user=user)[0]
-        # url = '/creme_core/entity/edit/inner/%(ct)s/%(id)s/field/%(field)s' % {
-        #             'ct': invoice.entity_type_id,
-        #             'id': invoice.id,
-        #             'field': 'discount',
-        #         }
         url = self.build_inneredit_url(entity=invoice, fieldname='discount')
         self.assertGET200(url)
 
@@ -403,7 +380,6 @@ class InvoiceTestCase(_BillingTestCase):
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
         self.assertFalse(invoice.number)
         self.assertEqual(1, invoice.status_id)
-        # self.assertEqual(1, invoice.currency_id)
 
         issuing_date = invoice.issuing_date
         self.assertTrue(issuing_date)
@@ -653,22 +629,12 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(target, cloned.get_target().get_real_entity())
 
         # Lines are cloned
-        # self.assertEqual(2, len(invoice.service_lines))
-        # self.assertEqual(2, len(invoice.product_lines))
         src_line_ids = [l.id for l in invoice.iter_all_lines()]
         self.assertEqual(4, len(src_line_ids))
 
-        # self.assertEqual(2, len(cloned.service_lines))
-        # self.assertEqual(2, len(cloned.product_lines))
         cloned_line_ids = [l.id for l in cloned.iter_all_lines()]
         self.assertEqual(4, len(cloned_line_ids))
 
-        # self.assertFalse({p.pk for p in invoice.service_lines} &
-        #                  {p.pk for p in cloned.service_lines}
-        #                 )
-        # self.assertFalse({p.pk for p in invoice.product_lines} &
-        #                  {p.pk for p in cloned.product_lines}
-        #                 )
         self.assertFalse(set(src_line_ids) & set(cloned_line_ids))
 
         # Addresses are cloned
@@ -752,7 +718,6 @@ class InvoiceTestCase(_BillingTestCase):
     def test_delete_paymentterms(self):
         self.login()
 
-        # self.assertGET200('/creme_config/billing/payment_terms/portal/')
         self.assertGET200(reverse('creme_config__model_portal', args=('billing', 'payment_terms')))
 
         pterms = PaymentTerms.objects.create(name='3 months')
@@ -761,7 +726,6 @@ class InvoiceTestCase(_BillingTestCase):
         invoice.payment_terms = pterms
         invoice.save()
 
-        # self.assertPOST200('/creme_config/billing/payment_terms/delete', data={'id': pterms.pk})
         self.assertPOST200(reverse('creme_config__delete_instance', args=('billing', 'payment_terms')),
                            data={'id': pterms.pk}
                           )
@@ -776,7 +740,6 @@ class InvoiceTestCase(_BillingTestCase):
         currency = Currency.objects.create(name=u'Berry', local_symbol=u'B', international_symbol=u'BRY')
         invoice = self.create_invoice_n_orgas('Nerv', currency=currency)[0]
 
-        # self.assertPOST404('/creme_config/creme_core/currency/delete', data={'id': currency.pk})
         self.assertPOST404(reverse('creme_config__delete_instance', args=('creme_core', 'currency')),
                            data={'id': currency.pk}
                           )
@@ -793,7 +756,6 @@ class InvoiceTestCase(_BillingTestCase):
         invoice.additional_info = info
         invoice.save()
 
-        # self.assertPOST200('/creme_config/billing/additional_information/delete', data={'id': info.pk})
         self.assertPOST200(reverse('creme_config__delete_instance', args=('billing', 'additional_information')),
                            data={'id': info.pk}
                           )
@@ -843,7 +805,6 @@ class InvoiceTestCase(_BillingTestCase):
 @skipIfCustomServiceLine
 class BillingDeleteTestCase(_BillingTestCaseMixin, CremeTransactionTestCase):
     def setUp(self):  # setUpClass does not work here
-        # _BillingTestCase.setUp(self)
         self.populate('creme_core', 'creme_config', 'billing')
         self.login()
 

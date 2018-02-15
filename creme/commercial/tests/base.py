@@ -47,19 +47,12 @@ def skipIfCustomStrategy(test_func):
 
 
 class CommercialBaseTestCase(CremeTestCase):
-    # ADD_SEGMENT_URL = '/commercial/market_segment/add'
     ADD_SEGMENT_URL = reverse('commercial__create_segment')
-
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('creme_core', 'commercial')
 
     def setUp(self):
         self.login()
 
     def _build_add_segmentdesc_url(self, strategy):
-        # return '/commercial/strategy/%s/add/segment/' % strategy.id
         return reverse('commercial__create_segment_desc', args=(strategy.id,))
 
     def _build_ctypefilter_field(self, ctype=None, efilter=None):

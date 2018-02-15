@@ -98,7 +98,6 @@ def filter(request, report_id):
     if request.method == 'POST':
         form = ReportExportFilterForm(report=report, user=user, data=request.POST)
         if form.is_valid():
-            # callback_url = '/reports/export/%s?%s' % (report_id, form.export_url_data())
             callback_url = '%s?%s' % (reverse('reports__export_report', args=(report_id,)),
                                       form.export_url_data(),
                                      )

@@ -20,7 +20,6 @@ except Exception as e:
 
 class MemoTestCase(AssistantsTestCase):
     def _build_add_url(self, entity):
-        # return '/assistants/memo/add/%s/' % entity.id
         return reverse('assistants__create_memo', args=(entity.id,))
 
     def _create_memo(self, content='Content', on_homepage=True, entity=None):
@@ -61,7 +60,6 @@ class MemoTestCase(AssistantsTestCase):
         homepage = True
         memo = self._create_memo(content, homepage)
 
-        #url = '/assistants/memo/edit/%s/' % memo.id
         url = memo.get_edit_absolute_url()
         self.assertGET200(url)
 
@@ -92,7 +90,6 @@ will be truncate by unicode() method"""
     def test_delete01(self):
         memo = self._create_memo()
         ct = ContentType.objects.get_for_model(Memo)
-        # self.assertPOST(302, '/creme_core/entity/delete_related/%s' % ct.id, data={'id': memo.id})
         self.assertPOST(302, reverse('creme_core__delete_related_to_entity', args=(ct.id,)), data={'id': memo.id})
         self.assertEqual(0, Memo.objects.count())
 

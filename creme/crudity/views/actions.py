@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,19 +24,17 @@ from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db.transaction import atomic
 from django.http import HttpResponse, Http404
-from django.shortcuts import render, get_list_or_404  # render_to_response
-# from django.template.loader import render_to_string
+from django.shortcuts import render, get_list_or_404
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.utils import jsonify  # get_ct_or_404
+from creme.creme_core.utils import jsonify
 from creme.creme_core.views.bricks import bricks_render_info, get_brick_ids_or_404
 from creme.creme_core.views.decorators import POST_only
 
 from .. import registry
 from ..bricks import WaitingActionsBrick
 from ..models import WaitingAction
-# from ..registry import crudity_registry
 
 
 def _retrieve_actions_ids(request):
@@ -49,42 +47,6 @@ def _fetch(user):
                   DeprecationWarning
                  )
 
-    # count = 0
-    #
-    # for fetcher in registry.crudity_registry.get_fetchers():
-    #     # all_data = fetcher.fetch()
-    #     inputs = fetcher.get_inputs()
-    #
-    #     if not any(input.backends
-    #                    for crud_inputs in inputs
-    #                        for input in crud_inputs.itervalues()
-    #               ) and not fetcher.get_default_backend():
-    #         continue
-    #
-    #     all_data = fetcher.fetch()
-    #
-    #     for data in all_data:
-    #         handled = False
-    #
-    #         for crud_inputs in inputs:
-    #             for input_type, input in crud_inputs.iteritems():
-    #                 handled = input.handle(data)
-    #
-    #                 if handled:
-    #                     break
-    #
-    #             if handled:
-    #                 count += 1
-    #                 break
-    #
-    #         if not handled:
-    #             default_backend = fetcher.get_default_backend()
-    #
-    #             if default_backend is not None:
-    #                 count += 1
-    #                 default_backend.fetcher_fallback(data, user)
-    #
-    # return count
     return len(registry.crudity_registry.fetch(user))
 
 
@@ -159,7 +121,6 @@ def validate(request):
         if not allowed:
             raise PermissionDenied(message)
 
-        # backend = crudity_registry.get_configured_backend(action.subject)
         source_parts = action.source.split(' - ', 1)
 
         try:
@@ -185,17 +146,6 @@ def validate(request):
     return {}
 
 
-# @jsonify
-# @permission_required('crudity')
-# def reload(request, ct_id, backend_subject):
-#     backend = crudity_registry.get_configured_backend(backend_subject)
-#     if not backend:
-#         raise Http404()
-#
-#     block = WaitingActionBlock(backend)
-#     ctx = blocks_views.build_context(request)
-#
-#     return [(block.id_, block.detailview_display(ctx))]
 @jsonify
 @permission_required('crudity')
 def reload_block(request, block_id):

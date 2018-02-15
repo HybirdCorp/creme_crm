@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from itertools import chain
 import logging
 from operator import or_ as or_op
 from re import compile as re_compile
@@ -38,7 +37,6 @@ from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..auth.entity_credentials import EntityCredentials
-# from ..registry import creme_registry, NotRegistered
 from ..utils import split_filter
 from ..utils.unicode_collation import collator
 from .fields import CTypeForeignKey
@@ -101,14 +99,8 @@ class UserRole(Model):
         self.raw_allowed_apps = '\n'.join(apps)
 
     def _build_extended_apps(self, apps):
-        # ext_apps = (ext_app
-        #                 for app in apps
-        #                     for ext_app in creme_registry.get_extending_apps(app)
-        #            )
-        #
-        # return set(chain(apps, ext_apps))
         from ..apps import extended_app_configs
-        # return {app_config.label for app_config in extended_app_configs(apps, extending_apps=True)}
+
         return {app_config.label for app_config in extended_app_configs(apps)}
 
     @property
@@ -132,21 +124,6 @@ class UserRole(Model):
         return (app_name in self.extended_allowed_apps) or self.is_app_administrable(app_name)
 
     def _build_apps_verbose(self, app_names):   # TODO: rename app_labels
-        # get_app = creme_registry.get_app
-        # # apps = [get_app(app_name).verbose_name for app_name in app_names]
-        # apps = []
-        #
-        # for app_label in app_names:
-        #     try:
-        #         app = get_app(app_name)
-        #     except NotRegistered:
-        #         logger.warn('The app "%s" seems not registered (from UserRole "%s").', app_name, self)
-        #     else:
-        #         apps.append(app.verbose_name)
-        #
-        # apps.sort(key=collator.sort_key)
-        #
-        # return apps
         verbose_names = []
         get_app = apps.get_app_config
 
@@ -380,8 +357,6 @@ class SetCredentials(Model):
 
         return queryset.none()
 
-    # @staticmethod
-    # def filter(sc_sequence, user, queryset, perm):
     @classmethod
     def filter(cls, sc_sequence, user, queryset, perm):
         """Filter a queryset of entities with the given credentials.
@@ -401,8 +376,6 @@ class SetCredentials(Model):
 
         return cls._aux_filter(model, sc_sequence, user, queryset, perm)
 
-    # @staticmethod
-    # def filter_entities(sc_sequence, user, queryset, perm, models):
     @classmethod
     def filter_entities(cls, sc_sequence, user, queryset, perm, models, as_model=None):
         """Filter a queryset of entities with the given credentials.
@@ -720,10 +693,6 @@ class CremeUser(AbstractBaseUser):
 
     def has_perm_to_admin_or_die(self, app_name):  # TODO: rename 'app_label'
         if not self.has_perm_to_admin(app_name):
-            # try:
-            #     verbose_name = creme_registry.get_app(app_name).verbose_name
-            # except NotRegistered:
-            #     verbose_name = ugettext('Invalid app "%s"') % app_name
             try:
                 verbose_name = apps.get_app_config(app_name).verbose_name
             except LookupError:
@@ -737,8 +706,6 @@ class CremeUser(AbstractBaseUser):
         if entity.is_deleted:
             return False
 
-        # get_related_entity = getattr(entity, 'get_related_entity', None)
-        # main_entity = get_related_entity() if get_related_entity else entity
         main_entity = entity.get_real_entity().get_related_entity() \
                       if hasattr(entity.entity_type.model_class(), 'get_related_entity') \
                       else entity
@@ -765,9 +732,6 @@ class CremeUser(AbstractBaseUser):
                                   )
 
     def has_perm_to_delete(self, entity):
-        # get_related_entity = getattr(entity, 'get_related_entity', None)
-        # if get_related_entity:
-        #     return self._get_credentials(get_related_entity()).can_change()
         if hasattr(entity.entity_type.model_class(), 'get_related_entity'):  # TODO: factorise
             return self._get_credentials(entity.get_real_entity().get_related_entity()).can_change()
 

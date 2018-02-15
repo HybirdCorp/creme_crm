@@ -30,17 +30,15 @@ from formtools.wizard.views import SessionWizardView
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.gui import brick_registry
-# from creme.creme_core.gui.block import SpecificRelationsBlock
 from creme.creme_core.models import (CremeEntity, UserRole,
     BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
     RelationBlockItem, InstanceBlockConfigItem, CustomBlockConfigItem)
-# from creme.creme_core.registry import creme_registry, NotRegistered
 from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
 from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
-from ..forms import bricks  # blocks
+from ..forms import bricks
 from .portal import _config_portal
 
 
@@ -59,7 +57,6 @@ def _get_configurable_ctype(ctype_id):
 
 @login_required
 def portal(request):
-    # return _config_portal(request, 'creme_config/blocks_portal.html')
     return _config_portal(request, 'creme_config/bricks_portal.html')
 
 
@@ -68,7 +65,6 @@ def portal(request):
 def add_detailview(request, ct_id):
     ctype = _get_configurable_ctype(ct_id)
 
-    # return add_model_with_popup(request, blocks.BlockDetailviewLocationsAddForm,
     return add_model_with_popup(request, bricks.BrickDetailviewLocationsAddForm,
                                 title=ugettext(u'New block configuration for «%s»') % ctype,
                                 submit_label=_(u'Save the configuration'),
@@ -125,7 +121,6 @@ class PortalBricksWizard(PopupWizardMixin, SessionWizardView):
 @login_required
 @permission_required('creme_core.can_admin')
 def create_rtype_brick(request):
-    # return add_model_with_popup(request, blocks.RelationBlockAddForm,
     return add_model_with_popup(request, bricks.RTypeBrickAddForm,
                                 title=_(u'New type of block'),
                                 submit_label=_(u'Save the block'),
@@ -140,7 +135,6 @@ def add_custom_block(request):
                   DeprecationWarning
                  )
 
-    # return add_model_with_popup(request, blocks.CustomBlockConfigItemCreateForm,
     return add_model_with_popup(request, bricks.CustomBrickConfigItemCreateForm,
                                 _(u'New custom block'),
                                 submit_label=_(u'Save the block'),
@@ -219,7 +213,6 @@ def edit_detailview(request, ct_id, role):
         ct = None
         title = _(u'Edit default configuration')
 
-    # return add_model_with_popup(request, blocks.BlockDetailviewLocationsEditForm,
     return add_model_with_popup(request, bricks.BrickDetailviewLocationsEditForm,
                                 initial={'content_type': ct,
                                          'role': role_obj, 'superuser': superuser,
@@ -240,13 +233,10 @@ def edit_portal(request, app_name):
         title = _(u'Edit home configuration')
     else:
         try:
-            # app = creme_registry.get_app(app_name)
             app_config = apps.get_app_config(app_name)
-        # except NotRegistered as e:
         except LookupError as e:
             raise Http404(str(e))
 
-        # title = ugettext(u'Edit portal configuration for «%s»') % app.verbose_name
         title = ugettext(u'Edit portal configuration for «%s»') % app_config.verbose_name
 
     b_locs = BlockPortalLocation.objects.filter(app_name=app_name).order_by('order')
@@ -278,13 +268,11 @@ def edit_portal(request, app_name):
 
 def _edit_mypage(request, title, user=None):
     if request.method == 'POST':
-        # locs_form = blocks.BlockMypageLocationsForm(owner=user, user=request.user, data=request.POST)
         locs_form = bricks.BrickMypageLocationsForm(owner=user, user=request.user, data=request.POST)
 
         if locs_form.is_valid():
             locs_form.save()
     else:
-        # locs_form = blocks.BlockMypageLocationsForm(owner=user, user=request.user)
         locs_form = bricks.BrickMypageLocationsForm(owner=user, user=request.user)
 
     return inner_popup(request,
@@ -372,7 +360,6 @@ def edit_cells_of_rtype_brick(request, rbi_id, ct_id):
         raise Http404('This ContentType is not set in the RelationBlockItem')
 
     if request.method == 'POST':
-        # form = blocks.RelationBlockItemEditCtypeForm(user=request.user, data=request.POST,
         form = bricks.RTypeBrickItemEditCtypeForm(user=request.user, data=request.POST,
                                                   instance=rbi, ctype=ctype,
                                                  )
@@ -380,7 +367,6 @@ def edit_cells_of_rtype_brick(request, rbi_id, ct_id):
         if form.is_valid():
             form.save()
     else:
-        # form = blocks.RelationBlockItemEditCtypeForm(user=request.user, instance=rbi, ctype=ctype)
         form = bricks.RTypeBrickItemEditCtypeForm(user=request.user, instance=rbi, ctype=ctype)
 
     return inner_popup(request,
@@ -416,7 +402,6 @@ def delete_cells_of_rtype_brick(request, rbi_id):
 @permission_required('creme_core.can_admin')
 def edit_custom_brick(request, cbci_id):
     return edit_model_with_popup(request, {'id': cbci_id}, CustomBlockConfigItem,
-                                 # blocks.CustomBlockConfigItemEditForm,
                                  bricks.CustomBrickConfigItemEditForm,
                                  ugettext(u'Edit the block «%s»'),
                                 )

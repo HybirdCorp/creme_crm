@@ -561,7 +561,6 @@ class HistoryLine(Model):
         """Delete the given HistoryLines & the lines related to them.
         @param line_qs: QuerySet on HistoryLine.
         """
-        # from ..utils.chunktools import iter_as_slices
         from ..core.paginator import FlowPaginator
 
         deleted_ids = set()
@@ -569,9 +568,7 @@ class HistoryLine(Model):
                                   key='id', per_page=1024,
                                  )
 
-        # for hlines_slice in iter_as_slices(line_qs, 1024):
         for hlines_page in paginator.pages():
-            # for hline in hlines_slice:
             for hline in hlines_page.object_list:
                 deleted_ids.add(hline.id)
                 hline.delete()
@@ -586,9 +583,7 @@ class HistoryLine(Model):
                                       key='id', per_page=1024,
                                      )
 
-            # for hlines_slice in iter_as_slices(qs, 1024):
             for hlines_page in paginator.pages():
-                # for hline in hlines_slice:
                 for hline in hlines_page.object_list:
                     related_line_id = hline._get_related_line_id()
 

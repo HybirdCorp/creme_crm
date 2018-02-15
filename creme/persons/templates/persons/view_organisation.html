@@ -10,15 +10,3 @@
         <a href="{% url 'persons__list_organisations' %}" class="listview-breadcrumb">{% blocktrans count count=organisations_count %}{{count}} organisation{% plural %}{{count}} organisations{% endblocktrans %}</a> {% trans 'and' %}
         <a href="{% url 'persons__list_contacts' %}" class="listview-breadcrumb">{% blocktrans count count=contacts_count %}{{count}} contact{% plural %}{{count}} contacts{% endblocktrans %}</a></div>
 {% endblock %}
-
-{% comment %}
-{% block logo %}
-    {% with img_url=object.image.get_image_url %}
-        {% if img_url %}
-            {% trans "Logo" as img_label %}<img src="{{img_url}}" alt="{{img_label}}" title="{{img_label}}" style="max-height:64px;max-width:200px;"/>
-        {% else %}
-            {{block.super}}
-        {% endif %}
-    {% endwith %}
-{% endblock %}
-{% endcomment %}

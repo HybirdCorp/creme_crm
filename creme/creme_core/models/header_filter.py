@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,6 @@
 from collections import defaultdict
 from json import loads as jsonloads, dumps as jsondumps
 import logging
-# import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
@@ -236,7 +235,6 @@ class HeaderFilter(Model):  # CremeModel ???
                         )
 
     # TODO: dispatch this job in Cells classes
-    # def populate_entities(self, entities):
     def populate_entities(self, entities, user):
         """Fill caches of CremeEntity objects, related to the columns that will
         be displayed with this HeaderFilter.

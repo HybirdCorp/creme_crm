@@ -4,22 +4,6 @@
 {% block before_content_1 %}<div class="portal the_cake_is_a_lie">{% endblock %}
 
 {% block content %}
-{% comment %}
-    <table class="table_header" cellpadding="0" cellspacing="0">
-        <tr>
-            <td class="logo">{% block logo %}{% endblock %}</td>
-            <td class="title"><h1>{% block title %}{% endblock %}</h1></td>
-            <td class="actions">
-                {% block header_link %}
-                    <a href="{% block list_url %}{% endblock %}">
-                        {% block list_msg %}{% endblock %}
-                        {% trans 'Go to the list' as img_title %}<img src="{% creme_media_url 'images/next_64.png' %}" title="{{img_title}}" alt="{{img_title}}"/>
-                    </a>
-                {% endblock %}
-            </td>
-        </tr>
-    </table>
-{% endcomment %}
     <div class="hat-bar-container">
         <div class="hat-bar">
             <div class="bar-icon">{% block logo %}{% endblock %}</div>
@@ -41,23 +25,6 @@
     </div>
 
     {% if config_url %}
-{% comment %}
-        <div>
-            <ul class="button_list hbox">
-                <li>{% trans "Configure" as config_label %}
-                    {% if can_admin %}
-                        <a class="menu_button" href="{{config_url}}">
-                            <img src="{% creme_media_url 'images/config_32.png' %}" border="0" title="{{config_label}}" alt="{{config_label}}" />{{config_label}}
-                        </a>
-                    {% else %}
-                        <span class="menu_button forbidden" title="{% trans 'forbidden' %}">
-                            <img src="{% creme_media_url 'images/config_32.png' %}" border="0" title="{{config_label}}" alt="{{config_label}}" />{{config_label}}
-                        </span>
-                    {% endif %}
-                </li>
-            </ul>
-        </div>
-{% endcomment %}
         <div class="buttons-list instance-buttons">
             <ul>
                 <li>{% trans 'Configure' as config_label %}
@@ -74,7 +41,6 @@
     {% endif %}
 
     {% block creme_blocks_import %}
-{#        {% import_portal_blocks app_name %}  #}
     {% endblock %}
 
     {% block before_statistics %}{% endblock %}
@@ -102,7 +68,6 @@
     {% endblock statistics %}
 
     {% block extra_infos %}
-{#        {% display_portal_blocks ct_ids %} #}
         {% brick_declare bricks %}
         {% brick_display bricks render='portal' %}
     {% endblock %}

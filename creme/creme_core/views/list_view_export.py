@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,6 @@
 
 import logging, warnings
 
-# from django.db.models import Q
 from django.http import Http404
 from django.utils.encoding import smart_str
 
@@ -31,7 +30,6 @@ from ..gui.listview import ListViewState
 from ..models import EntityFilter, EntityCredentials
 from ..models.header_filter import HeaderFilterList
 from ..utils import get_ct_or_404, get_from_GET_or_404, bool_from_str_extended
-# from ..utils.chunktools import iter_as_slices
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +37,6 @@ logger = logging.getLogger(__name__)
 # TODO: stream response ??
 # TODO: factorise with list_view()
 @login_required
-# def dl_listview(request, ct_id, doc_type, header_only=False):
 def dl_listview(request, ct_id=None, doc_type=None, header_only=None):
     """ Download the content of a list-view.
     @param ct_id: the ContentType ID of the model we want. Deprecated.
@@ -107,13 +104,11 @@ def dl_listview(request, ct_id=None, doc_type=None, header_only=None):
 
     if not header_only:
         current_lvs.handle_research(request.GET, cells, merge=True)
-        # current_lvs.set_sort(model, cells, current_lvs.sort_field, current_lvs.sort_order)
         ordering = current_lvs.set_sort(model, cells,
                                         current_lvs.sort_field,
                                         current_lvs.sort_order,
                                        )
 
-        # entities = model.objects.filter(is_deleted=False).distinct()
         entities_qs = model.objects.filter(is_deleted=False)
         use_distinct = False
 
@@ -135,19 +130,15 @@ def dl_listview(request, ct_id=None, doc_type=None, header_only=None):
         if use_distinct:
             entities_qs = entities_qs.distinct()
 
-        # entities = current_lvs.sort_query(entities)
         paginator = FlowPaginator(queryset=entities_qs.order_by(*ordering),
                                   key=ordering[0], per_page=1024,
                                  )
 
-        # for entities_slice in iter_as_slices(entities_qs, 256):
         for entities_page in paginator.pages():
             entities = entities_page.object_list
 
-            # hf.populate_entities(entities_slice)  # Optimisation time !!!
             hf.populate_entities(entities, user)  # Optimisation time !!!
 
-            # for entity in entities_slice:
             for entity in entities:
                 line = []
 
@@ -165,8 +156,3 @@ def dl_listview(request, ct_id=None, doc_type=None, header_only=None):
     writer.save(ct.model)
 
     return writer.response
-
-
-# @login_required
-# def dl_listview_header(request, ct_id, doc_type):
-#     return dl_listview(request, ct_id, doc_type, header_only=True)

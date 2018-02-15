@@ -21,7 +21,7 @@ try:
             TYPE_AUX_CREATION, TYPE_AUX_EDITION, TYPE_AUX_DELETION,
             TYPE_RELATED, TYPE_PROP_ADD, TYPE_PROP_DEL,
             TYPE_RELATION, TYPE_SYM_RELATION, TYPE_RELATION_DEL, TYPE_SYM_REL_DEL)
-    from creme.creme_core.utils.dates import dt_to_ISO8601 # to_utc
+    from creme.creme_core.utils.dates import dt_to_ISO8601
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -58,13 +58,9 @@ class HistoryTestCase(CremeTestCase):
 
         return self.get_object_or_fail(FakeOrganisation, name=name)
 
-    # def _build_contact(self, first_name, last_name, extra_args=None, **kwargs):
     def _build_contact(self, first_name, last_name, **kwargs):
         data = {'first_name': first_name, 'last_name': last_name}
         data.update(kwargs)
-
-        # if extra_args:
-        #     data.update(extra_args)
 
         self.assertNoFormError(self.client.post('/tests/contact/add', follow=True, data=data))
 
@@ -387,9 +383,6 @@ about this fantastic animation studio."""
         hline = hlines[-1]
         self.assertEqual(meeting.id,  hline.entity.id)
         self.assertEqual(TYPE_EDITION, hline.type)
-        # self.assertEqual([['start', dt_to_ISO8601(to_utc(old_start)), dt_to_ISO8601(to_utc(start))],
-        #                   ['end', dt_to_ISO8601(to_utc(end))],
-        #                  ],
         self.assertEqual([['start', dt_to_ISO8601(old_start), dt_to_ISO8601(start)],
                           ['end', dt_to_ISO8601(end)],
                          ],
@@ -747,7 +740,6 @@ about this fantastic animation studio."""
         old_count = HistoryLine.objects.count()
 
         city = 'Tokyo'
-        # response = self.client.post('/tests/address/add/%s' % nerv.id,
         response = self.client.post(reverse('creme_core__create_fake_address', args=(nerv.id,)),
                                     data={'city': city},
                                    )

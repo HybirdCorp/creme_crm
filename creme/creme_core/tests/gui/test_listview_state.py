@@ -19,7 +19,6 @@ except Exception as e:
 class ListViewStateTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
         super(ListViewStateTestCase, cls).setUpClass()
 
         cls.factory = RequestFactory()
@@ -33,13 +32,10 @@ class ListViewStateTestCase(CremeTestCase):
         self.assertIsNone(lvs.header_filter_id)
         self.assertIsNone(lvs.page)
         self.assertIsNone(lvs.rows)
-        # self.assertIsNone(lvs.search)
         self.assertIsNone(lvs.sort_order)
         self.assertIsNone(lvs.sort_field)
-        # self.assertEqual('', lvs._extra_sort_field)
         self.assertEqual((), lvs.research)
         self.assertIsNone(lvs.extra_q)
-        # self.assertEqual([], lvs._ordering)
 
     def _build_request(self):
         url = self.url

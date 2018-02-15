@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2017  Hybird
+#    Copyright (C) 2015-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,16 +35,12 @@ class TicketsConfig(CremeAppConfig):
         self.TicketTemplate = get_tickettemplate_model()
         super(TicketsConfig, self).all_apps_ready()
 
-    # def register_creme_app(self, creme_registry):
-    #     creme_registry.register_app('tickets', _(u'Tickets'), '/tickets')
-
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Ticket)
 
     def register_bricks(self, brick_registry):
         from .bricks import TicketBrick
 
-        # brick_registry.register_4_model(self.Ticket, TicketBlock())
         brick_registry.register_4_model(self.Ticket, TicketBrick)
 
     def register_buttons(self, button_registry):
@@ -70,7 +66,6 @@ class TicketsConfig(CremeAppConfig):
             from creme.creme_core.auth import build_creation_perm as cperm
 
             reg_item = creme_menu.register_app('tickets', '/tickets/').register_item
-            # reg_item('/tickets/',                       _(u'Portal of tickets'), 'tickets')
             reg_item(reverse('tickets__portal'),        _(u'Portal of tickets'), 'tickets')
             reg_item(reverse('tickets__list_tickets'),  _(u'All tickets'),       'tickets')
             reg_item(reverse('tickets__create_ticket'), Ticket.creation_label,   cperm(Ticket))

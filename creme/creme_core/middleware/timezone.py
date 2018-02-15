@@ -7,25 +7,9 @@ from django.conf import settings
 # NB: do not 'from django.utils.timezone import activate as activate_tz' because it is harder to unit test
 from django.utils import timezone
 
-# from creme.creme_config.utils import get_user_timezone_config
-
-
-# _TZ_KEY = 'usertimezone'
-
 
 class TimezoneMiddleware(object):
     def process_request(self, request):
-        # session = request.session
-        # tz = session.get(_TZ_KEY)
-        #
-        # if not tz and not request.user.is_anonymous():
-        #     value, setting_value = get_user_timezone_config(request.user)
-        #
-        #     if setting_value:
-        #         session[_TZ_KEY] = tz = value
-        # if tz:
-        #     timezone.activate(tz)
-
         # NB: AnonymousUser has no 'time_zone' attribute (we need it for the login view)
         tz = getattr(request.user, 'time_zone', None)
 

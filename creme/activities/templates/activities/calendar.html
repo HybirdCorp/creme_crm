@@ -4,7 +4,6 @@
 {% block extrahead %}
     <script type='text/javascript'>
         $(document).ready(function() {
-{#            creme.activities.calendar.fullCalendar('{{events_url}}', '{% url "activities__create_activity_popup" %}'); #}
             creme.activities.calendar.fullCalendar('{{events_url}}', '{% url "activities__create_activity_popup" %}', '{% url "activities__set_activity_dates" %}');
             creme.activities.calendar.loadCalendarEventListeners('{{user_username}}', {{creme_calendars_by_user|safe}});
         });

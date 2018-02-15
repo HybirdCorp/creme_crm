@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -59,14 +59,12 @@ class _PrettyPropertiesField(FunctionField):
         # Should we make a separated query to retrieve first the searched types ?
         return Q(properties__type__text__icontains=search_string)
 
-    # def __call__(self, entity):
     def __call__(self, entity, user):
         return FunctionFieldResultsList(FunctionFieldResult(unicode(p))
                                             for p in entity.get_properties()
                                        )
 
     @classmethod
-    # def populate_entities(cls, entities):
     def populate_entities(cls, entities, user):
         CremeEntity.populate_properties(entities)
 
@@ -131,13 +129,6 @@ class CremeEntity(CremeAbstractEntity):
         return unicode(self) if user.has_perm_to_view(self) else \
                ugettext(u'Entity #%s (not viewable)') % self.id
 
-    # @staticmethod
-    # def get_real_entity_by_id(pk):
-    #     warnings.warn("CremeEntity.get_real_entity_by_id() method is deprecated (because it is probably useless).",
-    #                   DeprecationWarning
-    #                  )
-    #     return CremeEntity.objects.get(pk=pk).get_real_entity()
-
     def get_real_entity(self):
         return self._get_real_entity(CremeEntity)
 
@@ -145,7 +136,6 @@ class CremeEntity(CremeAbstractEntity):
         real_entity = self.get_real_entity()
 
         if self is real_entity:
-            # return "/creme_core/entity/%s" % self.id
             return ''
 
         return real_entity.get_absolute_url()
@@ -156,7 +146,6 @@ class CremeEntity(CremeAbstractEntity):
         This URL should only accept POST method, and take an 'id' POST parameter.
         If '' (void string) is returned, the type can not be cloned.
         """
-        # return '/creme_core/entity/clone'
         return reverse('creme_core__clone_entity')
 
     @staticmethod
@@ -280,7 +269,6 @@ class CremeEntity(CremeAbstractEntity):
             actions.append(EntityAction(edit_url,
                                         text=ugettext(u'Edit'),
                                         is_allowed=user.has_perm_to_change(self),
-                                        # icon='images/edit_16.png',
                                         icon='edit',
                                        )
                            )
@@ -290,9 +278,7 @@ class CremeEntity(CremeAbstractEntity):
             actions.append(EntityAction(delete_url,
                                         text=ugettext(u'Delete'),
                                         is_allowed=user.has_perm_to_delete(self),
-                                        # icon='images/delete_16_button.png',
                                         icon='delete',
-                                        # attrs={'class': 'confirm post ajax lv_reload'},
                                         attrs={'data-action': 'delete'},
                                        )
                           )
@@ -300,7 +286,6 @@ class CremeEntity(CremeAbstractEntity):
         return {'default': EntityAction(self.get_absolute_url(),
                                         text=ugettext(u'See'),
                                         is_allowed=True,
-                                        # icon='images/view_16.png',
                                         icon='view',
                                         verbose=ugettext(u'Go to the entity {entity}').format(entity=self),
                                        ),

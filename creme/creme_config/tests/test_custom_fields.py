@@ -15,22 +15,15 @@ except Exception as e:
 
 
 class CustomFieldsTestCase(CremeTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('creme_core')
-
     def setUp(self):
         self.login()
 
     def test_portal(self):
-        # self.assertGET200('/creme_config/custom_fields/portal/')
         self.assertGET200(reverse('creme_config__custom_fields'))
 
     def test_add_ct(self):
         self.assertFalse(CustomField.objects.all())
 
-        # url = '/creme_config/custom_fields/ct/add/'
         url = reverse('creme_config__create_first_ctype_custom_field')
         self.assertGET200(url)
 
@@ -60,9 +53,6 @@ class CustomFieldsTestCase(CremeTestCase):
         self.assertNotIn(ct, ctypes)
         self.assertIn(ContentType.objects.get_for_model(FakeOrganisation), ctypes)
 
-        # # self.assertGET200('/creme_config/custom_fields/ct/%s' % ct.id)
-        # self.assertGET200(reverse('creme_config__ctype_custom_fields', args=(ct.id,)))
-
     def test_delete_ct(self):
         get_ct = ContentType.objects.get_for_model
         ct_contact = get_ct(FakeContact)
@@ -72,7 +62,6 @@ class CustomFieldsTestCase(CremeTestCase):
         cfield1 = create_cf(content_type=ct_contact, name='CF#1', field_type=CustomField.INT)
         cfield2 = create_cf(content_type=ct_contact, name='CF#2', field_type=CustomField.FLOAT)
         cfield3 = create_cf(content_type=ct_orga,    name='CF#3', field_type=CustomField.BOOL)
-        # self.assertPOST200('/creme_config/custom_fields/ct/delete', data={'id': ct_contact.id})
         self.assertPOST200(reverse('creme_config__delete_ctype_custom_fields'), data={'id': ct_contact.id})
         self.assertFalse(CustomField.objects.filter(pk__in=[cfield1.pk, cfield2.pk]))
         self.assertStillExists(cfield3)
@@ -87,7 +76,6 @@ class CustomFieldsTestCase(CremeTestCase):
         create_cf(content_type=contact_ct, field_type=CustomField.BOOL, name='Operational ?')
         create_cf(content_type=orga_ct,    field_type=CustomField.INT,  name=name)  # <= same name but not same CT
 
-        # url = '/creme_config/custom_fields/add/%s' % ct.id
         url = reverse('creme_config__create_custom_field', args=(contact_ct.id,))
         self.assertGET200(url)
 
@@ -132,7 +120,6 @@ class CustomFieldsTestCase(CremeTestCase):
         name = 'nickname'
         cfield = CustomField.objects.create(content_type=ct, name=name, field_type=CustomField.STR)
 
-        # url = '/creme_config/custom_fields/edit/%s' % cfield.id
         url = reverse('creme_config__edit_custom_field', args=(cfield.id,))
         self.assertGET200(url)
 
@@ -152,7 +139,6 @@ class CustomFieldsTestCase(CremeTestCase):
         create_evalue(custom_field=cfield, value='ABC')
         create_evalue(custom_field=cfield, value='Java')
 
-        # url = '/creme_config/custom_fields/edit/%s' % cfield.id
         url = reverse('creme_config__edit_custom_field', args=(cfield.id,))
         response = self.assertGET200(url)
 
@@ -211,7 +197,6 @@ class CustomFieldsTestCase(CremeTestCase):
         eval3 = create_evalue(custom_field=cfield3, value='Programming')
         eval4 = create_evalue(custom_field=cfield3, value='Reading')
 
-        # self.assertPOST200('/creme_config/custom_fields/delete', data={'id': cfield2.id})
         self.assertPOST200(reverse('creme_config__delete_custom_field'), data={'id': cfield2.id})
 
         self.assertStillExists(cfield1)

@@ -4,7 +4,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
 
-    from creme.creme_core.models import HeaderFilter, EntityFilter  # EntityFilterCondition
+    from creme.creme_core.models import HeaderFilter, EntityFilter
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
@@ -15,11 +15,6 @@ except Exception as e:
 
 
 class PersonsAppTestCase(CremeTestCase, BrickTestCaseMixin):
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('persons')
-
     def test_populate(self):
         self.get_relationtype_or_fail(constants.REL_SUB_EMPLOYED_BY,       [Contact],               [Organisation])
         self.get_relationtype_or_fail(constants.REL_SUB_CUSTOMER_SUPPLIER, [Contact, Organisation], [Contact, Organisation])
@@ -39,7 +34,6 @@ class PersonsAppTestCase(CremeTestCase, BrickTestCaseMixin):
         efilter = self.get_object_or_fail(EntityFilter, pk=constants.FILTER_MANAGED_ORGA)
         self.assertFalse(efilter.is_custom)
         self.assertEqual(Organisation, efilter.entity_type.model_class())
-        # self.assertEqual([EntityFilterCondition.EFC_PROPERTY], [c.type for c in efilter.conditions.all()])
         self.assertQuerysetSQLEqual(Organisation.objects.filter(is_managed=True),
                                     efilter.filter(Organisation.objects.all())
                                    )
@@ -50,7 +44,5 @@ class PersonsAppTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_config_portal(self):
         self.login()
-        # response = self.assertGET200('/creme_config/')
         response = self.assertGET200(reverse('creme_config__portal'))
-        # self.assertContains(response, ' id="%s"' % bricks.managed_orgas_block.id_)
         self.get_brick_node(self.get_html_tree(response.content), bricks.ManagedOrganisationsBrick.id_)

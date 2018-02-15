@@ -62,7 +62,6 @@ def add(request, content_type_id, extra_template_dict=None):
         except AttributeError:
             callback_url = '/'
 
-    # ctx = {'submit_label': _('Save the view')}
     ctx = {}
     if extra_template_dict:
         ctx.update(extra_template_dict)
@@ -97,7 +96,6 @@ def edit(request, header_filter_id):
                                        )
     else:
         hf_form = HeaderFilterForm(user=user, instance=hf)
-        # cancel_url = request.META.get('HTTP_REFERER')
         cancel_url = build_cancel_path(request)
 
     return render(request, 'creme_core/header_filter_form.html',

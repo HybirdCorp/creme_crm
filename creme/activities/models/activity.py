@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +28,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, SettingValue
 
-# from .. import get_activity_model
 from ..constants import (NARROW, CREATION_LABELS, SETTING_AUTO_ORGA_SUBJECTS, DISPLAY_REVIEW_ACTIVITIES_BLOCKS,
         REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
 from .calendar import Calendar
@@ -141,12 +140,9 @@ END:VEVENT
 
     # TODO: move to manager the following methods
     # TODO: test
-    # @staticmethod
-    # def _get_linked_aux(entity):
     @classmethod
     def _get_linked_aux(cls, entity):
         types = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
-        # return get_activity_model().objects.filter(is_deleted=False,
         return cls.objects.filter(is_deleted=False,
                                   relations__object_entity=entity,
                                   relations__type__in=types,
@@ -154,12 +150,9 @@ END:VEVENT
                           .distinct()
 
     # TODO: test
-    # @staticmethod
-    # def _get_linked_for_ctypes_aux(ct_ids):
     @classmethod
     def _get_linked_for_ctypes_aux(cls, ct_ids):
         types = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
-        # return get_activity_model().objects.filter(is_deleted=False,
         return cls.objects.filter(is_deleted=False,
                                   relations__object_entity__entity_type__in=ct_ids,
                                   relations__type__in=types,
@@ -167,8 +160,6 @@ END:VEVENT
                           .distinct()
 
     # TODO: test
-    # @staticmethod
-    # def _get_linked_for_orga(orga):
     @classmethod
     def _get_linked_for_orga(cls, orga):
         types = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
@@ -176,51 +167,32 @@ END:VEVENT
         entities.extend(orga.get_managers().values_list('id', flat=True))
         entities.extend(orga.get_employees().values_list('id', flat=True))
 
-        # return get_activity_model().objects.filter(is_deleted=False,
         return cls.objects.filter(is_deleted=False,
                                   relations__object_entity__in=entities,
                                   relations__type__in=types,
                                  ) \
                           .distinct()
 
-    # @staticmethod
-    # def get_future_linked(entity, today):
-    #     return get_activity_model()._get_linked_aux(entity).filter(end__gt=today).order_by('start')
     @classmethod
     def get_future_linked(cls, entity, today):  # TODO end greater than today or floating type equal to floating
         return cls._get_linked_aux(entity).filter(end__gt=today).order_by('start')
 
-    # @staticmethod
-    # def get_future_linked_for_ctypes(ct_ids, today):
-    #     return get_activity_model()._get_linked_for_ctypes_aux(ct_ids).filter(end__gt=today).order_by('start')
     @classmethod
     def get_future_linked_for_ctypes(cls, ct_ids, today):
         return cls._get_linked_for_ctypes_aux(ct_ids).filter(end__gt=today).order_by('start')
 
-    # @staticmethod
-    # def get_future_linked_for_orga(orga, today):
-    #     return get_activity_model()._get_linked_for_orga(orga).filter(end__gt=today).order_by('start')
     @classmethod
     def get_future_linked_for_orga(cls, orga, today):
         return cls._get_linked_for_orga(orga).filter(end__gt=today).order_by('start')
 
-    # @staticmethod
-    # def get_past_linked(entity, today):
-    #     return get_activity_model()._get_linked_aux(entity).filter(end__lte=today).order_by('-start')
     @classmethod
     def get_past_linked(cls, entity, today):
         return cls._get_linked_aux(entity).filter(end__lte=today).order_by('-start')
 
-    # @staticmethod
-    # def get_past_linked_for_ctypes(ct_ids, today):
-    #     return get_activity_model()._get_linked_for_ctypes_aux(ct_ids).filter(end__lte=today).order_by('-start')
     @classmethod
     def get_past_linked_for_ctypes(cls, ct_ids, today):
         return cls._get_linked_for_ctypes_aux(ct_ids).filter(end__lte=today).order_by('-start')
 
-    # @staticmethod
-    # def get_past_linked_for_orga(orga, today):
-    #     return get_activity_model()._get_linked_for_orga(orga).filter(end__lte=today).order_by('-start')
     @classmethod
     def get_past_linked_for_orga(cls, orga, today):
         return cls._get_linked_for_orga(orga).filter(end__lte=today).order_by('-start')

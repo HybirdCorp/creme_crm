@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -119,5 +119,4 @@ def get_massimport_form_builder(header_dict, choices, model, base_form=_PersonMa
                             ('shipping_address', _(u'Shipping address'), shipping_address_fnames)
                         )
 
-    # return type('PersonMassImportForm', (_PersonMassImportForm,), attrs)
     return type('PersonMassImportForm', (base_form,), attrs)

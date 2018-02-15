@@ -4,19 +4,6 @@
 {% block page_title %}{% trans 'View your settings' %} - {% endblock %}
 
 {% block content %}
-{% comment %}
-    <table class="table_header" cellpadding="0" cellspacing="0">
-        <tr>
-            <td width="5%"><img src="{% creme_media_url 'images/config_64.png' %}" alt="{% trans 'Configuration' %}"/></td>
-            <td width="70%">
-                <h1>{% trans 'View and edit your Creme settings' %}</h1>
-            </td>
-            <td width="25%" align="right"></td>
-        </tr>
-    </table>
-    <div class=zone_spacer_5px></div>
-{% endcomment %}
-
     <div class="hat-bar-container">
         <div class="hat-bar">{% trans 'Home' as title %}
             <div class="bar-icon">{% widget_icon name='config' size='brick-hat-bar' label=_('Configuration') %}</div>
@@ -25,14 +12,12 @@
     </div>
 
     <div class="theme_picker">
-{#        <form action="/creme_config/my_settings/set_theme/" method="POST"> #}
         <form action="{% url 'creme_config__set_user_theme' %}" method="POST">
             <span>{% csrf_token %}{{theme_form}}</span>
         </form>
     </div>
 
     <div class="tz_picker">
-{#        <form action="/creme_config/my_settings/set_timezone/" method="POST"> #}
         <form action="{% url 'creme_config__set_user_timezone' %}" method="POST">
             <span>{% csrf_token %}{{tz_form}}</span>
         </form>
@@ -43,14 +28,12 @@
     {% endif %}
     {% brick_import app='creme_config' name='blocks_mypage_locations' as blocks_mypage_locations_brick %}
     {% brick_import app='creme_config' name='user_setting_values' as user_setting_values_brick %}
-{#    {% import_usersettings_blocks %} #}
     {% brick_declare apps_usersettings_bricks %}
 
     {% if OLD_MENU %}
         {% brick_display preferred_menus_brick %}
     {% endif %}
     {% brick_display blocks_mypage_locations_brick user_setting_values_brick apps_usersettings_bricks %}
-{#    {% display_usersettings_blocks %} #}
 
     {% brick_end %}
 {% endblock %}

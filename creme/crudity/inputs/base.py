@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -52,13 +52,10 @@ class CrudityInput(object):
         # @return: True if data were used else False
         @return: The backend used if data were used else None
         """
-        # if hasattr(self, self.method):
-        #     return getattr(self, self.method)(data)
         fun = getattr(self, self.method, None)
         if fun:
             return fun(data)
 
-        # return False
         return None
 
     def register_buttons(self, *buttons):  # TODO: deprecated in 1.8

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,6 @@ from creme import __version__
 
 from .gui.bricks import BricksManager
 from .models import FieldsConfig
-# from .utils.media import get_current_theme, get_current_theme_vb
 
 
 def get_logo_url(request):
@@ -35,17 +34,14 @@ def get_logo_url(request):
 
 
 def get_css_theme(request):
-    # current_theme = get_current_theme()
     # NB: AnonymousUser has no 'theme_info' attribute (we need it for the login view)
     theme_info = getattr(request.user, 'theme_info', settings.THEMES[0])
 
-    return {# 'THEME_NAME':         current_theme,
-            # 'DEFAULT_THEME':      settings.DEFAULT_THEME,
-            # 'THEME_VERBOSE_NAME': get_current_theme_vb(current_theme),
-            'THEME_NAME':         theme_info[0],
-            'DEFAULT_THEME':      settings.THEMES[0][0],  # TODO: seems not used...
-            'THEME_VERBOSE_NAME': theme_info[1],
-           }
+    return {
+        'THEME_NAME':         theme_info[0],
+        'DEFAULT_THEME':      settings.THEMES[0][0],  # TODO: seems not used...
+        'THEME_VERBOSE_NAME': theme_info[1],
+    }
 
 
 def get_today(request):

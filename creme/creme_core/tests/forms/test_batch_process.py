@@ -13,10 +13,6 @@ except Exception as e:
 class BatchActionsFieldTestCase(FieldTestCase):
     format_str = '[{"name": "%(name)s", "operator": "%(operator)s", "value": "%(value)s"}]'
 
-    # @classmethod
-    # def setUpClass(cls):
-    #     FieldTestCase.setUpClass()
-
     def test_clean_empty_required(self):
         clean = BatchActionsField(required=True).clean
         self.assertFieldValidationError(BatchActionsField, 'required', clean, None)

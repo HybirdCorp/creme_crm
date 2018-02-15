@@ -4,6 +4,5 @@
 {% block page_title %}{% blocktrans %}Edit «{{object}}»{% endblocktrans %} - {% endblock %}
 
 {% block content %}
-{#    {% include "persons/frags/organisation_form_content.html" with logo='images/edit_64.png' title=object|format:_('Edit «%s»') %} #}
     {% include "persons/frags/organisation_form_content.html" with icon_name='edit' title=object|format:_('Edit «%s»') %}
 {% endblock %}

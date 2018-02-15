@@ -14,11 +14,10 @@ try:
             FakeImage, FakeActivity, FakeEmailCampaign, FakeInvoiceLine)
     from creme.creme_core.bricks import (RelationsBrick, PropertiesBrick,
                                          HistoryBrick, CustomFieldsBrick)
-    # from creme.creme_core.constants import MODELBLOCK_ID
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.gui import bricks as gui_bricks
-    from creme.creme_core.gui.bricks import Brick, SpecificRelationsBrick  # block_registry
+    from creme.creme_core.gui.bricks import Brick, SpecificRelationsBrick
     from creme.creme_core.models import (RelationType, CustomField, FieldsConfig, UserRole,
             BlockDetailviewLocation, InstanceBlockConfigItem,
             BlockPortalLocation, BlockMypageLocation, RelationBlockItem, CustomBlockConfigItem)
@@ -34,7 +33,6 @@ class _BaseCompleteBrick(Brick):
     verbose_name = u'Testing purpose'
 
     def detailview_display(self, context):
-        # return self._render(self.get_block_template_context(context))
         return '<table id="%s"></table>' % self.id_
 
     def home_display(self, context):
@@ -151,19 +149,14 @@ class FakeContactHatBrick(Brick):
 
 
 # Test case --------------------------------------------------------------------
-# class BlocksConfigTestCase(CremeTestCase):
+
 class BricksConfigTestCase(CremeTestCase):
-    # DEL_DETAIL_URL = '/creme_config/blocks/detailview/delete'
     DEL_DETAIL_URL = reverse('creme_config__delete_detailview_bricks')
-    # PORTAL_WIZARD_URL = '/creme_config/blocks/portal/wizard'
     PORTAL_WIZARD_URL = reverse('creme_config__create_portal_bricks')
-    # CUSTOM_WIZARD_URL = '/creme_config/blocks/custom/wizard'
     CUSTOM_WIZARD_URL = reverse('creme_config__create_custom_brick')
 
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
-        # super(BlocksConfigTestCase, cls).setUpClass()
         super(BricksConfigTestCase, cls).setUpClass()
 
         cls._bdl_backup = list(BlockDetailviewLocation.objects.all())
@@ -176,22 +169,8 @@ class BricksConfigTestCase(CremeTestCase):
         BlockMypageLocation.objects.all().delete()
         RelationBlockItem.objects.all().delete()
 
-        # cls.populate('creme_core')
-
-        # cls.complete_block     = b1 = CompleteBlock()
-        # cls.home_portal_block  = b2 = HomePortalBlock()
-        # 
-        # cls.portal_only_block1 = b3 = PortalOnlyBlock1()
-        # cls.portal_only_block2 = b4 = PortalOnlyBlock2()
-        # cls.portal_only_block3 = b5 = PortalOnlyBlock3()
-        # cls.portal_only_block4 = b6 = PortalOnlyBlock4()
-
-        # cls.home_only_block = b7 = HomeOnlyBlock()
-
-        # block_registry.register(b1, b2, b3, b4, b5, b6, b7)
         cls._original_block_registry = gui_bricks.brick_registry
 
-        # gui_bricks.block_registry = cls.block_registry = block_registry = deepcopy(gui_bricks.block_registry)
         cls.brick_registry = block_registry = deepcopy(gui_bricks.brick_registry)
         block_registry.register(CompleteBrick1, CompleteBrick2, CompleteBrick3, CompleteBrick4,
                                 HomePortalBrick,
@@ -207,8 +186,6 @@ class BricksConfigTestCase(CremeTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        # CremeTestCase.tearDownClass()
-        # super(BlocksConfigTestCase, cls).tearDownClass()
         super(BricksConfigTestCase, cls).tearDownClass()
 
         BlockDetailviewLocation.objects.all().delete()
@@ -234,42 +211,26 @@ class BricksConfigTestCase(CremeTestCase):
         self.login()
 
     def _build_adddetail_url(self, ct):
-        # return '/creme_config/blocks/detailview/add/%s' % ct.id
         return reverse('creme_config__create_detailviews_bricks', args=(ct.id,))
 
     def _build_editdetail_url(self, ct=None, role=None, superuser=False):
-        # return '/creme_config/blocks/detailview/edit/%(ctype)s/%(role)s' % {
-        #             'ctype': ct.id if ct else 0,
-        #             'role':  'superuser' if superuser else
-        #                      role.id if role
-        #                      else 'default',
-        #         }
         return reverse('creme_config__edit_detailview_bricks', args=(
             ct.id if ct else 0,
             'superuser' if superuser else role.id if role else 'default',
         ))
 
-    # def _build_rblock_addctypes_url(self, rbi):
     def _build_rbrick_addctypes_url(self, rbi):
-        # return '/creme_config/blocks/relation_block/add_ctypes/%s' % rbi.id
         return reverse('creme_config__add_ctype_config_to_rtype_brick', args=(rbi.id,))
 
     def _build_rbrick_addctypes_wizard_url(self, rbi):
-        # return '/creme_config/blocks/relation_block/%s/wizard' % rbi.id
         return reverse('creme_config__add_cells_to_rtype_brick', args=(rbi.id,))
 
-    # def _build_rblock_editctype_url(self, rbi, model):
     def _build_rbrick_editctype_url(self, rbi, model):
-        # return '/creme_config/blocks/relation_block/%s/edit_ctype/%s' % (
-        #             rbi.id, ContentType.objects.get_for_model(model).id,
-        #         )
         return reverse('creme_config__edit_cells_of_rtype_brick', args=(
                     rbi.id, ContentType.objects.get_for_model(model).id,
                 ))
 
-    # def _build_customblock_edit_url(self, cbc_item):
     def _build_custombrick_edit_url(self, cbc_item):
-        # return '/creme_config/blocks/custom/edit/%s' % cbc_item.id
         return reverse('creme_config__edit_custom_brick', args=(cbc_item.id,))
 
     def _find_field_index(self, formfield, name):
@@ -292,7 +253,6 @@ class BricksConfigTestCase(CremeTestCase):
         self.fail('No "%s" in locations' % block_id)
 
     def test_portal(self):
-        # response = self.assertGET200('/creme_config/blocks/portal/')
         response = self.assertGET200(reverse('creme_config__bricks'))
 
         fmt = 'id="%s"'
@@ -329,7 +289,6 @@ class BricksConfigTestCase(CremeTestCase):
         brick_top_id1   = bricks[0].id_
         brick_top_id2   = bricks[1].id_
         brick_left_id1  = bricks[2].id_
-        # brick_left_id2  = MODELBLOCK_ID
         brick_left_id2  = self.brick_registry.get_brick_4_object(model).id_
         brick_right_id  = bricks[3].id_
         brick_bottom_id = bricks[4].id_
@@ -532,7 +491,6 @@ class BricksConfigTestCase(CremeTestCase):
 
         brick_top_id1   = bricks[0].id_
         brick_top_id2   = bricks[1].id_
-        # brick_left_id1  = MODELBLOCK_ID
         brick_left_id1  = self.brick_registry.get_brick_4_object(model).id_
         brick_left_id2  = bricks[2].id_
         brick_right_id  = bricks[3].id_
@@ -691,8 +649,6 @@ class BricksConfigTestCase(CremeTestCase):
 
     def test_edit_detailview05(self):
         "Default conf + no empty configuration"
-#        BlockDetailviewLocation.objects.filter(content_type=None).delete()
-
         self.assertGET404(self._build_editdetail_url(ct=None, role=self.role))
 
         url = self._build_editdetail_url(ct=None)
@@ -767,11 +723,9 @@ class BricksConfigTestCase(CremeTestCase):
         modelbrick_id = self.brick_registry.get_brick_4_object(model).id_
 
         with self.assertNoException():
-            # evil_brick = (b for b in bricks if b.id_ != MODELBLOCK_ID).next()
             evil_brick = (b for b in bricks if not b.id_ != modelbrick_id).next()
 
         post(evil_brick.id_, evil_brick.verbose_name)
-        # post(MODELBLOCK_ID, _(u'Information on the entity'))
         post(modelbrick_id, _(u'Information on the entity (generic)'))
 
     def test_edit_detailview07(self):
@@ -951,7 +905,6 @@ class BricksConfigTestCase(CremeTestCase):
                         )
 
     def test_add_portal(self):
-        # url = '/creme_config/blocks/portal/add/'
         url = reverse('creme_config__create_portal_bricks_legacy')
         self.assertGET200(url)
 
@@ -978,7 +931,6 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertNotIn('creme_config', names)
 
     def test_edit_portal01(self):
-        # self.assertGET404('/creme_config/blocks/portal/edit/persons')
         self.assertGET404(reverse('creme_config__edit_portal_bricks', args=('persons',)))
 
     def test_edit_portal02(self):
@@ -994,11 +946,9 @@ class BricksConfigTestCase(CremeTestCase):
         brick3 = PortalOnlyBrick3; assert app_name in brick3.target_apps
         brick4 = PortalOnlyBrick4; assert app_name not in brick4.target_apps
 
-        # self.client.post('/creme_config/blocks/portal/add/', data={'app_name': app_name})
         self.client.post(reverse('creme_config__create_portal_bricks_legacy'), data={'app_name': app_name})
         self.assertEqual(1, BlockPortalLocation.objects.filter(app_name=app_name).count())
 
-        # url = '/creme_config/blocks/portal/edit/%s' % app_name
         url = reverse('creme_config__edit_portal_bricks', args=(app_name,))
         response = self.assertGET200(url)
 
@@ -1052,7 +1002,6 @@ class BricksConfigTestCase(CremeTestCase):
         create_loc(block_id=blocks[0].id_, order=1)
         create_loc(block_id=blocks[1].id_, order=2)
 
-        # url = '/creme_config/blocks/portal/edit/%s' % app_name
         url = reverse('creme_config__edit_portal_bricks', args=(app_name,))
         response = self.assertGET200(url)
 
@@ -1073,7 +1022,6 @@ class BricksConfigTestCase(CremeTestCase):
     def test_edit_portal04(self):
         "Default conf"
         BlockPortalLocation.objects.filter(app_name='').delete()
-        # url = '/creme_config/blocks/portal/edit/default'
         url = reverse('creme_config__edit_portal_bricks', args=('default',))
         self.assertGET404(url)
 
@@ -1099,29 +1047,23 @@ class BricksConfigTestCase(CremeTestCase):
 
         BlockPortalLocation.create(block_id=HistoryBrick.id_, order=8, app_name=app_name)
 
-        brick = HomeOnlyBrick
-
-        # response = self.assertGET200('/creme_config/blocks/portal/edit/%s' % app_name)
         response = self.assertGET200(reverse('creme_config__edit_portal_bricks', args=(app_name,)))
 
         with self.assertNoException():
             blocks_field = response.context['form'].fields['blocks']
 
-        self._find_field_index(blocks_field, brick.id_)
+        self._find_field_index(blocks_field, HomeOnlyBrick.id_)
 
     def test_edit_portal06(self):
         "Edit portal of unknown app"
         app_name = 'unknown'
         self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name).exists())
-        # self.assertGET404('/creme_config/blocks/portal/edit/%s' % app_name)
         self.assertGET404(reverse('creme_config__edit_portal_bricks', args=(app_name,)))
 
     def test_delete_portal(self):
         app_name = 'persons'
-        # self.client.post('/creme_config/blocks/portal/add/', data={'app_name': app_name})
         self.client.post(reverse('creme_config__create_portal_bricks_legacy'), data={'app_name': app_name})
 
-        # self.assertPOST200('/creme_config/blocks/portal/delete', data={'id': app_name})
         self.assertPOST200(reverse('creme_config__delete_portal_bricks'), data={'id': app_name})
         self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
 
@@ -1278,7 +1220,6 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertGreaterEqual(len(bricks), 1)
 
         BlockPortalLocation.objects.create(app_name=app_name, block_id=bricks[0].id_, order=1)
-        # self.assertPOST404('/creme_config/blocks/portal/delete', data={'id': app_name})
         self.assertPOST404(reverse('creme_config__delete_portal_bricks'), data={'id': app_name})
 
     def test_delete_home_location_item(self):
@@ -1289,12 +1230,10 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertGreaterEqual(len(blocks), 1)
 
         bpl = BlockPortalLocation.objects.create(app_name=app_name, block_id=blocks[0].id_, order=1)
-        # self.assertPOST200('/creme_config/blocks/home/delete', data={'id': bpl.id})
         self.assertPOST200(reverse('creme_config__delete_home_brick'), data={'id': bpl.id})
         self.assertDoesNotExist(bpl)
 
     def test_edit_default_mypage(self):
-        # url = '/creme_config/blocks/mypage/edit/default'
         url = reverse('creme_config__edit_default_mypage_bricks')
         response = self.assertGET200(url)
 
@@ -1332,7 +1271,6 @@ class BricksConfigTestCase(CremeTestCase):
 
     def test_edit_mypage(self):
         user = self.user
-        # url = '/creme_config/blocks/mypage/edit'
         url = reverse('creme_config__edit_mypage_bricks')
         response = self.assertGET200(url)
 
@@ -1370,27 +1308,23 @@ class BricksConfigTestCase(CremeTestCase):
 
     def test_delete_default_mypage01(self):
         loc = BlockMypageLocation.objects.create(user=None, block_id=HistoryBrick.id_, order=1)
-        # self.assertPOST200('/creme_config/blocks/mypage/default/delete', data={'id': loc.id})
         self.assertPOST200(reverse('creme_config__delete_default_mypage_bricks'), data={'id': loc.id})
         self.assertDoesNotExist(loc)
 
     def test_delete_default_mypage02(self):
         "'user' must be 'None'"
         loc = BlockMypageLocation.objects.create(user=self.user, block_id=HistoryBrick.id_, order=1)
-        # self.assertPOST404('/creme_config/blocks/mypage/default/delete', data={'id': loc.id})
         self.assertPOST404(reverse('creme_config__delete_default_mypage_bricks'), data={'id': loc.id})
         self.assertStillExists(loc)
 
     def test_delete_mypage01(self):
         loc = BlockMypageLocation.objects.create(user=self.user, block_id=HistoryBrick.id_, order=1)
-        # self.assertPOST200('/creme_config/blocks/mypage/delete', data={'id': loc.id})
         self.assertPOST200(reverse('creme_config__delete_mypage_bricks'), data={'id': loc.id})
         self.assertDoesNotExist(loc)
 
     def test_delete_mypage02(self):
         "BlockMypageLocation must belong to the user"
         loc = BlockMypageLocation.objects.create(user=self.other_user, block_id=HistoryBrick.id_, order=1)
-        # self.assertPOST404('/creme_config/blocks/mypage/delete', data={'id': loc.id})
         self.assertPOST404(reverse('creme_config__delete_mypage_bricks'), data={'id': loc.id})
         self.assertStillExists(loc)
 
@@ -1400,7 +1334,6 @@ class BricksConfigTestCase(CremeTestCase):
                                 )[0]
         self.assertFalse(RelationBlockItem.objects.filter(relation_type=rt).exists())
 
-        # url = '/creme_config/blocks/relation_block/add/'
         url = reverse('creme_config__create_rtype_brick')
         self.assertGET200(url)
 
@@ -1837,7 +1770,6 @@ class BricksConfigTestCase(CremeTestCase):
         rb_item.set_cells(ct, [EntityCellRegularField.build(FakeContact, 'first_name')])
         rb_item.save()
 
-        # url = '/creme_config/blocks/relation_block/%s/delete_ctype' % rb_item.id
         url = reverse('creme_config__delete_cells_of_rtype_brick', args=(rb_item.id,))
         self.assertPOST404(url, data={'id': get_ct(FakeOrganisation).id})
 
@@ -1857,7 +1789,6 @@ class BricksConfigTestCase(CremeTestCase):
                                              model=FakeContact,
                                              )
 
-        # self.assertPOST200('/creme_config/blocks/relation_block/delete', data={'id': rbi.id})
         self.assertPOST200(reverse('creme_config__delete_rtype_brick'), data={'id': rbi.id})
         self.assertDoesNotExist(rbi)
         self.assertDoesNotExist(loc)
@@ -1872,7 +1803,6 @@ class BricksConfigTestCase(CremeTestCase):
         loc = BlockDetailviewLocation.create(block_id=ibi.block_id, order=5,
                                              zone=BlockDetailviewLocation.RIGHT, model=FakeContact,
                                             )
-        # self.assertPOST200('/creme_config/blocks/instance_block/delete', data={'id': ibi.id})
         self.assertPOST200(reverse('creme_config__delete_instance_brick'), data={'id': ibi.id})
         self.assertDoesNotExist(ibi)
         self.assertDoesNotExist(loc)
@@ -1882,7 +1812,6 @@ class BricksConfigTestCase(CremeTestCase):
         ct = get_ct(FakeContact)
         self.assertFalse(CustomBlockConfigItem.objects.filter(content_type=ct))
 
-        # url = '/creme_config/blocks/custom/add/'
         url = reverse('creme_config__create_custom_brick_legacy')
         response = self.assertGET200(url)
 
@@ -2124,7 +2053,6 @@ class BricksConfigTestCase(CremeTestCase):
                                              zone=BlockDetailviewLocation.RIGHT,
                                             )
 
-        # self.assertPOST200('/creme_config/blocks/custom/delete', data={'id': cbci.id})
         self.assertPOST200(reverse('creme_config__delete_custom_brick'), data={'id': cbci.id})
         self.assertDoesNotExist(cbci)
         self.assertDoesNotExist(loc)

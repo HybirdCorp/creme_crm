@@ -13,7 +13,6 @@ try:
     from creme.creme_core.models import FieldsConfig
     from creme.creme_core.tests.base import CremeTestCase
 
-    # from creme.media_managers.models import Image
     from creme.documents import get_document_model
 
     from creme.persons import get_address_model, get_contact_model, get_organisation_model
@@ -38,9 +37,7 @@ Organisation = get_organisation_model()
 class VcfImportTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
         super(VcfImportTestCase, cls).setUpClass()
-        # cls.populate('persons')
 
         cls.IMPORT_URL = reverse('vcfs__import')
 
@@ -1274,9 +1271,7 @@ PHOTO;TYPE=JPEG:""" \
 
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertTrue(contact.image)
-        # self.assertEqual(_(u'Image of %s') % contact, contact.image.name)
         self.assertEqual(_(u'Image of %s') % contact, contact.image.title)
-        # contact.image.image.delete()
         contact.image.filedata.delete()
 
     @skipIfCustomContact
@@ -1290,7 +1285,6 @@ PHOTO;TYPE=JPEG:""" \
         path = 'file:///' + os_path.normpath(path_base)
 
         contact_count = Contact.objects.count()
-        # self.assertEqual(0, Image.objects.count())
         self.assertEqual(0, Document.objects.count())
 
         content  = """BEGIN:VCARD
@@ -1311,13 +1305,11 @@ END:VCARD""" % path
 
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
 
-        # images = Image.objects.all()
         images = Document.objects.all()
         self.assertEqual(1, len(images))
 
         image = images[0]
         self.assertEqual(image, contact.image)
-        # self.assertEqual(_(u'Image of %s') % contact, image.name)
         self.assertEqual(_(u'Image of %s') % contact, image.title)
         image.delete()
 
@@ -1342,7 +1334,6 @@ END:VCARD"""
                         )
 
         self.assertEqual(contact_count + 1, Contact.objects.count())
-        # self.assertEqual(image_count,       Image.objects.count())
         self.assertEqual(image_count,       Document.objects.count())
 
     @skipIfCustomContact
@@ -1356,7 +1347,6 @@ END:VCARD"""
         vcf_forms.URL_START = vcf_forms.URL_START + ('file',)
 
         contact_count = Contact.objects.count()
-        # image_count   = Image.objects.count()
         image_count   = Document.objects.count()
         content = """BEGIN:VCARD
 FN:Satomi HAKASE
@@ -1370,7 +1360,6 @@ END:VCARD""" % os_path.normpath(img_path)
                               }
                         )
         self.assertEqual(contact_count + 1, Contact.objects.count())
-        # self.assertEqual(image_count,       Image.objects.count())
         self.assertEqual(image_count,       Document.objects.count())
 
     @skipIfCustomContact
@@ -1424,7 +1413,6 @@ ORG:Corporate\nEND:VCARD"""
         c = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name, phone=phone,
                                     mobile=mobile, fax=fax, url_site=url_site,
                                    )
-        # self.assertIsNone(c.email)
         self.assertEqual('', c.email)
 
     @skipIfCustomContact

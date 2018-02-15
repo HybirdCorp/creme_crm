@@ -18,17 +18,10 @@ except Exception as e:
 
 @skipIfCustomPattern
 class ActObjectivePatternTestCase(CommercialBaseTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     CommercialBaseTestCase.setUpClass()
-    #     cls.populate('commercial')
-
     def _build_addcomp_url(self, pattern):
-        # return '/commercial/objective_pattern/%s/add_component' % pattern.id
         return reverse('commercial__create_component', args=(pattern.id,))
 
     def _build_parent_url(self, component):
-        # return '/commercial/objective_pattern/component/%s/add_parent' % component.id
         return reverse('commercial__create_parent_component', args=(component.id,))
 
     def test_create(self):
@@ -176,7 +169,6 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                                              pattern=pattern, success_rate=50
                                                             )
 
-        # url = '/commercial/objective_pattern/component/%s/add_child' % comp01.id
         url = reverse('commercial__create_child_component', args=(comp01.id,))
         self.assertGET200(url)
 
@@ -338,7 +330,6 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
     def _delete_comp(self, comp):
         ct = ContentType.objects.get_for_model(ActObjectivePatternComponent)
 
-        # return self.client.post('/creme_core/entity/delete_related/%s' % ct.id,
         return self.client.post(reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
                                 data={'id': comp.id}
                                )

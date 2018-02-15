@@ -13,7 +13,6 @@ try:
     from creme.creme_core.models import (BlockDetailviewLocation,
              FakeContact, FakeOrganisation, FakeMailingList)
 
-    # from ..bricks import actions_it_block, actions_nit_block
     from ..bricks import ActionsOnTimeBrick, ActionsNotOnTimeBrick
     from ..models import Action
     from .base import AssistantsTestCase
@@ -23,7 +22,6 @@ except Exception as e:
 
 class ActionTestCase(AssistantsTestCase):
     def _build_add_url(self, entity):
-        # return '/assistants/action/add/%s/' % entity.id
         return reverse('assistants__create_action', args=(entity.id,))
 
     def _create_action(self, deadline, title='TITLE', descr='DESCRIPTION',
@@ -78,8 +76,6 @@ class ActionTestCase(AssistantsTestCase):
         create_bdi(block_id=ActionsNotOnTimeBrick.id_, order=501)
 
         response = self.assertGET200(entity.get_absolute_url())
-        # self.assertTemplateUsed(response, 'assistants/block_actions_it.html')
-        # self.assertTemplateUsed(response, 'assistants/block_actions_nit.html')
         self.assertTemplateUsed(response, 'assistants/bricks/actions-on-time.html')
         self.assertTemplateUsed(response, 'assistants/bricks/actions-not-on-time.html')
 
@@ -123,7 +119,6 @@ class ActionTestCase(AssistantsTestCase):
         action = self._create_action('2010-12-24', 'title', 'descr', 'reaction')
         ct = ContentType.objects.get_for_model(Action)
         kwargs = {} if not ajax else {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
-        # response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id,
         response = self.client.post(reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
                                     data={'id': action.id}, **kwargs
                                    )
@@ -145,7 +140,6 @@ class ActionTestCase(AssistantsTestCase):
         self.assertFalse(action.is_ok)
         self.assertIsNone(action.validation_date)
 
-        # response = self.assertPOST200('/assistants/action/validate/%s/' % action.id, follow=True)
         response = self.assertPOST200(reverse('assistants__validate_action', args=(action.id,)), follow=True)
         self.assertRedirects(response, self.entity.get_absolute_url())
 

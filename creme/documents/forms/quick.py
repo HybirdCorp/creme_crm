@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -52,15 +52,7 @@ class DocumentQuickForm(CremeModelWithUserForm):
             if self.user.has_perm_to_view(folder):
                 self.fields['folder'].initial = folder
 
-    # def clean_filedata(self):
-    #     # todo : return tuple with a pretty name for uploaded file
-    #     return str(handle_uploaded_file(self.cleaned_data['filedata'],
-    #                                     path=['upload', 'documents'],
-    #                                    )
-    #               )
-
     def save(self, *args, **kwargs):
-        # self.instance.title = basename(self.cleaned_data['filedata'])
         instance = self.instance
 
         instance.filedata = fpath = handle_uploaded_file(
@@ -114,7 +106,6 @@ class ImageQuickForm(CremeModelWithUserForm):
     def __init__(self, *args, **kwargs):
         super(ImageQuickForm, self).__init__(*args, **kwargs)
         fields = self.fields
-        # fields['folder'].initial = get_folder_model().objects.filter(title=_(u'Images')).first()
         fields['folder'].initial = get_folder_model().objects.filter(uuid=constants.UUID_FOLDER_IMAGES).first()
         # TODO: hook django (create or own widget and set it on ImageField ?)
         fields['image'].widget.attrs = {'accept': ','.join('.' + ext for ext in settings.ALLOWED_IMAGES_EXTENSIONS)}

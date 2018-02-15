@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,6 @@
 ################################################################################
 
 from django.http import Http404
-# from django.shortcuts import render
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required
@@ -40,14 +39,6 @@ from .portal import _config_portal
 def view(request):
     user = request.user
 
-    # return render(request, 'creme_config/user_settings.html',
-    #               {
-    #                # 'theme_form': UserThemeForm(user).as_span(),
-    #                # 'tz_form':    UserTimeZoneForm(user).as_span(),
-    #                'theme_form': UserThemeForm(user=user, instance=user).as_span(),
-    #                'tz_form':    UserTimeZoneForm(user=user, instance=user).as_span(),
-    #               }
-    #              )
     return _config_portal(
             request, 'creme_config/user_settings.html',
             theme_form=UserThemeForm(user=user, instance=user).as_span(),
@@ -58,33 +49,27 @@ def view(request):
 
 @login_required
 @jsonify
-# def _set_usersetting(request, form_cls, session_key):
 def _set_usersetting(request, form_cls):
     user = request.user
 
     if request.method == 'POST':
-        # form = form_cls(user=request.user, data=request.POST)
         form = form_cls(instance=user, user=user, data=request.POST)
 
         if form.is_valid():
-            # request.session[session_key] = form.save()
             form.save()
 
             return {}
     else:
-        # form = form_cls(user=request.user)
         form = form_cls(instance=user, user=user)
 
     return {'form': form.as_span()}
 
 
 def set_theme(request):
-    # return _set_usersetting(request, UserThemeForm, 'usertheme')
     return _set_usersetting(request, UserThemeForm)
 
 
 def set_timezone(request):
-    # return _set_usersetting(request, UserTimeZoneForm, 'usertimezone')
     return _set_usersetting(request, UserTimeZoneForm)
 
 

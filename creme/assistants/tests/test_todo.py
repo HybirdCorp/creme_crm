@@ -18,7 +18,6 @@ try:
 
     from creme.creme_core.bricks import JobErrorsBrick
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
-    # from creme.creme_core.management.commands.reminder import Command as ReminderCommand
     from creme.creme_core.models import (CremeEntity, DateReminder,
             SettingValue, HistoryLine, JobResult)
     from creme.creme_core.models.history import (TYPE_AUX_CREATION,
@@ -27,7 +26,6 @@ try:
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
     from ..constants import MIN_HOUR_4_TODO_REMINDER
-    # from ..blocks import todos_block
     from ..bricks import TodosBrick
     from ..models import ToDo, Alert
     from .base import AssistantsTestCase
@@ -38,7 +36,6 @@ except Exception as e:
 class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
     @classmethod
     def setUpClass(cls):
-        # AssistantsTestCase.setUpClass()
         super(TodoTestCase, cls).setUpClass()
         cls.original_send_messages = EmailBackend.send_messages
 
@@ -47,7 +44,6 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         EmailBackend.send_messages = self.original_send_messages
 
     def _build_add_url(self, entity):
-        # return '/assistants/todo/add/%s/' % entity.id
         return reverse('assistants__create_todo', args=(entity.id,))
 
     def _create_todo(self, title='TITLE', description='DESCRIPTION', entity=None, user=None):
@@ -183,7 +179,6 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertEqual(1, ToDo.objects.count())
 
         ct = ContentType.objects.get_for_model(ToDo)
-        # self.assertPOST(302, '/creme_core/entity/delete_related/%s' % ct.id, data={'id': todo.id})
         self.assertPOST(302, reverse('creme_core__delete_related_to_entity', args=(ct.id,)), data={'id': todo.id})
         self.assertFalse(ToDo.objects.all())
 
@@ -191,12 +186,10 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         todo = self._create_todo()
         self.assertFalse(todo.is_ok)
 
-        # response = self.assertPOST200('/assistants/todo/validate/%s/' % todo.id, follow=True)
         response = self.assertPOST200(reverse('assistants__validate_todo', args=(todo.id,)), follow=True)
         self.assertRedirects(response, self.entity.get_absolute_url())
         self.assertIs(True, self.refresh(todo).is_ok)
 
-    # def test_block_reload01(self):
     def test_brick_reload01(self):
         "Detailview"
         for i in xrange(1, 4):
@@ -210,8 +203,6 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         self.assertGreaterEqual(TodosBrick.page_size, 2)
 
-        # response = self.assertGET200('/creme_core/blocks/reload/%s/%s/' % (todos_block.id_, self.entity.id))
-        # response = self.assertGET200(reverse('creme_core__reload_detailview_blocks', args=(todos_block.id_, self.entity.id)))
         response = self.assertGET200(reverse('creme_core__reload_detailview_bricks', args=(self.entity.id,)),
                                      data={'brick_id': TodosBrick.id_},
                                     )
@@ -229,7 +220,6 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertEqual(size, len(page.object_list))
         self.assertEqual(size, len(set(todos) & set(page.object_list)))
 
-    # def test_block_reload02(self):
     def test_brick_reload02(self):
         "Home"
         self._create_several_todos()
@@ -238,8 +228,6 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         todos = ToDo.get_todos_for_home(self.user)
         self.assertEqual(2, len(todos))
 
-        # response = self.assertGET200('/creme_core/blocks/reload/home/%s/' % todos_block.id_)
-        # response = self.assertGET200(reverse('creme_core__reload_home_blocks', args=(todos_block.id_,)))
         response = self.assertGET200(reverse('creme_core__reload_home_bricks'), data={'brick_id': TodosBrick.id_})
         self.assertEqual('text/javascript', response['Content-Type'])
 
@@ -262,14 +250,6 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         todos = ToDo.get_todos_for_ctypes([ct_id], self.user)
         self.assertEqual(2, len(todos))
 
-        # response = self.assertGET200('/creme_core/blocks/reload/portal/%s/%s/' % (
-        #                                     todos_block.id_, ct_id
-        #                                 )
-        #                             )
-        # response = self.assertGET200(reverse('creme_core__reload_portal_blocks',
-        #                                      args=(todos_block.id_, ct_id),
-        #                                     )
-        #                             )
         response = self.assertGET200(reverse('creme_core__reload_portal_bricks'),
                                      data={'brick_id': TodosBrick.id_,
                                            'ct_id': ct_id,
@@ -365,7 +345,6 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         sv.value = localtime(now_value).hour
         sv.save()
 
-        # reminder_ids = list(DateReminder.objects.values_list('id', flat=True))
         DateReminder.objects.all().delete()
 
         job = self.get_reminder_job()
@@ -383,7 +362,6 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.execute_reminder_job(job)
         self.assertIsNone(job.user)
 
-        # reminders = DateReminder.objects.exclude(id__in=reminder_ids)
         reminders = DateReminder.objects.all()
         self.assertEqual(1, len(reminders))
 
@@ -428,7 +406,6 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
                             title='Todo#1', deadline=now_value,
                            )
 
-        # ReminderCommand().execute(verbosity=0)
         job = self.get_reminder_job()
         wakeup = job.type.next_wakeup(job, now_value)
         self.assertIsInstance(wakeup, datetime)
@@ -449,10 +426,6 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         reminder_ids = list(DateReminder.objects.values_list('id', flat=True))
 
-        # ToDo.objects.create(title='Todo#1', deadline=now_value,
-        #                     creme_entity=self.entity, user=self.user,
-        #                    )
-
         def create_todo(title):
             ToDo.objects.create(title=title, deadline=now_value,
                                 creme_entity=self.entity, user=self.user,
@@ -469,7 +442,6 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         EmailBackend.send_messages = send_messages
 
-        # ReminderCommand().execute(verbosity=0)
         job = self.execute_reminder_job()
 
         self.assertTrue(self.send_messages_called)
@@ -479,7 +451,6 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertEqual(1, len(jresults))
 
         jresult = jresults[0]
-        # self.assertIsNone(jresult.entity)
         self.assertEqual([_(u'An error occurred while sending emails related to «%s»')
                             % ToDo._meta.verbose_name,
                           _(u'Original error: %s') % err_msg,

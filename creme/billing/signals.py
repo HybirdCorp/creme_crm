@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2017  Hybird
+#    Copyright (C) 2015-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,8 +23,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
-# from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
-from creme.creme_core.models import Relation  # CremeProperty
+from creme.creme_core.models import Relation
 from creme.creme_core.signals import pre_merge_related
 
 from creme.persons import get_organisation_model
@@ -36,33 +35,6 @@ from .models import ConfigBillingAlgo, SimpleBillingAlgo
 Organisation = get_organisation_model()
 
 
-# @receiver(post_save, sender=CremeProperty)
-# def set_simple_conf_billing(sender, instance, created, **kwargs):
-#     if not created:
-#         return
-#
-#     Invoice    = get_invoice_model()
-#     Quote      = get_quote_model()
-#     SalesOrder = get_sales_order_model()
-#
-#     get_ct = ContentType.objects.get_for_model
-#
-#     if instance.type_id == PROP_IS_MANAGED_BY_CREME and \
-#        instance.creme_entity.entity_type_id == get_ct(get_organisation_model()).id:
-#         orga = instance.creme_entity.get_real_entity()
-#
-#         if not ConfigBillingAlgo.objects.filter(organisation=orga):
-#             for model, prefix in [(Quote,      settings.QUOTE_NUMBER_PREFIX),
-#                                   (Invoice,    settings.INVOICE_NUMBER_PREFIX),
-#                                   (SalesOrder, settings.SALESORDER_NUMBER_PREFIX),
-#                                  ]:
-#                 ct = get_ct(model)
-#                 ConfigBillingAlgo.objects.create(organisation=orga, ct=ct,
-#                                                  name_algo=SimpleBillingAlgo.ALGO_NAME,
-#                                                 )
-#                 SimpleBillingAlgo.objects.create(organisation=orga, last_number=0,
-#                                                  prefix=prefix, ct=ct,
-#                                                 )
 @receiver(post_save, sender=Organisation)
 def set_simple_conf_billing(sender, instance, **kwargs):
     if not instance.is_managed:
@@ -90,14 +62,6 @@ def handle_merge_organisations(sender, other_entity, **kwargs):
     orga_2_clean = None  # 'cache'
 
     def get_orga_2_clean():
-        # managed_ids = set(CremeProperty.objects
-        #                                .filter(type_id=PROP_IS_MANAGED_BY_CREME,
-        #                                        creme_entity__in=(sender.id, other_entity.id),
-        #                                       )
-        #                                .values_list('creme_entity', flat=True)
-        #                  )
-        #
-        # return sender if len(managed_ids) == 1 and sender.id not in managed_ids else other_entity
         return sender if not sender.is_managed and other_entity.is_managed else other_entity
 
     for model in (ConfigBillingAlgo, SimpleBillingAlgo):

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,6 @@ from itertools import izip_longest
 from json import loads as jsonloads, dumps as jsondumps
 import logging
 from re import compile as compile_re
-# import warnings
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
@@ -432,8 +431,6 @@ class EntityFilter(Model):  # CremeModel ???
         # return all(cond.entities_are_distinct(conds) for cond in conds)
 
     def filter(self, qs, user=None):
-        # # Distinct is useful with condition on m2m that can retrieve several times the same Entity
-        # return qs.filter(self.get_q(user)).distinct()
         qs = qs.filter(self.get_q(user))
 
         if not self.entities_are_distinct:

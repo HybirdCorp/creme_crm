@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2017  Hybird
+#    Copyright (C) 2015-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,6 @@ from creme.creme_core.apps import CremeAppConfig
 class ProductsConfig(CremeAppConfig):
     name = 'creme.products'
     verbose_name = _(u'Products and services')
-    # dependencies = ['creme.media_managers']
     dependencies = ['creme.documents']
 
     def all_apps_ready(self):
@@ -36,17 +35,12 @@ class ProductsConfig(CremeAppConfig):
         self.Service = get_service_model()
         super(ProductsConfig, self).all_apps_ready()
 
-    # def register_creme_app(self, creme_registry):
-    #     creme_registry.register_app('products', _(u'Products and services'), '/products')
-
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Product, self.Service)
 
     def register_bricks(self, brick_registry):
-        # from .blocks import images_block
         from . import bricks
 
-        # brick_registry.register(images_block)
         brick_registry.register(bricks.ImagesBrick)
 
     def register_bulk_update(self, bulk_update_registry):
@@ -85,7 +79,6 @@ class ProductsConfig(CremeAppConfig):
             from creme.creme_core.auth import build_creation_perm as cperm
 
             reg_item = creme_menu.register_app('products', '/products/').register_item
-            # reg_item('/products/',                        _(u'Portal of products and services'), 'products')
             reg_item(reverse('products__portal'),         _(u'Portal of products and services'), 'products')
             reg_item(reverse('products__list_products'),  _(u'All products'),                    'products')
             reg_item(reverse('products__create_product'), Product.creation_label,                cperm(Product))
