@@ -1,0 +1,8 @@
+These is a copy of the original django-mediagenerator package, which does support Django 1.9+ ;
+indeed it does not support Django 1.8 (so in Creme we added some hacks in Creme 1.7 & previous versions).
+
+Many features which are probably used by no user of Creme have been removed, in order to get less code to support.
+
+A new asset manager will be used/created in some future version of Creme. For the time being, in order to save
+development time (& add more important features -- like the use of a recent Django version), this way allows us
+to keep the same API as in Creme1.7.

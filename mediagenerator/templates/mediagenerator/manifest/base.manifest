@@ -1,0 +1,25 @@
+CACHE MANIFEST
+{% load media %}
+
+CACHE:
+{% block cache %}
+{% for name in cache %}
+{% for url in name|media_urls %}
+{{ url }}
+{% endfor %}
+{% endfor %}
+{% endblock cache %}
+
+NETWORK:
+{% block network %}
+{% for url in network %}
+{{ url }}
+{% endfor %}
+{% endblock %}
+
+FALLBACK:
+{% block fallback %}
+{% for source, target in fallback.items %}
+{{ source }} {{ target }}
+{% endfor %}
+{% endblock %}
