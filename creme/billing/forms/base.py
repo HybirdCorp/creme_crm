@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from itertools import chain
 import logging
 
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
@@ -124,7 +123,6 @@ class BaseEditForm(CremeEntityForm):
         # TODO: do this in model/with signal to avoid errors ???
         if self.old_user_id and self.old_user_id != user.id:
             # Do not use queryset.update() to call the CremeEntity.save() method TODO: change with future Credentials system ??
-            # for line in chain(instance.product_lines, instance.service_lines):
             for line in instance.iter_all_lines():
                 line.user = instance.user
                 line.save()
