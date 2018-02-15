@@ -1722,7 +1722,6 @@ class ActivityTestCase(_ActivitiesTestCase):
                                            object_entity=activity, user=user,
                                           )
 
-        # self.assertPOST403('/activities/linked_activity/unlink',
         self.assertPOST403(reverse('activities__unlink_activity'),
                            data={'id': activity.id, 'object_id': contact.id},
                           )
@@ -1843,7 +1842,6 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         sym_rel = Relation.objects.get(subject_entity=logged, type=constants.REL_SUB_PART_2_ACTIVITY, object_entity=phone_call)
 
-        # del_url = '/activities/activity/participant/delete'
         del_url = reverse('activities__remove_participant')
         self.assertGET404(del_url)
         self.assertPOST404(del_url, data={'id': sym_rel.pk})
@@ -2308,48 +2306,48 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(time(hour=23, minute=16), start_time_f.initial)
         self.assertIsNone(end_time_f.initial)
 
-    def test_dl_ical_legacy(self):
-        user = self.login()
-
-        create_act = partial(Activity.objects.create, user=user,
-                             type_id=constants.ACTIVITYTYPE_TASK, busy=True,
-                            )
-        create_dt = self.create_datetime
-        act1 = create_act(title='Act#1',
-                          start=create_dt(year=2013, month=4, day=1, hour=9),
-                          end=create_dt(year=2013,   month=4, day=1, hour=10),
-                         )
-        act2 = create_act(title='Act#2',
-                          start=create_dt(year=2013, month=4, day=2, hour=9),
-                          end=create_dt(year=2013,   month=4, day=2, hour=10),
-                         )
-
-        response = self.assertGET200(reverse('activities__dl_ical',
-                                             args=('%s,%s' % (act1.id, act2.id),)
-                                            )
-                                    )
-        self.assertEqual('text/calendar', response['Content-Type'])
-        self.assertEqual('attachment; filename=Calendar.ics',
-                         response['Content-Disposition']
-                        )
-
-        content = force_unicode(response.content)
-        self.assertTrue(content.startswith('BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//CremeCRM//CremeCRM//EN\n'
-                                           'BEGIN:VEVENT\n'
-                                           'UID:http://cremecrm.com\n'
-                                          )
-                       )
-        self.assertIn(u'SUMMARY:Act#2\n'
-                      u'DTSTART:20130402T090000Z\n'
-                      u'DTEND:20130402T100000Z\n'
-                      u'LOCATION:\n'
-                      u'CATEGORIES:%s\n'
-                      u'STATUS:\n'
-                      u'END:VEVENT\n' %  act2.type.name,
-                      content
-                     )
-        self.assertIn(u'SUMMARY:Act#1\n', content)
-        self.assertTrue(content.endswith('END:VCALENDAR'))
+    # def test_dl_ical_legacy(self):
+    #     user = self.login()
+    #
+    #     create_act = partial(Activity.objects.create, user=user,
+    #                          type_id=constants.ACTIVITYTYPE_TASK, busy=True,
+    #                         )
+    #     create_dt = self.create_datetime
+    #     act1 = create_act(title='Act#1',
+    #                       start=create_dt(year=2013, month=4, day=1, hour=9),
+    #                       end=create_dt(year=2013,   month=4, day=1, hour=10),
+    #                      )
+    #     act2 = create_act(title='Act#2',
+    #                       start=create_dt(year=2013, month=4, day=2, hour=9),
+    #                       end=create_dt(year=2013,   month=4, day=2, hour=10),
+    #                      )
+    #
+    #     response = self.assertGET200(reverse('activities__dl_ical',
+    #                                          args=('%s,%s' % (act1.id, act2.id),)
+    #                                         )
+    #                                 )
+    #     self.assertEqual('text/calendar', response['Content-Type'])
+    #     self.assertEqual('attachment; filename=Calendar.ics',
+    #                      response['Content-Disposition']
+    #                     )
+    #
+    #     content = force_unicode(response.content)
+    #     self.assertTrue(content.startswith('BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//CremeCRM//CremeCRM//EN\n'
+    #                                        'BEGIN:VEVENT\n'
+    #                                        'UID:http://cremecrm.com\n'
+    #                                       )
+    #                    )
+    #     self.assertIn(u'SUMMARY:Act#2\n'
+    #                   u'DTSTART:20130402T090000Z\n'
+    #                   u'DTEND:20130402T100000Z\n'
+    #                   u'LOCATION:\n'
+    #                   u'CATEGORIES:%s\n'
+    #                   u'STATUS:\n'
+    #                   u'END:VEVENT\n' %  act2.type.name,
+    #                   content
+    #                  )
+    #     self.assertIn(u'SUMMARY:Act#1\n', content)
+    #     self.assertTrue(content.endswith('END:VCALENDAR'))
 
     def test_dl_ical(self):
         user = self.login()

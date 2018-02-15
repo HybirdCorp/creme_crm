@@ -145,7 +145,6 @@ class CalendarTestCase(_ActivitiesTestCase):
             ctxt['others_calendars']
             ctxt['n_others_calendars']
             ctxt['creme_calendars_by_user']
-            # ctxt['default_color']
             ctxt['creation_perm']
 
         def_cal = self.assertUserHasDefaultCalendar(user)
