@@ -3,19 +3,18 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models, migrations
-from django.db.models.deletion import PROTECT
-from django.utils.timezone import now
+import django.db.models.deletion
+import django.utils.timezone
 
-from creme.creme_core.models import fields as creme_fields
+import creme.creme_core.models.fields
 
 
 class Migration(migrations.Migration):
     # replaces = [
     #     ('commercial', '0001_initial'),
-    #     ('commercial', '0005_v1_7__is_job_enabled'),
-    #     ('commercial', '0006_v1_7__textfields_not_null_1'),
-    #     ('commercial', '0007_v1_7__textfields_not_null_2'),
-    #     ('commercial', '0008_v1_7__image_to_doc'),
+    #     ('commercial', '0002_v1_6__fk_on_delete_set'),
+    #     ('commercial', '0003_v1_6__django18_hints'),
+    #     ('commercial', '0004_v1_6__segment_nullable_ptype'),
     # ]
 
     dependencies = [
@@ -31,6 +30,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
+                # ('property_type', models.ForeignKey(editable=False, to='creme_core.CremePropertyType')),
                 ('property_type', models.ForeignKey(editable=False, to='creme_core.CremePropertyType', null=True)),
             ],
             options={
@@ -60,11 +60,12 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='Name of the commercial action')),
                 ('expected_sales', models.PositiveIntegerField(verbose_name='Expected sales')),
                 ('cost', models.PositiveIntegerField(null=True, verbose_name='Cost of the commercial action', blank=True)),
-                ('goal', models.TextField(verbose_name='Goal of the action', blank=True)),
+                ('goal', models.TextField(null=True, verbose_name='Goal of the action', blank=True)),
                 ('start', models.DateField(verbose_name='Start')),
                 ('due_date', models.DateField(verbose_name='Due date')),
-                ('segment', models.ForeignKey(on_delete=PROTECT, verbose_name='Related segment', to='commercial.MarketSegment')),
-                ('act_type', models.ForeignKey(on_delete=PROTECT, verbose_name='Type', to='commercial.ActType')),
+                # ('segment', models.ForeignKey(verbose_name='Related segment', to='commercial.MarketSegment')),
+                ('segment', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Related segment', to='commercial.MarketSegment')),
+                ('act_type', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Type', to='commercial.ActType')),
             ],
             options={
                 'swappable': 'COMMERCIAL_ACT_MODEL',
@@ -81,9 +82,10 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('counter', models.PositiveIntegerField(default=0, verbose_name='Counter', editable=False)),
                 ('counter_goal', models.PositiveIntegerField(default=1, verbose_name='Value to reach')),
+                #('act', models.ForeignKey(related_name='objectives', editable=False, to='commercial.Act')),
                 ('act', models.ForeignKey(related_name='objectives', editable=False, to=settings.COMMERCIAL_ACT_MODEL)),
-                ('ctype', creme_fields.CTypeForeignKey(blank=True, editable=False, to='contenttypes.ContentType', null=True, verbose_name='Counted type')),
-                ('filter', models.ForeignKey(on_delete=PROTECT, blank=True, editable=False, to='creme_core.EntityFilter', null=True, verbose_name='Filter on counted entities')),
+                ('ctype', creme.creme_core.models.fields.CTypeForeignKey(blank=True, editable=False, to='contenttypes.ContentType', null=True, verbose_name='Counted type')),
+                ('filter', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, blank=True, editable=False, to='creme_core.EntityFilter', null=True, verbose_name='Filter on counted entities')),
             ],
             options={
                 'verbose_name': 'Commercial Objective',
@@ -113,9 +115,10 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('success_rate', models.PositiveIntegerField(verbose_name='Success rate')),
-                ('ctype', creme_fields.CTypeForeignKey(blank=True, editable=False, to='contenttypes.ContentType', null=True, verbose_name='Counted type')),
-                ('filter', models.ForeignKey(on_delete=PROTECT, blank=True, editable=False, to='creme_core.EntityFilter', null=True, verbose_name='Filter on counted entities')),
+                ('ctype', creme.creme_core.models.fields.CTypeForeignKey(blank=True, editable=False, to='contenttypes.ContentType', null=True, verbose_name='Counted type')),
+                ('filter', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, blank=True, editable=False, to='creme_core.EntityFilter', null=True, verbose_name='Filter on counted entities')),
                 ('parent', models.ForeignKey(related_name='children', editable=False, to='commercial.ActObjectivePatternComponent', null=True)),
+                #('pattern', models.ForeignKey(related_name='components', editable=False, to='commercial.ActObjectivePattern')),
                 ('pattern', models.ForeignKey(related_name='components', editable=False, to=settings.COMMERCIAL_PATTERN_MODEL)),
             ],
             options={},
@@ -127,10 +130,11 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=200, verbose_name='Title')),
                 ('ok_or_in_futur', models.BooleanField(default=False, verbose_name='Done?', editable=False)),
-                ('description', models.TextField(verbose_name='Description', blank=True)),
-                ('creation_date', creme_fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True)),
+                ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
+                ('creation_date', creme.creme_core.models.fields.CreationDateTimeField(default=django.utils.timezone.now, verbose_name='Creation date', editable=False, blank=True)),
                 ('entity_id', models.PositiveIntegerField(editable=False)),
                 ('entity_content_type', models.ForeignKey(related_name='comapp_entity_set', editable=False, to='contenttypes.ContentType')),
+                #('related_activity', models.ForeignKey(editable=False, to='activities.Activity', null=True)),
                 ('related_activity', models.ForeignKey(editable=False, to=settings.ACTIVITIES_ACTIVITY_MODEL, null=True)),
             ],
             options={
@@ -144,6 +148,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
+                # ('evaluated_orgas', models.ManyToManyField(to=settings.PERSONS_ORGANISATION_MODEL, editable=False)),
                 ('evaluated_orgas', models.ManyToManyField(verbose_name='Evaluated organisation(s)', editable=False, to=settings.PERSONS_ORGANISATION_MODEL)),
             ],
             options={
@@ -158,12 +163,12 @@ class Migration(migrations.Migration):
             name='MarketSegmentDescription',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('product',   models.TextField(verbose_name='Product',   blank=True)),
-                ('place',     models.TextField(verbose_name='Place',     blank=True)),
-                ('price',     models.TextField(verbose_name='Price',     blank=True)),
-                ('promotion', models.TextField(verbose_name='Promotion', blank=True)),
-                ('segment',   models.ForeignKey(to='commercial.MarketSegment')),
-                ('strategy',  models.ForeignKey(related_name='segment_info', editable=False, to=settings.COMMERCIAL_STRATEGY_MODEL)),
+                ('product', models.TextField(null=True, verbose_name='Product', blank=True)),
+                ('place', models.TextField(null=True, verbose_name='Place', blank=True)),
+                ('price', models.TextField(null=True, verbose_name='Price', blank=True)),
+                ('promotion', models.TextField(null=True, verbose_name='Promotion', blank=True)),
+                ('segment', models.ForeignKey(to='commercial.MarketSegment')),
+                ('strategy', models.ForeignKey(related_name='segment_info', editable=False, to=settings.COMMERCIAL_STRATEGY_MODEL)),
             ],
             options={
                 'verbose_name': 'Market segment description',

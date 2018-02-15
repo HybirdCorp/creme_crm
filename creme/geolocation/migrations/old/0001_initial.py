@@ -8,8 +8,7 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
     # replaces = [
     #     (b'geolocation', '0001_initial'),
-    #     (b'geolocation', '0003_v1_7__charfields_not_null_1'),
-    #     (b'geolocation', '0004_v1_7__charfields_not_null_2'),
+    #     (b'geolocation', '0002_v1_6__fix_block_ids'),
     # ]
 
     dependencies = [
@@ -25,14 +24,7 @@ class Migration(migrations.Migration):
                 ('longitude', models.FloatField(null=True, verbose_name='Longitude', blank=True)),
                 ('draggable', models.BooleanField(default=True, verbose_name='Is this marker draggable in maps ?')),
                 ('geocoded', models.BooleanField(default=False, verbose_name='Geocoded from address ?')),
-                ('status', models.SmallIntegerField(default=0, verbose_name='Status',
-                                                    choices=[(0, 'Not localized'),
-                                                             (1, 'Manual location'),
-                                                             (2, 'Partially matching location'),
-                                                             (3, b''),
-                                                            ],
-                                                   )
-                ),
+                ('status', models.SmallIntegerField(default=0, verbose_name='Status', choices=[(0, 'Not localized'), (1, 'Manual location'), (2, 'Partially matching location'), (3, b'')])),
             ],
             options={
                 'verbose_name': 'Address',
@@ -46,8 +38,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the town')),
                 ('slug', models.SlugField(max_length=100, verbose_name='Slugified name of the town')),
-                ('zipcode', models.CharField(max_length=100, verbose_name='Zip code', blank=True)),
-                ('country', models.CharField(max_length=40, verbose_name='Country', blank=True)),
+                ('zipcode', models.CharField(max_length=100, null=True, verbose_name='Zip code', blank=True)),
+                ('country', models.CharField(max_length=40, null=True, verbose_name='Country', blank=True)),
                 ('latitude', models.FloatField(verbose_name='Latitude')),
                 ('longitude', models.FloatField(verbose_name='Longitude')),
             ],

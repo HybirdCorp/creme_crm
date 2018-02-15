@@ -31,7 +31,6 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('entity', models.ForeignKey(editable=False, to='creme_core.CremeEntity')),
-                #('graph', models.ForeignKey(related_name='roots', editable=False, to='graphs.Graph')),
                 ('graph', models.ForeignKey(related_name='roots', editable=False, to=settings.GRAPHS_GRAPH_MODEL)),
                 ('relation_types', models.ManyToManyField(to='creme_core.RelationType', editable=False)),
             ],
