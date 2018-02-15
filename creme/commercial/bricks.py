@@ -153,7 +153,7 @@ class AssetsBrick(QuerysetBrick):
         strategy = context['object']
         return self._render(self.get_template_context(
                     context, strategy.assets.all(),
-                    ct_id=get_ct(CommercialAsset).id,  # DEPRECATED (use 'objects_ctype.id' instead)
+                    # ct_id=get_ct(CommercialAsset).id,
         ))
 
 
@@ -169,7 +169,7 @@ class CharmsBrick(QuerysetBrick):
         strategy = context['object']
         return self._render(self.get_template_context(
                     context, strategy.charms.all(),
-                    ct_id=get_ct(MarketSegmentCharm).id,  # DEPRECATED (use 'objects_ctype.id' instead)
+                    # ct_id=get_ct(MarketSegmentCharm).id,
         ))
 
 
@@ -262,7 +262,7 @@ class ActObjectivesBrick(QuerysetBrick):
                     context,
                     # NB: "act.objectives.all()" causes a strange additional query...
                     ActObjective.objects.filter(act=act_id),
-                    ct_id=get_ct(ActObjective).id,  # DEPRECATED (use 'objects_ctype.id' instead)
+                    ct_id=get_ct(ActObjective).id,
         ))
 
 
