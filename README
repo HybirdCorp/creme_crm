@@ -126,7 +126,6 @@ Filling the DB tables:
 Run the following commands in the root directory:
     >> python manage.py migrate
     >> python manage.py generatemedia
-    [Do not worry about 'URL not found' messages]
     >> python manage.py creme_populate
 
 If you are upgrading from Creme 1.6, clean all existing sessions, for example like this:
