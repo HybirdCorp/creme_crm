@@ -106,7 +106,7 @@ class EmailRecipientsBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     EmailRecipient.objects.filter(ml=mailing_list.id), #get_recipients() ???
-                    ct_id=ContentType.objects.get_for_model(EmailRecipient).id,  # DEPRECATED (use 'objects_ctype.id' instead)
+                    ct_id=ContentType.objects.get_for_model(EmailRecipient).id,
         ))
 
 
@@ -208,7 +208,7 @@ class MailsBrick(QuerysetBrick):
         return self._render(self.get_template_context(
             context,
             sending.get_mails().select_related('recipient_entity'),
-            ct_id=ContentType.objects.get_for_model(LightWeightEmail).id,  # DEPRECATED (use 'objects_ctype.id ' instead)
+            # ct_id=ContentType.objects.get_for_model(LightWeightEmail).id,
         ))
 
 

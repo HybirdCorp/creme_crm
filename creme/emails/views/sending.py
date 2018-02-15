@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext as _
@@ -61,21 +61,21 @@ def detailview(request, sending_id):
                  )
 
 
-@jsonify
-@login_required
-@permission_required('emails')
-def reload_block_mails(request, sending_id):
-    warnings.warn('emails.views.sending.reload_block_mails() is deprecated ; use reload_mails_brick() instead.',
-                  DeprecationWarning
-                 )
-
-    from creme.creme_core.views import blocks
-
-    context = blocks.build_context(request)
-    context['object'] = _get_sending(request, sending_id)
-    block = MailsBrick()
-
-    return [(block.id_, block.detailview_display(context))]
+# @jsonify
+# @login_required
+# @permission_required('emails')
+# def reload_block_mails(request, sending_id):
+#     warnings.warn('emails.views.sending.reload_block_mails() is deprecated ; use reload_mails_brick() instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     from creme.creme_core.views import blocks
+#
+#     context = blocks.build_context(request)
+#     context['object'] = _get_sending(request, sending_id)
+#     block = MailsBrick()
+#
+#     return [(block.id_, block.detailview_display(context))]
 
 
 # Useful method because EmailSending is not a CremeEntity (should be ?)

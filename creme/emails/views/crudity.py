@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,16 +18,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
-from django.contrib.contenttypes.models import ContentType
+# from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.utils import jsonify
+# from creme.creme_core.utils import jsonify
 
 from creme.crudity import registry
 
@@ -58,7 +58,7 @@ def synchronisation(request):
     return render(request, template_name='emails/synchronize.html',
                   context={'bricks':            bricks_obj,
                            'bricks_reload_url': reverse('crudity__reload_actions_bricks'),
-                           'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id,  # DEPRECATED
+                           # 'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id,
                           },
                  )
 
@@ -105,20 +105,20 @@ def waiting(request):
     return set_emails_status(request, constants.MAIL_STATUS_SYNCHRONIZED_WAITING)
 
 
-@jsonify
-@permission_required('emails')
-def reload_sync_blocks(request):
-    warnings.warn('emails.views.crudity.reload_sync_blocks() is deprecated ; use reload_bricks() instead.',
-                  DeprecationWarning
-                 )
-
-    from creme.creme_core.views.blocks import build_context
-    from .. import blocks
-
-    ctx = build_context(request)
-    mail_waiting_sync_block = blocks.WaitingSynchronizationMailsBlock()
-    mail_spam_sync_block    = blocks.SpamSynchronizationMailsBlock()
-
-    return [(mail_waiting_sync_block.id_, mail_waiting_sync_block.detailview_display(ctx)),
-            (mail_spam_sync_block.id_,    mail_spam_sync_block.detailview_display(ctx)),
-           ]
+# @jsonify
+# @permission_required('emails')
+# def reload_sync_blocks(request):
+#     warnings.warn('emails.views.crudity.reload_sync_blocks() is deprecated ; use reload_bricks() instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     from creme.creme_core.views.blocks import build_context
+#     from .. import blocks
+#
+#     ctx = build_context(request)
+#     mail_waiting_sync_block = blocks.WaitingSynchronizationMailsBlock()
+#     mail_spam_sync_block    = blocks.SpamSynchronizationMailsBlock()
+#
+#     return [(mail_waiting_sync_block.id_, mail_waiting_sync_block.detailview_display(ctx)),
+#             (mail_spam_sync_block.id_,    mail_spam_sync_block.detailview_display(ctx)),
+#            ]
