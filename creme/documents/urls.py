@@ -34,8 +34,8 @@ if not documents.document_model_is_custom():
         url(r'^document/edit/(?P<document_id>\d+)[/]?$',     document.edit,        name='documents__edit_document'),
         url(r'^document/(?P<object_id>\d+)[/]?$',            document.detailview,  name='documents__view_document'),
 
-        url(r'^quickforms/from_widget/document/csv/add/(?P<count>\d)*[/]?$',
-        # url(r'^quickforms/from_widget/document/csv/add[/]*$',  TODO: in creme1.8
+        # url(r'^quickforms/from_widget/document/csv/add/(?P<count>\d)*[/]?$',
+        url(r'^quickforms/from_widget/document/csv/add[/]?$',
             quick_forms.add_csv_from_widget, name='documents__create_document_from_widget',
            ),
         url(r'^quickforms/image[/]?$',
