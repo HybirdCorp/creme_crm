@@ -654,7 +654,7 @@ CREME_OPTLIB_JS = (
 CREME_OPT_JS = (  # OPTIONAL APPS
     ('creme.persons',       'persons/js/persons.js'),
 
-    ('creme.assistants',    'assistants/js/assistants.js'),
+    # ('creme.assistants',    'assistants/js/assistants.js'),   TODO: remove in 2.0
 
     ('creme.activities',    'activities/js/activities.js'),
 

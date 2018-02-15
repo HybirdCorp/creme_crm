@@ -59,14 +59,14 @@ class _AssistantsBrick(QuerysetBrick):
         pass
 
     @classmethod
-    def _get_contenttype_id(cls):
+    def _get_contenttype_id(cls):  # TODO: deprecate
         return ContentType.objects.get_for_model(cls.dependencies[0]).id
 
     def detailview_display(self, context):
         entity = context['object']
         btc = self.get_template_context(
                 context, self._get_queryset_for_detailview(entity, context),
-                ct_id=self._get_contenttype_id(),  # DEPRECATED (use 'objects_ctype.id' instead)
+                # ct_id=self._get_contenttype_id(),
         )
 
         # NB: optimisation ; it avoids the retrieving of the entity during template rendering.
@@ -78,7 +78,7 @@ class _AssistantsBrick(QuerysetBrick):
     def portal_display(self, context, ct_ids):
         btc = self.get_template_context(
             context, self._get_queryset_for_portal(ct_ids, context),
-            ct_id=self._get_contenttype_id(),  # DEPRECATED
+            # ct_id=self._get_contenttype_id(),
         )
         self._populate_related_real_entities(btc['page'].object_list, context['user'])
 
@@ -87,7 +87,7 @@ class _AssistantsBrick(QuerysetBrick):
     def home_display(self, context):
         btc = self.get_template_context(
                 context, self._get_queryset_for_home(context),
-                ct_id=self._get_contenttype_id(),  # DEPRECATED
+                # ct_id=self._get_contenttype_id(),
         )
         self._populate_related_real_entities(btc['page'].object_list, context['user'])
 
