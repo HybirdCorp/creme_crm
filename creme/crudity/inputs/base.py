@@ -49,7 +49,6 @@ class CrudityInput(object):
 
     def handle(self, data):
         """Call the method of the Input defined in subclasses
-        # @return: True if data were used else False
         @return: The backend used if data were used else None
         """
         fun = getattr(self, self.method, None)

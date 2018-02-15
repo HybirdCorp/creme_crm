@@ -28,11 +28,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import FieldDoesNotExist, FileField, ForeignKey
 from django.utils.translation import ugettext_lazy as _
 
-# from creme.media_managers.models import Image
 from creme.documents import get_document_model
 
 from ..backends.models import CrudityBackend
-from ..buttons import EmailTemplateCreateButton, InfopathCreateFormButton, infopath_create_form_button, email_template_create_button
+from ..buttons import EmailTemplateCreateButton, InfopathCreateFormButton # infopath_create_form_button, email_template_create_button
 from ..constants import LEFT_MULTILINE_SEP, RIGHT_MULTILINE_SEP
 from ..models import WaitingAction
 from ..utils import strip_html, strip_html_, decode_b64binary
@@ -277,10 +276,8 @@ class CreateInfopathInput(CreateEmailInput):
         return data
 
 
-# DEPRECATED
-create_email_input = CreateEmailInput()
-create_email_input.register_buttons(email_template_create_button)
-
-# DEPRECATED
-create_infopath_input = CreateInfopathInput()
-create_infopath_input.register_buttons(infopath_create_form_button)
+# create_email_input = CreateEmailInput()
+# create_email_input.register_buttons(email_template_create_button)
+#
+# create_infopath_input = CreateInfopathInput()
+# create_infopath_input.register_buttons(infopath_create_form_button)

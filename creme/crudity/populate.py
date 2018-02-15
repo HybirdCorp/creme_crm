@@ -35,12 +35,13 @@ class Populator(BasePopulator):
     def populate(self):
         SettingValue.objects.get_or_create(key_id=sandbox_key.id, defaults={'value': False})
 
-        CremeUser = get_user_model()
-
-        try:
-            user = CremeUser.objects.get(pk=settings.CREME_GET_EMAIL_JOB_USER_ID)
-        except (CremeUser.DoesNotExist, AttributeError):
-            user = CremeUser.objects.get_admin()
+        # CremeUser = get_user_model()
+        #
+        # try:
+        #     user = CremeUser.objects.get(pk=settings.CREME_GET_EMAIL_JOB_USER_ID)
+        # except (CremeUser.DoesNotExist, AttributeError):
+        #     user = CremeUser.objects.get_admin()
+        user = get_user_model().objects.get_admin()
 
         Job.objects.get_or_create(type_id=crudity_synchronize_type.id,
                                   defaults={'language':    settings.LANGUAGE_CODE,
