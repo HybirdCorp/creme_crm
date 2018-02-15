@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2017  Hybird
+    Copyright (C) 2009-2018  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -25,39 +25,35 @@
 
 creme.emails = {};
 
-//creme.emails.confirmResend = function(message, ids, block_url) {
-creme.emails.confirmResend = function(message, resend_url, ids, block_url) {
-    console.warn('creme.emails.confirmResend() is deprecated ; use an action with the url "emails__resend_emails" instead.');
-//    return creme.blocks.confirmPOSTQuery('/emails/mail/resend',
-    return creme.blocks.confirmPOSTQuery(resend_url,
-                                         {blockReloadUrl: block_url,
-                                          messageOnSuccess: gettext('Process done'),
-                                          confirm: message
-                                         },
-                                         {ids: ids}
-                                        )
-                       .start();
-};
+//creme.emails.confirmResend = function(message, resend_url, ids, block_url) {
+//    console.warn('creme.emails.confirmResend() is deprecated ; use an action with the url "emails__resend_emails" instead.');
+//    return creme.blocks.confirmPOSTQuery(resend_url,
+//                                         {blockReloadUrl: block_url,
+//                                          messageOnSuccess: gettext('Process done'),
+//                                          confirm: message
+//                                         },
+//                                         {ids: ids}
+//                                        )
+//                       .start();
+//};
 
-//creme.emails.resend = function(ids, block_url) {
-creme.emails.resend = function(resend_url, ids, block_url) {
-    console.warn('creme.emails.resend() is deprecated ; use an action with the url "emails__resend_emails" instead.');
+//creme.emails.resend = function(resend_url, ids, block_url) {
+//    console.warn('creme.emails.resend() is deprecated ; use an action with the url "emails__resend_emails" instead.');
+//
+//    return creme.blocks.ajaxPOSTQuery(resend_url,
+//                                      {blockReloadUrl: block_url,
+//                                       messageOnSuccess: gettext('Process done')
+//                                      })
+//                       .data({ids: ids})
+//                       .start();
+//};
 
-//    return creme.blocks.ajaxPOSTQuery('/emails/mail/resend',
-    return creme.blocks.ajaxPOSTQuery(resend_url,
-                                      {blockReloadUrl: block_url,
-                                       messageOnSuccess: gettext('Process done')
-                                      })
-                       .data({ids: ids})
-                       .start();
-};
-
-creme.emails.allowExternalImages = function(block_id) {
-    console.warn('creme.emails.allowExternalImages() is deprecated ; use the action "email-toggle-images" instead.');
-
-    var iframe = $('#' + block_id).find('iframe');
-    iframe.attr('src', iframe.attr('src') + '?external_img=on');
-};
+//creme.emails.allowExternalImages = function(block_id) {
+//    console.warn('creme.emails.allowExternalImages() is deprecated ; use the action "email-toggle-images" instead.');
+//
+//    var iframe = $('#' + block_id).find('iframe');
+//    iframe.attr('src', iframe.attr('src') + '?external_img=on');
+//};
 
 
 (function() {

@@ -98,5 +98,5 @@ if apps.is_installed('creme.crudity'):
         url(r'^mail/validated[/]?$',     crudity.validated,       name='emails__crudity_validated'),
         url(r'^mail/waiting[/]?$',       crudity.waiting,         name='emails__crudity_waiting'),
         url(r'^synchronization[/]?$',    crudity.synchronisation, name='emails__crudity_sync'),
-        url(r'^sync_blocks/reload[/]?$', crudity.reload_sync_blocks, name='emails__crudity_reload_sync_blocks'),  # DEPRECATED
+        # url(r'^sync_blocks/reload[/]?$', crudity.reload_sync_blocks, name='emails__crudity_reload_sync_blocks'),
     ]
