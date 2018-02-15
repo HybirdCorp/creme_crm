@@ -191,7 +191,6 @@ class FunctionFieldTestCase(_BillingTestCase):
         target = create_orga(name='Target')
 
         source01 = create_orga(name='Source#1')
-        # self._set_manages_by_creme(source01)
         self._set_managed(source01)
 
         def set_status(invoice):
@@ -235,7 +234,6 @@ class FunctionFieldTestCase(_BillingTestCase):
         target = create_orga(name='Target')
 
         source01 = create_orga(name='Source#1')
-        # self._set_manages_by_creme(source01)
         self._set_managed(source01)
 
         def set_status(invoice):

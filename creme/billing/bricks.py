@@ -158,7 +158,7 @@ class CreditNotesBrick(PaginatedBrick):
                     context,
                     billing_document.get_credit_notes(),
                     rtype_id=self.relation_type_deps[0],
-                    ct=ContentType.objects.get_for_model(CreditNote),  # DEPRECATED
+                    # ct=ContentType.objects.get_for_model(CreditNote),
                     add_title=_(u'Create a credit note'),
                     hidden_fields={fname
                                        for fname in ('issuing_date', 'expiration_date', 'comment')
@@ -291,8 +291,6 @@ class PaymentInformationBrick(QuerysetBrick):
         has_to_be_displayed = True
 
         try:
-            # if SettingValue.objects.get(key_id=constants.DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA).value \
-            #    and not organisation.properties.filter(type=PROP_IS_MANAGED_BY_CREME).exists():
             if not organisation.is_managed and SettingValue.objects.get(key_id=payment_info_key.id).value:
                 has_to_be_displayed = False
         except SettingValue.DoesNotExist:
@@ -304,7 +302,7 @@ class PaymentInformationBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(context,
                     PaymentInformation.objects.filter(organisation=organisation),
-                    ct_id=ContentType.objects.get_for_model(PaymentInformation).id,  # DEPRECATED
+                    # ct_id=ContentType.objects.get_for_model(PaymentInformation).id,
         ))
 
 
@@ -331,7 +329,7 @@ class BillingPaymentInformationBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(
                     context, pi_qs,
-                    ct_id=ContentType.objects.get_for_model(PaymentInformation).id,  # DEPRECATED
+                    # ct_id=ContentType.objects.get_for_model(PaymentInformation).id,
                     organisation=organisation,
                     field_hidden=hidden,
         ))

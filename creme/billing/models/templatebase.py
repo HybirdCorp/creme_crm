@@ -20,7 +20,7 @@
 
 from datetime import timedelta
 import logging
-import warnings
+# import warnings
 
 from django.core.urlresolvers import reverse
 from django.db.models import PositiveIntegerField
@@ -116,13 +116,13 @@ class AbstractTemplateBase(Base):
 
         return instance
 
-    def build(self, template, new_ct):
-        " This build is in case of convert a template with a ct into another template with a different ct"
-        warnings.warn('TemplateBase.build() method is deprecated.', DeprecationWarning)
-
-        self.status_id = 1
-        self.ct = new_ct
-        return super(AbstractTemplateBase, self).build(template)
+    # def build(self, template, new_ct):
+    #     " This build is in case of convert a template with a ct into another template with a different ct"
+    #     warnings.warn('TemplateBase.build() method is deprecated.', DeprecationWarning)
+    #
+    #     self.status_id = 1
+    #     self.ct = new_ct
+    #     return super(AbstractTemplateBase, self).build(template)
 
 
 class TemplateBase(AbstractTemplateBase):

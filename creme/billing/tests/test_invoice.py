@@ -423,71 +423,71 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertPOST200(self._build_gennumber_url(invoice), follow=True)
         self.assertTrue(settings.INVOICE_NUMBER_PREFIX + '1', self.refresh(invoice).number)
 
-    @skipIfCustomProductLine
-    def test_product_lines_property01(self):
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('Invoice001')[0]
+    # @skipIfCustomProductLine
+    # def test_product_lines_property01(self):
+    #     user = self.login()
+    #     invoice = self.create_invoice_n_orgas('Invoice001')[0]
+    #
+    #     with self.assertNumQueries(1):
+    #         length = len(invoice.product_lines)
+    #
+    #     self.assertEqual(0, length)
+    #
+    #     with self.assertNumQueries(0):
+    #         bool(invoice.product_lines)
+    #
+    #     product_line = ProductLine.objects.create(user=user, related_document=invoice,
+    #                                               on_the_fly_item='Flyyyyy',
+    #                                              )
+    #     self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE, product_line)
+    #
+    #     invoice = self.refresh(invoice)
+    #     self.assertEqual([product_line], list(invoice.product_lines))
+    #
+    #     product_line.delete()
+    #     self.assertFalse(self.refresh(invoice).product_lines)
 
-        with self.assertNumQueries(1):
-            length = len(invoice.product_lines)
+    # @skipIfCustomProductLine
+    # @skipIfCustomServiceLine
+    # def test_product_lines_property02(self):
+    #     user = self.login()
+    #     invoice = self.create_invoice_n_orgas('Invoice001')[0]
+    #
+    #     kwargs = {'user': user, 'related_document': invoice}
+    #     create_pline = partial(ProductLine.objects.create, **kwargs)
+    #     product_line1 = create_pline(on_the_fly_item='Flyyy product')
+    #     product_line2 = create_pline(on_the_fly_item='Flyyy product2')
+    #     ServiceLine.objects.create(on_the_fly_item='Flyyy service', **kwargs)
+    #     self.assertEqual([product_line1, product_line2], list(self.refresh(invoice).product_lines))
 
-        self.assertEqual(0, length)
+    # @skipIfCustomServiceLine
+    # def test_service_lines_property01(self):
+    #     user = self.login()
+    #     invoice = self.create_invoice_n_orgas('Invoice001')[0]
+    #     self.assertFalse(invoice.service_lines)
+    #
+    #     service_line = ServiceLine.objects.create(user=user, related_document=invoice,
+    #                                               on_the_fly_item='Flyyyyy'
+    #                                              )
+    #     self.assertEqual([service_line], list(self.refresh(invoice).service_lines))
+    #
+    #     service_line.delete()
+    #     self.assertFalse(self.refresh(invoice).service_lines)
 
-        with self.assertNumQueries(0):
-            bool(invoice.product_lines)
-
-        product_line = ProductLine.objects.create(user=user, related_document=invoice,
-                                                  on_the_fly_item='Flyyyyy',
-                                                 )
-        self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE, product_line)
-
-        invoice = self.refresh(invoice)
-        self.assertEqual([product_line], list(invoice.product_lines))
-
-        product_line.delete()
-        self.assertFalse(self.refresh(invoice).product_lines)
-
-    @skipIfCustomProductLine
-    @skipIfCustomServiceLine
-    def test_product_lines_property02(self):
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('Invoice001')[0]
-
-        kwargs = {'user': user, 'related_document': invoice}
-        create_pline = partial(ProductLine.objects.create, **kwargs)
-        product_line1 = create_pline(on_the_fly_item='Flyyy product')
-        product_line2 = create_pline(on_the_fly_item='Flyyy product2')
-        ServiceLine.objects.create(on_the_fly_item='Flyyy service', **kwargs)
-        self.assertEqual([product_line1, product_line2], list(self.refresh(invoice).product_lines))
-
-    @skipIfCustomServiceLine
-    def test_service_lines_property01(self):
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('Invoice001')[0]
-        self.assertFalse(invoice.service_lines)
-
-        service_line = ServiceLine.objects.create(user=user, related_document=invoice,
-                                                  on_the_fly_item='Flyyyyy'
-                                                 )
-        self.assertEqual([service_line], list(self.refresh(invoice).service_lines))
-
-        service_line.delete()
-        self.assertFalse(self.refresh(invoice).service_lines)
-
-    @skipIfCustomProductLine
-    @skipIfCustomServiceLine
-    def test_service_lines_property02(self):
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('Invoice001')[0]
-
-        kwargs = {'user': user, 'related_document': invoice}
-        ProductLine.objects.create(on_the_fly_item='Flyyy product', **kwargs)
-
-        create_sline = partial(ServiceLine.objects.create, **kwargs)
-        service_line1 = create_sline(on_the_fly_item='Flyyy service1')
-        service_line2 = create_sline(on_the_fly_item='Flyyy service2')
-
-        self.assertEqual([service_line1, service_line2], list(self.refresh(invoice).service_lines))
+    # @skipIfCustomProductLine
+    # @skipIfCustomServiceLine
+    # def test_service_lines_property02(self):
+    #     user = self.login()
+    #     invoice = self.create_invoice_n_orgas('Invoice001')[0]
+    #
+    #     kwargs = {'user': user, 'related_document': invoice}
+    #     ProductLine.objects.create(on_the_fly_item='Flyyy product', **kwargs)
+    #
+    #     create_sline = partial(ServiceLine.objects.create, **kwargs)
+    #     service_line1 = create_sline(on_the_fly_item='Flyyy service1')
+    #     service_line2 = create_sline(on_the_fly_item='Flyyy service2')
+    #
+    #     self.assertEqual([service_line1, service_line2], list(self.refresh(invoice).service_lines))
 
     @skipIfCustomProductLine
     @skipIfCustomServiceLine

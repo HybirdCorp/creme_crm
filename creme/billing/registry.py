@@ -19,11 +19,11 @@
 ################################################################################
 
 from collections import defaultdict
-from imp import find_module
+# from imp import find_module
 import logging
-import warnings
+# import warnings
 
-from django.apps import apps
+# from django.apps import apps
 from django.utils.datastructures import OrderedSet
 
 
@@ -64,23 +64,22 @@ class AlgoRegistry(object):
 
 algo_registry = AlgoRegistry()
 
-# logger.debug('Billing: algos registering')
-for app_config in apps.get_app_configs():
-    app_name = app_config.name
-
-    try:
-        find_module("billing_register", __import__(app_name, {}, {}, [app_name.split(".")[-1]]).__path__)
-    except (ImportError, TypeError):
-        # there is no app creme_config.py, skip it
-        continue
-
-    warnings.warn("'billing_register' feature is deprecated ; "
-                  "register your algorithms in your AppConfig instead.",
-                  DeprecationWarning
-                 )
-
-    algos_import = __import__("%s.billing_register" % app_name, globals(), locals(), ['to_register'], -1)
-    algo_registry.register(*algos_import.to_register)
+# for app_config in apps.get_app_configs():
+#     app_name = app_config.name
+#
+#     try:
+#         find_module("billing_register", __import__(app_name, {}, {}, [app_name.split(".")[-1]]).__path__)
+#     except (ImportError, TypeError):
+#         # there is no app creme_config.py, skip it
+#         continue
+#
+#     warnings.warn("'billing_register' feature is deprecated ; "
+#                   "register your algorithms in your AppConfig instead.",
+#                   DeprecationWarning
+#                  )
+#
+#     algos_import = __import__("%s.billing_register" % app_name, globals(), locals(), ['to_register'], -1)
+#     algo_registry.register(*algos_import.to_register)
 
 
 # ------------------------------------------------------------------------------
