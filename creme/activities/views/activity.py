@@ -238,15 +238,17 @@ def listview(request, type_id=None):
 
 @login_required
 @permission_required('activities')
-def download_ical(request, ids=None):
-    if ids is not None:
-        warnings.warn('download_ical(): the URL argument "ids" is deprecated ; '
-                      'use the GET parameter "id" instead.',
-                      DeprecationWarning
-                     )
-        act_ids = ids.split(',')
-    else:
-        act_ids = request.GET.getlist('id')
+# def download_ical(request, ids=None):
+def download_ical(request):
+    # if ids is not None:
+    #     warnings.warn('download_ical(): the URL argument "ids" is deprecated ; '
+    #                   'use the GET parameter "id" instead.',
+    #                   DeprecationWarning
+    #                  )
+    #     act_ids = ids.split(',')
+    # else:
+    #     act_ids = request.GET.getlist('id')
+    act_ids = request.GET.getlist('id')
 
     # TODO: is_deleted=False ??
     activities = EntityCredentials.filter(queryset=Activity.objects.filter(pk__in=act_ids),

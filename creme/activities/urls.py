@@ -21,7 +21,7 @@ urlpatterns = [
     url(r'^$', portal.portal, name='activities__portal'),
 
     url(r'^activities/ical[/]?$',                      activity.download_ical, name='activities__dl_ical'),
-    url(r'^activities/(?P<ids>([\d][,]*)+)/ical[/]?$', activity.download_ical, name='activities__dl_ical'),  # DEPRECATED
+    # url(r'^activities/(?P<ids>([\d][,]*)+)/ical[/]?$', activity.download_ical, name='activities__dl_ical'),
 
     url(r'^type/(?P<type_id>[\w-]*)/json[/]?$',        activity.get_types,     name='activities__get_types'),
 

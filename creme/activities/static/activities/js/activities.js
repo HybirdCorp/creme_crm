@@ -30,12 +30,13 @@ creme.activities.exportAsICal = function(list, url) {
         return false;
     }
 
-    if (url === undefined) {
-        console.warn('creme.activities.exportAsICal(): implicit "url" argument is deprecated ; give the URL as second argument.');
-        document.location.href = '/activities/activities/%s/ical'.format(selection);
-    } else {
-        document.location.href = url + '?' + $.param({'id': selection.split(',')});
-    }
+//    if (url === undefined) {
+//        console.warn('creme.activities.exportAsICal(): implicit "url" argument is deprecated ; give the URL as second argument.');
+//        document.location.href = '/activities/activities/%s/ical'.format(selection);
+//    } else {
+//        document.location.href = url + '?' + $.param({'id': selection.split(',')});
+//    }
+    document.location.href = url + '?' + $.param({'id': selection.split(',')});
 };
 
 creme.activities.calendar = {};
@@ -44,24 +45,24 @@ creme.activities.calendar.loading = function(state) {
   $('.calendar .loading-indicator').toggleClass('is-loading', state);
 };
 
-creme.activities.calendar.filterEvents = function(widget, calendar, events) {
-    console.warn('activities.calendar.filterEvents() is deprecated.');
-
-    widget.fullCalendar('removeEvents', function(event) {
-        return calendar === event.calendar;
-    });
-
-    if (events) {
-        // TODO: test server behavior - is this test still needed ?
-        var calendarEvents = events.filter(function (event) {
-          return calendar === event.calendar;
-        });
-
-        widget.fullCalendar('addEventSource', calendarEvents);
-    }
-
-    creme.activities.calendar.resizeSidebar();
-};
+//creme.activities.calendar.filterEvents = function(widget, calendar, events) {
+//    console.warn('activities.calendar.filterEvents() is deprecated.');
+//
+//    widget.fullCalendar('removeEvents', function(event) {
+//        return calendar === event.calendar;
+//    });
+//
+//    if (events) {
+//        // TODO: test server behavior - is this test still needed ?
+//        var calendarEvents = events.filter(function (event) {
+//          return calendar === event.calendar;
+//        });
+//
+//        widget.fullCalendar('addEventSource', calendarEvents);
+//    }
+//
+//    creme.activities.calendar.resizeSidebar();
+//};
 
 creme.activities.calendar.addFilteringInput = function(input, filter_callable) {
     input.data('oldVal', input.val());
@@ -207,10 +208,10 @@ creme.activities.calendar.resizeSidebar = function() {
 };
 
 creme.activities.calendar.fullCalendar = function(events_url, creation_url, update_url) {
-    if (update_url === undefined) {
-        console.warn('creme.activities.calendar.fullCalendar(): implicit "update_url" argument is deprecated ; give the URL as last argument.');
-        update_url = '/activities/calendar/activity/update';
-    }
+//    if (update_url === undefined) {
+//        console.warn('creme.activities.calendar.fullCalendar(): implicit "update_url" argument is deprecated ; give the URL as last argument.');
+//        update_url = '/activities/calendar/activity/update';
+//    }
 
     $('.calendar').fullCalendar({
         weekends: true,
