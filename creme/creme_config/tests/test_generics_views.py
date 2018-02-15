@@ -15,20 +15,14 @@ try:
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
     from ..bricks import GenericModelBrick, PropertyTypesBrick, SettingsBrick
-    # from ..registry import _ConfigRegistry, NotRegisteredInConfig
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
 class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
-    # DOWN_URL = '/creme_config/creme_core/fake_sector/down/%s'
-    # UP_URL   = '/creme_config/creme_core/fake_sector/up/%s'
-
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
         super(GenericModelConfigTestCase, cls).setUpClass()
-        # cls.populate('creme_core')
 
         cls._sector_backup = list(FakeSector.objects.all())
         FakeSector.objects.all().delete()
@@ -76,9 +70,6 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             model_conf = app_conf.get_model_conf(model=FakeSector)
         self.assertIsSubclass(model_conf.model_form, SectorForm)
-
-        # with self.assertNoException():
-        #     model_conf = app_conf.get_model_conf(ContentType.objects.get_for_model(Sector).id)
 
         self.assertEqual('sector', model_conf.name_in_url)
 
@@ -150,15 +141,11 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIsInstance(blocks, list)
         self.assertEqual(1, len(blocks))
         self.assertIsInstance(blocks[0], TestBlock1)
-        # self.assertIn(block1,    blocks)
-        # self.assertNotIn(block2, blocks)
 
         with self.assertNoException():
             app_conf = registry.get_app('documents')
 
         blocks = app_conf.blocks()
-        # self.assertIn(block2,    blocks)
-        # self.assertNotIn(block1, blocks)
         self.assertEqual(1, len(blocks))
         self.assertIsInstance(blocks[0], TestBlock2)
 
@@ -214,8 +201,6 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         registry = self._ConfigRegistry(block_registry)
 
         registry.register_userblocks(block1, block2)
-        # self.assertIn(block1, registry.userblocks)
-        # self.assertIn(block2, registry.userblocks)
         ublocks = list(registry.userblocks)
         self.assertEqual(2, len(ublocks))
         self.assertIsInstance(ublocks[0], TestUserBlock1)
@@ -240,28 +225,20 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIsInstance(bricks[1], TestUserBrick2)
 
     def test_portals(self):
-        # self.assertGET200('/creme_config/creme_core/portal/')
         self.assertGET200(reverse('creme_config__app_portal', args=('creme_core',)))
-        # self.assertGET404('/creme_config/unexistingapp/portal/')
         self.assertGET404(reverse('creme_config__app_portal', args=('unexistingapp',)))
 
-        # self.assertGET200('/creme_config/creme_core/fake_civility/portal/')
         self.assertGET200(reverse('creme_config__model_portal', args=('creme_core', 'fake_civility')))
-        # self.assertGET404('/creme_config/creme_core/unexistingmodel/portal/')
         self.assertGET404(reverse('creme_config__model_portal', args=('creme_core', 'unexistingmodel')))
 
         if apps.is_installed('creme.persons'):
-            # self.assertGET200('/creme_config/persons/portal/')
             self.assertGET200(reverse('creme_config__app_portal', args=('persons',)))
-            # self.assertGET200('/creme_config/persons/civility/portal/')
             self.assertGET200(reverse('creme_config__model_portal', args=('persons', 'civility')))
-            # self.assertGET404('/creme_config/persons/unexistingmodel/portal/')
             self.assertGET404(reverse('creme_config__model_portal', args=('persons', 'unexistingmodel')))
 
     def test_add01(self):
         count = FakeCivility.objects.count()
 
-        # url = '/creme_config/creme_core/fake_civility/add/'
         url = reverse('creme_config__create_instance', args=('creme_core', 'fake_civility'))
         self.assertGET200(url)
 
@@ -275,7 +252,6 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_add02(self):
         count = FakeSector.objects.count()
 
-        # url = '/creme_config/creme_core/fake_sector/add/'
         url = reverse('creme_config__create_instance', args=('creme_core', 'fake_sector'))
         self.assertGET200(url)
 
@@ -302,7 +278,6 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_add01_from_widget(self):
         count = FakeCivility.objects.count()
 
-        # url = '/creme_config/creme_core/fake_civility/add_widget/'
         url = reverse('creme_config__create_instance_from_widget', args=('creme_core', 'fake_civility'))
         self.assertGET200(url)
 
@@ -319,7 +294,6 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_add02_from_widget(self):
         count = FakeSector.objects.count()
 
-        # url = '/creme_config/creme_core/fake_sector/add_widget/'
         url = reverse('creme_config__create_instance_from_widget', args=('creme_core', 'fake_sector'))
         self.assertGET200(url)
 
@@ -343,7 +317,6 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         shortcut = 'H.'
         civ = FakeCivility.objects.create(title=title, shortcut=shortcut)
 
-        # url = '/creme_config/creme_core/fake_civility/edit/%s' % civ.id
         url = reverse('creme_config__edit_instance', args=('creme_core', 'fake_civility', civ.id,))
         self.assertGET200(url)
 
@@ -363,7 +336,6 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         count = FakeSector.objects.count()
         sector = FakeSector.objects.create(title='music', order=count + 1)
 
-        # url = '/creme_config/creme_core/fake_sector/edit/%s' % sector.id
         url = reverse('creme_config__edit_instance', args=('creme_core', 'fake_sector', sector.id,))
         self.assertGET200(url)
 
@@ -376,7 +348,6 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_delete01(self):
         civ = FakeCivility.objects.create(title='Herr')
-        # url = '/creme_config/creme_core/fake_civility/delete'
         url = reverse('creme_config__delete_instance', args=('creme_core', 'fake_civility'))
         data = {'id': civ.pk}
         self.assertGET404(url, data=data)
@@ -386,16 +357,12 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_delete02(self):
         "Not custom instance"
         sector = FakeSector.objects.create(title='Music', is_custom=False)
-        # self.assertPOST404('/creme_config/creme_core/fake_sector/delete',
         self.assertPOST404(reverse('creme_config__delete_instance', args=('creme_core', 'fake_sector')),
                            data={'id': sector.pk},
                           )
         self.assertStillExists(sector)
 
     def test_reload_model_block(self):
-        # response = self.assertGET200('/creme_config/models/%s/reload/' %
-        #                                 ContentType.objects.get_for_model(FakeCivility).id
-        #                             )
         response = self.assertGET200(reverse('creme_config__reload_model_block_legacy',
                                              args=(ContentType.objects.get_for_model(FakeCivility).id,),
                                             )
@@ -480,7 +447,6 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         sector1 = create_sector(title='Music', order=1)
         sector2 = create_sector(title='Movie',   order=2)
 
-        # url = self.DOWN_URL % sector1.id
         url = self._build_down_url(sector1.id)
         self.assertGET404(url)
         self.assertPOST200(url)
@@ -495,7 +461,6 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         sector3 = create_sector(title='Book',  order=3)
         sector4 = create_sector(title='Web',   order=4)
 
-        # self.assertPOST200(self.DOWN_URL % sector2.id)
         self.assertPOST200(self._build_down_url(sector2.id))
 
         self.assertEqual(1, self.refresh(sector1).order)
@@ -509,9 +474,6 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         sector1 = create_sector(title='Music', order=1)
         sector2 = create_sector(title='Movie',   order=2)
 
-        # url = self.DOWN_URL
-        # self.assertPOST404(url % sector2.id)
-        # self.assertPOST404(url % (sector2.id + sector1.id))  # Odd pk
         self.assertPOST404(self._build_down_url(sector2.id))
         self.assertPOST404(self._build_down_url(sector2.id + sector1.id))  # Odd pk
 
@@ -522,7 +484,6 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         sector3 = create_sector(title='Book',  order=3)
         sector4 = create_sector(title='Web',   order=4)
 
-        # self.assertPOST200(self.UP_URL % sector3.id)
         self.assertPOST200(self._build_up_url(sector3.id))
 
         self.assertEqual(1, self.refresh(sector1).order)

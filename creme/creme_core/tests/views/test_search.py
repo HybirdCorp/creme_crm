@@ -21,7 +21,6 @@ except Exception as e:
 
 
 class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
-    # LIGHT_URL = '/creme_core/search/light/'
     LIGHT_URL = reverse('creme_core__light_search')
 
     CONTACT_BLOCKID = 'block_creme_core-found-creme_core-fakecontact'
@@ -29,9 +28,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     @classmethod
     def setUpClass(cls):
-        # ViewsTestCase.setUpClass()
         super(SearchViewTestCase, cls).setUpClass()
-        # cls.populate('creme_core')
         cls.contact_ct_id = ContentType.objects.get_for_model(FakeContact).id
 
         QuerysetBrick.page_size = 10
@@ -41,7 +38,6 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     @classmethod
     def tearDownClass(cls):
-        # ViewsTestCase.tearDownClass()
         super(SearchViewTestCase, cls).tearDownClass()
 
         del QuerysetBrick.page_size
@@ -82,7 +78,6 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         if ct_id is not None:
             data['ct_id'] = ct_id
 
-        # return self.client.get('/creme_core/search', data=data)
         return self.client.get(reverse('creme_core__search'), data=data)
 
     def test_search01(self):
@@ -106,7 +101,6 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         block = blocks[0]
         self.assertIsInstance(block, QuerysetBrick)
         self.assertIn(self.CONTACT_BLOCKID, block.id_)
-        # self.assertEqual('creme_core/templatetags/block_found_entities.html',
         self.assertEqual('creme_core/bricks/found-entities.html',
                          block.template_name
                         )

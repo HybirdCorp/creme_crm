@@ -29,21 +29,14 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
     @classmethod
     def setUpClass(cls):
-        # ViewsTestCase.setUpClass()
         super(BatchProcessViewsTestCase, cls).setUpClass()
-        # cls.populate('creme_core')
         Job.objects.all().delete()
 
         get_ct = ContentType.objects.get_for_model
         cls.orga_ct       = get_ct(FakeOrganisation)
         cls.contact_ct_id = get_ct(FakeContact).id
 
-    # def build_url(self, model):
     def _build_add_url(self, model):
-        # return '/creme_core/list_view/batch_process/%s?list_url=%s' % (
-        #                 ContentType.objects.get_for_model(model).id,
-        #                 model.get_lv_absolute_url(),
-        #              )
         return reverse('creme_core__batch_process',
                        args=(ContentType.objects.get_for_model(model).id,),
                       ) + '?list_url=' + model.get_lv_absolute_url()
@@ -119,8 +112,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         job = jobs[0]
         self.assertEqual(self.user, job.user)
-        # # self.assertLess((now() - job.created).seconds, 1)
-        # self.assertLess((now() - job.reference_run).seconds, 1)
         self.assertDatetimesAlmostEqual(now(), job.reference_run, 1)
         self.assertIsInstance(job.data, dict)
         self.assertEqual(Job.STATUS_WAIT, job.status)
@@ -143,12 +134,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         self.assertRedirects(response, job.get_absolute_url())
 
-        # with self.assertNoException():
-        #     back_url = response.context['back_url'] TODO ? (if true, mass import too)
-        #     form = response.context['form']
-        #
-        # self.assertEqual(u"http://testserver%s" % Organisation.get_lv_absolute_url(), back_url) TODO: ??
-
         self.assertEqual([job], queue.started_jobs)
         self.assertEqual([],    queue.refreshed_jobs)
 
@@ -157,19 +142,11 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertEqual('GENSHIKEN',  self.refresh(orga01).name)
         self.assertEqual('MANGA CLUB', self.refresh(orga02).name)
 
-        # self.assertEqual(Organisation.get_lv_absolute_url(), back_url)
         job = self.refresh(job)
-        # self.assertLess((now() - job.last_run).seconds, 10)
         self.assertDatetimesAlmostEqual(now(), job.last_run, 10)
         self.assertEqual(Job.STATUS_OK, job.status)
         self.assertIsNone(job.error)
 
-        # self.assertIs(Organisation, form.entity_type)
-        #
-        # count = Organisation.objects.count()
-        # self.assertEqual(count, form.modified_objects_count)
-        # self.assertEqual(count, form.read_objects_count)
-        # self.assertEqual(0,     len(form.process_errors))
         orga_count = FakeOrganisation.objects.count()
         self.assertEqual([ungettext(u'{count} entity has been successfully modified.',
                                     u'{count} entities have been successfully modified.',
@@ -203,16 +180,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         self.assertEqual('saki',     self.refresh(contact01).first_name)
         self.assertEqual('harunobu', self.refresh(contact02).first_name)
-
-        # with self.assertNoException():
-        #     back_url = response.context['back_url']
-        #     form = response.context['form']
-        #
-        # self.assertEqual(Contact.get_lv_absolute_url(), back_url)
-        #
-        # self.assertIs(Contact, form.entity_type)
-        # self.assertFalse(form.process_errors)
-        # self.assertEqual(Contact.objects.count(), form.modified_objects_count)
 
     def test_validation_error01(self):
         "Invalid field"
@@ -350,10 +317,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertEqual('anime club', self.refresh(orga03).name)
         self.assertEqual('Genshiken',  self.refresh(orga01).name)  # <== not changed
 
-        # with self.assertNoException():
-        #     form = response.context['form']
-        #
-        # self.assertEqual(2, form.modified_objects_count)
         self.get_object_or_fail(EntityJobResult, job=job, entity=orga02)
         self.assertFalse(EntityJobResult.objects.filter(job=job, entity=orga01))
         self.assertEqual([ungettext(u'{count} entity has been successfully modified.',
@@ -421,11 +384,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                                  ],
                                      )
 
-        # NB: global_info must be set by the _JobTypeRegistry instance
-        # from creme.creme_core.global_info import set_global_info
-        # set_global_info(user=user)
-        # self.assertEqual({orga01, orga02}, set(efilter.filter(Organisation.objects.all())))
-
         response = self.client.post(self._build_add_url(FakeOrganisation), follow=True,
                                     data={'filter':  efilter.id,
                                           'actions': self.format_str1 % {
@@ -438,8 +396,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response)
 
         job = self._get_job(response)
-
-        # batch_process_type.execute(job)
         job_type_registry(job.id)
 
         self.assertEqual('GENSHIKEN',  self.refresh(orga01).name)
@@ -481,7 +437,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertEqual('manga club', self.refresh(orga02).name)
         self.assertEqual('Genshiken',  self.refresh(orga01).name)  # <== not changed
 
-        # self.assertEqual(1, response.context['form'].read_objects_count)
         self.assertEqual([orga02],
                          [jr.entity.get_real_entity()
                             for jr in EntityJobResult.objects.filter(job=job)
@@ -509,8 +464,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         contact01 = create_contact(first_name=first_name, last_name=last_name)
         create_contact(first_name='Mitsunori', last_name='Kugayama')
 
-        entity_str = unicode(contact01)
-
         with self.assertRaises(ValidationError):
             contact01.last_name = ''
             contact01.full_clean()
@@ -531,22 +484,11 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertEqual(last_name,  contact01.last_name)  # No change !!
         self.assertEqual(first_name, contact01.first_name)  # TODO: make the changes that are possible (u'KANAKO') ??
 
-        # form = response.context['form']
-        # self.assertEqual(1, form.modified_objects_count)
-        # self.assertEqual(2, form.read_objects_count)
         jresult = self.get_object_or_fail(EntityJobResult, job=job, entity=contact01)
         self.assertEqual([u'%s => %s' % (_('Last name'), _(u'This field cannot be blank.'))],
                          jresult.messages
                         )
 
-        # errors = form.process_errors
-        # self.assertEqual(1, len(errors))
-        #
-        # error = iter(errors).next()
-        # self.assertEqual(entity_str, error[0])
-        # self.assertEqual([u'%s => %s' % (_('Last name'), _(u'This field cannot be blank.'))],
-        #                  error[1]
-        #                 )
         self.assertEqual([ungettext(u'{count} entity has been successfully modified.',
                                     u'{count} entities have been successfully modified.',
                                     1
@@ -556,10 +498,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                         )
 
     def build_ops_url(self, ct_id, field):
-        # return '/creme_core/list_view/batch_process/%(ct_id)s/get_ops/%(field)s' % {
-        #                 'ct_id': ct_id,
-        #                 'field': field,
-        #             }
         return reverse('creme_core__batch_process_ops', args=(ct_id, field))
 
     def test_get_ops01(self):

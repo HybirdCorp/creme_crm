@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -167,12 +167,9 @@ class _RelationsCreateForm(CremeForm):
 
     def clean_relations(self):
         relations = self.cleaned_data['relations']
-        # user = self.user
 
-        # self._check_duplicates(relations, user)
         self._check_duplicates(relations, self.user)
         self._check_loops(relations)
-        # validate_linkable_entities([entity for rt_id, entity in relations], user)
         self._check_properties([rtype for rtype, e_ in relations])
 
         return relations

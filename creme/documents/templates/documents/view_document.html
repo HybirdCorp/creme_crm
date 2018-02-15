@@ -1,12 +1,1 @@
 {% extends 'creme_core/generics/view_entity.html' %}
-{% comment %}
-{% load i18n creme_core_tags %}
-
-{% block entity_buttons %}
-{#    <a href="/download_file/{{object.filedata}}"> #}
-    <a href="{% url 'creme_core__dl_file' object.filedata %}">
-        <img src="{% creme_media_url 'images/download_64.png' %}" title="{% blocktrans %}Download '{{object}}'{% endblocktrans %}" alt="{% trans "Download" %}"/>
-    </a>&nbsp;
-    {{block.super}}
-{% endblock %}
-{% endcomment %}

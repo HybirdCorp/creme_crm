@@ -1,10 +1,5 @@
 {% load i18n %}
 {% if has_perm %}
-{% comment %}
-    <a class="menu_button" onclick="creme.billing.convertAs({{object.id}}, 'invoice');">
-        {% trans "Convert to Invoice" %}
-    </a>
-{% endcomment %}
     <a class="menu_button" onclick="$('#id_convert2invoice', $(this)).submit();">
         {% trans "Convert to Invoice" %}
         <div style="display:none;">

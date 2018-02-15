@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from datetime import timedelta
-
 from django.db.models.query_utils import Q
 from django.utils.timezone import localtime
 from django.utils.translation import ugettext as _
@@ -31,19 +29,6 @@ from .constants import REL_SUB_PART_2_ACTIVITY, NARROW, FLOATING_TIME
 
 
 def get_last_day_of_a_month(date):
-    # rdate = date.replace(day=1)
-    # try:
-    #     rdate = rdate + timedelta(days=31)
-    # except:
-    #     try:
-    #         rdate = rdate + timedelta(days=30)
-    #     except:
-    #         try:
-    #             rdate = rdate + timedelta(days=29)
-    #         except:
-    #             rdate = rdate + timedelta(days=28)
-    #
-    # return rdate
     for day in (31, 30, 29, 28):
         try:
             last_day = date.replace(day=day)

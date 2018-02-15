@@ -1,13 +1,5 @@
 {% load i18n creme_widgets %}{# creme_core_tags #}
 <div>
-{% comment %}
-    <table class="table_header error" cellpadding="0" cellspacing="5">
-        <tr>
-            <td width="5%"><img src="{% creme_media_url 'images/info_48.png' %}" alt=""/></td>
-            <td width="95%" align="center">{{error_message}}</td>
-        </tr>
-    </table>
-{% endcomment %}
     <div class="hat-bar-container error">
         <div class="hat-bar">
             <div class="bar-icon">{% widget_icon name='cancel' size='brick-hat-bar' label=_('Error') %}</div>{# TODO: need a true "error" icon #}

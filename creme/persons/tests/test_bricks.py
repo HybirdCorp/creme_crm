@@ -7,13 +7,10 @@ try:
 
     from django.apps import apps
     from django.core.urlresolvers import reverse
-    # from django.test.html import parse_html, Element
-    # from django.utils.encoding import smart_unicode
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.models import RelationType, Relation, FieldsConfig  # CremeProperty
-    # from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+    from creme.creme_core.models import RelationType, Relation, FieldsConfig
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
@@ -39,85 +36,15 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-# def find_node_by_attr(node, tag, name, value):
-#     if not isinstance(node, Element):
-#         return
-#
-#     if node.name == tag:
-#         for attr_name, attr_value in node.attributes:
-#             if attr_name == name and attr_value == value:
-#                 return node
-#
-#     for child in node.children:
-#         node = find_node_by_attr(child, tag, name, value)
-#
-#         if node is not None:
-#             return node
-
-
 @skipIfCustomOrganisation
-# class BlocksTestCase(CremeTestCase):
 class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('creme_core', 'persons', 'activities')
-
     def setUp(self):
         self.login()
 
-    # def _get_address_block_content(self, entity, no_titles=False):
-    #     response = self.assertGET200(entity.get_absolute_url())
-    #
-    #     try:
-    #         content = smart_unicode(response.content)
-    #     except Exception as e:
-    #         self.fail(e)
-    #
-    #     try:
-    #         html = parse_html(content)
-    #     except Exception as e:
-    #         self.fail(u'%s\n----\n%s' % (e, content))
-    #
-    #     block_node = find_node_by_attr(html, 'table', 'id', bricks.DetailedAddressesBrick.id_)
-    #     self.assertIsNotNone(block_node, 'Block content not found')
-    #
-    #     header_node = find_node_by_attr(block_node, 'th', 'class', 'collapser')
-    #     self.assertIsNotNone(header_node, 'Block header not found')
-    #
-    #     buttons_node = find_node_by_attr(block_node, 'div', 'class', 'buttons')
-    #     self.assertIsNotNone(buttons_node, 'Block buttons not found')
-    #
-    #     body_node = find_node_by_attr(block_node, 'tbody', 'class', 'collapsable')
-    #     self.assertIsNotNone(body_node, 'Block body not found')
-    #
-    #     titles_node = find_node_by_attr(block_node, 'tr', 'class', 'header')
-    #     if no_titles:
-    #         self.assertIsNone(titles_node, 'Block titles found !')
-    #     else:
-    #         self.assertIsNotNone(titles_node, 'Block titles not found')
-    #
-    #     return {
-    #         'header':  header_node,
-    #         'buttons': unicode(buttons_node),
-    #         'body':    unicode(body_node),
-    #         'titles':  unicode(titles_node),
-    #     }
     def _get_address_brick_node(self, entity):
         response = self.assertGET200(entity.get_absolute_url())
         return self.get_brick_node(self.get_html_tree(response.content), bricks.PrettyAddressesBrick.id_)
 
-    # def _assertAddressIn(self, block_content, address, title, country_in=True):
-    #     self.assertIn(title, block_content['titles'])
-    #
-    #     block_body = block_content['body']
-    #     self.assertIn(address.address, block_body)
-    #     self.assertIn(address.city,    block_body)
-    #
-    #     if country_in:
-    #         self.assertIn(address.country, block_body)
-    #     else:
-    #         self.assertNotIn(address.country, block_body)
     def _assertAddressIn(self, brick_node, address, title, country_in=True):
         self.assertIn(title, self.get_address_titles(brick_node))
 
@@ -125,7 +52,6 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIsNotNone(pretty_addr_node)
         pretty_addr = {elt.text.strip() for elt in brick_node.findall(".//div[@class='address']")}
         self.assertIn(address.address, pretty_addr)
-        # self.assertIn(address.city,    pretty_addr) # NB: not in 'text', because of <br/> (eg: Main square<br />Lenos)
 
         fields = {elt.text for elt in brick_node.findall(".//span[@class='address-option-value']")}
 
@@ -134,9 +60,6 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
         else:
             self.assertNotIn(address.country, fields)
 
-    # def _assertAddressNotIn(self, block_body, address):
-    #     self.assertNotIn(address.address, block_body)
-    #     self.assertNotIn(address.city,    block_body)
     def _assertAddressNotIn(self, brick_node, address):
         pretty_addr_node = brick_node.findall(".//div[@class='address']")
         self.assertIsNotNone(pretty_addr_node)
@@ -144,32 +67,17 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
         pretty_addr = {elt.text.strip() for elt in brick_node.findall(".//div[@class='address']")}
         self.assertNotIn(address.address, pretty_addr)
 
-    # def _assertButtonIn(self, block_content, url_name, entity):
-    #     self.assertIn(reverse(url_name, args=(entity.id,)), block_content['buttons'])
-
     def _get_URLs(self, brick_node):
         return {elt.get('href').split('?')[0] for elt in brick_node.findall(".//a")}
 
     def get_address_titles(self, brick_node):
         return {elt.text.strip() for elt in brick_node.findall(".//span[@class='address-title']")}
 
-    # def _assertButtonNotIn(self, block_content, url_name, entity):
-    #     self.assertNotIn(reverse(url_name, args=(entity.id,)), block_content['buttons'])
     def _assertNoAction(self, brick_node, url_name, entity):
         self.assertNotIn(reverse(url_name, args=(entity.id,)), self._get_URLs(brick_node))
 
     def _assertAction(self, brick_node, url_name, entity):
         self.assertIn(reverse(url_name, args=(entity.id,)), self._get_URLs(brick_node))
-
-    # def _assertColspanEqual(self, block_content, colspan):
-    #     for attr_name, attr_value in block_content['header'].attributes:
-    #         if attr_name == 'colspan':
-    #             found_colspan = int(attr_value)
-    #             break
-    #     else:
-    #         self.fail('"colspan" attribute not found.')
-    #
-    #     self.assertEqual(colspan, found_colspan)
 
     def _create_contact_n_addresses(self, billing_address=True, shipping_address=True):
         c = Contact.objects.create(user=self.user, first_name='Lawrence', last_name='?')
@@ -194,18 +102,9 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
 
         return c
 
-    # def test_addresses_block01(self):
     def test_addresses_brick01(self):
         c = self._create_contact_n_addresses()
-        # content = self._get_address_block_content(c)
-        #
-        # self._assertAddressIn(content, c.billing_address,  _(u'Billing address'))
-        # self._assertAddressIn(content, c.shipping_address, _(u'Shipping address'))
-        #
-        # self._assertButtonNotIn(content, 'persons__create_billing_address', c)
-        # self._assertButtonNotIn(content, 'persons__create_shipping_address', c)
-        #
-        # self._assertColspanEqual(content, 6)
+
         brick_node = self._get_address_brick_node(c)
         self._assertAddressIn(brick_node, c.billing_address,  _(u'Billing address'))
         self._assertAddressIn(brick_node, c.shipping_address, _(u'Shipping address'))
@@ -213,19 +112,10 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
         self._assertNoAction(brick_node, 'persons__create_billing_address', c)
         self._assertNoAction(brick_node, 'persons__create_shipping_address', c)
 
-    # def test_addresses_block02(self):
     def test_addresses_brick02(self):
         "No shipping address set"
         c = self._create_contact_n_addresses(shipping_address=False)
-        # content = self._get_address_block_content(c)
-        #
-        # self._assertAddressIn(content, c.billing_address, _(u'Billing address'))
-        # self.assertNotIn(_(u'Shipping address'), content['titles'])
-        #
-        # self._assertButtonNotIn(content, 'persons__create_billing_address', c)
-        # self._assertButtonIn(content, 'persons__create_shipping_address', c)
-        #
-        # self._assertColspanEqual(content, 3)
+
         brick_node = self._get_address_brick_node(c)
         self._assertAddressIn(brick_node, c.billing_address, _(u'Billing address'))
         self.assertNotIn(_(u'Shipping address'), self.get_address_titles(brick_node))
@@ -233,19 +123,10 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
         self._assertNoAction(brick_node, 'persons__create_billing_address', c)
         self._assertAction(brick_node, 'persons__create_shipping_address', c)
 
-    # def test_addresses_block03(self):
     def test_addresses_brick03(self):
         "No billing address set"
         c = self._create_contact_n_addresses(billing_address=False)
-        # content = self._get_address_block_content(c)
-        #
-        # self._assertAddressIn(content, c.shipping_address, _(u'Shipping address'))
-        # self.assertNotIn(_(u'Billing address'), content['titles'])
-        #
-        # self._assertButtonNotIn(content, 'persons__create_shipping_address', c)
-        # self._assertButtonIn(content, 'persons__create_billing_address', c)
-        #
-        # self._assertColspanEqual(content, 3)
+
         brick_node = self._get_address_brick_node(c)
         self._assertAddressIn(brick_node, c.shipping_address, _(u'Shipping address'))
         self.assertNotIn(_(u'Billing address'), self.get_address_titles(brick_node))
@@ -253,18 +134,15 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
         self._assertAction(brick_node, 'persons__create_billing_address', c)
         self._assertNoAction(brick_node, 'persons__create_shipping_address', c)
 
-    # def test_addresses_block04(self):
     def test_addresses_brick04(self):
         "No address set"
         c = self._create_contact_n_addresses(billing_address=False, shipping_address=False)
-        # content = self._get_address_block_content(c, no_titles=True)
-        # self._assertColspanEqual(content, 1)
+
         brick_node = self._get_address_brick_node(c)
         msg_node = brick_node.find("div[@class='brick-content is-empty']")
         self.assertIsNotNone(msg_node)
         self.assertEqual(_(u'No address for the moment'), msg_node.text.strip())
 
-    # def test_addresses_block05(self):
     def test_addresses_brick05(self):
         "With field config on sub-field"
         FieldsConfig.create(Address,
@@ -272,14 +150,11 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
                            )
 
         c = self._create_contact_n_addresses()
-        # content = self._get_address_block_content(c)
-        # self._assertAddressIn(content, c.billing_address,  _(u'Billing address'),  country_in=False)
-        # self._assertAddressIn(content, c.shipping_address, _(u'Shipping address'), country_in=False)
+
         brick_node = self._get_address_brick_node(c)
         self._assertAddressIn(brick_node, c.billing_address,  _(u'Billing address'),  country_in=False)
         self._assertAddressIn(brick_node, c.shipping_address, _(u'Shipping address'), country_in=False)
 
-    # def test_addresses_block06(self):
     def test_addresses_brick06(self):
         "With field config on 'billing_address' FK field"
         FieldsConfig.create(Contact,
@@ -287,12 +162,7 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
                            )
 
         c = self._create_contact_n_addresses()
-        # content = self._get_address_block_content(c)
-        # self._assertAddressIn(content, c.shipping_address, _(u'Shipping address'))
-        # self._assertAddressNotIn(content, c.billing_address)
-        #
-        # self._assertButtonNotIn(content, 'persons__create_billing_address', c)
-        # self._assertButtonNotIn(content, 'persons__create_shipping_address', c)
+
         brick_node = self._get_address_brick_node(c)
         self._assertAddressIn(brick_node, c.shipping_address, _(u'Shipping address'))
         self._assertAddressNotIn(brick_node, c.billing_address)
@@ -300,7 +170,6 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
         self._assertNoAction(brick_node, 'persons__create_billing_address', c)
         self._assertNoAction(brick_node, 'persons__create_shipping_address', c)
 
-    # def test_addresses_block07(self):
     def test_addresses_brick07(self):
         "With field config on 'shipping_address' FK field"
         FieldsConfig.create(Contact,
@@ -308,9 +177,7 @@ class BricksTestCase(CremeTestCase, BrickTestCaseMixin):
                            )
 
         c = self._create_contact_n_addresses()
-        # content = self._get_address_block_content(c)
-        # self._assertAddressIn(content, c.billing_address, _(u'Billing address'))
-        # self._assertAddressNotIn(content, c.shipping_address)
+
         brick_node = self._get_address_brick_node(c)
         self._assertAddressIn(brick_node, c.billing_address, _(u'Billing address'))
         self._assertAddressNotIn(brick_node, c.shipping_address)
@@ -342,7 +209,6 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         self.assertEqual(1, len(orgas))
 
         mng_orga = orgas[0]
-        # self.assertTrue(CremeProperty.objects.filter(type=PROP_IS_MANAGED_BY_CREME, creme_entity=mng_orga).exists())
         self.assertTrue(mng_orga.is_managed)
         self.assertFalse(self._get_neglected_orgas())
 

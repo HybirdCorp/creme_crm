@@ -7,7 +7,6 @@ try:
     from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
-    # from creme.media_managers.tests import create_image
     from creme.documents import get_document_model, get_folder_model
 
     from .base import _ProductsTestCase, skipIfCustomService
@@ -67,7 +66,6 @@ class ServiceTestCase(_ProductsTestCase):
         user = self.login()
 
         name = 'Eva washing'
-        #cat = Category.objects.all()[0]
         sub_cat = SubCategory.objects.all()[0]
         cat = sub_cat.category
         service = Service.objects.create(user=user, name=name, description='Blabla',
@@ -75,7 +73,6 @@ class ServiceTestCase(_ProductsTestCase):
                                          category=cat, sub_category=sub_cat, unit='A wash',
                                         )
 
-        #url = '/products/service/edit/%s' % service.id
         url = service.get_edit_absolute_url()
         self.assertGET200(url)
 
@@ -114,7 +111,6 @@ class ServiceTestCase(_ProductsTestCase):
                                ),
                    ]
 
-#        response = self.assertGET200('/products/services')
         response = self.assertGET200(Service.get_lv_absolute_url())
 
         with self.assertNoException():
@@ -137,7 +133,6 @@ class ServiceTestCase(_ProductsTestCase):
 
         service, cat, sub_cat = self._build_service_cat_subcat()
 
-        # self.assertPOST404('/creme_config/products/subcategory/delete', data={'id': sub_cat.pk})
         self.assertPOST404(reverse('creme_config__delete_instance', args=('products', 'subcategory')),
                            data={'id': sub_cat.pk}
                           )
@@ -151,7 +146,6 @@ class ServiceTestCase(_ProductsTestCase):
 
         service, cat, sub_cat = self._build_service_cat_subcat()
 
-        # self.assertPOST404('/creme_config/products/category/delete', data={'id': cat.pk})
         self.assertPOST404(reverse('creme_config__delete_instance', args=('products', 'category')),
                            data={'id': cat.pk}
                           )
@@ -163,10 +157,6 @@ class ServiceTestCase(_ProductsTestCase):
         self.assertEqual(cat,     service.category)
 
     def test_add_images(self):
-        # user = self.login(is_superuser=False, allowed_apps=['products', 'media_managers'],
-        #                   creatable_models=[Service],
-        #                  )
-
         user = self.login_as_basic_user(Service)
 
         create_image = partial(self._create_image, user=user,
@@ -187,7 +177,6 @@ class ServiceTestCase(_ProductsTestCase):
                                         )
         service.images = [img_3]
 
-        # url = '/products/service/%s/add_images' % service.id
         url = reverse('products__add_images_to_service', args=(service.id,))
         self.assertGET200(url)
 
@@ -219,7 +208,6 @@ class ServiceTestCase(_ProductsTestCase):
                                         )
         service.images = [img_1, img_2]
 
-        # url = '/products/images/remove/%s' % service.id
         url = reverse('products__remove_image', args=(service.id,))
         data = {'id': img_1.id}
         self.assertGET404(url, data=data)

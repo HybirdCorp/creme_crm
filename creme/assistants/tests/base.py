@@ -13,11 +13,6 @@ except Exception as e:
 
 
 class AssistantsTestCase(CremeTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('creme_core', 'assistants')
-
     def setUp(self):
         self.login()
         self.entity = FakeContact.objects.create(user=self.user, first_name='Ranma', last_name='Saotome')
@@ -56,7 +51,6 @@ class AssistantsTestCase(CremeTestCase):
         assertor(contact01)
 
         hlines = list(HistoryLine.objects.order_by('id'))
-        # self.assertEqual(old_count + 1, len(hlines))  # No edition for 'entity_id'
         self.assertEqual(old_count + 1 + moved_count, len(hlines))  # 1 deletion line + N * TYPE_AUX_CREATION lines
 
         if moved_count:

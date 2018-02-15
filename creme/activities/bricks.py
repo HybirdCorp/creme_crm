@@ -20,7 +20,6 @@
 
 from itertools import chain
 
-# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, Relation
@@ -50,7 +49,6 @@ class ParticipantsBrick(QuerysetBrick):
     dependencies  = (Relation, Contact, Calendar, Organisation)
     relation_type_deps = (constants.REL_OBJ_PART_2_ACTIVITY,)
     verbose_name  = _(u'Participants')
-    # template_name = 'activities/templatetags/block_participants.html'
     template_name = 'activities//bricks/participants.html'
 
     target_ctypes = (Activity, )
@@ -61,8 +59,6 @@ class ParticipantsBrick(QuerysetBrick):
                     context,
                     activity.relations.filter(type=constants.REL_OBJ_PART_2_ACTIVITY)
                                       .select_related('type', 'object_entity'),
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, activity.pk)),
         )
         relations = btc['page'].object_list
         # TODO: remove civility with better entity repr system ??
@@ -88,10 +84,9 @@ class ParticipantsBrick(QuerysetBrick):
 
 class SubjectsBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('activities', 'subjects')
-    dependencies  = (Relation, Organisation) # See ParticipantsBlock.dependencies
+    dependencies  = (Relation, Organisation)  # See ParticipantsBlock.dependencies
     relation_type_deps = (constants.REL_OBJ_ACTIVITY_SUBJECT,)
     verbose_name  = _(u'Subjects')
-    # template_name = 'activities/templatetags/block_subjects.html'
     template_name = 'activities/bricks/subjects.html'
     target_ctypes = (Activity, )
 
@@ -101,8 +96,6 @@ class SubjectsBrick(QuerysetBrick):
                     context,
                     activity.relations.filter(type=constants.REL_OBJ_ACTIVITY_SUBJECT)
                             .select_related('type', 'object_entity'),
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, activity.pk)),
         )
 
         Relation.populate_real_object_entities(btc['page'].object_list)
@@ -202,7 +195,6 @@ class UserCalendarsBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('activities', 'user_calendars')
     dependencies  = (Calendar, )
     verbose_name  = u'My calendars'
-    # template_name = 'activities/templatetags/block_user_calendars.html'
     template_name = 'activities/bricks/user-calendars.html'
     configurable  = False
     order_by      = 'name'
@@ -216,8 +208,6 @@ class UserCalendarsBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     Calendar.objects.filter(user=user),
-                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
                     has_app_perm=user.has_perm('activities'),
         ))
 
@@ -226,7 +216,6 @@ class RelatedCalendarBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('activities', 'related_calendar')
     dependencies  = (Calendar, )
     verbose_name  = _(u'On my calendars')
-    # template_name = 'activities/templatetags/block_related_calendar.html'
     template_name = 'activities/bricks/related-calendars.html'
     order_by      = 'name'
 
@@ -238,6 +227,4 @@ class RelatedCalendarBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     activity.calendars.filter(user=user),
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, activity.pk)),
         ))

@@ -22,7 +22,7 @@ import logging
 
 from django.db.models import ProtectedError
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404  # redirect
+from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth import build_creation_perm as cperm
@@ -46,7 +46,6 @@ ProjectTask = projects.get_task_model()
 
 def abstract_add_ptask(request, project_id, form=task_forms.TaskCreateForm,
                        title=_(u'Create a task for «%s»'),
-                       # submit_label=_('Save the task'),
                        submit_label=ProjectTask.save_label,
                       ):
     return generic.add_to_entity(request, project_id, form, title,
@@ -123,7 +122,6 @@ def delete_parent(request):
 
 def abstract_add_activity(request, task_id, form=task_forms.RelatedActivityCreateForm,
                           title=_(u'New activity related to «%s»'),
-                          # submit_label=_('Save the activity'),
                           submit_label=Activity.save_label,
                          ):
     task = get_object_or_404(ProjectTask, pk=task_id)

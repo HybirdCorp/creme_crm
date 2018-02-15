@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,6 @@
 import logging
 from pickle import loads
 from time import sleep
-# import warnings
 
 from django.conf import settings
 from django.core.mail import send_mail, get_connection
@@ -32,7 +31,7 @@ from django.db.transaction import atomic
 from django.template import Template, Context
 from django.utils.formats import date_format
 from django.utils.timezone import localtime
-from django.utils.translation import ugettext_lazy as _, ugettext, pgettext, pgettext_lazy  # activate
+from django.utils.translation import ugettext_lazy as _, ugettext, pgettext, pgettext_lazy
 
 from creme.creme_core.models import CremeModel, CremeEntity
 
@@ -113,20 +112,6 @@ class EmailSending(CremeModel):
     def get_unsent_mails_count(self):
         return self.mails_set.filter(status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR]).count()
 
-    # def get_state_str(self):
-    #     warnings.warn("EmailSending.get_state_str() method is deprecated ; use get_state_display() instead.",
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     return SENDING_STATES[self.state]
-
-    # def get_type_str(self):
-    #     warnings.warn("EmailSending.get_type_str() method is deprecated ; use get_type_display() instead.",
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     return SENDING_TYPES[self.type]
-
     def get_absolute_url(self):
         return self.campaign.get_absolute_url()
 
@@ -137,7 +122,6 @@ class EmailSending(CremeModel):
         try:
             sender = LightWeightEmailSender(sending=self)
         except ImageFromHTMLError as e:
-            # activate(settings.LANGUAGE_CODE)
             send_mail(ugettext('[CremeCRM] Campaign email sending error.'),
                       ugettext(u"Emails in the sending of the campaign «%(campaign)s» on %(date)s weren't sent "
                                u"because the image «%(image)s» is no longer available in the template.") % {
@@ -205,22 +189,6 @@ class LightWeightEmail(_Email):
         except Exception as e:  # Pickle raises too much different exceptions... Catch'em all ?
             logger.debug('Error in LightWeightEmail._render_body(): %s', e)
             return ''
-
-    # def get_body(self):
-    #     warnings.warn("LightWeightEmail.get_body() method is deprecated ; use 'rendered_body' instead",
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     # return self._render_body(self.sending.body)
-    #     return self.rendered_body
-
-    # def get_body_html(self):
-    #     warnings.warn("LightWeightEmail.get_body_html() method is deprecated ; use 'rendered_body_html' instead",
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     # return self._render_body(self.sending.body_html)
-    #     return self.rendered_body_html
 
     @property
     def rendered_body(self):

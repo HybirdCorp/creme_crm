@@ -25,7 +25,6 @@ import logging, warnings
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
-# from django.core.urlresolvers import reverse
 from django.db.models import Model
 from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -161,17 +160,7 @@ class Brick(object):
 
     def _simple_detailview_display(self, context):
         """Helper method to build a basic detailview_display() method for classes that inherit Brick."""
-        # return self._render(self.get_block_template_context(
-        return self._render(self.get_template_context(
-                context,
-                # # update_url='/creme_core/blocks/reload/%s/%s/' % (
-                # #                     self.id_,
-                # #                     context['object'].pk,
-                # #                 ),
-                # update_url=reverse('creme_core__reload_detailview_blocks',
-                #                    args=(self.id_, context['object'].pk),
-                #                    ),
-        ))
+        return self._render(self.get_template_context(context))
 
     def _iter_dependencies_info(self):
         for dep in self.dependencies:
@@ -189,7 +178,6 @@ class Brick(object):
     def _build_template_context(self, context, block_name, block_context, **extra_kwargs):
         context['block_name'] = context['brick_id'] = block_name  # TODO: deprecate 'block_name'.
         context['state'] = BricksManager.get(context).get_state(self.id_, context['user'])
-        # context['dependencies'] = ','.join(self._iter_dependencies_info())
         context['dependencies'] = list(self._iter_dependencies_info())
         context['reloading_info'] = self._reloading_info
         context['read_only'] = self.read_only
@@ -216,7 +204,6 @@ class Brick(object):
         session = request.session
 
         try:
-            # serialized_context = session['blockcontexts_manager'][base_url][brick_id]
             serialized_context = session['brickcontexts_manager'][base_url][brick_id]
         except KeyError:
             brick_context = self.context_class()
@@ -225,17 +212,14 @@ class Brick(object):
 
         template_context = self._build_template_context(context, brick_id, brick_context,
                                                         base_url=base_url,  # TODO: remove in creme 1.8
-                                                        # update_url=update_url,
                                                         **extra_kwargs
                                                        )
 
-        # if not BlocksManager.get(context).block_is_registered(self):
         # NB:  not 'assert' (it causes problems with bricks in inner popups)
         if not BricksManager.get(context).brick_is_registered(self):
             logger.debug('Not registered brick: %s', self.id_)
 
         if brick_context.update(template_context):
-            # session.setdefault('blockcontexts_manager', {}) \
             session.setdefault('brickcontexts_manager', {}) \
                 .setdefault(base_url, {}) \
                 [brick_id] = brick_context.as_dict()
@@ -311,10 +295,8 @@ class PaginatedBrick(Brick):
                      )
         return self.get_template_context(*args, **kwargs)
 
-    # def get_template_context(self, context, objects, update_url='', **extra_kwargs):
     def get_template_context(self, context, objects, **extra_kwargs):
         """@param objects: Sequence of objects to display in the brick."""
-        # return Brick.get_template_context(self, context, update_url=update_url, objects=objects, **extra_kwargs)
         return Brick.get_template_context(self, context, objects=objects, **extra_kwargs)
 
 
@@ -406,13 +388,9 @@ class QuerysetBrick(PaginatedBrick):
                      )
         return self.get_template_context(*args, **kwargs)
 
-    # def get_template_context(self, context, queryset, update_url='', **extra_kwargs):
     def get_template_context(self, context, queryset, **extra_kwargs):
         """@param queryset Set of objects to display in the block."""
-        return PaginatedBrick.get_template_context(self, context, objects=queryset,
-                                                   # update_url=update_url,
-                                                   **extra_kwargs
-                                                  )
+        return PaginatedBrick.get_template_context(self, context, objects=queryset, **extra_kwargs)
 
 
 class EntityBrick(Brick):
@@ -454,11 +432,10 @@ class SpecificRelationsBrick(QuerysetBrick):
     dependencies  = (Relation,)  # NB: (Relation, CremeEntity) but useless
     order_by      = 'type'
     verbose_name  = _(u'Relationships')
-    # template_name = 'creme_core/templatetags/block_specific_relations.html'
     template_name = 'creme_core/bricks/specific-relations.html'
 
     def __init__(self, relationblock_item):
-        "@param relationblock_item Instance of RelationBlockItem"
+        "@param relationblock_item: Instance of RelationBlockItem"
         super(SpecificRelationsBrick, self).__init__()
         self.id_ = relationblock_item.block_id
         self.config_item = relationblock_item
@@ -479,15 +456,10 @@ class SpecificRelationsBrick(QuerysetBrick):
         entity = context['object']
         config_item = self.config_item
         relation_type = config_item.relation_type
-        # btc = self.get_block_template_context(
         btc = self.get_template_context(
                     context,
                     entity.relations.filter(type=relation_type)
                                     .select_related('type', 'object_entity'),
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks',
-                    #                    args=(self.id_, entity.pk),
-                    #                   ),
                     config_item=config_item,
                     relation_type=relation_type,
                    )
@@ -552,17 +524,7 @@ class CustomBrick(Brick):
         self.config_item = customblock_conf_item
 
     def detailview_display(self, context):
-        entity = context['object']
-
-        # return self._render(self.get_block_template_context(
-        return self._render(self.get_template_context(
-                    context,
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks',
-                    #                    args=(self.id_, entity.pk),
-                    #                   ),
-                    config_item=self.config_item,
-        ))
+        return self._render(self.get_template_context(context, config_item=self.config_item))
 
 
 class BricksManager(object):
@@ -579,15 +541,12 @@ class BricksManager(object):
         pass
 
     def __init__(self):
-        # self._blocks = []
         self._bricks = []
         self._dependencies_map = None
-        # self._blocks_groups = defaultdict(list)
         self._bricks_groups = defaultdict(list)
         self._used_relationtypes = None
         self._state_cache = None
 
-    # def add_group(self, group_name, *blocks):
     def add_group(self, group_name, *bricks):
         if self._dependencies_map is not None:
             raise BricksManager.Error("Can't add brick to manager after dependence resolution is done.")
@@ -669,7 +628,6 @@ class BricksManager(object):
         get_dep = self._get_dependencies_ids
         return {block.id_: get_dep(block) for block in self._bricks}
 
-    # def get_state(self, block_id, user):
     def get_state(self, brick_id, user):
         "Get the state for a brick and fill a cache to avoid multiple SQL requests"
         _state_cache = self._state_cache
@@ -709,12 +667,9 @@ class _BrickRegistry(object):
         pass
 
     def __init__(self):
-        # self._blocks = {}
         self._brick_classes = {}
-        # self._object_blocks = {}
         self._hat_brick_classes = defaultdict(dict)
         self._object_brick_classes = {}
-        # self._instance_block_classes = {}
         self._instance_brick_classes = {}
         self._invalid_models = set()
 
@@ -750,7 +705,6 @@ class _BrickRegistry(object):
             assert issubclass(model, CremeEntity)
             add(model)
 
-    # def register_4_model(self, model, block):
     def register_4_model(self, model, brick_cls):  # TODO: had an 'overload' arg ??
         if isinstance(brick_cls, Brick):
             warnings.warn('_BrikRegistry.register_4_model(): registering brick instance is deprecated ;'
@@ -764,11 +718,6 @@ class _BrickRegistry(object):
                           'an id_ == None (currently: %s)' % ( model, brick_cls.id_),
                           DeprecationWarning
                          )
-
-        # brick_cls.id_ = self._generate_modelblock_id(model)
-        #
-        # if not brick_cls.dependencies:
-        #     brick_cls.dependencies = (model,)
 
         # NB: the key is the class, not the ContentType.id because it can cause
         # some inconsistencies in DB problem in unit tests (contenttypes cache bug with tests ??)
@@ -805,15 +754,12 @@ class _BrickRegistry(object):
 
             brick_classes[brick_id] = brick_cls
 
-    # def _generate_modelblock_id(self, model):
     @staticmethod
     def _generate_modelbrick_id(model):
         meta = model._meta
         return u'modelblock_%s-%s' % (meta.app_label, meta.model_name)
 
-    # def __getitem__(self, block_id):
     def __getitem__(self, brick_id):
-        # return self._brick_classes[block_id]
         return self._brick_classes[brick_id]
 
     def __iter__(self):
@@ -958,11 +904,6 @@ class _BrickRegistry(object):
             elif id_.startswith('modelblock_'):
                 block = self.get_block_4_object(ContentType.objects.get_by_natural_key(*id_[len('modelblock_'):].split('-')))
             else:
-                # block = self._blocks.get(id_)
-                #
-                # if block is None:
-                #     logger.warning('Block seems deprecated: %s', id_)
-                #     block = Block()
                 brick_cls = self._brick_classes.get(id_)
 
                 if brick_cls is None:
@@ -987,13 +928,7 @@ class _BrickRegistry(object):
 
         if brick_cls is None:
             brick = EntityBrick()
-            # brick.id_ = self._generate_modelblock_id(model)
             brick.dependencies = (model,)  # TODO: what about FK, M2M ?
-            # brick.template_name = 'creme_core/templatetags/block_object.html'
-            # brick.template_name = 'creme_core/bricks/generic/object.html'
-            # brick.verbose_name = _(u'Information on the entity')
-
-            # self._object_brick_classes[model] = brick
         else:
             brick = brick_cls()
 

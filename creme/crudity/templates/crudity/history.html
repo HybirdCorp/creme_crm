@@ -4,15 +4,6 @@
 {% block page_title %}{% trans 'History' %} - {% endblock %}
 
 {% block content %}
-{% comment %}
-    <table class="table_header" cellpadding="0" cellspacing="0">
-        <tr>
-            <td class="logo">{# <img src="{% media_url 'images/_64.png' %}" alt="{% trans 'Waiting actions' %}"/> #}</td>
-            <td class="title"><h1>{% trans 'History' %}</h1></td>
-            <td class="actions"></td>
-        </tr>
-    </table>
-{% endcomment %}
     <div class="hat-bar-container">
         <div class="hat-bar">
             <div class="bar-icon">{% widget_icon name='history' size='brick-hat-bar-button' label=_('History') %}</div>
@@ -20,11 +11,6 @@
         </div>
     </div>
 
-{% comment %}
-    {% for history_block in blocks %}
-        {{history_block}}
-    {% endfor %}
-{% endcomment %}
     {% brick_declare bricks %}
     {% brick_display bricks %}
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,25 +18,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from future_builtins import filter
-
-# from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import (ForeignKey, CharField, TextField, PositiveIntegerField,
         BooleanField, DateField, EmailField, URLField, SET_NULL)
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-# from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme.creme_core.core.exceptions import SpecificProtectedError
 from creme.creme_core.global_info import get_per_request_cache
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.fields import PhoneField
 
-# from creme.media_managers.models import Image
 from creme.documents.models.fields import ImageEntityForeignKey
 
-from .. import get_contact_model  # get_organisation_model
 from .. import constants
+from .. import get_contact_model
 
 from . import base, other_models
 
@@ -79,8 +74,6 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
     creation_date = DateField(_(u'Date of creation of the organisation'),
                               blank=True, null=True,
                              ).set_tags(optional=True)
-    # image         = ForeignKey(Image, verbose_name=_(u'Logo'), blank=True, null=True, on_delete=SET_NULL)\
-    #                           .set_tags(optional=True)
     image         = ImageEntityForeignKey(verbose_name=_(u'Logo'),
                                           blank=True, null=True, on_delete=SET_NULL,
                                          ).set_tags(optional=True)
@@ -146,8 +139,6 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
                                          )
 
     # TODO: move in a manager ??
-    # @staticmethod
-    # def get_all_managed_by_creme():
     @classmethod
     def get_all_managed_by_creme(cls):
         cache = get_per_request_cache()
@@ -155,10 +146,6 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
         qs = cache.get(cache_key)
 
         if qs is None:
-            # cache[cache_key] = qs = get_organisation_model().objects\
-            #                                                 .filter(is_deleted=False,
-            #                                                         properties__type=PROP_IS_MANAGED_BY_CREME,
-            #                                                        )
             cache[cache_key] = qs = cls.objects.filter(is_managed=True, is_deleted=False)
 
         return qs

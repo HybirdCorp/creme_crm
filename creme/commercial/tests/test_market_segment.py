@@ -18,7 +18,6 @@ except Exception as e:
 
 class MarketSegmentTestCase(CommercialBaseTestCase):
     def _build_delete_url(self, segment):
-        # return '/commercial/market_segment/delete/%s' % segment.id
         return reverse('commercial__delete_segment', args=(segment.id,))
 
     def test_unique_segment_with_ptype(self):
@@ -63,7 +62,6 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
                             )
 
     def test_listview(self):
-        # response = self.assertGET200('/commercial/market_segments')
         response = self.assertGET200(reverse('commercial__list_segments'))
         self.assertTemplateUsed(response, 'commercial/list_segments.html')
 

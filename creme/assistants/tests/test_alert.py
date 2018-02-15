@@ -14,7 +14,6 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
-    # from creme.creme_core.management.commands.reminder import Command as ReminderCommand
     from creme.creme_core.models import CremeEntity, DateReminder, FakeOrganisation, FakeMailingList
 
     from ..models import Alert
@@ -25,7 +24,6 @@ except Exception as e:
 
 class AlertTestCase(AssistantsTestCase):
     def _build_add_url(self, entity):
-        # return '/assistants/alert/add/%s/' % entity.id
         return reverse('assistants__create_alert', args=(entity.id,))
 
     def _create_alert(self, title='TITLE', description='DESCRIPTION', trigger_date='2010-9-29', entity=None):
@@ -108,7 +106,6 @@ class AlertTestCase(AssistantsTestCase):
         self.assertEqual(description, alert.description)
 
         # Don't care about seconds
-        #self.assertEqual(datetime(year=2011, month=10, day=30, hour=15, minute=12), alert.trigger_date)
         self.assertEqual(self.create_datetime(year=2011, month=10, day=30, hour=15, minute=12),
                          alert.trigger_date
                         )
@@ -125,7 +122,6 @@ class AlertTestCase(AssistantsTestCase):
         self.assertEqual(1, Alert.objects.count())
 
         ct = ContentType.objects.get_for_model(Alert)
-        # self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': alert.id})
         self.client.post(reverse('creme_core__delete_related_to_entity', args=(ct.id,)), data={'id': alert.id})
         self.assertEqual(0, Alert.objects.count())
 
@@ -133,7 +129,6 @@ class AlertTestCase(AssistantsTestCase):
         alert = self._create_alert()
         self.assertFalse(alert.is_validated)
 
-        # response = self.assertPOST200('/assistants/alert/validate/%s/' % alert.id, follow=True)
         response = self.assertPOST200(reverse('assistants__validate_alert', args=(alert.id,)), follow=True)
         self.assertRedirects(response, self.entity.get_absolute_url())
 
@@ -220,10 +215,6 @@ class AlertTestCase(AssistantsTestCase):
 
         self.assertLess(job.type.next_wakeup(job, now_value), now())
 
-        # def remind():
-        #     ReminderCommand().execute(verbosity=0)
-        #
-        # remind()
         self.execute_reminder_job(job)
         reminders = DateReminder.objects.exclude(id__in=reminder_ids)
         self.assertEqual(1, len(reminders))
@@ -246,7 +237,6 @@ class AlertTestCase(AssistantsTestCase):
         self.assertIn(alert1.title, message.body)
 
         # Reminders are not recreated if they already exist
-        # remind()
         self.execute_reminder_job(job)
         self.assertFalse(DateReminder.objects.exclude(id__in=reminder_ids + [reminder.id]))
         self.assertEqual(1, len(mail.outbox))

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2017  Hybird
+#    Copyright (C) 2014-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,7 +40,6 @@ class Populator(BasePopulator):
     def populate(self):
         already_populated = SettingValue.objects.filter(key_id=setting_keys.NEIGHBOURHOOD_DISTANCE.id).exists()
 
-        # SettingValue.create_if_needed(key=NEIGHBOURHOOD_DISTANCE, user=None, value=DEFAULT_SEPARATING_NEIGHBOURS)
         create_skey = SettingValue.objects.get_or_create
         create_skey(key_id=setting_keys.NEIGHBOURHOOD_DISTANCE.id, defaults={'value': constants.DEFAULT_SEPARATING_NEIGHBOURS})
         create_skey(key_id=setting_keys.GOOGLE_API_KEY.id,         defaults={'value': ''})

@@ -75,16 +75,11 @@ class CipherTestCase(CremeTestCase):
         password = "my password"
         skey_id = 'activesync-test_ciphered_setting_value01'
         skey = SettingKey(id=skey_id, type=SettingKey.STRING, app_label='creme_config', description='')
-        # setting_key_registry.register(skey)
         self._register_key(skey)
 
-        # sv = SettingValue.create_if_needed(key=skey, user=self.user, value='val')
         sv = SettingValue.objects.get_or_create(key_id=skey_id, defaults={'value': 'val'})[0]
-        # self.assertEqual(1, SettingValue.objects.filter(key_id=skey_id).count())
-
         sv.value = Cipher.encrypt_for_db(password)
         sv.save()
 
-        # sv = SettingValue.objects.get(key_id=skey_id, user=self.user)
         sv = self.refresh(sv)
         self.assertEqual(password, Cipher.decrypt_from_db(sv.value))

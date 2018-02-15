@@ -24,7 +24,6 @@ import logging
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.forms import CremeEntityForm, GenericEntityField, CreatorEntityField
-# from creme.creme_core.forms.validators import validate_linkable_entity
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import find_first
 
@@ -58,9 +57,6 @@ class BaseEditForm(CremeEntityForm):
                                 models=[get_organisation_model(), get_contact_model()],
                                )
 
-#    issuing_date    = CremeDateField(label=_(u"Issuing date"), required=False)
-#    expiration_date = CremeDateField(label=_(u"Expiration date"), required=False)
-
     class Meta(CremeEntityForm.Meta):
         labels = {
                 'discount': _(u'Overall discount (in %)'),
@@ -91,12 +87,6 @@ class BaseEditForm(CremeEntityForm):
             if received_relation:
                 self.received_relation = received_relation
                 self.fields['target'].initial = received_relation.object_entity
-
-    # def clean_source(self):
-    #     return validate_linkable_entity(self.cleaned_data['source'], self.user)
-    #
-    # def clean_target(self):
-    #     return validate_linkable_entity(self.cleaned_data['target'], self.user)
 
     def _manage_relation(self, existing_relation, type_id, related_entity):
         if existing_relation:

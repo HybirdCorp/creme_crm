@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,8 +26,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext as _
 
 from creme.creme_core import bricks as core_bricks, models as core_models
-# from creme.creme_core.buttons import merge_entities_button
-# from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import EntityFilter, EntityFilterCondition, EntityFilterVariable
@@ -46,7 +44,6 @@ class Populator(BasePopulator):
 
     def populate(self):
         already_populated = core_models.RelationType.objects.filter(pk=constants.REL_SUB_EMPLOYED_BY).exists()
-        # managed_by_creme = core_models.CremePropertyType.objects.get(pk=PROP_IS_MANAGED_BY_CREME)
 
         Contact = get_contact_model()
         Organisation = get_organisation_model()
@@ -87,10 +84,7 @@ class Populator(BasePopulator):
         # ---------------------------
         EntityFilter.create(constants.FILTER_MANAGED_ORGA, name=_(u'Managed by creme'),
                             model=Organisation, user='admin',
-                            conditions=[# EntityFilterCondition.build_4_property(
-                                        #       ptype=managed_by_creme, has=True,
-                                        #   ),
-                                        EntityFilterCondition.build_4_field(
+                            conditions=[EntityFilterCondition.build_4_field(
                                               model=Organisation,
                                               operator=EntityFilterCondition.EQUALS,
                                               name='is_managed',
@@ -151,23 +145,12 @@ class Populator(BasePopulator):
         if not already_populated:
             create_if_needed(Civility, {'pk': 1}, title=_(u'Madam'),  shortcut=_(u'Mrs.'))
             create_if_needed(Civility, {'pk': 2}, title=_(u'Miss'),   shortcut=_(u'Ms.'))
-            # mister = \
             create_if_needed(Civility, {'pk': 3}, title=_(u'Mister'), shortcut=_(u'Mr.'))
             create_if_needed(Civility, {'pk': 4}, title=_(u'N/A'),    shortcut=u'')
 
             # ---------------------------
-            # admin = get_user_model().objects.get(pk=1)
-            #
-            # if not Contact.objects.filter(is_user=admin).exists():
-            #     Contact.objects.create(user=admin, is_user=admin,
-            #                            first_name='Fulbert', last_name='Creme', email=admin.email,
-            #                            civility_id=mister.pk, description='Creme master',
-            #                           )
-
             # TODO: add relation to admin ????
             if not Organisation.objects.exists():
-                # orga = Organisation.objects.create(user=admin, name=_('ReplaceByYourSociety'))
-                # core_models.CremeProperty.objects.create(type=managed_by_creme, creme_entity=orga)
                 Organisation.objects.create(user=get_user_model().objects.get_admin(),
                                             name=_(u'ReplaceByYourSociety'), is_managed=True,
                                             uuid=constants.UUID_FIRST_ORGA,
@@ -206,7 +189,6 @@ class Populator(BasePopulator):
             create_bmi(pk='persons-prospect_contact_button', model=Contact, button=buttons.become_prospect_button, order=21)
             create_bmi(pk='persons-suspect_contact_button',  model=Contact, button=buttons.become_suspect_button,  order=22)
             create_bmi(pk='persons-inactive_contact_button', model=Contact, button=buttons.become_inactive_button, order=24)
-            # create_bmi(pk='persons-merge_contacts_button',   model=Contact, button=merge_entities_button,          order=30)
 
             create_bmi(pk='persons-customer_orga_button',  model=Organisation, button=buttons.become_customer_button,    order=20)
             create_bmi(pk='persons-prospect_orga_button',  model=Organisation, button=buttons.become_prospect_button,    order=21)
@@ -214,7 +196,6 @@ class Populator(BasePopulator):
             create_bmi(pk='persons-inactive_orga_button',  model=Organisation, button=buttons.become_inactive_button,    order=23)
             create_bmi(pk='persons-supplier_button',       model=Organisation, button=buttons.become_supplier_button,    order=24)
             create_bmi(pk='persons-linked_contact_button', model=Organisation, button=buttons.add_linked_contact_button, order=25)
-            # create_bmi(pk='persons-merge_orgas_button',    model=Organisation, button=merge_entities_button,             order=30)
 
             # Populate bricks ------------------
             rbi_1 = core_models.RelationBlockItem.create(constants.REL_SUB_CUSTOMER_SUPPLIER)
@@ -294,13 +275,9 @@ class Populator(BasePopulator):
 
             create_bdl = core_models.BlockDetailviewLocation.create
             create_bdl(block_id=bricks.OrganisationCardHatBrick.id_,  order=1,   zone=HAT,   model=Organisation)
-            # create_bdl(block_id=cbci_orga_1.generate_id(),            order=5,   zone=LEFT,  model=Organisation)
-            # create_bdl(block_id=cbci_orga_2.generate_id(),            order=30,  zone=LEFT,  model=Organisation)
             create_bdl(block_id=cbci_orga_extra.generate_id(),        order=5,   zone=LEFT,  model=Organisation)
             create_bdl(block_id=core_bricks.CustomFieldsBrick.id_,    order=40,  zone=LEFT,  model=Organisation)
-            # create_bdl(block_id=blocks.address_block.id_,           order=50,  zone=LEFT,  model=Organisation)
             create_bdl(block_id=bricks.PrettyAddressesBrick.id_,      order=50,  zone=LEFT,  model=Organisation)
-            # create_bdl(block_id=blocks.other_address_block.id_,     order=60,  zone=LEFT,  model=Organisation)
             create_bdl(block_id=bricks.PrettyOtherAddressesBrick.id_, order=60,  zone=LEFT,  model=Organisation)
             create_bdl(block_id=bricks.ManagersBrick.id_,             order=100, zone=LEFT,  model=Organisation)
             create_bdl(block_id=bricks.EmployeesBrick.id_,            order=120, zone=LEFT,  model=Organisation)
@@ -310,7 +287,6 @@ class Populator(BasePopulator):
             create_bdl(block_id=rbi_2.block_id,                       order=10,  zone=RIGHT, model=Organisation)
             create_bdl(block_id=core_bricks.HistoryBrick.id_,         order=30,  zone=RIGHT, model=Organisation)
 
-            # cbci_contact_1 =
             create_cbci(id='persons-contact_main_info',
                         name=_(u'Contact information'),
                         content_type=get_ct(Contact),
@@ -332,7 +308,6 @@ class Populator(BasePopulator):
                            build_cell(Contact, 'user'),
                         ],
                        )
-            # cbci_contact_2 =
             create_cbci(id='persons-contact_details',
                         name=_(u'Contact details'),
                         content_type=get_ct(Contact),
@@ -363,13 +338,9 @@ class Populator(BasePopulator):
                                             )
 
             create_bdl(block_id=bricks.ContactCardHatBrick.id_,       order=1,   zone=HAT,   model=Contact)
-            # create_bdl(block_id=cbci_contact_1.generate_id(),         order=5,   zone=LEFT,  model=Contact)
-            # create_bdl(block_id=cbci_contact_2.generate_id(),         order=30,  zone=LEFT,  model=Contact)
             create_bdl(block_id=cbci_contact_extra.generate_id(),     order=30,  zone=LEFT,  model=Contact)
             create_bdl(block_id=core_bricks.CustomFieldsBrick.id_,    order=40,  zone=LEFT,  model=Contact)
-            # create_bdl(block_id=bricks.address_block.id_,           order=50,  zone=LEFT,  model=Contact)
             create_bdl(block_id=bricks.PrettyAddressesBrick.id_,      order=50,  zone=LEFT,  model=Contact)
-            # create_bdl(block_id=bricks.other_address_block.id_,     order=60,  zone=LEFT,  model=Contact)
             create_bdl(block_id=bricks.PrettyOtherAddressesBrick.id_, order=60,  zone=LEFT,  model=Contact)
             create_bdl(block_id=core_bricks.PropertiesBrick.id_,      order=450, zone=LEFT,  model=Contact)
             create_bdl(block_id=core_bricks.RelationsBrick.id_,       order=500, zone=LEFT,  model=Contact)

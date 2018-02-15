@@ -34,7 +34,6 @@ class ImagesBrick(Brick):
     id_           = Brick.generate_id('products', 'images')
     # dependencies  = (Document,) ??
     verbose_name  = _(u'Images of product/service')
-    # template_name = 'products/block_images.html'
     template_name = 'products/bricks/images.html'
     target_ctypes = (Product, Service)
 
@@ -43,9 +42,6 @@ class ImagesBrick(Brick):
         pk = entity.id
         return self._render(self.get_template_context(
                     context,
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pk)),
-                    # object_type='product' if isinstance(entity, Product) else 'service',
                     add_images_url=reverse('products__add_images_to_product', args=(pk,))
                                    if isinstance(entity, Product) else
                                    reverse('products__add_images_to_service', args=(pk,)),

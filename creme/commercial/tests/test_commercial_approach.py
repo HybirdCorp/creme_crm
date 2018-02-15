@@ -14,9 +14,8 @@ try:
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import FakeOrganisation
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
-    # from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
     from creme.creme_core.models import (CremeEntity, Relation,
-            BlockPortalLocation, SettingValue, Job, JobResult)  # CremeProperty
+            BlockPortalLocation, SettingValue, Job, JobResult)
     from creme.creme_core.models.history import HistoryLine, TYPE_DELETION
 
     from creme.persons.constants import (REL_SUB_CUSTOMER_SUPPLIER,
@@ -33,8 +32,6 @@ try:
 
     from ..bricks import ApproachesBrick
     from ..constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW
-        # IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABLED
-    # from ..management.commands.com_approaches_emails_send import Command as EmailsSendCommand
     from ..creme_jobs import com_approaches_emails_send_type
     from ..models import CommercialApproach
     from .base import Organisation, Contact, Activity, Opportunity
@@ -45,9 +42,7 @@ except Exception as e:
 class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
         super(CommercialApproachTestCase, cls).setUpClass()
-        # cls.populate('creme_core', 'activities', 'opportunities', 'commercial', 'persons')
         cls.original_send_messages = EmailBackend.send_messages
 
     def setUp(self):
@@ -65,15 +60,12 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         return self.get_brick_node(tree, ApproachesBrick.id_)
 
     def _get_commap_titles(self, response):
-        # tree = self.get_tree(response.content)
-        # brick_node = self.get_brick_node(tree, ApproachesBlock.id_)
         brick_node = self._get_commap_brick_node(response)
 
         return {elt.text for elt in brick_node.findall('.//td[@data-table-primary-column]')}
 
     def test_createview(self):
         entity = CremeEntity.objects.create(user=self.user)
-        # url = '/commercial/approach/add/%s/' % entity.id
         url = reverse('commercial__create_approach', args=(entity.id,))
         self.assertGET200(url)
 
@@ -154,16 +146,16 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         title = 'Meeting #01'
         my_calendar = Calendar.get_user_default_calendar(user)
         response = self.client.post(url, follow=True,
-                                    data={'user':             user.pk,
-                                          'title':            title,
-                                          'type_selector':    '{"type": "%s", "sub_type": "%s"}' % (
-                                                                    ACTIVITYTYPE_MEETING,
-                                                                    ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
-                                                                ),
-                                          'status':           Status.objects.all()[0].pk,
-                                          'start':            '2011-5-18',
-                                          # 'my_participation': True,
-                                          # 'my_calendar':      my_calendar.pk,
+                                    data={'user':   user.pk,
+                                          'title':  title,
+                                          'status': Status.objects.all()[0].pk,
+                                          'start':  '2011-5-18',
+
+                                          'type_selector': '{"type": "%s", "sub_type": "%s"}' % (
+                                                                 ACTIVITYTYPE_MEETING,
+                                                                 ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+                                                             ),
+
                                           'my_participation_0': True,
                                           'my_participation_1': my_calendar.pk,
 
@@ -199,8 +191,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
                                           'description':      description,
                                           'status':           Status.objects.all()[0].pk,
                                           'start':            '2011-5-18',
-                                          # 'my_participation': True,
-                                          # 'my_calendar':      my_calendar.pk,
+
                                           'my_participation_0': True,
                                           'my_participation_1': my_calendar.pk,
 
@@ -268,7 +259,6 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomOrganisation
     @skipIfCustomContact
     @skipIfCustomOpportunity
-    # def test_block01(self):
     def test_brick01(self):
         ApproachesBrick.page_size = 5  # TODO: ugly (page_size has a brick instance attribute ?)
 
@@ -300,17 +290,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
         url = orga.get_absolute_url()
         response = self.assertGET200(url)
-        # self.assertContains(response, ' id="%s"' % ApproachesBlock.id_)
-        # self.assertContains(response, commapp1.title)
-        # self.assertNotContains(response, commapp2.title)
-        # self.assertNotContains(response, commapp3.title)
-        # self.assertNotContains(response, commapp4.title)
 
-        # brick_id = ApproachesBlock.id_
-        # tree = self.get_tree(response.content)
-        # brick_node = self.get_brick_node(tree, brick_id)
-        #
-        # titles = {elt.text for elt in brick_node.findall('.//td[@data-table-primary-column]')}
         titles = self._get_commap_titles(response)
         self.assertIn(commapp1.title, titles)
         self.assertNotIn(commapp2.title, titles)
@@ -322,11 +302,6 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         sv.save()
 
         response = self.assertGET200(url)
-        # self.assertContains(response, ' id="%s"' % ApproachesBlock.id_)
-        # self.assertContains(response, commapp1.title)
-        # self.assertContains(response, commapp2.title)
-        # self.assertContains(response, commapp3.title)
-        # self.assertContains(response, commapp4.title)
         titles = self._get_commap_titles(response)
         self.assertIn(commapp1.title, titles)
         self.assertIn(commapp2.title, titles)
@@ -338,20 +313,16 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         BlockPortalLocation.create(app_name='creme_core', block_id=ApproachesBrick.id_, order=100)
 
         response = self.assertGET200('/')
-        # self.assertContains(response, ' id="%s"' % ApproachesBlock.id_)
         self._get_commap_brick_node(response)
 
     def test_block03(self):
         "Commercial portal"
         BlockPortalLocation.create(app_name='commercial', block_id=ApproachesBrick.id_, order=100)
 
-        # response = self.assertGET200('/commercial/')
         response = self.assertGET200(reverse('commercial__portal'))
-        # self.assertContains(response, ' id="%s"' % ApproachesBlock.id_)
         self._get_commap_brick_node(response)
 
     def _send_mails(self):
-        # EmailsSendCommand().execute(verbosity=0)
         job = self.get_object_or_fail(Job, type_id=com_approaches_emails_send_type.id)
         self.assertIsNone(job.user)
 
@@ -494,9 +465,6 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         "Ignore the managed orga that are customer of another managed organisation"
         mngd_orga, customer = self._build_orgas()
 
-        # CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME,
-        #                              creme_entity=customer,
-        #                             )
         customer.is_managed = True
         customer.save()
 
@@ -529,15 +497,3 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
                          ],
                          jresult.messages
                         )
-
-    # @skipIfCustomOrganisation
-    # def test_job09(self):
-    #     "IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABLED setting"
-    #     sv = self.get_object_or_fail(SettingValue, key_id=IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABLED)
-    #     sv.value = False
-    #     sv.save()
-    #
-    #     self._build_orgas()
-    #
-    #     self._send_mails()
-    #     self.assertFalse(mail.outbox)

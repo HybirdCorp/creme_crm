@@ -17,12 +17,9 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-# class BlockRegistryTestCase(CremeTestCase):
 class BrickRegistryTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
-        # super(BlockRegistryTestCase, cls).setUpClass()
         super(BrickRegistryTestCase, cls).setUpClass()
         RelationBlockItem.objects.all().delete()
         InstanceBlockConfigItem.objects.all().delete()
@@ -266,7 +263,6 @@ class BrickRegistryTestCase(CremeTestCase):
 
         blocks = sorted(block_registry.get_compatible_blocks(FakeContact), key=lambda b: b.id_)
         self.assertEqual(6, len(blocks))
-        # self.assertEqual([foobar_block1, foobar_block2], blocks[:2])
         self.assertIsInstance(blocks[0], FoobarBlock1)
         self.assertIsInstance(blocks[1], FoobarBlock2)
 
@@ -470,12 +466,10 @@ class BrickRegistryTestCase(CremeTestCase):
 
         brick_registry = _BrickRegistry()
 
-        # foobar_block1 = FoobarBlock1()
-        # foobar_block4 = FoobarBlock4()
-        brick_registry.register(FoobarBlock1,  # foobar_block1,
+        brick_registry.register(FoobarBlock1,
                                 FoobarBlock2,
                                 FoobarBlock3,
-                                FoobarBlock4,  # foobar_block4,
+                                FoobarBlock4,
                                 FoobarBlock5,
                                )
         brick_registry.register_4_instance(FoobarInstanceBlock1,
@@ -486,7 +480,6 @@ class BrickRegistryTestCase(CremeTestCase):
 
         blocks = sorted(brick_registry.get_compatible_portal_blocks('persons'), key=lambda b: b.id_)
         self.assertEqual(4, len(blocks))
-        # self.assertEqual([foobar_block1, foobar_block4], blocks[:2])
         self.assertIsInstance(blocks[0], FoobarBlock1)
         self.assertIsInstance(blocks[1], FoobarBlock4)
         self.assertEqual([ibci1.block_id, ibci2.block_id], [block.id_ for block in blocks[2:]])
@@ -520,7 +513,6 @@ class BrickRegistryTestCase(CremeTestCase):
         brick_registry.register(FoobarBlock1, FoobarBlock2, FoobarBlock3)
 
         blocks = list(brick_registry.get_compatible_portal_blocks('creme_core'))
-        # self.assertEqual([foobar_block1], blocks)
         self.assertEqual(1, len(blocks))
         self.assertIsInstance(blocks[0], FoobarBlock1)
 
@@ -563,8 +555,6 @@ class BrickRegistryTestCase(CremeTestCase):
             id_          = SimpleBrick.generate_id('creme_core', 'BlockRegistryTestCase__test_get_bricks_2')
             verbose_name = u'Testing purpose #1'
 
-        # brick1 = QuuxBrick1()
-
         rtype = RelationType.create(('test-subject_loves', 'loves'), ('test-object_loved', 'is loved by'))[0]
         rbi = RelationBlockItem.create(rtype.id)
 
@@ -580,7 +570,6 @@ class BrickRegistryTestCase(CremeTestCase):
         bricks = list(brick_registry.get_bricks([QuuxBrick1.id_, rbi.block_id, cbci.generate_id()]))
         self.assertEqual(3, len(bricks))
 
-        # self.assertEqual(brick1, bricks[0])
         self.assertIsInstance(bricks[0], QuuxBrick1)
 
         rel_brick = bricks[1]
@@ -589,10 +578,9 @@ class BrickRegistryTestCase(CremeTestCase):
 
         custom_brick = bricks[2]
         self.assertIsInstance(custom_brick, CustomBrick)
-        self.assertEqual(cbci.generate_id(),  custom_brick.id_)
-        # self.assertEqual((FakeOrganisation,), custom_brick.dependencies)
+        self.assertEqual(cbci.generate_id(), custom_brick.id_)
         self.assertEqual([FakeOrganisation], custom_brick.dependencies)
-        self.assertEqual(cbci.name,           custom_brick.verbose_name)
+        self.assertEqual(cbci.name,          custom_brick.verbose_name)
 
     def test_get_bricks03(self):
         "Hat brick"
@@ -753,28 +741,23 @@ class BrickRegistryTestCase(CremeTestCase):
     # TODO different keys
 
 
-# class BlocksManagerTestCase(CremeTestCase):
 class BricksManagerTestCase(CremeTestCase):
     def test_manage01(self):
         class TestBlock(SimpleBrick):
             verbose_name  = u'Testing purpose'
 
         class FoobarBlock1(TestBlock):
-            # id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage01_1')
             id_ = TestBlock.generate_id('creme_core', 'BricksManagerTestCase__manage01_1')
 
         class FoobarBlock2(TestBlock):
-            # id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage01_2')
             id_ = TestBlock.generate_id('creme_core', 'BricksManagerTestCase__manage01_2')
             dependencies = (FakeContact,)
 
         class FoobarBlock3(TestBlock):
-            # id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage01_3')
             id_ = TestBlock.generate_id('creme_core', 'BricksManagerTestCase__manage01_3')
             dependencies = (FakeOrganisation,)
 
         class FoobarBlock4(TestBlock):
-            # id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage01_4')
             id_ = TestBlock.generate_id('creme_core', 'BricksManagerTestCase__manage01_4')
             dependencies = (FakeContact, FakeOrganisation)
 

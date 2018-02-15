@@ -19,7 +19,6 @@ except Exception as e:
 class WaitingActionTestCase(CrudityTestCase):
     @classmethod
     def setUpClass(cls):
-        # CrudityTestCase.setUpClass()
         super(WaitingActionTestCase, cls).setUpClass()
 
         get_ct = ContentType.objects.get_for_model
@@ -33,7 +32,6 @@ class WaitingActionTestCase(CrudityTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        # CrudityTestCase.tearDownClass()
         super(WaitingActionTestCase, cls).tearDownClass()
         cls.User.objects.exclude(id__in=cls._staff_user_ids_backup).update(is_staff=False)
 

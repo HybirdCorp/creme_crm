@@ -27,12 +27,6 @@ def skipIfCustomActivity(test_func):
 
 
 class _ActivitiesTestCase(CremeTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     cls.populate('creme_core', 'activities', 'persons')
-    #     CremeTestCase.setUpClass()
-
-    # def login(self, is_superuser=True, other_is_owner=False,
     def login(self, is_superuser=True, is_staff=False,
               allowed_apps=('activities', 'persons'), *args, **kwargs):
         return super(_ActivitiesTestCase, self).login(is_superuser=is_superuser,

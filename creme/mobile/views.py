@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2017  Hybird
+#    Copyright (C) 2014-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -68,7 +68,6 @@ WORKED_HOURS = (7, 18)
 
 done_activity_creator = failed_activity_creator = Activity.objects.create
 
-# mobile_login_required = partial(login_required, login_url='/mobile/login/')
 mobile_login_required = partial(login_required, login_url='mobile__login')
 
 
@@ -208,7 +207,6 @@ def abstract_create_contact(request, form=mobile_forms.MobileContactCreateForm,
     last_name = request.GET.get('last_name')
 
     return add_entity(request, form,
-                      # url_redirect='/mobile/persons',
                       url_redirect=reverse('mobile__directory'),
                       template=template,
                       extra_initial={'last_name': last_name.title()} if last_name else None,
@@ -228,7 +226,6 @@ def abstract_create_organisation(request, form=mobile_forms.MobileOrganisationCr
     name = request.GET.get('name')
 
     return add_entity(request, form,
-                      # url_redirect='/mobile/persons',
                       url_redirect=reverse('mobile__directory'),
                       template=template,
                       extra_initial={'name': name.title()} if name else None,
@@ -284,7 +281,6 @@ def search_person(request):
 
 
 def _get_page_url(request):
-    # return request.META.get('HTTP_REFERER', '/mobile/')
     return request.META.get('HTTP_REFERER', reverse('mobile__portal'))  # TODO: build_cancel_path() ?
 
 
@@ -510,8 +506,6 @@ def _add_participants(activity, persons):
 def _improve_minutes(pcall, minutes):
     if minutes:
         old_minutes = pcall.minutes
-        # pcall.minutes = minutes if old_minutes is None else \
-        #                 u'%s\n%s' % (old_minutes, minutes)
         pcall.minutes = minutes if not old_minutes else \
                         u'%s\n%s' % (old_minutes, minutes)
 
@@ -523,7 +517,6 @@ def _phonecall_workflow_set_end(request, end_function):
     POST = request.POST
     start = _build_date_or_404(get_from_POST_or_404(POST, 'call_start'))  # TODO: assert in the past
     end = end_function(start)
-    # minutes = POST.get('minutes')
     minutes = POST.get('minutes', '')
 
     pcall = _get_pcall(request)
@@ -588,7 +581,6 @@ def _create_failed_pcall(request):
                                         status_id=act_constants.STATUS_DONE,
                                         start=start,
                                         end=start,
-                                        # minutes=POST.get('minutes'),
                                         minutes=POST.get('minutes', ''),
                                        )
         _add_participants(pcall, (me, person))
@@ -603,7 +595,6 @@ def _set_pcall_as_failed(pcall, request):
     pcall.status_id = act_constants.STATUS_DONE
     pcall.floating_type = act_constants.NARROW
     pcall.start = pcall.end = _build_date_or_404(get_from_POST_or_404(POST, 'call_start'))
-    # _improve_minutes(pcall, POST.get('minutes'))
     _improve_minutes(pcall, POST.get('minutes', ''))
 
     pcall.save()

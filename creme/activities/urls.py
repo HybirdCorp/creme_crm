@@ -2,8 +2,6 @@
 
 from django.conf.urls import url, include
 
-# from creme.creme_core.utils.imports import find_n_import
-
 from . import activity_model_is_custom, constants
 from .views import portal, activity, bricks, calendar
 
@@ -51,5 +49,3 @@ if not activity_model_is_custom():
         url(r'^activity/(?P<activity_id>\d+)[/]?$',           activity.detailview,          name='activities__view_activity'),
         url(r'^activity/(?P<activity_id>\d+)/popup[/]?$',     activity.popupview,           name='activities__view_activity_popup'),
     ]
-
-# find_n_import("activities_register", [])

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,6 @@ from creme.creme_core.models import CremeEntity, Language  # CremeEntityManager
 from creme.creme_core.models.fields import PhoneField
 from creme.creme_core.utils import update_model_instance
 
-# from creme.media_managers.models import Image
 from creme.documents.models.fields import ImageEntityForeignKey
 
 from ..import get_contact_model, get_organisation_model
@@ -84,9 +83,6 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
                          .set_null_label(pgettext_lazy('persons-is_user', u'None'))
 
     birthday = DateField(_(u'Birthday'), blank=True, null=True).set_tags(optional=True)
-    # image    = ForeignKey(Image, verbose_name=_(u'Photograph'),
-    #                       blank=True, null=True, on_delete=SET_NULL,
-    #                      ).set_tags(optional=True)
     image    = ImageEntityForeignKey(verbose_name=_(u'Photograph'),
                                      blank=True, null=True, on_delete=SET_NULL,
                                     ).set_tags(optional=True)
@@ -204,13 +200,6 @@ class Contact(AbstractContact):
 # Manage the related User ------------------------------------------------------
 
 def _create_linked_contact(user):
-#    return get_contact_model().objects\
-#                              .create(user=user, is_user=user,
-#                                      last_name=user.last_name or user.username.title(),
-#                                      first_name=user.first_name or _('N/A'),
-#                                      email=user.email or _('replaceMe@byYourAddress.com'),
-#                                      # todo: assert user is not a team + enforce non team clean() ?
-#                                     )
     warnings.warn("_create_linked_contact() is deprecated ; use AbstractContact._create_linked_contact() instead.",
                   DeprecationWarning
                  )
@@ -225,13 +214,11 @@ def _get_linked_contact(self):
     contact = getattr(self, '_linked_contact_cache', None)
 
     if contact is None:
-        # contacts = get_contact_model().objects.filter(is_user=self)[:2]
         model = get_contact_model()
         contacts = model.objects.filter(is_user=self)[:2]
 
         if not contacts:
             logger.critical('User "%s" has no related Contact => we create it', self.username)
-            # contact = _create_linked_contact(self)
             contact = model._create_linked_contact(self)
         else:
             if len(contacts) > 1:

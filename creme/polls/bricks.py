@@ -19,8 +19,6 @@
 ################################################################################
 
 from django.contrib.contenttypes.models import ContentType
-# from django.core.urlresolvers import reverse
-# from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext, ungettext
 
 from creme.creme_core.gui.bricks import Brick, SimpleBrick, QuerysetBrick
@@ -47,7 +45,6 @@ class PollFormLinesBrick(Brick):
     id_           = Brick.generate_id('polls', 'pollform_lines')
     dependencies  = (PollFormLine,)
     verbose_name  = _(u'Form lines')
-    # template_name = 'polls/templatetags/block_pollform_lines.html'
     template_name = 'polls/bricks/pform-lines.html'
     target_ctypes = (PollForm,)
 
@@ -66,7 +63,6 @@ class PollFormLinesBrick(Brick):
         section_label  = lambda: ungettext(u'%s Section', u'%s Sections', section_count) % section_count
 
         if section_count and question_count:
-            # return ugettext(u'{questions}&emsp14;and&emsp14;{sections}').format(questions=question_label(), sections=section_label())
             return ugettext(u'{questions} and {sections}').format(questions=question_label(), sections=section_label())
         elif section_count:
             return section_label()
@@ -83,10 +79,7 @@ class PollFormLinesBrick(Brick):
 
         return self._render(self.get_template_context(
                     context,
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pform.pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pform.pk)),
                     nodes=nodes,
-                    # title=mark_safe(self._build_title(nodes)),
                     title=self._build_title(nodes),
                     style=NodeStyle(),
                     line_ct_id=get_ct(PollFormLine).id,  # DEPRECATED
@@ -98,7 +91,6 @@ class PollReplyLinesBrick(Brick):
     id_           = Brick.generate_id('polls', 'pollreply_lines')
     dependencies  = (PollReplyLine,)
     verbose_name  = _(u'Reply lines')
-    # template_name = 'polls/templatetags/block_pollreply_lines.html'
     template_name = 'polls/bricks/preply-lines.html'
     target_ctypes = (PollReply,)
 
@@ -110,8 +102,6 @@ class PollReplyLinesBrick(Brick):
 
         return self._render(self.get_template_context(
                     context,
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, preply.pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, preply.pk)),
                     nodes=nodes,
                     style=NodeStyle(),
         ))
@@ -122,7 +112,6 @@ class PollRepliesBrick(QuerysetBrick):
     dependencies  = (PollReply, PollFormLine)  # PollFormLine : the 'New' button appears only
                                                #  if there is at least one line.
     verbose_name  = _(u'Form replies')
-    # template_name = 'polls/templatetags/block_preplies.html'
     template_name = 'polls/bricks/preplies.html'
     target_ctypes = (PollForm,)
 
@@ -132,8 +121,6 @@ class PollRepliesBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     PollReply.objects.filter(pform=pform),
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pform.pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pform.pk)),
                     ct_reply=get_ct(PollReply),  # DEPRECATED (use 'objects_ctype' instead)
                     # TODO: reuse nodes (PollFormLinesBlock) to avoid a query
                     propose_creation=pform.lines.exists(),
@@ -153,8 +140,6 @@ class _RelatedRepliesBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     self._get_replies(pk),
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pk)),
                     ct_reply=get_ct(PollReply),  # DEPRECATED (use 'objects_ctype' instead)
                     propose_creation=True,
         ))
@@ -162,7 +147,6 @@ class _RelatedRepliesBrick(QuerysetBrick):
 
 class PersonPollRepliesBrick(_RelatedRepliesBrick):
     id_           = _RelatedRepliesBrick.generate_id('polls', 'person_replies')
-    # template_name = 'polls/templatetags/block_person_preplies.html'
     template_name = 'polls/bricks/person-preplies.html'
     target_ctypes = (persons.get_contact_model(), persons.get_organisation_model())
 
@@ -173,7 +157,6 @@ class PersonPollRepliesBrick(_RelatedRepliesBrick):
 class PollCampaignRepliesBrick(_RelatedRepliesBrick):
     id_           = _RelatedRepliesBrick.generate_id('polls', 'pcampaign_replies')
     dependencies  = _RelatedRepliesBrick.dependencies + (PollCampaign,)  # PollCampaign: expected_count can be edited
-    # template_name = 'polls/templatetags/block_campaign_preplies.html'
     template_name = 'polls/bricks/campaign-preplies.html'
     target_ctypes = (PollCampaign,)
 

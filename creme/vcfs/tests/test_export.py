@@ -27,13 +27,7 @@ Organisation = get_organisation_model()
 
 @skipIfCustomContact
 class VcfExportTestCase(CremeTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('creme_core', 'persons')
-
     def _generate_vcf(self, contact, status_code=200):
-        # response = self.client.get('/vcfs/%s/generate_vcf' % contact.id)
         response = self.client.get(reverse('vcfs__export', args=(contact.id,)))
         self.assertEqual(status_code, response.status_code)
 

@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{LANGUAGE_CODE}}" xml:lang="{{LANGUAGE_CODE}}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />{% comment %}<meta http-equiv="X-UA-Compatible" content="IE=8" />{% endcomment %}
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />{# <meta http-equiv="X-UA-Compatible" content="IE=8" /> #}
     <title>{% block page_title %}{% endblock %}Creme CRM</title>
     <script type='text/javascript'>
         var THEME_NAME = "{{THEME_NAME}}";
@@ -25,16 +25,10 @@
         div.main_content {
             padding-top: 40px;
         }
-{% comment %}
-        #top {
-            margin-top: 50px;
-        }
-{% endcomment %}
       {% endif %}
     </style>
     {% block extrahead %}{% endblock %}
 </head>
-{# <body {% block bodyclass %}{% endblock %} #}
 <body class="{% block body_classes %}{% endblock %}"
       data-save-relations-url="{% url 'creme_core__save_relations' %}"
       data-select-relations-objects-url="{% url 'creme_core__select_entities_to_link' %}"

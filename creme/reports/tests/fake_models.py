@@ -34,7 +34,6 @@ else:
             return self.title
 
         def get_absolute_url(self):
-            # return "/reports/tests/folder/%s" % self.id
             return reverse('reports__view_fake_folder', args=(self.id,))
 
 
@@ -61,7 +60,6 @@ else:
 
         @staticmethod
         def get_lv_absolute_url():
-            # return '/reports/tests/documents'
             return reverse('reports__list_fake_documents')
 
 

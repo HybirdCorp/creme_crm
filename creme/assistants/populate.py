@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,7 +40,6 @@ class Populator(BasePopulator):
         for pk, title in USERMESSAGE_PRIORITIES.iteritems():
             create_if_needed(UserMessagePriority, {'pk': pk}, title=unicode(title), is_custom=False)
 
-        # SettingValue.create_if_needed(key=todo_reminder_key, user=None, value=9)
         SettingValue.objects.get_or_create(key_id=todo_reminder_key.id, defaults={'value': 9})
 
         Job.objects.get_or_create(type_id=usermessages_send_type.id,

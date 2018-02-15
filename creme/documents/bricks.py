@@ -21,7 +21,6 @@
 from json import dumps as json_dump
 
 from django.contrib.contenttypes.models import ContentType
-# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField
@@ -34,7 +33,6 @@ from .constants import REL_SUB_RELATED_2_DOC
 
 Folder   = documents.get_folder_model()
 Document = documents.get_document_model()
-# _CT_DOC = ContentType.objects.get_for_model(Document)
 
 
 class DocumentBarHatBrick(SimpleBrick):
@@ -59,7 +57,6 @@ class FolderDocsBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('documents', 'folder_docs')
     dependencies  = (Document,)
     verbose_name  = _(u'Folder documents')
-    # template_name = 'documents/templatetags/block_documents.html'
     template_name = 'documents/bricks/documents.html'
     target_ctypes = (Folder,)
     order_by      = 'title'
@@ -71,9 +68,6 @@ class FolderDocsBrick(QuerysetBrick):
                     context,
                     Document.objects.filter(**q_dict),
                     # Document.objects.filter(is_deleted=False, **q_dict), TODO: problem deleted docs avoid folder deletion...
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, folder_id),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, folder_id)),
-                    # ct_id=_CT_DOC.id,
                     ct_id=ContentType.objects.get_for_model(Document).id,  # DEPRECATED (use 'objects_ctype.id' instead)
                     q_filter=json_dump(q_dict),
         ))
@@ -84,7 +78,6 @@ class ChildFoldersBrick(QuerysetBrick):
     dependencies  = (Folder,)
     order_by      = 'title'
     verbose_name  = _(u'Child Folders')
-    # template_name = 'documents/templatetags/block_child_folders.html'
     template_name = 'documents/bricks/child-folders.html'
     target_ctypes = (Folder,)
 
@@ -94,8 +87,6 @@ class ChildFoldersBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     Folder.objects.filter(parent_folder=folder),
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, folder.id),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, folder.id)),
                     folder_model=Folder,
         ))
 
@@ -105,7 +96,6 @@ class LinkedDocsBrick(QuerysetBrick):
     dependencies  = (Relation, Document)
     relation_type_deps = (REL_SUB_RELATED_2_DOC, )
     verbose_name  = _(u'Linked documents')
-    # template_name = 'documents/templatetags/block_linked_docs.html'
     template_name = 'documents/bricks/linked-docs.html'
 
     def detailview_display(self, context):
@@ -113,12 +103,7 @@ class LinkedDocsBrick(QuerysetBrick):
         btc = self.get_template_context(
                     context,
                     Document.get_linkeddoc_relations(entity),
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.id),
-                    # update_url=reverse('creme_core__reload_detailview_blocks',
-                    #                    args=(self.id_, entity.id),
-                    #                   ),
                     predicate_id=REL_SUB_RELATED_2_DOC,
-                    # ct_doc=_CT_DOC,
                     ct_doc=ContentType.objects.get_for_model(Document),  # DEPRECATED
         )
         relations = btc['page'].object_list

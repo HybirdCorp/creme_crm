@@ -21,7 +21,6 @@ except Exception as e:
 @skipIfCustomSalesOrder
 class SalesOrderTestCase(_BillingTestCase):
     def setUp(self):
-        # _BillingTestCase.setUp(self)
         self.login()
 
     def test_createview01(self):

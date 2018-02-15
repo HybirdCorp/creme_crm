@@ -3,7 +3,6 @@
 
 {% block page_title %}{% blocktrans %}Rendered {{object}}{% endblocktrans %} - {% endblock %}
 
-{# {% block bodyclass %}{% if object.report.is_deleted %}class="is_deleted"{% endif %}{% endblock %} #}
 {% block body_classes %}{% if object.report.is_deleted %}is_deleted{% endif %}{% endblock %}
 
 {% block before_content_1 %}

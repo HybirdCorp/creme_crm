@@ -46,45 +46,5 @@
     </div>
 
     {% include 'reports/bricks/preview.html' %}
-
-{% comment %}
-    <div class='scrollable-block-container report-preview-data'>
-        <table class="table_detail_view ui-corner-all with-header" >
-            <thead>
-                <tr>
-                    <th colspan="{{flat_columns|length}}">
-                        {% if empty_message %}
-                            {% trans 'Preview' %}
-                        {% elif lines|length < limit_to %}
-                            {% blocktrans count lines_count=lines|length %}Preview of {{lines_count}} line{% plural %}Preview of {{lines_count}} lines{% endblocktrans %}
-                        {% else %}
-                            {% blocktrans %}Preview of the {{limit_to}} first lines{% endblocktrans %}
-                        {% endif %}
-                    </th>
-                </tr>
-            </thead>
-            <tbody class="collapsable">
-                {% if not empty_message %}
-                    <tr class="header">
-                        {% for column in flat_columns %}{% cycle "block_header_line_dark" "block_header_line_light" as header_color silent %}
-                            <th class="{{header_color}}">{{column}}</th>
-                        {% endfor %}
-                    </tr>
-                    {% for line in lines %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
-                        <tr class="content">
-                            {% for val in line %}
-                                <td class="{{row_color}}">{{val}}&nbsp;</td>
-                            {% endfor %}
-                        </tr>
-                    {% endfor %}
-                {% else %}
-                    <tr class="content empty">
-                        <td class="block_line_dark">{{empty_message}}</td>
-                    </tr>
-                {% endif %}
-            </tbody>
-        </table>
-    </div>
-{% endcomment %}
 </div>
 {% endblock %}

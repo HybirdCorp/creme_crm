@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -184,10 +184,8 @@ class CrudityBackend(object):
                     elif isinstance(field, BooleanField) and isinstance(field_value, basestring):
                         data[field_name] = field_value = field.to_python(field_value.strip()[0:1].lower()) #Trick to obtain 't'/'f' or '1'/'0'
 
-                    # elif isinstance(field, ForeignKey) and issubclass(field.rel.to, Image):
                     elif isinstance(field, ForeignKey) and issubclass(field.rel.to, Document):
                         filename, blob = field_value  # Should be pre-processed by the input
-                        # upload_path = field.rel.to._meta.get_field('image').upload_to.split('/')
                         upload_path = Document._meta.get_field('filedata').upload_to.split('/')
 
                         if user is None:
@@ -203,10 +201,6 @@ class CrudityBackend(object):
                         else:
                             shift_user_id = user.id
 
-                        # img_entity = Image()
-                        # img_entity.image = handle_uploaded_file(ContentFile(blob), path=upload_path, name=filename)
-                        # img_entity.user_id  = shift_user_id
-                        # img_entity.save()
                         doc_entity = Document(
                                 user_id=shift_user_id,
                                 filedata=handle_uploaded_file(ContentFile(blob), path=upload_path, name=filename),
@@ -219,7 +213,6 @@ class CrudityBackend(object):
                         assign_2_charfield(doc_entity, 'title', filename)
                         doc_entity.save()
 
-                        # setattr(instance, field_name, img_entity)
                         setattr(instance, field_name, doc_entity)
                         data.pop(field_name)
                         continue
@@ -266,7 +259,6 @@ class CrudityBackend(object):
                '%s|%s|%s' % (self.fetcher_name, self.input_name, self.subject)
 
     def get_rendered_buttons(self):  # TODO: deprecate in 1.8
-        # return [button.render(Context({'backend': self}))
         return [button.render({'backend': self})
                     for button in self.buttons if self.is_configured
                ]

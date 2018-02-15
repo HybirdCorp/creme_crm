@@ -17,7 +17,6 @@ class FieldTestCase(CremeTestCase):
     def assertFieldRaises(self, exception, func, *args, **kwargs):
         try:
             func(*args, **kwargs)
-        # except Exception as e:
         except exception as e:
             return e, _format_stack()
 

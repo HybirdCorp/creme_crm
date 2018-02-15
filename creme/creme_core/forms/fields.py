@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,6 @@ from copy import deepcopy
 from functools import partial
 from itertools import chain
 from json import loads as json_load, dumps as json_dump
-# from re import compile as compile_re
 import warnings
 
 from django.apps import apps
@@ -46,7 +45,6 @@ from ..utils.collections import OrderedSet
 from ..utils.date_period import date_period_registry
 from ..utils.date_range import date_range_registry
 from ..utils.queries import get_q_from_dict
-# from .widgets import UnorderedMultipleChoiceWidget
 from . import validators as f_validators
 from . import widgets as core_widgets
 
@@ -235,17 +233,6 @@ class JSONField(fields.CharField):
                                       code='doesnotexist',
                                      )
 
-    # def _create_widget(self):
-    #     raise NotImplementedError
-    #
-    # def _build_widget(self):
-    #     warnings.warn("JSONField._build_widget() is deprecated ; "
-    #                   "set a 'widget' class attribute in your field instead.",
-    #                   DeprecationWarning
-    #                  )
-    #     self.widget = self._create_widget()
-    #     self.widget.from_python = lambda v: self.from_python(v)
-
     def _value_from_unjsonfied(self, data):
         "Build the field value from deserialized data."
         return data
@@ -306,15 +293,8 @@ class EntityCredsJSONField(JSONField):
         return entities
 
 
-# class GenericEntityField(JSONField):
 class GenericEntityField(EntityCredsJSONField):
     widget = core_widgets.CTEntitySelector
-    # default_error_messages = {
-    #     'ctypenotallowed': _(u'This content type is not allowed.'),
-    #     'ctyperequired':   _(u'The content type is required.'),
-    #     'doesnotexist':    _(u'This entity does not exist.'),
-    #     'entityrequired':  _(u'The entity is required.'),
-    # }
     value_type = dict
 
     def __init__(self, models=(), autocomplete=False, creator=True, user=None, *args, **kwargs):
@@ -339,10 +319,6 @@ class GenericEntityField(EntityCredsJSONField):
 
         self._allowed_models = list(allowed)
         self._update_widget_choices()
-
-    # @property
-    # def user(self):
-    #     return self._user
 
     # @user.setter
     @EntityCredsJSONField.user.setter
@@ -371,7 +347,6 @@ class GenericEntityField(EntityCredsJSONField):
     def widget_attrs(self, widget):
         return {'reset': False}
 
-    # def _update_wigets_choices(self):
     def _update_widget_choices(self):
         self.widget.content_types = fields.CallableChoiceIterator(self._get_ctypes_options)
 
@@ -383,8 +358,6 @@ class GenericEntityField(EntityCredsJSONField):
         model = ctype.model_class()
 
         if self._has_quickform(model) and user is not None and user.has_perm_to_create(model):
-            # # return '/creme_core/quickforms/from_widget/%s/add/1' % ctype.pk
-            # return '/creme_core/quickforms/from_widget/%s/add/' % ctype.pk
             return reverse('creme_core__quick_form', args=(ctype.pk,))
 
         return ''
@@ -421,7 +394,6 @@ class GenericEntityField(EntityCredsJSONField):
 
         entity_pk = clean_value(data, 'entity', int, required, 'entityrequired')
 
-        # return self._clean_entity(self._clean_ctype(ctype_pk), entity_pk)
         entity = self._clean_entity(self._clean_ctype(ctype_pk), entity_pk)
 
         return self._check_entity_perms(entity)
@@ -524,7 +496,6 @@ class MultiGenericEntityField(GenericEntityField):
         if not entities_map:
             return self._return_list_or_raise(self.required)
 
-        # return [entities_map[pk] for pk in entities_pks]
         return self._check_entities_perms([entities_map[pk] for pk in entities_pks])
 
 
@@ -542,16 +513,12 @@ class ChoiceModelIterator(object):
         return len(self.queryset)
 
 
-# class RelationEntityField(JSONField):
 class RelationEntityField(EntityCredsJSONField):
     widget = core_widgets.RelationSelector
     default_error_messages = {
         'rtypedoesnotexist': _(u'This type of relationship does not exist.'),
         'rtypenotallowed':   _(u'This type of relationship causes a constraint error.'),
-        # 'ctyperequired':     _(u'The content type is required.'),
         'ctypenotallowed':   _(u'This content type cause constraint error with the type of relationship.'),
-        # 'entityrequired':    _(u'The entity is required.'),
-        # 'doesnotexist':      _(u"This entity doesn't exist."),
         'nopropertymatch':   _(u'This entity has no property that matches the constraints of the type of relationship.'),
     }
     value_type = dict
@@ -783,18 +750,12 @@ class MultiRelationEntityField(RelationEntityField):
         return relations
 
 
-# class CreatorEntityField(JSONField):
 class CreatorEntityField(EntityCredsJSONField):
     widget = core_widgets.EntityCreatorWidget  # The following attributes are set:
                                                # model, q_filter, creation_url, creation_allowed
-    # default_error_messages = {
-    #     'doesnotexist':    _(u"This entity doesn't exist."),
-    #     'entityrequired':  _(u"The entity is required."),
-    # }
     value_type = int
 
     def __init__(self, model=None, q_filter=None,
-                 # create_action_url=None,
                  create_action_url='',
                  user=None, force_creation=False, *args, **kwargs
                 ):
@@ -855,10 +816,6 @@ class CreatorEntityField(EntityCredsJSONField):
     @property
     def q_filter_query(self):
         q_filter = self._q_filter
-        # try:
-        #     return get_q_from_dict(q_filter) if q_filter is not None else None
-        # except:
-        #     raise ValueError('Invalid q_filter %s' % q_filter)
         q = None
 
         if q_filter is not None:
@@ -875,20 +832,12 @@ class CreatorEntityField(EntityCredsJSONField):
 
     @property
     def create_action_url(self):
-        # if self._create_action_url is not None:
         if self._create_action_url:
             return self._create_action_url
 
         model = self._model
 
-        # return None if model is None else (
-        #        # '/creme_core/quickforms/from_widget/%s/add/1' %
-        #        '/creme_core/quickforms/from_widget/%s/add/' %
-        #             ContentType.objects.get_for_model(model).id)
         if model is not None and self._has_quickform(model):
-            # return '/creme_core/quickforms/from_widget/{}/add/'.format(
-            #     ContentType.objects.get_for_model(model).id
-            # )
             return reverse('creme_core__quick_form',
                            args=(ContentType.objects.get_for_model(model).id,),
                           )
@@ -901,11 +850,6 @@ class CreatorEntityField(EntityCredsJSONField):
 
         self._update_creation_info()
 
-    # @property
-    # def user(self):
-    #     return self._user
-
-    # @user.setter
     @EntityCredsJSONField.user.setter
     def user(self, user):
         self._user = user
@@ -918,10 +862,6 @@ class CreatorEntityField(EntityCredsJSONField):
 
         if user and model:
             widget.creation_allowed = user.has_perm_to_create(model)
-            # widget.creation_url = self.create_action_url \
-            #                       if self._has_quickform(model) and (
-            #                           not self._q_filter or self._force_creation) \
-            #                       else ''
             widget.creation_url = self.create_action_url \
                                   if not self._q_filter or self._force_creation \
                                   else ''
@@ -952,7 +892,6 @@ class CreatorEntityField(EntityCredsJSONField):
 
             return None
 
-        # return self._clean_entity_from_model(model, data, self.q_filter_query)
         entity = self._clean_entity_from_model(model, data, self.q_filter_query)
 
         return self._check_entity_perms(entity)
@@ -1005,20 +944,16 @@ class MultiCreatorEntityField(CreatorEntityField):
 class FilteredEntityTypeField(JSONField):
     widget = core_widgets.FilteredEntityTypeWidget
     default_error_messages = {
-        # 'ctyperequired':   _(u'The content type is required.'),
-        # 'ctypenotallowed': _(u'This content type is not allowed.'),
         'invalidefilter':  _(u'This filter is invalid.'),
     }
     value_type = dict
 
-    # def __init__(self, ctypes=creme_entity_content_types, empty_label=None, user=None, *args, **kwargs):
     def __init__(self, ctypes=creme_entity_content_types, empty_label=None, *args, **kwargs):
         """Constructor.
         @param ctypes Allowed types.
                         - A callable which returns an iterable of ContentType IDs / instances.
                         - Sequence of ContentType IDs / instances.
         """
-        # self.user = user
         super(FilteredEntityTypeField, self).__init__(*args, **kwargs)
         self._empty_label = empty_label
         self.ctypes = ctypes
@@ -1082,15 +1017,6 @@ class FilteredEntityTypeField(JSONField):
             efilter = None
         else:
             try:
-                # if self.user:
-                #     efilter = EntityFilter.get_for_user(self.user, ct) \
-                #                           .get(pk=efilter_pk)
-                # else:
-                #     warnings.warn("FilteredEntityTypeField.clean(): 'user' attribute has not been set (so privacy cannot be checked)",
-                #                   DeprecationWarning
-                #                  )
-                #
-                #     efilter = EntityFilter.objects.get(entity_type=ct, pk=efilter_pk)
                 efilter = EntityFilter.get_for_user(self._user, ct).get(pk=efilter_pk)
             except EntityFilter.DoesNotExist:
                 raise ValidationError(self.error_messages['invalidefilter'],
@@ -1246,7 +1172,6 @@ class AjaxModelChoiceField(ModelChoiceField):
     def clean(self, value):
 #        Field.clean(self, value)
 
-        # if value in fields.EMPTY_VALUES:
         if value in self.empty_values:
             return None
 
@@ -1320,8 +1245,6 @@ class MultiEmailField(fields.Field):
 class DatePeriodField(fields.MultiValueField):
     widget = core_widgets.DatePeriodWidget
 
-    # def __init__(self, *args, **kwargs):
-    #     choices = kwargs.pop('choices', None)
     def __init__(self, period_registry=date_period_registry, period_names=None, *args, **kwargs):
         """Constructor.
         @param period_registry: see property 'period_registry'.
@@ -1341,7 +1264,6 @@ class DatePeriodField(fields.MultiValueField):
                                               *args, **kwargs
                                              )
 
-        # self.fields[0].choices = self.widget.choices = list(date_period_registry.choices(choices=choices))
         self._period_registry = period_registry
         self.period_names = period_names
 
@@ -1450,10 +1372,8 @@ class DateRangeField(fields.MultiValueField):
         return {'render_as': self.render_as}
 
 
-# class ColorField(RegexField):
 class ColorField(fields.CharField):
     """A Field which handles HTML colors (e.g: #F2FAB3) without '#' """
-    # regex  = compile_re(r'^([0-9a-fA-F]){6}$')
     default_validators = [validators.validate_color]
     widget = core_widgets.ColorPickerWidget
     default_error_messages = {
@@ -1461,7 +1381,6 @@ class ColorField(fields.CharField):
     }
 
     def __init__(self, *args, **kwargs):
-        # super(ColorField, self).__init__(self.regex, max_length=6, min_length=6, *args, **kwargs)
         super(ColorField, self).__init__(max_length=6, min_length=6, *args, **kwargs)
 
     def clean(self, value):
@@ -1620,13 +1539,10 @@ class MultiCTypeChoiceField(CTypeChoiceField):
 
     def _build_ctype_choices(self, ctypes):
         from ..utils.unicode_collation import collator
-        # from ..registry import creme_registry
 
         Choice = self.widget.Choice
-        # get_app = creme_registry.get_app
         get_app_conf = apps.get_app_config
 
-        # choices = [(Choice(ct.id, help=_(get_app(ct.app_label).verbose_name)),
         choices = [(Choice(ct.id, help=get_app_conf(ct.app_label).verbose_name),
                     unicode(ct),
                    ) for ct in ctypes
@@ -1642,7 +1558,6 @@ class MultiCTypeChoiceField(CTypeChoiceField):
     def to_python(self, value):
         ctypes = []
 
-        # if value not in fields.EMPTY_VALUES:
         if value not in self.empty_values:
             to_python = super(MultiCTypeChoiceField, self).to_python
             ctypes.extend(to_python(ct_id) for ct_id in value)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -73,7 +73,6 @@ def add(request, ct_id):
                       template='creme_core/entity_filter_form.html',
                       extra_initial={'content_type': ct},
                       function_post_save=lambda req, instance: _set_current_efilter(req, callback_url, instance),
-                      # extra_template_dict={'submit_label': _('Save the filter')},
                      )
 
 
@@ -99,7 +98,6 @@ def edit(request, efilter_id):
                                        )
     else:
         efilter_form = EntityFilterEditForm(user=user, instance=efilter)
-        # cancel_url = request.META.get('HTTP_REFERER')
         cancel_url = build_cancel_path(request)
 
     return render(request, 'creme_core/entity_filter_form.html',
@@ -155,7 +153,6 @@ def get_content_types(request, rtype_id):
 
 @login_required
 @utils.jsonify
-# def get_for_ctype(request, ct_id, include_all=False):
 def get_for_ctype(request, ct_id=None, include_all=None):
     GET = request.GET
 

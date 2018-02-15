@@ -905,13 +905,11 @@ class CredentialsTestCase(CremeTestCase):
         team2 = create_team('Teamee 2', [other, user])
         team3 = create_team('Teamee 3', [other])
 
-        # entity1 = CremeEntity.objects.create(user=team1)
         entity1 = FakeContact.objects.create(user=team1, first_name='Munisai', last_name='Shinmen')
         self.assertTrue(user.has_perm_to_view(entity1))  # Belongs to the team
         self.assertFalse(user.has_perm_to_change(entity1))
         self.assertFalse(other.has_perm_to_view(entity1))
 
-        # entity2 = CremeEntity.objects.create(user=team2)
         entity2 = FakeContact.objects.create(user=team2, first_name='Kempo', last_name='Yoshioka')
         self.assertTrue(user.has_perm_to_view(entity2))  # Belongs to the team
         self.assertFalse(user.has_perm_to_change(entity2))
@@ -927,15 +925,13 @@ class CredentialsTestCase(CremeTestCase):
             user.teams
 
         # Filtering ------------------------------------------------------------
-        # entity3 = CremeEntity.objects.create(user=team3)
         entity3 = FakeContact.objects.create(user=team3, first_name='Ryohei', last_name='Ueda')
 
-        # qs = CremeEntity.objects.filter(pk__in=[entity1.id, entity2.id, entity3.id])
         qs = FakeContact.objects.filter(pk__in=[entity1.id, entity2.id, entity3.id])
         efilter = EntityCredentials.filter
         self.assertEqual([entity1.id, entity2.id],
                          self._ids_list(efilter(user, qs, perm=EntityCredentials.VIEW))
-                        ) #belongs to the teams
+                        )  # Belongs to the teams
         self.assertFalse(efilter(user, qs, perm=EntityCredentials.CHANGE))
 
     def test_has_perm_to01(self):

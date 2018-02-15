@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2017  Hybird
+#    Copyright (C) 2015-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,15 +34,9 @@ class GeolocationConfig(CremeAppConfig):
 
         from . import signals
 
-    # def register_creme_app(self, creme_registry):
-    #     creme_registry.register_app('geolocation', _(u'Geolocation'),
-    #                                 '/geolocation', credentials=creme_registry.CRED_NONE,
-    #                                )
-
     def register_bricks(self, brick_registry):
         from . import bricks
 
-        # brick_registry.register(*bricks.block_list)
         brick_registry.register(bricks.GoogleDetailMapBrick,
                                 bricks.GoogleFilteredMapBrick,
                                 bricks.GoogleNeighboursMapBrick,

@@ -10,7 +10,6 @@
 {% endblock %}
 
 {% block content %}
-{#    {% with logo='images/edit_64.png' submit_label=submit_label|default:_('Save the modifications') %} #}
     {% with icon_name='edit' icon_label=_('Edit') submit_label=submit_label|default:_('Save the modifications') %}
         {% if not title %}
             {% include 'creme_core/generics/blockform/base.html' with title=object|format:_('Edit «%s»') %}

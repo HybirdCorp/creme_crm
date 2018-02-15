@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,6 @@ from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
-# from creme.creme_core.registry import NotRegistered
 from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404, jsonify
 from creme.creme_core.utils.db import reorder_instances
 from creme.creme_core.views import bricks as bricks_views, generic
@@ -48,7 +47,6 @@ def _get_appconf(user, app_name):
 
     try:
         app_config = config_registry.get_app(app_name)
-    # except NotRegistered:
     except LookupError:
         raise Http404('Unknown app')
 
@@ -65,7 +63,6 @@ def _get_modelconf(app_config, model_name):
 
 
 def _popup_title(model_conf):
-    # return _(u'New value: %s') % model_conf.model._meta.verbose_name
     model = model_conf.model
     title = getattr(model, 'creation_label', None)
 
@@ -112,9 +109,6 @@ def add_model_from_widget(request, app_name, model_name):
         data = form.instance
 
     return json_update_from_widget_response(data)
-#     return HttpResponse(u'<json>%s</json>' % json_dump(response),
-#                         content_type="text/html",
-#                        )
 
 
 @login_required
@@ -139,7 +133,6 @@ def portal_model(request, app_name, model_name):
                   {'model':             model,
                    'app_name':          app_name,
                    'app_verbose_name':  app_config.verbose_name,
-                   # 'model_name':        model_name,
                    'bricks_reload_url': reverse('creme_config__reload_model_brick', args=(app_name, model_name)),
                    'model_brick':       GenericModelBrick(app_name=app_name, model_name=model_name, model=model),
                   }
@@ -246,7 +239,6 @@ def portal_app(request, app_name):
                   {'app_name':          app_name,
                    'app_verbose_name':  app_config.verbose_name,
                    'app_config':        list(app_config.models()),  # list-> have the length in the template
-                   # 'app_config_blocks': app_config.blocks(),  # Get config registered blocks
                    'app_config_bricks': list(app_config.bricks),  # Get config registered bricks
                    'bricks_reload_url': reverse('creme_config__reload_app_bricks', args=(app_name,)),
                   }

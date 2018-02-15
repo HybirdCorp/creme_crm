@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -225,7 +225,6 @@ class Populator(BasePopulator):
             SearchConfigItem.create_if_needed(model, [], disabled=True)
 
         # ---------------------------
-        # SettingValue.create_if_needed(key=setting_keys.payment_info_key, user=None, value=True)
         SettingValue.objects.get_or_create(key_id=setting_keys.payment_info_key.id, defaults={'value': True})
 
         # ---------------------------
@@ -337,7 +336,6 @@ class Populator(BasePopulator):
                 create_bdl(block_id=cbci.generate_id(),                        order=5,   zone=LEFT, model=model)
                 create_bdl(block_id=core_bricks.CustomFieldsBrick.id_,         order=40,  zone=LEFT, model=model)
                 create_bdl(block_id=bricks.BillingPaymentInformationBrick.id_, order=60,  zone=LEFT, model=model)
-                # create_bdl(block_id=blocks.BillingAddressBlock.id_,            order=70,  zone=LEFT, model=model)
                 create_bdl(block_id=bricks.BillingPrettyAddressBrick.id_,      order=70,  zone=LEFT, model=model)
                 create_bdl(block_id=core_bricks.PropertiesBrick.id_,           order=450, zone=LEFT, model=model)
                 create_bdl(block_id=core_bricks.RelationsBrick.id_,            order=500, zone=LEFT, model=model)

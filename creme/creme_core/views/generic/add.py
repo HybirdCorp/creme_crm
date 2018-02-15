@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -55,13 +55,11 @@ def add_entity(request, form_class, url_redirect='',
         cancel_url = POST.get('cancel_url')
     else:  # GET
         entity_form = form_class(user=request.user, initial=extra_initial)
-        # cancel_url = request.META.get('HTTP_REFERER')
         cancel_url = build_cancel_path(request)
 
     model = form_class._meta.model
     template_dict = {'form':  entity_form,
                      'title': model.creation_label,
-                     # 'submit_label': _('Save the entity'),
                      'submit_label': getattr(model, 'save_label', _(u'Save the entity')),
                      'cancel_url': cancel_url,
                     }
@@ -115,7 +113,6 @@ def add_to_entity(request, entity_id, form_class, title, entity_class=None, init
 
 def add_model_with_popup(request, form_class, title=None, initial=None,
                          template='creme_core/generics/blockform/add_popup.html',
-                         # submit_label=_('Save')):
                          submit_label=None):
     """
     @param title: Title of the Inner Popup.

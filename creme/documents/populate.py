@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,11 +25,10 @@ from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext as _
 
 from creme.creme_core import bricks as core_bricks
-# from creme.creme_core.buttons import merge_entities_button
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (RelationType, BlockDetailviewLocation,
-        SearchConfigItem, HeaderFilter, EntityFilter, EntityFilterCondition)  # ButtonMenuItem
+        SearchConfigItem, HeaderFilter, EntityFilter, EntityFilterCondition)
 from creme.creme_core.utils import create_if_needed
 
 from . import get_document_model, get_folder_model, folder_model_is_custom, constants, bricks
@@ -82,14 +81,6 @@ class Populator(BasePopulator):
                user_qs[0]
 
         if not folder_model_is_custom():
-            # if not Folder.objects.filter(title='Creme').exists():
-            #     # Folder.objects.create(user=get_user_model().objects.get(pk=1),
-            #     Folder.objects.create(user=user,
-            #                           title='Creme', category=entities_cat,
-            #                           description=_(u'Folder containing all the documents related to entities'),
-            #                          )
-            # else:
-            #     logger.info("A Folder with title 'Creme' already exists => no re-creation")
             get_create_folder = Folder.objects.get_or_create
             get_create_folder(uuid=constants.UUID_FOLDER_RELATED2ENTITIES,
                               defaults={
@@ -140,9 +131,6 @@ class Populator(BasePopulator):
 
         # ---------------------------
         if not already_populated:
-            # if not folder_model_is_custom():
-                # Folder.objects.create(user=user, title=_(u'Images'))
-
             LEFT = BlockDetailviewLocation.LEFT
             RIGHT = BlockDetailviewLocation.RIGHT
             create_bdl = BlockDetailviewLocation.create
@@ -154,8 +142,6 @@ class Populator(BasePopulator):
             create_bdl(block_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=Folder)
             create_bdl(block_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=Folder)
             create_bdl(block_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=Folder)
-
-            # ButtonMenuItem.create_if_needed(pk='document-merge_folders_button', model=Folder, button=merge_entities_button,  order=100)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail view')

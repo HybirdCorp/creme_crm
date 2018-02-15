@@ -46,11 +46,6 @@ def skipIfCustomTicketTemplate(test_func):
 
 @skipIfCustomTicket
 class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('tickets')
-
     def test_populate(self):
         for pk, name in BASE_STATUS:
             try:
@@ -97,10 +92,6 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                        criticity=criticity,
                                       )
 
-        # abs_url = '/tickets/ticket/%s' % ticket.pk
-        # self.assertEqual(abs_url, ticket.get_absolute_url())
-        #
-        # response = self.assertGET200(abs_url)
         response = self.assertGET200(ticket.get_absolute_url())
 
         with self.assertNoException():
@@ -333,7 +324,6 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                        criticity=Criticity.objects.all()[0],
                                       )
 
-        # url = '/creme_core/entity/delete/%s' % ticket.pk
         url = ticket.get_delete_absolute_url()
         self.assertTrue(url)
         response = self.assertPOST200(url, follow=True)
@@ -382,7 +372,6 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                        priority=Priority.objects.all()[0],
                                        criticity=Criticity.objects.all()[0],
                                       )
-        # self.assertPOST404('/creme_config/tickets/status/delete', data={'id': status.pk})
         self.assertPOST404(reverse('creme_config__delete_instance', args=('tickets', 'status')),
                            data={'id': status.pk}
                           )
@@ -404,7 +393,6 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                        priority=priority,
                                        criticity=Criticity.objects.all()[0],
                                       )
-        # self.assertPOST404('/creme_config/tickets/priority/delete', data={'id': priority.pk})
         self.assertPOST404(reverse('creme_config__delete_instance', args=('tickets', 'priority')),
                            data={'id': priority.pk}
                           )
@@ -426,7 +414,6 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                        priority=Priority.objects.all()[0],
                                        criticity=criticity,
                                       )
-        # self.assertPOST404('/creme_config/tickets/criticity/delete', data={'id': criticity.pk})
         self.assertPOST404(reverse('creme_config__delete_instance', args=('tickets', 'criticity')),
                            data={'id': criticity.pk}
                           )
@@ -532,11 +519,6 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
 @skipIfCustomTicketTemplate
 class TicketTemplateTestCase(CremeTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('tickets')
-
     def create_template(self, title, description='description', status=None):
         status = status or Status.objects.get(pk=OPEN_PK)
 
@@ -550,12 +532,7 @@ class TicketTemplateTestCase(CremeTestCase):
 
     def test_detailview(self):
         self.login()
-
-        template = self.create_template('Title')
-        # abs_url = '/tickets/template/%s' % template.id
-        # self.assertEqual(abs_url, template.get_absolute_url())
-        # self.assertGET200(abs_url)
-        self.assertGET200(template.get_absolute_url())
+        self.assertGET200(self.create_template('Title').get_absolute_url())
 
     def test_edit(self):
         self.login()
@@ -650,7 +627,6 @@ class TicketTemplateTestCase(CremeTestCase):
 
         template01 = self.create_template('Title01')
         template02 = self.create_template('Title02')
-        # self.assertPOST404('/creme_core/entity/delete/multi',
         self.assertPOST404(reverse('creme_core__delete_entities'),
                            data={'ids': '%s,%s,' % (template01.id, template02.id)}
                           )

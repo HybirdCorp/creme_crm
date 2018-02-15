@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -43,7 +43,6 @@ class AlgoRegistry(object):
         algos = self._algos
 
         for name, algo in to_register:
-            # if algos.has_key(name):
             if name in algos:
                 logger.warning("Duplicate algorithm's id or algo registered twice : %s", name)  # exception instead ???
 

@@ -29,7 +29,6 @@ from django.utils.translation import ugettext as _
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import jsonify
 
-# from creme.crudity.views.actions import fetch
 from creme.crudity import registry
 
 from .. import bricks, constants, get_entityemail_model
@@ -44,12 +43,6 @@ EntityEmail = get_entityemail_model()
 @permission_required('emails')
 def synchronisation(request):
     # TODO: Apply permissions?
-    # return fetch(request, template='emails/synchronize.html',
-    #              ajax_template='emails/frags/ajax/synchronize.html',
-    #              extra_tpl_ctx={
-    #                     'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id,
-    #                 }
-    #             )
     bricks_obj = None
 
     try:

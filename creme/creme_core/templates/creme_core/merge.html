@@ -4,13 +4,12 @@
 {% block page_title %}{% trans 'Merge' %} - {% endblock %}
 
 {% block content %}
-    {% comment %}TODO: move to a js file + init widgets automatically{% endcomment %}
+    {# TODO: move to a js file + init widgets automatically #}
     <script type='text/javascript'>
         $(document).ready(function() {
             creme.merge.initializeMergeForm($('form'));
         });
     </script>
 
-{#    {% include "creme_core/generics/blockform/base.html" with logo='images/merge_64.png' %} #}
     {% include 'creme_core/generics/blockform/base.html' with icon_name='merge' icon_label=_('Merge') %}
 {% endblock %}

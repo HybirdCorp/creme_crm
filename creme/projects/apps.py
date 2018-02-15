@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2017  Hybird
+#    Copyright (C) 2015-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,17 +35,12 @@ class ProjectsConfig(CremeAppConfig):
         self.ProjectTask = get_task_model()
         super(ProjectsConfig, self).all_apps_ready()
 
-    # def register_creme_app(self, creme_registry):
-    #     creme_registry.register_app('projects', _(u'Projects'), '/projects')
-
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Project, self.ProjectTask)
 
     def register_bricks(self, brick_registry):
-        # from .blocks import block_list
         from . import bricks
 
-        # brick_registry.register(*block_list)
         brick_registry.register(bricks.ProjectExtraInfoBrick,
                                 bricks.TaskExtraInfoBrick,
                                 bricks.ProjectTasksBrick,
@@ -72,7 +67,6 @@ class ProjectsConfig(CremeAppConfig):
             from creme.creme_core.auth import build_creation_perm
 
             reg_item = creme_menu.register_app('projects', '/projects/').register_item
-            # reg_item('/projects/',                        _('Portal of projects'), 'projects')
             reg_item(reverse('projects__portal'),         _('Portal of projects'), 'projects')
             reg_item(reverse('projects__list_projects'),  _('All projects'),       'projects')
             reg_item(reverse('projects__create_project'), Project.creation_label,  build_creation_perm(Project))

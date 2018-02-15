@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -48,7 +48,6 @@ Opportunity = get_opportunity_model()
 
 
 def abstract_add_event(request, form=EventForm,
-                       # submit_label=_('Save the event'),
                        submit_label=Event.save_label,
                       ):
     return add_entity(request, form,
@@ -110,7 +109,6 @@ def build_get_actions(event, entity):
     def _get_actions(user):
         return {'default': EntityAction(entity.get_absolute_url(), ugettext(u'See'),
                                         user.has_perm_to_view(entity),
-                                        # icon="images/view_16.png",
                                         icon='view',
                                        ),
                 'others':  [EntityAction(reverse('events__create_related_opportunity',
@@ -118,7 +116,6 @@ def build_get_actions(event, entity):
                                                 ),
                                          ugettext(u'Create an opportunity'),
                                          user.has_perm(cperm(Opportunity)) and user.has_perm_to_link(event),
-                                         # icon="images/opportunity_16.png",
                                          icon='opportunity',
                                         ),
                            ]
@@ -173,12 +170,6 @@ class ListViewPostProcessor(object):
             current_status = constants.INV_STATUS_NO_ANSWER
 
         has_perm = user.has_perm_to_link
-        # select = ["""<select onchange="creme.events.saveContactStatus('/events/event/%s/contact/%s/set_invitation_status', this);" %s>""" % (
-        #                 event.id,
-        #                 entity.id,
-        #                 '' if has_perm(event) and has_perm(entity) else 'disabled="True"'
-        #             )
-        #          ]
         select = ["""<select onchange="creme.events.saveContactStatus('%s', this);" %s>""" % (
                         reverse('events__set_invitation_status', args=(event.id, entity.id)),
                         '' if has_perm(event) and has_perm(entity) else 'disabled="True"',
@@ -207,12 +198,6 @@ class ListViewPostProcessor(object):
             current_status = constants.PRES_STATUS_DONT_KNOW
 
         has_perm = user.has_perm_to_link
-        # select = ["""<select onchange="creme.events.saveContactStatus('/events/event/%s/contact/%s/set_presence_status', this);" %s>""" % (
-        #                 event.id,
-        #                 entity.id,
-        #                 '' if has_perm(event) and has_perm(entity) else 'disabled="True"'
-        #             )
-        #          ]
         select = ["""<select onchange="creme.events.saveContactStatus('%s', this);" %s>""" % (
                         reverse('events__set_presence_status', args=(event.id, entity.id)),
                         '' if has_perm(event) and has_perm(entity) else 'disabled="True"',
@@ -246,7 +231,6 @@ def list_contacts(request, event_id):
 
     return list_view(request, Contact,
                      extra_dict={'list_title': _(u'List of contacts related to «%s»') % event,
-                                 # 'add_url':    '/events/event/%s/link_contacts' % event_id,
                                  'add_url':    '',
                                  'event_entity': event,  # For ID & to check perm (see 'lv_button_link_contacts.html')
                                  'extra_bt_templates': ('events/lv_button_link_contacts.html',),

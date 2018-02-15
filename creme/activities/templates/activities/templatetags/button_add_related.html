@@ -1,12 +1,10 @@
-{% load i18n creme_core_tags %}{% has_perm_to link object as link_perm %}{# activities_tags #}
+{% load i18n creme_core_tags %}{% has_perm_to link object as link_perm %}
 {% if has_perm and link_perm %}
     <a class="menu_button menu-button-icon" href="{% url 'activities__create_related_activity' object.id %}{% if activity_type %}?activity_type={{activity_type}}{% endif %}">
-{#         {% get_activity_icon activity_type 'medium' %}{{verbose_name}} #}
         {{icon.render}}{{verbose_name}}
     </a>
 {% else %}
     <span class="menu_button menu-button-icon forbidden" title="{% trans 'forbidden' %}">
-{#         {% get_activity_icon activity_type 'medium' %}{{verbose_name}} #}
         {{icon.render}}{{verbose_name}}
     </span>
 {% endif %}

@@ -52,16 +52,7 @@ class AutoIncr:
 class _PollsTestCase(CremeTestCase):
     ADD_REPLY_URL = reverse('polls__create_reply')
 
-    # @classmethod
-    # def setUpClass(cls):
-    #     # CremeTestCase.setUpClass()
-    #     super(_PollsTestCase, cls).setUpClass()
-    #     # cls.populate('polls')
-    #
-    #     cls.ADD_REPLY_URL = reverse('polls__create_reply')
-
     def _build_stats_url(self, pform):
-        # return '/polls/poll_form/stats/%s' % pform.id
         return reverse('polls__form_stats', args=(pform.id,))
 
     def _get_formline_creator(self, pform):

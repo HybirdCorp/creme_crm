@@ -77,9 +77,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
 
     @classmethod
     def setUpClass(cls):
-        # ViewsTestCase.setUpClass()
         super(MassImportViewsTestCase, cls).setUpClass()
-        # cls.populate('creme_core')
         Job.objects.all().delete()
 
         cls.ct = ContentType.objects.get_for_model(FakeContact)
@@ -131,14 +129,11 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                                    )
         self.assertNoFormError(response)
 
-        # with self.assertNoException():
-        #     form = response.context['form']
         jobs = Job.objects.all()
         self.assertEqual(1, len(jobs))
 
         job = jobs[0]
         self.assertEqual(self.user, job.user)
-        # self.assertLess((now() - job.created).seconds, 1)
         self.assertIsNone(job.last_run)
         self.assertIsInstance(job.data, dict)
         self.assertEqual(Job.STATUS_WAIT, job.status)
@@ -156,20 +151,16 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                         )  # TODO: description of columns ????
 
         self.assertRedirects(response, job.get_absolute_url())
-        # self.assertContains(response, ' id="%s"' % MassImportJobErrorsBlock.id_)
+
         tree = self.get_html_tree(response.content)
         self.get_brick_node(tree, MassImportJobErrorsBrick.id_)
 
         mass_import_type.execute(job)
 
         lines_count = len(lines)
-        # self.assertFalse(list(form.import_errors))
-        # self.assertEqual(lines_count, form.imported_objects_count)
-        # self.assertEqual(lines_count, form.lines_count)
         self.assertEqual(count + lines_count, FakeContact.objects.count())
         self.assertDatetimesAlmostEqual(now(), job.last_run)
 
-        # self.assertEqual(count + lines_count, Contact.objects.count())
 
         contacts = []
         for first_name, last_name in lines:
@@ -226,7 +217,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         self.assertIsInstance(result, list)
         self.assertEqual(2, len(result))
         self.assertEqual(brick_id, result[0])
-        # self.assertIn(' id="%s"' % brick_id, result[1])
+
         tree = self.get_html_tree(result[1])
         self.get_brick_node(tree, brick_id)
 
@@ -308,14 +299,9 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                     )
         self.assertNoFormError(response)
 
-        # with self.assertNoException():
-        #     form = response.context['form']
         job = self._execute_job(response)
 
         lines_count = len(lines) - 1  # '-1' for header
-        # self.assertEqual(lines_count, len(form.import_errors))  # Sector not found
-        # self.assertEqual(lines_count, form.imported_objects_count)
-        # self.assertEqual(lines_count, form.lines_count)
         self.assertEqual(contact_count + lines_count, FakeContact.objects.count())
 
         positions = FakePosition.objects.exclude(id__in=position_ids)
@@ -378,9 +364,6 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                                    )
         self.assertNoFormError(response)
 
-        # form = response.context['form']
-        # self.assertEqual(0, len(form.import_errors))  # Sector not found
-        # self.assertEqual(1, form.imported_objects_count)
         job = self._execute_job(response)
 
         contacts = FakeContact.objects.exclude(id__in=contact_ids)
@@ -449,7 +432,6 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                                              ),
                                    )
         self.assertNoFormError(response)
-        # self.assertEqual([], list(response.context['form'].import_errors))
 
         job = self._execute_job(response)
         self.assertEqual(len(lines) - 1, FakeContact.objects.exclude(id__in=contact_ids).count())
@@ -464,12 +446,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
     def test_default_value(self):
         "Use default value when CSV value is empty (+ fix unicode bug)"
         self.login()
-        # contact_ids = list(FakeContact.objects.values_list('id', flat=True))
-        #
-        # orga_name = 'Nerv'
-        # self.assertFalse(FakeOrganisation.objects.filter(name=orga_name))
 
-        # doc = self._build_csv_doc([('Ayanami', 'Rei', orga_name)])
         first_name = u'Gentoku'
         last_name = u'Ryûbi'
         doc = self._build_csv_doc([(first_name, '')])
@@ -486,21 +463,6 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
             self._execute_job(response)
 
         self.get_object_or_fail(FakeContact, last_name=last_name, first_name=first_name)
-
-        # contacts = FakeContact.objects.exclude(id__in=contact_ids)
-        # self.assertEqual(1, len(contacts))
-
-        # rei = contacts[0]
-        # relations = Relation.objects.filter(subject_entity=rei, type=employed)
-        # self.assertEqual(1, len(relations))
-        #
-        # employer = relations[0].object_entity.get_real_entity()
-        # self.assertIsInstance(employer, FakeOrganisation)
-        # self.assertEqual(orga_name, employer.name)
-        #
-        # results = self._get_job_results(job)
-        # self.assertEqual(1, len(results))
-        # self.assertFalse(results[0].messages)
 
     def _get_cf_values(self, cf, entity):
         return self.get_object_or_fail(cf.get_value_class(), custom_field=cf, entity=entity)
@@ -570,13 +532,6 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         self.assertFalse(cf_int.get_value_class().objects.filter(entity=ryomou))
         self.assertEqual(Decimal('48'), get_cf_values(cf_dec, ryomou).value)
 
-        # errors = list(response.context['form'].import_errors)
-        # self.assertEqual(1, len(errors))
-        #
-        # error = errors[0]
-        # self.assertEqual(list(lines[4]), error.line)
-        # self.assertEqual(_('Enter a whole number.'), unicode(error.message))
-        # self.assertEqual(ryomou, error.instance)
         results = self._get_job_results(job)
         self.assertEqual(4, len(results))
 
@@ -646,21 +601,6 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         self.assertFalse(cf_enum.get_value_class().objects.filter(entity=kanu))
         self.assertEqual([spear], list(get_cf_values(cf_menum, kanu).value.all()))
 
-        # errors = list(response.context['form'].import_errors)
-        # self.assertEqual(1, len(errors))
-        #
-        # error = errors[0]
-        # self.assertEqual(list(lines[2]), error.line)
-        # self.assertEqual(_(u'Error while extracting value: tried to retrieve '
-        #                    u'the choice "%(value)s" (column %(column)s). '
-        #                    u'Raw error: [%(raw_error)s]') % {
-        #                         'raw_error': 'CustomFieldEnumValue matching query does not exist.',
-        #                         'column':    3,
-        #                         'value':     'strangulation',
-        #                     },
-        #                  unicode(error.message)
-        #                 )
-        # self.assertEqual(kanu, error.instance)
         results = self._get_job_results(job)
         self.assertEqual(2, len(results))
 
@@ -742,7 +682,6 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
 
         self.assertEqual(2, CustomFieldEnumValue.objects.filter(custom_field=cf_enum).count())  # Not '' choice
 
-        # self.assertEqual(0, len(response.context['form'].import_errors))
         self._assertNoResultError(self._get_job_results(job))
 
     def test_csv_import_customfields04(self):
@@ -1047,14 +986,6 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         self.assertNoFormError(response)
         job = self._execute_job(response)
 
-        # with self.assertNoException():
-        #     form = response.context['form']
-        #
-        # self.assertEqual(0, len(form.import_errors))
-        # self.assertEqual(2, form.lines_count)
-        # self.assertEqual(1, form.imported_objects_count)
-        # self.assertEqual(1, form.updated_objects_count)
-
         self.assertEqual(count + 1, FakeContact.objects.count())
 
         rei = self.refresh(rei)
@@ -1119,30 +1050,14 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                                    )
         self.assertNoFormError(response)
 
-        # with self.assertNoException():
-        #     form = response.context['form']
-        #
-        # self.assertEqual(1, form.lines_count)
-        # self.assertEqual(1, form.imported_objects_count)
-        # self.assertEqual(0, form.updated_objects_count)
         job = self._execute_job(response)
 
         self.assertEqual(count + 1, FakeContact.objects.count())
         rei = self.get_object_or_fail(FakeContact, last_name=last_name, first_name=first_name)
 
-        # errors = form.import_errors
-        # self.assertEqual(1, len(errors))
         results = self._get_job_results(job)
         self.assertEqual(1, len(results))
 
-        # error = iter(errors).next()
-        # self.assertEqual([last_name, first_name], error.line)
-        # self.assertEqual(_('Several entities corresponding to the search have been found. '
-        #                    'So a new entity have been created to avoid errors.'
-        #                   ),
-        #                  unicode(error.message)
-        #                 )
-        # self.assertEqual(rei, error.instance)
         jr_errors = [r for r in results if r.messages]
         self.assertEqual(1, len(jr_errors))
 
@@ -1180,12 +1095,6 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                                    )
         self.assertNoFormError(response)
 
-        # with self.assertNoException():
-        #     form = response.context['form']
-        #
-        # self.assertEqual(1, form.lines_count)
-        # self.assertEqual(1, form.imported_objects_count)
-        # self.assertEqual(0, form.updated_objects_count)
         job = self._execute_job(response)
 
         self.assertEqual(count + 1, FakeContact.objects.count())
@@ -1304,12 +1213,8 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         self.assertEqual(first_name, kanu.get_real_entity().first_name)
         self.assertEqual([_(u'Enter a valid date.')], j_error.messages)
 
-        # response = self.assertGET200('/creme_core/mass_import/dl_errors/%s' % job.id, follow=True)
         response = self.assertGET200(self._build_dl_errors_url(job), follow=True)
 
-        # self.assertEqual('attachment; filename=%s-errors.%s' % (slugify(doc.title), ext),
-        #                  response['Content-Disposition']
-        #                 )
         cdisp = response['Content-Disposition']
         self.assertTrue(cdisp.startswith('attachment; filename=%s-errors' % slugify(doc.title)),
                         'Content-Disposition: not expected: %s' % cdisp
@@ -1327,7 +1232,6 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         separator = u','
 
         return [[i[1:-1] for i in line.split(separator)]
-                    # for line in response.content.splitlines()
                     for line in smart_unicode(response.content).splitlines()
                ]
 

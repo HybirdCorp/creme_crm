@@ -4,7 +4,6 @@ try:
     from StringIO import StringIO
     from os.path import join, dirname, abspath
     from xml.etree.ElementTree import XML, tostring
-    #from xml.parsers import expat
 
     from django.core.files import File
 
@@ -203,8 +202,7 @@ class ActiveSyncWbxmlTestCase(CremeTestCase):
 
     def test_encoder05(self):
         self.assertRaises(WrongXMLType, WBXMLEncoder(AirsyncDTD_Reverse).encode, None)
-        #self.assertRaises(expat.ExpatError, WBXMLEncoder(AirsyncDTD_Reverse).encode, '')
-        self.assertRaises(Exception, WBXMLEncoder(AirsyncDTD_Reverse).encode, '') #expat.ExpatError in py2.6, ParseError in py2.7
+        self.assertRaises(Exception, WBXMLEncoder(AirsyncDTD_Reverse).encode, '')
 
     def test_encoder06(self):
         xml_str   = self._open_n_read('test_6.xml')
@@ -215,7 +213,6 @@ class ActiveSyncWbxmlTestCase(CremeTestCase):
 
     def test_encoder07(self):
         for xml_file, wbxml_file in self.files:
-            #print "Testing with files (%s, %s)" % (xml_file, wbxml_file)
             xml_str   = self._open_n_read(xml_file)
             wbxml_str = self._open_n_read(wbxml_file)
 
@@ -396,7 +393,7 @@ class ActiveSyncWbxmlTestCase(CremeTestCase):
         decoder = self.decoder
 
         for xml, wbxml in self.files:
-            #print "Testing with files (%s, %s)" % (xml, wbxml)
+            # print "Testing with files (%s, %s)" % (xml, wbxml)
             wbxml_str = self._open_n_read(wbxml)
 
             decoded   = decoder.decode(wbxml_str)
@@ -406,7 +403,7 @@ class ActiveSyncWbxmlTestCase(CremeTestCase):
     ################ Encoder - decoder test ################
     def test_encoder_decoder01(self):
         xml_str = self._open_n_read('test_6.xml')
-        xml     = XML(xml_str)#ElementTree instance
+        xml     = XML(xml_str)  # ElementTree instance
 
         encoded = self.encoder.encode(xml_str)
         decoded = self.decoder.decode(encoded)
@@ -414,7 +411,7 @@ class ActiveSyncWbxmlTestCase(CremeTestCase):
 
     def test_encoder_decoder02(self):
         xml_str = self._open_n_read('test_1.xml')
-        xml     = XML(xml_str)#ElementTree instance
+        xml     = XML(xml_str)  # ElementTree instance
 
         encoded = self.encoder.encode(xml_str)
         decoded = self.decoder.decode(encoded)
@@ -423,7 +420,7 @@ class ActiveSyncWbxmlTestCase(CremeTestCase):
     def test_encoder_decoder03(self):
         for xml_file, wbxml_file in self.files:
             xml_str = self._open_n_read(xml_file)
-            xml     = XML(xml_str)#ElementTree instance
+            xml     = XML(xml_str)  # ElementTree instance
 
             encoded = self.encoder.encode(xml_str)
             decoded = self.decoder.decode(encoded)

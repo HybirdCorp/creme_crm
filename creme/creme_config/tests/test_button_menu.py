@@ -13,20 +13,13 @@ except Exception as e:
 
 
 class ButtonMenuConfigTestCase(CremeTestCase):
-    # ADD_URL = '/creme_config/button_menu/add/'
     ADD_URL = reverse('creme_config__add_buttons_to_ctype_legacy')
-    # WIZARD_URL = '/creme_config/button_menu/wizard/'
     WIZARD_URL = reverse('creme_config__add_buttons_to_ctype')
-    # DEL_URL = '/creme_config/button_menu/delete'
     DEL_URL = reverse('creme_config__delete_ctype_buttons')
 
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
         super(ButtonMenuConfigTestCase, cls).setUpClass()
-        # # ButtonMenuItem.objects.all().delete()
-        # # cls.populate('creme_core', 'creme_config')
-        # cls.populate()
 
         cls.contact_ct = ct = ContentType.objects.get_for_model(FakeContact)
         contact_conf = ButtonMenuItem.objects.filter(content_type=ct)
@@ -35,7 +28,6 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        # CremeTestCase.tearDownClass()
         super(ButtonMenuConfigTestCase, cls).tearDownClass()
 
         ButtonMenuItem.objects.bulk_create(cls._buttonconf_backup)
@@ -44,7 +36,6 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.login()
 
     def test_portal(self):
-        # self.assertGET200('/creme_config/button_menu/portal/')
         self.assertGET200(reverse('creme_config__buttons'))
 
     def test_add_detailview(self):
@@ -179,7 +170,6 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.client.post(self.ADD_URL, data={'ctype': ct.id})
         self.assertEqual(1, ButtonMenuItem.objects.filter(content_type=ct).count())
 
-        # url = '/creme_config/button_menu/edit/%s' % ct.id
         url = reverse('creme_config__edit_ctype_buttons', args=(ct.id,))
         response = self.assertGET200(url)
 

@@ -23,7 +23,6 @@ try:
             Contact, Organisation, EmailCampaign, EmailTemplate, MailingList)
     from ..constants import SETTING_EMAILCAMPAIGN_SENDER, MAIL_STATUS_NOTSENT
     from ..creme_jobs import campaign_emails_send_type
-    # from ..management.commands.emails_send import Command as EmailsSendCommand
     from ..models import EmailSending, EmailRecipient, LightWeightEmail
     from ..models.sending import (SENDING_TYPE_IMMEDIATE, SENDING_TYPE_DEFERRED,
             SENDING_STATE_DONE, SENDING_STATE_PLANNED)
@@ -40,7 +39,6 @@ class SendingsTestCase(_EmailsTestCase):
             return loads(data.encode('utf-8'))
 
     def _build_add_url(self, campaign):
-        # return '/emails/campaign/%s/sending/add' % campaign.id
         return reverse('emails__create_sending', args=(campaign.id,))
 
     def _get_job(self):
@@ -49,12 +47,7 @@ class SendingsTestCase(_EmailsTestCase):
     def _send_mails(self, job=None):
         campaign_emails_send_type.execute(job or self._get_job())
 
-    # def repopulate_email(self):
-    #     SettingValue.objects.filter(key_id=SETTING_EMAILCAMPAIGN_SENDER).delete()
-    #     self.populate('emails')
-
     def test_sender_setting01(self):
-        # self.repopulate_email()
         user = self.login()
         camp = EmailCampaign.objects.create(user=user, name='camp01')
         template = EmailTemplate.objects.create(user=user, name='name',
@@ -91,7 +84,6 @@ class SendingsTestCase(_EmailsTestCase):
                              _(u"You are not allowed to modify the sender address, please contact your administrator."))
 
     def test_sender_setting02(self):
-        # self.repopulate_email()
         user = self.login(is_superuser=False,
                           allowed_apps=('emails',),
                           creatable_models=(EmailSending, EmailCampaign),
@@ -251,22 +243,18 @@ class SendingsTestCase(_EmailsTestCase):
         mail = mails[0]
         self.assertEqual(0, mail.reads)
         self.assertEqual(MAIL_STATUS_NOTSENT, mail.status)
-        # self.assertGET200('/emails/mails_history/%s' % mail.id)
         self.assertGET200(reverse('emails__view_lw_mail', args=(mail.id,)))
 
-        # response = self.assertGET200('/emails/mail/get_body/%s' % mail.id)
         response = self.assertGET200(reverse('emails__lw_mail_body', args=(mail.id,)))
         self.assertEqual(u'', response.content)
 
         # Popup detail view -----------------------------------------------------
-        # response = self.assertPOST200('/emails/campaign/sending/%s' % sending.id)
         response = self.assertPOST200(reverse('emails__view_sending', args=(sending.id,)))
         self.assertContains(response, contacts[0].email)
         self.assertContains(response, orgas[0].email)
 
         # Test delete campaign --------------------------------------------------
         camp.trash()
-        # self.assertPOST(302, '/creme_core/entity/delete/%s' % camp.id)
         self.assertPOST(302, camp.get_delete_absolute_url())
         self.assertFalse(EmailCampaign.objects.exists())
         self.assertFalse(EmailSending.objects.exists())
@@ -310,18 +298,14 @@ class SendingsTestCase(_EmailsTestCase):
         with self.assertNoException():
             mail = sending.mails_set.all()[0]
 
-        # self.assertEqual('Your first name is: %s !' % first_name, mail.get_body())
         self.assertEqual('Your first name is: %s !' % first_name, mail.rendered_body)
 
         html = '<p>Your last name is: %s !</p>' % last_name
-        # self.assertEqual(html, mail.get_body_html())
         self.assertEqual(html, mail.rendered_body_html)
-        # self.assertEqual(html, self.client.get('/emails/mail/get_body/%s' % mail.id).content)
         self.assertEqual(html, self.client.get(reverse('emails__lw_mail_body', args=(mail.id,))).content)
 
         # test delete sending --------------------------------------------------
         ct = ContentType.objects.get_for_model(EmailSending)
-        # self.assertPOST(302, '/creme_core/entity/delete_related/%s' % ct.id, data={'id': sending.pk})
         self.assertPOST(302, reverse('creme_core__delete_related_to_entity', args=(ct.id,)), data={'id': sending.pk})
         self.assertDoesNotExist(sending)
         self.assertDoesNotExist(mail)
@@ -371,7 +355,6 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertEqual(job, jobs[0][0])
 
         queue.clear()
-        # EmailsSendCommand().execute(verbosity=0)
         self._send_mails(job)
 
         with self.assertNoException():
@@ -481,11 +464,10 @@ class SendingsTestCase(_EmailsTestCase):
 
     def test_inneredit(self):
         user = self.login()
-        camp     = EmailCampaign.objects.create(user=user, name='camp01')
-        #template = EmailTemplate.objects.create(user=user, name='name', subject='subject', body='body')
-        sending  = EmailSending.objects.create(campaign=camp, type=SENDING_TYPE_IMMEDIATE,
-                                               sending_date=now(), state=SENDING_STATE_PLANNED,
-                                              )
+        camp = EmailCampaign.objects.create(user=user, name='camp01')
+        sending = EmailSending.objects.create(campaign=camp, type=SENDING_TYPE_IMMEDIATE,
+                                              sending_date=now(), state=SENDING_STATE_PLANNED,
+                                             )
 
         build_url = self.build_inneredit_url
         self.assertGET(400, build_url(sending, 'campaign'))
@@ -560,7 +542,6 @@ class SendingsTestCase(_EmailsTestCase):
         camp.trash()
         self.assertIsNone(job.type.next_wakeup(job, now()))
 
-        # EmailsSendCommand().execute(verbosity=0)
         self._send_mails(job)
         self.assertFalse(django_mail.outbox)
 

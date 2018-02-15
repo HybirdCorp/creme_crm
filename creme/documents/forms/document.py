@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,10 +23,8 @@ from os.path import basename
 
 from django.core.exceptions import ValidationError
 from django.db.transaction import atomic
-# from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeEntityForm
-# from creme.creme_core.forms.fields import CreatorEntityField
 from creme.creme_core.forms.validators import validate_linkable_model
 from creme.creme_core.models import Relation
 from creme.creme_core.models.utils import assign_2_charfield
@@ -47,11 +45,6 @@ class _DocumentBaseForm(CremeEntityForm):  # TODO: rename to_DocumentCreateBaseF
     class Meta(CremeEntityForm.Meta):
         model = Document
 
-    # def clean_filedata(self):
-    #     return str(handle_uploaded_file(self.cleaned_data['filedata'],
-    #                                     path=['upload', 'documents'],
-    #                                    )
-    #               )
     def __init__(self, *args, **kwargs):
         super(_DocumentBaseForm, self).__init__(*args, **kwargs)
         title_f = self.fields['title']
@@ -74,12 +67,10 @@ class _DocumentBaseForm(CremeEntityForm):  # TODO: rename to_DocumentCreateBaseF
 
 
 class DocumentCreateForm(_DocumentBaseForm):
-    # folder = CreatorEntityField(label=_(u'Folder'), model=Folder)
     pass
 
 
 class DocumentEditForm(CremeEntityForm):
-    # folder = CreatorEntityField(label=_(u'Folder'), model=Folder)
     pass
 
     class Meta(CremeEntityForm.Meta):

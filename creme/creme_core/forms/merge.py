@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -110,23 +110,6 @@ class MergeField(Field):
         self._restricted_queryset = None
 
         self.user = user
-
-        # if isinstance(model_field, ForeignKey) and issubclass(model_field.rel.to, CremeEntity):
-        #     qs = modelform_field.queryset
-        #     self._restricted_queryset = qs
-        #     modelform_field.queryset = qs.none()
-#         if model_field and model_field.is_relation and issubclass(model_field.rel.to, CremeEntity):
-            # TODO: use (Multi)CreatorEntityField when the widgets are fixed
-            #       (ie: manage disabling, not multiple 'clean' buttons)
-#             from django.forms import ModelChoiceField, ModelMultipleChoiceField
-# 
-#             self._restricted_queryset = qs = model_field.rel.to.objects.all()
-# 
-#             field_cls = ModelMultipleChoiceField if model_field.many_to_many else ModelChoiceField
-#             self._original_field = modelform_field = field_cls(queryset=qs.none(), label=model_field.rel.to._meta,
-#                                                                required=not model_field.blank,
-#                                                               )
-#             self.widget = MergeWidget(modelform_field.widget)
 
     @property
     def user(self):

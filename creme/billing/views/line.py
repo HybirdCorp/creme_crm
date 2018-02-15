@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ from json import loads as jsonloads
 from django.forms.models import modelformset_factory
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render
-from django.utils.translation import ugettext_lazy as _  # ugettext
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
@@ -164,24 +164,6 @@ def multi_save_lines(request, document_id):
             for form in lineformset:
                 if form.errors:
                     instance = form.instance
-                    # # We retrieve the line again because the field 'on_the_fly_item' may have been cleaned
-                    # # todo: avoid this query
-                    # on_the_fly = line_model.objects.get(pk=instance.pk).on_the_fly_item if instance.pk else \
-                    #              ugettext(u'on the fly [creation]')
-                    #
-                    # errors.append(u'%s <b>%s</b> : <br>%s' % (
-                    #                 ugettext(u'Errors on the line'),
-                    #                 on_the_fly if on_the_fly else instance.related_item,
-                    #                 u''.join(u"==> %s : %s" % (ugettext(u'General'), msg) if field == '__all__' else
-                    #                          u'==> %s "<i>%s</i>" : %s' % (
-                    #                                 ugettext(u'Specific on the field'),  # todo: format string instead
-                    #                                 line_model._meta.get_field(field).verbose_name,
-                    #                                 msg,
-                    #                             )
-                    #                             for field, msg in form.errors.items()
-                    #                         )
-                    #                 )
-                    #              )
                     item = None
 
                     if instance.pk:
@@ -199,9 +181,6 @@ def multi_save_lines(request, document_id):
                                  )
 
     if errors:
-        # return HttpResponse(u'<center>--------------------</center><br>'.join(errors),
-        #                     content_type='text/plain', status=409,
-        #                    )
         return render(request, 'billing/frags/lines-errors.html', context={'errors': errors}, status=409)
 
     # Save all formset now that we haven't detect any errors

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2017  Hybird
+#    Copyright (C) 2012-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,7 +41,6 @@ class PollFormLineConditionsWidget(SelectorList):
         src_name = 'source'
         add = partial(chained_input.add_dselect, attrs={'auto': False})
         add(src_name, options=self.sources)
-        # add('choice', options='/polls/pform_line/${source}/choices')
         add('choice',
             options=TemplateURLBuilder(line_id=(TemplateURLBuilder.Int, '${%s}' % src_name))
                                       .resolve('polls__form_line_choices')

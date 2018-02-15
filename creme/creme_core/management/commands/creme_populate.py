@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from imp import find_module
 from importlib import import_module
 import sys
 from traceback import format_exception
@@ -30,7 +29,6 @@ from django.db import connections, DEFAULT_DB_ALIAS
 from django.db.models.signals import pre_save
 
 from creme.creme_core.apps import creme_app_configs
-# from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils import safe_unicode_error, safe_unicode
 from creme.creme_core.utils.collections import OrderedSet
 from creme.creme_core.utils.dependence_sort import dependence_sort
@@ -113,23 +111,6 @@ class Command(BaseCommand):
         while True:
             changed = False
 
-            # for app in apps_2_populate:
-            #     try:
-            #         populator = self._get_populate_module(app) \
-            #                         .populate \
-            #                         .Populator(verbosity, app, all_apps, options, self.stdout, self.style)
-            #     except ImportError:
-            #         if verbosity >= 1:
-            #             self.stdout.write(self.style.NOTICE('Disable populate for "%s": '
-            #                                                 'it does not have any "populate.py" script.' % app
-            #                                                )
-            #                              )
-            #     else:
-            #         assert isinstance(populator, BasePopulator)
-            #         populators.append(populator)
-            #         populators_names.add(app)
-            #         total_deps.update(populator.dependencies)
-            #         changed = True
             for app_label in apps_2_populate:
                 populator = self._get_populator(app_label=app_label, verbosity=verbosity, all_apps=all_apps, options=options)
 
@@ -208,12 +189,6 @@ class Command(BaseCommand):
 
         if verbosity >= 1:
             self.stdout.write(self.style.MIGRATE_SUCCESS('Populate is OK.'))
-
-    # def _get_populate_module(self, app_label):
-    #     app_name = apps.get_app_config(app_label).name
-    #     find_module('populate', __import__(app_name, globals(), locals(), [app_label]).__path__)
-    #
-    #     return __import__(app_name, globals(), locals(), ['populate'])
 
     def _get_populator(self, app_label, verbosity, all_apps, options):
         try:

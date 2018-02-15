@@ -20,11 +20,6 @@ except Exception as e:
 
 @skipIfCustomAddress
 class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('creme_core', 'persons')
-
     def login(self, create_orga=True, *args, **kwargs):
         super(AddressTestCase, self).login(*args, **kwargs)
 
@@ -113,15 +108,6 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(department, address.department)
 
         response = self.client.get(orga.get_absolute_url())
-        # self.assertContains(response, 'id="%s"' % other_address_block.id_)
-        # self.assertContains(response, name)
-        # self.assertContains(response, address_value)
-        # self.assertContains(response, po_box)
-        # self.assertContains(response, city)
-        # self.assertContains(response, state)
-        # self.assertContains(response, zipcode)
-        # self.assertContains(response, country)
-        # self.assertContains(response, department)
         brick_node = self.get_brick_node(self.get_html_tree(response.content), PrettyOtherAddressesBrick.id_)
         fields = {elt.text for elt in brick_node.findall(".//span[@class='address-option-value']")}
         self.assertIn(department, fields)
@@ -131,7 +117,6 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomOrganisation
     def test_create_billing01(self):
         orga = self.login()
-        # self.assertGET404('/persons/address/add/invalid/%s' % orga.id)
 
         url = reverse('persons__create_billing_address', args=(orga.id,))
         response = self.assertGET200(url)
@@ -302,7 +287,6 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         address = Address.objects.filter(object_id=orga.id)[0]
         ct = ContentType.objects.get_for_model(Address)
 
-        # self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': address.id})
         self.client.post(reverse('creme_core__delete_related_to_entity', args=(ct.id,)), data={'id': address.id})
         self.assertFalse(Address.objects.filter(object_id=orga.id).exists())
 

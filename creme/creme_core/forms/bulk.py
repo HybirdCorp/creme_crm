@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,28 +24,17 @@ import re
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse, NoReverseMatch
-from django.db.models.fields.related import ManyToManyField  # RelatedField ForeignKey
-# from django.db.models.query_utils import Q
+from django.db.models.fields.related import ManyToManyField
 from django.forms.fields import ChoiceField
 from django.forms.forms import NON_FIELD_ERRORS
-# from django.forms.models import ModelMultipleChoiceField
 from django.forms.widgets import Select
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-# from creme.creme_config.forms.fields import CreatorModelChoiceField
-
 from ..gui.bulk_update import bulk_update_registry
-# from ..models import CremeEntity
 from ..models import custom_field
 
 from .base import CremeForm
-# from .fields import CreatorEntityField, MultiCreatorEntityField
-# from .widgets import UnorderedMultipleChoiceWidget
 
-
-# _BULK_FIELD_WIDGETS = {
-#
-# }
 
 _CUSTOMFIELD_PATTERN = re.compile('^customfield-(?P<id>[0-9]+)')
 _CUSTOMFIELD_FORMAT = 'customfield-%d'
@@ -70,17 +59,12 @@ class BulkForm(CremeForm):
         self.model_field = field
         self.model_parent_field = parent_field
         self.entities = entities
-        # self.bulk_url = '/creme_core/entity/update/bulk/%(ct)s/field/%(field)s'
         self.bulk_viewname = 'creme_core__bulk_update'
 
     @property
-    # def bulk_url(self):
-    #     return self._bulk_url_format
     def bulk_viewname(self):
         return self._bulk_viewname
 
-    # @bulk_url.setter
-    # def bulk_url(self, url):
     @bulk_viewname.setter
     def bulk_viewname(self, viewname):
         self._bulk_viewname = viewname
@@ -100,11 +84,6 @@ class BulkForm(CremeForm):
             )
 
     def _bulk_field_url(self, model, fieldname, entities):
-        # return self.bulk_url % {
-        #             'ct': ContentType.objects.get_for_model(model).id,
-        #             'field': fieldname,
-        #             'entities': ','.join(str(e.pk) for e in entities),
-        #        }
         kwargs = {'ct_id': ContentType.objects.get_for_model(model).id,
                   'field_name': fieldname,
                  }
@@ -127,7 +106,6 @@ class BulkForm(CremeForm):
         regular_fields = bulk_update_registry.regular_fields(model, expand=True)
         custom_fields = bulk_update_registry.custom_fields(model)
 
-        # url = self._bulk_field_url(model, '%s', entities)
         build_url = partial(self._bulk_field_url, model=model, entities=entities)
 
         choices = []
@@ -135,11 +113,9 @@ class BulkForm(CremeForm):
 
         for field, subfields in regular_fields:
             if not subfields:
-                # choices.append((url % unicode(field.name), unicode(field.verbose_name)))
                 choices.append((build_url(fieldname=field.name), unicode(field.verbose_name)))
             else:
                 sub_choices.append((unicode(field.verbose_name),
-                                    # [(url % unicode(field.name + '__' + subfield.name), unicode(subfield.verbose_name))
                                     [(build_url(fieldname=field.name + '__' + subfield.name), unicode(subfield.verbose_name))
                                         for subfield in subfields
                                     ],
@@ -148,7 +124,6 @@ class BulkForm(CremeForm):
 
         if custom_fields:
             choices.append((ugettext(u'Custom fields'),
-                            # [(url % (_CUSTOMFIELD_FORMAT % field.id), field.name)
                             [(build_url(fieldname=_CUSTOMFIELD_FORMAT % field.id), field.name)
                                 for field in custom_fields
                             ]
@@ -163,62 +138,7 @@ class BulkForm(CremeForm):
 
         return model_field.get_formfield(None)
 
-    # def _bulk_related_formfield(self, model_field, user, instance=None):
-    #     form_field = model_field.formfield()
-    #     related_to = model_field.rel.to
-    #     # q_filter = None
-    #     #
-    #     # if hasattr(model_field, 'limit_choices_to'):
-    #     #     related_filter = model_field.limit_choices_to
-    #     #     q_filter = related_filter() if callable(related_filter) else related_filter
-    #
-    #     q_filter = model_field.rel.limit_choices_to
-    #     if callable(q_filter):
-    #         q_filter = q_filter()
-    #
-    #     if issubclass(related_to, CremeEntity):
-    #         if isinstance(q_filter, Q):
-    #             raise ValueError('Q filter is not (yet) supported for bulk edition of a field related to a CremeEntity.')
-    #
-    #         if isinstance(model_field, ForeignKey):
-    #             form_field = CreatorEntityField(model=related_to, label=form_field.label,
-    #                                             required=form_field.required,
-    #                                             q_filter=q_filter,
-    #                                            )
-    #         elif isinstance(model_field, ManyToManyField):
-    #             form_field = MultiCreatorEntityField(model=related_to,
-    #                                                  label=form_field.label,
-    #                                                  required=form_field.required,
-    #                                                  q_filter=q_filter,
-    #                                                 )
-    #     else:
-    #         if isinstance(q_filter, Q):
-    #             choices = related_to.objects.filter(q_filter)
-    #         elif q_filter:
-    #             choices = related_to.objects.filter(**q_filter)
-    #         else:
-    #             choices = related_to.objects.all()
-    #
-    #         if isinstance(model_field, ForeignKey):
-    #             form_field = CreatorModelChoiceField(queryset=choices,
-    #                                                  label=form_field.label,
-    #                                                  required=form_field.required,
-    #                                                 )
-    #         elif isinstance(model_field, ManyToManyField):
-    #             form_field = ModelMultipleChoiceField(label=form_field.label,
-    #                                                   queryset=choices,
-    #                                                   required=form_field.required,
-    #                                                   widget=UnorderedMultipleChoiceWidget,
-    #                                                  )
-    #
-    #     return form_field
-
     def _bulk_updatable_formfield(self, model_field, user, instance=None):
-        # if isinstance(model_field, RelatedField):
-        #     form_field = self._bulk_related_formfield(model_field, user, instance)
-        # else:
-        #     form_field = model_field.formfield()
-        #     form_field.widget = _BULK_FIELD_WIDGETS.get(model_field.__class__) or form_field.widget
         form_field = model_field.formfield()
 
         if hasattr(form_field, 'get_limit_choices_to'):
@@ -318,14 +238,6 @@ class BulkDefaultEditForm(BulkForm):
         form_field = self._bulk_formfield(user, instance)
 
         self.fields['field_value'] = form_field
-
-    # def clean_field_value(self):
-    #     field_value = self.cleaned_data.get('field_value')
-    #
-    #     if isinstance(field_value, CremeEntity) and not self.user.has_perm_to_view(field_value):
-    #         raise ValidationError(ugettext(u"You can't view this value, so you can't set it."))
-    #
-    #     return field_value
 
     def clean(self):
         cleaned_data = super(BulkDefaultEditForm, self).clean()

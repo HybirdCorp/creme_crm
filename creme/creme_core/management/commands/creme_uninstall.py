@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2016  Hybird
+#    Copyright (C) 2014-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,7 +40,6 @@ from creme.creme_core.models import (CremeEntity, RelationType, CremePropertyTyp
          PreferedMenuItem, ButtonMenuItem,
          BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
          RelationBlockItem, InstanceBlockConfigItem, BlockState)
-# from creme.creme_core.registry import creme_registry, NotRegistered
 from creme.creme_core.utils import split_filter
 from creme.creme_core.utils.collections import LimitedList
 from creme.creme_core.signals import pre_uninstall_flush, post_uninstall_flush
@@ -233,15 +232,6 @@ class Command(AppCommand):
 #    )
     help = 'Uninstall Creme apps correctly, by removing remaining data in DB.'  # TODO: and tables ????
     args = '[appname ...]'
-
-    # def _check_creme_app(self, app_label):
-    #     try:
-    #         creme_registry.get_app(app_label)
-    #     except NotRegistered:
-    #         raise CommandError('"%s" seems not to be a Creme app, '
-    #                            'because it is not registered in "creme_registry" '
-    #                            '(see settings.INSTALLED_CREME_APPS)' % app_label
-    #                           )
 
     def _check_apps_dependencies(self, app_config):
         depending_app_names = []

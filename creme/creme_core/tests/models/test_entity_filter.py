@@ -28,7 +28,6 @@ except Exception as e:
 class EntityFiltersTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
         super(EntityFiltersTestCase, cls).setUpClass()
 
         cls._excluded_ids = frozenset(CremeEntity.objects.values_list('id', flat=True))

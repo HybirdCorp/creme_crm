@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,8 +40,6 @@ from ..utils import round_to_2
 from .algo import ConfigBillingAlgo
 from .fields import BillingDiscountField
 from .other_models import AdditionalInformation, PaymentTerms, PaymentInformation
-# from .product_line import ProductLine
-# from .service_line import ServiceLine
 
 
 logger = logging.getLogger(__name__)
@@ -98,8 +96,6 @@ class Base(CremeEntity):
     generate_number_in_create = True # TODO: use settings instead ???
 
     # Caches
-    # _productlines_cache = None
-    # _servicelines_cache = None
     _creditnotes_cache = None
 
     class Meta:
@@ -115,7 +111,6 @@ class Base(CremeEntity):
         return self.name
 
     def _pre_delete(self):
-        # lines = list(chain(self.product_lines, self.service_lines))
         lines = list(self.iter_all_lines())
 
         for relation in Relation.objects.filter(type__in=[REL_SUB_BILL_ISSUED,
@@ -131,8 +126,6 @@ class Base(CremeEntity):
 
     def invalidate_cache(self):
         self._lines_cache.clear()
-        # self._productlines_cache = None
-        # self._servicelines_cache = None
         self._creditnotes_cache = None
 
     # TODO: property + cache
@@ -192,16 +185,6 @@ class Base(CremeEntity):
                       DeprecationWarning
                      )
 
-        # if self._productlines_cache is None:
-        #     queryset = ProductLine.objects.filter(relations__object_entity=self.id)
-        #     bool(queryset)  # Force the retrieving all lines (no slice)
-        #     self._productlines_cache = queryset
-        # else:
-        #     logger.debug('Cache HIT for product lines in document pk=%s !!' % self.id)
-        #
-        # return self._productlines_cache
-
-        # return self.get_lines(ProductLine)
         from .. import get_product_line_model
 
         return self.get_lines(get_product_line_model())
@@ -212,16 +195,6 @@ class Base(CremeEntity):
                       DeprecationWarning
                      )
 
-        # if self._servicelines_cache is None:
-        #     queryset = ServiceLine.objects.filter(relations__object_entity=self.id)
-        #     bool(queryset)
-        #     self._servicelines_cache = queryset
-        # else:
-        #     logger.debug('Cache HIT for service lines in document pk=%s !!' % self.id)
-        #
-        # return self._servicelines_cache
-
-        # return self.get_lines(ServiceLine)
         from .. import get_service_line_model
 
         return self.get_lines(get_service_line_model())
@@ -277,16 +250,12 @@ class Base(CremeEntity):
         creditnotes_total = sum(credit_note.total_no_vat
                                     for credit_note in self.get_credit_notes()
                                )
-        # lines_total = self.get_service_lines_total_price_exclusive_of_tax() \
-        #             + self.get_product_lines_total_price_exclusive_of_tax()
         lines_total = sum(l.get_price_exclusive_of_tax(self) for l in self.iter_all_lines())
 
         return lines_total, creditnotes_total
 
     def _get_lines_total_n_creditnotes_total_with_tax(self):
         creditnotes_total = sum(credit_note.total_vat for credit_note in self.get_credit_notes())
-        # lines_total_with_tax = self.get_service_lines_total_price_inclusive_of_tax() \
-        #                      + self.get_product_lines_total_price_inclusive_of_tax()
         lines_total_with_tax = sum(l.get_price_inclusive_of_tax(self) for l in self.iter_all_lines())
 
         return lines_total_with_tax, creditnotes_total
@@ -305,7 +274,6 @@ class Base(CremeEntity):
         if self.generate_number_in_create:
             self.generate_number(source.get_source())
         else:
-            # self.number = None
             self.number = ''
 
     def _copy_relations(self, source):
@@ -327,7 +295,6 @@ class Base(CremeEntity):
     def _post_clone(self, source):
         source.invalidate_cache()
 
-        # for line in chain(source.product_lines, source.service_lines):
         for line in source.iter_all_lines():
             line.clone(self)
 
@@ -350,8 +317,6 @@ class Base(CremeEntity):
     def build(self, template):
         self._build_object(template)
         self._post_save_clone(template)  # Copy addresses
-        # self._build_lines(template, ProductLine)
-        # self._build_lines(template, ServiceLine)
         self._post_clone(template)  # Copy lines
         self._build_relations(template)
         self._build_properties(template)

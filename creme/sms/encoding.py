@@ -62,18 +62,18 @@ SMS_MAX_LENGTH = 160
 
 def gsm_encoded_content(content):
     unicode_encoded = unicode(content, 'utf-8') if content.__class__ != unicode else content
-    
+
     #print ['0x%02x' % ord(char) for char in unicode_encoded]
-    
+
     # convert euro sign (allow iso convertion) and \n as \x7f
     unicode_encoded = unicode_encoded.translate({0x20ac:0x84, 0x0a:0x7f})
-    
+
     #print ['0x%02x' % ord(char) for char in unicode_encoded]
-    
+
     iso_encoded = unicode_encoded.encode('iso-8859-1')
     #gsm_encoded = iso_encoded.translate(SMS_ENCODING_GSM_03_38)
-    
+
     for special_key, special_value in SMS_EXTENDED_CHARS.iteritems():
         iso_encoded = iso_encoded.replace(special_key, special_value)
-    
+
     return iso_encoded

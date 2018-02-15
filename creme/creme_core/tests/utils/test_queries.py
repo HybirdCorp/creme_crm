@@ -10,8 +10,7 @@ try:
     from ..base import CremeTestCase
     from ..fake_models import (FakeCivility, FakeContact,
            FakeOrganisation, FakePosition, FakeActivity, FakeActivityType)
-    # from creme.creme_core.models import CremePropertyType
-    from creme.creme_core.utils.queries import QSerializer  # get_first_or_None
+    from creme.creme_core.utils.queries import QSerializer
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -19,7 +18,6 @@ except Exception as e:
 class QueriesTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
         super(QueriesTestCase, cls).setUpClass()
 
         cls._civ_backup = list(FakeCivility.objects.all())
@@ -27,18 +25,9 @@ class QueriesTestCase(CremeTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        # CremeTestCase.tearDownClass()
         super(QueriesTestCase, cls).tearDownClass()
         FakeCivility.objects.all().delete()
         FakeCivility.objects.bulk_create(cls._civ_backup)
-
-    # def test_get_first_or_None01(self):
-    #     CremePropertyType.objects.create(text='Is cute', is_custom=True)
-    #     self.assertIsInstance(get_first_or_None(CremePropertyType), CremePropertyType)
-    #
-    # def test_get_first_or_None02(self):
-    #     self.assertFalse(Civility.objects.exists())
-    #     self.assertIsNone(get_first_or_None(Civility))
 
     def _assertQEqual(self, model, q1, q2):
         self.assertEqual(list(model.objects.filter(q1)),

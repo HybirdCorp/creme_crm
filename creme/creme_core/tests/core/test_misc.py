@@ -269,7 +269,6 @@ class BatchActionTestCase(CremeTestCase):
 class EntityCellTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
         super(EntityCellTestCase, cls).setUpClass()
 
         cls.contact_ct = ContentType.objects.get_for_model(FakeContact)
@@ -552,11 +551,6 @@ class SettingKeyTestCase(CremeTestCase):
 
 
 class JobManagerTestCase(CremeTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('creme_core')
-
     def setUp(self):
         super(JobManagerTestCase, self).setUp()
         self.reminders = []

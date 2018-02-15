@@ -7,28 +7,18 @@ try:
     from creme.creme_core.models import CremePropertyType, CremeProperty
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation
-
-    #from creme.persons.models import Contact, Organisation #need CremeEntity
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
 class PropertyTypeTestCase(CremeTestCase):
-    # ADD_URL = '/creme_config/property_type/add/'
     ADD_URL = reverse('creme_config__create_ptype')
-    # DELETE_URL = '/creme_config/property_type/delete'
     DELETE_URL = reverse('creme_config__delete_ptype')
-
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('creme_core')
 
     def setUp(self):
         self.login()
 
     def _build_edit_url(self, ptype):
-        # return '/creme_config/property_type/edit/%s' % ptype.id
         return reverse('creme_config__edit_ptype', args=(ptype.id,))
 
     def test_portal(self):
@@ -37,7 +27,6 @@ class PropertyTypeTestCase(CremeTestCase):
         ptype2  = create_ptype(str_pk='test-prop_beard', text='is bearded')
 
         url = CremePropertyType.get_lv_absolute_url()
-        # self.assertEqual('/creme_config/property_type/portal/', url)
         self.assertEqual(reverse('creme_config__ptypes'), url)
 
         response = self.assertGET200(url)

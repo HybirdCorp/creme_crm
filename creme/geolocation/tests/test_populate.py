@@ -273,18 +273,14 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
         GeoAddress.objects.all().delete()
 
         with self.assertRaises(GeoAddress.DoesNotExist):
-            # Address.objects.get().geoaddress
             self.refresh(address).geoaddress
 
         self.command.populate_addresses()
 
-        # self.assertEqual(1, GeoAddress.objects.count())
         geo_addresses = GeoAddress.objects.all()
         self.assertEqual(1, len(geo_addresses))
 
-        # address = Address.objects.get()
         address = self.refresh(address)
-        # self.assertEqual(address.geoaddress, GeoAddress.objects.get())
         self.assertEqual(address.geoaddress, geo_addresses[0])
         self.assertGeoAddress(address.geoaddress, address=address,
                               latitude=None, longitude=None,
@@ -315,18 +311,14 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
         GeoAddress.objects.all().delete()
 
         with self.assertRaises(GeoAddress.DoesNotExist):
-            # Address.objects.get().geoaddress
             self.refresh(address).geoaddress
 
         self.command.populate_addresses()
-        # self.assertEqual(1, GeoAddress.objects.count())
 
         geo_addresses = GeoAddress.objects.all()
         self.assertEqual(1, len(geo_addresses))
 
-        # address = Address.objects.get()
         address = self.refresh(address)
-        # self.assertEqual(address.geoaddress, GeoAddress.objects.get())
         self.assertEqual(address.geoaddress, geo_addresses[0])
         self.assertGeoAddress(address.geoaddress, address=address,
                               longitude=5.93333, latitude=46.2,

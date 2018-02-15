@@ -19,9 +19,7 @@ Organisation = get_organisation_model()
 class GeoLocationBaseTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
         super(GeoLocationBaseTestCase, cls).setUpClass()
-        # cls.populate('creme_core', 'persons')
         Town.objects.all().delete()  # TODO: backup ?
 
     def assertModelInstance(self, instance, klass, **kwargs):
@@ -48,7 +46,6 @@ class GeoLocationBaseTestCase(CremeTestCase):
                                          zipcode=zipcode,
                                          city=town,
                                          department=zipcode[:2],
-                                         # state=None,
                                          state='',
                                          country='',
                                          owner=owner,

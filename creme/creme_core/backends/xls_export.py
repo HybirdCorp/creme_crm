@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2017  Hybird
+#    Copyright (C) 2013-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from os.path import join, basename  # exists
-# from os import makedirs
+from os.path import join, basename
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -39,21 +38,13 @@ class XLSExportBackend(XlwtWriter, ExportBackend):
     help_text = ''
 
     def __init__(self, encoding='utf-8'):
-        # self.dir_path = dir_path = join(settings.MEDIA_ROOT, 'upload', 'xls')
-        # if not exists(dir_path):
-        #     makedirs(dir_path)
         super(XLSExportBackend, self).__init__(encoding=encoding)
         self.dir_path = join(settings.MEDIA_ROOT, 'upload', 'xls')
 
     def save(self, filename):
-        # filename = '%s.%s' % (slugify(filename), self.id)
-        # self.response = HttpResponseRedirect('/download_file/upload/xls/%s' % filename)
-        # super(XLSExportBackend, self).save(join(self.dir_path, filename))
-
         path = FileCreator(dir_path=self.dir_path,
                            name='%s.%s' % (slugify(filename), self.id),
                           ).create()
-        # self.response = HttpResponseRedirect('/download_file/upload/xls/%s' % basename(path))
         self.response = HttpResponseRedirect(reverse('creme_core__dl_file',
                                                      args=('/upload/xls/%s' % basename(path),),
                                                     )

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,28 +27,21 @@ from django.shortcuts import render
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_ct_or_404, jsonify
-# from creme.creme_core.views.blocks import build_context
 from creme.creme_core.views.bricks import build_context, bricks_render_info, get_brick_ids_or_404
 
 from .. import registry
 from ..bricks import CrudityHistoryBrick
-# from ..registry import crudity_registry
 
 
 @login_required
 @permission_required('crudity')
 def history(request):
     get_ct = ContentType.objects.get_for_model
-    # blocks = [HistoryBlock(get_ct(backend.model))
-    #               for backend in registry.crudity_registry.get_backends()
-    #                   if backend.model
-    #          ]
     bricks = [CrudityHistoryBrick(get_ct(backend.model))
                   for backend in registry.crudity_registry.get_backends()
                       if backend.model
              ]
 
-    # return render(request, 'crudity/history.html', {'blocks': blocks})
     return render(request, 'crudity/history.html',
                   {'blocks':            bricks,  # DEPRECATED
                    'bricks':            bricks,
@@ -60,9 +53,6 @@ def history(request):
 @jsonify
 @login_required
 @permission_required('crudity')
-# def reload(request, ct_id):
-#     block = HistoryBlock(get_ct_or_404(ct_id))
-#     return [(block.id_, block.detailview_display(build_context(request)))]
 def reload(request, ct_id):
     warnings.warn('crudity.views.history.reload() is deprecated ; '
                   'use crudity.views.history.reload_bricks() instead.',

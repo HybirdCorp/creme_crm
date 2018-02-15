@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -45,7 +45,6 @@ Strategy = get_strategy_model()
 
 
 def abstract_add_strategy(request, form=forms.StrategyForm,
-                          # submit_label=_('Save the strategy'),
                           submit_label=Strategy.save_label,
                          ):
     return generic.add_entity(request, form,
@@ -60,9 +59,7 @@ def abstract_edit_strategy(request, strategy_id, form=forms.StrategyForm):
 def abstract_view_strategy(request, strategy_id,
                            template='commercial/view_strategy.html',
                           ):
-    return generic.view_entity(request, strategy_id, Strategy, template=template,
-                               # path='/commercial/strategy',
-                              )
+    return generic.view_entity(request, strategy_id, Strategy, template=template)
 
 
 @login_required
@@ -95,7 +92,6 @@ def add_segment(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.SegmentCreateForm,
                                  ugettext(u'New market segment for «%s»'),
                                  entity_class=Strategy,
-                                 # submit_label=_('Save the market segment'),
                                  submit_label=MarketSegment.save_label,
                                 )
 
@@ -106,7 +102,6 @@ def link_segment(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.SegmentLinkForm,
                                  ugettext(u'New market segment for «%s»'),
                                  entity_class=Strategy,
-                                 # submit_label=_('Save the market segment'),
                                  submit_label=MarketSegment.save_label,  # TODO: MarketSegmentDescription ?
                                 )
 
@@ -117,7 +112,6 @@ def add_asset(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.AssetForm,
                                  ugettext(u'New commercial asset for «%s»'),
                                  entity_class=Strategy,
-                                 # submit_label=_('Save the commercial asset'),
                                  submit_label=CommercialAsset.save_label,
                                 )
 
@@ -128,7 +122,6 @@ def add_charm(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.CharmForm,
                                  ugettext(u'New segment charm for «%s»'),
                                  entity_class=Strategy,
-                                 # submit_label=_('Save the segment charm'),
                                  submit_label=MarketSegmentCharm.save_label,
                                 )
 
@@ -329,9 +322,7 @@ def reload_matrix_brick(request, strategy_id, orga_id):
         raise Http404('Invalid brick ID')
 
     strategy, orga = _get_strategy_n_orga(request, strategy_id, orga_id)
-    # context = bricks.build_context(request, orga=orga, strategy=strategy)
-    #
-    # return [(brick.id_, brick.detailview_display(context))]
+
     return bricks.bricks_render_info(request, bricks=[brick],
                                      context=bricks.build_context(request, orga=orga, strategy=strategy),
                                     )

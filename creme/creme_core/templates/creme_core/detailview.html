@@ -3,20 +3,16 @@
 
 {% block page_title %}{{object}} - {% endblock %}
 
-{# {% block bodyclass %}{% if object.is_deleted %}class="is_deleted"{% endif %}{% endblock %} #}
 {% block body_classes %}{% if object.is_deleted %}is_deleted{% endif %}{% endblock %}
 
 {% block before_content_1 %}<div class="detailview">
-{#    <div class="zone_spacer_5px model_buttons"> #}
     <div class="buttons-list global-buttons">
-{#        <ul class="buttons_list hbox"> #}
         <ul>
         {% block global_buttons %}
             {% block listview_button %}
                 {% if object.get_lv_absolute_url %}
                 <li>
                     <a class="menu_button menu-button-icon" href="{{object.get_lv_absolute_url}}">{% trans 'Back to the list' as back_label %}
-{#                        <img src="{% creme_media_url 'images/listview_32.png' %}" border="0" title="{{back_label}}" alt="{{back_label}}" /> #}
                         {% widget_icon name='listview' size='global-button' label=back_label %}
                         {{back_label}}
                     </a>
@@ -24,31 +20,12 @@
                 {% endif %}
             {% endblock %}
         {% endblock %}
-{#            {% block add_new_button %}{% endblock %} #}
         </ul>
     </div>
 {% endblock %}
 
 {% block content %}
     {% block view_title %}
-{% comment %}
-        <table class="table_header" cellpadding="0" cellspacing="0">
-            <tr>
-                <td width="5%">{% block logo %}{% widget_icon instance=object size='big' %}{% endblock %}</td>
-                <td width="70%">
-                    <h1>
-                        {% block title %}
-                            {{object|get_meta_value:'verbose_name'|capfirst}} : {{object|capfirst}}
-                        {% endblock %}
-                        {% if object.is_deleted %} [{% trans 'deleted' %}]{% endif %}
-                    </h1>
-                </td>
-                <td width="25%" align="right">
-                    <span>{% block entity_buttons %}{% endblock %}</span>
-                </td>
-            </tr>
-        </table>
-{% endcomment %}
         <div class="hat-bar-container">
             <div class="hat-bar">
                 <div class="bar-icon">{% block logo %}{% widget_icon instance=object size='brick-hat-bar' %}{% endblock %}</div>
@@ -65,10 +42,8 @@
         </div>
     {% endblock %}
 
-{#    <div class="zone_spacer_5px file_buttons"> #}
     <div class="buttons-list instance-buttons">
         {% block button_tab %}
-{#            <ul class="button_list hbox"> #}
             <ul>
                 {% get_button_menu %}{# TODO: works only with CremeEntities => move to view entity.html ?? #}
                 {% block extra_menu_buttons %}{% endblock %}
@@ -76,60 +51,27 @@
         {% endblock %}
     </div>
 
-{% comment %}
-    {% block end_button_tab %}
-        <div class=zone_spacer_5px></div>
-    {% endblock %}
-{% endcomment %}
-
-{% comment %}
-    {% block creme_blocks_import %}
-        {% import_detailview_blocks %}
-    {% endblock %}
-{% endcomment %}
-
 {# NB: we use "spaceless" in order to use ':empty' selector in CSS #}
 {% spaceless %}
     <div class="north">
-{% comment %}
-        {% block detail_view_top_1 %}{% endblock %}
-        {% display_detailview_blocks top %}
-        {% block detail_view_top_2 %}{% endblock %}
-{% endcomment %}
         {% block detail_view_top %}{% endblock %}
     </div>
 
     <div class="column west">
-{% comment %}
-        {% block detail_view_left_1 %}{% endblock %}
-        {% display_detailview_blocks left %}
-        {% block detail_view_left_2 %}{% endblock %}
-{% endcomment %}
         {% block detail_view_left %}{% endblock %}
     </div>
 
     <div class="column east last">
-{% comment %}
-        {% block detail_view_right_1 %}{% endblock %}
-        {% display_detailview_blocks right %}
-        {% block detail_view_right_2 %}{% endblock %}
-{% endcomment %}
         {% block detail_view_right %}{% endblock %}
     </div>
 
      <div class="clear"></div>
 
     <div class="south">
-{% comment %}
-        {% block detail_view_bottom_1 %}{% endblock %}
-        {% display_detailview_blocks bottom %}
-        {% block detail_view_bottom_2 %}{% endblock %}
-{% endcomment %}
         {% block detail_view_bottom %}{% endblock %}
     </div>
 {% endspaceless %}
 
-{#    {% get_blocks_dependencies %} #}
     {% brick_end %}
 {% endblock %}
 

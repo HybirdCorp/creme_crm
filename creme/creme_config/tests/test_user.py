@@ -6,17 +6,15 @@ try:
     from unittest import skipIf
 
     from django.conf import settings
-    # from django.contrib.sessions.models import Session
     from django.core.urlresolvers import reverse
     from django.test.utils import override_settings
     from django.utils import timezone as django_tz
     from django.utils.translation import ugettext as _
 
-    # from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
     from creme.creme_core.core.setting_key import SettingKey, UserSettingKey, user_setting_key_registry
     from creme.creme_core.models import CremeUser as User
     from creme.creme_core.models import (CremeEntity, RelationType,
-            EntityCredentials, UserRole, SetCredentials, Mutex, SettingValue)  # Relation  CremeProperty
+            EntityCredentials, UserRole, SetCredentials, Mutex, SettingValue)
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
@@ -25,8 +23,6 @@ try:
     from creme.persons.models import Contact, Organisation
 
     from ..bricks import UsersBrick, TeamsBrick, UserPreferredMenusBrick, BlockMypageLocationsBrick
-    # from ..constants import USER_THEME_NAME, USER_TIMEZONE
-    # from ..utils import get_user_theme
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -39,29 +35,18 @@ def skipIfNotCremeUser(test_func):
 
 @skipIfCustomOrganisation
 class UserTestCase(CremeTestCase, BrickTestCaseMixin):
-    # ADD_URL = '/creme_config/user/add/'
     ADD_URL = reverse('creme_config__create_user')
-    # ADD_TEAM_URL = '/creme_config/team/add/'
     ADD_TEAM_URL = reverse('creme_config__create_team')
 
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('creme_core', 'persons')
-
     def _build_delete_url(self, user):
-        # return '/creme_config/user/delete/%s' % user.id
         return reverse('creme_config__delete_user', args=(user.id,))
 
     def _build_edit_url(self, user_id, password=None):
-        # return '/creme_config/user/edit/%s%s' % ('password/' if password else '', user_id)
         return reverse('creme_config__change_user_password' if password else 'creme_config__edit_user',
                        args=(user_id,)
                       )
 
-    # def _build_activation_url(self, user_id, activation):
     def _build_activation_url(self, user_id, activation=True):
-        # return '/creme_config/user/%s/%s' % (activation, user_id)
         return reverse('creme_config__activate_user' if activation else 'creme_config__deactivate_user',
                        args=(user_id,)
                       )
@@ -71,10 +56,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         return self.login(is_superuser=False, allowed_apps=apps, admin_4_apps=apps)
 
     def _aux_test_portal(self):
-        # response = self.assertGET200('/creme_config/user/portal/')
         response = self.assertGET200(reverse('creme_config__users'))
-        # self.assertContains(response, 'id="%s"' % UsersBlock.id_)
-        # self.assertContains(response, 'id="%s"' % TeamsBlock.id_)
         doc = self.get_html_tree(response.content)
         self.get_brick_node(doc, UsersBrick.id_)
         self.get_brick_node(doc, TeamsBrick.id_)
@@ -95,8 +77,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         url = self.ADD_URL
         self.assertGET200(url)
 
-        # orga = Organisation.objects.create(user=self.user, name='Olympus')
-        # CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
         orga = Organisation.objects.create(user=self.user, name='Olympus', is_managed=True)
 
         username   = 'deunan'
@@ -111,7 +91,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                                           'first_name':   first_name,
                                           'last_name':    last_name,
                                           'email':        email,
-#                                          'is_superuser': True,
                                           'role':         '',
                                           'organisation': orga.id,
                                           'relation':     REL_SUB_EMPLOYED_BY,
@@ -151,8 +130,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                                       set_type=SetCredentials.ESET_ALL
                                      )
 
-        # orga = Organisation.objects.create(user=self.user, name='Olympus')
-        # CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
         orga = Organisation.objects.create(user=self.user, name='Olympus', is_managed=True)
 
         username = 'dknut@eswat.ol'
@@ -210,8 +187,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         url = self.ADD_URL
         self.assertGET403(url)
 
-        # orga = Organisation.objects.create(user=user, name='Olympus')
-        # CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
 
         password = 'password'
@@ -231,8 +206,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         "Wrong username"
         user = self.login()
 
-        # orga = Organisation.objects.create(user=user, name='Olympus')
-        # CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
 
         username = 'é^ǜù'
@@ -254,11 +227,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_create07(self):
         "Password errors"
         user = self.login()
-
         url = self.ADD_URL
-
-        # orga = Organisation.objects.create(user=user, name='Olympus')
-        # CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
 
         data = {'username':     'deunan',
@@ -295,9 +264,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_create08(self):
         "Unique username"
         user = self.login()
-
-        # orga = Organisation.objects.create(user=user, name='Olympus')
-        # CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
 
         password = 'password'
@@ -324,11 +290,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_create09(self):
         "Internal relationships are forbidden."
         user = self.login()
-
-        # orga = Organisation.objects.create(user=user, name='Olympus')
-        # CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
-
         rtype = RelationType.create(('creme_config-subject_test_badrtype', u'Bad RType',     [Contact]),
                                     ('creme_config-object_test_badrtype',  u'Bad RType sym', [Organisation]),
                                     is_internal=True,  # <==
@@ -516,9 +478,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         "Not superuser"
         self.login_not_as_superuser()
         other_user = User.objects.create(username='deunan')
-        # url = partial(self._build_activation_url, other_user.id)
-        # self.assertGET403(url('deactivate'))
-        # self.assertGET403(url('activate'))
         self.assertGET403(self._build_activation_url(other_user.id, activation=False))
         self.assertGET403(self._build_activation_url(other_user.id, activation=True))
 
@@ -526,7 +485,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_user_activation02(self):
         "Post only & Current user"
         user = self.login()
-        # url = self._build_activation_url(user.id, 'deactivate')
         url = self._build_activation_url(user.id, activation=False)
         self.assertGET404(url)
         self.assertPOST409(url)
@@ -536,9 +494,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         "user is staff"
         self.login()
         other_user = User.objects.create(username='deunan', is_staff=True)
-        # url = partial(self._build_activation_url, other_user.id)
-        # self.assertPOST(400, url('activate'))
-        # self.assertPOST(400, url('deactivate'))
         self.assertPOST(400, self._build_activation_url(other_user.id, activation=True))
         self.assertPOST(400, self._build_activation_url(other_user.id, activation=False))
 
@@ -547,9 +502,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         "user is staff"
         self.login()
         other_user = User.objects.create(username='deunan', is_staff=True)
-        # url = partial(self._build_activation_url, other_user.id)
-        # self.assertPOST(400, url('activate'))
-        # self.assertPOST(400, url('deactivate'))
         self.assertPOST(400, self._build_activation_url(other_user.id, activation=True))
         self.assertPOST(400, self._build_activation_url(other_user.id, activation=False))
 
@@ -558,12 +510,10 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         "user is staff"
         self.login()
         other_user = User.objects.create(username='deunan')
-        # url = partial(self._build_activation_url, other_user.id)
 
-        # self.assertPOST200(url('deactivate'))
         self.assertPOST200(self._build_activation_url(other_user.id, activation=False))
         self.assertFalse(self.refresh(other_user).is_active)
-        # self.assertPOST200(url('activate'))
+
         self.assertPOST200(self._build_activation_url(other_user.id, activation=True))
         self.assertTrue(self.refresh(other_user).is_active)
 
@@ -655,7 +605,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         user02 = create_user('Yokiji',  'yokiji@century.jp')
         user03 = create_user('Koizumi', 'koizumi@century.jp')
 
-        # self.assertGET404('/creme_config/team/edit/%s' % user01.id)
         self.assertGET404(reverse('creme_config__edit_team', args=(user01.id,)))
 
         teamname = 'Teamee'
@@ -666,7 +615,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTrue(user02.has_perm_to_view(entity))
         self.assertFalse(user03.has_perm_to_view(entity))
 
-        # url = '/creme_config/team/edit/%s' % team.id
         url = reverse('creme_config__edit_team', args=(team.id,))
         self.assertGET200(url)
 
@@ -710,7 +658,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         teamname = 'Teamee'
         team = self._create_team(teamname, [user01, user02])
 
-        # url = '/creme_config/team/edit/%s' % team.id
         url = reverse('creme_config__edit_team', args=(team.id,))
         self.assertGET403(url)
         self.assertPOST403(url, data={'username':  teamname,
@@ -913,11 +860,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
 
 class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('creme_core')
-
     def setUp(self):
         super(UserSettingsTestCase, self).setUp()
         self.login()
@@ -932,85 +874,30 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
         self._registered_skey.extend(skeys)
 
     def test_user_settings(self):
-        # response = self.assertGET200('/creme_config/my_settings/')
         response = self.assertGET200(reverse('creme_config__user_settings'))
         doc = self.get_html_tree(response.content)
 
         if settings.OLD_MENU:
-            # self.assertContains(response, 'id="%s"' % UserPreferedMenusBlock.id_)
             self.get_brick_node(doc, UserPreferredMenusBrick.id_)
 
-        # self.assertContains(response, 'id="%s"' % BlockMypageLocationsBlock.id_)
         self.get_brick_node(doc, BlockMypageLocationsBrick.id_)
 
     @override_settings(THEMES=[('icecream',  'Ice cream'),
                                ('chantilly', 'Chantilly'),
                               ])
     def test_change_theme01(self):
-        # self.assertFalse(SettingValue.objects.filter(user=self.user, key_id=USER_THEME_NAME))
         user = self.user
         self.assertEqual(settings.THEMES[0][0], user.theme)
 
         def change_theme(theme):
-            # self.assertPOST200('/creme_config/my_settings/set_theme/', data={'theme': theme})
             self.assertPOST200(reverse('creme_config__set_user_theme'), data={'theme': theme})
 
-            # svalues = SettingValue.objects.filter(user=self.user, key_id=USER_THEME_NAME)
-            # self.assertEqual(1, len(svalues))
-            # self.assertEqual(theme, svalues[0].value)
             self.assertEqual(theme, self.refresh(user).theme)
 
         change_theme('chantilly')
         change_theme('icecream')
 
-    # def test_get_user_theme01(self):
-    #     user = self.user
-    #
-    #     class FakeRequest(object):
-    #         def __init__(self):
-    #             self.user = user
-    #             self.session = {}
-    #
-    #     self.assertFalse(SettingValue.objects.filter(user=user, key_id=USER_THEME_NAME))
-    #
-    #     self.assertEqual(settings.DEFAULT_THEME, get_user_theme(FakeRequest()))
-    #     sv = self.get_object_or_fail(SettingValue, user=user, key_id=USER_THEME_NAME)
-    #
-    #     sv.value = "unknown theme"
-    #     sv.save()
-    #     self.assertEqual(settings.DEFAULT_THEME, get_user_theme(FakeRequest()))
-    #
-    # def test_get_user_theme02(self):
-    #     user = self.user
-    #
-    #     class FakeRequest(object):
-    #         def __init__(this):
-    #             user_id = str(user.id)
-    #             sessions = [d for d in (s.get_decoded() for s in Session.objects.all())
-    #                             if d.get('_auth_user_id') == user_id
-    #                        ]
-    #             self.assertEqual(1, len(sessions))
-    #             this.session = sessions[0]
-    #
-    #     def get_theme():
-    #         request = FakeRequest()
-    #
-    #         try:
-    #             theme = request.session['usertheme']
-    #         except Exception:
-    #             theme = None
-    #
-    #         return theme
-    #
-    #     self.assertFalse(SettingValue.objects.filter(user=user, key_id=USER_THEME_NAME))
-    #     self.assertIsNone(get_theme())
-    #
-    #     self.client.get('/')
-    #     self.get_object_or_fail(SettingValue, user=user, key_id=USER_THEME_NAME)
-    #     self.assertEqual(settings.DEFAULT_THEME, get_theme())
-
     def test_change_timezone(self):
-        # self.assertFalse(SettingValue.objects.filter(user=self.user, key_id=USER_TIMEZONE))
         user = self.user
         self.assertEqual(settings.TIME_ZONE, user.time_zone)
 
@@ -1030,7 +917,6 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
             self.client.get('/')
             self.assertFalse(inner['called'])
 
-            # url = '/creme_config/my_settings/set_timezone/'
             url = reverse('creme_config__set_user_timezone')
 
             def assertSelected(selected_tz):
@@ -1052,9 +938,6 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
             def change_tz(tz):
                 self.assertPOST200(url, data={'time_zone': tz})
 
-                # svalues = SettingValue.objects.filter(user=self.user, key_id=USER_TIMEZONE)
-                # self.assertEqual(1, len(svalues))
-                # self.assertEqual(tz, svalues[0].value)
                 self.assertEqual(tz, self.refresh(user).time_zone)
 
                 self.client.get('/')
@@ -1079,7 +962,6 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
             django_tz.activate = original_activate
 
     def _build_edit_user_svalue_url(self, setting_key):
-        # return '/creme_config/my_settings/edit_value/%s' % setting_key.id
         return reverse('creme_config__edit_user_setting', args=(setting_key.id,))
 
     def test_edit_user_setting_value01(self):

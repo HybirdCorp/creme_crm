@@ -1,13 +1,11 @@
 {% load i18n creme_core_tags creme_widgets %}{% trans 'Invoice number' as img_title %}
 {% if has_perm %}
     <a class="menu_button menu-button-icon" onclick="creme.billing.generateInvoiceNumber('{% url 'billing__generate_invoice_number' object.id %}');">
-{#        <img src="{% creme_media_url 'images/invoice_32.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" /> #}
         {% widget_icon name='invoice' size='instance-button' label=img_title %}
         {% trans 'Generate the number of the Invoice' %}
     </a>
 {% else %}
     <span class="menu_button menu-button-icon forbidden" title="{% trans 'forbidden' %}">
-{#        <img src="{% creme_media_url 'images/invoice_32.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" /> #}
         {% widget_icon name='invoice' size='instance-button' label=img_title %}
         {% trans 'Generate the number of the Invoice' %}
     </span>

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2017  Hybird
+#    Copyright (C) 2015-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,17 +34,12 @@ class GraphsConfig(CremeAppConfig):
         self.Graph = get_graph_model()
         super(GraphsConfig, self).all_apps_ready()
 
-    # def register_creme_app(self, creme_registry):
-    #     creme_registry.register_app('graphs', pgettext_lazy('graphs', u'Graphs'), '/graphs')
-
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Graph)
 
     def register_bricks(self, brick_registry):
-        # from .blocks import root_nodes_block, orbital_rtypes_block
         from . import bricks
 
-        # brick_registry.register(root_nodes_block, orbital_rtypes_block)
         brick_registry.register(bricks.RootNodesBrick,
                                 bricks.OrbitalRelationTypesBrick,
                                )
@@ -66,7 +61,6 @@ class GraphsConfig(CremeAppConfig):
             from creme.creme_core.auth import build_creation_perm
 
             reg_item = creme_menu.register_app('graphs', '/graphs/').register_item
-            # reg_item('/graphs/',                      _(u'Portal of graphs'), 'graphs')
             reg_item(reverse('graphs__portal'),       _(u'Portal of graphs'), 'graphs')
             reg_item(reverse('graphs__list_graphs'),  _(u'All graphs'),       'graphs')
             reg_item(reverse('graphs__create_graph'), Graph.creation_label,   build_creation_perm(Graph))

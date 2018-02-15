@@ -19,7 +19,6 @@ urlpatterns = [
 
     # Campaign: sending details block (TODO: remove 'campaign/' from url ??)
     url(r'^campaign/sending/(?P<sending_id>\d+)[/]?$',              sending.detailview,         name='emails__view_sending'),
-    # url(r'^campaign/sending/(?P<sending_id>\d+)/mails/reload/$', sending.reload_block_mails, name='emails__reload_lw_mails_block'),
     url(r'^campaign/sending/(?P<sending_id>\d+)/mails/reload[/]?$', sending.reload_mails_brick, name='emails__reload_lw_mails_brick'),
 
     # Mailing list: recipients block

@@ -20,9 +20,7 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
-    from creme.creme_core.models import Relation, Currency  # CremePropertyType, CremeProperty
-
-    # from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+    from creme.creme_core.models import Relation, Currency
 
     from creme.persons import get_address_model, get_contact_model, get_organisation_model
 
@@ -213,14 +211,12 @@ class _BillingTestCaseMixin(object):
         return order, source, target
 
     def assertDeleteStatusOK(self, status, short_name):
-        # self.assertPOST200('/creme_config/billing/%s/delete' % short_name, data={'id': status.pk})
         self.assertPOST200(reverse('creme_config__delete_instance', args=('billing', short_name)),
                            data={'id': status.pk}
                           )
         self.assertDoesNotExist(status)
 
     def assertDeleteStatusKO(self, status, short_name, doc):
-        # self.assertPOST404('/creme_config/billing/%s/delete' % short_name, data={'id': status.pk})
         self.assertPOST404(reverse('creme_config__delete_instance', args=('billing', short_name)),
                            data={'id': status.pk}
                           )
@@ -230,18 +226,11 @@ class _BillingTestCaseMixin(object):
         self.assertEqual(status, doc.status)
 
     def _set_managed(self, orga, managed=True):
-        # ptype = self.get_object_or_fail(CremePropertyType, id=PROP_IS_MANAGED_BY_CREME)
-        # CremeProperty.objects.create(type=ptype, creme_entity=orga)
         orga.is_managed = managed
         orga.save()
 
 
 class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCaseMixin):
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('creme_core', 'billing')
-
     def _aux_test_csv_import(self, model, status_model, update=False):
         count = model.objects.count()
         create_orga = partial(Organisation.objects.create, user=self.user)

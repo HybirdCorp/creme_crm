@@ -12,7 +12,6 @@ try:
     from creme.creme_core.models import SetCredentials
     from creme.creme_core.tests.fake_models import FakeContact
 
-    # from creme.media_managers.tests import create_image
     from creme.documents import get_folder_model, get_document_model
 
     from .base import _ProductsTestCase, skipIfCustomProduct
@@ -33,13 +32,11 @@ class ProductTestCase(_ProductsTestCase):
 
     def test_portal(self):
         self.login()
-        # self.assertGET200('/products/')
         self.assertGET200(reverse('products__portal'))
 
     def test_ajaxview01(self):
         self.login()
 
-        # self.assertGET404('/products/sub_category/0/json')
         self.assertGET404(reverse('products__subcategories', args=(0,)))
 
         name1 = 'subcat1'
@@ -50,7 +47,6 @@ class ProductTestCase(_ProductsTestCase):
         subcat1 = create_subcat(name=name1, description='description')
         subcat2 = create_subcat(name=name2, description='description')
 
-        # response = self.assertGET200('/products/sub_category/%s/json' % cat.id)
         response = self.assertGET200(reverse('products__subcategories', args=(cat.id,)))
         self.assertEqual([[subcat1.id, name1], [subcat2.id, name2]],
                          json.loads(response.content)
@@ -95,15 +91,11 @@ class ProductTestCase(_ProductsTestCase):
         self.assertEqual(sub_cat,             product.sub_category)
 
         self.assertRedirects(response, product.get_absolute_url())
-        # self.assertTemplateUsed(response, 'products/block_images.html')
         self.assertTemplateUsed(response, 'products/bricks/images.html')
 
     @skipIfCustomProduct
     def test_createview02(self):
         "Images + credentials"
-        # user = self.login(is_superuser=False, allowed_apps=['products', 'media_managers'],
-        #                   creatable_models=[Product],
-        #                  )
         user = self.login_as_basic_user(Product)
 
         create_image = partial(self._create_image, user=user,
@@ -210,7 +202,6 @@ class ProductTestCase(_ProductsTestCase):
         cat = Category.objects.create(name='Mecha', description='Mechanical devices')
         sub_cat = SubCategory.objects.create(name='Eva', description='Fake gods', category=cat)
 
-        # self.assertPOST200('/creme_config/products/subcategory/delete', data={'id': sub_cat.pk})
         self.assertPOST200(reverse('creme_config__delete_instance', args=('products', 'subcategory')),
                            data={'id': sub_cat.pk}
                           )
@@ -232,7 +223,6 @@ class ProductTestCase(_ProductsTestCase):
 
         product, cat, sub_cat = self._build_product_cat_subcat()
 
-        # self.assertPOST404('/creme_config/products/subcategory/delete', data={'id': sub_cat.pk})
         self.assertPOST404(reverse('creme_config__delete_instance', args=('products', 'subcategory')),
                            data={'id': sub_cat.pk}
                           )
@@ -246,7 +236,6 @@ class ProductTestCase(_ProductsTestCase):
 
         product, cat, sub_cat = self._build_product_cat_subcat()
 
-        # self.assertPOST404('/creme_config/products/category/delete', data={'id': cat.pk})
         self.assertPOST404(reverse('creme_config__delete_instance', args=('products', 'category')),
                            data={'id': cat.pk}
                           )
@@ -326,7 +315,6 @@ class ProductTestCase(_ProductsTestCase):
         product = create_product(name='Eva00', code=42)
         product2 = create_product(name='Eva01', code=43)
 
-        # url = self.build_bulkedit_url([product, product2], 'category')
         url = self.build_bulkupdate_url(Product, 'category')
         self.assertGET200(url)
 
@@ -363,7 +351,6 @@ class ProductTestCase(_ProductsTestCase):
         product = create_product(name='Eva00', code=42)
         product2 = create_product(name='Eva01', code=43)
 
-        # url = self.build_bulkedit_url([product, product2], 'category')
         url = self.build_bulkupdate_url(Product, 'category')
         self.assertGET200(url)
 
@@ -399,7 +386,7 @@ class ProductTestCase(_ProductsTestCase):
                                  category=sub_cat.category, sub_category=sub_cat,
                                 )
 
-        product = create_product(name='Eva00', code=42)
+        product1 = create_product(name='Eva00', code=42)
         product2 = create_product(name='Eva01', code=43)
 
         url = self.build_bulkupdate_url(Product, 'category')
@@ -412,17 +399,17 @@ class ProductTestCase(_ProductsTestCase):
                                                             next_sub_cat.category.pk,
                                                             next_sub_cat.pk,
                                                         ),
-                                     'entities': [product.pk, product2.pk]
+                                     'entities': [product1.pk, product2.pk]
                                     }
                                    )
         self.assertNoFormError(response)
 
-        product = self.refresh(product)
-        self.assertEqual(next_sub_cat, product.sub_category)
-        self.assertEqual(next_sub_cat.category, product.category)
+        product1 = self.refresh(product1)
+        self.assertEqual(next_sub_cat,          product1.sub_category)
+        self.assertEqual(next_sub_cat.category, product1.category)
 
         product2 = self.refresh(product2)
-        self.assertEqual(next_sub_cat, product2.sub_category)
+        self.assertEqual(next_sub_cat,          product2.sub_category)
         self.assertEqual(next_sub_cat.category, product2.category)
 
     def test_update_bulk_category_invalid(self):
@@ -435,7 +422,7 @@ class ProductTestCase(_ProductsTestCase):
                                  category=sub_cat.category, sub_category=sub_cat
                                 )
 
-        product = create_product(name='Eva00', code=42)
+        product1 = create_product(name='Eva00', code=42)
         product2 = create_product(name='Eva01', code=43)
 
         url = self.build_bulkupdate_url(Product, 'category')
@@ -448,25 +435,22 @@ class ProductTestCase(_ProductsTestCase):
                                                             sub_cat.category_id,
                                                             next_sub_cat.pk,
                                                         ),
-                                     'entities': [product.pk, product2.pk]
+                                     'entities': [product1.pk, product2.pk]
                                     }
                                    )
         self.assertFormError(response, 'form', 'sub_category',
                              _(u"This sub-category causes constraint error.")
                             )
 
-        product = self.refresh(product)
-        self.assertEqual(sub_cat, product.sub_category)
-        self.assertEqual(sub_cat.category, product.category)
+        product1 = self.refresh(product1)
+        self.assertEqual(sub_cat,          product1.sub_category)
+        self.assertEqual(sub_cat.category, product1.category)
 
         product2 = self.refresh(product2)
         self.assertEqual(sub_cat, product2.sub_category)
         self.assertEqual(sub_cat.category, product2.category)
 
     def test_add_images(self):
-        # user = self.login(is_superuser=False, allowed_apps=['products', 'media_managers'],
-        #                   creatable_models=[Product],
-        #                  )
         user = self.login_as_basic_user(Product)
 
         create_image = partial(self._create_image, user=user,
@@ -487,7 +471,6 @@ class ProductTestCase(_ProductsTestCase):
                                         )
         product.images = [img_3]
 
-        # url = '/products/product/%s/add_images' % product.id
         url = reverse('products__add_images_to_product', args=(product.id,))
         self.assertGET200(url)
 
@@ -528,7 +511,6 @@ class ProductTestCase(_ProductsTestCase):
                                         )
         product.images = [img_1, img_2]
 
-        # url = '/products/images/remove/%s' % product.id
         url = reverse('products__remove_image', args=(product.id,))
         data = {'id': img_1.id}
         self.assertGET404(url, data=data)
@@ -537,7 +519,6 @@ class ProductTestCase(_ProductsTestCase):
         self.assertEqual([img_2], list(product.images.all()))
 
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Aynami')
-        # self.assertPOST404('/products/images/remove/%s' % rei.id, data={'id': img_2.id})
         self.assertPOST404(reverse('products__remove_image', args=(rei.id,)), data={'id': img_2.id})
 
     def test_csv_import01(self):
@@ -916,4 +897,3 @@ class ProductTestCase(_ProductsTestCase):
 
         self._execute_job(response)
         self.assertEqual(count + 2, Product.objects.count())
-

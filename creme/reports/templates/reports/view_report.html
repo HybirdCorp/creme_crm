@@ -1,16 +1,1 @@
 {% extends 'creme_core/generics/view_entity.html' %}
-{% comment %}
-{% load i18n creme_core_tags %}
-
-{% block entity_buttons %}
-{#    <a href="/reports/export/preview/{{object.id}}"> #}
-    <a href="{% url 'reports__export_report_preview' object.id %}">
-        <img src="{% creme_media_url 'images/view_64.png' %}" title="{% blocktrans %}Preview of the report : '{{object}}'{% endblocktrans %}" alt="{% trans 'Preview' %}"/>
-    </a>&nbsp;
-{#    <a onclick="creme.reports.exportReport($(this), {{object.id}}, &quot;{% blocktrans %}Download «{{object}}»{% endblocktrans %}&quot;);"> #}
-    <a onclick="creme.reports.exportReport(&quot;{% blocktrans %}Download «{{object}}»{% endblocktrans %}&quot;, '{% url 'reports__export_report_filter' object.id %}', '{% url 'reports__export_report_preview' object.id %}', '{% url 'reports__export_report' object.id %}');">
-        <img src="{% creme_media_url 'images/document_csv_64.png' %}" title="{% blocktrans %}Download «{{object}}»{% endblocktrans %}" alt="{% trans 'Download CSV' %}"/>
-    </a>&nbsp;
-    {{block.super}}
-{% endblock %}
-{% endcomment %}

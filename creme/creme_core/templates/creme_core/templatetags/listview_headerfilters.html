@@ -3,25 +3,21 @@
     <div class="legend">
         {% trans 'View of list' as label %}{% widget_icon name='header_filter' label=label size='listview-filter' %}{{label}}
     </div>
-{#    <select name="hfilter" id="hfilter_list" onchange="$(this.form).list_view('getSubmit')(this);"> #}
     <select name="hfilter" id="hfilter_list" onchange="creme.lv_widget.findList(this).list_view('getSubmit')(this);">
         {% for hfilter in header_filters %}
             <option value="{{hfilter.id}}" {% if hfilter_id == hfilter.id %}selected{% endif %}>{{hfilter.name}}</option>
         {% endfor %}
     </select>
     {% if not is_popup_view %}
-{#        <a href="/creme_core/header_filter/add/{{content_type_id}}"> #}
         <a href="{% url 'creme_core__create_hfilter' content_type_id %}">
             {% widget_icon name='add' label=_('Create a custom view') size='listview-filter-action' %}
         </a>
         {% if can_edit %}
-{#            <a href="/creme_core/header_filter/edit/{{hfilter_id}}" id="header_filter_edit"> #}
             <a href="{{header_filters.selected.get_edit_absolute_url}}" id="header_filter_edit">
                 {% widget_icon name='edit' label=_('Edit this view') size='listview-filter-action' %}
             </a>
         {% endif %}
         {% if can_delete %}
-{#            <a onclick="creme.lv_widget.deleteHeaderFilter(creme.lv_widget.findList(this), '{{hfilter_id}}');"> #}
             <a onclick="creme.lv_widget.deleteFilter(creme.lv_widget.findList(this), '{{hfilter_id}}', '{% url 'creme_core__delete_hfilter' %}');">
                 {% widget_icon name='delete' label=_('Delete this custom view') size='listview-filter-action' %}
             </a>

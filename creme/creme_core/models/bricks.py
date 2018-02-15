@@ -276,11 +276,9 @@ class RelationBlockItem(CremeModel):
     def __unicode__(self):  # NB: useful for creme_config titles
         return self.relation_type.predicate
 
-    # def delete(self):
     def delete(self, using=None):
         BlockDetailviewLocation.objects.filter(block_id=self.block_id).delete()
 
-        # super(RelationBlockItem, self).delete()
         super(RelationBlockItem, self).delete(using=using)
 
     @property
@@ -375,16 +373,13 @@ class InstanceBlockConfigItem(CremeModel):
         ordering = ('id',)
 
     def __unicode__(self):
-        # return self.block.verbose_name
         return self.brick.verbose_name
 
-    # def delete(self):
     def delete(self, using=None):
         block_id = self.block_id
         BlockDetailviewLocation.objects.filter(block_id=block_id).delete()
         BlockState.objects.filter(block_id=block_id).delete()
 
-        # super(InstanceBlockConfigItem, self).delete()
         super(InstanceBlockConfigItem, self).delete(using=using)
 
     @property
@@ -407,7 +402,6 @@ class InstanceBlockConfigItem(CremeModel):
 
     @property
     def errors(self):
-        # return getattr(self.block, 'errors', None)
         return getattr(self.brick, 'errors', None)
 
     @staticmethod
@@ -454,13 +448,11 @@ class CustomBlockConfigItem(CremeModel):
     def __unicode__(self):
         return self.name
 
-    # def delete(self):
     def delete(self, using=None):
         brick_id = self.generate_id()
         BlockDetailviewLocation.objects.filter(block_id=brick_id).delete()
         BlockState.objects.filter(block_id=brick_id).delete()
 
-        # super(CustomBlockConfigItem, self).delete()
         super(CustomBlockConfigItem, self).delete(using=using)
 
     def generate_id(self):

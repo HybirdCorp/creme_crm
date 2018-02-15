@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,6 @@ from django.forms import ModelMultipleChoiceField
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeModelForm
-# from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
 from ..models import UserMessage
 
@@ -31,7 +30,6 @@ from ..models import UserMessage
 class UserMessageForm(CremeModelForm):
     users = ModelMultipleChoiceField(queryset=get_user_model().objects.filter(is_staff=False),
                                      label=_(u'Recipients'),
-                                     # widget=UnorderedMultipleChoiceWidget,
                                      help_text=_(u'Each time a team is selected, a message is sent to each teammate '
                                                  u'(do not worry, there can not be any duplicate).'
                                                 ),

@@ -1,9 +1,8 @@
-{% load i18n creme_widgets %}{# creme_core_tags #}
+{% load i18n creme_widgets %}
 <fieldset title="{% trans 'Filter the lines of the table' %}">
     <div class="legend">
         {% trans 'Filter' context 'creme_core-noun' as label %}{% widget_icon name='filter' label=label size='listview-filter' %}{{label}}
     </div>
-{#    <select name="filter" id="list_filter" onchange="$(this.form).list_view('getSubmit')(this);"> #}
     <select name="filter" id="list_filter" onchange="creme.lv_widget.findList(this).list_view('getSubmit')(this);">
         <option value="">{% trans 'All' %}</option>
         {% for efilter in entity_filters %}
@@ -11,18 +10,15 @@
         {% endfor %}
     </select>
     {% if not is_popup_view %}
-{#        <a href="/creme_core/entity_filter/add/{{content_type_id}}"> #}
         <a href="{% url 'creme_core__create_efilter' content_type_id %}">
             {% widget_icon name='add' label=_('Create a custom filter') size='listview-filter-action' %}
         </a>
         {% if can_edit %}
-{#            <a href="/creme_core/entity_filter/edit/{{efilter_id}}" id="filter_edit"> #}
             <a href="{{entity_filters.selected.get_edit_absolute_url}}" id="filter_edit">
                 {% widget_icon name='edit' label=_('Edit this filter') size='listview-filter-action' %}
             </a>
         {% endif %}
         {% if can_delete %}
-{#            <a onclick="creme.lv_widget.deleteEntityFilter($(this).parents('form:first'), '{{efilter_id}}');"> #}
             <a onclick="creme.lv_widget.deleteFilter(creme.lv_widget.findList(this), '{{efilter_id}}', '{% url 'creme_core__delete_efilter' %}');">
                 {% widget_icon name='delete' label=_('Delete this custom filter') size='listview-filter-action' %}
             </a>

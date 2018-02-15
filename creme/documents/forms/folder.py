@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,6 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.forms.bulk import BulkDefaultEditForm
-# from creme.creme_core.forms.fields import CreatorEntityField
 
 from .. import get_folder_model
 
@@ -47,8 +46,6 @@ class _FolderForm(CremeEntityForm):
 
 
 class FolderForm(_FolderForm):
-    # parent_folder = CreatorEntityField(label=_(u'Parent folder'), model=Folder, required=False)
-
     error_messages = {
         'loop': _(u'This folder is one of the child folders of «%(folder)s»'),
     }

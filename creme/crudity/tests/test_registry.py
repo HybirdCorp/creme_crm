@@ -3,10 +3,8 @@
 try:
     from django.core.exceptions import ImproperlyConfigured
 
-    # from ..registry import CRUDityRegistry, FetcherInterface
     from .. import registry
     from .base import CrudityTestCase, FakeFetcher, FakeInput
-            # ContactFakeBackend, OrganisationFakeBackend, DocumentFakeBackend, Document, Contact, Organisation
     from .fake_crudity_register import (FakeContact, FakeOrganisation, FakeDocument,
             FakeContactBackend, FakeOrganisationBackend, FakeDocumentBackend)
 except Exception as e:
@@ -54,11 +52,8 @@ class CrudityRegistryTestCase(CrudityTestCase):
 
     def test_register_backend01(self):
         crudity_registry = self.crudity_registry
-        # crudity_registry.register_backends([ContactFakeBackend, OrganisationFakeBackend])
         crudity_registry.register_backends([FakeContactBackend, FakeOrganisationBackend])
-        # crudity_registry.register_backends([DocumentFakeBackend])
         crudity_registry.register_backends([FakeDocumentBackend])
-        # self.assertEqual({Contact, Organisation, Document}, set(crudity_registry._backends))
         self.assertEqual({FakeContact, FakeOrganisation, FakeDocument},
                          set(crudity_registry._backends)
                         )

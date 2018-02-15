@@ -15,7 +15,6 @@ try:
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
     from creme.persons import get_contact_model, get_organisation_model
-    # from creme.persons.models import Contact, Organisation
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from creme.activities import get_activity_model
@@ -218,15 +217,12 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.rcondition = self.get_object_or_fail(PollReplyLineCondition, line=self.rline2)
 
     def _build_edit_answer_url(self, preply, preply_line):
-        # return '/polls/poll_reply/%s/line/%s/edit' % (preply.id, preply_line.id)
         return reverse('polls__edit_reply_line', args=(preply.id, preply_line.id))
 
     def _build_edit_wizard_answer_url(self, preply, line):
-        # return '/polls/poll_reply/%s/line/%s/edit_wizard' % (preply.id, line.id)
         return reverse('polls__edit_reply_line_wizard', args=(preply.id, line.id))
 
     def _build_fill_url(self, preply):
-        # return '/polls/poll_reply/fill/%s' % preply.id
         return reverse('polls__fill_reply', args=(preply.id,))
 
     def _build_preply(self, ptype=None):
@@ -379,9 +375,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         # ----------------------------------------------------------------------
         response = self.assertGET200(preply.get_absolute_url())
-        # self.assertContains(response, 'id="%s"' % preply_lines_block.id_)
-        # self.assertContains(response, line1.question)
-        # self.assertContains(response, line2.question)
         brick_node = self.get_brick_node(self.get_html_tree(response.content), PollReplyLinesBrick.id_)
 
         questions = set()
@@ -1004,7 +997,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         ptype  = PollType.objects.create(name='Political poll')
         preply = self._build_preply(ptype=ptype)
 
-        # self.assertPOST200('/creme_config/polls/poll_type/delete', data={'id': ptype.pk})
         self.assertPOST200(reverse('creme_config__delete_instance', args=('polls', 'poll_type')),
                            data={'id': ptype.pk}
                           )

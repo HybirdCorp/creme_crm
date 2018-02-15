@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 try:
-    #from functools import partial
     from json import dumps as jsondumps
 
     from creme.creme_core.tests.forms.base import FieldTestCase
@@ -18,7 +17,6 @@ __all__ = ('ActivityTypeFieldTestCase',)
 class ActivityTypeFieldTestCase(FieldTestCase):
     @classmethod
     def setUpClass(cls):
-        # FieldTestCase.setUpClass()
         super(ActivityTypeFieldTestCase, cls).setUpClass()
 
         cls.atype = ActivityType.objects.create(id='meeting', name='Meeting',

@@ -4,7 +4,6 @@ try:
     from os.path import join, dirname, abspath
 
     from creme.activesync.commands.settings import Settings
-    #from creme.activesync.connection import Connection
     from .base import BaseASTestCase
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))

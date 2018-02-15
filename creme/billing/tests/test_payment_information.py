@@ -19,15 +19,12 @@ except Exception as e:
 @skipIfCustomOrganisation
 class PaymentInformationTestCase(_BillingTestCase):
     def setUp(self):
-        # _BillingTestCase.setUp(self)
         self.login()
 
     def _build_add_url(self, orga):
-        # return '/billing/payment_information/add/%s' % orga.id
         return reverse('billing__create_payment_info', args=(orga.id,))
 
     def _build_setdefault_url(self, pi, invoice):
-        # return '/billing/payment_information/set_default/%s/%s' % (pi.id, invoice.id)
         return reverse('billing__set_default_payment_info', args=(pi.id, invoice.id))
 
     def test_createview01(self):
@@ -79,7 +76,6 @@ class PaymentInformationTestCase(_BillingTestCase):
         pi = PaymentInformation.objects.create(organisation=organisation, name="RIB 1")
 
         # TODO: get_edit_absolute_url() ?
-        # url = '/billing/payment_information/edit/%s' % pi.id
         url = reverse('billing__edit_payment_info', args=(pi.id,))
         self.assertGET200(url)
 
@@ -112,7 +108,6 @@ class PaymentInformationTestCase(_BillingTestCase):
 
         self.assertTrue(self.refresh(pi_11).is_default)
 
-        # url = '/billing/payment_information/edit/%s' % pi_12.id
         url = reverse('billing__edit_payment_info', args=(pi_12.id,))
         self.assertGET200(url)
 

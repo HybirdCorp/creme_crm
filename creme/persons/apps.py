@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2017  Hybird
+#    Copyright (C) 2015-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -44,18 +44,12 @@ class PersonsConfig(CremeAppConfig):
 
         from . import signals
 
-    # def register_creme_app(self, creme_registry):
-    #     creme_registry.register_app('persons', _(u'Accounts and Contacts'), '/persons')
-
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Contact, self.Organisation)
 
-    # def register_blocks(self, block_registry):
     def register_bricks(self, brick_registry):
-        # from .blocks import block_list
         from . import bricks
 
-        # brick_registry.register(*block_list)
         brick_registry.register(*bricks.bricks_list)
         brick_registry.register_hat(self.Contact,
                                     main_brick_cls=bricks.ContactBarHatBrick,
@@ -75,9 +69,6 @@ class PersonsConfig(CremeAppConfig):
         from .buttons import button_list
 
         button_registry.register(*button_list)
-
-    # def register_fields_config(self, fields_config_registry):
-    #     fields_config_registry.register(self.Address)
 
     def register_field_printers(self, field_printers_registry):
         from django.contrib.auth import get_user_model

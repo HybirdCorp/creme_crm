@@ -1,8 +1,6 @@
 {% extends 'creme_core/generics/view_entity.html' %}
 {% load i18n creme_core_tags creme_ctype creme_query %}
 
-{# {% block delete_button %}{% if not object.is_user %}{{block.super}}{% endif %}{% endblock %} #}
-
 {% block before_content_1 %}
 {% ctype_for_swappable 'PERSONS_CONTACT_MODEL' as contact_ctype %}{% query_entities_count ctype=contact_ctype user=user as contacts_count %}
 {% ctype_for_swappable 'PERSONS_ORGANISATION_MODEL' as orga_ctype %}{% query_entities_count ctype=orga_ctype user=user as organisations_count %}

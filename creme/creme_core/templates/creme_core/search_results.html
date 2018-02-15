@@ -6,8 +6,6 @@
 {% block extrahead %}
 <script>
     $(document).ready(function() {
-{#        creme.utils.decorateSearchResult('{{research|escapejs}}');  #}
-
         var total = 0;
         $('.brick.creme_core-search-brick[search-count]').each(function() {
             total += parseInt($(this).attr('search-count'));

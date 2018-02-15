@@ -19,7 +19,6 @@
 ################################################################################
 
 from django.contrib.contenttypes.models import ContentType
-# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.bricks import QuerysetBrick
@@ -41,18 +40,13 @@ class _RelatedEntitesBrick(QuerysetBrick):
     def detailview_display(self, context):
         entity = context['object']
 
-        return self._render(self.get_template_context(
-                    context, self._get_queryset(entity),
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
-        ))
+        return self._render(self.get_template_context(context, self._get_queryset(entity)))
 
 
 class MessagingListsBlock(_RelatedEntitesBrick):
     id_           = QuerysetBrick.generate_id('sms', 'messaging_lists')
     dependencies  = (MessagingList,)
     verbose_name  = _(u'Messaging lists')
-    # template_name = 'sms/templatetags/block_messaging_lists.html'
     template_name = 'sms/bricks/messaging-lists.html'
     target_ctypes = (SMSCampaign,)
     order_by      = 'name'
@@ -65,7 +59,6 @@ class RecipientsBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('sms', 'recipients')
     dependencies  = (Recipient,)
     verbose_name  = _(u'Unlinked recipients')
-    # template_name = 'sms/templatetags/block_recipients.html'
     template_name = 'sms/bricks/recipients.html'
     target_ctypes = (MessagingList,)
 
@@ -74,18 +67,14 @@ class RecipientsBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                 context,
                 Recipient.objects.filter(messaging_list=pk),  # get_recipients() ??? related_name() ?
-                # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, pk)),
                 ct_id=ContentType.objects.get_for_model(Recipient).id,  # DEPRECATED (use 'objects_ctype.id' instead)
         ))
 
 
 class ContactsBrick(_RelatedEntitesBrick):
     id_           = QuerysetBrick.generate_id('sms', 'contacts')
-    # dependencies  = (Contact,)
     dependencies  = (get_contact_model(),)
     verbose_name  = _(u'Contacts recipients')
-    # template_name = 'sms/templatetags/block_contacts.html'
     template_name = 'sms/bricks/contacts.html'
     target_ctypes = (MessagingList,)
 
@@ -98,16 +87,11 @@ class MessagesBrick(QuerysetBrick):
     dependencies  = (Message,)
     page_size     = 12
     verbose_name  = _(u'Sent messages')
-    # template_name = 'sms/templatetags/block_messages.html'
     template_name = 'sms/bricks/messages.html'
 
     def detailview_display(self, context):
         sending = context['object']
-        return self._render(self.get_template_context(
-                context, sending.messages.all(),
-                # # update_url='/sms/campaign/sending/%s/messages/reload/' % sending.pk
-                # update_url=reverse('sms__reload_messages_block', args=(sending.id,)),
-        ))
+        return self._render(self.get_template_context(context, sending.messages.all()))
 
 
 class SendingsBrick(QuerysetBrick):
@@ -115,7 +99,6 @@ class SendingsBrick(QuerysetBrick):
     dependencies  = (Sending,)
     order_by      = '-date'
     verbose_name  = _(u'Sendings')
-    # template_name = 'sms/templatetags/block_sendings.html'
     template_name = 'sms/bricks/sendings.html'
     target_ctypes = (SMSCampaign,)
 
@@ -124,6 +107,4 @@ class SendingsBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     Sending.objects.filter(campaign=campaign),  # get_sendings() ??
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, campaign.pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, campaign.pk)),
         ))

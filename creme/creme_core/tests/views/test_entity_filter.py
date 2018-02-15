@@ -30,7 +30,6 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
     @classmethod
     def setUpClass(cls):
-        # ViewsTestCase.setUpClass()
         super(EntityFilterViewsTestCase, cls).setUpClass()
 
         get_ct = ContentType.objects.get_for_model
@@ -38,18 +37,12 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         cls.ct_orga    = get_ct(FakeOrganisation)
 
     def _build_add_url(self, ct):
-        # return '/creme_core/entity_filter/add/%s' % ct.id
         return reverse('creme_core__create_efilter', args=(ct.id,))
 
-    # def _build_edit_url(self, efilter):
-    #     return '/creme_core/entity_filter/edit/%s' % efilter.id
-
     def _build_get_ct_url(self, rtype):
-        # return '/creme_core/entity_filter/rtype/%s/content_types' % rtype.id
         return reverse('creme_core__ctypes_compatible_with_rtype_as_choices', args=(rtype.id,))
 
-    def _build_get_filter_url(self, ct, all_filter=False, use_GET=False):
-        # return '/creme_core/entity_filter/get_for_ctype/%s' % ct.id
+    def _build_get_filter_url(self, ct, use_GET=False):
         return reverse('creme_core__efilters', args=(ct.id,)) if not use_GET else \
                reverse('creme_core__efilters') + '?ct_id=%s' % ct.id
 
@@ -1378,7 +1371,6 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
     def test_filters_for_ctype03(self):
         self.login(is_superuser=False, allowed_apps=['documents'])
-        # self.assertGET403('/creme_core/entity_filter/get_for_ctype/%s' % self.ct_contact.id)
         self.assertGET403(self._build_get_filter_url(self.ct_contact))
 
     def test_filters_for_ctype04(self):
@@ -1395,7 +1387,6 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                     [efilter02.id, 'Filter 02'],
                    ]
 
-        # response = self.assertGET200('/creme_core/entity_filter/get_for_ctype/%s/all' % self.ct_contact.id)
         response = self.assertGET200(reverse('creme_core__efilters_n_all', args=(self.ct_contact.id,)))
         self.assertEqual(expected, load_json(response.content))
 

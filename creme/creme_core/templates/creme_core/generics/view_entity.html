@@ -1,15 +1,6 @@
 {% extends 'creme_core/detailview.html' %}
 {% load i18n creme_core_tags creme_widgets creme_bricks %}
 
-{% comment %}
-{% block add_new_button %}
-    {# {% if path %} #}
-    <li>{% get_add_button object user %}</li>
-    {# {% endif %} #}
-    {# <li>{% get_clone_button object user %}</li> #}
-{% endblock %}
-{% endcomment %}
-
 {% block global_buttons %}
     {{block.super}}
 
@@ -39,17 +30,6 @@
 
     {% brick_display bricks.hat %}
 {% endblock %}
-
-{% comment %}
-{% block entity_buttons %}
-    {# {% if path %} #}
-        {% get_edit_button object user %}
-        {% if object.is_deleted %}&nbsp;{% get_restore_button object user %}{% endif %}
-        &nbsp;
-        {% block delete_button %}{% get_delete_button object user %}{% endblock %}
-    {# {% endif %} #}
-{% endblock %}
-{% endcomment %}
 
 {% block detail_view_top %}
     {% brick_display bricks.top %}

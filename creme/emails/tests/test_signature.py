@@ -4,7 +4,7 @@ try:
     from django.core.urlresolvers import reverse
 
     from .base import _EmailsTestCase, skipIfCustomEmailTemplate, EmailTemplate
-    from ..models import EmailSignature  # EmailTemplate
+    from ..models import EmailSignature
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -17,7 +17,6 @@ class SignaturesTestCase(_EmailsTestCase):
         self.login()
         self.assertFalse(EmailSignature.objects.count())
 
-        # url = '/emails/signature/add'
         url = reverse('emails__create_signature')
         self.assertGET200(url)
 
@@ -39,7 +38,6 @@ class SignaturesTestCase(_EmailsTestCase):
         body = 'I love you... not'
         signature = EmailSignature.objects.create(user=user, name=name, body=body)
 
-        #url = '/emails/signature/edit/%s' % signature.id
         url = signature.get_edit_absolute_url()
         self.assertGET200(url)
 
@@ -62,7 +60,6 @@ class SignaturesTestCase(_EmailsTestCase):
         signature = EmailSignature.objects.create(user=self.other_user, name='Funny signature',
                                                   body='I love you... not',
                                                  )
-        #self.assertGET403('/emails/signature/edit/%s' % signature.id)
         self.assertGET403(signature.get_edit_absolute_url())
 
     def test_edit03(self):
@@ -75,7 +72,6 @@ class SignaturesTestCase(_EmailsTestCase):
         self.assertGET200(signature.get_edit_absolute_url())
 
     def _delete(self, signature):
-        # return self.client.post('/emails/signature/delete', data={'id': signature.id}, follow=True)
         return self.client.post(reverse('emails__delete_signature'), data={'id': signature.id}, follow=True)
 
     def test_delete01(self):

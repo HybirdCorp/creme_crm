@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -44,7 +44,6 @@ MailingList  = get_mailinglist_model()
 
 
 def abstract_add_mailinglist(request, form=MailingListForm,
-                             # submit_label=_('Save the mailing list')
                              submit_label=MailingList.save_label,
                             ):
     return add_entity(request, form,
@@ -140,7 +139,6 @@ def add_children(request, ml_id):
     return add_to_entity(request, ml_id, AddChildForm,
                          ugettext(u'New child lists for «%s»'),
                          entity_class=MailingList,
-                         # submit_label=_(u'Link the mailing lists'),
                          submit_label=_(u'Link the mailing list'),
                          template='creme_core/generics/blockform/link_popup.html',
                         )

@@ -27,13 +27,11 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-# from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.core import setting_key
 from creme.creme_core.gui.bricks import Brick, PaginatedBrick, QuerysetBrick, brick_registry
-# from creme.creme_core.gui.fields_config import fields_config_registry
 from creme.creme_core.models import (CremeModel, CremeEntity, UserRole, SettingValue,
         CremePropertyType, RelationType, SemiFixedRelationType, FieldsConfig,
         CustomField, CustomFieldEnumValue,
@@ -109,7 +107,6 @@ class SettingsBrick(QuerysetBrick):
     dependencies  = (SettingValue,)
     page_size     = _PAGE_SIZE
     verbose_name  = u'App settings'
-    # template_name = 'creme_config/templatetags/block_settings.html'
     template_name = 'creme_config/bricks/setting-values.html'
     configurable  = False
 
@@ -120,12 +117,9 @@ class SettingsBrick(QuerysetBrick):
                             if skey.app_label == app_name and not skey.hidden
                     ]
 
-        # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                                 context,
                                 SettingValue.objects.filter(key_id__in=skeys_ids, user=None),
-                                # # update_url='/creme_config/settings/%s/reload/' % app_name,
-                                # update_url=reverse('creme_config__reload_settings_block', args=(app_name,)),
                                 app_name=app_name,
                            ))
 
@@ -141,16 +135,12 @@ class PropertyTypesBrick(_ConfigAdminBrick):
     dependencies  = (CremePropertyType,)
     order_by      = 'text'
     verbose_name  = _(u'Property types configuration')
-    # template_name = 'creme_config/templatetags/block_property_types.html'
     template_name = 'creme_config/bricks/property-types.html'
 
     def detailview_display(self, context):
-        # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context,
                     CremePropertyType.objects.annotate(stats=Count('cremeproperty')),
-                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 
@@ -158,18 +148,14 @@ class RelationTypesBrick(_ConfigAdminBrick):
     id_           = _ConfigAdminBrick.generate_id('creme_config', 'relation_types')
     dependencies  = (RelationType,)
     verbose_name  = _(u'List of standard relation types')
-    # template_name = 'creme_config/templatetags/block_relation_types.html'
     template_name = 'creme_config/bricks/relation-types.html'
 
     def detailview_display(self, context):
-        # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context,
                     RelationType.objects.filter(is_custom=False,
                                                 pk__contains='-subject_',
                                                ),
-                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
                     custom=False,
         ))
 
@@ -178,18 +164,14 @@ class CustomRelationTypesBrick(_ConfigAdminBrick):
     id_           = _ConfigAdminBrick.generate_id('creme_config', 'custom_relation_types')
     dependencies  = (RelationType,)
     verbose_name  = _(u'Custom relation types configuration')
-    # template_name = 'creme_config/templatetags/block_relation_types.html'
     template_name = 'creme_config/bricks/relation-types.html'
 
     def detailview_display(self, context):
-        # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context,
                     RelationType.objects.filter(is_custom=True,
                                                 pk__contains='-subject_',
                                                ),
-                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
                     custom=True,
         ))
 
@@ -198,15 +180,11 @@ class SemiFixedRelationTypesBrick(_ConfigAdminBrick):
     id_           = _ConfigAdminBrick.generate_id('creme_config', 'semifixed_relation_types')
     dependencies  = (RelationType, SemiFixedRelationType,)
     verbose_name  = _(u'List of semi-fixed relation types')
-    # template_name = 'creme_config/templatetags/block_semifixed_relation_types.html'
     template_name = 'creme_config/bricks/semi-fixed-relation-types.html'
 
     def detailview_display(self, context):
-        # btc = self.get_block_template_context(
         btc = self.get_template_context(
                     context, SemiFixedRelationType.objects.all(),
-                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         )
 
         CremeEntity.populate_real_entities([sfrt.object_entity for sfrt in btc['page'].object_list])
@@ -219,29 +197,19 @@ class FieldsConfigsBrick(PaginatedBrick):
     dependencies  = (FieldsConfig,)
     page_size     = _PAGE_SIZE
     verbose_name  = u'Fields configuration'
-    # template_name = 'creme_config/templatetags/block_fields_configs.html'
     template_name = 'creme_config/bricks/fields-configs.html'
     permission    = None  # NB: used by the view creme_core.views.blocks.reload_basic()
     configurable  = False
 
     def detailview_display(self, context):
-        # from .forms.fields_config import _get_fields_enum
-
         # TODO: exclude CTs that user cannot see ? (should probably done everywhere in creme_config...)
         fconfigs = list(FieldsConfig.objects.all())
         sort_key = collator.sort_key
         fconfigs.sort(key=lambda fconf: sort_key(unicode(fconf.content_type)))
 
-        # used_ctypes = {fconf.content_type for fconf in fconfigs}
         used_models = {fconf.content_type.model_class() for fconf in fconfigs}
-        # btc = self.get_block_template_context(
         btc = self.get_template_context(
                     context, fconfigs,
-                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
-                    # display_add_button=any(ct not in used_ctypes and any(_get_fields_enum(ct))
-                    #                             for ct in fields_config_registry.ctypes
-                    #                       ),
                     display_add_button=any(model not in used_models
                                                 for model in filter(FieldsConfig.is_model_valid, apps.get_models())
                                           ),
@@ -301,7 +269,6 @@ class CustomFieldsBrick(Brick):
                     for ct_id, ct_cfields in cfields_per_ct_id.iteritems()
                  ]
 
-        # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                         context, ctypes=ctypes,
         ))
@@ -312,7 +279,6 @@ class UsersBrick(_ConfigAdminBrick):
     dependencies  = (User,)
     order_by      = 'username'
     verbose_name  = u'Users configuration'
-    # template_name = 'creme_config/templatetags/block_users.html'
     template_name = 'creme_config/bricks/users.html'
 
     def detailview_display(self, context):
@@ -321,12 +287,7 @@ class UsersBrick(_ConfigAdminBrick):
         if not context['user'].is_staff:
             users = users.exclude(is_staff=True)
 
-        # btc = self.get_block_template_context(
-        btc = self.get_template_context(
-                    context, users,
-                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
-        )
+        btc = self.get_template_context(context, users)
         page = btc['page']
         page_users = page.object_list
         TIME_ZONE = settings.TIME_ZONE
@@ -344,15 +305,11 @@ class TeamsBrick(_ConfigAdminBrick):
     dependencies  = (User,)
     order_by      = 'username'
     verbose_name  = u'Teams configuration'
-    # template_name = 'creme_config/templatetags/block_teams.html'
     template_name = 'creme_config/bricks/teams.html'
 
     def detailview_display(self, context):
-        # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context, User.objects.filter(is_team=True),
-                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 
@@ -361,7 +318,6 @@ class BlockDetailviewLocationsBrick(PaginatedBrick):
     dependencies  = (BlockDetailviewLocation,)
     page_size     = _PAGE_SIZE - 1  # '-1' because there is always the line for default config on each page
     verbose_name  = u'Blocks locations on detailviews'
-    # template_name = 'creme_config/templatetags/block_blocklocations.html'
     template_name = 'creme_config/bricks/bricklocations-detailviews.html'
     permission    = None  # NB: used by the view creme_core.views.blocks.reload_basic
     configurable  = False
@@ -391,11 +347,8 @@ class BlockDetailviewLocationsBrick(PaginatedBrick):
         sort_key = collator.sort_key
         ctypes.sort(key=lambda ctw: sort_key(unicode(ctw.ctype)))
 
-        # btc = self.get_block_template_context(
         btc = self.get_template_context(
                     context, ctypes,
-                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
                     max_conf_count=UserRole.objects.count() + 1,  # NB: '+ 1' is for super-users config.
         )
 
@@ -445,22 +398,11 @@ class BlockPortalLocationsBrick(PaginatedBrick):
     dependencies  = (BlockPortalLocation,)
     page_size     = _PAGE_SIZE - 2  # '-2' because there is always the line for default config & home config on each page
     verbose_name  = u'Blocks locations on portals'
-    # template_name = 'creme_config/templatetags/block_blockportallocations.html'
     template_name = 'creme_config/bricks/bricklocations-portals.html'
     permission    = None  # NB: used by the view creme_core.views.blocks.reload_basic()
     configurable  = False
 
     def detailview_display(self, context):
-        # get_app = creme_registry.get_app
-        # apps = list(filter(None,
-        #                    (get_app(name, silent_fail=True)
-        #                         for name in BlockPortalLocation.objects.exclude(app_name='creme_core')
-        #                                                        .order_by('app_name')  # In order that distinct() works correctly
-        #                                                        .distinct()
-        #                                                        .values_list('app_name', flat=True)
-        #                                if name
-        #                    )
-        #            ))
         app_configs = []
 
         for label in (BlockPortalLocation.objects.exclude(app_name='creme_core')
@@ -473,17 +415,9 @@ class BlockPortalLocationsBrick(PaginatedBrick):
                 logger.warn('BlockPortalLocationsBlock: the app "%s" is not installed', label)
 
         sort_key = collator.sort_key
-        # apps.sort(key=lambda app: sort_key(app.verbose_name))
         app_configs.sort(key=lambda app: sort_key(app.verbose_name))
 
-        # return self._render(self.get_block_template_context(
-        return self._render(self.get_template_context(
-                    context,
-                    # apps,
-                    app_configs,
-                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
-        ))
+        return self._render(self.get_template_context(context, app_configs))
 
 
 class BlockHomeLocationsBrick(_ConfigAdminBrick):
@@ -503,16 +437,12 @@ class BlockDefaultMypageLocationsBrick(_ConfigAdminBrick):
     id_           = _ConfigAdminBrick.generate_id('creme_config', 'blocks_default_mypage_locations')
     dependencies  = (BlockMypageLocation,)
     verbose_name  = u'Default blocks locations on "My page"'
-    # template_name = 'creme_config/templatetags/block_blockdefmypagelocations.html'
     template_name = 'creme_config/bricks/bricklocations-mypage-default.html'
 
     def detailview_display(self, context):
-        # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context,
                     BlockMypageLocation.objects.filter(user=None),
-                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 
@@ -520,16 +450,12 @@ class BlockMypageLocationsBrick(_ConfigAdminBrick):
     id_           = _ConfigAdminBrick.generate_id('creme_config', 'blocks_mypage_locations')
     dependencies  = (BlockMypageLocation,)
     verbose_name  = u'Blocks locations on "My page"'
-    # template_name = 'creme_config/templatetags/block_blockmypagelocations.html'
     template_name = 'creme_config/bricks/bricklocations-mypage-user.html'
 
     def detailview_display(self, context):
-        # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context,
                     BlockMypageLocation.objects.filter(user=context['user']),
-                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 
@@ -538,15 +464,11 @@ class RelationBlocksConfigBrick(_ConfigAdminBrick):
     # BlockDetailviewLocation because they can be deleted if we delete a RelationBlockItem
     dependencies  = (RelationBlockItem, BlockDetailviewLocation)
     verbose_name  = u'Relation blocks configuration'
-    # template_name = 'creme_config/templatetags/block_relationblocksconfig.html'
     template_name = 'creme_config/bricks/relationbricks-configs.html'
 
     def detailview_display(self, context):
-        # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context, RelationBlockItem.objects.all(),
-                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 
@@ -555,24 +477,18 @@ class InstanceBlocksConfigBrick(_ConfigAdminBrick):
     # BlockDetailviewLocation because they can be deleted if we delete a InstanceBlockConfigItem
     dependencies  = (InstanceBlockConfigItem, BlockDetailviewLocation)
     verbose_name  = u'Instance blocks configuration'
-    # template_name = 'creme_config/templatetags/block_instanceblocksconfig.html'
     template_name = 'creme_config/bricks/instancebricks-configs.html'
 
     def detailview_display(self, context):
-        # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context, InstanceBlockConfigItem.objects.all(),
-                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 
-# class CustomBlocksConfigBlock(_ConfigAdminBlock):
 class CustomBlocksConfigBrick(PaginatedBrick):
     id_           = _ConfigAdminBrick.generate_id('creme_config', 'custom_blocks_config')
     dependencies  = (CustomBlockConfigItem,)
     verbose_name  = u'Custom blocks configuration'
-    # template_name = 'creme_config/templatetags/block_customblocksconfig.html'
     template_name = 'creme_config/bricks/custombricks-configs.html'
     page_size    = _PAGE_SIZE
     permission   = None  # The portals can be viewed by all users => reloading can be done by all uers too.
@@ -602,19 +518,13 @@ class CustomBlocksConfigBrick(PaginatedBrick):
         sort_key = collator.sort_key
         ctypes.sort(key=lambda ctw: sort_key(unicode(ctw.ctype)))
 
-        # return self._render(self.get_block_template_context(
-        return self._render(self.get_template_context(
-                context, ctypes,
-                # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
-        ))
+        return self._render(self.get_template_context(context, ctypes))
 
 
 class ButtonMenuBrick(Brick):
     id_           = Brick.generate_id('creme_config', 'button_menu')
     dependencies  = (ButtonMenuItem,)
     verbose_name  = u'Button menu configuration'
-    # template_name = 'creme_config/templatetags/block_button_menu.html'
     template_name = 'creme_config/bricks/button-menu.html'
     permission    = None  # NB: used by the view creme_core.views.blocks.reload_basic()
     configurable  = False
@@ -635,13 +545,10 @@ class ButtonMenuBrick(Brick):
         sort_key = collator.sort_key
         buttons.sort(key=lambda t: sort_key(unicode(t[0])))
 
-        # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context,
                     default_buttons=default_buttons,
                     buttons=buttons,
-                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 
@@ -649,7 +556,6 @@ class SearchConfigBrick(PaginatedBrick):
     id_           = PaginatedBrick.generate_id('creme_config', 'searchconfig')
     dependencies  = (SearchConfigItem,)
     verbose_name  = u'Search configuration'
-    # template_name = 'creme_config/templatetags/block_searchconfig.html'
     template_name = 'creme_config/bricks/search-config.html'
     order_by      = 'content_type'
     # TODO _ConfigAdminBlock => Mixin
@@ -672,11 +578,8 @@ class SearchConfigBrick(PaginatedBrick):
         sort_key = collator.sort_key
         ctypes.sort(key=lambda ctw: sort_key(unicode(ctw.ctype)))
 
-        # btc = self.get_block_template_context(
         btc = self.get_template_context(
                 context, ctypes,
-                # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
                 # NB: '+ 2' is for default config + super-users config.
                 max_conf_count=UserRole.objects.count() + 2,
         )
@@ -710,16 +613,10 @@ class HistoryConfigBrick(_ConfigAdminBrick):
     id_           = _ConfigAdminBrick.generate_id('creme_config', 'historyconfig')
     dependencies  = (HistoryConfigItem,)
     verbose_name  = u'History configuration'
-    # template_name = 'creme_config/templatetags/block_historyconfig.html'
     template_name = 'creme_config/bricks/history-config.html'
 
     def detailview_display(self, context):
-        # return self._render(self.get_block_template_context(
-        return self._render(self.get_template_context(
-                    context, HistoryConfigItem.objects.all(),
-                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
-        ))
+        return self._render(self.get_template_context(context, HistoryConfigItem.objects.all()))
 
 
 class UserRolesBrick(_ConfigAdminBrick):
@@ -727,23 +624,16 @@ class UserRolesBrick(_ConfigAdminBrick):
     dependencies  = (UserRole,)
     order_by      = 'name'
     verbose_name  = u'User roles configuration'
-    # template_name = 'creme_config/templatetags/block_user_roles.html'
     template_name = 'creme_config/bricks/user-roles.html'
 
     def detailview_display(self, context):
-        # return self._render(self.get_block_template_context(
-        return self._render(self.get_template_context(
-                    context, UserRole.objects.all(),
-                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
-        ))
+        return self._render(self.get_template_context(context, UserRole.objects.all()))
 
 
 class UserPreferredMenusBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('creme_config', 'user_prefered_menus')
     dependencies  = (PreferedMenuItem,)
     verbose_name  = u'My preferred menus'
-    # template_name = 'creme_config/templatetags/block_user_prefered_menus.html'
     template_name = 'creme_config/bricks/preferred-menus.html'
     configurable  = False
     order_by      = 'order'
@@ -752,13 +642,10 @@ class UserPreferredMenusBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         # NB: credentials OK: user can only view his own settings
-        # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context,
                     PreferedMenuItem.objects.filter(user=context['user']),
                     page_size=self.page_size,
-                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
         ))
 
 
@@ -775,7 +662,6 @@ class UserSettingValuesBrick(Brick):
         # NB: credentials OK: user can only view his own settings
         settings = context['user'].settings
         sv_info_per_app = defaultdict(list)
-        # get_app = creme_registry.get_app
         get_app_config = apps.get_app_config
         count = 0
 
@@ -796,13 +682,9 @@ class UserSettingValuesBrick(Brick):
             sv_info_per_app[skey.app_label].append(info)
             count += 1
 
-        # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context,
-                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                    # update_url=reverse('creme_core__reload_blocks', args=(self.id_,)),
                     values_per_app=[
-                        # (get_app(app_label, silent_fail=True).verbose_name, svalues)
                         (get_app_config(app_label).verbose_name, svalues)
                             for app_label, svalues in sv_info_per_app.iteritems()
                     ],

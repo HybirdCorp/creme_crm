@@ -22,7 +22,6 @@ try:
     from creme.tickets.tests import skipIfCustomTicket, skipIfCustomTicketTemplate
 
     from .base import skipIfCustomGenerator, RecurrentGenerator
-    # from ..management.commands.recurrents_gendocs import Command as GenDocsCommand
     from ..creme_jobs import recurrents_gendocs_type
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -36,15 +35,10 @@ TicketTemplate = get_tickettemplate_model()
 class RecurrentsTicketsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
         super(RecurrentsTicketsTestCase, cls).setUpClass()
-        # apps_2_pop = ['recurrents']
 
         if apps.is_installed('creme.tickets'):
-            # apps_2_pop.append('tickets')
             cls.ct = ContentType.objects.get_for_model(Ticket)
-
-        # cls.populate(*apps_2_pop)
 
     def setUp(self):
         self.login()
@@ -56,7 +50,6 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         recurrents_gendocs_type.execute(job or self._get_job())
 
     def test_portal(self):
-        # self.assertGET200('/recurrents/')
         self.assertGET200(reverse('recurrents__portal'))
 
     def test_populate(self):
@@ -299,7 +292,6 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         self.assertEqual(1, len(new_tickets))
 
         ticket = new_tickets[0]
-#        self.assertEqual(u'%s %s #1' % (tpl.title, date_format(now_value.date(), 'DATE_FORMAT')),
         self.assertEqual(u'%s %s' % (tpl.title, date_format(now_value.date(), 'DATE_FORMAT')),
                          ticket.title
                         )
@@ -328,7 +320,6 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         self.assertIsNotNone(wakeup)
         self.assertDatetimesAlmostEqual(now_value + timedelta(days=1), wakeup)
 
-        # GenDocsCommand().handle(verbosity=0)
         self._generate_docs(job)
         self.assertFalse(Ticket.objects.all())
 
@@ -346,7 +337,6 @@ class RecurrentsTicketsTestCase(CremeTestCase):
                                                 last_generation=now_value - timedelta(days=7),
                                                )
 
-        # GenDocsCommand().handle(verbosity=0)
         job = self._get_job()
         self.assertDatetimesAlmostEqual(now(), job.type.next_wakeup(job, now()))
 

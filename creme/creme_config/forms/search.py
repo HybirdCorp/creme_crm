@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.db import models
-from django.forms import ModelChoiceField, MultipleChoiceField  # ValidationError
+from django.forms import ModelChoiceField, MultipleChoiceField
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import CremeModelForm
@@ -36,35 +35,6 @@ class _SearchForm(CremeModelForm):
     class Meta:
         model = SearchConfigItem
         exclude = ('content_type', 'role', 'field_names')
-
-    # error_messages = {
-    #     'invalid_first_type':   _(u'This type of field can not be the first column.'),
-    #     'nullable_first_field': _(u'The first column cannot be a possibly empty field.'),
-    # }
-    #
-    # # todo: factorise with .bricks ?
-    # # These fields are already rendered with <a> tag ; it would be better to
-    # # have a higher semantic (ask to the fields printer how it renders theme ???)
-    # invalid_first_types = (models.URLField, models.EmailField)
-    #
-    # def clean_fields(self):
-    #     fields = self.cleaned_data['fields']
-    #
-    #     # todo: move to SearchConfigItem (& use it in SearchConfigItem.create_if_needed())
-    #     if fields:
-    #         first_field = self.instance.content_type.model_class()._meta.get_field(fields[0])
-    #
-    #         if isinstance(first_field, self.invalid_first_types):
-    #             raise ValidationError(self.error_messages['invalid_first_type'], code='invalid_first_type')
-    #
-    #         # In the results, the first column is used to create a link to the entity ; so:
-    #         #  - if there is only 1 column, no result will be empty (because we search in 1 field with a not empty string).
-    #         #  - if there is only 2+ columns, the first column should not be empty (because it woud create an empty <a>).
-    #         # todo: allow if all available choices are null/blank
-    #         if (first_field.null or first_field.blank) and len(fields) > 1:
-    #             raise ValidationError(self.error_messages['nullable_first_field'], code='nullable_first_field')
-    #
-    #     return fields
 
     def save(self, *args, **kwargs):
         self.instance.searchfields = self.cleaned_data['fields']

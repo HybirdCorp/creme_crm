@@ -19,9 +19,7 @@ except Exception as e:
 
 
 class RelationViewsTestCase(ViewsTestCase):
-    # DELETE_ALL_URL    = '/creme_core/relation/delete/all'
     DELETE_ALL_URL    = reverse('creme_core__delete_all_relations')
-    # ADD_FROM_PRED_URL = '/creme_core/relation/add_from_predicate/save'
     ADD_FROM_PRED_URL = reverse('creme_core__save_relations')
     SELECTION_URL     =  reverse('creme_core__select_entities_to_link')
 
@@ -32,17 +30,10 @@ class RelationViewsTestCase(ViewsTestCase):
                     ' {"rtype": "%s", "ctype": "%s", "entity": "%s"},' \
                     ' {"rtype": "%s", "ctype": "%s", "entity": "%s"}]'
 
-    # @classmethod
-    # def setUpClass(cls):
-    #     ViewsTestCase.setUpClass()
-    #     cls.populate('creme_core')
-
     def _build_get_ctypes_url(self, rtype_id):
-        # return '/creme_core/relation/type/%s/content_types/json' % rtype_id
         return reverse('creme_core__ctypes_compatible_with_rtype', args=(rtype_id,))
 
     def _build_predicates_json_url(self, entity):
-        # return '/creme_core/relation/entity/%s/rtypes/json' % entity.id
         return reverse('creme_core__rtypes_compatible_with_entity', args=(entity.id,))
 
     def test_get_ctypes_of_relation01(self):
@@ -572,11 +563,6 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEntiTyHasRelation(subject, allowed_rtype, self.object01)
         self.assertEntiTyHasRelation(subject, allowed_rtype, self.object02)
 
-    # def _build_bulk_add_url(self, ct_id, *subjects):
-    #     return '/creme_core/relation/add_to_entities/%(ct_id)s/?%(sub_ids)s&persist=ids' % {
-    #                     'ct_id':   ct_id,
-    #                     'sub_ids': ''.join('ids=%s&' % subject.id for subject in subjects),
-    #                 }
     def _build_bulk_add_url(self, ct_id, *subjects, **kwargs):
         url = reverse('creme_core__create_relations_bulk', args=(ct_id,))
 
@@ -595,11 +581,8 @@ class RelationViewsTestCase(ViewsTestCase):
                                 object_entity=self.object02
                                )
         ct_id = self.ct_id
-        # url = self._build_bulk_add_url(ct_id, self.subject01, self.subject02)
-        # self.assertGET200(url)
         self.assertGET200(self._build_bulk_add_url(ct_id, self.subject01, self.subject02, GET=True))
 
-        # response = self.client.post(url,
         response = self.client.post(self._build_bulk_add_url(ct_id),
                                     data={'entities_lbl': 'wtf',
                                           'relations':    self.format_str_2x % (
@@ -625,8 +608,6 @@ class RelationViewsTestCase(ViewsTestCase):
         unviewable = CremeEntity.objects.create(user=self.other_user)
         self.assertFalse(self.user.has_perm_to_view(unviewable))
 
-        # url = self._build_bulk_add_url(self.ct_id, self.subject01, unviewable)
-        # response = self.assertGET200(url)
         ct_id = self.ct_id
         response = self.assertGET200(self._build_bulk_add_url(ct_id, self.subject01, unviewable, GET=True))
 
@@ -635,7 +616,6 @@ class RelationViewsTestCase(ViewsTestCase):
 
         self.assertTrue(label.initial)
 
-        # response = self.client.post(url,
         response = self.client.post(self._build_bulk_add_url(self.ct_id),
                                     data={'entities_lbl':     'do not care',
                                           'bad_entities_lbl': 'do not care',
@@ -658,7 +638,6 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertTrue(self.user.has_perm_to_view(unlinkable))
         self.assertFalse(self.user.has_perm_to_link(unlinkable))
 
-        # response = self.assertGET200(self._build_bulk_add_url(self.ct_id, self.subject01, unlinkable))
         response = self.assertGET200(self._build_bulk_add_url(self.ct_id, self.subject01, unlinkable, GET=True))
 
         with self.assertNoException():
@@ -669,14 +648,11 @@ class RelationViewsTestCase(ViewsTestCase):
     def test_add_relations_bulk04(self):
         self._aux_test_add_relations(is_superuser=False)
 
-        # url = self._build_bulk_add_url(self.ct_id, self.subject01)
-        # self.assertGET200(url)
         self.assertGET200(self._build_bulk_add_url(self.ct_id, self.subject01, GET=True))
 
         self._set_all_creds_except_one(excluded=EntityCredentials.LINK)
         unlinkable = CremeEntity.objects.create(user=self.other_user)
 
-        # response = self.assertPOST200(url,
         response = self.assertPOST200(self._build_bulk_add_url(self.ct_id),
                                       data={'entities_lbl': 'wtf',
                                             'relations':    self.format_str % (
@@ -731,7 +707,6 @@ class RelationViewsTestCase(ViewsTestCase):
                                                     object_entity=self.object01,
                                                    )
 
-        # response = self.client.post(self._build_bulk_add_url(self.ct_id, self.subject01, self.subject02),
         response = self.client.post(self._build_bulk_add_url(self.ct_id),
                                     data={'entities_lbl':     'wtf',
                                           'relations':        self.format_str % (
@@ -762,18 +737,6 @@ class RelationViewsTestCase(ViewsTestCase):
                                 object_entity=self.object02
                                )
 
-        # url = '/creme_core/relation/add_to_entities/%s/%s,%s,/?ids=%s&ids=%s&persist=ids' % (
-        #             self.ct_id, self.rtype01.id, self.rtype02.id, self.subject01.id, self.subject02.id
-        #         )
-        # response = self.assertGET200(url)
-
-        # url = reverse('creme_core__create_relations_bulk', args=(self.ct_id,)) + \
-        #       '?persist=ids&ids=%s&ids=%s&rtype=%s&rtype=%s' % (
-        #                 self.subject01.id,
-        #                 self.subject02.id,
-        #                 self.rtype01.id,
-        #                 self.rtype02.id,
-        #          )
         ct_id = self.ct_id
         response = self.assertGET200(self._build_bulk_add_url(ct_id, self.subject01, self.subject02, GET=True)
                                      + '&rtype={}&rtype={}'.format(self.rtype01.id, self.rtype02.id)
@@ -784,7 +747,6 @@ class RelationViewsTestCase(ViewsTestCase):
 
         self.assertEqual({self.rtype01, self.rtype02}, set(allowed_rtypes))
 
-        # response = self.client.post(url,
         response = self.client.post(self._build_bulk_add_url(ct_id),
                                     data={'entities_lbl': 'wtf',
                                           'relations':    self.format_str_2x % (
@@ -847,9 +809,6 @@ class RelationViewsTestCase(ViewsTestCase):
     def test_add_relations_bulk_legacy02(self):  # TODO: remove in 1.8
         self._aux_test_add_relations()
 
-        # url = '/creme_core/relation/add_to_entities/%s/%s/?ids=%s&ids=%s&persist=ids' % (
-        #             self.ct_id, self.rtype01.id, self.subject01.id, self.subject02.id
-        #         )
         url = reverse('creme_core__create_relations_bulk',
                       args=(self.ct_id, self.rtype01.id),
                      ) + '?persist=ids&ids=%s&ids=%s' % (self.subject01.id, self.subject02.id)
@@ -888,11 +847,6 @@ class RelationViewsTestCase(ViewsTestCase):
                                         )[0]
 
     def _build_selection_url(self, rtype, subject, ct):
-        # return '/creme_core/relation/objects2link/rtype/%s/entity/%s/%s' % (
-        #             rtype.id,
-        #             subject.id,
-        #             ct.id
-        #         )
         return reverse('creme_core__select_entities_to_link', args=(rtype.id, subject.id, ct.id))
 
     def test_objects_to_link_selection01(self):  # TODO: delete in creme1.8
@@ -1259,7 +1213,6 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertFalse(Relation.objects.filter(type=rtype))
 
     def _delete(self, relation):
-        # return self.client.post('/creme_core/relation/delete', data={'id': relation.id})
         return self.client.post(reverse('creme_core__delete_relation'), data={'id': relation.id})
 
     def test_delete01(self):
@@ -1325,7 +1278,6 @@ class RelationViewsTestCase(ViewsTestCase):
         self.get_object_or_fail(Relation, pk=relation.pk)
 
     def _delete_similar(self, subject, rtype, obj):
-        # return self.client.post('/creme_core/relation/delete/similar',
         return self.client.post(reverse('creme_core__delete_similar_relations'),
                                 data={'subject_id': subject.id,
                                       'type':       rtype.id,

@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2016 Hybird
+# Copyright (c) 2009-2018 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 ################################################################################
-
-# import warnings
 
 from django.db.models import Model, CharField
 from django.db.transaction import atomic
@@ -79,20 +77,6 @@ class Mutex(Model):
 
     def save(self, *args, **kwargs):
         super(Mutex, self).save(force_insert=True, *args, **kwargs)
-
-
-# def mutexify(func, lock_name):
-#     warnings.warn("mutexify decorator is deprecated; use mutex_autolock instead", DeprecationWarning)
-#
-#     def _aux(*args, **kwargs):
-#         try:
-#             lock = Mutex.get_n_lock(lock_name)
-#         except MutexLockedException:
-#             print 'A process is already running'
-#         else:
-#             func(*args, **kwargs)
-#         finally:
-#             Mutex.graceful_release(lock_name)
 
 
 def mutex_autolock(lock_name):

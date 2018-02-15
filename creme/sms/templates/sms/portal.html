@@ -5,10 +5,3 @@
 {% block title %}{% trans 'SMS Campaigns portal' %}{% endblock %}
 {% block list_url %}{% url 'sms__list_campaigns' %}{% endblock %}
 {% block list_msg %}{% trans 'List of campaigns' %}{% endblock %}
-{% comment %}
-{% block before_statistics %}
-    {{block.super}}
-{#    {% include "creme_core/templatetags/block_object.html" with object=account %} #}
-    {% include 'creme_core/bricks/generic/entity.html' with object=account %}
-{% endblock %}
-{% endcomment %}

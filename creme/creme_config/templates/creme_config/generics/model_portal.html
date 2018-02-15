@@ -6,7 +6,6 @@
 {% block title %}
     {% has_perm_to access 'creme_config' as conf_perm %}
     {% if conf_perm %}<a href="{% url 'creme_config__portal' %}">{% trans 'Configuration' %} > </a>{% endif %}
-{#    <a href="/creme_config/{{app_name}}/portal/">{{app_verbose_name}} > </a> #}
     <a href="{% url 'creme_config__app_portal' app_name %}">{{app_verbose_name}} > </a>
     {% blocktrans with model|get_meta_value:'verbose_name' as model_name %}Type : {{model_name}}{% endblocktrans %}
 {% endblock %}

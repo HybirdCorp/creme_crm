@@ -3,7 +3,6 @@
 try:
     from datetime import date
     from os.path import join, dirname, abspath
-    #from xml.etree.ElementTree import XML, tostring
     try:
         from cStringIO import StringIO
     except ImportError:
@@ -21,9 +20,6 @@ try:
     from creme.persons.constants import REL_SUB_EMPLOYED_BY
     from creme.persons.tests.base import (skipIfCustomAddress, skipIfCustomContact,
             skipIfCustomOrganisation)
-
-    #from ..mappings.utils import serialize_entity
-    #from ..mappings.contact import CREME_CONTACT_MAPPING
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -38,7 +34,6 @@ Organisation = get_organisation_model()
 class MappingTestCase(CremeTestCase):
     def setUp(self):
         self.xml_path = join(dirname(abspath(__file__)), 'data', 'mappings')
-        # self.populate('creme_core', 'persons', ) #in setUpClass ??
 
     def _open_n_read(self, filename, mode='r'):
         path = join(self.xml_path, filename)

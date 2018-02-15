@@ -1,19 +1,15 @@
 {% extends 'crudity/waiting-actions.html' %}
-{# {% extends 'creme_core/base.html' %} #}
 {% load i18n creme_widgets creme_bricks %}
 
 {% block page_title %}{% trans 'Synchronization of incoming emails with Creme' %} - {% endblock %}
 
 {% block content %}
-{#    {% include 'emails/frags/ajax/synchronize.html' %} #}
-
     <div class="hat-bar-container">
         <div class="hat-bar">
             <div class="bar-icon">{% widget_icon name='email' size='brick-hat-bar' label=_('Emails') %}</div>
             <div class="bar-title"><h1>{% trans 'Synchronization of incoming emails with Creme' %}</h1></div>
             <div class="bar-actions">
                <div class='bar-action'>
-{#                    <a class="bar-button" onclick="creme.ajax.reloadContent($('#sub_content'), '{% url 'emails__crudity_sync' %}');" > #}
                     <a class="bar-button" onclick="refreshWaitingActions('{% url 'crudity__refresh_actions' %}');" >
                         {% widget_icon name='refresh' size='brick-hat-bar-button' label=_('Refresh') %}
                     </a>
@@ -22,12 +18,6 @@
         </div>
     </div>
 
-{% comment %}
-    {% brick_import app='emails' name='waiting_synchronisation' as waiting_synchronisation_brick %}
-    {% brick_import app='emails' name='synchronised_as_spam' as synchronised_as_spam_brick %}
-
-    {% brick_display waiting_synchronisation_brick synchronised_as_spam_brick %}
-{% endcomment %}
     {% if bricks %}
         {% brick_declare bricks %}
         {% brick_display bricks %}

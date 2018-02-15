@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2017  Hybird
+#    Copyright (C) 2015-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,6 @@
 import warnings
 
 from django.core.urlresolvers import reverse
-# from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
@@ -54,9 +53,7 @@ def add(request):
                  )
 
     return add_model_with_popup(request, FieldsConfigAddForm,
-                                # _(u'New fields configuration'),
                                 title=FieldsConfig.creation_label,
-                                # submit_label=_('Save the configuration'),
                                 submit_label=FieldsConfig.save_label,
                                )
 
@@ -88,18 +85,14 @@ class FieldConfigWizard(PopupWizardMixin, SessionWizardView):
 
     class _ConfigStep(FieldsConfigEditForm):
         step_prev_label = _(u'Previous step')
-        # step_submit_label = _('Save the configuration')
         step_submit_label = FieldsConfig.save_label
 
     form_list = (_ModelStep, _ConfigStep)
-    # wizard_title = _(u'New fields configuration')
     wizard_title = FieldsConfig.creation_label
     permission = 'creme_core.can_admin'
 
     def done(self, form_list, **kwargs):
         configure_step = form_list[1]
-
-        # with atomic():
         configure_step.save()
 
         return HttpResponse(content_type='text/javascript')

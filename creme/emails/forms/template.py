@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,6 @@ from creme.creme_core.forms.widgets import TinyMCEEditor
 from creme.documents import get_document_model
 
 from .. import get_emailtemplate_model
-# from .utils import validate_images_in_html
 
 
 # logger = logging.getLogger(__name__)
@@ -70,6 +69,8 @@ class EmailTemplateForm(CremeEntityForm):
                                   code='invalid_vars',
                                  )
 
+        # TODO: return body
+
     def clean_body(self):
         body = self.cleaned_data['body']
         self._clean_body(body)
@@ -80,9 +81,6 @@ class EmailTemplateForm(CremeEntityForm):
         body = self.cleaned_data['body_html']
 
         self._clean_body(body)
-
-        # images = validate_images_in_html(body, self.user)
-        # logger.debug('EmailTemplate will be created with images: %s', images)
 
         return body
 

@@ -40,31 +40,20 @@ except Exception as e:
 
 @skipIfCustomActivity
 class ActivityTestCase(_ActivitiesTestCase):
-    # ADD_URL         = '/activities/activity/add'
     ADD_URL         = reverse('activities__create_activity')
-    # ADD_POPUP_URL   = '/activities/activity/add_popup'
     ADD_POPUP_URL   = reverse('activities__create_activity_popup')
-    # ADD_INDISPO_URL = '/activities/activity/add_indispo'
     ADD_INDISPO_URL = reverse('activities__create_indispo')
-    # DEL_ACTTYPE_URL = '/creme_config/activities/activity_type/delete'
     DEL_ACTTYPE_URL = reverse('creme_config__delete_instance', args=('activities', 'activity_type'))
-    # GET_TYPES       = '/activities/type/%s/json'
 
     def _buid_add_participants_url(self, activity):
-        # return '/activities/activity/%s/participant/add' % activity.id
         return reverse('activities__add_participants', args=(activity.id,))
 
     def _build_add_related_uri(self, related, act_type_id=None):
-        # return '/activities/activity/add_related/%(entity)s%(type_arg)s' % {
-        #             'entity':   related.id,
-        #             'type_arg': '' if not act_type_id else '?activity_type=%s' % act_type_id,
-        #         }
         url = reverse('activities__create_related_activity', args=(related.id,))
 
         return url if not act_type_id else (url + '?activity_type=%s' % act_type_id)
 
     def _buid_add_subjects_url(self, activity):
-        # return '/activities/activity/%s/subject/add' % activity.id
         return reverse('activities__add_subjects', args=(activity.id,))
 
     def _build_get_types_url(self, type_id):
@@ -170,25 +159,20 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_portal(self):
         self.login()
-        # self.assertGET200('/activities/')
         self.assertGET200(reverse('activities__portal'))
 
     def test_get_subtypes(self):
         self.login()
-        # self.assertGET404(self.GET_TYPES % 'unknown')
         build_url = self._build_get_types_url
         self.assertGET404(build_url('unknown'))
 
         # Empty
-        # response = self.assertGET200(self.GET_TYPES % '')
         response = self.assertGET200(build_url(''))
         self.assertListEqual([], json_loads(response.content))
 
         # Valid type
-        # response = self.assertGET200(self.GET_TYPES % constants.ACTIVITYTYPE_TASK)
         response = self.assertGET200(build_url(constants.ACTIVITYTYPE_TASK))
         self.assertListEqual(list(ActivitySubType.objects.filter(type=constants.ACTIVITYTYPE_TASK)
-                                                         # .order_by('id')
                                                          .values_list('id', 'name')
                                  ),
                              json_loads(response.content)
@@ -220,8 +204,6 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'start_time':         '17:30:00',
                                           'end':                '2010-1-10',
                                           'end_time':           '18:45:00',
-                                          # 'my_participation':   True,
-                                          # 'my_calendar':        my_calendar.pk,
                                           'my_participation_0': True,
                                           'my_participation_1': my_calendar.pk,
                                           'other_participants': '[%d]' % genma.id,
@@ -282,8 +264,6 @@ class ActivityTestCase(_ActivitiesTestCase):
                                                                                              constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                                                                                             ),
                                             'start':               '2011-2-22',
-                                            # 'my_participation':    True,
-                                            # 'my_calendar':         my_calendar.pk,
                                             'my_participation_0':  True,
                                             'my_participation_1':  my_calendar.pk,
                                             'participating_users': [other_user.pk],
@@ -344,8 +324,6 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'status':             status.pk,
                                           'start':              '2013-3-26',
                                           'start_time':         '12:10:00',
-                                          # 'my_participation':   True,
-                                          # 'my_calendar':        my_calendar.pk,
                                           'my_participation_0': True,
                                           'my_participation_1': my_calendar.pk,
                                           'other_participants': '[%d, %s]' % (genma.id, akane.id),
@@ -382,14 +360,14 @@ class ActivityTestCase(_ActivitiesTestCase):
                                 ):
         user = self.login()
 
-        data = {'user':             user.pk,
-                'title':            title,
-                'type_selector':    self._acttype_field_value(atype_id, subtype_id),
-                # 'my_participation': True,
-                # 'my_calendar':      Calendar.get_user_default_calendar(user).pk,
-                'my_participation_0': True,
-                'my_participation_1': Calendar.get_user_default_calendar(user).pk,
-               }
+        data = {
+            'user':          user.pk,
+            'title':         title,
+            'type_selector': self._acttype_field_value(atype_id, subtype_id),
+
+            'my_participation_0': True,
+            'my_participation_1': Calendar.get_user_default_calendar(user).pk,
+        }
         data.update(kwargs)
 
         self.assertNoFormError(self.client.post(self.ADD_URL, follow=True, data=data))
@@ -491,14 +469,12 @@ class ActivityTestCase(_ActivitiesTestCase):
         title = 'My task'
         my_calendar = Calendar.get_user_default_calendar(user)
         response = self.client.post(self.ADD_URL, follow=True,
-                                    data={'user':             user.pk,
-                                          'title':            title,
-                                          'status':           Status.objects.all()[0].pk,
-                                          # 'my_participation': True,
-                                          # 'my_calendar':      my_calendar.pk,
+                                    data={'user': user.pk,
+                                          'title': title,
+                                          'status': Status.objects.all()[0].pk,
+                                          'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
                                           'my_participation_0': True,
                                           'my_participation_1': my_calendar.pk,
-                                          'type_selector':    self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -531,8 +507,6 @@ class ActivityTestCase(_ActivitiesTestCase):
                                     data={'user':  user.pk,
                                           'title': title,
                                           'start': '2015-03-10',
-                                          # 'my_participation':    True,
-                                          # 'my_calendar':         Calendar.get_user_default_calendar(user).pk,
                                           'my_participation_0':  True,
                                           'my_participation_1':  Calendar.get_user_default_calendar(user).pk,
                                           'participating_users': [team.id],
@@ -553,15 +527,15 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_createview_errors01(self):
         user = self.login()
 
-        data = {'user':             user.pk,
-                'title':            'My task',
-                'type_selector':    self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
-                'end':              '2013-3-29',
-                # 'my_participation': True,
-                # 'my_calendar':      Calendar.get_user_default_calendar(user).pk,
-                'my_participation_0': True,
-                'my_participation_1': Calendar.get_user_default_calendar(user).pk,
-               }
+        data = {
+            'user':          user.pk,
+            'title':         'My task',
+            'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
+            'end':           '2013-3-29',
+
+            'my_participation_0': True,
+            'my_participation_1': Calendar.get_user_default_calendar(user).pk,
+        }
         url = self.ADD_URL
 
         response = self.assertPOST200(url, follow=True, data=data)
@@ -583,15 +557,13 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         bad_subject = self._create_meeting()
         response = self.assertPOST200(self.ADD_URL, follow=True,
-                                      data={'user':             user.pk,
-                                            'title':            'My task',
-                                            'type_selector':    self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
-                                            # 'my_participation': True,
-                                            # 'my_calendar':      Calendar.get_user_default_calendar(user).pk,
+                                      data={'user':               user.pk,
+                                            'title':              'My task',
+                                            'type_selector':      self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
                                             'my_participation_0': True,
                                             'my_participation_1': Calendar.get_user_default_calendar(user).pk,
-                                            'subjects':         self._relation_field_value(bad_subject),
-                                        }
+                                            'subjects':           self._relation_field_value(bad_subject),
+                                           },
                                      )
         self.assertFormError(response, 'form', 'subjects',
                              _(u'This content type is not allowed.')
@@ -605,14 +577,12 @@ class ActivityTestCase(_ActivitiesTestCase):
         ranma = Contact.objects.create(user=user, first_name='Ranma', last_name='Saotome')
 
         response = self.assertPOST200(self.ADD_URL, follow=True,
-                                      data={'user':             user.pk,
-                                            'title':            'My task',
-                                            'type_selector':    self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
-                                            # 'my_participation': True,
-                                            # 'my_calendar':      Calendar.get_user_default_calendar(user).pk,
+                                      data={'user':               user.pk,
+                                            'title':              'My task',
+                                            'type_selector':      self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
                                             'my_participation_0': True,
                                             'my_participation_1': Calendar.get_user_default_calendar(user).pk,
-                                            'subjects':         self._relation_field_value(ranma),
+                                            'subjects':           self._relation_field_value(ranma),
                                             'other_participants': '[%d]' % self.other_user.linked_contact.id,
                                         }
                                      )
@@ -627,23 +597,18 @@ class ActivityTestCase(_ActivitiesTestCase):
         title = 'Meeting01'
         my_calendar = Calendar.get_user_default_calendar(user)
         response = self.client.post(self.ADD_URL, follow=True,
-                                    data={'user':             user.pk,
-                                          'title':            title,
-                                          'type_selector':    self._acttype_field_value(constants.ACTIVITYTYPE_MEETING, 
-                                                                                        constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
-                                                                                       ),
-                                          'start':            '2010-1-10',
-                                          # 'my_participation': True,
-                                          # 'my_calendar':      my_calendar.pk,
+                                    data={'user':          user.pk,
+                                          'title':         title,
+                                          'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
+                                                                                     constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+                                                                                    ),
+                                          'start': '2010-1-10',
+
                                           'my_participation_0': True,
                                           'my_participation_1': my_calendar.pk,
 
-                                          # 'alert_day':        '2010-2-10',
-                                          # 'alert_start_time': '10:05',
                                           'alert_start': '2010-2-10 10:05',
 
-                                          # 'alert_trigger_number': 2,
-                                          # 'alert_trigger_unit':   'days',
                                           'alert_period_0': 'days',
                                           'alert_period_1': 2,
                                          }
@@ -668,35 +633,30 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     @skipIfNotInstalled('creme.assistants')
     def test_createview_alert02(self):
-        # "Unit is missing"
         "Period value is missing: no alert created"
         user = self.login()
 
         title = 'Meeting01'
         my_calendar = Calendar.get_user_default_calendar(user)
         response = self.client.post(self.ADD_URL, follow=True,
-                                    data={'user':             user.pk,
-                                          'title':            title,
-                                          'type_selector':    self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
-                                                                                        constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
-                                                                                       ),
-                                          'start':            '2013-3-28',
-                                          'start_time':       '17:30:00',
+                                    data={'user':          user.pk,
+                                          'title':         title,
+                                          'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
+                                                                                     constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+                                                                                    ),
 
-                                          # 'my_participation': True,
-                                          # 'my_calendar':      my_calendar.pk,
+                                          'start':      '2013-3-28',
+                                          'start_time': '17:30:00',
+
                                           'my_participation_0': True,
                                           'my_participation_1': my_calendar.pk,
 
-                                          # 'alert_trigger_number': 2,
                                           'alert_period_0': 'days',
                                          }
                                    )
         self.assertNoFormError(response)
 
         act = self.get_object_or_fail(Activity, title=title)
-        # alert = self.get_object_or_fail(Alert, entity_id=act.id)
-        # self.assertEqual(self.create_datetime(2013, 3, 28, 17, 28), alert.trigger_date)
         self.assertFalse(Alert.objects.filter(entity_id=act.id))
 
     @skipIfNotInstalled('creme.assistants')
@@ -730,15 +690,13 @@ class ActivityTestCase(_ActivitiesTestCase):
         field_format = '[{"ctype": {"id": "%s"}, "entity": "%s"}]'
         my_calendar = Calendar.get_user_default_calendar(user)
         response = self.client.post(url, follow=True,
-                                    data={'user':                user.pk,
-                                          'title':               title,
-                                          'type_selector':      self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
-                                                                                          constants.ACTIVITYSUBTYPE_MEETING_NETWORK
-                                                                                         ),
-                                          'start':               '2010-1-10',
+                                    data={'user':          user.pk,
+                                          'title':         title,
+                                          'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
+                                                                                     constants.ACTIVITYSUBTYPE_MEETING_NETWORK
+                                                                                    ),
+                                          'start': '2010-1-10',
 
-                                          # 'my_participation':    True,
-                                          # 'my_calendar':         my_calendar.pk,
                                           'my_participation_0':  True,
                                           'my_participation_1':  my_calendar.pk,
 
@@ -827,8 +785,6 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'status':             status.pk,
                                           'start':              '2013-4-12',
                                           'start_time':         '10:00:00',
-                                          # 'my_participation':   True,
-                                          # 'my_calendar':        my_calendar.pk,
                                           'my_participation_0': True,
                                           'my_participation_1': my_calendar.pk,
                                           'other_participants': '[%d]' % genma.id,
@@ -871,8 +827,6 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'type_selector':    self._acttype_field_value(type_id, subtype.id),
                                           'start':            '2013-4-12',
                                           'start_time':       '10:00:00',
-                                          # 'my_participation': True,
-                                          # 'my_calendar':      my_calendar.pk,
                                           'my_participation_0': True,
                                           'my_participation_1': my_calendar.pk,
                                          }
@@ -882,7 +836,6 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_create_view_invalidtype(self):
         self.login()
-        # self.assertGET404('/activities/activity/add/invalid')
         self.assertGET404(reverse('activities__create_activity', args=('invalid',)))
 
     def test_create_view_unallowedtype(self):
@@ -913,13 +866,11 @@ class ActivityTestCase(_ActivitiesTestCase):
         title  = 'My call'
         my_calendar = Calendar.get_user_default_calendar(user)
         response = self.client.post(url, follow=True,
-                                    data={'user':             user.pk,
-                                          'title':            title,
-                                          'type_selector':    self._acttype_field_value(type_id),
-                                          'start':            '2013-4-12',
-                                          'start_time':       '10:00:00',
-                                          # 'my_participation': True,
-                                          # 'my_calendar':      my_calendar.pk,
+                                    data={'user':               user.pk,
+                                          'title':              title,
+                                          'type_selector':      self._acttype_field_value(type_id),
+                                          'start':              '2013-4-12',
+                                          'start_time':         '10:00:00',
                                           'my_participation_0': True,
                                           'my_participation_1': my_calendar.pk,
                                          }
@@ -1023,15 +974,15 @@ class ActivityTestCase(_ActivitiesTestCase):
         title = 'My meeting'
         my_calendar = Calendar.get_user_default_calendar(user)
         response = self.client.post(uri, follow=True,
-                                    data={'user':             user.pk,
-                                          'title':            title,
-                                          'type_selector':    self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
-                                                                                        constants.ACTIVITYSUBTYPE_MEETING_REVIVAL,
-                                                                                       ),
-                                          'start':            '2013-5-21',
-                                          'start_time':       '9:30:00',
-                                          # 'my_participation': True,
-                                          # 'my_calendar':      my_calendar.pk,
+                                    data={'user':          user.pk,
+                                          'title':         title,
+                                          'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
+                                                                                     constants.ACTIVITYSUBTYPE_MEETING_REVIVAL,
+                                                                                    ),
+
+                                          'start':      '2013-5-21',
+                                          'start_time': '9:30:00',
+
                                           'my_participation_0': True,
                                           'my_participation_1': my_calendar.pk,
                                          }
@@ -1152,8 +1103,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                       'title': title,
                       'start': '2011-2-22',
                       'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
-                                                                  constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                                                                 ),
+                                                                 constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                                                                ),
                      }
             ))
 
@@ -1288,7 +1239,6 @@ class ActivityTestCase(_ActivitiesTestCase):
                                       object_entity=activity,
                                      )
 
-        # self.assertPOST403('/creme_core/entity/delete/%s' % musashi.id, follow=True)
         self.assertPOST403(musashi.get_delete_absolute_url(), follow=True)
         self.assertStillExists(musashi)
         self.assertStillExists(activity)
@@ -1308,7 +1258,6 @@ class ActivityTestCase(_ActivitiesTestCase):
                                       object_entity=activity,
                                      )
 
-        # self.assertPOST200('/creme_core/entity/delete/%s' % activity.id, follow=True)
         self.assertPOST200(activity.get_delete_absolute_url(), follow=True)
         self.assertDoesNotExist(activity)
         self.assertDoesNotExist(rel)
@@ -1328,7 +1277,6 @@ class ActivityTestCase(_ActivitiesTestCase):
                                       object_entity=activity,
                                      )
 
-        # self.assertPOST200('/creme_core/entity/trash/empty')
         self.assertPOST200(reverse('creme_core__empty_trash'))
         self.assertDoesNotExist(activity)
         self.assertDoesNotExist(rel)
@@ -1361,7 +1309,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         musashi.trash()
         kojiro.trash()
 
-        # self.assertPOST200('/creme_core/entity/trash/empty')
         self.assertPOST200(reverse('creme_core__empty_trash'))
         self.assertDoesNotExist(activity)
         self.assertDoesNotExist(musashi)
@@ -1483,25 +1430,10 @@ class ActivityTestCase(_ActivitiesTestCase):
                                     sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
                                    )
 
-        # url = self.build_bulkedit_url([activity1, activity2], 'type')
         url = self.build_bulkupdate_url(Activity, 'type')
-        # response = \
         self.assertGET200(url)
-        # self.assertContains(response,
-        #                     escape(ungettext(u'The type of %s activity cannot be changed because it is an indisponibility.',
-        #                                      u'The type of %s activities cannot be changed because they are indisponibilities.',
-        #                                      1
-        #                                     ) % 1
-        #                           )
-        #                    )
-
         self.assertNoFormError(self.client.post(
                                     url,
-                                    # data={'field_value': self._acttype_field_value(
-                                    #                               constants.ACTIVITYTYPE_MEETING,
-                                    #                               constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                                    #                             ),
-                                    #      }
                                     data={'_bulk_fieldname': url,
                                           'field_value': self._acttype_field_value(
                                                           constants.ACTIVITYTYPE_MEETING,
@@ -1536,21 +1468,14 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         url = self.build_bulkupdate_url(Activity, 'type')
         self.assertNoFormError(self.client.post(
-                                    # self.build_bulkedit_url([activity1, activity2], 'type'),
-                                    url,
-                                    # data={'field_value': self._acttype_field_value(
-                                    #                               ACTIVITYTYPE_INDISPO,
-                                    #                               subtype.id,
-                                    #                             ),
-                                    #      }
-                                    data={'_bulk_fieldname': url,
-                                          'field_value': self._acttype_field_value(
-                                                          ACTIVITYTYPE_INDISPO, subtype.id,
-                                                        ),
-                                          'entities': [activity1.pk, activity2.pk],
-                                         }
-                                   )
-                              )
+            url,
+            data={'_bulk_fieldname': url,
+                  'field_value': self._acttype_field_value(
+                                  ACTIVITYTYPE_INDISPO, subtype.id,
+                                ),
+                  'entities': [activity1.pk, activity2.pk],
+                 }
+        ))
         activity1 = self.refresh(activity1)
         self.assertEqual(ACTIVITYTYPE_INDISPO, activity1.type_id)
         self.assertEqual(subtype,              activity1.sub_type)
@@ -1767,7 +1692,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         r4 = create_rel(type_id=REL_SUB_HAS)
         self.assertEqual(3, contact.relations.filter(pk__in=[r1.id, r2.id, r3.id]).count())
 
-        # url = '/activities/linked_activity/unlink'
         url = reverse('activities__unlink_activity')
         self.assertPOST200(url, data={'id': activity.id, 'object_id': contact.id})
         self.assertEqual(0, contact.relations.filter(pk__in=[r1.id, r2.id, r3.id]).count())
@@ -1826,7 +1750,6 @@ class ActivityTestCase(_ActivitiesTestCase):
                                            object_entity=activity, user=self.user
                                           )
 
-        # self.assertPOST403('/activities/linked_activity/unlink',
         self.assertPOST403(reverse('activities__unlink_activity'),
                            data={'id': activity.id, 'object_id': contact.id}
                           )
@@ -1906,9 +1829,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                             )
 
         self.assertPOST200(self._buid_add_participants_url(phone_call), follow=True,
-                           data={#'my_participation':    True,
-                                 # 'my_calendar':         Calendar.get_user_default_calendar(logged.is_user).pk,
-                                 'my_participation_0':  True,
+                           data={'my_participation_0':  True,
                                  'my_participation_1':  Calendar.get_user_default_calendar(logged.is_user).pk,
                                  'participating_users': [other.is_user_id],
                                  'participants':        '[%d]' % contact3.pk,
@@ -2005,9 +1926,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         team.teammates = [musashi, kojiro, user]
 
         response = self.client.post(self._buid_add_participants_url(activity),
-                                    data={#'my_participation':    True,
-                                          #'my_calendar':         Calendar.get_user_default_calendar(user).pk,
-                                          'my_participation_0':  True,
+                                    data={'my_participation_0':  True,
                                           'my_participation_1':  Calendar.get_user_default_calendar(user).pk,
                                           'participating_users': [team.id, kojiro.id],
                                          },
@@ -2122,8 +2041,6 @@ class ActivityTestCase(_ActivitiesTestCase):
                                             'end':                '2010-3-27',
                                             'start_time':         '09:00:00',
                                             'end_time':           '11:00:00',
-                                            # 'my_participation':   True,
-                                            # 'my_calendar':        my_calendar.pk,
                                             'my_participation_0': True,
                                             'my_participation_1': my_calendar.pk,
                                            }
@@ -2275,18 +2192,12 @@ class ActivityTestCase(_ActivitiesTestCase):
         response = self.client.post(url, data=data)
         self.assertFormError(response, 'form', None, _(u'No participant'))
 
-        # response = self.client.post(url, data=dict(data, my_participation=True))
-        # self.assertFormError(response, 'form', 'my_calendar',
-        #                        _(u'If you participate, you have to choose one of your calendars.')
-        #                       )
         response = self.client.post(url, data=dict(data, my_participation_0=True))
         self.assertFormError(response, 'form', 'my_participation',
                              _(u'Enter a value if you check the box.')
                             )
 
         response = self.client.post(url, data=dict(data,
-                                                   # my_participation=True,
-                                                   # my_calendar=my_calendar.pk,
                                                    my_participation_0=True,
                                                    my_participation_1=my_calendar.pk,
                                                   )
@@ -2306,23 +2217,23 @@ class ActivityTestCase(_ActivitiesTestCase):
         user = self.login()
         my_calendar = Calendar.get_user_default_calendar(user)
         title = "meeting activity popup 2"
-        response = self.client.post(self.ADD_POPUP_URL,
-                                    data={'user':           self.user.pk,
-                                          'title':          title,
-                                          'type_selector':  self._acttype_field_value(constants.ACTIVITYTYPE_PHONECALL, 
-                                                                                      constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE,
-                                                                                     ),
-                                          # 'my_participation': True,
-                                          # 'my_calendar': my_calendar.pk,
-                                          'my_participation_0': True,
-                                          'my_participation_1': my_calendar.pk,
+        response = self.client.post(
+            self.ADD_POPUP_URL,
+            data={'user':           self.user.pk,
+                  'title':          title,
+                  'type_selector':  self._acttype_field_value(constants.ACTIVITYTYPE_PHONECALL,
+                                                              constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE,
+                                                             ),
 
-                                          'start':          '2010-3-15',
-                                          'end':            '2010-3-15',
-                                          'start_time':     '19:30:00',
-                                          'end_time':       '20:00:00',
-                                         }
-                                   )
+                  'my_participation_0': True,
+                  'my_participation_1': my_calendar.pk,
+
+                  'start':      '2010-3-15',
+                  'end':        '2010-3-15',
+                  'start_time': '19:30:00',
+                  'end_time':   '20:00:00',
+                 }
+        )
 
         self.assertNoFormError(response)
         self.assertEqual(1, Activity.objects.count())
@@ -2350,12 +2261,10 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         def post(title, today):
             response = self.client.post(self.ADD_POPUP_URL,
-                                        data={'user':             user.pk,
-                                              'title':            title,
-                                              'type_selector':    self._acttype_field_value(atype.id),
-                                              'start':            date_format(today),
-                                              # 'my_participation': True,
-                                              # 'my_calendar':      my_calendar.pk,
+                                        data={'user':               user.pk,
+                                              'title':              title,
+                                              'type_selector':      self._acttype_field_value(atype.id),
+                                              'start':              date_format(today),
                                               'my_participation_0': True,
                                               'my_participation_1': my_calendar.pk,
                                              }
@@ -2415,10 +2324,6 @@ class ActivityTestCase(_ActivitiesTestCase):
                           end=create_dt(year=2013,   month=4, day=2, hour=10),
                          )
 
-        # response = self.assertGET200('/activities/activities/%s,%s/ical' % (
-        #                                     act1.id, act2.id
-        #                                 )
-        #                             )
         response = self.assertGET200(reverse('activities__dl_ical',
                                              args=('%s,%s' % (act1.id, act2.id),)
                                             )

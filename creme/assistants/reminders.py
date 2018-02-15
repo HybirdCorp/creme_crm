@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,7 +42,6 @@ class AssistantReminder(Reminder):
         return [teammate.email for teammate in user.teammates.itervalues()] if user.is_team else [user.email]
 
 
-# class ReminderAlert(Reminder):
 class ReminderAlert(AssistantReminder):
     id    = Reminder.generate_id('assistants', 'alert')
     model = Alert
@@ -65,9 +64,6 @@ class ReminderAlert(AssistantReminder):
                 }
 
     def get_Q_filter(self):
-        # delta = timedelta(minutes=getattr(settings, 'DEFAULT_TIME_ALERT_REMIND', 30))
-        # dt_now = now().replace(microsecond=0, second=0)
-        # return Q(trigger_date__lte=dt_now + delta, is_validated=False)
         return Q(trigger_date__lte=now() + self._get_delta(), is_validated=False)
 
     def next_wakeup(self, now_value):
@@ -78,7 +74,6 @@ class ReminderAlert(AssistantReminder):
         return alert.trigger_date - self._get_delta() if alert is not None else None
 
 
-# class ReminderTodo(Reminder):
 class ReminderTodo(AssistantReminder):
     id    = Reminder.generate_id('assistants', 'todo')
     model = ToDo
@@ -105,12 +100,9 @@ class ReminderTodo(AssistantReminder):
 
     def get_Q_filter(self):
         # TODO: exclude Todos related to deleted entities ??
-        # dt_now = now().replace(microsecond=0, second=0)
-        # return Q(deadline__lte=dt_now + timedelta(days=1), is_ok=False)
         return Q(deadline__lte=now() + self._get_delta(), is_ok=False)
 
     def ok_for_continue(self):
-        # return localtime(now()).hour >= SettingValue.objects.get(key_id=MIN_HOUR_4_TODO_REMINDER).value
         return localtime(now()).hour >= self._get_min_hour()
 
     def next_wakeup(self, now_value):

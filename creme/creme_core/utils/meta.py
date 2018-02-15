@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2016 Hybird
+# Copyright (c) 2009-2018 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,7 @@ from functools import partial
 from itertools import chain
 import warnings
 
-from django.db.models import FieldDoesNotExist, DateField  # ForeignKey, ManyToManyField
+from django.db.models import FieldDoesNotExist, DateField
 
 from .unicode_collation import collator
 
@@ -49,15 +49,12 @@ def get_instance_field_info(obj, field_name):
             obj = getattr(obj, subfield_name)  # Can be None if a M2M has no related value
 
         subfield_name = subfield_names[-1]
-        # field_class = obj._meta.get_field(subfield_name).__class__
         field = obj._meta.get_field(subfield_name)
         field_value = getattr(obj, subfield_name)
 
-        # if issubclass(field_class, ManyToManyField):
         if field.many_to_many:
             field_value = field_value.all()
 
-        # return field_class, field_value
         return field.__class__, field_value
     except (AttributeError, FieldDoesNotExist):
         return None, ''
@@ -192,13 +189,6 @@ def is_date_field(field):
     return isinstance(field, DateField)
 
 
-# def get_date_fields(model, exclude_func=lambda f: False):
-#     warnings.warn("get_date_fields() function is deprecated (because it is probably useless).",
-#                   DeprecationWarning
-#                  )
-#     return [field for field in model._meta.fields if is_date_field(field) and not exclude_func(field)]
-
-
 # ModelFieldEnumerator -------------------------------------------------------
 class _FilterModelFieldQuery(object):
     # TODO: use a constants in fields_tags ?? set() ?
@@ -258,7 +248,6 @@ class ModelFieldEnumerator(object):
             if all(ffilter(field, depth) for ffilter in ffilters):
                 field_info = parents_fields + (field,)
 
-                # if isinstance(field, (ForeignKey, ManyToManyField)):
                 if field.is_relation:  # TODO: and field.related_model ? not auto_created ?
                     if rem_depth:
                         if include_fk:

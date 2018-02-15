@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_core.utils.imports import import_apps_sub_modules  # find_n_import
+from creme.creme_core.utils.imports import import_apps_sub_modules
 
 # TODO : AppRecurrentRegistry indirection useless (at least for now)
 
@@ -76,6 +76,5 @@ class RecurrentRegistry:
 
 recurrent_registry = RecurrentRegistry()
 
-# for recurrents_import in find_n_import('recurrents_register', ['to_register']):
 for recurrents_import in import_apps_sub_modules('recurrents_register'):
     recurrent_registry.register(*recurrents_import.to_register)

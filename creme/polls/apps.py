@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2017  Hybird
+#    Copyright (C) 2015-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,17 +36,12 @@ class PollsConfig(CremeAppConfig):
         self.PollReply    = get_pollreply_model()
         super(PollsConfig, self).all_apps_ready()
 
-    # def register_creme_app(self, creme_registry):
-    #     creme_registry.register_app('polls', _(u'Polls'), '/polls')
-
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.PollForm, self.PollReply, self.PollCampaign)
 
     def register_bricks(self, brick_registry):
-        # from .blocks import block_list
         from . import bricks
 
-        # brick_registry.register(*block_list)
         brick_registry.register(bricks.PollFormLinesBrick,
                                 bricks.PollReplyLinesBrick,
                                 bricks.PollRepliesBrick,
@@ -82,7 +77,6 @@ class PollsConfig(CremeAppConfig):
             from creme.creme_core.auth import build_creation_perm as cperm
 
             reg_item = creme_menu.register_app('polls', '/polls/').register_item
-            # reg_item('/polls/',                         _(u'Portal of polls'),    'polls')
             reg_item(reverse('polls__portal'),          _(u'Portal of polls'),    'polls')
             reg_item(reverse('polls__list_forms'),      _(u'All forms'),          'polls')
             reg_item(reverse('polls__create_form'),     PForm.creation_label,     cperm(PForm))

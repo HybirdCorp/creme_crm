@@ -24,7 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_list_or_404, get_object_or_404, render, redirect
-from django.utils.translation import ugettext_lazy as _  # ungettext
+from django.utils.translation import ugettext_lazy as _
 
 # TODO: move them to creme_core ?
 from creme.creme_config.forms.creme_property_type import CremePropertyTypeAddForm, CremePropertyTypeEditForm
@@ -34,7 +34,6 @@ from ..forms.creme_property import AddPropertiesForm, AddPropertiesBulkForm
 from ..gui.bricks import QuerysetBrick, Brick
 from ..models import CremeEntity, CremePropertyType
 from ..utils import creme_entity_content_types, get_ct_or_404, get_from_POST_or_404, jsonify  # get_from_GET_or_404
-# from ..utils.translation import get_model_verbose_name
 from . import generic, bricks as bricks_views
 from .utils import build_cancel_path
 
@@ -114,7 +113,6 @@ def add_type(request):
         cancel_url = POST.get('cancel_url')
     else:  # GET
         form = CremePropertyTypeAddForm(user=request.user)
-        # cancel_url = request.META.get('HTTP_REFERER')
         cancel_url = build_cancel_path(request)
 
     return render(request, 'creme_core/generics/blockform/add.html',
@@ -146,7 +144,6 @@ def edit_type(request, ptype_id):
         cancel_url = POST.get('cancel_url')
     else:  # GET
         form = CremePropertyTypeEditForm(ptype, user=request.user)
-        # cancel_url = request.META.get('HTTP_REFERER')
         cancel_url = build_cancel_path(request)
 
     return render(request, 'creme_core/generics/blockform/edit.html',
@@ -187,12 +184,10 @@ def delete_type(request, ptype_id):
     return HttpResponseRedirect(CremePropertyType.get_lv_absolute_url())
 
 
-# class PropertyTypeInfoBlock(Block):
 class PropertyTypeInfoBrick(Brick):
     id_           = Brick.generate_id('creme_core', 'property_type_info')
     dependencies  = '*'
     read_only     = True
-    # template_name = 'creme_core/templatetags/block_ptype_info.html'
     template_name = 'creme_core/bricks/ptype-info.html'
 
     def __init__(self, ptype, ctypes):
@@ -203,19 +198,14 @@ class PropertyTypeInfoBrick(Brick):
     def detailview_display(self, context):
         ptype = self.ptype
 
-        # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
                     context,
-                    # # update_url='/creme_core/property/type/%s/reload_block/%s/' % (ptype.id, self.id_),
-                    # update_url=reverse('creme_core__reload_ptype_blocks', args=(ptype.id, self.id_)),
                     ctypes=self.ctypes,
                     count_stat=CremeEntity.objects.filter(properties__type=ptype).count(),
         ))
 
 
-# class TaggedEntitiesBlock(QuerysetBlock):
 class TaggedEntitiesBrick(QuerysetBrick):
-    # template_name = 'creme_core/templatetags/block_tagged_entities.html'
     template_name = 'creme_core/bricks/tagged-entities.html'
 
     def __init__(self, ptype, ctype):
@@ -244,38 +234,20 @@ class TaggedEntitiesBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         ctype = self.ctype
-        model = ctype.model_class()
-        # meta = model._meta
-        # verbose_name = meta.verbose_name
         ptype = self.ptype
 
-        # btc = self.get_block_template_context(
-        btc = self.get_template_context(
+        return self._render(self.get_template_context(
                     context,
-                    model.objects.filter(properties__type=ptype),
-                    # # update_url='/creme_core/property/type/%s/reload_block/%s/' % (ptype.id, self.id_),
-                    # update_url=reverse('creme_core__reload_ptype_blocks', args=(ptype.id, self.id_)),
+                    ctype.model_class().objects.filter(properties__type=ptype),
                     ptype_id=ptype.id,
                     ctype=ctype,  # If the model is inserted in the context,
                                   #  the template call it and create an instance...
-                    # short_title=verbose_name,
-                )
-
-        # count = btc['page'].paginator.count
-        # btc['title'] = _(u'%(count)s %(model)s') % {
-        #                     'count': count,
-        #                     # 'model': ungettext(verbose_name, meta.verbose_name_plural, count),
-        #                     'model': get_model_verbose_name(model, count),
-        #                 }
-
-        return self._render(btc)
+        ))
 
 
-# class TaggedMiscEntitiesBlock(QuerysetBlock):
 class TaggedMiscEntitiesBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('creme_core', 'misc_tagged_entities')
     dependencies  = (CremeEntity,)
-    # template_name = 'creme_core/templatetags/block_tagged_entities.html'
     template_name = 'creme_core/bricks/tagged-entities.html'
 
     def __init__(self, ptype, excluded_ctypes):
@@ -285,13 +257,10 @@ class TaggedMiscEntitiesBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         ptype = self.ptype
-        # btc = self.get_block_template_context(
         btc = self.get_template_context(
                     context,
                     CremeEntity.objects.filter(properties__type=ptype)
                                        .exclude(entity_type__in=self.excluded_ctypes),
-                    # # update_url='/creme_core/property/type/%s/reload_block/%s/' % (ptype.id, self.id_),
-                    # update_url=reverse('creme_core__reload_ptype_blocks', args=(ptype.id, self.id_)),
                     ptype_id=ptype.id,
                     ctype=None,
                 )

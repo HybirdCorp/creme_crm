@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,9 +37,6 @@ class ActivitiesConfig(CremeAppConfig):
         super(ActivitiesConfig, self).all_apps_ready()
 
         from . import signals
-
-    # def register_creme_app(self, creme_registry):
-    #     creme_registry.register_app('activities', _(u'Activities'), '/activities')
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Activity)
@@ -96,9 +93,7 @@ class ActivitiesConfig(CremeAppConfig):
 
         if settings.OLD_MENU:
             reg_item = creme_menu.register_app('activities', '/activities/').register_item
-            # reg_item('/activities/',                                              _(u'Portal of activities'),     'activities')
             reg_item(reverse('activities__portal'),                               _(u'Portal of activities'),     'activities')
-            # reg_item('/activities/calendar/user',                                 _(u'Calendar'),                 'activities')
             reg_item(reverse('activities__calendar'),                             _(u'Calendar'),                 'activities')
             reg_item(reverse('activities__create_activity'),                      Activity.creation_label,        creation_perm)
             reg_item(reverse('activities__create_activity', args=('meeting',)),   _(u'Create a meeting'),         creation_perm)
@@ -115,7 +110,6 @@ class ActivitiesConfig(CremeAppConfig):
                                      defaults={'label': _(u'Activities')},
                                     ) \
                       .add(URLItem('activities-calendar',
-                                   # url='/activities/calendar/user',
                                    url=reverse('activities__calendar'),
                                    label=_(u'Calendar'), perm='activities',
                                   ),

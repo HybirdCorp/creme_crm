@@ -36,35 +36,22 @@ except Exception as e:
 
 
 class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
-    # CLONE_URL        = '/creme_core/entity/clone'
     CLONE_URL        = reverse('creme_core__clone_entity')
-    # DEL_ENTITIES_URL = '/creme_core/entity/delete/multi'
     DEL_ENTITIES_URL = reverse('creme_core__delete_entities')
-    # EMPTY_TRASH_URL  = '/creme_core/entity/trash/empty'
     EMPTY_TRASH_URL  = reverse('creme_core__empty_trash')
-    # SEARCHNVIEW_URL  = '/creme_core/entity/search_n_view'
     SEARCHNVIEW_URL  = reverse('creme_core__search_n_view_entities')
 
-    # @classmethod
-    # def setUpClass(cls):
-    #     ViewsTestCase.setUpClass()
-    #     cls.populate('creme_core')
-
     def _build_delete_url(self, entity):
-        # return '/creme_core/entity/delete/%s' % entity.id
         return reverse('creme_core__delete_entity', args=(entity.id,))
 
     def _build_restore_url(self, entity):
-        # return '/creme_core/entity/restore/%s' % entity.id
         return reverse('creme_core__restore_entity', args=(entity.id,))
 
     def test_json_entity_get01(self):
         user = self.login()
-        # url_fmt = '/creme_core/relation/entity/%s/json'
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
 
-        # url = url_fmt % rei.id
         url = reverse('creme_core__entity_as_json', args=(rei.id,))
         self.assertGET(400, url)
 
@@ -74,13 +61,11 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(url, data={'fields': ['unicode']})
         self.assertEqual([[unicode(rei)]], load_json(response.content))
 
-        # response = self.assertGET200(url_fmt % nerv.id, data={'fields': ['id', 'unicode']})
         response = self.assertGET200(reverse('creme_core__entity_as_json', args=(nerv.id,)),
                                      data={'fields': ['id', 'unicode']}
                                     )
         self.assertEqual([[nerv.id, unicode(nerv)]], load_json(response.content))
 
-        # self.assertGET(400, url_fmt % 1024)
         self.assertGET(400, reverse('creme_core__entity_as_json', args=(1024,)))
         self.assertGET403(url, data={'fields': ['id', 'unknown']})
 
@@ -88,7 +73,6 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.login(is_superuser=False)
 
         nerv = FakeOrganisation.objects.create(user=self.other_user, name='Nerv')
-        # self.assertGET(400, '/creme_core/relation/entity/%s/json' % nerv.id)
         self.assertGET(400, reverse('creme_core__entity_as_json', args=(nerv.id,)))
 
     def test_json_entity_get03(self):
@@ -103,7 +87,6 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                                      )
 
         e = FakeConfigEntity.objects.create(user=user, name='Nerv')
-        # response = self.assertGET200('/creme_core/relation/entity/%s/json' % e.id,
         response = self.assertGET200(reverse('creme_core__entity_as_json', args=(e.id,)),
                                      data={'fields': ['unicode']},
                                     )
@@ -115,7 +98,6 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             entity = CremeEntity.objects.create(user=user)
 
-        # response = self.assertGET200('/creme_core/entity/get_repr/%s' % entity.id)
         response = self.assertGET200(reverse('creme_core__entities_summaries', args=(entity.id,)))
         self.assertEqual('text/javascript', response['Content-Type'])
 
@@ -143,10 +125,6 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         unknown_id = 1024
         self.assertFalse(CremeEntity.objects.filter(id=unknown_id))
 
-        # response = self.assertGET200('/creme_core/entity/get_repr/%s,%s,%s,%s,%s' % (
-        #                                     mari.id, rei.id, nerv.id, unknown_id, asuka.id
-        #                                 )
-        #                             )
         response = self.assertGET200(reverse('creme_core__entities_summaries',
                                              args=('%s,%s,%s,%s,%s' % (mari.id, rei.id, nerv.id, unknown_id, asuka.id),)
                                             )
@@ -164,9 +142,6 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         user = self.login()
         entity = FakeOrganisation.objects.create(user=user, name='Nerv')
 
-        # url_fmt = '/creme_core/entity/get_sanitized_html/%s/%s'
-        # self.assertGET409(url_fmt % (entity.id, 'unknown'))
-        # self.assertGET409(url_fmt % (entity.id, 'name'))  # Not an UnsafeHTMLField
         self.assertGET409(reverse('creme_core__sanitized_html_field', args=(entity.id, 'unknown')))
         self.assertGET409(reverse('creme_core__sanitized_html_field', args=(entity.id, 'name')))  # Not an UnsafeHTMLField
         # NB: test with valid field in 'emails' app.
@@ -396,7 +371,6 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         entity1 = create_orga(name='Nerv', is_deleted=True)
         entity2 = create_orga(name='Seele')
 
-        # response = self.assertGET200('/creme_core/entity/trash')
         response = self.assertGET200(reverse('creme_core__trash'))
         self.assertTemplateUsed(response, 'creme_core/trash.html')
 
@@ -763,8 +737,6 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
 
 class _BulkEditTestCase(ViewsTestCase):
-    # GET_WIDGET_URL = '/creme_core/entity/get_widget/%s'
-
     def get_cf_values(self, cf, entity):
         return cf.get_value_class().objects.get(custom_field=cf, entity=entity)
 
@@ -778,7 +750,6 @@ class _BulkEditTestCase(ViewsTestCase):
 class BulkEditTestCase(_BulkEditTestCase):
     @classmethod
     def setUpClass(cls):
-        # _BulkEditTestCase.setUpClass()
         super(BulkEditTestCase, cls).setUpClass()
         cls.contact_ct = ContentType.objects.get_for_model(FakeContact)
         cls.contact_bulk_status = bulk_update_registry.status(FakeContact)
@@ -800,11 +771,6 @@ class BulkEditTestCase(_BulkEditTestCase):
         contact_status.excludes = self._contact_excludes
 
     def _build_contact_url(self, field_name, *contact_ids):
-        # url = '/creme_core/entity/edit/bulk/%(ct)s/%(id)s/field/%(field)s'
-        # return url % {'ct': self.contact_ct.id,
-        #               'id': ','.join(str(id) for id in contact_ids),
-        #               'field': field_name,
-        #              }
         return reverse('creme_core__bulk_edit_field_legacy',
                        args=(self.contact_ct.id,
                              ','.join(str(id) for id in contact_ids),
@@ -1277,7 +1243,6 @@ class BulkEditTestCase(_BulkEditTestCase):
 class BulkUpdateTestCase(_BulkEditTestCase):
     @classmethod
     def setUpClass(cls):
-        # _BulkEditTestCase.setUpClass()
         super(BulkUpdateTestCase, cls).setUpClass()
         cls.contact_ct = ContentType.objects.get_for_model(FakeContact)
         cls.contact_bulk_status = bulk_update_registry.status(FakeContact)
@@ -1299,10 +1264,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         contact_status.excludes = self._contact_excludes
 
     def _build_update_url(self, field_name):
-        # url = '/creme_core/entity/update/bulk/%(ct)s/field/%(field)s'
-        # return url % {'ct': self.contact_ct.id,
-        #               'field': field_name,
-        #              }
         return reverse('creme_core__bulk_update', args=(self.contact_ct.id, field_name))
 
     def create_2_contacts_n_url(self, mario_kwargs=None, luigi_kwargs=None, field='first_name'):
@@ -1316,7 +1277,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.login()
 
         build_url = self._build_update_url
-        # self.assertGET404(build_url(''))
 
         response = self.assertGET(400, build_url('unknown'))
         msg = _(u'The field «%s» does not exist or cannot be edited')
@@ -1494,7 +1454,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
                                                 }
                                      )
         self.assertFormError(response, 'form', 'field_value',
-                             # _(u"You can't view this value, so you can't set it.")
                              _(u'You are not allowed to link this entity: %s') % (
                                     _(u'Entity #%s (not viewable)') % forbidden.id,
                                 )
@@ -1530,10 +1489,8 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         """Fix a bug with the field list when bulk editing user
         (ie: a field of the parent class CremeEntity)
         """
-        # user = \
         self.login()
 
-        # FakeContact.objects.create(user=user, first_name="Mario", last_name="Bros")
         build_url = self._build_update_url
         url = build_url('user')
         response = self.assertGET200(url)

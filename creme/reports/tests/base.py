@@ -50,14 +50,11 @@ def skipIfCustomRGraph(test_func):
 
 
 class BaseReportsTestCase(CremeTestCase):
-    # SET_FIELD_ORDER_URL = '/reports/report/field/change_order'
     SET_FIELD_ORDER_URL = reverse('reports__change_field_order')
 
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
         super(BaseReportsTestCase, cls).setUpClass()
-        # cls.populate('creme_core', 'reports')
 
         get_ct = ContentType.objects.get_for_model
         cls.ct_contact = get_ct(FakeContact)

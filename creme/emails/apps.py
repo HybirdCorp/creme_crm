@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,7 @@ from creme.creme_core.apps import CremeAppConfig
 class EmailsConfig(CremeAppConfig):
     name = 'creme.emails'
     verbose_name = _(u'Emails')
-    dependencies = ['creme.persons', 'creme.documents']  # 'creme.crudity'
+    dependencies = ['creme.persons', 'creme.documents']
 
     def all_apps_ready(self):
         from . import (get_emailcampaign_model, get_entityemail_model,
@@ -40,9 +40,6 @@ class EmailsConfig(CremeAppConfig):
 
         from . import signals
 
-    # def register_creme_app(self, creme_registry):
-    #     creme_registry.register_app('emails', _(u'Emails'), '/emails')
-
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.EmailCampaign,
                                               self.MailingList,
@@ -51,12 +48,8 @@ class EmailsConfig(CremeAppConfig):
                                              )
 
     def register_bricks(self, brick_registry):
-        # from .blocks import blocks_list  # EntityEmailBlock
         from . import bricks
 
-        # block_registry.register_4_model(self.EntityEmail, EntityEmailBlock())
-        # block_registry.register(*blocks_list)
-        # brick_registry.register(*bricks.bricks_list)
         brick_registry.register(bricks.EmailHTMLBodyBrick,
                                 bricks.TemplateHTMLBodyBrick,
                                 bricks.MailingListsBrick,
@@ -121,7 +114,6 @@ class EmailsConfig(CremeAppConfig):
             from creme.creme_core.auth import build_creation_perm as cperm
 
             reg_item = creme_menu.register_app('emails', '/emails/').register_item
-            # reg_item('/emails/',                         _(u'Portal of emails'),    'emails')
             reg_item(reverse('emails__portal'),          _(u'Portal of emails'),    'emails')
             reg_item(reverse('emails__list_campaigns'),  _(u'All campaigns'),       'emails')
             reg_item(reverse('emails__create_campaign'), ECampaign.creation_label,  cperm(ECampaign))
@@ -132,7 +124,6 @@ class EmailsConfig(CremeAppConfig):
             reg_item(reverse('emails__list_emails'),     _(u'All emails'),          'emails')
 
             if apps.is_installed('creme.crudity'):
-                # reg_item('/emails/synchronization', _(u'Synchronization of incoming emails'), 'emails')
                 reg_item(reverse('emails__crudity_sync'), _(u'Synchronization of incoming emails'), 'emails')
         else:
             group = creme_menu.get('features') \

@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2017  Hybird
+    Copyright (C) 2009-2018  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,6 @@
 
 creme.activities = {};
 
-// creme.activities.exportAsICal = function(list) {
 creme.activities.exportAsICal = function(list, url) {
     var selection = $(list).list_view('getSelectedEntities').trim();
 
@@ -113,8 +112,6 @@ creme.activities.calendar.loadCalendarEventListeners = function(user, creme_cale
         var widget = $('.calendar');
         var chk_box = $(this);
         var calendar_id = chk_box.val();
-//        var events_url = '/activities/calendar/users_activities/';
-//        var calendar_view = widget.fullCalendar('getView');
 
         if (chk_box.is(':checked')) {
             // NB: creating new event source is a bad idea, because these new sources
@@ -122,30 +119,8 @@ creme.activities.calendar.loadCalendarEventListeners = function(user, creme_cale
             //    - duplicated Activities when we go to a page we a newly checked calendar.
             //    - accumulating event sources.
             // so we just force a new fetch.  TODO: find a way to only retrieve new events + cache
-//            $.ajax({
-//                type: 'GET',
-//                dataType: 'json',
-//                data: {
-//                    start: Math.round(calendar_view.visStart.getTime() / 1000),
-//                    end: Math.round(calendar_view.visEnd.getTime() / 1000)
-//                },
-//                url: events_url + calendar_id,
-//                error: function(request, textStatus, errorThrown) {
-//                    chk_box.attr('checked', false);
-//                },
-//                beforeSend: function(request) {
-//                    creme.activities.calendar.loading(false);
-//                },
-//                complete: function(request, txtStatus) {
-//                    creme.activities.calendar.loading(true);
-//                },
-//                success: function(returnedData, status) {
-//                    creme.activities.calendar.filterEvents(widget, calendar_id, returnedData);
-//                }
-//            });
             widget.fullCalendar('refetchEvents');
         } else {
-//            creme.activities.calendar.filterEvents(widget, calendar_id);
             widget.fullCalendar('removeEvents', function(event) {
                 return calendar_id === event.calendar;
             });
@@ -164,17 +139,14 @@ creme.activities.calendar.loadCalendarEventListeners = function(user, creme_cale
         var element = $(this);
         var calendar = element.attr('data-calendar');
         var type = element.attr('data-type');
-//         var event_id = element.attr('data-id');
         var color = element.attr('data-color');
         var event = {
-//             id: event_id,
             id: element.attr('data-id'),
             title: $.trim(element.text()),
             type: type,
             user: user,
             calendar: calendar,
             className: 'event event-' + calendar,
-//             url: "/activities/activity/%s/popup".replace("%s", event_id),
             url: element.attr('data-popup_url'),
             calendar_color: color
         };
@@ -198,9 +170,7 @@ creme.activities.calendar.chooseForeground = function(target, bgColor) {
     target.css('color', creme.color.maxContrastingColor(rgb.r, rgb.g, rgb.b));
 };
 
-// creme.activities.calendar.updater = function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
 creme.activities.calendar.updater = function(update_url, event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
-//    creme.ajax.query('/activities/calendar/activity/update', {action: 'POST'},
     creme.ajax.query(update_url, {action: 'POST'},
                      {id: event.id,
                       start: event.start.getTime(),
@@ -224,35 +194,6 @@ creme.activities.calendar.updater = function(update_url, event, dayDelta, minute
                   creme.activities.calendar.loading(false);
                   creme.activities.calendar.resizeSidebar();
                }).start();
-/*
-    $.ajax({
-        type: "POST",
-        url: "/activities/calendar/activity/update",
-        data: {
-            id: event.id,
-            start: event.start.getTime(),
-            end: event.end.getTime(),
-            allDay: allDay
-        },
-        error: function(request, textStatus, errorThrown) {
-            if (request.status == 403) {
-                creme.dialogs.warning(gettext("You do not have permission, the change will not be saved.")).open();
-            } else if (request.status == 409) {
-                creme.dialogs.warning(unescape(request.responseText)).open();
-            } else if (request.status >= 300 || request.status == 0) {
-                creme.dialogs.warning(gettext("Error, please reload the page.")).open();
-            }
-            revertFunc();
-        },
-        beforeSend: function(request) {
-            creme.activities.calendar.loading(false);
-        },
-        complete: function(request, txtStatus) {
-            creme.activities.calendar.loading(true);
-            creme.activities.calendar.resizeSidebar();
-        },
-    });
-*/
 };
 
 creme.activities.calendar.resizeSidebar = function() {
@@ -265,7 +206,6 @@ creme.activities.calendar.resizeSidebar = function() {
     sidebar.css('height', (calendarHeight - sidebarMargin) + 'px');
 };
 
-// creme.activities.calendar.fullCalendar = function(events_url, creation_url) {
 creme.activities.calendar.fullCalendar = function(events_url, creation_url, update_url) {
     if (update_url === undefined) {
         console.warn('creme.activities.calendar.fullCalendar(): implicit "update_url" argument is deprecated ; give the URL as last argument.');
@@ -339,7 +279,6 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url, upda
         events: function(start, end, callback) {
             var chk_boxes_q = 'input[type="checkbox"][name="selected_calendars"]';
 
-//            var cal_ids = $('input[type="checkbox"][name="selected_calendars"]:checked').map(function() {
             var cal_ids = $(chk_boxes_q + ':checked').map(function() {
                 return $(this).val();
             });
@@ -387,7 +326,6 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url, upda
                 $('.calendar').fullCalendar('removeEvents', event.id);
             };
 
-//            creme.activities.calendar.updater(event, null, null, allDay, cancel_drop);
             creme.activities.calendar.updater(update_url, event, null, null, allDay, cancel_drop);
         },
         loading: function(isLoading, view) {
@@ -429,7 +367,6 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url, upda
         },
         eventDragStart: function(calEvent, domEvent, ui, view) {},
         eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
-//            creme.activities.calendar.updater(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view);
             creme.activities.calendar.updater(update_url, event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view);
         },
         eventClick: function(event) {
@@ -437,7 +374,6 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url, upda
             return false;
         },
         eventResize: function(event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, view) {
-//            creme.activities.calendar.updater(event, dayDelta, minuteDelta, null, revertFunc, jsEvent, ui, view);
             creme.activities.calendar.updater(update_url, event, dayDelta, minuteDelta, null, revertFunc, jsEvent, ui, view);
         }
     });

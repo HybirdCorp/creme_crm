@@ -49,7 +49,6 @@ class DocumentTestCase(_DocumentsTestCase):
 
     def test_portal(self):
         self.login()
-        # self.assertGET200('/documents/')
         self.assertGET200(reverse('documents__portal'))
 
     @override_settings(ALLOWED_EXTENSIONS=('txt', 'pdf'))
@@ -61,9 +60,6 @@ class DocumentTestCase(_DocumentsTestCase):
         url = self.ADD_DOC_URL
         self.assertGET200(url)
 
-        # ALLOWED_EXTENSIONS = settings.ALLOWED_EXTENSIONS
-        # self.assertTrue(ALLOWED_EXTENSIONS)
-        # ext = ALLOWED_EXTENSIONS[0]
         ext = settings.ALLOWED_EXTENSIONS[0]
 
         title = 'Test doc'
@@ -100,7 +96,6 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual([content], filedata.readlines())
 
         # Download
-        # response = self.assertGET200('/download_file/%s' % doc.filedata)
         response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
         self.assertEqual(ext, response['Content-Type'])
         self.assertEqual('attachment; filename=%s' % file_name,
@@ -122,7 +117,6 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual('upload/documents/%s.txt' % file_name, filedata.name)
 
         # Download
-        # response = self.assertGET200('/download_file/%s' % doc.filedata)
         response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
         self.assertEqual(ext, response['Content-Type'])
         self.assertEqual('attachment; filename=%s' % file_name,
@@ -144,7 +138,6 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual('upload/documents/%s.txt' % file_name, filedata.name)
 
         # Download
-        # response = self.assertGET200('/download_file/%s' % doc.filedata)
         response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
         self.assertEqual(ext, response['Content-Type'])
         self.assertEqual('attachment; filename=%s' % file_name,
@@ -163,7 +156,6 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual('upload/documents/%s.txt' % file_name, filedata.name)
 
         # Download
-        # response = self.assertGET200('/download_file/%s' % doc.filedata)
         response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
         self.assertEqual('txt', response['Content-Type']) # 'text/plain' ??
         self.assertEqual('attachment; filename=%s.txt' % file_name,
@@ -194,7 +186,6 @@ class DocumentTestCase(_DocumentsTestCase):
 
     def test_download_error(self):
         self.login()
-        # self.assertGET404('/download_file/%s' % 'tmpLz48vy.txt')
         self.assertGET404(reverse('creme_core__dl_file', args=('tmpLz48vy.txt',)))
 
     def test_editview(self):
@@ -234,18 +225,11 @@ class DocumentTestCase(_DocumentsTestCase):
 
     def test_add_related_document01(self):
         user = self.login()
-
-        # # folders = Folder.objects.all()
-        # folders = Folder.objects.order_by('id')
-        # # self.assertEqual(1, len(folders))
-        # self.assertEqual(2, len(folders))
-        # root_folder = folders[0]
         root_folder = self.get_object_or_fail(Folder, uuid=UUID_FOLDER_RELATED2ENTITIES)
 
         Folder.objects.create(user=user, title='Creme')  # Should not be used
 
         entity = CremeEntity.objects.create(user=user)
-
         url = self._buid_addrelated_url(entity)
         self.assertGET200(url)
 
@@ -439,7 +423,6 @@ class DocumentTestCase(_DocumentsTestCase):
         cat = FolderCategory.objects.create(name='Manga')
         folder = Folder.objects.create(user=user, title='One piece', category=cat)
 
-        # self.assertPOST200('/creme_config/documents/category/delete', data={'id': cat.pk})
         self.assertPOST200(reverse('creme_config__delete_instance', args=('documents', 'category')),
                            data={'id': cat.pk}
                           )
@@ -551,7 +534,6 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
         self.assertFalse(Document.objects.exists())
         self.assertTrue(Folder.objects.exists())
 
-        # url = '/creme_core/quickforms/%s/%d' % (ContentType.objects.get_for_model(Document).pk, 1)
         url = reverse('creme_core__quick_forms', args=(ContentType.objects.get_for_model(Document).id, 1))
         self.assertGET200(url)
 
@@ -569,7 +551,6 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
 
         doc = docs[0]
         self.assertEqual('upload/documents/%s' % file_name, doc.filedata.name)
-        # self.assertIsNone(doc.description)
         self.assertEqual('', doc.description)
         self.assertEqual(folder, doc.folder)
 
@@ -589,11 +570,9 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
         self.assertFalse(Document.objects.exists())
         self.assertTrue(Folder.objects.exists())
 
-        # url = reverse('documents__create_document_from_widget', args=(1,))
         url = reverse('documents__create_document_from_widget')
         self.assertGET200(url)
 
-        # content = 'Content (CSVDocumentQuickWidgetTestCase.test_add_from_widget)'
         content = 'Content (DocumentQuickWidgetTestCase.test_add_csv_doc)'
         file_obj, file_name = self._build_filedata(content)
         response = self.client.post(url, follow=True,
@@ -609,7 +588,6 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
         doc = docs[0]
         folder = get_csv_folder_or_create(user)
         self.assertEqual('upload/documents/%s' % file_name, doc.filedata.name)
-        # self.assertIsNone(doc.description)
         self.assertEqual('', doc.description)
         self.assertEqual(folder, doc.folder)
 
@@ -648,7 +626,6 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
         self.assertEqual(1, len(docs))
 
         doc = docs[0]
-        # self.assertEqual('creme_22.png', doc.title)
         title = doc.title
         self.assertTrue(title.startswith('creme_22'))
         self.assertTrue(title.endswith('.png'))

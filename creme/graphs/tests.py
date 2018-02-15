@@ -33,11 +33,6 @@ def skipIfCustomGraph(test_func):
 
 @skipIfCustomGraph
 class GraphsTestCase(CremeTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('creme_core', 'graphs')
-
     def login(self, allowed_apps=('graphs',), *args, **kwargs):
         return super(GraphsTestCase, self).login(allowed_apps=allowed_apps,
                                                  *args, **kwargs
@@ -45,7 +40,6 @@ class GraphsTestCase(CremeTestCase):
 
     def test_portal(self):
         self.login()
-        # self.assertGET200('/graphs/')
         self.assertGET200(reverse('graphs__portal'))
 
     def test_graph_create(self):
@@ -105,7 +99,6 @@ class GraphsTestCase(CremeTestCase):
         graph = Graph.objects.create(user=user, name='Graph01')
         self.assertEqual(0, graph.orbital_relation_types.count())
 
-        # url = '/graphs/graph/%s/relation_types/add' % graph.id
         url = reverse('graphs__add_rtypes', args=(graph.id,))
         self.assertGET200(url)
 
@@ -124,7 +117,6 @@ class GraphsTestCase(CremeTestCase):
         self.assertEqual(2,               len(rtypes))
         self.assertEqual(set(rtypes_ids), {rt.id for rt in rtypes})
 
-        # self.assertPOST200('/graphs/graph/%s/relation_type/delete' % graph.id,
         self.assertPOST200(reverse('graphs__remove_rtype', args=(graph.id,)),
                            data={'id': rtype01.id}
                           )
@@ -134,12 +126,10 @@ class GraphsTestCase(CremeTestCase):
         self.login(is_superuser=False)
 
         graph = Graph.objects.create(user=self.other_user, name='Graph01')
-        # self.assertGET403('/graphs/graph/%s/relation_types/add' % graph.id)
         self.assertGET403(reverse('graphs__add_rtypes', args=(graph.id,)))
 
         rtype, srtype = RelationType.create(('test-subject_love', 'loves'), ('test-object_love', 'is loved to'))
         graph.orbital_relation_types.add(rtype)
-        # self.assertPOST403('/graphs/graph/%s/relation_type/delete' % graph.id,
         self.assertPOST403(reverse('graphs__remove_rtype', args=(graph.id,)),
                            data={'id': rtype.id}
                           )
@@ -162,7 +152,6 @@ class GraphsTestCase(CremeTestCase):
                                )
 
         graph = Graph.objects.create(user=user, name='Graph01')
-        # url = '/graphs/graph/%s/roots/add' % graph.id
         url = reverse('graphs__add_roots', args=(graph.id,))
         self.assertGET200(url)
 
@@ -176,12 +165,10 @@ class GraphsTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
 
-        # url = '/graphs/graph/%s/relation_types/add' % graph.id
         url = reverse('graphs__add_rtypes', args=(graph.id,))
         self.assertGET200(url)
         self.assertNoFormError(self.client.post(url, data={'relation_types': [rtype.pk]}))
 
-        # response = self.assertGET200('/graphs/graph/%s/png' % graph.id, follow=True)
         response = self.assertGET200(reverse('graphs__dl_image', args=(graph.id,)), follow=True)
         self.assertEqual('png', response['Content-Type'])
 
@@ -205,7 +192,6 @@ class GraphsTestCase(CremeTestCase):
                               )[0]
 
         graph = Graph.objects.create(user=user, name='Graph01')
-        # url = '/graphs/graph/%s/roots/add' % graph.id
         url = reverse('graphs__add_roots', args=(graph.id,))
         self.assertGET200(url)
 
@@ -229,7 +215,6 @@ class GraphsTestCase(CremeTestCase):
 
         # Delete
         rnode = rnodes[1]
-        # url = '/graphs/root/delete'
         url = reverse('graphs__remove_root')
         data = {'id': rnode.id}
         self.assertGET404(url, data=data)

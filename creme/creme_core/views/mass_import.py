@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -44,7 +44,6 @@ from .utils import build_cancel_path
 
 # TODO: remove creme_core/importing_report.html
 @login_required
-# def import_listview(request, ct_id):
 def mass_import(request, ct_id):
     ct = get_ct_or_404(ct_id)
 
@@ -90,13 +89,6 @@ def mass_import(request, ct_id):
             form = ImportForm(user=user, data=POST)
 
             if form.is_valid():
-                # form.save()
-                # return render(request, 'creme_core/importing_report.html',
-                #               {'form':     form,
-                #                'back_url': request.GET['list_url'],
-                #               }
-                #              )
-
                 job = Job.objects.create(user=user,
                                          type=mass_import_type,
                                          data={'ctype': ct.id,
@@ -109,12 +101,10 @@ def mass_import(request, ct_id):
     else:
         form = UploadForm(user=user, initial={'step': 0})
         submit_label = _(u'Import this file')
-        # cancel_url = request.META.get('HTTP_REFERER')
         cancel_url = build_cancel_path(request)
 
     return render(request, 'creme_core/generics/blockform/add.html',
                   {'form':         form,
-                   # 'title':        _(u'Import data file'),
                    'title':        _(u'Import «{model}» from data file').format(model=model._meta.verbose_name_plural),
                    'cancel_url':   cancel_url,
                    'submit_label': submit_label,

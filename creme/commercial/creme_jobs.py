@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,17 +24,13 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.mail import get_connection
 from django.core.mail.message import EmailMessage
-# from django.db.models.query_utils import Q
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-# from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme.creme_core.creme_jobs.base import JobType
-from creme.creme_core.models import JobResult  # SettingValue
+from creme.creme_core.models import JobResult
 
 from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
-
-# from .constants import IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABLED
 
 
 class _ComApproachesEmailsSendType(JobType):
@@ -44,18 +40,9 @@ class _ComApproachesEmailsSendType(JobType):
                                      # compute the next wake up, so it is not PSEUDO_PERIODIC.
 
     # TODO: add a config form which stores the rules in job.data
-    # list_target_orga = [(Q(relations__type=REL_SUB_CUSTOMER_SUPPLIER,
-    #                        relations__object_entity__properties__type=PROP_IS_MANAGED_BY_CREME,
-    #                       ),
-    #                      30  # delay in days # TODO: in settings/SettingKey/job.data ?
-    #                     ),
-    #                    ]
     list_target_orga = [(REL_SUB_CUSTOMER_SUPPLIER, 30)]
 
     def _execute(self, job):
-        # if not SettingValue.objects.get(key_id=IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABLED).value:
-        #     return
-
         from creme import persons
 
         from creme.opportunities import get_opportunity_model
@@ -76,12 +63,10 @@ class _ComApproachesEmailsSendType(JobType):
 
         now_value = now()
         managed_orga_ids = list(Organisation.objects.filter(is_managed=True).values_list('id', flat=True))
-        # unmanaged_orgas = Organisation.objects.exclude(properties__type=PROP_IS_MANAGED_BY_CREME)
         opp_filter = Opportunity.objects.filter
 
         EMAIL_SENDER = settings.EMAIL_SENDER
 
-        # for extra_q, delay in self.list_target_orga:
         for rtype, delay in self.list_target_orga:
             com_apps_filter = CommercialApproach.objects \
                                                 .filter(creation_date__gt=now_value - timedelta(days=delay)) \
@@ -89,7 +74,6 @@ class _ComApproachesEmailsSendType(JobType):
 
             # TODO: are 'values_list' real optimizations here ??
             #       ==> remove them when CommercialApproach use real ForeignKey
-            # for orga in unmanaged_orgas.filter(extra_q):
             for orga in Organisation.objects.filter(is_managed=False,
                                                     relations__type=rtype,
                                                     relations__object_entity__in=managed_orga_ids,

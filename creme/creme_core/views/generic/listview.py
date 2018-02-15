@@ -103,9 +103,7 @@ def _build_entity_queryset(user, model, list_view_state, extra_q, entity_filter,
             filtered = True
             use_distinct = True
 
-    # queryset = EntityCredentials.filter(user, queryset).distinct()
     queryset = EntityCredentials.filter(user, queryset)
-    # queryset = list_view_state.sort_query(queryset)
 
     if use_distinct:
         queryset = queryset.distinct()
@@ -122,25 +120,9 @@ def _build_entity_queryset(user, model, list_view_state, extra_q, entity_filter,
                     as_model=model,
                 ).count()
 
-    # return queryset
     return queryset, count
 
 
-# def _build_entities_page(request, list_view_state, queryset, size):
-#     paginator = Paginator(queryset, size)
-#
-#     try:
-#         page = int(request.POST.get('page'))
-#         list_view_state.page = page
-#     except (ValueError, TypeError):
-#         page = list_view_state.page or 1
-#
-#     try:
-#         entities_page = paginator.page(page)
-#     except (EmptyPage, InvalidPage):
-#         entities_page = paginator.page(paginator.num_pages)
-#
-#     return entities_page
 def _build_entities_page(arguments, list_view_state, queryset, size, count, ordering, fast_mode=False):
     if not fast_mode:
         paginator = Paginator(queryset, size)
@@ -256,11 +238,6 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
     else:
         current_lvs.handle_research(arguments, cells, merge=transient)
 
-    # current_lvs.set_sort(model, cells,
-    #                      POST_get('sort_field', current_lvs.sort_field),
-    #                      POST_get('sort_order', current_lvs.sort_order),
-    #                     )
-
     entity_filters = EntityFilterList(ct, user)
     efilter = _select_entityfilter(arguments, entity_filters, current_lvs.entity_filter_id)
     current_lvs.entity_filter_id = efilter.id if efilter else None
@@ -275,7 +252,6 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
                                     fast_mode=fast_mode,
                                    )
 
-    # entities_page = _build_entities_page(request, current_lvs, entities, rows, count)
     entities_page = _build_entities_page(arguments, current_lvs, entities.order_by(*ordering),
                                          size=rows, count=count, ordering=ordering, fast_mode=fast_mode,
                                         )
@@ -315,7 +291,6 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
         post_process(template_dict, request)
 
     # Optimisation time !!
-    # hf.populate_entities(entities_page.object_list)
     hf.populate_entities(entities_page.object_list, user)
 
     return template, template_dict
@@ -376,9 +351,6 @@ def list_view_popup(request, model, mode=MODE_SINGLE_SELECTION, lv_state_id=None
     request_get = request.GET.get
     kwargs['show_actions'] = bool(int(request_get('sa', False)))
     extra_dict = {
-    # TODO: never used ?
-#         'js_handler':    request_get('js_handler'),
-#         'js_arguments':  request_get('js_arguments'),
         'whoami':        request_get('whoami'),
         'is_popup_view': True,
     }

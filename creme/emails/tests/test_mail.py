@@ -27,7 +27,6 @@ try:
     from ..constants import (MAIL_STATUS_NOTSENT, MAIL_STATUS_SENT,
             MAIL_STATUS_SENDINGERROR, REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED)
     from ..creme_jobs import entity_emails_send_type
-    # from ..management.commands.entity_emails_send import Command as EmailsSendCommand
     from ..models import EmailSignature
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -39,7 +38,6 @@ class EntityEmailTestCase(_EmailsTestCase):
 
     @classmethod
     def setUpClass(cls):
-        # _EmailsTestCase.setUpClass()
         super(EntityEmailTestCase, cls).setUpClass()
         cls.original_send_messages = EmailBackend.send_messages
 
@@ -109,9 +107,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.get_object_or_fail(Relation, subject_entity=email, type=REL_SUB_MAIL_SENDED,   object_entity=user.linked_contact)
         self.get_object_or_fail(Relation, subject_entity=email, type=REL_SUB_MAIL_RECEIVED, object_entity=contact)
 
-        # self.assertGET200('/emails/mail/%s' % email.id)
         self.assertGET200(reverse('emails__view_email', args=(email.id,)))
-        # self.assertGET200('/emails/mail/%s/popup' % email.id)
         self.assertGET200(reverse('emails__view_email_popup', args=(email.id,)))
 
         messages = mail.outbox
@@ -544,40 +540,6 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertNoFormError(response)
         self.get_object_or_fail(EntityEmail, recipient=recipient)
 
-    # @skipIfCustomEmailTemplate
-    # @skipIfCustomContact
-    # def test_create_from_template02(self):
-    #     user = self.login()
-    #     body = 'Hi , nice to meet you !'
-    #
-    #     image_filename = '13_myimg.png'
-    #     body_html = 'Hi <img src="%(media_url)supload/images/%(name)s">, nice to meet you !' % {
-    #                         'media_url': settings.MEDIA_URL,
-    #                         'name':      image_filename,
-    #                     }
-    #
-    #     template = EmailTemplate.objects.create(user=user, name='My template',
-    #                                             subject='I am da subject',
-    #                                             body=body, body_html=body_html,
-    #                                            )
-    #     contact = Contact.objects.create(user=user, first_name='Vincent', last_name='Law',
-    #                                      email='vincent.law@city.mosk'
-    #                                     )
-    #
-    #     response = self.assertPOST200(self._build_send_from_template_url(contact),
-    #                                   data={'step':         2,
-    #                                         'user':         user.id,
-    #                                         'sender':       user.linked_contact.email,
-    #                                         'c_recipients': '[%d]' % contact.id,
-    #                                         'subject':      template.subject,
-    #                                         'body':         template.body,
-    #                                         'body_html':    template.body_html,
-    #                                         }
-    #                                  )
-    #     self.assertFormError(response, 'form', 'body_html',
-    #                          _(u"The image «%s» no longer exists or isn't valid.") % image_filename
-    #                         )
-
     def test_listview01(self):
         self.login()
         self._create_emails()
@@ -604,11 +566,8 @@ class EntityEmailTestCase(_EmailsTestCase):
         "Empty body"
         self.login()
         email = self._create_email()
-        # url_fmt = '/creme_core/entity/get_sanitized_html/%s/%s'
-        # self.assertGET409(url_fmt % (email.id, 'sender'))  # Not an UnsafeHTMLField
         self.assertGET409(reverse('creme_core__sanitized_html_field', args=(email.id, 'sender')))  # Not an UnsafeHTMLField
 
-        # response = self.assertGET200(url_fmt % (email.id, 'body_html'))
         response = self.assertGET200(reverse('creme_core__sanitized_html_field', args=(email.id, 'body_html')))
         self.assertEqual('', response.content)
 
@@ -619,7 +578,6 @@ class EntityEmailTestCase(_EmailsTestCase):
                                              '<img alt="Nekobus" src="%snekobus.jpg" />' % settings.MEDIA_URL
                                   )
 
-        # url = '/creme_core/entity/get_sanitized_html/%s/%s' % (email.id, 'body_html')
         url = reverse('creme_core__sanitized_html_field', args=(email.id, 'body_html'))
         response = self.assertGET200(url)
         self.assertEqual('<p>hi</p>'
@@ -647,7 +605,6 @@ class EntityEmailTestCase(_EmailsTestCase):
         email = self._create_email(MAIL_STATUS_NOTSENT)
         self.assertIs(job.type.next_wakeup(job, now_value), now_value)
 
-        # EmailsSendCommand().execute(verbosity=0)
         self._send_mails(job)
 
         messages = mail.outbox
@@ -671,7 +628,6 @@ class EntityEmailTestCase(_EmailsTestCase):
                                         wakeup
                                        )
 
-        # EmailsSendCommand().execute(verbosity=0)
         self._send_mails(job)
 
         messages = mail.outbox
@@ -684,7 +640,6 @@ class EntityEmailTestCase(_EmailsTestCase):
     def test_job03(self):
         self.login()
         self._create_email(MAIL_STATUS_SENT)
-        # EmailsSendCommand().execute(verbosity=0)
         self._send_mails()
 
         self.assertFalse(mail.outbox)
@@ -698,7 +653,6 @@ class EntityEmailTestCase(_EmailsTestCase):
         job = self._get_job()
         self.assertIsNone(job.type.next_wakeup(job, now()))
 
-        # EmailsSendCommand().execute(verbosity=0)
         self._send_mails(job)
         self.assertFalse(mail.outbox)
 

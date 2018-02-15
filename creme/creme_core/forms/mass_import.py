@@ -49,11 +49,9 @@ from ..models import (CremePropertyType, CremeProperty,
         RelationType, Relation, CremeEntity, EntityCredentials, FieldsConfig,
         CustomField, CustomFieldValue, CustomFieldEnumValue, MassImportJobResult)
 from ..utils.meta import ModelFieldEnumerator
-# from ..utils.collections import LimitedList
 from ..utils.url import TemplateURLBuilder
 from .base import CremeForm, CremeModelForm, FieldBlockManager, _CUSTOM_NAME
 from .fields import MultiRelationEntityField, CreatorEntityField
-# from .validators import validate_linkable_entities
 from .widgets import UnorderedMultipleChoiceWidget, ChainedInput, SelectorList
 
 
@@ -96,7 +94,6 @@ def get_header(filedata, has_header):
 class UploadForm(CremeForm):
     step       = IntegerField(widget=HiddenInput)
     document   = CreatorEntityField(label=_(u'File to import'), model=Document,
-                                    # create_action_url=reverse('documents__create_document_from_widget', args=(1,)),
                                     create_action_url=reverse('documents__create_document_from_widget'),
                                     credentials=EntityCredentials.VIEW,
                                    )
@@ -105,12 +102,6 @@ class UploadForm(CremeForm):
                                           u'the header of the columns (eg: "Last name","First name") ?'
                                          )
                              )
-
-    # error_messages = {
-    #     'forbidden_read': _(u'You have not the credentials to read this document.'),
-    #     'invalid_doctype': _("Error reading document, unsupported file type: %(file)s."),
-    #     'read_error': _("Error reading document: %(error)s."),
-    # }
 
     def __init__(self, *args, **kwargs):
         super(UploadForm, self).__init__(*args, **kwargs)
@@ -690,19 +681,17 @@ class RelationExtractorSelector(SelectorList):
 
         # TODO: use GET args instead of using TemplateURLBuilders ?
         add = partial(chained_input.add_dselect, attrs={'auto': False, 'autocomplete': True})
-        add('rtype',       options=self.relation_types, label=ugettext(u'The entity'))
-        # add('ctype',       options='/creme_core/relation/type/${rtype}/content_types/json')
+        add('rtype', options=self.relation_types, label=ugettext(u'The entity'))
         add('ctype',
             options=TemplateURLBuilder(rtype_id=(TemplateURLBuilder.Word, '${rtype}'))
                                       .resolve('creme_core__ctypes_compatible_with_rtype')
            )
-        # add('searchfield', options='/creme_core/entity/get_info_fields/${ctype}/json',
         add('searchfield',
             options=TemplateURLBuilder(ct_id=(TemplateURLBuilder.Int, '${ctype}'))\
                                       .resolve('creme_core__entity_info_fields'),
             label=ugettext(u'which field'),
            )
-        add('column',      options=self.columns, label=ugettext(u'equals to'))
+        add('column', options=self.columns, label=ugettext(u'equals to'))
 
         return mark_safe('<input type="checkbox" name="%(name)s_can_create" %(checked)s/>%(label)s'
                          '%(super)s' % {
@@ -992,22 +981,6 @@ class CustomfieldExtractorField(Field):
 # ------------------------------------------------------------------------------
 
 
-# class LVImportError(object):
-#     __slots__ = ('line', 'message', 'instance')
-#
-#     def __init__(self, line, message, instance=None):
-#         self.line = line
-#         self.message = message
-#         self.instance = instance
-#
-#     def __repr__(self):
-#         from django.utils.encoding import smart_str
-#
-#         return 'LVImportError(line=%s, message=%s, instance=%s)' % (
-#                     self.line, smart_str(self.message), self.instance,
-#                 )
-
-
 # TODO: merge with ImportForm4CremeEntity ? (no model that is not an entity is imported with csv...)
 class ImportForm(CremeModelForm):
     step       = IntegerField(widget=HiddenInput)
@@ -1038,10 +1011,6 @@ class ImportForm(CremeModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ImportForm, self).__init__(*args, **kwargs)
-        # self.import_errors = LimitedList(50)  # Contains LVImportErrors
-        # self.imported_objects_count = 0  # todo: properties ??
-        # self.updated_objects_count = 0
-        # self.lines_count = 0
         self.import_errors = []
 
         get_fconf = FieldsConfig.LocalCache().get_4_model
@@ -1056,9 +1025,7 @@ class ImportForm(CremeModelForm):
     def append_error(self, line, err_msg, instance=None):
         # TODO: API breaking => only err_msg !!!!
         if err_msg:
-            # self.import_errors.append(LVImportError(line, err_msg, instance))
             self.import_errors.append(unicode(err_msg))
-            # self.import_errors.append(err_msg) #TODO ?
 
     # NB: hack to bypass the model validation (see form_factory() comment)
     def _post_clean(self):
@@ -1087,11 +1054,9 @@ class ImportForm(CremeModelForm):
     def _pre_instance_save(self, instance, line): # overload me
         pass
 
-    # def save(self):
     def process(self, job):
         model_class = self._meta.model
         get_cleaned = self.cleaned_data.get
-        # append_error = self.append_error
 
         exclude = frozenset(self._meta.exclude or ())
         regular_fields   = []  # Contains tuples (field_name, cleaned_field_value)
@@ -1111,21 +1076,12 @@ class ImportForm(CremeModelForm):
             good_fields.append((fname, cleaned))
 
         filedata = self.cleaned_data['document'].filedata
-        # pathname, extension = splitext(filedata.name)
-        # file_extension = extension.replace('.', '')
-
         backend, error_msg = get_backend(filedata)
 
         if error_msg:
             raise self.Error(error_msg)
 
         filedata.open()
-        # backend = import_backend_registry.get_backend(file_extension)
-        # if backend is None:
-        #     verbose_error = "Error reading document, unsupported file type: %s." % file_extension
-        #     append_error(filedata.name, verbose_error)
-        #     filedata.close()
-        #     return
 
         lines = backend(filedata)
         if get_cleaned('has_header'):
@@ -1231,7 +1187,6 @@ class ImportForm4CremeEntity(ImportForm):
                                       )
     property_types  = ModelMultipleChoiceField(label=_(u'Properties'), required=False,
                                                queryset=CremePropertyType.objects.none(),
-                                               # widget=UnorderedMultipleChoiceWidget,
                                               )
     fixed_relations = MultiRelationEntityField(label=_(u'Fixed relationships'),
                                                required=False, autocomplete=True,
@@ -1275,15 +1230,6 @@ class ImportForm4CremeEntity(ImportForm):
                                                     self.choices, cfield, user=user,
                                                     initial={'selected_column': get_col(slugify(cfield.name), 0)},
                                                 )
-
-    # def clean_fixed_relations(self):
-    #     relations = self.cleaned_data['fixed_relations']
-    #     user = self.user
-    #
-    #     # TODO: self._check_duplicates(relations, user) #see RelationCreateForm
-    #     validate_linkable_entities([entity for rt_id, entity in relations], user)
-    #
-    #     return relations
 
     def clean_dyn_relations(self):  # TODO: move this validation in RelationExtractorField.clean()
         extractors = self.cleaned_data['dyn_relations']

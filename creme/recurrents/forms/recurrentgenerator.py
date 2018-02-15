@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,21 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.forms import DateTimeField
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.forms.fields import EntityCTypeChoiceField
-# from creme.creme_core.forms.widgets import DateTimeWidget
 
 from .. import get_rgenerator_model
 
 
 class RecurrentGeneratorEditForm(CremeEntityForm):
-    # first_generation = DateTimeField(label=_(u'Date of the first generation'),
-    #                                  widget=DateTimeWidget(),
-    #                                 )
-
     class Meta(CremeEntityForm.Meta):
         model = get_rgenerator_model()
 

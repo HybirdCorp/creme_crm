@@ -7,7 +7,6 @@ try:
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.persons import get_contact_model, get_organisation_model
-    # from creme.persons.models import Contact, Organisation
     from creme.persons.constants import REL_SUB_EMPLOYED_BY
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
@@ -26,11 +25,6 @@ Organisation = get_organisation_model()
 
 
 class ActiveSyncModelsTestCase(CremeTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('creme_core', 'persons', 'activities', 'activesync')
-
     def setUp(self):
         self.login()
 

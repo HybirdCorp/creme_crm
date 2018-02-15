@@ -15,11 +15,6 @@ except Exception as e:
 
 
 class QuickFormTestCase(CremeTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('creme_core')
-
     def quickform_data(self, count):
         return {'form-INITIAL_FORMS':  '0',
                 'form-MAX_NUM_FORMS':  '',
@@ -39,7 +34,6 @@ class QuickFormTestCase(CremeTestCase):
                })
 
     def _build_quickform_url(self, model, count=1):
-        # return '/creme_core/quickforms/%d/%d' % (ContentType.objects.get_for_model(model).pk, count)
         return reverse('creme_core__quick_forms', args=(ContentType.objects.get_for_model(model).pk, count))
 
     def test_add_unknown_ctype(self):
@@ -48,7 +42,6 @@ class QuickFormTestCase(CremeTestCase):
         invalid_id = 10000
         self.assertFalse(ContentType.objects.filter(id=invalid_id))
 
-        # url = '/creme_core/quickforms/%s/1' % invalid_id
         url = reverse('creme_core__quick_forms', args=(invalid_id, 1))
         self.assertGET404(url)
 
@@ -192,9 +185,6 @@ class QuickFormTestCase(CremeTestCase):
 
         last_name = 'Kirika'
         email = 'admin@hello.com'
-        # # response = self.assertPOST200('/creme_core/quickforms/from_widget/%d/add/1' %
-        # response = self.assertPOST200('/creme_core/quickforms/from_widget/%d/add/' %
-        #                                 ContentType.objects.get_for_model(Contact).pk,
         response = self.assertPOST200(url,
                                       data={'last_name': last_name,
                                             'email':     email,
@@ -212,5 +202,4 @@ class QuickFormTestCase(CremeTestCase):
                         )
 
     # TODO : test_quickform_with_custom_sync_data
-
     # TODO : test_add_multiple_from_widget(self)

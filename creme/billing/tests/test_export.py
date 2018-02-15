@@ -23,7 +23,6 @@ except Exception as e:
 @skipIfCustomOrganisation
 class ExportTestCase(_BillingTestCase):
     def _build_export_url(self, entity):
-        # return '/billing/generate_pdf/%s' % entity.id
         return reverse('billing__export', args=(entity.id,))
 
     @skipIfCustomInvoice

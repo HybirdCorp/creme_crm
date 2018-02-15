@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,6 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import add_entity, list_view
 
 from creme.persons import get_contact_model
-# from creme.persons.views.contact import abstract_add_contact
 
 from ..constants import PROP_IS_A_SALESMAN
 from ..forms.salesman import SalesManCreateForm
@@ -40,7 +39,6 @@ def abstract_add_salesman(request, form=SalesManCreateForm,
                           submit_label=_('Save the salesman'),
                           template='persons/add_contact_form.html',
                          ):
-    # return abstract_add_contact(request, form=form, submit_label=submit_label)
     return add_entity(request, form, template=template,
                       extra_template_dict={'title': _(u'Create a salesman'),
                                            'submit_label': submit_label,

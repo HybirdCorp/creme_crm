@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,6 @@ from functools import partial
 from itertools import chain
 from json import dumps as json_dump
 from types import GeneratorType
-# import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -40,7 +39,7 @@ from django.utils.translation import ugettext as _, ugettext_lazy, pgettext_lazy
 
 from ..templatetags.creme_widgets import get_icon_size_px, get_icon_by_name
 from ..utils.date_range import date_range_registry
-from ..utils.media import get_current_theme  # creme_media_themed_url as media_url
+from ..utils.media import get_current_theme
 from ..utils.url import TemplateURLBuilder
 
 
@@ -421,12 +420,6 @@ class ChainedInput(widgets.TextInput):
                      )
 
         if attrs.pop('reset', True):
-            # output.append(u'<li>'
-            #                   u'<img class="reset" src="%(url)s" alt="%(title)s" title="%(title)s" />'
-            #               u'</li>' % {'url':   media_url('images/delete_22_button.png'),
-            #                           'title': _(u'Reset'),
-            #                          }
-            #              )
             theme = get_current_theme()
             output.append(u'<li>{}</li>'.format(get_icon_by_name('delete', theme=theme, label=_(u'Reset'),
                                                                  size_px=get_icon_size_px(theme, size='form-widget'),
@@ -508,7 +501,6 @@ class SelectorList(widgets.TextInput):
                                        )
 
         context['input'] = widget_render_hidden_input(self, name, value, context)
-        # context['img_url'] = media_url('images/add_16.png')
         context['actions'] = self._render_actions()
 
         return mark_safe('<div class="%(css)s" style="%(style)s" widget="%(typename)s" %(clonelast)s %(disabled)s>'
@@ -543,7 +535,6 @@ class EntitySelector(widgets.TextInput):
 
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
-        # selection_mode = '0' if attrs.pop('multiple', False) else '1'
         selection_mode = 'multiple' if attrs.pop('multiple', False) else 'single'
         autoselect_mode = 'popupAuto' if attrs.pop('autoselect', False) else ''
 
@@ -640,9 +631,6 @@ class MultiCTEntitySelector(SelectorList):
 
 
 class RelationSelector(ChainedInput):
-    # _CTYPES_URL_FMT = '/creme_core/relation/type/${rtype}/content_types/json'
-
-    # def __init__(self, relation_types=(), content_types=_CTYPES_URL_FMT,
     def __init__(self, relation_types=(), content_types=None,  # TODO: rename 'ctypes_url' ?
                  attrs=None, multiple=False, autocomplete=False,
                 ):
@@ -661,7 +649,6 @@ class RelationSelector(ChainedInput):
                         {'auto': False}
 
         self.add_dselect('rtype', options=self.relation_types, attrs=dselect_attrs)
-        # self.add_dselect('ctype', options=self.content_types,  attrs=dselect_attrs)
         self.add_dselect('ctype', options=self.content_types or self._build_ctypes_url(), attrs=dselect_attrs)
         self.add_input('entity', widget=EntitySelector,
                        attrs={'auto': False, 'multiple': self.multiple},
@@ -671,7 +658,6 @@ class RelationSelector(ChainedInput):
 
 
 class MultiRelationSelector(SelectorList):
-    # def __init__(self, relation_types=(), content_types=RelationSelector._CTYPES_URL_FMT,
     def __init__(self, relation_types=(), content_types=None,
                  attrs=None, autocomplete=False,
                 ):
@@ -801,7 +787,6 @@ class FilteredEntityTypeWidget(ChainedInput):
         # TODO: allow to omit the 'All' filter ??
         # TODO: do not make a request for ContentType ID == '0'
         add_dselect('efilter',
-                    # options='/creme_core/entity_filter/get_for_ctype/${%s}/all' % ctype_name,
                     options=reverse('creme_core__efilters') + '?ct_id=${%s}&all=true' % ctype_name,
                    )
 
@@ -816,7 +801,6 @@ class DateTimeWidget(widgets.DateTimeInput):
 
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
-        # value = localtime(value) if value is not None else value
 
         if isinstance(value, datetime) and not is_naive(value):
             value = localtime(value)
@@ -903,17 +887,8 @@ class DependentSelect(widgets.Select):
     def __init__(self, target_id, attrs=None, choices=()):
         self.target_id = target_id
         self.target_url = None
-        # self._source_val = self._target_val = None
         self.target_val = None
         super(DependentSelect, self).__init__(attrs, choices)
-
-#    def _set_target(self, target):
-#        self._target_val = target
-#    target_val = property(lambda self: self._target_val, _set_target); del _set_target
-#
-#    def _set_source(self, source):
-#        self._source_val = source
-#    source_val = property(lambda self: self._source_val, _set_source); del _set_source
 
     def render(self, name, value, attrs=None, choices=()):
         final_attrs = self.build_attrs(attrs, name=name)
@@ -1257,32 +1232,6 @@ class ListEditionWidget(widgets.Widget):
                ]
 
 
-# class AdaptiveWidget(Select):
-#     def __init__(self, ct_id, object_id="", attrs=None, choices=()):
-#         super(AdaptiveWidget, self).__init__(attrs, choices)
-#         self.ct_id = ct_id
-#         self.object_id = object_id
-#         self.url = "/creme_core/entity/get_widget/%s" % ct_id
-#         warnings.warn("AdaptiveWidget is deprecated and will be removed in 1.7",
-#                       DeprecationWarning
-#                      )
-#
-#     def render(self, name, value, attrs=None, choices=()):
-#         attrs = self.build_attrs(attrs, name=name)
-#         context = widget_render_context('ui-creme-adaptive-widget', attrs,
-#                                         url=self.url,
-#                                         object_id=self.object_id,
-#                                         style=attrs.pop('style', ''),
-#                                        )
-#         context['input'] = super(AdaptiveWidget, self).render(name, value, attrs, choices)
-#
-#         return mark_safe('<span class="%(css)s" style="%(style)s" widget="%(typename)s" '
-#                                'url="%(url)s" object_id="%(object_id)s">'
-#                             '%(input)s'
-#                          '</span>' % context
-#                         )
-
-
 class DatePeriodWidget(widgets.MultiWidget):
     def __init__(self, choices=(), attrs=None):
         super(DatePeriodWidget, self).__init__(
@@ -1387,8 +1336,6 @@ class DurationWidget(widgets.MultiWidget):
 
 class ChoiceOrCharWidget(widgets.MultiWidget):
     def __init__(self, attrs=None, choices=()):
-        # self.select_widget = select = widgets.Select(choices=choices)
-        # super(ChoiceOrCharWidget, self).__init__(widgets=(select, widgets.TextInput()), attrs=attrs)
         super(ChoiceOrCharWidget, self).__init__(widgets=(widgets.Select(choices=choices),
                                                           widgets.TextInput(),
                                                          ),
@@ -1397,12 +1344,10 @@ class ChoiceOrCharWidget(widgets.MultiWidget):
 
     @property
     def choices(self):
-        # return self.select_widget.choices
         return self.widgets[0].choices
 
     @choices.setter
     def choices(self, choices):
-        # self.select_widget.choices = choices
         self.widgets[0].choices = choices
 
     def decompress(self, value):

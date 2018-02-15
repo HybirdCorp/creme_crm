@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,14 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import CharField, IntegerField, DecimalField, ForeignKey, PROTECT  # ManyToManyField
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
 
-# from creme.media_managers.models import Image
 from creme.documents.models.fields import ImageEntityManyToManyField
 
 from . import other_models
@@ -49,11 +47,7 @@ class AbstractProduct(CremeEntity):
     sub_category      = ForeignKey(other_models.SubCategory, verbose_name=_(u'Sub-category'),
                                    on_delete=PROTECT,
                                   )
-    # images            = ManyToManyField(Image, blank=True,
-    #                                     verbose_name=_(u'Images'),
-    #                                     related_name='ProductImages_set',
-    #                                    )
-    images = ImageEntityManyToManyField(verbose_name=_(u'Images'), blank=True)
+    images            = ImageEntityManyToManyField(verbose_name=_(u'Images'), blank=True)
 
     creation_label = _(u'Create a product')
     save_label     = _(u'Save the product')

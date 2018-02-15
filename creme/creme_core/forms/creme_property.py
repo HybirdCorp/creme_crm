@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,13 +26,12 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from ..models import CremePropertyType, CremeProperty
 from ..utils import entities2unicode
 from .base import CremeForm
-from .widgets import Label  # UnorderedMultipleChoiceWidget
+from .widgets import Label
 
 
 class _AddPropertiesForm(CremeForm):
     types = ModelMultipleChoiceField(label=_(u'Type of property'),
                                      queryset=CremePropertyType.objects.none(),
-                                     # widget=UnorderedMultipleChoiceWidget,
                                     )
 
     def _create_properties(self, entities, ptypes):

@@ -6,7 +6,6 @@
 {% comment %} One way to customize the icon without having an icon per theme: (need to load 'media')
         <img src="{% media_url 'common/images/my_icon_30.png' %}" height="30px" width="30px" alt="{% trans 'Home' %}">
 {% endcomment %}
-{#        <img src="{% creme_media_url logo_url %}" height="30px" width="30px" alt="{% trans 'Home' %}"> #}
         {% widget_icon name='creme' size='header-menu-home' label=_('Home') class='header-menu-home-icon' %}
         {% endblock %}
     </a>
@@ -20,9 +19,7 @@
         <div class="search-box">
             <input type="text" placeholder="{% trans 'Search' %}">
             <span class="search-box-icon default">
-{#                <img class="search-icon-loading" src="{% creme_media_url 'images/wait.gif' %}" width='16' height='16' /> #}
                 {% widget_icon name='wait' size='header-menu' label=_('Loading…') class='search-icon-loading' %}
-{#                <img class='search-icon-default' src="{% creme_media_url 'images/search_22.png' %}" width='16' height='16' /> #}
                 {% widget_icon name='search' size='header-menu' label=_('Search') class='search-icon-default' %}
             </span>
 

@@ -26,10 +26,6 @@ except Exception as e:
 # TODO: to be completed
 class CremeListViewTagsTestCase(CremeTestCase):
     def assertFieldEditorTag(self, render, entity, field_name, block=False):
-        # fmt = """<a onclick="creme.blocks.form('/creme_core/entity/edit/inner/%s/%s/field/%s', {blockReloadUrl:""" \
-        #       if block else \
-        #       """<a onclick="creme.blocks.form('/creme_core/entity/edit/inner/%s/%s/field/%s', {reloadOnSuccess:"""
-        # expected = fmt % (entity.entity_type_id, entity.id, field_name)
         url = reverse('creme_core__inner_edition', args=(entity.entity_type_id, entity.id, field_name))
 
         if block:

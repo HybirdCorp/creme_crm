@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2016  Hybird
+#    Copyright (C) 2013-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -148,13 +148,6 @@ def generate_new_doc(request, opp_id, ct_id):
                                       unit=item.unit,
                                       vat_value=vat_value,
                                      )
-
-    # Now, there can be several current docs
-    # for relation in Relation.objects.filter(object_entity=opp.id,
-    #                                         type=REL_SUB_CURRENT_DOC,
-    #                                         subject_entity__entity_type=ct_doc,
-    #                                        ):
-    #     relation.delete()
 
     if set_as_current:
         create_relation(type_id=constants.REL_SUB_CURRENT_DOC, object_entity=opp)

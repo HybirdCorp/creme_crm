@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -69,7 +69,6 @@ class Reminder(object):
     def ok_for_continue(self):
         return True
 
-    # def send_mails(self, instance):
     def send_mails(self, instance, job):
         body    = self.generate_email_body(instance)
         subject = self.generate_email_subject(instance)
@@ -82,8 +81,6 @@ class Reminder(object):
         try:
             with get_connection() as connection:
                 connection.send_messages(messages)
-        # except Exception:
-        #     logger.exception('Reminder.send_mails() failed')
         except Exception as e:
             logger.critical('Error while sending reminder emails (%s)', e)
             JobResult.objects.create(job=job,
@@ -97,7 +94,6 @@ class Reminder(object):
 
         return True  # Means 'OK'
 
-    # def execute(self):
     def execute(self, job):
         if not self.ok_for_continue():
             return
@@ -105,7 +101,6 @@ class Reminder(object):
         dt_now = now().replace(microsecond=0, second=0)
 
         for instance in self.model.objects.filter(self.get_Q_filter()).exclude(reminded=True):
-            # self.send_mails(instance)
             self.send_mails(instance, job)
 
             with atomic():

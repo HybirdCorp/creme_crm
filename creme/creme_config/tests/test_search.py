@@ -18,16 +18,13 @@ except Exception as e:
 
 
 class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
-    # PORTAL_URL = '/creme_config/search/portal/'
     PORTAL_URL = reverse('creme_config__search')
 
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
         super(SearchConfigTestCase, cls).setUpClass()
 
         SearchConfigItem.objects.all().delete()  # TODO: backup ?
-        # cls.populate('creme_core')
 
         get_ct = ContentType.objects.get_for_model
         cls.ct_contact = get_ct(FakeContact)
@@ -42,11 +39,9 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
                 self.fail(field_name + ' in choices')
 
     def _build_add_url(self, ctype):
-        # return '/creme_config/search/add/%s' % ctype.id
         return reverse('creme_config__create_search_config', args=(ctype.id,))
 
     def _build_edit_url(self, sci):
-        # return '/creme_config/search/edit/%s' % sci.id
         return reverse('creme_config__edit_search_config', args=(sci.id,))
 
     def _find_field_index(self, formfield, field_name):
@@ -74,13 +69,10 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.assertGET200(self.PORTAL_URL)
         self.assertTemplateUsed(response, 'creme_config/search_portal.html')
         self.assertTemplateUsed(response, 'creme_config/bricks/search-config.html')
-        # self.assertContains(response, ' id="%s"' % SearchConfigBlock.id_)
-        # self.assertContains(response, unicode(ctype))
 
         brick_node = self.get_brick_node(self.get_html_tree(response.content), SearchConfigBrick.id_)
         title_node = brick_node.find(".//div[@class='search-config-group-title']")
         self.assertIsNotNone(title_node)
-        # self.assertIn(unicode(ctype), title_node.text)
         self.assertEqual([unicode(ctype)], [text.strip() for text in title_node.itertext()])
 
         # Missing default configurations are built
@@ -187,59 +179,6 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
             role_f = response.context['form'].fields['role']
 
         self.assertIsNone(role_f.empty_label)
-
-    # def test_add05(self):
-    #     "Invalid first column"
-    #     role = self.role
-    #     ct = self.ct_contact
-    #
-    #     url = self._build_add_url(ct)
-    #     response = self.assertGET200(url)
-    #
-    #     with self.assertNoException():
-    #         fields = response.context['form'].fields['fields']
-    #
-    #     fname_1 = 'email'
-    #     index_1 = self._find_field_index(fields, fname_1)
-    #
-    #     fname_2 = 'first_name'
-    #     index_2 = self._find_field_index(fields, fname_2)
-    #
-    #     fname_3 = 'last_name'  # thsi field is always OK
-    #     index_3 = self._find_field_index(fields, fname_3)
-    #
-    #     def post(fname, index, error_msg):
-    #         response = self.assertPOST200(url,
-    #                                       data={'role': role.id,
-    #
-    #                                             'fields_check_%s' % index: 'on',
-    #                                             'fields_value_%s' % index: fname,
-    #                                             'fields_order_%s' % index: 1,
-    #
-    #                                             'fields_check_%s' % index_3: 'on',
-    #                                             'fields_value_%s' % index_3: fname_3,
-    #                                             'fields_order_%s' % index_3: 2,
-    #                                            },
-    #                                      )
-    #         self.assertFormError(response, 'form', 'fields', error_msg)
-    #
-    #     post(fname_1, index_1, _(u'This type of field can not be the first column.'))
-    #     post(fname_2, index_2, _(u'The first column cannot be a possibly empty field.'))
-    #
-    #     # The first column can be empty is there is only one column
-    #     self.assertNoFormError(self.client.post(url,
-    #                                             data={'role': role.id,
-    #
-    #                                                   'fields_check_%s' % index_2: 'on',
-    #                                                   'fields_value_%s' % index_2: fname_2,
-    #                                                   'fields_order_%s' % index_2: 1,
-    #                                                  },
-    #                                            )
-    #                           )
-    #
-    #     sc_items = SearchConfigItem.objects.filter(content_type=ct)
-    #     self.assertEqual(1, len(sc_items))
-    #     self.assertEqual([fname_2], [sf.name for sf in sc_items[0].searchfields])
 
     def _edit_config(self, url, sci, names_indexes, disabled=''):
         data = {'disabled': disabled}
@@ -404,7 +343,6 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         sci = SearchConfigItem.create_if_needed(FakeContact, role=self.role,
                                                 fields=['first_name', 'last_name'],
                                                 )
-        # self.assertPOST200('/creme_config/search/delete', data={'id': sci.id})
         self.assertPOST200(reverse('creme_config__delete_search_config'), data={'id': sci.id})
         self.assertDoesNotExist(sci)
 
@@ -413,13 +351,11 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         sci = SearchConfigItem.create_if_needed(FakeContact, role='superuser',
                                                 fields=['first_name', 'last_name'],
                                                 )
-        # self.assertPOST200('/creme_config/search/delete', data={'id': sci.id})
         self.assertPOST200(reverse('creme_config__delete_search_config'), data={'id': sci.id})
         self.assertDoesNotExist(sci)
 
     def test_delete03(self):
         "Cannot delete the default configuration"
         sci = SearchConfigItem.create_if_needed(FakeContact, ['first_name', 'last_name'])
-        # self.assertPOST409('/creme_config/search/delete', data={'id': sci.id})
         self.assertPOST409(reverse('creme_config__delete_search_config'), data={'id': sci.id})
         self.assertStillExists(sci)

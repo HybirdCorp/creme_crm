@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,43 +37,12 @@ from .utils import create_if_needed
 
 class Populator(BasePopulator):
     def populate(self):
-        # already_populated = CremePropertyType.objects.filter(pk=constants.PROP_IS_MANAGED_BY_CREME).exists()
         already_populated = RelationType.objects.filter(id=constants.REL_SUB_HAS).exists()
 
-        # CremePropertyType.create(constants.PROP_IS_MANAGED_BY_CREME, _(u'managed by Creme'))
         RelationType.create((constants.REL_SUB_HAS, _(u'owns')),
                             (constants.REL_OBJ_HAS, _(u'belongs to')))
 
-        # User = get_user_model()
-        #
-        # try:
-        #     root = User.objects.get(pk=1)
-        # except User.DoesNotExist:
-        #     login = password = 'root'
-        #
-        #     root = User(pk=1, username=login, is_superuser=True,
-        #                 first_name='Fulbert', last_name='Creme',
-        #                )
-        #     root.set_password(password)
-        #     root.save()
-        #
-        #     if self.verbosity:
-        #         self.stdout.write('\n A super-user has been created with login="%(login)s"'
-        #                           ' and password="%(password)s".' % {
-        #                                 'login':    login,
-        #                                 'password': password,
-        #                             },
-        #                           self.style.NOTICE,
-        #                          )
-        # else:
-        #     if root.is_staff and User.objects.count() == 1:
-        #         root.is_staff = False
-        #         root.save()
-
         # ---------------------------
-        # SettingValue.create_if_needed(key=block_opening_key,   user=None, value=True)
-        # SettingValue.create_if_needed(key=block_showempty_key, user=None, value=True)
-        # SettingValue.create_if_needed(key=currency_symbol_key, user=None, value=True)
         create_svalue = SettingValue.objects.get_or_create
         create_svalue(key_id=setting_keys.block_opening_key.id,   defaults={'value': True})
         create_svalue(key_id=setting_keys.block_showempty_key.id, defaults={'value': True})

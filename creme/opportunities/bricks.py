@@ -22,7 +22,6 @@ from datetime import timedelta
 
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
-# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.bricks import Brick, SimpleBrick, QuerysetBrick, EntityBrick
@@ -109,8 +108,6 @@ class _LinkedStuffBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     self._get_queryset(entity),
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
                     predicate_id=self.relation_type_deps[0],
                     ct=_get_ct(self._model),  # DEPRECATED (use 'objects_ctype' instead)
         ))
@@ -121,7 +118,6 @@ class LinkedContactsBrick(_LinkedStuffBrick):
     dependencies  = (Relation, Contact)
     relation_type_deps = (constants.REL_OBJ_LINKED_CONTACT, )
     verbose_name  = _(u'Linked Contacts')
-    # template_name = 'opportunities/templatetags/block_contacts.html'
     template_name = 'opportunities/bricks/contacts.html'
 
     def _get_queryset(self, entity):
@@ -133,7 +129,6 @@ class LinkedProductsBrick(_LinkedStuffBrick):
     dependencies  = (Relation, Product)
     relation_type_deps = (constants.REL_OBJ_LINKED_PRODUCT, )
     verbose_name  = _(u'Linked Products')
-    # template_name = 'opportunities/templatetags/block_products.html'
     template_name = 'opportunities/bricks/products.html'
     order_by      = 'name'
 
@@ -148,7 +143,6 @@ class LinkedServicesBrick(_LinkedStuffBrick):
     dependencies  = (Relation, Service)
     relation_type_deps = (constants.REL_OBJ_LINKED_SERVICE, )
     verbose_name  = _(u'Linked Services')
-    # template_name = 'opportunities/templatetags/block_services.html'
     template_name = 'opportunities/bricks/services.html'
     order_by      = 'name'
 
@@ -163,7 +157,6 @@ class BusinessManagersBrick(_LinkedStuffBrick):
     dependencies  = (Relation, Contact)
     relation_type_deps = (constants.REL_OBJ_RESPONSIBLE, )
     verbose_name  = _(u'Business managers')
-    # template_name = 'opportunities/templatetags/block_responsibles.html'
     template_name = 'opportunities/bricks/managers.html'
 
     def _get_queryset(self, entity):
@@ -175,7 +168,6 @@ class TargettingOpportunitiesBrick(QuerysetBrick):
     dependencies  = (Relation, Opportunity)
     relation_type_deps = (constants.REL_OBJ_TARGETS, )
     verbose_name  = _(u'Opportunities which target the organisation / contact')
-    # template_name = 'opportunities/templatetags/block_opportunities.html'
     template_name = 'opportunities/bricks/opportunities.html'
     target_ctypes = (Organisation, Contact)
     order_by      = 'name'
@@ -190,8 +182,6 @@ class TargettingOpportunitiesBrick(QuerysetBrick):
                     Opportunity.objects.filter(relations__object_entity=entity.id,
                                                relations__type=constants.REL_SUB_TARGETS,
                                               ),
-                    # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                    # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, entity.pk)),
                     predicate_id=self.relation_type_deps[0],
                     ct=_get_ct(Opportunity),  # DEPRECATED (use 'objects_ctype' instead)
                     hidden_fields={fname
@@ -208,7 +198,6 @@ class OppTotalBrick(SimpleBrick):
     dependencies        = (Opportunity, Relation)
     relation_type_deps  = (constants.REL_OBJ_LINKED_QUOTE,)
     verbose_name        = _(u'Total')
-    # template_name       = 'opportunities/templatetags/block_total.html'
     template_name       = 'opportunities/bricks/total.html'
     target_ctypes       = (Opportunity,)
 
@@ -237,7 +226,6 @@ class OppTargetBrick(Brick):
         ))
 
 
-
 bricks_list = (
     LinkedContactsBrick,
     LinkedProductsBrick,
@@ -261,7 +249,6 @@ if apps.is_installed('creme.billing'):
         dependencies       = (Relation, Quote)
         relation_type_deps = (constants.REL_OBJ_LINKED_QUOTE,)
         verbose_name       = _(u'Quotes linked to the opportunity')
-        # template_name      = 'opportunities/templatetags/block_quotes.html'
         template_name      = 'opportunities/bricks/quotes.html'
         order_by           = 'name'
 
@@ -280,7 +267,6 @@ if apps.is_installed('creme.billing'):
         dependencies       = (Relation, SalesOrder)
         relation_type_deps = (constants.REL_OBJ_LINKED_SALESORDER, )
         verbose_name       = _(u'Salesorders linked to the opportunity')
-        # template_name      = 'opportunities/templatetags/block_sales_orders.html'
         template_name      = 'opportunities/bricks/sales-orders.html'
         order_by           = 'name'
 
@@ -299,7 +285,6 @@ if apps.is_installed('creme.billing'):
         dependencies       = (Relation, Invoice)
         relation_type_deps = (constants.REL_OBJ_LINKED_INVOICE, )
         verbose_name       = _(u'Invoices linked to the opportunity')
-        # template_name      = 'opportunities/templatetags/block_invoices.html'
         template_name      = 'opportunities//bricks/invoices.html'
         order_by           = 'name'
 

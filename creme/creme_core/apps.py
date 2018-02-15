@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2017  Hybird
+#    Copyright (C) 2015-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -201,7 +201,6 @@ class CremeAppConfig(AppConfig):
 
     def all_apps_ready(self):
         if not self.MIGRATION_MODE:
-            # self.register_creme_app(creme_registry)
             if hasattr(self, 'register_creme_app'):
                 logger.critical('The AppConfig for "%s" has a method register_creme_app() which is now useless.', self.name)
 
@@ -230,13 +229,9 @@ class CremeAppConfig(AppConfig):
             self.register_user_setting_keys(user_setting_key_registry)
             self.register_smart_columns(smart_columns_registry)
 
-    # def register_creme_app(self, creme_registry):
-    #     pass
-
     def register_entity_models(self, creme_registry):
         pass
 
-    # def register_blocks(self, block_registry):
     def register_bricks(self, brick_registry):
         pass
 
@@ -308,17 +303,12 @@ class CremeCoreConfig(CremeAppConfig):
             from .tests.fake_apps import ready
             ready()
 
-    # def register_creme_app(self, creme_registry):
-    #     creme_registry.register_app('creme_core', _(u'Core'), '/')
-
     def register_menu(self, creme_menu):
         from django.core.urlresolvers import reverse_lazy as reverse
 
         if settings.OLD_MENU:
             reg_app = creme_menu.register_app
-            # reg_app('creme_core', '/',     _(u'Home'),    force_order=0)
             reg_app('creme_core', reverse('creme_core__home'),    _(u'Home'),    force_order=0)
-            # reg_app('my_page', '/my_page', _(u'My page'), force_order=1)  # HACK: see creme_core/auth/backend.py
             reg_app('my_page',    reverse('creme_core__my_page'), _(u'My page'), force_order=1)  # HACK: see creme_core/auth/backend.py
         else:
             from .gui.menu import (ItemGroup, ContainerItem, URLItem, TrashItem, LastViewedEntitiesItem,
@@ -359,15 +349,9 @@ class CremeCoreConfig(CremeAppConfig):
                           ) \
                       .add(LastViewedEntitiesItem('recent_entities', label=_(u'Recent entities')), priority=40)
 
-    # def register_blocks(self, block_registry):
     def register_bricks(self, brick_registry):
-        # from .blocks import (relations_block, properties_block, customfields_block,
-        #         history_block, trash_block)
         from . import bricks
 
-        # block_registry.register(relations_block, properties_block, customfields_block,
-        #                         history_block, trash_block,
-        #                        )
         brick_registry.register(bricks.PropertiesBrick,
                                 bricks.RelationsBrick,
                                 bricks.CustomFieldsBrick,
@@ -378,11 +362,6 @@ class CremeCoreConfig(CremeAppConfig):
                                 bricks.JobsBrick,
                                 bricks.MyJobsBrick,
                                )
-
-    # def register_buttons(self, button_registry):
-    #     from .buttons import merge_entities_button
-    #
-    #     button_registry.register(merge_entities_button)
 
     def register_bulk_update(self, bulk_update_registry):
         from .models import CremeProperty

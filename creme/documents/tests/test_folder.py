@@ -5,7 +5,6 @@ try:
 
     from django.conf import settings
     from django.core.urlresolvers import reverse
-    # from django.utils.encoding import smart_str, smart_unicode
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
@@ -22,7 +21,6 @@ except Exception as e:
 class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
     @classmethod
     def setUpClass(cls):
-        # _DocumentsTestCase.setUpClass()
         super(FolderTestCase, cls).setUpClass()
 
         cls.ADD_URL  = reverse('documents__create_folder')
@@ -277,11 +275,9 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         folder3 = create_folder(title=u'Test folder#3', parent_folder=folder2)
         folder4 = create_folder(title=u'Test folder#4')
 
-        # url = self.build_bulkedit_url([folder1, folder3, folder4], 'parent_folder')
         url = self.build_bulkupdate_url(Folder, 'parent_folder')
         self.assertGET200(url)
 
-        # response = self.client.post(url, data={'field_value': folder3.pk})
         response = self.client.post(url,
                                     data={'field_value': folder3.id,
                                           'entities':    [folder1.id, folder3.id, folder4.id],
@@ -396,7 +392,6 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         folder = Folder.objects.create(user=self.user, title='ToBeDel', description='remove me')
         folder.trash()
 
-        # response = self.assertPOST200('/creme_core/entity/delete/%s' % folder.pk, follow=True)
         response = self.assertPOST200(folder.get_delete_absolute_url(), follow=True)
         self.assertDoesNotExist(folder)
         self.assertRedirects(response, self.LIST_URL)
@@ -411,7 +406,6 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
         folder.trash()
 
-        # self.assertPOST403('/creme_core/entity/delete/%s' % folder.pk)
         self.assertPOST403(folder.get_delete_absolute_url())
         self.assertStillExists(folder)
 
@@ -430,10 +424,8 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
     # def test_block(self):
     def test_brick(self):
         "Brick which display contained docs"
-        # from creme.documents.blocks import folder_docs_block
         from creme.documents.bricks import FolderDocsBrick
 
-        # folder_docs_block.page_size = max(4, settings.BLOCK_SIZE)
         FolderDocsBrick.page_size = max(4, settings.BLOCK_SIZE)
 
         folder = Folder.objects.create(user=self.user, title='PDF',
@@ -450,22 +442,6 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
         doc4.trash()
 
-        # content = self.assertGET200(folder.get_absolute_url()).content
-        # block_start_index = content.find(smart_str('id="%s"' % folder_docs_block.id_))
-        # self.assertNotEqual(-1, block_start_index)
-        #
-        # # body_start_index = content.find('<tbody class="collapsable">', block_start_index)
-        # body_start_index = content.find('<tbody>', block_start_index)
-        # self.assertNotEqual(-1, body_start_index)
-        #
-        # end_index = content.find('</tbody>', body_start_index)
-        # self.assertNotEqual(-1, end_index)
-        #
-        # block_str = smart_unicode(content[body_start_index:end_index])
-        # self.assertIn(doc1.title, block_str)
-        # self.assertIn(doc2.title, block_str)
-        # self.assertNotIn(doc3.title, block_str)
-        # # self.assertNotIn(doc4.title, block_str)
         response = self.assertGET200(folder.get_absolute_url())
         brick_node = self.get_brick_node(self.get_html_tree(response.content), FolderDocsBrick.id_)
         self.assertInstanceLink(brick_node, doc1)

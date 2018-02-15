@@ -100,15 +100,12 @@ class ReportTestCase(BaseReportsTestCase):
         return orga_report
 
     def _build_linkreport_url(self, rfield):
-        # return '/reports/report/field/%s/link_report' % rfield.id
         return reverse('reports__link_report', args=(rfield.id,))
 
     def _build_export_url(self, report):
-        # return '/reports/export/%s' % report.id
         return reverse('reports__export_report', args=(report.id,))
 
     def _build_preview_url(self, report):
-        # return '/reports/export/preview/%s' % report.id
         return reverse('reports__export_report_preview', args=(report.id,))
 
     def _create_cf_int(self):
@@ -142,7 +139,6 @@ class ReportTestCase(BaseReportsTestCase):
 
     def test_portal(self):
         self.login()
-        # self.assertGET200('/reports/')
         self.assertGET200(reverse('reports__portal'))
 
     def test_columns(self):
@@ -437,14 +433,9 @@ class ReportTestCase(BaseReportsTestCase):
         report_1 = self._create_report('Filter #1')
         report_2 = self._create_report('Filter #2')
 
-        # url = self.build_bulkedit_url([report_1, report_2], 'filter')
         url = self.build_bulkupdate_url(Report, 'filter')
-        # response = self.assertGET200(url)
         self.assertGET200(url)
-        # self.assertContains(response, contact_filter.name)
-        # self.assertNotContains(response, orga_filter.name)
 
-        # response = self.assertPOST200(url, data={'field_value': orga_filter.pk})
         response = self.assertPOST200(url,
                                       data={'field_value': orga_filter.id,
                                             'entities': [report_1.id, report_2.id],
@@ -454,7 +445,6 @@ class ReportTestCase(BaseReportsTestCase):
                              _('Select a valid choice. That choice is not one of the available choices.')
                             )
 
-        # response = self.client.post(url, data={'field_value': contact_filter.pk})
         response = self.client.post(url,
                                     data={'field_value': contact_filter.id,
                                           'entities': [report_1.id, report_2.id],
@@ -474,18 +464,9 @@ class ReportTestCase(BaseReportsTestCase):
         report_1 = self._create_report('Contact report')
         report_2 = self._create_simple_organisations_report('Orga report')
 
-        # url = self.build_bulkedit_url([report_1, report_2], 'filter')
         url = self.build_bulkupdate_url(Report, 'filter')
-        # response = self.assertGET200(url)
         self.assertGET200(url)
-        # self.assertContains(response,
-        #                     escape(_(u'Filter field can only be updated when reports '
-        #                              u'target the same type of entities (e.g: only contacts).'
-        #                            )
-        #                           )
-        #                    )
 
-        # response = self.assertPOST200(url, data={'field_value': contact_filter.pk})
         response = self.assertPOST200(url,
                                       data={'field_value': contact_filter.id,
                                             'entities': [report_1.id, report_2.id],
@@ -512,22 +493,7 @@ class ReportTestCase(BaseReportsTestCase):
                                          ct=efilter2.entity_type, filter=efilter2,
                                         )
 
-        # url = self.build_bulkedit_url([report_1, report_2, report_3], 'filter')
-        url = self.build_bulkupdate_url(Report, 'filter')
-        # response = self.assertGET200(url)
-        # self.assertContains(response, efilter1.name)
-        # self.assertContains(response, efilter3.name)
-        # self.assertNotContains(response, efilter2.name)
-        # self.assertContains(response,
-        #                     escape(ungettext('The filter of %s report cannot be changed because it is private.',
-        #                                      'The filters of %s reports cannot be changed because they are private.',
-        #                                      1
-        #                                     ) % 1
-        #                           )
-        #                    )
-
-        # response = self.client.post(url, data={'field_value': efilter3.pk})
-        response = self.client.post(url,
+        response = self.client.post(self.build_bulkupdate_url(Report, 'filter'),
                                     data={'field_value': efilter3.id,
                                           'entities': [report_1.id, report_2.id, report_3.id],
                                          }
@@ -591,7 +557,6 @@ class ReportTestCase(BaseReportsTestCase):
         efilter = EntityFilter.create('test-filter', 'Mihana family', FakeContact, is_custom=True)
         report = self._create_report('My awesome report', efilter)
 
-        # url = '/creme_core/entity_filter/delete'
         url = reverse('creme_core__delete_efilter')
         data = {'id': efilter.id}
         response = self.assertPOST200(url, data=data, follow=True)
@@ -778,15 +743,6 @@ class ReportTestCase(BaseReportsTestCase):
         with self.assertNoException():
             callback_url = response.context['callback_url']
 
-        # self.assertEqual('/reports/export/%s?doc_type=csv'
-        #                                    '&date_field=%s'
-        #                                    '&date_filter_0='
-        #                                    '&date_filter_1=01-01-1990'
-        #                                    '&date_filter_2=31-12-1990' % (
-        #                         report.id, date_field,
-        #                     ),
-        #                  callback_url
-        #                 )
         self.assertEqual(reverse('reports__export_report', args=(report.id,)) +
                          '?doc_type=csv'
                           '&date_field=%s'
@@ -800,7 +756,6 @@ class ReportTestCase(BaseReportsTestCase):
         self.login()
 
         report = self._create_report('My report')
-        # url = '/reports/export/filter/%s' % report.id
         url = reverse('reports__export_report_filter', args=(report.id,))
         self.assertGET200(url)
 
@@ -815,7 +770,6 @@ class ReportTestCase(BaseReportsTestCase):
         self.login()
 
         report = self._create_report('My report')
-        # url = '/reports/export/filter/%s' % report.id
         url = reverse('reports__export_report_filter', args=(report.id,))
         self.assertGET200(url)
 
@@ -838,7 +792,6 @@ class ReportTestCase(BaseReportsTestCase):
         self.login()
 
         report = self._create_report('My report')
-        # url = '/reports/export/filter/%s' % report.id
         url = reverse('reports__export_report_filter', args=(report.id,))
         self.assertGET200(url)
 
@@ -858,7 +811,6 @@ class ReportTestCase(BaseReportsTestCase):
         self.login()
 
         report = self._create_report('My report')
-        # url = '/reports/export/filter/%s' % report.id
         url = reverse('reports__export_report_filter', args=(report.id,))
         self.assertGET200(url)
 
@@ -874,11 +826,6 @@ class ReportTestCase(BaseReportsTestCase):
         with self.assertNoException():
             callback_url = response.context['callback_url']
 
-        # self.assertEqual('/reports/export/%s?doc_type=%s&date_field=' % (
-        #                         report.id, doc_type,
-        #                     ),
-        #                  callback_url
-        #                 )
         self.assertEqual(reverse('reports__export_report', args=(report.id,)) + '?doc_type=%s&date_field=' % doc_type,
                          callback_url
                         )
@@ -1053,7 +1000,6 @@ class ReportTestCase(BaseReportsTestCase):
 
         self._create_persons()
         report   = self._create_report('trinita')
-        # response = self.assertGET200('/reports/export/%s' % report.id,
         response = self.assertGET200(reverse('reports__export_report', args=(report.id,)),
                                      data={'doc_type': 'xls',
                                            'date_field': 'birthday',
@@ -1072,7 +1018,6 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(['Langley', user_str, '', ''],       result[2])
 
     def _build_editfields_url(self, report):
-        # return '/reports/report/%s/edit_fields' % report.id
         return reverse('reports__edit_fields', args=(report.id,))
 
     def test_edit_fields01(self):
@@ -2494,11 +2439,11 @@ class ReportTestCase(BaseReportsTestCase):
                                                    )
         ned.save()
 
-        fmt = '%s: %%s/%s: %%s/%s: %%s/%s: %%s' % (
-                    _('Last name'), _('First name'), _(u'Properties'), _(u'Photograph'),
+        fmt = u'%s: %%s/%s: %%s/%s: %%s/%s: %%s' % (
+                    _(u'Last name'), _(u'First name'), _(u'Properties'), _(u'Photograph'),
                 )
         ned_str = fmt % (ned.last_name,  ned.first_name, '',
-                         '%s: %s/%s: %s' % (_('Name'), img.name, _('Description'), img.description)
+                         u'%s: %s/%s: %s' % (_(u'Name'), img.name, _(u'Description'), img.description)
                         )
         lines = [[self.lannisters.name, fmt % (tyrion.last_name, tyrion.first_name, ptype.text, '')],
                  [self.starks.name,     ned_str + ', ' +

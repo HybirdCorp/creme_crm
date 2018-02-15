@@ -151,9 +151,6 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         brick_registry.register(FoobarBrick1, FoobarBrick2)
 
         response = self.assertGET200(reverse('creme_core__reload_bricks'),
-                                     # data={'brick_id': FoobarBrick1.id_,
-                                     #       'brick_deps': '%s,silly_id' % FoobarBrick2.id_,
-                                     #      },
                                      data={'brick_id': [FoobarBrick1.id_, FoobarBrick2.id_, 'silly_id']},
                                     )
         self.assertEqual('text/javascript', response['Content-Type'])
@@ -305,9 +302,6 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         brick_registry.register(FoobarBrick1, FoobarBrick2, FoobarBrick3)
 
         response = self.assertGET200(reverse('creme_core__reload_detailview_bricks', args=(atom.id,)),
-                                     # data={'brick_id': FoobarBrick1.id_,
-                                     #       'brick_deps': ','.join([FoobarBrick2.id_, FoobarBrick3.id_]),
-                                     #      },
                                      data={'brick_id': [FoobarBrick1.id_, FoobarBrick2.id_, FoobarBrick3.id_]},
                                     )
 
@@ -448,10 +442,6 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         ct_id2 = get_ct(FakeOrganisation).id
 
         response = self.assertGET200(reverse('creme_core__reload_portal_bricks'),
-                                     # data={'brick_id': FoobarBrick1.id_,
-                                     #       'brick_deps': ','.join([FoobarBrick2.id_, 'silly_id']),
-                                     #       'ct_id': [ct_id1, ct_id2],
-                                     #      }
                                      data={'brick_id': [FoobarBrick1.id_, FoobarBrick2.id_, 'silly_id'],
                                            'ct_id':    [ct_id1, ct_id2],
                                            },
@@ -667,15 +657,6 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         assertBadData({'include': [[]]})
         assertBadData({'exclude': [[]]})
 
-    # def _get_contact_brick_content(self, contact):
-    #     response = self.assertGET200(contact.get_absolute_url())
-    #     document = self.get_html_tree(response.content)
-    #     brick_node = self.get_brick_node(document, 'modelblock_creme_core-fakecontact')
-    #
-    #     content_node = brick_node.find('.//div[@class="brick-content "]')
-    #     self.assertIsNotNone(content_node)
-    #
-    #     return content_node
     def _get_contact_brick_content(self, contact, brick_id):
         response = self.assertGET200(contact.get_absolute_url())
         document = self.get_html_tree(response.content)

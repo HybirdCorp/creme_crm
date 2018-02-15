@@ -3,7 +3,6 @@
 try:
     from functools import partial
 
-    # from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
@@ -40,14 +39,7 @@ TemplateBase = get_template_base_model()
 class RecurrentsBillingTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
         super(RecurrentsBillingTestCase, cls).setUpClass()
-        # apps_2_pop = ['recurrents']
-        #
-        # if apps.is_installed('creme.billing'):
-        #     apps_2_pop.append('billing')
-        #
-        # cls.populate(*apps_2_pop)
 
         Vat.objects.get_or_create(is_default=True, defaults={'value': DEFAULT_VAT})
 
@@ -121,12 +113,10 @@ class RecurrentsBillingTestCase(CremeTestCase):
 
         self.assertEqual(user,        gen.user)
         self.assertEqual(ct,          gen.ct)
-        #self.assertEqual(periodicity, gen.periodicity)
         self.assertEqual({'type': 'months', 'value': 1}, gen.periodicity.as_dict())
         self.assertEqual(self.create_datetime(year=2014, month=7, day=8, hour=11),
                          gen.first_generation
                         )
-        #self.assertEqual(gen.last_generation, gen.first_generation)
         self.assertIsNone(gen.last_generation)
         self.assertEqual(tpl, gen.template.get_real_entity())
         self.assertTrue(gen.is_working)
@@ -229,7 +219,7 @@ class RecurrentsBillingTestCase(CremeTestCase):
 
     def test_create_credentials02(self):
         "App credentials"
-        self.login(is_superuser=False, allowed_apps=['persons'], #not 'recurrents'
+        self.login(is_superuser=False, allowed_apps=['persons'],  # Not 'recurrents'
                    creatable_models=[RecurrentGenerator, Quote],
                   )
 
@@ -239,6 +229,6 @@ class RecurrentsBillingTestCase(CremeTestCase):
     def test_create_credentials03(self):
         "Creation credentials for generator"
         self.login(is_superuser=False, allowed_apps=['persons', 'recurrents'],
-                   creatable_models=[Quote], #not RecurrentGenerator
+                   creatable_models=[Quote],  # Not RecurrentGenerator
                   )
         self.assertGET403(self.ADD_URL)

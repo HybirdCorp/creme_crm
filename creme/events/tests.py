@@ -3,7 +3,6 @@
 skip_event_tests = False
 
 try:
-    # from datetime import date, datetime
     from functools import partial
     from unittest import skipIf
 
@@ -13,10 +12,10 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.constants import DEFAULT_CURRENCY_PK  # PROP_IS_MANAGED_BY_CREME
+    from creme.creme_core.constants import DEFAULT_CURRENCY_PK
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import (RelationType, Relation,
-            SetCredentials, FieldsConfig)  # CremeProperty
+            SetCredentials, FieldsConfig)
 
     from creme.persons import get_contact_model, get_organisation_model
     from creme.persons.constants import REL_SUB_EMPLOYED_BY
@@ -26,7 +25,7 @@ try:
     from creme.opportunities.tests import skipIfCustomOpportunity
 
     from . import event_model_is_custom, get_event_model
-    from .models import EventType  # Event
+    from .models import EventType
     from .constants import (REL_SUB_IS_INVITED_TO, REL_OBJ_IS_INVITED_TO, REL_SUB_ACCEPTED_INVITATION,
             REL_SUB_REFUSED_INVITATION, REL_SUB_CAME_EVENT, REL_OBJ_CAME_EVENT, REL_SUB_NOT_CAME_EVENT,
             REL_OBJ_NOT_CAME_EVENT, REL_SUB_GEN_BY_EVENT, INV_STATUS_NOT_INVITED, INV_STATUS_NO_ANSWER,
@@ -59,14 +58,11 @@ class EventsTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
         super(EventsTestCase, cls).setUpClass()
-        # cls.populate('persons', 'opportunities', 'events')  # 'persons' -> HeaderFilters
 
         cls.ADD_URL = reverse('events__create_event')
 
     def _build_link_contacts_url(self, event):
-        # return '/events/event/%s/link_contacts' % event.id
         return reverse('events__link_contacts', args=(event.id,))
 
     def _build_related_opp_url(self, event, contact):
@@ -84,7 +80,6 @@ class EventsTestCase(CremeTestCase):
 
     def test_portal(self):
         self.login()
-        # self.assertGET200('/events/')
         self.assertGET200(reverse('events__portal'))
 
     def _create_event(self, name, etype=None, start_date='2010-11-3', **extra_data):
@@ -254,7 +249,6 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual(3, stats['visitors_count'])
 
     def _build_invitation_url(self, event, contact):
-        # return '/events/event/%s/contact/%s/set_invitation_status' % (event.id, contact.id)
         return reverse('events__set_invitation_status', args=(event.id, contact.id))
 
     def _set_invitation_status(self, event, contact, status_id):
@@ -402,7 +396,6 @@ class EventsTestCase(CremeTestCase):
                           )
 
     def _build_presence_url(self, event, contact):
-        # return '/events/event/%s/contact/%s/set_presence_status' % (event.id, contact.id)
         return reverse('events__set_presence_status', args=(event.id, contact.id))
 
     def _set_presence_status(self, event, contact, status_id):
@@ -509,7 +502,6 @@ class EventsTestCase(CremeTestCase):
         self._set_invitation_status(event, judo, INV_STATUS_NO_ANSWER)
         self._set_invitation_status(event, griffith, INV_STATUS_ACCEPTED)
 
-        # response = self.assertGET200('/events/event/%s/contacts' % event.id)
         response = self.assertGET200(reverse('events__list_related_contacts', args=(event.id,)))
 
         with self.assertNoException():
@@ -547,7 +539,6 @@ class EventsTestCase(CremeTestCase):
 
     def test_link_contacts02(self):
         user = self.login()
-
         event = self._create_event('Eclipse')
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -649,11 +640,9 @@ class EventsTestCase(CremeTestCase):
 
     def test_delete_type(self):
         self.login()
-
         etype = EventType.objects.create(name='Natural')
         event = self._create_event('Eclipse', etype)
 
-        # self.assertPOST404('/creme_config/events/event_type/delete', data={'id': etype.pk})
         self.assertPOST404(reverse('creme_config__delete_instance', args=('events', 'event_type')),
                            data={'id': etype.pk}
                           )
@@ -684,8 +673,6 @@ class EventsTestCase(CremeTestCase):
 
         self.assertTrue(target_f.help_text)
 
-        # emitter = Organisation.objects.create(user=user, name='My society')
-        # CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
         emitter = Organisation.objects.create(user=user, name='My society', is_managed=True)
 
         phase = SalesPhase.objects.all()[0]
@@ -712,12 +699,9 @@ class EventsTestCase(CremeTestCase):
         user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
-        # emitter = create_orga(name='My society')
         emitter = create_orga(name='My society', is_managed=True)
         hawks   = create_orga(name='Hawks')
         rhino   = create_orga(name='Rhino')  # No related to the contact
-
-        # CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
 
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
         Relation.objects.create(user=user, subject_entity=casca,
@@ -774,8 +758,6 @@ class EventsTestCase(CremeTestCase):
                                      start_date=now(),
                                     )
 
-        # emitter = Organisation.objects.create(user=user, name='My society')
-        # CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
         emitter = Organisation.objects.create(user=user, name='My society', is_managed=True)
 
         name = 'Opp01'

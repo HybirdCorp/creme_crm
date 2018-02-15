@@ -1,21 +1,4 @@
-{% load i18n creme_core_tags creme_widgets creme_bricks %}{# activities_tags #}
-
-{% comment %}
-<table class="table_header" cellpadding="0" cellspacing="0">
-    <tr>
-        <td width="5%">{% widget_icon instance=object size='big' %}</td>
-        <td width="70%">
-            <h1>
-                {% block title %}
-                    {{object.type.name}} : {{object|capfirst}}
-                {% endblock %}
-            </h1>
-        </td>
-        <td width="25%" align="right">
-        </td>
-    </tr>
-</table>
-{% endcomment %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
 
 {% url 'creme_core__reload_detailview_bricks' object.id as bricks_reload_url %}{% url_join bricks_reload_url base_url=request.path as bricks_reload_uri %}
 <div class="activities-activity-popup-content" data-bricks-reload-url="{{bricks_reload_uri}}">

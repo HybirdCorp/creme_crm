@@ -7,8 +7,6 @@ skip_organisation_tests = False
 try:
     from unittest import skipIf
 
-    # from creme.creme_core.tests.base import CremeTestCase
-
     from creme.documents import get_document_model
     from creme.documents.tests.base import _DocumentsTestCase
 
@@ -39,15 +37,9 @@ def skipIfCustomOrganisation(test_func):
     return skipIf(skip_organisation_tests, 'Custom Organisation model in use')(test_func)
 
 
-# class _BaseTestCase(CremeTestCase):
 class _BaseTestCase(_DocumentsTestCase):
     def login(self, is_superuser=True, **kwargs):
         return super(_BaseTestCase, self).login(is_superuser, allowed_apps=['persons'], **kwargs)
-
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('creme_core', 'persons')
 
     def assertAddressOnlyContentEqual(self, address1, address2):
         self.assertNotEqual(address1.id, address2.id)

@@ -21,9 +21,7 @@ except Exception as e:
 class DBTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
         super(DBTestCase, cls).setUpClass()
-        # cls.populate('creme_core')
 
         # NB: We build an index, so it is not declared in the model's Meta
         #     => functions have to make introspection on the DB server.

@@ -13,11 +13,6 @@ from ..commands.airsync import AirSync
 
 
 class XMLTestCase(CremeTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     CremeTestCase.setUpClass()
-    #     cls.populate('creme_core', 'persons')
-
     def test_contact_xmldecode(self):
         string_xml="""<ns0:Sync xmlns:ns0="AirSync:" xmlns:ns1="Contacts:"><ns0:Collections><ns0:Collection><ns0:Class>Contacts</ns0:Class><ns0:SyncKey>0000000001993B6875ABFA7B8CA20C130827T121925.610130827T121925.603</ns0:SyncKey><ns0:CollectionId>2:0</ns0:CollectionId><ns0:Status>1</ns0:Status><ns0:Commands><ns0:Add><ns0:ServerId>2:b0eed97c-0000-0000-0000-000000000000</ns0:ServerId><ns0:ApplicationData><ns1:LastName>NomSyncTest</ns1:LastName><ns1:FirstName>PrenomSyncTest</ns1:FirstName><ns1:FileAs>NomSyncTest, PrenomSyncTest</ns1:FileAs></ns0:ApplicationData></ns0:Add></ns0:Commands></ns0:Collection></ns0:Collections></ns0:Sync>"""
         xml = fromstring(string_xml)

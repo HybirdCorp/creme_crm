@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,7 +37,6 @@ SalesOrder = billing.get_sales_order_model()
 
 def abstract_add_quote(request, form=quote_forms.QuoteCreateForm,
                        initial_status=1,
-                       # submit_label=_('Save the quote'),
                        submit_label=Quote.save_label,
                       ):
     return generic.add_entity(request, form, extra_initial={'status': initial_status},
@@ -48,7 +47,6 @@ def abstract_add_quote(request, form=quote_forms.QuoteCreateForm,
 def abstract_add_related_quote(request, target_id, form=quote_forms.QuoteCreateForm,
                                initial_status=1,
                                title=_(u'Create a quote for «%s»'),
-                               # submit_label=_(u'Save the quote')
                                submit_label=Quote.save_label,
                               ):
     return generic_add_related(request, target_id, form=form,
@@ -69,7 +67,6 @@ def abstract_view_quote(request, quote_id, template='billing/view_quote.html'):
     return generic.view_entity(request, quote_id, Quote,
                                template=template,
                                extra_template_dict={
-                                    # 'can_download':       True,
                                     'can_create_order':   has_perm(cperm(SalesOrder)) and isnt_staff,
                                     'can_create_invoice': has_perm(cperm(Invoice)) and isnt_staff,
                                },

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,15 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from future_builtins import filter
-
 from collections import defaultdict
 from functools import partial
-# from itertools import chain
 import logging
 
 from django.db.models import Q, DateField, ForeignKey, ManyToManyField
-# from django.db.models.fields.related import RelatedField
 from django.utils.encoding import smart_str
 from django.utils.timezone import now
 
@@ -84,14 +80,11 @@ class ListViewState(object):
         self.header_filter_id = get_arg('hfilter')
         self.page = get_arg('page')
         self.rows = get_arg('rows')
-        # self._search = get_arg('_search')  # NB: no longer useful to enable search state.
         self.sort_order = get_arg('sort_order')
         self.sort_field = get_arg('sort_field')  # TODO: rename 'sort_cell_key'
-        # self._extra_sort_field = ''  # NB: never used.
         self.url = get_arg('url')
         self.research = ()  # TODO: rename 'search'
         self.extra_q = None
-        # self._ordering = []
 
     def __repr__(self):
         return u'<ListViewState(efilter_id={efilter}, hfilter_id={hfilter}, page={page},' \
@@ -128,16 +121,6 @@ class ListViewState(object):
                 lvs.extra_q = QSerializer().loads(lvs.extra_q)
 
         return lvs
-
-# TODO : remove it later.
-#     @staticmethod
-#     def build_from_request(request, **kwargs):
-#         kwargs.update((str(k), v) for k, v in chain(request.POST.iteritems(),
-#                                                     request.GET.iteritems(),
-#                                                    )
-#                      )
-#         kwargs['url'] = request.path
-#         return ListViewState(**kwargs)
 
     @staticmethod
     def build_from_request(arguments, url, **kwargs):
@@ -331,8 +314,7 @@ class ListViewState(object):
 
         # Related field without subfield
         last_field = cell.field_info[-1]
-        # if isinstance(cell.field_info[0], RelatedField) and len(cell.field_info) == 1:
-        #     subfield_model = cell.field_info[0].rel.to
+
         if last_field.is_relation:
             # NB: already checked (cell.sortable == True)
             # assert not last_field.many_to_many
@@ -346,21 +328,18 @@ class ListViewState(object):
                 logger.critical('ListViewState: related field model %s should have Meta.ordering set'
                                 ' (we use "id" as fallback)', subfield_model,
                                )
-                # return cell.value + '__pk'
+
                 return cell.value + '_id'
 
             return '%s__%s' % (cell.value, subfield_ordering[0])
 
         return cell.value
 
-    # def _get_sortfield(self, cells, field_name):
     @classmethod
     def _get_sortfield(cls, cells_dict, cell_key):
-        # if field_name is None or field_name == 'id':
         if cell_key is None:
             return None
 
-        # cell = next(filter(lambda c: c.sortable and c.key == field_name, cells), None)
         cell = cells_dict.get(cell_key)
 
         if cell is None:
@@ -376,20 +355,6 @@ class ListViewState(object):
                         cell_key,
                        )
 
-#    def _get_default_sort(self, cells, ordering):
-#        name = ordering[0]
-#        order = ''
-#
-#        if name.startswith('-'):
-#            name = name[1:]
-#            order = '-'
-#
-#        name = EntityCellRegularField.type_id + '-' + name
-#
-#        if not self._get_sortfield(cells, name):
-#            return None, ''
-#
-#        return name, order
     @classmethod
     def _get_default_sort(cls, model, ordering):
         if not ordering:
@@ -402,7 +367,6 @@ class ListViewState(object):
     # TODO: factorise with :
     #       - template_tags_creme_listview.get_listview_columns_header
     #       - EntityCell builders
-#    def set_sort(self, model, cells, field_name, order):
     def set_sort(self, model, cells, cell_key, order, fast_mode=False):
         """Set the cell-keys which will be used to order the list-view.
         @param model: CremeEntity subclass.
@@ -444,7 +408,6 @@ class ListViewState(object):
         else:
             cell_key, sort_order = self._get_default_sort(model, ordering)
 
-        # self._ordering = ordering
         self.sort_field = cell_key
         self.sort_order = sort_order
 
@@ -469,9 +432,6 @@ class ListViewState(object):
 
         return (last_order, )
 
-    # def sort_query(self, queryset):
-    #     "Beware: you should have called set_sort() before"
-    #     return queryset.order_by(*self._ordering)
 
 # -----------------------------------------------------------------------------
 

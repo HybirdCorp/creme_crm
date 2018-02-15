@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2016  Hybird
+#    Copyright (C) 2012-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -43,7 +43,6 @@ PollForm = get_pollform_model()
 
 
 def abstract_add_pollform(request, form=PollFormForm,
-                          # submit_label=_('Save the form of poll'),
                           submit_label=PollForm.save_label,
                          ):
     return add_entity(request, form,
@@ -91,7 +90,6 @@ def add_line(request, pform_id):
     return add_to_entity(request, pform_id, PollFormLineCreateForm,
                          _(u'New question for «%s»'),
                          entity_class=PollForm,
-                         # submit_label=_('Save the question'),
                          submit_label=PollFormLine.save_label,
                         )
 
@@ -138,7 +136,6 @@ def edit_line_conditions(request, line_id):
                          _(u'Condition for «%s»'),
                          entity_class=PollForm,
                          initial={'line': line},
-                         # submit_label=_('Save the condition'),
                          submit_label=PollFormLineCondition.save_label,
                         )
 
@@ -149,7 +146,6 @@ def add_section(request, pform_id):
     return add_to_entity(request, pform_id, PollFormSectionCreateForm,
                          _(u'New section for «%s»'),
                          entity_class=PollForm,
-                         # submit_label=_('Save the section'),
                          submit_label=PollFormSection.save_label,
                         )
 
@@ -171,7 +167,6 @@ def add_section_child(request, section_id):
                          _(u'New section for «%s»'),
                          entity_class=PollForm,
                          initial={'parent': parent_section},
-                         # submit_label=_('Save the section'),
                          submit_label=PollFormSection.save_label,
                         )
 
@@ -185,7 +180,6 @@ def add_line_to_section(request, section_id):
                          _(u'New question for «%s»'),
                          entity_class=PollForm,
                          initial={'section': section},
-                         # submit_label=_('Save the question'),
                          submit_label=PollFormLine.save_label,
                         )
 

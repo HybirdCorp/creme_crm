@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -86,7 +86,6 @@ def abstract_popupview(request, mail_id, template='emails/view_entity_mail_popup
 
 def abstract_create_n_send(request, entity_id, form=EntityEmailForm,
                            title=_(u'Sending an email to «%s»'),
-                           # submit_label=_('Send the email'),
                            submit_label=EntityEmail.sending_label,
                           ):
     return generic.add_to_entity(request, entity_id, form, title=title,
@@ -127,7 +126,6 @@ def abstract_create_from_template_n_send(request, entity_id,
                                            'attachments': list(email_template.attachments.values_list('id', flat=True)),
                                           }
                                  )
-                # submit_label = _('Send the email')
                 submit_label = EntityEmail.sending_label
         else:
             assert step == 2

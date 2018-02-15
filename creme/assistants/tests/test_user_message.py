@@ -12,7 +12,6 @@ try:
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
     from creme.creme_core.models import Job, JobResult
 
-    # from ..management.commands.usermessages_send import Command as UserMessagesSendCommand
     from ..creme_jobs import usermessages_send_type
     from ..models import UserMessage, UserMessagePriority
     from .base import AssistantsTestCase
@@ -24,14 +23,11 @@ User = get_user_model()  # TODO: self.User
 
 
 class UserMessageTestCase(AssistantsTestCase):
-    # DEL_PRIORITY_URL = '/creme_config/assistants/message_priority/delete'
     DEL_PRIORITY_URL = reverse('creme_config__delete_instance', args=('assistants', 'message_priority'))
 
     @classmethod
     def setUpClass(cls):
-        # AssistantsTestCase.setUpClass()
         super(UserMessageTestCase, cls).setUpClass()
-        # cls.populate('activities', 'assistants')
         cls.original_send_messages = EmailBackend.send_messages
 
     def tearDown(self):
@@ -39,8 +35,6 @@ class UserMessageTestCase(AssistantsTestCase):
         EmailBackend.send_messages = self.original_send_messages
 
     def _build_add_url(self, entity=None):
-        # return '/assistants/message/add/%s/' % entity.id if entity else \
-        #        '/assistants/message/add/'
         return reverse('assistants__create_related_message', args=(entity.id,)) if entity else \
                reverse('assistants__create_message')
 
@@ -127,7 +121,6 @@ class UserMessageTestCase(AssistantsTestCase):
 
         self.assertIs(now_value, job.type.next_wakeup(job, now_value))
 
-        # UserMessagesSendCommand().execute(verbosity=0)
         usermessages_send_type.execute(job)
 
         messages = mail.outbox
@@ -229,7 +222,6 @@ class UserMessageTestCase(AssistantsTestCase):
         message = messages[0]
         self.assertEqual(self.user, message.recipient)
 
-        # self.assertPOST(302, '/assistants/message/delete', data={'id': message.id})
         self.assertPOST(302, reverse('assistants__delete_message'), data={'id': message.id})
         self.assertFalse(UserMessage.objects.all())
 
