@@ -767,30 +767,30 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertGET(400, build_url(segment_desc, 'strategy'))
         self.assertGET(400, build_url(segment_desc, 'segment'))
 
-    @skipIfCustomOrganisation
-    def test_reload_assets_matrix_legacy(self):
-        strategy = Strategy.objects.create(user=self.user, name='Strat#1')
-        segment_desc = self._create_segment_desc(strategy, 'Industry')
-        asset = CommercialAsset.objects.create(name='Size', strategy=strategy)
-
-        orga = Organisation.objects.create(user=self.user, name='Nerv')
-        strategy.evaluated_orgas.add(orga)
-
-        self._set_asset_score(strategy, orga, asset, segment_desc, 1)
-
-        response = self.assertGET200(reverse('commercial__reload_assets_matrix', args=(strategy.id, orga.id)))
-
-        with self.assertNoException():
-            result = load_json(response.content)
-
-        self.assertIsInstance(result, list)
-        self.assertEqual(1, len(result))
-
-        result = result[0]
-        self.assertIsInstance(result, list)
-        self.assertEqual(2, len(result))
-        self.assertEqual(AssetsMatrixBrick.id_, result[0])
-        self.get_brick_node(self.get_html_tree(result[1]), AssetsMatrixBrick.id_)
+    # @skipIfCustomOrganisation
+    # def test_reload_assets_matrix_legacy(self):
+    #     strategy = Strategy.objects.create(user=self.user, name='Strat#1')
+    #     segment_desc = self._create_segment_desc(strategy, 'Industry')
+    #     asset = CommercialAsset.objects.create(name='Size', strategy=strategy)
+    #
+    #     orga = Organisation.objects.create(user=self.user, name='Nerv')
+    #     strategy.evaluated_orgas.add(orga)
+    #
+    #     self._set_asset_score(strategy, orga, asset, segment_desc, 1)
+    #
+    #     response = self.assertGET200(reverse('commercial__reload_assets_matrix', args=(strategy.id, orga.id)))
+    #
+    #     with self.assertNoException():
+    #         result = load_json(response.content)
+    #
+    #     self.assertIsInstance(result, list)
+    #     self.assertEqual(1, len(result))
+    #
+    #     result = result[0]
+    #     self.assertIsInstance(result, list)
+    #     self.assertEqual(2, len(result))
+    #     self.assertEqual(AssetsMatrixBrick.id_, result[0])
+    #     self.get_brick_node(self.get_html_tree(result[1]), AssetsMatrixBrick.id_)
 
     @skipIfCustomOrganisation
     def test_reload_assets_matrix(self):
@@ -819,26 +819,26 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertEqual(brick_id, result[0])
         self.get_brick_node(self.get_html_tree(result[1]), brick_id)
 
-    @skipIfCustomOrganisation
-    def test_reload_charms_matrix_legacy(self):
-        strategy = Strategy.objects.create(user=self.user, name='Strat#1')
-        segment_desc = self._create_segment_desc(strategy, 'Industry')
-        charm = MarketSegmentCharm.objects.create(name='Dollars', strategy=strategy)
-
-        orga = Organisation.objects.create(user=self.user, name='Nerv')
-        strategy.evaluated_orgas.add(orga)
-
-        self._set_charm_score(strategy, orga, charm, segment_desc, 1)
-
-        response = self.assertGET200(reverse('commercial__reload_charms_matrix', args=(strategy.id, orga.id)))
-
-        with self.assertNoException():
-            result = load_json(response.content)
-
-        result = result[0]
-        brick_id = CharmsMatrixBrick.id_
-        self.assertEqual(brick_id, result[0])
-        self.get_brick_node(self.get_html_tree(result[1]), brick_id)
+    # @skipIfCustomOrganisation
+    # def test_reload_charms_matrix_legacy(self):
+    #     strategy = Strategy.objects.create(user=self.user, name='Strat#1')
+    #     segment_desc = self._create_segment_desc(strategy, 'Industry')
+    #     charm = MarketSegmentCharm.objects.create(name='Dollars', strategy=strategy)
+    #
+    #     orga = Organisation.objects.create(user=self.user, name='Nerv')
+    #     strategy.evaluated_orgas.add(orga)
+    #
+    #     self._set_charm_score(strategy, orga, charm, segment_desc, 1)
+    #
+    #     response = self.assertGET200(reverse('commercial__reload_charms_matrix', args=(strategy.id, orga.id)))
+    #
+    #     with self.assertNoException():
+    #         result = load_json(response.content)
+    #
+    #     result = result[0]
+    #     brick_id = CharmsMatrixBrick.id_
+    #     self.assertEqual(brick_id, result[0])
+    #     self.get_brick_node(self.get_html_tree(result[1]), brick_id)
 
     @skipIfCustomOrganisation
     def test_reload_charms_matrix(self):
@@ -862,28 +862,28 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertEqual(brick_id, result[0])
         self.get_brick_node(self.get_html_tree(result[1]), brick_id)
 
-    @skipIfCustomOrganisation
-    def test_reload_assets_charms_matrix_legacy(self):
-        strategy = Strategy.objects.create(user=self.user, name='Strat#1')
-        segment_desc = self._create_segment_desc(strategy, 'Industry')
-        asset = CommercialAsset.objects.create(name='Size', strategy=strategy)
-        charm = MarketSegmentCharm.objects.create(name='Dollars', strategy=strategy)
-
-        orga = Organisation.objects.create(user=self.user, name='Nerv')
-        strategy.evaluated_orgas.add(orga)
-
-        self._set_asset_score(strategy, orga, asset, segment_desc, 1)
-        self._set_charm_score(strategy, orga, charm, segment_desc, 1)
-
-        response = self.assertGET200(reverse('commercial__reload_assets_charms_matrix', args=(strategy.id, orga.id)))
-
-        with self.assertNoException():
-            result = load_json(response.content)
-
-        result = result[0]
-        brick_id = AssetsCharmsMatrixBrick.id_
-        self.assertEqual(brick_id, result[0])
-        self.get_brick_node(self.get_html_tree(result[1]), brick_id)
+    # @skipIfCustomOrganisation
+    # def test_reload_assets_charms_matrix_legacy(self):
+    #     strategy = Strategy.objects.create(user=self.user, name='Strat#1')
+    #     segment_desc = self._create_segment_desc(strategy, 'Industry')
+    #     asset = CommercialAsset.objects.create(name='Size', strategy=strategy)
+    #     charm = MarketSegmentCharm.objects.create(name='Dollars', strategy=strategy)
+    #
+    #     orga = Organisation.objects.create(user=self.user, name='Nerv')
+    #     strategy.evaluated_orgas.add(orga)
+    #
+    #     self._set_asset_score(strategy, orga, asset, segment_desc, 1)
+    #     self._set_charm_score(strategy, orga, charm, segment_desc, 1)
+    #
+    #     response = self.assertGET200(reverse('commercial__reload_assets_charms_matrix', args=(strategy.id, orga.id)))
+    #
+    #     with self.assertNoException():
+    #         result = load_json(response.content)
+    #
+    #     result = result[0]
+    #     brick_id = AssetsCharmsMatrixBrick.id_
+    #     self.assertEqual(brick_id, result[0])
+    #     self.get_brick_node(self.get_html_tree(result[1]), brick_id)
 
     @skipIfCustomOrganisation
     def test_reload_assets_charms_matrix(self):

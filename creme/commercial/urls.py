@@ -57,10 +57,10 @@ urlpatterns = [
     url(r'^strategy/(?P<strategy_id>\d+)/set_charm_score[/]?$', strategy.set_charm_score,      name='commercial__set_charm_score'),
     url(r'^strategy/(?P<strategy_id>\d+)/set_segment_cat[/]?$', strategy.set_segment_category, name='commercial__set_segment_category'),
 
-    # Blocks # DEPRECATED
-    url(r'^blocks/assets_matrix/(?P<strategy_id>\d+)/(?P<orga_id>\d+)[/]?$',        strategy.reload_assets_matrix,        name='commercial__reload_assets_matrix'),
-    url(r'^blocks/charms_matrix/(?P<strategy_id>\d+)/(?P<orga_id>\d+)[/]?$',        strategy.reload_charms_matrix,        name='commercial__reload_charms_matrix'),
-    url(r'^blocks/assets_charms_matrix/(?P<strategy_id>\d+)/(?P<orga_id>\d+)[/]?$', strategy.reload_assets_charms_matrix, name='commercial__reload_assets_charms_matrix'),
+    # # Blocks
+    # url(r'^blocks/assets_matrix/(?P<strategy_id>\d+)/(?P<orga_id>\d+)[/]?$',        strategy.reload_assets_matrix,        name='commercial__reload_assets_matrix'),
+    # url(r'^blocks/charms_matrix/(?P<strategy_id>\d+)/(?P<orga_id>\d+)[/]?$',        strategy.reload_charms_matrix,        name='commercial__reload_charms_matrix'),
+    # url(r'^blocks/assets_charms_matrix/(?P<strategy_id>\d+)/(?P<orga_id>\d+)[/]?$', strategy.reload_assets_charms_matrix, name='commercial__reload_assets_charms_matrix'),
 
     # Bricks reloading
     url(r'^bricks/reload/matrix/(?P<strategy_id>\d+)/(?P<orga_id>\d+)[/]?$', strategy.reload_matrix_brick, name='commercial__reload_matrix_brick'),
