@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
@@ -34,15 +34,16 @@ from ..forms.quick import CSVDocumentWidgetQuickForm, ImageQuickForm
 Document = get_document_model()
 
 
-def abstract_add_doc_from_widget(request, count=None, form=CSVDocumentWidgetQuickForm,
+# def abstract_add_doc_from_widget(request, count=None, form=CSVDocumentWidgetQuickForm,
+def abstract_add_doc_from_widget(request, form=CSVDocumentWidgetQuickForm,
                                  template='creme_core/generics/form/add_innerpopup.html',
                                  submit_label=_('Save the document'),
                                  title=Document.creation_label,
                                 ):
-    if count is not None:
-        warnings.warn('abstract_add_doc_from_widget(): the argument "count" is deprecated.',
-                      DeprecationWarning
-                     )
+    # if count is not None:
+    #     warnings.warn('abstract_add_doc_from_widget(): the argument "count" is deprecated.',
+    #                   DeprecationWarning
+    #                  )
 
     user = request.user
 
@@ -74,12 +75,12 @@ def abstract_add_doc_from_widget(request, count=None, form=CSVDocumentWidgetQuic
 
 
 @login_required
-def add_csv_from_widget(request, count=None):
-# def add_csv_from_widget(request):  TODO: in creme 1.8
-    if count is not None:
-        warnings.warn('add_csv_from_widget(): the argument "count" is deprecated.',
-                      DeprecationWarning
-                     )
+# def add_csv_from_widget(request, count=None):
+def add_csv_from_widget(request):
+    # if count is not None:
+    #     warnings.warn('add_csv_from_widget(): the argument "count" is deprecated.',
+    #                   DeprecationWarning
+    #                  )
 
     return abstract_add_doc_from_widget(request)
 
