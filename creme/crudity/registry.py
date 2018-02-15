@@ -20,7 +20,7 @@
 
 from collections import defaultdict
 from copy import deepcopy
-import logging, warnings
+import logging  # warnings
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -49,11 +49,11 @@ class FetcherInterface(object):
         self._inputs = defaultdict(dict)
         self._default_backend = None
 
-    def add_fetcher(self, fetcher):
-        warnings.warn('FetcherInterface.add_fetcher() is deprecated ; use add_fetchers() instead.',
-                      DeprecationWarning,
-                     )
-        self.fetchers.extend(fetcher)
+    # def add_fetcher(self, fetcher):
+    #     warnings.warn('FetcherInterface.add_fetcher() is deprecated ; use add_fetchers() instead.',
+    #                   DeprecationWarning,
+    #                  )
+    #     self.fetchers.extend(fetcher)
 
     def add_fetchers(self, fetchers):
         self.fetchers.extend(fetchers)

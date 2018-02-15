@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
@@ -41,13 +41,13 @@ def _retrieve_actions_ids(request):
     return request.POST.getlist('ids')
 
 
-def _fetch(user):
-    warnings.warn('crudity.views.actions._fetch() is deprecated ; '
-                  'use crudity_registry.fetch() instead.',
-                  DeprecationWarning
-                 )
-
-    return len(registry.crudity_registry.fetch(user))
+# def _fetch(user):
+#     warnings.warn('crudity.views.actions._fetch() is deprecated ; '
+#                   'use crudity_registry.fetch() instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     return len(registry.crudity_registry.fetch(user))
 
 
 def _build_portal_bricks():
@@ -146,42 +146,42 @@ def validate(request):
     return {}
 
 
-@jsonify
-@permission_required('crudity')
-def reload_block(request, block_id):
-    warnings.warn('crudity.views.actions.reload_block() is deprecated ; '
-                  'use crudity.views.actions.reload_bricks() instead.',
-                  DeprecationWarning
-                 )
-
-    from creme.creme_core.views.blocks import build_context as blocks_build_context
-
-    prefix = 'block_crudity-waiting_actions-'
-
-    if not block_id.startswith(prefix):
-        raise Http404('Invalid block ID (bad prefix)')
-
-    block_id = block_id[len(prefix):]
-    parts = block_id.split('|', 2)
-    length = len(parts)
-
-    if length == 3:
-        try:
-            # NB: arguments are fetcher_name, input_name, norm_subject
-            backend = registry.crudity_registry.get_configured_backend(*parts)
-        except KeyError as e:
-            raise Http404(e)
-    elif length == 1:
-        try:
-            backend = registry.crudity_registry.get_default_backend(parts[0])
-        except KeyError as e:
-            raise Http404(e)
-    else:
-        raise Http404('Invalid block ID (bad backend info)')
-
-    block = WaitingActionsBrick(backend)
-
-    return [(block.id_, block.detailview_display(blocks_build_context(request)))]
+# @jsonify
+# @permission_required('crudity')
+# def reload_block(request, block_id):
+#     warnings.warn('crudity.views.actions.reload_block() is deprecated ; '
+#                   'use crudity.views.actions.reload_bricks() instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     from creme.creme_core.views.blocks import build_context as blocks_build_context
+#
+#     prefix = 'block_crudity-waiting_actions-'
+#
+#     if not block_id.startswith(prefix):
+#         raise Http404('Invalid block ID (bad prefix)')
+#
+#     block_id = block_id[len(prefix):]
+#     parts = block_id.split('|', 2)
+#     length = len(parts)
+#
+#     if length == 3:
+#         try:
+#             # NB: arguments are fetcher_name, input_name, norm_subject
+#             backend = registry.crudity_registry.get_configured_backend(*parts)
+#         except KeyError as e:
+#             raise Http404(e)
+#     elif length == 1:
+#         try:
+#             backend = registry.crudity_registry.get_default_backend(parts[0])
+#         except KeyError as e:
+#             raise Http404(e)
+#     else:
+#         raise Http404('Invalid block ID (bad backend info)')
+#
+#     block = WaitingActionsBrick(backend)
+#
+#     return [(block.id_, block.detailview_display(blocks_build_context(request)))]
 
 
 @permission_required('crudity')
@@ -202,35 +202,35 @@ def reload_bricks(request):
     return bricks_render_info(request, bricks=bricks)
 
 
-@login_required
-@permission_required('crudity')
-def fetch(request, template='crudity/waiting_actions.html',
-          ajax_template='crudity/frags/ajax/waiting_actions.html',
-          extra_tpl_ctx=None, extra_req_ctx=None):
-    warnings.warn('crudity.views.actions.fetch() is deprecated.', DeprecationWarning)
-
-    from django.shortcuts import render_to_response
-    from django.template.loader import render_to_string
-
-    from creme.creme_core.views.blocks import build_context as blocks_build_context
-
-    context = blocks_build_context(request)
-
-    if extra_req_ctx:
-        context.update(extra_req_ctx)
-
-    _fetch(request.user)
-
-    context['blocks'] = [''.join(block(backend).detailview_display(context) for block in backend.blocks)
-                         or WaitingActionsBrick(backend).detailview_display(context)
-                            for backend in registry.crudity_registry.get_configured_backends()
-                                if backend.in_sandbox
-                        ]
-
-    if extra_tpl_ctx:
-        context.update(extra_tpl_ctx)
-
-    if request.is_ajax():
-        return HttpResponse(render_to_string(ajax_template, context))
-
-    return render_to_response(template, context)
+# @login_required
+# @permission_required('crudity')
+# def fetch(request, template='crudity/waiting_actions.html',
+#           ajax_template='crudity/frags/ajax/waiting_actions.html',
+#           extra_tpl_ctx=None, extra_req_ctx=None):
+#     warnings.warn('crudity.views.actions.fetch() is deprecated.', DeprecationWarning)
+#
+#     from django.shortcuts import render_to_response
+#     from django.template.loader import render_to_string
+#
+#     from creme.creme_core.views.blocks import build_context as blocks_build_context
+#
+#     context = blocks_build_context(request)
+#
+#     if extra_req_ctx:
+#         context.update(extra_req_ctx)
+#
+#     _fetch(request.user)
+#
+#     context['blocks'] = [''.join(block(backend).detailview_display(context) for block in backend.blocks)
+#                          or WaitingActionsBrick(backend).detailview_display(context)
+#                             for backend in registry.crudity_registry.get_configured_backends()
+#                                 if backend.in_sandbox
+#                         ]
+#
+#     if extra_tpl_ctx:
+#         context.update(extra_tpl_ctx)
+#
+#     if request.is_ajax():
+#         return HttpResponse(render_to_string(ajax_template, context))
+#
+#     return render_to_response(template, context)

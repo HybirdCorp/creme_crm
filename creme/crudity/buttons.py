@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,6 +33,5 @@ class EmailTemplateCreateButton(Button):
     template_name = 'crudity/templatetags/button_email_template_create.html'
 
 
-# DEPRECATED
-infopath_create_form_button  = InfopathCreateFormButton()
-email_template_create_button = EmailTemplateCreateButton()
+# infopath_create_form_button  = InfopathCreateFormButton()
+# email_template_create_button = EmailTemplateCreateButton()
