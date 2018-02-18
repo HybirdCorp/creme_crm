@@ -18,7 +18,7 @@ except Exception as e:
 
 
 class FieldsConfigTestCase(CremeTestCase):
-    ADD_CTYPE_URL = reverse('creme_config__create_fields_config_legacy')
+    # ADD_CTYPE_URL = reverse('creme_config__create_fields_config_legacy')
     WIZARD_URL = reverse('creme_config__create_fields_config')
 
     @classmethod
@@ -31,9 +31,10 @@ class FieldsConfigTestCase(CremeTestCase):
         return reverse('creme_config__edit_fields_config', args=(fconf.pk,))
 
     def _create_fconf(self):
-        ct = self.ct
-        self.assertNoFormError(self.client.post(self.ADD_CTYPE_URL, data={'ctype': ct.id}))
-        return self.get_object_or_fail(FieldsConfig, content_type=ct)
+        # ct = self.ct
+        # self.assertNoFormError(self.client.post(self.ADD_CTYPE_URL, data={'ctype': ct.id}))
+        # return self.get_object_or_fail(FieldsConfig, content_type=ct)
+        return FieldsConfig.objects.create(content_type=self.ct, descriptions=())
 
     def _configure_all_models(self):
         used_ct_ids = set(FieldsConfig.objects.values_list('content_type', flat=True))
@@ -60,65 +61,65 @@ class FieldsConfigTestCase(CremeTestCase):
         response = self.assertGET200(reverse('creme_config__fields'))
         self.assertNotContains(response, self.WIZARD_URL)
 
-    def test_add01(self):
-        self.login()
+    # def test_add01(self):
+    #     self.login()
+    #
+    #     ct = self.ct
+    #     self.assertFalse(FieldsConfig.objects.filter(content_type=ct))
+    #
+    #     url = self.ADD_CTYPE_URL
+    #     response = self.assertGET200(url)
+    #
+    #     with self.assertNoException():
+    #         ctypes = response.context['form'].fields['ctype'].ctypes
+    #
+    #     self.assertIn(ct, ctypes)
+    #
+    #     self.assertFalse(FieldsConfig.is_model_valid(FakeEmailCampaign))
+    #     self.assertNotIn(ContentType.objects.get_for_model(FakeEmailCampaign), ctypes)
+    #
+    #     fconf = self._create_fconf()
+    #     self.assertEqual([], jsonloads(fconf.raw_descriptions))  # TODO: bof bof
+    #
+    #     # ---------------
+    #     response = self.assertGET200(url)
+    #
+    #     with self.assertNoException():
+    #         ctypes = response.context['form'].fields['ctype'].ctypes
+    #
+    #     self.assertNotIn(ct, ctypes)
 
-        ct = self.ct
-        self.assertFalse(FieldsConfig.objects.filter(content_type=ct))
+    # def test_add02(self):
+    #     "Not a CremeEntity : must be registered"
+    #     self.login()
+    #
+    #     get_ct = ContentType.objects.get_for_model
+    #     ct_addr = get_ct(FakeAddress)
+    #     ct_civ  = get_ct(FakeCivility)
+    #     self.assertFalse(FieldsConfig.objects.filter(content_type=ct_addr))
+    #
+    #     url = self.ADD_CTYPE_URL
+    #     response = self.assertGET200(url)
+    #
+    #     with self.assertNoException():
+    #         ctypes = response.context['form'].fields['ctype'].ctypes
+    #
+    #     self.assertNotIn(ct_civ, ctypes)
+    #     self.assertIn(ct_addr, ctypes)
 
-        url = self.ADD_CTYPE_URL
-        response = self.assertGET200(url)
-
-        with self.assertNoException():
-            ctypes = response.context['form'].fields['ctype'].ctypes
-
-        self.assertIn(ct, ctypes)
-
-        self.assertFalse(FieldsConfig.is_model_valid(FakeEmailCampaign))
-        self.assertNotIn(ContentType.objects.get_for_model(FakeEmailCampaign), ctypes)
-
-        fconf = self._create_fconf()
-        self.assertEqual([], jsonloads(fconf.raw_descriptions))  # TODO: bof bof
-
-        # ---------------
-        response = self.assertGET200(url)
-
-        with self.assertNoException():
-            ctypes = response.context['form'].fields['ctype'].ctypes
-
-        self.assertNotIn(ct, ctypes)
-
-    def test_add02(self):
-        "Not a CremeEntity : must be registered"
-        self.login()
-
-        get_ct = ContentType.objects.get_for_model
-        ct_addr = get_ct(FakeAddress)
-        ct_civ  = get_ct(FakeCivility)
-        self.assertFalse(FieldsConfig.objects.filter(content_type=ct_addr))
-
-        url = self.ADD_CTYPE_URL
-        response = self.assertGET200(url)
-
-        with self.assertNoException():
-            ctypes = response.context['form'].fields['ctype'].ctypes
-
-        self.assertNotIn(ct_civ, ctypes)
-        self.assertIn(ct_addr, ctypes)
-
-    def test_add03(self):
-        "All CTypes are already configured"
-        self._configure_all_models()
-        self.login()
-
-        response = self.assertGET200(self.ADD_CTYPE_URL)
-
-        with self.assertNoException():
-            ctype_f = response.context['form'].fields['ctype']
-
-        self.assertIsInstance(ctype_f.widget, Label)
-
-        self.assertPOST200(self.ADD_CTYPE_URL)
+    # def test_add03(self):
+    #     "All CTypes are already configured"
+    #     self._configure_all_models()
+    #     self.login()
+    #
+    #     response = self.assertGET200(self.ADD_CTYPE_URL)
+    #
+    #     with self.assertNoException():
+    #         ctype_f = response.context['form'].fields['ctype']
+    #
+    #     self.assertIsInstance(ctype_f.widget, Label)
+    #
+    #     self.assertPOST200(self.ADD_CTYPE_URL)
 
     def test_edit(self):
         self.login()

@@ -24,7 +24,7 @@ except Exception as e:
 
 
 class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
-    ADD_URL = reverse('creme_config__create_role_legacy')
+    # ADD_URL = reverse('creme_config__create_role_legacy')
     WIZARD_URL = reverse('creme_config__create_role')
     DEL_CREDS_URL = reverse('creme_config__remove_role_credentials')
 
@@ -53,60 +53,60 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login_not_as_superuser()
         self._aux_test_portal()
 
-    def test_create01(self):
-        self.login()
+    # def test_create01(self):
+    #     self.login()
+    #
+    #     url = self.ADD_URL
+    #     response = self.assertGET200(url)
+    #
+    #     with self.assertNoException():
+    #         fields = response.context['form'].fields
+    #         apps_choices  = set(c[0] for c in fields['allowed_apps'].choices)
+    #         admin_choices = set(c[0] for c in fields['admin_4_apps'].choices)
+    #
+    #     self.assertIn('creme_core',   apps_choices)
+    #     self.assertIn('creme_config', apps_choices)
+    #     self.assertIn('persons',      apps_choices)
+    #
+    #     self.assertIn('creme_core', admin_choices)
+    #     self.assertIn('persons',    admin_choices)
+    #     self.assertNotIn('creme_config', admin_choices)  # <==
+    #
+    #     get_ct = ContentType.objects.get_for_model
+    #     name = 'CEO'
+    #     creatable_ctypes = [get_ct(FakeContact).id, get_ct(FakeOrganisation).id]
+    #     exportable_ctypes = [get_ct(FakeContact).id, get_ct(FakeActivity).id]
+    #     apps = ['persons']
+    #     response = self.client.post(url, follow=True,
+    #                                 data={'name':              name,
+    #                                       'creatable_ctypes':  creatable_ctypes,
+    #                                       'exportable_ctypes': exportable_ctypes,
+    #                                       'allowed_apps':      apps,
+    #                                       'admin_4_apps':      apps,
+    #                                      }
+    #                                )
+    #     self.assertNoFormError(response)
+    #
+    #     role = self.get_object_or_fail(UserRole, name=name)
+    #     self.assertEqual(set(creatable_ctypes),  {ctype.id for ctype in role.creatable_ctypes.all()})
+    #     self.assertEqual(set(exportable_ctypes), {ctype.id for ctype in role.exportable_ctypes.all()})
+    #
+    #     app_set = set(apps)
+    #     self.assertEqual(app_set, role.allowed_apps)
+    #     self.assertEqual(app_set, role.admin_4_apps)
 
-        url = self.ADD_URL
-        response = self.assertGET200(url)
-
-        with self.assertNoException():
-            fields = response.context['form'].fields
-            apps_choices  = set(c[0] for c in fields['allowed_apps'].choices)
-            admin_choices = set(c[0] for c in fields['admin_4_apps'].choices)
-
-        self.assertIn('creme_core',   apps_choices)
-        self.assertIn('creme_config', apps_choices)
-        self.assertIn('persons',      apps_choices)
-
-        self.assertIn('creme_core', admin_choices)
-        self.assertIn('persons',    admin_choices)
-        self.assertNotIn('creme_config', admin_choices)  # <==
-
-        get_ct = ContentType.objects.get_for_model
-        name = 'CEO'
-        creatable_ctypes = [get_ct(FakeContact).id, get_ct(FakeOrganisation).id]
-        exportable_ctypes = [get_ct(FakeContact).id, get_ct(FakeActivity).id]
-        apps = ['persons']
-        response = self.client.post(url, follow=True,
-                                    data={'name':              name,
-                                          'creatable_ctypes':  creatable_ctypes,
-                                          'exportable_ctypes': exportable_ctypes,
-                                          'allowed_apps':      apps,
-                                          'admin_4_apps':      apps,
-                                         }
-                                   )
-        self.assertNoFormError(response)
-
-        role = self.get_object_or_fail(UserRole, name=name)
-        self.assertEqual(set(creatable_ctypes),  {ctype.id for ctype in role.creatable_ctypes.all()})
-        self.assertEqual(set(exportable_ctypes), {ctype.id for ctype in role.exportable_ctypes.all()})
-
-        app_set = set(apps)
-        self.assertEqual(app_set, role.allowed_apps)
-        self.assertEqual(app_set, role.admin_4_apps)
-
-    def test_create02(self):
-        self.login_not_as_superuser()
-
-        url = self.ADD_URL
-        self.assertGET403(url)
-        self.assertPOST403(url, data={'name':              'CEO',
-                                      'creatable_ctypes':  [],
-                                      'exportable_ctypes': [],
-                                      'allowed_apps':      [],
-                                      'admin_4_apps':      [],
-                                     }
-                          )
+    # def test_create02(self):
+    #     self.login_not_as_superuser()
+    #
+    #     url = self.ADD_URL
+    #     self.assertGET403(url)
+    #     self.assertPOST403(url, data={'name':              'CEO',
+    #                                   'creatable_ctypes':  [],
+    #                                   'exportable_ctypes': [],
+    #                                   'allowed_apps':      [],
+    #                                   'admin_4_apps':      [],
+    #                                  }
+    #                       )
 
     @skipIfNotInstalled('creme.persons')
     @skipIfNotInstalled('creme.documents')
@@ -405,68 +405,66 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                                           )
         self.assertPOST403(self.DEL_CREDS_URL, data={'id': sc.id})
 
-    def test_edit01(self):
-        user = self.login()
+    # def test_edit01(self):
+    #     user = self.login()
+    #
+    #     role = UserRole.objects.create(name='CEO')
+    #     SetCredentials.objects.create(role=role, value=EntityCredentials.VIEW,
+    #                                   set_type=SetCredentials.ESET_ALL,
+    #                                  )
+    #
+    #     other_user = User.objects.create(username='chloe', role=role)
+    #     contact    = FakeContact.objects.create(user=user, first_name='Yuki', last_name='Kajiura')
+    #     self.assertFalse(other_user.has_perm_to_view(contact))  # role.allowed_apps does not contain 'persons'
+    #
+    #     url = reverse('creme_config__edit_role_legacy', args=(role.id,))
+    #     self.assertGET200(url)
+    #
+    #     name   = role.name + '_edited'
+    #     get_ct = ContentType.objects.get_for_model
+    #     creatable_ctypes = [get_ct(FakeContact).id, get_ct(FakeOrganisation).id]
+    #     exportable_ctypes = [get_ct(FakeContact).id, get_ct(FakeActivity).id]
+    #     apps = ['creme_core', 'documents']
+    #     admin_apps = ['creme_core']
+    #     response = self.client.post(url, follow=True,
+    #                                 data={'name':                    name,
+    #                                       'creatable_ctypes':        creatable_ctypes,
+    #                                       'exportable_ctypes':       exportable_ctypes,
+    #                                       'allowed_apps':            apps,
+    #                                       'admin_4_apps':            admin_apps,
+    #                                      }
+    #                                )
+    #     self.assertNoFormError(response)
+    #
+    #     role = self.refresh(role)
+    #     self.assertEqual(set(creatable_ctypes),  {ctype.id for ctype in role.creatable_ctypes.all()})
+    #     self.assertEqual(set(exportable_ctypes), {ctype.id for ctype in role.exportable_ctypes.all()})
+    #     self.assertEqual(set(apps),       role.allowed_apps)
+    #     self.assertEqual(set(admin_apps), role.admin_4_apps)
+    #
+    #     setcreds = role.credentials.all()
+    #     self.assertEqual(1, len(setcreds))
+    #
+    #     creds = setcreds[0]
+    #     self.assertEqual(EntityCredentials.VIEW,  creds.value)
+    #     self.assertEqual(SetCredentials.ESET_ALL, creds.set_type)
+    #
+    #     contact = self.refresh(contact)  # Refresh cache
+    #     self.assertTrue(self.refresh(other_user).has_perm_to_view(contact))  # role.allowed_apps contains 'creme_core' now
 
-        role = UserRole.objects.create(name='CEO')
-        SetCredentials.objects.create(role=role, value=EntityCredentials.VIEW,
-                                      set_type=SetCredentials.ESET_ALL,
-                                     )
-
-        other_user = User.objects.create(username='chloe', role=role)
-        contact    = FakeContact.objects.create(user=user, first_name='Yuki', last_name='Kajiura')
-        self.assertFalse(other_user.has_perm_to_view(contact))  # role.allowed_apps does not contain 'persons'
-
-        # url = '/creme_config/role/edit/%s' % role.id
-        url = reverse('creme_config__edit_role_legacy', args=(role.id,))
-        self.assertGET200(url)
-
-        name   = role.name + '_edited'
-        get_ct = ContentType.objects.get_for_model
-        creatable_ctypes = [get_ct(FakeContact).id, get_ct(FakeOrganisation).id]
-        exportable_ctypes = [get_ct(FakeContact).id, get_ct(FakeActivity).id]
-        apps = ['creme_core', 'documents']
-        admin_apps = ['creme_core']
-        response = self.client.post(url, follow=True,
-                                    data={'name':                    name,
-                                          'creatable_ctypes':        creatable_ctypes,
-                                          'exportable_ctypes':       exportable_ctypes,
-                                          'allowed_apps':            apps,
-                                          'admin_4_apps':            admin_apps,
-                                         }
-                                   )
-        self.assertNoFormError(response)
-
-        role = self.refresh(role)
-        self.assertEqual(set(creatable_ctypes),  {ctype.id for ctype in role.creatable_ctypes.all()})
-        self.assertEqual(set(exportable_ctypes), {ctype.id for ctype in role.exportable_ctypes.all()})
-        self.assertEqual(set(apps),       role.allowed_apps)
-        self.assertEqual(set(admin_apps), role.admin_4_apps)
-
-        setcreds = role.credentials.all()
-        self.assertEqual(1, len(setcreds))
-
-        creds = setcreds[0]
-        self.assertEqual(EntityCredentials.VIEW,  creds.value)
-        self.assertEqual(SetCredentials.ESET_ALL, creds.set_type)
-
-        contact = self.refresh(contact)  # Refresh cache
-        self.assertTrue(self.refresh(other_user).has_perm_to_view(contact))  # role.allowed_apps contains 'creme_core' now
-
-    def test_edit02(self):
-        self.login_not_as_superuser()
-
-        role = UserRole.objects.create(name='CEO')
-        # url = '/creme_config/role/edit/%s' % role.id
-        url = reverse('creme_config__edit_role_legacy', args=(role.id,))
-        self.assertGET403(url)
-        self.assertPOST403(url, data={'name':              role.name,
-                                      'creatable_ctypes':  [],
-                                      'exportable_ctypes': [],
-                                      'allowed_apps':      [],
-                                      'admin_4_apps':      [],
-                                     }
-                          )
+    # def test_edit02(self):
+    #     self.login_not_as_superuser()
+    #
+    #     role = UserRole.objects.create(name='CEO')
+    #     url = reverse('creme_config__edit_role_legacy', args=(role.id,))
+    #     self.assertGET403(url)
+    #     self.assertPOST403(url, data={'name':              role.name,
+    #                                   'creatable_ctypes':  [],
+    #                                   'exportable_ctypes': [],
+    #                                   'allowed_apps':      [],
+    #                                   'admin_4_apps':      [],
+    #                                  }
+    #                       )
 
     @skipIfNotInstalled('creme.persons')
     @skipIfNotInstalled('creme.documents')

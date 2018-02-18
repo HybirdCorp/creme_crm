@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,13 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
-from django.template import Library, Node as TemplateNode
+from django.template import Library  # Node as TemplateNode
 
-from creme.creme_core.gui.bricks import BricksManager
+# from creme.creme_core.gui.bricks import BricksManager
 
-from ..registry import config_registry
+# from ..registry import config_registry
 
 
 register = Library()
@@ -36,36 +36,36 @@ def is_custom(obj):
     return getattr(obj, 'is_custom', True)
 
 
-@register.tag(name='import_usersettings_blocks')
-def do_usersettings_blocks_importer(parser, token):
-    warnings.warn('{% import_usersettings_blocks %} is deprecated.', DeprecationWarning)
-
-    return UserSettingsBlocksImporterNode()
-
-
-class UserSettingsBlocksImporterNode(TemplateNode):
-    def __init__(self):
-        warnings.warn('creme_config_tags.UserSettingsBlocksImporterNode is deprecated.', DeprecationWarning)
-
-    def render(self, context):
-        blocks_manager = BricksManager.get(context)
-        blocks_manager.add_group(_USER_SETTINGS_BLOCK, *config_registry.userblocks)
-        return ''
+# @register.tag(name='import_usersettings_blocks')
+# def do_usersettings_blocks_importer(parser, token):
+#     warnings.warn('{% import_usersettings_blocks %} is deprecated.', DeprecationWarning)
+#
+#     return UserSettingsBlocksImporterNode()
 
 
-@register.tag(name='display_usersettings_blocks')
-def do_usersettings_blocks_displayer(parser, token):
-    warnings.warn('{% do_usersettings_blocks_displayer %} is deprecated.', DeprecationWarning)
+# class UserSettingsBlocksImporterNode(TemplateNode):
+#     def __init__(self):
+#         warnings.warn('creme_config_tags.UserSettingsBlocksImporterNode is deprecated.', DeprecationWarning)
+#
+#     def render(self, context):
+#         blocks_manager = BricksManager.get(context)
+#         blocks_manager.add_group(_USER_SETTINGS_BLOCK, *config_registry.userblocks)
+#         return ''
 
-    return UserSettingsBlocksDisplayerNode()
+
+# @register.tag(name='display_usersettings_blocks')
+# def do_usersettings_blocks_displayer(parser, token):
+#     warnings.warn('{% do_usersettings_blocks_displayer %} is deprecated.', DeprecationWarning)
+#
+#     return UserSettingsBlocksDisplayerNode()
 
 
-class UserSettingsBlocksDisplayerNode(TemplateNode):
-    def __init__(self):
-        warnings.warn('creme_config_tags.UserSettingsBlocksImporterNode is deprecated.', DeprecationWarning)
-
-    def render(self, context):
-        context = context.flatten()
-        return ''.join(block.detailview_display(context)
-                       for block in BricksManager.get(context).pop_group(_USER_SETTINGS_BLOCK)
-                      )
+# class UserSettingsBlocksDisplayerNode(TemplateNode):
+#     def __init__(self):
+#         warnings.warn('creme_config_tags.UserSettingsBlocksImporterNode is deprecated.', DeprecationWarning)
+#
+#     def render(self, context):
+#         context = context.flatten()
+#         return ''.join(block.detailview_display(context)
+#                        for block in BricksManager.get(context).pop_group(_USER_SETTINGS_BLOCK)
+#                       )

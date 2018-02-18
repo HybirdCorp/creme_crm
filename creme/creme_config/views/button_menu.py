@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404, HttpResponse
@@ -29,7 +29,7 @@ from formtools.wizard.views import SessionWizardView
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import ButtonMenuItem
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.views.generic import add_model_with_popup, inner_popup
+from creme.creme_core.views.generic import inner_popup  # add_model_with_popup
 from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
 from ..forms.button_menu import ButtonMenuAddForm, ButtonMenuEditForm
@@ -41,17 +41,17 @@ def portal(request):
     return _config_portal(request, 'creme_config/button_menu_portal.html')
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def add(request):
-    warnings.warn('creme_config/button_menu/add is now deprecated. Use creme_config/button_menu/wizard view instead.',
-                  DeprecationWarning
-                 )
-
-    return add_model_with_popup(request, ButtonMenuAddForm,
-                                _(u'New buttons configuration'),
-                                submit_label=_(u'Save the configuration'),
-                               )
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def add(request):
+#     warnings.warn('creme_config/button_menu/add is now deprecated. Use creme_config/button_menu/wizard view instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     return add_model_with_popup(request, ButtonMenuAddForm,
+#                                 _(u'New buttons configuration'),
+#                                 submit_label=_(u'Save the configuration'),
+#                                )
 
 
 class ButtonMenuWizard(PopupWizardMixin, SessionWizardView):

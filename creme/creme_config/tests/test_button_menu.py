@@ -13,7 +13,7 @@ except Exception as e:
 
 
 class ButtonMenuConfigTestCase(CremeTestCase):
-    ADD_URL = reverse('creme_config__add_buttons_to_ctype_legacy')
+    # ADD_URL = reverse('creme_config__add_buttons_to_ctype_legacy')
     WIZARD_URL = reverse('creme_config__add_buttons_to_ctype')
     DEL_URL = reverse('creme_config__delete_ctype_buttons')
 
@@ -38,24 +38,24 @@ class ButtonMenuConfigTestCase(CremeTestCase):
     def test_portal(self):
         self.assertGET200(reverse('creme_config__buttons'))
 
-    def test_add_detailview(self):
-        ct = self.contact_ct
-
-        url = self.ADD_URL
-        self.assertGET200(url)
-
-        self.assertNoFormError(self.client.post(url, data={'ctype': ct.id}))
-
-        self.assertEqual([('', 1)],
-                         [(bmi.button_id, bmi.order) for bmi in ButtonMenuItem.objects.filter(content_type=ct)]
-                        )
-
-        response = self.client.get(url)
-
-        with self.assertNoException():
-            ctypes = response.context['form'].fields['ctype'].ctypes
-
-        self.assertNotIn(ct, ctypes)
+    # def test_add_detailview(self):
+    #     ct = self.contact_ct
+    #
+    #     url = self.ADD_URL
+    #     self.assertGET200(url)
+    #
+    #     self.assertNoFormError(self.client.post(url, data={'ctype': ct.id}))
+    #
+    #     self.assertEqual([('', 1)],
+    #                      [(bmi.button_id, bmi.order) for bmi in ButtonMenuItem.objects.filter(content_type=ct)]
+    #                     )
+    #
+    #     response = self.client.get(url)
+    #
+    #     with self.assertNoException():
+    #         ctypes = response.context['form'].fields['ctype'].ctypes
+    #
+    #     self.assertNotIn(ct, ctypes)
 
     def _find_field_index(self, formfield, button_id):
         for i, (f_button_id, f_button_vname) in enumerate(formfield.choices):
@@ -106,7 +106,6 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
     def test_edit01(self):
         ct = self.contact_ct
-        # self.assertGET404('/creme_config/button_menu/edit/%s' % ct.id)
         self.assertGET404(reverse('creme_config__edit_ctype_buttons', args=(ct.id,)))
 
     def test_edit02(self):
@@ -118,7 +117,6 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         button = TestButton()
         button_registry.register(button)
 
-        # url = '/creme_config/button_menu/edit/0'
         url = reverse('creme_config__edit_ctype_buttons', args=(0,))
         response = self.assertGET200(url)
 
@@ -167,8 +165,9 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         button03 = TestButton03()
         button_registry.register(button01, button02, button03)
 
-        self.client.post(self.ADD_URL, data={'ctype': ct.id})
-        self.assertEqual(1, ButtonMenuItem.objects.filter(content_type=ct).count())
+        # self.client.post(self.ADD_URL, data={'ctype': ct.id})
+        # self.assertEqual(1, ButtonMenuItem.objects.filter(content_type=ct).count())
+        ButtonMenuItem.objects.create(content_type=ct, order=1)
 
         url = reverse('creme_config__edit_ctype_buttons', args=(ct.id,))
         response = self.assertGET200(url)
@@ -211,8 +210,9 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
     def test_delete_detailview02(self):
         ct = self.contact_ct
-        self.client.post(self.ADD_URL, data={'ctype': ct.id})
-        self.get_object_or_fail(ButtonMenuItem, content_type=ct)
+        # self.client.post(self.ADD_URL, data={'ctype': ct.id})
+        # self.get_object_or_fail(ButtonMenuItem, content_type=ct)
+        ButtonMenuItem.objects.create(content_type=ct, order=1)
 
         self.assertPOST200(self.DEL_URL, data={'id': ct.id})
         self.assertFalse(ButtonMenuItem.objects.filter(content_type=ct))
