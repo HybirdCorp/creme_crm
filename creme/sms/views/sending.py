@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
@@ -43,7 +43,6 @@ def add(request,campaign_id):
     return add_to_entity(request, campaign_id, SendingCreateForm,
                          _(u'New sending for «%s»'),
                          entity_class=get_smscampaign_model(),
-                         # submit_label=_(u'Save the sending'),
                          submit_label=Sending.save_label,
                         )
 
@@ -117,23 +116,23 @@ def delete_message(request):
     return redirect(campaign)
 
 
-@jsonify
-@login_required
-@permission_required('sms')
-def reload_block_messages(request, id):
-    warnings.warn('sms.views.sending.reload_block_messages() is deprecated ; use reload_messages_brick() instead.',
-                  DeprecationWarning
-                 )
-
-    from creme.creme_core.views import blocks
-
-    sending = get_object_or_404(Sending, id=id)
-    request.user.has_perm_to_view_or_die(sending.campaign)
-
-    context = blocks.build_context(request, object=sending)
-    block = MessagesBrick()
-
-    return [(block.id_, block.detailview_display(context))]
+# @jsonify
+# @login_required
+# @permission_required('sms')
+# def reload_block_messages(request, id):
+#     warnings.warn('sms.views.sending.reload_block_messages() is deprecated ; use reload_messages_brick() instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     from creme.creme_core.views import blocks
+#
+#     sending = get_object_or_404(Sending, id=id)
+#     request.user.has_perm_to_view_or_die(sending.campaign)
+#
+#     context = blocks.build_context(request, object=sending)
+#     block = MessagesBrick()
+#
+#     return [(block.id_, block.detailview_display(context))]
 
 
 @login_required
