@@ -50,7 +50,7 @@ def skipIfCustomRGraph(test_func):
 
 
 class BaseReportsTestCase(CremeTestCase):
-    SET_FIELD_ORDER_URL = reverse('reports__change_field_order')
+    # SET_FIELD_ORDER_URL = reverse('reports__change_field_order')
 
     @classmethod
     def setUpClass(cls):

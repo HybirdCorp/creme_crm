@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2017  Hybird
+    Copyright (C) 2009-2018  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -26,17 +26,14 @@
 if (!creme.reports) creme.reports = {};
 
 
-//creme.reports.load = function(options) {
 creme.reports.load = function(options, hfilters_url, efilters_url) {
     if (!options || options == undefined) return;
 
     var ct_id = $(options.ct).val();
     var $hf = $(options.hf);
-//    this.loadHeaderFilters(ct_id, $hf);
     this.loadHeaderFilters(hfilters_url, ct_id, $hf);
 
     var $filter = $(options.filter);
-//    this.loadFilters(ct_id, $filter);
     this.loadEntityFilters(efilters_url, ct_id, $filter);
 };
 
@@ -85,9 +82,7 @@ creme.reports.__loadFilters = function(url, ct_id, $target_select, parameters) {
     creme.ajax.json.get(url, {}, success_cb, error_cb, false, this.loading_options);
 };
 
-//creme.reports.loadHeaderFilters = function(ct_id, $target_select) {
 creme.reports.loadHeaderFilters = function(url, ct_id, $target_select) {
-//    var url = '/creme_core/header_filter/get_for_ctype/' + ct_id;
     var url = url + '?' + $.param({ct_id: ct_id});
     var params = {
         'always_option': $('<option value="">' + gettext("No selected view") + '</option>')
@@ -95,9 +90,7 @@ creme.reports.loadHeaderFilters = function(url, ct_id, $target_select) {
     creme.reports.__loadFilters(url, ct_id, $target_select, params);
 };
 
-//creme.reports.loadFilters = function(ct_id, $target_select) {
 creme.reports.loadEntityFilters = function(url, ct_id, $target_select) {
-//    var url = '/creme_core/entity_filter/get_for_ctype/' + ct_id;
     var url = url + '?' + $.param({ct_id: ct_id});
     var $all_opt = $('<option value="">' + gettext("All") + '</option>');
     var params = {
@@ -114,62 +107,56 @@ creme.reports.AJAX_BACKEND = new creme.ajax.CacheBackend(new creme.ajax.Backend(
                                                              dataType: 'json'
                                                          });
 
-creme.reports.doAjaxAction = function(url, options, data) {
-    console.warn('creme.reports.doAjaxAction() is deprecated ; use bricks & actions instead.');
+//creme.reports.doAjaxAction = function(url, options, data) {
+//    console.warn('creme.reports.doAjaxAction() is deprecated ; use bricks & actions instead.');
+//
+//    var options = options || {};
+//    var query = creme.reports.AJAX_BACKEND.query();
+//    var reload_cb = options.blockReloadUrl ? function() {creme.blocks.reload(options.blockReloadUrl);} : function() {};
+//
+//    query.url(url)
+//         .onDone(reload_cb)
+//         .onFail(function(event, req) {
+//             creme.dialogs.warning(req.responseText || gettext("Error"))
+//                          .onClose(reload_cb)
+//                          .open();
+//          })
+//         .post(data);
+//
+//    return query;
+//};
 
-    var options = options || {};
-    var query = creme.reports.AJAX_BACKEND.query();
-    var reload_cb = options.blockReloadUrl ? function() {creme.blocks.reload(options.blockReloadUrl);} : function() {};
+//creme.reports.unlink_report = function(url, field_id, block_url) {
+//    console.warn('creme.reports.unlink_report() is deprecated ; use the new bricks action system instead.');
+//
+//    creme.reports.doAjaxAction(url, {
+//                                   blockReloadUrl: block_url
+//                               }, {
+//                                   'field_id': field_id
+//                               });
+//}
 
-    query.url(url)
-         .onDone(reload_cb)
-         .onFail(function(event, req) {
-             creme.dialogs.warning(req.responseText || gettext("Error"))
-                          .onClose(reload_cb)
-                          .open();
-          })
-         .post(data);
+//creme.reports.changeOrder = function(url, field_id, direction, block_url) {
+//    console.warn('creme.reports.changeOrder() is deprecated ; use the new bricks ordering system instead.');
+//
+//    return creme.reports.doAjaxAction(url, {
+//                                          blockReloadUrl: block_url
+//                                      }, {
+//                                          'field_id': field_id,
+//                                          'direction': direction
+//                                      });
+//};
 
-    return query;
-};
-
-//creme.reports.unlink_report = function(field_id, block_url) {
-creme.reports.unlink_report = function(url, field_id, block_url) {
-//    creme.reports.doAjaxAction('/reports/report/field/unlink_report', {
-    console.warn('creme.reports.unlink_report() is deprecated ; use the new bricks action system instead.');
-
-    creme.reports.doAjaxAction(url, {
-                                   blockReloadUrl: block_url
-                               }, {
-                                   'field_id': field_id
-                               });
-}
-
-//creme.reports.changeOrder = function(field_id, direction, block_url) {
-creme.reports.changeOrder = function(url, field_id, direction, block_url) {
-//    return creme.reports.doAjaxAction('/reports/report/field/change_order', {
-    console.warn('creme.reports.changeOrder() is deprecated ; use the new bricks ordering system instead.');
-
-    return creme.reports.doAjaxAction(url, {
-                                          blockReloadUrl: block_url
-                                      }, {
-                                          'field_id': field_id,
-                                          'direction': direction
-                                      });
-};
-
-//creme.reports.setSelected = function(checkbox, field_id, block_url) {
-creme.reports.setSelected = function(url, checkbox, field_id, block_url) {
-//    return creme.reports.doAjaxAction('/reports/report/field/set_selected', {
-    console.warn('creme.reports.setSelected() is deprecated.');
-
-    return creme.reports.doAjaxAction(url, {
-                                          blockReloadUrl: block_url
-                                      }, {
-                                          'field_id': field_id,
-                                          'checked': $(checkbox).is(':checked') ? 1 : 0
-                                      });
-};
+//creme.reports.setSelected = function(url, checkbox, field_id, block_url) {
+//    console.warn('creme.reports.setSelected() is deprecated.');
+//
+//    return creme.reports.doAjaxAction(url, {
+//                                          blockReloadUrl: block_url
+//                                      }, {
+//                                          'field_id': field_id,
+//                                          'checked': $(checkbox).is(':checked') ? 1 : 0
+//                                      });
+//};
 
 creme.reports.toggleDisableOthers = function(me, others) {
     var is_checked = me.checked; // More generic with all node types ?
@@ -208,16 +195,12 @@ creme.utils.converters.register('creme.graphael.BargraphData', 'jqplotData', fun
 });
 
 
-//creme.reports.exportReport = function(link, report_id, title) {
 creme.reports.exportReport = function(title, filterform_url, export_preview_url, export_url) {
-//    var filterform_url = '/reports/export/filter/%d'.format(report_id)
-
     // The export view uses the 'callback_url' feature of inner_popup (maybe only used here).
     // Emulate it for this case.
     // TODO : filterform should be used as select and redirection url build in js.
     creme.dialogs.form(filterform_url, {'title': title || ''})
                  .on('frame-update', function(event, frame) {
-//                      new creme.reports.PreviewController(report_id).bind(frame.delegate());
                       new creme.reports.PreviewController(export_preview_url, export_url).bind(frame.delegate());
                   })
                  .onFormSuccess(function(event, data, statusText, dataType) {
@@ -226,20 +209,17 @@ creme.reports.exportReport = function(title, filterform_url, export_preview_url,
                  .open({width: 1024});
 };
 
-creme.reports.openGraphEdition = function(edition_url, graph_id, reload_uri) {
-    console.warn('creme.reports.openGraphEdition() is deprecated ; use bricks & actions instead.');
-
-    creme.blocks.form(edition_url, {blockReloadUrl: reload_uri})
-                .onFormSuccess(function() {
-                     $('#graph-%s .ui-creme-plotselector'.format(graph_id)).creme().widget().resetBackend();
-                 }).open();
-};
+//creme.reports.openGraphEdition = function(edition_url, graph_id, reload_uri) {
+//    console.warn('creme.reports.openGraphEdition() is deprecated ; use bricks & actions instead.');
+//
+//    creme.blocks.form(edition_url, {blockReloadUrl: reload_uri})
+//                .onFormSuccess(function() {
+//                     $('#graph-%s .ui-creme-plotselector'.format(graph_id)).creme().widget().resetBackend();
+//                 }).open();
+//};
 
 creme.reports.PreviewController = creme.component.Component.sub({
-//    _init_: function(report) {
     _init_: function(preview_url, export_url) {
-//        this._redirectUrl = '/reports/export/preview/' + report + '?%s';
-//        this._downloadUrl = '/reports/export/' + report + '?%s';
         this._redirectUrl = preview_url + '?%s';
         this._downloadUrl = export_url + '?%s';
 

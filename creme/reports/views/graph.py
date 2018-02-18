@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,10 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging, warnings
+import logging  # warnings
 
 from django.db.models import FieldDoesNotExist, DateField, DateTimeField, ForeignKey
-from django.http import Http404
+# from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 
@@ -139,11 +139,11 @@ def get_available_report_graph_types(request, ct_id):
     return {'result': result}
 
 
-def _check_order(order):
-    warnings.warn('reports.views.graph._check_order() is deprecated.', DeprecationWarning)
-
-    if order != 'ASC' and order != 'DESC':
-        raise Http404('Order must be in ("ASC", "DESC")')
+# def _check_order(order):
+#     warnings.warn('reports.views.graph._check_order() is deprecated.', DeprecationWarning)
+#
+#     if order != 'ASC' and order != 'DESC':
+#         raise Http404('Order must be in ("ASC", "DESC")')
 
 
 def cast_order(order):
@@ -155,16 +155,17 @@ def cast_order(order):
 
 @utils.jsonify
 # @permission_required('reports') ??
-def fetch_graph(request, graph_id, order=None):
-    if order is None:
-        order = utils.get_from_GET_or_404(request.GET, 'order', cast=cast_order, default='ASC')
-    else:
-        warnings.warn('reports.views.graph.fetch_graph(): the "order" URL parameter is deprecated ; '
-                      'use the GET parameter instead.',
-                      DeprecationWarning
-                     )
-        _check_order(order)
-
+# def fetch_graph(request, graph_id, order=None):
+def fetch_graph(request, graph_id):
+    # if order is None:
+    #     order = utils.get_from_GET_or_404(request.GET, 'order', cast=cast_order, default='ASC')
+    # else:
+    #     warnings.warn('reports.views.graph.fetch_graph(): the "order" URL parameter is deprecated ; '
+    #                   'use the GET parameter instead.',
+    #                   DeprecationWarning
+    #                  )
+    #     _check_order(order)
+    order = utils.get_from_GET_or_404(request.GET, 'order', cast=cast_order, default='ASC')
     x, y = get_object_or_404(ReportGraph, pk=graph_id).fetch(order=order)
 
     return {'x': x, 'y': y, 'graph_id': graph_id}  # TODO: graph_id useful ??
@@ -172,17 +173,18 @@ def fetch_graph(request, graph_id, order=None):
 
 @utils.jsonify
 # @permission_required('reports') ??
-def fetch_graph_from_instanceblock(request, instance_block_id, entity_id, order=None):
-    if order is None:
-        order = utils.get_from_GET_or_404(request.GET, 'order', cast=cast_order, default='ASC')
-    else:
-        warnings.warn('reports.views.graph.fetch_graph_from_instanceblock(): '
-                      'the "order" URL parameter is deprecated ; '
-                      'use the GET parameter instead.',
-                      DeprecationWarning
-                     )
-        _check_order(order)
-
+# def fetch_graph_from_instanceblock(request, instance_block_id, entity_id, order=None):
+def fetch_graph_from_instanceblock(request, instance_block_id, entity_id):
+    # if order is None:
+    #     order = utils.get_from_GET_or_404(request.GET, 'order', cast=cast_order, default='ASC')
+    # else:
+    #     warnings.warn('reports.views.graph.fetch_graph_from_instanceblock(): '
+    #                   'the "order" URL parameter is deprecated ; '
+    #                   'use the GET parameter instead.',
+    #                   DeprecationWarning
+    #                  )
+    #     _check_order(order)
+    order = utils.get_from_GET_or_404(request.GET, 'order', cast=cast_order, default='ASC')
     instance_block = get_object_or_404(InstanceBlockConfigItem, pk=instance_block_id)  # TODO: rename
     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
     x, y = ReportGraph.get_fetcher_from_instance_block(instance_block).fetch_4_entity(entity, order)
