@@ -22,7 +22,7 @@ from collections import OrderedDict
 from functools import partial
 
 from django.apps import apps
-from django.contrib.contenttypes.models import ContentType
+# from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
 
@@ -274,7 +274,7 @@ class ManagersBrick(QuerysetBrick):
         return self._render(self.get_template_context(context,
                     self._get_people_qs(orga).select_related('civility'),
                     rtype_id=self.relation_type_deps[0],
-                    ct=ContentType.objects.get_for_model(Contact),  # DEPRECATED (use 'objects_ctype' instead)
+                    # ct=ContentType.objects.get_for_model(Contact),
                     add_title=self._get_add_title(),
                     hidden_fields={fname
                                     for fname in ('phone', 'mobile', 'email')
