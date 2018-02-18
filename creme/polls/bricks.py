@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.contenttypes.models import ContentType
+# from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _, ugettext, ungettext
 
 from creme.creme_core.gui.bricks import Brick, SimpleBrick, QuerysetBrick
@@ -26,7 +26,7 @@ from creme.creme_core.gui.bricks import Brick, SimpleBrick, QuerysetBrick
 from creme import persons
 
 from creme import polls
-from .models import PollFormLine, PollReplyLine, PollFormSection
+from .models import PollFormLine, PollReplyLine  # PollFormSection
 from .utils import SectionTree, ReplySectionTree, NodeStyle
 
 
@@ -34,7 +34,7 @@ PollCampaign = polls.get_pollcampaign_model()
 PollForm     = polls.get_pollform_model()
 PollReply    = polls.get_pollreply_model()
 
-get_ct = ContentType.objects.get_for_model
+# get_ct = ContentType.objects.get_for_model
 
 
 class PollFormBarHatBrick(SimpleBrick):
@@ -82,8 +82,8 @@ class PollFormLinesBrick(Brick):
                     nodes=nodes,
                     title=self._build_title(nodes),
                     style=NodeStyle(),
-                    line_ct_id=get_ct(PollFormLine).id,  # DEPRECATED
-                    section_ct_id=get_ct(PollFormSection).id,  # DEPRECATED
+                    # line_ct_id=get_ct(PollFormLine).id,
+                    # section_ct_id=get_ct(PollFormSection).id,
         ))
 
 
@@ -121,7 +121,7 @@ class PollRepliesBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     PollReply.objects.filter(pform=pform),
-                    ct_reply=get_ct(PollReply),  # DEPRECATED (use 'objects_ctype' instead)
+                    # ct_reply=get_ct(PollReply),
                     # TODO: reuse nodes (PollFormLinesBlock) to avoid a query
                     propose_creation=pform.lines.exists(),
         ))
@@ -140,7 +140,7 @@ class _RelatedRepliesBrick(QuerysetBrick):
         return self._render(self.get_template_context(
                     context,
                     self._get_replies(pk),
-                    ct_reply=get_ct(PollReply),  # DEPRECATED (use 'objects_ctype' instead)
+                    # ct_reply=get_ct(PollReply),
                     propose_creation=True,
         ))
 

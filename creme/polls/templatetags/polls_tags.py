@@ -19,10 +19,10 @@
 ################################################################################
 
 from json import dumps as json_dump
-import logging, warnings
+import logging  # warnings
 
 from django import template
-from django.utils.html import escape
+# from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
@@ -65,37 +65,37 @@ def print_node_css(style, node):  # TODO: rename 'poll_node_css'
     return style.css(node)
 
 
-@register.inclusion_tag('polls/templatetags/stats_pollreply_chart.html', takes_context=True)
-def print_node_chart(context, node, diameter=100):
-    warnings.warn('The templatetag {% print_node_chart %} is deprecated ; '
-                  'use {% poll_stats_chart %} instead.',
-                  DeprecationWarning
-                 )
-
-    data = []
-    legends = []
-    max_legend_length = 0
-    count = 0
-
-    for answer, stat, percent in node.answer_stats:
-        label = escape(unicode(answer))
-        fmt = u'%3d %% - %s' if percent.is_integer() else u'%3.2f %% - %s'
-        legend = fmt % (percent, label)
-        max_legend_length = max(max_legend_length, len(legend))
-        count += 1
-
-        data.append((label, stat))
-        legends.append(legend)
-
-    context.update({
-                'chart_data':     mark_safe(json_dump([data])),
-                'chart_labels':   mark_safe(json_dump(legends)),
-                'chart_diameter': diameter,
-                'chart_width':    max(diameter * 2 + 50, diameter + max_legend_length * 9),
-                'chart_height':   max(diameter + 75, 80 + 25 * count),
-            })
-
-    return context
+# @register.inclusion_tag('polls/templatetags/stats_pollreply_chart.html', takes_context=True)
+# def print_node_chart(context, node, diameter=100):
+#     warnings.warn('The templatetag {% print_node_chart %} is deprecated ; '
+#                   'use {% poll_stats_chart %} instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     data = []
+#     legends = []
+#     max_legend_length = 0
+#     count = 0
+#
+#     for answer, stat, percent in node.answer_stats:
+#         label = escape(unicode(answer))
+#         fmt = u'%3d %% - %s' if percent.is_integer() else u'%3.2f %% - %s'
+#         legend = fmt % (percent, label)
+#         max_legend_length = max(max_legend_length, len(legend))
+#         count += 1
+#
+#         data.append((label, stat))
+#         legends.append(legend)
+#
+#     context.update({
+#                 'chart_data':     mark_safe(json_dump([data])),
+#                 'chart_labels':   mark_safe(json_dump(legends)),
+#                 'chart_diameter': diameter,
+#                 'chart_width':    max(diameter * 2 + 50, diameter + max_legend_length * 9),
+#                 'chart_height':   max(diameter + 75, 80 + 25 * count),
+#             })
+#
+#     return context
 
 
 @register.simple_tag
