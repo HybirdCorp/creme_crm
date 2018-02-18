@@ -20,15 +20,15 @@
 "use strict";
 
 creme.object = {
-    isnone: function(obj) {
-        console.warn('creme.object.isnone is deprecated ; use Object.isNone() instead.');
-        return obj === undefined || obj === null;
-    },
+//    isnone: function(obj) {
+//        console.warn('creme.object.isnone is deprecated ; use Object.isNone() instead.');
+//        return obj === undefined || obj === null;
+//    },
 
-    isempty: function(obj) {
-        console.warn('creme.object.isempty is deprecated ; use Object.isEmpty() instead.');
-        return this.isnone(obj) || obj.length === 0 || (obj !== 0 && $.isEmptyObject(obj));
-    },
+//    isempty: function(obj) {
+//        console.warn('creme.object.isempty is deprecated ; use Object.isEmpty() instead.');
+//        return this.isnone(obj) || obj.length === 0 || (obj !== 0 && $.isEmptyObject(obj));
+//    },
 
     invoke: function() {
         if (arguments.length === 0) {

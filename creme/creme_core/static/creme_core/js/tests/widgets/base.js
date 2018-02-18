@@ -251,27 +251,27 @@ QUnit.test('creme.object.delegate', function(assert) {
     equal(7, creme.object.delegate(instance, 'add', 3, 4));
 });
 
-QUnit.test('creme.object.isnone', function(assert) {
-    equal(creme.object.isnone(undefined), true);
-    equal(creme.object.isnone(null), true);
-    equal(creme.object.isnone({}), false);
-    equal(creme.object.isnone([]), false);
-    equal(creme.object.isnone(0), false);
-    equal(creme.object.isnone(''), false);
-});
+//QUnit.test('creme.object.isnone', function(assert) {
+//    equal(creme.object.isnone(undefined), true);
+//    equal(creme.object.isnone(null), true);
+//    equal(creme.object.isnone({}), false);
+//    equal(creme.object.isnone([]), false);
+//    equal(creme.object.isnone(0), false);
+//    equal(creme.object.isnone(''), false);
+//});
 
-QUnit.test('creme.object.isempty', function(assert) {
-    equal(creme.object.isempty(undefined), true);
-    equal(creme.object.isempty(null), true);
-    equal(creme.object.isempty({}), true);
-    equal(creme.object.isempty([]), true);
-    equal(creme.object.isempty(''), true);
-
-    equal(creme.object.isempty(0), false);
-    equal(creme.object.isempty({a:12}), false);
-    equal(creme.object.isempty([12]), false);
-    equal(creme.object.isempty('a'), false);
-});
+//QUnit.test('creme.object.isempty', function(assert) {
+//    equal(creme.object.isempty(undefined), true);
+//    equal(creme.object.isempty(null), true);
+//    equal(creme.object.isempty({}), true);
+//    equal(creme.object.isempty([]), true);
+//    equal(creme.object.isempty(''), true);
+//
+//    equal(creme.object.isempty(0), false);
+//    equal(creme.object.isempty({a:12}), false);
+//    equal(creme.object.isempty([12]), false);
+//    equal(creme.object.isempty('a'), false);
+//});
 
 QUnit.test('creme.object.deferred (finished)', function(assert) {
     var element = $('<div/>');

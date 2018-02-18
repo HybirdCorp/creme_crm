@@ -34,7 +34,6 @@ from ..utils import get_ct_or_404, jsonify
 from .utils import build_cancel_path
 
 
-# TODO: remove 'creme_core/batch_process_report.html'
 @login_required
 def batch_process(request, ct_id):
     ct = get_ct_or_404(ct_id)

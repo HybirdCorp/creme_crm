@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,12 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from json import dumps as json_dump
-import warnings
+# from json import dumps as json_dump
+# import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.forms.formsets import formset_factory
-from django.http import Http404, HttpResponse
+from django.http import Http404  # HttpResponse
 from django.utils.translation import ugettext as _
 
 from ..auth.decorators import login_required
@@ -39,20 +39,20 @@ from .utils import json_update_from_widget_response
 #       error ; we are saved by the 'empty_label=None' of user field, but it is
 #       not really perfect...
 
-def json_quickform_response(instance):
-    warnings.warn('creme_core.views.quick_forms.json_quickform_response(): is deprecated. '
-                  'The <json> tag need for compatibility with (very) old versions of IE is no longer needed. '
-                  'Use creme.creme_core.views.utils.json_update_from_widget_response(form.instance) instead.',
-                  DeprecationWarning
-                 )
-
-    response = {'value': instance.id,
-                'added': [(instance.id, unicode(instance))],
-               }
-
-    return HttpResponse(u'<json>%s</json>' % json_dump(response),
-                        content_type="text/html",
-                       )
+# def json_quickform_response(instance):
+#     warnings.warn('creme_core.views.quick_forms.json_quickform_response(): is deprecated. '
+#                   'The <json> tag need for compatibility with (very) old versions of IE is no longer needed. '
+#                   'Use creme.creme_core.views.utils.json_update_from_widget_response(form.instance) instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     response = {'value': instance.id,
+#                 'added': [(instance.id, unicode(instance))],
+#                }
+#
+#     return HttpResponse(u'<json>%s</json>' % json_dump(response),
+#                         content_type="text/html",
+#                        )
 
 
 @login_required
@@ -105,10 +105,10 @@ def add(request, ct_id, count):
 
 
 @login_required
-def add_from_widget(request, ct_id, count=None):
-# def add_from_widget(request, ct_id):  TODO: in creme 1.8
-    if count is not None:
-        warnings.warn('add_from_widget(): the argument "count" is deprecated.', DeprecationWarning)
+# def add_from_widget(request, ct_id, count=None):
+def add_from_widget(request, ct_id):
+    # if count is not None:
+    #     warnings.warn('add_from_widget(): the argument "count" is deprecated.', DeprecationWarning)
 
     model = get_ct_or_404(ct_id).model_class()
     model_name = model._meta.verbose_name
@@ -133,7 +133,6 @@ def add_from_widget(request, ct_id, count=None):
     else:
         form = form_class(user=user, initial=None)
 
-    # TODO: 'creme_core/generics/blockform/add_popup2.html' ??
     return inner_popup(request, 'creme_core/generics/form/add_innerpopup.html',
                        {'form':   form,
                         'title':  model.creation_label,

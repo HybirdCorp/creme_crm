@@ -1484,44 +1484,44 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(ACTIVITYTYPE_INDISPO, activity2.type_id)
         self.assertEqual(subtype,              activity2.sub_type)
 
-    def test_bulk_edit_type_legacy(self):  # TODO: remove when old inner bulk view is removed
-        user = self.login()
-
-        create_dt = self.create_datetime
-        create_activity = partial(Activity.objects.create, user=user)
-        activity1 = create_activity(title='act01',
-                                    start=create_dt(year=2015, month=1, day=1, hour=14, minute=0),
-                                    end=create_dt(year=2015, month=1, day=1, hour=15, minute=0),
-                                    type_id=constants.ACTIVITYTYPE_INDISPO,
-                                   )
-        activity2 = create_activity(title='act02',
-                                    start=create_dt(year=2015, month=1, day=2, hour=14, minute=0),
-                                    end=create_dt(year=2015, month=1, day=2, hour=15, minute=0),
-                                    type_id=constants.ACTIVITYTYPE_PHONECALL,
-                                    sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
-                                   )
-
-        url = self.build_bulkedit_url([activity1, activity2], 'type')
-        response = self.assertGET200(url)
-        self.assertContains(response,
-                            escape(ungettext(u'The type of %s activity cannot be changed because it is an indisponibility.',
-                                             u'The type of %s activities cannot be changed because they are indisponibilities.',
-                                             1
-                                            ) % 1
-                                  )
-                           )
-
-        self.assertNoFormError(self.client.post(
-                                    url,
-                                    data={'field_value': self._acttype_field_value(
-                                                                  constants.ACTIVITYTYPE_MEETING,
-                                                                  constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                                                                ),
-                                         }
-                                   )
-                              )
-        self.assertEqual(constants.ACTIVITYTYPE_MEETING, self.refresh(activity2).type_id)
-        self.assertEqual(constants.ACTIVITYTYPE_INDISPO, self.refresh(activity1).type_id)  # No change
+    # def test_bulk_edit_type_legacy(self):
+    #     user = self.login()
+    #
+    #     create_dt = self.create_datetime
+    #     create_activity = partial(Activity.objects.create, user=user)
+    #     activity1 = create_activity(title='act01',
+    #                                 start=create_dt(year=2015, month=1, day=1, hour=14, minute=0),
+    #                                 end=create_dt(year=2015, month=1, day=1, hour=15, minute=0),
+    #                                 type_id=constants.ACTIVITYTYPE_INDISPO,
+    #                                )
+    #     activity2 = create_activity(title='act02',
+    #                                 start=create_dt(year=2015, month=1, day=2, hour=14, minute=0),
+    #                                 end=create_dt(year=2015, month=1, day=2, hour=15, minute=0),
+    #                                 type_id=constants.ACTIVITYTYPE_PHONECALL,
+    #                                 sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
+    #                                )
+    #
+    #     url = self.build_bulkedit_url([activity1, activity2], 'type')
+    #     response = self.assertGET200(url)
+    #     self.assertContains(response,
+    #                         escape(ungettext(u'The type of %s activity cannot be changed because it is an indisponibility.',
+    #                                          u'The type of %s activities cannot be changed because they are indisponibilities.',
+    #                                          1
+    #                                         ) % 1
+    #                               )
+    #                        )
+    #
+    #     self.assertNoFormError(self.client.post(
+    #                                 url,
+    #                                 data={'field_value': self._acttype_field_value(
+    #                                                               constants.ACTIVITYTYPE_MEETING,
+    #                                                               constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+    #                                                             ),
+    #                                      }
+    #                                )
+    #                           )
+    #     self.assertEqual(constants.ACTIVITYTYPE_MEETING, self.refresh(activity2).type_id)
+    #     self.assertEqual(constants.ACTIVITYTYPE_INDISPO, self.refresh(activity1).type_id)  # No change
 
     def _check_activity_collisions(self, activity_start, activity_end, participants,
                                    busy=True, exclude_activity_id=None,

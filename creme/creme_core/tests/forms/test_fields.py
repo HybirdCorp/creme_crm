@@ -71,17 +71,18 @@ class DatePeriodFieldTestCase(FieldTestCase):
                                         [name, '2'], message_args={'value': name},
                                        )
 
-    def test_choices_1(self):
-        clean = DatePeriodField(choices=('months',)).clean
-        period = clean(['months', '5'])
-        self.assertIsInstance(period, DatePeriod)
+    # def test_choices_1(self):
+    #     clean = DatePeriodField(choices=('months',)).clean
+    #     period = clean(['months', '5'])
+    #     self.assertIsInstance(period, DatePeriod)
+    #
+    #     name = 'years'
+    #     self.assertFieldValidationError(ChoiceField, 'invalid_choice', clean,
+    #                                     [name, '2'], message_args={'value': name},
+    #                                    )
 
-        name = 'years'
-        self.assertFieldValidationError(ChoiceField, 'invalid_choice', clean,
-                                        [name, '2'], message_args={'value': name},
-                                       )
-
-    def test_choices_2(self):
+    # def test_choices_2(self):
+    def test_choices(self):
         choices = list(DatePeriodField().choices)
         self.assertIn((MinutesPeriod.name, MinutesPeriod.verbose_name), choices)
         self.assertIn((HoursPeriod.name,   HoursPeriod.verbose_name),   choices)

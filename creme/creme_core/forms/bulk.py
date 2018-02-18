@@ -23,7 +23,7 @@ import re
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse, NoReverseMatch
+from django.core.urlresolvers import reverse  # NoReverseMatch
 from django.db.models.fields.related import ManyToManyField
 from django.forms.fields import ChoiceField
 from django.forms.forms import NON_FIELD_ERRORS
@@ -88,13 +88,13 @@ class BulkForm(CremeForm):
                   'field_name': fieldname,
                  }
 
-        try:
-            return reverse(self._bulk_viewname, kwargs=kwargs)
-        except NoReverseMatch:
-            # NB: ugly hack to support the old view bulk_edit_field().
-            # TODO: remove it in 1.8
-            kwargs['id'] = ','.join(str(e.pk) for e in entities)
-            return reverse(self._bulk_viewname, kwargs=kwargs)
+        # try:
+        #     return reverse(self._bulk_viewname, kwargs=kwargs)
+        # except NoReverseMatch:
+        #     # NB: ugly hack to support the old view bulk_edit_field().
+        #     kwargs['id'] = ','.join(str(e.pk) for e in entities)
+        #     return reverse(self._bulk_viewname, kwargs=kwargs)
+        return reverse(self._bulk_viewname, kwargs=kwargs)
 
     def _bulk_formfield(self, user, instance=None):
         if self.is_custom:

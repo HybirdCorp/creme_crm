@@ -201,7 +201,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         prop1 = create_prop(creme_entity=entity1)
         prop2 = create_prop(creme_entity=entity2)
 
-        # response = self.assertPOST200('/creme_core/property/delete_from_type', follow=True,
         response = self.assertPOST200(reverse('creme_core__remove_property'), follow=True,
                                       data={'ptype_id': ptype.id, 'entity_id': entity1.id},
                                      )
@@ -448,58 +447,58 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         self.assertNoBrick(doc, 'block_creme_core-tagged-creme_core-fakeorganisation')
 
-    def test_reload_block01(self):
-        user = self.login()
-        ptype = CremePropertyType.create(str_pk='test-prop_murica', text='is american')
+    # def test_reload_block01(self):
+    #     user = self.login()
+    #     ptype = CremePropertyType.create(str_pk='test-prop_murica', text='is american')
+    #
+    #     rita = FakeContact.objects.create(user=user, last_name='Vrataski', first_name='Rita')
+    #     CremeProperty.objects.create(type=ptype, creme_entity=rita)
+    #
+    #     block_id = 'block_creme_core-tagged-creme_core-fakecontact'
+    #     response = self.assertGET200(reverse('creme_core__reload_ptype_blocks', args=(ptype.id, block_id)))
+    #
+    #     with self.assertNoException():
+    #         result = json.loads(response.content)
+    #
+    #     self.assertIsInstance(result, list)
+    #     self.assertEqual(1, len(result))
+    #
+    #     result = result[0]
+    #     self.assertIsInstance(result, list)
+    #     self.assertEqual(2, len(result))
+    #     self.assertEqual(block_id, result[0])
+    #
+    #     block_html = result[1]
+    #     self.assertIn(' id="%s"' % block_id, block_html)
+    #     self.assertIn(unicode(rita), block_html)
+    #
+    #     self.assertGET404(reverse('creme_core__reload_ptype_blocks', args=(ptype.id, 'invalid_blockid')))
+    #     self.assertGET404(reverse('creme_core__reload_ptype_blocks', args=(ptype.id, 'block_creme_core-tagged-persons-invalidmodel')))
+    #     self.assertGET404(reverse('creme_core__reload_ptype_blocks', args=(ptype.id, 'block_creme_core-tagged-persons-civility')))
 
-        rita = FakeContact.objects.create(user=user, last_name='Vrataski', first_name='Rita')
-        CremeProperty.objects.create(type=ptype, creme_entity=rita)
-
-        block_id = 'block_creme_core-tagged-creme_core-fakecontact'
-        response = self.assertGET200(reverse('creme_core__reload_ptype_blocks', args=(ptype.id, block_id)))
-
-        with self.assertNoException():
-            result = json.loads(response.content)
-
-        self.assertIsInstance(result, list)
-        self.assertEqual(1, len(result))
-
-        result = result[0]
-        self.assertIsInstance(result, list)
-        self.assertEqual(2, len(result))
-        self.assertEqual(block_id, result[0])
-
-        block_html = result[1]
-        self.assertIn(' id="%s"' % block_id, block_html)
-        self.assertIn(unicode(rita), block_html)
-
-        self.assertGET404(reverse('creme_core__reload_ptype_blocks', args=(ptype.id, 'invalid_blockid')))
-        self.assertGET404(reverse('creme_core__reload_ptype_blocks', args=(ptype.id, 'block_creme_core-tagged-persons-invalidmodel')))
-        self.assertGET404(reverse('creme_core__reload_ptype_blocks', args=(ptype.id, 'block_creme_core-tagged-persons-civility')))
-
-    def test_reload_block02(self):
-        "Misc block + info block"
-        user = self.login()
-        ptype = CremePropertyType.create(str_pk='test-prop_murica', text='is american',
-                                         subject_ctypes=[FakeOrganisation],
-                                         )
-
-        rita = FakeContact.objects.create(user=user, last_name='Vrataski', first_name='Rita')
-        CremeProperty.objects.create(type=ptype, creme_entity=rita)
-
-        misc_block_id = 'block_creme_core-misc_tagged_entities'
-        info_block_id = 'block_creme_core-property_type_info'
-
-        response = self.assertGET200(reverse('creme_core__reload_ptype_blocks', args=(ptype.id, misc_block_id)),
-                                     data={misc_block_id + '_deps': info_block_id},
-                                    )
-
-        with self.assertNoException():
-            result = json.loads(response.content)
-
-        self.assertEqual(2, len(result))
-        self.assertIn(' id="%s"' % misc_block_id, result[0][1])
-        self.assertIn(' id="%s"' % info_block_id, result[1][1])
+    # def test_reload_block02(self):
+    #     "Misc block + info block"
+    #     user = self.login()
+    #     ptype = CremePropertyType.create(str_pk='test-prop_murica', text='is american',
+    #                                      subject_ctypes=[FakeOrganisation],
+    #                                      )
+    #
+    #     rita = FakeContact.objects.create(user=user, last_name='Vrataski', first_name='Rita')
+    #     CremeProperty.objects.create(type=ptype, creme_entity=rita)
+    #
+    #     misc_block_id = 'block_creme_core-misc_tagged_entities'
+    #     info_block_id = 'block_creme_core-property_type_info'
+    #
+    #     response = self.assertGET200(reverse('creme_core__reload_ptype_blocks', args=(ptype.id, misc_block_id)),
+    #                                  data={misc_block_id + '_deps': info_block_id},
+    #                                 )
+    #
+    #     with self.assertNoException():
+    #         result = json.loads(response.content)
+    #
+    #     self.assertEqual(2, len(result))
+    #     self.assertIn(' id="%s"' % misc_block_id, result[0][1])
+    #     self.assertIn(' id="%s"' % info_block_id, result[1][1])
 
     def test_reload_ptype_bricks01(self):
         user = self.login()

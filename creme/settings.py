@@ -446,8 +446,7 @@ GLOBAL_MEDIA_DIRS = (join(dirname(__file__), 'static'),)
 THEMES = [('icecream',  _('Ice cream')),
           ('chantilly', _('Chantilly')),
          ]
-# DEPRECATED: use THEMES[0](0] instead
-DEFAULT_THEME = 'icecream'  # Other available choice: 'chantilly'
+# DEFAULT_THEME = 'icecream'
 
 CSS_DEFAULT_LISTVIEW = 'left_align'
 CSS_NUMBER_LISTVIEW = 'right_align'

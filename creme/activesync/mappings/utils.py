@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,13 +20,43 @@
 
 from datetime import datetime
 from xml.sax.saxutils import escape
+import warnings
 
 from django.db import models
 
 from creme.creme_core.utils.dates import get_dt_to_iso8601_str
-from creme.creme_core.utils.meta import get_instance_field_info
+# from creme.creme_core.utils.meta import get_instance_field_info
 
 from ..models import EntityASData
+
+
+# NB: old creme_core.utils.meta.get_instance_field_info
+def get_instance_field_info(obj, field_name):
+    """ For a field_name 'att1__att2__att3', it searches and returns the tuple
+    (class of obj.att1.att2.get_field('att3'), obj.att1.att2.att3)
+    @return : (field_class, field_value)
+    """
+    warnings.warn("get_instance_field_info() function is deprecated ; "
+                  "use creme_core.utils.meta.FieldInfo.value_from() instead.",
+                  DeprecationWarning
+                 )
+
+    subfield_names = field_name.split('__')
+
+    try:
+        for subfield_name in subfield_names[:-1]:
+            obj = getattr(obj, subfield_name)  # Can be None if a M2M has no related value
+
+        subfield_name = subfield_names[-1]
+        field = obj._meta.get_field(subfield_name)
+        field_value = getattr(obj, subfield_name)
+
+        if field.many_to_many:
+            field_value = field_value.all()
+
+        return field.__class__, field_value
+    except (AttributeError, models.FieldDoesNotExist):
+        return None, ''
 
 
 def _format_value_for_AS(field_class, field_value):
@@ -57,7 +87,7 @@ def serialize_entity(entity, mapping):
     xml = []
     xml_append = xml.append
 
-    reverse_ns   = {v: "A%s" % i for i, v in enumerate(mapping.keys())}
+    reverse_ns = {v: "A%s" % i for i, v in enumerate(mapping.keys())}
     namespaces = reverse_ns
 
     pre_serialization = CREME_AS_MAPPING[entity.__class__]['pre_serialization']

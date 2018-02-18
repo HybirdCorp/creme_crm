@@ -486,7 +486,6 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     def _build_test_get_info_fields_url(self, model):
         ct = ContentType.objects.get_for_model(model)
 
-        # return '/creme_core/entity/get_info_fields/%s/json' % ct.id
         return reverse('creme_core__entity_info_fields', args=(ct.id,))
 
     def test_get_info_fields01(self):
@@ -747,497 +746,496 @@ class _BulkEditTestCase(ViewsTestCase):
         return image
 
 
-class BulkEditTestCase(_BulkEditTestCase):
-    @classmethod
-    def setUpClass(cls):
-        super(BulkEditTestCase, cls).setUpClass()
-        cls.contact_ct = ContentType.objects.get_for_model(FakeContact)
-        cls.contact_bulk_status = bulk_update_registry.status(FakeContact)
-
-    def setUp(self):
-        super(BulkEditTestCase, self).setUp()
-        contact_status = bulk_update_registry.status(FakeContact)
-
-        self._contact_innerforms = contact_status._innerforms
-        bulk_update_registry.status(FakeContact)._innerforms = {}
-
-        self._contact_excludes = contact_status.excludes
-        bulk_update_registry.status(FakeContact).excludes = set()
-
-    def tearDown(self):
-        super(BulkEditTestCase, self).tearDown()
-        contact_status = bulk_update_registry.status(FakeContact)
-        contact_status._innerforms = self._contact_innerforms
-        contact_status.excludes = self._contact_excludes
-
-    def _build_contact_url(self, field_name, *contact_ids):
-        return reverse('creme_core__bulk_edit_field_legacy',
-                       args=(self.contact_ct.id,
-                             ','.join(str(id) for id in contact_ids),
-                             field_name,
-                            )
-                      )
-
-    def create_2_contacts_n_url(self, mario_kwargs=None, luigi_kwargs=None, field='first_name'):
-        create_contact = partial(FakeContact.objects.create, user=self.user)
-        mario = create_contact(first_name="Mario", last_name="Bros", **(mario_kwargs or {}))
-        luigi = create_contact(first_name="Luigi", last_name="Bros", **(luigi_kwargs or {}))
-
-        return mario, luigi, self._build_contact_url(field, mario.id, luigi.id)
-
-    def test_regular_field_error01(self):
-        self.login()
-
-        build_url = self._build_contact_url
-        # self.assertGET404('/creme_core/entity/bulk_update/%s/' % self.contact_ct.id)
-        self.assertGET404(build_url('first_name', 0))
-        self.assertGET404(build_url('first_name', *range(1024, 1034)))
-
-    def test_regular_field_error02(self):
-        "Neither an entity & neither related to an entity"
-        self.login()
-
-        sector = FakeSector.objects.all()[0]
-        # TODO: a 404/409 would be better ?
-        self.assertGET403(reverse('creme_core__bulk_edit_field_legacy',
-                                  args=(ContentType.objects.get_for_model(FakeSector).id,
-                                        sector.id,
-                                        'title',
-                                       )
-                                 )
-                         )
-
-    def test_regular_field01(self):
-        user = self.login()
-
-        mario = FakeContact.objects.create(user=user, first_name="Mario", last_name="Bros")
-        build_url = self._build_contact_url
-        url = build_url('first_name', mario.id)
-        response = self.assertGET200(url)
-
-        with self.assertNoException():
-            choices = response.context['form'].fields['_bulk_fieldname'].choices
-
-        self.assertIn((url, _('First name')), choices)
-        self.assertIn((build_url('user', mario.id), _('Owner user')), choices)
-
-        for k, v in choices:
-            if k == _(u'Billing address'):
-                baddr_choices = v
-                break
-        else:
-            self.fail("No 'Billing address' choice")
-
-        self.assertIn((build_url('address__city', mario.id), _('City')),
-                      baddr_choices
-                     )
-
-        first_name = 'Marioooo'
-        self.assertNoFormError(self.client.post(url, data={'field_value': first_name}))
-        self.assertEqual(first_name, self.refresh(mario).first_name)
-
-    def test_regular_field02(self):
-        self.login()
-
-        create_pos = FakePosition.objects.create
-        unemployed   = create_pos(title='unemployed')
-        plumber      = create_pos(title='plumber')
-        ghost_hunter = create_pos(title='ghost hunter')
-
-        mario, luigi, url = self.create_2_contacts_n_url(mario_kwargs={'position': plumber},
-                                                         luigi_kwargs={'position': ghost_hunter},
-                                                         field='position',
-                                                        )
-        self.assertGET200(url)
-
-        response = self.client.post(url, data={'field_value': unemployed.id})
-        self.assertNoFormError(response)
-        self.assertEqual(unemployed, self.refresh(mario).position)
-        self.assertEqual(unemployed, self.refresh(luigi).position)
-
-    def test_regular_field03(self):
-        user = self.login()
-
-        plumbing = FakeSector.objects.create(title='Plumbing')
-        games    = FakeSector.objects.create(title='Games')
-
-        create_contact = partial(FakeContact.objects.create, user=user, sector=games)
-        mario = create_contact(first_name='Mario', last_name='Bros')
-        luigi = create_contact(first_name='Luigi', last_name='Bros')
-
-        nintendo = FakeOrganisation.objects.create(user=user, name='Nintendo', sector=games)
-
-        url = self._build_contact_url('sector', mario.id, luigi.id, nintendo.id)
-        self.assertGET200(url)
-
-        response = self.client.post(url, data={'field_value': plumbing.id,})
-        self.assertNoFormError(response)
-        self.assertEqual(plumbing, self.refresh(mario).sector)
-        self.assertEqual(plumbing, self.refresh(luigi).sector)
-        self.assertEqual(games,    self.refresh(nintendo).sector)
-
-    def test_regular_field04(self):
-        self.login()
-
-        mario, luigi, url = self.create_2_contacts_n_url(field='last_name')
-        response = self.assertPOST200(url, data={'field_value': ''})
-        self.assertFormError(response, 'form', 'field_value', _(u'This field is required.'))
-
-    def test_regular_field_not_editable(self):
-        self.login()
-
-        fname = 'position'
-        bulk_update_registry.register(FakeContact, exclude=[fname])
-        self.assertFalse(bulk_update_registry.is_updatable(FakeContact, 'position'))
-
-        unemployed = FakePosition.objects.create(title='unemployed')
-        mario, luigi, url = self.create_2_contacts_n_url(field=fname)
-        self.assertPOST(400, url, data={'field_value': unemployed.id})
-
-    def test_regular_field06(self):
-        self.login()
-
-        mario, luigi, url = self.create_2_contacts_n_url(mario_kwargs={'description': "Luigi's brother"},
-                                                         luigi_kwargs={'description': "Mario's brother"},
-                                                         field='description',
-                                                        )
-        response = self.client.post(url, data={'field_value': ''})
-        self.assertNoFormError(response)
-        self.assertEqual('', self.refresh(mario).description)
-        self.assertEqual('', self.refresh(luigi).description)
-
-    def test_regular_field07(self):
-        user = self.login(is_superuser=False)
-
-        mario_desc = u"Luigi's brother"
-        create_bros = partial(FakeContact.objects.create, last_name='Bros')
-        mario = create_bros(user=self.other_user, first_name='Mario', description=mario_desc)
-        luigi = create_bros(user=user,            first_name='Luigi', description="Mario's brother")
-
-        response = self.client.post(self._build_contact_url('description', mario.id, luigi.id),
-                                    data={'field_value': ''},
-                                   )
-        self.assertNoFormError(response)
-        self.assertEqual(mario_desc, self.refresh(mario).description)
-        self.assertEqual('',         self.refresh(luigi).description)
-
-    def test_regular_field08(self):
-        self.login()
-
-        mario, luigi, url = self.create_2_contacts_n_url(field='birthday')
-        response = self.client.post(url, data={'field_value': 'bad date',})
-        self.assertFormError(response, 'form', 'field_value', _(u'Enter a valid date.'))
-
-        settings.DATE_INPUT_FORMATS += ("-%dT%mU%Y-",)  # This weird format have few chances to be present in settings
-        self.client.post(url, data={'field_value': '-31T01U2000-'})
-        birthday = date(2000, 1, 31)
-        self.assertEqual(birthday, self.refresh(mario).birthday)
-        self.assertEqual(birthday, self.refresh(luigi).birthday)
-
-    def test_regular_field09(self):
-        user = self.login(is_superuser=False)
-        other_user = self.other_user
-
-        create_bros = partial(FakeContact.objects.create, last_name='Bros')
-        mario = create_bros(user=other_user, first_name='Mario')
-        luigi = create_bros(user=user,       first_name='Luigi')
-
-        create_img = FakeImage.objects.create
-        forbidden = create_img(user=other_user, name='forbidden')
-        allowed   = create_img(user=user,       name='allowed')
-        self.assertFalse(user.has_perm_to_view(forbidden))
-        self.assertTrue(user.has_perm_to_view(allowed))
-
-        url = self._build_contact_url('image', mario.id, luigi.id)
-        response = self.assertPOST200(url, data={'field_value': forbidden.id})
-        self.assertFormError(response, 'form', 'field_value',
-                             # _(u"You can't view this value, so you can't set it.")
-                             _(u'You are not allowed to link this entity: %s') % (
-                                    _(u'Entity #%s (not viewable)') % forbidden.id,
-                                )
-                            )
-
-        self.client.post(url, data={'field_value': allowed.id,})
-        self.assertNotEqual(allowed, self.refresh(mario).image)
-        self.assertEqual(allowed,    self.refresh(luigi).image)
-
-    def test_regular_field10(self):
-        self.login()
-
-        class _InnerEditBirthday(BulkDefaultEditForm):
-            pass
-
-        bulk_update_registry.register(FakeContact, innerforms={'birthday': _InnerEditBirthday})
-
-        mario, luigi, url = self.create_2_contacts_n_url(field='birthday')
-        response = self.client.post(url, data={'field_value': '31-01-2000'})
-        self.assertNoFormError(response)
-
-        birthday = date(2000, 1, 31)
-        self.assertEqual(birthday, self.refresh(mario).birthday)
-        self.assertEqual(birthday, self.refresh(luigi).birthday)
-
-    def test_regular_field11(self):
-        """Fix a bug with the field list when bulk editing user
-        (ie: a field of the parent class CremeEntity)
-        """
-        user = self.login()
-
-        mario = FakeContact.objects.create(user=user, first_name="Mario", last_name="Bros")
-        build_url = self._build_contact_url
-        url = build_url('user', mario.id)
-        response = self.assertGET200(url)
-
-        with self.assertNoException():
-            choices = response.context['form'].fields['_bulk_fieldname'].choices
-
-        self.assertIn((url, _('Owner user')), choices)
-        self.assertIn((build_url('first_name', mario.id), _('First name')), choices)
-
-    def test_regular_field_many2many(self):
-        user = self.login()
-
-        categories = [FakeImageCategory.objects.create(name=name) for name in ('A', 'B', 'C')]
-
-        image1 = self.create_image('image1', user, categories)
-        image2 = self.create_image('image2', user, categories[:1])
-
-        self.assertListEqual(list(image1.categories.all()), categories)
-        self.assertListEqual(list(image2.categories.all()), categories[:1])
-
-        url = self.build_bulkedit_url([image1, image2], 'categories')
-        response = self.client.post(url, data={'field_value': [categories[0].pk,
-                                                               categories[2].pk,
-                                                              ],
-                                              },
-                                   )
-        self.assertNoFormError(response)
-
-        expected = [categories[0], categories[2]]
-        self.assertListEqual(list(image1.categories.all()), expected)
-        self.assertListEqual(list(image2.categories.all()), expected)
-
-    def test_regular_field_many2many_invalid(self):
-        user = self.login()
-
-        categories = [FakeImageCategory.objects.create(name=name) for name in ('A', 'B', 'C')]
-
-        image1 = self.create_image('image1', user, categories)
-        image2 = self.create_image('image2', user, categories[:1])
-
-        self.assertListEqual(list(image1.categories.all()), categories)
-        self.assertListEqual(list(image2.categories.all()), categories[:1])
-
-        url = self.build_bulkedit_url([image1, image2], 'categories')
-        invalid_pk = (FakeImageCategory.objects.aggregate(Max('id'))['id__max'] or 0) + 1
-        response = self.client.post(url, data={'field_value': [categories[0].pk, invalid_pk]})
-        self.assertFormError(response, 'form', 'field_value',
-                             _('Select a valid choice. %(value)s is not one of the available choices.') % {
-                                    'value': invalid_pk,
-                                }
-                            )
-
-        self.assertListEqual(list(image1.categories.all()), categories)
-        self.assertListEqual(list(image2.categories.all()), categories[:1])
-
-    def test_custom_field01(self):
-        self.login()
-
-        cf_int = CustomField.objects.create(name='int',
-                                            content_type=self.contact_ct,
-                                            field_type=CustomField.INT,
-                                           )
-        mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_int.id)
-
-        # Int
-        response = self.client.post(url, data={'field_value': 10})
-        self.assertNoFormError(response)
-        self.assertEqual(10, self.get_cf_values(cf_int, self.refresh(mario)).value)
-        self.assertEqual(10, self.get_cf_values(cf_int, self.refresh(luigi)).value)
-
-        # Int empty
-        response = self.client.post(url, data={'field_value': ''})
-        self.assertNoFormError(response)
-        self.assertRaises(CustomFieldInteger.DoesNotExist, self.get_cf_values, cf_int, self.refresh(mario))
-        self.assertRaises(CustomFieldInteger.DoesNotExist, self.get_cf_values, cf_int, self.refresh(luigi))
-
-    def test_custom_field02(self):
-        self.login()
-
-        cf_float = CustomField.objects.create(name='float',
-                                              content_type=self.contact_ct,
-                                              field_type=CustomField.FLOAT,
-                                             )
-        mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_float.id)
-
-        # Float
-        response = self.client.post(url, data={'field_value': '10.2'})
-        self.assertNoFormError(response)
-        self.assertEqual(Decimal("10.2"), self.get_cf_values(cf_float, self.refresh(mario)).value)
-        self.assertEqual(Decimal("10.2"), self.get_cf_values(cf_float, self.refresh(luigi)).value)
-
-        # Float empty
-        response = self.client.post(url, data={'field_value': ''})
-        self.assertNoFormError(response)
-        self.assertRaises(CustomFieldFloat.DoesNotExist, self.get_cf_values, cf_float, self.refresh(mario))
-        self.assertRaises(CustomFieldFloat.DoesNotExist, self.get_cf_values, cf_float, self.refresh(luigi))
-
-    def test_custom_field03(self):
-        self.login()
-
-        cf_bool = CustomField.objects.create(name='bool',
-                                             content_type=self.contact_ct,
-                                             field_type=CustomField.BOOL,
-                                            )
-        mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_bool.id)
-
-        # Bool
-        response = self.client.post(url, data={'field_value': True})
-        self.assertNoFormError(response)
-        self.assertEqual(True, self.get_cf_values(cf_bool, self.refresh(mario)).value)
-        self.assertEqual(True, self.get_cf_values(cf_bool, self.refresh(luigi)).value)
-
-        # Bool false
-        response = self.client.post(url, data={'field_value': False})
-        self.assertNoFormError(response)
-        self.assertEqual(False, self.get_cf_values(cf_bool, self.refresh(mario)).value)
-        self.assertEqual(False, self.get_cf_values(cf_bool, self.refresh(luigi)).value)
-
-        # Bool empty
-        response = self.client.post(url, data={'field_value': None})
-        self.assertNoFormError(response)
-        self.assertRaises(CustomFieldBoolean.DoesNotExist, self.get_cf_values, cf_bool, self.refresh(mario))
-        self.assertRaises(CustomFieldBoolean.DoesNotExist, self.get_cf_values, cf_bool, self.refresh(luigi))
-
-    def test_custom_field04(self):
-        self.login()
-
-        cf_str = CustomField.objects.create(name='str',
-                                            content_type=self.contact_ct,
-                                            field_type=CustomField.STR,
-                                           )
-        mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_str.id)
-
-        # Str
-        response = self.client.post(url, data={'field_value': 'str'})
-        self.assertNoFormError(response)
-        self.assertEqual('str', self.get_cf_values(cf_str, self.refresh(mario)).value)
-        self.assertEqual('str', self.get_cf_values(cf_str, self.refresh(luigi)).value)
-
-        # Str empty
-        response = self.client.post(url, data={'field_value': ''})
-        self.assertNoFormError(response)
-        self.assertRaises(CustomFieldString.DoesNotExist, self.get_cf_values, cf_str, self.refresh(mario))
-        self.assertRaises(CustomFieldString.DoesNotExist, self.get_cf_values, cf_str, self.refresh(luigi))
-
-    def test_custom_field05(self):
-        self.login()
-
-        get_cf_values = self.get_cf_values
-        cf_date = CustomField.objects.create(name='date',
-                                             content_type=self.contact_ct,
-                                             field_type=CustomField.DATETIME,
-                                            )
-        mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_date.id)
-
-        # This weird format have few chances to be present in settings
-        settings.DATETIME_INPUT_FORMATS += ("-%dT%mU%Y-",)
-
-        # Date
-        response = self.client.post(url, data={'field_value': '-31T01U2000-'})
-        self.assertNoFormError(response)
-
-        dt = self.create_datetime(2000, 1, 31)
-        self.assertEqual(dt, get_cf_values(cf_date, self.refresh(mario)).value)
-        self.assertEqual(dt, get_cf_values(cf_date, self.refresh(luigi)).value)
-
-        # Date empty
-        response = self.client.post(url, data={'field_value': ''})
-        self.assertNoFormError(response)
-        self.assertRaises(CustomFieldDateTime.DoesNotExist, get_cf_values, cf_date, self.refresh(mario))
-        self.assertRaises(CustomFieldDateTime.DoesNotExist, get_cf_values, cf_date, self.refresh(luigi))
-
-    def test_custom_field06(self):
-        self.login()
-        get_cf_values = self.get_cf_values
-
-        cf_enum = CustomField.objects.create(name='enum',
-                                             content_type=self.contact_ct,
-                                             field_type=CustomField.ENUM,
-                                            )
-
-        create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cf_enum)
-        enum1 = create_evalue(value=u'Enum1')
-        create_evalue(value=u'Enum2')
-
-        mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_enum.id)
-
-        # Enum
-        response = self.client.post(url, data={'field_value': enum1.id})
-        self.assertNoFormError(response)
-        self.assertEqual(enum1, get_cf_values(cf_enum, self.refresh(mario)).value)
-        self.assertEqual(enum1, get_cf_values(cf_enum, self.refresh(luigi)).value)
-
-        # Enum empty
-        response = self.client.post(url, data={'field_value': ''})
-        self.assertNoFormError(response)
-        self.assertRaises(CustomFieldEnum.DoesNotExist, get_cf_values, cf_enum, self.refresh(mario))
-        self.assertRaises(CustomFieldEnum.DoesNotExist, get_cf_values, cf_enum, self.refresh(luigi))
-
-    def test_custom_field07(self):
-        self.login()
-        get_cf_values = self.get_cf_values
-
-        cf_multi_enum = CustomField.objects.create(name='multi_enum',
-                                                   content_type=self.contact_ct,
-                                                   field_type=CustomField.MULTI_ENUM,
-                                                  )
-
-        create_cfvalue = partial(CustomFieldEnumValue.objects.create, custom_field=cf_multi_enum)
-        m_enum1 = create_cfvalue(value='MEnum1')
-        create_cfvalue(value='MEnum2')
-        m_enum3 = create_cfvalue(value='MEnum3')
-
-        mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_multi_enum.id)
-        self.assertGET200(url)
-
-        # Multi-Enum
-        self.assertNoFormError(self.client.post(url, data={'field_value': [m_enum1.id, m_enum3.id]}))
-        mario = self.refresh(mario)
-        luigi = self.refresh(luigi)
-
-        values_set = set(get_cf_values(cf_multi_enum, mario).value.values_list('pk', flat=True))
-        self.assertIn(m_enum1.id, values_set)
-        self.assertIn(m_enum3.id, values_set)
-
-        values_set = set(get_cf_values(cf_multi_enum, luigi).value.values_list('pk', flat=True))
-        self.assertIn(m_enum1.id, values_set)
-        self.assertIn(m_enum3.id, values_set)
-
-        # Multi-Enum empty
-        self.assertNoFormError(self.client.post(url, data={'field_value': []}))
-        self.assertRaises(CustomFieldMultiEnum.DoesNotExist, get_cf_values, cf_multi_enum, self.refresh(mario))
-        self.assertRaises(CustomFieldMultiEnum.DoesNotExist, get_cf_values, cf_multi_enum, self.refresh(luigi))
-
-    def test_other_field_validation_error(self):
-        user = self.login()
-        create_empty_user = partial(get_user_model().objects.create_user,
-                                    first_name='', last_name='', email='',
-                                   )
-        empty_user1 = create_empty_user(username='empty1')
-        empty_user2 = create_empty_user(username='empty2')
-
-        create_contact = partial(FakeContact.objects.create, user=user, first_name='', last_name='')
-        empty_contact1 = create_contact(is_user=empty_user1)
-        empty_contact2 = create_contact(is_user=empty_user2)
-        mario          = create_contact(first_name="Mario", last_name="Bros")
-
-        url = self.build_bulkedit_url([empty_contact1, empty_contact2, mario], 'last_name')
-        self.assertGET200(url)
-
-        response = self.client.post(url, data={'field_value': 'Bros'})
-        self.assertNoFormError(response)
-        self.assertContains(response, _('This Contact is related to a user and must have a first name.'), 2)
+# class BulkEditTestCase(_BulkEditTestCase):
+#     @classmethod
+#     def setUpClass(cls):
+#         super(BulkEditTestCase, cls).setUpClass()
+#         cls.contact_ct = ContentType.objects.get_for_model(FakeContact)
+#         cls.contact_bulk_status = bulk_update_registry.status(FakeContact)
+#
+#     def setUp(self):
+#         super(BulkEditTestCase, self).setUp()
+#         contact_status = bulk_update_registry.status(FakeContact)
+#
+#         self._contact_innerforms = contact_status._innerforms
+#         bulk_update_registry.status(FakeContact)._innerforms = {}
+#
+#         self._contact_excludes = contact_status.excludes
+#         bulk_update_registry.status(FakeContact).excludes = set()
+#
+#     def tearDown(self):
+#         super(BulkEditTestCase, self).tearDown()
+#         contact_status = bulk_update_registry.status(FakeContact)
+#         contact_status._innerforms = self._contact_innerforms
+#         contact_status.excludes = self._contact_excludes
+#
+#     def _build_contact_url(self, field_name, *contact_ids):
+#         return reverse('creme_core__bulk_edit_field_legacy',
+#                        args=(self.contact_ct.id,
+#                              ','.join(str(id) for id in contact_ids),
+#                              field_name,
+#                             )
+#                       )
+#
+#     def create_2_contacts_n_url(self, mario_kwargs=None, luigi_kwargs=None, field='first_name'):
+#         create_contact = partial(FakeContact.objects.create, user=self.user)
+#         mario = create_contact(first_name="Mario", last_name="Bros", **(mario_kwargs or {}))
+#         luigi = create_contact(first_name="Luigi", last_name="Bros", **(luigi_kwargs or {}))
+#
+#         return mario, luigi, self._build_contact_url(field, mario.id, luigi.id)
+#
+#     def test_regular_field_error01(self):
+#         self.login()
+#
+#         build_url = self._build_contact_url
+#         # self.assertGET404('/creme_core/entity/bulk_update/%s/' % self.contact_ct.id)
+#         self.assertGET404(build_url('first_name', 0))
+#         self.assertGET404(build_url('first_name', *range(1024, 1034)))
+#
+#     def test_regular_field_error02(self):
+#         "Neither an entity & neither related to an entity"
+#         self.login()
+#
+#         sector = FakeSector.objects.all()[0]
+#         # TODO: a 404/409 would be better ?
+#         self.assertGET403(reverse('creme_core__bulk_edit_field_legacy',
+#                                   args=(ContentType.objects.get_for_model(FakeSector).id,
+#                                         sector.id,
+#                                         'title',
+#                                        )
+#                                  )
+#                          )
+#
+#     def test_regular_field01(self):
+#         user = self.login()
+#
+#         mario = FakeContact.objects.create(user=user, first_name="Mario", last_name="Bros")
+#         build_url = self._build_contact_url
+#         url = build_url('first_name', mario.id)
+#         response = self.assertGET200(url)
+#
+#         with self.assertNoException():
+#             choices = response.context['form'].fields['_bulk_fieldname'].choices
+#
+#         self.assertIn((url, _('First name')), choices)
+#         self.assertIn((build_url('user', mario.id), _('Owner user')), choices)
+#
+#         for k, v in choices:
+#             if k == _(u'Billing address'):
+#                 baddr_choices = v
+#                 break
+#         else:
+#             self.fail("No 'Billing address' choice")
+#
+#         self.assertIn((build_url('address__city', mario.id), _('City')),
+#                       baddr_choices
+#                      )
+#
+#         first_name = 'Marioooo'
+#         self.assertNoFormError(self.client.post(url, data={'field_value': first_name}))
+#         self.assertEqual(first_name, self.refresh(mario).first_name)
+#
+#     def test_regular_field02(self):
+#         self.login()
+#
+#         create_pos = FakePosition.objects.create
+#         unemployed   = create_pos(title='unemployed')
+#         plumber      = create_pos(title='plumber')
+#         ghost_hunter = create_pos(title='ghost hunter')
+#
+#         mario, luigi, url = self.create_2_contacts_n_url(mario_kwargs={'position': plumber},
+#                                                          luigi_kwargs={'position': ghost_hunter},
+#                                                          field='position',
+#                                                         )
+#         self.assertGET200(url)
+#
+#         response = self.client.post(url, data={'field_value': unemployed.id})
+#         self.assertNoFormError(response)
+#         self.assertEqual(unemployed, self.refresh(mario).position)
+#         self.assertEqual(unemployed, self.refresh(luigi).position)
+#
+#     def test_regular_field03(self):
+#         user = self.login()
+#
+#         plumbing = FakeSector.objects.create(title='Plumbing')
+#         games    = FakeSector.objects.create(title='Games')
+#
+#         create_contact = partial(FakeContact.objects.create, user=user, sector=games)
+#         mario = create_contact(first_name='Mario', last_name='Bros')
+#         luigi = create_contact(first_name='Luigi', last_name='Bros')
+#
+#         nintendo = FakeOrganisation.objects.create(user=user, name='Nintendo', sector=games)
+#
+#         url = self._build_contact_url('sector', mario.id, luigi.id, nintendo.id)
+#         self.assertGET200(url)
+#
+#         response = self.client.post(url, data={'field_value': plumbing.id,})
+#         self.assertNoFormError(response)
+#         self.assertEqual(plumbing, self.refresh(mario).sector)
+#         self.assertEqual(plumbing, self.refresh(luigi).sector)
+#         self.assertEqual(games,    self.refresh(nintendo).sector)
+#
+#     def test_regular_field04(self):
+#         self.login()
+#
+#         mario, luigi, url = self.create_2_contacts_n_url(field='last_name')
+#         response = self.assertPOST200(url, data={'field_value': ''})
+#         self.assertFormError(response, 'form', 'field_value', _(u'This field is required.'))
+#
+#     def test_regular_field_not_editable(self):
+#         self.login()
+#
+#         fname = 'position'
+#         bulk_update_registry.register(FakeContact, exclude=[fname])
+#         self.assertFalse(bulk_update_registry.is_updatable(FakeContact, 'position'))
+#
+#         unemployed = FakePosition.objects.create(title='unemployed')
+#         mario, luigi, url = self.create_2_contacts_n_url(field=fname)
+#         self.assertPOST(400, url, data={'field_value': unemployed.id})
+#
+#     def test_regular_field06(self):
+#         self.login()
+#
+#         mario, luigi, url = self.create_2_contacts_n_url(mario_kwargs={'description': "Luigi's brother"},
+#                                                          luigi_kwargs={'description': "Mario's brother"},
+#                                                          field='description',
+#                                                         )
+#         response = self.client.post(url, data={'field_value': ''})
+#         self.assertNoFormError(response)
+#         self.assertEqual('', self.refresh(mario).description)
+#         self.assertEqual('', self.refresh(luigi).description)
+#
+#     def test_regular_field07(self):
+#         user = self.login(is_superuser=False)
+#
+#         mario_desc = u"Luigi's brother"
+#         create_bros = partial(FakeContact.objects.create, last_name='Bros')
+#         mario = create_bros(user=self.other_user, first_name='Mario', description=mario_desc)
+#         luigi = create_bros(user=user,            first_name='Luigi', description="Mario's brother")
+#
+#         response = self.client.post(self._build_contact_url('description', mario.id, luigi.id),
+#                                     data={'field_value': ''},
+#                                    )
+#         self.assertNoFormError(response)
+#         self.assertEqual(mario_desc, self.refresh(mario).description)
+#         self.assertEqual('',         self.refresh(luigi).description)
+#
+#     def test_regular_field08(self):
+#         self.login()
+#
+#         mario, luigi, url = self.create_2_contacts_n_url(field='birthday')
+#         response = self.client.post(url, data={'field_value': 'bad date',})
+#         self.assertFormError(response, 'form', 'field_value', _(u'Enter a valid date.'))
+#
+#         settings.DATE_INPUT_FORMATS += ("-%dT%mU%Y-",)  # This weird format have few chances to be present in settings
+#         self.client.post(url, data={'field_value': '-31T01U2000-'})
+#         birthday = date(2000, 1, 31)
+#         self.assertEqual(birthday, self.refresh(mario).birthday)
+#         self.assertEqual(birthday, self.refresh(luigi).birthday)
+#
+#     def test_regular_field09(self):
+#         user = self.login(is_superuser=False)
+#         other_user = self.other_user
+#
+#         create_bros = partial(FakeContact.objects.create, last_name='Bros')
+#         mario = create_bros(user=other_user, first_name='Mario')
+#         luigi = create_bros(user=user,       first_name='Luigi')
+#
+#         create_img = FakeImage.objects.create
+#         forbidden = create_img(user=other_user, name='forbidden')
+#         allowed   = create_img(user=user,       name='allowed')
+#         self.assertFalse(user.has_perm_to_view(forbidden))
+#         self.assertTrue(user.has_perm_to_view(allowed))
+#
+#         url = self._build_contact_url('image', mario.id, luigi.id)
+#         response = self.assertPOST200(url, data={'field_value': forbidden.id})
+#         self.assertFormError(response, 'form', 'field_value',
+#                              _(u'You are not allowed to link this entity: %s') % (
+#                                     _(u'Entity #%s (not viewable)') % forbidden.id,
+#                                 )
+#                             )
+#
+#         self.client.post(url, data={'field_value': allowed.id,})
+#         self.assertNotEqual(allowed, self.refresh(mario).image)
+#         self.assertEqual(allowed,    self.refresh(luigi).image)
+#
+#     def test_regular_field10(self):
+#         self.login()
+#
+#         class _InnerEditBirthday(BulkDefaultEditForm):
+#             pass
+#
+#         bulk_update_registry.register(FakeContact, innerforms={'birthday': _InnerEditBirthday})
+#
+#         mario, luigi, url = self.create_2_contacts_n_url(field='birthday')
+#         response = self.client.post(url, data={'field_value': '31-01-2000'})
+#         self.assertNoFormError(response)
+#
+#         birthday = date(2000, 1, 31)
+#         self.assertEqual(birthday, self.refresh(mario).birthday)
+#         self.assertEqual(birthday, self.refresh(luigi).birthday)
+#
+#     def test_regular_field11(self):
+#         """Fix a bug with the field list when bulk editing user
+#         (ie: a field of the parent class CremeEntity)
+#         """
+#         user = self.login()
+#
+#         mario = FakeContact.objects.create(user=user, first_name="Mario", last_name="Bros")
+#         build_url = self._build_contact_url
+#         url = build_url('user', mario.id)
+#         response = self.assertGET200(url)
+#
+#         with self.assertNoException():
+#             choices = response.context['form'].fields['_bulk_fieldname'].choices
+#
+#         self.assertIn((url, _('Owner user')), choices)
+#         self.assertIn((build_url('first_name', mario.id), _('First name')), choices)
+#
+#     def test_regular_field_many2many(self):
+#         user = self.login()
+#
+#         categories = [FakeImageCategory.objects.create(name=name) for name in ('A', 'B', 'C')]
+#
+#         image1 = self.create_image('image1', user, categories)
+#         image2 = self.create_image('image2', user, categories[:1])
+#
+#         self.assertListEqual(list(image1.categories.all()), categories)
+#         self.assertListEqual(list(image2.categories.all()), categories[:1])
+#
+#         url = self.build_bulkedit_url([image1, image2], 'categories')
+#         response = self.client.post(url, data={'field_value': [categories[0].pk,
+#                                                                categories[2].pk,
+#                                                               ],
+#                                               },
+#                                    )
+#         self.assertNoFormError(response)
+#
+#         expected = [categories[0], categories[2]]
+#         self.assertListEqual(list(image1.categories.all()), expected)
+#         self.assertListEqual(list(image2.categories.all()), expected)
+#
+#     def test_regular_field_many2many_invalid(self):
+#         user = self.login()
+#
+#         categories = [FakeImageCategory.objects.create(name=name) for name in ('A', 'B', 'C')]
+#
+#         image1 = self.create_image('image1', user, categories)
+#         image2 = self.create_image('image2', user, categories[:1])
+#
+#         self.assertListEqual(list(image1.categories.all()), categories)
+#         self.assertListEqual(list(image2.categories.all()), categories[:1])
+#
+#         url = self.build_bulkedit_url([image1, image2], 'categories')
+#         invalid_pk = (FakeImageCategory.objects.aggregate(Max('id'))['id__max'] or 0) + 1
+#         response = self.client.post(url, data={'field_value': [categories[0].pk, invalid_pk]})
+#         self.assertFormError(response, 'form', 'field_value',
+#                              _('Select a valid choice. %(value)s is not one of the available choices.') % {
+#                                     'value': invalid_pk,
+#                                 }
+#                             )
+#
+#         self.assertListEqual(list(image1.categories.all()), categories)
+#         self.assertListEqual(list(image2.categories.all()), categories[:1])
+#
+#     def test_custom_field01(self):
+#         self.login()
+#
+#         cf_int = CustomField.objects.create(name='int',
+#                                             content_type=self.contact_ct,
+#                                             field_type=CustomField.INT,
+#                                            )
+#         mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_int.id)
+#
+#         # Int
+#         response = self.client.post(url, data={'field_value': 10})
+#         self.assertNoFormError(response)
+#         self.assertEqual(10, self.get_cf_values(cf_int, self.refresh(mario)).value)
+#         self.assertEqual(10, self.get_cf_values(cf_int, self.refresh(luigi)).value)
+#
+#         # Int empty
+#         response = self.client.post(url, data={'field_value': ''})
+#         self.assertNoFormError(response)
+#         self.assertRaises(CustomFieldInteger.DoesNotExist, self.get_cf_values, cf_int, self.refresh(mario))
+#         self.assertRaises(CustomFieldInteger.DoesNotExist, self.get_cf_values, cf_int, self.refresh(luigi))
+#
+#     def test_custom_field02(self):
+#         self.login()
+#
+#         cf_float = CustomField.objects.create(name='float',
+#                                               content_type=self.contact_ct,
+#                                               field_type=CustomField.FLOAT,
+#                                              )
+#         mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_float.id)
+#
+#         # Float
+#         response = self.client.post(url, data={'field_value': '10.2'})
+#         self.assertNoFormError(response)
+#         self.assertEqual(Decimal("10.2"), self.get_cf_values(cf_float, self.refresh(mario)).value)
+#         self.assertEqual(Decimal("10.2"), self.get_cf_values(cf_float, self.refresh(luigi)).value)
+#
+#         # Float empty
+#         response = self.client.post(url, data={'field_value': ''})
+#         self.assertNoFormError(response)
+#         self.assertRaises(CustomFieldFloat.DoesNotExist, self.get_cf_values, cf_float, self.refresh(mario))
+#         self.assertRaises(CustomFieldFloat.DoesNotExist, self.get_cf_values, cf_float, self.refresh(luigi))
+#
+#     def test_custom_field03(self):
+#         self.login()
+#
+#         cf_bool = CustomField.objects.create(name='bool',
+#                                              content_type=self.contact_ct,
+#                                              field_type=CustomField.BOOL,
+#                                             )
+#         mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_bool.id)
+#
+#         # Bool
+#         response = self.client.post(url, data={'field_value': True})
+#         self.assertNoFormError(response)
+#         self.assertEqual(True, self.get_cf_values(cf_bool, self.refresh(mario)).value)
+#         self.assertEqual(True, self.get_cf_values(cf_bool, self.refresh(luigi)).value)
+#
+#         # Bool false
+#         response = self.client.post(url, data={'field_value': False})
+#         self.assertNoFormError(response)
+#         self.assertEqual(False, self.get_cf_values(cf_bool, self.refresh(mario)).value)
+#         self.assertEqual(False, self.get_cf_values(cf_bool, self.refresh(luigi)).value)
+#
+#         # Bool empty
+#         response = self.client.post(url, data={'field_value': None})
+#         self.assertNoFormError(response)
+#         self.assertRaises(CustomFieldBoolean.DoesNotExist, self.get_cf_values, cf_bool, self.refresh(mario))
+#         self.assertRaises(CustomFieldBoolean.DoesNotExist, self.get_cf_values, cf_bool, self.refresh(luigi))
+#
+#     def test_custom_field04(self):
+#         self.login()
+#
+#         cf_str = CustomField.objects.create(name='str',
+#                                             content_type=self.contact_ct,
+#                                             field_type=CustomField.STR,
+#                                            )
+#         mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_str.id)
+#
+#         # Str
+#         response = self.client.post(url, data={'field_value': 'str'})
+#         self.assertNoFormError(response)
+#         self.assertEqual('str', self.get_cf_values(cf_str, self.refresh(mario)).value)
+#         self.assertEqual('str', self.get_cf_values(cf_str, self.refresh(luigi)).value)
+#
+#         # Str empty
+#         response = self.client.post(url, data={'field_value': ''})
+#         self.assertNoFormError(response)
+#         self.assertRaises(CustomFieldString.DoesNotExist, self.get_cf_values, cf_str, self.refresh(mario))
+#         self.assertRaises(CustomFieldString.DoesNotExist, self.get_cf_values, cf_str, self.refresh(luigi))
+#
+#     def test_custom_field05(self):
+#         self.login()
+#
+#         get_cf_values = self.get_cf_values
+#         cf_date = CustomField.objects.create(name='date',
+#                                              content_type=self.contact_ct,
+#                                              field_type=CustomField.DATETIME,
+#                                             )
+#         mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_date.id)
+#
+#         # This weird format have few chances to be present in settings
+#         settings.DATETIME_INPUT_FORMATS += ("-%dT%mU%Y-",)
+#
+#         # Date
+#         response = self.client.post(url, data={'field_value': '-31T01U2000-'})
+#         self.assertNoFormError(response)
+#
+#         dt = self.create_datetime(2000, 1, 31)
+#         self.assertEqual(dt, get_cf_values(cf_date, self.refresh(mario)).value)
+#         self.assertEqual(dt, get_cf_values(cf_date, self.refresh(luigi)).value)
+#
+#         # Date empty
+#         response = self.client.post(url, data={'field_value': ''})
+#         self.assertNoFormError(response)
+#         self.assertRaises(CustomFieldDateTime.DoesNotExist, get_cf_values, cf_date, self.refresh(mario))
+#         self.assertRaises(CustomFieldDateTime.DoesNotExist, get_cf_values, cf_date, self.refresh(luigi))
+#
+#     def test_custom_field06(self):
+#         self.login()
+#         get_cf_values = self.get_cf_values
+#
+#         cf_enum = CustomField.objects.create(name='enum',
+#                                              content_type=self.contact_ct,
+#                                              field_type=CustomField.ENUM,
+#                                             )
+#
+#         create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cf_enum)
+#         enum1 = create_evalue(value=u'Enum1')
+#         create_evalue(value=u'Enum2')
+#
+#         mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_enum.id)
+#
+#         # Enum
+#         response = self.client.post(url, data={'field_value': enum1.id})
+#         self.assertNoFormError(response)
+#         self.assertEqual(enum1, get_cf_values(cf_enum, self.refresh(mario)).value)
+#         self.assertEqual(enum1, get_cf_values(cf_enum, self.refresh(luigi)).value)
+#
+#         # Enum empty
+#         response = self.client.post(url, data={'field_value': ''})
+#         self.assertNoFormError(response)
+#         self.assertRaises(CustomFieldEnum.DoesNotExist, get_cf_values, cf_enum, self.refresh(mario))
+#         self.assertRaises(CustomFieldEnum.DoesNotExist, get_cf_values, cf_enum, self.refresh(luigi))
+#
+#     def test_custom_field07(self):
+#         self.login()
+#         get_cf_values = self.get_cf_values
+#
+#         cf_multi_enum = CustomField.objects.create(name='multi_enum',
+#                                                    content_type=self.contact_ct,
+#                                                    field_type=CustomField.MULTI_ENUM,
+#                                                   )
+#
+#         create_cfvalue = partial(CustomFieldEnumValue.objects.create, custom_field=cf_multi_enum)
+#         m_enum1 = create_cfvalue(value='MEnum1')
+#         create_cfvalue(value='MEnum2')
+#         m_enum3 = create_cfvalue(value='MEnum3')
+#
+#         mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_multi_enum.id)
+#         self.assertGET200(url)
+#
+#         # Multi-Enum
+#         self.assertNoFormError(self.client.post(url, data={'field_value': [m_enum1.id, m_enum3.id]}))
+#         mario = self.refresh(mario)
+#         luigi = self.refresh(luigi)
+#
+#         values_set = set(get_cf_values(cf_multi_enum, mario).value.values_list('pk', flat=True))
+#         self.assertIn(m_enum1.id, values_set)
+#         self.assertIn(m_enum3.id, values_set)
+#
+#         values_set = set(get_cf_values(cf_multi_enum, luigi).value.values_list('pk', flat=True))
+#         self.assertIn(m_enum1.id, values_set)
+#         self.assertIn(m_enum3.id, values_set)
+#
+#         # Multi-Enum empty
+#         self.assertNoFormError(self.client.post(url, data={'field_value': []}))
+#         self.assertRaises(CustomFieldMultiEnum.DoesNotExist, get_cf_values, cf_multi_enum, self.refresh(mario))
+#         self.assertRaises(CustomFieldMultiEnum.DoesNotExist, get_cf_values, cf_multi_enum, self.refresh(luigi))
+#
+#     def test_other_field_validation_error(self):
+#         user = self.login()
+#         create_empty_user = partial(get_user_model().objects.create_user,
+#                                     first_name='', last_name='', email='',
+#                                    )
+#         empty_user1 = create_empty_user(username='empty1')
+#         empty_user2 = create_empty_user(username='empty2')
+#
+#         create_contact = partial(FakeContact.objects.create, user=user, first_name='', last_name='')
+#         empty_contact1 = create_contact(is_user=empty_user1)
+#         empty_contact2 = create_contact(is_user=empty_user2)
+#         mario          = create_contact(first_name="Mario", last_name="Bros")
+#
+#         url = self.build_bulkedit_url([empty_contact1, empty_contact2, mario], 'last_name')
+#         self.assertGET200(url)
+#
+#         response = self.client.post(url, data={'field_value': 'Bros'})
+#         self.assertNoFormError(response)
+#         self.assertContains(response, _('This Contact is related to a user and must have a first name.'), 2)
 
 
 class BulkUpdateTestCase(_BulkEditTestCase):
@@ -2040,7 +2038,7 @@ class InnerEditTestCase(_BulkEditTestCase):
                                                          )
         empty_contact = FakeContact.objects.create(user=user, first_name="",
                                                    last_name="", is_user=empty_user,
-                                                   )
+                                                  )
 
         url = self.build_inneredit_url(empty_contact, 'last_name')
         self.assertGET200(url)

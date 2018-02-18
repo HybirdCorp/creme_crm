@@ -7,8 +7,7 @@ from django.conf import settings
 
 DEFAULT_VAT = Decimal(getattr(settings, 'DEFAULT_VAT', '20.0'))  # TODO: depends on country...
 
-# DEPRECATED
-PROP_IS_MANAGED_BY_CREME = 'creme_core-is_managed_by_creme'
+# PROP_IS_MANAGED_BY_CREME = 'creme_core-is_managed_by_creme'
 
 REL_SUB_HAS = 'creme_core-subject_has'
 REL_OBJ_HAS = 'creme_core-object_has'
@@ -21,11 +20,10 @@ DISPLAY_CURRENCY_LOCAL_SYMBOL = 'creme_core-display_currency_local_symbol'
 
 MODELBLOCK_ID = 'modelblock'
 
-# DEPRECATED
-ICON_SIZE_MAP = {
-        'big':    64,
-        'normal': 48,
-        'medium': 32,
-        'small':  22,
-        'tiny':   16,
-    }
+# ICON_SIZE_MAP = {
+#         'big':    64,
+#         'normal': 48,
+#         'medium': 32,
+#         'small':  22,
+#         'tiny':   16,
+#     }

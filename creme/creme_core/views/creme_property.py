@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
@@ -291,37 +291,37 @@ def type_detailview(request, ptype_id):
                  )
 
 
-@login_required
-@jsonify
-def reload_block(request, ptype_id, block_id):
-    warnings.warn("The view /creme_core/property/type/{{pt_id}}/reload_block/{{block_id}} is now deprecated."
-                  "Use /creme_core/property/type/{{pt_id}}/reload_bricks/ view instead"
-                  "[ie: reverse('creme_core__reload_ptype_bricks', args=(ptype.id,)) ].",
-                  DeprecationWarning
-                 )
-    from .blocks import build_context, _get_depblock_ids
-
-    ptype = get_object_or_404(CremePropertyType, id=ptype_id)
-    block_renders = []
-    ctypes = ptype.subject_ctypes.all()
-
-    context = build_context(request, object=ptype)
-
-    for b_id in _get_depblock_ids(request, block_id):
-        if b_id == PropertyTypeInfoBrick.id_:
-            block = PropertyTypeInfoBrick(ptype, ctypes)
-        elif b_id == TaggedMiscEntitiesBrick.id_:
-            block = TaggedMiscEntitiesBrick(ptype, ctypes)
-        else:
-            ctype = TaggedEntitiesBrick.parse_block_id(b_id)
-            if ctype is None:
-                raise Http404('Invalid block id "%s"' % b_id)
-
-            block = TaggedEntitiesBrick(ptype, ctype)
-
-        block_renders.append((block.id_, block.detailview_display(context)))
-
-    return block_renders
+# @login_required
+# @jsonify
+# def reload_block(request, ptype_id, block_id):
+#     warnings.warn("The view /creme_core/property/type/{{pt_id}}/reload_block/{{block_id}} is now deprecated."
+#                   "Use /creme_core/property/type/{{pt_id}}/reload_bricks/ view instead"
+#                   "[ie: reverse('creme_core__reload_ptype_bricks', args=(ptype.id,)) ].",
+#                   DeprecationWarning
+#                  )
+#     from .blocks import build_context, _get_depblock_ids
+#
+#     ptype = get_object_or_404(CremePropertyType, id=ptype_id)
+#     block_renders = []
+#     ctypes = ptype.subject_ctypes.all()
+#
+#     context = build_context(request, object=ptype)
+#
+#     for b_id in _get_depblock_ids(request, block_id):
+#         if b_id == PropertyTypeInfoBrick.id_:
+#             block = PropertyTypeInfoBrick(ptype, ctypes)
+#         elif b_id == TaggedMiscEntitiesBrick.id_:
+#             block = TaggedMiscEntitiesBrick(ptype, ctypes)
+#         else:
+#             ctype = TaggedEntitiesBrick.parse_block_id(b_id)
+#             if ctype is None:
+#                 raise Http404('Invalid block id "%s"' % b_id)
+#
+#             block = TaggedEntitiesBrick(ptype, ctype)
+#
+#         block_renders.append((block.id_, block.detailview_display(context)))
+#
+#     return block_renders
 
 
 @login_required

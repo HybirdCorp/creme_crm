@@ -310,30 +310,27 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self._search('john', ContentType.objects.get_for_model(ContentType).id)
         self.assertEqual(404, response.status_code)
 
-    def test_reload_block(self):
-        self.login()
-        self._setup_contacts()
-
-        # url_fmt = '/creme_core/search/reload_block/%s/%s'
-        block_id = self.CONTACT_BLOCKID + '-32132154'
-        # self.assertGET404(url_fmt % (block_id, 'da'))
-        self.assertGET404(reverse('creme_core__reload_search_block', args=(block_id, 'da')))
-
-        # response = self.assertGET200(url_fmt % (block_id, 'linu'))
-        response = self.assertGET200(reverse('creme_core__reload_search_block', args=(block_id, 'linu')))
-
-        with self.assertNoException():
-            results = json_load(response.content)
-
-        self.assertIsInstance(results, list)
-        self.assertEqual(1, len(results))
-
-        result = results[0]
-        self.assertIsInstance(result, list)
-        self.assertEqual(2, len(result))
-
-        self.assertEqual(block_id, result[0])
-        self.assertIn(' id="%s"' % block_id, result[1])
+    # def test_reload_block(self):
+    #     self.login()
+    #     self._setup_contacts()
+    #
+    #     block_id = self.CONTACT_BLOCKID + '-32132154'
+    #     self.assertGET404(reverse('creme_core__reload_search_block', args=(block_id, 'da')))
+    #
+    #     response = self.assertGET200(reverse('creme_core__reload_search_block', args=(block_id, 'linu')))
+    #
+    #     with self.assertNoException():
+    #         results = json_load(response.content)
+    #
+    #     self.assertIsInstance(results, list)
+    #     self.assertEqual(1, len(results))
+    #
+    #     result = results[0]
+    #     self.assertIsInstance(result, list)
+    #     self.assertEqual(2, len(result))
+    #
+    #     self.assertEqual(block_id, result[0])
+    #     self.assertIn(' id="%s"' % block_id, result[1])
 
     def test_reload_brick(self):
         self.login()

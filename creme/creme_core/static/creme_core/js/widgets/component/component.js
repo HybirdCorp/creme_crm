@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Creme is a free/open-source Customer Relationship Management software
- * Copyright (C) 2009-2017 Hybird
+ * Copyright (C) 2009-2018 Hybird
  * 
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -49,27 +49,27 @@ creme.component.extend = function(Parent, content) {
     return constructor;
 };
 
-creme.component.is = function(constructor, Parent) {
-    console.warn('Deprecated. use Object.isSubClassOf instead');
-
-    if (!(constructor instanceof Object)) {
-        return false;
-    }
-
-    if (!Object.isFunc(constructor)) {
-        constructor = Object.getPrototypeOf(constructor);
-    }
-
-    if (Parent === Object || constructor === Parent) {
-        return true;
-    }
-
-    if (constructor.prototype === undefined) {
-        return false;
-    }
-
-    return (constructor.__super__ !== undefined) && creme.component.is(constructor.__super__.constructor, Parent);
-};
+//creme.component.is = function(constructor, Parent) {
+//    console.warn('Deprecated. use Object.isSubClassOf instead');
+//
+//    if (!(constructor instanceof Object)) {
+//        return false;
+//    }
+//
+//    if (!Object.isFunc(constructor)) {
+//        constructor = Object.getPrototypeOf(constructor);
+//    }
+//
+//    if (Parent === Object || constructor === Parent) {
+//        return true;
+//    }
+//
+//    if (constructor.prototype === undefined) {
+//        return false;
+//    }
+//
+//    return (constructor.__super__ !== undefined) && creme.component.is(constructor.__super__.constructor, Parent);
+//};
 
 creme.component.Component = creme.component.extend(Object, {
     _init_: function() {},

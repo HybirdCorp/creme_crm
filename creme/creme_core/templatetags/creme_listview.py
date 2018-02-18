@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 
 from django.conf import settings
 from django.db.models import ForeignKey, ManyToManyField, BooleanField, DateField
@@ -229,18 +229,18 @@ def get_listview_columns_header(context):
 # ------------------------------------------------------------------------------
 
 
-@register.simple_tag
-def get_listview_cell(cell, entity, user):
-    warnings.warn('{% get_listview_cell %} is deprecated ; use {% render_cell %} (from lib creme_cells) instead.',
-                  DeprecationWarning
-                 )
-
-    try:
-        return cell.render_html(entity, user)
-    except Exception as e:
-        logger.critical('Templatetag "get_listview_cell": %s', e)
-
-    return u''
+# @register.simple_tag
+# def get_listview_cell(cell, entity, user):
+#     warnings.warn('{% get_listview_cell %} is deprecated ; use {% render_cell %} (from lib creme_cells) instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     try:
+#         return cell.render_html(entity, user)
+#     except Exception as e:
+#         logger.critical('Templatetag "get_listview_cell": %s', e)
+#
+#     return u''
 
 
 # TODO: move to lib (creme_ctype)

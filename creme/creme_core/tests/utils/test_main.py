@@ -712,17 +712,30 @@ class TemplateURLBuilderTestCase(CremeTestCase):
                         )
 
     def test_two_place_holders02(self):
-        "2 int place holders"
-        vname = 'creme_core__merge_entities'
+        # "2 int place holders"
+        "2 int & 1 word place holders"
+        # vname = 'creme_core__merge_entities'
+        vname = 'creme_core__inner_edition'
 
         placeholder1 = '123456'; final_value1 = '${id1}'
         placeholder2 = '789456'; final_value2 = '${id2}'
+        placeholder3 = 'fobbar'; final_value3 = '${fname}'
 
-        tub = TemplateURLBuilder(entity1_id=(TemplateURLBuilder.Int, final_value1),
-                                 entity2_id=(TemplateURLBuilder.Int, final_value2),
+        # tub = TemplateURLBuilder(entity1_id=(TemplateURLBuilder.Int, final_value1),
+        #                          entity2_id=(TemplateURLBuilder.Int, final_value2),
+        #                         )
+        tub = TemplateURLBuilder(ct_id=(TemplateURLBuilder.Int, final_value1),
+                                 id=(TemplateURLBuilder.Int, final_value2),
+                                 field_name=(TemplateURLBuilder.Word, final_value3),
                                 )
 
-        self.assertEqual(reverse(vname, args=(placeholder1, placeholder2)).replace(placeholder1, final_value1)
-                                                                          .replace(placeholder2, final_value2),
+        # self.assertEqual(reverse(vname, args=(placeholder1, placeholder2)).replace(placeholder1, final_value1)
+        #                                                                   .replace(placeholder2, final_value2),
+        #                  tub.resolve(vname)
+        #                 )
+        self.assertEqual(reverse(vname, args=(placeholder1, placeholder2, placeholder3))
+                                .replace(placeholder1, final_value1)
+                                .replace(placeholder2, final_value2)
+                                .replace(placeholder3, final_value3),
                          tub.resolve(vname)
                         )

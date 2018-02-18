@@ -73,13 +73,13 @@ class SettingValue(Model):
 
         return self.key.value_as_html(value) if value is not None else ''
 
-    @staticmethod
-    def create_if_needed(key, user, value):
-        warnings.warn("SettingValue.create_if_needed() is deprecated ; "
-                      "use SettingValue.objects.get_or_create() instead.",
-                      DeprecationWarning
-                     )
-
-        return SettingValue.objects.get_or_create(key_id=key.id, user=user,
-                                                  defaults={'value': value},
-                                                 )[0]
+    # @staticmethod
+    # def create_if_needed(key, user, value):
+    #     warnings.warn("SettingValue.create_if_needed() is deprecated ; "
+    #                   "use SettingValue.objects.get_or_create() instead.",
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     return SettingValue.objects.get_or_create(key_id=key.id, user=user,
+    #                                               defaults={'value': value},
+    #                                              )[0]

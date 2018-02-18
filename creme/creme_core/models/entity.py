@@ -23,7 +23,7 @@ import logging
 import uuid
 import warnings
 
-from django.db.models import ForeignKey, Q
+from django.db.models import Q  # ForeignKey
 from django.core.urlresolvers import reverse
 from django.forms.utils import flatatt
 from django.db.models import UUIDField
@@ -325,37 +325,37 @@ class CremeEntity(CremeAbstractEntity):
             logger.debug(u'Fill properties cache entity_id=%s', entity_id)
             entity._properties = properties_map[entity_id]
 
-    @staticmethod
-    def populate_fk_fields(entities, field_names):
-        """@param entities: Sequence of CremeEntity (iterated several times -> not an iterator)
-                            with the _same_ ContentType.
-        """
-        warnings.warn('CremeEntity.populate_fk_fields() method is deprecated ; '
-                      'use creme_core.utils.db.populate_related() instead.',
-                      DeprecationWarning
-                     )
-
-        if not entities:
-            return
-
-        get_field = entities[0]._meta.get_field
-
-        for fname in field_names:
-            field = get_field(fname)
-
-            if isinstance(field, ForeignKey):
-                ids = set()
-                for entity in entities:
-                    attr_id = getattr(entity, fname + '_id')
-                    if attr_id:
-                        ids.add(attr_id)
-
-                attr_values = {o.id: o for o in field.rel.to.objects.filter(pk__in=ids)}
-
-                for entity in entities:
-                    attr_id = getattr(entity, fname + '_id')
-                    if attr_id:
-                        setattr(entity, fname, attr_values[attr_id])
+    # @staticmethod
+    # def populate_fk_fields(entities, field_names):
+    #     """@param entities: Sequence of CremeEntity (iterated several times -> not an iterator)
+    #                         with the _same_ ContentType.
+    #     """
+    #     warnings.warn('CremeEntity.populate_fk_fields() method is deprecated ; '
+    #                   'use creme_core.utils.db.populate_related() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     if not entities:
+    #         return
+    #
+    #     get_field = entities[0]._meta.get_field
+    #
+    #     for fname in field_names:
+    #         field = get_field(fname)
+    #
+    #         if isinstance(field, ForeignKey):
+    #             ids = set()
+    #             for entity in entities:
+    #                 attr_id = getattr(entity, fname + '_id')
+    #                 if attr_id:
+    #                     ids.add(attr_id)
+    #
+    #             attr_values = {o.id: o for o in field.rel.to.objects.filter(pk__in=ids)}
+    #
+    #             for entity in entities:
+    #                 attr_id = getattr(entity, fname + '_id')
+    #                 if attr_id:
+    #                     setattr(entity, fname, attr_values[attr_id])
 
     def save(self, *args, **kwargs):
         self.header_filter_search_field = self._search_field_value()[:_SEARCH_FIELD_MAX_LENGTH]

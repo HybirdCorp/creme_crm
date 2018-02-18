@@ -21,7 +21,7 @@ except Exception as e:
 class RelationViewsTestCase(ViewsTestCase):
     DELETE_ALL_URL    = reverse('creme_core__delete_all_relations')
     ADD_FROM_PRED_URL = reverse('creme_core__save_relations')
-    SELECTION_URL     =  reverse('creme_core__select_entities_to_link')
+    SELECTION_URL     = reverse('creme_core__select_entities_to_link')
 
     format_str    = '[{"rtype": "%s", "ctype": "%s", "entity": "%s"}]'
     format_str_2x = '[{"rtype": "%s", "ctype": "%s", "entity": "%s"},' \
@@ -124,7 +124,6 @@ class RelationViewsTestCase(ViewsTestCase):
                        )
 
     def _build_add_url(self, subject):
-        # return '/creme_core/relation/add/%s' % subject.id
         return reverse('creme_core__create_relations', args=(subject.id,))
 
     def count_relations(self, rtype):
@@ -438,7 +437,6 @@ class RelationViewsTestCase(ViewsTestCase):
                             relation_type=self.rtype02, object_entity=self.object02,
                            )
 
-        # response = self.assertGET200('/creme_core/relation/add/%s' % self.subject01.id)
         response = self.assertGET200(self._build_add_url(self.subject01))
 
         with self.assertNoException():
@@ -491,7 +489,6 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(1, subject.relations.count())
 
     def _build_narrowed_add_url(self, subject, rtype):
-        # return '/creme_core/relation/add/%s/%s' % (subject.id, rtype.id)
         return reverse('creme_core__create_relations', args=(subject.id, rtype.id))
 
     def test_add_relations_narrowedtype01(self):
@@ -674,7 +671,6 @@ class RelationViewsTestCase(ViewsTestCase):
         ct_id = self.ct_id
         subject01 = self.subject01
         subject02 = self.subject02
-        # response = self.client.post(self._build_bulk_add_url(ct_id, subject01, subject02),
         response = self.client.post(self._build_bulk_add_url(ct_id),
                                     data={'entities_lbl': 'wtf',
                                           'relations':    self.format_str_2x % (
@@ -690,7 +686,6 @@ class RelationViewsTestCase(ViewsTestCase):
                                   }
                             )
 
-    # def test_add_relations_bulk_with_semifixed01(self):
     def test_add_relations_bulk06(self):
         "With SemiFixedRelationType"
         self._aux_test_add_relations()
@@ -766,67 +761,67 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEntiTyHasRelation(self.subject02, self.rtype01, self.object01)
         self.assertEntiTyHasRelation(self.subject02, self.rtype02, self.object02)
 
-    def test_add_relations_bulk_legacy01(self):  # TODO: delete in 1.8
-        self._aux_test_add_relations()
+    # def test_add_relations_bulk_legacy01(self):
+    #     self._aux_test_add_relations()
+    #
+    #     # This relation should not be recreated by the view
+    #     Relation.objects.create(user=self.user,
+    #                             subject_entity=self.subject02,
+    #                             type=self.rtype02,
+    #                             object_entity=self.object02
+    #                            )
+    #
+    #     url = reverse('creme_core__create_relations_bulk',
+    #                   args=(self.ct_id, '%s,%s,' % (self.rtype01.id, self.rtype02.id)),
+    #                  ) + '?ids=%s&ids=%s&persist=ids' % (self.subject01.id, self.subject02.id)
+    #     response = self.assertGET200(url)
+    #
+    #     with self.assertNoException():
+    #         allowed_rtypes = response.context['form'].fields['relations'].allowed_rtypes
+    #
+    #     self.assertEqual({self.rtype01, self.rtype02}, set(allowed_rtypes))
+    #
+    #     ct_id = self.ct_id
+    #     response = self.client.post(url, data={'entities_lbl': 'wtf',
+    #                                            'relations':    self.format_str_2x % (
+    #                                                                 self.rtype01.id, ct_id, self.object01.id,
+    #                                                                 self.rtype02.id, ct_id, self.object02.id,
+    #                                                                ),
+    #                                            'ids': [self.subject01.id, self.subject02.id],
+    #                                           })
+    #     self.assertNoFormError(response)
+    #
+    #     self.assertEqual(2, self.subject01.relations.count())
+    #     self.assertEntiTyHasRelation(self.subject01, self.rtype01, self.object01)
+    #     self.assertEntiTyHasRelation(self.subject01, self.rtype02, self.object02)
+    #
+    #     self.assertEqual(2, self.subject02.relations.count())  # Not 3
+    #     self.assertEntiTyHasRelation(self.subject02, self.rtype01, self.object01)
+    #     self.assertEntiTyHasRelation(self.subject02, self.rtype02, self.object02)
 
-        # This relation should not be recreated by the view
-        Relation.objects.create(user=self.user,
-                                subject_entity=self.subject02,
-                                type=self.rtype02,
-                                object_entity=self.object02
-                               )
-
-        url = reverse('creme_core__create_relations_bulk',
-                      args=(self.ct_id, '%s,%s,' % (self.rtype01.id, self.rtype02.id)),
-                     ) + '?ids=%s&ids=%s&persist=ids' % (self.subject01.id, self.subject02.id)
-        response = self.assertGET200(url)
-
-        with self.assertNoException():
-            allowed_rtypes = response.context['form'].fields['relations'].allowed_rtypes
-
-        self.assertEqual({self.rtype01, self.rtype02}, set(allowed_rtypes))
-
-        ct_id = self.ct_id
-        response = self.client.post(url, data={'entities_lbl': 'wtf',
-                                               'relations':    self.format_str_2x % (
-                                                                    self.rtype01.id, ct_id, self.object01.id,
-                                                                    self.rtype02.id, ct_id, self.object02.id,
-                                                                   ),
-                                               'ids': [self.subject01.id, self.subject02.id],
-                                              })
-        self.assertNoFormError(response)
-
-        self.assertEqual(2, self.subject01.relations.count())
-        self.assertEntiTyHasRelation(self.subject01, self.rtype01, self.object01)
-        self.assertEntiTyHasRelation(self.subject01, self.rtype02, self.object02)
-
-        self.assertEqual(2, self.subject02.relations.count())  # Not 3
-        self.assertEntiTyHasRelation(self.subject02, self.rtype01, self.object01)
-        self.assertEntiTyHasRelation(self.subject02, self.rtype02, self.object02)
-
-    # XXX: the relation types given in GET request are only to make the GUI simpler,
-    #      & could not be used at validation => remove this test if this behavior is removed.
-    def test_add_relations_bulk_legacy02(self):  # TODO: remove in 1.8
-        self._aux_test_add_relations()
-
-        url = reverse('creme_core__create_relations_bulk',
-                      args=(self.ct_id, self.rtype01.id),
-                     ) + '?persist=ids&ids=%s&ids=%s' % (self.subject01.id, self.subject02.id)
-
-        self.assertGET200(url)
-
-        ct_id = self.ct_id
-        response = self.assertPOST200(url, data={'entities_lbl': 'wtf',
-                                                 'relations': self.format_str_2x % (
-                                                                self.rtype02.id, ct_id, self.object01.id,
-                                                                self.rtype02.id, ct_id, self.object02.id,
-                                                               ),
-                                                 'ids': [self.subject01.id, self.subject02.id],
-                                                }
-                                     )
-        self.assertFormError(response, 'form', 'relations',
-                             _(u'This type of relationship causes a constraint error.')
-                            )
+    # # XXX: the relation types given in GET request are only to make the GUI simpler,
+    # #      & could not be used at validation => remove this test if this behavior is removed.
+    # def test_add_relations_bulk_legacy02(self):
+    #     self._aux_test_add_relations()
+    #
+    #     url = reverse('creme_core__create_relations_bulk',
+    #                   args=(self.ct_id, self.rtype01.id),
+    #                  ) + '?persist=ids&ids=%s&ids=%s' % (self.subject01.id, self.subject02.id)
+    #
+    #     self.assertGET200(url)
+    #
+    #     ct_id = self.ct_id
+    #     response = self.assertPOST200(url, data={'entities_lbl': 'wtf',
+    #                                              'relations': self.format_str_2x % (
+    #                                                             self.rtype02.id, ct_id, self.object01.id,
+    #                                                             self.rtype02.id, ct_id, self.object02.id,
+    #                                                            ),
+    #                                              'ids': [self.subject01.id, self.subject02.id],
+    #                                             }
+    #                                  )
+    #     self.assertFormError(response, 'form', 'relations',
+    #                          _(u'This type of relationship causes a constraint error.')
+    #                         )
 
     def _aux_relation_objects_to_link_selection(self):
         user = self.login()
@@ -849,72 +844,72 @@ class RelationViewsTestCase(ViewsTestCase):
     def _build_selection_url(self, rtype, subject, ct):
         return reverse('creme_core__select_entities_to_link', args=(rtype.id, subject.id, ct.id))
 
-    def test_objects_to_link_selection01(self):  # TODO: delete in creme1.8
-        self._aux_relation_objects_to_link_selection()
+    # def test_objects_to_link_selection01(self):
+    #     self._aux_relation_objects_to_link_selection()
+    #
+    #     response = self.assertGET200(self._build_selection_url(self.rtype, self.subject, self.ct_contact))
+    #
+    #     try:
+    #         entities = response.context['entities']
+    #     except KeyError:
+    #         self.fail(response.content)
+    #
+    #     contacts = entities.object_list
+    #     self.assertEqual(3, len(contacts))
+    #     self.assertTrue(all(isinstance(c, FakeContact) for c in contacts))
+    #     self.assertEqual({self.contact01, self.contact02, self.contact03}, set(contacts))
 
-        response = self.assertGET200(self._build_selection_url(self.rtype, self.subject, self.ct_contact))
+    # def test_objects_to_link_selection02(self):
+    #     self._aux_relation_objects_to_link_selection()
+    #
+    #     # 'contact03' will not be proposed by the listview
+    #     Relation.objects.create(user=self.user, type=self.rtype,
+    #                             subject_entity=self.subject, object_entity=self.contact03,
+    #                            )
+    #
+    #     response = self.assertGET200(self._build_selection_url(self.rtype, self.subject, self.ct_contact))
+    #
+    #     contacts = response.context['entities'].object_list
+    #     self.assertEqual(2, len(contacts))
+    #     self.assertEqual({self.contact01, self.contact02}, set(contacts))
 
-        try:
-            entities = response.context['entities']
-        except KeyError:
-            self.fail(response.content)
+    # def test_objects_to_link_selection03(self):
+    #     self._aux_relation_objects_to_link_selection()
+    #
+    #     create_ptype = CremePropertyType.create
+    #     ptype01 = create_ptype(str_pk='test-prop_foobar01', text='Is lovable')
+    #     ptype02 = create_ptype(str_pk='test-prop_foobar02', text='Is a girl')
+    #
+    #     contact04 = FakeContact.objects.create(user=self.user, first_name='Flonne', last_name='Angel')
+    #
+    #     # 'contact02' will not be proposed by the listview
+    #     create_property = CremeProperty.objects.create
+    #     create_property(type=ptype01, creme_entity=self.contact01)
+    #     create_property(type=ptype02, creme_entity=self.contact03)
+    #     create_property(type=ptype01, creme_entity=contact04)
+    #     create_property(type=ptype02, creme_entity=contact04)
+    #
+    #     rtype, sym_rtype = RelationType.create(('test-subject_loving', 'is loving',   [FakeContact]),
+    #                                            ('test-object_loving',  'is loved by', [FakeContact], [ptype01, ptype02])
+    #                                           )
+    #
+    #     response = self.assertGET200(self._build_selection_url(rtype, self.subject, self.ct_contact))
+    #
+    #     contacts = response.context['entities'].object_list
+    #     self.assertEqual(3, len(contacts))
+    #     self.assertEqual({self.contact01, self.contact03, contact04}, set(contacts))
 
-        contacts = entities.object_list
-        self.assertEqual(3, len(contacts))
-        self.assertTrue(all(isinstance(c, FakeContact) for c in contacts))
-        self.assertEqual({self.contact01, self.contact02, self.contact03}, set(contacts))
-
-    def test_objects_to_link_selection02(self):  # TODO: delete in creme1.8
-        self._aux_relation_objects_to_link_selection()
-
-        # 'contact03' will not be proposed by the listview
-        Relation.objects.create(user=self.user, type=self.rtype,
-                                subject_entity=self.subject, object_entity=self.contact03,
-                               )
-
-        response = self.assertGET200(self._build_selection_url(self.rtype, self.subject, self.ct_contact))
-
-        contacts = response.context['entities'].object_list
-        self.assertEqual(2, len(contacts))
-        self.assertEqual({self.contact01, self.contact02}, set(contacts))
-
-    def test_objects_to_link_selection03(self):  # TODO: delete in creme1.8
-        self._aux_relation_objects_to_link_selection()
-
-        create_ptype = CremePropertyType.create
-        ptype01 = create_ptype(str_pk='test-prop_foobar01', text='Is lovable')
-        ptype02 = create_ptype(str_pk='test-prop_foobar02', text='Is a girl')
-
-        contact04 = FakeContact.objects.create(user=self.user, first_name='Flonne', last_name='Angel')
-
-        # 'contact02' will not be proposed by the listview
-        create_property = CremeProperty.objects.create
-        create_property(type=ptype01, creme_entity=self.contact01)
-        create_property(type=ptype02, creme_entity=self.contact03)
-        create_property(type=ptype01, creme_entity=contact04)
-        create_property(type=ptype02, creme_entity=contact04)
-
-        rtype, sym_rtype = RelationType.create(('test-subject_loving', 'is loving',   [FakeContact]),
-                                               ('test-object_loving',  'is loved by', [FakeContact], [ptype01, ptype02])
-                                              )
-
-        response = self.assertGET200(self._build_selection_url(rtype, self.subject, self.ct_contact))
-
-        contacts = response.context['entities'].object_list
-        self.assertEqual(3, len(contacts))
-        self.assertEqual({self.contact01, self.contact03, contact04}, set(contacts))
-
-    def test_objects_to_link_selection04(self):  # TODO: delete in creme1.8
-        self.login()
-
-        subject = CremeEntity.objects.create(user=self.user)
-        ct = ContentType.objects.get_for_model(FakeContact)
-        rtype = RelationType.create(('test-subject_foobar', 'is loving',   [FakeContact]),
-                                    ('test-object_foobar',  'is loved by', [FakeContact]),
-                                    is_internal=True
-                                   )[0]
-
-        self.assertGET404(self._build_selection_url(rtype, subject, ct))
+    # def test_objects_to_link_selection04(self):
+    #     self.login()
+    #
+    #     subject = CremeEntity.objects.create(user=self.user)
+    #     ct = ContentType.objects.get_for_model(FakeContact)
+    #     rtype = RelationType.create(('test-subject_foobar', 'is loving',   [FakeContact]),
+    #                                 ('test-object_foobar',  'is loved by', [FakeContact]),
+    #                                 is_internal=True
+    #                                )[0]
+    #
+    #     self.assertGET404(self._build_selection_url(rtype, subject, ct))
 
     def test_select_relations_objects01(self):
         self._aux_relation_objects_to_link_selection()
@@ -922,7 +917,7 @@ class RelationViewsTestCase(ViewsTestCase):
         data = {'subject_id': self.subject.id,
                 'rtype_id': self.rtype.id,
                 'objects_ct_id': self.ct_contact.id,
-                }
+               }
 
         response = self.assertGET200(self.SELECTION_URL, data=data)
 

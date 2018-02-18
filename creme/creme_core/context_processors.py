@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.conf import settings
 from django.utils.timezone import now
@@ -48,12 +48,12 @@ def get_today(request):
     return {'today': now()}
 
 
-def get_blocks_manager(request):
-    warnings.warn('"creme.creme_core.context_processor.get_blocks_manager" is deprecated ; '
-                  'use "creme.creme_core.context_processor.get_bricks_manager" in your settings instead.',
-                  DeprecationWarning
-                 )
-    return get_bricks_manager(request)
+# def get_blocks_manager(request):
+#     warnings.warn('"creme.creme_core.context_processor.get_blocks_manager" is deprecated ; '
+#                   'use "creme.creme_core.context_processor.get_bricks_manager" in your settings instead.',
+#                   DeprecationWarning
+#                  )
+#     return get_bricks_manager(request)
 
 
 def get_bricks_manager(request):

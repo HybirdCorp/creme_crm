@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from json import loads as json_load, dumps as json_dump
 
-import logging, warnings
+import logging  # warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -36,7 +36,7 @@ from creme.creme_core.gui.listview import ListViewState, NoHeaderFilterAvailable
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.entity_filter import EntityFilterList
 from creme.creme_core.models.header_filter import HeaderFilterList
-from creme.creme_core.utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404
+from creme.creme_core.utils import get_from_POST_or_404, get_from_GET_or_404  # get_ct_or_404
 from creme.creme_core.utils.queries import get_q_from_dict
 
 from .popup import inner_popup
@@ -315,24 +315,24 @@ def list_view(request, model, **kwargs):
     return render(request, template_name, template_dict)
 
 
-def list_view_popup_from_widget(request, ct_id, o2m, **kwargs):
-    """ Displays a list-view selector in an inner popup.
-    @param ct_id: ContentType ID of te wanted model.
-    @param o2m: True means single selection model (OneToMany) ; False means multiple selection mode
-    @param kwargs: See list_view_content()
-    """
-    warnings.warn('creme_core.views.generic.listview.list_view_popup_from_widget(): is deprecated. '
-                  'If you want a final view, use creme_core.views.entity.list_view_popup() instead. '
-                  'If you want a generic view, use creme_core.views.generic.listview.list_view_popup() instead.',
-                  DeprecationWarning
-                 )
-
-    ct = get_ct_or_404(ct_id)
-
-    return list_view_popup(request, ct.model_class(),
-                           mode=MODE_SINGLE_SELECTION if int(o2m) else MODE_MULTIPLE_SELECTION,
-                           **kwargs
-                          )
+# def list_view_popup_from_widget(request, ct_id, o2m, **kwargs):
+#     """ Displays a list-view selector in an inner popup.
+#     @param ct_id: ContentType ID of te wanted model.
+#     @param o2m: True means single selection model (OneToMany) ; False means multiple selection mode
+#     @param kwargs: See list_view_content()
+#     """
+#     warnings.warn('creme_core.views.generic.listview.list_view_popup_from_widget(): is deprecated. '
+#                   'If you want a final view, use creme_core.views.entity.list_view_popup() instead. '
+#                   'If you want a generic view, use creme_core.views.generic.listview.list_view_popup() instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     ct = get_ct_or_404(ct_id)
+#
+#     return list_view_popup(request, ct.model_class(),
+#                            mode=MODE_SINGLE_SELECTION if int(o2m) else MODE_MULTIPLE_SELECTION,
+#                            **kwargs
+#                           )
 
 
 # TODO: add a no-selection mode ??

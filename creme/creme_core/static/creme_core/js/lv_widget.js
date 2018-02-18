@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2017  Hybird
+    Copyright (C) 2009-2018  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,6 @@ creme.lv_widget = {};
 //       (because popovers are detached from their original root in the DOM)
 //       It should be fixed with the new action system like the bricks' one.
 creme.lv_widget.findList = function(element) {
-//    return $(element).parents('form.ui-creme-listview:first');
     var container = $(element).parents('.ui-dialog:first');
 
     if (container.length === 0) {
@@ -36,27 +35,27 @@ creme.lv_widget.findList = function(element) {
     return container.find('form.ui-creme-listview:first');
 };
 
-creme.lv_widget.deleteEntityFilter = function(list, filterid) {
-    console.warn('creme.lv_widget.deleteEntityFilter() is deprecated ; use creme.lv_widget.deleteFilter() instead.');
+//creme.lv_widget.deleteEntityFilter = function(list, filterid) {
+//    console.warn('creme.lv_widget.deleteEntityFilter() is deprecated ; use creme.lv_widget.deleteFilter() instead.');
+//
+//    var query = creme.utils.confirmPOSTQuery('/creme_core/entity_filter/delete', {}, {id: filterid});
+//    query.onDone(function(event, data) {
+//        list.list_view('reload');
+//    });
+//
+//    return query.start();
+//};
 
-    var query = creme.utils.confirmPOSTQuery('/creme_core/entity_filter/delete', {}, {id: filterid});
-    query.onDone(function(event, data) {
-        list.list_view('reload');
-    });
-
-    return query.start();
-};
-
-creme.lv_widget.deleteHeaderFilter = function(list, filterid) {
-    console.warn('creme.lv_widget.deleteHeaderFilter() is deprecated ; use creme.lv_widget.deleteFilter() instead.');
-
-    var query = creme.utils.confirmPOSTQuery('/creme_core/header_filter/delete', {}, {id: filterid});
-    query.onDone(function(event, data) {
-        list.list_view('reload');
-    });
-
-    return query.start();
-};
+//creme.lv_widget.deleteHeaderFilter = function(list, filterid) {
+//    console.warn('creme.lv_widget.deleteHeaderFilter() is deprecated ; use creme.lv_widget.deleteFilter() instead.');
+//
+//    var query = creme.utils.confirmPOSTQuery('/creme_core/header_filter/delete', {}, {id: filterid});
+//    query.onDone(function(event, data) {
+//        list.list_view('reload');
+//    });
+//
+//    return query.start();
+//};
 
 creme.lv_widget.deleteFilter = function(list, filter_id, url) {
     return creme.utils.confirmPOSTQuery(url, {}, {id: filter_id})
