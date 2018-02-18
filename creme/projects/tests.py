@@ -134,7 +134,6 @@ class ProjectsTestCase(CremeTestCase):
 
     def test_portal(self):
         self.login()
-        # self.assertGET200('/projects/')
         self.assertGET200(reverse('projects__portal'))
 
     def create_project(self, name, status=None, start_date='2010-10-11', end_date='2010-12-31'):
