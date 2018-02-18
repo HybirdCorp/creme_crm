@@ -177,8 +177,7 @@ class QuickFormTestCase(CremeTestCase):
         count = FakeContact.objects.count()
         ct_id = ContentType.objects.get_for_model(FakeContact).id
 
-        # Deprecated
-        self.assertGET200(reverse('creme_core__quick_form', args=(ct_id, 1)))
+        # self.assertGET200(reverse('creme_core__quick_form', args=(ct_id, 1)))
 
         url = reverse('creme_core__quick_form', args=(ct_id,))
         self.assertGET200(url)

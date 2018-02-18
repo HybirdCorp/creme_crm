@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 
 # from django.db.models import ForeignKey
 from django.db.transaction import atomic
@@ -123,17 +123,17 @@ class MergeField(Field):
     def clean(self, value):
         return self._original_field.clean(value[2])
 
-    def set_merge_initial(self, initial):
-        warnings.warn('MergeField.set_merge_initial: this method is deprecated, simply use initial property instead.', DeprecationWarning)
-        self.initial = initial
-        qs = self._restricted_queryset
-
-        if qs is not None:
-            field = self._original_field
-            field.queryset = qs.filter(pk__in=initial)
-
-            if None not in initial:
-                field.empty_label = None
+    # def set_merge_initial(self, initial):
+    #     warnings.warn('MergeField.set_merge_initial: this method is deprecated, simply use initial property instead.', DeprecationWarning)
+    #     self.initial = initial
+    #     qs = self._restricted_queryset
+    #
+    #     if qs is not None:
+    #         field = self._original_field
+    #         field.queryset = qs.filter(pk__in=initial)
+    #
+    #         if None not in initial:
+    #             field.empty_label = None
 
 
 class MergeEntitiesBaseForm(CremeForm):

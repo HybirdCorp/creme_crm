@@ -25,39 +25,38 @@
 
 from functools import partial
 from itertools import chain
-import warnings
+# import warnings
 
 from django.db.models import FieldDoesNotExist, DateField
 
 from .unicode_collation import collator
 
 
-# TODO: used only in activesync
-def get_instance_field_info(obj, field_name):
-    """ For a field_name 'att1__att2__att3', it searches and returns the tuple
-    (class of obj.att1.att2.get_field('att3'), obj.att1.att2.att3)
-    @return : (field_class, field_value)
-    """
-    warnings.warn("get_instance_field_info() function is deprecated ; use FieldInfo.value_from() instead.",
-                  DeprecationWarning
-                 )
-
-    subfield_names = field_name.split('__')
-
-    try:
-        for subfield_name in subfield_names[:-1]:
-            obj = getattr(obj, subfield_name)  # Can be None if a M2M has no related value
-
-        subfield_name = subfield_names[-1]
-        field = obj._meta.get_field(subfield_name)
-        field_value = getattr(obj, subfield_name)
-
-        if field.many_to_many:
-            field_value = field_value.all()
-
-        return field.__class__, field_value
-    except (AttributeError, FieldDoesNotExist):
-        return None, ''
+# def get_instance_field_info(obj, field_name):
+#     """ For a field_name 'att1__att2__att3', it searches and returns the tuple
+#     (class of obj.att1.att2.get_field('att3'), obj.att1.att2.att3)
+#     @return : (field_class, field_value)
+#     """
+#     warnings.warn("get_instance_field_info() function is deprecated ; use FieldInfo.value_from() instead.",
+#                   DeprecationWarning
+#                  )
+#
+#     subfield_names = field_name.split('__')
+#
+#     try:
+#         for subfield_name in subfield_names[:-1]:
+#             obj = getattr(obj, subfield_name)  # Can be None if a M2M has no related value
+#
+#         subfield_name = subfield_names[-1]
+#         field = obj._meta.get_field(subfield_name)
+#         field_value = getattr(obj, subfield_name)
+#
+#         if field.many_to_many:
+#             field_value = field_value.all()
+#
+#         return field.__class__, field_value
+#     except (AttributeError, FieldDoesNotExist):
+#         return None, ''
 
 
 class FieldInfo(object):

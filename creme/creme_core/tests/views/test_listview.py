@@ -256,7 +256,6 @@ class ListViewTestCase(ViewsTestCase):
 
         response = self.assertPOST200(self.url, data={'hfilter': hf.id})
 
-        # content = self._get_lv_content(response)
         content = self._get_lv_content(self._get_lv_node(response))
         self.assertIn(bebop.name, content)
         self.assertNotIn(bebop.url_site, content, '"url_site" not hidden')
@@ -387,10 +386,7 @@ class ListViewTestCase(ViewsTestCase):
                                                },
                                           **kwargs
                                          )
-            # content = self._get_lv_content(response)
             content = self._get_lv_content(self._get_lv_node(response))
-            # first_idx = self.assertFound(first.name, content)
-            # second_idx = self.assertFound(second.name, content)
             first_idx = self.assertIndex(first.name, content)
             second_idx = self.assertIndex(second.name, content)
             self.assertLess(first_idx, second_idx)
@@ -681,25 +677,6 @@ class ListViewTestCase(ViewsTestCase):
                                  '.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
                                 )
 
-        # tested in test_list_view_state
-        # Address._meta.ordering = ('value',)  # TODO: create another test model instead ??
-        #
-        # response = self.assertPOST200(url, {'hfilter': hf.id,
-        #                                     'sort_field': 'regular_field-address',
-        #                                     'sort_order': '',
-        #                                    }
-        #                              )
-        #
-        # entries = Contact.objects.order_by('address__value', 'last_name', 'first_name')
-        # self.assertListViewContentOrder(response, 'last_name', entries)
-        #
-        # listview_state = response.context['list_view_state']
-        # self.assertEqual('regular_field-address', listview_state.sort_field)
-        # self.assertEqual('', listview_state.sort_order)
-        # self.assertListEqual(['address__value', 'last_name', 'first_name'],
-        #                      listview_state._ordering
-        #                     )
-
     def test_ordering_customfield_column(self):
         "Custom field ordering is ignored in current implementation"
         user = self.login()
@@ -897,7 +874,6 @@ class ListViewTestCase(ViewsTestCase):
         # Invalid json : ignore filter
         response = self.assertGET200(self.url, data={'q_filter': '{"name":"Bebop"'})
 
-        # content = self._get_lv_content(response)
         content = self._get_lv_content(self._get_lv_node(response))
         self.assertIn(bebop.name, content)
         self.assertIn(redtail.name, content)
@@ -1078,7 +1054,6 @@ class ListViewTestCase(ViewsTestCase):
         build_data = lambda cdate: {'hfilter': hf.id, 'regular_field-creation_date': cdate}
 
         response = self.assertPOST200(url, data=build_data(['1-1-2075']))
-        # content = self._get_lv_content(response)
         content = self._get_lv_content(self._get_lv_node(response))
         self.assertIn(bebop.name,        content)
         self.assertNotIn(swordfish.name, content)
@@ -1268,7 +1243,6 @@ class ListViewTestCase(ViewsTestCase):
                                             'regular_field-folder__category': cat1.id,
                                            }
                                      )
-        # content = self._get_lv_content(response)
         content = self._get_lv_content(self._get_lv_node(response))
         self.assertIn(doc1.title, content)
         self.assertIn(doc2.title, content)
@@ -1453,7 +1427,6 @@ class ListViewTestCase(ViewsTestCase):
                                                 cell_m2m.key: searched,
                                                }
                                          )
-            # return self._get_lv_content(response)
             return self._get_lv_content(self._get_lv_node(response))
 
         content = search(cat1.name[:5])
@@ -1488,7 +1461,6 @@ class ListViewTestCase(ViewsTestCase):
         url = self.url
         data = {'hfilter': hf.id, 'name': '', 'relation-%s' % rtype.pk: 'Spiege'}
         response = self.assertPOST200(url, data=data)
-        # content = self._get_lv_content(response)
         content = self._get_lv_content(self._get_lv_node(response))
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
@@ -2511,7 +2483,6 @@ class ListViewTestCase(ViewsTestCase):
                 'q_filter': '{"name":  "Bebop" }'
             })
 
-        # content = self._get_lv_content(response)
         lv_node = self._get_lv_node(response)
         inputs_content = self._get_lv_inputs_content(lv_node)
         self.assertIn(('q_filter', '{"name":"Bebop"}'), inputs_content)

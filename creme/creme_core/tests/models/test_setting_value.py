@@ -113,27 +113,27 @@ class SettingValueTestCase(CremeTestCase):
         self.assertEqual(email, sv.value)
         self.assertEqual(email, sv.as_html)
 
-    def test_create_value_if_needed(self):
-        self.login()
-
-        sk = SettingKey(id='persons-test_create_value_if_needed', description=u"Page size",
-                        app_label='persons', type=SettingKey.INT,
-                       )
-        self._register_key(sk)
-
-        self.assertFalse(SettingValue.objects.filter(key_id=sk))
-
-        size = 156
-        sv = SettingValue.create_if_needed(key=sk, user=None, value=size)
-        self.assertIsInstance(sv, SettingValue)
-        self.assertIsNone(sv.user)
-        self.assertEqual(size, sv.value)
-
-        with self.assertNoException():
-            self.refresh(sv)
-
-        sv = SettingValue.create_if_needed(key=sk, user=None, value=size + 1)
-        self.assertEqual(size, sv.value)  # Not a new size
+    # def test_create_value_if_needed(self):
+    #     self.login()
+    #
+    #     sk = SettingKey(id='persons-test_create_value_if_needed', description=u"Page size",
+    #                     app_label='persons', type=SettingKey.INT,
+    #                    )
+    #     self._register_key(sk)
+    #
+    #     self.assertFalse(SettingValue.objects.filter(key_id=sk))
+    #
+    #     size = 156
+    #     sv = SettingValue.create_if_needed(key=sk, user=None, value=size)
+    #     self.assertIsInstance(sv, SettingValue)
+    #     self.assertIsNone(sv.user)
+    #     self.assertEqual(size, sv.value)
+    #
+    #     with self.assertNoException():
+    #         self.refresh(sv)
+    #
+    #     sv = SettingValue.create_if_needed(key=sk, user=None, value=size + 1)
+    #     self.assertEqual(size, sv.value)  # Not a new size
 
     def test_blank(self):
         sk = SettingKey('creme_core-test_model_blank',

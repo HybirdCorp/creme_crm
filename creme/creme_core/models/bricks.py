@@ -20,7 +20,7 @@
 
 from functools import partial
 from json import loads as jsonloads, dumps as jsondumps
-import logging, warnings
+import logging  # warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -114,14 +114,14 @@ class BlockDetailviewLocation(CremeModel):
     def create_4_model_brick(order, zone, model=None, role=None):
         return BlockDetailviewLocation.create(MODELBLOCK_ID, order, zone, model, role)
 
-    @staticmethod
-    def create_4_model_block(order, zone, model=None, role=None):
-        warnings.warn('BlockDetailviewLocation.create_4_model_block() is deprecated ; '
-                      'use create_4_model_brick() instead.',
-                      DeprecationWarning
-                     )
-
-        return BlockDetailviewLocation.create(MODELBLOCK_ID, order, zone, model, role)
+    # @staticmethod
+    # def create_4_model_block(order, zone, model=None, role=None):
+    #     warnings.warn('BlockDetailviewLocation.create_4_model_block() is deprecated ; '
+    #                   'use create_4_model_brick() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     return BlockDetailviewLocation.create(MODELBLOCK_ID, order, zone, model, role)
 
     @staticmethod
     def id_is_4_model(block_id):  # TODO: rename argument 'brick_id'
@@ -174,12 +174,12 @@ class BlockPortalLocation(CremeModel):
         if not BlockPortalLocation.objects.filter(app_name=app_name).exists():
             BlockPortalLocation.objects.create(app_name=app_name, block_id='', order=1)
 
-    @property
-    def block_verbose_name(self):
-        warnings.warn('BlockPortalLocation.block_verbose_name is deprecated ; use brick_verbose_name instead.',
-                      DeprecationWarning
-                     )
-        return self.brick_verbose_name
+    # @property
+    # def block_verbose_name(self):
+    #     warnings.warn('BlockPortalLocation.block_verbose_name is deprecated ; use brick_verbose_name instead.',
+    #                   DeprecationWarning
+    #                  )
+    #     return self.brick_verbose_name
 
     @property
     def brick_verbose_name(self):
@@ -233,15 +233,15 @@ class BlockMypageLocation(CremeModel):
 
         return loc
 
-    @property
-    def block_verbose_name(self):
-        warnings.warn('BlockMypageLocation.block_verbose_name is deprecated ; use brick_verbose_name instead.',
-                      DeprecationWarning
-                     )
-
-        from creme.creme_core.gui.bricks import brick_registry
-
-        return brick_registry.get_blocks((self.block_id,))[0].verbose_name
+    # @property
+    # def block_verbose_name(self):
+    #     warnings.warn('BlockMypageLocation.block_verbose_name is deprecated ; use brick_verbose_name instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     from creme.creme_core.gui.bricks import brick_registry
+    #
+    #     return brick_registry.get_blocks((self.block_id,))[0].verbose_name
 
     # TODO: factorise ?
     @property
@@ -382,13 +382,13 @@ class InstanceBlockConfigItem(CremeModel):
 
         super(InstanceBlockConfigItem, self).delete(using=using)
 
-    @property
-    def block(self):
-        warnings.warn('InstanceBlockConfigItem.block is deprecated ; use "brick" instead.',
-                      DeprecationWarning
-                     )
-
-        return self.brick
+    # @property
+    # def block(self):
+    #     warnings.warn('InstanceBlockConfigItem.block is deprecated ; use "brick" instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     return self.brick
 
     @property
     def brick(self):
@@ -458,13 +458,13 @@ class CustomBlockConfigItem(CremeModel):
     def generate_id(self):
         return 'customblock-%s' % self.id
 
-    @staticmethod
-    def id_from_block_id(block_id):
-        warnings.warn('CustomBlockConfigItem.id_from_block_id() is deprecated ; use id_from_brick_id() instead.',
-                      DeprecationWarning
-                     )
-
-        return CustomBlockConfigItem.id_from_brick_id(block_id)
+    # @staticmethod
+    # def id_from_block_id(block_id):
+    #     warnings.warn('CustomBlockConfigItem.id_from_block_id() is deprecated ; use id_from_brick_id() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     return CustomBlockConfigItem.id_from_brick_id(block_id)
 
     @staticmethod
     def id_from_brick_id(brick_id):
@@ -522,12 +522,12 @@ class BlockState(CremeModel):
         app_label = 'creme_core'
         unique_together = ('user', 'block_id')
 
-    @staticmethod
-    def get_for_block_id(block_id, user):
-        warnings.warn('BlockState.get_for_block_id() is deprecated ; use get_for_brick_id() instead.',
-                      DeprecationWarning
-                     )
-        return BlockState.get_for_brick_id(block_id, user)
+    # @staticmethod
+    # def get_for_block_id(block_id, user):
+    #     warnings.warn('BlockState.get_for_block_id() is deprecated ; use get_for_brick_id() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #     return BlockState.get_for_brick_id(block_id, user)
 
     @staticmethod
     def get_for_brick_id(brick_id, user):
@@ -547,12 +547,12 @@ class BlockState(CremeModel):
                               show_empty_fields=states[SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS],
                              )
 
-    @staticmethod
-    def get_for_block_ids(block_ids, user):
-        warnings.warn('BlockState.get_for_block_ids() is deprecated ; use get_for_brick_ids() instead.',
-                      DeprecationWarning
-                     )
-        return BlockState.get_for_brick_ids(block_ids, user)
+    # @staticmethod
+    # def get_for_block_ids(block_ids, user):
+    #     warnings.warn('BlockState.get_for_block_ids() is deprecated ; use get_for_brick_ids() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #     return BlockState.get_for_brick_ids(block_ids, user)
 
     @staticmethod
     def get_for_brick_ids(brick_ids, user):
@@ -580,19 +580,19 @@ class BlockState(CremeModel):
 
         return states
 
-    @property
-    def classes(self):
-        """Generate CSS classes for current state"""
-        warnings.warn('BlockState.classes is deprecated ; '
-                      'use the templatetag creme_bricks.brick_state_classes instead.',
-                      DeprecationWarning
-                     )
-
-        classes = []
-        if not self.is_open:
-            classes.append('collapsed')
-
-        if not self.show_empty_fields:
-            classes.append('hide_empty_fields')
-
-        return ' '.join(classes)
+    # @property
+    # def classes(self):
+    #     """Generate CSS classes for current state"""
+    #     warnings.warn('BlockState.classes is deprecated ; '
+    #                   'use the templatetag creme_bricks.brick_state_classes instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     classes = []
+    #     if not self.is_open:
+    #         classes.append('collapsed')
+    #
+    #     if not self.show_empty_fields:
+    #         classes.append('hide_empty_fields')
+    #
+    #     return ' '.join(classes)

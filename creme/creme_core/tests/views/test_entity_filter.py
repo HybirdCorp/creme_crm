@@ -42,9 +42,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
     def _build_get_ct_url(self, rtype):
         return reverse('creme_core__ctypes_compatible_with_rtype_as_choices', args=(rtype.id,))
 
-    def _build_get_filter_url(self, ct, use_GET=False):
-        return reverse('creme_core__efilters', args=(ct.id,)) if not use_GET else \
-               reverse('creme_core__efilters') + '?ct_id=%s' % ct.id
+    # def _build_get_filter_url(self, ct, use_GET=False):
+    #     return reverse('creme_core__efilters', args=(ct.id,)) if not use_GET else \
+    #            reverse('creme_core__efilters') + '?ct_id=%s' % ct.id
+    def _build_get_filter_url(self, ct, all_filter=False):
+        return reverse('creme_core__efilters') + '?ct_id=%s' % ct.id
 
     def test_create01(self):
         "Check app credentials"
@@ -112,7 +114,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         user = self.login()
         ct = self.ct_orga
 
-        # Can not be a simple subfilter (bad content type)
+        # Can not be a simple sub-filter (bad content type)
         relsubfilfer = EntityFilter.create('test-filter01', 'Filter 01', FakeContact, is_custom=True)
 
         subfilter = EntityFilter.create('test-filter02', 'Filter 02', FakeOrganisation, is_custom=True)
@@ -672,7 +674,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
     def test_edit01(self):
         self.login()
 
-        # Cannot be a simple subfilter (bad content type)
+        # Cannot be a simple sub-filter (bad content type)
         relsubfilfer = EntityFilter.create('test-filter01', 'Filter 01', FakeOrganisation, is_custom=True)
 
         subfilter = EntityFilter.create('test-filter02', 'Filter 02', FakeContact, is_custom=True)
@@ -1185,7 +1187,6 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response)
 
     def _delete(self, efilter, **kwargs):
-        # return self.client.post('/creme_core/entity_filter/delete', data={'id': efilter.id}, **kwargs)
         return self.client.post(reverse('creme_core__delete_efilter'), data={'id': efilter.id}, **kwargs)
 
     def test_delete01(self):
@@ -1322,7 +1323,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
     def test_filters_for_ctype01(self):
         self.login()
 
-        response = self.assertGET200(self._build_get_filter_url(self.ct_contact, use_GET=True))
+        # response = self.assertGET200(self._build_get_filter_url(self.ct_contact, use_GET=True))
+        response = self.assertGET200(self._build_get_filter_url(self.ct_contact))
 
         content = load_json(response.content)
         self.assertIsInstance(content, list)
@@ -1357,7 +1359,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         response = self.assertGET200(self._build_get_filter_url(self.ct_contact))
         self.assertEqual(exepcted, load_json(response.content))
 
-        url = self._build_get_filter_url(self.ct_contact, use_GET=True)
+        # url = self._build_get_filter_url(self.ct_contact, use_GET=True)
+        url = self._build_get_filter_url(self.ct_contact)
         response = self.assertGET200(url)
         self.assertEqual(exepcted, load_json(response.content))
 
@@ -1387,10 +1390,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                     [efilter02.id, 'Filter 02'],
                    ]
 
-        response = self.assertGET200(reverse('creme_core__efilters_n_all', args=(self.ct_contact.id,)))
-        self.assertEqual(expected, load_json(response.content))
+        # response = self.assertGET200(reverse('creme_core__efilters_n_all', args=(self.ct_contact.id,)))
+        # self.assertEqual(expected, load_json(response.content))
 
-        url = self._build_get_filter_url(self.ct_contact, use_GET=True)
+        # url = self._build_get_filter_url(self.ct_contact, use_GET=True)
+        url = self._build_get_filter_url(self.ct_contact)
         response = self.assertGET200(url + '&all=1')
         self.assertEqual(expected, load_json(response.content))
 

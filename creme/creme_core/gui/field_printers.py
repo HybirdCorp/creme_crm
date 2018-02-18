@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from itertools import chain
 from os.path import splitext
-import warnings
+# import warnings
 
 from django.conf import settings
 from django.db import models
@@ -68,11 +68,11 @@ def image_size(image, max_h=MAX_HEIGHT, max_w=MAX_WIDTH):
     return "height=%s width=%s" % (h, w)
 
 
-def simple_print(entity, fval, user, field):
-    warnings.warn('simple_print() is deprecated ; use simple_print_html() instead.',
-                  DeprecationWarning
-                 )
-    return simple_print_html(entity, fval, user, field)
+# def simple_print(entity, fval, user, field):
+#     warnings.warn('simple_print() is deprecated ; use simple_print_html() instead.',
+#                   DeprecationWarning
+#                  )
+#     return simple_print_html(entity, fval, user, field)
 
 
 def simple_print_html(entity, fval, user, field):
@@ -87,11 +87,11 @@ def print_color_html(entity, fval, user, field):
     return '''<span style="background:#{0};">{0}</span>'''.format(fval) if fval else ''
 
 
-def print_image(entity, fval, user, field):
-    warnings.warn('print_image() is deprecated ; use print_image_html() instead.',
-                  DeprecationWarning
-                 )
-    return print_image_html(entity, fval, user, field)
+# def print_image(entity, fval, user, field):
+#     warnings.warn('print_image() is deprecated ; use print_image_html() instead.',
+#                   DeprecationWarning
+#                  )
+#     return print_image_html(entity, fval, user, field)
 
 
 def print_file_html(entity, fval, user, field):
@@ -125,11 +125,11 @@ def print_decimal(entity, fval, user, field):
     return number_format(fval, use_l10n=True) if fval is not None else ''
 
 
-def print_boolean(entity, fval, user, field):
-    warnings.warn('print_boolean() is deprecated ; use print_boolean_html() instead.',
-                  DeprecationWarning
-                 )
-    return print_boolean_html(entity, fval, user, field)
+# def print_boolean(entity, fval, user, field):
+#     warnings.warn('print_boolean() is deprecated ; use print_boolean_html() instead.',
+#                   DeprecationWarning
+#                  )
+#     return print_boolean_html(entity, fval, user, field)
 
 
 def print_boolean_html(entity, fval, user, field):
@@ -143,11 +143,11 @@ def print_boolean_csv(entity, fval, user, field):
     return _('Yes') if fval else _('No')
 
 
-def print_urlfield(entity, fval, user, field):
-    warnings.warn('print_urlfield() is deprecated ; use print_url_html() instead.',
-                  DeprecationWarning
-                 )
-    return print_url_html(entity, fval, user, field)
+# def print_urlfield(entity, fval, user, field):
+#     warnings.warn('print_urlfield() is deprecated ; use print_url_html() instead.',
+#                   DeprecationWarning
+#                  )
+#     return print_url_html(entity, fval, user, field)
 
 
 def print_url_html(entity, fval, user, field):
@@ -166,11 +166,11 @@ def print_date(entity, fval, user, field):
     return date_format(fval, 'DATE_FORMAT') if fval else ''
 
 
-def print_foreignkey(entity, fval, user, field):
-    warnings.warn('print_foreignkey() is deprecated ; use print_foreignkey_html() instead.',
-                  DeprecationWarning
-                 )
-    return print_foreignkey_html(entity, fval, user, field)
+# def print_foreignkey(entity, fval, user, field):
+#     warnings.warn('print_foreignkey() is deprecated ; use print_foreignkey_html() instead.',
+#                   DeprecationWarning
+#                  )
+#     return print_foreignkey_html(entity, fval, user, field)
 
 
 class FKPrinter(object):
@@ -210,11 +210,11 @@ def print_foreignkey_csv(entity, fval, user, field):
     return unicode(fval) if fval else u''
 
 
-def print_many2many(entity, fval, user, field):
-    warnings.warn('print_many2many() is deprecated ; use print_many2many_html() instead.',
-                  DeprecationWarning
-                 )
-    return print_many2many_html(entity, fval, user, field)
+# def print_many2many(entity, fval, user, field):
+#     warnings.warn('print_many2many() is deprecated ; use print_many2many_html() instead.',
+#                   DeprecationWarning
+#                  )
+#     return print_many2many_html(entity, fval, user, field)
 
 
 class M2MPrinter(object):

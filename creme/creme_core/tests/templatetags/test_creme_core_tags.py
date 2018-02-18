@@ -148,99 +148,99 @@ class CremeCoreTagsTestCase(CremeTestCase):
                         "%s\n doesn't start with\n %s" % (render.strip(), expected)
                        )
 
-    def test_get_field_editor01(self):
-        user = self.login()
-        orga = FakeOrganisation.objects.create(user=user, name='Amestris')
+    # def test_get_field_editor01(self):
+    #     user = self.login()
+    #     orga = FakeOrganisation.objects.create(user=user, name='Amestris')
+    #
+    #     with self.assertNoException():
+    #         template = Template(r"{% load creme_block %}"
+    #                             r"{% get_field_editor on regular 'name' for object %}"
+    #                            )
+    #         render = template.render(Context({'object': orga, 'user': user}))
+    #
+    #     self.assertFieldEditorTag(render, orga, 'name')
 
-        with self.assertNoException():
-            template = Template(r"{% load creme_block %}"
-                                r"{% get_field_editor on regular 'name' for object %}"
-                               )
-            render = template.render(Context({'object': orga, 'user': user}))
+    # def test_get_field_editor02(self):
+    #     user = self.login()
+    #     orga = FakeOrganisation.objects.create(user=user, name='Amestris')
+    #
+    #     with self.assertNoException():
+    #         template = Template(r"{% load creme_block %}"
+    #                             r'{% get_field_editor on regular "name" for object %}'
+    #                            )
+    #         render = template.render(Context({'object':     orga,
+    #                                           'user':       user,
+    #                                           'block_name': 'tests-test_block',
+    #                                          })
+    #                                 )
+    #
+    #     self.assertFieldEditorTag(render, orga, 'name', block=True)
 
-        self.assertFieldEditorTag(render, orga, 'name')
+    # def test_get_field_editor03(self):
+    #     self.login()
+    #     orga = FakeOrganisation.objects.create(user=self.user, name='Amestris')
+    #     orga_field_name = orga.entity_type.model_class()._meta.get_field('name')
+    #
+    #     with self.assertNoException():
+    #         template = Template(r"{% load creme_block %}"
+    #                             r"{% get_field_editor on regular field for object %}"
+    #                            )
+    #         render = template.render(Context({'object': orga, 'user': self.user, 'field': orga_field_name}))
+    #
+    #     self.assertFieldEditorTag(render, orga, orga_field_name.name)
 
-    def test_get_field_editor02(self):
-        user = self.login()
-        orga = FakeOrganisation.objects.create(user=user, name='Amestris')
+    # def test_get_field_editor04(self):
+    #     user = self.login()
+    #     orga = FakeOrganisation.objects.create(user=user, name='Amestris')
+    #     custom_field_orga = CustomField.objects.create(name='custom 1',
+    #                                                    content_type=orga.entity_type,
+    #                                                    field_type=CustomField.STR,
+    #                                                   )
+    #
+    #     with self.assertNoException():
+    #         template = Template(r"{% load creme_block %}"
+    #                             r"{% get_field_editor on custom custom_field_id for object %}"
+    #                            )
+    #         render = template.render(Context({'object':          orga,
+    #                                           'user':            user,
+    #                                           'custom_field_id': custom_field_orga,
+    #                                          }
+    #                                         )
+    #                                 )
+    #
+    #     self.assertFieldEditorTag(render, orga, _CUSTOMFIELD_FORMAT % custom_field_orga.id)
 
-        with self.assertNoException():
-            template = Template(r"{% load creme_block %}"
-                                r'{% get_field_editor on regular "name" for object %}'
-                               )
-            render = template.render(Context({'object':     orga,
-                                              'user':       user,
-                                              'block_name': 'tests-test_block',
-                                             })
-                                    )
+    # def _unauthorized_get_field_editor(self, orga, unauthorized_tag):
+    #     with self.assertNoException():
+    #         template = Template(r"{% load creme_block %}" + unauthorized_tag)
+    #         render = template.render(Context({'object': orga, 'user': self.user}))
+    #
+    #     self.assertEqual("", render.strip())
 
-        self.assertFieldEditorTag(render, orga, 'name', block=True)
+    # def test_get_field_editor05(self):
+    #     self.login()
+    #     orga = FakeOrganisation.objects.create(user=self.user, name='Amestris')
+    #     cdict = {'object': orga, 'user': self.user}
+    #
+    #     with self.assertRaises(TemplateSyntaxError):  # Invalid field type : Should be 'regular' or 'custom'
+    #         Template(r"{% load creme_block %}{% get_field_editor on unknown_type 'name' for object %}")
+    #
+    #     with self.assertRaises(FieldDoesNotExist):  # Invalid field name for object model
+    #         template = Template(r"{% load creme_block %}{% get_field_editor on regular 'unkwnown_field' for object %}")
+    #         template.render(Context(cdict))
+    #
+    #     with self.assertRaises(AttributeError):  # Invalid custom field object for object model
+    #         template = Template(r"{% load creme_block %}{% get_field_editor on custom unkwnown_custom for object %}")
+    #         template.render(Context(cdict))
 
-    def test_get_field_editor03(self):
-        self.login()
-        orga = FakeOrganisation.objects.create(user=self.user, name='Amestris')
-        orga_field_name = orga.entity_type.model_class()._meta.get_field('name')
-
-        with self.assertNoException():
-            template = Template(r"{% load creme_block %}"
-                                r"{% get_field_editor on regular field for object %}"
-                               )
-            render = template.render(Context({'object': orga, 'user': self.user, 'field': orga_field_name}))
-
-        self.assertFieldEditorTag(render, orga, orga_field_name.name)
-
-    def test_get_field_editor04(self):
-        user = self.login()
-        orga = FakeOrganisation.objects.create(user=user, name='Amestris')
-        custom_field_orga = CustomField.objects.create(name='custom 1',
-                                                       content_type=orga.entity_type,
-                                                       field_type=CustomField.STR,
-                                                      )
-
-        with self.assertNoException():
-            template = Template(r"{% load creme_block %}"
-                                r"{% get_field_editor on custom custom_field_id for object %}"
-                               )
-            render = template.render(Context({'object':          orga,
-                                              'user':            user,
-                                              'custom_field_id': custom_field_orga,
-                                             }
-                                            )
-                                    )
-
-        self.assertFieldEditorTag(render, orga, _CUSTOMFIELD_FORMAT % custom_field_orga.id)
-
-    def _unauthorized_get_field_editor(self, orga, unauthorized_tag):
-        with self.assertNoException():
-            template = Template(r"{% load creme_block %}" + unauthorized_tag)
-            render = template.render(Context({'object': orga, 'user': self.user}))
-
-        self.assertEqual("", render.strip())
-
-    def test_get_field_editor05(self):
-        self.login()
-        orga = FakeOrganisation.objects.create(user=self.user, name='Amestris')
-        cdict = {'object': orga, 'user': self.user}
-
-        with self.assertRaises(TemplateSyntaxError):  # Invalid field type : Should be 'regular' or 'custom'
-            Template(r"{% load creme_block %}{% get_field_editor on unknown_type 'name' for object %}")
-
-        with self.assertRaises(FieldDoesNotExist):  # Invalid field name for object model
-            template = Template(r"{% load creme_block %}{% get_field_editor on regular 'unkwnown_field' for object %}")
-            template.render(Context(cdict))
-
-        with self.assertRaises(AttributeError):  # Invalid custom field object for object model
-            template = Template(r"{% load creme_block %}{% get_field_editor on custom unkwnown_custom for object %}")
-            template.render(Context(cdict))
-
-    def test_get_field_editor06(self):
-        self.login()
-        orga = FakeOrganisation.objects.create(user=self.user, name='Amestris')
-        bulk_update_registry.register(FakeOrganisation, exclude=['siren'])
-
-        # Not editable
-        self._unauthorized_get_field_editor(orga, r"{% get_field_editor on regular 'created' for object %}")
-        self._unauthorized_get_field_editor(orga, r"{% get_field_editor on regular 'modified' for object %}")
+    # def test_get_field_editor06(self):
+    #     self.login()
+    #     orga = FakeOrganisation.objects.create(user=self.user, name='Amestris')
+    #     bulk_update_registry.register(FakeOrganisation, exclude=['siren'])
+    #
+    #     # Not editable
+    #     self._unauthorized_get_field_editor(orga, r"{% get_field_editor on regular 'created' for object %}")
+    #     self._unauthorized_get_field_editor(orga, r"{% get_field_editor on regular 'modified' for object %}")
 
     def _assertJsonifyFilter(self, expected, data):
         with self.assertNoException():

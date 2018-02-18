@@ -51,9 +51,11 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
     def _build_edit_url(self, hf):
         return reverse('creme_core__edit_hfilter', args=(hf.id,))
 
-    def _build_get4ctype_url(self, ctype, use_GET=False):
-        return reverse('creme_core__hfilters', args=(ctype.id,)) if not use_GET else \
-               reverse('creme_core__hfilters') + '?ct_id=%s' % ctype.id
+    # def _build_get4ctype_url(self, ctype, use_GET=False):
+    #     return reverse('creme_core__hfilters', args=(ctype.id,)) if not use_GET else \
+    #            reverse('creme_core__hfilters') + '?ct_id=%s' % ctype.id
+    def _build_get4ctype_url(self, ctype):
+        return reverse('creme_core__hfilters') + '?ct_id=%s' % ctype.id
 
     def test_create01(self):
         self.login()
@@ -531,8 +533,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         response = self.assertGET200(self._build_get4ctype_url(self.contact_ct))
         self.assertEqual([], load_json(response.content))
 
-        response = self.assertGET200(self._build_get4ctype_url(self.contact_ct, use_GET=True))
-        self.assertEqual([], load_json(response.content))
+        # response = self.assertGET200(self._build_get4ctype_url(self.contact_ct, use_GET=True))
+        # self.assertEqual([], load_json(response.content))
 
     def test_hfilters_for_ctype02(self):
         user = self.login()
@@ -552,10 +554,12 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         response = self.assertGET200(self._build_get4ctype_url(self.contact_ct))
         self.assertEqual(expected, load_json(response.content))
 
-        response = self.assertGET200(self._build_get4ctype_url(self.contact_ct, use_GET=True))
+        # response = self.assertGET200(self._build_get4ctype_url(self.contact_ct, use_GET=True))
+        response = self.assertGET200(self._build_get4ctype_url(self.contact_ct))
         self.assertEqual(expected, load_json(response.content))
 
     def test_hfilters_for_ctype03(self):
         "No app credentials"
         self.login(is_superuser=False, allowed_apps=['documents'])
-        self.assertGET403(self._build_get4ctype_url(self.contact_ct, use_GET=True))
+        # self.assertGET403(self._build_get4ctype_url(self.contact_ct, use_GET=True))
+        self.assertGET403(self._build_get4ctype_url(self.contact_ct))

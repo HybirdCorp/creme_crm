@@ -3,11 +3,11 @@
 from django.conf import settings
 from django.conf.urls import url, include
 
-from .views import (batch_process, blocks, bricks, creme_property, enumerable, entity,
+from .views import (batch_process, bricks, creme_property, enumerable, entity,
         entity_filter, file_handling, header_filter, index, job, list_view_export,
         mass_import, quick_forms, relation, search, testjs,
-       )
-from .views.generic import listview
+       )  # blocks
+# from .views.generic import listview
 
 
 entity_patterns = [
@@ -26,17 +26,17 @@ entity_patterns = [
     url(r'^get_info_fields/(?P<ct_id>\d+)/json[/]?$',                                entity.get_info_fields,          name='creme_core__entity_info_fields'),
 
     url(r'^edit/inner/(?P<ct_id>\d+)/(?P<id>\d+)/field/(?P<field_name>[\w-]+)[/]?$', entity.inner_edit_field,  name='creme_core__inner_edition'),
-    url(r'^edit/bulk/(?P<ct_id>\d+)/(?P<id>\d+(?:,\d+)*)[/]?$',                              entity.bulk_edit_field, name='creme_core__bulk_edit_field_legacy'),  # DEPRECATED # TODO: remove in 1.8
-    url(r'^edit/bulk/(?P<ct_id>\d+)/(?P<id>\d+(?:,\d+)*)/field/(?P<field_name>[\w-]+)[/]?$', entity.bulk_edit_field, name='creme_core__bulk_edit_field_legacy'),  # DEPRECATED # TODO: remove in 1.8
+    # url(r'^edit/bulk/(?P<ct_id>\d+)/(?P<id>\d+(?:,\d+)*)[/]?$',                              entity.bulk_edit_field, name='creme_core__bulk_edit_field_legacy'),
+    # url(r'^edit/bulk/(?P<ct_id>\d+)/(?P<id>\d+(?:,\d+)*)/field/(?P<field_name>[\w-]+)[/]?$', entity.bulk_edit_field, name='creme_core__bulk_edit_field_legacy'),
     url(r'^update/bulk/(?P<ct_id>\d+)[/]?$',                                         entity.bulk_update_field, name='creme_core__bulk_update'),
     url(r'^update/bulk/(?P<ct_id>\d+)/field/(?P<field_name>[\w-]+)[/]?$',            entity.bulk_update_field, name='creme_core__bulk_update'),
 
     url(r'^clone[/]*', entity.clone, name='creme_core__clone_entity'),
 
     url(r'^merge/select_other[/]?$',                            entity.select_entity_for_merge,  name='creme_core__select_entity_for_merge'),
-    url(r'^merge/select_other/(?P<entity1_id>\d+)[/]?$',        entity.select_entity_for_merge,  name='creme_core__select_entity_for_merge'),  # DEPRECATED
+    # url(r'^merge/select_other/(?P<entity1_id>\d+)[/]?$',        entity.select_entity_for_merge,  name='creme_core__select_entity_for_merge'),
     url(r'^merge[/]?$',                                         entity.merge,                    name='creme_core__merge_entities'),
-    url(r'^merge/(?P<entity1_id>\d+),(?P<entity2_id>\d+)[/]?$', entity.merge,                    name='creme_core__merge_entities'),  # DEPRECATED
+    # url(r'^merge/(?P<entity1_id>\d+),(?P<entity2_id>\d+)[/]?$', entity.merge,                    name='creme_core__merge_entities'),
 ]
 
 relation_patterns = [
@@ -44,17 +44,16 @@ relation_patterns = [
     url(r'^add/(?P<subject_id>\d+)/(?P<rtype_id>[\w-]+)[/]?$', relation.add_relations,                name='creme_core__create_relations'),
     url(r'^add_from_predicate/save[/]?$',                      relation.add_relations_with_same_type, name='creme_core__save_relations'),
 
-    # Beware of the order!!!
-    url(r'^add_to_entities/(?P<model_ct_id>\d+)/(?P<relations_types>([-_\w]+[,]*)+)[/]?$', relation.add_relations_bulk, name='creme_core__create_relations_bulk'),  # DEPRECATED
-    url(r'^add_to_entities/(?P<model_ct_id>\d+)[/]?$',                                     relation.add_relations_bulk, name='creme_core__create_relations_bulk'),
+    # url(r'^add_to_entities/(?P<model_ct_id>\d+)/(?P<relations_types>([-_\w]+[,]*)+)[/]?$', relation.add_relations_bulk, name='creme_core__create_relations_bulk'),
+    url(r'^add_to_entities/(?P<model_ct_id>\d+)[/]?$', relation.add_relations_bulk, name='creme_core__create_relations_bulk'),
 
     url(r'^objects2link[/]?$', relation.select_relations_objects, name='creme_core__select_entities_to_link'),
-    url(r'^objects2link/rtype/(?P<rtype_id>[\w-]+)/entity/(?P<subject_id>\d+)/(?P<object_ct_id>\d+)[/]?$',
-        relation.objects_to_link_selection, name='creme_core__select_entities_to_link',
-       ),  # DEPRECATED
-    url(r'^objects2link/rtype/(?P<rtype_id>[\w-]+)/entity/(?P<subject_id>\d+)/(?P<object_ct_id>\d+)/simple[/]?$',
-        relation.objects_to_link_selection, {'o2m': True}, name='creme_core__select_entities_to_link',
-       ),  # DEPRECATED
+    # url(r'^objects2link/rtype/(?P<rtype_id>[\w-]+)/entity/(?P<subject_id>\d+)/(?P<object_ct_id>\d+)[/]?$',
+    #     relation.objects_to_link_selection, name='creme_core__select_entities_to_link',
+    #    ),
+    # url(r'^objects2link/rtype/(?P<rtype_id>[\w-]+)/entity/(?P<subject_id>\d+)/(?P<object_ct_id>\d+)/simple[/]?$',
+    #     relation.objects_to_link_selection, {'o2m': True}, name='creme_core__select_entities_to_link',
+    #    ),
 
     url(r'^delete[/]?$',         relation.delete,         name='creme_core__delete_relation'),
     url(r'^delete/similar[/]?$', relation.delete_similar, name='creme_core__delete_similar_relations'),
@@ -76,26 +75,25 @@ property_patterns = [
     url(r'^type/(?P<ptype_id>[\w-]+)/edit[/]?$',          creme_property.edit_type,       name='creme_core__edit_ptype'),
     url(r'^type/(?P<ptype_id>[\w-]+)/delete[/]?$',        creme_property.delete_type,     name='creme_core__delete_ptype'),
     url(r'^type/(?P<ptype_id>[\w-]+)/reload_bricks[/]?$', creme_property.reload_bricks,   name='creme_core__reload_ptype_bricks'),
-    url(r'^type/(?P<ptype_id>[\w-]+)/reload_block/(?P<block_id>[\w\-]+)[/]?$',
-        creme_property.reload_block,
-        name='creme_core__reload_ptype_blocks',
-       ),  # DEPRECATED
+    # url(r'^type/(?P<ptype_id>[\w-]+)/reload_block/(?P<block_id>[\w\-]+)[/]?$',
+    #     creme_property.reload_block,
+    #     name='creme_core__reload_ptype_blocks',
+    #    ),
 ]
 
-# DEPRECATED
-blocks_patterns = [
-    url(r'^relations_block/(?P<entity_id>\d+)[/]?$',                                blocks.reload_relations_block, name='creme_core__reload_relations_block'),
-    url(r'^relations_block/(?P<entity_id>\d+)/(?P<relation_type_ids>[\w,-]+)[/]?$', blocks.reload_relations_block, name='creme_core__reload_relations_block'),
-
-    url(r'^(?P<block_id>[\w\-\|]+)/(?P<entity_id>\d+)[/]?$', blocks.reload_detailview, name='creme_core__reload_detailview_blocks'),
-
-    url(r'^home/(?P<block_id>[\w\-\|]+)[/]?$',                      blocks.reload_home,   name='creme_core__reload_home_blocks'),
-    url(r'^portal/(?P<block_id>[\w\-\|]+)/(?P<ct_ids>[\d,]+)[/]?$', blocks.reload_portal, name='creme_core__reload_portal_blocks'),
-
-    url(r'^basic/(?P<block_id>[\w\-\|]+)[/]?$', blocks.reload_basic, name='creme_core__reload_blocks'),
-
-    url(r'^set_state/(?P<block_id>[\w\-\|]+)[/]?$', blocks.set_state, name='creme_core__set_block_state'),
-]
+# blocks_patterns = [
+#     url(r'^relations_block/(?P<entity_id>\d+)[/]?$',                                blocks.reload_relations_block, name='creme_core__reload_relations_block'),
+#     url(r'^relations_block/(?P<entity_id>\d+)/(?P<relation_type_ids>[\w,-]+)[/]?$', blocks.reload_relations_block, name='creme_core__reload_relations_block'),
+#
+#     url(r'^(?P<block_id>[\w\-\|]+)/(?P<entity_id>\d+)[/]?$', blocks.reload_detailview, name='creme_core__reload_detailview_blocks'),
+#
+#     url(r'^home/(?P<block_id>[\w\-\|]+)[/]?$',                      blocks.reload_home,   name='creme_core__reload_home_blocks'),
+#     url(r'^portal/(?P<block_id>[\w\-\|]+)/(?P<ct_ids>[\d,]+)[/]?$', blocks.reload_portal, name='creme_core__reload_portal_blocks'),
+#
+#     url(r'^basic/(?P<block_id>[\w\-\|]+)[/]?$', blocks.reload_basic, name='creme_core__reload_blocks'),
+#
+#     url(r'^set_state/(?P<block_id>[\w\-\|]+)[/]?$', blocks.set_state, name='creme_core__set_block_state'),
+# ]
 
 bricks_patterns = [
     url(r'^reload[/]?$',                               bricks.reload_basic,      name='creme_core__reload_bricks'),
@@ -117,8 +115,8 @@ entity_filter_patterns = [
        ),
 
     url(r'^get_for_ctype[/]?$', entity_filter.get_for_ctype, name='creme_core__efilters'),
-    url(r'^get_for_ctype/(?P<ct_id>\d+)[/]?$',     entity_filter.get_for_ctype,                        name='creme_core__efilters'),  # DEPRECATED
-    url(r'^get_for_ctype/(?P<ct_id>\d+)/all[/]?$', entity_filter.get_for_ctype, {'include_all': True}, name='creme_core__efilters_n_all'),  # DEPRECATED
+    # url(r'^get_for_ctype/(?P<ct_id>\d+)[/]?$',     entity_filter.get_for_ctype,                        name='creme_core__efilters'),
+    # url(r'^get_for_ctype/(?P<ct_id>\d+)/all[/]?$', entity_filter.get_for_ctype, {'include_all': True}, name='creme_core__efilters_n_all'),
 ]
 
 headerfilter_patterns = [
@@ -126,7 +124,7 @@ headerfilter_patterns = [
     url(r'^edit/(?P<header_filter_id>[\w-]+)[/]?$', header_filter.edit,          name='creme_core__edit_hfilter'),
     url(r'^delete[/]*',                             header_filter.delete,        name='creme_core__delete_hfilter'),
     url(r'^get_for_ctype[/]?$',                     header_filter.get_for_ctype, name='creme_core__hfilters'),
-    url(r'^get_for_ctype/(?P<ct_id>\d+)[/]?$',      header_filter.get_for_ctype, name='creme_core__hfilters'),  # DEPRECATED
+    # url(r'^get_for_ctype/(?P<ct_id>\d+)[/]?$',      header_filter.get_for_ctype, name='creme_core__hfilters'),
 ]
 
 enumerable_patterns = [
@@ -151,12 +149,11 @@ job_patterns = [
         url(r'^/reload[/]?$',  job.reload_bricks,              name='creme_core__reload_job_bricks'),
     ])),
 ]
-
 creme_core_patterns = [
     url(r'^entity/',        include(entity_patterns)),
     url(r'^relation/',      include(relation_patterns)),
     url(r'^property/',      include(property_patterns)),
-    url(r'^blocks/reload/', include(blocks_patterns)),
+    # url(r'^blocks/reload/', include(blocks_patterns)),
     url(r'^bricks/',        include(bricks_patterns)),
     url(r'^entity_filter/', include(entity_filter_patterns)),
     url(r'^header_filter/', include(headerfilter_patterns)),
@@ -164,17 +161,17 @@ creme_core_patterns = [
     url(r'^job/',           include(job_patterns)),
 
     url(r'^list_view/popup[/]?$', entity.list_view_popup, name='creme_core__listview_popup'),
-    url(r'^list_view/popup/(?P<ct_id>\d+)/(?P<o2m>0|1)[/]?$', listview.list_view_popup_from_widget, name='creme_core__listview_popup'),  # DEPRECATED
+    # url(r'^list_view/popup/(?P<ct_id>\d+)/(?P<o2m>0|1)[/]?$', listview.list_view_popup_from_widget, name='creme_core__listview_popup'),
 
     url(r'^list_view/download[/]?$', list_view_export.dl_listview, name='creme_core__dl_listview'),
-    url(r'^list_view/download/(?P<ct_id>\d+)/(?P<doc_type>[\w-]+)[/]?$',
-        list_view_export.dl_listview, {'header_only': False},
-        name='creme_core__dl_listview',
-       ),  # DEPRECATED
-    url(r'^list_view/download_header/(?P<ct_id>\d+)/(?P<doc_type>[\w-]+)[/]?$',
-        list_view_export.dl_listview, {'header_only': True},
-        name='creme_core__dl_listview_header',
-       ),  # DEPRECATED
+    # url(r'^list_view/download/(?P<ct_id>\d+)/(?P<doc_type>[\w-]+)[/]?$',
+    #     list_view_export.dl_listview, {'header_only': False},
+    #     name='creme_core__dl_listview',
+    #    ),
+    # url(r'^list_view/download_header/(?P<ct_id>\d+)/(?P<doc_type>[\w-]+)[/]?$',
+    #     list_view_export.dl_listview, {'header_only': True},
+    #     name='creme_core__dl_listview_header',
+    #    ),
 
     url(r'^mass_import/(?P<ct_id>\d+)[/]?$',            mass_import.mass_import,     name='creme_core__mass_import'),
     url(r'^mass_import/dl_errors/(?P<job_id>\d+)[/]?$', mass_import.download_errors, name='creme_core__dl_mass_import_errors'),
@@ -187,11 +184,13 @@ creme_core_patterns = [
     url(r'^search[/]?$',              search.search,       name='creme_core__search'),
     url(r'^search/light[/]?$',        search.light_search, name='creme_core__light_search'),
     url(r'^search/reload_brick[/]?$', search.reload_brick, name='creme_core__reload_search_brick'),
-    url(r'^search/reload_block/(?P<block_id>[\w\-\|]+)/(?P<research>.+)[/]?$', search.reload_block, name='creme_core__reload_search_block'),  # DEPRECATED
+    # url(r'^search/reload_block/(?P<block_id>[\w\-\|]+)/(?P<research>.+)[/]?$', search.reload_block, name='creme_core__reload_search_block'),
 
-    url(r'^quickforms/(?P<ct_id>\d+)/(?P<count>\d)[/]?$',                  quick_forms.add,             name='creme_core__quick_forms'),
-    url(r'^quickforms/from_widget/(?P<ct_id>\d+)/add/(?P<count>\d)*[/]?$', quick_forms.add_from_widget, name='creme_core__quick_form'),  # TODO: remove 'count' in creme1.8
+    url(r'^quickforms/(?P<ct_id>\d+)/(?P<count>\d)[/]?$',   quick_forms.add,             name='creme_core__quick_forms'),
+    url(r'^quickforms/from_widget/(?P<ct_id>\d+)/add[/]?$', quick_forms.add_from_widget, name='creme_core__quick_form'),
+    # url(r'^quickforms/from_widget/(?P<ct_id>\d+)/add/(?P<count>\d)*[/]?$', quick_forms.add_from_widget, name='creme_core__quick_form'),
 ]
+
 
 urlpatterns = [
     url(r'^$',            index.home,    name='creme_core__home'),

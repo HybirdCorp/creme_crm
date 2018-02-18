@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging, warnings
+import logging  # warnings
 
 from django.utils.html import format_html  # escape
 # from django.utils.safestring import mark_safe
@@ -291,14 +291,14 @@ class IconRegistry(object):
         """
         self._icons_4_objects[model] = info_function
 
-    def get(self, model, size):
-        warnings.warn('The method creme_core.gui.icons.IconRegistry.get() is deprecated ; '
-                      'use IconRegistry.get_4_model() instead.',
-                      DeprecationWarning
-                     )
-
-        path = self._icons.get(model)
-        return path and (path % {'size': size})
+    # def get(self, model, size):
+    #     warnings.warn('The method creme_core.gui.icons.IconRegistry.get() is deprecated ; '
+    #                   'use IconRegistry.get_4_model() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     path = self._icons.get(model)
+    #     return path and (path % {'size': size})
 
     def get_4_model(self, model, theme, size_px):
         url = ''

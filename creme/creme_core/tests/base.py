@@ -114,14 +114,14 @@ class _CremeTestCase(object):
 
         return self.user
 
-    @classmethod
-    def populate(cls, *args):
-        warnings.warn("_CremeTestCase.populate() method is deprecated, "
-                      "because it's useless if you are not in a CremeTransactionTestCase.",
-                      DeprecationWarning
-                     )
-
-        PopulateCommand().execute(*args, verbosity=0)
+    # @classmethod
+    # def populate(cls, *args):
+    #     warnings.warn("_CremeTestCase.populate() method is deprecated, "
+    #                   "because it's useless if you are not in a CremeTransactionTestCase.",
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     PopulateCommand().execute(*args, verbosity=0)
 
     def assertCountOccurrences(self, member, container, count, msg=None):
         """Like self.assertEqual(count, container.count(member),
@@ -461,15 +461,15 @@ class _CremeTestCase(object):
                             ),
                       )
 
-    @staticmethod
-    def build_bulkedit_url(entities, fieldname=None):
-        args = [ContentType.objects.get_for_model(entities[0]).pk,
-                ','.join(str(e.pk) for e in entities),
-               ]
-        if fieldname:
-            args.append(fieldname)
-
-        return reverse('creme_core__bulk_edit_field_legacy', args=args)
+    # @staticmethod
+    # def build_bulkedit_url(entities, fieldname=None):
+    #     args = [ContentType.objects.get_for_model(entities[0]).pk,
+    #             ','.join(str(e.pk) for e in entities),
+    #            ]
+    #     if fieldname:
+    #         args.append(fieldname)
+    #
+    #     return reverse('creme_core__bulk_edit_field_legacy', args=args)
 
     @staticmethod
     def build_bulkupdate_url(model, fieldname=None):

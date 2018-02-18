@@ -53,27 +53,27 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertIn(orga03, contacts)
         self.assertNotIn(orga01, contacts)
 
-    def test_select_entity_for_merge01_legacy(self):  # TODO: delete in 1.8
-        user = self.login()
-
-        form_factory = merge_form_registry.get(FakeOrganisation)
-        self.assertIsNotNone(form_factory)
-        self.assertTrue(callable(form_factory))
-
-        create_orga = partial(FakeOrganisation.objects.create, user=user)
-        orga01 = create_orga(name='Genshiken')
-        orga02 = create_orga(name='Gen-shi-ken')
-        orga03 = create_orga(name='Manga Club')
-
-        response = self.assertGET200(reverse('creme_core__select_entity_for_merge', args=(orga01.id,)))
-
-        with self.assertNoException():
-            contacts = response.context['entities'].object_list
-
-        contacts = set(contacts)
-        self.assertIn(orga02, contacts)
-        self.assertIn(orga03, contacts)
-        self.assertNotIn(orga01, contacts)
+    # def test_select_entity_for_merge01_legacy(self):
+    #     user = self.login()
+    #
+    #     form_factory = merge_form_registry.get(FakeOrganisation)
+    #     self.assertIsNotNone(form_factory)
+    #     self.assertTrue(callable(form_factory))
+    #
+    #     create_orga = partial(FakeOrganisation.objects.create, user=user)
+    #     orga01 = create_orga(name='Genshiken')
+    #     orga02 = create_orga(name='Gen-shi-ken')
+    #     orga03 = create_orga(name='Manga Club')
+    #
+    #     response = self.assertGET200(reverse('creme_core__select_entity_for_merge', args=(orga01.id,)))
+    #
+    #     with self.assertNoException():
+    #         contacts = response.context['entities'].object_list
+    #
+    #     contacts = set(contacts)
+    #     self.assertIn(orga02, contacts)
+    #     self.assertIn(orga03, contacts)
+    #     self.assertNotIn(orga01, contacts)
 
     def test_select_entity_for_merge02(self):
         "View credentials"
@@ -382,69 +382,69 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertEqual([language3],          list(new_contact01.languages.all()))
         self.assertEqual(image2,               new_contact01.image)
 
-    def test_merge02_legacy(self):  # TODO: delete in 1.8
-        "2 Contacts, M2M, foreign key to CremeEntities"
-        user = self.login()
-
-        create_img = partial(FakeImage.objects.create, user=user)
-        image1 = create_img(name='Kosaka face')
-        image2 = create_img(name='Kousaka selfie')
-        create_img(name='Genshiken logo')  # Should not be proposed by the form
-
-        create_contact = partial(FakeContact.objects.create, user=user)
-        contact01 = create_contact(first_name='Makoto', last_name='Kosaka',  image=image1)
-        contact02 = create_contact(first_name='Makoto', last_name='Kousaka', image=image2)
-
-        language1, language2 = Language.objects.all()[:2]
-        language3 = Language.objects.create(name=u'Klingon', code='KLN')
-
-        contact01.languages = [language1]
-        contact02.languages = [language1, language2]
-
-        url = reverse('creme_core__merge_entities', args=(contact01.id, contact02.id))
-        response = self.assertGET200(url)
-
-        with self.assertNoException():
-            f_image = response.context['form'].fields['image']
-
-        self.assertFalse(f_image.required)
-        self.assertEqual([image1.id,  image2.id,  image1.id],  f_image.initial)
-
-        self.assertEqual(user, f_image._original_field.user)
-        self.assertEqual(FakeImage, f_image._original_field.model)
-
-        response = self.client.post(url, follow=True,
-                                    data={'user_1':      user.id,
-                                          'user_2':      user.id,
-                                          'user_merged': user.id,
-
-                                          'first_name_1':      contact01.first_name,
-                                          'first_name_2':      contact02.first_name,
-                                          'first_name_merged': contact01.first_name,
-
-                                          'last_name_1':      contact01.last_name,
-                                          'last_name_2':      contact02.last_name,
-                                          'last_name_merged': contact01.last_name,
-
-                                          'languages_1':      [language1.id],
-                                          'languages_2':      [language1.id, language2.id],
-                                          'languages_merged': [language3.id],  # <======
-
-                                          'image_1':      image1.id,
-                                          'image_2':      image2.id,
-                                          'image_merged': image2.id,
-                                         }
-                                   )
-        self.assertNoFormError(response)
-        self.assertRedirects(response, contact01.get_absolute_url())
-
-        self.assertDoesNotExist(contact02)
-
-        new_contact01 = self.refresh(contact01)
-        self.assertEqual(contact01.first_name, new_contact01.first_name)
-        self.assertEqual(contact01.last_name,  new_contact01.last_name)
-        self.assertEqual([language3],          list(new_contact01.languages.all()))
-        self.assertEqual(image2,               new_contact01.image)
+    # def test_merge02_legacy(self):
+    #     "2 Contacts, M2M, foreign key to CremeEntities"
+    #     user = self.login()
+    #
+    #     create_img = partial(FakeImage.objects.create, user=user)
+    #     image1 = create_img(name='Kosaka face')
+    #     image2 = create_img(name='Kousaka selfie')
+    #     create_img(name='Genshiken logo')  # Should not be proposed by the form
+    #
+    #     create_contact = partial(FakeContact.objects.create, user=user)
+    #     contact01 = create_contact(first_name='Makoto', last_name='Kosaka',  image=image1)
+    #     contact02 = create_contact(first_name='Makoto', last_name='Kousaka', image=image2)
+    #
+    #     language1, language2 = Language.objects.all()[:2]
+    #     language3 = Language.objects.create(name=u'Klingon', code='KLN')
+    #
+    #     contact01.languages = [language1]
+    #     contact02.languages = [language1, language2]
+    #
+    #     url = reverse('creme_core__merge_entities', args=(contact01.id, contact02.id))
+    #     response = self.assertGET200(url)
+    #
+    #     with self.assertNoException():
+    #         f_image = response.context['form'].fields['image']
+    #
+    #     self.assertFalse(f_image.required)
+    #     self.assertEqual([image1.id,  image2.id,  image1.id],  f_image.initial)
+    #
+    #     self.assertEqual(user, f_image._original_field.user)
+    #     self.assertEqual(FakeImage, f_image._original_field.model)
+    #
+    #     response = self.client.post(url, follow=True,
+    #                                 data={'user_1':      user.id,
+    #                                       'user_2':      user.id,
+    #                                       'user_merged': user.id,
+    #
+    #                                       'first_name_1':      contact01.first_name,
+    #                                       'first_name_2':      contact02.first_name,
+    #                                       'first_name_merged': contact01.first_name,
+    #
+    #                                       'last_name_1':      contact01.last_name,
+    #                                       'last_name_2':      contact02.last_name,
+    #                                       'last_name_merged': contact01.last_name,
+    #
+    #                                       'languages_1':      [language1.id],
+    #                                       'languages_2':      [language1.id, language2.id],
+    #                                       'languages_merged': [language3.id],  # <======
+    #
+    #                                       'image_1':      image1.id,
+    #                                       'image_2':      image2.id,
+    #                                       'image_merged': image2.id,
+    #                                      }
+    #                                )
+    #     self.assertNoFormError(response)
+    #     self.assertRedirects(response, contact01.get_absolute_url())
+    #
+    #     self.assertDoesNotExist(contact02)
+    #
+    #     new_contact01 = self.refresh(contact01)
+    #     self.assertEqual(contact01.first_name, new_contact01.first_name)
+    #     self.assertEqual(contact01.last_name,  new_contact01.last_name)
+    #     self.assertEqual([language3],          list(new_contact01.languages.all()))
+    #     self.assertEqual(image2,               new_contact01.image)
 
     def test_merge03(self):
         "Initial values come in priority from the last edited entity"

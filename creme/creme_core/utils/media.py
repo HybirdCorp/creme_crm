@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.conf import settings
 
@@ -48,15 +48,15 @@ def get_current_theme_from_context(context):
         return get_current_theme()
 
 
-def get_current_theme_vb(theme_name=None):
-    """Get the verbose name of the current theme"""
-    warnings.warn("utils.media.get_current_theme_vb() method is deprecated.",
-                  DeprecationWarning
-                 )
-
-    if theme_name is None:
-        theme_name = get_current_theme()
-
-    for themename, theme_vb_name in settings.THEMES:
-        if theme_name == themename:
-            return theme_vb_name
+# def get_current_theme_vb(theme_name=None):
+#     """Get the verbose name of the current theme"""
+#     warnings.warn("utils.media.get_current_theme_vb() method is deprecated.",
+#                   DeprecationWarning
+#                  )
+#
+#     if theme_name is None:
+#         theme_name = get_current_theme()
+#
+#     for themename, theme_vb_name in settings.THEMES:
+#         if theme_name == themename:
+#             return theme_vb_name

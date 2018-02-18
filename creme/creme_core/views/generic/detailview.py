@@ -88,7 +88,7 @@ def detailview_bricks(user, entity):
     }
 
 
-def view_entity(request, object_id, model, path='',
+def view_entity(request, object_id, model, # path='',
                 template='creme_core/generics/view_entity.html',
                 extra_template_dict=None):
     entity = get_object_or_404(model, pk=object_id)
@@ -104,8 +104,8 @@ def view_entity(request, object_id, model, path='',
         'bricks_reload_url': reverse('creme_core__reload_detailview_bricks', args=(entity.id,)),
     }
 
-    if path:
-        raise ValueError('The argument "path" is deprecated & will be removed in Creme 1.8')
+    # if path:
+    #     raise ValueError('The argument "path" is deprecated & will be removed in Creme 1.8')
 
     if extra_template_dict is not None:
         template_dict.update(extra_template_dict)

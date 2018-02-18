@@ -56,7 +56,7 @@ __all__ = ('GenericEntityField', 'MultiGenericEntityField',
            'OptionalField', 'OptionalChoiceField', 'OptionalModelChoiceField',
            'ListEditionField',
            'AjaxChoiceField', 'AjaxMultipleChoiceField', 'AjaxModelChoiceField',
-           'CremeTimeField', 'CremeDateField', 'CremeDateTimeField',
+           # 'CremeTimeField', 'CremeDateField', 'CremeDateTimeField',
            'DatePeriodField', 'DateRangeField', 'ColorField', 'DurationField',
            'ChoiceOrCharField',
            'CTypeChoiceField', 'EntityCTypeChoiceField',
@@ -311,11 +311,11 @@ class GenericEntityField(EntityCredsJSONField):
     @allowed_models.setter
     def allowed_models(self, allowed):
         """@param allowed: An iterable of models (ie: classes inheriting django.db.Model)."""
-        if not hasattr(allowed, '__iter__'):
-            warnings.warn("GenericEntityField.allowed_models property should take an iterable.",
-                          DeprecationWarning
-                         )
-            allowed = ()
+        # if not hasattr(allowed, '__iter__'):
+        #     warnings.warn("GenericEntityField.allowed_models property should take an iterable.",
+        #                   DeprecationWarning
+        #                  )
+        #     allowed = ()
 
         self._allowed_models = list(allowed)
         self._update_widget_choices()
@@ -1186,34 +1186,34 @@ class AjaxModelChoiceField(ModelChoiceField):
         return value
 
 
-class CremeTimeField(fields.TimeField):
-    widget = core_widgets.TimeWidget
-
-    def __init__(self, *args, **kwargs):
-        super(CremeTimeField, self).__init__(*args, **kwargs)
-        warnings.warn("CremeTimeField is deprecated ; use django TimeField instead or nothing at all.",
-                      DeprecationWarning
-                     )
-
-
-class CremeDateField(fields.DateField):
-    widget = core_widgets.CalendarWidget
-
-    def __init__(self, *args, **kwargs):
-        super(CremeDateField, self).__init__(*args, **kwargs)
-        warnings.warn("CremeDateField is deprecated ; use django DateField instead or nothing at all.",
-                      DeprecationWarning
-                     )
+# class CremeTimeField(fields.TimeField):
+#     widget = core_widgets.TimeWidget
+#
+#     def __init__(self, *args, **kwargs):
+#         super(CremeTimeField, self).__init__(*args, **kwargs)
+#         warnings.warn("CremeTimeField is deprecated ; use django TimeField instead or nothing at all.",
+#                       DeprecationWarning
+#                      )
 
 
-class CremeDateTimeField(fields.DateTimeField):
-    widget = core_widgets.CalendarWidget
+# class CremeDateField(fields.DateField):
+#     widget = core_widgets.CalendarWidget
+#
+#     def __init__(self, *args, **kwargs):
+#         super(CremeDateField, self).__init__(*args, **kwargs)
+#         warnings.warn("CremeDateField is deprecated ; use django DateField instead or nothing at all.",
+#                       DeprecationWarning
+#                      )
 
-    def __init__(self, *args, **kwargs):
-        super(CremeDateTimeField, self).__init__(*args, **kwargs)
-        warnings.warn("CremeDateTimeField is deprecated ; use django DateTimeField instead or nothing at all.",
-                      DeprecationWarning
-                     )
+
+# class CremeDateTimeField(fields.DateTimeField):
+#     widget = core_widgets.CalendarWidget
+#
+#     def __init__(self, *args, **kwargs):
+#         super(CremeDateTimeField, self).__init__(*args, **kwargs)
+#         warnings.warn("CremeDateTimeField is deprecated ; use django DateTimeField instead or nothing at all.",
+#                       DeprecationWarning
+#                      )
 
 
 class MultiEmailField(fields.Field):
@@ -1250,15 +1250,15 @@ class DatePeriodField(fields.MultiValueField):
         @param period_registry: see property 'period_registry'.
         @param period_names: see property 'period_names'.
         """
-        try:
-            period_names = kwargs.pop('choices')
-        except KeyError:
-            pass
-        else:
-            warnings.warn('DatePeriodField.__init__(): "choices" argument is deprecated ; '
-                          'use "period_names"  instead (same type).',
-                          DeprecationWarning
-                         )
+        # try:
+        #     period_names = kwargs.pop('choices')
+        # except KeyError:
+        #     pass
+        # else:
+        #     warnings.warn('DatePeriodField.__init__(): "choices" argument is deprecated ; '
+        #                   'use "period_names"  instead (same type).',
+        #                   DeprecationWarning
+        #                  )
 
         super(DatePeriodField, self).__init__((fields.ChoiceField(), fields.IntegerField(min_value=1)),
                                               *args, **kwargs

@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2017  Hybird
+    Copyright (C) 2009-2018  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -202,11 +202,6 @@ creme.utils.showInnerPopup = function(url, options, div_id, ajax_options, reload
            );
         },
         error: function(req, status, error) {
-//             if (!req.responseText || req.responseText == "") {
-//                 creme.utils.showDialog(gettext("Error during loading the page."));
-//             } else {
-//                 creme.utils.showDialog(req.responseText);
-//             }
             creme.dialogs.warning(req.responseText || gettext("Error during loading the page.")).open();
         }
     }, ajax_options));
@@ -312,6 +307,7 @@ creme.utils.reloadDialog = function(dial) {
     $.get(reload_url, function(data) { $(dial).html(data); });
 };
 
+// TODO: deprecate ?
 creme.utils.appendInUrl = function(url, strToAppend) {
     var index_get = url.indexOf('?');
     var get = "", anchor = "";
@@ -335,104 +331,104 @@ creme.utils.appendInUrl = function(url, strToAppend) {
     return url + anchor;
 };
 
-creme.utils.innerPopupNReload = function(url, reload_url) {
-    console.warn('creme.utils.innerPopupNReload() is deprecated ; use the new brick action system instead.');
+//creme.utils.innerPopupNReload = function(url, reload_url) {
+//    console.warn('creme.utils.innerPopupNReload() is deprecated ; use the new brick action system instead.');
+//
+//    creme.utils.showInnerPopup(url, {
+//        beforeClose: function(event, ui, dial) {
+//            creme.blocks.reload(reload_url);
+//        }
+//    });
+//};
 
-    creme.utils.showInnerPopup(url, {
-        beforeClose: function(event, ui, dial) {
-            creme.blocks.reload(reload_url);
-        }
-    });
-};
+//creme.utils.decorateSearchResult = function(research) {
+//    console.warn('creme.utils.decorateSearchResult() is deprecated.');
+//
+//    var research = research.toLowerCase();
+//
+//    var mark = function(results) {
+//        // Highlight the word that we are searching
+//        results.addClass('marked');
+//
+//        var _wrap = function() {
+//            var result = $(this);
+//
+//            if (result.prop('tagName')) {
+//                result.contents().each(_wrap);
+//            } else {
+//                if (result.text().toLowerCase().indexOf(research) >= 0) {
+//                    result.wrap($('<mark/>'));
+//                }
+//            }
+//        };
+//
+//        results.contents().each(_wrap);
+//    };
+//
+//    $('.search_results').each(function() {
+//        var root = $(this);
+//
+//        mark(root.find('.search_result'));
+//
+//        root.on('block-ready', function(e, block) {
+//            mark(block.find('.search_result:not(.marked)'));
+//        });
+//
+//        // We update the title ; this is done on client side because pagination is done in the template rendering
+//        // and we want to avoid making the count() queries twice.
+//        var total = 0;
+//        root.find('[search-count]').each(function() {
+//            total += parseInt(this.attr('search-count'));
+//        });
+//
+//        root.find('#search_results_title')
+//            .text(ngettext('Search results: %d entity', 'Search results: %d entities', total).format(total));
+//    });
+//};
 
-creme.utils.decorateSearchResult = function(research) {
-    console.warn('creme.utils.decorateSearchResult() is deprecated.');
+//creme.utils.openQuickForms = function(element) {
+//    // NB: deprecated because it does not use reversed URLs
+//    //     creme.menu.openQuickForm() is OK, but need the new menu.
+//    console.warn('creme.utils.openQuickForms() is deprecated.');
+//
+//    var uri = '/creme_core/quickforms/%s/%s';
+//    var type = $('[name="ct_id"]', element).val();
+//    var count = $('[name="entity_count"]', element).val();
+//
+//    creme.dialogs.form(uri.format(type, count), {reloadOnSuccess: true}).open();
+//};
 
-    var research = research.toLowerCase();
+//creme.utils.autoCheckallState = function(from, select_all_selector, checkboxes_selector) {
+//    console.warn('creme.utils.autoCheckallState() is deprecated.');
+//
+//    var $select_all = $(select_all_selector);
+//
+//    if (!$(from).is(':checked')) {
+//        $select_all.uncheck();
+//        return;
+//    }
+//
+//    var all_checked = true;
+//    $(checkboxes_selector).each(function() {
+//        all_checked = all_checked & $(this).is(':checked');
+//    });
+//
+//    if (all_checked) {
+//        $select_all.check();
+//    } else {
+//        $select_all.uncheck();
+//    }
+//};
 
-    var mark = function(results) {
-        // Highlight the word that we are searching
-        results.addClass('marked');
-
-        var _wrap = function() {
-            var result = $(this);
-
-            if (result.prop('tagName')) {
-                result.contents().each(_wrap);
-            } else {
-                if (result.text().toLowerCase().indexOf(research) >= 0) {
-                    result.wrap($('<mark/>'));
-                }
-            }
-        };
-
-        results.contents().each(_wrap);
-    };
-
-    $('.search_results').each(function() {
-        var root = $(this);
-
-        mark(root.find('.search_result'));
-
-        root.on('block-ready', function(e, block) {
-            mark(block.find('.search_result:not(.marked)'));
-        });
-
-        // We update the title ; this is done on client side because pagination is done in the template rendering
-        // and we want to avoid making the count() queries twice.
-        var total = 0;
-        root.find('[search-count]').each(function() {
-            total += parseInt(this.attr('search-count'));
-        });
-
-        root.find('#search_results_title')
-            .text(ngettext('Search results: %d entity', 'Search results: %d entities', total).format(total));
-    });
-};
-
-creme.utils.openQuickForms = function(element) {
-    // NB: deprecated because it does not use reversed URLs
-    //     creme.menu.openQuickForm() is OK, but need the new menu.
-    console.warn('creme.utils.openQuickForms() is deprecated.');
-
-    var uri = '/creme_core/quickforms/%s/%s';
-    var type = $('[name="ct_id"]', element).val();
-    var count = $('[name="entity_count"]', element).val();
-
-    creme.dialogs.form(uri.format(type, count), {reloadOnSuccess: true}).open();
-};
-
-creme.utils.autoCheckallState = function(from, select_all_selector, checkboxes_selector) {
-    console.warn('creme.utils.autoCheckallState() is deprecated.');
-
-    var $select_all = $(select_all_selector);
-
-    if (!$(from).is(':checked')) {
-        $select_all.uncheck();
-        return;
-    }
-
-    var all_checked = true;
-    $(checkboxes_selector).each(function() {
-        all_checked = all_checked & $(this).is(':checked');
-    });
-
-    if (all_checked) {
-        $select_all.check();
-    } else {
-        $select_all.uncheck();
-    }
-};
-
-creme.utils.toggleCheckallState = function(select_all, checkboxes_selector) {
-    console.warn('creme.utils.toggleCheckallState() is deprecated.');
-
-    if ($(select_all).is(':checked')) {
-        $(checkboxes_selector).check();
-    } else {
-        $(checkboxes_selector).uncheck();
-    }
-};
+//creme.utils.toggleCheckallState = function(select_all, checkboxes_selector) {
+//    console.warn('creme.utils.toggleCheckallState() is deprecated.');
+//
+//    if ($(select_all).is(':checked')) {
+//        $(checkboxes_selector).check();
+//    } else {
+//        $(checkboxes_selector).uncheck();
+//    }
+//};
 
 creme.utils.showErrorNReload = function() {
     creme.dialogs.warning('<p><b>' + gettext("Error !") + '</b></p><p>' + gettext("The page will be reload !") + '</p>')

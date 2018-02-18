@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging, warnings
+import logging  # warnings
 
 from django.conf import settings
 from django.template import Library, TemplateSyntaxError, Node as TemplateNode
@@ -27,7 +27,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
 from ..gui.icons import icon_registry, get_icon_size_px, get_icon_by_name
-from ..utils.media import get_creme_media_url, get_current_theme_from_context
+from ..utils.media import get_current_theme_from_context  # get_creme_media_url
 from . import KWARG_RE
 
 
@@ -215,45 +215,45 @@ class IconRendererNode(TemplateNode):
 # WIDGET ICON [END] ------------------------------------------------------------
 
 
-@register.inclusion_tag('creme_core/templatetags/widgets/add_button.html', takes_context=True)
-def get_add_button(context, entity, user):
-    warnings.warn('{% get_add_button %} is deprecated.', DeprecationWarning)
-
-    context['can_add'] = user.has_perm_to_create(entity)
-
-    return context
-
-
-@register.inclusion_tag('creme_core/templatetags/widgets/delete_button.html', takes_context=True)
-def get_delete_button(context, entity, user):
-    warnings.warn('{% get_edit_button %} is deprecated.', DeprecationWarning)
-
-    context['can_delete'] = user.has_perm_to_delete(entity)
-    return context
+# @register.inclusion_tag('creme_core/templatetags/widgets/add_button.html', takes_context=True)
+# def get_add_button(context, entity, user):
+#     warnings.warn('{% get_add_button %} is deprecated.', DeprecationWarning)
+#
+#     context['can_add'] = user.has_perm_to_create(entity)
+#
+#     return context
 
 
-@register.inclusion_tag('creme_core/templatetags/widgets/restore_button.html', takes_context=True)
-def get_restore_button(context, entity, user):
-    warnings.warn('{% get_restore_button %} is deprecated.', DeprecationWarning)
-
-    context['can_delete'] = user.has_perm_to_delete(entity)
-    return context
-
-
-@register.inclusion_tag('creme_core/templatetags/widgets/edit_button.html', takes_context=True)
-def get_edit_button(context, entity, user):
-    warnings.warn('{% get_edit_button %} is deprecated.', DeprecationWarning)
-
-    context['can_change'] = user.has_perm_to_change(entity)
-    return context
+# @register.inclusion_tag('creme_core/templatetags/widgets/delete_button.html', takes_context=True)
+# def get_delete_button(context, entity, user):
+#     warnings.warn('{% get_edit_button %} is deprecated.', DeprecationWarning)
+#
+#     context['can_delete'] = user.has_perm_to_delete(entity)
+#     return context
 
 
-@register.inclusion_tag('creme_core/templatetags/widgets/clone_button.html', takes_context=True)
-def get_clone_button(context, entity, user):
-    warnings.warn('{% get_clone_button %} is deprecated.', DeprecationWarning)
+# @register.inclusion_tag('creme_core/templatetags/widgets/restore_button.html', takes_context=True)
+# def get_restore_button(context, entity, user):
+#     warnings.warn('{% get_restore_button %} is deprecated.', DeprecationWarning)
+#
+#     context['can_delete'] = user.has_perm_to_delete(entity)
+#     return context
 
-    context['can_create'] = user.has_perm_to_create(entity)
-    return context
+
+# @register.inclusion_tag('creme_core/templatetags/widgets/edit_button.html', takes_context=True)
+# def get_edit_button(context, entity, user):
+#     warnings.warn('{% get_edit_button %} is deprecated.', DeprecationWarning)
+#
+#     context['can_change'] = user.has_perm_to_change(entity)
+#     return context
+
+
+# @register.inclusion_tag('creme_core/templatetags/widgets/clone_button.html', takes_context=True)
+# def get_clone_button(context, entity, user):
+#     warnings.warn('{% get_clone_button %} is deprecated.', DeprecationWarning)
+#
+#     context['can_create'] = user.has_perm_to_create(entity)
+#     return context
 
 
 @register.inclusion_tag('creme_core/templatetags/widgets/entity_actions.html', takes_context=True)
@@ -308,65 +308,65 @@ def widget_enumerator(items, threshold=None, empty=''):
     return {'items': items, 'threshold': threshold, 'empty_label': empty}
 
 
-def _get_image_path_for_model(theme, model, size):
-    warnings.warn('creme_widgets._get_image_path_for_model() is deprecated.', DeprecationWarning)
-
-    from ..constants import ICON_SIZE_MAP
-
-    path = icon_registry.get(model, ICON_SIZE_MAP[size])
-
-    if not path:
-        return ''
-
-    try:
-        path = get_creme_media_url(theme, path)
-    except KeyError:
-        path = ''
-
-    return path
-
-
-def _get_image_for_model(theme, model, size):
-    warnings.warn('creme_widgets._get_image_for_model() is deprecated.', DeprecationWarning)
-
-    path = _get_image_path_for_model(theme, model, size)
-    return u'<img src="%(src)s" alt="%(title)s" title="%(title)s" />' % {
-                    'src':   path,
-                    'title': model._meta.verbose_name,
-                }
+# def _get_image_path_for_model(theme, model, size):
+#     warnings.warn('creme_widgets._get_image_path_for_model() is deprecated.', DeprecationWarning)
+#
+#     from ..constants import ICON_SIZE_MAP
+#
+#     path = icon_registry.get(model, ICON_SIZE_MAP[size])
+#
+#     if not path:
+#         return ''
+#
+#     try:
+#         path = get_creme_media_url(theme, path)
+#     except KeyError:
+#         path = ''
+#
+#     return path
 
 
-@register.simple_tag(takes_context=True)
-def get_image_for_object(context, obj, size):
-    """{% get_image_for_object object 'big' %}"""
-    warnings.warn('{% get_image_for_object ... %} is deprecated ; '
-                  'use {% widget_icon instance= ... %} instead.',
-                  DeprecationWarning
-                 )
-
-    return _get_image_for_model(context['THEME_NAME'], obj.__class__, size)
-
-
-@register.simple_tag(takes_context=True)
-def get_image_for_ctype(context, ctype, size):
-    """{% get_image_for_ctype ctype 'small' %}"""
-    warnings.warn('{% get_image_for_ctype ... %} is deprecated ; '
-                  'use {% widget_icon ctype= ... %} instead.',
-                  DeprecationWarning
-                 )
-
-    return _get_image_for_model(context['THEME_NAME'], ctype.model_class(), size)
+# def _get_image_for_model(theme, model, size):
+#     warnings.warn('creme_widgets._get_image_for_model() is deprecated.', DeprecationWarning)
+#
+#     path = _get_image_path_for_model(theme, model, size)
+#     return u'<img src="%(src)s" alt="%(title)s" title="%(title)s" />' % {
+#                     'src':   path,
+#                     'title': model._meta.verbose_name,
+#                 }
 
 
-@register.simple_tag(takes_context=True)
-def get_image_path_for_ctype(context, ctype, size):
-    """{% get_image_path_for_ctype ctype 'small' %}"""
-    warnings.warn('{% get_image_path_for_ctype ... %} is deprecated ; '
-                  'use {% widget_icon ctype= ... %} instead.',
-                  DeprecationWarning
-                 )
+# @register.simple_tag(takes_context=True)
+# def get_image_for_object(context, obj, size):
+#     """{% get_image_for_object object 'big' %}"""
+#     warnings.warn('{% get_image_for_object ... %} is deprecated ; '
+#                   'use {% widget_icon instance= ... %} instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     return _get_image_for_model(context['THEME_NAME'], obj.__class__, size)
 
-    return _get_image_path_for_model(context['THEME_NAME'], ctype.model_class(), size)
+
+# @register.simple_tag(takes_context=True)
+# def get_image_for_ctype(context, ctype, size):
+#     """{% get_image_for_ctype ctype 'small' %}"""
+#     warnings.warn('{% get_image_for_ctype ... %} is deprecated ; '
+#                   'use {% widget_icon ctype= ... %} instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     return _get_image_for_model(context['THEME_NAME'], ctype.model_class(), size)
+
+
+# @register.simple_tag(takes_context=True)
+# def get_image_path_for_ctype(context, ctype, size):
+#     """{% get_image_path_for_ctype ctype 'small' %}"""
+#     warnings.warn('{% get_image_path_for_ctype ... %} is deprecated ; '
+#                   'use {% widget_icon ctype= ... %} instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     return _get_image_path_for_model(context['THEME_NAME'], ctype.model_class(), size)
 
 
 @register.tag(name='widget_join')

@@ -48,7 +48,7 @@ class PropertiesBrick(QuerysetBrick):
         entity = context['object']
         return self._render(self.get_template_context(
                     context, entity.properties.select_related('type'),
-                    ct_id=ContentType.objects.get_for_model(CremeProperty).id,  # DEPRECATED (use 'objects_ctype.id' instead)
+                    # ct_id=ContentType.objects.get_for_model(CremeProperty).id,
         ))
 
 

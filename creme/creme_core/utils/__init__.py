@@ -29,7 +29,7 @@ from json import dumps as json_dump
 import logging
 import sys
 import traceback
-import warnings
+# import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
@@ -387,11 +387,11 @@ def prefixed_truncate(s, prefix, length):
     return prefix + s[:rem_len]
 
 
-def is_testenvironment(request):
-    warnings.warn("is_testenvironment() function is deprecated ; use settings.TESTS_ON instead",
-                  DeprecationWarning
-                 )
-    return request.META.get('SERVER_NAME') == 'testserver'
+# def is_testenvironment(request):
+#     warnings.warn("is_testenvironment() function is deprecated ; use settings.TESTS_ON instead",
+#                   DeprecationWarning
+#                  )
+#     return request.META.get('SERVER_NAME') == 'testserver'
 
 
 def safe_unicode(value, encodings=None):

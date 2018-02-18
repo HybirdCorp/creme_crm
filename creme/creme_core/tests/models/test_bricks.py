@@ -10,8 +10,7 @@ try:
 
     from ..base import CremeTestCase
     from ..fake_models import FakeContact, FakeOrganisation, FakeImage
-    from creme.creme_core.blocks import (relations_block, properties_block,
-             customfields_block, history_block)
+    from creme.creme_core.bricks import RelationsBrick, PropertiesBrick, CustomFieldsBrick, HistoryBrick
     from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellFunctionField
     from creme.creme_core.gui.bricks import Brick
     from creme.creme_core.models import (BlockDetailviewLocation, UserRole,
@@ -53,12 +52,12 @@ class BlockTestCase(CremeTestCase):
                 print('CremeBlockTagsTestCase: test-data backup problem with model=%s (%s)' % (model, e))
 
     def test_populate(self):
-        self.assertLessEqual({'modelblock', customfields_block.id_, relations_block.id_,
-                              properties_block.id_, history_block.id_,
+        self.assertLessEqual({'modelblock', CustomFieldsBrick.id_, RelationsBrick.id_,
+                              PropertiesBrick.id_, HistoryBrick.id_,
                               },
                              {loc.block_id for loc in self._bdl_backup}
                             )
-        block_id = history_block.id_
+        block_id = HistoryBrick.id_
         self.assertIn(block_id, {bpl.block_id for bpl in self._bpl_backup if bpl.app_name == ''})
         self.assertIn(block_id, {bpl.block_id for bpl in self._bpl_backup if bpl.app_name == 'creme_core'})
         self.assertIn(block_id, {bml.block_id for bml in self._bml_backup if bml.user is None})
@@ -67,7 +66,7 @@ class BlockTestCase(CremeTestCase):
         "Default configuration"
         order = 25
         zone = BlockDetailviewLocation.TOP
-        block_id = relations_block.id_
+        block_id = RelationsBrick.id_
         loc = BlockDetailviewLocation.create(block_id=block_id, order=order, zone=zone)
         loc = self.get_object_or_fail(BlockDetailviewLocation, pk=loc.pk)
         self.assertIsNone(loc.content_type)
@@ -81,7 +80,7 @@ class BlockTestCase(CremeTestCase):
 
         order = 4
         zone = BlockDetailviewLocation.LEFT
-        block_id = properties_block.id_
+        block_id = PropertiesBrick.id_
         loc = BlockDetailviewLocation.create(block_id=block_id, order=order, zone=zone, model=FakeContact)
         loc = self.get_object_or_fail(BlockDetailviewLocation, pk=loc.pk)
         self.assertEqual(FakeContact, loc.content_type.model_class())
@@ -93,7 +92,7 @@ class BlockTestCase(CremeTestCase):
 
     def test_create_detailview03(self):
         "Do not create if already exists (in any zone/order)"
-        block_id = properties_block.id_
+        block_id = PropertiesBrick.id_
         order = 5
         zone = BlockDetailviewLocation.RIGHT
 
@@ -115,7 +114,7 @@ class BlockTestCase(CremeTestCase):
         "For a Role"
         role = UserRole.objects.create(name='Viewer')
 
-        block_id = properties_block.id_
+        block_id = PropertiesBrick.id_
         order = 5
         zone = BlockDetailviewLocation.RIGHT
 
@@ -147,7 +146,7 @@ class BlockTestCase(CremeTestCase):
 
     def test_create_detailview05(self):
         "For super-users"
-        block_id = properties_block.id_
+        block_id = PropertiesBrick.id_
         order = 5
         zone = BlockDetailviewLocation.RIGHT
 
@@ -180,24 +179,24 @@ class BlockTestCase(CremeTestCase):
     def test_create_detailview06(self):
         "Default configuration cannot have a related role"
         with self.assertRaises(ValueError):
-            BlockDetailviewLocation.create(block_id=properties_block.id_,
+            BlockDetailviewLocation.create(block_id=PropertiesBrick.id_,
                                            order=5, zone=BlockDetailviewLocation.RIGHT,
                                            model=None, role='superuser', # <==
                                           )
 
-    def test_create_4_model_block(self):
-        order = 5
-        zone = BlockDetailviewLocation.RIGHT
-        model = FakeContact
-        loc = BlockDetailviewLocation.create_4_model_block(order=order, zone=zone, model=model)
-
-        self.assertEqual(1, BlockDetailviewLocation.objects.count())
-
-        loc = self.get_object_or_fail(BlockDetailviewLocation, pk=loc.id)
-        self.assertEqual('modelblock', loc.block_id)
-        self.assertEqual(model,        loc.content_type.model_class())
-        self.assertEqual(order,        loc.order)
-        self.assertEqual(zone,         loc.zone)
+    # def test_create_4_model_block(self):
+    #     order = 5
+    #     zone = BlockDetailviewLocation.RIGHT
+    #     model = FakeContact
+    #     loc = BlockDetailviewLocation.create_4_model_block(order=order, zone=zone, model=model)
+    #
+    #     self.assertEqual(1, BlockDetailviewLocation.objects.count())
+    #
+    #     loc = self.get_object_or_fail(BlockDetailviewLocation, pk=loc.id)
+    #     self.assertEqual('modelblock', loc.block_id)
+    #     self.assertEqual(model,        loc.content_type.model_class())
+    #     self.assertEqual(order,        loc.order)
+    #     self.assertEqual(zone,         loc.zone)
 
     def test_create_4_model_brick01(self):
         order = 5
@@ -249,7 +248,7 @@ class BlockTestCase(CremeTestCase):
                         )
 
     def test_create_empty_detailview_config02(self):
-        block_id = relations_block.id_
+        block_id = RelationsBrick.id_
         BlockDetailviewLocation.create(block_id=block_id, order=1, zone=BlockDetailviewLocation.RIGHT)
 
         BlockDetailviewLocation.create_empty_config()
@@ -277,18 +276,18 @@ class BlockTestCase(CremeTestCase):
     def test_create_portal01(self):
         app_name = 'persons'
         order = 25
-        block_id = history_block.id_
+        block_id = HistoryBrick.id_
         loc = BlockPortalLocation.create(app_name=app_name, block_id=block_id, order=order)
         self.get_object_or_fail(BlockPortalLocation, pk=loc.pk, app_name=app_name,
                                 block_id=block_id, order=order,
                                )
 
-        self.assertEqual(_('History'), unicode(loc.block_verbose_name))
+        # self.assertEqual(_('History'), unicode(loc.block_verbose_name))
         self.assertEqual(_('History'), unicode(loc.brick_verbose_name))
 
     def test_create_portal02(self):
         order = 10
-        block_id = history_block.id_
+        block_id = HistoryBrick.id_
         loc = BlockPortalLocation.create(block_id=block_id, order=order)
         self.get_object_or_fail(BlockPortalLocation, pk=loc.pk, app_name='',
                                 block_id=block_id, order=order,
@@ -296,7 +295,7 @@ class BlockTestCase(CremeTestCase):
 
     def test_create_portal03(self):
         app_name = 'billing'
-        block_id = history_block.id_
+        block_id = HistoryBrick.id_
         BlockPortalLocation.create(block_id=block_id, order=3, app_name=app_name)
 
         order = 10
@@ -336,25 +335,25 @@ class BlockTestCase(CremeTestCase):
 
         user = self.user
         order = 25
-        block_id = history_block.id_
+        block_id = HistoryBrick.id_
         loc = BlockMypageLocation.create(user=user, block_id=block_id, order=order)
         self.get_object_or_fail(BlockMypageLocation, pk=loc.pk, user=user,
                                 block_id=block_id, order=order,
                                )
 
-        self.assertEqual(_('History'), unicode(loc.block_verbose_name))
+        # self.assertEqual(_('History'), unicode(loc.block_verbose_name))
         self.assertEqual(_('History'), unicode(loc.brick_verbose_name))
 
     def test_create_mypage02(self):
         order = 10
-        block_id = history_block.id_
+        block_id = HistoryBrick.id_
         loc = BlockMypageLocation.create(block_id=block_id, order=order)
         self.get_object_or_fail(BlockMypageLocation, pk=loc.pk, user=None,
                                 block_id=block_id, order=order,
                                )
 
     def test_create_mypage03(self):
-        block_id = history_block.id_
+        block_id = HistoryBrick.id_
         BlockMypageLocation.create(block_id=block_id, order=3)
 
         order = 10
@@ -364,7 +363,7 @@ class BlockTestCase(CremeTestCase):
                                )
 
     def test_mypage_new_user(self):
-        block_id = history_block.id_
+        block_id = HistoryBrick.id_
         order = 3
         BlockMypageLocation.create(block_id=block_id, order=order)
 
@@ -536,7 +535,7 @@ class BlockTestCase(CremeTestCase):
         self.assertIsInstance(brick, Brick)
         self.assertFalse(isinstance(brick, TestInstanceBlock))  # Because the class is not registered
         self.assertEqual('??', brick.verbose_name)
-        self.assertEqual(brick, ibi.block)
+        # self.assertEqual(brick, ibi.block)
 
         errors = [_(u'Unknown type of block (bad uninstall ?)')]
         self.assertEqual(errors, getattr(brick, 'errors', None))

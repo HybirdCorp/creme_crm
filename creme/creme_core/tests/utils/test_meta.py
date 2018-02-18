@@ -33,50 +33,50 @@ class MetaTestCase(CremeTestCase):
         translation.deactivate_all()
         self._translation_deactivated = True
 
-    def test_get_instance_field_info01(self):
-        get_info = meta.get_instance_field_info
-        text = 'TEXT'
-
-        user   = get_user_model().objects.create(username='name')
-        ptype  = CremePropertyType.objects.create(text=text, is_custom=True)
-        entity = CremeEntity.objects.create(user=user)
-        prop   = CremeProperty(type=ptype, creme_entity=entity)
-
-        self.assertEqual((models.CharField,    text), get_info(prop, 'type__text'))
-        self.assertEqual((models.BooleanField, True), get_info(prop, 'type__is_custom'))
-
-        self.assertEqual((None, ''), get_info(prop, 'foobar__is_custom'))
-        self.assertEqual((None, ''), get_info(prop, 'type__foobar'))
-
-        self.assertEqual(models.CharField, get_info(prop, 'creme_entity__entity_type__model')[0])
-
-    def test_get_instance_field_info02(self):
-        "ManyToMany"
-        get_info = meta.get_instance_field_info
-        user = get_user_model().objects.create(username='name')
-        contact = FakeContact.objects.create(user=user, first_name='Alphonse', last_name='Elric')
-        self.assertEqual((models.CharField, contact.first_name), get_info(contact, 'first_name'))
-
-        # -----------
-        m2m_info = get_info(contact, 'languages')
-        self.assertEqual(models.ManyToManyField, m2m_info[0])
-
-        values = m2m_info[1]
-        self.assertEqual(Language, values.model)
-        self.assertEqual([], list(values))
-
-        # -------------
-        create_language = Language.objects.create
-        l1 = create_language(name='English',  code='EN')
-        l2 = create_language(name='French',   code='FRA')
-        l3 = create_language(name='Japanese', code='JP')
-
-        contact.languages = [l1, l3]
-        self.assertEqual({l1, l3}, set(get_info(contact, 'languages')[1]))
-
-        # -------------
-        # TODO: fix it ??
-        self.assertEqual((None, ''), get_info(contact, 'languages__code'))
+    # def test_get_instance_field_info01(self):
+    #     get_info = meta.get_instance_field_info
+    #     text = 'TEXT'
+    #
+    #     user   = get_user_model().objects.create(username='name')
+    #     ptype  = CremePropertyType.objects.create(text=text, is_custom=True)
+    #     entity = CremeEntity.objects.create(user=user)
+    #     prop   = CremeProperty(type=ptype, creme_entity=entity)
+    #
+    #     self.assertEqual((models.CharField,    text), get_info(prop, 'type__text'))
+    #     self.assertEqual((models.BooleanField, True), get_info(prop, 'type__is_custom'))
+    #
+    #     self.assertEqual((None, ''), get_info(prop, 'foobar__is_custom'))
+    #     self.assertEqual((None, ''), get_info(prop, 'type__foobar'))
+    #
+    #     self.assertEqual(models.CharField, get_info(prop, 'creme_entity__entity_type__model')[0])
+    #
+    # def test_get_instance_field_info02(self):
+    #     "ManyToMany"
+    #     get_info = meta.get_instance_field_info
+    #     user = get_user_model().objects.create(username='name')
+    #     contact = FakeContact.objects.create(user=user, first_name='Alphonse', last_name='Elric')
+    #     self.assertEqual((models.CharField, contact.first_name), get_info(contact, 'first_name'))
+    #
+    #     # -----------
+    #     m2m_info = get_info(contact, 'languages')
+    #     self.assertEqual(models.ManyToManyField, m2m_info[0])
+    #
+    #     values = m2m_info[1]
+    #     self.assertEqual(Language, values.model)
+    #     self.assertEqual([], list(values))
+    #
+    #     # -------------
+    #     create_language = Language.objects.create
+    #     l1 = create_language(name='English',  code='EN')
+    #     l2 = create_language(name='French',   code='FRA')
+    #     l3 = create_language(name='Japanese', code='JP')
+    #
+    #     contact.languages = [l1, l3]
+    #     self.assertEqual({l1, l3}, set(get_info(contact, 'languages')[1]))
+    #
+    #     # -------------
+    #     # todo: fix it ??
+    #     self.assertEqual((None, ''), get_info(contact, 'languages__code'))
 
     def test_field_info01(self):
         "Simple field"

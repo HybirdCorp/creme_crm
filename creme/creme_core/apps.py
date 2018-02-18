@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging, warnings
+import logging  # warnings
 from sys import argv
 
 from django.apps import AppConfig, apps
@@ -207,12 +207,12 @@ class CremeAppConfig(AppConfig):
             self.register_entity_models(creme_registry)
 
             self.register_bricks(brick_registry)
-            if hasattr(self, 'register_blocks'):
-                warnings.warn('The AppConfig for "%s" has a method "register_blocks()" which is now deprecated ; '
-                              'you should rename it register_bricks().' % self.name,
-                              DeprecationWarning
-                             )
-                self.register_blocks(brick_registry)
+            # if hasattr(self, 'register_blocks'):
+            #     warnings.warn('The AppConfig for "%s" has a method "register_blocks()" which is now deprecated ; '
+            #                   'you should rename it register_bricks().' % self.name,
+            #                   DeprecationWarning
+            #                  )
+            #     self.register_blocks(brick_registry)
 
             self.register_bulk_update(bulk_update_registry)
             self.register_buttons(button_registry)

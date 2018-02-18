@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging, warnings
+import logging  # warnings
 
 from django.http import Http404
 from django.utils.encoding import smart_str
@@ -37,7 +37,8 @@ logger = logging.getLogger(__name__)
 # TODO: stream response ??
 # TODO: factorise with list_view()
 @login_required
-def dl_listview(request, ct_id=None, doc_type=None, header_only=None):
+# def dl_listview(request, ct_id=None, doc_type=None, header_only=None):
+def dl_listview(request):
     """ Download the content of a list-view.
     @param ct_id: the ContentType ID of the model we want. Deprecated.
     @param doc_type: the type of file (see export_backend_registry). Deprecated.
@@ -52,32 +53,35 @@ def dl_listview(request, ct_id=None, doc_type=None, header_only=None):
     """
     GET = request.GET
 
-    if ct_id is not None:
-        warnings.warn('creme_core.views.list_view_export.dl_listview(): '
-                      'the URL argument "ct_id" is deprecated ; '
-                      'use the related GET parameter instead.',
-                      DeprecationWarning
-                     )
-    else:
-        ct_id = get_from_GET_or_404(GET, 'ct_id', cast=int)
+    # if ct_id is not None:
+    #     warnings.warn('creme_core.views.list_view_export.dl_listview(): '
+    #                   'the URL argument "ct_id" is deprecated ; '
+    #                   'use the related GET parameter instead.',
+    #                   DeprecationWarning
+    #                  )
+    # else:
+    #     ct_id = get_from_GET_or_404(GET, 'ct_id', cast=int)
+    ct_id = get_from_GET_or_404(GET, 'ct_id', cast=int)
 
-    if doc_type is not None:
-        warnings.warn('creme_core.views.list_view_export.dl_listview(): '
-                      'the URL argument "doc_type" is deprecated ; '
-                      'use the GET parameter "type" instead.',
-                      DeprecationWarning
-                     )
-    else:
-        doc_type = get_from_GET_or_404(GET, 'type')
+    # if doc_type is not None:
+    #     warnings.warn('creme_core.views.list_view_export.dl_listview(): '
+    #                   'the URL argument "doc_type" is deprecated ; '
+    #                   'use the GET parameter "type" instead.',
+    #                   DeprecationWarning
+    #                  )
+    # else:
+    #     doc_type = get_from_GET_or_404(GET, 'type')
+    doc_type = get_from_GET_or_404(GET, 'type')
 
-    if header_only is not None:
-        warnings.warn('creme_core.views.list_view_export.dl_listview(): '
-                      'the URL to download header only is deprecated ; '
-                      'use the GET parameter "header" with the download URL instead.',
-                      DeprecationWarning
-                     )
-    else:
-        header_only = get_from_GET_or_404(GET, 'header', cast=bool_from_str_extended, default='0')
+    # if header_only is not None:
+    #     warnings.warn('creme_core.views.list_view_export.dl_listview(): '
+    #                   'the URL to download header only is deprecated ; '
+    #                   'use the GET parameter "header" with the download URL instead.',
+    #                   DeprecationWarning
+    #                  )
+    # else:
+    #     header_only = get_from_GET_or_404(GET, 'header', cast=bool_from_str_extended, default='0')
+    header_only = get_from_GET_or_404(GET, 'header', cast=bool_from_str_extended, default='0')
 
     ct    = get_ct_or_404(ct_id)
     model = ct.model_class()

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseRedirect
@@ -129,15 +129,16 @@ def delete(request):
 
 @login_required
 @utils.jsonify
-def get_for_ctype(request, ct_id=None):
-    if ct_id is None:
-        ct_id = utils.get_from_GET_or_404(request.GET, 'ct_id', int)
-    else:
-        warnings.warn('header_filter.get_for_ctype(): the URL argument "ct_id" is deprecated ; '
-                      'use the GET parameter instead.',
-                      DeprecationWarning
-                     )
-
+# def get_for_ctype(request, ct_id=None):
+def get_for_ctype(request):
+    # if ct_id is None:
+    #     ct_id = utils.get_from_GET_or_404(request.GET, 'ct_id', int)
+    # else:
+    #     warnings.warn('header_filter.get_for_ctype(): the URL argument "ct_id" is deprecated ; '
+    #                   'use the GET parameter instead.',
+    #                   DeprecationWarning
+    #                  )
+    ct_id = utils.get_from_GET_or_404(request.GET, 'ct_id', int)
     ct = utils.get_ct_or_404(ct_id)
     user = request.user
 

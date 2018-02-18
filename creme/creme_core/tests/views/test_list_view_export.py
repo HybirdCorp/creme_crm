@@ -47,7 +47,6 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        # ViewsTestCase.tearDownClass()
         super(CSVExportViewsTestCase, cls).tearDownClass()
         HeaderFilter.objects.all().delete()
         HeaderFilter.objects.bulk_create(cls._hf_backup)
@@ -105,11 +104,12 @@ class CSVExportViewsTestCase(ViewsTestCase):
         return cells
 
     @staticmethod
-    def _build_dl_url(ct, doc_type='csv', header=False, list_url='', use_GET=True):
-        if not use_GET:
-            return reverse('creme_core__dl_listview_header' if header else 'creme_core__dl_listview',
-                           args=(ct.id, doc_type)
-                          )
+    # def _build_dl_url(ct, doc_type='csv', header=False, list_url='', use_GET=True):
+    def _build_dl_url(ct, doc_type='csv', header=False, list_url=''):
+        # if not use_GET:
+        #     return reverse('creme_core__dl_listview_header' if header else 'creme_core__dl_listview',
+        #                    args=(ct.id, doc_type)
+        #                   )
 
         url = reverse('creme_core__dl_listview') + '?ct_id=%s&type=%s&list_url=%s' % (ct.id, doc_type, list_url)
 
@@ -135,13 +135,13 @@ class CSVExportViewsTestCase(ViewsTestCase):
                          [force_unicode(line) for line in response.content.splitlines()]
                         )
 
-        # Legacy
-        response = self.assertGET200(self._build_dl_url(self.ct, header=True, use_GET=False),
-                                     data={'list_url': lv_url}
-                                    )
-        self.assertEqual([u','.join(u'"%s"' % hfi.title for hfi in cells)],
-                         [force_unicode(line) for line in response.content.splitlines()]
-                        )
+        # # Legacy
+        # response = self.assertGET200(self._build_dl_url(self.ct, header=True, use_GET=False),
+        #                              data={'list_url': lv_url}
+        #                             )
+        # self.assertEqual([u','.join(u'"%s"' % hfi.title for hfi in cells)],
+        #                  [force_unicode(line) for line in response.content.splitlines()]
+        #                 )
 
     @skipIf(XlsMissing, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_xls_export_header(self):
@@ -179,9 +179,9 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertEqual(it.next(), u'"","Wong","Edward","","is a girl"')
         self.assertRaises(StopIteration, it.next)
 
-        # Legacy
-        response = self.assertGET200(self._build_dl_url(self.ct, use_GET=False), data={'list_url': lv_url})
-        self.assertEqual(result, response.content.splitlines())
+        # # Legacy
+        # response = self.assertGET200(self._build_dl_url(self.ct, use_GET=False), data={'list_url': lv_url})
+        # self.assertEqual(result, response.content.splitlines())
 
     def test_list_view_export02(self):
         "scsv"
@@ -318,9 +318,6 @@ class CSVExportViewsTestCase(ViewsTestCase):
                            )
 
         lv_url = FakeEmailCampaign.get_lv_absolute_url()
-        # response = self.assertGET200(self._build_url(ContentType.objects.get_for_model(EmailCampaign)),
-        #                              data = {'list_url': lv_url}
-        #                             )
         response = self.assertGET200(self._build_dl_url(ContentType.objects.get_for_model(FakeEmailCampaign),
                                                         list_url=lv_url,
                                                         ),
@@ -452,12 +449,8 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                        ],
                            )
 
-        lv_url = FakeInvoiceLine.get_lv_absolute_url()
-        # response = self.assertGET200(self._build_url(ContentType.objects.get_for_model(FakeInvoiceLine)),
-        #                              data = {'list_url': lv_url}, follow = True,
-        #                             )
         response = self.assertGET200(self._build_dl_url(ContentType.objects.get_for_model(FakeInvoiceLine),
-                                                        list_url=lv_url,
+                                                        list_url=FakeInvoiceLine.get_lv_absolute_url(),
                                                        ),
                                      follow=True,
                                     )
@@ -566,11 +559,11 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertCountOccurrences(camp2.name, content, count=1)
         self.assertNotIn(camp3.name, content)
 
-        # ------
-        response = self.assertGET200(self._build_dl_url(ContentType.objects.get_for_model(FakeEmailCampaign), use_GET=False),
-                                     data={'list_url': lv_url}
-                                    )
-        result = [force_unicode(line) for line in response.content.splitlines()]
-        self.assertEqual(3, len(result))
-        self.assertEqual(result[1], '"Camp#1","Bebop staff/Mafia staff"')
-        self.assertEqual(result[2], '"Camp#2","Bebop staff"')
+        # # ------
+        # response = self.assertGET200(self._build_dl_url(ContentType.objects.get_for_model(FakeEmailCampaign), use_GET=False),
+        #                              data={'list_url': lv_url}
+        #                             )
+        # result = [force_unicode(line) for line in response.content.splitlines()]
+        # self.assertEqual(3, len(result))
+        # self.assertEqual(result[1], '"Camp#1","Bebop staff/Mafia staff"')
+        # self.assertEqual(result[2], '"Camp#2","Bebop staff"')

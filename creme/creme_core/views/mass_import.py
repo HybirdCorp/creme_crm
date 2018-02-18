@@ -42,7 +42,6 @@ from .utils import build_cancel_path
 # + we can't upload file with wizard (even if it is a documents.Document for now)
 
 
-# TODO: remove creme_core/importing_report.html
 @login_required
 def mass_import(request, ct_id):
     ct = get_ct_or_404(ct_id)

@@ -20,7 +20,7 @@
 
 from time import time
 from urllib import urlencode
-import warnings
+# import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -143,30 +143,30 @@ def search(request):
     return render(request, 'creme_core/search_results.html', t_ctx)
 
 
-@login_required
-@utils.jsonify
-def reload_block(request, block_id, research):
-    warnings.warn("/creme_core/search/reload_block/{{block_id}}/{{search}} is now deprecated. "
-                  "Use /creme_core/search/reload_brick/ view instead "
-                  "[ie: reverse('creme_core__reload_search_brick') + '?block_id=' + block_id + '&search=' + research ].",
-                  DeprecationWarning
-                 )
-
-    from . import blocks
-
-    ctype = FoundEntitiesBrick.parse_block_id(block_id)
-
-    if ctype is None:
-        raise Http404('Invalid block ID')
-
-    if len(research) < MIN_RESEARCH_LENGTH:
-        raise Http404(u"Please enter at least %s characters" % MIN_RESEARCH_LENGTH)
-
-    user = request.user
-    model = ctype.model_class()
-    block = FoundEntitiesBrick(Searcher([model], user), model, research, user, id=block_id)
-
-    return [(block.id_, block.detailview_display(blocks.build_context(request)))]
+# @login_required
+# @utils.jsonify
+# def reload_block(request, block_id, research):
+#     warnings.warn("/creme_core/search/reload_block/{{block_id}}/{{search}} is now deprecated. "
+#                   "Use /creme_core/search/reload_brick/ view instead "
+#                   "[ie: reverse('creme_core__reload_search_brick') + '?block_id=' + block_id + '&search=' + research ].",
+#                   DeprecationWarning
+#                  )
+#
+#     from . import blocks
+#
+#     ctype = FoundEntitiesBrick.parse_block_id(block_id)
+#
+#     if ctype is None:
+#         raise Http404('Invalid block ID')
+#
+#     if len(research) < MIN_RESEARCH_LENGTH:
+#         raise Http404(u"Please enter at least %s characters" % MIN_RESEARCH_LENGTH)
+#
+#     user = request.user
+#     model = ctype.model_class()
+#     block = FoundEntitiesBrick(Searcher([model], user), model, research, user, id=block_id)
+#
+#     return [(block.id_, block.detailview_display(blocks.build_context(request)))]
 
 
 @login_required
