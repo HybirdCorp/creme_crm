@@ -20,7 +20,7 @@
 
 from functools import partial
 from itertools import chain
-import warnings
+# import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
@@ -40,17 +40,18 @@ from .utils import address_as_dict, addresses_from_persons, get_radius
 @login_required
 @permission_required('persons')
 @POST_only
-def set_address_info(request, address_id=None):
+# def set_address_info(request, address_id=None):
+def set_address_info(request):
     get = partial(get_from_POST_or_404, request.POST)
 
-    if address_id is None:
-        address_id = get('id', int)
-    else:
-        warnings.warn('geolocation.views.set_address_info(): the URL argument "address_id" is deprecated ; '
-                      'use the GET parameter "id" instead.',
-                      DeprecationWarning
-                     )
-
+    # if address_id is None:
+    #     address_id = get('id', int)
+    # else:
+    #     warnings.warn('geolocation.views.set_address_info(): the URL argument "address_id" is deprecated ; '
+    #                   'use the GET parameter "id" instead.',
+    #                   DeprecationWarning
+    #                  )
+    address_id = get('id', int)
     address = get_object_or_404(get_address_model(), id=address_id)
 
     request.user.has_perm_to_change_or_die(address.owner)
@@ -72,15 +73,16 @@ def set_address_info(request, address_id=None):
 @login_required
 @permission_required('persons')
 @jsonify
-def get_addresses_from_filter(request, filter_id=None):  # TODO: rename 'get_addresses()'
-    if filter_id is None:
-        filter_id = request.GET.get('id')
-    else:
-        warnings.warn('geolocation.views.get_addresses_from_filter(): the URL argument "filter_id" is deprecated ; '
-                      'use the GET parameter "id" instead.',
-                      DeprecationWarning
-                     )
-
+# def get_addresses_from_filter(request, filter_id=None):
+def get_addresses_from_filter(request):  # TODO: rename 'get_addresses()'
+    # if filter_id is None:
+    #     filter_id = request.GET.get('id')
+    # else:
+    #     warnings.warn('geolocation.views.get_addresses_from_filter(): the URL argument "filter_id" is deprecated ; '
+    #                   'use the GET parameter "id" instead.',
+    #                   DeprecationWarning
+    #                  )
+    filter_id = request.GET.get('id')
     entity_filter = get_object_or_404(EntityFilter, pk=filter_id) if filter_id else None
     owner_groups = (get_contact_model().objects, get_organisation_model().objects,)
 
@@ -100,24 +102,27 @@ def get_addresses_from_filter(request, filter_id=None):  # TODO: rename 'get_add
 @login_required
 @permission_required('persons')
 @jsonify
-def get_neighbours(request, address_id=None, filter_id=None):
+# def get_neighbours(request, address_id=None, filter_id=None):
+def get_neighbours(request):
     GET = request.GET
 
-    if address_id is None:
-        address_id = get_from_GET_or_404(GET, 'address_id', int)
-    else:
-        warnings.warn('geolocation.views.get_neighbours(): the URL argument "address_id" is deprecated ; '
-                      'use the GET parameter instead.',
-                      DeprecationWarning
-                     )
+    # if address_id is None:
+    #     address_id = get_from_GET_or_404(GET, 'address_id', int)
+    # else:
+    #     warnings.warn('geolocation.views.get_neighbours(): the URL argument "address_id" is deprecated ; '
+    #                   'use the GET parameter instead.',
+    #                   DeprecationWarning
+    #                  )
+    address_id = get_from_GET_or_404(GET, 'address_id', int)
 
-    if filter_id is None:
-        filter_id = get_from_GET_or_404(GET, 'filter_id', default=None)
-    else:
-        warnings.warn('geolocation.views.get_neighbours(): the URL argument "filter_id" is deprecated ; '
-                      'use the GET parameter instead.',
-                      DeprecationWarning
-                     )
+    # if filter_id is None:
+    #     filter_id = get_from_GET_or_404(GET, 'filter_id', default=None)
+    # else:
+    #     warnings.warn('geolocation.views.get_neighbours(): the URL argument "filter_id" is deprecated ; '
+    #                   'use the GET parameter instead.',
+    #                   DeprecationWarning
+    #                  )
+    filter_id = get_from_GET_or_404(GET, 'filter_id', default=None)
 
     source = get_object_or_404(get_address_model(), id=address_id)
     distance = get_radius()

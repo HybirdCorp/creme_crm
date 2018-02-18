@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2014-2017  Hybird
+    Copyright (C) 2014-2018  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -32,7 +32,6 @@ creme.geolocation.PersonsBlock = creme.component.Component.sub({
         3: ''
     },
 
-//    _init_: function(block, addresses)
     _init_: function(brick, options) {
         options = $.extend({
             addresses: []
@@ -178,18 +177,17 @@ creme.geolocation.PersonsBlock = creme.component.Component.sub({
 
 
 creme.geolocation.AddressesBlock = creme.component.Component.sub({
-//    _init_: function(block) {
     _init_: function(brick, options) {
         options = options || {};
 
-        if (!options.addressesUrl) {
-            console.warn('creme.geolocation.AddressesBlock(): hard-coded "addressesUrl" is deprecated ; give it as the second parameter.');
-        }
+//        if (!options.addressesUrl) {
+//            console.warn('creme.geolocation.AddressesBlock(): hard-coded "addressesUrl" is deprecated ; give it as the second parameter.');
+//        }
 
         this._brick = brick;
-        this._addressesUrl = options.addressesUrl || '/geolocation/get_addresses/';
+//        this._addressesUrl = options.addressesUrl || '/geolocation/get_addresses/';
+        this._addressesUrl = options.addressesUrl;
 
-//        var controller = this._controller = new creme.geolocation.GoogleMapController();
         var controller = this._controller = new creme.geolocation.GoogleMapController(options);
         controller.on('api-status', this._onAPIStatus.bind(this))
                   .on('map-status', this._onCanvasStatus.bind(this));
@@ -227,7 +225,6 @@ creme.geolocation.AddressesBlock = creme.component.Component.sub({
         var updateAddress = this._updateAddress.bind(this);
         var url = this._addressesUrl;
 
-//        creme.ajax.query('/geolocation/get_addresses_from_filter/%s'.format(filter))
         creme.ajax.query(url, {}, {id: filter})
                   .converter(JSON.parse)
                   .onDone(function(event, data) {
@@ -293,17 +290,17 @@ creme.geolocation.AddressesBlock = creme.component.Component.sub({
 
 
 creme.geolocation.PersonsNeighborhoodBlock = creme.component.Component.sub({
-//    _init_: function(block, radius) {
     _init_: function(brick, options) {
         options = options || {};
 
-        if (!options.neighboursUrl) {
-            console.warn('creme.geolocation.PersonsNeighborhoodBlock(): hard-coded "neighboursUrl" is deprecated');
-        }
+//        if (!options.neighboursUrl) {
+//            console.warn('creme.geolocation.PersonsNeighborhoodBlock(): hard-coded "neighboursUrl" is deprecated');
+//        }
 
         this._radius = options.radius || 1;
         this._brick = brick;
-        this._neighboursUrl = options.neighboursUrl || '/geolocation/get_neighbours/';
+//        this._neighboursUrl = options.neighboursUrl || '/geolocation/get_neighbours/';
+        this._neighboursUrl = options.neighboursUrl;
 
         var controller = this._controller = new creme.geolocation.GoogleMapController(options);
         controller.on('api-status', this._onAPIStatus.bind(this))
@@ -352,7 +349,6 @@ creme.geolocation.PersonsNeighborhoodBlock = creme.component.Component.sub({
 
         var url = this._neighboursUrl + '?' + $.param(parameters);
 
-//        creme.ajax.query('/geolocation/get_neighbours/%s/%s'.format(address, filter || ''))
         creme.ajax.query(url)
                   .converter(JSON.parse)
                   .onDone(function(event, data) {
