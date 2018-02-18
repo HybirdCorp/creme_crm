@@ -665,48 +665,48 @@ class ReportTestCase(BaseReportsTestCase):
                             _(u'No «%s» matches your date filter') % 'Test Contact'
                            )
 
-    def test_report_change_field_order01(self):
-        self.login()
+    # def test_report_change_field_order01(self):
+    #     self.login()
+    #
+    #     url = self.SET_FIELD_ORDER_URL
+    #     self.assertPOST404(url)
+    #
+    #     report = self._create_report('trinita')
+    #     field  = self.get_field_or_fail(report, 'user')
+    #     response = self.client.post(url, data={'field_id':  field.id,
+    #                                            'direction': 'up',
+    #                                           }
+    #                                )
+    #     self.assertNoFormError(response)
+    #     self.assertEqual(['user', 'last_name', REL_SUB_HAS, 'get_pretty_properties'],
+    #                      [f.name for f in report.fields.order_by('order')]
+    #                     )
 
-        url = self.SET_FIELD_ORDER_URL
-        self.assertPOST404(url)
+    # def test_report_change_field_order02(self):
+    #     self.login()
+    #
+    #     report = self._create_report('trinita')
+    #     field  = self.get_field_or_fail(report, 'user')
+    #     self.assertPOST200(self.SET_FIELD_ORDER_URL,
+    #                        data={'field_id':  field.id,
+    #                              'direction': 'down',
+    #                             }
+    #                       )
+    #     self.assertEqual(['last_name', REL_SUB_HAS, 'user', 'get_pretty_properties'],
+    #                      [f.name for f in report.fields.order_by('order')]
+    #                     )
 
-        report = self._create_report('trinita')
-        field  = self.get_field_or_fail(report, 'user')
-        response = self.client.post(url, data={'field_id':  field.id,
-                                               'direction': 'up',
-                                              }
-                                   )
-        self.assertNoFormError(response)
-        self.assertEqual(['user', 'last_name', REL_SUB_HAS, 'get_pretty_properties'],
-                         [f.name for f in report.fields.order_by('order')]
-                        )
-
-    def test_report_change_field_order02(self):
-        self.login()
-
-        report = self._create_report('trinita')
-        field  = self.get_field_or_fail(report, 'user')
-        self.assertPOST200(self.SET_FIELD_ORDER_URL,
-                           data={'field_id':  field.id,
-                                 'direction': 'down',
-                                }
-                          )
-        self.assertEqual(['last_name', REL_SUB_HAS, 'user', 'get_pretty_properties'],
-                         [f.name for f in report.fields.order_by('order')]
-                        )
-
-    def test_report_change_field_order03(self):
-        "Move 'up' the first field -> error"
-        self.login()
-
-        report = self._create_report('trinita')
-        field  = self.get_field_or_fail(report, 'last_name')
-        self.assertPOST403(self.SET_FIELD_ORDER_URL,
-                           data={'field_id':  field.id,
-                                 'direction': 'up',
-                                }
-                          )
+    # def test_report_change_field_order03(self):
+    #     "Move 'up' the first field -> error"
+    #     self.login()
+    #
+    #     report = self._create_report('trinita')
+    #     field  = self.get_field_or_fail(report, 'last_name')
+    #     self.assertPOST403(self.SET_FIELD_ORDER_URL,
+    #                        data={'field_id':  field.id,
+    #                              'direction': 'up',
+    #                             }
+    #                       )
 
     def test_report_reorder_field(self):
         self.login()

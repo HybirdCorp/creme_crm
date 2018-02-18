@@ -59,14 +59,18 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
     def _build_edit_url(self, rgraph):
         return reverse('reports__edit_graph', args=(rgraph.id,))
 
-    def _builf_fetch_url(self, rgraph, order='ASC', use_GET=False):
-        return reverse('reports__fetch_graph', args=(rgraph.id,)) + '?order=%s' % order if use_GET else \
-               reverse('reports__fetch_graph', args=(rgraph.id, order))
+    # def _builf_fetch_url(self, rgraph, order='ASC', use_GET=False):
+    #     return reverse('reports__fetch_graph', args=(rgraph.id,)) + '?order=%s' % order if use_GET else \
+    #            reverse('reports__fetch_graph', args=(rgraph.id, order))
+    def _builf_fetch_url(self, rgraph, order='ASC'):
+        return reverse('reports__fetch_graph', args=(rgraph.id,)) + '?order=%s' % order
 
-    def _build_fetchfrombrick_url(self, ibi, entity, order='ASC', use_GET=False):
-        return reverse('reports__fetch_graph_from_brick', args=(ibi.id, entity.id)) + '?order=%s' % order \
-               if use_GET else \
-               reverse('reports__fetch_graph_from_brick', args=(ibi.id, entity.id, order))
+    # def _build_fetchfrombrick_url(self, ibi, entity, order='ASC', use_GET=False):
+    #     return reverse('reports__fetch_graph_from_brick', args=(ibi.id, entity.id)) + '?order=%s' % order \
+    #            if use_GET else \
+    #            reverse('reports__fetch_graph_from_brick', args=(ibi.id, entity.id, order))
+    def _build_fetchfrombrick_url(self, ibi, entity, order='ASC'):
+        return reverse('reports__fetch_graph_from_brick', args=(ibi.id, entity.id)) + '?order=%s' % order
 
     def _build_graph_types_url(self, ct):
         return reverse('reports__graph_types', args=(ct.id,))
@@ -170,7 +174,8 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'reports/view_graph.html')
 
         # ------------------------------------------------------------
-        response = self.assertGET200(self._builf_fetch_url(rgraph, 'ASC', use_GET=True))
+        # response = self.assertGET200(self._builf_fetch_url(rgraph, 'ASC', use_GET=True))
+        response = self.assertGET200(self._builf_fetch_url(rgraph, 'ASC'))
         with self.assertNoException():
             data = json_load(response.content)
 
@@ -189,15 +194,15 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                          y_asc[0]
                         )
 
-        response = self.assertGET200(self._builf_fetch_url(rgraph, 'ASC'))
-        with self.assertNoException():
-            other_data = json_load(response.content)
-        self.assertEqual(data, other_data)
+        # response = self.assertGET200(self._builf_fetch_url(rgraph, 'ASC'))
+        # with self.assertNoException():
+        #     other_data = json_load(response.content)
+        # self.assertEqual(data, other_data)
 
         # ------------------------------------------------------------
-        self.assertGET200(self._builf_fetch_url(rgraph, 'DESC', use_GET=True))
+        # self.assertGET200(self._builf_fetch_url(rgraph, 'DESC', use_GET=True))
         self.assertGET200(self._builf_fetch_url(rgraph, 'DESC'))
-        self.assertGET404(self._builf_fetch_url(rgraph, 'STUFF', use_GET=True))
+        # self.assertGET404(self._builf_fetch_url(rgraph, 'STUFF', use_GET=True))
         self.assertGET404(self._builf_fetch_url(rgraph, 'STUFF'))
 
     def test_createview02(self):
@@ -1388,7 +1393,6 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         # ASC -----------------------------------------------------------------
         x_asc, y_asc = rgraph.fetch()
         self.assertEqual(['2013', '2014'], x_asc)
-#        fmt = '/persons/organisations?q_filter={"creation_date__year": %s}'
         fmt = '/tests/organisations?q_filter={"creation_date__year": %s}'
         self.assertEqual([2, fmt % 2013], y_asc[0])
         self.assertEqual([1, fmt % 2014], y_asc[1])
@@ -1865,7 +1869,6 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                          ReportGraphBrick(ibci).verbose_name
                         )
 
-    # def test_add_graph_instance_block01(self):
     def test_add_graph_instance_brick01(self):
         rgraph = self._create_invoice_report_n_graph()
         self.assertFalse(InstanceBlockConfigItem.objects.filter(entity=rgraph.id).exists())
@@ -1885,10 +1888,10 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         title = u'%s - %s' % (rgraph.name, pgettext('reports-volatile_choice', u'None'))
         self.assertEqual(title, ReportGraphBrick(item).verbose_name)
 
-        block = item.block
-        self.assertIsInstance(block, ReportGraphBrick)
-        self.assertEqual(title,   block.verbose_name)
-        self.assertEqual(item.id, block.instance_block_id)
+        brick = item.brick
+        self.assertIsInstance(brick, ReportGraphBrick)
+        self.assertEqual(title,   brick.verbose_name)
+        self.assertEqual(item.id, brick.instance_block_id)
 
         # ---------------------------------------------------------------------
         response = self.assertPOST200(url)
@@ -1924,7 +1927,8 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.get_brick_node(self.get_html_tree(response.content), item.block_id)
 
         # ---------------------------------------------------------------------
-        response = self.assertGET200(self._build_fetchfrombrick_url(item, invoice, 'ASC', use_GET=True))
+        # response = self.assertGET200(self._build_fetchfrombrick_url(item, invoice, 'ASC', use_GET=True))
+        response = self.assertGET200(self._build_fetchfrombrick_url(item, invoice, 'ASC'))
 
         result = json_load(response.content)
         self.assertIsInstance(result, dict)
@@ -1958,7 +1962,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                       )
 
         # ---------------------------------------------------------------------
-        self.assertGET404(self._build_fetchfrombrick_url(item, invoice, 'FOOBAR', use_GET=True))
+        # self.assertGET404(self._build_fetchfrombrick_url(item, invoice, 'FOOBAR', use_GET=True))
         self.assertGET404(self._build_fetchfrombrick_url(item, invoice, 'FOOBAR'))
 
     def test_add_graph_instance_brick02(self):
