@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -26,7 +26,7 @@ from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.models import SettingValue
-from creme.creme_core.utils import jsonify
+# from creme.creme_core.utils import jsonify
 from creme.creme_core.views.generic import inner_popup
 
 from ..forms.setting import SettingForm
@@ -66,19 +66,19 @@ def edit(request, svalue_id):
                       )
 
 
-@login_required
-@jsonify
-def reload_block(request, app_name):
-    warnings.warn('The view creme_config.views.setting.reload_block() is deprecated; '
-                  'use creme_config.views.generic_views.reload_app_bricks() instead.',
-                  DeprecationWarning
-                 )
-    from creme.creme_core.views.blocks import build_context
-
-    from ..blocks import settings_block
-
-    request.user.has_perm_to_admin_or_die(app_name)
-
-    context = build_context(request, app_name=app_name)
-
-    return [(settings_block.id_, settings_block.detailview_display(context))]
+# @login_required
+# @jsonify
+# def reload_block(request, app_name):
+#     warnings.warn('The view creme_config.views.setting.reload_block() is deprecated; '
+#                   'use creme_config.views.generic_views.reload_app_bricks() instead.',
+#                   DeprecationWarning
+#                  )
+#     from creme.creme_core.views.blocks import build_context
+#
+#     from ..blocks import settings_block
+#
+#     request.user.has_perm_to_admin_or_die(app_name)
+#
+#     context = build_context(request, app_name=app_name)
+#
+#     return [(settings_block.id_, settings_block.detailview_display(context))]

@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.apps import apps
 from django.db.transaction import atomic
@@ -72,18 +72,18 @@ def add_detailview(request, ct_id):
                                )
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def add_portal(request):
-    warnings.warn("creme_config/blocks/portal/add is now deprecated. "
-                  "Use creme_config/blocks/portal/wizard view instead.",
-                  DeprecationWarning
-                 )
-
-    return add_model_with_popup(request, bricks.BlockPortalLocationsAddForm,
-                                _(u'New blocks configuration'),
-                                submit_label=_(u'Save the configuration'),
-                               )  # TODO: title portal ???
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def add_portal(request):
+#     warnings.warn("creme_config/blocks/portal/add is now deprecated. "
+#                   "Use creme_config/blocks/portal/wizard view instead.",
+#                   DeprecationWarning
+#                  )
+#
+#     return add_model_with_popup(request, bricks.BlockPortalLocationsAddForm,
+#                                 _(u'New blocks configuration'),
+#                                 submit_label=_(u'Save the configuration'),
+#                                )
 
 
 class PortalBricksWizard(PopupWizardMixin, SessionWizardView):
@@ -127,18 +127,18 @@ def create_rtype_brick(request):
                                )
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def add_custom_block(request):
-    warnings.warn("creme_config/blocks/custom/add is now deprecated. "
-                  "Use creme_config/blocks/custom/wizard view instead.",
-                  DeprecationWarning
-                 )
-
-    return add_model_with_popup(request, bricks.CustomBrickConfigItemCreateForm,
-                                _(u'New custom block'),
-                                submit_label=_(u'Save the block'),
-                               )
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def add_custom_block(request):
+#     warnings.warn("creme_config/blocks/custom/add is now deprecated. "
+#                   "Use creme_config/blocks/custom/wizard view instead.",
+#                   DeprecationWarning
+#                  )
+#
+#     return add_model_with_popup(request, bricks.CustomBrickConfigItemCreateForm,
+#                                 _(u'New custom block'),
+#                                 submit_label=_(u'Save the block'),
+#                                )
 
 
 class CustomBrickWizard(PopupWizardMixin, SessionWizardView):
@@ -298,20 +298,20 @@ def edit_mypage(request):
     return _edit_mypage(request, _(u'Edit "My page"'), user=request.user)
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def add_ctypes_2_relation_block(request, rbi_id):
-    warnings.warn("creme_config/blocks/relation_block/add_ctypes/{{rbi_id}} is now deprecated. "
-                  "Use creme_config/blocks/relation_block/{{rbi_id}}/wizard view instead.",
-                  DeprecationWarning
-                 )
-
-    from ..forms.blocks import RelationBlockItemAddCtypesForm
-
-    return edit_model_with_popup(request, {'id': rbi_id}, RelationBlockItem,
-                                 RelationBlockItemAddCtypesForm,
-                                 ugettext(u'New customised types for «%s»'),
-                                )
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def add_ctypes_2_relation_block(request, rbi_id):
+#     warnings.warn("creme_config/blocks/relation_block/add_ctypes/{{rbi_id}} is now deprecated. "
+#                   "Use creme_config/blocks/relation_block/{{rbi_id}}/wizard view instead.",
+#                   DeprecationWarning
+#                  )
+#
+#     from ..forms.blocks import RelationBlockItemAddCtypesForm
+#
+#     return edit_model_with_popup(request, {'id': rbi_id}, RelationBlockItem,
+#                                  RelationBlockItemAddCtypesForm,
+#                                  ugettext(u'New customised types for «%s»'),
+#                                 )
 
 
 class RelationCTypeBrickWizard(PopupWizardMixin, SessionWizardView):

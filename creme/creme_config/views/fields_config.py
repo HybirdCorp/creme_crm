@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
@@ -31,7 +31,7 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import FieldsConfig
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
+from creme.creme_core.views.generic import edit_model_with_popup  # add_model_with_popup
 from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
 from ..forms.fields_config import FieldsConfigAddForm, FieldsConfigEditForm
@@ -44,18 +44,18 @@ def portal(request):
                  )
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def add(request):
-    warnings.warn("creme_config/fields/add/ is now deprecated. "
-                  "Use creme_config/fields/wizard view instead.",
-                  DeprecationWarning
-                 )
-
-    return add_model_with_popup(request, FieldsConfigAddForm,
-                                title=FieldsConfig.creation_label,
-                                submit_label=FieldsConfig.save_label,
-                               )
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def add(request):
+#     warnings.warn("creme_config/fields/add/ is now deprecated. "
+#                   "Use creme_config/fields/wizard view instead.",
+#                   DeprecationWarning
+#                  )
+#
+#     return add_model_with_popup(request, FieldsConfigAddForm,
+#                                 title=FieldsConfig.creation_label,
+#                                 submit_label=FieldsConfig.save_label,
+#                                )
 
 
 @login_required

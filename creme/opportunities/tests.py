@@ -1535,16 +1535,16 @@ class OriginTestCase(CremeTestCase):
     def setUp(self):
         self.login()
 
-    def test_config(self):
-        create_origin = Origin.objects.create
-        origin1 = create_origin(name='Web site')
-        origin2 = create_origin(name='Mouth')
-
-        response = self.assertGET200(reverse('creme_config__model_portal', args=('opportunities', 'origin')))
-        self.assertContains(response, origin1.name)
-        self.assertContains(response, origin2.name)
-
-        self.assertPOST404(reverse('creme_config__move_instance_down', args=('opportunities', 'origin', origin1.id)))
+    # def test_config(self):
+    #     create_origin = Origin.objects.create
+    #     origin1 = create_origin(name='Web site')
+    #     origin2 = create_origin(name='Mouth')
+    #
+    #     response = self.assertGET200(reverse('creme_config__model_portal', args=('opportunities', 'origin')))
+    #     self.assertContains(response, origin1.name)
+    #     self.assertContains(response, origin2.name)
+    # 
+    #     self.assertPOST404(reverse('creme_config__move_instance_down', args=('opportunities', 'origin', origin1.id)))
 
     @skipIfCustomOpportunity
     def test_delete(self):

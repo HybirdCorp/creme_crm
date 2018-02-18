@@ -219,8 +219,8 @@ class BricksConfigTestCase(CremeTestCase):
             'superuser' if superuser else role.id if role else 'default',
         ))
 
-    def _build_rbrick_addctypes_url(self, rbi):
-        return reverse('creme_config__add_ctype_config_to_rtype_brick', args=(rbi.id,))
+    # def _build_rbrick_addctypes_url(self, rbi):
+    #     return reverse('creme_config__add_ctype_config_to_rtype_brick', args=(rbi.id,))
 
     def _build_rbrick_addctypes_wizard_url(self, rbi):
         return reverse('creme_config__add_cells_to_rtype_brick', args=(rbi.id,))
@@ -904,31 +904,31 @@ class BricksConfigTestCase(CremeTestCase):
                                                         .count()
                         )
 
-    def test_add_portal(self):
-        url = reverse('creme_config__create_portal_bricks_legacy')
-        self.assertGET200(url)
-
-        app_name = 'persons'
-        self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
-
-        self.assertNoFormError(self.client.post(url, data={'app_name': app_name}))
-
-        b_locs = list(BlockPortalLocation.objects.filter(app_name=app_name))
-        self.assertEqual(1, len(b_locs))
-
-        bpl = b_locs[-1]
-        self.assertEqual(1,  bpl.order)
-        self.assertEqual('', bpl.block_id)
-
-        response = self.client.get(url)
-
-        with self.assertNoException():
-            choices = response.context['form'].fields['app_name'].choices
-
-        names = {name for name, vname in choices}
-        self.assertNotIn(app_name,       names)
-        self.assertNotIn('creme_core',   names)
-        self.assertNotIn('creme_config', names)
+    # def test_add_portal(self):
+    #     url = reverse('creme_config__create_portal_bricks_legacy')
+    #     self.assertGET200(url)
+    #
+    #     app_name = 'persons'
+    #     self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
+    #
+    #     self.assertNoFormError(self.client.post(url, data={'app_name': app_name}))
+    #
+    #     b_locs = list(BlockPortalLocation.objects.filter(app_name=app_name))
+    #     self.assertEqual(1, len(b_locs))
+    #
+    #     bpl = b_locs[-1]
+    #     self.assertEqual(1,  bpl.order)
+    #     self.assertEqual('', bpl.block_id)
+    #
+    #     response = self.client.get(url)
+    #
+    #     with self.assertNoException():
+    #         choices = response.context['form'].fields['app_name'].choices
+    #
+    #     names = {name for name, vname in choices}
+    #     self.assertNotIn(app_name,       names)
+    #     self.assertNotIn('creme_core',   names)
+    #     self.assertNotIn('creme_config', names)
 
     def test_edit_portal01(self):
         self.assertGET404(reverse('creme_config__edit_portal_bricks', args=('persons',)))
@@ -946,7 +946,8 @@ class BricksConfigTestCase(CremeTestCase):
         brick3 = PortalOnlyBrick3; assert app_name in brick3.target_apps
         brick4 = PortalOnlyBrick4; assert app_name not in brick4.target_apps
 
-        self.client.post(reverse('creme_config__create_portal_bricks_legacy'), data={'app_name': app_name})
+        # self.client.post(reverse('creme_config__create_portal_bricks_legacy'), data={'app_name': app_name})
+        BlockPortalLocation.objects.create(app_name=app_name, block_id=HistoryBrick.id_, order=1)
         self.assertEqual(1, BlockPortalLocation.objects.filter(app_name=app_name).count())
 
         url = reverse('creme_config__edit_portal_bricks', args=(app_name,))
@@ -1062,7 +1063,8 @@ class BricksConfigTestCase(CremeTestCase):
 
     def test_delete_portal(self):
         app_name = 'persons'
-        self.client.post(reverse('creme_config__create_portal_bricks_legacy'), data={'app_name': app_name})
+        # self.client.post(reverse('creme_config__create_portal_bricks_legacy'), data={'app_name': app_name})
+        BlockPortalLocation.objects.create(app_name=app_name, block_id=HistoryBrick.id_, order=1)
 
         self.assertPOST200(reverse('creme_config__delete_portal_bricks'), data={'id': app_name})
         self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
@@ -1347,85 +1349,85 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertEqual('specificblock_creme_config-test-subfoo', rb_item.block_id)
         self.assertIsNone(rb_item.get_cells(ContentType.objects.get_for_model(FakeContact)))
 
-    def test_add_relationbrick_ctypes01(self):
-        rt = RelationType.create(('test-subfoo', 'subject_predicate'),
-                                 ('test-objfoo', 'object_predicate', [FakeContact, FakeOrganisation, FakeActivity]),
-                                )[0]
+    # def test_add_relationbrick_ctypes01(self):
+    #     rt = RelationType.create(('test-subfoo', 'subject_predicate'),
+    #                              ('test-objfoo', 'object_predicate', [FakeContact, FakeOrganisation, FakeActivity]),
+    #                             )[0]
+    #
+    #     rb_item = RelationBlockItem.objects.create(
+    #                     block_id='specificblock_creme_config-test-subfoo',
+    #                     relation_type=rt,
+    #                 )
+    #
+    #     url = self._build_rbrick_addctypes_url(rb_item)
+    #     response = self.assertGET200(url)
+    #
+    #     with self.assertNoException():
+    #         choices = response.context['form'].fields['ctypes'].ctypes
+    #
+    #     get_ct = ContentType.objects.get_for_model
+    #     self.assertIn(get_ct(FakeContact), choices)
+    #     self.assertIn(get_ct(FakeOrganisation), choices)
+    #     self.assertIn(get_ct(FakeActivity), choices)
+    #     self.assertNotIn(get_ct(FakeImage), choices)
+    #
+    #     self.assertNoFormError(self.client.post(
+    #         url,
+    #         data={'ctypes': [get_ct(m).id for m in (FakeContact, FakeOrganisation)]},
+    #     ))
+    #
+    #     rb_item = self.refresh(rb_item)
+    #     self.assertIsNone(rb_item.get_cells(get_ct(FakeActivity)))
+    #     self.assertEqual([], rb_item.get_cells(get_ct(FakeContact)))
+    #     self.assertEqual([], rb_item.get_cells(get_ct(FakeOrganisation)))
+    #
+    #     # Used CTypes should not be proposed
+    #     response = self.assertGET200(url)
+    #
+    #     with self.assertNoException():
+    #         choices = response.context['form'].fields['ctypes'].ctypes
+    #
+    #     self.assertIn(get_ct(FakeActivity), choices)  # Compatible & not used
+    #     self.assertNotIn(get_ct(FakeImage), choices)  # Still not compatible
+    #     self.assertNotIn(get_ct(FakeContact), choices)  # Used
+    #     self.assertNotIn(get_ct(FakeOrganisation), choices)  # Used
 
-        rb_item = RelationBlockItem.objects.create(
-                        block_id='specificblock_creme_config-test-subfoo',
-                        relation_type=rt,
-                    )
-
-        url = self._build_rbrick_addctypes_url(rb_item)
-        response = self.assertGET200(url)
-
-        with self.assertNoException():
-            choices = response.context['form'].fields['ctypes'].ctypes
-
-        get_ct = ContentType.objects.get_for_model
-        self.assertIn(get_ct(FakeContact), choices)
-        self.assertIn(get_ct(FakeOrganisation), choices)
-        self.assertIn(get_ct(FakeActivity), choices)
-        self.assertNotIn(get_ct(FakeImage), choices)
-
-        self.assertNoFormError(self.client.post(
-            url,
-            data={'ctypes': [get_ct(m).id for m in (FakeContact, FakeOrganisation)]},
-        ))
-
-        rb_item = self.refresh(rb_item)
-        self.assertIsNone(rb_item.get_cells(get_ct(FakeActivity)))
-        self.assertEqual([], rb_item.get_cells(get_ct(FakeContact)))
-        self.assertEqual([], rb_item.get_cells(get_ct(FakeOrganisation)))
-
-        # Used CTypes should not be proposed
-        response = self.assertGET200(url)
-
-        with self.assertNoException():
-            choices = response.context['form'].fields['ctypes'].ctypes
-
-        self.assertIn(get_ct(FakeActivity), choices)  # Compatible & not used
-        self.assertNotIn(get_ct(FakeImage), choices)  # Still not compatible
-        self.assertNotIn(get_ct(FakeContact), choices)  # Used
-        self.assertNotIn(get_ct(FakeOrganisation), choices)  # Used
-
-    def test_add_relationbrick_ctypes02(self):
-        "All ContentTypes allowed"
-        rt = RelationType.create(('test-subfoo', 'subject_predicate'),
-                                 ('test-objfoo', 'object_predicate'),
-                                )[0]
-
-        rb_item = RelationBlockItem.objects.create(
-                        block_id='specificblock_creme_config-test-subfoo',
-                        relation_type=rt,
-                    )
-
-        url = self._build_rbrick_addctypes_url(rb_item)
-        response = self.assertGET200(url)
-
-        with self.assertNoException():
-            choices = response.context['form'].fields['ctypes'].ctypes
-
-        get_ct = ContentType.objects.get_for_model
-        self.assertIn(get_ct(FakeContact), choices)
-        self.assertIn(get_ct(FakeOrganisation), choices)
-        self.assertIn(get_ct(FakeActivity), choices)
-
-        self.assertNoFormError(self.client.post(url, data={'ctypes': [get_ct(FakeContact).id]}))
-
-        rb_item = self.refresh(rb_item)
-        self.assertIsNone(rb_item.get_cells(get_ct(FakeOrganisation)))
-        self.assertEqual([], rb_item.get_cells(get_ct(FakeContact)))
-
-        # Used CTypes should not be proposed
-        response = self.assertGET200(url)
-
-        with self.assertNoException():
-            choices = response.context['form'].fields['ctypes'].ctypes
-
-        self.assertNotIn(get_ct(FakeContact), choices)  # Used
-        self.assertIn(get_ct(FakeOrganisation), choices)  # Not used
+    # def test_add_relationbrick_ctypes02(self):
+    #     "All ContentTypes allowed"
+    #     rt = RelationType.create(('test-subfoo', 'subject_predicate'),
+    #                              ('test-objfoo', 'object_predicate'),
+    #                             )[0]
+    #
+    #     rb_item = RelationBlockItem.objects.create(
+    #                     block_id='specificblock_creme_config-test-subfoo',
+    #                     relation_type=rt,
+    #                 )
+    #
+    #     url = self._build_rbrick_addctypes_url(rb_item)
+    #     response = self.assertGET200(url)
+    #
+    #     with self.assertNoException():
+    #         choices = response.context['form'].fields['ctypes'].ctypes
+    #
+    #     get_ct = ContentType.objects.get_for_model
+    #     self.assertIn(get_ct(FakeContact), choices)
+    #     self.assertIn(get_ct(FakeOrganisation), choices)
+    #     self.assertIn(get_ct(FakeActivity), choices)
+    #
+    #     self.assertNoFormError(self.client.post(url, data={'ctypes': [get_ct(FakeContact).id]}))
+    #
+    #     rb_item = self.refresh(rb_item)
+    #     self.assertIsNone(rb_item.get_cells(get_ct(FakeOrganisation)))
+    #     self.assertEqual([], rb_item.get_cells(get_ct(FakeContact)))
+    #
+    #     # Used CTypes should not be proposed
+    #     response = self.assertGET200(url)
+    #
+    #     with self.assertNoException():
+    #         choices = response.context['form'].fields['ctypes'].ctypes
+    #
+    #     self.assertNotIn(get_ct(FakeContact), choices)  # Used
+    #     self.assertIn(get_ct(FakeOrganisation), choices)  # Not used
 
     def test_add_relationbrick_ctypes_wizard01(self):
         rt = RelationType.create(('test-subfoo', 'subject_predicate'),
@@ -1807,42 +1809,42 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertDoesNotExist(ibi)
         self.assertDoesNotExist(loc)
 
-    def test_add_custombrick(self):
-        get_ct = ContentType.objects.get_for_model
-        ct = get_ct(FakeContact)
-        self.assertFalse(CustomBlockConfigItem.objects.filter(content_type=ct))
-
-        url = reverse('creme_config__create_custom_brick_legacy')
-        response = self.assertGET200(url)
-
-        with self.assertNoException():
-            ctypes = response.context['form'].fields['ctype'].ctypes
-
-        self.assertIn(ct, ctypes)
-        self.assertNotIn(get_ct(FakeInvoiceLine), ctypes)
-
-        name = 'Regular info'
-        self.assertNoFormError(self.client.post(url,
-                                                data={'ctype': ct.id,
-                                                      'name':  name,
-                                                     }
-                                               )
-                              )
-
-        cbc_items = CustomBlockConfigItem.objects.filter(content_type=ct)
-        self.assertEqual(1, len(cbc_items))
-
-        cbc_item = cbc_items[0]
-        self.assertEqual(name, cbc_item.name)
-        self.assertEqual([], cbc_item.cells)
-
-        self.assertNoFormError(self.client.post(url,
-                                                data={'ctype': ct.id,
-                                                      'name':  'Other info',
-                                                     }
-                                               )
-                              )
-        self.assertEqual(2, CustomBlockConfigItem.objects.filter(content_type=ct).count())
+    # def test_add_custombrick(self):
+    #     get_ct = ContentType.objects.get_for_model
+    #     ct = get_ct(FakeContact)
+    #     self.assertFalse(CustomBlockConfigItem.objects.filter(content_type=ct))
+    #
+    #     url = reverse('creme_config__create_custom_brick_legacy')
+    #     response = self.assertGET200(url)
+    #
+    #     with self.assertNoException():
+    #         ctypes = response.context['form'].fields['ctype'].ctypes
+    #
+    #     self.assertIn(ct, ctypes)
+    #     self.assertNotIn(get_ct(FakeInvoiceLine), ctypes)
+    #
+    #     name = 'Regular info'
+    #     self.assertNoFormError(self.client.post(url,
+    #                                             data={'ctype': ct.id,
+    #                                                   'name':  name,
+    #                                                  }
+    #                                            )
+    #                           )
+    #
+    #     cbc_items = CustomBlockConfigItem.objects.filter(content_type=ct)
+    #     self.assertEqual(1, len(cbc_items))
+    #
+    #     cbc_item = cbc_items[0]
+    #     self.assertEqual(name, cbc_item.name)
+    #     self.assertEqual([], cbc_item.cells)
+    #
+    #     self.assertNoFormError(self.client.post(url,
+    #                                             data={'ctype': ct.id,
+    #                                                   'name':  'Other info',
+    #                                                  }
+    #                                            )
+    #                           )
+    #     self.assertEqual(2, CustomBlockConfigItem.objects.filter(content_type=ct).count())
 
     def test_edit_custombrick01(self):
         ct = ContentType.objects.get_for_model(FakeContact)

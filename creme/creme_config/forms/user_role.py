@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.forms import CharField, ChoiceField, BooleanField, MultipleChoiceField, ModelChoiceField
@@ -47,66 +47,66 @@ def EmptyMultipleChoiceField(required=False, *args, **kwargs):
     return MultipleChoiceField(required=required, choices=(), *args, **kwargs)
 
 
-class UserRoleCreateForm(CremeModelForm):
-    creatable_ctypes  = MultiEntityCTypeChoiceField(label=_(u'Creatable resources'), required=False)
-    exportable_ctypes = MultiEntityCTypeChoiceField(label=_(u'Exportable resources'), required=False)
-    allowed_apps      = EmptyMultipleChoiceField(label=_(u'Allowed applications'))
-    admin_4_apps      = EmptyMultipleChoiceField(label=_(u'Administrated applications'))
+# class UserRoleCreateForm(CremeModelForm):
+#     creatable_ctypes  = MultiEntityCTypeChoiceField(label=_(u'Creatable resources'), required=False)
+#     exportable_ctypes = MultiEntityCTypeChoiceField(label=_(u'Exportable resources'), required=False)
+#     allowed_apps      = EmptyMultipleChoiceField(label=_(u'Allowed applications'))
+#     admin_4_apps      = EmptyMultipleChoiceField(label=_(u'Administrated applications'))
+#
+#     class Meta:
+#         model = UserRole
+#         exclude = ('raw_allowed_apps', 'raw_admin_4_apps')
+#
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn("UserRoleCreateForm is now deprecated. Use the wizard instead",
+#                       DeprecationWarning
+#                      )
+#
+#         super(UserRoleCreateForm, self).__init__(*args, **kwargs)
+#         fields = self.fields
+#
+#         def app_choices(apps):
+#             sort_key = collator.sort_key
+#
+#             return sorted(((app.label, unicode(app.verbose_name)) for app in apps),
+#                           key=lambda t: sort_key(t[1])
+#                          )
+#
+#         CRED_REGULAR = CremeAppConfig.CRED_REGULAR
+#         fields['allowed_apps'].choices = app_choices(app for app in creme_app_configs()
+#                                                        if app.credentials & CRED_REGULAR
+#                                                     )
+#         CRED_ADMIN = CremeAppConfig.CRED_ADMIN
+#         fields['admin_4_apps'].choices = app_choices(app for app in creme_app_configs()
+#                                                        if app.credentials & CRED_ADMIN
+#                                                     )
+#
+#     @staticmethod
+#     def app_choices(apps):
+#         sort_key = collator.sort_key
+#
+#         return sorted(((app.name, unicode(app.verbose_name)) for app in apps),
+#                       key=lambda t: sort_key(t[1])
+#                      )
+#
+#     def save(self, *args, **kwargs):
+#         instance = self.instance
+#         cleaned  = self.cleaned_data
+#
+#         instance.allowed_apps = cleaned['allowed_apps']
+#         instance.admin_4_apps = cleaned['admin_4_apps']
+#
+#         return super(UserRoleCreateForm, self).save(*args, **kwargs)
 
-    class Meta:
-        model = UserRole
-        exclude = ('raw_allowed_apps', 'raw_admin_4_apps')
 
-    def __init__(self, *args, **kwargs):
-        warnings.warn("UserRoleCreateForm is now deprecated. Use the wizard instead",
-                      DeprecationWarning
-                     )
-
-        super(UserRoleCreateForm, self).__init__(*args, **kwargs)
-        fields = self.fields
-
-        def app_choices(apps):
-            sort_key = collator.sort_key
-
-            return sorted(((app.label, unicode(app.verbose_name)) for app in apps),
-                          key=lambda t: sort_key(t[1])
-                         )
-
-        CRED_REGULAR = CremeAppConfig.CRED_REGULAR
-        fields['allowed_apps'].choices = app_choices(app for app in creme_app_configs()
-                                                       if app.credentials & CRED_REGULAR
-                                                    )
-        CRED_ADMIN = CremeAppConfig.CRED_ADMIN
-        fields['admin_4_apps'].choices = app_choices(app for app in creme_app_configs()
-                                                       if app.credentials & CRED_ADMIN
-                                                    )
-
-    @staticmethod
-    def app_choices(apps):
-        sort_key = collator.sort_key
-
-        return sorted(((app.name, unicode(app.verbose_name)) for app in apps),
-                      key=lambda t: sort_key(t[1])
-                     )
-
-    def save(self, *args, **kwargs):
-        instance = self.instance
-        cleaned  = self.cleaned_data
-
-        instance.allowed_apps = cleaned['allowed_apps']
-        instance.admin_4_apps = cleaned['admin_4_apps']
-
-        return super(UserRoleCreateForm, self).save(*args, **kwargs)
-
-
-class UserRoleEditForm(UserRoleCreateForm):
-    def __init__(self, *args, **kwargs):
-        super(UserRoleEditForm, self).__init__(*args, **kwargs)
-        fields = self.fields
-        role = self.instance
-
-        fields['allowed_apps'].initial = role.allowed_apps
-        fields['admin_4_apps'].initial = role.admin_4_apps
+# class UserRoleEditForm(UserRoleCreateForm):
+#     def __init__(self, *args, **kwargs):
+#         super(UserRoleEditForm, self).__init__(*args, **kwargs)
+#         fields = self.fields
+#         role = self.instance
+#
+#         fields['allowed_apps'].initial = role.allowed_apps
+#         fields['admin_4_apps'].initial = role.admin_4_apps
 
 
 class EditCredentialsForm(CremeModelForm):
