@@ -107,9 +107,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
         super(OpportunitiesTestCase, cls).setUpClass()
-        # cls.populate('opportunities', 'documents') #'commercial'
 
         try:
             cls.ADD_URL = reverse('opportunities__create_opportunity')
