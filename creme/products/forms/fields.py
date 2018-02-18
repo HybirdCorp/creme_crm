@@ -19,7 +19,7 @@
 ################################################################################
 
 from functools import partial
-import warnings
+# import warnings
 
 from django.db.models.query import QuerySet
 from django.forms.utils import ValidationError
@@ -32,27 +32,26 @@ from creme.creme_core.utils.url import TemplateURLBuilder
 from ..models import Category, SubCategory
 
 
-# TODO: deprecated remove it in next version.
-class CategorySelector(ChainedInput):
-    def __init__(self, categories=(), attrs=None, creation_allowed=True):
-        warnings.warn("CategorySelector is deprecated, use CreatorCategorySelector instead.",
-                      DeprecationWarning
-                     )
-
-        super(CategorySelector, self).__init__(attrs)
-        self.creation_allowed = creation_allowed  # TODO: useless at the moment...
-        self.categories = categories
-
-    def render(self, name, value, attrs=None):
-        add = partial(self.add_dselect, attrs={'auto': False})
-        add('category', options=self.categories, label=_(u'Category'))
-        add('subcategory',
-            options=TemplateURLBuilder(category_id=(TemplateURLBuilder.Int, '${category}'))
-                                      .resolve('products__subcategories'),
-            label=_(u'Sub-category'),
-           )
-
-        return super(CategorySelector, self).render(name, value, attrs)
+# class CategorySelector(ChainedInput):
+#     def __init__(self, categories=(), attrs=None, creation_allowed=True):
+#         warnings.warn("CategorySelector is deprecated, use CreatorCategorySelector instead.",
+#                       DeprecationWarning
+#                      )
+#
+#         super(CategorySelector, self).__init__(attrs)
+#         self.creation_allowed = creation_allowed  # TODO: useless at the moment...
+#         self.categories = categories
+#
+#     def render(self, name, value, attrs=None):
+#         add = partial(self.add_dselect, attrs={'auto': False})
+#         add('category', options=self.categories, label=_(u'Category'))
+#         add('subcategory',
+#             options=TemplateURLBuilder(category_id=(TemplateURLBuilder.Int, '${category}'))
+#                                       .resolve('products__subcategories'),
+#             label=_(u'Sub-category'),
+#            )
+#
+#         return super(CategorySelector, self).render(name, value, attrs)
 
 
 class CreatorCategorySelector(ActionButtonList):
