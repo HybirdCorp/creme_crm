@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -199,12 +199,12 @@ class Contact(AbstractContact):
 
 # Manage the related User ------------------------------------------------------
 
-def _create_linked_contact(user):
-    warnings.warn("_create_linked_contact() is deprecated ; use AbstractContact._create_linked_contact() instead.",
-                  DeprecationWarning
-                 )
-
-    return get_contact_model()._create_linked_contact(user)
+# def _create_linked_contact(user):
+#     warnings.warn("_create_linked_contact() is deprecated ; use AbstractContact._create_linked_contact() instead.",
+#                   DeprecationWarning
+#                  )
+#
+#     return get_contact_model()._create_linked_contact(user)
 
 
 def _get_linked_contact(self):
