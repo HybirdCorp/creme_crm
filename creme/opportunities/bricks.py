@@ -21,7 +21,7 @@
 from datetime import timedelta
 
 from django.apps import apps
-from django.contrib.contenttypes.models import ContentType
+# from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.bricks import Brick, SimpleBrick, QuerysetBrick, EntityBrick
@@ -39,7 +39,7 @@ Organisation = persons.get_organisation_model()
 Product = products.get_product_model()
 Service = products.get_service_model()
 Opportunity = get_opportunity_model()
-_get_ct = ContentType.objects.get_for_model
+# _get_ct = ContentType.objects.get_for_model
 
 
 class OpportunityCardHatBrick(Brick):
@@ -97,7 +97,7 @@ class _LinkedStuffBrick(QuerysetBrick):
     # template_name = SET ME
     target_ctypes = (Opportunity,)
 
-    _model = Contact  # DEPRECATED
+    # _model = Contact
 
     def _get_queryset(self, entity):  # Overload
         pass
@@ -109,7 +109,7 @@ class _LinkedStuffBrick(QuerysetBrick):
                     context,
                     self._get_queryset(entity),
                     predicate_id=self.relation_type_deps[0],
-                    ct=_get_ct(self._model),  # DEPRECATED (use 'objects_ctype' instead)
+                    # ct=_get_ct(self._model),
         ))
 
 
@@ -132,7 +132,7 @@ class LinkedProductsBrick(_LinkedStuffBrick):
     template_name = 'opportunities/bricks/products.html'
     order_by      = 'name'
 
-    _model = Product
+    # _model = Product
 
     def _get_queryset(self, entity):
         return entity.get_products()
@@ -146,7 +146,7 @@ class LinkedServicesBrick(_LinkedStuffBrick):
     template_name = 'opportunities/bricks/services.html'
     order_by      = 'name'
 
-    _model = Service
+    # _model = Service
 
     def _get_queryset(self, entity):
         return entity.get_services()
@@ -183,7 +183,7 @@ class TargettingOpportunitiesBrick(QuerysetBrick):
                                                relations__type=constants.REL_SUB_TARGETS,
                                               ),
                     predicate_id=self.relation_type_deps[0],
-                    ct=_get_ct(Opportunity),  # DEPRECATED (use 'objects_ctype' instead)
+                    # ct=_get_ct(Opportunity),
                     hidden_fields={fname
                                     for fname in ('estimated_sales', 'made_sales')
                                         if is_hidden(fname)
@@ -252,7 +252,7 @@ if apps.is_installed('creme.billing'):
         template_name      = 'opportunities/bricks/quotes.html'
         order_by           = 'name'
 
-        _model = Quote
+        # _model = Quote
 
         def _get_queryset(self, entity):
             # TODO: test
@@ -270,7 +270,7 @@ if apps.is_installed('creme.billing'):
         template_name      = 'opportunities/bricks/sales-orders.html'
         order_by           = 'name'
 
-        _model = SalesOrder
+        # _model = SalesOrder
 
         def _get_queryset(self, entity):
             # TODO: test
@@ -288,7 +288,7 @@ if apps.is_installed('creme.billing'):
         template_name      = 'opportunities//bricks/invoices.html'
         order_by           = 'name'
 
-        _model = Invoice
+        # _model = Invoice
 
         def _get_queryset(self, entity):
             # TODO: test
