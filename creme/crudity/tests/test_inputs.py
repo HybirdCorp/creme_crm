@@ -50,10 +50,16 @@ class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
     def _get_email_input(self, backend, **backend_cfg):
         return self._get_input(CreateEmailInput, backend, **backend_cfg)
 
+    def test_empty_email_input(self):
+        email_input = CreateEmailInput()
+
+        self.assertIs(False, email_input.has_backends)
+
     def test_create_email_input01(self):
         "Unauthorized user"
         email_input = self._get_email_input(ContactFakeBackend, limit_froms=('creme@crm.org',))
 
+        self.assertIs(True, email_input.has_backends)
         self.assertEqual(0, WaitingAction.objects.count())
         email_input.create(self._get_pop_email(senders=('crm@creme.org',)))
         self.assertEqual(0, WaitingAction.objects.count())

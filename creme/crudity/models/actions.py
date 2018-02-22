@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,7 +36,7 @@ class WaitingAction(CremeModel):
     data    = TextField(blank=True, null=True)
     ct      = CTypeForeignKey(verbose_name=_(u"Ressource's type"))  # Redundant, but faster bd recovery
     subject = CharField(_(u'Subject'), max_length=100)
-    user    = CremeUserForeignKey(verbose_name=_(u'Owner'), blank=True, null=True, default=None)  # Case of sandboxes are by user
+    user    = CremeUserForeignKey(verbose_name=_(u'Owner'), blank=True, null=True, default=None)  # If sandbox per user
 
     class Meta:
         app_label = 'crudity'
@@ -47,10 +47,14 @@ class WaitingAction(CremeModel):
         data = loads(self.data.encode('utf-8'))
 
         if isinstance(data, dict):
-            d = {}
-            for k,v in data.iteritems():
-                d[k] = v.decode('utf8') if isinstance(v, basestring) else v
-            data = d
+            # d = {}
+            # for k,v in data.iteritems():
+            #     d[k] = v.decode('utf8') if isinstance(v, basestring) else v
+            # data = d
+            data = {
+                k: v.decode('utf8') if isinstance(v, basestring) else v
+                    for k, v in data.iteritems()
+            }
 
         return data
 

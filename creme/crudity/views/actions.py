@@ -33,7 +33,7 @@ from creme.creme_core.views.bricks import bricks_render_info, get_brick_ids_or_4
 from creme.creme_core.views.decorators import POST_only
 
 from .. import registry
-from ..bricks import WaitingActionsBrick
+# from ..bricks import WaitingActionsBrick
 from ..models import WaitingAction
 
 
@@ -51,18 +51,22 @@ def _retrieve_actions_ids(request):
 
 
 def _build_portal_bricks():
-    bricks = []
-
-    # TODO: list comprehension
-    # TODO: backend.blocks => bricks
-    for backend in registry.crudity_registry.get_configured_backends():
-        if backend.in_sandbox:
-            brick_classes = backend.blocks or (WaitingActionsBrick,)  # TODO: in backend.@bricks
-
-            for brick_class in brick_classes:
-                bricks.append(brick_class(backend))
-
-    return bricks
+    # bricks = []
+    #
+    # for backend in registry.crudity_registry.get_configured_backends():
+    #     if backend.in_sandbox:
+    #         brick_classes = backend.blocks or (WaitingActionsBrick,)
+    #
+    #         for brick_class in brick_classes:
+    #             bricks.append(brick_class(backend))
+    #
+    # return bricks
+    return [
+        brick_class(backend)
+            for backend in registry.crudity_registry.get_configured_backends()
+                if backend.in_sandbox
+                    for brick_class in backend.brick_classes
+    ]
 
 
 @login_required

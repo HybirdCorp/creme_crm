@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017  Hybird
+#    Copyright (C) 2017-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,36 +41,35 @@ class IniFileInput(CrudityInput):
     verbose_method = _(u'Create')  # TODO: factorise + retrieve with 'method'
     brickheader_action_templates = ('crudity/bricks/header-actions/inifile-creation-template.html',)
 
-    def __init__(self):
-        super(IniFileInput, self).__init__()
-
-        # TODO: remove in creme1.8
-        # NB: we define an inner class + avoid using a template file in order to reduce the API (will break soon).
-        from django.core.urlresolvers import reverse
-        from django.utils.safestring import mark_safe
-        from django.utils.translation import ugettext
-
-        from creme.creme_core.gui.button_menu import Button
-        from creme.creme_core.templatetags.creme_core_tags import creme_media_url
-
-        class IniTemplateCreateButton(Button):
-            id_ = Button.generate_id('crudity', 'ini_create_form')
-            verbose_name = u''
-
-            def render(self, context):
-                backend = context['backend']
-
-                return mark_safe(u'<a class="download" href="{url}">'
-                                    u'<img src="{src}" border="0" title="{title}" alt="{title}" />{label}'
-                                 u'</a>'.format(
-                                     url=reverse('crudity__dl_fs_ini_template', args=(backend.subject,)),
-                                     title=ugettext(u'Download'),
-                                     src=creme_media_url(context, 'images/download_22.png'),
-                                     label=ugettext(u'File .ini template for «%s»') % backend.model._meta.verbose_name,
-                                    )
-                                )
-
-        self.register_buttons(IniTemplateCreateButton())
+    # def __init__(self):
+    #     super(IniFileInput, self).__init__()
+    #
+    #     # NB: we define an inner class + avoid using a template file in order to reduce the API (will break soon).
+    #     from django.core.urlresolvers import reverse
+    #     from django.utils.safestring import mark_safe
+    #     from django.utils.translation import ugettext
+    #
+    #     from creme.creme_core.gui.button_menu import Button
+    #     from creme.creme_core.templatetags.creme_core_tags import creme_media_url
+    #
+    #     class IniTemplateCreateButton(Button):
+    #         id_ = Button.generate_id('crudity', 'ini_create_form')
+    #         verbose_name = u''
+    #
+    #         def render(self, context):
+    #             backend = context['backend']
+    #
+    #             return mark_safe(u'<a class="download" href="{url}">'
+    #                                 u'<img src="{src}" border="0" title="{title}" alt="{title}" />{label}'
+    #                              u'</a>'.format(
+    #                                  url=reverse('crudity__dl_fs_ini_template', args=(backend.subject,)),
+    #                                  title=ugettext(u'Download'),
+    #                                  src=creme_media_url(context, 'images/download_22.png'),
+    #                                  label=ugettext(u'File .ini template for «%s»') % backend.model._meta.verbose_name,
+    #                                 )
+    #                             )
+    #
+    #     self.register_buttons(IniTemplateCreateButton())
 
     def create(self, file_path):
         backend = None
@@ -144,5 +143,4 @@ class IniFileInput(CrudityInput):
                     # Cleaning
                     remove_file(file_path)
 
-        # return backend is not None
         return backend
