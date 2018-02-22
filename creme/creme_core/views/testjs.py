@@ -19,12 +19,12 @@
 ################################################################################
 
 from datetime import date
-from time import sleep
 import logging
 from os import listdir
 from os.path import join
 from random import randint
 from re import compile as re_compile
+from time import sleep
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -105,7 +105,8 @@ class Dummy(object):
         return self.name
 
 
-class DummyListBlock(PaginatedBrick):
+# class DummyListBlock(PaginatedBrick):
+class DummyListBrick(PaginatedBrick):
     id_           = PaginatedBrick.generate_id('creme_core', 'test_dummy_list')
     verbose_name  = u'Dummies'
     dependencies  = ()
@@ -134,7 +135,7 @@ class DummyListBlock(PaginatedBrick):
                     # update_url=reverse('creme_core__set_block_state', args=(self.id_,)),
         ))
 
-dummy_list_block = DummyListBlock()
+# dummy_list_block = DummyListBlock()
 
 
 # def js_testview_or_404(request, message, error):
@@ -148,10 +149,14 @@ def js_testview_or_404(message, error):
 
 def js_testview_context(request, viewname):
     try:
-        brick_registry[dummy_list_block.id_]
-    except:
-        logger.info('Register dummy object list block %s' % dummy_list_block.id_)
-        brick_registry.register(dummy_list_block)
+        # brick_registry[dummy_list_block.id_]
+        brick_registry[DummyListBrick.id_]
+    # except:
+    except KeyError:
+        # logger.info('Register dummy object list block %s' % dummy_list_block.id_)
+        logger.info('Register dummy object list block %s', DummyListBrick.id_)
+        # brick_registry.register(dummy_list_block)
+        brick_registry.register(DummyListBrick)
 
     test_view_pattern = re_compile('^test_(?P<name>[\d\w]+)\.html$')
     test_views = []
@@ -175,7 +180,7 @@ def js_testview_context(request, viewname):
         'TEST_VIEW':       viewname,
         'TEST_SCREEN':     get('screen', ''),
         'TEST_HEADLESS':     get('headless', False),
-        'TEST_CONTENTTYPES': dict(ContentType.objects.values_list('model', 'id'))
+        'TEST_CONTENTTYPES': dict(ContentType.objects.values_list('model', 'id')),
     }
 
 
