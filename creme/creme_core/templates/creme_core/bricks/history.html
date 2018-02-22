@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_core_tags creme_widgets creme_bricks %}
+{% load i18n creme_core_tags creme_history creme_widgets creme_bricks %}
 
 {% block brick_extra_class %}{{block.super}} creme_core-history-brick{% endblock %}
 
@@ -43,7 +43,8 @@
         {% endif %}
         <td>{{line.get_type_str}}</td>
         <td data-type="list">
-            {% with modifications=line|verbose_modifications:user %}
+{#            {% with modifications=line|verbose_modifications:user %} #}
+            {% with modifications=line|history_modifications:user %}
                 {% if modifications|length == 1 %}
                     {{modifications.0}}
                 {% else %}
@@ -65,7 +66,8 @@
                             {% blocktrans with related_line.entity_repr as entity %}Edit "{{entity}}"{% endblocktrans %}{% comment %}TODO: improve credentials here !! {% endcomment %}
                         {% endif %}
                         <br/>
-                        {% for modif in related_line|verbose_modifications:user %} - {{modif}}<br/>{% endfor %}
+{#                        {% for modif in related_line|verbose_modifications:user %} - {{modif}}<br/>{% endfor %} #}
+                        {% for modif in related_line|history_modifications:user %} - {{modif}}<br/>{% endfor %}
                     {% endif %}
                 {% endwith %}
              {% endif %}
