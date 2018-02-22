@@ -45,7 +45,8 @@
     <div class="buttons-list instance-buttons">
         {% block button_tab %}
             <ul>
-                {% get_button_menu %}{# TODO: works only with CremeEntities => move to view entity.html ?? #}
+{#                {% get_button_menu %} #}
+                {% menu_buttons_display %}{# TODO: works only with CremeEntities => move to view entity.html ?? #}
                 {% block extra_menu_buttons %}{% endblock %}
             </ul>
         {% endblock %}

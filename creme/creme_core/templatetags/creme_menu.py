@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+import warnings
 
 from django.conf import settings
 from django.db.models import Q
@@ -123,10 +125,18 @@ def get_last_items_menu(request):
     return {'items': LastViewedItem.get_all(request)}
 
 
-# TODO: rename (menu_button(s)_display ?)
-# TODO: rename template file (menu-buttons.html)
 @register.inclusion_tag('creme_core/templatetags/menu_buttons.html', takes_context=True)
 def get_button_menu(context):
+    warnings.warn('The tag {% get_button_menu %} is deprecated ; use {% menu_buttons_display %} instead.',
+                  DeprecationWarning
+                 )
+
+    return menu_buttons_display(context)
+
+
+# TODO: rename template file (menu-buttons.html)
+@register.inclusion_tag('creme_core/templatetags/menu_buttons.html', takes_context=True)
+def menu_buttons_display(context):
     entity = context['object']
     bmi = ButtonMenuItem.objects.filter(Q(content_type=entity.entity_type) |
                                         Q(content_type__isnull=True)
