@@ -20,7 +20,8 @@
 
 from functools import partial
 from json import loads as jsonloads, dumps as jsondumps
-import logging  # warnings
+import logging
+import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -63,7 +64,7 @@ class BlockDetailviewLocation(CremeModel):
     BOTTOM = 4
     HAT    = 5
 
-    ZONES = (HAT, TOP, LEFT, RIGHT, BOTTOM)
+    ZONES = (HAT, TOP, LEFT, RIGHT, BOTTOM)   # DEPRECATED
     ZONE_NAMES = {
         HAT:    'hat',
         TOP:    'top',
@@ -133,7 +134,11 @@ class BlockDetailviewLocation(CremeModel):
         return BlockDetailviewLocation.objects.filter(content_type=ct).exists()
 
     @staticmethod
-    def create_empty_config(model=None):  # TODO: useless ? (remove ZONES too)
+    def create_empty_config(model=None):
+        warnings.warn('BlockDetailviewLocation.create_empty_config() is deprecated.',
+                      DeprecationWarning
+                     )
+
         ct = ContentType.objects.get_for_model(model) if model else None
 
         if not BlockDetailviewLocation.objects.filter(content_type=ct).exists():
@@ -171,6 +176,10 @@ class BlockPortalLocation(CremeModel):
 
     @staticmethod
     def create_empty_config(app_name=''):
+        warnings.warn('BlockPortalLocation.create_empty_config() is deprecated.',
+                      DeprecationWarning
+                     )
+
         if not BlockPortalLocation.objects.filter(app_name=app_name).exists():
             BlockPortalLocation.objects.create(app_name=app_name, block_id='', order=1)
 
