@@ -50,15 +50,15 @@ class Populator(BasePopulator):
 
         if not already_populated:
             RIGHT = BlockDetailviewLocation.RIGHT
-            BlockDetailviewLocation.create(block_id=TodosBrick.id_,        order=100, zone=RIGHT)
-            BlockDetailviewLocation.create(block_id=MemosBrick.id_,        order=200, zone=RIGHT)
-            BlockDetailviewLocation.create(block_id=AlertsBrick.id_,       order=300, zone=RIGHT)
-            BlockDetailviewLocation.create(block_id=UserMessagesBrick.id_, order=400, zone=RIGHT)
+            BlockDetailviewLocation.create_if_needed(brick_id=TodosBrick.id_,        order=100, zone=RIGHT)
+            BlockDetailviewLocation.create_if_needed(brick_id=MemosBrick.id_,        order=200, zone=RIGHT)
+            BlockDetailviewLocation.create_if_needed(brick_id=AlertsBrick.id_,       order=300, zone=RIGHT)
+            BlockDetailviewLocation.create_if_needed(brick_id=UserMessagesBrick.id_, order=400, zone=RIGHT)
 
-            BlockPortalLocation.create(block_id=MemosBrick.id_,        order=100)
-            BlockPortalLocation.create(block_id=AlertsBrick.id_,       order=200)
-            BlockPortalLocation.create(block_id=UserMessagesBrick.id_, order=300)
+            BlockPortalLocation.create_or_update(brick_id=MemosBrick.id_,        order=100)
+            BlockPortalLocation.create_or_update(brick_id=AlertsBrick.id_,       order=200)
+            BlockPortalLocation.create_or_update(brick_id=UserMessagesBrick.id_, order=300)
 
-            BlockPortalLocation.create(app_name='creme_core', block_id=MemosBrick.id_,        order=100)
-            BlockPortalLocation.create(app_name='creme_core', block_id=AlertsBrick.id_,       order=200)
-            BlockPortalLocation.create(app_name='creme_core', block_id=UserMessagesBrick.id_, order=300)
+            BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=MemosBrick.id_,        order=100)
+            BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=AlertsBrick.id_,       order=200)
+            BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=UserMessagesBrick.id_, order=300)

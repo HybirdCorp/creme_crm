@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -121,9 +121,11 @@ class AbstractReportGraph(CremeEntity):
 
         return hand
 
+    # TODO: rename InstanceBrickConfigItemError
     class InstanceBlockConfigItemError(Exception):
         pass
 
+    # TODO: rename create_instance_block_config_item() (wait for new fields names ?)
     def create_instance_block_config_item(self, volatile_field=None, volatile_rtype=None, save=True):
         from ..bricks import ReportGraphBrick
         from ..core.graph import RegularFieldLinkedGraphFetcher
@@ -145,14 +147,14 @@ class AbstractReportGraph(CremeEntity):
         else:
             key = ''
 
-        block_id = InstanceBlockConfigItem.generate_id(ReportGraphBrick, self, key)
+        brick_id = InstanceBlockConfigItem.generate_id(ReportGraphBrick, self, key)
 
-        if InstanceBlockConfigItem.objects.filter(block_id=block_id).exists():
+        if InstanceBlockConfigItem.objects.filter(brick_id=brick_id).exists():
             raise self.InstanceBlockConfigItemError(
                         ugettext(u'The instance block for "%s" with these parameters already exists!') % self
                     )
 
-        ibci = InstanceBlockConfigItem(entity=self, block_id=block_id, data=key)
+        ibci = InstanceBlockConfigItem(entity=self, brick_id=brick_id, data=key)
 
         if save:
             ibci.save()

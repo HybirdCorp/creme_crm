@@ -48,7 +48,7 @@ def app_portal(request, app_name, template, models, stats, config_url=None, extr
                                       .order_by('order')
 
     # We fallback to the default config is there is no config for this app.
-    brick_ids = [loc.block_id for loc in locs if loc.app_name] or [loc.block_id for loc in locs]
+    brick_ids = [loc.brick_id for loc in locs if loc.app_name] or [loc.brick_id for loc in locs]
 
     template_dict = {'app_name':          app_name,
                      'ct_ids':            ct_ids,

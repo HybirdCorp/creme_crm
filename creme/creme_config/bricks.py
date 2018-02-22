@@ -361,7 +361,7 @@ class BlockDetailviewLocationsBrick(PaginatedBrick):
         for bdl in BlockDetailviewLocation.objects \
                                           .filter(content_type__in=[ctw.ctype for ctw in ctypes_wrappers])\
                                           .exclude(zone=BlockDetailviewLocation.HAT):
-            if bdl.block_id:  # Do not count the 'place-holder' (empty block IDs which mean "no-block for this zone")
+            if bdl.brick_id:  # Do not count the 'place-holder' (empty block IDs which mean "no-block for this zone")
                 role_id = bdl.role_id
                 block_counts[bdl.content_type_id][(role_id, bdl.superuser)] += 1
                 role_ids.add(role_id)

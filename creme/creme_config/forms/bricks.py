@@ -66,7 +66,7 @@ class _BrickLocationsForm(CremeForm):
         choices.sort(key=lambda c: sort_key(c[1]))
 
         bricks.choices = choices
-        bricks.initial = [bl.block_id for bl in block_locations]
+        bricks.initial = [bl.brick_id for bl in block_locations]
 
     def _save_locations(self, location_model, location_builder,
                         # blocks_partitions,
@@ -74,7 +74,7 @@ class _BrickLocationsForm(CremeForm):
                         old_locations=(), role=None, superuser=False,
                        ):
         # At least 1 block per zone (even if it can be fake block)
-        needed = sum(len(block_ids) or 1 for block_ids in bricks_partitions.itervalues())
+        needed = sum(len(brick_ids) or 1 for brick_ids in bricks_partitions.itervalues())
         lendiff = needed - len(old_locations)
 
         if lendiff < 0:
@@ -92,9 +92,9 @@ class _BrickLocationsForm(CremeForm):
             if not brick_ids:  # No brick for this zone -> fake brick_id
                 brick_ids = ('',)
 
-            for order, block_id in enumerate(brick_ids, start=1):
+            for order, brick_id in enumerate(brick_ids, start=1):
                 location = store_it.next()
-                location.block_id = block_id
+                location.brick_id = brick_id
                 location.order = order
                 location.zone  = zone  # NB: BlockPortalLocation has not 'zone' attr, but we do not care ! :)
                 location.role  = role  # NB: idem with 'role'
@@ -247,12 +247,12 @@ class BrickDetailviewLocationsEditForm(_BrickDetailviewLocationsForm):
         fields = self.fields
 
         for fname, zone in self._ZONES:
-            fields[fname].initial = [bl.block_id for bl in locations if bl.zone == zone]
+            fields[fname].initial = [bl.brick_id for bl in locations if bl.zone == zone]
 
         hat_f = fields.get('hat')
         if hat_f:
             HEADER = BlockDetailviewLocation.HAT
-            selected = [bl.block_id for bl in locations if bl.zone == HEADER]
+            selected = [bl.brick_id for bl in locations if bl.zone == HEADER]
             hat_f.initial = selected[0] if selected else hat_f.choices[0][0]
 
 
@@ -340,7 +340,7 @@ class RTypeBrickAddForm(CremeModelForm):
         relation_type.queryset = RelationType.objects.exclude(pk__in=existing_type_ids)
 
     def save(self, *args, **kwargs):
-        self.instance.block_id = gui_bricks.SpecificRelationsBrick.generate_id(
+        self.instance.brick_id = gui_bricks.SpecificRelationsBrick.generate_id(
                                         'creme_config',
                                         self.cleaned_data['relation_type'].id,
                                     )

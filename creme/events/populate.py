@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -94,30 +94,30 @@ class Populator(BasePopulator):
             for i, name in enumerate([_(u'Show'), _(u'Conference'), _(u'Breakfast'), _(u'Brunch')], start=1):
                 create_if_needed(EventType, {'pk': i}, name=name)
 
-            create_bdl = BlockDetailviewLocation.create
+            create_bdl = BlockDetailviewLocation.create_if_needed
             LEFT  = BlockDetailviewLocation.LEFT
             RIGHT = BlockDetailviewLocation.RIGHT
 
             BlockDetailviewLocation.create_4_model_brick(order=5,             zone=LEFT,  model=Event)
-            create_bdl(block_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=Event)
-            create_bdl(block_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=Event)
-            create_bdl(block_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=Event)
-            create_bdl(block_id=bricks.ResutsBrick.id_,            order=2,   zone=RIGHT, model=Event)
-            create_bdl(block_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=Event)
+            create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=Event)
+            create_bdl(brick_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=Event)
+            create_bdl(brick_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=Event)
+            create_bdl(brick_id=bricks.ResutsBrick.id_,            order=2,   zone=RIGHT, model=Event)
+            create_bdl(brick_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=Event)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail view')
 
                 from creme.assistants import bricks as a_bricks
 
-                create_bdl(block_id=a_bricks.TodosBrick.id_,        order=100, zone=RIGHT, model=Event)
-                create_bdl(block_id=a_bricks.MemosBrick.id_,        order=200, zone=RIGHT, model=Event)
-                create_bdl(block_id=a_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=Event)
-                create_bdl(block_id=a_bricks.UserMessagesBrick.id_, order=400, zone=RIGHT, model=Event)
+                create_bdl(brick_id=a_bricks.TodosBrick.id_,        order=100, zone=RIGHT, model=Event)
+                create_bdl(brick_id=a_bricks.MemosBrick.id_,        order=200, zone=RIGHT, model=Event)
+                create_bdl(brick_id=a_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=Event)
+                create_bdl(brick_id=a_bricks.UserMessagesBrick.id_, order=400, zone=RIGHT, model=Event)
 
             if apps.is_installed('creme.documents'):
                 # logger.info('Documents app is installed => we use the Documents blocks on detail view')
 
                 from creme.documents.bricks import LinkedDocsBrick
 
-                create_bdl(block_id=LinkedDocsBrick.id_, order=600, zone=RIGHT, model=Event)
+                create_bdl(brick_id=LinkedDocsBrick.id_, order=600, zone=RIGHT, model=Event)

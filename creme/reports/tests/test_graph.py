@@ -1799,7 +1799,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         rgraph = self._create_documents_rgraph()
 
         ibci = rgraph.create_instance_block_config_item()
-        self.assertEqual(u'instanceblock_reports-graph|%s-' % rgraph.id, ibci.block_id)
+        self.assertEqual(u'instanceblock_reports-graph|%s-' % rgraph.id, ibci.brick_id)
         self.assertEqual('', ibci.data)
 
         volatile = pgettext('reports-volatile_choice', u'None')
@@ -1824,7 +1824,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual('instanceblock_reports-graph|%s-%s|%s' % (
                                 rgraph.id, fk_name, RFT_FIELD,
                             ),
-                         ibci.block_id
+                         ibci.brick_id
                         )
         self.assertEqual('%s|%s' % (fk_name, RFT_FIELD),
                          ibci.data
@@ -1856,7 +1856,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual('instanceblock_reports-graph|%s-%s|%s' % (
                                 rgraph.id, rtype.id, RFT_RELATION,
                             ),
-                         ibci.block_id
+                         ibci.brick_id
                         )
         self.assertEqual('%s|%s' % (rtype.id, RFT_RELATION), ibci.data)
         self.assertEqual(u'%s - %s' % (rgraph.name, rtype),
@@ -1881,7 +1881,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual(1, len(items))
 
         item = items[0]
-        self.assertEqual(u'instanceblock_reports-graph|%s-' % rgraph.id, item.block_id)
+        self.assertEqual(u'instanceblock_reports-graph|%s-' % rgraph.id, item.brick_id)
         self.assertEqual('', item.data)
         self.assertIsNone(item.errors)
 
@@ -1901,18 +1901,18 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         # ---------------------------------------------------------------------
         # Display on home
         BlockPortalLocation.objects.all().delete()
-        BlockPortalLocation.create(app_name='creme_core', block_id=item.block_id, order=1)
+        BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=item.brick_id, order=1)
         response = self.assertGET200('/')
         self.assertTemplateUsed(response, 'reports/bricks/graph.html')
-        self.get_brick_node(self.get_html_tree(response.content), item.block_id)
+        self.get_brick_node(self.get_html_tree(response.content), item.brick_id)
 
         # ---------------------------------------------------------------------
         # Display on detailview
         ct = self.ct_invoice
         BlockDetailviewLocation.objects.filter(content_type=ct).delete()
-        BlockDetailviewLocation.create(block_id=item.block_id, order=1,
-                                       zone=BlockDetailviewLocation.RIGHT, model=FakeInvoice,
-                                      )
+        BlockDetailviewLocation.create_if_needed(brick_id=item.brick_id, order=1,
+                                                 zone=BlockDetailviewLocation.RIGHT, model=FakeInvoice,
+                                                )
 
         create_orga = partial(FakeOrganisation.objects.create, user=self.user)
         orga1 = create_orga(name='BullFrog')
@@ -1924,7 +1924,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         response = self.assertGET200(invoice.get_absolute_url())
         self.assertTemplateUsed(response, 'reports/bricks/graph.html')
-        self.get_brick_node(self.get_html_tree(response.content), item.block_id)
+        self.get_brick_node(self.get_html_tree(response.content), item.brick_id)
 
         # ---------------------------------------------------------------------
         # response = self.assertGET200(self._build_fetchfrombrick_url(item, invoice, 'ASC', use_GET=True))
@@ -1991,7 +1991,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         item = items[0]
         self.assertEqual('instanceblock_reports-graph|%s-%s|%s' % (rgraph.id, fk_name, RFT_FIELD),
-                         item.block_id
+                         item.brick_id
                         )
         self.assertEqual('%s|%s' % (fk_name, RFT_FIELD), item.data)
 
@@ -2011,9 +2011,9 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         ct = folder1.entity_type
         BlockDetailviewLocation.objects.filter(content_type=ct).delete()
-        BlockDetailviewLocation.create(block_id=item.block_id, order=1,
-                                       zone=BlockDetailviewLocation.RIGHT, model=FakeReportsFolder,
-                                      )
+        BlockDetailviewLocation.create_if_needed(brick_id=item.brick_id, order=1,
+                                                 zone=BlockDetailviewLocation.RIGHT, model=FakeReportsFolder,
+                                                )
 
         response = self.assertGET200(folder1.get_absolute_url())
         self.assertTemplateUsed(response, 'reports/bricks/graph.html')
@@ -2036,7 +2036,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         fname = 'invalid'
         ibci = InstanceBlockConfigItem.objects.create(
                     entity=rgraph,
-                    block_id='instanceblock_reports-graph|%s-%s|%s' % (rgraph.id, fname, RFT_FIELD),
+                    brick_id='instanceblock_reports-graph|%s-%s|%s' % (rgraph.id, fname, RFT_FIELD),
                     data='%s|%s' % (fname, RFT_FIELD),
                 )
 
@@ -2060,7 +2060,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         fname = 'description'
         ibci = InstanceBlockConfigItem.objects.create(
                     entity=rgraph,
-                    block_id='instanceblock_reports-graph|%s-%s|%s' % (rgraph.id, fname, RFT_FIELD),
+                    brick_id='instanceblock_reports-graph|%s-%s|%s' % (rgraph.id, fname, RFT_FIELD),
                     data='%s|%s' % (fname, RFT_FIELD),
                 )
 
@@ -2126,7 +2126,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual('instanceblock_reports-graph|%s-%s|%s' % (
                                 rgraph.id, rtype.id, RFT_RELATION,
                             ),
-                         item.block_id
+                         item.brick_id
                         )
         self.assertEqual('%s|%s' % (rtype.id, RFT_RELATION), item.data)
         self.assertEqual(u'%s - %s' % (rgraph.name, rtype),
@@ -2170,7 +2170,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         rtype_id = 'invalid'
         ibci = InstanceBlockConfigItem.objects.create(
                     entity=rgraph,
-                    block_id='instanceblock_reports-graph|%s-%s|%s' % (rgraph.id, rtype_id, RFT_RELATION),
+                    brick_id='instanceblock_reports-graph|%s-%s|%s' % (rgraph.id, rtype_id, RFT_RELATION),
                     data='%s|%s' % (rtype_id, RFT_RELATION),
                 )
 

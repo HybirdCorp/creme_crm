@@ -48,31 +48,31 @@ class Populator(BasePopulator):
         SearchConfigItem.create_if_needed(Graph, ['name'])
 
         if not BlockDetailviewLocation.config_exists(Graph):  # NB: no straightforward way to test that this populate script has not been already run
-            create_bdl = BlockDetailviewLocation.create
+            create_bdl = BlockDetailviewLocation.create_if_needed
             LEFT  = BlockDetailviewLocation.LEFT
             RIGHT = BlockDetailviewLocation.RIGHT
 
             BlockDetailviewLocation.create_4_model_brick(order=5,                zone=LEFT,  model=Graph)
-            create_bdl(block_id=core_bricks.CustomFieldsBrick.id_,    order=40,  zone=LEFT,  model=Graph)
-            create_bdl(block_id=bricks.RootNodesBrick.id_,            order=60,  zone=LEFT,  model=Graph)
-            create_bdl(block_id=bricks.OrbitalRelationTypesBrick.id_, order=65,  zone=LEFT,  model=Graph)
-            create_bdl(block_id=core_bricks.PropertiesBrick.id_,      order=450, zone=LEFT,  model=Graph)
-            create_bdl(block_id=core_bricks.RelationsBrick.id_,       order=500, zone=LEFT,  model=Graph)
-            create_bdl(block_id=core_bricks.HistoryBrick.id_,         order=20,  zone=RIGHT, model=Graph)
+            create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_,    order=40,  zone=LEFT,  model=Graph)
+            create_bdl(brick_id=bricks.RootNodesBrick.id_,            order=60,  zone=LEFT,  model=Graph)
+            create_bdl(brick_id=bricks.OrbitalRelationTypesBrick.id_, order=65,  zone=LEFT,  model=Graph)
+            create_bdl(brick_id=core_bricks.PropertiesBrick.id_,      order=450, zone=LEFT,  model=Graph)
+            create_bdl(brick_id=core_bricks.RelationsBrick.id_,       order=500, zone=LEFT,  model=Graph)
+            create_bdl(brick_id=core_bricks.HistoryBrick.id_,         order=20,  zone=RIGHT, model=Graph)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail view')
 
                 from creme.assistants import bricks as a_bricks
 
-                create_bdl(block_id=a_bricks.TodosBrick.id_,        order=100, zone=RIGHT, model=Graph)
-                create_bdl(block_id=a_bricks.MemosBrick.id_,        order=200, zone=RIGHT, model=Graph)
-                create_bdl(block_id=a_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=Graph)
-                create_bdl(block_id=a_bricks.UserMessagesBrick.id_, order=400, zone=RIGHT, model=Graph)
+                create_bdl(brick_id=a_bricks.TodosBrick.id_,        order=100, zone=RIGHT, model=Graph)
+                create_bdl(brick_id=a_bricks.MemosBrick.id_,        order=200, zone=RIGHT, model=Graph)
+                create_bdl(brick_id=a_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=Graph)
+                create_bdl(brick_id=a_bricks.UserMessagesBrick.id_, order=400, zone=RIGHT, model=Graph)
 
             if apps.is_installed('creme.documents'):
                 # logger.info('Documents app is installed => we use the documents blocks on detail view')
 
                 from creme.documents.bricks import LinkedDocsBrick
 
-                create_bdl(block_id=LinkedDocsBrick.id_, order=600, zone=RIGHT, model=Graph)
+                create_bdl(brick_id=LinkedDocsBrick.id_, order=600, zone=RIGHT, model=Graph)

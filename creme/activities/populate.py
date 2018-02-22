@@ -157,44 +157,44 @@ class Populator(BasePopulator):
 
             BlockDetailviewLocation.create_4_model_brick(order=5, zone=BlockDetailviewLocation.LEFT, model=Activity)
 
-            create_bdl = BlockDetailviewLocation.create
-            create_bdl(block_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=Activity)
-            create_bdl(block_id=bricks.RelatedCalendarBrick.id_,   order=90,  zone=LEFT,  model=Activity)
-            create_bdl(block_id=bricks.ParticipantsBrick.id_,      order=100, zone=LEFT,  model=Activity)
-            create_bdl(block_id=bricks.SubjectsBrick.id_,          order=120, zone=LEFT,  model=Activity)
-            create_bdl(block_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=Activity)
-            create_bdl(block_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=Activity)
-            create_bdl(block_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=Activity)
+            create_bdl = BlockDetailviewLocation.create_if_needed
+            create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=Activity)
+            create_bdl(brick_id=bricks.RelatedCalendarBrick.id_,   order=90,  zone=LEFT,  model=Activity)
+            create_bdl(brick_id=bricks.ParticipantsBrick.id_,      order=100, zone=LEFT,  model=Activity)
+            create_bdl(brick_id=bricks.SubjectsBrick.id_,          order=120, zone=LEFT,  model=Activity)
+            create_bdl(brick_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=Activity)
+            create_bdl(brick_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=Activity)
+            create_bdl(brick_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=Activity)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail views')
 
                 from creme.assistants import bricks as a_bricks
 
-                create_bdl(block_id=a_bricks.TodosBrick.id_,        order=100, zone=RIGHT, model=Activity)
-                create_bdl(block_id=a_bricks.MemosBrick.id_,        order=200, zone=RIGHT, model=Activity)
-                create_bdl(block_id=a_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=Activity)
-                create_bdl(block_id=a_bricks.UserMessagesBrick.id_, order=400, zone=RIGHT, model=Activity)
+                create_bdl(brick_id=a_bricks.TodosBrick.id_,        order=100, zone=RIGHT, model=Activity)
+                create_bdl(brick_id=a_bricks.MemosBrick.id_,        order=200, zone=RIGHT, model=Activity)
+                create_bdl(brick_id=a_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=Activity)
+                create_bdl(brick_id=a_bricks.UserMessagesBrick.id_, order=400, zone=RIGHT, model=Activity)
 
             if apps.is_installed('creme.documents'):
                 # logger.info('Documents app is installed => we use the documents block on detail views')
 
                 from creme.documents.bricks import LinkedDocsBrick
 
-                create_bdl(block_id=LinkedDocsBrick.id_, order=600, zone=RIGHT, model=Activity)
+                create_bdl(brick_id=LinkedDocsBrick.id_, order=600, zone=RIGHT, model=Activity)
 
             future_id = bricks.FutureActivitiesBrick.id_
             past_id   = bricks.PastActivitiesBrick.id_
-            create_bdl(block_id=future_id, order=20, zone=RIGHT, model=Contact)
-            create_bdl(block_id=past_id,   order=21, zone=RIGHT, model=Contact)
-            create_bdl(block_id=future_id, order=20, zone=RIGHT, model=Organisation)
-            create_bdl(block_id=past_id,   order=21, zone=RIGHT, model=Organisation)
+            create_bdl(brick_id=future_id, order=20, zone=RIGHT, model=Contact)
+            create_bdl(brick_id=past_id,   order=21, zone=RIGHT, model=Contact)
+            create_bdl(brick_id=future_id, order=20, zone=RIGHT, model=Organisation)
+            create_bdl(brick_id=past_id,   order=21, zone=RIGHT, model=Organisation)
 
-            BlockPortalLocation.create(app_name='persons',    block_id=future_id, order=20)
-            BlockPortalLocation.create(app_name='persons',    block_id=past_id,   order=21)
+            BlockPortalLocation.create_or_update(app_name='persons',    brick_id=future_id, order=20)
+            BlockPortalLocation.create_or_update(app_name='persons',    brick_id=past_id,   order=21)
 
-            BlockPortalLocation.create(app_name='creme_core', block_id=future_id, order=20)
-            BlockPortalLocation.create(app_name='creme_core', block_id=past_id,   order=21)
+            BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=future_id, order=20)
+            BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=past_id,   order=21)
 
             # ---------------------------
             create_button = ButtonMenuItem.create_if_needed

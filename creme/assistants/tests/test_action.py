@@ -69,11 +69,11 @@ class ActionTestCase(AssistantsTestCase):
 
         self.assertEqual(title, unicode(action))
 
-        create_bdi = partial(BlockDetailviewLocation.create, model=FakeContact,
+        create_bdi = partial(BlockDetailviewLocation.create_if_needed, model=FakeContact,
                              zone=BlockDetailviewLocation.RIGHT,
                             )
-        create_bdi(block_id=ActionsOnTimeBrick.id_,    order=500)
-        create_bdi(block_id=ActionsNotOnTimeBrick.id_, order=501)
+        create_bdi(brick_id=ActionsOnTimeBrick.id_,    order=500)
+        create_bdi(brick_id=ActionsNotOnTimeBrick.id_, order=501)
 
         response = self.assertGET200(entity.get_absolute_url())
         self.assertTemplateUsed(response, 'assistants/bricks/actions-on-time.html')

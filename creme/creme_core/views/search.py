@@ -66,9 +66,10 @@ class FoundEntitiesBrick(QuerysetBrick):
                                          )
 
     @staticmethod
-    def parse_block_id(block_id):
+    # def parse_block_id(block_id):
+    def parse_brick_id(brick_id):
         "@return A ContentType instance if valid, else None"
-        parts = block_id.split('-')
+        parts = brick_id.split('-')
         ctype = None
 
         if len(parts) == 5 and parts[4]:
@@ -174,7 +175,8 @@ def search(request):
 def reload_brick(request):
     GET = request.GET
     brick_id = utils.get_from_GET_or_404(GET, 'brick_id')
-    ctype = FoundEntitiesBrick.parse_block_id(brick_id)
+    # ctype = FoundEntitiesBrick.parse_block_id(brick_id)
+    ctype = FoundEntitiesBrick.parse_brick_id(brick_id)
 
     if ctype is None:
         raise Http404('Invalid block ID')

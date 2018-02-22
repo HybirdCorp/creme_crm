@@ -56,7 +56,7 @@ def detailview_bricks(user, entity):
     loc_map = defaultdict(list)
 
     for loc in locs:
-        brick_id = loc.block_id
+        brick_id = loc.brick_id
 
         if brick_id:  # Populate scripts can leave void brick ids
             if BlockDetailviewLocation.id_is_4_model(brick_id):
