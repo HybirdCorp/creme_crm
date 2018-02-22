@@ -66,9 +66,17 @@ class PersonsConfig(CremeAppConfig):
         register(self.Contact)
 
     def register_buttons(self, button_registry):
-        from .buttons import button_list
-
-        button_registry.register(*button_list)
+        # from .buttons import button_list
+        # button_registry.register(*button_list)
+        from . import buttons
+        button_registry.register(
+            buttons.BecomeCustomerButton,
+            buttons.BecomeProspectButton,
+            buttons.BecomeSuspectButton,
+            buttons.BecomeInactiveButton,
+            buttons.BecomeSupplierButton,
+            buttons.AddLinkedContactButton,
+        )
 
     def register_field_printers(self, field_printers_registry):
         from django.contrib.auth import get_user_model

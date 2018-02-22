@@ -690,7 +690,8 @@ class _BrickRegistry(object):
             #     brick_cls = brick_cls.__class__
 
             if setdefault(brick_cls.id_, brick_cls) is not brick_cls:
-                raise _BrickRegistry.RegistrationError("Duplicated brick's id: %s" % brick_cls.id_)
+                # raise _BrickRegistry.RegistrationError("Duplicated brick's id: %s" % brick_cls.id_)
+                raise self.RegistrationError("Duplicated brick's id: %s" % brick_cls.id_)
 
     def register_4_instance(self, *brick_classes):  # TODO: factorise
         setdefault = self._instance_brick_classes.setdefault

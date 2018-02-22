@@ -65,9 +65,10 @@ class OpportunitiesConfig(CremeAppConfig):
         brick_registry.register_hat(Opportunity, secondary_brick_classes=(bricks.OpportunityCardHatBrick,))
 
     def register_buttons(self, button_registry):
+        # from . import buttons
+        # button_registry.register(buttons.linked_opportunity_button)
         from . import buttons
-
-        button_registry.register(buttons.linked_opportunity_button)
+        button_registry.register(buttons.LinkedOpportunityButton)
 
     def register_icons(self, icon_registry):
         icon_registry.register(self.Opportunity, 'images/opportunity_%(size)s.png')

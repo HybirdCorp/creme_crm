@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 05-02-2018 pour la version 1.7 de Creme
+:Version: 05-02-2018 pour la version 1.8 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -1542,7 +1542,7 @@ une convention) : ::
     class CreateTicketButton(Button):
         id_           = Button.generate_id('beavers', 'create_ticket')
         verbose_name  = _(u'Create a ticket to notify that a beaver is sick.')
-        template_name = 'beavers/templatetags/button_ticket.html'
+        template_name = 'beavers/buttons/ticket.html'
         permission    = 'tickets.add_ticket'
 
         def get_ctypes(self):
@@ -1552,11 +1552,9 @@ une convention) : ::
             return (entity.status_id == STATUS_SICK)
 
         # def render(self, context):
-            # context['variable_name'] = 'VALUE'
-            # return super(CreateTicketButton, self).render(context)
+        #     context['variable_name'] = 'VALUE'
+        #     return super(CreateTicketButton, self).render(context)
 
-
-    create_ticket_button = CreateTicketButton()
 
 Quelques explications :
 
@@ -1573,7 +1571,7 @@ Quelques explications :
   enrichissant le contexte du template notamment ; un exemple de code a été
   laissé en commentaire.
 
-Maintenant au tour du fichier template associé, ``beavers/templates/beavers/templatetags/button_ticket.html``: ::
+Maintenant au tour du fichier template associé, ``beavers/templates/beavers/buttons/ticket.html``: ::
 
     {% load i18n creme_widgets %}
     {% if has_perm %}
@@ -1603,9 +1601,9 @@ Il faut enregistrer notre bouton avec les autres boutons de Creme, afin que
         [...]
 
         def register_buttons(self, button_registry):  # <- NEW
-            from .buttons import create_ticket_button
+            from . import buttons
 
-            button_registry.register(create_ticket_button)
+            button_registry.register(buttons.CreateTicketButton)
 
 
 Si nous allons dans le menu de configuration (le petit rouage), puis 'Menu bouton',

@@ -101,9 +101,15 @@ class BillingConfig(CremeAppConfig):
         register(PaymentInformation, exclude=['organisation']) # TODO: tags modifiable=False ??
 
     def register_buttons(self, button_registry):
-        from .buttons import button_list
-
-        button_registry.register(*button_list)
+        # from .buttons import button_list
+        # button_registry.register(*button_list)
+        from . import buttons
+        button_registry.register(
+            buttons.GenerateInvoiceNumberButton,
+            buttons.AddQuoteButton,
+            buttons.AddSalesOrderButton,
+            buttons.AddInvoiceButton,
+        )
 
     def register_field_printers(self, field_printers_registry):
         from .models.fields import BillingDiscountField

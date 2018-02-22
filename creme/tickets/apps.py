@@ -44,9 +44,10 @@ class TicketsConfig(CremeAppConfig):
         brick_registry.register_4_model(self.Ticket, TicketBrick)
 
     def register_buttons(self, button_registry):
-        from .buttons import linked_2_ticket_button
-
-        button_registry.register(linked_2_ticket_button)
+        # from .buttons import linked_2_ticket_button
+        # button_registry.register(linked_2_ticket_button)
+        from . import buttons
+        button_registry.register(buttons.Linked2TicketButton)
 
     def register_icons(self, icon_registry):
         reg_icon = icon_registry.register

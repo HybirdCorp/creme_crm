@@ -33,7 +33,8 @@ Activity = get_activity_model()
 
 class AddRelatedActivityButton(Button):
     id_           = Button.generate_id('activities', 'add_activity')
-    template_name = 'activities/templatetags/button_add_related.html'
+    # template_name = 'activities/templatetags/button_add_related.html'
+    template_name = 'activities/buttons/add-related.html'
     permission    = cperm(Activity)
     verbose_name  = _(u'Create a related activity')
     activity_type = None  # None means type is not fixed
@@ -75,6 +76,7 @@ class AddTaskButton(AddRelatedActivityButton):
     activity_type = constants.ACTIVITYTYPE_TASK
 
 
+# DEPRECATED
 add_activity_button  = AddRelatedActivityButton()
 add_meeting_button   = AddMeetingButton()
 add_phonecall_button = AddPhoneCallButton()

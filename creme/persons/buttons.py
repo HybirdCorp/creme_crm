@@ -36,9 +36,9 @@ Organisation = persons.get_organisation_model()
 class CrmButton(Button):
     __managed_orga   = False
     relation_type_id = 'OVERLOADME'
-    template_name    = 'persons/templatetags/button_become.html'
+    # template_name    = 'persons/templatetags/button_become.html'
+    template_name    = 'persons/buttons/become.html'
     what             = 'OVERLOADME'
-    # become_url       = '/persons/%s/OVERLOADME/'
     url_name         = 'OVERLOADME'
 
     def ok_4_display(self, entity):
@@ -111,7 +111,8 @@ class BecomeSupplierButton(CrmButton):
 class AddLinkedContactButton(Button):
     id_           = Button.generate_id('persons', 'add_linked_contact')
     verbose_name  = _(u'Create a related contact')
-    template_name = 'persons/templatetags/button_add_linked_contact.html'
+    # template_name = 'persons/templatetags/button_add_linked_contact.html'
+    template_name = 'persons/buttons/add-linked-contact.html'
     permission    = cperm(Contact)  # TODO: 'persons.addrelated_contact' ??
 
     def get_ctypes(self):
@@ -123,6 +124,7 @@ class AddLinkedContactButton(Button):
         return super(AddLinkedContactButton, self).render(context)
 
 
+# DEPRECATED ---------------------
 become_customer_button    = BecomeCustomerButton()
 become_prospect_button    = BecomeProspectButton()
 become_suspect_button     = BecomeSuspectButton()

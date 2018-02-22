@@ -65,12 +65,17 @@ class ActivitiesConfig(CremeAppConfig):
 
     def register_buttons(self, button_registry):
         from . import buttons
-
-        button_registry.register(buttons.add_activity_button,
-                                 buttons.add_meeting_button,
-                                 buttons.add_phonecall_button,
-                                 buttons.add_task_button,
-                                )
+        # button_registry.register(buttons.add_activity_button,
+        #                          buttons.add_meeting_button,
+        #                          buttons.add_phonecall_button,
+        #                          buttons.add_task_button,
+        #                         )
+        button_registry.register(
+            buttons.AddRelatedActivityButton,
+            buttons.AddMeetingButton,
+            buttons.AddPhoneCallButton,
+            buttons.AddTaskButton,
+        )
 
     def register_icons(self, icon_registry):
         Activity = self.Activity
