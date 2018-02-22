@@ -175,9 +175,10 @@ class Brick(object):
             else:
                 yield unicode(dep)
 
-    # TODO: rename block_name => brick_id, block_context => brick_context
-    def _build_template_context(self, context, block_name, block_context, **extra_kwargs):
-        context['block_name'] = context['brick_id'] = block_name  # TODO: deprecate 'block_name'.
+    # def _build_template_context(self, context, block_name, block_context, **extra_kwargs):
+    def _build_template_context(self, context, brick_id, brick_context, **extra_kwargs):
+        # context['block_name'] = context['brick_id'] = block_name
+        context['brick_id'] = brick_id
         context['state'] = BricksManager.get(context).get_state(self.id_, context['user'])
         context['dependencies'] = list(self._iter_dependencies_info())
         context['reloading_info'] = self._reloading_info
@@ -212,7 +213,7 @@ class Brick(object):
             brick_context = self.context_class.from_dict(serialized_context)
 
         template_context = self._build_template_context(context, brick_id, brick_context,
-                                                        base_url=base_url,  # TODO: remove in creme 1.8
+                                                        # base_url=base_url,
                                                         **extra_kwargs
                                                        )
 
@@ -222,8 +223,8 @@ class Brick(object):
 
         if brick_context.update(template_context):
             session.setdefault('brickcontexts_manager', {}) \
-                .setdefault(base_url, {}) \
-                [brick_id] = brick_context.as_dict()
+                   .setdefault(base_url, {}) \
+                   [brick_id] = brick_context.as_dict()
 
             request.session.modified = True
 
@@ -265,19 +266,20 @@ class PaginatedBrick(Brick):
     context_class = _PaginatedBrickContext
     page_size     = settings.BLOCK_SIZE  # Number of items in the page
 
-    def _build_template_context(self, context, block_name, block_context, **extra_kwargs):
+    # def _build_template_context(self, context, block_name, block_context, **extra_kwargs):
+    def _build_template_context(self, context, brick_id, brick_context, **extra_kwargs):
         request = context['request']
         objects = extra_kwargs.pop('objects')
 
-        page_index = request.GET.get('%s_page' % block_name)
+        page_index = request.GET.get('%s_page' % brick_id)
         if page_index is not None:
             try:
                 page_index = int(page_index)
             except ValueError:
-                logger.warn('PaginatedBrick: invalid page number for brick %s: %s', block_name, page_index)
+                logger.warn('PaginatedBrick: invalid page number for brick %s: %s', brick_id, page_index)
                 page_index = 1
         else:
-            page_index = block_context.page
+            page_index = brick_context.page
 
         paginator = Paginator(objects, self.page_size)
 
@@ -286,9 +288,10 @@ class PaginatedBrick(Brick):
         except (EmptyPage, InvalidPage):
             page = paginator.page(paginator.num_pages)
 
-        return super(PaginatedBrick, self)._build_template_context(context, block_name, block_context,
-                                                                   page=page, **extra_kwargs
-                                                                  )
+        return super(PaginatedBrick, self)._build_template_context(
+                context=context, brick_id=brick_id, brick_context=brick_context, page=page,
+                **extra_kwargs
+        )
 
     # def get_block_template_context(self, *args, **kwargs):
     #     warnings.warn('PaginatedBrick.get_block_template_context() is deprecated ; use get_template_context() instead.',
@@ -363,21 +366,22 @@ class QuerysetBrick(PaginatedBrick):
 
         return True
 
-    def _build_template_context(self, context, block_name, block_context, **extra_kwargs):
+    # def _build_template_context(self, context, block_name, block_context, **extra_kwargs):
+    def _build_template_context(self, context, brick_id, brick_context, **extra_kwargs):
         request = context['request']
         order_by = ''
         objects = extra_kwargs['objects']
 
         if self.order_by:
-            req_order_by = request.GET.get('%s_order' % block_name)
-            raw_order_by = block_context.get_order_by(self.order_by) if req_order_by is None else req_order_by
+            req_order_by = request.GET.get('%s_order' % brick_id)
+            raw_order_by = brick_context.get_order_by(self.order_by) if req_order_by is None else req_order_by
 
             if self._is_order_valid(model=objects.model, order=raw_order_by):
                 order_by = raw_order_by
                 extra_kwargs['objects'] = objects.order_by(order_by)
 
         return super(QuerysetBrick, self)._build_template_context(
-                context, block_name, block_context,
+                context=context, brick_id=brick_id, brick_context=brick_context,
                 objects_ctype=ContentType.objects.get_for_model(objects.model),
                 order_by=order_by,
                 **extra_kwargs
@@ -476,7 +480,7 @@ class SpecificRelationsBrick(QuerysetBrick):
 
         groups = []  # List of tuples (entities_with_same_ct, headerfilter_items)
         unconfigured_group = []  # Entities that do not have a customised columns setting
-        colspan = 1  # Unconfigured_group has one column
+        # colspan = 1  # Unconfigured_group has one column
         get_ct = ContentType.objects.get_for_id
 
         for ct_id, entities in entities_by_ct.iteritems():
@@ -484,14 +488,14 @@ class SpecificRelationsBrick(QuerysetBrick):
 
             if cells:
                 groups.append((entities, cells))
-                colspan = max(colspan, len(cells))
+                # colspan = max(colspan, len(cells))
             else:
                 unconfigured_group.extend(entities)
 
         groups.append((unconfigured_group, None))  # 'unconfigured_group' must be at the end
 
         btc['groups'] = groups
-        btc['colspan'] = colspan + 1  # Add one because of 'Unlink' column  # TODO: remove in creme1.8
+        # btc['colspan'] = colspan + 1  # Add one because of 'Unlink' column
 
         return self._render(btc)
 
