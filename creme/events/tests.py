@@ -201,7 +201,7 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual(4, len(stats))
 
         with self.assertNoException():
-            stats_list = [stats['invations_count'],
+            stats_list = [stats['invitations_count'],
                           stats['accepted_count'],
                           stats['refused_count'],
                           stats['visitors_count'],
@@ -243,7 +243,7 @@ class EventsTestCase(CremeTestCase):
         # create_relation(carcus,   REL_SUB_CAME_EVENT)
 
         stats = event.get_stats()
-        self.assertEqual(4, stats['invations_count'])
+        self.assertEqual(4, stats['invitations_count'])
         self.assertEqual(1, stats['accepted_count'])
         self.assertEqual(2, stats['refused_count'])
         self.assertEqual(3, stats['visitors_count'])
@@ -263,7 +263,7 @@ class EventsTestCase(CremeTestCase):
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
         stats = event.get_stats()
-        self.assertEqual(0, stats['invations_count'])
+        self.assertEqual(0, stats['invitations_count'])
         self.assertEqual(0, stats['accepted_count'])
         self.assertEqual(0, stats['refused_count'])
         self.assertEqual(0, stats['visitors_count'])
@@ -273,7 +273,7 @@ class EventsTestCase(CremeTestCase):
         self.assertPOST200(url, data={'status': INV_STATUS_NO_ANSWER})
 
         stats = event.get_stats()
-        self.assertEqual(1, stats['invations_count'])
+        self.assertEqual(1, stats['invitations_count'])
         self.assertEqual(0, stats['accepted_count'])
         self.assertEqual(0, stats['refused_count'])
         self.assertEqual(0, stats['visitors_count'])
@@ -281,7 +281,7 @@ class EventsTestCase(CremeTestCase):
         self.assertPOST200(url, data={'status': INV_STATUS_NOT_INVITED})
 
         stats = event.get_stats()
-        self.assertEqual(0, stats['invations_count'])
+        self.assertEqual(0, stats['invitations_count'])
         self.assertEqual(0, stats['accepted_count'])
         self.assertEqual(0, stats['refused_count'])
         self.assertEqual(0, stats['visitors_count'])
@@ -296,13 +296,13 @@ class EventsTestCase(CremeTestCase):
         self.assertPOST200(url, data={'status': INV_STATUS_ACCEPTED})
 
         stats = event.get_stats()
-        self.assertEqual(1, stats['invations_count'])
+        self.assertEqual(1, stats['invitations_count'])
         self.assertEqual(1, stats['accepted_count'])
         self.assertEqual(0, stats['refused_count'])
 
         self.client.post(url, data={'status': INV_STATUS_NOT_INVITED})
         stats = event.get_stats()
-        self.assertEqual(0, stats['invations_count'])
+        self.assertEqual(0, stats['invitations_count'])
         self.assertEqual(0, stats['accepted_count'])
         self.assertEqual(0, stats['refused_count'])
 
@@ -314,13 +314,13 @@ class EventsTestCase(CremeTestCase):
 
         self._set_invitation_status(event, casca, INV_STATUS_REFUSED)
         stats = event.get_stats()
-        self.assertEqual(1, stats['invations_count'])
+        self.assertEqual(1, stats['invitations_count'])
         self.assertEqual(0, stats['accepted_count'])
         self.assertEqual(1, stats['refused_count'])
 
         self._set_invitation_status(event, casca, INV_STATUS_NOT_INVITED)
         stats = event.get_stats()
-        self.assertEqual(0, stats['invations_count'])
+        self.assertEqual(0, stats['invitations_count'])
         self.assertEqual(0, stats['accepted_count'])
         self.assertEqual(0, stats['refused_count'])
 
@@ -333,13 +333,13 @@ class EventsTestCase(CremeTestCase):
         self._set_invitation_status(event, casca, INV_STATUS_ACCEPTED)
         self._set_invitation_status(event, casca, INV_STATUS_REFUSED)
         stats = event.get_stats()
-        self.assertEqual(1, stats['invations_count'])
+        self.assertEqual(1, stats['invitations_count'])
         self.assertEqual(0, stats['accepted_count'])
         self.assertEqual(1, stats['refused_count'])
 
         self._set_invitation_status(event, casca, INV_STATUS_NO_ANSWER)
         stats = event.get_stats()
-        self.assertEqual(1, stats['invations_count'])
+        self.assertEqual(1, stats['invitations_count'])
         self.assertEqual(0, stats['accepted_count'])
         self.assertEqual(0, stats['refused_count'])
 
@@ -352,7 +352,7 @@ class EventsTestCase(CremeTestCase):
         self._set_invitation_status(event, casca, INV_STATUS_REFUSED)
         self._set_invitation_status(event, casca, INV_STATUS_ACCEPTED)
         stats = event.get_stats()
-        self.assertEqual(1, stats['invations_count'])
+        self.assertEqual(1, stats['invitations_count'])
         self.assertEqual(1, stats['accepted_count'])
         self.assertEqual(0, stats['refused_count'])
 
@@ -412,7 +412,7 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual(200, self._set_presence_status(event, casca, PRES_STATUS_COME).status_code)
 
         stats = event.get_stats()
-        self.assertEqual(0, stats['invations_count'])
+        self.assertEqual(0, stats['invitations_count'])
         self.assertEqual(0, stats['accepted_count'])
         self.assertEqual(0, stats['refused_count'])
         self.assertEqual(1, stats['visitors_count'])

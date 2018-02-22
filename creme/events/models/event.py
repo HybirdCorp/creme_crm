@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -106,11 +106,12 @@ class AbstractEvent(CremeEntity):
                           )
         get_count = types_count.get
 
-        return {'invations_count': get_count(REL_OBJ_IS_INVITED_TO, 0),
-                'accepted_count':  get_count(REL_OBJ_ACCEPTED_INVITATION, 0),
-                'refused_count':   get_count(REL_OBJ_REFUSED_INVITATION, 0),
-                'visitors_count':  get_count(REL_OBJ_CAME_EVENT, 0),
-               }
+        return {
+            'invitations_count': get_count(REL_OBJ_IS_INVITED_TO, 0),
+            'accepted_count':    get_count(REL_OBJ_ACCEPTED_INVITATION, 0),
+            'refused_count':     get_count(REL_OBJ_REFUSED_INVITATION, 0),
+            'visitors_count':    get_count(REL_OBJ_CAME_EVENT, 0),
+        }
 
     def set_invitation_status(self, contact, status, user):
         relations = Relation.objects
