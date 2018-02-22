@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,7 +41,8 @@ class CrudityQuerysetBrick(QuerysetBrick):
     @property
     def is_sandbox_by_user(self):
         # No cache need sub-blocks are created on the fly
-        return SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER, user=None).value
+        # return SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER, user=None).value
+        return SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER).value
 
 
 class WaitingActionsBrick(CrudityQuerysetBrick):

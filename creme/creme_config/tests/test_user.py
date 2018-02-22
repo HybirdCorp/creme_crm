@@ -832,22 +832,22 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                             )
         self.assertStillExists(user)
 
-    @skipIfNotCremeUser
-    def test_user_delete_settingkey(self):
-        "Related SettingValues are deleted."
-        user = self.login()
-
-        sk = SettingKey(id='unit_test-test_user_delete_settingkey', description='',
-                        app_label='creme_config', type=SettingKey.BOOL,
-                       )  # NB: we do not ne to register it (because the SettingValue's value is not used)
-        sv = SettingValue.objects.create(key=sk, user=self.other_user, value_str='True')
-
-        self.assertNoFormError(self.client.post(self._build_delete_url(self.other_user),
-                                                {'to_user': user.id}
-                                               )
-                              )
-        self.assertDoesNotExist(self.other_user)
-        self.assertDoesNotExist(sv)
+    # @skipIfNotCremeUser
+    # def test_user_delete_settingkey(self):
+    #     "Related SettingValues are deleted."
+    #     user = self.login()
+    #
+    #     sk = SettingKey(id='unit_test-test_user_delete_settingkey', description='',
+    #                     app_label='creme_config', type=SettingKey.BOOL,
+    #                    )  # NB: we do not ne to register it (because the SettingValue's value is not used)
+    #     sv = SettingValue.objects.create(key=sk, user=self.other_user, value_str='True')
+    #
+    #     self.assertNoFormError(self.client.post(self._build_delete_url(self.other_user),
+    #                                             {'to_user': user.id}
+    #                                            )
+    #                           )
+    #     self.assertDoesNotExist(self.other_user)
+    #     self.assertDoesNotExist(sv)
 
     @skipIfNotCremeUser
     def test_user_delete_credentials(self):

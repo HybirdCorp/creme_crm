@@ -72,7 +72,8 @@ class BackendsTestCase(CrudityTestCase):
         for backend in backends:
             self.assertTrue(backend.is_sandbox_by_user)
 
-        sv = SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER, user=None)
+        # sv = SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER, user=None)
+        sv = SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER)
         sv.value = False
         sv.save()
 

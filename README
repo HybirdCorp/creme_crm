@@ -35,7 +35,6 @@ DEPENDENCIES:
     - Core
         - Python 2.7
         - Django 1.8 (>= 1.8.5)
-        - Django-mediagenerator 1.12
         - redis 2.10 (ie: the python library, & so you'll need the related server too, of course)
         - pytz
         - python-dateutil 1.5

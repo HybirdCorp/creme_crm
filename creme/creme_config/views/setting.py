@@ -40,8 +40,8 @@ def edit(request, svalue_id):
     if svalue.key.hidden:
         raise Http404('You can not edit a SettingValue which is hidden.')
 
-    if svalue.user_id is not None:
-        raise Http404('You can not edit a SettingValue which belongs to a user.')
+    # if svalue.user_id is not None:
+    #     raise Http404('You can not edit a SettingValue which belongs to a user.')
 
     user = request.user
 
