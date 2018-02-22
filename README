@@ -40,6 +40,7 @@ DEPENDENCIES:
         - python-dateutil 1.5
         - bleach 1.4
         - Pillow 3.4
+        - django-formtools 2.1
         - Java >= 1.4 (only needed to build the compressed version of CSS and JavaScript files at installation time)
 
     - Optional
@@ -55,9 +56,6 @@ DEPENDENCIES:
 
         - creme.crudity:
             - lcab (if you want Infopath forms exports and your server doesn't run on Windows)
-
-        - creme.recurrents:
-            - django-formtools 1.0
 
         - creme.activesync (deprecated):
             - restkit 4.2
