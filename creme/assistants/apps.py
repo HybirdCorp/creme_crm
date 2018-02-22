@@ -51,7 +51,7 @@ class AssistantsConfig(CremeAppConfig):
         reg_reminder(reminders.reminder_alert)
         reg_reminder(reminders.reminder_todo)
 
-    def register_setting_key(self, setting_key_registry):
+    def register_setting_keys(self, setting_key_registry):
         from .setting_keys import todo_reminder_key
 
         setting_key_registry.register(todo_reminder_key)

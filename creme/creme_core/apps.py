@@ -18,8 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging  # warnings
+import logging
 from sys import argv
+import warnings
 
 from django.apps import AppConfig, apps
 from django.core import checks
@@ -224,7 +225,15 @@ class CremeAppConfig(AppConfig):
             self.register_merge_forms(merge_form_registry)
             self.register_quickforms(quickforms_registry)
             self.register_reminders(reminder_registry)
-            self.register_setting_key(setting_key_registry)
+
+            self.register_setting_keys(setting_key_registry)
+            if hasattr(self, 'register_setting_key'):
+                warnings.warn('The AppConfig for "%s" has a method "register_setting_key()" which is now deprecated ; '
+                              'you should rename it register_setting_keys().' % self.name,
+                              DeprecationWarning
+                             )
+                self.register_setting_key(setting_key_registry)
+
             self.register_statistics(statistics_registry)
             self.register_user_setting_keys(user_setting_key_registry)
             self.register_smart_columns(smart_columns_registry)
@@ -265,7 +274,8 @@ class CremeAppConfig(AppConfig):
     def register_reminders(self, reminder_registry):
         pass
 
-    def register_setting_key(self, setting_key_registry):
+    # def register_setting_key(self, setting_key_registry):
+    def register_setting_keys(self, setting_key_registry):
         pass
 
     def register_smart_columns(self, smart_columns_registry):
@@ -368,11 +378,12 @@ class CremeCoreConfig(CremeAppConfig):
 
         bulk_update_registry.register(CremeProperty, exclude=('type', 'creme_entity'))  # TODO: tags modifiable=False ??
 
-    def register_setting_key(self, setting_key_registry):
-        from .setting_keys import block_opening_key, block_showempty_key, currency_symbol_key
+    def register_setting_keys(self, setting_key_registry):
+        from . import setting_keys
 
-        setting_key_registry.register(block_opening_key, block_showempty_key,
-                                      currency_symbol_key,
+        setting_key_registry.register(setting_keys.block_opening_key,
+                                      setting_keys.block_showempty_key,
+                                      setting_keys.currency_symbol_key,
                                      )
 
     # TODO: better API + move some code to creme_config ??

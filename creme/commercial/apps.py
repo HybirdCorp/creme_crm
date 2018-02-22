@@ -140,10 +140,10 @@ class CommercialConfig(CremeAppConfig):
                      .add_link('commercial-create_strategy', Strategy, priority=55) \
                      .add_link('commercial-create_pattern',  Pattern,  priority=60)
 
-    def register_setting_key(self, setting_key_registry):
-        from .setting_keys import orga_approaches_key  # notification_key
+    def register_setting_keys(self, setting_key_registry):
+        from . import setting_keys
 
-        setting_key_registry.register(orga_approaches_key)  # notification_key
+        setting_key_registry.register(setting_keys.orga_approaches_key)
 
     def hook_activities(self):
         from functools import partial

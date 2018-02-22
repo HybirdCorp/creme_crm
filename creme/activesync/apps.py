@@ -70,7 +70,7 @@ class ActivesyncConfig(CremeAppConfig):
                            priority=1000
                           )
 
-    def register_setting_key(self, setting_key_registry):
+    def register_setting_keys(self, setting_key_registry):
         from .setting_keys import skeys
 
         setting_key_registry.register(*skeys)
