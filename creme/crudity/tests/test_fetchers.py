@@ -21,7 +21,7 @@ class FetcherFileSystemTestCase(CrudityTestCase):
     def test_error02(self):
         self.assertEqual([], FileSystemFetcher().fetch())
 
-    @override_settings(CRUDITY_FILESYS_FETCHER_DIR=join(settings.CREME_ROOT, 'static', 'chantilly', 'images', '500.png'))
+    @override_settings(CRUDITY_FILESYS_FETCHER_DIR=join(settings.CREME_ROOT, 'static', 'chantilly', 'images', 'add_16.png'))
     def test_error03(self):
         self.assertEqual([], FileSystemFetcher().fetch())
 

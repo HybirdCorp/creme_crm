@@ -166,12 +166,6 @@ ul.ui-layout.vbox li { position:relative; display:block; }
 }
 
 .ui-creme-overlay.overlay-active[status="wait"] { background-image: url("chantilly/images/wait.gif"); }
-/*
-.ui-creme-overlay.overlay-active[status="403"] { background-image: url("chantilly/images/403_256.png"); opacity: 1; filter: Alpha(Opacity=100); }
-.ui-creme-overlay.overlay-active[status="404"] { background-image: url("chantilly/images/404_256.png"); opacity: 1; filter: Alpha(Opacity=100); }
-.ui-creme-overlay.overlay-active[status="409"] { background-image: url("chantilly/images/409_256.png"); opacity: 1; filter: Alpha(Opacity=100); }
-.ui-creme-overlay.overlay-active[status="500"] { background-image: url("chantilly/images/500_256.png"); opacity: 1; filter: Alpha(Opacity=100); }
-*/
 
 /*----------------------------------*/
 .ui-dialog-scrollbackground {

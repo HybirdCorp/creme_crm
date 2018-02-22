@@ -55,8 +55,10 @@ logger = logging.getLogger(__name__)
 TEST_TEMPLATE_PATH = join(settings.CREME_ROOT, 'creme_core', 'templates', 'creme_core', 'tests')
 TEST_TEMPLATE_BRICK_PATH = join(TEST_TEMPLATE_PATH, 'bricks')
 TEST_IMAGE_URLS = ('images/add_32.png',
-                   'images/404.png',
-                   'images/500.png',
+                   # 'images/404.png',
+                   # 'images/500.png',
+                   'images/creme_256.png',
+                   'images/creme_logo.png',
                    'images/action_48.png',
                    'images/action_not_in_time_48.png',
                    'images/wait.gif',

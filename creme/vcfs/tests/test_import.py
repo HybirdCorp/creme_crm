@@ -1280,7 +1280,7 @@ PHOTO;TYPE=JPEG:""" \
 
         vcf_forms.URL_START = vcf_forms.URL_START + ('file',)
 
-        path_base = os_path.join(settings.CREME_ROOT, 'static', 'chantilly', 'images', '500.png')
+        path_base = os_path.join(settings.CREME_ROOT, 'static', 'common', 'images', '500_200.png')
         self.assertTrue(os_path.exists(path_base))
         path = 'file:///' + os_path.normpath(path_base)
 
@@ -1341,7 +1341,7 @@ END:VCARD"""
     def test_add_contact_vcf17(self):
         self.login()
 
-        img_path = os_path.join(settings.CREME_ROOT, 'static', 'chantilly', 'images', '500.png')
+        img_path = os_path.join(settings.CREME_ROOT, 'static', 'common', 'images', '500_200.png')
         self.assertTrue(os_path.exists(img_path))
 
         vcf_forms.URL_START = vcf_forms.URL_START + ('file',)

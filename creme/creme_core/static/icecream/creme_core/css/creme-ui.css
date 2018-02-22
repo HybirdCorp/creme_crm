@@ -300,12 +300,6 @@ ul.ui-layout.vbox li {
 }
 
 .ui-creme-overlay.overlay-active[status="wait"] { background-image: url("icecream/images/wait.gif"); }
-/*
-.ui-creme-overlay.overlay-active[status="403"] { background-image: url("icecream/images/403_256.png"); opacity: 1; filter: Alpha(Opacity=100); }
-.ui-creme-overlay.overlay-active[status="404"] { background-image: url("icecream/images/404_256.png"); opacity: 1; filter: Alpha(Opacity=100); }
-.ui-creme-overlay.overlay-active[status="409"] { background-image: url("icecream/images/409_256.png"); opacity: 1; filter: Alpha(Opacity=100); }
-.ui-creme-overlay.overlay-active[status="500"] { background-image: url("icecream/images/500_256.png"); opacity: 1; filter: Alpha(Opacity=100); }
-*/
 
 /*----------------------------------*/
 .ui-dialog-scrollbackground {
@@ -318,7 +312,7 @@ ul.ui-layout.vbox li {
 
 /*----------------------------------*/
 .ui-creme-jqueryplot[widget="ui-creme-jqueryplot"] {
-    background-image: url("icecream/images/image_64.png");
+    background-image: url("icecream/images/image_64.png");  /* TODO: image_48 ?? (+ delete image_64.png) */
     background-repeat: no-repeat;
     background-position: 50% 50%;
     background-color: white;
