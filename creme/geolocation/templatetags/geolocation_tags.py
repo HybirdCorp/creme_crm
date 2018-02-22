@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014  Hybird
+#    Copyright (C) 2014-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,8 @@ register = Library()
 
 
 @register.filter
-def format_distance(value):
+# def format_distance(value):
+def geolocation_distance(value):
     if value < 1000:
         return ungettext('%(distance)d meter', '%(distance)d meters', value) % {'distance': value}
 
