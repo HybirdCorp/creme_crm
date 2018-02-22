@@ -37,7 +37,10 @@ class SettingValueTestCase(CremeTestCase):
         self._register_key(sk)
 
         title = 'May the source be with you'
-        sv = SettingValue.objects.create(key=sk, user=None, value=title)
+        # sv = SettingValue.objects.create(key=sk, user=None, value=title)
+        sv = SettingValue(key=sk)
+        sv.value = title
+        sv.save()
 
         self.assertEqual(title, self.refresh(sv).value)
 
@@ -51,7 +54,10 @@ class SettingValueTestCase(CremeTestCase):
         self._register_key(sk)
 
         size = 156
-        sv = SettingValue.objects.create(key=sk, user=None, value=size)
+        # sv = SettingValue.objects.create(key=sk, user=None, value=size)
+        sv = SettingValue(key=sk)
+        sv.value = size
+        sv.save()
 
         sv = self.refresh(sv)
         self.assertEqual(size, sv.value)
@@ -70,7 +76,10 @@ class SettingValueTestCase(CremeTestCase):
                        )
         self._register_key(sk)
 
-        sv = SettingValue.objects.create(key=sk, user=self.user, value=True)
+        # sv = SettingValue.objects.create(key=sk, user=self.user, value=True)
+        sv = SettingValue(key=sk)
+        sv.value = True
+        sv.save()
 
         sv = self.refresh(sv)
         self.assertIs(sv.value, True)
@@ -92,7 +101,10 @@ class SettingValueTestCase(CremeTestCase):
         self._register_key(sk)
 
         hour = 9
-        sv = SettingValue.objects.create(key=sk, user=self.user, value=hour)
+        # sv = SettingValue.objects.create(key=sk, user=self.user, value=hour)
+        sv = SettingValue(key=sk)
+        sv.value = hour
+        sv.save()
 
         sv = self.refresh(sv)
         self.assertEqual(hour, sv.value)
@@ -107,7 +119,10 @@ class SettingValueTestCase(CremeTestCase):
         self._register_key(sk)
 
         email = u'd.knut@eswat.ol'
-        sv = SettingValue.objects.create(key=sk, user=self.user, value=email)
+        # sv = SettingValue.objects.create(key=sk, user=self.user, value=email)
+        sv = SettingValue(key=sk)
+        sv.value = email
+        sv.save()
 
         sv = self.refresh(sv)
         self.assertEqual(email, sv.value)
@@ -144,7 +159,10 @@ class SettingValueTestCase(CremeTestCase):
                        )
         self._register_key(sk)
 
-        sv = SettingValue.objects.create(key=sk, value='')
+        # sv = SettingValue.objects.create(key=sk, value='')
+        sv = SettingValue(key=sk)
+        sv.value = ''
+        sv.save()
 
         sv = self.refresh(sv)
         self.assertEqual('', sv.value_str)
@@ -163,12 +181,19 @@ class SettingValueTestCase(CremeTestCase):
                        )
         self._register_key(sk)
 
+        sv = SettingValue(key=sk)
+
         with self.assertRaises(ValueError):
-            # SettingValue.objects.create(key=sk, value='')  TODO
-            SettingValue.objects.create(key=sk, value=None)
+            # # SettingValue.objects.create(key=sk, value='')
+            # SettingValue.objects.create(key=sk, value=None)
+            sv.value = None
+            # sv.value = '' # TODO
 
         value = '111'
-        sv = SettingValue.objects.create(key=sk, value=value)
+        # sv = SettingValue.objects.create(key=sk, value=value)
+
+        with self.assertNoException():
+            sv.value = value
 
         with self.assertRaises(ValueError):
             sv.value = None
@@ -181,8 +206,11 @@ class SettingValueTestCase(CremeTestCase):
                        )
         self._register_key(sk)
 
+        sv = SettingValue(key=sk)
+
         with self.assertRaises(ValueError):
-            SettingValue.objects.create(key=sk, value='abc')
+            # SettingValue.objects.create(key=sk, value='abc')
+            sv.value = 'abc'
 
 
 class UserSettingValueTestCase(CremeTestCase):

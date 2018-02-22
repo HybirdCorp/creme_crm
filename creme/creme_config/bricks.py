@@ -119,7 +119,8 @@ class SettingsBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(
                                 context,
-                                SettingValue.objects.filter(key_id__in=skeys_ids, user=None),
+                                # SettingValue.objects.filter(key_id__in=skeys_ids, user=None),
+                                SettingValue.objects.filter(key_id__in=skeys_ids),
                                 app_name=app_name,
                            ))
 

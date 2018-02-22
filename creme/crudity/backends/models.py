@@ -111,7 +111,8 @@ class CrudityBackend(object):
     @property
     def is_sandbox_by_user(self):
         if self._sandbox_by_user is None:
-            self._sandbox_by_user = SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER, user=None).value
+            # self._sandbox_by_user = SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER, user=None).value
+            self._sandbox_by_user = SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER).value
 
         return self._sandbox_by_user
 
