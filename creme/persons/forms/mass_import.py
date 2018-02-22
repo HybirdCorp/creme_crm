@@ -54,7 +54,8 @@ class _PersonMassImportForm(ImportForm4CremeEntity):  # TODO: rename 'PersonCSVI
             if extr_value:
                 address_dict[field_name] = extr_value
 
-            self.append_error(line, err_msg, person)
+            # self.append_error(line, err_msg, person)
+            self.append_error(err_msg)
 
         if address_dict:
             address_dict['owner'] = person

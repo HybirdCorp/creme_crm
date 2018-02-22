@@ -59,7 +59,8 @@ class _FakePersonCSVImportForm(ImportForm4CremeEntity):
             if extr_value:
                 address_dict[field_name] = extr_value
 
-            self.append_error(line, err_msg, instance)
+            # self.append_error(line, err_msg, instance)
+            self.append_error(err_msg)
 
         if address_dict:
             address_dict['entity'] = instance

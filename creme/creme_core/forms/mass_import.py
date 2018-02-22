@@ -1022,8 +1022,8 @@ class ImportForm(CremeModelForm):
                 .exclude(lambda field, deep: get_fconf(field.model).is_field_hidden(field)) \
                 .choices()
 
-    def append_error(self, line, err_msg, instance=None):
-        # TODO: API breaking => only err_msg !!!!
+    # def append_error(self, line, err_msg, instance=None):
+    def append_error(self, err_msg):
         if err_msg:
             self.import_errors.append(unicode(err_msg))
 
@@ -1112,7 +1112,8 @@ class ImportForm(CremeModelForm):
                         is_empty = not extractor._column_index or is_empty_value(line[extractor._column_index - 1])
                         extr_values.append((fname, extr_value, is_empty))
 
-                        append_error(line, err_msg, instance)
+                        # append_error(line, err_msg, instance)
+                        append_error(err_msg)
 
                     if key_fields:
                         # We avoid using exception within 'atomic' block
@@ -1128,11 +1129,11 @@ class ImportForm(CremeModelForm):
                                 instance = found[0]
                                 job_result.updated = updated = True
                             else:
-                                append_error(line,
+                                append_error(# line,
                                              ugettext(u'Several entities corresponding to the search have been found. '
                                                       u'So a new entity have been created to avoid errors.'
                                                      ),
-                                             instance
+                                             # instance
                                             )
 
                     for fname, cleaned_value in regular_fields:
@@ -1157,7 +1158,8 @@ class ImportForm(CremeModelForm):
                             # TODO: factorise
                             extr_value, err_msg = extractor.extract_value(line)
                             setattr(instance, m2m.name, extr_value)
-                            append_error(line, err_msg, instance)
+                            # append_error(line, err_msg, instance)
+                            append_error(err_msg)
 
                     job_result.entity = instance
                     if self.import_errors:
@@ -1169,9 +1171,11 @@ class ImportForm(CremeModelForm):
                 try:
                     for messages in e.message_dict.itervalues():
                         for message in messages:
-                            append_error(line, unicode(message), instance)
+                            # append_error(line, unicode(message), instance)
+                            append_error(unicode(message))
                 except:
-                    append_error(line, str(e), instance)
+                    # append_error(line, str(e), instance)
+                    append_error(str(e))
 
                 job_result.messages = self.import_errors
                 job_result.save()
@@ -1253,10 +1257,12 @@ class ImportForm4CremeEntity(ImportForm):
             try:
                 value, err_msg = cdata[_CUSTOM_NAME % cfield.id].extract_value(line)
             except ValidationError as e:
-                self.append_error(line, e.messages[0], instance)
+                # self.append_error(line, e.messages[0], instance)
+                self.append_error(e.messages[0])
             else:
                 if err_msg is not None:
-                    self.append_error(line, err_msg, instance)
+                    # self.append_error(line, err_msg, instance)
+                    self.append_error(err_msg)
                 elif value is not None and value != u'':
                     CustomFieldValue.save_values_for_entities(cfield, [instance], value)
 
@@ -1281,7 +1287,8 @@ class ImportForm4CremeEntity(ImportForm):
 
         for (rtype, entity), err_msg in cdata['dyn_relations'].extract_value(line, user):
             if err_msg:
-                self.append_error(line, err_msg, instance)
+                # self.append_error(line, err_msg, instance)
+                self.append_error(err_msg)
             else:
                 create_relation(type=rtype, object_entity=entity)
 
