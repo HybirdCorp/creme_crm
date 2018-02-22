@@ -548,8 +548,13 @@ class HistoryLine(Model):
         verbose_name_plural = _(u'Lines of history')
 
     def __repr__(self):
-        return 'HistoryLine(entity_id=%s, entity_owner_id=%s, date=%s, type=%s, value=%s)' % (
-                    self.entity_id, self.entity_owner_id, self.date, self.type, self.value
+        return 'HistoryLine(entity_id={entity_id}, entity_owner_id={owner_id}, username={username}, date={date}, type={type}, value={value})'.format(
+                    entity_id=self.entity_id,
+                    owner_id=self.entity_owner_id,
+                    username=self.username,
+                    date=self.date,
+                    type=self.type,
+                    value=self.value,
                 )
 
     def __unicode__(self):
@@ -684,6 +689,27 @@ class HistoryLine(Model):
 
         return self._related_line_id
 
+    @staticmethod
+    def populate_users(hlines, user):
+        """Set the internal cache for 'user' in some HistoryLines, to optimize queries.
+
+        @param hlines: Sequence of HistoryLine instances (need to be iterated twice)
+        @param user: current user (instance of get_user_model()) ; no query is need to retrieve it again.
+        """
+
+        # We retrieve the User instances corresponding to the line usernames, in order to have a verbose display.
+        # We avoid a useless query to User if the only used User is the current User (which is already retrieved).
+        usernames = {hline.username for hline in hlines}
+        usernames.discard(user.username)
+
+        users = {user.username: user}
+
+        if usernames:
+            users.update((u.username, u) for u in get_user_model().objects.filter(username__in=usernames))
+
+        for hline in hlines:
+            hline.user = users.get(hline.username)
+
     @property
     def related_line(self):
         if self._related_line is False:
@@ -720,8 +746,10 @@ class HistoryLine(Model):
 
     def save(self, *args, **kwargs):
         if self.ENABLED:
+            # if self.pk is None: TODO ?
             user = get_global_info('user')
             self.username = user.username if user else ''
+
             super(HistoryLine, self).save(*args, **kwargs)
 
     @property

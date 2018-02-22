@@ -22,7 +22,7 @@ from datetime import timedelta
 
 from django import template
 
-from ..bricks import HistoryBrick
+# from ..bricks import HistoryBrick
 from ..models.history import HistoryLine, TYPE_CREATION, TYPE_EDITION
 
 
@@ -53,7 +53,8 @@ def history_summary(entity, user):
                                    username='',
                                   )
 
-    HistoryBrick._populate_users(stored_hlines, user)
+    # HistoryBrick._populate_users(stored_hlines, user)
+    HistoryLine.populate_users(stored_hlines, user)
 
     return {
         'creation': creation,

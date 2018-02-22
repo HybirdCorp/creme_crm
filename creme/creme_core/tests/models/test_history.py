@@ -5,6 +5,7 @@ try:
     from decimal import Decimal
     from time import sleep
 
+    from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
     from django.utils.formats import date_format, number_format
@@ -33,9 +34,7 @@ class HistoryTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
         super(HistoryTestCase, cls).setUpClass()
-        # cls.populate('creme_core')
         HistoryLine.objects.all().delete()
 
     def setUp(self):
@@ -228,9 +227,6 @@ about this fantastic animation studio."""
                                               },
                       vmodifs
                      )
-        # self.assertIn(self.FSTRING_1_VALUE % {'field': _(u'Date of creation')},
-        #               vmodifs
-        #              )
         self.assertIn(self.FSTRING_2_VALUES % {'field': _(u'Date of creation'),
                                                'value': date_format(creation_date, 'DATE_FORMAT'),
                                               },
@@ -399,7 +395,6 @@ about this fantastic animation studio."""
                         )
 
         # Set None -------------------------
-        # meeting = self.refresh(meeting)
         meeting.end = None
         meeting.save()
 
@@ -1105,5 +1100,65 @@ about this fantastic animation studio."""
         ghibli_lines = list(ghibli_line_qs.all())
         self.assertEqual(1, len(ghibli_lines))
         self.assertEqual(TYPE_CREATION, ghibli_lines[0].type)
+
+    def test_populate_users01(self):
+        user = self.user
+
+        self._build_organisation(user=user.id, name='Gainax')
+        hline = self._get_hlines()[-1]
+
+        with self.assertNumQueries(0):
+            HistoryLine.populate_users([hline], user)
+
+        with self.assertNumQueries(0):
+            h_user = hline.user
+
+        self.assertEqual(user, h_user)
+
+    def test_populate_users02(self):
+        user = self.user
+        other_user = self.other_user
+
+        admin = get_user_model().objects.order_by('id').first()
+        self.assertNotEqual(user, admin)
+
+        create_orga = FakeOrganisation.objects.create
+        create_orga(user=user, name='Gainax')
+        create_orga(user=user, name='Seele')
+        create_orga(user=user, name='NERV')
+        create_orga(user=user, name='Ghibli')
+
+        hlines = self._get_hlines()
+        hline1 = hlines[-1]
+        hline2 = hlines[-2]
+        hline3 = hlines[-3]
+
+        HistoryLine.objects.filter(id=hline1.id).update(username=admin.username)
+        HistoryLine.objects.filter(id=hline2.id).update(username=other_user.username)
+        HistoryLine.objects.filter(id=hline3.id).update(username=user.username)
+
+        hline1 = self.refresh(hline1)
+        hline2 = self.refresh(hline2)
+        hline3 = self.refresh(hline3)
+        hline4 = hlines[-4]
+
+        with self.assertNumQueries(1):
+            HistoryLine.populate_users([hline4, hline3, hline2, hline1], user)
+
+        with self.assertNumQueries(0):
+            h_user4 = hline4.user
+        self.assertIsNone(h_user4)
+
+        with self.assertNumQueries(0):
+            h_user3 = hline3.user
+        self.assertEqual(user, h_user3)
+
+        with self.assertNumQueries(0):
+            h_user2 = hline2.user
+        self.assertEqual(other_user, h_user2)
+
+        with self.assertNumQueries(0):
+            h_user1 = hline1.user
+        self.assertEqual(admin, h_user1)
 
     # TODO: test populate related lines + query counter ??
