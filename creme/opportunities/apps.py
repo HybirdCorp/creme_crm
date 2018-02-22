@@ -113,7 +113,7 @@ class OpportunitiesConfig(CremeAppConfig):
                 container.add(URLItem.list_view('opportunities-quotes', model=Quote), priority=20)
                 create_any.add_link('create_quote', Quote, priority=20)
 
-    def register_setting_key(self, setting_key_registry):
+    def register_setting_keys(self, setting_key_registry):
         from .setting_keys import quote_key
 
         setting_key_registry.register(quote_key)

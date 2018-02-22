@@ -180,10 +180,10 @@ class BillingConfig(CremeAppConfig):
                       .add_link('billing-create_cnote',   CreditNote, priority=50) \
                       .add_link('billing-create_order',   SalesOrder, priority=55)
 
-    def register_setting_key(self, setting_key_registry):
-        from .setting_keys import payment_info_key
+    def register_setting_keys(self, setting_key_registry):
+        from . import setting_keys
 
-        setting_key_registry.register(payment_info_key)
+        setting_key_registry.register(setting_keys.payment_info_key)
 
     def register_smart_columns(self, smart_columns_registry):
         from .constants import REL_SUB_BILL_RECEIVED

@@ -42,7 +42,7 @@ class GeolocationConfig(CremeAppConfig):
                                 bricks.GoogleNeighboursMapBrick,
                                )
 
-    def register_setting_key(self, setting_key_registry):
+    def register_setting_keys(self, setting_key_registry):
         from . import setting_keys
 
         setting_key_registry.register(setting_keys.NEIGHBOURHOOD_DISTANCE,

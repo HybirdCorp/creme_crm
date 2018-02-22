@@ -151,7 +151,7 @@ class ActivitiesConfig(CremeAppConfig):
                               .register_relationtype(constants.REL_OBJ_PART_2_ACTIVITY) \
                               .register_relationtype(constants.REL_OBJ_ACTIVITY_SUBJECT)
 
-    def register_setting_key(self, setting_key_registry):
+    def register_setting_keys(self, setting_key_registry):
         from . import setting_keys
 
         setting_key_registry.register(setting_keys.review_key,
