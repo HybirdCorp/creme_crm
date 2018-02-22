@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'MOBILE' APP
-# Copyright (C) 2017 Hybird
+# Copyright (C) 2018 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i tests.py
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Mobile 1.7\n"
+"Project-Id-Version: Creme Mobile 1.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-30 19:51+0100\n"
+"POT-Creation-Date: 2018-02-01 11:58+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -208,7 +208,6 @@ msgid "Favorite entities"
 msgstr "Fiches favories"
 
 #: templates/mobile/bricks/favorite.html:18
-#: templates/mobile/templatetags/block_favorite.html:22
 msgid "Mark as favorite"
 msgstr "Marquer comme favori"
 
@@ -225,7 +224,6 @@ msgid "This organisation is not a favorite for the moment"
 msgstr "Cette société n'est pas une favorie pour le moment"
 
 #: templates/mobile/bricks/favorite.html:41
-#: templates/mobile/templatetags/block_favorite.html:44
 msgid "This entity is not a favorite for the moment"
 msgstr "Cette fiche n'est pas une favorie pour le moment"
 
@@ -437,41 +435,6 @@ msgstr "Dans la journée"
 msgid "d/m/Y H:i"
 msgstr "d/m/Y H\\hi"
 
-#: templates/mobile/templatetags/block_favorite.html:9
-#, python-format
-msgid "This contact is a favorite for %s user"
-msgstr "Ce contact est un favori pour %s utilisateur"
-
-#: templates/mobile/templatetags/block_favorite.html:9
-#, python-format
-msgid "This contact is a favorite for %s users"
-msgstr "Ce contact est un favori pour %s utilisateurs"
-
-#: templates/mobile/templatetags/block_favorite.html:11
-#, python-format
-msgid "This organisation is a favorite for %s user"
-msgstr "Cette société est une favorie pour %s utilisateur"
-
-#: templates/mobile/templatetags/block_favorite.html:11
-#, python-format
-msgid "This organisation is a favorite for %s users"
-msgstr "Cette société est une favorie pour %s utilisateurs"
-
-#: templates/mobile/templatetags/block_favorite.html:13
-#, python-format
-msgid "This entity is a favorite for %s user"
-msgstr "Cette fiche est une favorie pour %s utilisateur"
-
-#: templates/mobile/templatetags/block_favorite.html:13
-#, python-format
-msgid "This entity is a favorite for %s users"
-msgstr "Cette fiche est une favorie pour %s utilisateurs"
-
-# Already in creme_core
-#: templates/mobile/templatetags/block_favorite.html:21
-msgid "Link"
-msgstr ""
-
 # Already in creme_core
 #: templates/mobile/templatetags/footer.html:4
 msgid "Log out"
@@ -539,42 +502,60 @@ msgid "Do not save"
 msgstr "Ne pas sauvegarder"
 
 # Already in creme_core
-#: views.py:83
+#: views.py:82
 msgid "You do not have access to this page, please contact your administrator."
 msgstr ""
 
 # Already in creme/locale
-#: views.py:86
+#: views.py:85
 msgid "The page you have requested is not found."
 msgstr ""
 
 # Already in creme/locale
-#: views.py:89
+#: views.py:88
 msgid "You can not perform this action because of business constraints."
 msgstr ""
 
-#: views.py:251
+#: views.py:248
 msgid "Your search is too short."
 msgstr "Votre recherche est trop courte."
 
-#: views.py:483
+#: views.py:479
 msgid "You cannot create a call to youself."
 msgstr "Vous ne pouvez pas créer un appel vers vous-même."
 
-#: views.py:545 views.py:582
+#: views.py:538 views.py:575
 #, python-format
 msgid "%(status)s call to %(person)s from Creme Mobile"
 msgstr "Appel %(status)s vers %(person)s depuis Creme Mobile"
 
-#: views.py:546
+#: views.py:539
 msgid "Successful"
 msgstr "réussi"
 
-#: views.py:583
+#: views.py:576
 msgid "Failed"
 msgstr "échoué"
 
-#: views.py:642
+#: views.py:633
 #, python-format
 msgid "Call to %s from Creme Mobile"
 msgstr "Appel vers %s depuis Creme Mobile"
+
+#~ msgid "This contact is a favorite for %s user"
+#~ msgstr "Ce contact est un favori pour %s utilisateur"
+
+#~ msgid "This contact is a favorite for %s users"
+#~ msgstr "Ce contact est un favori pour %s utilisateurs"
+
+#~ msgid "This organisation is a favorite for %s user"
+#~ msgstr "Cette société est une favorie pour %s utilisateur"
+
+#~ msgid "This organisation is a favorite for %s users"
+#~ msgstr "Cette société est une favorie pour %s utilisateurs"
+
+#~ msgid "This entity is a favorite for %s user"
+#~ msgstr "Cette fiche est une favorie pour %s utilisateur"
+
+#~ msgid "This entity is a favorite for %s users"
+#~ msgstr "Cette fiche est une favorie pour %s utilisateurs"
