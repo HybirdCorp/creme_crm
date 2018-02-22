@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017  Hybird
+#    Copyright (C) 2017-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -98,3 +98,18 @@ def ctype_can_be_merged(ctype):
     """
     from ..gui.merge import merge_form_registry
     return merge_form_registry.get(ctype.model_class()) is not None
+
+
+@register.filter
+def ctype_can_be_mass_imported(ctype):
+    """Indicates if some instances of a specific model can be created from a CSV/XLS/... file.
+
+    @param ctype: A ContentType instance corresponding to your model
+    @return: A boolean.
+
+        {% if my_entity.entity_type|ctype_can_be_mass_imported %}
+            <span>Can be imported !!</span>
+        {% endif %}
+    """
+    from ..gui.mass_import import import_form_registry
+    return import_form_registry.is_registered(ctype)

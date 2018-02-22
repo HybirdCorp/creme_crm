@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-# import warnings
+import warnings
 
 from django.conf import settings
 from django.db.models import ForeignKey, ManyToManyField, BooleanField, DateField
@@ -32,7 +32,6 @@ from ..core.entity_cell import (EntityCellRegularField, EntityCellCustomField,
 from ..core.paginator import FlowPaginator
 from ..gui.bulk_update import bulk_update_registry
 from ..gui.listview import NULL_FK
-from ..gui.mass_import import import_form_registry
 from ..gui.merge import merge_form_registry
 from ..gui.pager import PagerContext
 from ..models import CustomField
@@ -243,10 +242,15 @@ def get_listview_columns_header(context):
 #     return u''
 
 
-# TODO: move to lib (creme_ctype)
-# TODO: transform into filter + rename ({% if ctype|ctype_can_be_mass_imported %})
 @register.assignment_tag
 def ctype_is_registered_for_import(ctype):
+    warnings.warn('{% ctype_is_registered_for_import %} is deprecated ; '
+                  'use the filter "ctype_can_be_mass_imported" (from lib creme_ctype) instead.',
+                  DeprecationWarning
+                 )
+
+    from ..gui.mass_import import import_form_registry
+
     return import_form_registry.is_registered(ctype)
 
 

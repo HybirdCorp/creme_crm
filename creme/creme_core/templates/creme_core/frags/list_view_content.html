@@ -1,4 +1,4 @@
-{% load i18n creme_core_tags creme_widgets creme_listview creme_cells creme_ctype %}{# creme_block #}
+{% load i18n creme_core_tags creme_widgets creme_listview creme_cells creme_ctype %}
 
 {% with cells=header_filters.selected.filtered_cells %}
 
@@ -117,8 +117,11 @@
                     {% trans 'Download header' as label %}{% widget_icon name='document_csv' label=label size='listview-button' %}{{label}}
                 </a>
             {% endif %}
+{% comment %}
             {% ctype_is_registered_for_import content_type as can_import %}
             {% if can_import %}
+{% endcomment %}
+            {% if content_type|ctype_can_be_mass_imported %}
                 {% get_import_backends as import_backends %}
                 {% if import_backends|length > 2 %}
                 <a {% if creation_perm %}class="with-icon" href="{% url 'creme_core__mass_import' content_type_id %}"{% else %}class="with-icon forbidden" title="{% trans 'Forbidden' %}"{% endif %}>
@@ -148,7 +151,6 @@
     </div>
 </div>
 
-{# <table id="list" class="list_view" cellpadding="0" cellspacing="0"> #}
 {# TODO: remove class "list_view" #}
 <table id="list" class="list_view listview {% if is_popup_view %}listview-popup{% else %}listview-standalone{% endif %} {% if o2m %}listview-selection-single{% else %}listview-selection-multiple{% endif %}" cellpadding="0" cellspacing="0" data-total-count="{{entities.paginator.count}}">
     <thead>
