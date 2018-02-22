@@ -287,9 +287,11 @@ creme.activities.calendar.fullCalendar = function(events_url, creation_url, upda
             $(chk_boxes_q).enable(false);
 
             $.ajax({
-                url: events_url + cal_ids.get().join(','),
+//                url: events_url + cal_ids.get().join(','),
+                url: events_url,
                 dataType: 'json',
                 data: {
+                    calendar_id: cal_ids.get(),
                     start: Math.round(start.getTime() / 1000),
                     end: Math.round(end.getTime() / 1000)
                 },

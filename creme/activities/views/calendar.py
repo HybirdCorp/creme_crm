@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,10 +19,11 @@
 ################################################################################
 
 from collections import defaultdict
-import copy
+from copy import copy
 from datetime import datetime, timedelta
 import logging
 from json import dumps as jsondumps
+import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
@@ -52,7 +53,7 @@ Activity = get_activity_model()
 
 
 def _activity_2_dict(activity, user):
-    "Return a 'jsonifiable' dictionary"
+    "Returns a 'jsonifiable' dictionary"
     tz = get_current_timezone()
     start = make_naive(activity.start, tz)
     end   = make_naive(activity.end, tz)
@@ -63,18 +64,20 @@ def _activity_2_dict(activity, user):
     if start == end and not is_all_day:
         end += timedelta(seconds=1)
 
-    return {#'id':           int(activity.pk),
-            'id':           activity.id,
-            'title':        activity.get_title_for_calendar(),
-            'start':        start.isoformat(),
-            'end':          end.isoformat(),
-            'url':          reverse('activities__view_activity_popup', args=(activity.pk,)),
-            'calendar_color': "#%s" % (activity.calendar.get_color or constants.DEFAULT_CALENDAR_COLOR),
-            'allDay':       is_all_day,
-            'editable':     user.has_perm_to_change(activity),
-            'calendar':     activity.calendar.id,
-            'type':         activity.type.name,
-           }
+    calendar = activity.calendar  # NB: _get_one_activity_per_calendar() adds this 'attribute'
+
+    return {
+        'id':           activity.id,
+        'title':        activity.get_title_for_calendar(),
+        'start':        start.isoformat(),
+        'end':          end.isoformat(),
+        'url':          reverse('activities__view_activity_popup', args=(activity.id,)),
+        'calendar_color': '#{}'.format(calendar.get_color),  # TODO: calendarColor ?
+        'allDay':       is_all_day,
+        'editable':     user.has_perm_to_change(activity),
+        'calendar':     calendar.id,
+        'type':         activity.type.name,
+    }
 
 
 def _get_datetime(data, key, default_func):
@@ -88,13 +91,19 @@ def _get_datetime(data, key, default_func):
     return default_func()
 
 
+# TODO: less query ?
 def _get_one_activity_per_calendar(calendar_ids, activities):
-    act = []
+    # act = []
+    # for activity in activities:
+    #     for calendar in activity.calendars.filter(id__in=calendar_ids):
+    #         activity.calendar = calendar
+    #         act.append(copy(activity))
+    # return act
     for activity in activities:
         for calendar in activity.calendars.filter(id__in=calendar_ids):
-            activity.calendar = calendar
-            act.append(copy.copy(activity))
-    return act
+            copied = copy(activity)
+            copied.calendar = calendar
+            yield copied
 
 
 def _js_timestamp_to_datetime(timestamp):
@@ -106,10 +115,13 @@ def _filter_authorized_calendars(user, calendar_ids):
     return list(Calendar.objects.filter((Q(is_public=True) |
                                          Q(user=user)) &
                                          Q(id__in=[cal_id
-                                                   for cal_id in calendar_ids
-                                                   if cal_id.isdigit()
+                                                     for cal_id in calendar_ids
+                                                       if cal_id.isdigit()
                                                   ]
-                                          )).values_list('id', flat=True))
+                                          )
+                                        )
+                                .values_list('id', flat=True)
+                )
 
 
 @login_required
@@ -153,8 +165,8 @@ def user_calendar(request):
 
     return render(request, 'activities/calendar.html',
                   {'user_username':           user.username,
-                   # 'events_url':              '/activities/calendar/users_activities/',
-                   'events_url':              reverse('activities__calendars_activities', args=('',)),
+                   # 'events_url':              reverse('activities__calendars_activities', args=('',)),
+                   'events_url':              reverse('activities__calendars_activities'),
                    'max_element_search':      constants.MAX_ELEMENT_SEARCH,
                    'my_calendars':            Calendar.objects.filter(user=user),
                    'others_calendars':        dict(others_calendars),
@@ -171,19 +183,31 @@ def user_calendar(request):
 @login_required
 @permission_required('activities')
 @jsonify
-def get_users_activities(request, calendar_ids):
+def get_users_activities(request, calendar_ids=None):
+    GET = request.GET
+
+    if calendar_ids is not None:
+        warnings.warn('activities.calendar.views.get_users_activities(): '
+                      'the URL argument "calendar_ids" is deprecated ; '
+                      'use the GET parameter "calendar_id" instead.',
+                      DeprecationWarning
+                     )
+
+        calendar_ids = calendar_ids.split(',')
+    else:
+        calendar_ids = GET.getlist('calendar_id')
+
     user = request.user
-    calendar_ids = calendar_ids.split(',')
     contacts = list(get_contact_model().objects.exclude(is_user=None)
                                        .values_list('id', flat=True)
                    )  # NB: list() to avoid inner query
     users_cal_ids = _filter_authorized_calendars(user, calendar_ids)
 
-    GET = request.GET
     start = _get_datetime(GET, 'start', (lambda: now().replace(day=1)))
     end   = _get_datetime(GET, 'end',   (lambda: get_last_day_of_a_month(start)))
 
     # TODO: label when no calendar related to the participant of an indispo
+    # TODO: better way than distinct() then multiply instances with queries (see _get_one_activity_per_calendar) ?
     activities = EntityCredentials.filter(
                         user,
                         Activity.objects.filter(is_deleted=False)
@@ -269,7 +293,7 @@ def edit_user_calendar(request, calendar_id):
 @permission_required('activities')
 @jsonify
 def delete_user_calendar(request):
-    # TODO: Adding the possibility to transfert activities
+    # TODO: Adding the possibility to transfer activities
     calendar = get_object_or_404(Calendar, pk=get_from_POST_or_404(request.POST, 'id'))
     user = request.user
 
