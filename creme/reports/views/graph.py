@@ -171,6 +171,7 @@ def fetch_graph(request, graph_id):
     return {'x': x, 'y': y, 'graph_id': graph_id}  # TODO: graph_id useful ??
 
 
+# TODO: rename fetch_graph_from_instancebrick + instance_brick_id
 @utils.jsonify
 # @permission_required('reports') ??
 # def fetch_graph_from_instanceblock(request, instance_block_id, entity_id, order=None):
@@ -185,9 +186,9 @@ def fetch_graph_from_instanceblock(request, instance_block_id, entity_id):
     #                  )
     #     _check_order(order)
     order = utils.get_from_GET_or_404(request.GET, 'order', cast=cast_order, default='ASC')
-    instance_block = get_object_or_404(InstanceBlockConfigItem, pk=instance_block_id)  # TODO: rename
+    instance_brick = get_object_or_404(InstanceBlockConfigItem, pk=instance_block_id)
     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
-    x, y = ReportGraph.get_fetcher_from_instance_block(instance_block).fetch_4_entity(entity, order)
+    x, y = ReportGraph.get_fetcher_from_instance_block(instance_brick).fetch_4_entity(entity, order)
 
     # TODO: send error too ?
     return {'x': x, 'y': y}

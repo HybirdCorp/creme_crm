@@ -40,7 +40,7 @@ def home(request):
                         brick_ids=BlockPortalLocation.objects
                                                      .filter(app_name='creme_core')
                                                      .order_by('order')
-                                                     .values_list('block_id', flat=True),
+                                                     .values_list('brick_id', flat=True),
                        )
 
 
@@ -50,5 +50,5 @@ def my_page(request):
                         brick_ids=BlockMypageLocation.objects
                                                      .filter(user=request.user)
                                                      .order_by('order')
-                                                     .values_list('block_id', flat=True),
+                                                     .values_list('brick_id', flat=True),
                        )

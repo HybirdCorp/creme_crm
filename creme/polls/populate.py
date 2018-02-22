@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2017  Hybird
+#    Copyright (C) 2012-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -88,32 +88,32 @@ class Populator(BasePopulator):
             LEFT  = BlockDetailviewLocation.LEFT
             RIGHT = BlockDetailviewLocation.RIGHT
 
-            create_bdl = BlockDetailviewLocation.create
-            create_bdl(block_id=bricks.PollFormLinesBrick.id_,     order=5,   zone=TOP,   model=PollForm)
+            create_bdl = BlockDetailviewLocation.create_if_needed
+            create_bdl(brick_id=bricks.PollFormLinesBrick.id_,     order=5,   zone=TOP,   model=PollForm)
             BlockDetailviewLocation.create_4_model_brick(order=5,             zone=LEFT,  model=PollForm)
-            create_bdl(block_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=PollForm)
-            create_bdl(block_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=PollForm)
-            create_bdl(block_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=PollForm)
-            create_bdl(block_id=bricks.PollRepliesBrick.id_,       order=5,   zone=RIGHT, model=PollForm)
-            create_bdl(block_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=PollForm)
+            create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=PollForm)
+            create_bdl(brick_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=PollForm)
+            create_bdl(brick_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=PollForm)
+            create_bdl(brick_id=bricks.PollRepliesBrick.id_,       order=5,   zone=RIGHT, model=PollForm)
+            create_bdl(brick_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=PollForm)
 
             # TODO: factorise
-            create_bdl(block_id=bricks.PollReplyLinesBrick.id_,    order=5,   zone=TOP,   model=PollReply)
+            create_bdl(brick_id=bricks.PollReplyLinesBrick.id_,    order=5,   zone=TOP,   model=PollReply)
             BlockDetailviewLocation.create_4_model_brick(order=5,             zone=LEFT,  model=PollReply)
-            create_bdl(block_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=PollReply)
-            create_bdl(block_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=PollReply)
-            create_bdl(block_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=PollReply)
-            create_bdl(block_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=PollReply)
+            create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=PollReply)
+            create_bdl(brick_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=PollReply)
+            create_bdl(brick_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=PollReply)
+            create_bdl(brick_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=PollReply)
 
             BlockDetailviewLocation.create_4_model_brick(order=5,               zone=LEFT,  model=PollCampaign)
-            create_bdl(block_id=core_bricks.CustomFieldsBrick.id_,   order=40,  zone=LEFT,  model=PollCampaign)
-            create_bdl(block_id=core_bricks.PropertiesBrick.id_,     order=450, zone=LEFT,  model=PollCampaign)
-            create_bdl(block_id=core_bricks.RelationsBrick.id_,      order=500, zone=LEFT,  model=PollCampaign)
-            create_bdl(block_id=bricks.PollCampaignRepliesBrick.id_, order=5,   zone=RIGHT, model=PollCampaign)
-            create_bdl(block_id=core_bricks.HistoryBrick.id_,        order=20,  zone=RIGHT, model=PollCampaign)
+            create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_,   order=40,  zone=LEFT,  model=PollCampaign)
+            create_bdl(brick_id=core_bricks.PropertiesBrick.id_,     order=450, zone=LEFT,  model=PollCampaign)
+            create_bdl(brick_id=core_bricks.RelationsBrick.id_,      order=500, zone=LEFT,  model=PollCampaign)
+            create_bdl(brick_id=bricks.PollCampaignRepliesBrick.id_, order=5,   zone=RIGHT, model=PollCampaign)
+            create_bdl(brick_id=core_bricks.HistoryBrick.id_,        order=20,  zone=RIGHT, model=PollCampaign)
 
-            create_bdl(block_id=bricks.PersonPollRepliesBrick.id_, order=500, zone=RIGHT, model=Contact)
-            create_bdl(block_id=bricks.PersonPollRepliesBrick.id_, order=500, zone=RIGHT, model=Organisation)
+            create_bdl(brick_id=bricks.PersonPollRepliesBrick.id_, order=500, zone=RIGHT, model=Contact)
+            create_bdl(brick_id=bricks.PersonPollRepliesBrick.id_, order=500, zone=RIGHT, model=Organisation)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail view')
@@ -121,10 +121,10 @@ class Populator(BasePopulator):
                 from creme.assistants import bricks as a_bricks
 
                 for model in (PollForm, PollReply, PollCampaign):
-                    create_bdl(block_id=a_bricks.TodosBrick.id_,        order=100, zone=RIGHT, model=model)
-                    create_bdl(block_id=a_bricks.MemosBrick.id_,        order=200, zone=RIGHT, model=model)
-                    create_bdl(block_id=a_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=model)
-                    create_bdl(block_id=a_bricks.UserMessagesBrick.id_, order=400, zone=RIGHT, model=model)
+                    create_bdl(brick_id=a_bricks.TodosBrick.id_,        order=100, zone=RIGHT, model=model)
+                    create_bdl(brick_id=a_bricks.MemosBrick.id_,        order=200, zone=RIGHT, model=model)
+                    create_bdl(brick_id=a_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=model)
+                    create_bdl(brick_id=a_bricks.UserMessagesBrick.id_, order=400, zone=RIGHT, model=model)
 
             if apps.is_installed('creme.documents'):
                 # logger.info('Documents app is installed => we use the documents block on detail views')
@@ -132,4 +132,4 @@ class Populator(BasePopulator):
                 from creme.documents.bricks import LinkedDocsBrick
 
                 for model in (PollForm, PollReply, PollCampaign):
-                    create_bdl(block_id=LinkedDocsBrick.id_, order=600, zone=RIGHT, model=model)
+                    create_bdl(brick_id=LinkedDocsBrick.id_, order=600, zone=RIGHT, model=model)

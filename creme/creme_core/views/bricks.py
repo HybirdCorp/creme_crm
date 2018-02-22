@@ -234,7 +234,7 @@ def set_state(request):
     state_changed = False
 
     # TODO: Avoid the query if there is no post param?
-    bs = BlockState.objects.get_or_create(block_id=brick_id, user=request.user)[0]
+    bs = BlockState.objects.get_or_create(brick_id=brick_id, user=request.user)[0]
 
     if is_open is not None:
         bs.is_open = bool(int(is_open))

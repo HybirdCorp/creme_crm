@@ -180,68 +180,68 @@ class Populator(BasePopulator):
             create_button(pk='opportunities-linked_opp_button_contact', model=Contact,      button=linked_opportunity_button, order=30)
 
             # ---------------------------
-            create_bdl = BlockDetailviewLocation.create
+            create_bdl = BlockDetailviewLocation.create_if_needed
             LEFT = BlockDetailviewLocation.LEFT
             RIGHT = BlockDetailviewLocation.RIGHT
 
-            create_bdl(block_id=bricks.OpportunityCardHatBrick.id_, order=1,   zone=BlockDetailviewLocation.HAT, model=Opportunity)
-            create_bdl(block_id=core_bricks.CustomFieldsBrick.id_,  order=40,  zone=LEFT,  model=Opportunity)
-            create_bdl(block_id=bricks.BusinessManagersBrick.id_,   order=60,  zone=LEFT,  model=Opportunity)
-            create_bdl(block_id=bricks.LinkedContactsBrick.id_,     order=62,  zone=LEFT,  model=Opportunity)
-            create_bdl(block_id=bricks.LinkedProductsBrick.id_,     order=64,  zone=LEFT,  model=Opportunity)
-            create_bdl(block_id=bricks.LinkedServicesBrick.id_,     order=66,  zone=LEFT,  model=Opportunity)
-            create_bdl(block_id=core_bricks.PropertiesBrick.id_,    order=450, zone=LEFT,  model=Opportunity)
-            create_bdl(block_id=core_bricks.RelationsBrick.id_,     order=500, zone=LEFT,  model=Opportunity)
-            create_bdl(block_id=bricks.OppTargetBrick.id_,          order=1,   zone=RIGHT, model=Opportunity)
-            create_bdl(block_id=bricks.OppTotalBrick.id_,           order=2,   zone=RIGHT, model=Opportunity)
-            create_bdl(block_id=core_bricks.HistoryBrick.id_,       order=20,  zone=RIGHT, model=Opportunity)
+            create_bdl(brick_id=bricks.OpportunityCardHatBrick.id_, order=1,   zone=BlockDetailviewLocation.HAT, model=Opportunity)
+            create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_,  order=40,  zone=LEFT,  model=Opportunity)
+            create_bdl(brick_id=bricks.BusinessManagersBrick.id_,   order=60,  zone=LEFT,  model=Opportunity)
+            create_bdl(brick_id=bricks.LinkedContactsBrick.id_,     order=62,  zone=LEFT,  model=Opportunity)
+            create_bdl(brick_id=bricks.LinkedProductsBrick.id_,     order=64,  zone=LEFT,  model=Opportunity)
+            create_bdl(brick_id=bricks.LinkedServicesBrick.id_,     order=66,  zone=LEFT,  model=Opportunity)
+            create_bdl(brick_id=core_bricks.PropertiesBrick.id_,    order=450, zone=LEFT,  model=Opportunity)
+            create_bdl(brick_id=core_bricks.RelationsBrick.id_,     order=500, zone=LEFT,  model=Opportunity)
+            create_bdl(brick_id=bricks.OppTargetBrick.id_,          order=1,   zone=RIGHT, model=Opportunity)
+            create_bdl(brick_id=bricks.OppTotalBrick.id_,           order=2,   zone=RIGHT, model=Opportunity)
+            create_bdl(brick_id=core_bricks.HistoryBrick.id_,       order=20,  zone=RIGHT, model=Opportunity)
 
             if apps.is_installed('creme.activities'):
                 logger.info('Activities app is installed => we use the "Future activities" & "Past activities" blocks')
 
                 from creme.activities import bricks as act_bricks
 
-                create_bdl(block_id=act_bricks.FutureActivitiesBrick.id_, order=20, zone=RIGHT, model=Opportunity)
-                create_bdl(block_id=act_bricks.PastActivitiesBrick.id_,   order=21, zone=RIGHT, model=Opportunity)
-                BlockPortalLocation.create(app_name='opportunities', block_id=act_bricks.FutureActivitiesBrick.id_, order=20)
-                BlockPortalLocation.create(app_name='opportunities', block_id=act_bricks.PastActivitiesBrick.id_,   order=21)
+                create_bdl(brick_id=act_bricks.FutureActivitiesBrick.id_, order=20, zone=RIGHT, model=Opportunity)
+                create_bdl(brick_id=act_bricks.PastActivitiesBrick.id_,   order=21, zone=RIGHT, model=Opportunity)
+                BlockPortalLocation.create_or_update(app_name='opportunities', brick_id=act_bricks.FutureActivitiesBrick.id_, order=20)
+                BlockPortalLocation.create_or_update(app_name='opportunities', brick_id=act_bricks.PastActivitiesBrick.id_,   order=21)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail views and portal')
 
                 from creme.assistants import bricks as assistants_bricks
 
-                create_bdl(block_id=assistants_bricks.TodosBrick.id_,        order=100, zone=RIGHT, model=Opportunity)
-                create_bdl(block_id=assistants_bricks.MemosBrick.id_,        order=200, zone=RIGHT, model=Opportunity)
-                create_bdl(block_id=assistants_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=Opportunity)
-                create_bdl(block_id=assistants_bricks.UserMessagesBrick.id_, order=500, zone=RIGHT, model=Opportunity)
+                create_bdl(brick_id=assistants_bricks.TodosBrick.id_,        order=100, zone=RIGHT, model=Opportunity)
+                create_bdl(brick_id=assistants_bricks.MemosBrick.id_,        order=200, zone=RIGHT, model=Opportunity)
+                create_bdl(brick_id=assistants_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=Opportunity)
+                create_bdl(brick_id=assistants_bricks.UserMessagesBrick.id_, order=500, zone=RIGHT, model=Opportunity)
 
-                BlockPortalLocation.create(app_name='opportunities', block_id=assistants_bricks.MemosBrick.id_,        order=100)
-                BlockPortalLocation.create(app_name='opportunities', block_id=assistants_bricks.AlertsBrick.id_,       order=200)
-                BlockPortalLocation.create(app_name='opportunities', block_id=assistants_bricks.UserMessagesBrick.id_, order=400)
+                BlockPortalLocation.create_or_update(app_name='opportunities', brick_id=assistants_bricks.MemosBrick.id_,        order=100)
+                BlockPortalLocation.create_or_update(app_name='opportunities', brick_id=assistants_bricks.AlertsBrick.id_,       order=200)
+                BlockPortalLocation.create_or_update(app_name='opportunities', brick_id=assistants_bricks.UserMessagesBrick.id_, order=400)
 
             if apps.is_installed('creme.documents'):
                 # logger.info('Documents app is installed => we use the documents block on detail view')
 
                 from creme.documents.bricks import LinkedDocsBrick
 
-                create_bdl(block_id=LinkedDocsBrick.id_, order=600, zone=RIGHT, model=Opportunity)
+                create_bdl(brick_id=LinkedDocsBrick.id_, order=600, zone=RIGHT, model=Opportunity)
 
             if apps.is_installed('creme.billing'):
                 logger.info('Billing app is installed => we use the billing blocks on detail view')
 
-                create_bdl(block_id=bricks.QuotesBrick.id_,      order=70, zone=LEFT, model=Opportunity)
-                create_bdl(block_id=bricks.SalesOrdersBrick.id_, order=72, zone=LEFT, model=Opportunity)
-                create_bdl(block_id=bricks.InvoicesBrick.id_,    order=74, zone=LEFT, model=Opportunity)
+                create_bdl(brick_id=bricks.QuotesBrick.id_,      order=70, zone=LEFT, model=Opportunity)
+                create_bdl(brick_id=bricks.SalesOrdersBrick.id_, order=72, zone=LEFT, model=Opportunity)
+                create_bdl(brick_id=bricks.InvoicesBrick.id_,    order=74, zone=LEFT, model=Opportunity)
 
             if apps.is_installed('creme.emails'):
                 logger.info('Emails app is installed => we use the emails blocks on detail view')
 
                 from creme.emails.bricks import MailsHistoryBrick
 
-                create_bdl(block_id=MailsHistoryBrick.id_, order=600, zone=RIGHT, model=Opportunity)
+                create_bdl(brick_id=MailsHistoryBrick.id_, order=600, zone=RIGHT, model=Opportunity)
 
-            create_bdl(block_id=bricks.TargettingOpportunitiesBrick.id_, order=16, zone=RIGHT, model=Organisation)
+            create_bdl(brick_id=bricks.TargettingOpportunitiesBrick.id_, order=16, zone=RIGHT, model=Organisation)
 
             # ---------------------------
             if apps.is_installed('creme.reports'):
@@ -293,12 +293,12 @@ class Populator(BasePopulator):
                               )
 
         # Create 2 instance block items for the 2 graphs ----------------------
-        block_id1 = rgraph1.create_instance_block_config_item().block_id
-        block_id2 = rgraph2.create_instance_block_config_item().block_id
+        brick_id1 = rgraph1.create_instance_block_config_item().brick_id
+        brick_id2 = rgraph2.create_instance_block_config_item().brick_id
 
-        BlockDetailviewLocation.create(block_id=block_id1, order=4, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
-        BlockDetailviewLocation.create(block_id=block_id2, order=6, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
-        BlockPortalLocation.create(app_name='opportunities', block_id=block_id1, order=1)
-        BlockPortalLocation.create(app_name='opportunities', block_id=block_id2, order=2)
-        BlockPortalLocation.create(app_name='creme_core', block_id=block_id1, order=5)
-        BlockPortalLocation.create(app_name='creme_core', block_id=block_id2, order=6)
+        BlockDetailviewLocation.create_if_needed(brick_id=brick_id1, order=4, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+        BlockDetailviewLocation.create_if_needed(brick_id=brick_id2, order=6, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+        BlockPortalLocation.create_or_update(app_name='opportunities', brick_id=brick_id1, order=1)
+        BlockPortalLocation.create_or_update(app_name='opportunities', brick_id=brick_id2, order=2)
+        BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=brick_id1, order=5)
+        BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=brick_id2, order=6)

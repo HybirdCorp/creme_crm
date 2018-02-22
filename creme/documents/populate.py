@@ -133,22 +133,22 @@ class Populator(BasePopulator):
         if not already_populated:
             LEFT = BlockDetailviewLocation.LEFT
             RIGHT = BlockDetailviewLocation.RIGHT
-            create_bdl = BlockDetailviewLocation.create
+            create_bdl = BlockDetailviewLocation.create_if_needed
 
             BlockDetailviewLocation.create_4_model_brick(order=5,             zone=LEFT,  model=Folder)
-            create_bdl(block_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=Folder)
-            create_bdl(block_id=bricks.ChildFoldersBrick.id_,      order=50,  zone=LEFT,  model=Folder)
-            create_bdl(block_id=bricks.FolderDocsBrick.id_,        order=60,  zone=LEFT,  model=Folder)
-            create_bdl(block_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=Folder)
-            create_bdl(block_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=Folder)
-            create_bdl(block_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=Folder)
+            create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=Folder)
+            create_bdl(brick_id=bricks.ChildFoldersBrick.id_,      order=50,  zone=LEFT,  model=Folder)
+            create_bdl(brick_id=bricks.FolderDocsBrick.id_,        order=60,  zone=LEFT,  model=Folder)
+            create_bdl(brick_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=Folder)
+            create_bdl(brick_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=Folder)
+            create_bdl(brick_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=Folder)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail view')
 
                 from creme.assistants import bricks as a_bricks
 
-                create_bdl(block_id=a_bricks.TodosBrick.id_,        order=100, zone=RIGHT, model=Folder)
-                create_bdl(block_id=a_bricks.MemosBrick.id_,        order=200, zone=RIGHT, model=Folder)
-                create_bdl(block_id=a_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=Folder)
-                create_bdl(block_id=a_bricks.UserMessagesBrick.id_, order=400, zone=RIGHT, model=Folder)
+                create_bdl(brick_id=a_bricks.TodosBrick.id_,        order=100, zone=RIGHT, model=Folder)
+                create_bdl(brick_id=a_bricks.MemosBrick.id_,        order=200, zone=RIGHT, model=Folder)
+                create_bdl(brick_id=a_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=Folder)
+                create_bdl(brick_id=a_bricks.UserMessagesBrick.id_, order=400, zone=RIGHT, model=Folder)

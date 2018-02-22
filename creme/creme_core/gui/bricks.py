@@ -442,7 +442,7 @@ class SpecificRelationsBrick(QuerysetBrick):
     def __init__(self, relationblock_item):
         "@param relationblock_item: Instance of RelationBlockItem"
         super(SpecificRelationsBrick, self).__init__()
-        self.id_ = relationblock_item.block_id
+        self.id_ = relationblock_item.brick_id
         self.config_item = relationblock_item
 
         rtype = relationblock_item.relation_type
@@ -637,7 +637,7 @@ class BricksManager(object):
         "Get the state for a brick and fill a cache to avoid multiple SQL requests"
         _state_cache = self._state_cache
         if not _state_cache:
-            _state_cache = self._state_cache = BlockState.get_for_brick_ids([block.id_ for block in self._bricks], user)
+            _state_cache = self._state_cache = BlockState.get_for_brick_ids([brick.id_ for brick in self._bricks], user)
 
         state = _state_cache.get(brick_id)
         if state is None:
@@ -778,7 +778,7 @@ class _BrickRegistry(object):
         @param entity CremeEntity instance if your Block has to be displayed on its detailview.
         @return Block instance.
         """
-        brick_id = ibi.block_id
+        brick_id = ibi.brick_id
         brick_class = self._instance_brick_classes.get(InstanceBlockConfigItem.get_base_id(brick_id))
 
         if brick_class is None:
@@ -818,11 +818,11 @@ class _BrickRegistry(object):
         instance_ids = list(filter(InstanceBlockConfigItem.id_is_specific, brick_ids))
         custom_ids   = list(filter(None, map(CustomBlockConfigItem.id_from_brick_id, brick_ids)))
 
-        relation_bricks_items = {rbi.block_id: rbi
-                                     for rbi in RelationBlockItem.objects.filter(block_id__in=specific_ids)
+        relation_bricks_items = {rbi.brick_id: rbi
+                                     for rbi in RelationBlockItem.objects.filter(brick_id__in=specific_ids)
                                 } if specific_ids else {}
-        instance_bricks_items = {ibi.block_id: ibi
-                                     for ibi in InstanceBlockConfigItem.objects.filter(block_id__in=instance_ids)
+        instance_bricks_items = {ibi.brick_id: ibi
+                                     for ibi in InstanceBlockConfigItem.objects.filter(brick_id__in=instance_ids)
                                 } if instance_ids else {}
         custom_bricks_items = {cbci.generate_id(): cbci
                                    for cbci in CustomBlockConfigItem.objects.filter(id__in=custom_ids)
@@ -988,7 +988,7 @@ class _BrickRegistry(object):
                 yield brick
 
         # TODO: filter compatible relation types
-        #       (problem the constraints can change after we config blocks...
+        #       (problem the constraints can change after we config bricks...
         #        => keep only if constraint are broken by existing relationships ?)
         for rbi in RelationBlockItem.objects.all():  # TODO: select_related('relation_type') ??
             yield SpecificRelationsBrick(rbi)

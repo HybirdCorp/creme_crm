@@ -97,16 +97,16 @@ class BrickRegistryTestCase(CremeTestCase):
 
         create_ibci = partial(InstanceBlockConfigItem.objects.create, entity=casca, data='')
         ibci1 = create_ibci(verbose=u'I am an awesome brick',
-                            block_id=InstanceBlockConfigItem.generate_id(FoobarInstanceBrick1, casca, ''),
+                            brick_id=InstanceBlockConfigItem.generate_id(FoobarInstanceBrick1, casca, ''),
                            )
         ibci2 = create_ibci(verbose=u'I am an awesome brick too',
-                            block_id=InstanceBlockConfigItem.generate_id(FoobarInstanceBrick2, casca, ''),
+                            brick_id=InstanceBlockConfigItem.generate_id(FoobarInstanceBrick2, casca, ''),
                            )
         create_ibci(verbose=u'I am a poor brick',
-                    block_id=InstanceBlockConfigItem.generate_id(FoobarInstanceBrick3, casca, ''),
+                    brick_id=InstanceBlockConfigItem.generate_id(FoobarInstanceBrick3, casca, ''),
                    )
         create_ibci(verbose=u'I am a poor brick too',
-                    block_id=InstanceBlockConfigItem.generate_id(FoobarInstanceBrick4, casca, ''),
+                    brick_id=InstanceBlockConfigItem.generate_id(FoobarInstanceBrick4, casca, ''),
                    )
 
         brick_registry = _BrickRegistry()
@@ -143,11 +143,11 @@ class BrickRegistryTestCase(CremeTestCase):
 
         brick = bricks[3]
         self.assertIsInstance(brick, FoobarInstanceBrick1)
-        self.assertEqual(ibci1.block_id, brick.id_)
+        self.assertEqual(ibci1.brick_id, brick.id_)
 
         brick = bricks[4]
         self.assertIsInstance(brick, FoobarInstanceBrick2)
-        self.assertEqual(ibci2.block_id, brick.id_)
+        self.assertEqual(ibci2.brick_id, brick.id_)
 
         brick = bricks[5]
         self.assertIsInstance(brick, FakeContactBrick)
@@ -452,16 +452,16 @@ class BrickRegistryTestCase(CremeTestCase):
 
         create_ibci = InstanceBlockConfigItem.objects.create
         ibci1 = create_ibci(entity=casca, verbose=u"I am an awesome block", data='',
-                            block_id=InstanceBlockConfigItem.generate_id(FoobarInstanceBlock1, casca, ''),
+                            brick_id=InstanceBlockConfigItem.generate_id(FoobarInstanceBlock1, casca, ''),
                            )
         ibci2 = create_ibci(entity=casca, verbose=u"I am an awesome block too", data='',
-                            block_id=InstanceBlockConfigItem.generate_id(FoobarInstanceBlock2, casca, ''),
+                            brick_id=InstanceBlockConfigItem.generate_id(FoobarInstanceBlock2, casca, ''),
                            )
         create_ibci(entity=casca, verbose=u"I am a poor block", data='',
-                    block_id=InstanceBlockConfigItem.generate_id(FoobarInstanceBlock3, casca, ''),
+                    brick_id=InstanceBlockConfigItem.generate_id(FoobarInstanceBlock3, casca, ''),
                    )
         create_ibci(entity=casca, verbose=u"I am a poor block too", data='',
-                    block_id=InstanceBlockConfigItem.generate_id(FoobarInstanceBlock4, casca, ''),
+                    brick_id=InstanceBlockConfigItem.generate_id(FoobarInstanceBlock4, casca, ''),
                    )
 
         brick_registry = _BrickRegistry()
@@ -482,7 +482,7 @@ class BrickRegistryTestCase(CremeTestCase):
         self.assertEqual(4, len(blocks))
         self.assertIsInstance(blocks[0], FoobarBlock1)
         self.assertIsInstance(blocks[1], FoobarBlock4)
-        self.assertEqual([ibci1.block_id, ibci2.block_id], [block.id_ for block in blocks[2:]])
+        self.assertEqual([ibci1.brick_id, ibci2.brick_id], [block.id_ for block in blocks[2:]])
 
     def test_get_compatible_portal_blocks02(self):
         "Home"
@@ -567,7 +567,7 @@ class BrickRegistryTestCase(CremeTestCase):
         brick_registry = _BrickRegistry()
         brick_registry.register(QuuxBrick1)
 
-        bricks = list(brick_registry.get_bricks([QuuxBrick1.id_, rbi.block_id, cbci.generate_id()]))
+        bricks = list(brick_registry.get_bricks([QuuxBrick1.id_, rbi.brick_id, cbci.generate_id()]))
         self.assertEqual(3, len(bricks))
 
         self.assertIsInstance(bricks[0], QuuxBrick1)
@@ -680,7 +680,7 @@ class BrickRegistryTestCase(CremeTestCase):
 
         ibci = InstanceBlockConfigItem.objects \
                                       .create(entity=casca,
-                                              block_id=InstanceBlockConfigItem.generate_id(ContactBrick, casca, ''),
+                                              brick_id=InstanceBlockConfigItem.generate_id(ContactBrick, casca, ''),
                                               verbose=u'I am an awesome block',
                                               data='',
                                              )
@@ -688,29 +688,29 @@ class BrickRegistryTestCase(CremeTestCase):
         brick_registry = _BrickRegistry()
         brick_registry.register_4_instance(ContactBrick)
 
-        bricks = list(brick_registry.get_bricks([ibci.block_id]))
+        bricks = list(brick_registry.get_bricks([ibci.brick_id]))
         self.assertEqual(1, len(bricks))
 
         brick = bricks[0]
         self.assertIsInstance(brick, ContactBrick)
         self.assertEqual(ibci, brick.ibci)
-        self.assertEqual(ibci.block_id, brick.id_)
+        self.assertEqual(ibci.brick_id, brick.id_)
         self.assertEqual((FakeOrganisation,), brick.dependencies)
 
         # ----------------------------------------------------------------------
         # In detail-views of an entity we give it in order to compute dependencies correctly.
         judo = create_contact(user=user, first_name='Judo',  last_name='Doe')
-        brick = next(brick_registry.get_bricks([ibci.block_id], entity=judo))
+        brick = next(brick_registry.get_bricks([ibci.brick_id], entity=judo))
         self.assertEqual((FakeOrganisation, FakeContact), brick.dependencies)
 
         hawk = FakeOrganisation.objects.create(user=user, name='Hawk')
-        brick = next(brick_registry.get_bricks([ibci.block_id], entity=hawk))
+        brick = next(brick_registry.get_bricks([ibci.brick_id], entity=hawk))
         self.assertEqual((FakeOrganisation,), brick.dependencies)
 
         # ----------------------------------------------------------------------
         bad_brick_id = InstanceBlockConfigItem.generate_base_id('creme_core', 'does_not_exist') + '#%s_' % casca.id
         InstanceBlockConfigItem.objects.create(entity=casca,
-                                               block_id=bad_brick_id,
+                                               brick_id=bad_brick_id,
                                                verbose=u'I am bad',
                                                data='',
                                               )
@@ -979,7 +979,7 @@ class BricksManagerTestCase(CremeTestCase):
 
         self.assertIs(mngr, BricksManager.get(fake_context))
 
-    # TODO: test def get_state(self, block_id, user)
+    # TODO: test def get_state(self, brick_id, user)
 
 
 class BrickTestCase(CremeTestCase):

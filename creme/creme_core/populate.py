@@ -83,20 +83,20 @@ class Populator(BasePopulator):
             # ---------------------------
             LEFT = BlockDetailviewLocation.LEFT
 
-            create_bdl = BlockDetailviewLocation.create
+            create_bdl = BlockDetailviewLocation.create_if_needed
             BlockDetailviewLocation.create_4_model_brick(order=5,        zone=LEFT)
-            create_bdl(block_id=bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT)
-            create_bdl(block_id=bricks.PropertiesBrick.id_,   order=450, zone=LEFT)
-            create_bdl(block_id=bricks.RelationsBrick.id_,    order=500, zone=LEFT)
-            create_bdl(block_id=bricks.HistoryBrick.id_,      order=8,   zone=BlockDetailviewLocation.RIGHT)
+            create_bdl(brick_id=bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT)
+            create_bdl(brick_id=bricks.PropertiesBrick.id_,   order=450, zone=LEFT)
+            create_bdl(brick_id=bricks.RelationsBrick.id_,    order=500, zone=LEFT)
+            create_bdl(brick_id=bricks.HistoryBrick.id_,      order=8,   zone=BlockDetailviewLocation.RIGHT)
 
-            BlockPortalLocation.create(block_id=bricks.HistoryBrick.id_, order=8)
+            BlockPortalLocation.create_or_update(brick_id=bricks.HistoryBrick.id_, order=8)
 
-            BlockPortalLocation.create(block_id=bricks.StatisticsBrick.id_, order=8,  app_name='creme_core')
-            BlockPortalLocation.create(block_id=bricks.HistoryBrick.id_,    order=10, app_name='creme_core')
+            BlockPortalLocation.create_or_update(brick_id=bricks.StatisticsBrick.id_, order=8,  app_name='creme_core')
+            BlockPortalLocation.create_or_update(brick_id=bricks.HistoryBrick.id_,    order=10, app_name='creme_core')
 
-            BlockMypageLocation.create(block_id=bricks.HistoryBrick.id_, order=8)
-            BlockMypageLocation.create(block_id=bricks.HistoryBrick.id_, order=8, user=root)
+            BlockMypageLocation.create_or_update(brick_id=bricks.HistoryBrick.id_, order=8)
+            BlockMypageLocation.create_or_update(brick_id=bricks.HistoryBrick.id_, order=8, user=root)
 
             # ---------------------------
             if not ButtonMenuItem.objects.filter(content_type=None).exists():

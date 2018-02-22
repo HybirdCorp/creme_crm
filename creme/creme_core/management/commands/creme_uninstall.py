@@ -80,48 +80,48 @@ def _uninstall_buttons(sender, **kwargs):
 @uninstall_handler('Deleting blocks...')
 def _uninstall_blocks(sender, **kwargs):
     app_label = sender.label
-    block_ids = set()
+    brick_ids = set()
 
     # RelationBlockItem --------------------------------------------------------
-    rbi_block_ids = RelationBlockItem.objects \
+    rbi_brick_ids = RelationBlockItem.objects \
                                      .filter(relation_type__id__startswith=app_label + '-') \
-                                     .values_list('block_id', flat=True)
+                                     .values_list('brick_id', flat=True)
 
-    block_ids.update(rbi_block_ids)
-    BlockDetailviewLocation.objects.filter(block_id__in=rbi_block_ids).delete()
+    brick_ids.update(rbi_brick_ids)
+    BlockDetailviewLocation.objects.filter(brick_id__in=rbi_brick_ids).delete()
     # NB: concerned RelationBlockItems should be removed when RelationType are removed.
 
     # InstanceBlockConfigItem --------------------------------------------------
     ibc_items = InstanceBlockConfigItem.objects\
-                                       .filter(block_id__startswith=InstanceBlockConfigItem.
+                                       .filter(brick_id__startswith=InstanceBlockConfigItem.
                                                                         generate_base_id(app_name=app_label,
                                                                                          name='',
                                                                                         )
                                               )
 
-    ibci_block_ids = [item.block_id for item in ibc_items]
-    block_ids.update(ibci_block_ids)
-    BlockDetailviewLocation.objects.filter(block_id__in=ibci_block_ids).delete()
-    BlockPortalLocation.objects.filter(block_id__in=ibci_block_ids).delete()
-    BlockMypageLocation.objects.filter(block_id__in=ibci_block_ids).delete()
+    ibci_brick_ids = [item.brick_id for item in ibc_items]
+    brick_ids.update(ibci_brick_ids)
+    BlockDetailviewLocation.objects.filter(brick_id__in=ibci_brick_ids).delete()
+    BlockPortalLocation.objects.filter(brick_id__in=ibci_brick_ids).delete()
+    BlockMypageLocation.objects.filter(brick_id__in=ibci_brick_ids).delete()
     ibc_items.delete()
 
     # Regular blocks -----------------------------------------------------------
     id_prefix = Brick.generate_id(app_name=app_label, name='')
 
-    bdl = BlockDetailviewLocation.objects.filter(block_id__startswith=id_prefix)
-    block_ids.update(bdl.values_list('block_id', flat=True))
+    bdl = BlockDetailviewLocation.objects.filter(brick_id__startswith=id_prefix)
+    brick_ids.update(bdl.values_list('brick_id', flat=True))
     bdl.delete()
 
-    bpl = BlockPortalLocation.objects.filter(block_id__startswith=id_prefix)
-    block_ids.update(bpl.values_list('block_id', flat=True))
+    bpl = BlockPortalLocation.objects.filter(brick_id__startswith=id_prefix)
+    brick_ids.update(bpl.values_list('brick_id', flat=True))
     bpl.delete()
 
-    bmpl = BlockMypageLocation.objects.filter(block_id__startswith=id_prefix)
-    block_ids.update(bmpl.values_list('block_id', flat=True))
+    bmpl = BlockMypageLocation.objects.filter(brick_id__startswith=id_prefix)
+    brick_ids.update(bmpl.values_list('brick_id', flat=True))
     bmpl.delete()
 
-    BlockState.objects.filter(block_id__in=block_ids)
+    BlockState.objects.filter(brick_id__in=brick_ids)
 
     # Blocks on the app's portal (not related to ContentTypes,
     # so they won't be removed automatically)

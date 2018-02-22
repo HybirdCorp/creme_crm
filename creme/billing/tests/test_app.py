@@ -242,7 +242,6 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         return self.get_object_or_fail(SettingValue, key_id=constants.DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA)
 
     @skipIfCustomOrganisation
-    # def test_block_orga01(self):
     def test_brick_orga01(self):
         self.login()
 
@@ -292,9 +291,10 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         orga = Organisation.objects.create(user=self.user, name='NERV')
         brick_id = bricks.PersonsStatisticsBrick.id_
 
-        BlockDetailviewLocation.create(block_id=brick_id, order=1000,
-                                       zone=BlockDetailviewLocation.LEFT, model=Organisation,
-                                      )
+        BlockDetailviewLocation.create_if_needed(brick_id=brick_id, order=1000,
+                                                 zone=BlockDetailviewLocation.LEFT,
+                                                 model=Organisation,
+                                                )
 
         response = self.assertGET200(orga.get_absolute_url())
         self.assertTemplateUsed(response, 'billing/bricks/persons-statistics.html')

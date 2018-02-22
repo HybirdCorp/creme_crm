@@ -55,16 +55,16 @@ class Populator(BasePopulator):
             Contact      = persons.get_contact_model()
             Organisation = persons.get_organisation_model()
 
-            create_bdl = BlockDetailviewLocation.create
-            create_bdl(block_id=bricks.GoogleDetailMapBrick.id_, order=70, zone=BlockDetailviewLocation.LEFT, model=Organisation)
-            create_bdl(block_id=bricks.GoogleDetailMapBrick.id_, order=70, zone=BlockDetailviewLocation.LEFT, model=Contact)
-            create_bdl(block_id=bricks.GoogleNeighboursMapBrick.id_, order=600, zone=BlockDetailviewLocation.BOTTOM, model=Organisation)
-            create_bdl(block_id=bricks.GoogleNeighboursMapBrick.id_, order=600, zone=BlockDetailviewLocation.BOTTOM, model=Contact)
+            create_bdl = BlockDetailviewLocation.create_if_needed
+            create_bdl(brick_id=bricks.GoogleDetailMapBrick.id_, order=70, zone=BlockDetailviewLocation.LEFT, model=Organisation)
+            create_bdl(brick_id=bricks.GoogleDetailMapBrick.id_, order=70, zone=BlockDetailviewLocation.LEFT, model=Contact)
+            create_bdl(brick_id=bricks.GoogleNeighboursMapBrick.id_, order=600, zone=BlockDetailviewLocation.BOTTOM, model=Organisation)
+            create_bdl(brick_id=bricks.GoogleNeighboursMapBrick.id_, order=600, zone=BlockDetailviewLocation.BOTTOM, model=Contact)
 
-            BlockMypageLocation.create(block_id=bricks.GoogleFilteredMapBrick.id_, order=20)
+            BlockMypageLocation.create_or_update(brick_id=bricks.GoogleFilteredMapBrick.id_, order=20)
 
             # Add this bloc only if the root user exists (creme_core populated)
             root = get_user_model().objects.filter(pk=1).first()
             if root:
                 logger.info('Creme core is installed => the block PersonsFilterMap can be activated')
-                BlockMypageLocation.create(block_id=bricks.GoogleFilteredMapBrick.id_, order=8, user=root)
+                BlockMypageLocation.create_or_update(brick_id=bricks.GoogleFilteredMapBrick.id_, order=8, user=root)

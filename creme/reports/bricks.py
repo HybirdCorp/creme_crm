@@ -100,7 +100,7 @@ class ReportGraphBrick(Brick):
                     x=x, y=y,
                     error=fetcher.error,
                     volatile_column=fetcher.verbose_volatile_column,
-                    instance_block_id=self.instance_block_id,
+                    instance_block_id=self.instance_block_id,  # TODO: rename instance_brick_id
                     report_charts=report_chart_registry,
         ))
 

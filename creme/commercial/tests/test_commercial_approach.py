@@ -308,16 +308,16 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIn(commapp3.title, titles)
         self.assertIn(commapp4.title, titles)
 
-    def test_block02(self):
+    def test_brick02(self):
         "Home"
-        BlockPortalLocation.create(app_name='creme_core', block_id=ApproachesBrick.id_, order=100)
+        BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=ApproachesBrick.id_, order=100)
 
         response = self.assertGET200('/')
         self._get_commap_brick_node(response)
 
-    def test_block03(self):
+    def test_brick03(self):
         "Commercial portal"
-        BlockPortalLocation.create(app_name='commercial', block_id=ApproachesBrick.id_, order=100)
+        BlockPortalLocation.create_or_update(app_name='commercial', brick_id=ApproachesBrick.id_, order=100)
 
         response = self.assertGET200(reverse('commercial__portal'))
         self._get_commap_brick_node(response)

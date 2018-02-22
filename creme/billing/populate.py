@@ -321,28 +321,28 @@ class Populator(BasePopulator):
                                (SalesOrder,   cbci_s_order, True),
                                (TemplateBase, cbci_tbase,   False),
                               ]
-            create_bdl = BlockDetailviewLocation.create
-            TOP = BlockDetailviewLocation.TOP
-            LEFT = BlockDetailviewLocation.LEFT
+            create_bdl = BlockDetailviewLocation.create_if_needed
+            TOP   = BlockDetailviewLocation.TOP
+            LEFT  = BlockDetailviewLocation.LEFT
             RIGHT = BlockDetailviewLocation.RIGHT
 
             for model, cbci, has_credit_notes in models_4_blocks:
-                create_bdl(block_id=bricks.ProductLinesBrick.id_, order=10, zone=TOP, model=model)
-                create_bdl(block_id=bricks.ServiceLinesBrick.id_, order=20, zone=TOP, model=model)
+                create_bdl(brick_id=bricks.ProductLinesBrick.id_, order=10, zone=TOP, model=model)
+                create_bdl(brick_id=bricks.ServiceLinesBrick.id_, order=20, zone=TOP, model=model)
 
                 if has_credit_notes:
-                    create_bdl(block_id=bricks.CreditNotesBrick.id_, order=30, zone=TOP, model=model)
+                    create_bdl(brick_id=bricks.CreditNotesBrick.id_, order=30, zone=TOP, model=model)
 
-                create_bdl(block_id=cbci.generate_id(),                        order=5,   zone=LEFT, model=model)
-                create_bdl(block_id=core_bricks.CustomFieldsBrick.id_,         order=40,  zone=LEFT, model=model)
-                create_bdl(block_id=bricks.BillingPaymentInformationBrick.id_, order=60,  zone=LEFT, model=model)
-                create_bdl(block_id=bricks.BillingPrettyAddressBrick.id_,      order=70,  zone=LEFT, model=model)
-                create_bdl(block_id=core_bricks.PropertiesBrick.id_,           order=450, zone=LEFT, model=model)
-                create_bdl(block_id=core_bricks.RelationsBrick.id_,            order=500, zone=LEFT, model=model)
+                create_bdl(brick_id=cbci.generate_id(),                        order=5,   zone=LEFT, model=model)
+                create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_,         order=40,  zone=LEFT, model=model)
+                create_bdl(brick_id=bricks.BillingPaymentInformationBrick.id_, order=60,  zone=LEFT, model=model)
+                create_bdl(brick_id=bricks.BillingPrettyAddressBrick.id_,      order=70,  zone=LEFT, model=model)
+                create_bdl(brick_id=core_bricks.PropertiesBrick.id_,           order=450, zone=LEFT, model=model)
+                create_bdl(brick_id=core_bricks.RelationsBrick.id_,            order=500, zone=LEFT, model=model)
 
-                create_bdl(block_id=bricks.TargetBrick.id_,       order=2,  zone=RIGHT, model=model)
-                create_bdl(block_id=bricks.TotalBrick.id_,        order=3,  zone=RIGHT, model=model)
-                create_bdl(block_id=core_bricks.HistoryBrick.id_, order=20, zone=RIGHT, model=model)
+                create_bdl(brick_id=bricks.TargetBrick.id_,       order=2,  zone=RIGHT, model=model)
+                create_bdl(brick_id=bricks.TotalBrick.id_,        order=3,  zone=RIGHT, model=model)
+                create_bdl(brick_id=core_bricks.HistoryBrick.id_, order=20, zone=RIGHT, model=model)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail views')
@@ -351,10 +351,10 @@ class Populator(BasePopulator):
 
                 for t in models_4_blocks:
                     model = t[0]
-                    create_bdl(block_id=TodosBrick.id_,        order=100, zone=RIGHT, model=model)
-                    create_bdl(block_id=MemosBrick.id_,        order=200, zone=RIGHT, model=model)
-                    create_bdl(block_id=AlertsBrick.id_,       order=300, zone=RIGHT, model=model)
-                    create_bdl(block_id=UserMessagesBrick.id_, order=400, zone=RIGHT, model=model)
+                    create_bdl(brick_id=TodosBrick.id_,        order=100, zone=RIGHT, model=model)
+                    create_bdl(brick_id=MemosBrick.id_,        order=200, zone=RIGHT, model=model)
+                    create_bdl(brick_id=AlertsBrick.id_,       order=300, zone=RIGHT, model=model)
+                    create_bdl(brick_id=UserMessagesBrick.id_, order=400, zone=RIGHT, model=model)
 
             if apps.is_installed('creme.documents'):
                 # logger.info('Documents app is installed => we use the documents block on detail views')
@@ -362,11 +362,11 @@ class Populator(BasePopulator):
                 from creme.documents.bricks import LinkedDocsBrick
 
                 for t in models_4_blocks:
-                    create_bdl(block_id=LinkedDocsBrick.id_, order=600, zone=RIGHT, model=t[0])
+                    create_bdl(brick_id=LinkedDocsBrick.id_, order=600, zone=RIGHT, model=t[0])
 
-            create_bdl(block_id=bricks.PaymentInformationBrick.id_, order=300, zone=LEFT,  model=Organisation)
-            create_bdl(block_id=bricks.ReceivedInvoicesBrick.id_,   order=14,  zone=RIGHT, model=Organisation)
-            create_bdl(block_id=bricks.ReceivedQuotesBrick.id_,     order=18,  zone=RIGHT, model=Organisation)
+            create_bdl(brick_id=bricks.PaymentInformationBrick.id_, order=300, zone=LEFT,  model=Organisation)
+            create_bdl(brick_id=bricks.ReceivedInvoicesBrick.id_,   order=14,  zone=RIGHT, model=Organisation)
+            create_bdl(brick_id=bricks.ReceivedQuotesBrick.id_,     order=18,  zone=RIGHT, model=Organisation)
 
             # ---------------------------
             if apps.is_installed('creme.reports'):
@@ -420,7 +420,7 @@ class Populator(BasePopulator):
                     )
         ibci = rgraph1.create_instance_block_config_item()
 
-        BlockPortalLocation.create(app_name='creme_core', block_id=ibci.block_id, order=11)
+        BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=ibci.brick_id, order=11)
 
         # Create current year and unpaid invoices report -----------------------
         invoices_report2 = create_report(name=_(u'Invoices unpaid of the current year'),
@@ -435,4 +435,4 @@ class Populator(BasePopulator):
                              )
         ibci = rgraph.create_instance_block_config_item()
 
-        BlockPortalLocation.create(app_name='creme_core', block_id=ibci.block_id, order=12)
+        BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=ibci.brick_id, order=12)

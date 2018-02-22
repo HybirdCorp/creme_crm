@@ -13,7 +13,7 @@ try:
     from creme.creme_core.tests.fake_models import (FakeContact, FakeOrganisation, FakeAddress,
             FakeImage, FakeActivity, FakeEmailCampaign, FakeInvoiceLine)
     from creme.creme_core.bricks import (RelationsBrick, PropertiesBrick,
-                                         HistoryBrick, CustomFieldsBrick)
+            HistoryBrick, CustomFieldsBrick)
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.gui import bricks as gui_bricks
@@ -178,7 +178,7 @@ class BricksConfigTestCase(CremeTestCase):
                                 PortalOnlyBrick2,
                                 PortalOnlyBrick3,
                                 PortalOnlyBrick4,
-                                HomeOnlyBrick
+                                HomeOnlyBrick,
                                )
 
         block_registry.register_4_instance(DetailviewInstanceBrick)
@@ -245,12 +245,15 @@ class BricksConfigTestCase(CremeTestCase):
             if fid == id_:
                 self.fail(error_msg + ' -> should not be in choices.')
 
-    def _find_location(self, block_id, locations):
+    def _find_location(self, brick_id, locations):
         for location in locations:
-            if location.block_id == block_id:
+            if location.brick_id == brick_id:
                 return location
 
-        self.fail('No "%s" in locations' % block_id)
+        self.fail('No "{}" in locations ({})'.format(
+                    brick_id,
+                    [location.brick_id for location in locations],
+        ))
 
     def test_portal(self):
         response = self.assertGET200(reverse('creme_config__bricks'))
@@ -351,7 +354,7 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertEqual(1, len(locations))
         self.assertEqual(1, self._find_location(brick_bottom_id, locations).order)
 
-        self.assertEqual([''], [loc.block_id for loc in filter_locs(BlockDetailviewLocation.HAT)])
+        self.assertEqual([''], [loc.brick_id for loc in filter_locs(BlockDetailviewLocation.HAT)])
 
     def test_add_detailview01(self):
         self._aux_test_add_detailview(role=self.role, superuser=False)
@@ -384,10 +387,10 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertGreaterEqual(len(bricks), 5, bricks)
 
         create_loc = partial(BlockDetailviewLocation.objects.create, content_type=ct, order=1)
-        create_loc(role=role1, block_id=bricks[0].id_, zone=BlockDetailviewLocation.TOP)
-        create_loc(role=role1, block_id=bricks[1].id_, zone=BlockDetailviewLocation.LEFT)
-        create_loc(role=role1, block_id=bricks[2].id_, zone=BlockDetailviewLocation.RIGHT)
-        create_loc(role=role1, block_id=bricks[3].id_, zone=BlockDetailviewLocation.BOTTOM)
+        create_loc(role=role1, brick_id=bricks[0].id_, zone=BlockDetailviewLocation.TOP)
+        create_loc(role=role1, brick_id=bricks[1].id_, zone=BlockDetailviewLocation.LEFT)
+        create_loc(role=role1, brick_id=bricks[2].id_, zone=BlockDetailviewLocation.RIGHT)
+        create_loc(role=role1, brick_id=bricks[3].id_, zone=BlockDetailviewLocation.BOTTOM)
 
         choices = get_choices()
         self.assertIn(('', u'*%s*' % _(u'Superuser')), choices)
@@ -395,10 +398,10 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertNotIn((role1.id, role1.name), choices)
 
         # Superuser ------------
-        create_loc(superuser=True, block_id=bricks[0].id_, zone=BlockDetailviewLocation.TOP)
-        create_loc(superuser=True, block_id=bricks[1].id_, zone=BlockDetailviewLocation.LEFT)
-        create_loc(superuser=True, block_id=bricks[2].id_, zone=BlockDetailviewLocation.RIGHT)
-        create_loc(superuser=True, block_id=bricks[3].id_, zone=BlockDetailviewLocation.BOTTOM)
+        create_loc(superuser=True, brick_id=bricks[0].id_, zone=BlockDetailviewLocation.TOP)
+        create_loc(superuser=True, brick_id=bricks[1].id_, zone=BlockDetailviewLocation.LEFT)
+        create_loc(superuser=True, brick_id=bricks[2].id_, zone=BlockDetailviewLocation.RIGHT)
+        create_loc(superuser=True, brick_id=bricks[3].id_, zone=BlockDetailviewLocation.BOTTOM)
 
         choices = get_choices()
         self.assertIn((role2.id, role2.name), choices)
@@ -458,15 +461,15 @@ class BricksConfigTestCase(CremeTestCase):
 
         top_locations = filter_locs(BlockDetailviewLocation.TOP)
         self.assertEqual(1, len(top_locations))
-        self.assertEqual(brick_top_id, top_locations[0].block_id)
+        self.assertEqual(brick_top_id, top_locations[0].brick_id)
 
-        self.assertEqual([''], [loc.block_id for loc in filter_locs(BlockDetailviewLocation.LEFT)])
-        self.assertEqual([''], [loc.block_id for loc in filter_locs(BlockDetailviewLocation.RIGHT)])
-        self.assertEqual([''], [loc.block_id for loc in filter_locs(BlockDetailviewLocation.BOTTOM)])
+        self.assertEqual([''], [loc.brick_id for loc in filter_locs(BlockDetailviewLocation.LEFT)])
+        self.assertEqual([''], [loc.brick_id for loc in filter_locs(BlockDetailviewLocation.RIGHT)])
+        self.assertEqual([''], [loc.brick_id for loc in filter_locs(BlockDetailviewLocation.BOTTOM)])
 
         hat_locations = filter_locs(BlockDetailviewLocation.HAT)
         self.assertEqual(1, len(hat_locations))
-        self.assertEqual(FakeContactHatBrick.id_, hat_locations[0].block_id)
+        self.assertEqual(FakeContactHatBrick.id_, hat_locations[0].brick_id)
 
     def _aux_test_edit_detailview(self, role=None, superuser=False):
         model = FakeContact
@@ -554,7 +557,7 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertEqual(1, len(locations))
         self.assertEqual(1, self._find_location(brick_bottom_id, locations).order)
 
-        self.assertEqual([''], [loc.block_id for loc in filter_locs(BlockDetailviewLocation.HAT)])
+        self.assertEqual([''], [loc.brick_id for loc in filter_locs(BlockDetailviewLocation.HAT)])
 
     def test_edit_detailview01(self):
         "Default configuration of a ContentType"
@@ -564,7 +567,7 @@ class BricksConfigTestCase(CremeTestCase):
 
         # These bricks should not be modified
         create_loc = partial(BlockDetailviewLocation.objects.create,
-                             content_type=ct, order=1, block_id=brick_id,
+                             content_type=ct, order=1, brick_id=brick_id,
                              zone=BlockDetailviewLocation.TOP,
                             )
         b_loc1 = create_loc(role=self.role)
@@ -574,11 +577,11 @@ class BricksConfigTestCase(CremeTestCase):
 
         b_loc1 = self.refresh(b_loc1)
         self.assertEqual(self.role, b_loc1.role)
-        self.assertEqual(brick_id, b_loc1.block_id)
+        self.assertEqual(brick_id, b_loc1.brick_id)
 
         b_loc2 = self.refresh(b_loc2)
         self.assertTrue(b_loc2.superuser)
-        self.assertEqual(brick_id, b_loc2.block_id)
+        self.assertEqual(brick_id, b_loc2.brick_id)
 
     def test_edit_detailview02(self):
         "Configuration for a role"
@@ -597,10 +600,10 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertGreaterEqual(len(bricks), 5, bricks)
 
         create_loc = partial(BlockDetailviewLocation.objects.create, content_type=ct, order=1)
-        create_loc(block_id=bricks[0].id_, zone=BlockDetailviewLocation.TOP)
-        create_loc(block_id=bricks[1].id_, zone=BlockDetailviewLocation.LEFT)
-        create_loc(block_id=bricks[2].id_, zone=BlockDetailviewLocation.RIGHT)
-        create_loc(block_id=bricks[3].id_, zone=BlockDetailviewLocation.BOTTOM)
+        create_loc(brick_id=bricks[0].id_, zone=BlockDetailviewLocation.TOP)
+        create_loc(brick_id=bricks[1].id_, zone=BlockDetailviewLocation.LEFT)
+        create_loc(brick_id=bricks[2].id_, zone=BlockDetailviewLocation.RIGHT)
+        create_loc(brick_id=bricks[3].id_, zone=BlockDetailviewLocation.BOTTOM)
 
         url = self._build_editdetail_url(ct)
         response = self.assertGET200(url)
@@ -641,7 +644,7 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertEqual(1, self._find_location(brick_top_id1, locations).order)
         self.assertEqual(2, self._find_location(brick_top_id2, locations).order)
 
-        bricks_info = lambda zone: [(bl.block_id, bl.order) for bl in b_locs if bl.zone == zone]
+        bricks_info = lambda zone: [(bl.brick_id, bl.order) for bl in b_locs if bl.zone == zone]
 
         self.assertEqual([('', 1)], bricks_info(BlockDetailviewLocation.LEFT))
         self.assertEqual([('', 1)], bricks_info(BlockDetailviewLocation.RIGHT))
@@ -676,7 +679,7 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertNoFormError(response)
 
         b_locs = BlockDetailviewLocation.objects.filter(content_type=None)
-        bricks_info = lambda zone: [(bl.block_id, bl.order) for bl in b_locs if bl.zone == zone]
+        bricks_info = lambda zone: [(bl.brick_id, bl.order) for bl in b_locs if bl.zone == zone]
 
         self.assertEqual([(brick_id, 1)], bricks_info(BlockDetailviewLocation.TOP))
         self.assertEqual([('', 1)], bricks_info(BlockDetailviewLocation.LEFT))
@@ -735,12 +738,12 @@ class BricksConfigTestCase(CremeTestCase):
 
         rtype = RelationType.objects.all()[0]
         rtype_brick_id = SpecificRelationsBrick.generate_id('test', 'foobar')
-        RelationBlockItem.objects.create(block_id=rtype_brick_id, relation_type=rtype)
+        RelationBlockItem.objects.create(brick_id=rtype_brick_id, relation_type=rtype)
 
         naru = FakeContact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
 
         instance_brick_id = InstanceBlockConfigItem.generate_id(DetailviewInstanceBrick, naru, '')
-        InstanceBlockConfigItem.objects.create(block_id=instance_brick_id,
+        InstanceBlockConfigItem.objects.create(brick_id=instance_brick_id,
                                                entity=naru, verbose='All stuffes',
                                               )
 
@@ -749,7 +752,7 @@ class BricksConfigTestCase(CremeTestCase):
         with self.assertNoException():
             top_field = response.context['form'].fields['top']
 
-        choices = [brick_id for brick_id, block_name in top_field.choices]
+        choices = [brick_id for brick_id, brick_vname in top_field.choices]
         self.assertIn(rtype_brick_id,    choices)
         self.assertIn(instance_brick_id, choices)
 
@@ -801,15 +804,15 @@ class BricksConfigTestCase(CremeTestCase):
 
         top_locations = filter_locs(BlockDetailviewLocation.TOP)
         self.assertEqual(1, len(top_locations))
-        self.assertEqual(brick_top_id, top_locations[0].block_id)
+        self.assertEqual(brick_top_id, top_locations[0].brick_id)
 
-        self.assertEqual([''], [loc.block_id for loc in filter_locs(BlockDetailviewLocation.LEFT)])
-        self.assertEqual([''], [loc.block_id for loc in filter_locs(BlockDetailviewLocation.RIGHT)])
-        self.assertEqual([''], [loc.block_id for loc in filter_locs(BlockDetailviewLocation.BOTTOM)])
+        self.assertEqual([''], [loc.brick_id for loc in filter_locs(BlockDetailviewLocation.LEFT)])
+        self.assertEqual([''], [loc.brick_id for loc in filter_locs(BlockDetailviewLocation.RIGHT)])
+        self.assertEqual([''], [loc.brick_id for loc in filter_locs(BlockDetailviewLocation.BOTTOM)])
 
         hat_locations = filter_locs(BlockDetailviewLocation.HAT)
         self.assertEqual(1, len(hat_locations))
-        self.assertEqual(FakeContactHatBrick.id_, hat_locations[0].block_id)
+        self.assertEqual(FakeContactHatBrick.id_, hat_locations[0].brick_id)
 
         # -----------
         response = self.assertGET200(url)
@@ -831,15 +834,15 @@ class BricksConfigTestCase(CremeTestCase):
         create_bdl = partial(BlockDetailviewLocation.objects.create, order=1,
                              content_type=ct, zone=BlockDetailviewLocation.TOP,
                             )
-        locs = [create_bdl(block_id=RelationsBrick.id_),
-                create_bdl(zone=BlockDetailviewLocation.LEFT, block_id=PropertiesBrick.id_),
-                create_bdl(zone=BlockDetailviewLocation.RIGHT, block_id=CustomFieldsBrick.id_),
-                create_bdl(zone=BlockDetailviewLocation.BOTTOM, block_id=HistoryBrick.id_),
+        locs = [create_bdl(brick_id=RelationsBrick.id_),
+                create_bdl(zone=BlockDetailviewLocation.LEFT,   brick_id=PropertiesBrick.id_),
+                create_bdl(zone=BlockDetailviewLocation.RIGHT,  brick_id=CustomFieldsBrick.id_),
+                create_bdl(zone=BlockDetailviewLocation.BOTTOM, brick_id=HistoryBrick.id_),
                ]
 
-        locs_2 = [create_bdl(block_id=RelationsBrick.id_, role=self.role),
-                  create_bdl(block_id=RelationsBrick.id_, superuser=True),
-                  create_bdl(block_id=RelationsBrick.id_, content_type=get_ct(FakeOrganisation)),
+        locs_2 = [create_bdl(brick_id=RelationsBrick.id_, role=self.role),
+                  create_bdl(brick_id=RelationsBrick.id_, superuser=True),
+                  create_bdl(brick_id=RelationsBrick.id_, content_type=get_ct(FakeOrganisation)),
                  ]
 
         self.assertPOST200(self.DEL_DETAIL_URL, data={'id': ct.id})
@@ -859,15 +862,15 @@ class BricksConfigTestCase(CremeTestCase):
                              content_type=ct, zone=BlockDetailviewLocation.TOP,
                              role=role,
                             )
-        locs = [create_bdl(block_id=RelationsBrick.id_),
-                create_bdl(zone=BlockDetailviewLocation.LEFT, block_id=PropertiesBrick.id_),
-                create_bdl(zone=BlockDetailviewLocation.RIGHT, block_id=CustomFieldsBrick.id_),
-                create_bdl(zone=BlockDetailviewLocation.BOTTOM, block_id=HistoryBrick.id_),
+        locs = [create_bdl(brick_id=RelationsBrick.id_),
+                create_bdl(zone=BlockDetailviewLocation.LEFT,   brick_id=PropertiesBrick.id_),
+                create_bdl(zone=BlockDetailviewLocation.RIGHT,  brick_id=CustomFieldsBrick.id_),
+                create_bdl(zone=BlockDetailviewLocation.BOTTOM, brick_id=HistoryBrick.id_),
                ]
 
-        locs_2 = [create_bdl(block_id=RelationsBrick.id_, role=None),
-                  create_bdl(block_id=RelationsBrick.id_, superuser=True),
-                  create_bdl(block_id=RelationsBrick.id_, content_type=get_ct(FakeOrganisation)),
+        locs_2 = [create_bdl(brick_id=RelationsBrick.id_, role=None),
+                  create_bdl(brick_id=RelationsBrick.id_, superuser=True),
+                  create_bdl(brick_id=RelationsBrick.id_, content_type=get_ct(FakeOrganisation)),
                  ]
 
         self.assertPOST200(self.DEL_DETAIL_URL, data={'id': ct.id, 'role': role.id})
@@ -886,15 +889,15 @@ class BricksConfigTestCase(CremeTestCase):
                              content_type=ct, zone=BlockDetailviewLocation.TOP,
                              superuser=True,
                             )
-        locs = [create_bdl(block_id=RelationsBrick.id_),
-                create_bdl(zone=BlockDetailviewLocation.LEFT, block_id=PropertiesBrick.id_),
-                create_bdl(zone=BlockDetailviewLocation.RIGHT, block_id=CustomFieldsBrick.id_),
-                create_bdl(zone=BlockDetailviewLocation.BOTTOM, block_id=HistoryBrick.id_),
+        locs = [create_bdl(brick_id=RelationsBrick.id_),
+                create_bdl(zone=BlockDetailviewLocation.LEFT,   brick_id=PropertiesBrick.id_),
+                create_bdl(zone=BlockDetailviewLocation.RIGHT,  brick_id=CustomFieldsBrick.id_),
+                create_bdl(zone=BlockDetailviewLocation.BOTTOM, brick_id=HistoryBrick.id_),
                ]
 
-        locs_2 = [create_bdl(block_id=RelationsBrick.id_, role=self.role),
-                  create_bdl(block_id=RelationsBrick.id_, superuser=False),
-                  create_bdl(block_id=RelationsBrick.id_, content_type=get_ct(FakeContact)),
+        locs_2 = [create_bdl(brick_id=RelationsBrick.id_, role=self.role),
+                  create_bdl(brick_id=RelationsBrick.id_, superuser=False),
+                  create_bdl(brick_id=RelationsBrick.id_, content_type=get_ct(FakeContact)),
                  ]
 
         self.assertPOST200(self.DEL_DETAIL_URL, data={'id': ct.id, 'role': 'superuser'})
@@ -939,7 +942,7 @@ class BricksConfigTestCase(CremeTestCase):
         naru = FakeContact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
 
         instance_brick_id = InstanceBlockConfigItem.generate_id(PortalInstanceBrick, naru, '')
-        InstanceBlockConfigItem.objects.create(block_id=instance_brick_id, entity=naru, verbose='All stuffes')
+        InstanceBlockConfigItem.objects.create(brick_id=instance_brick_id, entity=naru, verbose='All stuffes')
 
         brick1 = PortalOnlyBrick1
         brick2 = PortalOnlyBrick2; assert not brick2.configurable
@@ -947,7 +950,7 @@ class BricksConfigTestCase(CremeTestCase):
         brick4 = PortalOnlyBrick4; assert app_name not in brick4.target_apps
 
         # self.client.post(reverse('creme_config__create_portal_bricks_legacy'), data={'app_name': app_name})
-        BlockPortalLocation.objects.create(app_name=app_name, block_id=HistoryBrick.id_, order=1)
+        BlockPortalLocation.objects.create(app_name=app_name, brick_id=HistoryBrick.id_, order=1)
         self.assertEqual(1, BlockPortalLocation.objects.filter(app_name=app_name).count())
 
         url = reverse('creme_config__edit_portal_bricks', args=(app_name,))
@@ -987,7 +990,7 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertEqual(2, self._find_location(brick_id2, b_locs).order)
 
     def _get_blocks_4_portal(self):
-        bricks = [block for block_id, block in self.brick_registry
+        bricks = [block for brick_id, block in self.brick_registry
                             if hasattr(block, 'portal_display')
                  ]
         self.assertGreaterEqual(len(bricks), 2, bricks)
@@ -1000,8 +1003,8 @@ class BricksConfigTestCase(CremeTestCase):
         blocks = self._get_blocks_4_portal()
 
         create_loc = partial(BlockPortalLocation.objects.create, app_name=app_name)
-        create_loc(block_id=blocks[0].id_, order=1)
-        create_loc(block_id=blocks[1].id_, order=2)
+        create_loc(brick_id=blocks[0].id_, order=1)
+        create_loc(brick_id=blocks[1].id_, order=2)
 
         url = reverse('creme_config__edit_portal_bricks', args=(app_name,))
         response = self.assertGET200(url)
@@ -1018,7 +1021,7 @@ class BricksConfigTestCase(CremeTestCase):
 
         bpl = b_locs[0]
         self.assertEqual(1,  bpl.order)
-        self.assertEqual('', bpl.block_id)
+        self.assertEqual('', bpl.brick_id)
 
     def test_edit_portal04(self):
         "Default conf"
@@ -1028,8 +1031,8 @@ class BricksConfigTestCase(CremeTestCase):
 
         bricks = self._get_blocks_4_portal()
         create_loc = partial(BlockPortalLocation.objects.create, app_name='')
-        create_loc(block_id=bricks[0].id_, order=1)
-        create_loc(block_id=bricks[1].id_, order=2)
+        create_loc(brick_id=bricks[0].id_, order=1)
+        create_loc(brick_id=bricks[1].id_, order=2)
 
         self.assertGET200(url)
 
@@ -1040,13 +1043,13 @@ class BricksConfigTestCase(CremeTestCase):
 
         bpl = b_locs[0]
         self.assertEqual(1,  bpl.order)
-        self.assertEqual('', bpl.block_id)
+        self.assertEqual('', bpl.brick_id)
 
     def test_edit_portal05(self):
         "Home -> use 'home_display' method"
         app_name = 'creme_core'
 
-        BlockPortalLocation.create(block_id=HistoryBrick.id_, order=8, app_name=app_name)
+        BlockPortalLocation.create_or_update(brick_id=HistoryBrick.id_, order=8, app_name=app_name)
 
         response = self.assertGET200(reverse('creme_config__edit_portal_bricks', args=(app_name,)))
 
@@ -1064,7 +1067,7 @@ class BricksConfigTestCase(CremeTestCase):
     def test_delete_portal(self):
         app_name = 'persons'
         # self.client.post(reverse('creme_config__create_portal_bricks_legacy'), data={'app_name': app_name})
-        BlockPortalLocation.objects.create(app_name=app_name, block_id=HistoryBrick.id_, order=1)
+        BlockPortalLocation.objects.create(app_name=app_name, brick_id=HistoryBrick.id_, order=1)
 
         self.assertPOST200(reverse('creme_config__delete_portal_bricks'), data={'id': app_name})
         self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
@@ -1131,11 +1134,11 @@ class BricksConfigTestCase(CremeTestCase):
                                      )
         self.assertNoFormError(response)
 
-        blocks = list(BlockPortalLocation.objects.filter(app_name=app_name)
+        bricks = list(BlockPortalLocation.objects.filter(app_name=app_name)
                                                  .order_by('order')
-                                                 .values_list('block_id', 'order')
+                                                 .values_list('brick_id', 'order')
                      )
-        self.assertEqual([('block_creme_core-history', 1)], blocks)
+        self.assertEqual([('block_creme_core-history', 1)], bricks)
 
     @skipIfNotInstalled('creme.assistants')
     def test_portal_wizard_config_step_assistants(self):
@@ -1183,7 +1186,7 @@ class BricksConfigTestCase(CremeTestCase):
                              ],
                              list(BlockPortalLocation.objects.filter(app_name=app_name)
                                                              .order_by('order')
-                                                             .values_list('block_id', 'order')
+                                                             .values_list('brick_id', 'order')
                                  )
                             )
 
@@ -1216,22 +1219,22 @@ class BricksConfigTestCase(CremeTestCase):
         "Can not delete home conf"
         # TODO: use a helper method ??
         app_name = 'creme_core'
-        bricks = [block for block_id, block in self.brick_registry
+        bricks = [block for brick_id, block in self.brick_registry
                             if hasattr(block, 'home_display')
                  ]
         self.assertGreaterEqual(len(bricks), 1)
 
-        BlockPortalLocation.objects.create(app_name=app_name, block_id=bricks[0].id_, order=1)
+        BlockPortalLocation.objects.create(app_name=app_name, brick_id=bricks[0].id_, order=1)
         self.assertPOST404(reverse('creme_config__delete_portal_bricks'), data={'id': app_name})
 
     def test_delete_home_location_item(self):
         app_name = 'creme_core'
-        blocks = [block for block_id, block in self.brick_registry
+        bricks = [block for brick_id, block in self.brick_registry
                             if hasattr(block, 'home_display')
                  ]
-        self.assertGreaterEqual(len(blocks), 1)
+        self.assertGreaterEqual(len(bricks), 1)
 
-        bpl = BlockPortalLocation.objects.create(app_name=app_name, block_id=blocks[0].id_, order=1)
+        bpl = BlockPortalLocation.objects.create(app_name=app_name, brick_id=bricks[0].id_, order=1)
         self.assertPOST200(reverse('creme_config__delete_home_brick'), data={'id': bpl.id})
         self.assertDoesNotExist(bpl)
 
@@ -1244,23 +1247,23 @@ class BricksConfigTestCase(CremeTestCase):
 
         choices = bricks_field.choices
         self.assertGreaterEqual(len(choices), 2)
-        self.assertEqual(list(BlockMypageLocation.objects.filter(user=None).values_list('block_id', flat=True)),
+        self.assertEqual(list(BlockMypageLocation.objects.filter(user=None).values_list('brick_id', flat=True)),
                          bricks_field.initial
                         )
 
-        block_id1 = choices[0][0]
-        block_id2 = choices[1][0]
+        brick_id1 = choices[0][0]
+        brick_id2 = choices[1][0]
 
-        index1 = self._find_field_index(bricks_field, block_id1)
-        index2 = self._find_field_index(bricks_field, block_id2)
+        index1 = self._find_field_index(bricks_field, brick_id1)
+        index2 = self._find_field_index(bricks_field, brick_id2)
 
         response = self.client.post(url,
                                     data={'blocks_check_%s' % index1: 'on',
-                                          'blocks_value_%s' % index1: block_id1,
+                                          'blocks_value_%s' % index1: brick_id1,
                                           'blocks_order_%s' % index1: 1,
 
                                           'blocks_check_%s' % index2: 'on',
-                                          'blocks_value_%s' % index2: block_id2,
+                                          'blocks_value_%s' % index2: brick_id2,
                                           'blocks_order_%s' % index2: 2,
                                          }
                                    )
@@ -1268,8 +1271,8 @@ class BricksConfigTestCase(CremeTestCase):
 
         b_locs = list(BlockMypageLocation.objects.filter(user=None))
         self.assertEqual(2, len(b_locs))
-        self.assertEqual(1, self._find_location(block_id1, b_locs).order)
-        self.assertEqual(2, self._find_location(block_id2, b_locs).order)
+        self.assertEqual(1, self._find_location(brick_id1, b_locs).order)
+        self.assertEqual(2, self._find_location(brick_id2, b_locs).order)
 
     def test_edit_mypage(self):
         user = self.user
@@ -1281,7 +1284,7 @@ class BricksConfigTestCase(CremeTestCase):
 
         choices = blocks_field.choices
         self.assertGreaterEqual(len(choices), 2)
-        self.assertEqual(list(BlockMypageLocation.objects.filter(user=None).values_list('block_id', flat=True)),
+        self.assertEqual(list(BlockMypageLocation.objects.filter(user=None).values_list('brick_id', flat=True)),
                          blocks_field.initial
                         )
 
@@ -1309,24 +1312,24 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertEqual(2, self._find_location(brick_id2, b_locs).order)
 
     def test_delete_default_mypage01(self):
-        loc = BlockMypageLocation.objects.create(user=None, block_id=HistoryBrick.id_, order=1)
+        loc = BlockMypageLocation.objects.create(user=None, brick_id=HistoryBrick.id_, order=1)
         self.assertPOST200(reverse('creme_config__delete_default_mypage_bricks'), data={'id': loc.id})
         self.assertDoesNotExist(loc)
 
     def test_delete_default_mypage02(self):
         "'user' must be 'None'"
-        loc = BlockMypageLocation.objects.create(user=self.user, block_id=HistoryBrick.id_, order=1)
+        loc = BlockMypageLocation.objects.create(user=self.user, brick_id=HistoryBrick.id_, order=1)
         self.assertPOST404(reverse('creme_config__delete_default_mypage_bricks'), data={'id': loc.id})
         self.assertStillExists(loc)
 
     def test_delete_mypage01(self):
-        loc = BlockMypageLocation.objects.create(user=self.user, block_id=HistoryBrick.id_, order=1)
+        loc = BlockMypageLocation.objects.create(user=self.user, brick_id=HistoryBrick.id_, order=1)
         self.assertPOST200(reverse('creme_config__delete_mypage_bricks'), data={'id': loc.id})
         self.assertDoesNotExist(loc)
 
     def test_delete_mypage02(self):
         "BlockMypageLocation must belong to the user"
-        loc = BlockMypageLocation.objects.create(user=self.other_user, block_id=HistoryBrick.id_, order=1)
+        loc = BlockMypageLocation.objects.create(user=self.other_user, brick_id=HistoryBrick.id_, order=1)
         self.assertPOST404(reverse('creme_config__delete_mypage_bricks'), data={'id': loc.id})
         self.assertStillExists(loc)
 
@@ -1346,7 +1349,7 @@ class BricksConfigTestCase(CremeTestCase):
 
         rb_item = rb_items[0]
         self.assertEqual(rt.id, rb_item.relation_type.id)
-        self.assertEqual('specificblock_creme_config-test-subfoo', rb_item.block_id)
+        self.assertEqual('specificblock_creme_config-test-subfoo', rb_item.brick_id)
         self.assertIsNone(rb_item.get_cells(ContentType.objects.get_for_model(FakeContact)))
 
     # def test_add_relationbrick_ctypes01(self):
@@ -1435,7 +1438,7 @@ class BricksConfigTestCase(CremeTestCase):
                                  )[0]
 
         rb_item = RelationBlockItem.objects.create(
-                        block_id='specificblock_creme_config-test-subfoo',
+                        brick_id='specificblock_creme_config-test-subfoo',
                         relation_type=rt,
                     )
 
@@ -1517,7 +1520,7 @@ class BricksConfigTestCase(CremeTestCase):
                                     ('test-objfoo', 'object_predicate',  [FakeOrganisation]),
                                     )[0]
         rb_item = RelationBlockItem.objects.create(
-                        block_id='specificblock_creme_config-test-subfoo',
+                        brick_id='specificblock_creme_config-test-subfoo',
                         relation_type=rtype,
                     )
 
@@ -1548,7 +1551,7 @@ class BricksConfigTestCase(CremeTestCase):
                                     ('test-objfoo', 'object_predicate',  [FakeContact]),
                                     )[0]
         rb_item = RelationBlockItem.objects.create(
-                        block_id='specificblock_creme_config-test-subfoo',
+                        brick_id='specificblock_creme_config-test-subfoo',
                         relation_type=rtype,
                     )
 
@@ -1580,7 +1583,7 @@ class BricksConfigTestCase(CremeTestCase):
                                 )[0]
 
         rb_item = RelationBlockItem(
-                        block_id='specificblock_creme_config-test-subfoo',
+                        brick_id='specificblock_creme_config-test-subfoo',
                         relation_type=rt,
                     )
         rb_item.set_cells(ct, ())
@@ -1623,7 +1626,7 @@ class BricksConfigTestCase(CremeTestCase):
     def test_edit_relationbrick_ctypes02(self):
         "Validation errors with URLField & ForeignKey"
         rb_item = RelationBlockItem(
-                block_id='specificblock_creme_config-test-subfoo',
+                brick_id='specificblock_creme_config-test-subfoo',
                 relation_type=RelationType.create(('test-subfoo', 'subject_predicate'),
                                                   ('test-objfoo', 'object_predicate'),
                                                  )[0],
@@ -1659,7 +1662,7 @@ class BricksConfigTestCase(CremeTestCase):
     def test_edit_relationbrick_ctypes03(self):
         "Validation errors with M2M"
         rb_item = RelationBlockItem(
-                block_id='specificblock_creme_config-test-subfoo',
+                brick_id='specificblock_creme_config-test-subfoo',
                 relation_type=RelationType.create(('test-subfoo', 'subject_predicate'),
                                                   ('test-objfoo', 'object_predicate'),
                                                  )[0],
@@ -1692,7 +1695,7 @@ class BricksConfigTestCase(CremeTestCase):
         rt2 = create_rtype(('test-subbar', 'subject_predicate2'), ('test-objbar', 'object_predicate2'))[0]
 
         rb_item = RelationBlockItem(
-                block_id='specificblock_creme_config-test-subfoo',
+                brick_id='specificblock_creme_config-test-subfoo',
                 relation_type=rt1,
             )
         rb_item.set_cells(ContentType.objects.get_for_model(FakeOrganisation), ())
@@ -1728,7 +1731,7 @@ class BricksConfigTestCase(CremeTestCase):
                             )
 
         rb_item = RelationBlockItem(
-                        block_id='specificblock_creme_config-test-subfoo',
+                        brick_id='specificblock_creme_config-test-subfoo',
                         relation_type=rt,
                     )
         build_cell = EntityCellRegularField.build
@@ -1764,7 +1767,7 @@ class BricksConfigTestCase(CremeTestCase):
         ct = get_ct(FakeContact)
 
         rb_item = RelationBlockItem(
-                block_id='specificblock_creme_config-test-subfoo',
+                brick_id='specificblock_creme_config-test-subfoo',
                 relation_type=RelationType.create(('test-subfoo', 'subject_predicate'),
                                                   ('test-objfoo', 'object_predicate'),
                                                  )[0],
@@ -1785,11 +1788,11 @@ class BricksConfigTestCase(CremeTestCase):
         rt = RelationType.create(('test-subfoo', 'subject_predicate'),
                                  ('test-objfoo', 'object_predicate'), is_custom=False
                                 )[0]
-        rbi = RelationBlockItem.objects.create(block_id='foobarid', relation_type=rt)
-        loc = BlockDetailviewLocation.create(block_id=rbi.block_id, order=5,
-                                             zone=BlockDetailviewLocation.RIGHT,
-                                             model=FakeContact,
-                                             )
+        rbi = RelationBlockItem.objects.create(brick_id='foobarid', relation_type=rt)
+        loc = BlockDetailviewLocation.create_if_needed(brick_id=rbi.brick_id, order=5,
+                                                       zone=BlockDetailviewLocation.RIGHT,
+                                                       model=FakeContact,
+                                                      )
 
         self.assertPOST200(reverse('creme_config__delete_rtype_brick'), data={'id': rbi.id})
         self.assertDoesNotExist(rbi)
@@ -1799,12 +1802,12 @@ class BricksConfigTestCase(CremeTestCase):
         naru = FakeContact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
 
         ibi = InstanceBlockConfigItem.objects.create(
-                    block_id=InstanceBlockConfigItem.generate_id(DetailviewInstanceBrick, naru, ''),
+                    brick_id=InstanceBlockConfigItem.generate_id(DetailviewInstanceBrick, naru, ''),
                     entity=naru, verbose='All stuffes',
                 )
-        loc = BlockDetailviewLocation.create(block_id=ibi.block_id, order=5,
-                                             zone=BlockDetailviewLocation.RIGHT, model=FakeContact,
-                                            )
+        loc = BlockDetailviewLocation.create_if_needed(brick_id=ibi.brick_id, order=5,
+                                                       zone=BlockDetailviewLocation.RIGHT, model=FakeContact,
+                                                      )
         self.assertPOST200(reverse('creme_config__delete_instance_brick'), data={'id': ibi.id})
         self.assertDoesNotExist(ibi)
         self.assertDoesNotExist(loc)
@@ -2050,10 +2053,10 @@ class BricksConfigTestCase(CremeTestCase):
     def test_delete_custombrick(self):
         ct = ContentType.objects.get_for_model(FakeContact)
         cbci = CustomBlockConfigItem.objects.create(content_type=ct, name='Info')
-        loc = BlockDetailviewLocation.create(block_id=cbci.generate_id(), order=5,
-                                             model=FakeContact,
-                                             zone=BlockDetailviewLocation.RIGHT,
-                                            )
+        loc = BlockDetailviewLocation.create_if_needed(brick_id=cbci.generate_id(), order=5,
+                                                       model=FakeContact,
+                                                       zone=BlockDetailviewLocation.RIGHT,
+                                                      )
 
         self.assertPOST200(reverse('creme_config__delete_custom_brick'), data={'id': cbci.id})
         self.assertDoesNotExist(cbci)
