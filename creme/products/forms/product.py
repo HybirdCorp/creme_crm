@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,13 +24,16 @@ from creme.creme_core.forms.bulk import BulkForm
 
 from .. import get_product_model
 from .fields import CategoryField
-from .base import _BaseCreateForm, _BaseEditForm
+from .base import _BaseForm, _BaseEditForm # _BaseCreateForm
 
 Product = get_product_model()
 
 
-class ProductCreateForm(_BaseCreateForm):
-    class Meta(_BaseCreateForm.Meta):
+# class ProductCreateForm(_BaseCreateForm):
+#     class Meta(_BaseCreateForm.Meta):
+#         model = Product
+class ProductCreateForm(_BaseForm):
+    class Meta(_BaseForm.Meta):
         model = Product
 
 

@@ -44,8 +44,8 @@ class _BaseForm(CremeEntityForm):
         return super(_BaseForm, self).save(*args, **kwargs)
 
 
-class _BaseCreateForm(_BaseForm):  # TODO: remove
-    pass
+# class _BaseCreateForm(_BaseForm):
+#     pass
 
 
 class _BaseEditForm(_BaseForm):
