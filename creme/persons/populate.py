@@ -112,7 +112,7 @@ class Populator(BasePopulator):
                               (EntityCellRegularField, {'name': 'phone'}),
                               (EntityCellRegularField, {'name': 'email'}),
                               (EntityCellRegularField, {'name': 'user'}),
-                              EntityCellRelation(rt_map[constants.REL_SUB_EMPLOYED_BY]),
+                              EntityCellRelation(model=Contact, rtype=rt_map[constants.REL_SUB_EMPLOYED_BY]),
                              ],
                  )
         create_hf(pk=constants.DEFAULT_HFILTER_ORGA, model=Organisation,
@@ -120,7 +120,7 @@ class Populator(BasePopulator):
                   cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                               (EntityCellRegularField, {'name': 'phone'}),
                               (EntityCellRegularField, {'name': 'user'}),
-                              EntityCellRelation(rt_map[constants.REL_OBJ_MANAGES]),
+                              EntityCellRelation(model=Organisation, rtype=rt_map[constants.REL_OBJ_MANAGES]),
                              ],
                  )
         create_hf(pk='persons-hf_leadcustomer', model=Organisation,
@@ -130,9 +130,9 @@ class Populator(BasePopulator):
                               (EntityCellRegularField, {'name': 'phone'}),
                               (EntityCellRegularField, {'name': 'email'}),
                               (EntityCellRegularField, {'name': 'user'}),
-                              EntityCellRelation(rt_map[constants.REL_SUB_CUSTOMER_SUPPLIER]),
-                              EntityCellRelation(rt_map[constants.REL_SUB_PROSPECT]),
-                              EntityCellRelation(rt_map[constants.REL_SUB_SUSPECT]),
+                              EntityCellRelation(model=Organisation, rtype=rt_map[constants.REL_SUB_CUSTOMER_SUPPLIER]),
+                              EntityCellRelation(model=Organisation, rtype=rt_map[constants.REL_SUB_PROSPECT]),
+                              EntityCellRelation(model=Organisation, rtype=rt_map[constants.REL_SUB_SUSPECT]),
                              ],
                  )
 

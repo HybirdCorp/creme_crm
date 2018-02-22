@@ -442,8 +442,9 @@ class EntityCellTestCase(CremeTestCase):
         loves = RelationType.create(('test-subject_love', u'Is loving'),
                                     ('test-object_love',  u'Is loved by')
                                    )[0]
-        cell = EntityCellRelation(rtype=loves)
+        cell = EntityCellRelation(model=FakeContact, rtype=loves)
         self.assertIsInstance(cell, EntityCellRelation)
+        self.assertEqual(FakeContact,     cell.model)
         self.assertEqual(str(loves.id),   cell.value)
         self.assertEqual(loves.predicate, cell.title)
         self.assertIs(cell.has_a_filter, True)
@@ -460,7 +461,7 @@ class EntityCellTestCase(CremeTestCase):
         funfield = FakeContact.function_fields.get(name)
         self.assertIsNotNone(funfield)
 
-        cell = EntityCellFunctionField(func_field=funfield)
+        cell = EntityCellFunctionField(model=FakeContact, func_field=funfield)
         self.assertIsInstance(cell, EntityCellFunctionField)
         self.assertEqual(name,            cell.value)
         self.assertEqual(unicode(funfield.verbose_name), cell.title)
@@ -488,7 +489,7 @@ class EntityCellTestCase(CremeTestCase):
                 return FunctionFieldResult(entity.phone or entity.mobile)
 
         funfield = PhoneFunctionField()
-        cell = EntityCellFunctionField(func_field=funfield)
+        cell = EntityCellFunctionField(model=FakeContact, func_field=funfield)
         self.assertEqual(funfield.name,         cell.value)
         self.assertEqual(funfield.verbose_name, cell.title)
         self.assertFalse(cell.is_multiline)

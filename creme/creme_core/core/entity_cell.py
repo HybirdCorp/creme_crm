@@ -113,10 +113,11 @@ class EntityCell(object):
     _listview_css_class = None
     _header_listview_css_class = None
 
-    def __init__(self, value='', title=u'Title', has_a_filter=False,
+    def __init__(self, model, value='', title=u'Title', has_a_filter=False,
                  editable=False, sortable=False,
                  is_hidden=False, filter_string='',
                 ):
+        self._model = model
         self.value = value
         self.title = title
         self.has_a_filter = has_a_filter # TODO: refactor list view templatetags
@@ -149,6 +150,10 @@ class EntityCell(object):
     @property
     def data_type(self):
         return FIELDS_DATA_TYPES[self._get_field_class()]
+
+    @property
+    def model(self):
+        return self._model
 
     @property
     def key(self):
@@ -186,8 +191,10 @@ class EntityCell(object):
 class EntityCellActions(EntityCell):
     type_id = 'actions'
 
-    def __init__(self):
-        super(EntityCellActions, self).__init__(value='entity_actions',
+    # def __init__(self):
+    def __init__(self, model):
+        super(EntityCellActions, self).__init__(model=model,
+                                                value='entity_actions',
                                                 title=_(u'Actions'),
                                                )
 
@@ -200,7 +207,7 @@ class EntityCellRegularField(EntityCell):
 
     def __init__(self, model, name, field_info, is_hidden=False):
         "Use build() instead of using this constructor directly."
-        self._model = model  # TODO: move to EntityCell (@property too)
+        # self._model = model
         self._field_info = field_info
         self._printer_html = self._printer_csv = None
 
@@ -230,7 +237,8 @@ class EntityCellRegularField(EntityCell):
         if any(f.many_to_many or f.one_to_many for f in field_info):
             sortable = False
 
-        super(EntityCellRegularField, self).__init__(value=name,
+        super(EntityCellRegularField, self).__init__(model=model,
+                                                     value=name,
                                                      title=field_info.verbose_name,
                                                      has_a_filter=has_a_filter,
                                                      editable=True,
@@ -268,9 +276,9 @@ class EntityCellRegularField(EntityCell):
     def is_multiline(self):
         return any(isinstance(f, MULTILINE_FIELDS) for f in self._field_info)
 
-    @property
-    def model(self):
-        return self._model
+    # @property
+    # def model(self):
+    #     return self._model
 
     def _get_field_class(self):
         return self._field_info[-1].__class__
@@ -325,7 +333,8 @@ class EntityCellCustomField(EntityCell):
         self._customfield = customfield
         pattern = self._CF_PATTERNS.get(customfield.field_type, '%s__value__icontains')
 
-        super(EntityCellCustomField, self).__init__(value=unicode(customfield.id),
+        super(EntityCellCustomField, self).__init__(model=customfield.content_type.model_class(),
+                                                    value=unicode(customfield.id),
                                                     title=customfield.name,
                                                     has_a_filter=True,
                                                     editable=False,  # TODO: make it editable
@@ -375,10 +384,12 @@ class EntityCellFunctionField(EntityCell):
         FunctionFieldDecimal: models.DecimalField,
     }
 
-    def __init__(self, func_field):
+    # def __init__(self, func_field):
+    def __init__(self, model, func_field):
         self._functionfield = func_field
 
-        super(EntityCellFunctionField, self).__init__(value=func_field.name,
+        super(EntityCellFunctionField, self).__init__(model=model,
+                                                      value=func_field.name,
                                                       title=unicode(func_field.verbose_name),
                                                       has_a_filter=func_field.has_filter,
                                                       is_hidden=func_field.is_hidden,
@@ -392,7 +403,7 @@ class EntityCellFunctionField(EntityCell):
             logger.warn('EntityCellFunctionField: function field "%s" does not exist', func_field_name)
             return None
 
-        return EntityCellFunctionField(func_field)
+        return EntityCellFunctionField(model=model, func_field=func_field)
 
     @property
     def function_field(self):
@@ -421,9 +432,11 @@ class EntityCellFunctionField(EntityCell):
 class EntityCellRelation(EntityCell):
     type_id = 'relation'
 
-    def __init__(self, rtype, is_hidden=False):
+    # def __init__(self, rtype, is_hidden=False):
+    def __init__(self, model, rtype, is_hidden=False):
         self._rtype = rtype
-        super(EntityCellRelation, self).__init__(value=unicode(rtype.id),
+        super(EntityCellRelation, self).__init__(model=model,
+                                                 value=unicode(rtype.id),
                                                  title=rtype.predicate,
                                                  has_a_filter=True,
                                                  is_hidden=is_hidden,
@@ -437,7 +450,7 @@ class EntityCellRelation(EntityCell):
             logger.warn('EntityCellRelation: relation type "%s" does not exist', rtype_id)
             return None
 
-        return EntityCellRelation(rtype, is_hidden=is_hidden)
+        return EntityCellRelation(model=model, rtype=rtype, is_hidden=is_hidden)
 
     @property
     def is_multiline(self):
@@ -482,9 +495,11 @@ class EntityCellRelation(EntityCell):
 class EntityCellVolatile(EntityCell):
     type_id = 'volatile'
 
-    def __init__(self, value, title, render_func, is_hidden=False):
+    # def __init__(self, value, title, render_func, is_hidden=False):
+    def __init__(self, model, value, title, render_func, is_hidden=False):
         self._render_func = render_func
-        super(EntityCellVolatile, self).__init__(value=value,
+        super(EntityCellVolatile, self).__init__(model=model,
+                                                 value=value,
                                                  title=title,
                                                  has_a_filter=True,  # TODO: ??
                                                  is_hidden=is_hidden,

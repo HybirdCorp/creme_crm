@@ -139,7 +139,7 @@ class Populator(BasePopulator):
         HeaderFilter.create(pk=constants.DEFAULT_HFILTER_OPPORTUNITY, model=Opportunity,
                             name=_(u'Opportunity view'),
                             cells_desc=[(EntityCellRegularField, {'name': 'name'}),
-                                        EntityCellRelation(rtype=rt_sub_targets),
+                                        EntityCellRelation(model=Opportunity, rtype=rt_sub_targets),
                                         (EntityCellRegularField, {'name': 'sales_phase'}),
                                         (EntityCellRegularField, {'name': 'estimated_sales'}),
                                         (EntityCellRegularField, {'name': 'made_sales'}),

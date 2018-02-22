@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -52,22 +52,28 @@ Report = get_report_model()
 class _EntityCellRelated(EntityCell):
     type_id = 'related'
 
-    def __init__(self, agg_id):
-        super(_EntityCellRelated, self).__init__(value=agg_id, title='Related')
+    # def __init__(self, agg_id):
+    #     super(_EntityCellRelated, self).__init__(value=agg_id, title='Related')
+    def __init__(self, model, agg_id):
+        super(_EntityCellRelated, self).__init__(model=model, value=agg_id, title='Related')
 
 
 class _EntityCellAggregate(EntityCell):
     type_id = 'regular_aggregate'
 
-    def __init__(self, agg_id):
-        super(_EntityCellAggregate, self).__init__(value=agg_id, title='Aggregate')
+    # def __init__(self, agg_id):
+    #     super(_EntityCellAggregate, self).__init__(value=agg_id, title='Aggregate')
+    def __init__(self, model, agg_id):
+        super(_EntityCellAggregate, self).__init__(model=model, value=agg_id, title='Aggregate')
 
 
 class _EntityCellCustomAggregate(EntityCell):
     type_id = 'custom_aggregate'
 
-    def __init__(self, agg_id):
-        super(_EntityCellCustomAggregate, self).__init__(value=agg_id, title='Custom Aggregate')
+    # def __init__(self, agg_id):
+    #     super(_EntityCellCustomAggregate, self).__init__(value=agg_id, title='Custom Aggregate')
+    def __init__(self, model, agg_id):
+        super(_EntityCellCustomAggregate, self).__init__(model=model, value=agg_id, title='Custom Aggregate')
 
 
 _CELL_2_HAND_MAP = {
@@ -203,13 +209,13 @@ class ReportHandsField(EntityCellsField):
     widget = ReportHandsWidget
 
     def _build_4_custom_aggregate(self, model, name):
-        return _EntityCellCustomAggregate(name[len(_CUSTOM_AGG_PREFIX):])
+        return _EntityCellCustomAggregate(model, name[len(_CUSTOM_AGG_PREFIX):])
 
     def _build_4_regular_aggregate(self, model, name):
-        return _EntityCellAggregate(name[len(_REGULAR_AGG_PREFIX):])
+        return _EntityCellAggregate(model, name[len(_REGULAR_AGG_PREFIX):])
 
     def _build_4_related(self, model, name):
-        return _EntityCellRelated(name[len(_RELATED_PREFIX):])
+        return _EntityCellRelated(model, name[len(_RELATED_PREFIX):])
 
     def _regular_fields_enum(self, model):
         fields = super(ReportHandsField, self)._regular_fields_enum(model)
@@ -272,15 +278,16 @@ class ReportFieldsForm(CremeForm):
         super(ReportFieldsForm, self).__init__(*args, **kwargs)
 
         cells = []
+        model = self.report.ct.model_class()
         for column in entity.columns:
             # TODO: this is a hack : EntityCellWidgets only use value & type_id to check initial data
             #       it would be better to use a method column.hand.to_entity_cell()
             if column.hand:  # Check validity
                 if column.type == constants.RFT_FIELD:
                     # Only the non_hiddable_cells with class EntityCellRegularField are used.
-                    cell = EntityCellRegularField.build(self.report.ct.model_class(), column.name)
+                    cell = EntityCellRegularField.build(model=model, name=column.name)
                 else:
-                    cell = EntityCell(value=column.name)
+                    cell = EntityCell(model=model, value=column.name)
                     cell.type_id = _HAND_2_CELL_MAP[column.type]
 
                 cells.append(cell)

@@ -93,9 +93,9 @@ class CSVExportViewsTestCase(ViewsTestCase):
         cells = [EntityCellRegularField.build(model=FakeContact, name='civility'),
                  EntityCellRegularField.build(model=FakeContact, name='last_name'),
                  EntityCellRegularField.build(model=FakeContact, name='first_name'),
-                 EntityCellRelation(rtype=rtype_pilots),
+                 EntityCellRelation(model=FakeContact, rtype=rtype_pilots),
                  # TODO: EntityCellCustomField
-                 EntityCellFunctionField(func_field=FakeContact.function_fields.get('get_pretty_properties')),
+                 EntityCellFunctionField(FakeContact, func_field=FakeContact.function_fields.get('get_pretty_properties')),
                 ]
         HeaderFilter.create(pk='test-hf_contact', name='Contact view',
                             model=FakeContact, cells_desc=cells,

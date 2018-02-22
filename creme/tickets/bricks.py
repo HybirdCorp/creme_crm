@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,6 +23,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.core.entity_cell import EntityCellFunctionField
 from creme.creme_core.gui.bricks import EntityBrick
 
+from . import get_ticket_model
 from .models.ticket import _ResolvingDurationField
 
 
@@ -31,7 +32,7 @@ class TicketBrick(EntityBrick):
 
     def _get_cells(self, entity, context):
         cells = super(TicketBrick, self)._get_cells(entity=entity, context=context)
-        cells.append(EntityCellFunctionField(_ResolvingDurationField()))
+        cells.append(EntityCellFunctionField(model=get_ticket_model(), func_field=_ResolvingDurationField()))
 
         return cells
 
