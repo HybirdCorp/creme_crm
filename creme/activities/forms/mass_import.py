@@ -618,7 +618,8 @@ def get_massimport_form_builder(header_dict, choices):
                     instance.end = start + instance.type.as_timedelta()
                 elif start > instance.end:
                     instance.end = start + instance.type.as_timedelta()
-                    self.append_error(line, _(u'End time is before start time'), instance)
+                    # self.append_error(line, _(u'End time is before start time'), instance)
+                    self.append_error(_(u'End time is before start time'))
             else:
                 instance.floating_type = constants.FLOATING
 
@@ -678,7 +679,8 @@ def get_massimport_form_builder(header_dict, choices):
             dyn_participants, err_messages = cdata['participants'].extract_value(line, self.user)
 
             for err_msg in err_messages:
-                self.append_error(line, err_msg, instance)
+                # self.append_error(line, err_msg, instance)
+                self.append_error(err_msg)
 
             for participant in dyn_participants:
                 add_participant(participant)
@@ -690,7 +692,8 @@ def get_massimport_form_builder(header_dict, choices):
             subjects, err_messages = cdata['subjects'].extract_value(line, self.user)
 
             for err_msg in err_messages:
-                self.append_error(line, err_msg, instance)
+                # self.append_error(line, err_msg, instance)
+                self.append_error(err_msg)
 
             for subject in subjects:
                 create_sub_rel(subject_entity=subject)

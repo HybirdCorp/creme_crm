@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,7 +46,8 @@ def get_mass_form_builder(header_dict, choices):
 
             target, err_msg = cdata['target'].extract_value(line, self.user)
             instance.target = target
-            self.append_error(line, err_msg, instance)  # Error is really appended if 'err_msg' is not empty
+            # self.append_error(line, err_msg, instance)
+            self.append_error(err_msg)  # Error is really appended if 'err_msg' is not empty
 
 
     return OpportunityMassImportForm
