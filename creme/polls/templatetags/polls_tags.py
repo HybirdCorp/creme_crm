@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2017  Hybird
+#    Copyright (C) 2012-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,7 +34,8 @@ register = template.Library()
 
 
 @register.simple_tag
-def print_line_condition(nodes, condition):  # TODO: rename 'poll_line_condition'
+# def print_line_condition(nodes, condition):
+def poll_line_condition(nodes, condition):
     # Cache to avoid additional queries (caused by 'condition.source').
     lines_map = getattr(nodes, 'tags_lines_map', None)
 
@@ -56,12 +57,14 @@ def print_line_condition(nodes, condition):  # TODO: rename 'poll_line_condition
 
 
 @register.simple_tag
-def print_node_number(style, node):  # TODO: rename 'poll_node_number'
+# def print_node_number(style, node):
+def poll_node_number(style, node):
     return style.number(node)
 
 
 @register.simple_tag
-def print_node_css(style, node):  # TODO: rename 'poll_node_css'
+# def print_node_css(style, node):
+def poll_node_css(style, node):
     return style.css(node)
 
 

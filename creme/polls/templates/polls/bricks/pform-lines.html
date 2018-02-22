@@ -23,7 +23,8 @@
         {% if node.is_section %}
         <div class="poll-group">
             <div class="poll-title">
-                <div class="poll-title-number"><div style="{% print_node_css style node %}">{% print_node_number style node %}</div></div>
+{#                <div class="poll-title-number"><div style="{% print_node_css style node %}">{% print_node_number style node %}</div></div> #}
+                <div class="poll-title-number"><div style="{% poll_node_css style node %}">{% poll_node_number style node %}</div></div>
                 <div class="poll-title-label">
                     <span>{% print_field object=node field='name' %}</span>
                     <span class="poll-title-sub">{% print_field object=node field='body' %}</span>
@@ -41,7 +42,8 @@
         {% with no_deps=node.get_reversed_conditions|length_is:"0" %}
         <div class="poll-group poll-forbidden">
             <div class="poll-title">
-                <div class="poll-title-number">{% if node.number %}<div>{% print_node_number style node %}</div>{% endif %}</div>
+{#                <div class="poll-title-number">{% if node.number %}<div>{% print_node_number style node %}</div>{% endif %}</div> #}
+                <div class="poll-title-number">{% if node.number %}<div>{% poll_node_number style node %}</div>{% endif %}</div>
                 <div class="poll-title-label">
                     <span>{{node.question}}</span>
                     <div class="poll-title-sub">{{node.poll_line_type.description}}</div>
@@ -55,7 +57,8 @@
         {% with number=node.number conditions=node.get_conditions no_deps=node.get_reversed_conditions|length_is:"0" %}
         <div class="poll-group">
             <div class="poll-title">
-                <div class="poll-title-number">{% if number %}<div style="{% print_node_css style node %}">{% print_node_number style node %}</div>{% endif %}</div>
+{#                <div class="poll-title-number">{% if number %}<div style="{% print_node_css style node %}">{% print_node_number style node %}</div>{% endif %}</div> #}
+                <div class="poll-title-number">{% if number %}<div style="{% poll_node_css style node %}">{% poll_node_number style node %}</div>{% endif %}</div>
                 <div class="poll-title-label">
                     <span>{{node.question}}</span>
                     <div class="poll-title-sub">{{node.poll_line_type.description}}</div>
@@ -68,7 +71,8 @@
                 {% with OR_or_AND=node.verbose_conds_use_or %}
                     {% for condition in conditions %}
                     <div class="poll-condition">
-                        {% if not forloop.first %}{{OR_or_AND}} : {% endif %}{% print_line_condition nodes condition %}
+{#                        {% if not forloop.first %}{{OR_or_AND}} : {% endif %}{% print_line_condition nodes condition %} #}
+                        {% if not forloop.first %}{{OR_or_AND}} : {% endif %}{% poll_line_condition nodes condition %}
                     </div>
                     {% endfor %}
                 {% endwith %}
