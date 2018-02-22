@@ -131,7 +131,7 @@ class EnhancedSelectOptions(object):
         if isinstance(option_value, self.Choice):
             value = force_unicode(option_value.value)
             selected = self.is_choice_selected(selected_choices, value)
-            return self.render_enchanced_choice(option_value, value, option_label, selected)
+            return self.render_enhanced_choice(option_value, value, option_label, selected)
 
         return super(self.__class__, self).render_option(selected_choices, option_value, option_label)
 
@@ -146,7 +146,8 @@ class EnhancedSelectOptions(object):
 
         return selected
 
-    def render_enchanced_choice(self, choice, value, label, selected):
+    # def render_enchanced_choice(self, choice, value, label, selected):
+    def render_enhanced_choice(self, choice, value, label, selected):
         selected_html = u' selected="selected"' if selected else u''
         disabled_html = u' disabled' if choice.disabled else u''
 
