@@ -1,6 +1,6 @@
 /*******************************************************************************
  Creme is a free/open-source Customer Relationship Management software
- Copyright (C) 2009-2017  Hybird
+ Copyright (C) 2009-2018  Hybird
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 
 // XXX: this lib is deprecated in favor of bricks.js
 
+/*
 (function($) {"use strict";
 
 creme.blocks = {
@@ -43,18 +44,12 @@ creme.blocks.reload = function(url) {
 creme.blocks.fill = function(block, content) {
     console.warn('creme.blocks.fill() is deprecated ; use creme.bricks.replaceContent() instead.');
 
-//    block.replaceWith(content);
-//    creme.blocks.initialize(content);
     creme.bricks.replaceContent(block, content);
 };
 
 creme.blocks.saveState = function(block) {
     console.warn('creme.blocks.saveState() is deprecated ; use the new bricks state system instead.');
 
-//    var state = {
-//            is_open:           $(block).hasClass('collapsed') ? 0 : 1,
-//            show_empty_fields: $(block).hasClass(this.hide_fields_class) ? 0 : 1
-//    };
     var post_data = {
             id:                block.attr('id'),
             is_open:           $(block).hasClass('collapsed') ? 0 : 1,
@@ -70,8 +65,6 @@ creme.blocks.saveState = function(block) {
 
     $.when(deferred.promise()).then(function(status) {
         block.removeData('block-deferred-save');
-//        creme.ajax.json.post('/creme_core/blocks/reload/set_state/' + block.attr('id') + '/',
-//                             state, null, null, true);
 
         var url = $('body').attr('data-brick-state-url');
 
@@ -215,7 +208,6 @@ creme.blocks.initPager = function(pager) {
 
         selector.bind('propertychange input change paste', function(e) {
             creme.object.deferred_start(pager, 'creme-block-pager-change', function() {
-                //gotoPage(selector);
                 selector.toggleClass('invalid-page', cleanPage(selector) === false);
             }, 300);
         }).bind('propertychange input change paste keydown', function() {
@@ -262,8 +254,6 @@ creme.blocks.initialize = function(block) {
 };
 
 creme.blocks.bindEvents = function(root) {
-// TODO: (1.8)  console.warn('creme.blocks.bindEvents() is deprecated ; use the new bricks system instead');
-
     $('.table_detail_view[id]:not(.block-ready)', root).each(function() {
         var block = $(this);
 
@@ -373,20 +363,6 @@ creme.blocks.massRelation = function(subject_ct_id, rtype_ids, selector, block_u
     creme.blocks.form(url, {blockReloadUrl: block_url}).open();
 };
 
-//creme.blocks.massRelating = function(url, rtype_ids, selector, block_url) {
-//    console.warn('creme.blocks.massRelation() is deprecated.');
-//
-//    var entities_ids = $(selector).getValues();
-//    if (entities_ids.length == 0) {
-//        creme.dialogs.warning(gettext("Please select at least one entity.")).open();
-//        return false;
-//    }
-//
-//    creme.blocks.form(url + '?' + $.param({persist: 'id', ids: entities_ids, rtype: rtype_ids}),
-//                      {blockReloadUrl: block_url}
-//                     ).open();
-//};
-
 creme.blocks.tableExpandState = function($self, state, trigger) {
     console.warn('creme.blocks.tableExpandState() is deprecated.');
 
@@ -434,3 +410,4 @@ creme.blocks.bindTableToggle = function($self) {
     });
 };
 }(jQuery));
+*/
