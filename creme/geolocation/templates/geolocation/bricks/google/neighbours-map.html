@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/base.html' %}
-{% load i18n creme_bricks creme_core_tags geolocation %}
+{% load i18n creme_bricks creme_core_tags geolocation_tags %}
 
 {% block brick_extra_class %}geolocation-brick geolocation-google-neighbours-brick{% endblock %}
 
@@ -49,7 +49,8 @@
                 <option value="" disabled>{% trans 'No geolocated address for now' %}</option>
             {% endfor %}
         </select>&nbsp;
-        {% blocktrans with radius_distance=radius|format_distance %}within a radius of {{radius_distance}}.{% endblocktrans %}
+{#        {% blocktrans with radius_distance=radius|format_distance %}within a radius of {{radius_distance}}.{% endblocktrans %} #}
+        {% blocktrans with radius_distance=radius|geolocation_distance %}within a radius of {{radius_distance}}.{% endblocktrans %}
     </div>
     <div class="block-geoaddress-error">
         {% has_perm_to admin 'geolocation' as admin_perm %}{% url 'creme_config__app_portal' 'geolocation' as config_url %}
