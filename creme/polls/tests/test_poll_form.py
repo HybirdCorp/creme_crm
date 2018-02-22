@@ -16,7 +16,8 @@ try:
     from ..core import PollLineType
     from ..bricks import PollFormLinesBrick, PollRepliesBrick
     from ..models import PollType, PollFormSection, PollFormLine, PollFormLineCondition
-    from ..templatetags.polls_tags import print_node_number, print_node_css, print_line_condition
+    # from ..templatetags.polls_tags import print_node_number, print_node_css, print_line_condition
+    from ..templatetags.polls_tags import poll_node_number, poll_node_css, poll_line_condition
     from ..utils import SectionTree, NodeStyle
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -1187,11 +1188,15 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         # Templatetag
         style = NodeStyle()
         self.assertEqual(['1', 'None', 'I', '2', '1', '3', '4', 'II'],
-                         [print_node_number(style, node) for node in nodes]
+                         # [print_node_number(style, node) for node in nodes]
+                         [poll_node_number(style, node) for node in nodes]
                         )
-        self.assertEqual('',                           print_node_css(style, nodes[0]))
-        self.assertEqual('background-color: #BDD8E4;', print_node_css(style, nodes[2]))
-        self.assertEqual('background-color: #D8E5EB;', print_node_css(style, nodes[4]))
+        # self.assertEqual('',                           print_node_css(style, nodes[0]))
+        # self.assertEqual('background-color: #BDD8E4;', print_node_css(style, nodes[2]))
+        # self.assertEqual('background-color: #D8E5EB;', print_node_css(style, nodes[4]))
+        self.assertEqual('',                           poll_node_css(style, nodes[0]))
+        self.assertEqual('background-color: #BDD8E4;', poll_node_css(style, nodes[2]))
+        self.assertEqual('background-color: #D8E5EB;', poll_node_css(style, nodes[4]))
 
     def test_section_tree03(self):
         pform = PollForm.objects.create(user=self.user, name='Form#1')
@@ -1792,7 +1797,8 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
             conditions = line1.get_reversed_conditions()
         self.assertEqual([cond1, cond3], conditions)
 
-    def test_print_line_condition(self):
+    # def test_print_line_condition(self):
+    def test_poll_line_condition(self):
         pform = PollForm.objects.create(user=self.user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
@@ -1821,16 +1827,20 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         msg_fmt1 = _(u'The answer to the question #%(number)s is «%(answer)s».')
         msg_fmt2 = _(u'The answer to the question #%(number)s contains «%(answer)s».')
         self.assertEqual(msg_fmt1 % {'number': 1, 'answer': 'A lot'},
-                         print_line_condition(nodes, cond1)
+                         # print_line_condition(nodes, cond1)
+                         poll_line_condition(nodes, cond1)
                         )
         self.assertEqual(msg_fmt1 % {'number': 2, 'answer': 'A little bit'},
-                         print_line_condition(nodes, cond2)
+                         # print_line_condition(nodes, cond2)
+                         poll_line_condition(nodes, cond2)
                         )
         self.assertEqual(msg_fmt1 % {'number': 2, 'answer': _('Other')},
-                         print_line_condition(nodes, cond3)
+                         # print_line_condition(nodes, cond3)
+                         poll_line_condition(nodes, cond3)
                         )
         self.assertEqual(msg_fmt2 % {'number': 3, 'answer': 'Coco nuts'},
-                         print_line_condition(nodes, cond4)
+                         # print_line_condition(nodes, cond4)
+                         poll_line_condition(nodes, cond4)
                         )
 
         self.assertGET200(pform.get_absolute_url())
