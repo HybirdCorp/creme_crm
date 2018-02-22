@@ -631,7 +631,7 @@ CREME_CORE_JS = ('main.js',
 
                     'creme_core/js/menu.js',
                     'creme_core/js/search.js',
-                    'creme_core/js/blocks.js',
+                    # 'creme_core/js/blocks.js',  # TODO: delete the file in Creme 2.0
 
                     'creme_core/js/bricks.js',
 

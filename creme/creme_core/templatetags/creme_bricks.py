@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2017  Hybird
+#    Copyright (C) 2015-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -843,34 +843,34 @@ def brick_end(context):
     """
     bricks_manager = BricksManager.get(context)
 
-    # TODO: remove the dependencies map in creme 1.8 (+ deprecate get_dependencies_map() method)
-    res = """
-<script type='text/javascript'>
-    $(document).ready(function() {
-        creme.utils.blocks_deps = {
-            %s
-        };
-
-        creme.utils.getBlocksDeps = function(block_name) {
-            console.warn('creme.utils.getBlocksDeps() is deprecated.');
-            var deps = creme.utils.blocks_deps[block_name];
-
-            if (typeof(deps) === undefined) {
-                deps = '';
-            }
-
-            return deps;
-        };
-    });
-</script>""" % (', '.join('"{}": "{}"'.format(brick_id, ','.join(brick_deps))
-                              for brick_id, brick_deps in bricks_manager.get_dependencies_map().iteritems()
-                         )
-               )
-
+#     res = """
+# <script type='text/javascript'>
+#     $(document).ready(function() {
+#         creme.utils.blocks_deps = {
+#             %s
+#         };
+#
+#         creme.utils.getBlocksDeps = function(block_name) {
+#             console.warn('creme.utils.getBlocksDeps() is deprecated.');
+#             var deps = creme.utils.blocks_deps[block_name];
+#
+#             if (typeof(deps) === undefined) {
+#                 deps = '';
+#             }
+#
+#             return deps;
+#         };
+#     });
+# </script>""" % (', '.join('"{}": "{}"'.format(brick_id, ','.join(brick_deps))
+#                               for brick_id, brick_deps in bricks_manager.get_dependencies_map().iteritems()
+#                          )
+#                )
+    res = ''
     remaining_groups = bricks_manager.get_remaining_groups()
 
     if remaining_groups:
-        res += """
+        # res += """
+        res = """
 <div>
     BEWARE ! There are some unused imported bricks.
     <ul>{}</ul>

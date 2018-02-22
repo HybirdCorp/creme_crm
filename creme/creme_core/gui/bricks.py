@@ -20,7 +20,8 @@
 
 from future_builtins import filter, map
 from collections import defaultdict
-import logging  # warnings
+import logging
+import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -591,7 +592,7 @@ class BricksManager(object):
         return dep_map
 
     def _get_dependencies_ids(self, block):
-        # warnings.warn('BlocksManager._get_dependencies_ids() is deprecated.', DeprecationWarning)  TODO: in 1.8
+        warnings.warn('BricksManager._get_dependencies_ids() is deprecated.', DeprecationWarning)
         dep_map = self._build_dependencies_map()
         depblocks_ids = set()
 
@@ -624,7 +625,7 @@ class BricksManager(object):
         return self._bricks_groups.keys()
 
     def get_dependencies_map(self):
-        # warnings.warn('BlocksManager.get_dependencies_map() is deprecated.', DeprecationWarning)  TODO: in 1.8
+        warnings.warn('BricksManager.get_dependencies_map() is deprecated.', DeprecationWarning)
         get_dep = self._get_dependencies_ids
         return {block.id_: get_dep(block) for block in self._bricks}
 
