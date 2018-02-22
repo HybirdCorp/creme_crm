@@ -20,9 +20,10 @@
 
 from collections import defaultdict
 import logging
+import warnings
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
+# from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
@@ -180,21 +181,13 @@ class HistoryBrick(QuerysetBrick):
             # Should not happen (means that entity does not exist anymore) but...
             hline.entity = entities_map.get(hline.entity_id)
 
-    # TODO: move to HistoryLine (used in templatetags/creme_history.py too)
     @staticmethod
     def _populate_users(hlines, user):
-        # We retrieve the User instances corresponding to the line usernames, in order to have a verbose display.
-        # We avoid a useless query to User if the only used User is the current User (which is already retrieved).
-        usernames = {hline.username for hline in hlines}
-        usernames.discard(user.username)
+        warnings.warn('HistoryBrick._populate_users() is deprecated ; use HistoryLine.populate_users() instead.',
+                      DeprecationWarning
+                     )
 
-        users = {user.username: user}
-
-        if usernames:
-            users.update((u.username, u) for u in get_user_model().objects.filter(username__in=usernames))
-
-        for hline in hlines:
-            hline.user = users.get(hline.username)
+        HistoryLine.populate_users(hlines, user)
 
     @staticmethod
     def _populate_perms(hlines, user):
@@ -210,7 +203,8 @@ class HistoryBrick(QuerysetBrick):
         btc = self.get_template_context(context, HistoryLine.objects.filter(entity=pk))
         hlines = btc['page'].object_list
 
-        self._populate_users(hlines, context['user'])
+        # self._populate_users(hlines, context['user'])
+        HistoryLine.populate_users(hlines, context['user'])
 
         for hline in hlines:
             # All lines are referencing context['object'], which can be viewed.
@@ -228,7 +222,8 @@ class HistoryBrick(QuerysetBrick):
         user = context['user']
 
         self._populate_related_real_entities(hlines, user)
-        self._populate_users(hlines, user)
+        # self._populate_users(hlines, user)
+        HistoryLine.populate_users(hlines, user)
         self._populate_perms(hlines, user)
 
         return self._render(btc)
@@ -243,7 +238,8 @@ class HistoryBrick(QuerysetBrick):
         user = context['user']
 
         self._populate_related_real_entities(hlines, user)
-        self._populate_users(hlines, user)
+        # self._populate_users(hlines, user)
+        HistoryLine.populate_users(hlines, user)
         self._populate_perms(hlines, user)
 
         return self._render(btc)
