@@ -100,10 +100,10 @@ class Migration(migrations.Migration):
                 ),
                 ('subject', models.CharField(verbose_name='Subject', max_length=100, editable=False)),
                 ('body', models.TextField(verbose_name='Body', editable=False)),
-                ('body_html', models.TextField(verbose_name='Body (HTML)', null=True, editable=False, blank=True)),
+                ('body_html', models.TextField(verbose_name='Body (HTML)', null=True, editable=False)),  # blank=True
                 ('attachments', models.ManyToManyField(verbose_name='Attachments', editable=False, to=settings.DOCUMENTS_DOCUMENT_MODEL)),
                 ('campaign', models.ForeignKey(related_name='sendings_set', editable=False, to=settings.EMAILS_CAMPAIGN_MODEL, verbose_name='Related campaign')),
-                ('signature', models.ForeignKey(on_delete=SET_NULL, blank=True, editable=False, to='emails.EmailSignature', null=True, verbose_name='Signature')),
+                ('signature', models.ForeignKey(on_delete=SET_NULL, editable=False, to='emails.EmailSignature', null=True, verbose_name='Signature')),  # blank=True
             ],
             options={
                 'verbose_name': 'Email campaign sending',
@@ -134,7 +134,7 @@ class Migration(migrations.Migration):
             name='EntityEmail',
             fields=[
                 ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
-                ('reads', models.PositiveIntegerField(default=0, verbose_name='Number of reads', null=True, editable=False, blank=True)),
+                ('reads', models.PositiveIntegerField(default=0, verbose_name='Number of reads', null=True, editable=False)),  # blank=True
                 ('status', models.PositiveSmallIntegerField(default=2, verbose_name='Status', editable=False,
                                                             choices=[(1, 'Sent'), (2, 'Not sent'), (3, 'Sending error'),
                                                                      (4, 'Synchronized'), (5, 'Synchronized - Marked as SPAM'),
@@ -146,8 +146,8 @@ class Migration(migrations.Migration):
                 ('recipient', models.CharField(max_length=100, verbose_name='Recipient')),
                 ('subject', models.CharField(max_length=100, verbose_name='Subject', blank=True)),
                 ('body', models.TextField(verbose_name='Body')),
-                ('sending_date', models.DateTimeField(verbose_name='Sending date', null=True, editable=False, blank=True)),
-                ('reception_date', models.DateTimeField(verbose_name='Reception date', null=True, editable=False, blank=True)),
+                ('sending_date', models.DateTimeField(verbose_name='Sending date', null=True, editable=False)),  # blank=True
+                ('reception_date', models.DateTimeField(verbose_name='Reception date', null=True, editable=False)),  # blank=True
                 ('identifier', models.CharField(default=creme.emails.utils.generate_id, verbose_name='Email ID', unique=True, max_length=32, editable=False)),
                 ('body_html', creme.creme_core.models.fields.UnsafeHTMLField(verbose_name='Body (HTML)')),
                 ('attachments', models.ManyToManyField(to=settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name='Attachments', blank=True)),
@@ -165,7 +165,7 @@ class Migration(migrations.Migration):
             name='LightWeightEmail',
             fields=[
                 ('id', models.CharField(verbose_name='Email ID', max_length=32, serialize=False, editable=False, primary_key=True)),
-                ('reads', models.PositiveIntegerField(default=0, verbose_name='Number of reads', null=True, editable=False, blank=True)),
+                ('reads', models.PositiveIntegerField(default=0, verbose_name='Number of reads', null=True, editable=False)),  # blank=True
                 ('status', models.PositiveSmallIntegerField(default=2, verbose_name='Status', editable=False,
                                                             choices=[(1, 'Sent'), (2, 'Not sent'), (3, 'Sending error'),
                                                                      (4, 'Synchronized'), (5, 'Synchronized - Marked as SPAM'),
@@ -177,8 +177,8 @@ class Migration(migrations.Migration):
                 ('recipient', models.CharField(max_length=100, verbose_name='Recipient')),
                 ('subject', models.CharField(max_length=100, verbose_name='Subject', blank=True)),
                 ('body', models.TextField(verbose_name='Body')),
-                ('sending_date', models.DateTimeField(verbose_name='Sending date', null=True, editable=False, blank=True)),
-                ('reception_date', models.DateTimeField(verbose_name='Reception date', null=True, editable=False, blank=True)),
+                ('sending_date', models.DateTimeField(verbose_name='Sending date', null=True, editable=False)),  # blank=True
+                ('reception_date', models.DateTimeField(verbose_name='Reception date', null=True, editable=False)),  # blank=True
                 ('recipient_entity', models.ForeignKey(related_name='received_lw_mails', editable=False, to='creme_core.CremeEntity', null=True)),
                 ('sending', models.ForeignKey(related_name='mails_set', editable=False, to='emails.EmailSending', verbose_name='Related sending')),
             ],
