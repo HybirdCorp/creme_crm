@@ -18,19 +18,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme.creme_core.gui.button_menu import Button
+# TODO: remove the template files too
 
-
-class InfopathCreateFormButton(Button):
-    id_           = Button.generate_id('crudity', 'infopath_create_form')
-    verbose_name  = u''
-    template_name = 'crudity/templatetags/button_infopath_create_form.html'
-
-
-class EmailTemplateCreateButton(Button):
-    id_           = Button.generate_id('crudity', 'email_template_create')
-    verbose_name  = u''
-    template_name = 'crudity/templatetags/button_email_template_create.html'
+# from creme.creme_core.gui.button_menu import Button
+#
+#
+# class InfopathCreateFormButton(Button):
+#     id_           = Button.generate_id('crudity', 'infopath_create_form')
+#     verbose_name  = u''
+#     template_name = 'crudity/templatetags/button_infopath_create_form.html'
+#
+#
+# class EmailTemplateCreateButton(Button):
+#     id_           = Button.generate_id('crudity', 'email_template_create')
+#     verbose_name  = u''
+#     template_name = 'crudity/templatetags/button_email_template_create.html'
 
 
 # infopath_create_form_button  = InfopathCreateFormButton()

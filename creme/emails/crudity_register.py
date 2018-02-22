@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -48,7 +48,8 @@ EntityEmail = get_entityemail_model()
 
 class EntityEmailBackend(CrudityBackend):
     model           = EntityEmail
-    blocks          = (bricks.WaitingSynchronizationMailsBrick, bricks.SpamSynchronizationMailsBrick)
+    # blocks          = (bricks.WaitingSynchronizationMailsBrick, bricks.SpamSynchronizationMailsBrick)
+    brick_classes   = (bricks.WaitingSynchronizationMailsBrick, bricks.SpamSynchronizationMailsBrick)
     attachment_path = ['upload', 'emails', 'attachments']
 
     def fetcher_fallback(self, email, current_user, *args, **kwargs):

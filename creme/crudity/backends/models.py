@@ -27,7 +27,6 @@ from django.db import IntegrityError
 from django.db.models import (FieldDoesNotExist, TextField, BooleanField,
         DateField, DateTimeField, FileField, ForeignKey, ManyToManyField)
 from django.db.transaction import atomic
-# from django.template.context import Context
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.models import SettingValue
@@ -36,12 +35,12 @@ from creme.creme_core.utils.dates import dt_from_str, date_from_str
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
 # TODO: improve the crudity_registry in order to manage FK to other entity types => use test-models
-# from creme.media_managers.models import Image
 from creme.documents import get_document_model, get_folder_model
 
-from ..models import History
+from ..bricks import WaitingActionsBrick
 from ..constants import SETTING_CRUDITY_SANDBOX_BY_USER
 from ..exceptions import ImproperlyConfiguredBackend
+from ..models import History
 
 
 logger = logging.getLogger(__name__)
@@ -62,7 +61,8 @@ class CrudityBackend(object):
     body_map    = {}    # Mapping email body's key <==> model's key, value in the dict is the default value
     limit_froms = ()    # If "recipient" doesn't the backend policy
     subject     = u''   # Matched subject
-    blocks      = ()    # Blocks classes  # TODO: rename 'bricks'
+    # blocks      = ()    # Blocks classes
+    brick_classes = (WaitingActionsBrick,)   # Bricks classes
 
     def __init__(self, config, crud_input=None, *args, **kwargs):
         config_get = config.get
@@ -84,12 +84,12 @@ class CrudityBackend(object):
 
         self._sandbox_by_user = None
         self._check_configuration()
-        self.buttons = []  # TODO: deprecate in 1.8
+        # self.buttons = []
 
     @property
     def is_configured(self):
-        return all([self.subject, self.body_map, self.model])
-        # TODO ? return bool(self.subject and self.body_map and self.model)
+        # return all([self.subject, self.body_map, self.model])
+        return bool(self.subject and self.body_map and self.model)
 
     def _check_configuration(self):
         """Check if declared fields exists in the model
@@ -145,7 +145,7 @@ class CrudityBackend(object):
             except FieldDoesNotExist:
                 continue
 
-            if issubclass(field.__class__, ManyToManyField): #TODO: isinstance(field, ManyToManyField) ...
+            if issubclass(field.__class__, ManyToManyField):  # TODO: isinstance(field, ManyToManyField) ...
                 setattr(instance, field_name, field.rel.to._default_manager.filter(pk__in=field_value.split()))
 
         return need_new_save
@@ -251,15 +251,15 @@ class CrudityBackend(object):
 
         return is_created, instance
 
-    def add_buttons(self, *buttons):  # TODO: deprecate in 1.8
-        self.buttons.extend(buttons)
+    # def add_buttons(self, *buttons):
+    #     self.buttons.extend(buttons)
 
     def get_id(self):
         subject = self.subject
         return self.fetcher_name if subject == '*' else \
                '%s|%s|%s' % (self.fetcher_name, self.input_name, self.subject)
 
-    def get_rendered_buttons(self):  # TODO: deprecate in 1.8
-        return [button.render({'backend': self})
-                    for button in self.buttons if self.is_configured
-               ]
+    # def get_rendered_buttons(self):
+    #     return [button.render({'backend': self})
+    #                 for button in self.buttons if self.is_configured
+    #            ]

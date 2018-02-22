@@ -119,14 +119,17 @@ class CrudityRegistryTestCase(CrudityTestCase):
         self.assertIsNone(ifetcher.get_default_backend())
 
         self.assertEqual(crud_input, ifetcher.get_input('raw_swallow', 'create'))
-        self.assertEqual(2, len(crud_input.backends))
+        # self.assertEqual(2, len(crud_input.backends))
+        self.assertEqual(2, len(crud_input._backends))
 
-        backend1 = crud_input.backends[subject1]
+        # backend1 = crud_input.backends[subject1]
+        backend1 = crud_input.get_backend(subject1)
         self.assertIsInstance(backend1, FakeContactBackend)
         self.assertEqual(subject1,                backend1.subject)
         self.assertEqual('swallow - raw_swallow', backend1.source)
 
-        backend2 = crud_input.backends[subject2]
+        # backend2 = crud_input.backends[subject2]
+        backend2 = crud_input.get_backend(subject2)
         self.assertIsInstance(backend2, FakeOrganisationBackend)
         self.assertEqual(subject2, backend2.subject)
 

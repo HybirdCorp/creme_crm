@@ -31,21 +31,26 @@ class CrudityInput(object):
     brickheader_action_templates = ()
 
     def __init__(self):
-        self.backends = {}  # TODO: rename _backends + get_backends() becomes 'backends' property ?
-        self._buttons = []  # TODO: deprecated in 1.8
+        # self.backends = {}
+        self._backends = {}
+        # self._buttons = []
         self._brickheader_actions = [TemplateBrickHeaderAction(template_name=tn)
                                         for tn in self.brickheader_action_templates
                                     ]
 
     def add_backend(self, backend):
-        backend.add_buttons(*self._buttons)
-        self.backends[backend.subject] = backend
+        # backend.add_buttons(*self._buttons)
+        self._backends[backend.subject] = backend
 
-    def get_backends(self):
-        return self.backends.values()
+    def get_backends(self):  # TODO: rename 'backends' + property + generator ?
+        return self._backends.values()
 
     def get_backend(self, subject):
-        return self.backends.get(subject)
+        return self._backends.get(subject)
+
+    @property
+    def has_backends(self):
+        return bool(self._backends)
 
     def handle(self, data):
         """Call the method of the Input defined in subclasses
@@ -57,9 +62,8 @@ class CrudityInput(object):
 
         return None
 
-    def register_buttons(self, *buttons):  # TODO: deprecated in 1.8
-        # TODO: add buttons to existing backends ?
-        self._buttons.extend(buttons)
+    # def register_buttons(self, *buttons):
+    #     self._buttons.extend(buttons)
 
     @property
     def brickheader_actions(self):
