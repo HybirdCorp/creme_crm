@@ -115,7 +115,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         build_4_field = partial(EntityCellRegularField.build, model=FakeContact)
         self.assertCellsEqual([build_4_field(name='first_name'),
                                build_4_field(name='last_name'),
-                               EntityCellRelation(RelationType.objects.get(pk=FAKE_REL_SUB_EMPLOYED_BY)),
+                               EntityCellRelation(model=FakeContact, rtype=RelationType.objects.get(pk=FAKE_REL_SUB_EMPLOYED_BY)),
                               ],
                               cells_f.initial
                              )

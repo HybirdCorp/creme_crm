@@ -156,7 +156,7 @@ class EntityCellsField(Field):
         return EntityCellFunctionField.build(model, name[len(_FFIELD_PREFIX):])
 
     def _build_4_relation(self, model, name):
-        return EntityCellRelation(self._get_rtype(name[len(_RTYPE_PREFIX):]))
+        return EntityCellRelation(model=model, rtype=self._get_rtype(name[len(_RTYPE_PREFIX):]))
 
     def _choices_4_customfields(self, ct, builders):
         self._custom_fields = CustomField.objects.filter(content_type=ct)  # Cache

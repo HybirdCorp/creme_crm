@@ -840,8 +840,8 @@ class ReportTestCase(BaseReportsTestCase):
         hf = HeaderFilter.create(pk='test_hf', name='Invoice view', model=FakeInvoice,
                                  cells_desc=[EntityCellRegularField.build(model=FakeInvoice, name='name'),
                                              EntityCellRegularField.build(model=FakeInvoice, name='user'),
-                                             EntityCellRelation(rt),
-                                             EntityCellFunctionField(FakeInvoice.function_fields.get('get_pretty_properties')),
+                                             EntityCellRelation(model=FakeInvoice, rtype=rt),
+                                             EntityCellFunctionField(model=FakeInvoice, func_field=FakeInvoice.function_fields.get('get_pretty_properties')),
                                             ],
                                  )
 

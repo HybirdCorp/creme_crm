@@ -460,7 +460,7 @@ class _ModelSmartColumnsRegistry(object):
                 if rtype is False:
                     logger.warn('SmartColumnsRegistry: relation type "%s" does not exist', data)
                 else:
-                    cell = EntityCellRelation(rtype)
+                    cell = EntityCellRelation(model=model, rtype=rtype)
 
             # Has no sense here:
             #  EntityCellActions : not configurable in HeaderFilter form

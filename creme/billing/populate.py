@@ -190,7 +190,7 @@ class Populator(BasePopulator):
         def create_hf(hf_pk, name, model, status=True):
             HeaderFilter.create(pk=hf_pk, name=name, model=model,
                                 cells_desc=[(EntityCellRegularField, {'name': 'name'}),
-                                            EntityCellRelation(rtype=rt_sub_bill_received),
+                                            EntityCellRelation(model=model, rtype=rt_sub_bill_received),
                                             (EntityCellRegularField, {'name': 'number'}),
                                             (EntityCellRegularField, {'name': 'status'}) if status else None,
                                             (EntityCellRegularField, {'name': 'total_no_vat'}),

@@ -1027,7 +1027,7 @@ class BrickTestCase(CremeTestCase):
                 id='tests-organisations01', name='General',
                 content_type=ContentType.objects.get_for_model(FakeOrganisation),
                 cells=[EntityCellRegularField.build(FakeOrganisation, 'name'),
-                       EntityCellRelation(rtype=rtype),
+                       EntityCellRelation(model=FakeOrganisation, rtype=rtype),
                       ],
         )
 

@@ -1543,7 +1543,7 @@ class OriginTestCase(CremeTestCase):
     #     response = self.assertGET200(reverse('creme_config__model_portal', args=('opportunities', 'origin')))
     #     self.assertContains(response, origin1.name)
     #     self.assertContains(response, origin2.name)
-    # 
+    #
     #     self.assertPOST404(reverse('creme_config__move_instance_down', args=('opportunities', 'origin', origin1.id)))
 
     @skipIfCustomOpportunity

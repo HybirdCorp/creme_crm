@@ -107,7 +107,7 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.assertEqual(val, funf(target, user).for_csv())
 
         # Test for EntityCellFunctionField + CSS
-        cell = EntityCellFunctionField(func_field=funf)
+        cell = EntityCellFunctionField(model=Invoice, func_field=funf)
         self.assertEqual(settings.CSS_NUMBER_LISTVIEW,         cell.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 

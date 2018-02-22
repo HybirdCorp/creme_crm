@@ -74,7 +74,7 @@ class HeaderFiltersTestCase(CremeTestCase):
                                  model=FakeContact, is_custom=True, is_private=True,
                                  user=user,
                                  cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
-                                              EntityCellRelation(loves),
+                                              EntityCellRelation(model=FakeContact, rtype=loves),
                                              (EntityCellRelation, {'rtype_id': likes.id}),
                                              None,
                                             ],
@@ -374,8 +374,8 @@ class HeaderFiltersTestCase(CremeTestCase):
 
         hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=FakeContact,
                                  cells_desc=[EntityCellRegularField.build(model=FakeContact, name='last_name'),
-                                             EntityCellRelation(rtype=loved),
-                                             EntityCellRelation(rtype=hated),
+                                             EntityCellRelation(model=FakeContact, rtype=loved),
+                                             EntityCellRelation(model=FakeContact, rtype=hated),
                                             ],
                                 )
 

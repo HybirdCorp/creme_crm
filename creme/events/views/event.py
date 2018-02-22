@@ -143,10 +143,10 @@ class ListViewPostProcessor(object):
 
         # NB: add relations items to use the pre-cache system of HeaderFilter
         #     (TODO: problem: retrieve other related events too)
-        cells.extend(EntityCellRelation(rtype=rtype, is_hidden=True) for rtype in rtypes)
+        cells.extend(EntityCellRelation(model=Contact, rtype=rtype, is_hidden=True) for rtype in rtypes)
 
-        cells.append(EntityCellVolatile(value='invitation_management', title=_(u'Invitation'), render_func=self.invitation_render))
-        cells.append(EntityCellVolatile(value='presence_management',   title=_(u'Presence'),   render_func=self.presence_render))
+        cells.append(EntityCellVolatile(model=Contact, value='invitation_management', title=_(u'Invitation'), render_func=self.invitation_render))
+        cells.append(EntityCellVolatile(model=Contact, value='presence_management',   title=_(u'Presence'),   render_func=self.presence_render))
 
         for entity in context['entities'].object_list:
             entity.get_actions = build_get_actions(self.event, entity)

@@ -179,7 +179,7 @@ class ListViewTestCase(ViewsTestCase):
         cfield_value = 42
         cfield.get_value_class()(custom_field=cfield, entity=bebop).set_value_n_save(cfield_value)
 
-        hf = self._build_hf(EntityCellRelation(rtype=rtype),
+        hf = self._build_hf(EntityCellRelation(model=FakeOrganisation, rtype=rtype),
                             EntityCellFunctionField.build(FakeOrganisation, 'get_pretty_properties'),
                             EntityCellCustomField(cfield),
                            )
@@ -1456,7 +1456,7 @@ class ListViewTestCase(ViewsTestCase):
         create_rel(subject_entity=redtail,   object_entity=faye)
         create_rel(subject_entity=bebop,     object_entity=jet)
 
-        hf = self._build_hf(EntityCellRelation(rtype=rtype))
+        hf = self._build_hf(EntityCellRelation(model=FakeOrganisation, rtype=rtype))
 
         url = self.url
         data = {'hfilter': hf.id, 'name': '', 'relation-%s' % rtype.pk: 'Spiege'}
@@ -1504,8 +1504,8 @@ class ListViewTestCase(ViewsTestCase):
         create_rel(subject_entity=swordfish, object_entity=jet, type=rtype2)
         create_rel(subject_entity=bebop,     object_entity=jet, type=rtype2)
 
-        hf = self._build_hf(EntityCellRelation(rtype=rtype1),
-                            EntityCellRelation(rtype=rtype2),
+        hf = self._build_hf(EntityCellRelation(model=FakeOrganisation, rtype=rtype1),
+                            EntityCellRelation(model=FakeOrganisation, rtype=rtype2),
                            )
 
         response = self.assertPOST200(self.url,
@@ -1999,7 +1999,7 @@ class ListViewTestCase(ViewsTestCase):
         swordfish = create_orga(name='Swordfish')
 
         func_field = FakeOrganisation.function_fields.get('tests-get_fake_todos')
-        self._build_hf(EntityCellFunctionField(func_field))
+        self._build_hf(EntityCellFunctionField(model=FakeOrganisation, func_field=func_field))
 
         response = self.assertPOST200(self.url, data={'regular_field-name': '',
                                                       'function_field-%s' % func_field.name: bebop.name,
