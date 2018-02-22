@@ -252,6 +252,7 @@ INSTALLED_DJANGO_APPS = (
     # 'django.contrib.sites', #remove ??
 
     # EXTERNAL APPS
+    'formtools',
     'creme.creme_core.apps.MediaGeneratorConfig',  # It manages js/css/images
 )
 
