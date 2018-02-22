@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'CRUDITY' APP
-# Copyright (C) 2017 Hybird
+# Copyright (C) 2018 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*" -e py -e html -e xml
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Creme-Crudity 1.7\n"
+"Project-Id-Version: Creme Creme-Crudity 1.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-24 23:45+0100\n"
+"POT-Creation-Date: 2018-02-01 11:46+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -20,33 +20,31 @@ msgstr ""
 msgid "External data management"
 msgstr "Gestion des données externes"
 
-#: apps.py:47
+#: apps.py:42
 msgid "Email waiting actions"
 msgstr "Actions en attente pour les emails"
 
-#: apps.py:48 apps.py:61 blocks.py:63 bricks.py:106 models/history.py:38
+#: apps.py:43 apps.py:56 bricks.py:107 models/history.py:38
 #: models/history.py:39 templates/crudity/history.html:4
-#: templates/crudity/history.html.py:18
+#: templates/crudity/history.html.py:9
 msgid "History"
 msgstr "Historique"
 
-#: apps.py:53 backends/models.py:213
+#: apps.py:48 backends/models.py:208
 msgid "External data"
 msgstr "Données externes"
 
-#: apps.py:56 blocks.py:20 bricks.py:49 models/actions.py:44
-#: templates/crudity/frags/ajax/waiting_actions.html:6
+#: apps.py:51 bricks.py:50 models/actions.py:44
 #: templates/crudity/waiting-actions.html:4
 #: templates/crudity/waiting-actions.html:52
-#: templates/crudity/waiting_actions.html:6
 msgid "Waiting actions"
 msgstr "Actions en attente"
 
-#: backends/models.py:217
+#: backends/models.py:212
 msgid "Imported from external data."
 msgstr "Importé depuis des données externes."
 
-#: backends/models.py:252
+#: backends/models.py:246
 #, python-format
 msgid "Creation of %(entity)s"
 msgstr "Création de %(entity)s"
@@ -56,39 +54,39 @@ msgstr "Création de %(entity)s"
 msgid "Error: you are not allowed to view this block: %s"
 msgstr "Erreur: vous n'êtes pas autorisé à voir ce block: %s"
 
-#: bricks.py:89
+#: bricks.py:90
 #, python-brace-format
 msgid "{count} Waiting action - {ctype} - {source}"
 msgid_plural "{count} Waiting actions - {ctype} - {source}"
 msgstr[0] "{count} Action en attente - {ctype} - {source}"
 msgstr[1] "{count} Actions en attente - {ctype} - {source}"
 
-#: bricks.py:97
+#: bricks.py:98
 #, python-brace-format
 msgid "Waiting actions - {ctype} - {source}"
 msgstr "Actions en attente - {ctype} - {source}"
 
-#: bricks.py:132
+#: bricks.py:133
 #, python-brace-format
 msgid "{count} History item - {ctype}"
 msgid_plural "{count} History items - {ctype}"
 msgstr[0] "{count} entrée d'historique - {ctype}"
 msgstr[1] "{count} entrées d'historique - {ctype}"
 
-#: bricks.py:137
+#: bricks.py:138
 #, python-brace-format
 msgid "History items - {ctype}"
 msgstr "Entrées d'historique - {ctype}"
 
-#: builders/infopath.py:424 inputs/email.py:67 inputs/filesystem.py:41
+#: builders/infopath.py:421 inputs/email.py:66 inputs/filesystem.py:41
 msgid "Create"
 msgstr "Créer"
 
-#: creme_jobs.py:40
+#: creme_jobs.py:33
 msgid "Synchronize externals data sent to Creme"
 msgstr "Synchroniser les données externes envoyées à Creme"
 
-#: creme_jobs.py:52
+#: creme_jobs.py:41
 msgid ""
 "The configured default user is invalid. Edit the job's configuration to fix "
 "it."
@@ -96,7 +94,7 @@ msgstr ""
 "L'utilisateur par défaut configuré est invalide. Modifiez la configuration "
 "pour la réparer."
 
-#: creme_jobs.py:66
+#: creme_jobs.py:53
 #, python-format
 msgid "There is %s change"
 msgid_plural "There are %s changes"
@@ -115,11 +113,11 @@ msgstr ""
 "Ex: l'utilisateur possédant les e-mails/dossier/documents créés pendant la "
 "synchronisation des e-mails"
 
-#: inputs/email.py:55
+#: inputs/email.py:54
 msgid "Email - Raw"
 msgstr "E-mail - Simple"
 
-#: inputs/email.py:196
+#: inputs/email.py:199
 msgid "Email - Infopath"
 msgstr "E-mail - Infopath"
 
@@ -127,26 +125,12 @@ msgstr "E-mail - Infopath"
 msgid "File - INI"
 msgstr "Fichier - INI"
 
-#: inputs/filesystem.py:67
-#: templates/crudity/templatetags/button_email_template_create.html:6
-#: templates/crudity/templatetags/button_infopath_create_form.html:6
-msgid "Download"
-msgstr "Télécharger"
-
-#: inputs/filesystem.py:69
-#: templates/crudity/bricks/header-actions/inifile-creation-template.html:3
-#, python-format
-msgid "File .ini template for «%s»"
-msgstr "Modèle de fichier .ini pour «%s»"
-
 #: models/actions.py:31 models/history.py:31
 #: templates/crudity/bricks/history.html:14
-#: templates/crudity/templatetags/block_history.html:40
 msgid "Action"
 msgstr "Action"
 
 #: models/actions.py:35 models/history.py:32
-#: templates/crudity/templatetags/block_history.html:41
 msgid "Source"
 msgstr "Source"
 
@@ -166,18 +150,17 @@ msgstr "Propriétaire"
 msgid "Waiting action"
 msgstr "Action en attente"
 
-#: models/actions.py:64
+#: models/actions.py:68
 #, python-format
 msgid "You are not allowed to validate/delete the waiting action <%s>"
 msgstr ""
 "Vous n'êtes pas autorisé à valider/effacer cette action en attente <%s>"
 
-#: models/actions.py:66
+#: models/actions.py:70
 msgid "OK"
 msgstr "OK"
 
 #: models/history.py:29 templates/crudity/bricks/history.html:12
-#: templates/crudity/templatetags/block_history.html:38
 msgid "Entity"
 msgstr "Fiche"
 
@@ -186,7 +169,6 @@ msgid "Creation date"
 msgstr "Date de création"
 
 #: models/history.py:33 templates/crudity/bricks/history.html:15
-#: templates/crudity/templatetags/block_history.html:42
 msgid "Description"
 msgstr "Description"
 
@@ -204,8 +186,12 @@ msgstr "Télécharger un modèle d'e-mail pour «%s»"
 msgid "Download Infopath form for «%s»"
 msgstr "Télécharger un formulaire Infopath pour «%s»"
 
+#: templates/crudity/bricks/header-actions/inifile-creation-template.html:3
+#, python-format
+msgid "File .ini template for «%s»"
+msgstr "Modèle de fichier .ini pour «%s»"
+
 #: templates/crudity/bricks/history.html:13
-#: templates/crudity/templatetags/block_history.html:39
 msgid "Created"
 msgstr "Créé"
 
@@ -226,37 +212,30 @@ msgstr "%s Actions selectionnées"
 
 #: templates/crudity/bricks/waiting-actions.html:17
 #: templates/crudity/bricks/waiting-actions.html:56
-#: templates/crudity/templatetags/block_waiting_action.html:40
 msgid "Validate"
 msgstr "Valider"
 
 #: templates/crudity/bricks/waiting-actions.html:18
-#: templates/crudity/templatetags/block_waiting_action.html:45
 msgid "Delete"
 msgstr "Supprimer"
 
 #: templates/crudity/bricks/waiting-actions.html:23
-#: templates/crudity/templatetags/block_waiting_action.html:55
 msgid "Select all"
 msgstr "Tout sélectionner"
 
 #: templates/crudity/bricks/waiting-actions.html:25
-#: templates/crudity/templatetags/block_waiting_action.html:57
 msgid "Data"
 msgstr "Données"
 
 #: templates/crudity/bricks/waiting-actions.html:26
-#: templates/crudity/templatetags/block_waiting_action.html:58
 msgid "Type"
 msgstr "Type"
 
 #: templates/crudity/bricks/waiting-actions.html:27
-#: templates/crudity/templatetags/block_waiting_action.html:59
 msgid "Actions"
 msgstr "Actions"
 
 #: templates/crudity/bricks/waiting-actions.html:35
-#: templates/crudity/templatetags/block_waiting_action.html:64
 msgid "Select this line"
 msgstr "Sélectionner cette ligne"
 
@@ -265,12 +244,7 @@ msgstr "Sélectionner cette ligne"
 msgid "No waiting action for «%(ctype)s» from «%(backend)s»"
 msgstr "Aucune action en attente pour «%(ctype)s» venant de «%(backend)s»"
 
-#: templates/crudity/frags/ajax/waiting_actions.html:13
-#: templates/crudity/waiting-actions.html:58
-msgid "Refresh"
-msgstr "Rafraîchir"
-
-#: templates/crudity/history.html:19
+#: templates/crudity/history.html:10
 msgid "History of automatised creations"
 msgstr "Historique des créations automatisées"
 
@@ -286,60 +260,24 @@ msgstr "Entrez une adresse e-mail valide. Par exemple: creme@crm.org"
 msgid "Select..."
 msgstr "Sélectionner..."
 
-#: templates/crudity/templatetags/block_history.html:26
-#, python-format
-msgid "%(counter)s History item - %(ct_name)s"
-msgid_plural "%(counter)s History items - %(ct_name)s"
-msgstr[0] "%(counter)s entrée d'historique - %(ct_name)s"
-msgstr[1] "%(counter)s entrées d'historique - %(ct_name)s"
+#: templates/crudity/templatetags/button_email_template_create.html:4
+#: templates/crudity/templatetags/button_infopath_create_form.html:4
+msgid "Download"
+msgstr "Télécharger"
 
-#: templates/crudity/templatetags/block_history.html:43
-msgid "View entity's file"
-msgstr "Voir la fiche de la fiche"
-
-#: templates/crudity/templatetags/block_history.html:53
-#, python-format
-msgid "View '%(history_entity)s' details"
-msgstr "Voir les détails de '%(history_entity)s'"
-
-#: templates/crudity/templatetags/block_history.html:53
-msgid "View"
-msgstr "Voir"
-
-#: templates/crudity/templatetags/block_history.html:59
-#, python-format
-msgid "No waiting action for %(ct_name)s"
-msgstr "Aucune action en attente pour %(ct_name)s"
-
-#: templates/crudity/templatetags/block_waiting_action.html:24
-#, python-format
-msgid "%(counter)s Waiting action - %(ct_name)s - %(backend_source)s"
-msgid_plural "%(counter)s Waiting actions - %(ct_name)s - %(backend_source)s"
-msgstr[0] "%(counter)s action en attente - %(ct_name)s - %(backend_source)s"
-msgstr[1] "%(counter)s actions en attente - %(ct_name)s - %(backend_source)s"
-
-#: templates/crudity/templatetags/block_waiting_action.html:41
-msgid "Validate the selection"
-msgstr "Valider la sélection"
-
-#: templates/crudity/templatetags/block_waiting_action.html:46
-msgid "Delete the selection"
-msgstr "Supprimer la sélection"
-
-#: templates/crudity/templatetags/block_waiting_action.html:92
-#, python-format
-msgid "No waiting action for %(ct_name)s from %(backend_source)s"
-msgstr "Aucune action en attente pour %(ct_name)s venant de %(backend_source)s"
-
-#: templates/crudity/templatetags/button_email_template_create.html:7
+#: templates/crudity/templatetags/button_email_template_create.html:5
 #, python-format
 msgid "Email template for «%(verbose_name)s»"
 msgstr "Modèle d'e-mail pour «%(verbose_name)s»"
 
-#: templates/crudity/templatetags/button_infopath_create_form.html:7
+#: templates/crudity/templatetags/button_infopath_create_form.html:5
 #, python-format
 msgid "Infopath form for «%(verbose_name)s»"
 msgstr "Formulaire Infopath pour «%(verbose_name)s»"
+
+#: templates/crudity/waiting-actions.html:58
+msgid "Refresh"
+msgstr "Rafraîchir"
 
 #: templates/crudity/waiting-actions.html:76
 msgid ""
@@ -350,9 +288,43 @@ msgstr ""
 "administrateur (settings.CRUDITY_BACKENDS)."
 
 # Already in creme_core
-#: views/actions.py:142
+#: views/actions.py:108
 msgid "Operation successfully completed"
 msgstr ""
+
+#~ msgid "%(counter)s History item - %(ct_name)s"
+#~ msgid_plural "%(counter)s History items - %(ct_name)s"
+#~ msgstr[0] "%(counter)s entrée d'historique - %(ct_name)s"
+#~ msgstr[1] "%(counter)s entrées d'historique - %(ct_name)s"
+
+#~ msgid "View entity's file"
+#~ msgstr "Voir la fiche de la fiche"
+
+#~ msgid "View '%(history_entity)s' details"
+#~ msgstr "Voir les détails de '%(history_entity)s'"
+
+#~ msgid "View"
+#~ msgstr "Voir"
+
+#~ msgid "No waiting action for %(ct_name)s"
+#~ msgstr "Aucune action en attente pour %(ct_name)s"
+
+#~ msgid "%(counter)s Waiting action - %(ct_name)s - %(backend_source)s"
+#~ msgid_plural ""
+#~ "%(counter)s Waiting actions - %(ct_name)s - %(backend_source)s"
+#~ msgstr[0] "%(counter)s action en attente - %(ct_name)s - %(backend_source)s"
+#~ msgstr[1] ""
+#~ "%(counter)s actions en attente - %(ct_name)s - %(backend_source)s"
+
+#~ msgid "Validate the selection"
+#~ msgstr "Valider la sélection"
+
+#~ msgid "Delete the selection"
+#~ msgstr "Supprimer la sélection"
+
+#~ msgid "No waiting action for %(ct_name)s from %(backend_source)s"
+#~ msgstr ""
+#~ "Aucune action en attente pour %(ct_name)s venant de %(backend_source)s"
 
 #~ msgid "Read"
 #~ msgstr "Lire"

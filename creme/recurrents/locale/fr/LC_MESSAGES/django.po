@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'RECURRENTS' APP
-# Copyright (C) 2017 Hybird
+# Copyright (C) 2018 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Recurrents 1.7\n"
+"Project-Id-Version: Creme Recurrents 1.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-15 14:28+0100\n"
+"POT-Creation-Date: 2018-02-01 12:09+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -19,15 +19,15 @@ msgstr ""
 msgid "Recurrent documents"
 msgstr "Documents récurrents"
 
-#: apps.py:62
+#: apps.py:58
 msgid "Portal of recurrent documents"
 msgstr "Portail des documents récurrents"
 
-#: apps.py:63
+#: apps.py:59
 msgid "All recurrent generators"
 msgstr "Lister les générateurs récurrents"
 
-#: apps.py:69
+#: apps.py:65
 msgid "Management"
 msgstr "Gestion"
 
@@ -35,7 +35,7 @@ msgstr "Gestion"
 msgid "Generate recurrent documents"
 msgstr "Générer les documents récurrents"
 
-#: forms/recurrentgenerator.py:46
+#: forms/recurrentgenerator.py:40
 msgid "Type of resource used as template"
 msgstr "Type de ressource utilisé en tant que modèle"
 
@@ -103,7 +103,7 @@ msgstr "Portail Documents Récurrents"
 msgid "List of recurrent generators"
 msgstr "Liste des générateurs récurrents"
 
-#: views/portal.py:31
+#: views/portal.py:30
 msgid "Number of generators"
 msgstr "Nombre de générateur(s)"
 
