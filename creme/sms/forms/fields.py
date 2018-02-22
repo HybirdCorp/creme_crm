@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -43,11 +43,14 @@ class PhoneField(RegexField):
 
 
 class PhoneListField(RegexField):
+    # TODO: rename 'error_message' as 'error_messageS' ?
     def __init__(self, max_length=None, min_length=None, error_message=None, separator='\n', *args, **kwargs):
         regex = PHONE_LIST_REGEX % separator
         self.separator = separator
 
-        super(PhoneListField, self).__init__(regex, max_length, min_length, error_message, *args, **kwargs)
+        # super(PhoneListField, self).__init__(regex, max_length, min_length, error_message, *args, **kwargs)
+        super(PhoneListField, self).__init__(regex=regex, max_length=max_length, min_length=min_length,
+                                             error_messages=error_message, *args, **kwargs)
 
     def clean(self, value):
         value = super(RegexField, self).clean(value)
