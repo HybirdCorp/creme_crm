@@ -83,9 +83,10 @@ class EmailsConfig(CremeAppConfig):
         register(LightWeightEmail,   exclude=('sender', 'recipient', 'subject', 'body'))  # TODO: idem
 
     def register_buttons(self, button_registry):
-        from .buttons import entityemail_link_button
-
-        button_registry.register(entityemail_link_button)
+        # from .buttons import entityemail_link_button
+        # button_registry.register(entityemail_link_button)
+        from . import buttons
+        button_registry.register(buttons.EntityEmailLinkButton)
 
     def register_fields_config(self, fields_config_registry):
         from creme import persons

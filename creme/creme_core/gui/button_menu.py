@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+import warnings
 
 from django.template.loader import get_template
 
@@ -29,7 +30,8 @@ logger = logging.getLogger(__name__)
 class Button(object):
     id_           = None  # Overload with an unicode object ; use generate_id()
     verbose_name  = 'BUTTON'  # Used in the user configuration (see ButtonMenuItem)
-    template_name = 'creme_core/templatetags/button.html'  # Used to render the button of course
+    # template_name = 'creme_core/templatetags/button.html'  # Used to render the button of course
+    template_name = 'creme_core/buttons/place-holder.html'  # Used to render the button of course
     permission    = None  # None means not permission needed ; overload to set to 'myapp.add_mymodel' for example.
                           # BEWARE: you have to use the context variable 'has_perm' yourself !!
 
@@ -63,28 +65,68 @@ class Button(object):
 
 
 class ButtonsRegistry(object):
+    class RegistrationError(Exception):
+        pass
+
     def __init__(self):
-        self._buttons = {}
+        # self._buttons = {}
+        self._button_classes = {}
 
-    def register(self, *buttons):
+    # def register(self, *buttons):
+    #     buttons_dic = self._buttons
+    #
+    #     for button in buttons:
+    #         button_id = button.id_
+    #
+    #         if buttons_dic.has_key(button_id):
+    #             logger.warning("Duplicate button's id or button registered twice : %s", button_id)
+    #
+    #         buttons_dic[button_id] = button
+    def register(self, *button_classes):
         """
-        @type buttons: creme_core.gui.menu_buttons.Button objects.
+        @type button_classes: creme_core.gui.menu_buttons.Button child classes.
         """
-        buttons_dic = self._buttons
+        setdefault = self._button_classes.setdefault
 
-        for button in buttons:
-            button_id = button.id_
+        for button_cls in button_classes:
+            if isinstance(button_cls, Button):
+                warnings.warn('ButtonsRegistry.register(): registered button instance is deprecated ; '
+                              'register button class instead (button ID=%s)' % button_cls.id_,
+                              DeprecationWarning
+                             )
+                button_cls = button_cls.__class__
 
-            if buttons_dic.has_key(button_id):
-                # TODO: exception instead ?
-                logger.warning("Duplicate button's id or button registered twice : %s", button_id)
+            if setdefault(button_cls.id_, button_cls) is not button_cls:
+                raise self.RegistrationError("Duplicated button's ID (or button registered twice) : {}".format(button_cls.id_))
 
-            buttons_dic[button_id] = button
-
+    # def get_button(self, button_id):
+    #     return self._buttons.get(button_id)
     def get_button(self, button_id):
-        return self._buttons.get(button_id)
+        cls = self._button_classes.get(button_id)
 
-    def get_buttons(self, id_list, entity):
+        return cls() if cls else None
+
+    # def get_buttons(self, id_list, entity):
+    #     """Get the list of Buttons to be displayed on the detail-view of an entity.
+    #     Deprecated buttons & buttons that should not be displayed for this entity
+    #     are ignored.
+    #     @param id_list: Sequence of button IDs.
+    #     @param entity: CremeEntity instance.
+    #     @return List of creme_core.gui.button_menu.Button instances.
+    #     """
+    #     buttons = self._buttons
+    #     buttons_2_display = []
+    #
+    #     for button_id in id_list:
+    #         button = buttons.get(button_id)
+    #
+    #         if button is None:
+    #             logger.warning('Button seems deprecated: %s', button_id)
+    #         elif button.ok_4_display(entity):
+    #             buttons_2_display.append(button)
+    #
+    #     return buttons_2_display
+    def get_buttons(self, id_list, entity):  # TODO: generator
         """Get the list of Buttons to be displayed on the detail-view of an entity.
         Deprecated buttons & buttons that should not be displayed for this entity
         are ignored.
@@ -92,21 +134,26 @@ class ButtonsRegistry(object):
         @param entity: CremeEntity instance.
         @return List of creme_core.gui.button_menu.Button instances.
         """
-        buttons = self._buttons
+        button_classes = self._button_classes
         buttons_2_display = []
 
         for button_id in id_list:
-            button = buttons.get(button_id)
+            button_cls = button_classes.get(button_id)
 
-            if button is None:
+            if button_cls is None:
                 logger.warning('Button seems deprecated: %s', button_id)
-            elif button.ok_4_display(entity):
-                buttons_2_display.append(button)
+            else:
+                button = button_cls()
+
+                if button.ok_4_display(entity):
+                    buttons_2_display.append(button)
 
         return buttons_2_display
 
     def __iter__(self):
-        return self._buttons.iteritems()
+        # return self._buttons.iteritems()
+        for b_id, b_cls in self._button_classes.iteritems():
+            yield b_id, b_cls()
 
 
 button_registry = ButtonsRegistry()

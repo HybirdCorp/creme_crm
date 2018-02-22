@@ -71,9 +71,10 @@ class CommercialConfig(CremeAppConfig):
         register(MarketSegmentDescription,     exclude=['segment'])  # TODO: special form for segment
 
     def register_buttons(self, button_registry):
-        from .buttons import complete_goal_button
-
-        button_registry.register(complete_goal_button)
+        # from .buttons import complete_goal_button
+        # button_registry.register(complete_goal_button)
+        from . import buttons
+        button_registry.register(buttons.CompleteGoalButton)
 
     def register_icons(self, icon_registry):
         reg_icon = icon_registry.register

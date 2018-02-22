@@ -30,14 +30,16 @@ from .constants import REL_SUB_LINKED_2_TICKET
 class Linked2TicketButton(Button):
     id_           = Button.generate_id('tickets', 'linked2ticket')
     verbose_name  = _(u'Is linked to a ticket')
-    template_name = 'tickets/templatetags/button_linked.html'
+    # template_name = 'tickets/templatetags/button_linked.html'
+    template_name = 'tickets/buttons/linked.html'
     permission    = 'tickets'
 
     def render(self, context):
         context['rtype_id'] = REL_SUB_LINKED_2_TICKET
-        context['ticket_ct'] = ContentType.objects.get_for_model(get_ticket_model())
+        context['ticket_ct'] = ContentType.objects.get_for_model(get_ticket_model())  # TODO: use templatetag instead
 
         return super(Linked2TicketButton, self).render(context)
 
 
+# DEPRECATED
 linked_2_ticket_button = Linked2TicketButton()

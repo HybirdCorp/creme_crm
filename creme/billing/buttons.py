@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,7 +38,8 @@ SalesOrder = billing.get_sales_order_model()
 class GenerateInvoiceNumberButton(Button):
     id_           = Button.generate_id('billing', 'generate_invoice_number')
     verbose_name  = _(u'Generate the number of the Invoice')
-    template_name = 'billing/templatetags/button_generate_invoice_number.html'
+    # template_name = 'billing/templatetags/button_generate_invoice_number.html'
+    template_name = 'billing/buttons/generate-invoice-number.html'
 
     def get_ctypes(self):
         return (Invoice,)
@@ -51,7 +52,8 @@ class GenerateInvoiceNumberButton(Button):
 
 
 class _AddBillingDocumentButton(Button):
-    template_name   = 'billing/templatetags/button_add_billing_document.html'
+    # template_name   = 'billing/templatetags/button_add_billing_document.html'
+    template_name   = 'billing/buttons/add-billing-document.html'
     model_to_create = Base  # Overload
     url_name        = 'OVERLOADME'
 
@@ -98,6 +100,7 @@ class AddQuoteButton(_AddBillingDocumentButton):
     url_name        = 'billing__create_related_quote'
 
 
+# DEPRECATED ----------------------
 generate_invoice_number_button = GenerateInvoiceNumberButton()
 add_related_quote              = AddQuoteButton()
 add_related_salesorder         = AddSalesOrderButton()
