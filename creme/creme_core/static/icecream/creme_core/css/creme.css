@@ -181,37 +181,24 @@ button {
 /* TODO: remove when old menu is removed */
 
 .menu_expanded {
-    /*background-color: #b7d8e7;*/
-    /*background: #94c6db url(jquery-css/creme-theme/images/ui-bg_diagonals-thick_15_94c6db_40x40.png) 50% 50% repeat;*/
-    /*border: 1px solid #375f37;*/
     display: block;
     height: 100%;
     position: absolute;
     z-index: 50;
-    /*display: none;*/
-/*    font-size: 11px;*/
     font-size: 0.8em;
     margin-left: 0px;
 }
 
 .menu_collapse {
-/*    -moz-outline: #000000 solid 3px;
-    -moz-outline-radius:10px 200px 200px 10px;*/
-    /*background: #94c6db url(jquery-css/creme-theme/images/ui-bg_diagonals-thick_15_94c6db_40x40.png) 50% 50% repeat;*/
     position: absolute;
     background-color: #E4EAEC;
-    /*background-color: #F6FCFF;*/
     border: 1px solid #6EAAC4;
     display: block;
     height: 100%;
-    /*margin-left : 0px;*/
     margin : 0;
-    /*top:32px;
-    left:5px;*/
     width: 1%;
     z-index: 1;
     color: #539fc6;
-    /*color: #5A90A7;*/
     margin-left: 0px;
     font-weight: bold;
     text-align: center;

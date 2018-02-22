@@ -174,9 +174,6 @@
 
 .list_view thead {
     padding: 0px;
-/*    color: #2C596C; */
-/*    background: #94c6db url(jquery-css/creme-theme/images/ui-bg_diagonals-thick_15_94c6db_40x40.png) 50% 50% repeat; */
-/*    background: #e9f6fb; */
 }
 
 /* TODO: remove ".title" stuffes in 1.8 */
@@ -279,7 +276,6 @@
 .list_view .toolbar a,
 .list_view button {
     cursor:pointer;
-/*    background: #d9e5ea url(../css/jquery-css/creme-theme/images/ui-bg_highlight-hard_75_d9e5ea_1x100.png) 50% 50% repeat-x; */
 
     font-weight: normal;
     color: #254B5B;
@@ -295,8 +291,6 @@
 .list_view .toolbar a:hover,
 .list_view button:hover {
     cursor: pointer;
-
-/*    background: #fdd5d1 url(../css/jquery-css/creme-theme/images/ui-bg_inset-soft_75_fdd5d1_1x100.png) 50% 50% repeat-x; */
 
     font-weight: normal;
     color: #f46758;
@@ -754,15 +748,8 @@
 }
 
 .list_view tfoot tr td {
-/*
-    border-bottom: 1px solid #548295;
-    border-left:   1px solid #548295;
-    border-right:  1px solid #548295;
-*/
     border-right: 1px solid #e1e9ec;
     border-bottom: 1px solid #e1e9ec;
-
-/*    background: #94c6db url(jquery-css/creme-theme/images/ui-bg_diagonals-thick_15_94c6db_40x40.png) 50% 50% repeat; */
 }
 
 .list_view button[disabled="true"],
