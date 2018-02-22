@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django import template
 from django.utils.translation import ungettext
 
@@ -26,6 +28,15 @@ register = template.Library()
 
 
 @register.filter(name='timedelta_pprint')
+def _timedelta_pprint(timedelta_):
+    warnings.warn('The tag {% timedelta_pprint %} is deprecated ; use {% date_timedelta_pprint %} instead.',
+                  DeprecationWarning
+                 )
+
+    return timedelta_pprint(timedelta_)
+
+
+@register.filter(name='date_timedelta_pprint')
 def timedelta_pprint(timedelta_):
     days = timedelta_.days
 
