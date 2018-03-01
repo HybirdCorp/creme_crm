@@ -166,6 +166,7 @@ QUnit.test('creme.utils.appendInUrl', function(assert) {
     equal(creme.utils.appendInUrl('/test?bar=0#id_node', '?foo=1&plop=2'), '/test?foo=1&plop=2&bar=0#id_node');
 });
 
+/* REMOVED
 QUnit.test('creme.utils.autoCheckallState / creme.utils.toggleCheckallState', function(assert) {
     var _checkbox            = '<input type="checkbox" checked="checked"/>';
     var _all_selector        = "[name=check_all]";
@@ -211,6 +212,7 @@ QUnit.test('creme.utils.autoCheckallState / creme.utils.toggleCheckallState', fu
     equal($(_all_selector).size(), 0);
     equal($(_checkboxes_selector).size(), 0);
 });
+*/
 
 /*
 QUnit.test('creme.utils.loading', function(assert) {

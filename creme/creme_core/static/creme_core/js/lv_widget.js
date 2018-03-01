@@ -412,7 +412,7 @@ creme.lv_widget.ListViewActionBuilders = creme.component.Component.sub({
             maxWidth: width,
             url: url,
             title: title,
-            compatible: true
+            validator: 'innerpopup'
         };
     },
 
