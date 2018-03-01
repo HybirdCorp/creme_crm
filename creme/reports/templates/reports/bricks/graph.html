@@ -49,13 +49,13 @@
     {% if x %}
     <div class="brick-graph-header clearfix">
         <div class="graph-controls graph-controls-type">
-            <span class="graph-control-name">{% trans 'Graph' context 'reports-graphs' %}<span class="typography-colon">:</span></span>
+            <span class="graph-control-name">{% trans 'Graph' context 'reports-graphs' %}&nbsp;<span class="typography-colon">:</span></span>
             <a class="graph-control-value" title="{% trans 'Select the type of visualisation for this graph' %}">
                 {{rgraph.chart|default:_('Histogram')}}
             </a>
         </div>
         <div class="graph-controls graph-controls-sort">
-            <span class="graph-control-name">{% trans 'Sorting' %} <span class="typography-colon">:</span></span>
+            <span class="graph-control-name">{% trans 'Sorting' %}&nbsp;<span class="typography-colon">:</span></span>
             <a class="graph-control-value" title="{% trans 'Select the sort order' %}">
                 {% trans 'Ascending' %}
             </a>
