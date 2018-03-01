@@ -23,4 +23,4 @@ class UserContactURLItem(ViewableItem):
                            icon=img, user=user,
                           ) \
                if user.has_perm_to_view(contact) else \
-               format_html(u'<span class="forbidden">{icon}{user}</span>', icon=img, user=user)
+               format_html(u'<span class="ui-creme-navigation-text-entry forbidden">{icon}{user}</span>', icon=img, user=user)
