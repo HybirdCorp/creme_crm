@@ -52,9 +52,9 @@
         </td>
         <td>{{objective.counter_goal}}</td>
         {% if objective.reached %}
-        <td class="td_valid">{% trans "Yes"%}</td>
+        <td class="td_valid">{% trans 'Yes' %}</td>
         {% else %}
-        <td class="td_error">{% trans "No"%}</td>
+        <td class="td_error">{% trans 'No' %}</td>
         {% endif %}
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='edit' url=objective.get_edit_absolute_url enabled=edition_perm %}
