@@ -1050,6 +1050,10 @@ div.hat-bar {
     background: linear-gradient(#ffffff, #f3f3f3);
 }
 
+.hat-bar .bar-action .bar-button {
+    cursor: pointer;
+}
+
 .bar-deleted-indicator {
     font-size: 0.8em;
     color: #888;
