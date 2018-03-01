@@ -569,7 +569,7 @@ QUnit.test('creme.dialog.Dialog.fitToFrameSize (closed dialog)', function(assert
 });
 
 QUnit.test('creme.dialog.FormDialog (default validator)', function(assert) {
-    var options = {compatible: false};
+    var options = {validator: 'default'};
     var dialog = new creme.dialog.FormDialog(options);
 
     equal(dialog._defaultValidator, dialog.validator());
@@ -581,7 +581,7 @@ QUnit.test('creme.dialog.FormDialog (default validator)', function(assert) {
 });
 
 QUnit.test('creme.dialog.FormDialog (compatible validator)', function(assert) {
-    var options = {compatible: true};
+    var options = {validator: 'innerpopup'};
     var dialog = new creme.dialog.FormDialog(options);
 
     equal(dialog._compatibleValidator, dialog.validator());

@@ -33,15 +33,18 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
             autoFocus: true,
             submitOnKey: 13,
             submitData: {},
-            noValidate: false
+            noValidate: false,
+            validator: 'default',
         }, options || {});
 
         this._super_(creme.dialog.Dialog, '_init_', options);
 
         if (Object.isFunc(options.validator)) {
             this.validator(options.validator);
+        } else if (options.validator === 'innerpopup') {
+            this.validator(this._compatibleValidator);
         } else {
-            this.validator(options.compatible ? this._compatibleValidator : this._defaultValidator);
+            this.validator(this._defaultValidator);
         }
 
         var disable_buttons = function() {

@@ -954,7 +954,7 @@ creme.bricks.Brick = creme.component.Component.sub({
             maxWidth: width,
             url: url,
             title: title,
-            compatible: true
+            validator: 'innerpopup'
         };
     },
 

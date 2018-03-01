@@ -49,16 +49,11 @@ creme.dialog.Dialog = creme.component.Component.sub({
             within:     $('.ui-dialog-within-container'),
             fitFrame:   true,
             useFrameActions: true,
-            compatible: false,
             closeOnEscape: false,
             scrollbackOnClose: false
         }, options || {});
 
         this._initFrame(options);
-
-        if (options.compatible) {
-            this._enableCompatibility(options);
-        }
     },
 
     _initFrame: function(options) {
@@ -525,6 +520,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
         var scroll = _assertScrollType(options.scroll);
         var is_framescroll = (scroll === 'frame');
 
+        // TODO : add a warning when options.within is null or has no element.
         var position = {
             my: "center top",
             at: "center center",
@@ -567,12 +563,6 @@ creme.dialog.Dialog = creme.component.Component.sub({
     isOpened: function() {
         return this._dialog !== undefined;
     },
-
-    _enableCompatibility: function(options) {
-        this.on('frame-update', function(frame) {
-            // creme.blocks.bindEvents(this.content());
-        });
-    }
 });
 
 creme.dialog.redirect = function(url, from) {
@@ -641,7 +631,7 @@ creme.dialogs = $.extend(creme.dialogs, {
     },
 
     url: function(url, options, data) {
-        options = $.extend({compatible: true}, options || {});
+        options = options || {};
         var dialog = new creme.dialog.Dialog(options).fetch(url, {}, data);
 
         if (options.reloadOnClose) {
@@ -654,7 +644,7 @@ creme.dialogs = $.extend(creme.dialogs, {
     },
 
     form: function(url, options, data) {
-        options = $.extend({compatible: true}, options || {});
+        options = $.extend({validator: 'innerpopup'}, options || {});
         var dialog = new creme.dialog.FormDialog(options);
 
         dialog.fetch(url, {}, data);
@@ -681,7 +671,7 @@ creme.dialogs = $.extend(creme.dialogs, {
     },
 
     html: function(html, options) {
-        options = $.extend({compatible: true}, options || {});
+        options = options || {};
         var dialog = new creme.dialog.Dialog($.extend({}, options, {html: html}));
 
         if (options.reloadOnClose) {
@@ -763,7 +753,6 @@ creme.dialogs = $.extend(creme.dialogs, {
             title: gettext('Error'),
             header: header
         }, options || {});
-
 
         return this.alert(message || '', options);
     }
