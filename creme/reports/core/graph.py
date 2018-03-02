@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2015  Hybird
+#    Copyright (C) 2013-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -53,13 +53,20 @@ def _db_grouping_format():
 # TODO: move to creme_core ?
 class ListViewURLBuilder(object):
     def __init__(self, model, filter=None):
-        self._fmt = model.get_lv_absolute_url() + '?q_filter=%s'
+        fmt = getattr(model, 'get_lv_absolute_url', None)
 
-        if filter:
-            self._fmt += '&filter=' + filter.id
+        if fmt:
+            fmt = model.get_lv_absolute_url() + '?q_filter=%s'
+
+            if filter:
+                fmt += '&filter=' + filter.id
+
+        self._fmt = fmt
 
     def __call__(self, q_filter=None):
-        return self._fmt % (json_encode(q_filter) if q_filter is not None else '')
+        fmt = self._fmt
+
+        return fmt % (json_encode(q_filter) if q_filter is not None else '') if fmt else None
 
 
 class ReportGraphHandRegistry(object):
