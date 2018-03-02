@@ -384,7 +384,8 @@ LOGGING_DEFAULT_LOGGER = {
 
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': True,
+    # 'disable_existing_loggers': True,
+    'disable_existing_loggers': False,
     'formatters': LOGGING_FORMATTERS,
     'filters': LOGGING_FILTERS,
     'handlers': {
