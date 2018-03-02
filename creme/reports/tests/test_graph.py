@@ -89,7 +89,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                                           type=RGT_MONTH, is_count=False,
                                          )
 
-    def test_listview_URL_builder(self):
+    def test_listview_URL_builder01(self):
         builder = ListViewURLBuilder(FakeContact)
         url = FakeContact.get_lv_absolute_url()
         self.assertEqual(builder(None),        url + '?q_filter=')
@@ -105,6 +105,14 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         builder = ListViewURLBuilder(FakeContact, efilter)
         self.assertEqual(builder(None),        url + '?q_filter=&filter=test-filter')
         self.assertEqual(builder({'id': '1'}), url + '?q_filter={"id": "1"}&filter=test-filter')
+
+    def test_listview_URL_builder02(self):
+        "Model without list-view"
+        with self.assertNoException():
+            builder = ListViewURLBuilder(FakeSector)
+
+        self.assertIsNone(builder(None))
+        self.assertIsNone(builder({'id': '1'}))
 
     def test_createview01(self):
         "RGT_FK"
