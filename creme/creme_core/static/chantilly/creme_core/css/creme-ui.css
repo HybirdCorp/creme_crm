@@ -511,7 +511,7 @@ span.ui-creme-datepicker-trigger {
     max-width: 370px;
 }
 
-.checkbox-field.disabled .checkbox-label {
+.checkbox-field[disabled] .checkbox-label {
     opacity: 0.5;
 }
 
