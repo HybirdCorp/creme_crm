@@ -113,7 +113,7 @@ def fix_custom_blocks(apps, schema_editor):
     CustomBlockConfigItem = apps.get_model('creme_core', 'CustomBlockConfigItem')
 
     for model_name, ct in ctypes:
-        for cbci in CustomBlockConfigItem.objects.filter(content_type=ct.id):
+        for cbci in CustomBlockConfigItem.objects.filter(content_type=ct.id).exclude(json_cells=None):
             cells = json_load(cbci.json_cells)
 
             if _update_cells(cells, cbci, model_name):
@@ -128,7 +128,7 @@ def fix_relation_blocks(apps, schema_editor):
 
     RelationBlockItem = apps.get_model('creme_core', 'RelationBlockItem')
 
-    for rbi in RelationBlockItem.objects.all():
+    for rbi in RelationBlockItem.objects.exclude(json_cells_map=None):
         cells_map = json_load(rbi.json_cells_map)
         save = False
 
