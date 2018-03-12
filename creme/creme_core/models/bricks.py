@@ -303,7 +303,7 @@ class RelationBlockItem(CremeModel):
     # block_id       = CharField(_(u"Block ID"), max_length=100, editable=False)
     brick_id       = CharField(_(u'Block ID'), max_length=100, editable=False)
     relation_type  = OneToOneField(RelationType, verbose_name=_(u'Related type of relationship'))
-    json_cells_map = TextField(editable=False, null=True)  # TODO: JSONField
+    json_cells_map = TextField(editable=False, null=True)  # TODO: JSONField  # TODO: null=False ('{}' by default with current code)
 
     _cells_map = None
 
@@ -480,7 +480,7 @@ class CustomBlockConfigItem(CremeModel):
     id           = CharField(primary_key=True, max_length=100, editable=False)
     content_type = CTypeForeignKey(verbose_name=_(u'Related type'), editable=False)
     name         = CharField(_(u'Name'), max_length=200)
-    json_cells   = TextField(editable=False, null=True)  # TODO: JSONField
+    json_cells   = TextField(editable=False, null=True)  # TODO: JSONField  # TODO: null=False
 
     _cells = None
 
