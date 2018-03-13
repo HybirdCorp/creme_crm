@@ -260,8 +260,6 @@ class EntityCredsJSONField(JSONField):
 
     def _check_entity_perms(self, entity, *args):
         user = self._user
-        assert user is not None
-
         credentials = args[0] if args else self._credentials
 
         # We do not check permission if the initial related entity has not changed
@@ -274,7 +272,7 @@ class EntityCredsJSONField(JSONField):
 
         # NB: we compare ID to avoid problem with real/not real entities.
         if entity is not None and (not initial or (get_initial_id() != entity.id)):
-            for cred, validator, validator_multi in self.CREDS_VALIDATORS:
+            for cred, validator, _validator_multi in self.CREDS_VALIDATORS:
                 if credentials & cred:
                     validator(entity, user)
 
@@ -282,7 +280,6 @@ class EntityCredsJSONField(JSONField):
 
     def _check_entities_perms(self, entities, *args):
         user = self._user
-        assert user is not None
 
         credentials = args[0] if args else self._credentials
 
