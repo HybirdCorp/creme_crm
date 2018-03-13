@@ -662,10 +662,13 @@ class _ConditionOperator(object):
 
         return query
 
-    def validate_field_values(self, field, values):
+    def validate_field_values(self, field, values, user=None):
         """Raises a ValidationError to notify of a problem with 'values'."""
         if not field.__class__ in self._NO_SUBPART_VALIDATION_FIELDS or not self.accept_subpart:
-            clean = field.formfield().clean
+            formfield = field.formfield()
+            formfield.user = user
+
+            clean = formfield.clean
             variable = None
             is_multiple = isinstance(field, ManyToManyField)
 
@@ -681,7 +684,7 @@ class _ConditionOperator(object):
 
 
 class _ConditionBooleanOperator(_ConditionOperator):
-    def validate_field_values(self, field, values):
+    def validate_field_values(self, field, values, user=None):
         if len(values) != 1 or not isinstance(values[0], bool):
             raise ValueError(u'A list with one bool is expected for condition %s' % self.name)
 
@@ -717,7 +720,7 @@ class _RangeOperator(_ConditionOperator):
     def __init__(self, name):
         super(_RangeOperator, self).__init__(name, '%s__range', allowed_fieldtypes=('number', 'date'))
 
-    def validate_field_values(self, field, values):
+    def validate_field_values(self, field, values, user=None):
         if len(values) != 2:
             raise ValueError(u'A list with 2 elements is expected for condition %s' % self.name)
 
@@ -834,7 +837,7 @@ class EntityFilterCondition(Model):
                 }
 
     @staticmethod
-    def build_4_customfield(custom_field, operator, value):
+    def build_4_customfield(custom_field, operator, value, user=None):
         if not EntityFilterCondition._OPERATOR_MAP.get(operator):
             raise EntityFilterCondition.ValueError('build_4_customfield(): unknown operator: %s', operator)
 
@@ -857,13 +860,14 @@ class EntityFilterCondition(Model):
         try:
             if operator == EntityFilterCondition.ISEMPTY:
                 operator_obj = EntityFilterCondition._OPERATOR_MAP.get(operator)
-                value = operator_obj.validate_field_values(None, value)
-            elif custom_field.field_type == CustomField.MULTI_ENUM:
-                clean_value = cf_value_class.get_formfield(custom_field, None).clean
-                value = [unicode(clean_value([v])[0]) for v in value]
+                value = operator_obj.validate_field_values(None, value, user=user)
             else:
-                clean_value = cf_value_class.get_formfield(custom_field, None).clean
-                value = [unicode(clean_value(v)) for v in value]
+                clean_value = cf_value_class.get_formfield(custom_field, None, user=user).clean
+
+                if custom_field.field_type == CustomField.MULTI_ENUM:
+                    value = [unicode(clean_value([v])[0]) for v in value]
+                else:
+                    value = [unicode(clean_value(v)) for v in value]
         except Exception as e:
             raise EntityFilterCondition.ValueError(str(e))
 
@@ -925,13 +929,14 @@ class EntityFilterCondition(Model):
 
     # TODO multivalue is stupid for some operator (LT, GT etc...) => improve checking ???
     @staticmethod
-    def build_4_field(model, name, operator, values):
+    def build_4_field(model, name, operator, values, user=None):
         """Search in the values of a model field.
         @param name Name of the field
         @param operator Operator ID ; see EntityFilterCondition.EQUALS and friends.
         @param values List of searched values (logical OR between them).
                       Exceptions: - RANGE: 'values' is always a list of 2 elements
                                   - ISEMPTY: 'values' is a list containing one boolean.
+        @param user Some fields need a user instance for permission validation.
         """
         operator_obj = EntityFilterCondition._OPERATOR_MAP.get(operator)
         if not operator_obj:
@@ -943,7 +948,7 @@ class EntityFilterCondition(Model):
             raise EntityFilterCondition.ValueError(str(e))
 
         try:
-            values = operator_obj.validate_field_values(finfo[-1], values)
+            values = operator_obj.validate_field_values(finfo[-1], values, user=user)
         except Exception as e:
             raise EntityFilterCondition.ValueError(str(e))
 

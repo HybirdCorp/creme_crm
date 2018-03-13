@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from creme.creme_core.tests.fake_models import FakeDocument, FakeFolder
 
 try:
     from datetime import date, timedelta
@@ -321,6 +322,27 @@ class EntityFiltersTestCase(CremeTestCase):
                               [cond2, cond3, cond1]
                              )
                        )
+
+    def test_create_condition_creatorfield_fk(self):
+        equal = EntityFilterCondition.conditions_equal
+        folder = FakeFolder.objects.create(title='Folder 01', user=self.user)
+        other_folder = FakeFolder.objects.create(title='Folder 02', user=self.other_user)
+        self.assertIs(equal([], []), True)
+
+        build_4_field = partial(EntityFilterCondition.build_4_field,
+                                model=FakeDocument,
+                                operator=EntityFilterCondition.EQUALS,
+                                name='folder'
+                               )
+
+        # user can link Document on "Folder 01" (owner=user)
+        self.assertNoException(lambda: build_4_field(values=[str(folder.id)], user=self.user))
+        # user can link Document on "Folder 02" (owner=other_user)
+        self.assertNoException(lambda: build_4_field(values=[str(other_folder.id)], user=self.user))
+
+        # other_user cannot link (not authenticated)
+        with self.assertRaises(EntityFilterCondition.ValueError) as e:
+            build_4_field(values=[str(folder.id)], user=self.other_user)
 
     def test_create_again01(self):
         "is_custom=True -> override"

@@ -149,7 +149,7 @@ class CustomFieldValue(CremeModel):
                 cvalue.delete()
 
     @staticmethod
-    def _build_formfield(custom_field, formfield):
+    def _build_formfield(custom_field, formfield, user=None):
         pass
 
     def _set_formfield_value(self, field):
@@ -160,9 +160,9 @@ class CustomFieldValue(CremeModel):
         return forms.Field(**kwargs)
 
     @classmethod
-    def get_formfield(cls, custom_field, custom_value):
+    def get_formfield(cls, custom_field, custom_value, user=None):
         field = cls._get_formfield(label=custom_field.name, required=False)
-        cls._build_formfield(custom_field, field)
+        cls._build_formfield(custom_field, field, user)
         if custom_value:
             custom_value._set_formfield_value(field)
 
@@ -317,7 +317,7 @@ class CustomFieldEnum(CustomFieldValue):
                           .select_related('value')
 
     @staticmethod
-    def _build_formfield(custom_field, formfield):
+    def _build_formfield(custom_field, formfield, user=None):
         choices = [('', '-------')]
         choices += CustomFieldEnumValue.objects.filter(custom_field=custom_field) \
                                                .values_list('id', 'value')
@@ -357,7 +357,7 @@ class CustomFieldMultiEnum(CustomFieldValue):
         return cls.objects.filter(custom_field__in=cfields, entity__in=entities)
 
     @staticmethod
-    def _build_formfield(custom_field, formfield):
+    def _build_formfield(custom_field, formfield, user=None):
         formfield.choices = CustomFieldEnumValue.objects.filter(custom_field=custom_field) \
                                                         .values_list('id', 'value')
 

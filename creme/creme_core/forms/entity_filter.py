@@ -611,7 +611,9 @@ class RegularFieldsConditionsField(_ConditionsField):
             for entry in data:
                 operator, values = clean_operator_n_values(entry)
                 conditions.append(build_4_field(model=self.model, name=clean_fieldname(entry),
-                                                operator=operator, values=values
+                                                operator=operator,
+                                                values=values,
+                                                user=self.user
                                                )
                                  )
         except EntityFilterCondition.ValueError as e:
@@ -883,7 +885,8 @@ class CustomFieldsConditionsField(_ConditionsField):
                 operator, values = clean_operator_n_values(entry)
                 conditions.append(build_condition(custom_field=clean_cfield(entry),
                                                   operator=operator,
-                                                  value=values
+                                                  value=values,
+                                                  user=self.user
                                                  )
                                  )
         except EntityFilterCondition.ValueError as e:
