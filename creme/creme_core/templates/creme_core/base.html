@@ -133,17 +133,21 @@
 
     {% include 'footer/footer.html' %}
 
+    {% if OLD_MENU %}
     <script type="text/javascript">
         $(document).ready(function() {
-          {% if OLD_MENU %}
             creme.menu.sideMenu({
                 title: '{% trans "Menu" %}',
                 back: '{% trans "Back to Top" %}'
             });
-          {% endif %}
-
-{#            creme.blocks.bindEvents(); #}
         });
     </script>
+    {% endif %}
+    {% comment %}
+    {# Keep the old block initialization code just in case... #} 
+    <script type="text/javascript">
+        creme.blocks.bindEvents();
+    </script>
+    {% endcomment %}
 </body>
 </html>

@@ -7,10 +7,21 @@
 
             this.resetMockRedirectCalls();
             this.resetMockBackendCalls();
+            this.resetMockHistoryChanges();
 
             this.__goTo = creme.utils.goTo;
             creme.utils.goTo = function(url) {
                 self._redirectCalls.push(url);
+            };
+
+            this.__historyPush = creme.history.push;
+            creme.history.push = function(url, title) {
+                self._historyChanges.push(['push', url, title]);
+            };
+
+            this.__historyReplace = creme.history.replace;
+            creme.history.replace = function(url, title) {
+                self._historyChanges.push(['replace', url, title]);
             };
 
             this.backend = this.buildMockBackend();
@@ -21,6 +32,9 @@
 
         afterEach: function(env) {
             creme.utils.goTo = this.__goTo;
+            creme.history.push = this.__historyPush;
+            creme.history.replace = this.__historyReplace;
+
             // console.info('[qunit-ajax-mixin] teardown backend');
             creme.ajax.defaultBackend(new creme.ajax.Backend());
         },
@@ -63,6 +77,10 @@
             this._redirectCalls = [];
         },
 
+        resetMockHistoryChanges: function() {
+            this._historyChanges = [];
+        },
+
         mockBackendCalls: function() {
             return this._backendCalls;
         },
@@ -79,6 +97,10 @@
 
         mockRedirectCalls: function() {
             return this._redirectCalls;
+        },
+
+        mockHistoryChanges: function() {
+            return this._historyChanges;
         }
     };
 }(jQuery));

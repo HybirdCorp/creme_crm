@@ -212,32 +212,131 @@ QUnit.test('creme.dialog.SelectionDialog (validator)', function(assert) {
     deepEqual([['close', dialog.options]], this.mockListenerCalls('close'));
 });
 
+QUnit.test('creme.dialog.Dialog (open/close)', function(assert) {
+    var dialog = new creme.dialog.Dialog({url: 'mock/html', backend: this.backend});
+    dialog.onOpen(this.mockListener('opened'));
+    dialog.onClose(this.mockListener('closed'));
+
+    deepEqual([], this.mockListenerCalls('opened'));
+    deepEqual([], this.mockListenerCalls('closed'));
+
+    equal(false, dialog.isOpened());
+    equal(false, dialog._isClosing);
+
+    dialog.open();
+
+    equal(true, dialog.isOpened());
+    equal(false, dialog._isClosing);
+
+    this.assertRaises(function() {
+        dialog.open();
+    }, Error, 'Error: dialog already opened !');
+
+    dialog.close();
+
+    equal(false, dialog.isOpened());
+    equal(false, dialog._isClosing);
+});
+
 QUnit.test('creme.dialog.Dialog (url)', function(assert) {
     var dialog = new creme.dialog.Dialog({url: 'mock/html', backend: this.backend});
     dialog.on('frame-activated', this.mockListener('frame-activated'));
+    dialog.onOpen(this.mockListener('opened'));
+    dialog.onClose(this.mockListener('closed'));
+
+    deepEqual([], this.mockListenerCalls('frame-activated'));
+    deepEqual([], this.mockListenerCalls('opened'));
+    deepEqual([], this.mockListenerCalls('closed'));
 
     dialog.open();
 
     equal('mock/html', dialog.frame().lastFetchUrl());
     deepEqual([['frame-activated', dialog.frame()]], this.mockListenerCalls('frame-activated'));
+    deepEqual([['open', dialog.options]], this.mockListenerCalls('opened'));
+    deepEqual([], this.mockListenerCalls('closed'));
+
     equal(MOCK_FRAME_CONTENT, dialog.content().html());
 
     dialog.close();
+
+    deepEqual([['frame-activated', dialog.frame()]], this.mockListenerCalls('frame-activated'));
+    deepEqual([['open', dialog.options]], this.mockListenerCalls('opened'));
+    deepEqual([['close', dialog.options]], this.mockListenerCalls('closed'));
+});
+
+QUnit.test('creme.dialog.Dialog (url, invalid)', function(assert) {
+    var dialog = new creme.dialog.Dialog({url: 'mock/unknown', backend: this.backend});
+    dialog.on('frame-activated', this.mockListener('frame-activated'));
+    dialog.onOpen(this.mockListener('opened'));
+    dialog.onClose(this.mockListener('closed'));
+
+    deepEqual([], this.mockListenerCalls('frame-activated'));
+    deepEqual([], this.mockListenerCalls('opened'));
+    deepEqual([], this.mockListenerCalls('closed'));
+
+    dialog.open();
+
+    equal(undefined, dialog.frame().lastFetchUrl());
+
+    deepEqual([], this.mockListenerCalls('frame-activated'));
+    deepEqual([['open', dialog.options]], this.mockListenerCalls('opened'));
+    deepEqual([], this.mockListenerCalls('closed'));
+
+    equal(1, dialog.content().find('.ui-creme-overlay[status="404"]').length);
+
+    dialog.close();
+
+    deepEqual([], this.mockListenerCalls('frame-activated'));
+    deepEqual([['open', dialog.options]], this.mockListenerCalls('opened'));
+    deepEqual([['close', dialog.options]], this.mockListenerCalls('closed'));
+});
+
+QUnit.test('creme.dialog.Dialog (html, widget)', function(assert) {
+    var dialog = new creme.dialog.Dialog({html: MOCK_FRAME_CONTENT_WIDGET});
+    dialog.on('frame-activated', this.mockListener('frame-activated'));
+    dialog.onOpen(this.mockListener('opened'));
+    dialog.onClose(this.mockListener('closed'));
+
+    deepEqual([], this.mockListenerCalls('frame-activated'));
+    deepEqual([], this.mockListenerCalls('opened'));
+    deepEqual([], this.mockListenerCalls('closed'));
+
+    dialog.open();
+
+    equal(undefined, dialog.frame().lastFetchUrl());
+
+    deepEqual([['frame-activated', dialog.frame()]], this.mockListenerCalls('frame-activated'));
+    deepEqual([['open', dialog.options]], this.mockListenerCalls('opened'));
+    deepEqual([], this.mockListenerCalls('closed'));
+
+    equal(1, dialog.content().find('.ui-creme-widget').length);
+    equal(1, dialog.content().find('.ui-creme-widget.widget-ready').length);
+
+    dialog.close();
+
+    deepEqual([['frame-activated', dialog.frame()]], this.mockListenerCalls('frame-activated'));
+    deepEqual([['open', dialog.options]], this.mockListenerCalls('opened'));
+    deepEqual([['close', dialog.options]], this.mockListenerCalls('closed'));
 });
 
 QUnit.test('creme.dialog.Dialog (widget, fill static)', function(assert) {
     var dialog = new creme.dialog.Dialog();
     dialog.on('frame-activated', this.mockListener('frame-activated'));
+    dialog.onOpen(this.mockListener('opened'));
+    dialog.onClose(this.mockListener('closed'));
 
     dialog.open();
 
     deepEqual([], this.mockListenerCalls('frame-activated'), 'activated, not opened');
+    deepEqual([['open', dialog.options]], this.mockListenerCalls('opened'));
     equal(0, dialog.content().find('.ui-creme-widget').length);
 
     // already opened, frame widgets are immediately activated
     dialog.fill(MOCK_FRAME_CONTENT_WIDGET);
 
     deepEqual([['frame-activated', dialog.frame()]], this.mockListenerCalls('frame-activated'), 'activated, after fill');
+    deepEqual([['open', dialog.options]], this.mockListenerCalls('opened'));
+
     equal(1, dialog.content().find('.ui-creme-widget').length);
     equal(1, dialog.content().find('.ui-creme-widget.widget-ready').length);
 
@@ -400,6 +499,7 @@ QUnit.test('creme.dialog.Dialog (center)', function(assert) {
 
     equal(false, dialog.isOpened());
     equal(undefined, dialog.position());
+    equal(undefined, dialog.cssPosition());
 
     dialog.open();
     dialog.center();
@@ -437,6 +537,24 @@ QUnit.test('creme.dialog.Dialog (center)', function(assert) {
         collision: 'fit',
         within: $('.ui-dialog-within-container')
     }, dialog.position());
+
+    dialog.close();
+});
+
+QUnit.test('creme.dialog.Dialog (position, no within container)', function(asser) {
+    $('.ui-dialog-within-container').detach();
+    equal(true, Object.isEmpty($('.ui-dialog-within-container')));
+
+    var dialog = new creme.dialog.Dialog();
+
+    dialog.open();
+
+    var position = dialog.position();
+
+    equal(position.my, 'center center');
+    equal(position.at, 'center center');
+    equal(position.collision, 'fit');
+    equal(position.within, undefined);
 
     dialog.close();
 });
@@ -533,6 +651,12 @@ QUnit.test('creme.dialog.Dialog (max size)', function(assert) {
 
     deepEqual({width: 800, height: 600}, dialog.maxSize());
 
+    dialog.resize(300, 400);
+    deepEqual({width: 300, height: 400}, dialog.size());
+
+    dialog.resize(1024, 768);
+    deepEqual({width: 800, height: 600}, dialog.size());
+
     dialog.close();
 });
 
@@ -554,6 +678,12 @@ QUnit.test('creme.dialog.Dialog (min size)', function(assert) {
     dialog.minSize({width: 800, height: 600});
 
     deepEqual({width: 800, height: 600}, dialog.minSize());
+
+    dialog.resize(300, 400);
+    deepEqual({width: 800, height: 600}, dialog.size());
+
+    dialog.resize(1024, 768);
+    deepEqual({width: 1024, height: 768}, dialog.size());
 
     dialog.close();
 });

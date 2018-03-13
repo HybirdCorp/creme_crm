@@ -372,10 +372,14 @@ creme.dialog.Dialog = creme.component.Component.sub({
             return this._dialog ? this._dialog.dialog('option', 'position') : undefined;
         }
 
-        this._dialog.dialog('option', 'position', $.extend({}, position, {
-            collision: 'fit',
-            within: this.options.within
-        }));
+        if (Object.isEmpty(this.options.within) === false) {
+            position = $.extend({}, position, {
+                collision: 'fit',
+                within: this.options.within
+            });
+        }
+
+        this._dialog.dialog('option', 'position', position);
         return this;
     },
 
@@ -519,14 +523,22 @@ creme.dialog.Dialog = creme.component.Component.sub({
         var content = $('<div/>').append(container);
         var scroll = _assertScrollType(options.scroll);
         var is_framescroll = (scroll === 'frame');
+        var position = {};
 
-        // TODO : add a warning when options.within is null or has no element.
-        var position = {
-            my: "center top",
-            at: "center center",
-            collision: 'fit',
-            within: options.within
-        };
+        if (Object.isEmpty(options.within)) {
+            position = {
+                my: "center center",
+                at: "center center"
+            };
+        } else {
+            position = {
+                my: "center center+" + options.within.position().top,
+                at: "center center",
+                collision: 'fit',
+                within: options.within
+            };
+        }
+
         var resizable = is_framescroll ? options.resizable : false;
         var draggable = is_framescroll ? options.draggable : false;
         var width = options.minWidth > 0 ? Math.max(options.minWidth, options.width) : options.width;
