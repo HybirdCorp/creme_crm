@@ -271,7 +271,7 @@ class CredsValidatorTestCase(CremeTestCase):
         self._set_user_credentials(user, EntityCredentials.LINK, SetCredentials.ESET_ALL)
 
         with self.assertNoException():
-            validators.validate_linkable_entity(a, user))
+            validators.validate_linkable_entity(a, user)
 
     def test_validate_linkable_entity_anonymous(self):
         other_user = CremeUser.objects.create(username='other')
