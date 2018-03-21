@@ -20,7 +20,7 @@ except Exception as e:
 
 class CreatorCategorySelectorWidgetTestCase(FieldTestCase):
     def _build_create_action(self, label, title, url='', enabled=True):
-        return ('create', label, enabled, {'title': title, 'popupTitle': label, 'popupUrl': url})
+        return ('create', label, enabled, {'title': title, 'popupUrl': url})
 
     def test_is_disabled(self):
         widget = CreatorCategorySelector()
@@ -104,7 +104,7 @@ class CreatorCategorySelectorWidgetTestCase(FieldTestCase):
     </li>
     <li>
         <button class="ui-creme-actionbutton" name="create" title="%(create_title)s" alt="%(create_title)s" type="button"
-                popupUrl="%(create_url)s" popupTitle="%(create_label)s">
+                popupUrl="%(create_url)s">
             %(create_label)s
         </button>
     </li>

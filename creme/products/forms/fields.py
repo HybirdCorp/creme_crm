@@ -78,7 +78,8 @@ class CreatorCategorySelector(ActionButtonList):
 
             self.add_action('create', SubCategory.creation_label, enabled=allowed, popupUrl=url,
                             title=_(u'Create') if allowed else _(u"Can't create"),
-                            popupTitle=SubCategory.creation_label,
+                            # TODO : Temporarily disable this title for UI consistency.
+                            # popupTitle=SubCategory.creation_label,
                            )
 
     def render(self, name, value, attrs=None):
