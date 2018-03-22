@@ -10,9 +10,9 @@ try:
     from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _, ungettext
 
-    from .base import ViewsTestCase
-    from ..fake_models import (FakeContact, FakeOrganisation, FakeCivility,
-            FakeImage, FakeDocument, FakeFolder)
+    from creme.creme_core.tests.views.base import ViewsTestCase
+    from creme.creme_core.tests.fake_models import (FakeContact, FakeOrganisation, FakeCivility,
+            FakeImage, FakeDocument, FakeFolder, FakeProduct)
     from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
             EntityFilterVariable, CustomField, RelationType, CremePropertyType)
 except Exception as e:
@@ -108,7 +108,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(field_name,                                condition.name)
         self.assertEqual({'operator': operator, 'values': [value]}, condition.decoded_value)
 
-        self.assertRedirects(response, FakeContact.get_lv_absolute_url())
+        self.assertRedirects(response, '{}?filter={}'.format(FakeContact.get_lv_absolute_url(), efilter.id))
 
     def test_create02(self):
         user = self.login()
@@ -279,7 +279,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(field_name,                          condition.name)
         self.assertEqual({'name': daterange_type},            condition.decoded_value)
 
-        self.assertRedirects(response, callback_url)
+        self.assertRedirects(response, '{}?filter={}'.format(callback_url, efilter.id))
 
     def test_create04(self):
         "Error: no conditions of any type"
@@ -372,7 +372,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                 subfilters_conditions=[subfilter.id],
                                                ),
                                      )
-        self.assertFormError(response, 'form', None, 
+        self.assertFormError(response, 'form', None,
                              ungettext(
                                  u'A private filter can only use public sub-filters, & private sub-filters which belong to the same user and his teams.'
                                  u' So this private sub-filter cannot be chosen: %s',
@@ -391,13 +391,35 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.login()
         self.assertGET409(self._build_add_url(ContentType.objects.get_for_model(RelationType)))
 
+    def test_create_missing_lv_absolute_url(self):
+        "Missing get_lv_absolute_url() classmethod"
+        with self.assertRaises(AttributeError):
+            FakeProduct.get_lv_absolute_url()
+
+        user = self.login()
+
+        response = self.client.post(self._build_add_url(ContentType.objects.get_for_model(FakeProduct)),
+                                    data={'name':   'Filter 01',
+                                          'user':   user.id,
+                                          'use_or': 'False',
+                                          'fields_conditions': self.FIELDS_CONDS_FMT % {
+                                                                   'operator': EntityFilterCondition.EQUALS,
+                                                                   'name':     'name',
+                                                                   'value':    '"Product"',
+                                                               },
+                                         }
+                                   )
+
+        self.assertNoFormError(response, status=302)
+        self.assertRedirects(response, '/')
+
     def test_create_creatorfield_fk_filter(self):
-        self.login()
+        user = self.login()
         folder = FakeFolder.objects.create(title='Folder 01', user=self.user)
 
         response = self.client.post(self._build_add_url(ContentType.objects.get_for_model(FakeDocument)),
                                     data={'name':   'Filter 01',
-                                          'user':   self.user.id,
+                                          'user':   user.id,
                                           'use_or': 'True',
                                           'fields_conditions': self.FIELDS_CONDS_FMT % {
                                                                    'operator': EntityFilterCondition.EQUALS,
@@ -424,12 +446,12 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                         )
 
     def test_create_currentuser_filter(self):
-        self.login()
+        user = self.login()
         CURRENT_USER = EntityFilterVariable.CURRENT_USER
 
         response = self.client.post(self._build_add_url(self.ct_orga),
                                     data={'name':   'Filter 01',
-                                          'user':   self.user.id,
+                                          'user':   user.id,
                                           'use_or': 'True',
                                           'fields_conditions': self.FIELDS_CONDS_FMT % {
                                                                    'operator': EntityFilterCondition.EQUALS,
@@ -441,7 +463,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response, status=302)
 
         efilter = self.get_object_or_fail(EntityFilter, name='Filter 01')
-        self.assertEqual(self.user.id, efilter.user.id)
+        self.assertEqual(user.id, efilter.user.id)
         self.assertIs(efilter.use_or, True)
 
         conditions = efilter.conditions.all()

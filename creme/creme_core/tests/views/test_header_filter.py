@@ -10,9 +10,9 @@ try:
     from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
-    from .base import ViewsTestCase
-    from ..fake_constants import FAKE_REL_SUB_EMPLOYED_BY
-    from ..fake_models import FakeContact, FakeOrganisation
+    from creme.creme_core.tests.fake_constants import FAKE_REL_SUB_EMPLOYED_BY
+    from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation, FakeProduct
+    from creme.creme_core.tests.views.base import ViewsTestCase
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.models import (HeaderFilter, FieldsConfig,
@@ -91,7 +91,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertEqual('created__range', cell.filter_string)
         self.assertIs(cell.is_hidden, False)
 
-        self.assertRedirects(response, FakeOrganisation.get_lv_absolute_url())
+        self.assertRedirects(response, '{}?hfilter={}'.format(FakeOrganisation.get_lv_absolute_url(), hfilter.pk))
 
     def test_create02(self):
         user = self.login()
@@ -162,7 +162,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertIsInstance(cell, EntityCellCustomField)
         self.assertEqual(str(customfield.id), cell.value)
 
-        self.assertRedirects(response, FakeContact.get_lv_absolute_url())
+        self.assertRedirects(response, '{}?hfilter={}'.format(FakeContact.get_lv_absolute_url(), hfilter.pk))
 
     def test_create03(self):
         "Check app credentials"
@@ -227,7 +227,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response)
         self.get_object_or_fail(HeaderFilter, name=name)
 
-        self.assertRedirects(response, callback)
+        self.assertRedirects(response, '{}?hfilter={}'.format(callback, HeaderFilter.objects.first().pk))
 
     def test_create06(self):
         "Not an Entity type"
@@ -251,6 +251,28 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         rf_prefix = 'regular_field-'
         self.assertIn(rf_prefix + valid_fname,     choices_keys)
         self.assertNotIn(rf_prefix + hidden_fname, choices_keys)
+
+    def test_create_missing_lv_absolute_url(self):
+        "Missing get_lv_absolute_url() classmethod"
+        with self.assertRaises(AttributeError):
+            FakeProduct.get_lv_absolute_url()
+
+        self.login()
+
+        ct = ContentType.objects.get_for_model(FakeProduct)
+        self.assertFalse(HeaderFilter.objects.filter(entity_type=ct))
+
+        url = self._build_add_url(ct)
+        self.assertGET200(url)
+
+        name = 'DefaultHeaderFilter'
+        response = self.client.post(url, data={'name':  name,
+                                               'cells': 'regular_field-name',
+                                              }
+                                   )
+
+        self.assertNoFormError(response, status=302)
+        self.assertRedirects(response, '/')
 
     def test_edit01(self):
         self.login()
