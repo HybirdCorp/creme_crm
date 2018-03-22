@@ -64,12 +64,15 @@ def add(request, ct_id):
 
     if not callback_url:
         try:
-            callback_url = model.get_lv_absolute_url()
+            callback_url = '{}?filter=%s'.format(model.get_lv_absolute_url())
         except AttributeError:
-            logger.debug('%s has no get_lv_absolute_url() method ?!' % model)
+            logger.debug('%s has no get_lv_absolute_url() method ?!', model)
             callback_url = '/'
+    else:
+        callback_url = '{}?filter=%s'.format(callback_url)
 
-    return add_entity(request, EntityFilterCreateForm, callback_url,
+    return add_entity(request, EntityFilterCreateForm,
+                      url_redirect=callback_url,
                       template='creme_core/entity_filter_form.html',
                       extra_initial={'content_type': ct},
                       function_post_save=lambda req, instance: _set_current_efilter(req, callback_url, instance),

@@ -19,6 +19,7 @@
 ################################################################################
 
 # import warnings
+import logging
 
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseRedirect
@@ -33,6 +34,9 @@ from ..gui.listview import ListViewState
 from ..models import HeaderFilter, CremeEntity
 from .generic import add_entity
 from .utils import build_cancel_path
+
+
+logger = logging.getLogger(__name__)
 
 
 def _set_current_hf(request, path, hf_instance):
@@ -58,15 +62,19 @@ def add(request, content_type_id, extra_template_dict=None):
 
     if not callback_url:
         try:
-            callback_url = model.get_lv_absolute_url()
+            callback_url = '{}?hfilter=%s'.format(model.get_lv_absolute_url())
         except AttributeError:
+            logger.debug('%s has no get_lv_absolute_url() method ?!', model)
             callback_url = '/'
+    else:
+        callback_url = '{}?hfilter=%s'.format(callback_url)
 
     ctx = {}
     if extra_template_dict:
         ctx.update(extra_template_dict)
 
-    return add_entity(request, HeaderFilterForm, callback_url,
+    return add_entity(request, HeaderFilterForm,
+                      url_redirect=callback_url,
                       template='creme_core/header_filter_form.html',
                       extra_initial={'content_type': ct_entity},
                       extra_template_dict=ctx,
