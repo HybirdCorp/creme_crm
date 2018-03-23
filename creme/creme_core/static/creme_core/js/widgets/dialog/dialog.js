@@ -574,7 +574,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
     isOpened: function() {
         return this._dialog !== undefined;
-    },
+    }
 });
 
 creme.dialog.redirect = function(url, from) {

@@ -39,14 +39,23 @@ var MOCK_FRAME_CONTENT_FORM_MULTI = '<form action="mock/submit/multi">' +
                                         '<button class="ui-creme-dialog-action" type="submit" name="button-e" value="eee">Button E</button>' +
                                    '</form>';
 
-var MOCK_FRAME_CONTENT_FORM_MULTI_UNNAMED = '<form action="mock/submit/multi">' +
-                                                '<input type="text" id="firstname"></input>' +
-                                                '<input type="text" id="lastname" required></input>' +
-                                                '<input type="submit" class="ui-creme-dialog-action"></input>' +
-                                                '<input type="submit" class="ui-creme-dialog-action"></input>' +
-                                                '<button class="ui-creme-dialog-action" type="submit"></button>' +
-                                                '<button class="ui-creme-dialog-action" type="submit"></button>' +
+var MOCK_FRAME_CONTENT_FORM_MULTI_UNNAMED = '<form action="mock/submit/multi/unnamed">' +
+                                                '<input type="text" name="firstname"></input>' +
+                                                '<input type="text" name="lastname" required></input>' +
+                                                '<input type="submit" class="ui-creme-dialog-action" value="A"></input>' +
+                                                '<input type="submit" class="ui-creme-dialog-action" value="B"></input>' +
+                                                '<button class="ui-creme-dialog-action" type="submit">Button A</button>' +
+                                                '<button class="ui-creme-dialog-action" type="submit">Button B</button>' +
                                             '</form>';
+
+var MOCK_FRAME_CONTENT_FORM_MULTI_DUPLICATES = '<form action="mock/submit/multi/duplicates">' +
+                                                   '<input type="text" name="firstname"></input>' +
+                                                   '<input type="text" name="lastname" required></input>' +
+                                                   '<input type="submit" name="send" value="A" class="ui-creme-dialog-action"></input>' +
+                                                   '<input type="submit" name="send" value="A" class="ui-creme-dialog-action"></input>' +
+                                                   '<button class="ui-creme-dialog-action" name="button" type="submit" value="A"></button>' +
+                                                   '<button class="ui-creme-dialog-action" name="button" type="submit" value="A">Duplicate</button>' +
+                                               '</form>';
 
 var MOCK_FRAME_CONTENT_FORM_JSON = '<form action="mock/submit/json">' +
                                         '<input type="text" name="responseType"></input>' +
@@ -79,6 +88,7 @@ QUnit.module("creme.dialog.js", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, 
             'mock/submit/required': this.backend.response(200, MOCK_FRAME_CONTENT_FORM_REQUIRED),
             'mock/submit/multi': this.backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI),
             'mock/submit/multi/unnamed': this.backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI_UNNAMED),
+            'mock/submit/multi/duplicates': this.backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI_DUPLICATES),
             'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
             'mock/error': this.backend.response(500, 'HTTP - Error 500')
         });
@@ -93,7 +103,7 @@ QUnit.module("creme.dialog.js", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, 
                 } else if (responseType === 'invalid') {
                     return backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID);
                 } else if (responseType === 'empty') {
-                    return backend.response(200, '')
+                    return backend.response(200, '');
                 } else {
                     return backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON);
                 }
@@ -102,6 +112,8 @@ QUnit.module("creme.dialog.js", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, 
             'mock/submit/required': this.backend.response(200, MOCK_FRAME_CONTENT_FORM_REQUIRED),
             'mock/submit/button': this.backend.response(200, MOCK_FRAME_CONTENT_FORM_BUTTON),
             'mock/submit/multi': this.backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI),
+            'mock/submit/multi/unnamed': this.backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI_UNNAMED),
+            'mock/submit/multi/duplicates': this.backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI_DUPLICATES),
             'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
             'mock/error': this.backend.response(500, 'HTTP - Error 500')
         });
@@ -113,7 +125,6 @@ QUnit.module("creme.dialog.js", new QUnitMixin(QUnitEventMixin, QUnitAjaxMixin, 
         $('.ui-dialog-within-container').detach();
     }
 }));
-
 
 QUnit.test('creme.dialog.SelectionDialog (default)', function(assert) {
     var dialog = new creme.dialog.SelectionDialog();
@@ -812,11 +823,12 @@ QUnit.test('creme.dialog.FormDialog (default button, multiple unamed submit)', f
 
     dialog.open();
 
-    equal(4, dialog.buttons().find('button').length);
+    equal(5, dialog.buttons().find('button').length);
 
-    equal(gettext('Save'), dialog.button('send').text());
-    equal(gettext('Save'), dialog.button('send-1').text());
-    equal(gettext('Save'), dialog.button('send-2').text());
+    equal(gettext('A'), dialog.button('send').text());
+    equal(gettext('B'), dialog.button('send-1').text());
+    equal(gettext('Button A'), dialog.button('send-2').text());
+    equal(gettext('Button B'), dialog.button('send-3').text());
     equal(gettext('Cancel'), dialog.button('cancel').text());
 
     dialog.close();
@@ -831,13 +843,30 @@ QUnit.test('creme.dialog.FormDialog (multiple submit input/buttons)', function(a
     equal(gettext('Cancel'), dialog.button('cancel').text());
 
     equal('Button A', dialog.button('send').text());
-    equal('Button B', dialog.button('send-bbb').text());   // unamed button with value "bbb"
-    equal('Button C', dialog.button('send-c').text());     // input named "button-c"
-    equal('Button D', dialog.button('button-d').text());   // button named "button-d"
-    equal('Button E', dialog.button('button-e').text());   // button named "button-e" with value "eee"
+    equal('Button B', dialog.button('send-1').text());   // unamed button with value "bbb"
+    equal('Button C', dialog.button('send-c').text());   // input named "button-c"
+    equal('Button D', dialog.button('button-d').text()); // button named "button-d"
+    equal('Button E', dialog.button('button-e').text()); // button named "button-e" with value "eee"
 
     dialog.close();
 });
+
+QUnit.test('creme.dialog.FormDialog (multiple submit input/buttons, duplicates)', function(assert) {
+    var dialog = new creme.dialog.FormDialog({url: 'mock/submit/multi/duplicates', backend: this.backend});
+
+    dialog.open();
+
+    equal(5, dialog.buttons().find('button').length);
+    equal(gettext('Cancel'), dialog.button('cancel').text());
+
+    equal('A', dialog.button('send').text());
+    equal('A', dialog.button('send-1').text());
+    equal(gettext('Save'), dialog.button('button').text());
+    equal('Duplicate', dialog.button('button-1').text());
+
+    dialog.close();
+});
+
 
 QUnit.test('creme.dialog.FormDialog (submit)', function(assert) {
     var dialog = new creme.dialog.FormDialog({url: 'mock/submit/button', backend: this.backend});
@@ -1109,8 +1138,7 @@ QUnit.test('creme.dialog.FormDialog (click + submit)', function(assert) {
         ['GET', {}],
         ['POST', {
             firstname: ['John'],
-            lastname: ['Doe'],
-            send: ['']
+            lastname: ['Doe']
         }]
     ], this.mockBackendUrlCalls('mock/submit/button'));
 });
@@ -1144,10 +1172,148 @@ QUnit.test('creme.dialog.FormDialog (prevent multiple submit click)', function(a
         ['GET', {}],
         ['POST', {
             firstname: ['John'],
-            lastname: ['Doe'],
-            send: ['']
+            lastname: ['Doe']
         }]
     ], this.mockBackendUrlCalls('mock/submit/button'));
+});
+
+QUnit.test('creme.dialog.FormDialog (multiple submit input/buttons click)', function(assert) {
+    var dialog = new creme.dialog.FormDialog({url: 'mock/submit/multi', backend: this.backend});
+
+    dialog.open();
+
+    equal(6, dialog.buttons().find('button').length);
+    equal(gettext('Cancel'), dialog.button('cancel').text());
+
+    equal('Button A', dialog.button('send').text());
+    equal('Button B', dialog.button('send-1').text());   // unamed button with value "bbb"
+    equal('Button C', dialog.button('send-c').text());   // input named "button-c"
+    equal('Button D', dialog.button('button-d').text()); // button named "button-d"
+    equal('Button E', dialog.button('button-e').text()); // button named "button-e" with value "eee"
+
+    dialog.form().find('[name="firstname"]').val('John');
+    dialog.form().find('[name="lastname"]').val('Doe');
+    dialog.button('send').click();
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {firstname: ['John'], lastname: ['Doe']}]
+    ], this.mockBackendUrlCalls('mock/submit/multi'));
+
+    this.resetMockBackendCalls();
+
+    dialog.fetch('mock/submit/multi');
+    dialog.form().find('[name="firstname"]').val('John');
+    dialog.form().find('[name="lastname"]').val('Doe');
+    dialog.button('send-1').click();
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {firstname: ['John'], lastname: ['Doe']}]
+    ], this.mockBackendUrlCalls('mock/submit/multi'));
+
+    this.resetMockBackendCalls();
+
+    dialog.fetch('mock/submit/multi');
+    dialog.form().find('[name="firstname"]').val('John');
+    dialog.form().find('[name="lastname"]').val('Doe');
+    dialog.button('send-c').click();
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {firstname: ['John'], lastname: ['Doe']}]
+    ], this.mockBackendUrlCalls('mock/submit/multi'));
+
+    this.resetMockBackendCalls();
+
+    dialog.fetch('mock/submit/multi');
+    dialog.form().find('[name="firstname"]').val('John');
+    dialog.form().find('[name="lastname"]').val('Doe');
+    dialog.button('button-d').click();
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {firstname: ['John'], lastname: ['Doe'], 'button-d': ['']}]
+    ], this.mockBackendUrlCalls('mock/submit/multi'));
+
+    this.resetMockBackendCalls();
+
+    dialog.fetch('mock/submit/multi');
+    dialog.form().find('[name="firstname"]').val('John');
+    dialog.form().find('[name="lastname"]').val('Doe');    
+    dialog.button('button-e').click();
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {firstname: ['John'], lastname: ['Doe'], 'button-e': ['eee']}]
+    ], this.mockBackendUrlCalls('mock/submit/multi'));
+
+    dialog.close();
+});
+
+QUnit.test('creme.dialog.FormDialog (multiple submit duplicates input/buttons click)', function(assert) {
+    /* 
+     * Check if 'button' and its duplicate 'button-1' with the same value 'A' will
+     * send the same POST data : {button: ['A']}
+     */
+    var dialog = new creme.dialog.FormDialog({url: 'mock/submit/multi/duplicates', backend: this.backend});
+
+    dialog.open();
+
+    equal(5, dialog.buttons().find('button').length);
+    equal(gettext('Cancel'), dialog.button('cancel').text());
+
+    equal('A', dialog.button('send').text());
+    equal('A', dialog.button('send-1').text());
+    equal(gettext('Save'), dialog.button('button').text());
+    equal('Duplicate', dialog.button('button-1').text());
+
+    dialog.form().find('[name="firstname"]').val('John');
+    dialog.form().find('[name="lastname"]').val('Doe');
+    dialog.button('send').click();
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {firstname: ['John'], lastname: ['Doe']}]
+    ], this.mockBackendUrlCalls('mock/submit/multi/duplicates'));
+
+    this.resetMockBackendCalls();
+
+    dialog.fetch('mock/submit/multi/duplicates');
+    dialog.form().find('[name="firstname"]').val('John');
+    dialog.form().find('[name="lastname"]').val('Doe');
+    dialog.button('send-1').click();
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {firstname: ['John'], lastname: ['Doe']}]
+    ], this.mockBackendUrlCalls('mock/submit/multi/duplicates'));
+
+    this.resetMockBackendCalls();
+
+    dialog.fetch('mock/submit/multi/duplicates');
+    dialog.form().find('[name="firstname"]').val('John');
+    dialog.form().find('[name="lastname"]').val('Doe');
+    dialog.button('button').click();
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {firstname: ['John'], lastname: ['Doe'], button: ['A']}]
+    ], this.mockBackendUrlCalls('mock/submit/multi/duplicates'));
+
+    this.resetMockBackendCalls();
+
+    dialog.fetch('mock/submit/multi/duplicates');
+    dialog.form().find('[name="firstname"]').val('John');
+    dialog.form().find('[name="lastname"]').val('Doe');
+    dialog.button('button-1').click();
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {firstname: ['John'], lastname: ['Doe'], button: ['A']}]
+    ], this.mockBackendUrlCalls('mock/submit/multi/duplicates'));
+
+    dialog.close();
 });
 
 QUnit.test('creme.dialog.FormDialog (<json>JSON</json> response)', function(assert) {
