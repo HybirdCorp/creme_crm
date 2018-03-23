@@ -34,7 +34,7 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
             submitOnKey: 13,
             submitData: {},
             noValidate: false,
-            validator: 'default',
+            validator: 'default'
         }, options || {});
 
         this._super_(creme.dialog.Dialog, '_init_', options);
@@ -200,13 +200,19 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
     _frameActionFormSubmitButtons: function(options) {
         var self = this;
         var buttons = {};
-        var index = 1;
+        var buttonIds = {};
         var submitCb = function(button, e, options) {
             options = $.extend({
                 noValidate: button.is('[novalidate]')
             }, options || {});
 
             this.submit(options, options.data);
+        };
+        var buildUniqueButtonId = function(id) {
+            var suffix = buttonIds[id] || 0;
+            buttonIds[id] = suffix + 1;
+
+            return (suffix > 0) ? id + '-' + suffix : id;
         };
 
         $('.ui-creme-dialog-action[type="submit"]', this.content()).each(function() {
@@ -216,35 +222,20 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
             var label = item.text();
             var order = parseInt(item.attr('data-dialog-action-order') || 0);
             var value = item.val();
+            var id = buildUniqueButtonId(name || 'send');
 
             if (item.is('input')) {
-                name = name || 'send';
                 label = value || gettext('Save');
             } else {
-                name = name || 'send';
-
-                if (name in buttons) {
-                    if (!Object.isEmpty(value)) {
-                        name += '-' + value;
-                    } else {
-                        name += '-' + index;
-                        index += 1;
-                    }
-                }
-
                 label = label || gettext('Save');
 
-                if (!Object.isNone(value)) {
+                if (!Object.isEmpty(name) && !Object.isNone(value)) {
                     data[name] = value;
                 }
             }
 
-            if (name in buttons) {
-                console.warn('submit button/input "%s" appears multiple times'.format(name));
-            } else {
-                self._appendButton(buttons, name, label, submitCb,
-                                   {data: data, order: order});
-            }
+            self._appendButton(buttons, id, label, submitCb,
+                               {data: data, order: order});
         }).toggleAttr('disabled', true);
 
         if (Object.isEmpty(buttons)) {
