@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -168,8 +168,10 @@ class BatchAction(object):
                                         )
 
     def __call__(self, entity):
-        """entity.foo = function(entity.foo)
-        @return True The entity has changed.
+        """The action's operator is computed with the given entity (on the field indicated by action-field
+        and using the action-value), and the entity field's value is updated.
+        Something like: entity.foo = function(entity.foo)
+        @return True if the entity has changed.
         """
         fname = self._field_name
         old_value = getattr(entity, fname)
@@ -184,7 +186,8 @@ class BatchAction(object):
         return False
 
     def __unicode__(self):
-        return ugettext('%(field)s => %(operator)s') % {
-                    'field': self._model._meta.get_field(self._field_name).verbose_name,
-                    'operator': self._operator,
-                 }
+        op = self._operator
+        field = self._model._meta.get_field(self._field_name).verbose_name
+
+        return ugettext(u'%(field)s ➔ %(operator)s') % {'field': field, 'operator': op} if not op.need_arg else \
+               ugettext(u'%(field)s ➔ %(operator)s: «%(value)s»') % {'field': field, 'operator': op, 'value': self._value}

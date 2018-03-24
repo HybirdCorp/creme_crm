@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Creme-Core 1.7\n"
+"Project-Id-Version: Creme Creme-Core 1.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-12 17:13+0100\n"
+"POT-Creation-Date: 2018-03-19 15:14+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -224,10 +224,15 @@ msgstr "L'opérateur '%s' a besoin d'une valeur."
 msgid "%(operator)s : %(message)s."
 msgstr "%(operator)s : %(message)s."
 
-#: core/batch_process.py:187
+#: core/batch_process.py:192
 #, python-format
-msgid "%(field)s => %(operator)s"
-msgstr "%(field)s => %(operator)s"
+msgid "%(field)s ➔ %(operator)s"
+msgstr "%(field)s ➔ %(operator)s"
+
+#: core/batch_process.py:193
+#, python-format
+msgid "%(field)s ➔ %(operator)s: «%(value)s»"
+msgstr "%(field)s ➔ %(operator)s : «%(value)s»"
 
 #: core/entity_cell.py:198 forms/batch_process.py:186
 #: templates/creme_core/bricks/jobs-all.html:27

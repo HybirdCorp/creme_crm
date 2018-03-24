@@ -124,9 +124,9 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertIs(batch_process_type, job.type)
         self.assertIs(False, job.is_finished)
         self.assertEqual([_(u'Entity type: %s') % 'Test Organisation',
-                          _(u'%(field)s => %(operator)s') % {
-                                'field':    _('Name'),
-                                'operator': _('To upper case'),
+                          _(u'%(field)s ➔ %(operator)s') % {
+                                'field':    _(u'Name'),
+                                'operator': _(u'To upper case'),
                             }
                          ],
                          job.description
