@@ -178,7 +178,7 @@ u"""%(create_check)s
     </script>
 </ul>
 """ % {'create_check': '' if not self.propose_creation else
-                       '<label for="%(id)s"><input id="%(id)s" type="checkbox" name="%(id)s" %(checked)s />%(label)s</label>' % {
+                       u'<label for="%(id)s"><input id="%(id)s" type="checkbox" name="%(id)s" %(checked)s />%(label)s</label>' % {
                            'id': '%s_create' % name,
                            'checked': 'checked' if get_value('create') else '',
                            'label': _(u'Create the Categories/Sub-Categories which are not found?'),
