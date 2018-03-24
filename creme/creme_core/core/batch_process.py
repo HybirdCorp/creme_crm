@@ -30,7 +30,8 @@ class CastError(Exception):
 
 
 def cast_2_str(value):
-    return str(value)
+    # return str(value)
+    return unicode(value)
 
 
 def cast_2_positive_int(value):

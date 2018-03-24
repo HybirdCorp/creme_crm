@@ -181,6 +181,29 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertEqual('saki',     self.refresh(contact01).first_name)
         self.assertEqual('harunobu', self.refresh(contact02).first_name)
 
+    def test_batching_suffix(self):
+        "Operator value + unicode char"
+        user = self.login()
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        contact01 = create_contact(first_name=u'Saki',   last_name=u'Kasukabe')
+        contact02 = create_contact(first_name=u'Kanako', last_name=u'Ono')
+
+        response = self.client.post(self._build_add_url(FakeContact), follow=True,
+                                    data={'actions': self.format_str1 % {
+                                                            'name':     'first_name',
+                                                            'operator': 'suffix',
+                                                            'value':    u'-adorée',
+                                                        },
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        self._execute_job(response)
+
+        self.assertEqual(u'Saki-adorée',   self.refresh(contact01).first_name)
+        self.assertEqual(u'Kanako-adorée', self.refresh(contact02).first_name)
+
     def test_validation_error01(self):
         "Invalid field"
         self.login()
