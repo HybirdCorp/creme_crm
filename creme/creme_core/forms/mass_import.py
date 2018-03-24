@@ -1289,7 +1289,7 @@ class ImportForm4CremeEntity(ImportForm):
             if err_msg:
                 # self.append_error(line, err_msg, instance)
                 self.append_error(err_msg)
-            else:
+            elif entity is not None:
                 create_relation(type=rtype, object_entity=entity)
 
 
