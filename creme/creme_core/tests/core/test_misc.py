@@ -248,9 +248,9 @@ class BatchActionTestCase(CremeTestCase):
         with self.assertRaises(BatchAction.ValueError) as cm:
             BatchAction(FakeContact, 'last_name', 'rm_start', value='three')  # Not int
 
-        self.assertEqual(_('%(operator)s : %(message)s.') % {
-                                'operator': _('Remove the start (N characters)'),
-                                'message':  _('enter a whole number'),
+        self.assertEqual(_(u'%(operator)s : %(message)s.') % {
+                                'operator': _(u'Remove the start (N characters)'),
+                                'message':  _(u'enter a whole number'),
                             },
                          unicode(cm.exception)
                         )
@@ -258,11 +258,32 @@ class BatchActionTestCase(CremeTestCase):
         with self.assertRaises(BatchAction.ValueError) as cm:
             BatchAction(FakeContact, 'last_name', 'rm_end', value='-3')  # Not positive
 
-        self.assertEqual(_('%(operator)s : %(message)s.') % {
-                                'operator': _('Remove the end (N characters)'),
-                                'message':  _('enter a positive number'),
+        self.assertEqual(_(u'%(operator)s : %(message)s.') % {
+                                'operator': _(u'Remove the end (N characters)'),
+                                'message':  _(u'enter a positive number'),
                             },
                          unicode(cm.exception)
+                        )
+
+    def test_unicode01(self):
+        baction = BatchAction(FakeContact, 'first_name', 'upper', value='')
+        self.assertEqual(_(u'%(field)s ➔ %(operator)s') % {
+                                'field':    _(u'First name'),
+                                'operator': _(u'To upper case'),
+                            },
+                         unicode(baction)
+                        )
+
+    def test_unicode02(self):
+        "With argument"
+        value = 'Foobarbaz'
+        baction = BatchAction(FakeContact, 'last_name', 'rm_substr', value=value)
+        self.assertEqual(_(u'%(field)s ➔ %(operator)s: «%(value)s»') % {
+                                'field':    _(u'Last name'),
+                                'operator': _(u'Remove a sub-string'),
+                                'value':    value,
+                            },
+                         unicode(baction)
                         )
 
 
