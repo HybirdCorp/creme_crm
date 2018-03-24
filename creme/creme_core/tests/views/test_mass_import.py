@@ -253,7 +253,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         city = 'Tokyo'
         lines = [('First name', 'Last name', 'Position', 'Sector',   'City', 'Organisation'),
                  ('Rei',        'Ayanami',   pos_title,  sctr_title, city,   nerv.name),
-                 ('Asuka',      'Langley',   pos_title,  sctr_title, '',     nerv.name),
+                 ('Asuka',      'Langley',   pos_title,  sctr_title, '',     ''),
                 ]
 
         doc = builder(lines)
@@ -289,7 +289,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                                     # sector_create=False,
 
                                     property_types=[ptype.id],
-                                    fixed_relations='[{"rtype":"%s","ctype":"%s","entity":"%s"}]'  % (
+                                    fixed_relations='[{"rtype":"%s","ctype":"%s","entity":"%s"}]' % (
                                                             loves.id, shinji.entity_type_id, shinji.id
                                                         ),
                                     dyn_relations=self._dyn_relations_value(employed, FakeOrganisation, 6, 'name'),
@@ -312,13 +312,18 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
 
         self.assertFalse(FakeSector.objects.exclude(id__in=sector_ids).exists())
 
-        for first_name, last_name, pos_title, sector_title, city_name, orga_name in lines[1:]:
+        created_contacts = {}
+        for first_name, last_name, pos_title, sector_title, city_name, __orga_name in lines[1:]:
             contact = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
+            created_contacts[first_name] = contact
+
             self.assertEqual(default_descr, contact.description)
             self.assertEqual(position,      contact.position)
             self.get_object_or_fail(CremeProperty, type=ptype, creme_entity=contact.id)
             self.assertRelationCount(1, contact, loves.id, shinji)
-            self.assertRelationCount(1, contact, employed.id, nerv)
+
+        self.assertRelationCount(1, created_contacts['Rei'],   employed.id, nerv)
+        self.assertRelationCount(0, created_contacts['Asuka'], employed.id, nerv)
 
         self.assertFalse(FakeContact.objects.filter(last_name=lines[0][1]))  # Header must not be used
 
