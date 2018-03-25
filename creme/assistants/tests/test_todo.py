@@ -521,7 +521,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         job = self.get_reminder_job()
 
-        self.assertEqual((localtime(now_value) + timedelta(days=1)).replace(hour=next_hour),
+        self.assertEqual((localtime(now_value + timedelta(days=1))).replace(hour=next_hour),
                          job.type.next_wakeup(job, now_value)
                         )
 
