@@ -32,7 +32,7 @@ from .constants import MIN_HOUR_4_TODO_REMINDER
 from .models import Alert, ToDo
 
 
-TODO_REMINDER_DAYS_BEFORE = 1  # TODO: in settings.py ? SettingValue ?
+TODO_REMINDER_DAYS_BEFORE = 1  # TODO: in settings.py ? SettingValue (beware to refresh job on update) ? Job's data ?
 
 
 class AssistantReminder(Reminder):
