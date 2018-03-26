@@ -20,10 +20,12 @@
 
 from collections import defaultdict
 
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, password_validation
 from django.forms import CharField, ModelChoiceField, ModelMultipleChoiceField
 from django.forms.utils import ValidationError
 from django.forms.widgets import PasswordInput
+from django.utils.functional import lazy
+from django.utils.html import format_html, format_html_join
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import CremeForm, CremeModelForm
@@ -33,14 +35,25 @@ from creme.creme_core.models.fields import CremeUserForeignKey
 
 CremeUser = get_user_model()
 
+
 # TODO: inherit from django.contrib.auth.forms.UserCreationForm
+#       => we need a Mixin to initialize the user in fields  (like HookableForm)
 class UserAddForm(CremeModelForm):
-    password_1   = CharField(label=_(u'Password'), min_length=6, widget=PasswordInput())
-    password_2   = CharField(label=_(u'Confirm password'), min_length=6, widget=PasswordInput())
+    # Copied from django.contrib.auth.forms.UserCreationForm
+    error_messages = {
+        'password_mismatch': _(u"The two password fields didn't match."),
+    }
+
+    password_1 = CharField(label=_(u'Password'), strip=False, widget=PasswordInput)
+    # password_1   = CharField(label=_(u'Password'), min_length=6, widget=PasswordInput())
+    password_2 = CharField(label=_(u'Confirm password'),
+                           widget=PasswordInput, strip=False,
+                           help_text=_(u'Enter the same password as before, for verification.'),
+                          )
+    # password_2   = CharField(label=_(u'Confirm password'), min_length=6, widget=PasswordInput())
     role         = ModelChoiceField(label=_(u'Role'), required=False,
                                     queryset=UserRole.objects.all(),
                                    )
-
 
     class Meta:
         model = CremeUser
@@ -52,13 +65,32 @@ class UserAddForm(CremeModelForm):
         # NB: browser can ignore <em> tag in <option>...
         self.fields['role'].empty_label = u'*%s*' % ugettext(u'Superuser')
 
-    def clean(self):
-        cleaned = super(UserAddForm, self).clean()
+    # Copied from django.contrib.auth.forms.UserCreationForm
+    def clean_password_2(self):
+        get_data = self.cleaned_data.get
+        password1 = get_data('password_1')
+        password2 = get_data('password_2')
 
-        if not self._errors and cleaned['password_1'] != cleaned['password_2']:
-            self.add_error('password_2', _(u'Passwords are different'))
+        if password1 and password2 and password1 != password2:
+            raise ValidationError(
+                self.error_messages['password_mismatch'],
+                code='password_mismatch',
+            )
 
-        return cleaned
+        user = self.instance
+        user.username = get_data('username')
+
+        password_validation.validate_password(password2, user)
+
+        return password2
+
+    # def clean(self):
+    #     cleaned = super(UserAddForm, self).clean()
+    #
+    #     if not self._errors and cleaned['password_1'] != cleaned['password_2']:
+    #         self.add_error('password_2', _(u'Passwords are different'))
+    #
+    #     return cleaned
 
     def save(self, *args, **kwargs):
         instance = self.instance
@@ -91,14 +123,37 @@ class UserEditForm(CremeModelForm):
         return super(UserEditForm, self).save(*args, **kwargs)
 
 
-# TODO: see django.contrib.auth.forms.PasswordChangeForm
-class UserChangePwForm(CremeForm):
-    password_1 = CharField(label=_(u'Password'), min_length=6, widget=PasswordInput())
-    password_2 = CharField(label=_(u'Confirm password'), min_length=6, widget=PasswordInput())
+# NB: password_validation.password_validators_help_text_html is not mark_safe()'ed.
+def _password_validators_help_text_html(password_validators=None):
+    help_texts = password_validation.password_validators_help_texts(password_validators)
 
+    if not help_texts:
+        return ''
+
+    return format_html(u'<ul>{}</ul>',
+                       format_html_join(u'', u'<li>{}</li>', ((text,) for text in help_texts))
+                      )
+
+
+# NB: we cannot use django.contrib.auth.forms.AdminPasswordChangeForm, because it defines a 'user'
+#     attribute like us (but it correspond to our 'user2edit' one, not our 'user' one)
+class UserChangePwForm(CremeForm):
     error_messages = {
-        'password_mismatch': _(u'Passwords are different'),
+        # 'password_mismatch': _(u'Passwords are different'),
+        'password_mismatch': _(u"The two password fields didn't match."),
     }
+
+    # password_1 = CharField(label=_(u'Password'), min_length=6, widget=PasswordInput())
+    # password_2 = CharField(label=_(u'Confirm password'), min_length=6, widget=PasswordInput())
+    password_1 = CharField(label=_(u'Password'),
+                           widget=PasswordInput, strip=False,
+                           # help_text=password_validation.password_validators_help_text_html(),
+                           help_text=lazy(_password_validators_help_text_html, unicode),
+                          )
+    password_2 = CharField(label=_(u'Password (again)'),
+                           widget=PasswordInput, strip=False,
+                           help_text=_(u'Enter the same password as before, for verification.'),
+                          )
 
     def __init__(self, *args, **kwargs):
         self.user2edit = kwargs.pop('instance')
@@ -110,6 +165,8 @@ class UserChangePwForm(CremeForm):
 
         if data['password_1'] != pw2:
             raise ValidationError(self.error_messages['password_mismatch'], code='password_mismatch')
+
+        password_validation.validate_password(pw2, self.user2edit)
 
         return pw2
 
