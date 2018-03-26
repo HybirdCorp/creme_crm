@@ -36,7 +36,7 @@ else:
         class Meta:
             app_label = 'creme_core'
             verbose_name = u'Test Folder category'
-            verbose_name_plural = u'test Folder categories'
+            verbose_name_plural = u'Test Folder categories'
             ordering = ('name',)
 
 
