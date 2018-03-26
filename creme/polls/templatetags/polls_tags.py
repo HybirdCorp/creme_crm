@@ -116,7 +116,7 @@ def poll_stats_chart(node):
 
         context = {
             'node': node,
-            'data': mark_safe(json_dump(data)),
+            'data': mark_safe(json_dump(data)),  # TODO: use the template-filter 'jsonify' ?
             'count': len(node.answer_stats),
         }
 

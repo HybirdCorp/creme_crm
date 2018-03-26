@@ -29,8 +29,9 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q, FieldDoesNotExist, ProtectedError
 from django.forms.models import modelform_factory
 from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseBadRequest
-from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
-from django.utils.safestring import mark_safe
+from django.shortcuts import get_object_or_404, render, redirect  # get_list_or_404
+from django.utils.html import format_html
+# from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _, ungettext
 
 from ..auth.decorators import login_required
@@ -319,15 +320,21 @@ def bulk_update_field(request, ct_id, field_name=None):
         form = form_class(entities=(), user=user, is_bulk=True)
 
     # TODO: select_label in model instead (fr: masculin/féminin)
-    help_message = u'<span class="bulk-selection-summary" data-msg="%s" data-msg-plural="%s"></span>' % (
-                         _(u'%%s «%s» has been selected.') % meta.verbose_name,
-                         _(u'%%s «%s» have been selected.') % meta.verbose_name_plural,
-                    )
+    # help_message = u'<span class="bulk-selection-summary" data-msg="%s" data-msg-plural="%s"></span>' % (
+    #                      _(u'%%s «%s» has been selected.') % meta.verbose_name,
+    #                      _(u'%%s «%s» have been selected.') % meta.verbose_name_plural,
+    #                 )
+    help_message = format_html(
+        u'<span class="bulk-selection-summary" data-msg="{msg}" data-msg-plural="{plural}"></span>',
+        msg=_(u'%%s «%s» has been selected.') % meta.verbose_name,
+        plural=_(u'%%s «%s» have been selected.') % meta.verbose_name_plural,
+    )
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':  form,
                         'title': _(u'Multiple update'),
-                        'help_message': mark_safe(help_message),
+                        # 'help_message': mark_safe(help_message),
+                        'help_message': help_message,
                        },
                        is_valid=form.is_valid(),
                        reload=False, delegate_reload=True,

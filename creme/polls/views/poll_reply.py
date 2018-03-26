@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2017  Hybird
+#    Copyright (C) 2012-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404, redirect
-from django.utils.html import escape
+from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
 
@@ -56,7 +56,6 @@ _CREATION_PERM = cperm(PollReply)
 
 def abstract_add_pollreply(request, form=PollRepliesCreateForm,
                            template='creme_core/generics/blockform/add.html',
-                           # submit_label=_('Save the replies'),
                            submit_label=PollReply.multi_save_label,
                           ):
     if request.method == 'POST':
@@ -210,28 +209,45 @@ def _format_previous_answered_question(preply_id, line, style):
     if not line.applicable:
         answer = pgettext('polls', u'N/A')
     elif isinstance(line.poll_line_type, MultiEnumPollLineType):  # TODO: isinstance(answer, list) ??
-        answer = u', '.join(escape(choice) for choice in line.answer)
+        # answer = u', '.join(escape(choice) for choice in line.answer)
+        answer = mark_safe(u', '.join(escape(choice) for choice in line.answer))
     else:
-        answer = escape(line.answer)
+        # answer = escape(line.answer)
+        answer = line.answer
 
     number = style.number(line)
     theme = get_current_theme()
 
-    return mark_safe(u'<b>%(title)s</b><br>'
-                      '%(label)s : %(number)s %(question)s<br>'
-                      '%(answer_str)s : %(answer)s <a class="add" href="%(url)s">%(icon)s</a>'
-                        % {'title':         ugettext(u'Reminder of the previous answered question :'),
-                           'label':         ugettext('Question'),
-                           'number':        '%s -' % number if number != 'None' else '',
-                           'question':      escape(line.question),
-                           'answer_str':    ugettext('Answer'),
-                           'answer':        answer,
-                           'url':           reverse('polls__edit_reply_line_wizard', args=(preply_id, line.id)),
-                           'icon':          get_icon_by_name('edit', theme=theme, label=_(u'Edit'),
-                                                             size_px=get_icon_size_px(theme, size='instance-button'),
-                                                            ).render(css_class='polls-previous-edition'),
-                          }
-                    )
+    # return mark_safe(u'<b>%(title)s</b><br>'
+    #                   '%(label)s : %(number)s %(question)s<br>'
+    #                   '%(answer_str)s : %(answer)s <a class="add" href="%(url)s">%(icon)s</a>'
+    #                     % {'title':         ugettext(u'Reminder of the previous answered question :'),
+    #                        'label':         ugettext('Question'),
+    #                        'number':        '%s -' % number if number != 'None' else '',
+    #                        'question':      escape(line.question),
+    #                        'answer_str':    ugettext('Answer'),
+    #                        'answer':        answer,
+    #                        'url':           reverse('polls__edit_reply_line_wizard', args=(preply_id, line.id)),
+    #                        'icon':          get_icon_by_name('edit', theme=theme, label=_(u'Edit'),
+    #                                                          size_px=get_icon_size_px(theme, size='instance-button'),
+    #                                                         ).render(css_class='polls-previous-edition'),
+    #                       }
+    #                 )
+    return format_html(
+        u'<b>{title}</b><br>'
+        u'{label} : {number} {question}<br>'
+        u'{answer_str} : {answer} <a class="add" href="{url}">{icon}</a>',
+        title=ugettext(u'Reminder of the previous answered question :'),
+        label=ugettext(u'Question'),
+        number='{} -'.format(number) if number != 'None' else '',
+        question=line.question,
+        answer_str=ugettext(u'Answer'),
+        answer=answer,
+        url=reverse('polls__edit_reply_line_wizard', args=(preply_id, line.id)),
+        icon=get_icon_by_name('edit', theme=theme, label=_(u'Edit'),
+                              size_px=get_icon_size_px(theme, size='instance-button'),
+                             ).render(css_class='polls-previous-edition'),
+    )
 
 
 @login_required

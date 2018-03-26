@@ -30,6 +30,7 @@ register = Library()
 
 # TODO: {% ctype_for_model %} ?
 # TODO: {% ctype_for_instance %} ?
+# TODO: {% if object|ctype_is:my_ctype %} ?
 
 
 # NB: not used, but here for API completeness

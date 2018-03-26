@@ -131,11 +131,13 @@ def log(msg, level='INFO'):
     return ''
 
 
+# TODO: 'o|is_op:None' instead ?
 @register.filter
 def is_none(obj):
     return obj is None
 
 
+# TODO: replace by a filter 'ctype_is' in creme_ctype.py ?
 @register.filter
 def is_entity(obj):
     return isinstance(obj, CremeEntity)
@@ -224,7 +226,7 @@ def x_range(integer, start=0):
 
 
 @register.filter
-def isiterable(iterable):
+def isiterable(iterable):  # TODO: rename is_iterable for consistency
     return hasattr(iterable, '__iter__')
 
 

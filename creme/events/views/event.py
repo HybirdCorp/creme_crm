@@ -22,6 +22,8 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
+from django.utils.html import format_html, format_html_join
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.auth import build_creation_perm as cperm
@@ -170,20 +172,31 @@ class ListViewPostProcessor(object):
             current_status = constants.INV_STATUS_NO_ANSWER
 
         has_perm = user.has_perm_to_link
-        select = ["""<select onchange="creme.events.saveContactStatus('%s', this);" %s>""" % (
-                        reverse('events__set_invitation_status', args=(event.id, entity.id)),
-                        '' if has_perm(event) and has_perm(entity) else 'disabled="True"',
-                    )
-                 ]
-        select.extend(u'<option value="%s" %s>%s</option>' % (
-                            status,
-                            'selected' if status == current_status else '',
-                            status_name
-                        ) for status, status_name in INV_STATUS_MAP.iteritems()
-                    )
-        select.append('</select>')
-
-        return u''.join(select)
+        # select = ["""<select onchange="creme.events.saveContactStatus('%s', this);" %s>""" % (
+        #                 reverse('events__set_invitation_status', args=(event.id, entity.id)),
+        #                 '' if has_perm(event) and has_perm(entity) else 'disabled="True"',
+        #             )
+        #          ]
+        # select.extend(u'<option value="%s" %s>%s</option>' % (
+        #                     status,
+        #                     'selected' if status == current_status else '',
+        #                     status_name
+        #                 ) for status, status_name in INV_STATUS_MAP.iteritems()
+        #             )
+        # select.append('</select>')
+        #
+        # return u''.join(select)
+        return format_html(
+            u"""<select onchange="creme.events.saveContactStatus('{url}', this);"{attrs}>{options}</select>""",
+            url=reverse('events__set_invitation_status', args=(event.id, entity.id)),
+            attrs='' if has_perm(event) and has_perm(entity) else mark_safe(' disabled="True"'),
+            options=format_html_join(
+                '', u'<option value="{}"{}>{}</option>',
+                ((status, ' selected' if status == current_status else '', status_name)
+                     for status, status_name in INV_STATUS_MAP.iteritems()
+                )
+            ),
+        )
 
     def presence_render(self, entity):
         has_relation = self.has_relation
@@ -198,21 +211,31 @@ class ListViewPostProcessor(object):
             current_status = constants.PRES_STATUS_DONT_KNOW
 
         has_perm = user.has_perm_to_link
-        select = ["""<select onchange="creme.events.saveContactStatus('%s', this);" %s>""" % (
-                        reverse('events__set_presence_status', args=(event.id, entity.id)),
-                        '' if has_perm(event) and has_perm(entity) else 'disabled="True"',
-                    )
-                 ]
-        select.extend(u'<option value="%s" %s>%s</option>' % (
-                            status,
-                            'selected' if status == current_status else '',
-                            status_name
-                        ) for status, status_name in PRES_STATUS_MAP.iteritems()
-                     )
-        select.append('</select>')
-
-        return u''.join(select)
-
+        # select = ["""<select onchange="creme.events.saveContactStatus('%s', this);" %s>""" % (
+        #                 reverse('events__set_presence_status', args=(event.id, entity.id)),
+        #                 '' if has_perm(event) and has_perm(entity) else 'disabled="True"',
+        #             )
+        #          ]
+        # select.extend(u'<option value="%s" %s>%s</option>' % (
+        #                     status,
+        #                     'selected' if status == current_status else '',
+        #                     status_name
+        #                 ) for status, status_name in PRES_STATUS_MAP.iteritems()
+        #              )
+        # select.append('</select>')
+        #
+        # return u''.join(select)
+        return format_html(
+            u"""<select onchange="creme.events.saveContactStatus('{url}', this);"{attrs}>{options}</select>""",
+            url=reverse('events__set_presence_status', args=(event.id, entity.id)),
+            attrs='' if has_perm(event) and has_perm(entity) else mark_safe(' disabled="True"'),
+            options=format_html_join(
+                '', u'<option value="{}"{}>{}</option>',
+                ((status, ' selected' if status == current_status else '', status_name)
+                     for status, status_name in PRES_STATUS_MAP.iteritems()
+                )
+            ),
+        )
 
 _FILTER_RELATIONTYPES = (constants.REL_SUB_IS_INVITED_TO,
                          constants.REL_SUB_ACCEPTED_INVITATION,

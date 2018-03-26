@@ -19,6 +19,8 @@
 ################################################################################
 
 from django.conf import settings
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -66,11 +68,17 @@ class DocumentsConfig(CremeAppConfig):
             mime_type = fval.mime_type
 
             if mime_type and mime_type.is_image:
-                return u'''<a onclick="creme.dialogs.image('%s').open();"%s>%s</a>''' % (
-                        fval.get_dl_url(),
-                        ' class="is_deleted"' if fval.is_deleted else u'',
-                        fval.get_entity_summary(user)
-                    )
+                # return u'''<a onclick="creme.dialogs.image('%s').open();"%s>%s</a>''' % (
+                #         fval.get_dl_url(),
+                #         ' class="is_deleted"' if fval.is_deleted else u'',
+                #         fval.get_entity_summary(user)
+                #     )
+                return format_html(
+                    u'''<a onclick="creme.dialogs.image('{url}').open();"{attrs}>{content}</a>''',
+                    url=fval.get_dl_url(),
+                    attrs=mark_safe(u' class="is_deleted"' if fval.is_deleted else u''),
+                    content=fval.get_entity_summary(user),
+                )
 
             return print_foreignkey_html.print_fk_entity_html(entity, fval, user, field)
 
@@ -81,11 +89,17 @@ class DocumentsConfig(CremeAppConfig):
             mime_type = instance.mime_type
 
             if mime_type and mime_type.is_image:
-                return u'''<a onclick="creme.dialogs.image('%s').open();"%s>%s</a>''' % (
-                            instance.get_dl_url(),
-                            ' class="is_deleted"' if instance.is_deleted else u'',
-                            instance.get_entity_summary(user),
-                        )
+                # return u'''<a onclick="creme.dialogs.image('%s').open();"%s>%s</a>''' % (
+                #             instance.get_dl_url(),
+                #             ' class="is_deleted"' if instance.is_deleted else u'',
+                #             instance.get_entity_summary(user),
+                #         )
+                return format_html(
+                    u'''<a onclick="creme.dialogs.image('{url}').open();"{attrs}>{content}</a>''',
+                    url=instance.get_dl_url(),
+                    attrs=mark_safe(u' class="is_deleted"' if instance.is_deleted else u''),
+                    content=instance.get_entity_summary(user),
+                )
 
             return print_many2many_html.printer_entity_html(instance, related_entity, fval, user, field)
 

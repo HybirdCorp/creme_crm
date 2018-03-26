@@ -26,7 +26,8 @@ from django.conf import settings
 from django.db import models
 from django.template.defaultfilters import linebreaks
 from django.utils.formats import date_format, number_format
-from django.utils.html import escape  # urlize
+from django.utils.html import escape, format_html, format_html_join  # urlize
+from django.utils.safestring import mark_safe
 from django.utils.timezone import localtime
 from django.utils.translation import ungettext, ugettext as _
 
@@ -65,7 +66,8 @@ def image_size(image, max_h=MAX_HEIGHT, max_w=MAX_WIDTH):
         h /= ratio
         w /= ratio
 
-    return "height=%s width=%s" % (h, w)
+    # return "height=%s width=%s" % (h, w)
+    return format_html('height="{}" width="{}"', h, w)
 
 
 # def simple_print(entity, fval, user, field):
@@ -84,7 +86,8 @@ def simple_print_csv(entity, fval, user, field):
 
 
 def print_color_html(entity, fval, user, field):
-    return '''<span style="background:#{0};">{0}</span>'''.format(fval) if fval else ''
+    # return '''<span style="background:#{0};">{0}</span>'''.format(fval) if fval else ''
+    return format_html('''<span style="background:#{color};">{color}</span>''', color=fval) if fval else ''
 
 
 # def print_image(entity, fval, user, field):
@@ -107,10 +110,15 @@ def print_file_html(entity, fval, user, field):
 
 
 def print_image_html(entity, fval, user, field):
-    return """<a onclick="creme.dialogs.image('%(url)s').open();"><img src="%(url)s" %(size)s alt="%(url)s"/></a>""" % {
-                'url':  fval.url,
-                'size': image_size(fval),
-            } if fval else ''
+    # return """<a onclick="creme.dialogs.image('%(url)s').open();"><img src="%(url)s" %(size)s alt="%(url)s"/></a>""" % {
+    #             'url':  fval.url,
+    #             'size': image_size(fval),
+    #         } if fval else ''
+    return format_html(
+        """<a onclick="creme.dialogs.image('{url}').open();"><img src="{url}" {size}/></a>""",  # alt="{???}"
+        url=fval.url,
+        size=image_size(fval),
+    ) if fval else ''
 
 
 def print_integer(entity, fval, user, field):
@@ -155,7 +163,8 @@ def print_url_html(entity, fval, user, field):
         return ''
 
     esc_fval = escape(fval)
-    return '<a href="%s" target="_blank">%s</a>' % (esc_fval, esc_fval)
+    # return '<a href="%s" target="_blank">%s</a>' % (esc_fval, esc_fval)
+    return format_html(u'<a href="{url}" target="_blank">{url}</a>', url=esc_fval)
 
 
 def print_datetime(entity, fval, user, field):
@@ -177,7 +186,7 @@ class FKPrinter(object):
     @staticmethod
     def print_fk_null_html(entity, user, field):
         null_label = field.get_null_label()
-        return u'<em>%s</em>' % null_label if null_label else ''
+        return format_html(u'<em>{}</em>', null_label) if null_label else ''
 
     @staticmethod
     def print_fk_entity_html(entity, fval, user, field):
@@ -232,25 +241,37 @@ class M2MPrinter(object):
 
     @staticmethod
     def printer_entity_html(instance, related_entity, fval, user, field):
-        return u'<a target="_blank" href="%s"%s>%s</a>' % (
-                    instance.get_absolute_url(),
-                    ' class="is_deleted"' if instance.is_deleted else u'',
-                    instance.get_entity_summary(user),
-                ) if user.has_perm_to_view(instance) else settings.HIDDEN_VALUE
+        # return u'<a target="_blank" href="%s"%s>%s</a>' % (
+        #             instance.get_absolute_url(),
+        #             ' class="is_deleted"' if instance.is_deleted else u'',
+        #             instance.get_entity_summary(user),
+        #         ) if user.has_perm_to_view(instance) else settings.HIDDEN_VALUE
+        return format_html(
+            u'<a target="_blank" href="{url}"{attrs}>{content}</a>',
+            url=instance.get_absolute_url(),
+            attrs=mark_safe(u' class="is_deleted"' if instance.is_deleted else u''),
+            content=instance.get_entity_summary(user),
+        ) if user.has_perm_to_view(instance) else settings.HIDDEN_VALUE
 
     def __init__(self, default_printer, default_enumerator):
         self._sub_printers = ClassKeyedMap(default=(default_printer, default_enumerator))
 
     def __call__(self, entity, fval, user, field):
         printer, enumerator = self._sub_printers[fval.model]
-        output = [u'<li>%s</li>' % printer(e, entity, fval, user, field)
-                    for e in enumerator(entity, fval, user, field)
-                 ]
+        # output = [u'<li>%s</li>' % printer(e, entity, fval, user, field)
+        #             for e in enumerator(entity, fval, user, field)
+        #          ]
+        #
+        # if output:
+        #     output = chain(['<ul>'], output, ['</ul>'])
+        #
+        # return ''.join(output)
+        li_tags = format_html_join(
+            '', u'<li>{}</li>',
+            ((printer(e, entity, fval, user, field),) for e in enumerator(entity, fval, user, field))
+        )
 
-        if output:
-            output = chain(['<ul>'], output, ['</ul>'])
-
-        return ''.join(output)
+        return format_html(u'<ul>{}</ul>', li_tags) if li_tags else ''
 
     def register(self, model, printer, enumerator):
         self._sub_printers[model] = (printer, enumerator)
@@ -297,7 +318,8 @@ def print_duration(entity, fval, user, field):
 
 
 def print_email_html(entity, fval, user, field):
-    return '<a href="mailto:%s">%s</a>' % (fval, fval) if fval else ''
+    # return '<a href="mailto:%s">%s</a>' % (fval, fval) if fval else ''
+    return format_html(u'<a href="mailto:{email}">{email}</a>', email=fval) if fval else ''
 
 
 def print_text_html(entity, fval, user, field):
@@ -462,16 +484,24 @@ class _FieldPrintersRegistry(object):
                     else:
                         def printer(obj, user):
                             has_perm = user.has_perm_to_view
-                            lines = ['<li>%s</li>' % (
-                                            sub_printer(e, user) if has_perm(e)
-                                            else HIDDEN_VALUE
-                                        ) for e in getattr(obj, base_name).filter(is_deleted=False)
-                                    ]
+                            # lines = ['<li>%s</li>' % (
+                            #                 sub_printer(e, user) if has_perm(e)
+                            #                 else HIDDEN_VALUE
+                            #             ) for e in getattr(obj, base_name).filter(is_deleted=False)
+                            #         ]
+                            #
+                            # if lines:
+                            #     lines = chain(('<ul>',), lines, ('</ul>',))
+                            #
+                            # return ''.join(lines)
+                            li_tags = format_html_join(
+                                u'', u'<li>{}</li>',
+                                ([sub_printer(e, user) if has_perm(e) else HIDDEN_VALUE]
+                                    for e in getattr(obj, base_name).filter(is_deleted=False)
+                                )
+                            )
 
-                            if lines:
-                                lines = chain(('<ul>',), lines, ('</ul>',))
-
-                            return ''.join(lines)
+                            return format_html(u'<ul>{}</ul>', li_tags) if li_tags else ''
                 else:
                     if output == 'csv':
                         def printer(obj, user):
@@ -480,14 +510,20 @@ class _FieldPrintersRegistry(object):
                                             )
                     else:
                         def printer(obj, user):
-                            lines = ['<li>%s</li>' % sub_printer(a, user)
-                                        for a in getattr(obj, base_name).all()
-                                    ]
+                            # lines = ['<li>%s</li>' % sub_printer(a, user)
+                            #             for a in getattr(obj, base_name).all()
+                            #         ]
+                            #
+                            # if lines:
+                            #     lines = chain(('<ul>',), lines, ('</ul>',))
+                            #
+                            # return ''.join(lines)
+                            li_tags = format_html_join(
+                                u'', u'<li>{}</li>',
+                                ((sub_printer(a, user),) for a in getattr(obj, base_name).all())
+                            )
 
-                            if lines:
-                                lines = chain(('<ul>',), lines, ('</ul>',))
-
-                            return ''.join(lines)
+                            return format_html(u'<ul>{}</ul>', li_tags) if li_tags else ''
         else:
             print_func = self._printers_maps[output][base_field.__class__]
 
