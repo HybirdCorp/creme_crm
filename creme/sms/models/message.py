@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import ForeignKey, CharField, DateField, TextField
+from django.db.models import ForeignKey, CharField, DateField, TextField, CASCADE
 from django.utils.formats import date_format
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext, pgettext_lazy
 
@@ -50,8 +50,10 @@ MESSAGE_STATUS = {
 
 class Sending(CremeModel):
     date     = DateField(_(u'Date'))
-    campaign = ForeignKey(settings.SMS_CAMPAIGN_MODEL, verbose_name=_(u'Related campaign'), related_name='sendings')
-    template = ForeignKey(settings.SMS_TEMPLATE_MODEL, verbose_name=_(u'Message template'))
+    campaign = ForeignKey(settings.SMS_CAMPAIGN_MODEL, on_delete=CASCADE,
+                          verbose_name=_(u'Related campaign'), related_name='sendings',
+                         )
+    template = ForeignKey(settings.SMS_TEMPLATE_MODEL, verbose_name=_(u'Message template'), on_delete=CASCADE)  # TODO: PROTECT ? copy data like in 'emails' ?
     content  = TextField(_(u'Generated message'), max_length=160)
 
     creation_label = pgettext_lazy('sms', u'Create a sending')
@@ -85,7 +87,7 @@ class Sending(CremeModel):
 
 # TODO: keep the related entity (to hide the number when the entity is not viewable)
 class Message(CremeModel):
-    sending = ForeignKey(Sending, verbose_name=_(u'Sending'), related_name='messages')
+    sending = ForeignKey(Sending, verbose_name=_(u'Sending'), related_name='messages', on_delete=CASCADE)
     phone  = CharField(_(u'Number'), max_length=100)
     status = CharField(_(u'State'), max_length=10)
     status_message = CharField(_(u'Full state'), max_length=100, blank=True)

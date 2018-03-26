@@ -31,7 +31,7 @@
         </div>
         <div class="rtypebrick-config-group brick-table">
             <table class="brick-table-content">
-                <tbody>{% trans 'Edit the configuration for «%s»' as edit_cells_label_fmt %}{% trans 'Delete the configuration for «%s»' as delete_cells_label_fmt %}
+                <tbody>
                     {% for ctype, cells in block_type.iter_cells %}
                     <tr>
                         <td {% brick_table_data_status primary %} class="rtypebrick-config-relation-label">
@@ -40,11 +40,11 @@
                         <td>
                         {% for cell in cells %}{% widget_join %}<span class="rtypebrick-cell-item">{{cell}}</span>{% end_widget_join %}{% empty %}{% trans 'not configured yet' %}{% endfor %}
                         </td>
-                        <td {% brick_table_data_status action %}>{% url 'creme_config__edit_cells_of_rtype_brick' block_type.id ctype.id as edit_cells_url %}
-                            {% brick_table_action id='edit' url=edit_cells_url label=ctype|format:edit_cells_label_fmt enabled=admin_perm %}
+                        <td {% brick_table_data_status action %}>{% url 'creme_config__edit_cells_of_rtype_brick' block_type.id ctype.id as edit_cells_url %}{% blocktrans asvar edit_label %}Edit the configuration for «{{ctype}}»{% endblocktrans %}
+                            {% brick_table_action id='edit' url=edit_cells_url label=edit_label enabled=admin_perm %}
                         </td>
-                        <td {% brick_table_data_status action %}>{% url 'creme_config__delete_cells_of_rtype_brick' block_type.id as delete_cells_url %}
-                            {% brick_table_action id='delete' url=delete_cells_url __id=ctype.id label=ctype|format:delete_cells_label_fmt enabled=admin_perm %}
+                        <td {% brick_table_data_status action %}>{% url 'creme_config__delete_cells_of_rtype_brick' block_type.id as delete_cells_url %}{% blocktrans asvar delete_label %}Delete the configuration for «{{ctype}}»{% endblocktrans %}
+                            {% brick_table_action id='delete' url=delete_cells_url __id=ctype.id label=delete_label enabled=admin_perm %}
                         </td>
                     </tr>
                     {% endfor %}

@@ -14,7 +14,7 @@ try:
     from .base import ViewsTestCase
     from ..fake_models import FakeContact, FakeOrganisation, FakeImage
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.gui import merge_form_registry
+    from creme.creme_core.gui.merge import merge_form_registry
     from creme.creme_core.models import (RelationType, Relation, SetCredentials,
             CremePropertyType, CremeProperty, FieldsConfig,
             HistoryLine, history,

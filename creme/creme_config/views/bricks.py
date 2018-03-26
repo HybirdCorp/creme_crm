@@ -29,7 +29,8 @@ from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 from formtools.wizard.views import SessionWizardView
 
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.gui import brick_registry
+# from creme.creme_core.gui import brick_registry
+from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.models import (CremeEntity, UserRole,
     BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
     RelationBlockItem, InstanceBlockConfigItem, CustomBlockConfigItem)

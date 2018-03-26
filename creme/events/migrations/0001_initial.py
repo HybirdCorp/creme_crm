@@ -2,10 +2,11 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-from django.db.models.deletion import PROTECT
+from django.db.models.deletion import CASCADE, PROTECT
 
 
 class Migration(migrations.Migration):
+    initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
     ]
@@ -27,7 +28,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Event',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('place', models.CharField(max_length=100, verbose_name='Place', blank=True)),

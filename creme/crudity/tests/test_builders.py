@@ -318,7 +318,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
     def test_myschema_xsd02(self):
         "With Document"
         body_map = {'user_id': 1, 'title': '',
-                    'description': '', 'folder': '', 'filedata': '',
+                    # 'description': '', 'folder': '', 'filedata': '',
+                    'description': '', 'linked_folder': '', 'filedata': '',
                    }
         backend = self._get_backend(DocumentFakeBackend, subject='create_doc',
                                     body_map=body_map, model=Document
@@ -353,7 +354,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             #   </xsd:complexType>
             # </xsd:element>
             'description': {'name': 'description'},
-            'folder':      {'name': 'folder', 'type': 'xsd:integer'},
+            # 'folder':      {'name': 'folder', 'type': 'xsd:integer'},
+            'linked_folder': {'name': 'linked_folder', 'type': 'xsd:integer'},
             'filedata':    {'name': 'filedata', 'type': 'my:requiredBase64Binary'},
        }
 
@@ -642,16 +644,19 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                 '%(xd)sxctname': 'FileAttachment',
                 '%(xd)sbinding': 'my:filedata',
             }, 'span'),
-            'folder': ({
+            # 'folder': ({
+            'linked_folder': ({
                 'class':         'xdComboBox xdBehavior_Select',
-                '%(xd)sCtrlId':  'folder',
+                # '%(xd)sCtrlId':  'folder',
+                '%(xd)sCtrlId':  'linked_folder',
                 '%(xd)sxctname': 'dropdown',
-                '%(xd)sbinding': 'my:folder',
+                # '%(xd)sbinding': 'my:folder',
+                '%(xd)sbinding': 'my:linked_folder',
             }, 'select'),
         }
 
         backend = self._get_backend(DocumentFakeBackend, subject='create_doc',
-                                    body_map={}, model=Document
+                                    body_map={}, model=Document,
                                    )
 
         for field_name, attrs_nodetype in fields.iteritems():

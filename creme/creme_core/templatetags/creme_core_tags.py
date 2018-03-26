@@ -31,6 +31,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import FieldDoesNotExist
 from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode
 from django.template.defaulttags import TemplateLiteral
+from django.utils.html import format_html_join
 from django.utils.safestring import mark_safe
 
 from mediagenerator.generators.bundles.utils import _render_include_media
@@ -105,7 +106,8 @@ def get_field_verbose_name(model_or_entity, field_name):
 
 
 # TODO: deprecate ?
-@register.assignment_tag(takes_context=True)
+# @register.assignment_tag(takes_context=True)
+@register.simple_tag(takes_context=True)
 def get_viewable_fields(context, instance):
     is_hidden = context['fields_configs'].get_4_model(instance.__class__).is_field_hidden
 
@@ -280,7 +282,8 @@ def get_entity_summary(entity, user):
 
 @register.simple_tag(takes_context=True)
 def get_entity_html_attrs(context, entity):
-    return u' '.join(u'%s="%s"' % item for item in entity.get_html_attrs(context).iteritems())
+    # return u' '.join(u'%s="%s"' % item for item in entity.get_html_attrs(context).iteritems())
+    return format_html_join(' ', '{}="{}"', entity.get_html_attrs(context).iteritems())
 
 
 # See grouper implementation: https://docs.python.org/2/library/itertools.html#recipes
@@ -296,7 +299,8 @@ def grouper(value, n):
 #     return history_line.get_verbose_modifications(user)
 
 
-@register.assignment_tag
+# @register.assignment_tag
+@register.simple_tag
 def url_join(*args, **params):
     """ Add some GET parameters to a URL.
     It's work even if the URL has already some GET parameters.
@@ -511,7 +515,8 @@ class MediaNode(TemplateNode):
 
 
 # TODO: creme_backends module ? (wait for list-view rework to see if it's still useful)
-@register.assignment_tag
+# @register.assignment_tag
+@register.simple_tag
 def get_export_backends():
     return json_dump([[backend.id, unicode(backend.verbose_name)]
                         for backend in export_backend_registry.iterbackends()
@@ -519,12 +524,14 @@ def get_export_backends():
                     )
 
 
-@register.assignment_tag
+# @register.assignment_tag
+@register.simple_tag
 def get_import_backends():
     return json_dump([[backend.id] for backend in import_backend_registry.iterbackends()])
 
 
-@register.assignment_tag(name='hg_info')
+# @register.assignment_tag(name='hg_info')
+@register.simple_tag(name='hg_info')
 def get_hg_info():
     from ..utils.version import get_hg_info
 

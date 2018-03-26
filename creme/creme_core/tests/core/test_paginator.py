@@ -1098,7 +1098,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         user = self.user
         invoice = FakeInvoice.objects.create(user=user, name='Swords & shields')
 
-        create_line = partial(FakeInvoiceLine.objects.create, user=user, invoice=invoice)
+        create_line = partial(FakeInvoiceLine.objects.create, user=user, linked_invoice=invoice)
 
         for i in xrange(5):
             create_line(item='Bento %i' % i,  unit_price='1%i.6' % i)
@@ -1445,19 +1445,19 @@ class FlowPaginatorTestCase(CremeTestCase):
         folder4 = create_folder(title="Faye's pix")
 
         create_doc = partial(FakeDocument.objects.create, user=user)
-        create_doc(title='Japan map part#1',   folder=folder1)
-        create_doc(title='Japan map part#2',   folder=folder1)
-        create_doc(title='Mars city 1', folder=folder2)
-        create_doc(title='Mars city 2', folder=folder2)
-        create_doc(title='Swordfish',   folder=folder3)
-        create_doc(title='Money!!.jpg', folder=folder4)
-        create_doc(title='selfie.jpg', folder=folder4)
+        create_doc(title='Japan map part#1', linked_folder=folder1)
+        create_doc(title='Japan map part#2', linked_folder=folder1)
+        create_doc(title='Mars city 1',      linked_folder=folder2)
+        create_doc(title='Mars city 2',      linked_folder=folder2)
+        create_doc(title='Swordfish',        linked_folder=folder3)
+        create_doc(title='Money!!.jpg',      linked_folder=folder4)
+        create_doc(title='selfie.jpg',       linked_folder=folder4)
 
-        key = 'folder__category'
+        key = 'linked_folder__category'
         qs = FakeDocument.objects.order_by(key, 'id')
         docs = list(qs)
-        self.assertEqual(docs, list(FakeDocument.objects.order_by('folder__category__name', 'id')))
-        self.assertNotEqual(docs, list(FakeDocument.objects.order_by('folder__category__pk', 'id')))
+        self.assertEqual(docs, list(FakeDocument.objects.order_by('linked_folder__category__name', 'id')))
+        self.assertNotEqual(docs, list(FakeDocument.objects.order_by('linked_folder__category__pk', 'id')))
 
         paginator = FlowPaginator(qs, key=key, per_page=2, count=len(docs))
         page1 = paginator.page()

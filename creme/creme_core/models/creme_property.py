@@ -20,7 +20,7 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
-from django.db.models import CharField, ForeignKey, ManyToManyField, BooleanField, Q
+from django.db.models import CharField, ForeignKey, ManyToManyField, BooleanField, Q, CASCADE
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
@@ -101,8 +101,8 @@ class CremePropertyType(CremeModel):
 
 
 class CremeProperty(CremeModel):
-    type         = ForeignKey(CremePropertyType)
-    creme_entity = ForeignKey(CremeEntity, related_name='properties')
+    type         = ForeignKey(CremePropertyType, on_delete=CASCADE)
+    creme_entity = ForeignKey(CremeEntity, related_name='properties', on_delete=CASCADE)
 
     class Meta:
         app_label = 'creme_core'

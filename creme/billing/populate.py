@@ -409,12 +409,14 @@ class Populator(BasePopulator):
         create_report_columns(invoices_report1)
 
         rgraph1 = create_graph(name=_(u'Sum of current year invoices total without taxes / month'),
-                               report=invoices_report1,
+                               # report=invoices_report1,
+                               linked_report=invoices_report1,
                                abscissa='issuing_date', ordinate='total_no_vat__sum',
                                type=RGT_MONTH, is_count=False,
                               )
         create_graph(name=_(u'Sum of current year invoices total without taxes / invoices status'),
-                     report=invoices_report1,
+                     # report=invoices_report1,
+                     linked_report=invoices_report1,
                      abscissa='status', ordinate='total_no_vat__sum',
                      type=RGT_FK, is_count=False,
                     )
@@ -429,7 +431,8 @@ class Populator(BasePopulator):
         create_report_columns(invoices_report2)
 
         rgraph = create_graph(name=_(u'Sum of current year and unpaid invoices total without taxes / month'),
-                              report=invoices_report2,
+                              # report=invoices_report2,
+                              linked_report=invoices_report2,
                               abscissa='issuing_date', ordinate='total_no_vat__sum',
                               type=RGT_MONTH, is_count=False,
                              )

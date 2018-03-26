@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2016-2017 Hybird
+# Copyright (c) 2016-2018 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -202,7 +202,8 @@ def populate_related(instances, field_names):
             attr_name  = field.get_attname()
             cache_name = field.get_cache_name()
 
-            rel_model = field.rel.to
+            # rel_model = field.rel.to
+            rel_model = field.remote_field.model
             cached = global_cache[rel_model]
             new_ids = new_ids_per_model[rel_model]
 
@@ -228,7 +229,8 @@ def populate_related(instances, field_names):
             attr_name  = field.get_attname()
             cache_name = field.get_cache_name()
 
-            get_cached = global_cache[field.rel.to].get
+            # get_cached = global_cache[field.rel.to].get
+            get_cached = global_cache[field.remote_field.model].get
             related_instances = []
 
             for instance in instances:

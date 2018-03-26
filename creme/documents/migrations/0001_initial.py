@@ -5,7 +5,7 @@ import uuid
 
 from django.conf import settings
 from django.db import models, migrations
-from django.db.models.deletion import SET_NULL, PROTECT
+from django.db.models.deletion import SET_NULL, PROTECT, CASCADE
 
 
 class Migration(migrations.Migration):
@@ -24,6 +24,7 @@ class Migration(migrations.Migration):
     #     (b'documents', '0013_v1_7__folders_uuids'),
     # ]
 
+    initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
     ]
@@ -46,7 +47,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Folder',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('title', models.CharField(max_length=100, verbose_name='Title')),
                 ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('category', models.ForeignKey(to='documents.FolderCategory',
@@ -57,6 +61,7 @@ class Migration(migrations.Migration):
                 ),
                 ('parent_folder', models.ForeignKey(to=settings.DOCUMENTS_FOLDER_MODEL, null=True,
                                                     blank=True, related_name='parent_folder_set', verbose_name='Parent folder',
+                                                    on_delete=PROTECT,
                                                    )
                 ),
             ],
@@ -98,7 +103,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Document',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('title', models.CharField(max_length=100, verbose_name='Name')),
                 ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('filedata', models.FileField(upload_to=b'upload/documents', max_length=500, verbose_name='File')),

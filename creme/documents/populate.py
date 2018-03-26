@@ -101,7 +101,8 @@ class Populator(BasePopulator):
         HeaderFilter.create(pk=constants.DEFAULT_HFILTER_DOCUMENT, model=Document,
                             name=_(u'Document view'),
                             cells_desc=[(EntityCellRegularField, {'name': 'title'}),
-                                        (EntityCellRegularField, {'name': 'folder__title'}),
+                                        # (EntityCellRegularField, {'name': 'folder__title'}),
+                                        (EntityCellRegularField, {'name': 'linked_folder__title'}),
                                         (EntityCellRegularField, {'name': 'mime_type'}),
                                        ]
                                 )
@@ -126,7 +127,8 @@ class Populator(BasePopulator):
 
         # ---------------------------
         create_sci = SearchConfigItem.create_if_needed
-        create_sci(Document, ['title', 'description', 'folder__title', 'categories__name'])
+        # create_sci(Document, ['title', 'description', 'folder__title', 'categories__name'])
+        create_sci(Document, ['title', 'description', 'linked_folder__title', 'categories__name'])
         create_sci(Folder,   ['title', 'description', 'category__name'])
 
         # ---------------------------

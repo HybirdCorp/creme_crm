@@ -71,7 +71,8 @@ class DocumentTestCase(_DocumentsTestCase):
                                     data={'user':     self.user.pk,
                                           'title':    title,
                                           'filedata': file_obj,
-                                          'folder':   folder.id,
+                                          # 'folder':   folder.id,
+                                          'linked_folder':   folder.id,
                                           'description': description,
                                          }
                                    )
@@ -83,7 +84,8 @@ class DocumentTestCase(_DocumentsTestCase):
         doc = docs[0]
         self.assertEqual(title,       doc.title)
         self.assertEqual(description, doc.description)
-        self.assertEqual(folder,      doc.folder)
+        # self.assertEqual(folder,      doc.folder)
+        self.assertEqual(folder,      doc.linked_folder)
 
         mime_type = doc.mime_type
         self.assertIsNotNone(mime_type)
@@ -174,13 +176,14 @@ class DocumentTestCase(_DocumentsTestCase):
                                     data={'user':     user.pk,
                                           # 'title':    '',
                                           'filedata': file_obj,
-                                          'folder':   folder.id,
+                                          # 'folder':   folder.id,
+                                          'linked_folder':   folder.id,
                                          }
                                    )
 
         self.assertNoFormError(response)
 
-        doc = self.get_object_or_fail(Document, folder=folder)
+        doc = self.get_object_or_fail(Document, linked_folder=folder)
         self.assertEqual('upload/documents/%s' % file_name, doc.filedata.name)
         self.assertEqual(file_name, doc.title)
 
@@ -211,7 +214,8 @@ class DocumentTestCase(_DocumentsTestCase):
                                     data={'user':         user.pk,
                                           'title':        title,
                                           'description':  description,
-                                          'folder':       folder.id,
+                                          # 'folder':       folder.id,
+                                          'linked_folder': folder.id,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -219,7 +223,8 @@ class DocumentTestCase(_DocumentsTestCase):
         doc = self.refresh(doc)
         self.assertEqual(title,       doc.title)
         self.assertEqual(description, doc.description)
-        self.assertEqual(folder,      doc.folder)
+        # self.assertEqual(folder,      doc.folder)
+        self.assertEqual(folder,      doc.linked_folder)
 
         self.assertRedirects(response, doc.get_absolute_url())
 
@@ -250,7 +255,8 @@ class DocumentTestCase(_DocumentsTestCase):
         doc1 = post('Related doc')
         self.assertRelationCount(1, entity, REL_SUB_RELATED_2_DOC, doc1)
 
-        entity_folder = doc1.folder
+        # entity_folder = doc1.folder
+        entity_folder = doc1.linked_folder
         self.assertIsNotNone(entity_folder)
         self.assertEqual(u'%s_%s' % (entity.id, unicode(entity)), entity_folder.title)
 
@@ -260,7 +266,8 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual(root_folder, ct_folder.parent_folder)
 
         doc2 = post('Related doc #2')
-        entity_folder2 = doc2.folder
+        # entity_folder2 = doc2.folder
+        entity_folder2 = doc2.linked_folder
         self.assertEqual(entity_folder, entity_folder2)
         self.assertEqual(ct_folder,     entity_folder2.parent_folder)
 
@@ -356,7 +363,7 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertNoFormError(response)
 
         doc = self.get_object_or_fail(Document, title=title)
-        entity_folder = doc.folder
+        entity_folder = doc.linked_folder
         self.assertIsNotNone(entity_folder)
 
         title = entity_folder.title
@@ -390,7 +397,7 @@ class DocumentTestCase(_DocumentsTestCase):
 
         doc = self.get_object_or_fail(Document, title=title)
 
-        entity_folder = doc.folder
+        entity_folder = doc.linked_folder
         self.assertEqual(my_entity_folder.title, entity_folder.title)
         self.assertNotEqual(my_entity_folder, entity_folder)
 
@@ -521,10 +528,11 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
                 'form-TOTAL_FORMS':   '%s' % count,
                }
 
-    def quickform_data_append(self, data, id, user='', filedata='', folder=''):
+    def quickform_data_append(self, data, id, user='', filedata='', folder_id=''):
         return data.update({'form-%d-user' % id:     user,
                             'form-%d-filedata' % id: filedata,
-                            'form-%d-folder' % id:   folder,
+                            # 'form-%d-folder' % id:   folder_id,
+                            'form-%d-linked_folder' % id: folder_id,
                            }
                           )
 
@@ -542,7 +550,7 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
         folder = Folder.objects.all()[0]
 
         data = self.quickform_data(1)
-        self.quickform_data_append(data, 0, user=user.pk, filedata=file_obj, folder=folder.pk)
+        self.quickform_data_append(data, 0, user=user.pk, filedata=file_obj, folder_id=folder.id)
 
         self.assertNoFormError(self.client.post(url, follow=True, data=data))
 
@@ -552,7 +560,7 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
         doc = docs[0]
         self.assertEqual('upload/documents/%s' % file_name, doc.filedata.name)
         self.assertEqual('', doc.description)
-        self.assertEqual(folder, doc.folder)
+        self.assertEqual(folder, doc.linked_folder)
 
         filedata = doc.filedata
         filedata.open()
@@ -589,7 +597,7 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
         folder = get_csv_folder_or_create(user)
         self.assertEqual('upload/documents/%s' % file_name, doc.filedata.name)
         self.assertEqual('', doc.description)
-        self.assertEqual(folder, doc.folder)
+        self.assertEqual(folder, doc.linked_folder)
 
         self.assertEqual(json_dump({
                                 'added': [[doc.id, unicode(doc)]],
@@ -617,7 +625,7 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
         response = self.client.post(url, follow=True,
                                     data={'user':   user.pk,
                                           'image':  image_file,
-                                          'folder': folder.id,
+                                          'linked_folder': folder.id,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -631,7 +639,7 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
         self.assertTrue(title.endswith('.png'))
 
         self.assertEqual('',         doc.description)
-        self.assertEqual(folder,     doc.folder)
+        self.assertEqual(folder,     doc.linked_folder)
         self.assertTrue('image/png', doc.mime_type.name)
 
         self.assertTrue(filecmp.cmp(path, doc.filedata.path))
@@ -655,7 +663,8 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
                                       follow=True,
                                       data={'user':   user.pk,
                                             'image':  file_obj,
-                                            'folder': folder.id,
+                                            # 'folder': folder.id,
+                                            'linked_folder': folder.id,
                                            },
                                      )
         self.assertFormError(response, 'form', 'image',

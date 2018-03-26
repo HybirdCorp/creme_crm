@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -45,14 +45,16 @@ class GraphInstanceBrickForm(CremeForm):
     def __init__(self, graph, *args, **kwargs):
         super(GraphInstanceBrickForm, self).__init__(*args, **kwargs)
         self.graph = graph
-        self.fields['volatile_column'].choices = self._get_volatile_choices(graph.report.ct)
+        # self.fields['volatile_column'].choices = self._get_volatile_choices(graph.report.ct)
+        self.fields['volatile_column'].choices = self._get_volatile_choices(graph.linked_report.ct)
 
     def _get_volatile_choices(self, ct):
         choices = []
         fk_choices = [('fk-' + name, vname)
                         for name, vname in ModelFieldEnumerator(ct.model_class(), deep=0, only_leafs=False)
                                             .filter((lambda f, deep: isinstance(f, ForeignKey) and
-                                                                     issubclass(f.rel.to, CremeEntity)
+                                                                     # issubclass(f.rel.to, CremeEntity)
+                                                                     issubclass(f.remote_field.model, CremeEntity)
                                                     ),
                                                     viewable=True,
                                                    )

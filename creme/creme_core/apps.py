@@ -28,11 +28,11 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from .checks import Tags, check_uninstalled_apps  # NB: it registers other checks too
-from .core.reminder import reminder_registry
-from .core.setting_key import setting_key_registry, user_setting_key_registry
-from .gui import (creme_menu, brick_registry, bulk_update_registry, button_registry,
-        fields_config_registry, field_printers_registry, icon_registry, import_form_registry,
-        merge_form_registry, quickforms_registry, smart_columns_registry, statistics_registry)
+# from .core.reminder import reminder_registry
+# from .core.setting_key import setting_key_registry, user_setting_key_registry
+# from .gui import (creme_menu, brick_registry, bulk_update_registry, button_registry,
+#         fields_config_registry, field_printers_registry, icon_registry, import_form_registry,
+#         merge_form_registry, quickforms_registry, smart_columns_registry, statistics_registry)
 from .registry import creme_registry
 
 
@@ -75,25 +75,40 @@ class MediaGeneratorConfig(AppConfig):
     def _build_MEDIA_BUNDLES(self):
         is_installed = apps.is_installed
 
-        MEDIA_BUNDLES = (settings.CREME_I18N_JS,
-                         settings.CREME_LIB_JS + tuple(js for app, js in settings.CREME_OPTLIB_JS if is_installed(app)),
-                         settings.CREME_CORE_JS + tuple(js for app, js in settings.CREME_OPT_JS if is_installed(app))
-                        )
+        # MEDIA_BUNDLES = (settings.CREME_I18N_JS,
+        #                  settings.CREME_LIB_JS + tuple(js for app, js in settings.CREME_OPTLIB_JS if is_installed(app)),
+        #                  settings.CREME_CORE_JS + tuple(js for app, js in settings.CREME_OPT_JS if is_installed(app))
+        #                 )
+        MEDIA_BUNDLES = [
+            settings.CREME_I18N_JS,
+            settings.CREME_LIB_JS + [js for app, js in settings.CREME_OPTLIB_JS if is_installed(app)],
+            settings.CREME_CORE_JS + [js for app, js in settings.CREME_OPT_JS if is_installed(app)],
+        ]
 
         if settings.FORCE_JS_TESTVIEW:
-            MEDIA_BUNDLES += (settings.TEST_CREME_LIB_JS,
-                              settings.TEST_CREME_CORE_JS + tuple(js for app, js in settings.TEST_CREME_OPT_JS if is_installed(app))
-                             )
+            # MEDIA_BUNDLES += (settings.TEST_CREME_LIB_JS,
+            #                   settings.TEST_CREME_CORE_JS + tuple(js for app, js in settings.TEST_CREME_OPT_JS if is_installed(app))
+            #                  )
+            MEDIA_BUNDLES.append(settings.TEST_CREME_LIB_JS)
+            MEDIA_BUNDLES.append(settings.TEST_CREME_CORE_JS + [js for app, js in settings.TEST_CREME_OPT_JS if is_installed(app)])
 
+        # MEDIA_BUNDLES += settings.CREME_OPT_MEDIA_BUNDLES
         MEDIA_BUNDLES += settings.CREME_OPT_MEDIA_BUNDLES
 
-        CREME_CSS = settings.CREME_CORE_CSS + tuple(css for app, css in settings.CREME_OPT_CSS if is_installed(app))
-        MEDIA_BUNDLES += tuple((theme_dir + CREME_CSS[0], ) +
-                               tuple(theme_dir + '/' + css_file if not isinstance(css_file, dict) else css_file
-                                        for css_file in CREME_CSS[1:]
-                                    )
-                                for theme_dir, theme_vb_name in settings.THEMES
-                              )
+        # CREME_CSS = settings.CREME_CORE_CSS + tuple(css for app, css in settings.CREME_OPT_CSS if is_installed(app))
+        CREME_CSS = settings.CREME_CORE_CSS + [css for app, css in settings.CREME_OPT_CSS if is_installed(app)]
+        # MEDIA_BUNDLES += tuple((theme_dir + CREME_CSS[0], ) +
+        #                        tuple(theme_dir + '/' + css_file if not isinstance(css_file, dict) else css_file
+        #                                 for css_file in CREME_CSS[1:]
+        #                             )
+        #                         for theme_dir, theme_vb_name in settings.THEMES
+        #                       )
+        MEDIA_BUNDLES.extend(
+            [theme_dir + CREME_CSS[0]] +
+            [css_file if isinstance(css_file, dict) else '{}/{}'.format(theme_dir, css_file)
+                  for css_file in CREME_CSS[1:]
+            ] for theme_dir, theme_vb_name in settings.THEMES
+        )
 
         settings.CREME_CSS = CREME_CSS  # For compatibility (should not be useful)
         settings.MEDIA_BUNDLES = MEDIA_BUNDLES
@@ -205,9 +220,13 @@ class CremeAppConfig(AppConfig):
             if hasattr(self, 'register_creme_app'):
                 logger.critical('The AppConfig for "%s" has a method register_creme_app() which is now useless.', self.name)
 
+            from .core import reminder, setting_key
+            from .gui import (bricks, bulk_update, button_menu, fields_config, field_printers, icons,
+                      listview, mass_import, menu, merge, quick_forms, statistics)
+
             self.register_entity_models(creme_registry)
 
-            self.register_bricks(brick_registry)
+            self.register_bricks(bricks.brick_registry)
             # if hasattr(self, 'register_blocks'):
             #     warnings.warn('The AppConfig for "%s" has a method "register_blocks()" which is now deprecated ; '
             #                   'you should rename it register_bricks().' % self.name,
@@ -215,28 +234,28 @@ class CremeAppConfig(AppConfig):
             #                  )
             #     self.register_blocks(brick_registry)
 
-            self.register_bulk_update(bulk_update_registry)
-            self.register_buttons(button_registry)
-            self.register_fields_config(fields_config_registry)
-            self.register_field_printers(field_printers_registry)
-            self.register_icons(icon_registry)
-            self.register_mass_import(import_form_registry)
-            self.register_menu(creme_menu)
-            self.register_merge_forms(merge_form_registry)
-            self.register_quickforms(quickforms_registry)
-            self.register_reminders(reminder_registry)
+            self.register_bulk_update(bulk_update.bulk_update_registry)
+            self.register_buttons(button_menu.button_registry)
+            self.register_fields_config(fields_config.fields_config_registry)
+            self.register_field_printers(field_printers.field_printers_registry)
+            self.register_icons(icons.icon_registry)
+            self.register_mass_import(mass_import.import_form_registry)
+            self.register_menu(menu.creme_menu)
+            self.register_merge_forms(merge.merge_form_registry)
+            self.register_quickforms(quick_forms.quickforms_registry)
+            self.register_reminders(reminder.reminder_registry)
 
-            self.register_setting_keys(setting_key_registry)
+            self.register_setting_keys(setting_key.setting_key_registry)
             if hasattr(self, 'register_setting_key'):
                 warnings.warn('The AppConfig for "%s" has a method "register_setting_key()" which is now deprecated ; '
                               'you should rename it register_setting_keys().' % self.name,
                               DeprecationWarning
                              )
-                self.register_setting_key(setting_key_registry)
+                self.register_setting_key(setting_key.setting_key_registry)
 
-            self.register_statistics(statistics_registry)
-            self.register_user_setting_keys(user_setting_key_registry)
-            self.register_smart_columns(smart_columns_registry)
+            self.register_statistics(statistics.statistics_registry)
+            self.register_user_setting_keys(setting_key.user_setting_key_registry)
+            self.register_smart_columns(listview.smart_columns_registry)
 
     def register_entity_models(self, creme_registry):
         pass
@@ -303,6 +322,22 @@ class CremeCoreConfig(CremeAppConfig):
             return
 
         checks.register(Tags.settings)(check_uninstalled_apps)  # Crashes in migrate mode.
+        # self.hook_fk_formfield()
+        # self.hook_m2m_formfield()
+        # self.hook_datetime_widgets()
+        # self.hook_multiselection_widgets()
+        # self.hook_widget_render()
+        #
+        # if settings.TESTS_ON:
+        #     from .tests.fake_apps import ready
+        #     ready()
+
+    def all_apps_ready(self):
+        if self.MIGRATION_MODE:
+            return
+
+        self.tag_ctype()
+
         self.hook_fk_formfield()
         self.hook_m2m_formfield()
         self.hook_datetime_widgets()
@@ -312,6 +347,8 @@ class CremeCoreConfig(CremeAppConfig):
         if settings.TESTS_ON:
             from .tests.fake_apps import ready
             ready()
+
+        super(CremeCoreConfig, self).all_apps_ready()
 
     def register_menu(self, creme_menu):
         from django.core.urlresolvers import reverse_lazy as reverse
@@ -399,11 +436,15 @@ class CremeCoreConfig(CremeAppConfig):
         original_fk_formfield = ForeignKey.formfield
 
         def new_fk_formfield(self, **kwargs):
-            if issubclass(self.rel.to, CremeEntity):
+            model = self.remote_field.model
+            # if issubclass(self.rel.to, CremeEntity):
+            if issubclass(model, CremeEntity):
                 return CreatorEntityField(label=self.verbose_name,
-                                          model=self.rel.to,
+                                          # model=self.rel.to,
+                                          model=model,
                                           required=not self.blank,
-                                          q_filter=self.rel.limit_choices_to,
+                                          # q_filter=self.rel.limit_choices_to,
+                                          q_filter=self.remote_field.limit_choices_to,
                                          )
 
             defaults = {'form_class': CreatorModelChoiceField}
@@ -426,11 +467,16 @@ class CremeCoreConfig(CremeAppConfig):
         original_m2m_formfield = ManyToManyField.formfield
 
         def new_m2m_formfield(self, **kwargs):
-            if issubclass(self.rel.to, CremeEntity):
+            model = self.remote_field.model
+
+            # if issubclass(self.rel.to, CremeEntity):
+            if issubclass(model, CremeEntity):
                 return MultiCreatorEntityField(label=self.verbose_name,
-                                               model=self.rel.to,
+                                               # model=self.rel.to,
+                                               model=model,
                                                required=not self.blank,
-                                               q_filter=self.rel.limit_choices_to,
+                                               # q_filter=self.rel.limit_choices_to,
+                                               q_filter=self.remote_field.limit_choices_to,
                                               )
 
             defaults = {'form_class': CreatorModelMultipleChoiceField}
@@ -476,6 +522,15 @@ class CremeCoreConfig(CremeAppConfig):
 
 
         Widget.build_attrs = build_attrs
+
+    @staticmethod
+    def tag_ctype():
+        from django.contrib.contenttypes.models import ContentType
+
+        get_ct_field = ContentType._meta.get_field
+
+        for fname in ('app_label', 'model'):
+            get_ct_field(fname).set_tags(viewable=False)
 
 
 def creme_app_configs():

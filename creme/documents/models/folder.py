@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from random import randint
 
 from django.core.urlresolvers import reverse
-from django.db.models import CharField, TextField, ForeignKey, SET_NULL
+from django.db.models import CharField, TextField, ForeignKey, SET_NULL, PROTECT
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.core.exceptions import SpecificProtectedError
@@ -42,6 +42,7 @@ class AbstractFolder(CremeEntity):
     parent_folder = ForeignKey('self', verbose_name=_(u'Parent folder'),
                                blank=True, null=True,
                                related_name='parent_folder_set',  # TODO: rename 'children'
+                               on_delete=PROTECT,
                               )
     category      = ForeignKey(FolderCategory, verbose_name=_(u'Category'),
                                blank=True, null=True, on_delete=SET_NULL,

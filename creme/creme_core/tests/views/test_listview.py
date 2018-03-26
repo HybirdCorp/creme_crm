@@ -965,7 +965,8 @@ class ListViewTestCase(ViewsTestCase):
                             'WHERE ("creme_core_cremeentity"."is_deleted" = %s AND ' \
                             '"creme_core_cremeentity"."entity_type_id" = %s)'
             slow_sql = 'SELECT COUNT(*) FROM (SELECT DISTINCT "creme_core_cremeentity"."id"'
-        elif db_engine == 'django.db.backends.postgresql_psycopg2':
+        # elif db_engine == 'django.db.backends.postgresql_psycopg2':
+        elif db_engine.startswith('django.db.backends.postgresql'):
             fast_sql = 'SELECT COUNT(*) AS "__count" FROM "creme_core_cremeentity" WHERE ' \
                        '("creme_core_cremeentity"."is_deleted" = false AND ' \
                        '"creme_core_cremeentity"."entity_type_id" = %s)' % self.ctype.id
@@ -1226,21 +1227,21 @@ class ListViewTestCase(ViewsTestCase):
         folder4 = create_folder(title="Faye's pix")
 
         create_doc = partial(FakeDocument.objects.create, user=user)
-        doc1 = create_doc(title='Japan map',   folder=folder1)
-        doc2 = create_doc(title='Mars city 1', folder=folder2)
-        doc3 = create_doc(title='Swordfish',   folder=folder3)
-        doc4 = create_doc(title='Money!!.jpg', folder=folder4)
+        doc1 = create_doc(title='Japan map',   linked_folder=folder1)
+        doc2 = create_doc(title='Mars city 1', linked_folder=folder2)
+        doc3 = create_doc(title='Swordfish',   linked_folder=folder3)
+        doc4 = create_doc(title='Money!!.jpg', linked_folder=folder4)
 
         build_cell = partial(EntityCellRegularField.build, model=FakeDocument)
         hf = HeaderFilter.create(pk='test-hf_doc', name='Doc view', model=FakeDocument,
                                  cells_desc=[build_cell(name='title'),
-                                             build_cell(name='folder__category'),
+                                             build_cell(name='linked_folder__category'),
                                             ],
                                 )
 
         response = self.assertPOST200(FakeDocument.get_lv_absolute_url(),
                                       data={'hfilter': hf.id,
-                                            'regular_field-folder__category': cat1.id,
+                                            'regular_field-linked_folder__category': cat1.id,
                                            }
                                      )
         content = self._get_lv_content(self._get_lv_node(response))
@@ -1252,7 +1253,7 @@ class ListViewTestCase(ViewsTestCase):
         # '*is empty*'
         response = self.assertPOST200(FakeDocument.get_lv_absolute_url(),
                                       data={'hfilter': hf.id,
-                                            'regular_field-folder__category': 'NULL',
+                                            'regular_field-linked_folder__category': 'NULL',
                                            }
                                      )
         content = self._get_lv_content(self._get_lv_node(response))
@@ -1275,21 +1276,21 @@ class ListViewTestCase(ViewsTestCase):
         folder4 = create_folder(title="Faye's pix", parent=p_folder2)
 
         create_doc = partial(FakeDocument.objects.create, user=user)
-        doc1 = create_doc(title='Japan',       folder=folder1)
-        doc2 = create_doc(title='Mars city 1', folder=folder2)
-        doc3 = create_doc(title='Swordfish',   folder=folder3)
-        doc4 = create_doc(title='Money!!.jpg', folder=folder4)
+        doc1 = create_doc(title='Japan',       linked_folder=folder1)
+        doc2 = create_doc(title='Mars city 1', linked_folder=folder2)
+        doc3 = create_doc(title='Swordfish',   linked_folder=folder3)
+        doc4 = create_doc(title='Money!!.jpg', linked_folder=folder4)
 
         build_cell = partial(EntityCellRegularField.build, model=FakeDocument)
         hf = HeaderFilter.create(pk='test-hf_doc', name='Doc view', model=FakeDocument,
                                  cells_desc=[build_cell(name='title'),
-                                             build_cell(name='folder__parent'),
+                                             build_cell(name='linked_folder__parent'),
                                             ],
                                 )
 
         response = self.assertPOST200(FakeDocument.get_lv_absolute_url(),
                                       data={'hfilter': hf.id,
-                                            'regular_field-folder__parent': p_folder1.title,
+                                            'regular_field-linked_folder__parent': p_folder1.title,
                                            }
                                      )
         content = self._get_lv_content(self._get_lv_node(response))

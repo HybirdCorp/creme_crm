@@ -154,7 +154,7 @@ class EntityEmailTestCase(_EmailsTestCase):
                                               'title':       title,
                                               'description': 'Attachment file',
                                               'filedata':    tmpfile,
-                                              'folder':      folder.id,
+                                              'linked_folder': folder.id,
                                              }
                                        )
             self.assertNoFormError(response)
@@ -193,8 +193,8 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         message = messages[1]
         self.assertEqual([recipient], message.recipients())
-        self.assertEqual([(basename(doc1.filedata.name), content1, None),
-                          (basename(doc2.filedata.name), content2, None),
+        self.assertEqual([(basename(doc1.filedata.name), content1, 'text/plain'),
+                          (basename(doc2.filedata.name), content2, 'text/plain'),
                          ],
                          message.attachments
                         )

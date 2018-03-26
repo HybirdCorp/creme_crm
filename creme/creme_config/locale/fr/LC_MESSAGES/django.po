@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 1.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-01 11:26+0100\n"
+"POT-Creation-Date: 2018-02-01 16:21+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -738,7 +738,7 @@ msgid "Configured portals"
 msgstr "Portails configurés"
 
 #: templates/creme_config/bricks/bricklocations-portals.html:14
-#: views/bricks.py:98
+#: views/bricks.py:99
 msgid "New blocks configuration"
 msgstr "Nouvelle configuration de blocs"
 
@@ -853,7 +853,7 @@ msgid "Custom blocks"
 msgstr "Blocs personnalisés"
 
 #: templates/creme_config/bricks/custombricks-configs.html:12
-#: views/bricks.py:156
+#: views/bricks.py:157
 msgid "New custom block"
 msgstr "Nouveau bloc personnalisé"
 
@@ -1136,7 +1136,7 @@ msgid "Types of relation block created"
 msgstr "Types de bloc de relation créés"
 
 #: templates/creme_config/bricks/relationbricks-configs.html:12
-#: views/bricks.py:125
+#: views/bricks.py:126
 msgid "New type of block"
 msgstr "Nouveau type de bloc"
 
@@ -1148,19 +1148,19 @@ msgstr "Tous les types sont configurés"
 msgid "New customised type"
 msgstr "Nouveau type personnalisé"
 
-#: templates/creme_config/bricks/relationbricks-configs.html:34
-#, python-format
-msgid "Edit the configuration for «%s»"
-msgstr "Modifier la configuration pour «%s»"
-
-#: templates/creme_config/bricks/relationbricks-configs.html:34
-#, python-format
-msgid "Delete the configuration for «%s»"
-msgstr "Supprimer la configuration pour «%s»"
-
 #: templates/creme_config/bricks/relationbricks-configs.html:41
 msgid "not configured yet"
 msgstr "pas encore configuré"
+
+#: templates/creme_config/bricks/relationbricks-configs.html:43
+#, python-format
+msgid "Edit the configuration for «%(ctype)s»"
+msgstr "Modifier la configuration pour «%(ctype)s»"
+
+#: templates/creme_config/bricks/relationbricks-configs.html:46
+#, python-format
+msgid "Delete the configuration for «%(ctype)s»"
+msgstr "Supprimer la configuration pour «%(ctype)s»"
 
 #: templates/creme_config/bricks/relationbricks-configs.html:59
 msgid "No type of relation block created for the moment"
@@ -1518,91 +1518,91 @@ msgstr "Accueil"
 msgid "View and edit your Creme settings"
 msgstr "Voir et modifier vos réglages Creme"
 
-#: views/bricks.py:69
+#: views/bricks.py:70
 #, python-format
 msgid "New block configuration for «%s»"
 msgstr "Nouvelle configuration de bloc pour «%s»"
 
-#: views/bricks.py:70 views/bricks.py:95 views/bricks.py:222
-#: views/bricks.py:323 views/button_menu.py:63 views/custom_fields.py:38
+#: views/bricks.py:71 views/bricks.py:96 views/bricks.py:223
+#: views/bricks.py:324 views/button_menu.py:63 views/custom_fields.py:38
 msgid "Save the configuration"
 msgstr "Enregistrer la configuration"
 
-#: views/bricks.py:91 views/bricks.py:146 views/bricks.py:319
+#: views/bricks.py:92 views/bricks.py:147 views/bricks.py:320
 #: views/button_menu.py:59 views/fields_config.py:79
 msgctxt "creme_config-verb"
 msgid "Select"
 msgstr "Sélectionner"
 
 # Already in creme_core
-#: views/bricks.py:94 views/bricks.py:152 views/bricks.py:322
+#: views/bricks.py:95 views/bricks.py:153 views/bricks.py:323
 #: views/button_menu.py:62 views/fields_config.py:87
 msgid "Previous step"
 msgstr ""
 
-#: views/bricks.py:126 views/bricks.py:153
+#: views/bricks.py:127 views/bricks.py:154
 msgid "Save the block"
 msgstr "Enregistrer le bloc"
 
-#: views/bricks.py:201
+#: views/bricks.py:202
 #, python-format
 msgid "Edit configuration of super-users for «%s»"
 msgstr "Modifier la configuration des super-utilisateurs pour «%s»"
 
-#: views/bricks.py:203
+#: views/bricks.py:204
 #, python-format
 msgid "Edit configuration of «%(role)s» for «%(type)s»"
 msgstr "Modifier la configuration de «%(role)s» pour «%(type)s»"
 
-#: views/bricks.py:208
+#: views/bricks.py:209
 #, python-format
 msgid "Edit default configuration for «%s»"
 msgstr "Modifier la configuration par défaut pour «%s»"
 
-#: views/bricks.py:214 views/button_menu.py:106
+#: views/bricks.py:215 views/button_menu.py:106
 msgid "Edit default configuration"
 msgstr "Modifier la configuration par défaut"
 
-#: views/bricks.py:231
+#: views/bricks.py:232
 msgid "Edit default portal configuration"
 msgstr "Modifier la configuration de portail par défaut"
 
-#: views/bricks.py:233
+#: views/bricks.py:234
 msgid "Edit home configuration"
 msgstr "Modifier la configuration de l'accueil"
 
-#: views/bricks.py:240
+#: views/bricks.py:241
 #, python-format
 msgid "Edit portal configuration for «%s»"
 msgstr "Modifier la configuration de portail pour «%s»"
 
 # Already in creme_core
-#: views/bricks.py:261 views/bricks.py:282 views/bricks.py:376
+#: views/bricks.py:262 views/bricks.py:283 views/bricks.py:377
 #: views/button_menu.py:112 views/creme_property_type.py:68
 #: views/prefered_menu.py:68 views/relation_type.py:74 views/user_role.py:115
 #: views/user_role.py:210
 msgid "Save the modifications"
 msgstr ""
 
-#: views/bricks.py:293
+#: views/bricks.py:294
 msgid "Edit default \"My page\""
 msgstr "Modifier le \"Ma page\" par défaut"
 
-#: views/bricks.py:298
+#: views/bricks.py:299
 msgid "Edit \"My page\""
 msgstr "Modifier \"Ma page\""
 
-#: views/bricks.py:337
+#: views/bricks.py:338
 #, python-format
 msgid "New customised type for «%s»"
 msgstr "Nouveau type personnalisé pour «%s»"
 
-#: views/bricks.py:375
+#: views/bricks.py:376
 #, python-format
 msgid "Edit «%s» configuration"
 msgstr "Modifier la configuration de «%s»"
 
-#: views/bricks.py:406
+#: views/bricks.py:407
 #, python-format
 msgid "Edit the block «%s»"
 msgstr "Modifier le bloc «%s»"
@@ -1622,12 +1622,12 @@ msgstr "Modifier le type «%s»"
 msgid "New custom field for «%s»"
 msgstr "Nouveau champ personnalisé pour «%s»"
 
-#: views/generics_views.py:69
+#: views/generics_views.py:71
 #, python-format
 msgid "New value: %s"
 msgstr "Nouvelle valeur : %s"
 
-#: views/generics_views.py:153
+#: views/generics_views.py:155
 #, python-format
 msgid "%s can not be deleted because of its dependencies."
 msgstr "%s ne peut pas être effacé à cause de ses dépendances."
@@ -1645,7 +1645,7 @@ msgstr "Modifier le menu rapide par défaut"
 msgid "New search configuration for «%s»"
 msgstr "Nouvelle configuration de recherche pour «%s»"
 
-#: views/setting.py:61 views/user_role.py:132 views/user_settings.py:97
+#: views/setting.py:61 views/user_role.py:132 views/user_settings.py:99
 #, python-format
 msgid "Edit «%s»"
 msgstr "Modifier «%s»"

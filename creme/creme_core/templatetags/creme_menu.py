@@ -23,6 +23,7 @@ import warnings
 from django.conf import settings
 from django.db.models import Q
 from django.template import Library
+from django.utils.safestring import mark_safe
 
 from ..gui.button_menu import button_registry
 from ..gui.menu import creme_menu
@@ -94,11 +95,11 @@ if settings.OLD_MENU:
 
     @register.simple_tag
     def menu_display():
-        return '<p>NEW MENU DISABLED</p>'
+        return mark_safe('<p>NEW MENU DISABLED</p>')
 else:
     @register.simple_tag
     def generate_treecreme_menu(request):
-        return '<p>OLD MENU DISABLED</p>'
+        return mark_safe('<p>OLD MENU DISABLED</p>')
 
 
     @register.simple_tag(takes_context=True)

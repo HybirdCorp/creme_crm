@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2017  Hybird
+#    Copyright (C) 2016-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -126,7 +126,8 @@ class FlowPaginator(object):
         last_field = field_info[-1]
 
         if last_field.is_relation:
-            subfield_model = last_field.rel.to
+            # subfield_model = last_field.rel.to
+            subfield_model = last_field.remote_field.model
             subfield_ordering = subfield_model._meta.ordering
 
             if not subfield_ordering:

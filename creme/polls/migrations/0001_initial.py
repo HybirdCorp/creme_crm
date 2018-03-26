@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models, migrations
-from django.db.models.deletion import PROTECT, SET_NULL
+from django.db.models.deletion import CASCADE, PROTECT, SET_NULL
 
 import creme.polls.models.base
 
@@ -15,6 +15,7 @@ class Migration(migrations.Migration):
     #     (b'polls', '0003_v1_7__textfields_not_null_2'),
     # ]
 
+    initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
         ('commercial', '0001_initial'),
@@ -37,7 +38,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PollCampaign',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('goal', models.TextField(verbose_name='Goal of the campaign', blank=True)),
                 ('start', models.DateField(null=True, verbose_name='Start', blank=True)),
@@ -56,7 +60,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PollForm',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('name', models.CharField(max_length=220, verbose_name='Name')),
                 ('type', models.ForeignKey(on_delete=SET_NULL, verbose_name='Type', blank=True, to='polls.PollType', null=True)),
             ],
@@ -75,8 +82,8 @@ class Migration(migrations.Migration):
                 ('order', models.PositiveIntegerField(default=1, editable=False)),
                 ('name', models.CharField(max_length=250, verbose_name='Name')),
                 ('body', models.TextField(verbose_name='Section body', blank=True)),
-                ('parent', models.ForeignKey(editable=False, to='polls.PollFormSection', null=True)),
-                ('pform', models.ForeignKey(related_name='sections', editable=False, to=settings.POLLS_FORM_MODEL)),
+                ('parent', models.ForeignKey(editable=False, to='polls.PollFormSection', null=True, on_delete=CASCADE)),
+                ('pform', models.ForeignKey(related_name='sections', editable=False, to=settings.POLLS_FORM_MODEL, on_delete=CASCADE)),
             ],
             options={
                 'ordering': ('order',),
@@ -95,8 +102,8 @@ class Migration(migrations.Migration):
                 ('type_args', models.TextField(null=True, editable=False)),
                 ('conds_use_or', models.NullBooleanField(verbose_name='Use OR or AND between conditions', editable=False)),
                 ('question', models.TextField(verbose_name='Question')),
-                ('pform', models.ForeignKey(related_name='lines', editable=False, to=settings.POLLS_FORM_MODEL)),
-                ('section', models.ForeignKey(editable=False, to='polls.PollFormSection', null=True)),
+                ('pform', models.ForeignKey(related_name='lines', editable=False, to=settings.POLLS_FORM_MODEL, on_delete=CASCADE)),
+                ('section', models.ForeignKey(editable=False, to='polls.PollFormSection', null=True, on_delete=CASCADE)),
             ],
             options={
                 'ordering': ('order',),
@@ -111,8 +118,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('operator', models.PositiveSmallIntegerField()),
                 ('raw_answer', models.TextField(null=True)),
-                ('line', models.ForeignKey(related_name='conditions', editable=False, to='polls.PollFormLine')),
-                ('source', models.ForeignKey(to='polls.PollFormLine')),
+                ('line', models.ForeignKey(related_name='conditions', editable=False, to='polls.PollFormLine', on_delete=CASCADE)),
+                ('source', models.ForeignKey(to='polls.PollFormLine', on_delete=CASCADE)),
             ],
             options={
             },
@@ -121,7 +128,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PollReply',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('name', models.CharField(max_length=250, verbose_name='Name')),
                 ('is_complete', models.BooleanField(default=False, verbose_name='Is complete', editable=False)),
                 ('campaign', models.ForeignKey(on_delete=PROTECT, verbose_name='Related campaign', blank=True, to=settings.POLLS_CAMPAIGN_MODEL, null=True)),
@@ -144,8 +154,8 @@ class Migration(migrations.Migration):
                 ('order', models.PositiveIntegerField(default=1, editable=False)),
                 ('name', models.CharField(max_length=250, verbose_name='Name')),
                 ('body', models.TextField(verbose_name='Section body', blank=True)),
-                ('parent', models.ForeignKey(editable=False, to='polls.PollReplySection', null=True)),
-                ('preply', models.ForeignKey(related_name='sections', editable=False, to=settings.POLLS_REPLY_MODEL)),
+                ('parent', models.ForeignKey(editable=False, to='polls.PollReplySection', null=True, on_delete=CASCADE)),
+                ('preply', models.ForeignKey(related_name='sections', editable=False, to=settings.POLLS_REPLY_MODEL, on_delete=CASCADE)),
             ],
             options={
                 'ordering': ('order',),
@@ -165,9 +175,9 @@ class Migration(migrations.Migration):
                 ('conds_use_or', models.NullBooleanField(verbose_name='Use OR or AND between conditions', editable=False)),
                 ('question', models.TextField(verbose_name='Question')),
                 ('raw_answer', models.TextField(null=True, verbose_name='Answer')),
-                ('pform_line', models.ForeignKey(editable=False, to='polls.PollFormLine')),
-                ('preply', models.ForeignKey(related_name='lines', editable=False, to=settings.POLLS_REPLY_MODEL)),
-                ('section', models.ForeignKey(editable=False, to='polls.PollReplySection', null=True)),
+                ('pform_line', models.ForeignKey(editable=False, to='polls.PollFormLine', on_delete=CASCADE)),
+                ('preply', models.ForeignKey(related_name='lines', editable=False, to=settings.POLLS_REPLY_MODEL, on_delete=CASCADE)),
+                ('section', models.ForeignKey(editable=False, to='polls.PollReplySection', null=True, on_delete=CASCADE)),
             ],
             options={
                 'ordering': ('order',),
@@ -180,8 +190,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('operator', models.PositiveSmallIntegerField()),
                 ('raw_answer', models.TextField(null=True)),
-                ('line', models.ForeignKey(related_name='conditions', editable=False, to='polls.PollReplyLine')),
-                ('source', models.ForeignKey(to='polls.PollReplyLine')),
+                ('line', models.ForeignKey(related_name='conditions', editable=False, to='polls.PollReplyLine', on_delete=CASCADE)),
+                ('source', models.ForeignKey(to='polls.PollReplyLine', on_delete=CASCADE)),
             ],
             options={},
             bases=(models.Model,),

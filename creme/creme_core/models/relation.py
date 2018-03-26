@@ -22,7 +22,7 @@ from collections import defaultdict
 import logging
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q, CharField, ForeignKey, ManyToManyField, BooleanField, PROTECT
+from django.db.models import Q, CharField, ForeignKey, ManyToManyField, BooleanField, PROTECT, CASCADE
 from django.db.transaction import atomic
 from django.dispatch import receiver
 from django.http import Http404
@@ -62,7 +62,7 @@ class RelationType(CremeModel):
     minimal_display = BooleanField(default=False)
 
     predicate      = CharField(_(u'Predicate'), max_length=100)
-    symmetric_type = ForeignKey('self', blank=True, null=True)
+    symmetric_type = ForeignKey('self', blank=True, null=True, on_delete=CASCADE)
 
     creation_label = _(u'Create a type of relationship')
     save_label     = _(u'Save the type')
@@ -197,8 +197,8 @@ class RelationType(CremeModel):
 
 # TODO: remove CremeAbstractEntity inheritance (user/modified not useful any more ??) ??
 class Relation(CremeAbstractEntity):
-    type               = ForeignKey(RelationType, blank=True, null=True)  # TODO: nullable=False
-    symmetric_relation = ForeignKey('self', blank=True, null=True)
+    type               = ForeignKey(RelationType, blank=True, null=True, on_delete=CASCADE)  # TODO: nullable=False
+    symmetric_relation = ForeignKey('self', blank=True, null=True, on_delete=CASCADE)
     subject_entity     = ForeignKey(CremeEntity, related_name='relations', on_delete=PROTECT)
     object_entity      = ForeignKey(CremeEntity, related_name='relations_where_is_object', on_delete=PROTECT)
 
@@ -269,8 +269,8 @@ class Relation(CremeAbstractEntity):
 
 class SemiFixedRelationType(CremeModel):
     predicate     = CharField(_(u'Predicate'), max_length=100, unique=True)
-    relation_type = ForeignKey(RelationType)
-    object_entity = ForeignKey(CremeEntity)
+    relation_type = ForeignKey(RelationType, on_delete=CASCADE)
+    object_entity = ForeignKey(CremeEntity, on_delete=CASCADE)
 
     creation_label = _(u'Create a semi-fixed type of relationship')
     save_label     = _(u'Save the type')

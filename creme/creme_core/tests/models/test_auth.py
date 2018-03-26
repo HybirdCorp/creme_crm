@@ -960,7 +960,7 @@ class CredentialsTestCase(CremeTestCase):
                          )
 
         invoice = FakeInvoice.objects.create(user=user, name='Swords & shields')
-        line = FakeInvoiceLine.objects.create(user=user, invoice=invoice, item='Sword')
+        line = FakeInvoiceLine.objects.create(user=user, linked_invoice=invoice, item='Sword')
 
         get_entity = CremeEntity.objects.get
         invoice_entity = get_entity(id=invoice.id)

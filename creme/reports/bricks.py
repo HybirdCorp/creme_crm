@@ -67,7 +67,8 @@ class ReportGraphsBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(
                     context,
-                    ReportGraph.objects.filter(report=report),
+                    # ReportGraph.objects.filter(report=report),
+                    ReportGraph.objects.filter(linked_report=report),
                     report_charts=report_chart_registry,
         ))
 

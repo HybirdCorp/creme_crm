@@ -45,7 +45,7 @@ else:
 #        description   = models.TextField(_(u'Description'), null=True, blank=True).set_tags(optional=True)
         parent    = models.ForeignKey('self', verbose_name=_(u'Parent folder'),
                                       blank=True, null=True, related_name='children',
-                                      # on_delete=PROTECT, ??
+                                      on_delete=models.CASCADE,  # TODO: PROTECT
                                      )
         category  = models.ForeignKey(FakeFolderCategory, verbose_name=_(u'Category'),
                                       blank=True, null=True, on_delete=models.SET_NULL,
@@ -70,7 +70,8 @@ else:
         title       = models.CharField(_(u'Title'), max_length=100)
 #        description = models.TextField(_(u'Description'), blank=True, null=True).set_tags(optional=True)
         filedata    = models.FileField(_(u'File'), max_length=100, upload_to='upload/creme_core-tests')
-        folder      = models.ForeignKey(FakeFolder, verbose_name=_(u'Folder'), on_delete=models.PROTECT)
+        # folder      = models.ForeignKey(FakeFolder, verbose_name=_(u'Folder'), on_delete=models.PROTECT)
+        linked_folder = models.ForeignKey(FakeFolder, verbose_name=_(u'Folder'), on_delete=models.PROTECT)
 
 #        creation_label = _('Create a document')
 
@@ -81,7 +82,7 @@ else:
             ordering = ('title',)
 
         def __unicode__(self):
-            return u'%s - %s' % (self.folder, self.title)
+            return u'%s - %s' % (self.linked_folder, self.title)
 
 #        def get_absolute_url(self):
 #           return "/documents/document/%s" % self.id
@@ -214,7 +215,7 @@ else:
         country    = models.CharField(_(u'Country'), max_length=40, blank=True, null=True) \
                            .set_tags(optional=True)
 
-        entity     = models.ForeignKey(CremeEntity, related_name='+', editable=False) \
+        entity     = models.ForeignKey(CremeEntity, related_name='+', editable=False, on_delete=models.CASCADE) \
                            .set_tags(viewable=False)
 
         class Meta:
@@ -263,7 +264,7 @@ else:
                                             )
         address     = models.ForeignKey(FakeAddress, verbose_name=_(u'Billing address'),
                                         blank=True, null=True,  editable=False,
-                                        related_name='+',
+                                        related_name='+', on_delete=models.SET_NULL,
                                        ).set_tags(enumerable=False)  # clonable=False useless
         is_user     = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'Related user'),
                                         blank=True, null=True, editable=False,
@@ -358,8 +359,8 @@ else:
                                            )
         address         = models.ForeignKey(FakeAddress, verbose_name=_(u'Billing address'),
                                             blank=True, null=True, editable=False,
-                                            related_name='+',
-                                           ).set_tags(enumerable=False)  # clonable=False useless
+                                            related_name='+', on_delete=models.SET_NULL,
+                                           ).set_tags(enumerable=False)
         description     = models.TextField(_(u'Description'), blank=True, null=True)
         creation_date   = models.DateField(_(u'Date of creation'), blank=True, null=True)
         image           = models.ForeignKey(FakeImage, verbose_name=_(u'Logo'),
@@ -523,7 +524,8 @@ else:
 
 
     class FakeInvoiceLine(CremeEntity):
-        invoice       = models.ForeignKey(FakeInvoice)
+        # invoice       = models.ForeignKey(FakeInvoice, on_delete=models.CASCADE)
+        linked_invoice = models.ForeignKey(FakeInvoice, on_delete=models.CASCADE)
         item          = models.CharField(u'Item', max_length=100, blank=True, null=True)
         quantity      = models.DecimalField(_(u'Quantity'),
                                             max_digits=10, decimal_places=2,
@@ -552,7 +554,7 @@ else:
             return reverse('creme_core__list_fake_invoicelines')
 
         def get_related_entity(self):  # For generic views & delete
-            return self.invoice
+            return self.linked_invoice
 
 
     class FakeProduct(CremeEntity):

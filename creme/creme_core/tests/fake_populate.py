@@ -74,7 +74,8 @@ def populate():
              )
     create_hf(pk='creme_core-hf_fakeinvoiceline', name='FakeInvoiceLine view',
               model=fake_models.FakeInvoiceLine,
-              cells_desc=[(EntityCellRegularField, {'name': 'invoice'}),
+              # cells_desc=[(EntityCellRegularField, {'name': 'invoice'}),
+              cells_desc=[(EntityCellRegularField, {'name': 'linked_invoice'}),
                           (EntityCellRegularField, {'name': 'item'}),
                           (EntityCellRegularField, {'name': 'quantity'}),
                          ],

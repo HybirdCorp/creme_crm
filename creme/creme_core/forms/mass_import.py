@@ -318,11 +318,14 @@ class ExtractorField(Field):
     @user.setter
     def user(self, user):
         self._user = user
-        rel = self._modelfield.rel
+        # rel = self._modelfield.rel
+        remote_field = self._modelfield.remote_field
 
-        if rel:
+        # if rel:
+        if remote_field:
             from creme.creme_config.registry import config_registry, NotRegisteredInConfig
-            model = rel.to
+            # model = rel.to
+            model = remote_field.model
             creation_perm = False
             app_name = model._meta.app_label
 
@@ -367,7 +370,8 @@ class ExtractorField(Field):
         subfield_search = value['subfield_search']
         if subfield_search:
             modelfield = self._modelfield
-            extractor.set_subfield_search(subfield_search, modelfield.rel.to,
+            # extractor.set_subfield_search(subfield_search, modelfield.rel.to,
+            extractor.set_subfield_search(subfield_search, modelfield.remote_field.model,
                                           multiple=isinstance(modelfield, ManyToManyField),
                                           # TODO: improve widget to disable creation check instead of hide it.
                                           create_if_unfound=subfield_create,

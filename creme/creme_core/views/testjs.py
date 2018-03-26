@@ -38,8 +38,8 @@ from django.utils.timezone import now
 from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
 # from ..global_info import set_global_info
-from ..gui import brick_registry
-from ..gui.bricks import PaginatedBrick
+# from ..gui import brick_registry
+from ..gui.bricks import brick_registry, PaginatedBrick
 from ..gui.field_printers import (print_image_html, print_url_html, print_datetime,
         print_date, print_duration, print_foreignkey_html, print_many2many_html)
 #       print_image print_urlfield print_foreignkey print_many2many

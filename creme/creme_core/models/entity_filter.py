@@ -28,7 +28,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db.models import (Model, CharField, TextField, BooleanField,
-        PositiveSmallIntegerField, ForeignKey, Q, ManyToManyField)
+        PositiveSmallIntegerField, ForeignKey, Q, ManyToManyField, CASCADE)
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
 from django.db.models.signals import pre_delete
@@ -86,8 +86,9 @@ class _CurrentUserVariable(EntityFilterVariable):
         return user.pk if user is not None else None
 
     def validate(self, field, value):
-        if not isinstance(field, ForeignKey) or not issubclass(field.rel.to, get_user_model()):
-            return field.formfield().clean(value) 
+        # if not isinstance(field, ForeignKey) or not issubclass(field.rel.to, get_user_model()):
+        if not isinstance(field, ForeignKey) or not issubclass(field.remote_field.model, get_user_model()):
+            return field.formfield().clean(value)
 
         if isinstance(value, basestring) and value == EntityFilterVariable.CURRENT_USER:
             return
@@ -729,7 +730,7 @@ class _RangeOperator(_ConditionOperator):
 
 class EntityFilterCondition(Model):
     """Tip: Use the helper methods build_4_* instead of calling constructor."""
-    filter = ForeignKey(EntityFilter, related_name='conditions')
+    filter = ForeignKey(EntityFilter, related_name='conditions', on_delete=CASCADE)
     type   = PositiveSmallIntegerField()  # NB: see EFC_*  # TODO: choices ?
     name   = CharField(max_length=100)
     value  = TextField()  # TODO: use a JSONField ?

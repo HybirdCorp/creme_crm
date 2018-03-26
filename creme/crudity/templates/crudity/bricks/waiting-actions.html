@@ -6,8 +6,9 @@
 {% block brick_extra_attributes %}data-crudity-backend="{{backend.get_id}}"{% endblock %}
 
 {% block brick_header_title %}
-    {% widget_icon ctype=waiting_ct size='brick-header' as ct_icon %}
-    {% brick_header_title title=title icon=ct_icon selection_title=_('%s Action selected') selection_plural=_('%s Actions selected') %}
+    {% widget_icon ctype=waiting_ct size='brick-header' as ct_icon %}{% trans '%s Action selected' as sel_fmt %}{% trans '%s Actions selected' as sel_plural_fmt %}
+{#    {% brick_header_title title=title icon=ct_icon selection_title=_('%s Action selected') selection_plural=_('%s Actions selected') %} TODO + use '{}' format instead #}
+    {% brick_header_title title=title icon=ct_icon selection_title=sel_fmt selection_plural=sel_plural_fmt %}
 {% endblock %}
 
 {% block brick_header_actions %}

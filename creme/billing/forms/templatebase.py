@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,7 +38,8 @@ class _TemplateBaseForm(BaseEditForm):
 
         status_field.label   = ugettext(u'Status of %s') % meta.verbose_name
         status_field.choices = [(status.id, unicode(status))
-                                    for status in meta.get_field('status').rel.to.objects.all()
+                                    # for status in meta.get_field('status').rel.to.objects.all()
+                                    for status in meta.get_field('status').remote_field.model.objects.all()
                                ]
 
         return status_field

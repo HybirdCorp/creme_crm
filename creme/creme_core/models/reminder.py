@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,14 +20,14 @@
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Model, DateTimeField, ForeignKey, PositiveIntegerField
+from django.db.models import Model, DateTimeField, ForeignKey, PositiveIntegerField, CASCADE
 from django.utils.translation import ugettext_lazy as _
 
 
 class DateReminder(Model):  # CremeModel ?
     date_of_remind     = DateTimeField(blank=True, null=True)
     ident              = PositiveIntegerField()
-    model_content_type = ForeignKey(ContentType, related_name='reminders_set')
+    model_content_type = ForeignKey(ContentType, related_name='reminders_set', on_delete=CASCADE)
     model_id           = PositiveIntegerField()
 
     object_of_reminder = GenericForeignKey(ct_field='model_content_type', fk_field='model_id')

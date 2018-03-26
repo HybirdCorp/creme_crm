@@ -321,7 +321,8 @@ class ListViewState(object):
             # assert not last_field.one_to_many
             # NB: many_to_one == ForeignKey
 
-            subfield_model = last_field.rel.to
+            # subfield_model = last_field.rel.to
+            subfield_model = last_field.remote_field.model
             subfield_ordering = subfield_model._meta.ordering
 
             if not subfield_ordering:

@@ -3,6 +3,6 @@
 
 {% block page_title %}{% blocktrans %}Edit «{{object}}»{% endblocktrans %} - {% endblock %}
 
-{% block content %}
-    {% include "persons/frags/contact_form_content.html" with icon_name='edit' title=object|format:_('Edit «%s»') %}
+{% block content %}{% blocktrans asvar form_title %}Edit «{{object}}»{% endblocktrans %}
+    {% include "persons/frags/contact_form_content.html" with icon_name='edit' title=form_title %}
 {% endblock %}

@@ -7,8 +7,8 @@
     {{block.super}}
 
     <hr/>{% has_perm_to admin 'creme_core' as config_perm %}
-    {% for ct, cells in config_item.iter_cells %}{% url 'creme_config__edit_cells_of_rtype_brick' config_item.id ct.id as edit_cells_url %}
-        {% brick_menu_action id='edit' url=edit_cells_url icon='config' label=ct|format:_('Configure the fields for «%s»') enabled=config_perm %}
+    {% for ctype, cells in config_item.iter_cells %}{% url 'creme_config__edit_cells_of_rtype_brick' config_item.id ctype.id as edit_cells_url %}{% blocktrans asvar edit_label %}Configure the fields for «{{ctype}}»'{% endblocktrans %}
+        {% brick_menu_action id='edit' url=edit_cells_url icon='config' label=edit_label enabled=config_perm %}
     {% endfor %}
 
     {% if not config_item.all_ctypes_configured %}{% url 'creme_config__add_cells_to_rtype_brick' config_item.id as add_cells_url %}

@@ -676,7 +676,8 @@ def brick_pager(page):
     }
 
 
-@register.assignment_tag(takes_context=True)
+# @register.assignment_tag(takes_context=True)
+@register.simple_tag(takes_context=True)
 def brick_import(context, app=None, name=None, object=None):
     """ Import an instance of a registered Brick.
 
@@ -833,7 +834,7 @@ def brick_display(context, *bricks, **kwargs):
             bricks_to_render.append(brick_or_seq)
 
     # NB: the context is copied is order to a 'fresh' one for each brick, & so avoid annoying side-effects.
-    return ''.join(render(brick, context=dict(context_dict)) for brick in bricks_to_render)
+    return mark_safe(''.join(render(brick, context=dict(context_dict)) for brick in bricks_to_render))
 
 
 @register.simple_tag(takes_context=True)
@@ -876,4 +877,4 @@ def brick_end(context):
     <ul>{}</ul>
 </div>""".format(''.join('<li>{}</li>'.format(group) for group in remaining_groups))
 
-    return res
+    return mark_safe(res)

@@ -23,7 +23,7 @@ from os.path import basename
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.db.models import CharField, ManyToManyField, ForeignKey
+from django.db.models import CharField, ManyToManyField, ForeignKey, CASCADE
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
@@ -168,8 +168,8 @@ class Graph(AbstractGraph):
 
 
 class RootNode(CremeModel):
-    graph          = ForeignKey(settings.GRAPHS_GRAPH_MODEL, related_name='roots', editable=False)
-    entity         = ForeignKey(CremeEntity, editable=False)
+    graph          = ForeignKey(settings.GRAPHS_GRAPH_MODEL, related_name='roots', editable=False, on_delete=CASCADE)
+    entity         = ForeignKey(CremeEntity, editable=False, on_delete=CASCADE)
     # TODO: editable=False is only to avoid inner edition with an ugly widget
     relation_types = ManyToManyField(RelationType, editable=False)
 

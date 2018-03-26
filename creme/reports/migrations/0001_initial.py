@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models, migrations
-import django.db.models.deletion
+from django.db.models.deletion import PROTECT, CASCADE
 
 from creme.creme_core.models import fields as creme_fields
 
@@ -14,6 +14,7 @@ class Migration(migrations.Migration):
     #     (b'reports', '0003_v1_7__image_to_doc'),
     # ]
 
+    initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
         ('contenttypes', '0001_initial'),
@@ -23,10 +24,13 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Report',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the report')),
                 ('ct', creme_fields.EntityCTypeForeignKey(verbose_name='Entity type', to='contenttypes.ContentType')),
-                ('filter', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Filter', blank=True, to='creme_core.EntityFilter', null=True)),
+                ('filter', models.ForeignKey(on_delete=PROTECT, verbose_name='Filter', blank=True, to='creme_core.EntityFilter', null=True)),
             ],
             options={
                 'swappable': 'REPORTS_REPORT_MODEL',
@@ -44,8 +48,8 @@ class Migration(migrations.Migration):
                 ('order', models.PositiveIntegerField()),
                 ('type', models.PositiveSmallIntegerField()),
                 ('selected', models.BooleanField(default=False)),
-                ('report', models.ForeignKey(related_name='fields', to=settings.REPORTS_REPORT_MODEL)),
-                ('sub_report', models.ForeignKey(blank=True, to=settings.REPORTS_REPORT_MODEL, null=True)),
+                ('report', models.ForeignKey(related_name='fields', to=settings.REPORTS_REPORT_MODEL, on_delete=CASCADE)),
+                ('sub_report', models.ForeignKey(blank=True, to=settings.REPORTS_REPORT_MODEL, null=True, on_delete=CASCADE,)),
             ],
             options={
                 'ordering': ('order',),
@@ -57,7 +61,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ReportGraph',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the graph')),
                 ('abscissa', models.CharField(verbose_name='X axis', max_length=100, editable=False)),
                 ('ordinate', models.CharField(verbose_name='Y axis', max_length=100, editable=False)),
@@ -73,7 +80,7 @@ class Migration(migrations.Migration):
                 ('days', models.PositiveIntegerField(null=True, verbose_name='Days', blank=True)),
                 ('is_count', models.BooleanField(default=False, verbose_name='Make a count instead of aggregate?')),
                 ('chart', models.CharField(max_length=100, null=True, verbose_name='Chart type')),
-                ('report', models.ForeignKey(editable=False, to=settings.REPORTS_REPORT_MODEL)),
+                ('report', models.ForeignKey(editable=False, to=settings.REPORTS_REPORT_MODEL, on_delete=CASCADE)),
             ],
             options={
                 'swappable': 'REPORTS_GRAPH_MODEL',
@@ -90,12 +97,16 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeReportsFolder',
                 fields=[
-                    ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                    ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                             to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                            )
+                    ),
                     ('title', models.CharField(unique=True, max_length=100, verbose_name='Title')),
                     ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
-                    ('parent', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Parent folder',
+                    ('parent', models.ForeignKey(on_delete=PROTECT, verbose_name='Parent folder',
                                                  to='reports.FakeReportsFolder', null=True,
-                                                )),
+                                                )
+                    ),
                 ],
                 options={
                     'ordering': ('title',),
@@ -107,10 +118,14 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeReportsDocument',
                 fields=[
-                    ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                    ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                             to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                            )
+                    ),
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
                     ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
-                    ('folder', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Folder', to='reports.FakeReportsFolder')),
+                    # ('folder', models.ForeignKey(on_delete=PROTECT, verbose_name='Folder', to='reports.FakeReportsFolder')),
+                    ('linked_folder', models.ForeignKey(on_delete=PROTECT, verbose_name='Folder', to='reports.FakeReportsFolder')),
                 ],
                 options={
                     'ordering': ('title',),
@@ -122,7 +137,10 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='Guild',
                 fields=[
-                    ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                    ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                             to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                            )
+                    ),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
                     ('members', models.ManyToManyField(to='creme_core.FakeContact', verbose_name='Members')),
                 ],

@@ -23,7 +23,7 @@ from functools import partial
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import (CharField, TextField, BooleanField, NullBooleanField,
-        PositiveIntegerField, PositiveSmallIntegerField, ForeignKey, SET_NULL, ProtectedError)
+        PositiveIntegerField, PositiveSmallIntegerField, ForeignKey, SET_NULL, CASCADE, ProtectedError)
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.models import CremeModel, CremeEntity
@@ -145,8 +145,8 @@ class PollForm(AbstractPollForm):
 
 
 class PollFormSection(CremeModel):
-    pform  = ForeignKey(settings.POLLS_FORM_MODEL, editable=False, related_name='sections')
-    parent = ForeignKey('self', editable=False, null=True)  # related_name='children'
+    pform  = ForeignKey(settings.POLLS_FORM_MODEL, editable=False, related_name='sections', on_delete=CASCADE)
+    parent = ForeignKey('self', editable=False, null=True, on_delete=CASCADE)  # related_name='children'
     order  = PositiveIntegerField(editable=False, default=1)
     name   = CharField(_(u'Name'), max_length=250)
     body   = TextField(_(u'Section body'), blank=True)
@@ -190,8 +190,8 @@ class PollFormSection(CremeModel):
 
 
 class PollFormLine(CremeModel, _PollLine):
-    pform        = ForeignKey(settings.POLLS_FORM_MODEL, editable=False, related_name='lines')
-    section      = ForeignKey(PollFormSection, editable=False, null=True) #, related_name='lines'
+    pform        = ForeignKey(settings.POLLS_FORM_MODEL, editable=False, related_name='lines', on_delete=CASCADE)
+    section      = ForeignKey(PollFormSection, editable=False, null=True, on_delete=CASCADE) #, related_name='lines'
     order        = PositiveIntegerField(editable=False, default=1)
     disabled     = BooleanField(default=False, editable=False)
 
@@ -288,8 +288,8 @@ class PollFormLineCondition(CremeModel):
     # ISEMPTY         = 21
     # RANGE           = 22
 
-    line       = ForeignKey(PollFormLine, editable=False, related_name='conditions')
-    source     = ForeignKey(PollFormLine)
+    line       = ForeignKey(PollFormLine, editable=False, related_name='conditions', on_delete=CASCADE)
+    source     = ForeignKey(PollFormLine, on_delete=CASCADE)
     operator   = PositiveSmallIntegerField()  # See EQUALS etc...
     raw_answer = TextField(null=True)
 

@@ -23,7 +23,7 @@ import uuid
 
 from django.core.validators import EMPTY_VALUES
 from django.db.models import (UUIDField, ForeignKey, CharField, PositiveSmallIntegerField,
-        IntegerField, DecimalField, DateTimeField, BooleanField, ManyToManyField)
+        IntegerField, DecimalField, DateTimeField, BooleanField, ManyToManyField, CASCADE)
 from django import forms
 from django.utils.formats import date_format
 from django.utils.timezone import localtime
@@ -117,8 +117,8 @@ class CustomField(CremeModel):
 
 
 class CustomFieldValue(CremeModel):
-    custom_field = ForeignKey(CustomField)
-    entity       = ForeignKey(CremeEntity)
+    custom_field = ForeignKey(CustomField, on_delete=CASCADE)
+    entity       = ForeignKey(CremeEntity, on_delete=CASCADE)
     # value       = FoobarField()  --> implement in inherited classes
 
     class Meta:
@@ -285,7 +285,7 @@ class CustomFieldBoolean(CustomFieldValue):
 
 
 class CustomFieldEnumValue(CremeModel):
-    custom_field = ForeignKey(CustomField, related_name='customfieldenumvalue_set')
+    custom_field = ForeignKey(CustomField, related_name='customfieldenumvalue_set', on_delete=CASCADE)
     value        = CharField(max_length=100)
 
     class Meta:
@@ -300,7 +300,7 @@ class CustomFieldEnumValue(CremeModel):
 
 
 class CustomFieldEnum(CustomFieldValue):
-    value = ForeignKey(CustomFieldEnumValue)
+    value = ForeignKey(CustomFieldEnumValue, on_delete=CASCADE)
 
     verbose_name = _(u'Choice list')
 

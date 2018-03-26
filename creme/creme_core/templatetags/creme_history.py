@@ -29,7 +29,8 @@ from ..models.history import HistoryLine, TYPE_CREATION, TYPE_EDITION
 register = template.Library()
 
 
-@register.assignment_tag
+# @register.assignment_tag
+@register.simple_tag
 def history_summary(entity, user):
     lines = HistoryLine.objects.filter(entity=entity.id)
     stored_hlines = []

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017  Hybird
+#    Copyright (C) 2017-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,8 @@ from ..models import CremeEntity
 register = Library()
 
 
-@register.assignment_tag
+# @register.assignment_tag
+@register.simple_tag
 def query_entities_count(ctype, user):
     """Returns the number of viewable entities with a specific type, in a fast way.
 

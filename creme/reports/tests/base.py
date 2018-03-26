@@ -143,7 +143,7 @@ class BaseReportsTestCase(CremeTestCase):
                                              total_vat=total_vat,
                                             )
 
-        FakeInvoiceLine.objects.create(user=user, invoice=invoice, item='Stuff',
+        FakeInvoiceLine.objects.create(user=user, linked_invoice=invoice, item='Stuff',
                                        quantity=Decimal("1"), unit_price=total_vat,
                                       )
 

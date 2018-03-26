@@ -6,6 +6,7 @@ from django.db import models, migrations
 
 
 class Migration(migrations.Migration):
+    initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
     ]
@@ -17,7 +18,10 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeConfigEntity',
                 fields=[
-                    ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                    ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                             to='creme_core.CremeEntity', on_delete=models.CASCADE,
+                                                            )
+                    ),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ],
                 options={

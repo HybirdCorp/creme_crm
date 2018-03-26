@@ -348,7 +348,7 @@ class GenericEntityField(EntityCredsJSONField):
         self.widget.content_types = fields.CallableChoiceIterator(self._get_ctypes_options)
 
     def _has_quickform(self, model):
-        from creme.creme_core.gui import quickforms_registry
+        from creme.creme_core.gui.quick_forms import quickforms_registry
         return quickforms_registry.get_form(model) is not None
 
     def _create_url(self, user, ctype):
@@ -867,7 +867,7 @@ class CreatorEntityField(EntityCredsJSONField):
             widget.creation_url = ''
 
     def _has_quickform(self, model):
-        from creme.creme_core.gui import quickforms_registry
+        from creme.creme_core.gui.quick_forms import quickforms_registry
         return quickforms_registry.get_form(model) is not None
 
     def _value_to_jsonifiable(self, value):

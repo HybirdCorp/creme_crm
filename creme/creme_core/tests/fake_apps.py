@@ -11,8 +11,13 @@ def ready():
 
     already_run = True
 
-    from ..gui import (brick_registry, import_form_registry,
-            merge_form_registry, quickforms_registry, smart_columns_registry)
+    # from ..gui import (brick_registry, import_form_registry,
+    #         merge_form_registry, quickforms_registry, smart_columns_registry)
+    from ..gui.bricks import brick_registry
+    from ..gui.quick_forms import quickforms_registry
+    from ..gui.listview import smart_columns_registry
+    from ..gui.mass_import import import_form_registry
+    from ..gui.merge import merge_form_registry
     from ..registry import creme_registry
 
     from .fake_bricks import FakeAppPortalBrick

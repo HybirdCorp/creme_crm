@@ -437,7 +437,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                              expiration_date=date(year=2012, month=12, day=15),
                                             )
 
-        create_pline = partial(FakeInvoiceLine.objects.create, user=user, invoice=invoice)
+        create_pline = partial(FakeInvoiceLine.objects.create, user=user, linked_invoice=invoice)
         create_pline(item='Bebop',     discount_unit=FAKE_PERCENT_UNIT)
         create_pline(item='Swordfish', discount_unit=FAKE_AMOUNT_UNIT)
 

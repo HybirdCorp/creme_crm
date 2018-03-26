@@ -275,7 +275,8 @@ class Populator(BasePopulator):
 
         # Create 2 graphs -----------------------------------------------------
         # TODO: helper method ('sum' => is_count=False, range only on DateFields etc...)
-        create_graph = partial(ReportGraph.objects.create, report=report, user=admin,
+        # create_graph = partial(ReportGraph.objects.create, report=report, user=admin,
+        create_graph = partial(ReportGraph.objects.create, linked_report=report, user=admin,
                                is_count=False, ordinate='estimated_sales__sum',
                               )
         esales_vname = FieldInfo(Opportunity, 'estimated_sales').verbose_name

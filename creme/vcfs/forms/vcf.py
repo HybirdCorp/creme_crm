@@ -500,7 +500,8 @@ class VcfImportForm(CremeModelWithUserForm):
                     #                                        'user': user,
                     #                                    },
                     #                                   )[0],
-                    folder=Folder.objects.get(uuid=UUID_FOLDER_IMAGES),
+                    # folder=Folder.objects.get(uuid=UUID_FOLDER_IMAGES),
+                    linked_folder=Folder.objects.get(uuid=UUID_FOLDER_IMAGES),
                     description=ugettext(u'Imported by VCFs'),
                 )
 

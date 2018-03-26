@@ -28,7 +28,7 @@ from creme.creme_core.views.generic import inner_popup
 
 from ..forms.setting import UserSettingForm
 from ..forms.user_settings import UserThemeForm, UserTimeZoneForm
-from ..registry import config_registry
+# from ..registry import config_registry
 
 from .portal import _config_portal
 
@@ -37,6 +37,8 @@ from .portal import _config_portal
 
 @login_required
 def view(request):
+    from ..registry import config_registry
+
     user = request.user
 
     return _config_portal(

@@ -23,7 +23,7 @@ from future_builtins import filter
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
-from django.db.models import CharField, TextField, ForeignKey, PositiveIntegerField
+from django.db.models import CharField, TextField, ForeignKey, PositiveIntegerField, CASCADE
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeModel, FieldsConfig
@@ -40,7 +40,7 @@ class AbstractAddress(CremeModel):
     country    = CharField(_(u"Country"), max_length=40, blank=True).set_tags(optional=True)
 
     # TODO: use a real ForeignKey to CremeEntity (+ remove signal handlers )
-    content_type = ForeignKey(ContentType, related_name="object_set", editable=False)\
+    content_type = ForeignKey(ContentType, related_name="object_set", editable=False, on_delete=CASCADE)\
                              .set_tags(viewable=False)
     object_id    = PositiveIntegerField(editable=False).set_tags(viewable=False)
     owner        = GenericForeignKey(ct_field="content_type", fk_field="object_id")

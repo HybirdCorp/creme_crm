@@ -23,7 +23,7 @@ from json import loads as jsonloads, dumps as jsondumps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import (DateTimeField, CharField, TextField, DecimalField,
-        PositiveIntegerField, OneToOneField, ForeignKey, SET, Max)
+        PositiveIntegerField, OneToOneField, ForeignKey, SET, CASCADE, Max)
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
@@ -133,7 +133,10 @@ class CremeUserForeignKey(ForeignKey):
 
 class CTypeForeignKey(ForeignKey):
     def __init__(self, **kwargs):
-        kwargs['to'] = ContentType
+        # kwargs['to'] = ContentType
+        kwargs['to'] = 'contenttypes.ContentType'
+        # In a normal use, ContentType instances are never deleted ; so CASCADE by default should be OK
+        kwargs.setdefault('on_delete', CASCADE)
         super(CTypeForeignKey, self).__init__(**kwargs)
 
     def __get__(self, instance, instance_type=None):
@@ -185,7 +188,10 @@ class EntityCTypeForeignKey(CTypeForeignKey):
 # TODO: factorise with CTypeForeignKey
 class CTypeOneToOneField(OneToOneField):
     def __init__(self, **kwargs):
-        kwargs['to'] = ContentType
+        # kwargs['to'] = ContentType
+        kwargs['to'] = 'contenttypes.ContentType'
+        # In a normal use, ContentType instances are never deleted ; so CASCADE by default should be OK
+        kwargs.setdefault('on_delete', CASCADE)
         super(CTypeOneToOneField, self).__init__(**kwargs)
 
     def __get__(self, instance, instance_type=None):

@@ -20,7 +20,7 @@ try:
             RelationEntityField, MultiRelationEntityField,
             CreatorEntityField, MultiCreatorEntityField,
             FilteredEntityTypeField)
-    from creme.creme_core.gui import quickforms_registry
+    from creme.creme_core.gui.quick_forms import quickforms_registry
     from creme.creme_core.models import (CremeProperty, CremePropertyType,
             RelationType, CremeEntity, EntityFilter, SetCredentials)
     from creme.creme_core.utils import creme_entity_content_types

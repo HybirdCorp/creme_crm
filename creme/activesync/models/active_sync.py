@@ -23,7 +23,7 @@ import pickle
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import (Model, IntegerField, BooleanField, CharField,
-        TextField, DateTimeField, ForeignKey, OneToOneField)
+        TextField, DateTimeField, ForeignKey, OneToOneField, CASCADE)
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
@@ -76,7 +76,7 @@ class CremeExchangeMapping(CremeModel):
     synced             = BooleanField(u'Already synced on server', default=False)
     is_creme_modified  = BooleanField(u'Modified by creme?',       default=False)
     was_deleted        = BooleanField(u'Was deleted by creme?',    default=False)  # Seems redundant with is_deleted but isn't in case of real deletion
-    user               = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=u'Belongs to')
+    user               = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=u'Belongs to', on_delete=CASCADE)
     creme_entity_repr  = CharField(u'Verbose entity representation', max_length=200, null=True, blank=True, default=u"")  # IHM/User purposes
 
     def __unicode__(self):
@@ -102,7 +102,7 @@ class CremeExchangeMapping(CremeModel):
 
 class CremeClient(CremeModel):
 #    user               = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=u'Assigned to', unique=True)
-    user               = OneToOneField(settings.AUTH_USER_MODEL, verbose_name=u'Assigned to')
+    user               = OneToOneField(settings.AUTH_USER_MODEL, verbose_name=u'Assigned to', on_delete=CASCADE)
     client_id          = CharField(u'Creme Client ID',   max_length=32,  default=generate_guid, unique=True)
     policy_key         = CharField(u'Last policy key',   max_length=200, default=0)
     sync_key           = CharField(u'Last sync key',     max_length=200, default=None, blank=True, null=True)
@@ -126,7 +126,7 @@ class CremeClient(CremeModel):
 
 
 class SyncKeyHistory(CremeModel):
-    client   = ForeignKey(CremeClient, verbose_name=u'client')
+    client   = ForeignKey(CremeClient, verbose_name=u'client', on_delete=CASCADE)
     sync_key = CharField(u'sync key', max_length=200, default=None, blank=True, null=True)
     created  = CreationDateTimeField(_(u'Creation date'))
 
@@ -195,7 +195,7 @@ def _empty_dump():
 
 
 class UserSynchronizationHistory(CremeModel):
-    user           = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'User'))
+    user           = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'User'), on_delete=CASCADE)
     entity_repr    = CharField(u'Entity', max_length=200, default=None, blank=True, null=True)  # Saving the representation of the entity in case it was deleted
     entity_pk      = IntegerField(u'Entity pk', blank=True, null=True)  # Saving the pk of the entity
     entity_ct      = CTypeForeignKey(verbose_name=_(u'What'), null=True, blank=True)
@@ -321,7 +321,7 @@ class UserSynchronizationHistory(CremeModel):
 
 
 class AS_Folder(CremeModel):
-    client       = ForeignKey(CremeClient, verbose_name=u'client')
+    client       = ForeignKey(CremeClient, verbose_name=u'client', on_delete=CASCADE)
     server_id    = CharField(u'Server id',    max_length=200)  # Folder id on server
     parent_id    = CharField(u'Server id',    max_length=200, blank=True, null=True)  # Parent id of this folder on the server
     display_name = CharField(u'Display name', max_length=200, default="")

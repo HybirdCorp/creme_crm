@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models, migrations
+from django.db.models.deletion import CASCADE
 
 
 class Migration(migrations.Migration):
@@ -12,6 +13,7 @@ class Migration(migrations.Migration):
     #     (b'geolocation', '0004_v1_7__charfields_not_null_2'),
     # ]
 
+    initial = True
     dependencies = [
         migrations.swappable_dependency(settings.PERSONS_ADDRESS_MODEL),
     ]
@@ -20,7 +22,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='GeoAddress',
             fields=[
-                ('address', models.OneToOneField(primary_key=True, serialize=False, to=settings.PERSONS_ADDRESS_MODEL, verbose_name='Address')),
+                ('address', models.OneToOneField(primary_key=True, serialize=False, to=settings.PERSONS_ADDRESS_MODEL, verbose_name='Address', on_delete=CASCADE)),
                 ('latitude', models.FloatField(null=True, verbose_name='Latitude', blank=True)),
                 ('longitude', models.FloatField(null=True, verbose_name='Longitude', blank=True)),
                 ('draggable', models.BooleanField(default=True, verbose_name='Is this marker draggable in maps ?')),

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,12 +19,12 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import Model, CharField, PositiveIntegerField, ForeignKey
+from django.db.models import Model, CharField, PositiveIntegerField, ForeignKey, CASCADE
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 
 class PreferedMenuItem(Model):
-    user  = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'User'), null=True)
+    user  = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'User'), null=True, on_delete=CASCADE)
     label = CharField(_(u'Label'), max_length=100, blank=True)
     url   = CharField(_(u'Url'), max_length=100,  blank=True)
     order = PositiveIntegerField(_(u'Order'))
@@ -34,7 +34,7 @@ class PreferedMenuItem(Model):
 
     @property
     def translated_label(self):
-        from ..gui import creme_menu
+        from ..gui.menu import creme_menu
 
         url = self.url
         for app_item in creme_menu:

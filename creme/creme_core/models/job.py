@@ -26,7 +26,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db.models import (Model, CharField, TextField, DateTimeField,
         PositiveIntegerField, PositiveSmallIntegerField, BooleanField,
-        ForeignKey, F)
+        ForeignKey, F, CASCADE)
 from django.db.transaction import atomic
 from django.utils.timezone import now
 from django.utils.translation import get_language, ugettext_lazy as _
@@ -300,7 +300,7 @@ class Job(Model):
 
 
 class BaseJobResult(Model):
-    job          = ForeignKey(Job)
+    job          = ForeignKey(Job, on_delete=CASCADE)
     raw_messages = TextField(null=True)  # TODO: use a JSONField ?
 
     class Meta:
@@ -329,7 +329,7 @@ class JobResult(BaseJobResult):
 
 
 class EntityJobResult(BaseJobResult):
-    entity = ForeignKey(CremeEntity, null=True)
+    entity = ForeignKey(CremeEntity, null=True, on_delete=CASCADE)
 
     # class Meta(BaseJobResult.Meta):
     #     abstract = False
@@ -341,7 +341,7 @@ class EntityJobResult(BaseJobResult):
 
 
 class MassImportJobResult(BaseJobResult):
-    entity   = ForeignKey(CremeEntity, null=True)
+    entity   = ForeignKey(CremeEntity, null=True, on_delete=CASCADE)
     raw_line = TextField()  # TODO: use a JSONField ?
     updated  = BooleanField(default=False)  # False: entity created
                                             # True: entity updated

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2016  Hybird
+#    Copyright (C) 2013-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -225,7 +225,8 @@ class RHRegularField(ReportHand):
             second_part = field_info[1]
 
             if (isinstance(second_part, (ForeignKey, ManyToManyField)) and
-               issubclass(second_part.rel.to, CremeEntity)):
+               # issubclass(second_part.rel.to, CremeEntity)):
+               issubclass(second_part.remote_field.model, CremeEntity)):
                 raise ReportHand.ValueError('Invalid field: "%s" (no entity at depth=1)' % report_field.name)
 
         first_part = field_info[0]
@@ -271,7 +272,8 @@ class RHForeignKey(RHRegularField):
         field_info = self._field_info
         fk_field = field_info[0]
         self._fk_attr_name = fk_field.get_attname()
-        fk_model = fk_field.rel.to
+        # fk_model = fk_field.rel.to
+        fk_model = fk_field.remote_field.model
         self._linked2entity = issubclass(fk_model, CremeEntity)
         qs = fk_model.objects.all()
         sub_report = report_field.sub_report
@@ -284,7 +286,8 @@ class RHForeignKey(RHRegularField):
             # Small optimization: only used by _get_value_no_subreport()
             if len(field_info) > 1:
                 self._value_extractor = field_printers_registry.build_field_printer(
-                                                        field_info[0].rel.to,
+                                                        # field_info[0].rel.to,
+                                                        field_info[0].remote_field.model,
                                                         field_info[1].name,
                                                         output='csv',
                                                     )
@@ -350,7 +353,8 @@ class RHManyToManyField(RHRegularField):
         return getattr(entity, self._field_info[0].name).all()
 
     def get_linkable_ctypes(self):
-        m2m_model = self._field_info[0].rel.to
+        # m2m_model = self._field_info[0].rel.to
+        m2m_model = self._field_info[0].remote_field.model
 
         return (ContentType.objects.get_for_model(m2m_model),) \
                if issubclass(m2m_model, CremeEntity) else None

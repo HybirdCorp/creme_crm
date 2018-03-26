@@ -63,7 +63,8 @@ class FolderDocsBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         folder_id = context['object'].id
-        q_dict = {'folder': folder_id}
+        # q_dict = {'folder': folder_id}
+        q_dict = {'linked_folder': folder_id}
         return self._render(self.get_template_context(
                     context,
                     Document.objects.filter(**q_dict),
@@ -109,7 +110,8 @@ class LinkedDocsBrick(QuerysetBrick):
         relations = btc['page'].object_list
         docs = {c.id: c
                     for c in Document.objects.filter(pk__in=[r.object_entity_id for r in relations])
-                                             .select_related('folder')
+                                             # .select_related('folder')
+                                             .select_related('linked_folder')
                }
 
         for relation in relations:

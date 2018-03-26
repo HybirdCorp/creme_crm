@@ -20,7 +20,7 @@
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.db.models import CharField, TextField, ForeignKey  # ManyToManyField
+from django.db.models import CharField, TextField, ForeignKey, CASCADE  # ManyToManyField
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
@@ -31,7 +31,7 @@ from creme.documents.models.fields import ImageEntityManyToManyField
 
 class EmailSignature(CremeModel):
     name   = CharField(_(u'Name'), max_length=100)
-    user   = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'User'))
+    user   = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'User'), on_delete=CASCADE)
     body   = TextField(_(u'Body'))
     images = ImageEntityManyToManyField(verbose_name=_(u'Images'), blank=True,
                                         help_text=_(u'Images embedded in emails (but not as attached).'),

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2016  Hybird
+#    Copyright (C) 2012-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import (CharField, TextField, BooleanField, NullBooleanField,
-        PositiveIntegerField, PositiveSmallIntegerField, ForeignKey, PROTECT, SET_NULL)
+        PositiveIntegerField, PositiveSmallIntegerField, ForeignKey, PROTECT, SET_NULL, CASCADE)
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.models import CremeModel, CremeEntity
@@ -86,8 +86,8 @@ class PollReply(AbstractPollReply):
 
 # TODO: factorise (abstract class) ?
 class PollReplySection(CremeModel):
-    preply = ForeignKey(settings.POLLS_REPLY_MODEL, editable=False, related_name='sections')
-    parent = ForeignKey('self', editable=False, null=True)  # related_name='children'
+    preply = ForeignKey(settings.POLLS_REPLY_MODEL, editable=False, related_name='sections', on_delete=CASCADE)
+    parent = ForeignKey('self', editable=False, null=True, on_delete=CASCADE)  # related_name='children'
     order  = PositiveIntegerField(editable=False, default=1)
     name   = CharField(_(u'Name'), max_length=250)
     body   = TextField(_(u'Section body'), blank=True)
@@ -103,9 +103,9 @@ class PollReplySection(CremeModel):
 
 
 class PollReplyLine(CremeModel, _PollLine):
-    preply       = ForeignKey(settings.POLLS_REPLY_MODEL, editable=False, related_name='lines')
-    section      = ForeignKey(PollReplySection, editable=False, null=True)  # related_name='lines'
-    pform_line   = ForeignKey(PollFormLine, editable=False)  # related_name='lines'
+    preply       = ForeignKey(settings.POLLS_REPLY_MODEL, editable=False, related_name='lines', on_delete=CASCADE)
+    section      = ForeignKey(PollReplySection, editable=False, null=True, on_delete=CASCADE)  # related_name='lines'
+    pform_line   = ForeignKey(PollFormLine, editable=False, on_delete=CASCADE)  # related_name='lines'
     order        = PositiveIntegerField(editable=False, default=1)
     type         = PositiveSmallIntegerField(editable=False)
     type_args    = TextField(editable=False, null=True)
@@ -165,8 +165,8 @@ class PollReplyLine(CremeModel, _PollLine):
 
 
 class PollReplyLineCondition(CremeModel):
-    line       = ForeignKey(PollReplyLine, editable=False, related_name='conditions')
-    source     = ForeignKey(PollReplyLine)
+    line       = ForeignKey(PollReplyLine, editable=False, related_name='conditions', on_delete=CASCADE)
+    source     = ForeignKey(PollReplyLine, on_delete=CASCADE)
     operator   = PositiveSmallIntegerField()  # See EQUALS etc...
     raw_answer = TextField(null=True)
 

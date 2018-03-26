@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 1.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-01 19:41+0100\n"
+"POT-Creation-Date: 2018-02-01 19:45+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -18,7 +18,7 @@ msgstr ""
 #: apps.py:28 models/mail.py:94 templates/emails/bricks/lw-mails-history.html:7
 #: templates/emails/bricks/lw-mails.html:7
 #: templates/emails/bricks/mails-history.html:7
-#: templates/emails/bricks/synchronization.html:7
+#: templates/emails/bricks/synchronization.html:9
 #: templates/emails/portal.html:4 templates/emails/synchronize.html:9
 msgid "Emails"
 msgstr "E-mails"
@@ -550,11 +550,11 @@ msgstr ""
 msgid "Related sending"
 msgstr "Envoi associé"
 
-#: models/sending.py:181
+#: models/sending.py:184
 msgid "Email of campaign"
 msgstr "E-mail de campagne"
 
-#: models/sending.py:182
+#: models/sending.py:185
 msgid "Emails of campaign"
 msgstr "E-mails  de campagne"
 
@@ -1052,63 +1052,63 @@ msgstr "Supprimer cette signature"
 msgid "No signature for the moment"
 msgstr "Aucune signature pour le moment"
 
-#: templates/emails/bricks/synchronization-spam.html:7
+#: templates/emails/bricks/synchronization-spam.html:8
+#: templates/emails/bricks/synchronization.html:8
+#, python-format
+msgid "%%s Email selected"
+msgstr "%%s E-mail sélectionné"
+
+#: templates/emails/bricks/synchronization-spam.html:8
+#: templates/emails/bricks/synchronization.html:8
+#, python-format
+msgid "%%s Emails selected"
+msgstr "%%s E-mails sélectionnés"
+
+#: templates/emails/bricks/synchronization-spam.html:9
 #, python-brace-format
 msgid "{count} Incoming email marked as spam"
 msgstr "{count} E-mail entrant marqué comme spam"
 
-#: templates/emails/bricks/synchronization-spam.html:7
+#: templates/emails/bricks/synchronization-spam.html:9
 #, python-brace-format
 msgid "{count} Incoming emails marked as spam"
 msgstr "{count} E-mails entrants marqués comme spam"
 
-#: templates/emails/bricks/synchronization-spam.html:7
+#: templates/emails/bricks/synchronization-spam.html:9
 msgid "Spam"
 msgstr "Spam"
 
-#: templates/emails/bricks/synchronization-spam.html:7
-#: templates/emails/bricks/synchronization.html:7
-#, python-format
-msgid "%s Email selected"
-msgstr "%s E-mail sélectionné"
-
-#: templates/emails/bricks/synchronization-spam.html:7
-#: templates/emails/bricks/synchronization.html:7
-#, python-format
-msgid "%s Emails selected"
-msgstr "%s E-mails sélectionnés"
-
-#: templates/emails/bricks/synchronization-spam.html:12
+#: templates/emails/bricks/synchronization-spam.html:14
 msgid "Mark the selection as «to be treated»"
 msgstr "Marquer la sélection comme «à traiter»"
 
-#: templates/emails/bricks/synchronization-spam.html:18
+#: templates/emails/bricks/synchronization-spam.html:20
 msgid "Mark as «to be treated»"
 msgstr "Marquer comme «à traiter»"
 
-#: templates/emails/bricks/synchronization.html:7
+#: templates/emails/bricks/synchronization.html:9
 #, python-brace-format
 msgid "{count} Incoming email to treat"
 msgstr "{count} E-mail entrant à traiter"
 
-#: templates/emails/bricks/synchronization.html:7
+#: templates/emails/bricks/synchronization.html:9
 #, python-brace-format
 msgid "{count} Incoming emails to treat"
 msgstr "{count} E-mails entrants à traiter"
 
-#: templates/emails/bricks/synchronization.html:12
-#: templates/emails/bricks/synchronization.html:21
+#: templates/emails/bricks/synchronization.html:14
+#: templates/emails/bricks/synchronization.html:23
 #: templates/emails/buttons/entityemail-link.html:1
 msgid "Link to"
 msgstr "Relier à"
 
-#: templates/emails/bricks/synchronization.html:13
-#: templates/emails/bricks/synchronization.html:24
+#: templates/emails/bricks/synchronization.html:15
+#: templates/emails/bricks/synchronization.html:26
 msgid "Mark as treated"
 msgstr "Marquer comme traité"
 
-#: templates/emails/bricks/synchronization.html:14
-#: templates/emails/bricks/synchronization.html:27
+#: templates/emails/bricks/synchronization.html:16
+#: templates/emails/bricks/synchronization.html:29
 msgid "Mark as spam"
 msgstr "Marquer comme spam"
 

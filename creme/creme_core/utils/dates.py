@@ -24,7 +24,7 @@ import warnings
 
 from django.utils import formats
 from django.utils.dateparse import parse_datetime
-from django.utils.timezone import get_current_timezone, make_aware, make_naive, is_naive, is_aware, utc
+from django.utils.timezone import make_aware, make_naive, is_naive, is_aware, utc  # get_current_timezone
 
 
 DATE_ISO8601_FMT     = '%Y-%m-%d'
@@ -163,8 +163,9 @@ def make_aware_dt(dt, is_dst=False):
                     None => raise an exception.
     @return A (aware) datetime.
     """
-    # return make_aware(dt, get_current_timezone())
-    return get_current_timezone().localize(dt, is_dst=is_dst)
+    # # return make_aware(dt, get_current_timezone())
+    # return get_current_timezone().localize(dt, is_dst=is_dst)
+    return make_aware(dt, is_dst=is_dst)
 
 
 def to_utc(dt):

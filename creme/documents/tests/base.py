@@ -59,7 +59,8 @@ class _DocumentsTestCase(CremeTestCase):
         data = {'user':     user.pk,
                 'title':    title,
                 'filedata': file_obj,
-                'folder':   folder.id,
+                # 'folder':   folder.id,
+                'linked_folder': folder.id,
                }
 
         if description is not None:

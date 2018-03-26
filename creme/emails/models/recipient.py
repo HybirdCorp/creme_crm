@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import ForeignKey, CharField
+from django.db.models import ForeignKey, CharField, CASCADE
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
@@ -27,12 +27,12 @@ from creme.creme_core.models import CremeModel
 
 class EmailRecipient(CremeModel):
     """A model that stores an e-mail address not linked to a Contact/Organisation"""
-    ml      = ForeignKey(settings.EMAILS_MLIST_MODEL, verbose_name=_(u'Related mailing list'))
+    ml      = ForeignKey(settings.EMAILS_MLIST_MODEL, verbose_name=_(u'Related mailing list'), on_delete=CASCADE)
     address = CharField(_(u'Email address'), max_length=100)
 
-    creation_label   = pgettext_lazy('emails', 'Add a recipient')
-    save_label       = pgettext_lazy('emails', 'Save the recipient')
-    multi_save_label = pgettext_lazy('emails', 'Save the recipients')
+    creation_label   = pgettext_lazy('emails', u'Add a recipient')
+    save_label       = pgettext_lazy('emails', u'Save the recipient')
+    multi_save_label = pgettext_lazy('emails', u'Save the recipients')
 
     class Meta:
         app_label = 'emails'

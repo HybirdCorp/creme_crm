@@ -402,7 +402,8 @@ class RTypeBrickItemEditCtypeForm(CremeModelForm):
             # These fields are already rendered with <a> tag ; it would be better to
             # have a higher semantic (ask to the fields printer how it renders theme ???)
             if isinstance(field, (URLField, EmailField, ManyToManyField)) or \
-               (isinstance(field, ForeignKey) and issubclass(field.rel.to, CremeEntity)):
+               (isinstance(field, ForeignKey) and issubclass(field.remote_field.model, CremeEntity)):
+               # (isinstance(field, ForeignKey) and issubclass(field.rel.to, CremeEntity)):
                 return False
         elif isinstance(cell, EntityCellRelation):
             return False

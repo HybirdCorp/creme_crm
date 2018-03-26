@@ -347,10 +347,10 @@ class EntityCellTestCase(CremeTestCase):
 
     def test_build_4_field07(self):
         "ForeignKey subfield is a FK"
-        cell = EntityCellRegularField.build(model=FakeDocument, name='folder__category')
+        cell = EntityCellRegularField.build(model=FakeDocument, name='linked_folder__category')
 
         self.assertTrue(cell.has_a_filter)
-        self.assertEqual('folder__category', cell.filter_string)
+        self.assertEqual('linked_folder__category', cell.filter_string)
 
     def test_build_4_field08(self):
         "ManyToMany"

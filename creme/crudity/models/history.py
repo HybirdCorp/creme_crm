@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import TextField, CharField, ForeignKey
+from django.db.models import TextField, CharField, ForeignKey, CASCADE
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeModel, CremeEntity
@@ -26,7 +26,7 @@ from creme.creme_core.models.fields import CreationDateTimeField, CremeUserForei
 
 
 class History(CremeModel):
-    entity      = ForeignKey(CremeEntity, verbose_name=_(u"Entity"), blank=False, null=False)
+    entity      = ForeignKey(CremeEntity, verbose_name=_(u'Entity'), blank=False, null=False, on_delete=CASCADE)
     created     = CreationDateTimeField(_(u'Creation date'))
     action      = CharField(_(u"Action"), max_length=100)  # Action (i.e: create, update...)
     source      = CharField(_(u"Source"), max_length=100)  # Source (i.e: email raw, email from infopath, sms raw...)

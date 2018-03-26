@@ -146,7 +146,8 @@ class CrudityBackend(object):
                 continue
 
             if issubclass(field.__class__, ManyToManyField):  # TODO: isinstance(field, ManyToManyField) ...
-                setattr(instance, field_name, field.rel.to._default_manager.filter(pk__in=field_value.split()))
+                # setattr(instance, field_name, field.rel.to._default_manager.filter(pk__in=field_value.split()))
+                setattr(instance, field_name, field.remote_field.model._default_manager.filter(pk__in=field_value.split()))
 
         return need_new_save
 
@@ -185,7 +186,8 @@ class CrudityBackend(object):
                     elif isinstance(field, BooleanField) and isinstance(field_value, basestring):
                         data[field_name] = field_value = field.to_python(field_value.strip()[0:1].lower()) #Trick to obtain 't'/'f' or '1'/'0'
 
-                    elif isinstance(field, ForeignKey) and issubclass(field.rel.to, Document):
+                    # elif isinstance(field, ForeignKey) and issubclass(field.rel.to, Document):
+                    elif isinstance(field, ForeignKey) and issubclass(field.remote_field.model, Document):
                         filename, blob = field_value  # Should be pre-processed by the input
                         upload_path = Document._meta.get_field('filedata').upload_to.split('/')
 
@@ -205,10 +207,12 @@ class CrudityBackend(object):
                         doc_entity = Document(
                                 user_id=shift_user_id,
                                 filedata=handle_uploaded_file(ContentFile(blob), path=upload_path, name=filename),
-                                folder=Folder.objects.get_or_create(title=_('External data'),
-                                                                    parent_folder=None,
-                                                                    defaults={'user_id': shift_user_id},
-                                                                   )[0],
+                                # folder=Folder.objects.get_or_create(
+                                linked_folder=Folder.objects.get_or_create(
+                                        title=_(u'External data'),
+                                        parent_folder=None,
+                                        defaults={'user_id': shift_user_id},
+                                )[0],
                                 description=_('Imported from external data.'),
                             )
                         assign_2_charfield(doc_entity, 'title', filename)

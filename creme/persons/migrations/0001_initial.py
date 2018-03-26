@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models, migrations
-from django.db.models.deletion import SET_NULL
+from django.db.models.deletion import SET_NULL, CASCADE
 
 from creme.creme_core.models import fields as creme_fields
 
@@ -27,6 +27,7 @@ class Migration(migrations.Migration):
     #     (b'persons', '0019_v1_7__first_persons_uuids'),
     # ]
 
+    initial = True
     dependencies = [
         ('contenttypes', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
@@ -117,7 +118,7 @@ class Migration(migrations.Migration):
                 ('state', models.CharField(max_length=100, verbose_name='State', blank=True)),
                 ('country', models.CharField(max_length=40, verbose_name='Country', blank=True)),
                 ('object_id', models.PositiveIntegerField(editable=False)),
-                ('content_type', models.ForeignKey(related_name='object_set', editable=False, to='contenttypes.ContentType')),
+                ('content_type', models.ForeignKey(related_name='object_set', editable=False, to='contenttypes.ContentType', on_delete=CASCADE)),
             ],
             options={
                 'swappable': 'PERSONS_ADDRESS_MODEL',
@@ -129,7 +130,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Contact',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('civility', models.ForeignKey(on_delete=SET_NULL, verbose_name='Civility', blank=True, to='persons.Civility', null=True)),
                 ('last_name', models.CharField(max_length=100, verbose_name='Last name')),
                 ('first_name', models.CharField(max_length=100, verbose_name='First name', blank=True)),
@@ -166,7 +170,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Organisation',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('name', models.CharField(max_length=200, verbose_name='Name')),
                 ('is_managed', models.BooleanField(default=False, verbose_name='Managed by Creme', editable=False)),
                 ('phone', creme_fields.PhoneField(max_length=100, verbose_name='Phone number', blank=True)),

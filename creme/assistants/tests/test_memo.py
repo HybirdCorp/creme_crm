@@ -56,7 +56,7 @@ class MemoTestCase(AssistantsTestCase):
         self.assertEqual(content, unicode(memo))
 
     def test_edit(self):
-        content  = ' content'
+        content  = 'content'
         homepage = True
         memo = self._create_memo(content, homepage)
 

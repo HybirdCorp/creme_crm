@@ -9,12 +9,15 @@ from mediagenerator.base import Generator
 from mediagenerator.utils import get_media_dirs, find_file, prepare_patterns
 
 
-COPY_MEDIA_FILETYPES = getattr(settings, 'COPY_MEDIA_FILETYPES',
-    ('gif', 'jpg', 'jpeg', 'png', 'svg', 'svgz', 'ico', 'swf',
-     'ttf', 'otf', 'eot', 'woff',
-    )
-)
-
+# COPY_MEDIA_FILETYPES = getattr(settings, 'COPY_MEDIA_FILETYPES',
+#     ('gif', 'jpg', 'jpeg', 'png', 'svg', 'svgz', 'ico', 'swf',
+#      'ttf', 'otf', 'eot', 'woff',
+#     )
+# )
+COPY_MEDIA_FILETYPES = getattr(settings, 'COPY_MEDIA_FILETYPES', {
+    'gif', 'jpg', 'jpeg', 'png', 'svg', 'svgz', 'ico', 'swf',
+    'ttf', 'otf', 'eot', 'woff',
+})
 IGNORE_PATTERN = prepare_patterns(getattr(settings, 'IGNORE_MEDIA_COPY_PATTERNS', ()),
                                   'IGNORE_MEDIA_COPY_PATTERNS')
 

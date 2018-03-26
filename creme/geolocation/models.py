@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2017  Hybird
+#    Copyright (C) 2014-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from itertools import izip, chain, groupby
 
 from django.conf import settings
 from django.db.models import (Model, FloatField, BooleanField,
-    OneToOneField, CharField, SlugField, SmallIntegerField)
+    OneToOneField, CharField, SlugField, SmallIntegerField, CASCADE)
 from django.db.transaction import atomic
 
 from django.db.models.query_utils import Q
@@ -48,7 +48,9 @@ class GeoAddress(Model):
         COMPLETE:  '',
     }
 
-    address   = OneToOneField(settings.PERSONS_ADDRESS_MODEL, verbose_name=_(u'Address'), primary_key=True)
+    address   = OneToOneField(settings.PERSONS_ADDRESS_MODEL, verbose_name=_(u'Address'),
+                              primary_key=True, on_delete=CASCADE,
+                             )
     latitude  = FloatField(verbose_name=_(u'Latitude'), null=True, blank=True)  # min_value=-90, max_value=90
     longitude = FloatField(verbose_name=_(u'Longitude'), null=True, blank=True)  # min_value=-180, max_value=180
     draggable = BooleanField(verbose_name=_(u'Is this marker draggable in maps ?'), default=True)

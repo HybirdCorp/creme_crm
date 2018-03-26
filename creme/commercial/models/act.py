@@ -22,7 +22,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db.models import (CharField, TextField, PositiveIntegerField,
-        DateField, BooleanField, ForeignKey, PROTECT)
+        DateField, BooleanField, ForeignKey, PROTECT, CASCADE)
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.models import CremeEntity, CremeModel, Relation, EntityFilter
@@ -140,7 +140,9 @@ class Act(AbstractAct):
 
 class ActObjective(CremeModel):
     name         = CharField(_(u'Name'), max_length=_NAME_LENGTH)
-    act          = ForeignKey(settings.COMMERCIAL_ACT_MODEL, related_name='objectives', editable=False)
+    act          = ForeignKey(settings.COMMERCIAL_ACT_MODEL, related_name='objectives',
+                              editable=False, on_delete=CASCADE,
+                             )
     counter      = PositiveIntegerField(_(u'Counter'), default=0, editable=False)
     counter_goal = PositiveIntegerField(_(u'Value to reach'), default=1)
     ctype        = CTypeForeignKey(verbose_name=_(u'Counted type'), null=True, blank=True, editable=False)
@@ -198,12 +200,12 @@ class ActObjective(CremeModel):
 
 
 class AbstractActObjectivePattern(CremeEntity):
-    name          = CharField(_(u"Name"), max_length=100)
+    name          = CharField(_(u'Name'), max_length=100)
     average_sales = PositiveIntegerField(_(u'Average sales'))
-    segment       = ForeignKey(MarketSegment, verbose_name=_(u'Related segment'))
+    segment       = ForeignKey(MarketSegment, verbose_name=_(u'Related segment'), on_delete=CASCADE)
 
-    creation_label = _('Create an objective pattern')
-    save_label     = _('Save the objective pattern')
+    creation_label = _(u'Create an objective pattern')
+    save_label     = _(u'Save the objective pattern')
 
     _components_cache = None
 
@@ -264,8 +266,8 @@ class ActObjectivePattern(AbstractActObjectivePattern):
 
 
 class ActObjectivePatternComponent(CremeModel):
-    pattern      = ForeignKey(ActObjectivePattern, related_name='components', editable=False)
-    parent       = ForeignKey('self', null=True, related_name='children', editable=False)
+    pattern      = ForeignKey(ActObjectivePattern, related_name='components', editable=False, on_delete=CASCADE)
+    parent       = ForeignKey('self', null=True, related_name='children', editable=False, on_delete=CASCADE)
     name         = CharField(_(u'Name'), max_length=_NAME_LENGTH)
     ctype        = CTypeForeignKey(verbose_name=_(u'Counted type'), null=True, blank=True, editable=False)
     filter       = ForeignKey(EntityFilter, verbose_name=_(u'Filter on counted entities'),

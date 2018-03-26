@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models, migrations
+from django.db.models.deletion import CASCADE
 from django.utils.timezone import now
 
 import creme.creme_core.models.fields
@@ -16,7 +17,7 @@ class Migration(migrations.Migration):
     #     ('activesync', '0001_initial'),
     #     ('activesync', '0004_v1_7__user_settings'),
     # ]
-
+    initial = True
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         # ('auth', '0001_initial'),
@@ -35,7 +36,7 @@ class Migration(migrations.Migration):
                 ('folder_sync_key', models.CharField(default=None, max_length=200, null=True, verbose_name='Last folder sync key', blank=True)),
                 ('contact_folder_id', models.CharField(default=None, max_length=64, null=True, verbose_name='Contact folder id', blank=True)),
                 ('last_sync', models.DateTimeField(null=True, verbose_name='Last sync', blank=True)),
-                ('user', models.OneToOneField(verbose_name='Assigned to', to=settings.AUTH_USER_MODEL)),
+                ('user', models.OneToOneField(verbose_name='Assigned to', to=settings.AUTH_USER_MODEL, on_delete=CASCADE)),
             ],
             options={},
             bases=(models.Model,),
@@ -51,7 +52,7 @@ class Migration(migrations.Migration):
                 ('sync_key', models.CharField(default=None, max_length=200, null=True, verbose_name='sync key', blank=True)),
                 ('as_class', models.CharField(default=None, max_length=25, null=True, verbose_name='class', blank=True)),
                 ('entity_id', models.CharField(default=None, max_length=200, null=True, verbose_name='Entity id', blank=True)),
-                ('client', models.ForeignKey(verbose_name='client', to='activesync.CremeClient')),
+                ('client', models.ForeignKey(verbose_name='client', to='activesync.CremeClient', on_delete=CASCADE)),
             ],
             options={},
             bases=(models.Model,),
@@ -67,7 +68,7 @@ class Migration(migrations.Migration):
                 ('was_deleted', models.BooleanField(default=False, verbose_name='Was deleted by creme?')),
                 ('creme_entity_repr', models.CharField(default='', max_length=200, null=True, verbose_name='Verbose entity representation', blank=True)),
                 ('creme_entity_ct', creme.creme_core.models.fields.CTypeForeignKey(verbose_name='Creme entity ct', to='contenttypes.ContentType')),
-                ('user', models.ForeignKey(verbose_name='Belongs to', to=settings.AUTH_USER_MODEL)),
+                ('user', models.ForeignKey(verbose_name='Belongs to', to=settings.AUTH_USER_MODEL, on_delete=CASCADE)),
             ],
             options={},
             bases=(models.Model,),
@@ -78,7 +79,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('field_name', models.CharField(max_length=100, verbose_name='Field name')),
                 ('field_value', models.CharField(max_length=300, verbose_name='Field value')),
-                ('entity', models.ForeignKey(verbose_name='Target entity', to='creme_core.CremeEntity')),
+                ('entity', models.ForeignKey(verbose_name='Target entity', to='creme_core.CremeEntity', on_delete=CASCADE)),
             ],
             options={
                 'unique_together': {('entity', 'field_name')},
@@ -91,7 +92,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('sync_key', models.CharField(default=None, max_length=200, null=True, verbose_name='sync key', blank=True)),
                 ('created', creme.creme_core.models.fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True)),
-                ('client', models.ForeignKey(verbose_name='client', to='activesync.CremeClient')),
+                ('client', models.ForeignKey(verbose_name='client', to='activesync.CremeClient', on_delete=CASCADE)),
             ],
             options={},
             bases=(models.Model,),
@@ -107,7 +108,7 @@ class Migration(migrations.Migration):
                 ('type', models.IntegerField(verbose_name='Type', choices=[(1, 'Creation'), (3, 'Update'), (4, 'Deletion')])),
                 ('where', models.IntegerField(verbose_name='Where', choices=[(1, 'In Creme'), (2, 'On server')])),
                 ('entity_ct', creme.creme_core.models.fields.CTypeForeignKey(verbose_name='What', blank=True, to='contenttypes.ContentType', null=True)),
-                ('user', models.ForeignKey(verbose_name='User', to=settings.AUTH_USER_MODEL)),
+                ('user', models.ForeignKey(verbose_name='User', to=settings.AUTH_USER_MODEL, on_delete=CASCADE)),
             ],
             options={
                 'verbose_name': 'History',
