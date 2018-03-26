@@ -36,7 +36,7 @@
         </td>
         <td class="property-copiable">{% print_field object=prop_type field='is_copiable' %}</td>
         <td class="property-count">
-            {% blocktrans count prop_type.stats as count %}{{count}} entity with this property{% plural %}{{count}} entities with this property{% endblocktrans %}
+            {% blocktrans count count=prop_type.stats %}{{count}} entity with this property{% plural %}{{count}} entities with this property{% endblocktrans %}
         </td>
         {% with action_enabled=admin_perm|and_op:prop_type.is_custom %}
         <td {% brick_table_data_status action %}>{% url 'creme_config__edit_ptype' prop_type.id as edit_url %}

@@ -62,7 +62,7 @@ class WaitingActionsBrick(CrudityQuerysetBrick):
         yield 'crudity.waitingaction.' + self.backend.get_id()
 
     def detailview_display(self, context):
-        # Credentials are OK: block is not registered in block registry,
+        # Credentials are OK: brick is not registered in brick registry,
         # so reloading is necessarily done with the custom view
         super(WaitingActionsBrick, self).detailview_display(context)
         backend = self.backend
@@ -83,21 +83,20 @@ class WaitingActionsBrick(CrudityQuerysetBrick):
                                          if crud_input else
                                          (),
         )
-        count = btc['page'].paginator.count
-
-        # TODO: we need a {% blocktrans as %} feature
-        if count:
-            title = ngettext(u'{count} Waiting action - {ctype} - {source}',
-                             u'{count} Waiting actions - {ctype} - {source}',
-                             count
-                            ).format(count=count,
-                                     ctype=ct,
-                                     source=backend.verbose_source,
-                                    )
-        else:
-            title = ugettext(u'Waiting actions - {ctype} - {source}').format(ctype=ct, source=backend.verbose_source)
-
-        btc['title'] = title
+        # count = btc['page'].paginator.count
+        #
+        # if count:
+        #     title = ngettext(u'{count} Waiting action - {ctype} - {source}',
+        #                      u'{count} Waiting actions - {ctype} - {source}',
+        #                      count
+        #                     ).format(count=count,
+        #                              ctype=ct,
+        #                              source=backend.verbose_source,
+        #                             )
+        # else:
+        #     title = ugettext(u'Waiting actions - {ctype} - {source}').format(ctype=ct, source=backend.verbose_source)
+        #
+        # btc['title'] = title
 
         return self._render(btc)
 
@@ -126,17 +125,16 @@ class CrudityHistoryBrick(CrudityQuerysetBrick):
             histories = histories.filter(user=context['user'])
 
         btc = self.get_template_context(context, histories, ct=ct)
-        count = btc['page'].paginator.count
-
-        # TODO: we need a {% blocktrans as %} feature
-        if count:
-            title = ngettext(u'{count} History item - {ctype}',
-                             u'{count} History items - {ctype}',
-                             count
-                            ).format(count=count, ctype=ct)
-        else:
-            title = ugettext(u'History items - {ctype}').format(ctype=ct)
-
-        btc['title'] = title
+        # count = btc['page'].paginator.count
+        #
+        # if count:
+        #     title = ngettext(u'{count} History item - {ctype}',
+        #                      u'{count} History items - {ctype}',
+        #                      count
+        #                     ).format(count=count, ctype=ct)
+        # else:
+        #     title = ugettext(u'History items - {ctype}').format(ctype=ct)
+        #
+        # btc['title'] = title
 
         return self._render(btc)

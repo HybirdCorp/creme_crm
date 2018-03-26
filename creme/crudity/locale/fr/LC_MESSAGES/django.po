@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Crudity 1.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-01 18:53+0100\n"
+"POT-Creation-Date: 2018-02-03 12:52+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -24,13 +24,13 @@ msgstr "Gestion des données externes"
 msgid "Email waiting actions"
 msgstr "Actions en attente pour les emails"
 
-#: apps.py:43 apps.py:56 bricks.py:107 models/history.py:38
+#: apps.py:43 apps.py:56 bricks.py:106 models/history.py:38
 #: models/history.py:39 templates/crudity/history.html:4
 #: templates/crudity/history.html:9
 msgid "History"
 msgstr "Historique"
 
-#: apps.py:48 backends/models.py:208
+#: apps.py:48 backends/models.py:210
 msgid "External data"
 msgstr "Données externes"
 
@@ -40,11 +40,11 @@ msgstr "Données externes"
 msgid "Waiting actions"
 msgstr "Actions en attente"
 
-#: backends/models.py:212
+#: backends/models.py:214
 msgid "Imported from external data."
 msgstr "Importé depuis des données externes."
 
-#: backends/models.py:246
+#: backends/models.py:248
 #, python-format
 msgid "Creation of %(entity)s"
 msgstr "Création de %(entity)s"
@@ -54,31 +54,7 @@ msgstr "Création de %(entity)s"
 msgid "Error: you are not allowed to view this block: %s"
 msgstr "Erreur: vous n'êtes pas autorisé à voir ce block: %s"
 
-#: bricks.py:90
-#, python-brace-format
-msgid "{count} Waiting action - {ctype} - {source}"
-msgid_plural "{count} Waiting actions - {ctype} - {source}"
-msgstr[0] "{count} Action en attente - {ctype} - {source}"
-msgstr[1] "{count} Actions en attente - {ctype} - {source}"
-
-#: bricks.py:98
-#, python-brace-format
-msgid "Waiting actions - {ctype} - {source}"
-msgstr "Actions en attente - {ctype} - {source}"
-
-#: bricks.py:133
-#, python-brace-format
-msgid "{count} History item - {ctype}"
-msgid_plural "{count} History items - {ctype}"
-msgstr[0] "{count} entrée d'historique - {ctype}"
-msgstr[1] "{count} entrées d'historique - {ctype}"
-
-#: bricks.py:138
-#, python-brace-format
-msgid "History items - {ctype}"
-msgstr "Entrées d'historique - {ctype}"
-
-#: builders/infopath.py:421 inputs/email.py:66 inputs/filesystem.py:41
+#: builders/infopath.py:424 inputs/email.py:66 inputs/filesystem.py:41
 msgid "Create"
 msgstr "Créer"
 
@@ -126,7 +102,7 @@ msgid "File - INI"
 msgstr "Fichier - INI"
 
 #: models/actions.py:31 models/history.py:31
-#: templates/crudity/bricks/history.html:14
+#: templates/crudity/bricks/history.html:20
 msgid "Action"
 msgstr "Action"
 
@@ -160,7 +136,7 @@ msgstr ""
 msgid "OK"
 msgstr "OK"
 
-#: models/history.py:29 templates/crudity/bricks/history.html:12
+#: models/history.py:29 templates/crudity/bricks/history.html:18
 msgid "Entity"
 msgstr "Fiche"
 
@@ -168,7 +144,7 @@ msgstr "Fiche"
 msgid "Creation date"
 msgstr "Date de création"
 
-#: models/history.py:33 templates/crudity/bricks/history.html:15
+#: models/history.py:33 templates/crudity/bricks/history.html:21
 msgid "Description"
 msgstr "Description"
 
@@ -191,11 +167,24 @@ msgstr "Télécharger un formulaire Infopath pour «%(model)s»"
 msgid "File .ini template for «%(model)s»"
 msgstr "Modèle de fichier .ini pour «%(model)s»"
 
-#: templates/crudity/bricks/history.html:13
+#: templates/crudity/bricks/history.html:10
+#, python-format
+msgid "%(count)s History item - %(model)s"
+msgid_plural "%(count)s History items - %(model)s"
+msgstr[0] "%(count)s entrée d'historique - %(model)s"
+msgstr[1] "%(count)s entrées d'historique - %(model)s"
+
+#: templates/crudity/bricks/history.html:12
+#, fuzzy, python-format
+#| msgid "History item - %(ctype)s"
+msgid "History item - %(model)s"
+msgstr "Entrées d'historique - {ctype}"
+
+#: templates/crudity/bricks/history.html:19
 msgid "Created"
 msgstr "Créé"
 
-#: templates/crudity/bricks/history.html:31
+#: templates/crudity/bricks/history.html:37
 #, python-format
 msgid "No history for «%(ctype)s»"
 msgstr "Aucun historique pour «%(ctype)s»"
@@ -210,36 +199,48 @@ msgstr "%%s Action selectionnée"
 msgid "%%s Actions selected"
 msgstr "%%s Actions selectionnées"
 
-#: templates/crudity/bricks/waiting-actions.html:18
-#: templates/crudity/bricks/waiting-actions.html:57
+#: templates/crudity/bricks/waiting-actions.html:13
+#, python-format
+msgid "%(count)s Waiting action - %(model)s - %(source)s"
+msgid_plural "%(count)s Waiting actions - %(model)s - %(source)s"
+msgstr[0] "%(count)s action en attente - %(model)s - %(source)s"
+msgstr[1] "%(count)s actions en attente - %(model)s - %(source)s"
+
+#: templates/crudity/bricks/waiting-actions.html:15
+#, python-format
+msgid "Waiting actions - %(model)s - %(source)s"
+msgstr "Actions en attente - %(model)s - %(source)s"
+
+#: templates/crudity/bricks/waiting-actions.html:26
+#: templates/crudity/bricks/waiting-actions.html:65
 msgid "Validate"
 msgstr "Valider"
 
-#: templates/crudity/bricks/waiting-actions.html:19
+#: templates/crudity/bricks/waiting-actions.html:27
 msgid "Delete"
 msgstr "Supprimer"
 
-#: templates/crudity/bricks/waiting-actions.html:24
+#: templates/crudity/bricks/waiting-actions.html:32
 msgid "Select all"
 msgstr "Tout sélectionner"
 
-#: templates/crudity/bricks/waiting-actions.html:26
+#: templates/crudity/bricks/waiting-actions.html:34
 msgid "Data"
 msgstr "Données"
 
-#: templates/crudity/bricks/waiting-actions.html:27
+#: templates/crudity/bricks/waiting-actions.html:35
 msgid "Type"
 msgstr "Type"
 
-#: templates/crudity/bricks/waiting-actions.html:28
+#: templates/crudity/bricks/waiting-actions.html:36
 msgid "Actions"
 msgstr "Actions"
 
-#: templates/crudity/bricks/waiting-actions.html:36
+#: templates/crudity/bricks/waiting-actions.html:44
 msgid "Select this line"
 msgstr "Sélectionner cette ligne"
 
-#: templates/crudity/bricks/waiting-actions.html:67
+#: templates/crudity/bricks/waiting-actions.html:75
 #, python-format
 msgid "No waiting action for «%(ctype)s» from «%(backend)s»"
 msgstr "Aucune action en attente pour «%(ctype)s» venant de «%(backend)s»"
@@ -292,10 +293,15 @@ msgstr ""
 msgid "Operation successfully completed"
 msgstr ""
 
-#~ msgid "%(counter)s History item - %(ct_name)s"
-#~ msgid_plural "%(counter)s History items - %(ct_name)s"
-#~ msgstr[0] "%(counter)s entrée d'historique - %(ct_name)s"
-#~ msgstr[1] "%(counter)s entrées d'historique - %(ct_name)s"
+#~ msgid "{count} History item - {ctype}"
+#~ msgid_plural "{count} History items - {ctype}"
+#~ msgstr[0] "{count} entrée d'historique - {ctype}"
+#~ msgstr[1] "{count} entrées d'historique - {ctype}"
+
+#~ msgid "{count} Waiting action - {ctype} - {source}"
+#~ msgid_plural "{count} Waiting actions - %(ctype)s - %(source)s"
+#~ msgstr[0] "{count} Action en attente - {ctype} - {source}"
+#~ msgstr[1] "{count} Actions en attente - {ctype} - {source}"
 
 #~ msgid "View entity's file"
 #~ msgstr "Voir la fiche de la fiche"
@@ -308,13 +314,6 @@ msgstr ""
 
 #~ msgid "No waiting action for %(ct_name)s"
 #~ msgstr "Aucune action en attente pour %(ct_name)s"
-
-#~ msgid "%(counter)s Waiting action - %(ct_name)s - %(backend_source)s"
-#~ msgid_plural ""
-#~ "%(counter)s Waiting actions - %(ct_name)s - %(backend_source)s"
-#~ msgstr[0] "%(counter)s action en attente - %(ct_name)s - %(backend_source)s"
-#~ msgstr[1] ""
-#~ "%(counter)s actions en attente - %(ct_name)s - %(backend_source)s"
 
 #~ msgid "Validate the selection"
 #~ msgstr "Valider la sélection"
