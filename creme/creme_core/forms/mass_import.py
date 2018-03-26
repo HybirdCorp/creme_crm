@@ -37,9 +37,9 @@ from django.forms import (ValidationError, Field, BooleanField, MultipleChoiceFi
 from django.forms.widgets import SelectMultiple, HiddenInput
 from django.forms.utils import flatatt
 from django.template.defaultfilters import slugify
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.html import escape, format_html, format_html_join
 from django.utils.safestring import mark_safe
-from django.utils.html import escape
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.documents import get_document_model
 
@@ -106,13 +106,19 @@ class UploadForm(CremeForm):
     def __init__(self, *args, **kwargs):
         super(UploadForm, self).__init__(*args, **kwargs)
         self._header = None
-        document = self.fields['document']
-        document.user = self.user
-        document.help_text = mark_safe(u'<ul class="help-texts">%s</ul>' %
-                                       u''.join(u'<li>%s: %s</li>' % (be.verbose_name, be.help_text)
-                                                    for be in import_backend_registry.iterbackends()
-                                               )
-                                      )
+        document_f = self.fields['document']
+        document_f.user = self.user
+        # document_f.help_text = mark_safe(u'<ul class="help-texts">%s</ul>' %
+        #                                  u''.join(u'<li>%s: %s</li>' % (be.verbose_name, be.help_text)
+        #                                              for be in import_backend_registry.iterbackends()
+        #                                          )
+        #                                 )
+        document_f.help_text = format_html(
+            u'<ul class="help-texts">{}</ul>',
+            format_html_join(u'', u'<li>{}: {}</li>',
+                             ((be.verbose_name, be.help_text) for be in import_backend_registry.iterbackends())
+                            )
+        )
 
     @property
     def header(self):

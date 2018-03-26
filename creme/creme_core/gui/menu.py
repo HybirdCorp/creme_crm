@@ -737,7 +737,8 @@ else:
                 return url
 
             def render(self, context, level=0):  # Useless (only to_dict() is used, render is done by JavaScript).
-                return u'<a href="%s">%s</a>' % (self.url, self.label)
+                # return u'<a href="%s">%s</a>' % (self.url, self.label)
+                return format_html(u'<a href="{}">{}</a>', self.url, self.label)
 
             def to_dict(self, user):
                 d = {'label': unicode(self.label)}
