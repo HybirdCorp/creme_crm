@@ -217,7 +217,7 @@ class CharmsMatrixBrick(Brick):
     configurable  = False
 
     def detailview_display(self, context):
-        # NB: credentials are OK : we are sure to use the custom relaod view if 'strategy' & 'orga' are in the context
+        # NB: credentials are OK : we are sure to use the custom reload view if 'strategy' & 'orga' are in the context
         strategy = context['strategy']
         orga = context['orga']
         return self._render(self.get_template_context(

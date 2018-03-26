@@ -5,7 +5,14 @@
 
 {% block brick_header_title %}
     {% widget_icon ctype=ct size='brick-header' as ct_icon %}
+    {% with count=page.paginator.count %}
+    {% if count %}
+        {% blocktrans count count=count with model=ct asvar title %}{{count}} History item - {{model}}{% plural %}{{count}} History items - {{model}}{% endblocktrans %}
+    {% else %}
+        {% blocktrans with model=ct asvar title %}History item - {{model}}{% endblocktrans %}
+    {% endif %}
     {% brick_header_title title=title icon=ct_icon %}
+    {% endwith %}
 {% endblock %}
 
 {% block brick_table_columns %}
