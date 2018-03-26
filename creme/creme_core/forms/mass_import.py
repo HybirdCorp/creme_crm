@@ -108,7 +108,7 @@ class UploadForm(CremeForm):
         self._header = None
         document = self.fields['document']
         document.user = self.user
-        document.help_text = mark_safe(u"<ul>%s</ul>" %
+        document.help_text = mark_safe(u'<ul class="help-texts">%s</ul>' %
                                        u''.join(u'<li>%s: %s</li>' % (be.verbose_name, be.help_text)
                                                     for be in import_backend_registry.iterbackends()
                                                )

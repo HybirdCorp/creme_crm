@@ -108,6 +108,11 @@ textarea:invalid {
 }
 */
 
+.help-text ul {
+    margin: 0px;
+    padding-left: 20px;
+}
+
 ul.radio_select, ul.multi-select {
     list-style-type: none;
     padding: 0;

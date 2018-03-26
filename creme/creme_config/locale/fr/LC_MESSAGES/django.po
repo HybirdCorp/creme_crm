@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 1.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-01 16:21+0100\n"
+"POT-Creation-Date: 2018-03-03 12:03+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -97,7 +97,7 @@ msgstr "Recherche"
 msgid "Roles and credentials"
 msgstr "Rôles et droits"
 
-#: apps.py:149 forms/user.py:168 templates/creme_config/bricks/users.html:7
+#: apps.py:149 forms/user.py:225 templates/creme_config/bricks/users.html:7
 #: templates/creme_config/user_portal.html:7
 msgid "Users"
 msgstr "Utilisateurs"
@@ -119,7 +119,7 @@ msgid "List of semi-fixed relation types"
 msgstr "Liste des types de relation semi-fixés"
 
 #: bricks.py:370 bricks.py:596 forms/bricks.py:220 forms/search.py:68
-#: forms/user.py:53 forms/user.py:83
+#: forms/user.py:66 forms/user.py:115
 #: templates/creme_config/bricks/search-config.html:31
 #: templates/creme_config/bricks/users.html:33
 msgid "Superuser"
@@ -154,7 +154,7 @@ msgstr "Le bloc suivant ne devrait être affiché qu'une seule fois: «%(block)s
 msgid "Your configuration is empty !"
 msgstr "Votre configuration est vide !"
 
-#: forms/bricks.py:200 forms/search.py:45 forms/user.py:40 forms/user.py:73
+#: forms/bricks.py:200 forms/search.py:45 forms/user.py:54 forms/user.py:105
 #: templates/creme_config/bricks/users.html:19
 msgid "Role"
 msgstr "Rôle"
@@ -202,12 +202,12 @@ msgstr "Colonnes"
 msgid "This type of field can not be the first column."
 msgstr "Ce type de champ ne peut pas être la première colonne."
 
-#: forms/bricks.py:427 forms/button_menu.py:39 forms/custom_fields.py:77
+#: forms/bricks.py:428 forms/button_menu.py:39 forms/custom_fields.py:77
 #: forms/fields_config.py:45 forms/fields_config.py:66
 msgid "Related resource"
 msgstr "Ressource associée"
 
-#: forms/bricks.py:458
+#: forms/bricks.py:459
 msgid "Lines"
 msgstr "Lignes"
 
@@ -434,31 +434,42 @@ msgstr "Champs concernés"
 msgid "Value"
 msgstr "Valeur"
 
-#: forms/user.py:38 forms/user.py:96
+# Already in django.contrib.auth
+#: forms/user.py:44 forms/user.py:143
+msgid "The two password fields didn't match."
+msgstr ""
+
+#: forms/user.py:47 forms/user.py:148
 msgid "Password"
 msgstr "Mot de passe"
 
-#: forms/user.py:39 forms/user.py:97
+#: forms/user.py:49
 msgid "Confirm password"
 msgstr "Confirmation du mot de passe"
 
-#: forms/user.py:59 forms/user.py:100
-msgid "Passwords are different"
-msgstr "Les mots de passe sont différents"
+# Already in django.contrib.auth
+#: forms/user.py:51 forms/user.py:155
+msgid "Enter the same password as before, for verification."
+msgstr ""
 
-#: forms/user.py:124 templates/creme_config/bricks/teams.html:25
+# Already in django.contrib.auth
+#: forms/user.py:153
+msgid "Password (again)"
+msgstr ""
+
+#: forms/user.py:181 templates/creme_config/bricks/teams.html:25
 msgid "Teammates"
 msgstr "Coéquipiers"
 
-#: forms/user.py:133
+#: forms/user.py:190
 msgid "Team name"
 msgstr "Nom de l'équipe"
 
-#: forms/user.py:153
+#: forms/user.py:210
 msgid "Choose a user to transfer to"
 msgstr "Choisissez un utilisateur auquel transférer"
 
-#: forms/user.py:169 templates/creme_config/bricks/teams.html:7
+#: forms/user.py:226 templates/creme_config/bricks/teams.html:7
 msgid "Teams"
 msgstr "Équipes"
 
@@ -1714,6 +1725,9 @@ msgstr "Supprimer le rôle «%s»"
 #: views/user_role.py:234
 msgid "Delete the role"
 msgstr "Supprimer le rôle"
+
+#~ msgid "Passwords are different"
+#~ msgstr "Les mots de passe sont différents"
 
 #~ msgid "Resource"
 #~ msgstr "Ressource"

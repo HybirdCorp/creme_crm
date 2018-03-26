@@ -9,7 +9,7 @@ try:
     from django.core.urlresolvers import reverse
     from django.test.utils import override_settings
     from django.utils import timezone as django_tz
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import ugettext as _, ungettext
 
     from creme.creme_core.core.setting_key import SettingKey, UserSettingKey, user_setting_key_registry
     from creme.creme_core.models import CremeUser as User
@@ -34,6 +34,7 @@ def skipIfNotCremeUser(test_func):
 
 
 @skipIfCustomOrganisation
+@override_settings(AUTH_PASSWORD_VALIDATORS=[])
 class UserTestCase(CremeTestCase, BrickTestCaseMixin):
     ADD_URL = reverse('creme_config__create_user')
     ADD_TEAM_URL = reverse('creme_config__create_team')
@@ -224,7 +225,9 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                             )
 
     @skipIfNotCremeUser
-    def test_create07(self):
+    @override_settings(AUTH_PASSWORD_VALIDATORS=[{'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},])
+    # def test_create07(self):
+    def test_create06(self):
         "Password errors"
         user = self.login()
         url = self.ADD_URL
@@ -238,7 +241,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                 'relation':     REL_SUB_EMPLOYED_BY,
                }
         response = self.assertPOST200(url, follow=True, data=data)
-        msg = _('This field is required.')
+        msg = _(u'This field is required.')
         self.assertFormError(response, 'form', 'password_1', msg)
         self.assertFormError(response, 'form', 'password_2', msg)
 
@@ -258,10 +261,20 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                                                 password_2='passwd',
                                                ),
                                      )
-        self.assertFormError(response, 'form', 'password_2', _('Passwords are different'))
+        # self.assertFormError(response, 'form', 'password_2', _('Passwords are different'))
+        self.assertFormError(response, 'form', 'password_2', _(u"The two password fields didn't match."))
+
+        response = self.assertPOST200(url, follow=True,
+                                      data=dict(data,
+                                                password_1='123',
+                                                password_2='123',
+                                               ),
+                                     )
+        self.assertFormError(response, 'form', 'password_2', _(u"This password is entirely numeric."))
 
     @skipIfNotCremeUser
-    def test_create08(self):
+    # def test_create08(self):
+    def test_create07(self):
         "Unique username"
         user = self.login()
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
@@ -287,7 +300,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfNotCremeUser
     @skipIfCustomContact
-    def test_create09(self):
+    # def test_create09(self):
+    def test_create08(self):
         "Internal relationships are forbidden."
         user = self.login()
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
@@ -471,7 +485,30 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                                           'password_2': password + '42',
                                          }
                                    )
-        self.assertFormError(response, 'form', 'password_2', _(u"Passwords are different"))
+        # self.assertFormError(response, 'form', 'password_2', _(u"Passwords are different"))
+        self.assertFormError(response, 'form', 'password_2', _(u"The two password fields didn't match."))
+
+    @skipIfNotCremeUser
+    @override_settings(AUTH_PASSWORD_VALIDATORS=[{'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},])
+    def test_change_password04(self):
+        self.login()
+
+        other_user = User.objects.create(username='deunan')
+        url = self._build_edit_url(other_user.id, password=True)
+        self.assertGET200(url)
+
+        password = 'pass'
+        response = self.assertPOST200(url, #follow=True,
+                                      data={'password_1': password,
+                                            'password_2': password,
+                                           }
+                                     )
+        self.assertFormError(response, 'form', 'password_2',
+                             ungettext(u'This password is too short. It must contain at least %(min_length)d character.',
+                                       u'This password is too short. It must contain at least %(min_length)d characters.',
+                                       8
+                                      ) % {'min_length': 8}
+                            )
 
     @skipIfNotCremeUser
     def test_user_activation01(self):

@@ -31,20 +31,14 @@
         {% for hidden in form.hidden_fields %}{{hidden}}{% endfor %}
 
         <table class="table_detail_view ui-corner-all">
-            {% comment %}<thead>
-                <tr>
-                    <th colspan="2" valign="middle">{% trans "Form" %}</th>
-                </tr>
-            </thead>{% endcomment %}
             <tbody class="collapsable">
                 {% for field in form.visible_fields %}
                     {% if not field.is_hidden %}
                         <tr>
-                            <th class="th_info {% cycle "block_header_line_dark" "block_header_line_light" %}">{{field.label}} {% if field.field.required %}<span class="required-mark">*</span>{% endif %}</th>
-                            <td class="td_info {% cycle "block_line_dark" "block_line_light" %}">
-                                {% if field.help_text %}
-                                    {{field.help_text}} <br />
-                                {% endif %}
+                            <th class="th_info {% cycle 'block_header_line_dark' 'block_header_line_light' %}">{{field.label}} {% if field.field.required %}<span class="required-mark">*</span>{% endif %}</th>
+                            <td class="td_info {% cycle 'block_line_dark' 'block_line_light' %}">
+{#                                {% if field.help_text %} {{field.help_text}} <br />{% endif %} #}
+                                {% if field.help_text %}<div class="help-text">{{field.help_text}}</div>{% endif %}
                                 {{field.errors}} {{field}}
                             </td>
                         </tr>
