@@ -746,6 +746,7 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeFileComponent',
                 fields=[
+                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                     ('filedata', models.FileField(null=True, upload_to=b'upload/creme_core-tests', max_length=100, verbose_name='File', blank=True)),
                 ],
                 options={
@@ -776,8 +777,8 @@ class Migration(migrations.Migration):
                     ),
                     ('name', models.CharField(max_length=100, null=True, verbose_name='Name', blank=True)),
                     ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
-                    ('filedata', models.FileField(upload_to=b'upload/creme_core-tests', max_length=100, verbose_name='File')),
-                    ('categories', models.ManyToManyField(related_name='+', null=True, verbose_name='Categories', to='creme_core.FakeImageCategory', blank=True)),
+                    ('filedata', models.FileField(upload_to=b'upload/creme_core-tests', max_length=100, verbose_name='File', editable=False)),
+                    ('categories', models.ManyToManyField(related_name='+', verbose_name='Categories', to='creme_core.FakeImageCategory', blank=True)),
                     ('exif_date', models.DateField(null=True, verbose_name='Exif date', blank=True)),
                 ],
                 options={
@@ -862,7 +863,7 @@ class Migration(migrations.Migration):
                     ('email', models.EmailField(max_length=100, null=True, verbose_name='Email address', blank=True)),
                     ('url_site', models.URLField(max_length=500, null=True, verbose_name='Web Site', blank=True)),
                     ('birthday', models.DateField(null=True, verbose_name='Birthday', blank=True)),
-                    ('address', models.ForeignKey(related_name='+', blank=True, editable=False, to='creme_core.FakeAddress', null=True, verbose_name='Billing address', on_delete=deletion.CASCADE)),
+                    ('address', models.ForeignKey(related_name='+', blank=True, editable=False, to='creme_core.FakeAddress', null=True, verbose_name='Billing address', on_delete=deletion.SET_NULL)),
                     ('civility', models.ForeignKey(on_delete=deletion.SET_NULL, verbose_name='Civility', blank=True, to='creme_core.FakeCivility', null=True)),
                     ('position', models.ForeignKey(on_delete=deletion.SET_NULL, verbose_name='Position', blank=True, to='creme_core.FakePosition', null=True)),
                     ('sector', models.ForeignKey(on_delete=deletion.SET_NULL, verbose_name='Line of business', blank=True, to='creme_core.FakeSector', null=True)),
@@ -874,7 +875,7 @@ class Migration(migrations.Migration):
                     'ordering': ('last_name', 'first_name'),
                     'verbose_name': 'Test Contact',
                     'verbose_name_plural': 'Test Contacts',
-                    'index_together': ('last_name', 'first_name', 'cremeentity_ptr'),
+                    'index_together': {('last_name', 'first_name', 'cremeentity_ptr')},
                 },
                 bases=('creme_core.cremeentity',),
             ),
@@ -992,7 +993,7 @@ class Migration(migrations.Migration):
                     'ordering': ('name',),
                     'verbose_name': 'Test Organisation',
                     'verbose_name_plural': 'Test Organisations',
-                    'index_together': ('name', 'cremeentity_ptr'),
+                    'index_together': {('name', 'cremeentity_ptr')},
                 },
                 bases=('creme_core.cremeentity',),
             ),
