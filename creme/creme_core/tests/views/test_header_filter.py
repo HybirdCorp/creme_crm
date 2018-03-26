@@ -3,7 +3,7 @@
 try:
     from future_builtins import zip
     from functools import partial
-    from json import loads as load_json
+    # from json import loads as load_json
 
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
@@ -553,7 +553,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.login()
 
         response = self.assertGET200(self._build_get4ctype_url(self.contact_ct))
-        self.assertEqual([], load_json(response.content))
+        # self.assertEqual([], load_json(response.content))
+        self.assertEqual([], response.json())
 
         # response = self.assertGET200(self._build_get4ctype_url(self.contact_ct, use_GET=True))
         # self.assertEqual([], load_json(response.content))
@@ -574,11 +575,13 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
         expected = [[hf01.id, name01], [hf02.id, name02], [hf03.id, name03]]
         response = self.assertGET200(self._build_get4ctype_url(self.contact_ct))
-        self.assertEqual(expected, load_json(response.content))
+        # self.assertEqual(expected, load_json(response.content))
+        self.assertEqual(expected, response.json())
 
         # response = self.assertGET200(self._build_get4ctype_url(self.contact_ct, use_GET=True))
         response = self.assertGET200(self._build_get4ctype_url(self.contact_ct))
-        self.assertEqual(expected, load_json(response.content))
+        # self.assertEqual(expected, load_json(response.content))
+        self.assertEqual(expected, response.json())
 
     def test_hfilters_for_ctype03(self):
         "No app credentials"

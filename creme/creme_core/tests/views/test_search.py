@@ -2,7 +2,7 @@
 
 try:
     from functools import partial
-    from json import loads as json_load
+    # from json import loads as json_load
 
     from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
@@ -342,9 +342,9 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         response = self.assertGET200(url, data={'brick_id': brick_id, 'search': 'linu'})
 
-        with self.assertNoException():
-            results = json_load(response.content)
-
+        # with self.assertNoException():
+        #     results = json_load(response.content)
+        results = response.json()
         self.assertIsInstance(results, list)
         self.assertEqual(1, len(results))
 
@@ -367,8 +367,9 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         response = self.assertGET200(self.LIGHT_URL, data={'value': 'cox'})
 
-        with self.assertNoException():
-            results = json_load(response.content)
+        # with self.assertNoException():
+        #     results = json_load(response.content)
+        results = response.json()
 
         alan = self.alan
         coxco = self.coxco
@@ -445,7 +446,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
                          },
                         ],
             },
-            json_load(response.content)
+            response.json()
         )
 
     def test_light_search03(self):
@@ -462,7 +463,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
              #          },
              'error': _(u'Empty search…'),
             },
-            json_load(response.content)
+            response.json()
         )
 
         response = self.assertGET200(url, data={'value': 'co'})
@@ -474,5 +475,5 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
              #          },
              'error': _(u'Please enter at least %s characters') % 3,
             },
-            json_load(response.content)
+            response.json()
         )

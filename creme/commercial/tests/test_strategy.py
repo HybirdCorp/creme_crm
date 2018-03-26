@@ -2,7 +2,7 @@
 
 try:
     from functools import partial
-    from json import loads as load_json
+    # from json import loads as load_json
 
     from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
@@ -807,8 +807,9 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
                                      data={'brick_id': brick_id},
                                     )
 
-        with self.assertNoException():
-            result = load_json(response.content)
+        # with self.assertNoException():
+        #     result = load_json(response.content)
+        result = response.json()
 
         self.assertIsInstance(result, list)
         self.assertEqual(1, len(result))
@@ -855,10 +856,11 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
                                      data={'brick_id': brick_id},
                                     )
 
-        with self.assertNoException():
-            result = load_json(response.content)
+        # with self.assertNoException():
+        #     results = load_json(response.content)
 
-        result = result[0]
+        # result = results[0]
+        result = response.json()[0]
         self.assertEqual(brick_id, result[0])
         self.get_brick_node(self.get_html_tree(result[1]), brick_id)
 
@@ -903,9 +905,10 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
                                      data={'brick_id': brick_id},
                                     )
 
-        with self.assertNoException():
-            result = load_json(response.content)
-
-        result = result[0]
+        # with self.assertNoException():
+        #     result = load_json(response.content)
+        #
+        # result = result[0]
+        result = response.json()[0]
         self.assertEqual(brick_id, result[0])
         self.get_brick_node(self.get_html_tree(result[1]), brick_id)

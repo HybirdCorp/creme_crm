@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016  Hybird
+#    Copyright (C) 2016-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,10 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from json import dumps as json_dump
+# from json import dumps as json_dump
 
 from django.db.models.base import Model
-from django.http.response import HttpResponse
+from django.http.response import JsonResponse  # HttpResponse
 from django.utils.http import PROTOCOL_TO_PORT
 from django.utils.six.moves.urllib.parse import urlparse
 
@@ -39,7 +39,7 @@ def build_cancel_path(request):
             return parsed_url.path
 
 
-# TODO : Find a better name
+# TODO: Find a better name
 def json_update_from_widget_response(instance):
     """
     This function is designed for javascript selectors (listview or combobox) with creation forms and
@@ -56,4 +56,5 @@ def json_update_from_widget_response(instance):
     else:
         data = instance
 
-    return HttpResponse(json_dump(data), content_type="application/json")
+    # return HttpResponse(json_dump(data), content_type='application/json')
+    return JsonResponse(data)

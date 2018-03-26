@@ -175,7 +175,8 @@ def jsonify(func):
         else:
             msg = json_dump(rendered, default=decimal_serializer)
 
-        return HttpResponse(msg, content_type='text/javascript', status=status)
+        # return HttpResponse(msg, content_type='text/javascript', status=status)
+        return HttpResponse(msg, content_type='application/json', status=status)
 
     return _aux
 

@@ -2,7 +2,7 @@
 
 try:
     from functools import partial
-    from json import loads as jsonloads
+    # from json import loads as jsonloads
     from unittest import skipIf
 
     from django.conf import settings
@@ -960,7 +960,8 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
                 response = self.assertGET200(url)
 
                 with self.assertNoException():
-                    form_str = jsonloads(response.content)['form']
+                    # form_str = jsonloads(response.content)['form']
+                    form_str = response.json()['form']
 
                 for line in form_str.split('\n'):
                     if selected_tz in line:

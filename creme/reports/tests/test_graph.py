@@ -186,8 +186,9 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         # ------------------------------------------------------------
         # response = self.assertGET200(self._builf_fetch_url(rgraph, 'ASC', use_GET=True))
         response = self.assertGET200(self._builf_fetch_url(rgraph, 'ASC'))
-        with self.assertNoException():
-            data = json_load(response.content)
+        # with self.assertNoException():
+        #     data = json_load(response.content)
+        data = response.json()
 
         self.assertIsInstance(data, dict)
         self.assertEqual(3, len(data))
@@ -1946,7 +1947,8 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         # response = self.assertGET200(self._build_fetchfrombrick_url(item, invoice, 'ASC', use_GET=True))
         response = self.assertGET200(self._build_fetchfrombrick_url(item, invoice, 'ASC'))
 
-        result = json_load(response.content)
+        # result = json_load(response.content)
+        result = response.json()
         self.assertIsInstance(result, dict)
         self.assertEqual(2, len(result))
 
@@ -1962,11 +1964,13 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                       )
 
         response = self.assertGET200(self._build_fetchfrombrick_url(item, invoice, 'ASC'))
-        self.assertEqual(result, json_load(response.content))
+        # self.assertEqual(result, json_load(response.content))
+        self.assertEqual(result, response.json())
 
         # ---------------------------------------------------------------------
         response = self.assertGET200(self._build_fetchfrombrick_url(item, invoice, 'DESC'))
-        result = json_load(response.content)
+        # result = json_load(response.content)
+        result = response.json()
         self.assertEqual([x_fmt % 11, x_fmt % 10], result.get('x'))
 
         y = result.get('y')
@@ -2205,7 +2209,8 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         response = self.assertPOST200(url, data={'record_id': 'name'})
         self.assertEqual({'result': [{'text': _(u'Choose an abscissa field'), 'id': ''}]},
-                         json_load(response.content)
+                         # json_load(response.content)
+                         response.json()
                         )
 
         response = self.assertPOST200(url, data={'record_id': 'creation_date'})
@@ -2215,12 +2220,14 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                                      {'id': RGT_RANGE, 'text': _(u"By X days")},
                                     ],
                          },
-                         json_load(response.content)
+                         # json_load(response.content)
+                         response.json()
                         )
 
         response = self.assertPOST200(url, data={'record_id': 'sector'})
         self.assertEqual({'result': [{'id': RGT_FK, 'text': _(u"By values")}]},
-                         json_load(response.content)
+                         # json_load(response.content)
+                         response.json()
                         )
 
     def test_get_available_report_graph_types02(self):
@@ -2229,14 +2236,16 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         response = self.assertPOST200(url, data={'record_id': fake_constants.FAKE_REL_SUB_BILL_RECEIVED})
         self.assertEqual({'result': [{'id': RGT_RELATION, 'text': _(u"By values (of related entities)")}]},
-                         json_load(response.content)
+                         # json_load(response.content)
+                         response.json()
                         )
 
         create_cf = partial(CustomField.objects.create, content_type=ct)
         cf_enum = create_cf(name='Type', field_type=CustomField.ENUM)
         response = self.assertPOST200(url, data={'record_id': cf_enum.id})
         self.assertEqual({'result': [{'id': RGT_CUSTOM_FK, 'text': _(u"By values (of custom choices)")}]},
-                         json_load(response.content)
+                         # json_load(response.content)
+                         response.json()
                         )
 
         cf_dt = create_cf(name='First payment', field_type=CustomField.DATETIME)
@@ -2247,7 +2256,8 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                                      {'id': RGT_CUSTOM_RANGE, 'text': _(u"By X days")},
                                     ],
                          },
-                         json_load(response.content)
+                         # json_load(response.content)
+                         response.json()
                         )
 
     def bench_big_fetch_using_count(self):

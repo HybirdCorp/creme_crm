@@ -81,7 +81,7 @@ class GoogleDetailMapBrick(_MapBrick):
         return self._render(self.get_template_context(
                     context,
                     addresses=addresses,
-                    geoaddresses=encode_json(addresses),
+                    geoaddresses=encode_json(addresses),  # TODO: use '|jsonify'
                     google_api_key=get_google_api_key(),  # TODO: factorise
         ))
 

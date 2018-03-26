@@ -47,7 +47,8 @@ class RelationViewsTestCase(ViewsTestCase):
         response = self.assertGET200(self._build_get_ctypes_url(rtype.id),
                                      data={'fields': ['id', 'unicode']}
                                     )
-        self.assertEqual('text/javascript', response['Content-Type'])
+        # self.assertEqual('text/javascript', response['Content-Type'])
+        self.assertEqual('application/json', response['Content-Type'])
 
         json_data = load_json(response.content)
         get_ct = ContentType.objects.get_for_model
@@ -65,7 +66,8 @@ class RelationViewsTestCase(ViewsTestCase):
         response = self.assertGET200(self._build_get_ctypes_url(rtype.id),
                                      data={'fields': ['id']}
                                     )
-        self.assertEqual('text/javascript', response['Content-Type'])
+        # self.assertEqual('text/javascript', response['Content-Type'])
+        self.assertEqual('application/json', response['Content-Type'])
 
         json_data = load_json(response.content)
         get_ct = ContentType.objects.get_for_model

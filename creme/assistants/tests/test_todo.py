@@ -3,7 +3,7 @@
 try:
     from datetime import timedelta, datetime
     from functools import partial
-    from json import loads as load_json
+    # from json import loads as load_json
 
     from django.conf import settings
     from django.contrib.auth import get_user_model
@@ -206,9 +206,10 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(reverse('creme_core__reload_detailview_bricks', args=(self.entity.id,)),
                                      data={'brick_id': TodosBrick.id_},
                                     )
-        self.assertEqual('text/javascript', response['Content-Type'])
+        self.assertEqual('application/json', response['Content-Type'])
 
-        content = load_json(response.content)
+        # content = load_json(response.content)
+        content = response.json()
         self.assertEqual(1, len(content))
         self.assertEqual(2, len(content[0]))
         self.assertEqual(TodosBrick.id_, content[0][0])
@@ -229,9 +230,10 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertEqual(2, len(todos))
 
         response = self.assertGET200(reverse('creme_core__reload_home_bricks'), data={'brick_id': TodosBrick.id_})
-        self.assertEqual('text/javascript', response['Content-Type'])
+        # self.assertEqual('text/javascript', response['Content-Type'])
+        self.assertEqual('application/json', response['Content-Type'])
 
-        content = load_json(response.content)
+        content = response.json()
         self.assertEqual(1, len(content))
         self.assertEqual(2, len(content[0]))
         self.assertEqual(TodosBrick.id_, content[0][0])
@@ -255,9 +257,9 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
                                            'ct_id': ct_id,
                                           },
                                     )
-        self.assertEqual('text/javascript', response['Content-Type'])
+        self.assertEqual('application/json', response['Content-Type'])
 
-        content = load_json(response.content)
+        content = response.json()
         self.assertEqual(1, len(content))
         self.assertEqual(2, len(content[0]))
         self.assertEqual(TodosBrick.id_, content[0][0])

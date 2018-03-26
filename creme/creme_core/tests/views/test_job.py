@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from json import loads as json_load
+    # from json import loads as json_load
 
     from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
@@ -524,7 +524,8 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         job = self._create_batchprocess_job()
         response = self.assertGET200(url, data={'id': [job.id]})
-        self.assertEqual('text/javascript', response['Content-Type'])
+        # self.assertEqual('text/javascript', response['Content-Type'])
+        self.assertEqual('application/json', response['Content-Type'])
         self.assertEqual({str(job.id): {
                             'status': Job.STATUS_WAIT,
                             'ack_errors': 0,
@@ -537,7 +538,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                             },
                           }
                          },
-                         json_load(response.content)
+                         response.json()
                         )
 
         job = self._create_batchprocess_job(status=Job.STATUS_OK)
@@ -554,20 +555,20 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                             },
                           }
                          },
-                         json_load(response.content)
+                         response.json()
                         )
 
         job = self._create_batchprocess_job(user=self.other_user)
         response = self.assertGET200(url, data={'id': [job.id]})
-        self.assertEqual({str(job.id): 'Job is not allowed'}, json_load(response.content))
+        self.assertEqual({str(job.id): 'Job is not allowed'}, response.json())
 
         invalid_id = Job.objects.aggregate(Max('id'))['id__max'] + 1
         response = self.assertGET200(url, data={'id': [invalid_id]})
-        self.assertEqual({str(invalid_id): 'Invalid job ID'}, json_load(response.content))
+        self.assertEqual({str(invalid_id): 'Invalid job ID'}, response.json())
 
         invalid_id = 'invalid'
         response = self.assertGET200(url, data={'id': [invalid_id]})
-        self.assertEqual({}, json_load(response.content))
+        self.assertEqual({}, response.json())
 
     def test_status02(self):
         "Several jobs"
@@ -578,7 +579,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         job3 = self._create_batchprocess_job(user=self.other_user)
         response = self.assertGET200(self.INFO_URL, data={'id': [job1.id, job3.id, job2.id]})
 
-        content = json_load(response.content)
+        content = response.json()
         self.assertEqual(3, len(content))
 
         label = ungettext(u'{count} entity has been processed.',
@@ -612,7 +613,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.login(is_superuser=False)
 
         response = self.assertGET200(self.INFO_URL)
-        self.assertEqual({'error': error}, json_load(response.content))
+        self.assertEqual({'error': error}, response.json())
 
     def test_status04(self):
         "ACK error"
@@ -635,7 +636,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                             },
                           },
                          },
-                         json_load(response.content)
+                         response.json()
                         )
 
     def _aux_test_reload(self, job, brick_id):
@@ -643,8 +644,9 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                                      data={'brick_id': brick_id},
                                     )
 
-        with self.assertNoException():
-            result = json_load(response.content)
+        # with self.assertNoException():
+        #     result = json_load(response.content)
+        result = response.json()
 
         self.assertIsInstance(result, list)
         self.assertEqual(1, len(result))

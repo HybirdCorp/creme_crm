@@ -2,7 +2,7 @@
 try:
     from datetime import date
     from functools import partial
-    from json import loads as jsonloads, dumps as json_encode
+    from json import loads as json_loads, dumps as json_encode
 
     from django.contrib.contenttypes.models import ContentType
     from django.core.exceptions import ValidationError
@@ -1750,7 +1750,7 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
                     'ctype':  naru.entity_type_id,
                     'rtype':  self.rtype01.id,
                    }
-        self.assertEqual([jsondict], jsonloads(field.from_python(list(efilter.conditions.all()))))
+        self.assertEqual([jsondict], json_loads(field.from_python(list(efilter.conditions.all()))))
 
         try:
             naru.delete()
@@ -1759,7 +1759,7 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
 
         jsondict["entity"] = None
         jsondict["ctype"] = 0
-        self.assertEqual([jsondict], jsonloads(field.from_python(list(efilter.conditions.all()))))
+        self.assertEqual([jsondict], json_loads(field.from_python(list(efilter.conditions.all()))))
 
     def test_ok06(self):
         "'model' property"

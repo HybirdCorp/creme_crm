@@ -47,7 +47,7 @@ def inner_popup(request, template, template_dict, is_valid=True, html=None,
                                           'is_valid':        is_valid,
                                           'whoami':          POST.get('whoami') or GET.get('whoami'),
                                           'callback_url':    callback_url,
-                                          'reload':          json_dump(reload),
+                                          'reload':          json_dump(reload),  # TODO: use '|jsonify' ?
                                           'persisted':       tpl_persist,
                                           'delegate_reload': delegate_reload,
                                          },
