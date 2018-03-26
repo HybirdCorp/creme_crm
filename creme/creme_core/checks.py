@@ -23,7 +23,7 @@ from django.conf import settings
 from django.core.checks import register, Error, Warning, Tags as CoreTags
 from django.db.utils import DatabaseError
 
-from .models import CremeEntity
+# from .models import CremeEntity
 
 
 class Tags(object):
@@ -85,6 +85,8 @@ def check_uninstalled_apps(**kwargs):
 
 @register(CoreTags.models)
 def check_entity_ordering(**kwargs):
+    from .models import CremeEntity
+
     errors = []
 
     for model in apps.get_models():

@@ -47,7 +47,8 @@ def has_quickform(ctype):
 #                             )
 
 
-@register.assignment_tag
+# @register.assignment_tag
+@register.simple_tag
 def commercial_segments_for_category(strategy, orga, category):
     return strategy.get_segments_for_category(orga, category)
 

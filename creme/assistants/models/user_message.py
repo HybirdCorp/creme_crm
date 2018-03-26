@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ import logging
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import (CharField, BooleanField, TextField, DateTimeField,
-        ForeignKey, PositiveIntegerField, PROTECT)
+        ForeignKey, PositiveIntegerField, PROTECT, CASCADE)
 from django.db.transaction import atomic
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
@@ -67,7 +67,7 @@ class UserMessage(CremeModel):
     email_sent = BooleanField(default=False)
 
     # TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)
-    entity_content_type = ForeignKey(ContentType, null=True)
+    entity_content_type = ForeignKey(ContentType, null=True, on_delete=CASCADE)
     entity_id           = PositiveIntegerField(null=True)
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
 

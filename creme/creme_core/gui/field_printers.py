@@ -424,7 +424,8 @@ class _FieldPrintersRegistry(object):
         HIDDEN_VALUE = settings.HIDDEN_VALUE
 
         if len(field_info) > 1:
-            base_model = base_field.rel.to
+            # base_model = base_field.rel.to
+            base_model = base_field.remote_field.model
             sub_printer = self._build_field_printer(field_info[1:], output)
 
             if isinstance(base_field, models.ForeignKey):

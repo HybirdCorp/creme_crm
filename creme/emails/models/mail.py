@@ -24,7 +24,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError
 from django.db.models import (PositiveIntegerField, PositiveSmallIntegerField,
-        CharField, TextField, DateTimeField, ForeignKey, ManyToManyField)
+        CharField, TextField, DateTimeField, ForeignKey, ManyToManyField, CASCADE)
 from django.db.transaction import atomic
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -80,7 +80,7 @@ class AbstractEntityEmail(_Email, CremeEntity):
                             default=generate_id,  # TODO: lambda for this
                            )
     body_html   = UnsafeHTMLField(_(u'Body (HTML)'))
-    signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True) ##merge with body ????
+    signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True, on_delete=CASCADE) ##merge with body ????
     attachments = ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name=_(u'Attachments'), blank=True)
 
     creation_label = _(u'Create an email')

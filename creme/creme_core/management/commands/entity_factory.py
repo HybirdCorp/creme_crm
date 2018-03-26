@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2017  Hybird
+#    Copyright (C) 2016-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -282,6 +282,7 @@ class Command(BaseCommand):
     SQL_OPTIMISERS = {
         'django.db.backends.mysql': OptimizeMySQLContext,
         'django.db.backends.postgresql_psycopg2': OptimizePGSQLContext,
+        'django.db.backends.postgresql': OptimizePGSQLContext,
         # TODO: other DBRMS ?
     }
 

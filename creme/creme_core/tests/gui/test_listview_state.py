@@ -201,7 +201,7 @@ class ListViewStateTestCase(CremeTestCase):
     def test_sort_oneorder_06(self):
         "Ordering: add a not natural ordering key (FK to CremeEntity)"
         field_name1 = 'title'
-        field_name2 = 'folder'
+        field_name2 = 'linked_folder'
         self.assertEqual((field_name1,), FakeDocument._meta.ordering)
 
         build_cell = partial(EntityCellRegularField.build, model=FakeDocument)

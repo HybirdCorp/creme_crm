@@ -39,18 +39,21 @@ Document = get_document_model()
 class DocumentQuickForm(CremeModelWithUserForm):
     class Meta:
         model = Document
-        fields = ('user', 'filedata', 'folder')
+        # fields = ('user', 'filedata', 'folder')
+        fields = ('user', 'filedata', 'linked_folder')
 
     def __init__(self, *args, **kwargs):
         super(DocumentQuickForm, self).__init__(*args, **kwargs)
 
-        folder_f = self.fields.get('folder')
+        # folder_f = self.fields.get('folder')
+        folder_f = self.fields.get('linked_folder')
 
         if folder_f:
             folder = get_folder_model().objects.get(uuid=constants.UUID_FOLDER_RELATED2ENTITIES)
 
             if self.user.has_perm_to_view(folder):
-                self.fields['folder'].initial = folder
+                # self.fields['folder'].initial = folder
+                self.fields['linked_folder'].initial = folder
 
     def save(self, *args, **kwargs):
         instance = self.instance
@@ -76,7 +79,8 @@ class DocumentWidgetQuickForm(DocumentQuickForm):
 
     def save(self, *args, **kwargs):
         if self.folder is not None:
-            self.instance.folder = self.folder
+            # self.instance.folder = self.folder
+            self.instance.linked_folder = self.folder
 
         return super(DocumentWidgetQuickForm, self).save(*args, **kwargs)
 
@@ -101,12 +105,14 @@ class ImageQuickForm(CremeModelWithUserForm):
 
     class Meta:
         model = Document
-        fields = ('user', 'image', 'folder')
+        # fields = ('user', 'image', 'folder')
+        fields = ('user', 'image', 'linked_folder')
 
     def __init__(self, *args, **kwargs):
         super(ImageQuickForm, self).__init__(*args, **kwargs)
         fields = self.fields
-        fields['folder'].initial = get_folder_model().objects.filter(uuid=constants.UUID_FOLDER_IMAGES).first()
+        # fields['folder'].initial = get_folder_model().objects.filter(uuid=constants.UUID_FOLDER_IMAGES).first()
+        fields['linked_folder'].initial = get_folder_model().objects.filter(uuid=constants.UUID_FOLDER_IMAGES).first()
         # TODO: hook django (create or own widget and set it on ImageField ?)
         fields['image'].widget.attrs = {'accept': ','.join('.' + ext for ext in settings.ALLOWED_IMAGES_EXTENSIONS)}
 

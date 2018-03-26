@@ -2,12 +2,13 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-from django.db.models.deletion import PROTECT
+from django.db.models.deletion import CASCADE, PROTECT
 
 from creme.creme_core.models import fields as creme_fields
 
 
 class Migration(migrations.Migration):
+    initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
     ]
@@ -65,7 +66,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Ticket',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('number', models.PositiveIntegerField(verbose_name='Number', unique=True, editable=False)),
                 ('title', models.CharField(max_length=100, verbose_name='Title', blank=True)),
                 ('description', models.TextField(verbose_name='Description')),
@@ -86,7 +90,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='TicketTemplate',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('title', models.CharField(max_length=100, verbose_name='Title', blank=True)),
                 ('description', models.TextField(verbose_name='Description')),
                 ('solution', models.TextField(verbose_name='Solution', blank=True)),

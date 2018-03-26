@@ -23,7 +23,7 @@ from future_builtins import zip
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import (CharField, TextField, PositiveSmallIntegerField,
-        ForeignKey, ManyToManyField)
+        ForeignKey, ManyToManyField, CASCADE)
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeEntity, CremeModel
@@ -321,8 +321,10 @@ class Strategy(AbstractStrategy):
 
 
 class MarketSegmentDescription(CremeModel):
-    strategy  = ForeignKey(settings.COMMERCIAL_STRATEGY_MODEL, related_name='segment_info', editable=False)
-    segment   = ForeignKey(MarketSegment)  # TODO: on_delete=PROTECT
+    strategy  = ForeignKey(settings.COMMERCIAL_STRATEGY_MODEL, related_name='segment_info',
+                           editable=False, on_delete=CASCADE,
+                          )
+    segment   = ForeignKey(MarketSegment, on_delete=CASCADE)  # TODO: PROTECT
     product   = TextField(_(u'Product'), blank=True)
     place     = TextField(pgettext_lazy('commercial-4p', u'Place'), blank=True)
     price     = TextField(_(u'Price'), blank=True)
@@ -360,10 +362,10 @@ class MarketSegmentDescription(CremeModel):
 
 class CommercialAsset(CremeModel):
     name     = CharField(_(u'Name'), max_length=100)
-    strategy = ForeignKey(settings.COMMERCIAL_STRATEGY_MODEL, related_name='assets', editable=False)
+    strategy = ForeignKey(settings.COMMERCIAL_STRATEGY_MODEL, related_name='assets', editable=False, on_delete=CASCADE)
 
-    creation_label = _('Create a commercial asset')
-    save_label     = _('Save the commercial asset')
+    creation_label = _(u'Create a commercial asset')
+    save_label     = _(u'Save the commercial asset')
 
     class Meta:
         app_label = 'commercial'
@@ -382,9 +384,9 @@ class CommercialAsset(CremeModel):
 
 class CommercialAssetScore(CremeModel):
     score        = PositiveSmallIntegerField()
-    segment_desc = ForeignKey(MarketSegmentDescription)
-    asset        = ForeignKey(CommercialAsset)
-    organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL)
+    segment_desc = ForeignKey(MarketSegmentDescription, on_delete=CASCADE)
+    asset        = ForeignKey(CommercialAsset, on_delete=CASCADE)
+    organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL, on_delete=CASCADE)
 
     class Meta:
         app_label = 'commercial'
@@ -396,10 +398,12 @@ class CommercialAssetScore(CremeModel):
 
 class MarketSegmentCharm(CremeModel):
     name     = CharField(_(u'Name'), max_length=100)
-    strategy = ForeignKey(settings.COMMERCIAL_STRATEGY_MODEL, related_name='charms', editable=False)
+    strategy = ForeignKey(settings.COMMERCIAL_STRATEGY_MODEL, related_name='charms',
+                          editable=False, on_delete=CASCADE,
+                         )
 
-    creation_label = _('Create a segment charm')
-    save_label     = _('Save the segment charm')
+    creation_label = _(u'Create a segment charm')
+    save_label     = _(u'Save the segment charm')
 
     class Meta:
         app_label = 'commercial'
@@ -418,9 +422,9 @@ class MarketSegmentCharm(CremeModel):
 
 class MarketSegmentCharmScore(CremeModel):
     score        = PositiveSmallIntegerField()
-    segment_desc = ForeignKey(MarketSegmentDescription)
-    charm        = ForeignKey(MarketSegmentCharm)
-    organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL)
+    segment_desc = ForeignKey(MarketSegmentDescription, on_delete=CASCADE)
+    charm        = ForeignKey(MarketSegmentCharm, on_delete=CASCADE)
+    organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL, on_delete=CASCADE)
 
     class Meta:
         app_label = 'commercial'
@@ -432,9 +436,9 @@ class MarketSegmentCharmScore(CremeModel):
 
 class MarketSegmentCategory(CremeModel):
     category     = PositiveSmallIntegerField()
-    strategy     = ForeignKey(Strategy)
-    segment_desc = ForeignKey(MarketSegmentDescription)
-    organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL)
+    strategy     = ForeignKey(Strategy, on_delete=CASCADE)
+    segment_desc = ForeignKey(MarketSegmentDescription, on_delete=CASCADE)
+    organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL, on_delete=CASCADE)
 
     class Meta:
         app_label = 'commercial'

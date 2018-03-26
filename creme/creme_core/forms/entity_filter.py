@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -149,14 +149,16 @@ class FieldConditionWidget(ChainedInput):  # TODO: rename FieldConditionSelector
             choice_value = {'name': name, 'type': choice_type}
 
             if choice_type in EntityFilterCondition._FIELDTYPES_RELATED:
-                choice_value['ctype'] = ContentType.objects.get_for_model(subfield.rel.to).id
+                # choice_value['ctype'] = ContentType.objects.get_for_model(subfield.rel.to).id
+                choice_value['ctype'] = ContentType.objects.get_for_model(subfield.remote_field.model).id
         else:
             choice_type = FieldConditionWidget.field_choicetype(field)
             choice_label = field.verbose_name
             choice_value = {'name': name, 'type': choice_type}
 
             if choice_type in EntityFilterCondition._FIELDTYPES_RELATED:
-                choice_value['ctype'] = ContentType.objects.get_for_model(field.rel.to).id
+                # choice_value['ctype'] = ContentType.objects.get_for_model(field.rel.to).id
+                choice_value['ctype'] = ContentType.objects.get_for_model(field.remote_field.model).id
 
         return category, (json.dumps(choice_value), choice_label)
 
@@ -179,10 +181,12 @@ class FieldConditionWidget(ChainedInput):  # TODO: rename FieldConditionSelector
         isnull = '__null' if field.null or field.many_to_many else ''
 
         if isinstance(field, ModelRelatedField):
-            if issubclass(field.rel.to, get_user_model()):
+            # if issubclass(field.rel.to, get_user_model()):
+            if issubclass(field.remote_field.model, get_user_model()):
                 return 'user' + isnull
 
-            if not issubclass(field.rel.to, CremeEntity) and field.get_tag('enumerable'):
+            # if not issubclass(field.rel.to, CremeEntity) and field.get_tag('enumerable'):
+            if not issubclass(field.remote_field.model, CremeEntity) and field.get_tag('enumerable'):
                 return 'enum' + isnull
 
             return 'fk' + isnull
@@ -484,7 +488,8 @@ class RegularFieldsConditionsField(_ConditionsField):
 
     def _build_related_fields(self, field, fields, fconfigs):
         fname = field.name
-        related_model = field.rel.to
+        # related_model = field.rel.to
+        related_model = field.remote_field.model
         field_hidden = fconfigs.get_4_model(field.model).is_field_hidden(field)
         excluded = self.excluded_fields
         non_hiddable_fnames = self._non_hiddable_fnames
@@ -556,7 +561,8 @@ class RegularFieldsConditionsField(_ConditionsField):
                 values = u','.join(unicode(value) for value in search_info['values'])
 
             if field_entry['type'] in EntityFilterCondition._FIELDTYPES_RELATED:
-                field_entry['ctype'] = ContentType.objects.get_for_model(field.rel.to).id
+                # field_entry['ctype'] = ContentType.objects.get_for_model(field.rel.to).id
+                field_entry['ctype'] = ContentType.objects.get_for_model(field.remote_field.model).id
 
             dicts.append({'field':    field_entry,
                           'operator': {'id':    operator_id,
@@ -641,7 +647,8 @@ class DateFieldsConditionsField(_ConditionsField):
     # TODO: factorise with RegularFieldsConditionsField
     def _build_related_fields(self, field, fields, fconfigs):
         fname = field.name
-        related_model = field.rel.to
+        # related_model = field.rel.to
+        related_model = field.remote_field.model
         field_hidden = fconfigs.get_4_model(field.model).is_field_hidden(field)
         is_sfield_hidden = fconfigs.get_4_model(related_model).is_field_hidden
         non_hiddable_fnames = self._non_hiddable_fnames

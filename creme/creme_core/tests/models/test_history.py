@@ -824,7 +824,7 @@ about this fantastic animation studio."""
                                             )
         old_count = HistoryLine.objects.count()
         pline = FakeInvoiceLine.objects.create(item='DeathNote', user=user,
-                                               invoice=invoice, quantity=Decimal('1'),
+                                               linked_invoice=invoice, quantity=Decimal('1'),
                                                discount_unit=FAKE_AMOUNT_UNIT,
                                               )
 

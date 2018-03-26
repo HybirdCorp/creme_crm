@@ -195,7 +195,8 @@ class ReportGraphHand(object):
         self.ordinate_error = y_calculator.error
 
     def _listview_url_builder(self):
-        return ListViewURLBuilder(self._graph.model, self._graph.report.filter)
+        # return ListViewURLBuilder(self._graph.model, self._graph.report.filter)
+        return ListViewURLBuilder(self._graph.model, self._graph.linked_report.filter)
 
     def _fetch(self, entities, order):
         #TODO: Python3.3 version: yield from ()
@@ -262,7 +263,8 @@ class _RGHRegularField(ReportGraphHand):
             field = None
             self.abscissa_error = _('the field does not exist any more.')
         else:
-            if graph.report._fields_configs.get_4_model(model).is_field_hidden(field):
+            # if graph.report._fields_configs.get_4_model(model).is_field_hidden(field):
+            if graph.linked_report._fields_configs.get_4_model(model).is_field_hidden(field):
                 self.abscissa_error = _('this field should be hidden.')
 
         self._field = field
@@ -496,7 +498,8 @@ class RGHForeignKey(_RGHRegularField):
         entities_filter = entities.filter
         y_value_func = self._y_calculator
 
-        related_instances = list(entities.model._meta.get_field(abscissa).rel.to.objects.all())
+        # related_instances = list(entities.model._meta.get_field(abscissa).rel.to.objects.all())
+        related_instances = list(entities.model._meta.get_field(abscissa).remote_field.model.objects.all())
         if order == 'DESC':
             related_instances.reverse()
 
@@ -526,7 +529,8 @@ class RGHRelation(ReportGraphHand):
         #       Queryset is not paginated so we can sort the "list") ?
         # TODO: make listview url for this case
         build_url = self._listview_url_builder()
-        relations = Relation.objects.filter(type=self._rtype, subject_entity__entity_type=self._graph.report.ct)
+        # relations = Relation.objects.filter(type=self._rtype, subject_entity__entity_type=self._graph.report.ct)
+        relations = Relation.objects.filter(type=self._rtype, subject_entity__entity_type=self._graph.linked_report.ct)
         rel_filter = relations.filter
         ce_objects_get = CremeEntity.objects.get
         entities_filter = entities.filter
@@ -804,7 +808,8 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
             if isinstance(field, ForeignKey):
                 self.verbose_volatile_column = field.verbose_name
                 self._field_name = field_name
-                self._volatile_model = field.rel.to
+                # self._volatile_model = field.rel.to
+                self._volatile_model = field.remote_field.model
             else:
                 logger.warn('Instance block: field %s.%s in block config is not a FK.',
                             model.__name__, field_name,
@@ -827,7 +832,8 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
 
         field = field_info[0]
 
-        if not (isinstance(field, ForeignKey) and issubclass(field.rel.to, CremeEntity)):
+        # if not (isinstance(field, ForeignKey) and issubclass(field.rel.to, CremeEntity)):
+        if not (isinstance(field, ForeignKey) and issubclass(field.remote_field.model, CremeEntity)):
             return 'field "%s" is not a ForeignKey to CremeEntity' % field_name
 
 

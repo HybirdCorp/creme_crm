@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -326,7 +326,8 @@ class ReportGraphForm(CremeEntityForm):
     def save(self, *args, **kwargs):
         get_data = self.cleaned_data.get
         graph    = self.instance
-        graph.report   = self.report
+        # graph.report   = self.report
+        graph.linked_report   = self.report
         graph.abscissa = get_data('abscissa_field')
         graph.type = get_data('abscissa_group_by')
 

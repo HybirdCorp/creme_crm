@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from itertools import chain
 
 from django.core.urlresolvers import reverse
 from django.db.models import (CharField, TextField, DateTimeField, PositiveIntegerField,
-        ForeignKey, ManyToManyField, PROTECT)
+        ForeignKey, ManyToManyField, PROTECT, CASCADE)
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, Relation
@@ -34,7 +34,10 @@ from .taskstatus import TaskStatus
 
 class AbstractProjectTask(CremeEntity):
     title        = CharField(_(u'Title'), max_length=100)
-    project      = ForeignKey(Project, verbose_name=_(u'Project'), related_name='tasks_set', editable=False)
+    # project = ForeignKey(Project,
+    linked_project = ForeignKey(Project, on_delete=CASCADE,  # TODO: settings.PROJECTS_PROJECT_MODEL ?
+                                verbose_name=_(u'Project'), related_name='tasks_set', editable=False,
+                               )
     order        = PositiveIntegerField(_(u'Order'), blank=True, null=True, editable=False)  # TODO: null = False ?
     parent_tasks = ManyToManyField('self', symmetrical=False,
                                    related_name='children_set', editable=False,  # TODO: rename children ?
@@ -45,8 +48,8 @@ class AbstractProjectTask(CremeEntity):
     description  = TextField(_(u'Description'), blank=True)
     tstatus      = ForeignKey(TaskStatus, verbose_name=_(u'Task situation'), on_delete=PROTECT)
 
-    creation_label = _('Create a task')
-    save_label     = _('Save the task')
+    creation_label = _(u'Create a task')
+    save_label     = _(u'Save the task')
 
     class Meta:
         abstract = True
@@ -73,7 +76,8 @@ class AbstractProjectTask(CremeEntity):
         return reverse('projects__edit_task', args=(self.id,))
 
     def get_related_entity(self):
-        return self.project
+        # return self.project
+        return self.linked_project
 
     def _pre_delete(self):
         for resource in self.get_resources():
@@ -170,13 +174,14 @@ class AbstractProjectTask(CremeEntity):
 
         for task in tasks:
             new_task = task.clone()
-            new_task.project = project
+            # new_task.project = project
+            new_task.linked_project = project
             new_task.save()
             # new_task = task.clone(project) TODO
 
             context[task.id] = {'new_pk':     new_task.id, 
                                 'o_children': project_task_filter(parent_tasks=task.id)
-                                                .values_list('pk', flat=True),
+                                                                 .values_list('pk', flat=True),
                                }
 
         new_links = {values['new_pk']: [context[old_child_id]['new_pk']

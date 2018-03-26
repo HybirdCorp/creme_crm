@@ -37,7 +37,7 @@ Document = get_document_model()
 # def abstract_add_doc_from_widget(request, count=None, form=CSVDocumentWidgetQuickForm,
 def abstract_add_doc_from_widget(request, form=CSVDocumentWidgetQuickForm,
                                  template='creme_core/generics/form/add_innerpopup.html',
-                                 submit_label=_('Save the document'),
+                                 submit_label=_(u'Save the document'),
                                  title=Document.creation_label,
                                 ):
     # if count is not None:
@@ -89,6 +89,6 @@ def add_csv_from_widget(request):
 def add_image(request):
     return abstract_add_doc_from_widget(request,
                                         form=ImageQuickForm,
-                                        submit_label=_('Save the image'),
-                                        title=_('Create an image'),
+                                        submit_label=_(u'Save the image'),
+                                        title=_(u'Create an image'),
                                        )

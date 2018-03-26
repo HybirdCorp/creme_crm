@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, ForeignKey
+from django.db.models import CharField, ForeignKey, CASCADE
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
@@ -43,7 +43,7 @@ class Category(CremeModel):
 class SubCategory(CremeModel):
     name        = CharField(_(u'Name of the sub-category'), max_length=100)
     description = CharField(_(u'Description'), max_length=100)
-    category    = ForeignKey(Category, verbose_name=_(u'Parent category')).set_tags(viewable=False)
+    category    = ForeignKey(Category, verbose_name=_(u'Parent category'), on_delete=CASCADE).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('products-sub_category', u'Create a sub-category')
 

@@ -440,7 +440,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
         civility_field = get_field('civility')
         self.assertTrue(civility_field.get_tag('enumerable'))
-        self.assertFalse(issubclass(civility_field.rel.to, CremeEntity))
+        # self.assertFalse(issubclass(civility_field.rel.to, CremeEntity))
+        self.assertFalse(issubclass(civility_field.remote_field.model, CremeEntity))
         self.assertEqual(field_choicetype(civility_field), 'enum__null')
 
         self.assertEqual(field_choicetype(get_field('birthday')), 'date__null')
@@ -453,7 +454,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
         image_field = get_field('image')
         self.assertTrue(image_field.get_tag('enumerable'))
-        self.assertTrue(issubclass(image_field.rel.to, CremeEntity))
+        # self.assertTrue(issubclass(image_field.rel.to, CremeEntity))
+        self.assertTrue(issubclass(image_field.remote_field.model, CremeEntity))
         self.assertEqual(field_choicetype(image_field), 'fk__null')
 
         self.assertEqual(field_choicetype(get_field('languages')), 'enum__null')
@@ -875,7 +877,7 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
                             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
                            )
 
-        valid_fname = 'invoice__issuing_date'
+        valid_fname = 'linked_invoice__issuing_date'
         FMT = '[{"field": {"name": "%s", "type": "date__null"}, ' \
                 '"range": {"type": "", "start": "2015-3-24", "end": "2015-7-25"}}]'
         clean = DateFieldsConditionsField(model=FakeInvoiceLine).clean
@@ -888,7 +890,7 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
 
         # --------------
         err = self.assertFieldRaises(ValidationError, clean,
-                                     FMT % ('invoice__' + hidden_fname)
+                                     FMT % ('linked_invoice__' + hidden_fname)
                                     )[0]
         self.assertEqual(_(u'This field is not a date field for this model.'),
                          err.messages[0]

@@ -332,7 +332,7 @@ class EntityFiltersTestCase(CremeTestCase):
         build_4_field = partial(EntityFilterCondition.build_4_field,
                                 model=FakeDocument,
                                 operator=EntityFilterCondition.EQUALS,
-                                name='folder'
+                                name='linked_folder',
                                )
 
         # user can link Document on "Folder 01" (owner=user)

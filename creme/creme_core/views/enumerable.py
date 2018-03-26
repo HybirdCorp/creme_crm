@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2015  Hybird
+#    Copyright (C) 2013-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,12 +30,14 @@ from creme.creme_core.models import CustomFieldEnumValue, CustomField, EntityFil
 from creme.creme_core.utils import get_ct_or_404, jsonify
 from creme.creme_core.utils.unicode_collation import collator
 
-from creme.creme_config.registry import config_registry, NotRegisteredInConfig
+# from creme.creme_config.registry import config_registry, NotRegisteredInConfig
 
 
 @login_required
 @jsonify
 def json_list_enumerable(request, ct_id):
+    from creme.creme_config.registry import config_registry, NotRegisteredInConfig
+
     ct = get_ct_or_404(ct_id)
     model = ct.model_class()
 

@@ -82,7 +82,8 @@ class AbstractTemplateBase(Base):
         vstatus = self._verbose_status_cache
 
         if vstatus is None or vstatus.id != self.status_id:
-            status_model = self.ct.model_class()._meta.get_field('status').rel.to 
+            # status_model = self.ct.model_class()._meta.get_field('status').rel.to
+            status_model = self.ct.model_class()._meta.get_field('status').remote_field.model
 
             try:
                 vstatus = status_model.objects.get(id=self.status_id)

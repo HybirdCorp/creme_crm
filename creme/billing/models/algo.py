@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import Model, CharField, ForeignKey, IntegerField
+from django.db.models import Model, CharField, ForeignKey, IntegerField, CASCADE
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeModel
@@ -27,7 +27,7 @@ from creme.creme_core.models.fields import CTypeForeignKey
 
 
 class ConfigBillingAlgo(CremeModel):
-    organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL, verbose_name=_(u'Organisation'))
+    organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL, verbose_name=_(u'Organisation'), on_delete=CASCADE)
     name_algo    = CharField(_(u"Algo name"), max_length=400)
     ct           = CTypeForeignKey()
 
@@ -42,7 +42,7 @@ class ConfigBillingAlgo(CremeModel):
 
 
 class SimpleBillingAlgo(Model):
-    organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL, verbose_name=_(u'Organisation'))
+    organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL, verbose_name=_(u'Organisation'), on_delete=CASCADE)
     last_number  = IntegerField()
     prefix       = CharField(_(u'Invoice prefix'), max_length=400)
     ct           = CTypeForeignKey()

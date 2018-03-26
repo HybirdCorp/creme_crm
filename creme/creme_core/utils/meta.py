@@ -106,14 +106,17 @@ class FieldInfo(object):
 
         for subfield_name in subfield_names[:-1]:
             field = model._meta.get_field(subfield_name)
-            rel = getattr(field, 'rel', None)
+            # rel = getattr(field, 'rel', None)
+            remote_field = getattr(field, 'remote_field', None)
 
-            if rel is None:
+            # if rel is None:
+            if remote_field is None:
                 raise FieldDoesNotExist('"%s" is not a ForeignKey/ManyToManyField,'
                                         ' so it can have a sub-field' % subfield_name
                                        )
 
-            model = rel.to
+            # model = rel.to
+            model = remote_field.model
             fields.append(field)
 
         fields.append(model._meta.get_field(subfield_names[-1]))
@@ -131,7 +134,8 @@ class FieldInfo(object):
 
             if new_fields and idx.start:
                 try:
-                    fi._model = self.__fields[idx.start - 1].rel.to
+                    # fi._model = self.__fields[idx.start - 1].rel.to
+                    fi._model = self.__fields[idx.start - 1].remote_field.model
                 except IndexError:
                     pass
 
@@ -251,7 +255,8 @@ class ModelFieldEnumerator(object):
                     if rem_depth:
                         if include_fk:
                             fields_info.append(field_info)
-                        deeper_fields_args.append((field.rel.to, field_info))
+                        # deeper_fields_args.append((field.rel.to, field_info))
+                        deeper_fields_args.append((field.remote_field.model, field_info))
                     elif include_fk:
                         fields_info.append(field_info)
                 else:

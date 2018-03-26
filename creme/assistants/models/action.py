@@ -20,7 +20,7 @@
 
 from django.core.urlresolvers import reverse
 from django.db.models import (CharField, BooleanField, TextField, DateTimeField,
-        ForeignKey, PositiveIntegerField)
+        ForeignKey, PositiveIntegerField, CASCADE)
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -39,7 +39,7 @@ class Action(CremeModel):
     validation_date     = DateTimeField(_(u'Validation date'), blank=True, null=True, editable=False)
 
     # TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)
-    entity_content_type = ForeignKey(ContentType, related_name="action_entity_set", editable=False)
+    entity_content_type = ForeignKey(ContentType, related_name='action_entity_set', editable=False, on_delete=CASCADE)
     entity_id           = PositiveIntegerField(editable=False).set_tags(viewable=False)
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
 

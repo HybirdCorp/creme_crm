@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models, migrations
-from django.db.models.deletion import PROTECT
+from django.db.models.deletion import CASCADE, PROTECT
 
 from creme.creme_core.models import fields as creme_fields
 
@@ -17,6 +17,7 @@ class Migration(migrations.Migration):
     #     (b'projects', '0013_v1_7__currency'),
     # ]
 
+    initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
         migrations.swappable_dependency(settings.ACTIVITIES_ACTIVITY_MODEL),
@@ -44,7 +45,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Project',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the project')),
                 ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('start_date', models.DateTimeField(null=True, verbose_name='Estimated start', blank=True)),
@@ -85,9 +89,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ProjectTask',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('title', models.CharField(max_length=100, verbose_name='Title')),
-                ('project', models.ForeignKey(related_name='tasks_set', editable=False, to=settings.PROJECTS_PROJECT_MODEL, verbose_name='Project')),
+                ('project', models.ForeignKey(related_name='tasks_set', editable=False, to=settings.PROJECTS_PROJECT_MODEL,
+                                              verbose_name='Project', on_delete=CASCADE,
+                                             )
+                ),
                 ('order', models.PositiveIntegerField(verbose_name='Order', null=True, editable=False, blank=True)),
                 ('parent_tasks', models.ManyToManyField(related_name='children_set', editable=False, to=settings.PROJECTS_TASK_MODEL)),
                 ('start', models.DateTimeField(null=True, verbose_name='Start', blank=True)),
@@ -107,10 +117,13 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Resource',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('hourly_cost', models.PositiveIntegerField(default=0, verbose_name='Hourly cost')),
-                ('linked_contact', models.ForeignKey(editable=False, to=settings.PERSONS_CONTACT_MODEL, verbose_name='Contact')),
-                ('task', models.ForeignKey(related_name='resources_set', editable=False, to='projects.ProjectTask', verbose_name='Task')),
+                ('linked_contact', models.ForeignKey(editable=False, to=settings.PERSONS_CONTACT_MODEL, verbose_name='Contact', on_delete=CASCADE)),
+                ('task', models.ForeignKey(related_name='resources_set', editable=False, to='projects.ProjectTask', verbose_name='Task', on_delete=CASCADE)),
             ],
             options={
                 'verbose_name': 'Resource of project',

@@ -181,7 +181,8 @@ def get_listview_columns_header(context):
                         if field.null or field.many_to_many:
                             choices.append((NULL_FK, _('* is empty *')))
 
-                        choices.extend((o.id, o) for o in field.rel.to.objects.distinct())
+                        # choices.extend((o.id, o) for o in field.rel.to.objects.distinct())
+                        choices.extend((o.id, o) for o in field.remote_field.model.objects.distinct())
 
                     _build_select_search_widget(widget_ctx, search_value, choices)
             elif field.choices:
@@ -242,7 +243,8 @@ def get_listview_columns_header(context):
 #     return u''
 
 
-@register.assignment_tag
+# @register.assignment_tag
+@register.simple_tag
 def ctype_is_registered_for_import(ctype):
     warnings.warn('{% ctype_is_registered_for_import %} is deprecated ; '
                   'use the filter "ctype_can_be_mass_imported" (from lib creme_ctype) instead.',
@@ -254,7 +256,8 @@ def ctype_is_registered_for_import(ctype):
     return import_form_registry.is_registered(ctype)
 
 
-@register.assignment_tag
+# @register.assignment_tag
+@register.simple_tag
 def listview_header_colspan(cells, is_readonly, is_single_select):
     if is_readonly:
         colspan = len(cells)

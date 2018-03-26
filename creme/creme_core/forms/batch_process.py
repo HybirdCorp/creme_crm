@@ -29,7 +29,8 @@ from django.contrib.contenttypes.models import ContentType
 
 from ..core.batch_process import batch_operator_manager, BatchAction
 from ..creme_jobs.batch_process import batch_process_type
-from ..gui import bulk_update_registry
+# from ..gui import bulk_update_registry
+from ..gui.bulk_update import bulk_update_registry
 from ..models import CremeEntity, EntityFilter, Job
 from ..utils.unicode_collation import collator
 from ..utils.url import TemplateURLBuilder

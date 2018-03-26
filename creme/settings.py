@@ -20,9 +20,9 @@ NO_SQL_COMMANDS = ('help', 'version', '--help', '--version', '-h',
                    'build_secret_key',
                   )
 
-ADMINS = (
-    # ('Your Name', 'your_email@domain.com'),
-)
+# ADMINS = [
+#     ('Your Name', 'your_email@domain.com'),
+# ]
 
 from os.path import dirname, join, abspath, exists
 BASE_DIR = dirname(dirname(__file__))
@@ -36,7 +36,7 @@ CREME_ROOT = dirname(abspath(__file__))  # BASE_DIR + '/creme'
 #   - configure your database to use utf8 (eg: with MySQL, 'utf8_general_ci' is OK).
 DATABASES = {
     'default': {
-        'ENGINE':   'django.db.backends.mysql', # 'postgresql_psycopg2', 'mysql', 'sqlite3' ('oracle' backend is not working with creme for now).
+        'ENGINE':   'django.db.backends.mysql', # 'postgresql', 'mysql', 'sqlite3' ('oracle' backend is not working with creme for now).
         'NAME':     'cremecrm',                 # Or path to database file if using sqlite3.
         'USER':     'creme',                    # Not used with sqlite3.
         'PASSWORD': 'creme',                    # Not used with sqlite3.
@@ -93,10 +93,10 @@ AUTH_USER_MODEL = 'creme_core.CremeUser'
 
 USE_TZ = True
 
-LANGUAGES = (
+LANGUAGES = [
   ('en', 'English'),
   ('fr', 'French'),
-)
+]
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
@@ -122,18 +122,18 @@ DATE_FORMAT_VERBOSE = _(u'Format: Day-Month-Year (Ex:31-12-2017)')
 DATE_FORMAT_JS      = {
     DATE_FORMAT: 'dd-mm-yy',
 }
-DATE_FORMAT_JS_SEP = '-' # DATE_FORMAT_JS values separator
-DATE_INPUT_FORMATS = (
+DATE_FORMAT_JS_SEP = '-'  # DATE_FORMAT_JS values separator
+DATE_INPUT_FORMATS = [
     '%d-%m-%Y', '%d/%m/%Y',
     '%Y-%m-%d',  # DO NOT REMOVE ! Needed by the core (eg: to store queries in session)
     '%m/%d/%Y', '%m/%d/%y',  '%b %d %Y',
     '%b %d, %Y', '%d %b %Y', '%d %b, %Y', '%B %d %Y',
     '%B %d, %Y', '%d %B %Y', '%d %B, %Y',
-)
+]
 
 DATETIME_FORMAT         = '%s H:i:s' % DATE_FORMAT
 DATETIME_FORMAT_VERBOSE = _(u'Format: Day-Month-Year Hour:Minute:Second (Ex:31-12-2017 23:59:59)')
-DATETIME_INPUT_FORMATS  = (
+DATETIME_INPUT_FORMATS  = [
     '%d-%m-%Y', '%d/%m/%Y',
     '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M', '%Y-%m-%d',
     '%m/%d/%Y %H:%M:%S', '%m/%d/%Y %H:%M', '%m/%d/%Y',
@@ -142,7 +142,7 @@ DATETIME_INPUT_FORMATS  = (
     '%d-%m-%Y %H:%M',    '%d/%m/%Y %H:%M',
     '%Y-%m-%dT%H:%M:%S.%fZ',  # DO NOT REMOVE ! Needed by the core (eg: to store queries in session) (+for some activesync servers)
     '%Y-%m-%dT%H:%M:%S',  # Needed for infopath
-)
+]
 
 # I18N / L10N [END]#############################################################
 
@@ -225,7 +225,7 @@ TEMPLATES = [
     },
 ]
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE_CLASSES = [
     'creme.creme_core.middleware.exceptions.Ajax500Middleware',  # It must be last middleware that catch all exceptions
     'creme.creme_core.middleware.exceptions.Ajax404Middleware',
     'creme.creme_core.middleware.exceptions.Beautiful403Middleware',
@@ -243,9 +243,9 @@ MIDDLEWARE_CLASSES = (
 
     'creme.creme_core.middleware.global_info.GlobalInfoMiddleware',  # After AuthenticationMiddleware
     'creme.creme_core.middleware.timezone.TimezoneMiddleware',
-)
+]
 
-INSTALLED_DJANGO_APPS = (
+INSTALLED_DJANGO_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.auth',
     'django.contrib.sessions',
@@ -254,9 +254,9 @@ INSTALLED_DJANGO_APPS = (
     # EXTERNAL APPS
     'formtools',
     'creme.creme_core.apps.MediaGeneratorConfig',  # It manages js/css/images
-)
+]
 
-INSTALLED_CREME_APPS = (
+INSTALLED_CREME_APPS = [
     # CREME CORE APPS
     'creme.creme_core',
     'creme.creme_config',
@@ -285,13 +285,13 @@ INSTALLED_CREME_APPS = (
     # 'creme.polls',  # Need 'commercial'
     # 'creme.mobile',
     'creme.geolocation',
-)
+]
 
 
-ALLOWED_IMAGES_EXTENSIONS = (
+ALLOWED_IMAGES_EXTENSIONS = [
     'gif', 'png', 'jpeg', 'jpg', 'jpe', 'bmp', 'psd', 'tif', 'tiff', 'tga', 'svg',
-)
-ALLOWED_EXTENSIONS = (
+]
+ALLOWED_EXTENSIONS = [
     'pdf', 'rtf', 'xps', 'eml',
     'psd',
     'gtar', 'gz', 'tar', 'zip', 'rar', 'ace', 'torrent', 'tgz', 'bz2',
@@ -301,18 +301,18 @@ ALLOWED_EXTENSIONS = (
     'odp', 'ods', 'odt', 'rtf', 'rm', 'ram', 'wma', 'wmv', 'swf', 'mov',
     'm4v', 'm4a', 'mp4', '3gp', '3g2', 'qt', 'avi', 'mpeg', 'mpg', 'mp3',
     'ogg', 'ogm',
-) + ALLOWED_IMAGES_EXTENSIONS
+] + ALLOWED_IMAGES_EXTENSIONS
 
-IMPORT_BACKENDS = (
+IMPORT_BACKENDS = [
     'creme.creme_core.backends.csv_import.CSVImportBackend',
     'creme.creme_core.backends.xls_import.XLSImportBackend',  # You need to install xlwt and xlrd
     'creme.creme_core.backends.xls_import.XLSXImportBackend',  # You need to install xlwt and xlrd
-)
-EXPORT_BACKENDS = (
+]
+EXPORT_BACKENDS = [
     'creme.creme_core.backends.csv_export.CSVExportBackend',
     'creme.creme_core.backends.csv_export.SemiCSVExportBackend',
     'creme.creme_core.backends.xls_export.XLSExportBackend',  # You need to install xlwt and xlrd
-)
+]
 
 # EMAILS [internal] ############################################################
 
@@ -441,13 +441,14 @@ DEV_MEDIA_URL = '/devmedia/'
 PRODUCTION_MEDIA_URL = '/static_media/'
 
 GENERATED_MEDIA_DIR = join(MEDIA_ROOT, 'static')
-GLOBAL_MEDIA_DIRS = (join(dirname(__file__), 'static'),)
+GLOBAL_MEDIA_DIRS = [join(dirname(__file__), 'static')]
 
 # Available themes. A theme is represented by (theme_dir, theme verbose name)
 # First theme is the default one.
-THEMES = [('icecream',  _('Ice cream')),
-          ('chantilly', _('Chantilly')),
-         ]
+THEMES = [
+    ('icecream',  _('Ice cream')),
+    ('chantilly', _('Chantilly')),
+]
 # DEFAULT_THEME = 'icecream'
 
 CSS_DEFAULT_LISTVIEW = 'left_align'
@@ -457,7 +458,7 @@ CSS_DEFAULT_HEADER_LISTVIEW = 'hd_cl_lv'
 CSS_DATE_HEADER_LISTVIEW = 'hd_date_cl_lv'
 
 # TODO: create a static/css/creme-minimal.css for login/logout ??
-CREME_CORE_CSS = ('main.css',
+CREME_CORE_CSS = ['main.css',
                     'creme_core/css/jquery-css/creme-theme/jquery-ui-1.11.4.custom.css',
                     'creme_core/css/fg-menu-3.0/fg.menu.css',
                     'creme_core/css/jqplot-1.0.8/jquery.jqplot.css',
@@ -481,9 +482,9 @@ CREME_CORE_CSS = ('main.css',
                     'creme_core/css/popover.css',
 
                     'creme_config/css/creme_config.css',
-                 )
+                 ]
 
-CREME_OPT_CSS = (  # APPS
+CREME_OPT_CSS = [  # APPS
      ('creme.persons',          'persons/css/persons.css'),
 
      ('creme.activities',       'activities/css/activities.css'),
@@ -502,15 +503,15 @@ CREME_OPT_CSS = (  # APPS
      ('creme.tickets',          'tickets/css/tickets.css'),
      ('creme.mobile',           'mobile/css/mobile.css'),
      ('creme.cti',              'cti/css/cti.css'),
-)
+]
 
-CREME_I18N_JS = ('l10n.js',
+CREME_I18N_JS = ['l10n.js',
                     {'filter': 'mediagenerator.filters.i18n.I18N'},  # To build the i18n catalog statically.
                     # 'creme_core/js/datejs/date-en-US.js', # TODO improve
                     'creme_core/js/datejs/date-fr-FR.js',
-                )
+                ]
 
-CREME_LIB_JS = ('lib.js',
+CREME_LIB_JS = ['lib.js',
                     {'filter': 'mediagenerator.filters.media_url.MediaURL'},  # To get the media_url() function in JS.
                     'creme_core/js/media.js',
                     'creme_core/js/jquery/jquery-1.11.2.js',
@@ -551,9 +552,9 @@ CREME_LIB_JS = ('lib.js',
                     'creme_core/js/jquery/extensions/jquery.floatthead-1.3.1._.js',
                     'creme_core/js/jquery/extensions/jquery.floatthead-1.3.1.js',
                     'creme_core/js/lib/jquery.navIt.0.0.6.js',
-                )
+                ]
 
-CREME_CORE_JS = ('main.js',
+CREME_CORE_JS = ['main.js',
                     'creme_core/js/lib/fallbacks/object-0.1.js',
                     'creme_core/js/lib/fallbacks/array-0.9.js',
                     'creme_core/js/lib/fallbacks/string-0.1.js',
@@ -646,13 +647,13 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/merge.js',
                     'creme_core/js/relations.js',
                     'creme_core/js/jobs.js',
-                )
+                ]
 
-CREME_OPTLIB_JS = (
+CREME_OPTLIB_JS = [
     ('creme.activities', 'activities/js/jquery/extensions/fullcalendar-1.6.7.js'),
-)
+]
 
-CREME_OPT_JS = (  # OPTIONAL APPS
+CREME_OPT_JS = [  # OPTIONAL APPS
     ('creme.persons',       'persons/js/persons.js'),
 
     # ('creme.assistants',    'assistants/js/assistants.js'),   TODO: remove in 2.0
@@ -677,14 +678,14 @@ CREME_OPT_JS = (  # OPTIONAL APPS
 
     ('creme.geolocation',   'geolocation/js/geolocation.js'),
     ('creme.geolocation',   'geolocation/js/brick.js'),
-)
+]
 
-TEST_CREME_LIB_JS = ('testlib.js',
+TEST_CREME_LIB_JS = ['testlib.js',
                         'creme_core/js/tests/qunit/qunit-1.18.0.js',
                         'creme_core/js/tests/qunit/qunit-mixin.js',
-                   )
+                    ]
 
-TEST_CREME_CORE_JS = ('testcore.js',
+TEST_CREME_CORE_JS = ['testcore.js',
                         'creme_core/js/tests/component/qunit-event-mixin.js',
                         'creme_core/js/tests/component/component.js',
                         'creme_core/js/tests/component/events.js',
@@ -745,15 +746,15 @@ TEST_CREME_CORE_JS = ('testcore.js',
                         'creme_core/js/tests/brick/brick-menu.js',
                         'creme_core/js/tests/brick/brick-table.js',
                         'creme_core/js/tests/brick/dependencies.js',
-                    )
+                    ]
 
-TEST_CREME_OPT_JS = (
+TEST_CREME_OPT_JS = [
 #   ('creme.my_app',       'my_app/js/tests/my_app.js'),
-)
+]
 
 # Optional js/css bundles for extending projects.
 # Beware to clashes with existing bundles ('main.js', 'l10n.js').
-CREME_OPT_MEDIA_BUNDLES = ()
+CREME_OPT_MEDIA_BUNDLES = []
 
 ROOT_MEDIA_FILTERS = {
     'js':  'mediagenerator.filters.yuicompressor.YUICompressor',
@@ -764,10 +765,10 @@ ROOT_MEDIA_FILTERS = {
 YUICOMPRESSOR_PATH = join(dirname(__file__), 'static', 'utils', 'yui', 'yuicompressor-2.4.2.jar')
 # CLOSURE_COMPILER_PATH = join(dirname(__file__), 'closure.jar')
 
-COPY_MEDIA_FILETYPES = (
+COPY_MEDIA_FILETYPES = {
     'gif', 'jpg', 'jpeg', 'png', 'ico', 'cur',  # Images
     'woff', 'ttf', 'eot',  # Fonts
-)
+}
 
 # MEDIA GENERATOR & THEME SETTINGS [END] #######################################
 
@@ -1043,9 +1044,9 @@ NON_MOBILE_SITE_DOMAIN = ''
 # GEOLOCATION ------------------------------------------------------------------
 # Files containing towns with their location.
 # It can be an URL or a local file ; zip files are also supported.
-GEOLOCATION_TOWNS = (
+GEOLOCATION_TOWNS = [
     (join(CREME_ROOT, 'geolocation/data/towns.france.csv.zip'), {'country': 'France'}),
-)
+]
 
 
 # APPS CONFIGURATION [END]######################################################

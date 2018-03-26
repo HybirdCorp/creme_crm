@@ -553,8 +553,10 @@ def sql_delete(app_config, style, connection, close_connection=True):
                 # The table exists, so it needs to be dropped
                 opts = model._meta
                 for f in opts.local_fields:
-                    if f.rel and f.rel.to not in to_delete:
-                        references_to_delete.setdefault(f.rel.to, []).append((model, f))
+                    # if f.rel and f.rel.to not in to_delete:
+                    if f.remote_field and f.remote_field.model not in to_delete:
+                        # references_to_delete.setdefault(f.rel.to, []).append((model, f))
+                        references_to_delete.setdefault(f.remote_field.model, []).append((model, f))
 
                 to_delete.add(model)
 
@@ -612,8 +614,10 @@ def sql_delete_V2(app_config, style, connection):
                 dependencies = []
 
                 for f in meta.local_fields:
-                    if f.rel:
-                        related_model = f.rel.to
+                    # if f.rel:
+                    if f.remote_field:
+                        # related_model = f.rel.to
+                        related_model = f.remote_field.model
 
                         if related_model in app_models:
                             dependencies.append(related_model)

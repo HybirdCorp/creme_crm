@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.core.urlresolvers import reverse
-from django.db.models import CharField, ForeignKey
+from django.db.models import CharField, ForeignKey, CASCADE
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.models import CremeModel, CremePropertyType
@@ -27,7 +27,8 @@ from creme.creme_core.models import CremeModel, CremePropertyType
 
 class MarketSegment(CremeModel):
     name          = CharField(_(u'Name'), max_length=100)  # TODO: unique ?
-    property_type = ForeignKey(CremePropertyType, null=True, editable=False).set_tags(viewable=False)
+    property_type = ForeignKey(CremePropertyType, null=True, editable=False, on_delete=CASCADE)\
+                              .set_tags(viewable=False)
 
     creation_label = _(u'Create a market segment')
     save_label     = _(u'Save the market segment')

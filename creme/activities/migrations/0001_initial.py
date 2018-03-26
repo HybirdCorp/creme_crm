@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models, migrations
-from django.db.models.deletion import PROTECT, SET_NULL
+from django.db.models.deletion import PROTECT, SET_NULL, CASCADE
 
 from creme.creme_core.models import fields as creme_fields
 
@@ -18,6 +18,7 @@ class Migration(migrations.Migration):
     #     (b'activities', '0010_v1_7__colorfield'),
     # ]
 
+    initial = True
     dependencies = [
         ('auth', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
@@ -47,7 +48,7 @@ class Migration(migrations.Migration):
                 ('id', models.CharField(max_length=100, serialize=False, editable=False, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
-                ('type', models.ForeignKey(verbose_name='Type of activity', to='activities.ActivityType')),
+                ('type', models.ForeignKey(verbose_name='Type of activity', to='activities.ActivityType', on_delete=CASCADE)),
             ],
             options={
                 'ordering': ('name',),
@@ -93,7 +94,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Activity',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('title', models.CharField(max_length=100, verbose_name='Title')),
                 ('start', models.DateTimeField(null=True, verbose_name='Start', blank=True)),
                 ('end', models.DateTimeField(null=True, verbose_name='End', blank=True)),

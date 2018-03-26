@@ -232,7 +232,8 @@ class EntityCellRegularField(EntityCell):
                 sortable = False
             else:
                 pattern = '%s__header_filter_search_field__icontains' \
-                          if issubclass(field.rel.to, CremeEntity) else '%s'  # TODO '%s__exact' ?
+                          if issubclass(field.remote_field.model, CremeEntity) else '%s'  # TODO '%s__exact' ?
+                          # if issubclass(field.rel.to, CremeEntity) else '%s'  # TODO '%s__exact' ?
 
         if any(f.many_to_many or f.one_to_many for f in field_info):
             sortable = False

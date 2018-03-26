@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ import logging
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.db.models import TextField, ForeignKey, BooleanField, Q, FieldDoesNotExist
+from django.db.models import TextField, ForeignKey, BooleanField, Q, FieldDoesNotExist, CASCADE
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from ..utils import find_first
@@ -58,7 +58,7 @@ class SearchField(object):
 
 class SearchConfigItem(CremeModel):
     content_type = EntityCTypeForeignKey(verbose_name=_(u'Related resource'))
-    role         = ForeignKey(UserRole, verbose_name=_(u'Related role'), null=True, default=None)
+    role         = ForeignKey(UserRole, verbose_name=_(u'Related role'), null=True, default=None, on_delete=CASCADE)
     # TODO: a UserRole for superusers instead ??
     superuser    = BooleanField(u'related to superusers', default=False, editable=False)
     disabled     = BooleanField(pgettext_lazy('creme_core-search_conf', u'Disabled?'), default=False)

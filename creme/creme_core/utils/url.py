@@ -94,11 +94,9 @@ class TemplateURLBuilder(object):
                                     for ph_key, ph_value in place_holders.iteritems()
                               ]
 
-    # def resolve(self, viewname, urlconf=None, kwargs=None, prefix=None, current_app=None):
     def resolve(self, viewname, urlconf=None, kwargs=None, current_app=None):
         """This method works like django.core.urlresolvers.reverse(), excepted that:
         - It has no 'args' parameter ; you have to use the 'kwargs' one.
-        - It has no 'prefix' parameter because it will disappear in Django1.9 (so we avoid an API breaking).
         - The returned URL is not a valid URL (if you have passed some place_holders to the constructor, of course).
         """
         kwargs = kwargs or {}
@@ -116,7 +114,6 @@ class TemplateURLBuilder(object):
 
                 reverse_kwargs.update(kwargs)
 
-                # url = reverse(viewname, kwargs=reverse_kwargs, urlconf=urlconf, prefix=prefix, current_app=current_app)
                 url = reverse(viewname, kwargs=reverse_kwargs, urlconf=urlconf, current_app=current_app)
                 tried_urls.append(url)
 

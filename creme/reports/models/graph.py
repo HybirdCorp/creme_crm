@@ -22,7 +22,7 @@ import logging
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.db.models import PositiveIntegerField, CharField, BooleanField, ForeignKey
+from django.db.models import PositiveIntegerField, CharField, BooleanField, ForeignKey, CASCADE
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy, ugettext
 
 from creme.creme_core.models import CremeEntity, InstanceBlockConfigItem
@@ -35,7 +35,8 @@ logger = logging.getLogger(__name__)
 
 class AbstractReportGraph(CremeEntity):
     name     = CharField(pgettext_lazy('reports-graphs', u'Name of the graph'), max_length=100)
-    report   = ForeignKey(settings.REPORTS_REPORT_MODEL, editable=False)
+    # report   = ForeignKey(settings.REPORTS_REPORT_MODEL, editable=False)
+    linked_report = ForeignKey(settings.REPORTS_REPORT_MODEL, editable=False, on_delete=CASCADE)
     abscissa = CharField(_(u'X axis'), max_length=100, editable=False)
     ordinate = CharField(_(u'Y axis'), max_length=100, editable=False)
     type     = PositiveIntegerField(_(u'Grouping'), editable=False, choices=GROUP_TYPES.items())
@@ -62,11 +63,13 @@ class AbstractReportGraph(CremeEntity):
         return reverse('reports__view_graph', args=(self.id,))
 
     def get_related_entity(self):
-        return self.report
+        # return self.report
+        return self.linked_report
 
     def fetch(self, extra_q=None, order='ASC'):
         assert order == 'ASC' or order == 'DESC'
-        report = self.report
+        # report = self.report
+        report = self.linked_report
         entities = report.ct.model_class().objects.filter(is_deleted=False)
 
         if report.filter is not None:
@@ -163,7 +166,8 @@ class AbstractReportGraph(CremeEntity):
 
     @property
     def model(self):
-        return self.report.ct.model_class()
+        # return self.report.ct.model_class()
+        return self.linked_report.ct.model_class()
 
 
 class ReportGraph(AbstractReportGraph):

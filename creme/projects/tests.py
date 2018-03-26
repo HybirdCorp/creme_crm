@@ -168,7 +168,8 @@ class ProjectsTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
 
-        return self.get_object_or_fail(ProjectTask, project=project, title=title)
+        # return self.get_object_or_fail(ProjectTask, project=project, title=title)
+        return self.get_object_or_fail(ProjectTask, linked_project=project, title=title)
 
     def test_project_createview01(self):
         user = self.login()
@@ -320,7 +321,7 @@ class ProjectsTestCase(CremeTestCase):
         response = post(duration_1)
         self.assertNoFormError(response)
 
-        tasks = ProjectTask.objects.filter(project=project)
+        tasks = ProjectTask.objects.filter(linked_project=project)
         self.assertEqual(1, tasks.count())
 
         task1 = tasks[0]
@@ -341,7 +342,7 @@ class ProjectsTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
 
-        tasks = ProjectTask.objects.filter(project=project)
+        tasks = ProjectTask.objects.filter(linked_project=project)
         self.assertEqual(2, tasks.count())
 
         tasks2 = [t for t in tasks if t.id != task1.id]
@@ -949,7 +950,8 @@ class ProjectsTestCase(CremeTestCase):
 
     def _create_parented_task(self, title, project, parents=None):
         status = TaskStatus.objects.get_or_create(name='status', description="")[0]
-        task = ProjectTask.objects.create(project=project, order=0, duration=0,
+        task = ProjectTask.objects.create(linked_project=project,
+                                          order=0, duration=0,
                                           tstatus=status, title=title,
                                           user=self.user,
                                          )

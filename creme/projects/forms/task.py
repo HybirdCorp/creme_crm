@@ -79,14 +79,16 @@ class TaskCreateForm(_TaskForm):
         self._project = entity
 
         fields = self.fields
-        fields['parent_tasks'].q_filter = {'project': entity.id}
+        # fields['parent_tasks'].q_filter = {'project': entity.id}
+        fields['parent_tasks'].q_filter = {'linked_project': entity.id}
 
     def save(self, *args, **kwargs):
         instance = self.instance
         project  = self._project
 
-        instance.project = project
-        instance.order   = project.attribute_order_task()
+        # instance.project = project
+        instance.linked_project = project
+        instance.order = project.attribute_order_task()
 
         super(TaskCreateForm, self).save(*args, **kwargs)
 
@@ -102,10 +104,12 @@ class TaskAddParentForm(CremeForm):
     def __init__(self, instance, *args, **kwargs):
         super(TaskAddParentForm, self).__init__(*args, **kwargs)
         self.task = instance
-        self.fields['parents'].q_filter = {'project':       instance.project_id,
-                                           '~id__in':       [t.id for t in instance.get_subtasks()],
-                                           '~children_set': instance.pk,
-                                          }
+        self.fields['parents'].q_filter = {
+            # 'project':       instance.project_id,
+            'linked_project': instance.linked_project_id,
+            '~id__in':        [t.id for t in instance.get_subtasks()],
+            '~children_set':  instance.pk,
+        }
 
     def save(self, *args, **kwargs):
         add_parent = self.task.parent_tasks.add
@@ -224,7 +228,8 @@ class RelatedActivityCreateForm(RelatedActivityEditForm):
     def save(self, *args, **kwargs):
         instance = self.instance
         task = self._task
-        p_name, t_name = ellipsis_multi((task.project.name, task.title),
+        # p_name, t_name = ellipsis_multi((task.project.name, task.title),
+        p_name, t_name = ellipsis_multi((task.linked_project.name, task.title),
                                         # 9 is the length of ' -  - XYZ' (ie: the 'empty' format string)
                                         Activity._meta.get_field('title').max_length - 9
                                        )

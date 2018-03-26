@@ -82,7 +82,8 @@ _HISTORY_TYPE_ICONS = {
 }
 
 
-@register.assignment_tag
+# @register.assignment_tag
+@register.simple_tag
 def activesync_history_type_icon_name(history_type):
     return _HISTORY_TYPE_ICONS.get(history_type, '')
 
@@ -104,6 +105,7 @@ _HISTORY_WHERE_ICONS = {
 }
 
 
-@register.assignment_tag
+# @register.assignment_tag
+@register.simple_tag
 def activesync_history_where_icon_name(history_where):
     return _HISTORY_WHERE_ICONS.get(history_where, '')

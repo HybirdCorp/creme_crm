@@ -5,7 +5,7 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.db import models, migrations
-from django.db.models.deletion import SET_NULL, PROTECT
+from django.db.models.deletion import SET_NULL, PROTECT, CASCADE
 
 import creme.creme_core.models.fields
 
@@ -21,6 +21,7 @@ class Migration(migrations.Migration):
     #     (b'billing', '0015_v1_7__textfields_not_null_2'),
     # ]
 
+    initial = True
     dependencies = [
         ('contenttypes', '0001_initial'),
         ('creme_core', '0001_initial'),
@@ -57,7 +58,11 @@ class Migration(migrations.Migration):
                 ('iban', models.CharField(max_length=100, verbose_name='IBAN', blank=True)),
                 ('bic', models.CharField(max_length=100, verbose_name='BIC', blank=True)),
                 ('is_default', models.BooleanField(default=False, verbose_name='Is default?')),
-                ('organisation', models.ForeignKey(related_name='PaymentInformationOrganisation_set', verbose_name='Target organisation', to=settings.PERSONS_ORGANISATION_MODEL)),
+                ('organisation', models.ForeignKey(to=settings.PERSONS_ORGANISATION_MODEL, on_delete=CASCADE,
+                                                   related_name='PaymentInformationOrganisation_set',
+                                                   verbose_name='Target organisation',
+                                                  )
+                ),
             ],
             options={
                 'ordering': ('name',),
@@ -87,7 +92,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name_algo', models.CharField(max_length=400, verbose_name='Algo name')),
                 ('ct', creme.creme_core.models.fields.CTypeForeignKey(to='contenttypes.ContentType')),
-                ('organisation', models.ForeignKey(verbose_name='Organisation', to=settings.PERSONS_ORGANISATION_MODEL)),
+                ('organisation', models.ForeignKey(verbose_name='Organisation', to=settings.PERSONS_ORGANISATION_MODEL, on_delete=CASCADE)),
             ],
             options={
             },
@@ -112,7 +117,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CreditNote',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('number', models.CharField(max_length=100, verbose_name='Number', blank=True)),
                 ('issuing_date', models.DateField(null=True, verbose_name='Issuing date', blank=True)),
@@ -171,7 +179,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Invoice',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('number', models.CharField(max_length=100, verbose_name='Number', blank=True)),
                 ('issuing_date', models.DateField(null=True, verbose_name='Issuing date', blank=True)),
@@ -218,7 +229,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Quote',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('number', models.CharField(max_length=100, verbose_name='Number', blank=True)),
                 ('issuing_date', models.DateField(null=True, verbose_name='Issuing date', blank=True)),
@@ -264,7 +278,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='SalesOrder',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('number', models.CharField(max_length=100, verbose_name='Number', blank=True)),
                 ('issuing_date', models.DateField(null=True, verbose_name='Issuing date', blank=True)),
@@ -297,7 +314,7 @@ class Migration(migrations.Migration):
                 ('last_number', models.IntegerField()),
                 ('prefix', models.CharField(max_length=400, verbose_name='Invoice prefix')),
                 ('ct', creme.creme_core.models.fields.CTypeForeignKey(to='contenttypes.ContentType')),
-                ('organisation', models.ForeignKey(verbose_name='Organisation', to=settings.PERSONS_ORGANISATION_MODEL)),
+                ('organisation', models.ForeignKey(verbose_name='Organisation', to=settings.PERSONS_ORGANISATION_MODEL, on_delete=CASCADE)),
             ],
             options={
                 'unique_together': {('organisation', 'last_number', 'ct')},
@@ -307,7 +324,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='TemplateBase',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('number', models.CharField(max_length=100, verbose_name='Number', blank=True)),
                 ('issuing_date', models.DateField(null=True, verbose_name='Issuing date', blank=True)),
@@ -337,7 +357,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ProductLine',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('on_the_fly_item', models.CharField(max_length=100, null=True, verbose_name='On-the-fly line')),
                 ('comment', models.TextField(verbose_name='Comment', blank=True)),
                 ('quantity', models.DecimalField(default=Decimal('1.00'), verbose_name='Quantity', max_digits=10, decimal_places=2)),
@@ -363,7 +386,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ServiceLine',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('on_the_fly_item', models.CharField(max_length=100, null=True, verbose_name='On-the-fly line')),
                 ('comment', models.TextField(verbose_name='Comment', blank=True)),
                 ('quantity', models.DecimalField(default=Decimal('1.00'), verbose_name='Quantity', max_digits=10, decimal_places=2)),

@@ -27,6 +27,7 @@ register = Library()
 def phonenumber(value):
     return ''.join(c for c in value if c.isdigit())
 
+
 @register.filter(name="formatphone")
 def formatphone(value):
     if not value:

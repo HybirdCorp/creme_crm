@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models, migrations
-from django.db.models.deletion import PROTECT
+from django.db.models.deletion import PROTECT, CASCADE
 
 from creme.documents.models.fields import ImageEntityManyToManyField
 
@@ -19,6 +19,7 @@ class Migration(migrations.Migration):
     #     (b'products', '0008_v1_7__image_to_doc_4'),
     # ]
 
+    initial = True
     dependencies = [
         # ('media_managers', '0001_initial'),
         # ('documents', '0001_initial'),
@@ -47,7 +48,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the sub-category')),
                 ('description', models.CharField(max_length=100, verbose_name='Description')),
-                ('category', models.ForeignKey(verbose_name='Parent category', to='products.Category')),
+                ('category', models.ForeignKey(verbose_name='Parent category', to='products.Category', on_delete=CASCADE)),
             ],
             options={
                 'ordering': ('name',),
@@ -59,7 +60,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Product',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('code', models.IntegerField(default=0, verbose_name='Code')),
                 ('description', models.CharField(max_length=200, verbose_name='Description')),
@@ -85,7 +89,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Service',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('description', models.CharField(max_length=200, verbose_name='Description')),
                 ('reference', models.CharField(max_length=100, verbose_name='Reference')),

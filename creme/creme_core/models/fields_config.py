@@ -93,7 +93,8 @@ class FieldsConfig(CremeModel):
             if len(field_info) > 1:
                 assert len(field_info) == 2  # TODO: manage deeper fields + unit tests
 
-                if self.get_4_model(field_info[0].rel.to).is_field_hidden(field_info[1]):
+                # if self.get_4_model(field_info[0].rel.to).is_field_hidden(field_info[1]):
+                if self.get_4_model(field_info[0].remote_field.model).is_field_hidden(field_info[1]):
                     return True
 
             return False

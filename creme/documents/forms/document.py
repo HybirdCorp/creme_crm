@@ -83,7 +83,8 @@ _TITLE_MAX_LEN = Folder._meta.get_field('title').max_length
 
 class RelatedDocumentCreateForm(_DocumentBaseForm):
     class Meta(_DocumentBaseForm.Meta):
-        exclude = _DocumentBaseForm.Meta.exclude + ('folder', )
+        # exclude = _DocumentBaseForm.Meta.exclude + ('folder', )
+        exclude = _DocumentBaseForm.Meta.exclude + ('linked_folder', )
 
     def __init__(self, *args, **kwargs):
         super(RelatedDocumentCreateForm, self).__init__(*args, **kwargs)
@@ -126,7 +127,8 @@ class RelatedDocumentCreateForm(_DocumentBaseForm):
                             category=category,
                             defaults={'user': user},
         )[0]
-        instance.folder = get_or_create_folder(
+        # instance.folder = get_or_create_folder(
+        instance.linked_folder = get_or_create_folder(
                             title=ellipsis(u'%s_%s' % (entity.id, unicode(entity)), _TITLE_MAX_LEN),  # Meh
                             parent_folder=model_folder,
                             category=category,

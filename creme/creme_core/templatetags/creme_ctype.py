@@ -33,7 +33,8 @@ register = Library()
 
 
 # NB: not used, but here for API completeness
-@register.assignment_tag
+# @register.assignment_tag
+@register.simple_tag
 def ctype_for_naturalkey(app_label, model):
     """Returns a instance of ContentType for the natural key of a model.
 
@@ -47,7 +48,8 @@ def ctype_for_naturalkey(app_label, model):
     return ContentType.objects.get_by_natural_key(app_label=app_label, model=model)
 
 
-@register.assignment_tag
+# @register.assignment_tag
+@register.simple_tag
 def ctype_for_swappable(model_setting):
     """Returns a instance of ContentType for a swappable model.
 
@@ -66,8 +68,8 @@ def ctype_for_swappable(model_setting):
 #     return get_model_verbose_name(model, count)
 
 
-# TODO: make 'as foobar' optional ?
-@register.assignment_tag
+# @register.assignment_tag
+@register.simple_tag
 def ctype_counted_instances_label(ctype, count):
     """ Return a localized string, in order to display label like '1 Contact' or '3 Organisations'.
 

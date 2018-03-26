@@ -402,7 +402,8 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
         title = 'Boring title'
         doc = self._create_doc(title, folder=folder)
-        self.assertEqual(folder, doc.folder)
+        # self.assertEqual(folder, doc.folder)
+        self.assertEqual(folder, doc.linked_folder)
 
         folder.trash()
 

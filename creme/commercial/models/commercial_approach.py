@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import CharField, BooleanField, TextField, PositiveIntegerField, ForeignKey
+from django.db.models import CharField, BooleanField, TextField, PositiveIntegerField, ForeignKey, CASCADE
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeModel
@@ -34,10 +34,10 @@ class CommercialApproach(CremeModel):
     description    = TextField(_(u'Description'), blank=True)
     creation_date  = CreationDateTimeField(_(u'Creation date'), editable=False)
 
-    related_activity = ForeignKey(settings.ACTIVITIES_ACTIVITY_MODEL, null=True, editable=False)
+    related_activity = ForeignKey(settings.ACTIVITIES_ACTIVITY_MODEL, null=True, editable=False, on_delete=CASCADE)
 
     # TODO: use real ForeignKey to CremeEntity ( + remove the signal handlers)
-    entity_content_type = ForeignKey(ContentType, related_name="comapp_entity_set", editable=False)
+    entity_content_type = ForeignKey(ContentType, related_name="comapp_entity_set", editable=False, on_delete=CASCADE)
     entity_id           = PositiveIntegerField(editable=False)  # .set_tags(viewable=False) uncomment if it becomes an auxiliary (get_related_entity())
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
 

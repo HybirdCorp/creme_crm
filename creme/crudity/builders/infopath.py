@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -192,7 +192,8 @@ class InfopathFormField(object):
             template_name = "crudity/infopath/create_template/frags/editing/file_field.xml"
 
         elif isinstance(model_field, models.ImageField) or \
-            (isinstance(model_field, models.ForeignKey) and issubclass(model_field.rel.to, Document)):
+            (isinstance(model_field, models.ForeignKey) and issubclass(model_field.remote_field.model, Document)):
+            # (isinstance(model_field, models.ForeignKey) and issubclass(model_field.rel.to, Document)):
             tpl_dict.update({'allowed_file_types': settings.ALLOWED_IMAGES_EXTENSIONS})
             template_name = "crudity/infopath/create_template/frags/editing/file_field.xml"
 
@@ -218,7 +219,8 @@ class InfopathFormField(object):
 
         if isinstance(self.model_field, (models.ForeignKey, models.ManyToManyField)):
             choices = [(entity.pk, unicode(entity))
-                            for entity in self.model_field.rel.to._default_manager.all()
+                            # for entity in self.model_field.rel.to._default_manager.all()
+                            for entity in self.model_field.remote_field.model._default_manager.all()
                       ]
 
         return choices
@@ -233,7 +235,8 @@ class InfopathFormField(object):
         model_field = self.model_field
         return issubclass(model_field.__class__, models.FileField) \
                or (isinstance(model_field, models.ForeignKey) and
-                   issubclass(model_field.rel.to, Document)
+                   # issubclass(model_field.rel.to, Document)
+                   issubclass(model_field.remote_field.model, Document)
                   )
 
     @property

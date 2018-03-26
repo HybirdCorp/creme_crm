@@ -37,9 +37,10 @@ class AbstractDocument(CremeEntity):
     title       = CharField(_(u'Name'), max_length=100)
     description = TextField(_(u'Description'), blank=True).set_tags(optional=True)
     filedata    = FileField(_(u'File'), max_length=500, upload_to='upload/documents')
-    folder      = ForeignKey(settings.DOCUMENTS_FOLDER_MODEL,
-                             verbose_name=_(u'Folder'), on_delete=PROTECT,
-                            )
+    # folder      = ForeignKey(settings.DOCUMENTS_FOLDER_MODEL,
+    linked_folder = ForeignKey(settings.DOCUMENTS_FOLDER_MODEL,
+                               verbose_name=_(u'Folder'), on_delete=PROTECT,
+                              )
     mime_type   = ForeignKey(MimeType, verbose_name=_(u'MIME type'),
                              editable=False, on_delete=PROTECT,
                              null=True,
@@ -60,7 +61,8 @@ class AbstractDocument(CremeEntity):
         ordering = ('title',)
 
     def __unicode__(self):
-        return u'%s - %s' % (self.folder, self.title)
+        # return u'%s - %s' % (self.folder, self.title)
+        return u'%s - %s' % (self.linked_folder, self.title)
 
     def get_absolute_url(self):
         return reverse('documents__view_document', args=(self.id,))

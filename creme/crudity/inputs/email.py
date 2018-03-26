@@ -214,7 +214,7 @@ class CreateInfopathInput(CreateEmailInput):
                 continue
 
             if field_value is not None \
-               and (isinstance(field, ForeignKey) and issubclass(field.rel.to, Document)) \
+               and (isinstance(field, ForeignKey) and issubclass(field.remote_field.model, Document)) \
                or isinstance(field, FileField):
                 data[field_name] = decode_b64binary(field_value)  # (filename, image_blob)
 

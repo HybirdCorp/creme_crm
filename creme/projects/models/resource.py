@@ -20,7 +20,7 @@
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.db.models import ForeignKey, PositiveIntegerField
+from django.db.models import ForeignKey, PositiveIntegerField, CASCADE
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
@@ -30,11 +30,13 @@ from creme.creme_core.models import CremeEntity
 # NB: CremeEntity and not CremeModel because we use a CreatorEntityField in WorkingPeriods' form
 class Resource(CremeEntity):
     # TODO: set a editable (& use automatic formfield()) + not bulk_editable ?
-    linked_contact = ForeignKey(settings.PERSONS_CONTACT_MODEL, verbose_name=_(u'Contact'), editable=False)
+    linked_contact = ForeignKey(settings.PERSONS_CONTACT_MODEL, on_delete=CASCADE,
+                                verbose_name=_(u'Contact'), editable=False,
+                               )
     hourly_cost    = PositiveIntegerField(_(u'Hourly cost'), default=0)
     task           = ForeignKey(settings.PROJECTS_TASK_MODEL, verbose_name=_(u'Task'),
                                 related_name='resources_set',  # TODO: rename 'resources'
-                                editable=False,
+                                editable=False, on_delete=CASCADE,
                                )
 
     creation_label = _(u'Create a resource')

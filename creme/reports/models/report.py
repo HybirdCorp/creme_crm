@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.db.models import (CharField, PositiveIntegerField,
-        PositiveSmallIntegerField, BooleanField, ForeignKey, PROTECT)
+        PositiveSmallIntegerField, BooleanField, ForeignKey, PROTECT, CASCADE)
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
@@ -166,7 +166,8 @@ class AbstractReport(CremeEntity):
         for graph in source.reportgraph_set.all():
             # TODO: avoid multiple save()
             new_graph = graph.clone()
-            new_graph.report = self
+            # new_graph.report = self
+            new_graph.linked_report = self
             new_graph.save()
 
     # TODO: add a similar EntityCell type in creme_core (& so move this code in core)
@@ -197,12 +198,14 @@ class Report(AbstractReport):
 
 
 class Field(CremeModel):
-    report     = ForeignKey(settings.REPORTS_REPORT_MODEL, related_name='fields').set_tags(viewable=False)
+    report     = ForeignKey(settings.REPORTS_REPORT_MODEL, related_name='fields', on_delete=CASCADE)\
+                           .set_tags(viewable=False)
     name       = CharField(_(u'Name of the column'), max_length=100).set_tags(viewable=False)
     order      = PositiveIntegerField().set_tags(viewable=False)
     type       = PositiveSmallIntegerField().set_tags(viewable=False)  # ==> see RFT_* in constants #Add in choices ?
     selected   = BooleanField(default=False).set_tags(viewable=False)  # Use this field to expand
-    sub_report = ForeignKey(settings.REPORTS_REPORT_MODEL, blank=True, null=True).set_tags(viewable=False)
+    sub_report = ForeignKey(settings.REPORTS_REPORT_MODEL, blank=True, null=True, on_delete=CASCADE)\
+                           .set_tags(viewable=False)
 
     _hand = None
 

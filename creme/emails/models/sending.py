@@ -26,7 +26,7 @@ from django.conf import settings
 from django.core.mail import send_mail, get_connection
 from django.db import IntegrityError
 from django.db.models import (ForeignKey, DateTimeField, PositiveSmallIntegerField,
-        EmailField, CharField, TextField, ManyToManyField, SET_NULL)
+        EmailField, CharField, TextField, ManyToManyField, SET_NULL, CASCADE)
 from django.db.transaction import atomic
 from django.template import Template, Context
 from django.utils.formats import date_format
@@ -67,7 +67,7 @@ SENDING_STATES = {
 
 class EmailSending(CremeModel):
     sender        = EmailField(_(u'Sender address'), max_length=100)
-    campaign      = ForeignKey(settings.EMAILS_CAMPAIGN_MODEL,
+    campaign      = ForeignKey(settings.EMAILS_CAMPAIGN_MODEL, on_delete=CASCADE,
                                verbose_name=pgettext_lazy('emails', u'Related campaign'),
                                related_name='sendings_set', editable=False,
                               )
@@ -173,8 +173,11 @@ class LightWeightEmail(_Email):
     id               = CharField(_(u'Email ID'), primary_key=True, max_length=ID_LENGTH, editable=False)
     sending          = ForeignKey(EmailSending, verbose_name=_(u'Related sending'),
                                   related_name='mails_set', editable=False,
+                                  on_delete=CASCADE,
                                  )
-    recipient_entity = ForeignKey(CremeEntity, null=True, related_name='received_lw_mails', editable=False)
+    recipient_entity = ForeignKey(CremeEntity, null=True, related_name='received_lw_mails',
+                                  editable=False, on_delete=CASCADE,
+                                 )
 
     class Meta:
         app_label = 'emails'

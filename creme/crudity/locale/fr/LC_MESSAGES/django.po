@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Crudity 1.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-01 11:46+0100\n"
+"POT-Creation-Date: 2018-02-01 18:53+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -26,7 +26,7 @@ msgstr "Actions en attente pour les emails"
 
 #: apps.py:43 apps.py:56 bricks.py:107 models/history.py:38
 #: models/history.py:39 templates/crudity/history.html:4
-#: templates/crudity/history.html.py:9
+#: templates/crudity/history.html:9
 msgid "History"
 msgstr "Historique"
 
@@ -176,20 +176,20 @@ msgstr "Description"
 msgid "Are waiting actions are by user?"
 msgstr "Est-ce que les actions en attente sont par utilisateur ?"
 
-#: templates/crudity/bricks/header-actions/email-creation-template.html:3
+#: templates/crudity/bricks/header-actions/email-creation-template.html:2
 #, python-format
-msgid "Download email template for «%s»"
-msgstr "Télécharger un modèle d'e-mail pour «%s»"
+msgid "Download email template for «%(model)s»"
+msgstr "Télécharger un modèle d'e-mail pour «%(model)s»"
 
-#: templates/crudity/bricks/header-actions/infopath-creation-form.html:3
+#: templates/crudity/bricks/header-actions/infopath-creation-form.html:2
 #, python-format
-msgid "Download Infopath form for «%s»"
-msgstr "Télécharger un formulaire Infopath pour «%s»"
+msgid "Download Infopath form for «%(model)s»"
+msgstr "Télécharger un formulaire Infopath pour «%(model)s»"
 
-#: templates/crudity/bricks/header-actions/inifile-creation-template.html:3
+#: templates/crudity/bricks/header-actions/inifile-creation-template.html:2
 #, python-format
-msgid "File .ini template for «%s»"
-msgstr "Modèle de fichier .ini pour «%s»"
+msgid "File .ini template for «%(model)s»"
+msgstr "Modèle de fichier .ini pour «%(model)s»"
 
 #: templates/crudity/bricks/history.html:13
 msgid "Created"
@@ -200,46 +200,46 @@ msgstr "Créé"
 msgid "No history for «%(ctype)s»"
 msgstr "Aucun historique pour «%(ctype)s»"
 
-#: templates/crudity/bricks/waiting-actions.html:10
+#: templates/crudity/bricks/waiting-actions.html:9
 #, python-format
-msgid "%s Action selected"
-msgstr "%s Action selectionnée"
+msgid "%%s Action selected"
+msgstr "%%s Action selectionnée"
 
-#: templates/crudity/bricks/waiting-actions.html:10
+#: templates/crudity/bricks/waiting-actions.html:9
 #, python-format
-msgid "%s Actions selected"
-msgstr "%s Actions selectionnées"
+msgid "%%s Actions selected"
+msgstr "%%s Actions selectionnées"
 
-#: templates/crudity/bricks/waiting-actions.html:17
-#: templates/crudity/bricks/waiting-actions.html:56
+#: templates/crudity/bricks/waiting-actions.html:18
+#: templates/crudity/bricks/waiting-actions.html:57
 msgid "Validate"
 msgstr "Valider"
 
-#: templates/crudity/bricks/waiting-actions.html:18
+#: templates/crudity/bricks/waiting-actions.html:19
 msgid "Delete"
 msgstr "Supprimer"
 
-#: templates/crudity/bricks/waiting-actions.html:23
+#: templates/crudity/bricks/waiting-actions.html:24
 msgid "Select all"
 msgstr "Tout sélectionner"
 
-#: templates/crudity/bricks/waiting-actions.html:25
+#: templates/crudity/bricks/waiting-actions.html:26
 msgid "Data"
 msgstr "Données"
 
-#: templates/crudity/bricks/waiting-actions.html:26
+#: templates/crudity/bricks/waiting-actions.html:27
 msgid "Type"
 msgstr "Type"
 
-#: templates/crudity/bricks/waiting-actions.html:27
+#: templates/crudity/bricks/waiting-actions.html:28
 msgid "Actions"
 msgstr "Actions"
 
-#: templates/crudity/bricks/waiting-actions.html:35
+#: templates/crudity/bricks/waiting-actions.html:36
 msgid "Select this line"
 msgstr "Sélectionner cette ligne"
 
-#: templates/crudity/bricks/waiting-actions.html:66
+#: templates/crudity/bricks/waiting-actions.html:67
 #, python-format
 msgid "No waiting action for «%(ctype)s» from «%(backend)s»"
 msgstr "Aucune action en attente pour «%(ctype)s» venant de «%(backend)s»"

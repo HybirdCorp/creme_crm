@@ -352,7 +352,7 @@ class GuiTestCase(CremeTestCase):
         # Decimal & integer with choices
         invoice = FakeInvoice.objects.create(user=user, name='Swords & shields')
 
-        create_line = partial(FakeInvoiceLine.objects.create, user=user, invoice=invoice)
+        create_line = partial(FakeInvoiceLine.objects.create, user=user, linked_invoice=invoice)
         line1 = create_line(item='Swords',  quantity='3.00', unit_price='125.6', discount_unit=FAKE_PERCENT_UNIT)
         line2 = create_line(item='Shields', quantity='2.00', unit_price='53.4',  discount_unit=None)
 

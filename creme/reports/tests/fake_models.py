@@ -41,7 +41,8 @@ else:
         title       = CharField(_(u'Title'), max_length=100)
         description = TextField(_(u'Description'), blank=True, null=True)
 #        filedata    = FileField(_(u'File'), max_length=500, upload_to='upload/documents')
-        folder      = ForeignKey(FakeReportsFolder, verbose_name=_(u'Folder'), on_delete=PROTECT)
+#         folder      = ForeignKey(FakeReportsFolder, verbose_name=_(u'Folder'), on_delete=PROTECT)
+        linked_folder = ForeignKey(FakeReportsFolder, verbose_name=_(u'Folder'), on_delete=PROTECT)
 
         class Meta:
             app_label = 'reports'

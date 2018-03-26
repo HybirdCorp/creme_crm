@@ -133,7 +133,8 @@ class CSVImportBaseTestCaseMixin(object):
                                           'title':       title,
                                           'description': 'CSV file for contacts',
                                           'filedata':    tmpfile,
-                                          'folder':      folder.id,
+                                          # 'folder':      folder.id,
+                                          'linked_folder': folder.id,
                                          }
                                    )
         self.assertNoFormError(response)

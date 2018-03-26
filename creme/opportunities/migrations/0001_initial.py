@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-from django.db.models.deletion import PROTECT, SET_NULL
+from django.db.models.deletion import CASCADE, PROTECT, SET_NULL
 
 from creme.creme_core.models import fields as creme_fields
 
@@ -18,6 +18,7 @@ class Migration(migrations.Migration):
     #     (b'opportunities', '0007_v1_7__salesphase_lost_2'),
     # ]
 
+    initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
     ]
@@ -55,7 +56,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Opportunity',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
+                ),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the opportunity')),
                 ('reference', models.CharField(max_length=100, verbose_name='Reference', blank=True)),
                 ('estimated_sales', models.PositiveIntegerField(null=True, verbose_name='Estimated sales', blank=True)),

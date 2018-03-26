@@ -103,7 +103,8 @@ class Populator(BasePopulator):
         create_searchconf = SearchConfigItem.create_if_needed
         create_searchconf(Project,     ['name', 'description', 'status__name'])
         create_searchconf(Resource,    ['linked_contact__last_name', 'linked_contact__first_name', 'hourly_cost'])
-        create_searchconf(ProjectTask, ['project__name', 'duration', 'tstatus__name'])
+        # create_searchconf(ProjectTask, ['project__name', 'duration', 'tstatus__name'])
+        create_searchconf(ProjectTask, ['linked_project__name', 'duration', 'tstatus__name'])
 
         # ---------------------------
         if not already_populated:

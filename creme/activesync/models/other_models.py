@@ -2,7 +2,7 @@
 
 #################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #################################################################################
 
-from django.db.models import ForeignKey, CharField
+from django.db.models import ForeignKey, CharField, CASCADE
 
 from creme.creme_core.models import CremeModel, CremeEntity
 
@@ -27,7 +27,7 @@ class EntityASData(CremeModel):
     """Additional values for an entity, present in Active sync but not in Creme
     For example: a Meeting hasn't an UID but on server side it has.
     """
-    entity      = ForeignKey(CremeEntity, verbose_name=u'Target entity')
+    entity      = ForeignKey(CremeEntity, verbose_name=u'Target entity', on_delete=CASCADE)
     field_name  = CharField(u'Field name', max_length=100)  # Exchange field name
     field_value = CharField(u'Field value', max_length=300)  # Exchange field value
 

@@ -1322,7 +1322,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\User\Desktop\Infopath\create_document.xsn" name="urn:schemas-microsoft-com:office:infopath:create-document:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xml:lang="fr">
     <my:user_id>%s</my:user_id>
     <my:title>My doc</my:title>
-    <my:folder_id>%s</my:folder_id>
+    <my:linked_folder_id>%s</my:linked_folder_id>
     <my:filedata>%s</my:filedata>
     <my:description>
         <div xmlns="http://www.w3.org/1999/xhtml">A document</div>
@@ -1334,7 +1334,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
                                                             'filedata':    '',
                                                             'title':       '',
                                                             'description': '',
-                                                            'folder_id':   ''
+                                                            # 'folder_id':   ''
+                                                            'linked_folder_id':   ''
                                                            }
                                                  )
 
@@ -1354,7 +1355,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         filename, blob = decode_b64binary(img_content)
         self.assertEqual({'user_id':     unicode(user.id),
                           'title':       u'My doc',
-                          'folder_id':   unicode(folder.id),
+                          # 'folder_id':   unicode(folder.id),
+                          'linked_folder_id': unicode(folder.id),
                           'description': u'A document',
                           # 'filedata': img_content,
                           'filedata': (filename, blob),
@@ -1366,7 +1368,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
         document = Document.objects.filter(q_document_existing_ids)[0]
         self.assertEqual(user, document.user)
-        self.assertEqual(folder, document.folder)
+        # self.assertEqual(folder, document.folder)
+        self.assertEqual(folder, document.linked_folder)
         self.assertEqual('My doc', document.title)
         self.assertEqual('A document', document.description)
         self.assertTrue(document.filedata)

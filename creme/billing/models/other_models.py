@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.conf import settings
-from django.db.models import CharField, BooleanField, TextField, ForeignKey
+from django.db.models import CharField, BooleanField, TextField, ForeignKey, CASCADE
 from django.db.transaction import atomic
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
@@ -140,6 +140,7 @@ class PaymentInformation(CremeModel):
     organisation          = ForeignKey(settings.PERSONS_ORGANISATION_MODEL,
                                        verbose_name=pgettext_lazy('billing', u'Target organisation'),
                                        related_name='PaymentInformationOrganisation_set',
+                                       on_delete=CASCADE,
                                       )
 
     def __unicode__(self):

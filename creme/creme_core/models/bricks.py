@@ -26,7 +26,7 @@ import warnings
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import (CharField, TextField, ForeignKey, OneToOneField,
-        PositiveIntegerField, PositiveSmallIntegerField, BooleanField)
+        PositiveIntegerField, PositiveSmallIntegerField, BooleanField, CASCADE)
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
 
@@ -51,7 +51,7 @@ logger = logging.getLogger(__name__)
 
 class BlockDetailviewLocation(CremeModel):
     content_type = CTypeForeignKey(verbose_name=_(u'Related type'), null=True)
-    role         = ForeignKey(UserRole, verbose_name=_(u'Related role'), null=True, default=None)
+    role         = ForeignKey(UserRole, verbose_name=_(u'Related role'), null=True, default=None, on_delete=CASCADE)
     # TODO: a UserRole for superusers instead ??
     superuser    = BooleanField(u'related to superusers', default=False, editable=False)
     # block_id     = CharField(max_length=100)
@@ -222,7 +222,7 @@ class BlockPortalLocation(CremeModel):
 
 # TODO: merge with BlockPortalLocation when portals have been removed ?
 class BlockMypageLocation(CremeModel):
-    user     = ForeignKey(settings.AUTH_USER_MODEL, null=True)
+    user     = ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=CASCADE)
     # block_id = CharField(max_length=100)
     brick_id = CharField(max_length=100)
     order    = PositiveIntegerField()
@@ -302,7 +302,7 @@ class RelationBlockItem(CremeModel):
     #        + in the 'brick_id': 1)remove the app_name  2)"specificblock_" => "rtypebrick_" (need data migration)
     # block_id       = CharField(_(u"Block ID"), max_length=100, editable=False)
     brick_id       = CharField(_(u'Block ID'), max_length=100, editable=False)
-    relation_type  = OneToOneField(RelationType, verbose_name=_(u'Related type of relationship'))
+    relation_type  = OneToOneField(RelationType, verbose_name=_(u'Related type of relationship'), on_delete=CASCADE)
     json_cells_map = TextField(editable=False, null=True)  # TODO: JSONField  # TODO: null=False ('{}' by default with current code)
 
     _cells_map = None
@@ -404,7 +404,7 @@ class RelationBlockItem(CremeModel):
 class InstanceBlockConfigItem(CremeModel):
     # block_id = CharField(_(u'Brick ID'), max_length=300, blank=False, null=False, editable=False)
     brick_id = CharField(_(u'Brick ID'), max_length=300, blank=False, null=False, editable=False)
-    entity   = ForeignKey(CremeEntity, verbose_name=_(u'Block related entity'))
+    entity   = ForeignKey(CremeEntity, verbose_name=_(u'Block related entity'), on_delete=CASCADE)
     data     = TextField(blank=True, null=True)
     verbose  = CharField(_(u'Verbose'), max_length=200, blank=True, null=True)  # TODO: remove
 
@@ -560,7 +560,7 @@ class CustomBlockConfigItem(CremeModel):
 
 
 class BlockState(CremeModel):
-    user              = ForeignKey(settings.AUTH_USER_MODEL)
+    user              = ForeignKey(settings.AUTH_USER_MODEL, on_delete=CASCADE)
     # block_id          = CharField(_(u"Block ID"), max_length=100)
     brick_id          = CharField(_(u"Block ID"), max_length=100)
     is_open           = BooleanField(default=True)  # Is brick has to appear as opened or closed

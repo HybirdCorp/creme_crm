@@ -1315,7 +1315,8 @@ class ReportTestCase(BaseReportsTestCase):
                                        ct=ContentType.objects.get_for_model(FakeCoreDocument),
                                       )
 
-        fname = 'folder__category'
+        # fname = 'folder__category'
+        fname = 'linked_folder__category'
         response = self.client.post(self._build_editfields_url(report),
                                     data={'columns': 'regular_field-%(rfield1)s,regular_field-%(rfield2)s' % {
                                                             'rfield1': 'title',
@@ -1372,7 +1373,8 @@ class ReportTestCase(BaseReportsTestCase):
                                        ct=ContentType.objects.get_for_model(FakeReportsDocument),
                                       )
         response = self.assertPOST200(self._build_editfields_url(report),
-                                      data={'columns': 'regular_field-folder__parent'},
+                                      # data={'columns': 'regular_field-folder__parent'},
+                                      data={'columns': 'regular_field-linked_folder__parent'},
                                      )
         self.assertFormError(response, 'form', 'columns', _('Enter a valid value.'))
 
@@ -1396,7 +1398,8 @@ class ReportTestCase(BaseReportsTestCase):
                                        ct=ContentType.objects.get_for_model(FakeReportsDocument),
                                       )
 
-        rfield = Field.objects.create(name='folder__parent', report=report, type=RFT_FIELD, order=2)
+        # rfield = Field.objects.create(name='folder__parent', report=report, type=RFT_FIELD, order=2)
+        rfield = Field.objects.create(name='linked_folder__parent', report=report, type=RFT_FIELD, order=2)
         self.assertIsNone(rfield.hand)
         self.assertDoesNotExist(rfield)
 
@@ -1747,7 +1750,8 @@ class ReportTestCase(BaseReportsTestCase):
         create_field(report=self.folder_report, name='description', order=2)
 
         self.doc_report = self._create_simple_documents_report()
-        create_field(report=self.doc_report, name='folder__title', order=3,
+        # create_field(report=self.doc_report, name='folder__title', order=3,
+        create_field(report=self.doc_report, name='linked_folder__title', order=3,
                      sub_report=self.folder_report, selected=selected,
                     )
 
@@ -1756,8 +1760,8 @@ class ReportTestCase(BaseReportsTestCase):
         self.folder2 = create_folder(title='External', description='Boring description')
 
         create_doc = partial(FakeReportsDocument.objects.create, user=self.user)
-        self.doc1 = create_doc(title='Doc#1', folder=self.folder1, description='Blbalabla')
-        self.doc2 = create_doc(title='Doc#2', folder=self.folder2)
+        self.doc1 = create_doc(title='Doc#1', linked_folder=self.folder1, description='Blbalabla')
+        self.doc2 = create_doc(title='Doc#2', linked_folder=self.folder2)
 
     def test_fetch_fk_01(self):
         "Sub report: no sub-filter"
@@ -1843,8 +1847,8 @@ class ReportTestCase(BaseReportsTestCase):
         folder2 = create_folder(title="Faye's pix")
 
         create_doc = partial(FakeCoreDocument.objects.create, user=user)
-        doc1 = create_doc(title='Japan map',   folder=folder1)
-        doc2 = create_doc(title='Mars city 1', folder=folder2)
+        doc1 = create_doc(title='Japan map',   linked_folder=folder1)
+        doc2 = create_doc(title='Mars city 1', linked_folder=folder2)
 
         report = Report.objects.create(name="Docs report", user=user,
                                        ct=ContentType.objects.get_for_model(FakeCoreDocument),
@@ -1853,8 +1857,8 @@ class ReportTestCase(BaseReportsTestCase):
         create_field = partial(Field.objects.create, report=report,
                                selected=False, sub_report=None, type=RFT_FIELD,
                               )
-        create_field(name='title',            order=1)
-        create_field(name='folder__category', order=2)
+        create_field(name='title',                   order=1)
+        create_field(name='linked_folder__category', order=2)
 
         self.assertEqual([[doc1.title, cat.name],
                           [doc2.title, ''],
@@ -2218,9 +2222,9 @@ class ReportTestCase(BaseReportsTestCase):
         self.folder2 = create_folder(title='Internal')
 
         create_doc = partial(FakeReportsDocument.objects.create, user=user)
-        self.doc11 = create_doc(title='Doc#1-1', folder=self.folder1, description='Boring !')
-        self.doc12 = create_doc(title='Doc#1-2', folder=self.folder1, user=self.other_user)
-        self.doc21 = create_doc(title='Doc#2-1', folder=self.folder2)
+        self.doc11 = create_doc(title='Doc#1-1', linked_folder=self.folder1, description='Boring !')
+        self.doc12 = create_doc(title='Doc#1-2', linked_folder=self.folder1, user=self.other_user)
+        self.doc21 = create_doc(title='Doc#2-1', linked_folder=self.folder2)
 
     def test_fetch_related_01(self):
         self.login_as_basic_user()
@@ -2507,8 +2511,8 @@ class ReportTestCase(BaseReportsTestCase):
         folder = FakeReportsFolder.objects.create(user=user, title='Ned folder')
 
         create_doc = partial(FakeReportsDocument.objects.create, user=user)
-        doc1 = create_doc(title='Sword',  folder=folder, description='Blbalabla')
-        doc2 = create_doc(title='Helmet', folder=folder)
+        doc1 = create_doc(title='Sword',  linked_folder=folder, description='Blbalabla')
+        doc2 = create_doc(title='Helmet', linked_folder=folder)
 
         rtype = RelationType.objects.get(pk=REL_SUB_HAS)
         doc_report = self._create_simple_documents_report()

@@ -220,7 +220,8 @@ class ReportHandsField(EntityCellsField):
     def _regular_fields_enum(self, model):
         fields = super(ReportHandsField, self)._regular_fields_enum(model)
         fields.filter(lambda field, depth: not (depth and isinstance(field, (ForeignKey, ManyToManyField))
-                                                and issubclass(field.rel.to, CremeEntity)
+                                                # and issubclass(field.rel.to, CremeEntity)
+                                                and issubclass(field.remote_field.model, CremeEntity)
                                                )
                      )
 

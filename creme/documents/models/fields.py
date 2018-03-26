@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016  Hybird
+#    Copyright (C) 2016-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -45,7 +45,8 @@ class ImageEntityForeignKey(ForeignKey):
 
         return ImageEntityField(label=self.verbose_name,
                                 required=not self.blank,
-                                q_filter=self.rel.limit_choices_to,
+                                # q_filter=self.rel.limit_choices_to,
+                                q_filter=self.remote_field.limit_choices_to,
                                 help_text=self.help_text,
                                )
 
@@ -74,7 +75,8 @@ class ImageEntityManyToManyField(ManyToManyField):
 
         return MultiImageEntityField(label=self.verbose_name,
                                      required=not self.blank,
-                                     q_filter=self.rel.limit_choices_to,
+                                     # q_filter=self.rel.limit_choices_to,
+                                     q_filter=self.remote_field.limit_choices_to,
                                      help_text=self.help_text,
                                     )
 

@@ -22,7 +22,7 @@ import logging  # warnings
 
 from django.conf import settings
 from django.template import Library, TemplateSyntaxError, Node as TemplateNode
-from django.utils.html import escape, urlize as django_urlize
+from django.utils.html import escape, format_html, urlize as django_urlize
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
@@ -275,7 +275,8 @@ def widget_hyperlink(instance):
            because the permissions are not checked.
     """
     try:
-        return u'<a href="%s">%s</a>' % (instance.get_absolute_url(), escape(instance))
+        # return u'<a href="%s">%s</a>' % (instance.get_absolute_url(), escape(instance))
+        return format_html(u'<a href="{}">{}</a>', instance.get_absolute_url(), instance)
     except AttributeError:
         return escape(instance)
 
@@ -284,11 +285,17 @@ def widget_hyperlink(instance):
 def widget_entity_hyperlink(entity, user, ignore_deleted=False):
     "{% widget_entity_hyperlink my_entity user %}"
     if user.has_perm_to_view(entity):
-        return u'<a href="%s"%s>%s</a>' % (
-                        entity.get_absolute_url(),
-                        ' class="is_deleted"' if entity.is_deleted and not ignore_deleted else '',
-                        escape(entity)
-                    )
+        # return u'<a href="%s"%s>%s</a>' % (
+        #                 entity.get_absolute_url(),
+        #                 ' class="is_deleted"' if entity.is_deleted and not ignore_deleted else '',
+        #                 escape(entity)
+        #             )
+        return format_html(
+            u'<a href="{url}"{deleted}>{label}</a>',
+            url=entity.get_absolute_url(),
+            deleted=mark_safe(u' class="is_deleted"') if entity.is_deleted and not ignore_deleted else u'',
+            label=entity,
+        )
 
     return settings.HIDDEN_VALUE
 

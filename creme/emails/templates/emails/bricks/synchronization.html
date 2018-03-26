@@ -4,7 +4,9 @@
 {% block brick_extra_class %}{{block.super}} emails-sync-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Incoming email to treat') plural=_('{count} Incoming emails to treat') empty=_('Emails') icon='email' selection_title=_('%s Email selected') selection_plural=_('%s Emails selected') %}
+{#    {% brick_header_title title=_('{count} Incoming email to treat') plural=_('{count} Incoming emails to treat') empty=_('Emails') icon='email' selection_title=_('%s Email selected') selection_plural=_('%s Emails selected') %} #}
+    {% trans '%s Email selected' as sel_fmt %}{% trans '%s Emails selected' as sel_plural_fmt %}
+    {% brick_header_title title=_('{count} Incoming email to treat') plural=_('{count} Incoming emails to treat') empty=_('Emails') icon='email' selection_title=sel_fmt selection_plural=sel_plural_fmt %}
 {% endblock %}
 
 {% block brick_header_actions %}

@@ -320,22 +320,22 @@ class DBTestCase(CremeTestCase):
         create_folder = partial(FakeFolder.objects.create, user=user)
         folder1  = create_folder(title='Maps')
         folder11 = create_folder(title='Earth maps', parent=folder1)
-        folder12 = create_folder(title='Mars maps', parent=folder1)
+        folder12 = create_folder(title='Mars maps',  parent=folder1)
         folder2  = create_folder(title='Blue prints')
 
         create_doc = partial(FakeDocument.objects.create, user=user)
-        docs = [create_doc(title='Japan map part#1',   folder=folder11),
-                create_doc(title='Japan map part#2',   folder=folder11),
-                create_doc(title='Mars city 1',        folder=folder12),
-                create_doc(title='Swordfish',          folder=folder2),
+        docs = [create_doc(title='Japan map part#1',   linked_folder=folder11),
+                create_doc(title='Japan map part#2',   linked_folder=folder11),
+                create_doc(title='Mars city 1',        linked_folder=folder12),
+                create_doc(title='Swordfish',          linked_folder=folder2),
                ]
         docs = [self.refresh(c) for c in docs]
 
         with self.assertNumQueries(2):
-            populate_related(docs, ['folder__parent', 'title'])
+            populate_related(docs, ['linked_folder__parent', 'title'])
 
         with self.assertNumQueries(0):
-            f11 = docs[0].folder
+            f11 = docs[0].linked_folder
         self.assertEqual(folder11, f11)
 
         with self.assertNumQueries(0):
@@ -343,7 +343,7 @@ class DBTestCase(CremeTestCase):
         self.assertEqual(folder1, f1)
 
         with self.assertNumQueries(0):
-            f2 = docs[3].folder
+            f2 = docs[3].linked_folder
         self.assertEqual(folder2, f2)
 
         with self.assertNumQueries(0):
@@ -361,9 +361,9 @@ class DBTestCase(CremeTestCase):
         folder2 = create_folder(title='Blue prints')
 
         create_doc = partial(FakeDocument.objects.create, user=user)
-        docs = [create_doc(title='Japan map part#1',   folder=folder1),
-                create_doc(title='Mars city 1',        folder=folder11),
-                create_doc(title='Swordfish',          folder=folder2, user=user2),
+        docs = [create_doc(title='Japan map part#1', linked_folder=folder1),
+                create_doc(title='Mars city 1',      linked_folder=folder11),
+                create_doc(title='Swordfish',        linked_folder=folder2, user=user2),
                ]
         docs = [self.refresh(c) for c in docs]
 
@@ -373,15 +373,15 @@ class DBTestCase(CremeTestCase):
         #   1 for the users.
         #   1 for the roles.
         with self.assertNumQueries(3):
-            populate_related(docs, ['folder__parent', 'user__role'])
+            populate_related(docs, ['linked_folder__parent', 'user__role'])
 
         # Folders
         with self.assertNumQueries(0):
-            f1 = docs[0].folder
+            f1 = docs[0].linked_folder
         self.assertEqual(folder1, f1)
 
         with self.assertNumQueries(0):
-            f11 = docs[1].folder
+            f11 = docs[1].linked_folder
         self.assertEqual(folder11, f11)
 
         with self.assertNumQueries(0):
@@ -389,7 +389,7 @@ class DBTestCase(CremeTestCase):
         self.assertEqual(folder1, f1)
 
         with self.assertNumQueries(0):
-            f2 = docs[2].folder
+            f2 = docs[2].linked_folder
         self.assertEqual(folder2, f2)
 
         # Users

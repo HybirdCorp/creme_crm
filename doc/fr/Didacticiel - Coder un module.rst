@@ -29,8 +29,8 @@ Creme est développé en utilisant un cadriciel (framework) Python spécialisé 
 la création de sites et applications Web : Django_.
 Si vous comptez réellement développer des modules pour Creme, la connaissance de
 Django sera sûrement nécessaire. Heureusement la documentation de celui-ci est vraiment
-complète et bien faite ; vous la trouverez ici : https://docs.djangoproject.com/fr/1.8/.
-Dans un premier temps, avoir lu le `didacticiel <https://docs.djangoproject.com/fr/1.8/intro/overview/>`_
+complète et bien faite ; vous la trouverez ici : https://docs.djangoproject.com/fr/1.9/.
+Dans un premier temps, avoir lu le `didacticiel <https://docs.djangoproject.com/fr/1.9/intro/overview/>`_
 devrait suffire.
 
 Creme utilise aussi la bibliothèque Javascript JQuery_ ; il se peut que pour
@@ -373,7 +373,7 @@ donné à la fonction ``url()`` utilisée dans notre ``urls.py``.
 
 Et là nous obtenons enfin un résultat intéressant lorsque nous nous rendons sur
 l'URL de liste : on nous demande de créer une vue pour cette liste. Ceci fait,
-on arrive bien sur une liste des castors... vide. Forcément, aucun castor n'a
+on arrive bien sur une liste des castors… vide. Forcément, aucun castor n'a
 encore été créé.
 
 
@@ -413,8 +413,7 @@ ramener les ``import`` au début, avec les autres directives ``import`` bien sû
     from ..forms.beaver import BeaverForm
 
     @login_required
-    @permission_required('beavers')
-    @permission_required('beavers.add_beaver')
+    @permission_required('beavers', 'beavers.add_beaver')
     def add(request):
         return generic.add_entity(request, BeaverForm)
 
@@ -2851,35 +2850,35 @@ suivantes dans votre ``local_settings.py`` : ::
     # ATTENTION ! Ne fonctionne qu'avec SQLite
     if 'test' in sys.argv:
         MIGRATION_MODULES = {
-            'auth':           'auth.migrations_not_used_in_tests',
-            'creme_core':     'creme_core.migrations_not_used_in_tests',
-            'creme_config':   'creme_config.migrations_not_used_in_tests',
-            'media_managers': 'media_managers.migrations_not_used_in_tests',
-            'documents':      'documents.migrations_not_used_in_tests',
-            'assistants':     'assistants.migrations_not_used_in_tests',
-            'activities':     'activities.migrations_not_used_in_tests',
-            'persons':        'persons.migrations_not_used_in_tests',
-            'graphs':         'graphs.migrations_not_used_in_tests',
-            'reports':        'reports.migrations_not_used_in_tests',
-            'products':       'products.migrations_not_used_in_tests',
-            'recurrents':     'recurrents.migrations_not_used_in_tests',
-            'billing':        'billing.migrations_not_used_in_tests',
-            'opportunities':  'opportunities.migrations_not_used_in_tests',
-            'commercial':     'commercial.migrations_not_used_in_tests',
-            'events':         'events.migrations_not_used_in_tests',
-            'crudity':        'crudity.migrations_not_used_in_tests',
-            'emails':         'emails.migrations_not_used_in_tests',
-            'sms':            'sms.migrations_not_used_in_tests',
-            'projects':       'projects.migrations_not_used_in_tests',
-            'tickets':        'tickets.migrations_not_used_in_tests',
-            'cti':            'cti.migrations_not_used_in_tests',
-            'activesync':     'activesync.migrations_not_used_in_tests',
-            'vcfs':           'vcfs.migrations_not_used_in_tests',
-            'polls':          'polls.migrations_not_used_in_tests',
-            'mobile':         'mobile.migrations_not_used_in_tests',
-            'geolocation':    'geolocation.migrations_not_used_in_tests',
+            'auth':           None,
+            'creme_core':     None,
+            'creme_config':   None,
+            'media_managers': None,
+            'documents':      None,
+            'assistants':     None,
+            'activities':     None,
+            'persons':        None,
+            'graphs':         None,
+            'reports':        None,
+            'products':       None,
+            'recurrents':     None,
+            'billing':        None,
+            'opportunities':  None,
+            'commercial':     None,
+            'events':         None,
+            'crudity':        None,
+            'emails':         None,
+            'sms':            None,
+            'projects':       None,
+            'tickets':        None,
+            'cti':            None,
+            'activesync':     None,
+            'vcfs':           None,
+            'polls':          None,
+            'mobile':         None,
+            'geolocation':    None,
 
-            'beavers':        'beavers.migrations_not_used_in_tests',
+            'beavers':        None,
         }
 
 Une fois votre code satisfaisant, prenez le temps de lancer les tests avec MySQL

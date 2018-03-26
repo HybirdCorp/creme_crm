@@ -423,7 +423,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                           'use_or': 'True',
                                           'fields_conditions': self.FIELDS_CONDS_FMT % {
                                                                    'operator': EntityFilterCondition.EQUALS,
-                                                                   'name':     'folder',
+                                                                   'name':     'linked_folder',
                                                                    'value':    '{}'.format(folder.id),
                                                                },
                                          }
@@ -438,7 +438,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         condition = conditions[0]
 
         self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
-        self.assertEqual('folder',                        condition.name)
+        self.assertEqual('linked_folder',                 condition.name)
         self.assertEqual({'operator': EntityFilterCondition.EQUALS,
                           'values':   ['{}'.format(folder.id)],
                          },

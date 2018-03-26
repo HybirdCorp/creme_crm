@@ -36,13 +36,15 @@ from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.utils import json_update_from_widget_response
 
 from ..bricks import GenericModelBrick, SettingsBrick
-from ..registry import config_registry
+# from ..registry import config_registry
 
 
 logger = logging.getLogger(__name__)
 
 
 def _get_appconf(user, app_name):
+    from ..registry import config_registry
+
     user.has_perm_to_admin_or_die(app_name)
 
     try:

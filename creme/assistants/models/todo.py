@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db.models import (CharField, BooleanField, TextField, DateTimeField,
-        ForeignKey, PositiveIntegerField)
+        ForeignKey, PositiveIntegerField, CASCADE)
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.core.function_field import (FunctionField,
@@ -43,7 +43,7 @@ class ToDo(CremeModel):
     user          = CremeUserForeignKey(verbose_name=_(u'Owner user'))
 
     # TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)
-    entity_content_type = ForeignKey(ContentType, related_name="todo_entity_set", editable=False)
+    entity_content_type = ForeignKey(ContentType, related_name='todo_entity_set', editable=False, on_delete=CASCADE)
     entity_id           = PositiveIntegerField(editable=False).set_tags(viewable=False)
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
 

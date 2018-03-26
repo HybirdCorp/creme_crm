@@ -28,7 +28,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.models import (Model, PositiveSmallIntegerField, CharField, TextField,
-        ForeignKey, OneToOneField, SET_NULL, FieldDoesNotExist)
+        ForeignKey, OneToOneField, SET_NULL, CASCADE, FieldDoesNotExist)
 from django.db.models.signals import post_save, post_init, pre_delete
 from django.db.transaction import atomic
 from django.dispatch import receiver
@@ -117,7 +117,8 @@ def _fk_printer(field, val, user):
     if val is None:
         return ''
 
-    model = field.rel.to
+    # model = field.rel.to
+    model = field.remote_field.model
 
     try:
         out = model.objects.get(pk=val)
@@ -863,7 +864,7 @@ def _log_deletion(sender, instance, **kwargs):
 
 
 class HistoryConfigItem(Model):
-    relation_type = OneToOneField(RelationType)
+    relation_type = OneToOneField(RelationType, on_delete=CASCADE)
 
     class Meta:
         app_label = 'creme_core'

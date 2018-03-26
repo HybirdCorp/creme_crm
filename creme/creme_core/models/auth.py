@@ -32,7 +32,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.validators import RegexValidator
 from django.db.models import (Model, CharField, TextField, BooleanField,
         PositiveSmallIntegerField, PositiveIntegerField, EmailField,
-        DateTimeField, ForeignKey, ManyToManyField, PROTECT, Q)
+        DateTimeField, ForeignKey, ManyToManyField, PROTECT, CASCADE, Q)
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -252,7 +252,7 @@ class UserRole(Model):
 
 
 class SetCredentials(Model):
-    role     = ForeignKey(UserRole, related_name='credentials')
+    role     = ForeignKey(UserRole, related_name='credentials', on_delete=CASCADE)
     value    = PositiveSmallIntegerField()  # See EntityCredentials.VIEW|CHANGE|DELETE|LINK|UNLINK
     set_type = PositiveIntegerField()  # See SetCredentials.ESET_* TODO: choices ?
     ctype    = CTypeForeignKey(null=True, blank=True)

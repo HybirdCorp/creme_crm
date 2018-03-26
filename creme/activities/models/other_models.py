@@ -20,7 +20,7 @@
 
 from datetime import timedelta
 
-from django.db.models import CharField, IntegerField, TextField, ForeignKey, BooleanField
+from django.db.models import CharField, IntegerField, TextField, ForeignKey, BooleanField, CASCADE
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
@@ -60,7 +60,7 @@ class ActivitySubType(CremeModel):
     id        = CharField(primary_key=True, max_length=100, editable=False)\
                          .set_tags(viewable=False)
     name      = CharField(_(u'Name'), max_length=100)
-    type      = ForeignKey(ActivityType, verbose_name=_(u'Type of activity'))\
+    type      = ForeignKey(ActivityType, verbose_name=_(u'Type of activity'), on_delete=CASCADE)\
                           .set_tags(viewable=False)
     is_custom = BooleanField(default=True, editable=False).set_tags(viewable=False)  # Used by creme_config
 
