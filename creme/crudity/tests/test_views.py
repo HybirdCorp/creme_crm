@@ -3,7 +3,7 @@
 try:
     import ConfigParser
     import io
-    from json import loads as load_json
+    # from json import loads as load_json
     import poplib
 
     from django.conf import settings
@@ -328,12 +328,13 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
         brick_id = 'block_crudity-%s' % ct.id
         response = self.assertGET200(reverse('crudity__reload_history_bricks'), data={'brick_id': brick_id})
 
-        with self.assertNoException():
-            load_data = load_json(response.content)
+        # with self.assertNoException():
+        #     reload_data = load_json(response.content)
+        reload_data = response.json()
 
-        self.assertEqual(load_data[0][0], brick_id)
+        self.assertEqual(reload_data[0][0], brick_id)
 
-        l_document = self.get_html_tree(load_data[0][1])
+        l_document = self.get_html_tree(reload_data[0][1])
         self.get_brick_node(l_document, brick_id)
         # TODO: complete ?
 
@@ -386,12 +387,13 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
                                      data={'brick_id': brick_id},
                                     )
 
-        with self.assertNoException():
-            load_data = load_json(response.content)
+        # with self.assertNoException():
+        #     reload_data = load_json(response.content)
+        reload_data = response.json()
 
-        self.assertEqual(load_data[0][0], brick_id)
+        self.assertEqual(reload_data[0][0], brick_id)
 
-        l_document = self.get_html_tree(load_data[0][1])
+        l_document = self.get_html_tree(reload_data[0][1])
         self.get_brick_node(l_document, brick_id)
         # TODO: complete
 
@@ -422,8 +424,9 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
 
         response = self.assertPOST200(url)
 
-        with self.assertNoException():
-            ldata = load_json(response.content)
+        # with self.assertNoException():
+        #     ldata = load_json(response.content)
+        ldata = response.json()
 
         self.assertEqual([], ldata)
         pop_instances = FakePOP3.instances

@@ -2,7 +2,7 @@
 
 try:
     from datetime import timedelta
-    from json import loads as load_json
+    # from json import loads as load_json
 
     from django.core.urlresolvers import reverse
     from django.utils.timezone import now
@@ -151,7 +151,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
 
         # Reload
         response = self.assertGET200(reverse('cti__reload_callers_brick', args=(phone,)))
-        content = load_json(response.content)
+        content = response.json()
         self.assertIsInstance(content, list)
         self.assertEqual(1, len(content))
 

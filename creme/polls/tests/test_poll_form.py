@@ -1671,7 +1671,8 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                                 )
 
         response = self.assertGET200(self._build_choices_url(line))
-        self.assertEqual(choices, load_json(response.content))
+        # self.assertEqual(choices, load_json(response.content))
+        self.assertEqual(choices, response.json())
 
     def test_get_choices02(self):
         "MULTI_ENUM"
@@ -1682,7 +1683,8 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                                  choices=choices,
                                                 )
         response = self.assertGET200(self._build_choices_url(line))
-        self.assertEqual(choices, load_json(response.content))
+        # self.assertEqual(choices, load_json(response.content))
+        self.assertEqual(choices, response.json())
 
     def test_get_choices03(self):
         "ENUM_OR_STRING"
@@ -1693,7 +1695,8 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                                  choices=choices,
                                                 )
         response = self.assertGET200(self._build_choices_url(line))
-        self.assertEqual([[0, _('Other')]] + choices, load_json(response.content))
+        # self.assertEqual([[0, _('Other')]] + choices, load_json(response.content))
+        self.assertEqual([[0, _('Other')]] + choices, response.json())
 
     def test_get_choices04(self):
         "BOOL"
@@ -1702,7 +1705,8 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                            order=1, type=PollLineType.BOOL,
                                           )
         response = self.assertGET200(self._build_choices_url(line))
-        self.assertEqual([[0, _('No')], [1, _('Yes')]], load_json(response.content))
+        # self.assertEqual([[0, _('No')], [1, _('Yes')]], load_json(response.content))
+        self.assertEqual([[0, _('No')], [1, _('Yes')]], response.json())
 
     def test_get_choices_error01(self):
         "Bad type"

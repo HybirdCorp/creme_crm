@@ -171,7 +171,7 @@ def user_calendar(request):
                    'my_calendars':            Calendar.objects.filter(user=user),
                    'others_calendars':        dict(others_calendars),
                    'n_others_calendars':      len(calendars),
-                   'creme_calendars_by_user': jsondumps(creme_calendars_by_user),
+                   'creme_calendars_by_user': jsondumps(creme_calendars_by_user),  # TODO: use '|jsonify' ?
                    'current_calendars':       [str(id) for id in calendar_ids],
                    'creation_perm':           user.has_perm(cperm(Activity)),
                    # TODO only floating activities assigned to logged user ??

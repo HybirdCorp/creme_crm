@@ -2,7 +2,7 @@
 
 try:
     from functools import partial
-    from json import loads as load_json
+    # from json import loads as load_json
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
@@ -535,7 +535,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         def assertStrOps(fieldname):
             response = self.assertGET200(self.build_ops_url(self.contact_ct_id, fieldname))
 
-            json_data = load_json(response.content)
+            # json_data = load_json(response.content)
+            json_data = response.json()
             self.assertIsInstance(json_data, list)
             self.assertTrue(json_data)
             self.assertIn(['upper', _(u'To upper case')], json_data)
@@ -551,7 +552,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(self.build_ops_url(self.orga_ct.id, 'capital'))
 
-        json_data = load_json(response.content)
+        # json_data = load_json(response.content)
+        json_data = response.json()
         self.assertIn(['add_int', _(u'Add')], json_data)
         self.assertIn(['sub_int', _(u'Subtract')], json_data)
         self.assertNotIn('prefix', (e[0] for e in json_data))
@@ -561,7 +563,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.login()
 
         response = self.assertGET200(self.build_ops_url(self.contact_ct_id, 'image'))
-        self.assertEqual([], load_json(response.content))
+        # self.assertEqual([], load_json(response.content))
+        self.assertEqual([], response.json())
 
     def test_get_ops05(self):
         "No app credentials"

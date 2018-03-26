@@ -2,7 +2,7 @@
 
 try:
     from functools import partial
-    from json import loads as load_json, dumps as json_dump
+    from json import dumps as json_dump # loads as load_json
 
     from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
@@ -153,11 +153,13 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.assertGET200(reverse('creme_core__reload_bricks'),
                                      data={'brick_id': [FoobarBrick1.id_, FoobarBrick2.id_, 'silly_id']},
                                     )
-        self.assertEqual('text/javascript', response['Content-Type'])
+        # self.assertEqual('text/javascript', response['Content-Type'])
+        self.assertEqual('application/json', response['Content-Type'])
         self.assertEqual([[FoobarBrick1.id_, self.TestBrick.string_format_detail % FoobarBrick1.id_],
                           [FoobarBrick2.id_, self.TestBrick.string_format_detail % FoobarBrick2.id_],
                          ],
-                         load_json(response.content)
+                         # load_json(response.content)
+                         response.json()
                         )
 
     def test_reload_basic02(self):
@@ -185,7 +187,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
         response = self.assertGET200(reverse('creme_core__reload_bricks'), data={'brick_id': FoobarBrick1.id_})
         self.assertEqual([[FoobarBrick1.id_, self.TestBrick.string_format_detail % FoobarBrick1.id_]],
-                         load_json(response.content)
+                         # load_json(response.content)
+                         response.json()
                         )
 
     def test_reload_basic04(self):
@@ -211,7 +214,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                           },
                                     )
         self.assertEqual([[FoobarBrick.id_, self.TestBrick.string_format_detail % FoobarBrick.id_]],
-                         load_json(response.content)
+                         # load_json(response.content)
+                         response.json()
                         )
 
         self.assertTrue(received_extra_data)
@@ -264,9 +268,11 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.assertGET200(reverse('creme_core__reload_detailview_bricks', args=(atom.id,)),
                                      data={'brick_id': FoobarBrick.id_},
                                     )
-        self.assertEqual('text/javascript', response['Content-Type'])
+        # self.assertEqual('text/javascript', response['Content-Type'])
+        self.assertEqual('application/json', response['Content-Type'])
         self.assertEqual([[FoobarBrick.id_, self.TestBrick.string_format_detail % FoobarBrick.id_]],
-                         load_json(response.content)
+                         # load_json(response.content)
+                         response.json()
                         )
         self.assertEqual(atom, FoobarBrick.contact)
 
@@ -310,7 +316,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                           [FoobarBrick2.id_, fmt % FoobarBrick2.id_],
                           [FoobarBrick3.id_, fmt % FoobarBrick3.id_],
                          ],
-                         load_json(response.content)
+                         # load_json(response.content)
+                         response.json()
                         )
         self.assertEqual(atom, FoobarBrick1.contact)
         self.assertEqual(atom, FoobarBrick2.contact)
@@ -348,7 +355,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                      data={'brick_id': FoobarBrick.id_},
                                     )
         self.assertEqual([[FoobarBrick.id_, self.TestBrick.string_format_detail % FoobarBrick.id_]],
-                         load_json(response.content)
+                         # load_json(response.content)
+                         response.json()
                         )
 
     def test_reload_detailview05(self):
@@ -361,8 +369,10 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                             ),
                                      data={'brick_id': 'test_bricks_reload_detailview05'},
                                     )
-        self.assertEqual('text/javascript', response['Content-Type'])
-        self.assertEqual([], load_json(response.content))
+        # self.assertEqual('text/javascript', response['Content-Type'])
+        self.assertEqual('application/json', response['Content-Type'])
+        # self.assertEqual([], load_json(response.content))
+        self.assertEqual([], response.json())
 
     def test_reload_detailview06(self):
         "Extra data"
@@ -386,7 +396,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                           },
                                     )
         self.assertEqual([[FoobarBrick.id_, self.TestBrick.string_format_detail % FoobarBrick.id_]],
-                         load_json(response.content)
+                         # load_json(response.content)
+                         response.json()
                         )
 
         self.assertTrue(received_extra_data)
@@ -409,11 +420,13 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                      #      }
                                      data={'brick_id': [FoobarBrick1.id_, FoobarBrick2.id_, 'silly_id']},
                                     )
-        self.assertEqual('text/javascript', response['Content-Type'])
+        # self.assertEqual('text/javascript', response['Content-Type'])
+        self.assertEqual('application/json', response['Content-Type'])
         self.assertEqual([[FoobarBrick1.id_, self.TestBrick.string_format_home % FoobarBrick1.id_],
                           [FoobarBrick2.id_, self.TestBrick.string_format_home % FoobarBrick2.id_],
                          ],
-                         load_json(response.content)
+                         # load_json(response.content)
+                         response.json()
                         )
 
     def test_reload_portal01(self):
@@ -446,11 +459,13 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                            'ct_id':    [ct_id1, ct_id2],
                                            },
                                     )
-        self.assertEqual('text/javascript', response['Content-Type'])
+        # self.assertEqual('text/javascript', response['Content-Type'])
+        self.assertEqual('application/json', response['Content-Type'])
         self.assertEqual([[FoobarBrick1.id_, self.TestBrick.string_format_portal % FoobarBrick1.id_],
                           [FoobarBrick2.id_, self.TestBrick.string_format_portal % FoobarBrick2.id_],
                          ],
-                         load_json(response.content)
+                         # load_json(response.content)
+                         response.json()
                         )
 
         ct_ids = [str(ct_id1), str(ct_id2)]
@@ -488,7 +503,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                           },
                                     )
         self.assertEqual([[FoobarBlock1.id_, self.TestBrick.string_format_portal % FoobarBlock1.id_]],
-                         load_json(response.content)
+                         # load_json(response.content)
+                         response.json()
                         )
 
     def test_relations_brick01(self):
@@ -574,7 +590,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                           },
                                     )
 
-        load_data = load_json(response.content)
+        # load_data = load_json(response.content)
+        load_data = response.json()
         self.assertEqual(load_data[0][0], rbrick_id)
 
         l_document = self.get_html_tree(load_data[0][1])
@@ -635,7 +652,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                           },
                                     )
 
-        load_data = load_json(response.content)
+        # load_data = load_json(response.content)
+        load_data = response.json()
         self.assertEqual(load_data[0][0], rbrick_id)
 
         l_document = self.get_html_tree(load_data[0][1])

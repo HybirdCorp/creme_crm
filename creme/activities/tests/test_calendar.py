@@ -3,7 +3,7 @@
 try:
     from datetime import timedelta, date
     from functools import partial
-    from json import loads as jsonloads, dumps as jsondumps
+    from json import dumps as jsondumps # loads as jsonloads
 
     from django.core.exceptions import ValidationError
     from django.core.urlresolvers import reverse
@@ -300,7 +300,8 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertPOST404(url, data={'id': 1024})
 
         response = self.assertPOST403(url, data={'id': cal.id})
-        self.assertEqual('text/javascript', response['Content-Type'])
+        # self.assertEqual('text/javascript', response['Content-Type'])
+        self.assertEqual('application/json', response['Content-Type'])
         self.assertEqual(_('You are not allowed to delete this calendar.'),
                          force_unicode(response.content)
                         )
@@ -430,12 +431,14 @@ class CalendarTestCase(_ActivitiesTestCase):
         user = self.login()
 
         response = self._get_cal_activities([Calendar.get_user_default_calendar(user)])
-        self.assertEqual('text/javascript', response['Content-Type'])
+        # self.assertEqual('text/javascript', response['Content-Type'])
+        self.assertEqual('application/json', response['Content-Type'])
 
-        with self.assertNoException():
-            data = jsonloads(response.content)
-
-        self.assertEqual([], data)
+        # with self.assertNoException():
+        #     data = jsonloads(response.content)
+        #
+        # self.assertEqual([], data)
+        self.assertEqual([], response.json())
 
     @skipIfCustomActivity
     def test_get_users_activities02(self):
@@ -473,8 +476,9 @@ class CalendarTestCase(_ActivitiesTestCase):
                                             end=end.strftime('%s'),
                                            )
 
-        with self.assertNoException():
-            data = jsonloads(response.content)
+        # with self.assertNoException():
+        #     data = jsonloads(response.content)
+        data = response.json()
 
         self.assertEqual(4, len(data))
 
@@ -566,8 +570,9 @@ class CalendarTestCase(_ActivitiesTestCase):
                                             start=start.strftime('%s'),
                                            )
 
-        with self.assertNoException():
-            data = jsonloads(response.content)
+        # with self.assertNoException():
+        #     data = jsonloads(response.content)
+        data = response.json()
 
         expected = [act1]
         expected_ids  = {act.id for act in expected}
@@ -616,9 +621,9 @@ class CalendarTestCase(_ActivitiesTestCase):
                                      },
                                     )
 
-        with self.assertNoException():
-            data = jsonloads(response.content)
-
+        # with self.assertNoException():
+        #     data = jsonloads(response.content)
+        data = response.json()
         self.assertEqual(4, len(data))
 
         def formatted_dt(dt):

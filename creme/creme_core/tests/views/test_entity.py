@@ -4,7 +4,7 @@ try:
     from datetime import date
     from decimal import Decimal
     from functools import partial
-    from json import loads as load_json
+    # from json import loads as load_json
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
@@ -56,15 +56,18 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertGET(400, url)
 
         response = self.assertGET200(url, data={'fields': ['id']})
-        self.assertEqual([[rei.id]], load_json(response.content))
+        # self.assertEqual([[rei.id]], load_json(response.content))
+        self.assertEqual([[rei.id]], response.json())
 
         response = self.assertGET200(url, data={'fields': ['unicode']})
-        self.assertEqual([[unicode(rei)]], load_json(response.content))
+        # self.assertEqual([[unicode(rei)]], load_json(response.content))
+        self.assertEqual([[unicode(rei)]], response.json())
 
         response = self.assertGET200(reverse('creme_core__entity_as_json', args=(nerv.id,)),
                                      data={'fields': ['id', 'unicode']}
                                     )
-        self.assertEqual([[nerv.id, unicode(nerv)]], load_json(response.content))
+        # self.assertEqual([[nerv.id, unicode(nerv)]], load_json(response.content))
+        self.assertEqual([[nerv.id, unicode(nerv)]], response.json())
 
         self.assertGET(400, reverse('creme_core__entity_as_json', args=(1024,)))
         self.assertGET403(url, data={'fields': ['id', 'unknown']})
@@ -90,7 +93,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(reverse('creme_core__entity_as_json', args=(e.id,)),
                                      data={'fields': ['unicode']},
                                     )
-        self.assertEqual([[unicode(e)]], load_json(response.content))
+        self.assertEqual([[unicode(e)]], response.json())
 
     def test_get_creme_entities_repr01(self):
         user = self.login()
@@ -99,13 +102,14 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             entity = CremeEntity.objects.create(user=user)
 
         response = self.assertGET200(reverse('creme_core__entities_summaries', args=(entity.id,)))
-        self.assertEqual('text/javascript', response['Content-Type'])
+        # self.assertEqual('text/javascript', response['Content-Type'])
+        self.assertEqual('application/json', response['Content-Type'])
 
         self.assertEqual([{'id':   entity.id,
                            'text': 'Creme entity: %s' % entity.id,
                           }
                          ],
-                         load_json(response.content)
+                         response.json()
                         )
 
     def test_get_creme_entities_repr02(self):
@@ -135,7 +139,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                           {'id': nerv.id,  'text': unicode(nerv)},
                           {'id': asuka.id, 'text': unicode(asuka)},
                          ],
-                         load_json(response.content)
+                         response.json()
                         )
 
     def test_get_sanitized_html_field(self):
@@ -316,7 +320,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertDictEqual({'count': 2,
                               'errors': [_(u"%s entities doesn't exist / doesn't exist any more") % 1]
                              },
-                             load_json(response.content)
+                             response.json()
                             )
 
         entity01 = self.get_object_or_fail(CremeEntity, pk=entity01.id)
@@ -336,7 +340,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertDictEqual({'count': 2,
                               'errors': [_(u'%s : <b>Permission denied</b>') % forbidden.allowed_unicode(user)],
                              },
-                             load_json(response.content)
+                             response.json()
                             )
 
         allowed = self.get_object_or_fail(CremeEntity, pk=allowed.id)
@@ -492,7 +496,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.login()
 
         response = self.assertGET200(self._build_test_get_info_fields_url(FakeContact))
-        json_data = load_json(response.content)
+        json_data = response.json()
         self.assertIsInstance(json_data, list)
         self.assertTrue(all(isinstance(elt, list) for elt in json_data))
         self.assertTrue(all(len(elt) == 2 for elt in json_data))
@@ -514,7 +518,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.login()
 
         response = self.client.get(self._build_test_get_info_fields_url(FakeOrganisation))
-        json_data = load_json(response.content)
+        json_data = response.json()
 
         names = ['created', 'modified', 'name', 'description', 'url_site',
                  'phone', 'email', 'creation_date',  'subject_to_vat', 'capital',
@@ -537,7 +541,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                             )
 
         response = self.assertGET200(self._build_test_get_info_fields_url(FakeContact))
-        json_data = load_json(response.content)
+        json_data = response.json()
         names = ['created', 'modified', 'first_name', 'last_name', 'description',
                  'phone', 'mobile', 'email', 'url_site', 'is_a_nerd',
                  # 'birthday', #<===

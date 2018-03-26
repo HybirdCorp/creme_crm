@@ -677,14 +677,17 @@ def delete_entities(request):
     if not errors:
         status = 200
         message = _(u'Operation successfully completed')
+        content_type = None
     else:
         status = min(errors.iterkeys())
         message = json_dumps({'count': len(entity_ids),
                               'errors': [msg for error_messages in errors.itervalues() for msg in error_messages],
                              }
                             )
+        content_type = 'application/json'
 
-    return HttpResponse(message, content_type='text/javascript', status=status)
+    # return HttpResponse(message, content_type='text/javascript', status=status)
+    return HttpResponse(message, content_type=content_type, status=status)
 
 
 @login_required

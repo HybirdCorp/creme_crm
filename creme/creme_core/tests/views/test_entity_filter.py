@@ -3,7 +3,7 @@
 try:
     from datetime import date
     from functools import partial
-    from json import loads as load_json
+    # from json import loads as load_json
 
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
@@ -1353,7 +1353,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(self._build_get_ct_url(rtype))
 
-        content = load_json(response.content)
+        # content = load_json(response.content)
+        content = response.json()
         self.assertIsInstance(content, list)
         self.assertGreater(len(content), 1)
         self.assertTrue(all(len(t) == 2 for t in content))
@@ -1371,7 +1372,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         ct = self.ct_contact
         self.assertEqual([[0, _(u'All')], [ct.id, unicode(ct)]],
-                         load_json(response.content)
+                         # load_json(response.content)
+                         response.json()
                         )
 
     def test_filters_for_ctype01(self):
@@ -1380,7 +1382,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         # response = self.assertGET200(self._build_get_filter_url(self.ct_contact, use_GET=True))
         response = self.assertGET200(self._build_get_filter_url(self.ct_contact))
 
-        content = load_json(response.content)
+        # content = load_json(response.content)
+        content = response.json()
         self.assertIsInstance(content, list)
         self.assertFalse(content)
 
@@ -1411,18 +1414,22 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         exepcted = [[efilter01.id, name1], [efilter02.id, name2], [efilter03.id, name3]]
 
         response = self.assertGET200(self._build_get_filter_url(self.ct_contact))
-        self.assertEqual(exepcted, load_json(response.content))
+        # self.assertEqual(exepcted, load_json(response.content))
+        self.assertEqual(exepcted, response.json())
 
         # url = self._build_get_filter_url(self.ct_contact, use_GET=True)
         url = self._build_get_filter_url(self.ct_contact)
         response = self.assertGET200(url)
-        self.assertEqual(exepcted, load_json(response.content))
+        # self.assertEqual(exepcted, load_json(response.content))
+        self.assertEqual(exepcted, response.json())
 
         response = self.assertGET200(url + '&all=0')
-        self.assertEqual(exepcted, load_json(response.content))
+        # self.assertEqual(exepcted, load_json(response.content))
+        self.assertEqual(exepcted, response.json())
 
         response = self.assertGET200(url + '&all=false')
-        self.assertEqual(exepcted, load_json(response.content))
+        # self.assertEqual(exepcted, load_json(response.content))
+        self.assertEqual(exepcted, response.json())
 
         self.assertGET404(url + '&all=invalid')
 
@@ -1450,10 +1457,10 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         # url = self._build_get_filter_url(self.ct_contact, use_GET=True)
         url = self._build_get_filter_url(self.ct_contact)
         response = self.assertGET200(url + '&all=1')
-        self.assertEqual(expected, load_json(response.content))
+        self.assertEqual(expected, response.json())
 
         response = self.assertGET200(url + '&all=true')
-        self.assertEqual(expected, load_json(response.content))
+        self.assertEqual(expected, response.json())
 
         response = self.assertGET200(url + '&all=True')
-        self.assertEqual(expected, load_json(response.content))
+        self.assertEqual(expected, response.json())

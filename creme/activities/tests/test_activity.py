@@ -3,7 +3,7 @@
 try:
     from datetime import datetime, date, time  # timedelta
     from functools import partial
-    from json import loads as json_loads
+    # from json import loads as json_loads
 
     from django.apps import apps
     from django.contrib.auth import get_user_model
@@ -168,14 +168,16 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         # Empty
         response = self.assertGET200(build_url(''))
-        self.assertListEqual([], json_loads(response.content))
+        # self.assertListEqual([], json_loads(response.content))
+        self.assertListEqual([], response.json())
 
         # Valid type
         response = self.assertGET200(build_url(constants.ACTIVITYTYPE_TASK))
         self.assertListEqual(list(ActivitySubType.objects.filter(type=constants.ACTIVITYTYPE_TASK)
                                                          .values_list('id', 'name')
                                  ),
-                             json_loads(response.content)
+                             # json_loads(response.content)
+                             response.json()
                             )
 
     @skipIfCustomContact

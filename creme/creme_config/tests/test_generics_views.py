@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from json import dumps as json_dump, loads as json_load
+    from json import dumps as json_dump  # loads as json_load
 
     from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
@@ -387,13 +387,13 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
                                             )
                                     )
 
-        with self.assertNoException():
-            result = json_load(response.content)
+        # with self.assertNoException():
+        #     results = json_load(response.content)
+        results = response.json()
+        self.assertIsInstance(results, list)
+        self.assertEqual(1, len(results))
 
-        self.assertIsInstance(result, list)
-        self.assertEqual(1, len(result))
-
-        result = result[0]
+        result = results[0]
         self.assertIsInstance(result, list)
         self.assertEqual(2, len(result))
 
@@ -408,13 +408,13 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
         response = self.assertGET200(url, data={'brick_id': SettingsBrick.id_})
 
-        with self.assertNoException():
-            result = json_load(response.content)
+        # with self.assertNoException():
+        #     results = json_load(response.content)
+        results = response.json()
+        self.assertIsInstance(results, list)
+        self.assertEqual(1, len(results))
 
-        self.assertIsInstance(result, list)
-        self.assertEqual(1, len(result))
-
-        result = result[0]
+        result = results[0]
         self.assertIsInstance(result, list)
         self.assertEqual(2, len(result))
 
@@ -427,13 +427,13 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
                                      data={'brick_id': FakeAppPortalBrick.id_}
                                     )
 
-        with self.assertNoException():
-            result = json_load(response.content)
+        # with self.assertNoException():
+        #     result = json_load(response.content)
+        results = response.json()
+        self.assertIsInstance(results, list)
+        self.assertEqual(1, len(results))
 
-        self.assertIsInstance(result, list)
-        self.assertEqual(1, len(result))
-
-        result = result[0]
+        result = results[0]
         self.assertIsInstance(result, list)
         self.assertEqual(2, len(result))
 
