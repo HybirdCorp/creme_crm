@@ -114,26 +114,23 @@ class DummyListBrick(PaginatedBrick):
     dependencies  = ()
     permission    = 'creme_config.can_admin'
     template_name = join(TEST_TEMPLATE_BRICK_PATH, 'dummy-list.html')
-    data          = None
     configurable  = False
 
     def detailview_display(self, context):
         request = context['request']
         user = request.user
-        refresh = request.GET.get('refresh', False)
+        reloading_info = self.reloading_info or {}
 
-        min_count = request.GET.get('min', '0')
-        min_count = int(min_count) if min_count.isdigit() else 0
+        item_count_str = str(request.GET.get('count') or reloading_info.get('count', ''))
+        item_count = int(item_count_str) if item_count_str.isdigit() else 20
 
-        if refresh or self.data is None:
-            self.data = [Dummy(id, user) for id in xrange(max(min_count, randint(0, 100)))]
-
-        context['min_block_count'] = min_count
+        data = [Dummy(id + 1, user) for id in xrange(item_count)]
 
         # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
-                    context, self.data,
-                    # # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
+                    context, data,
+                    reloading_info={'count': item_count}
+                    # update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
                     # update_url=reverse('creme_core__set_block_state', args=(self.id_,)),
         ))
 
@@ -173,9 +170,7 @@ def js_testview_context(request, viewname):
     get = request.GET.get
 
     return {
-        'THEME_LIST':      [(theme_id, unicode(theme_vname))
-                                for theme_id, theme_vname in settings.THEMES
-                           ],
+        'THEME_LIST':      [(theme_id, unicode(theme_vname)) for theme_id, theme_vname in settings.THEMES],
         # 'THEME_NAME':      get('theme', get_current_theme()),
         'THEME_NAME':      get('theme') or request.user.theme_info[0],
         'TEST_VIEW_LIST':  test_views,
