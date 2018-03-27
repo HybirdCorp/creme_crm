@@ -105,7 +105,8 @@ def lw_ajax_exceptions(view):
         status = 200
 
         try:
-            content = view(*args, **kwargs)
+            # content = view(*args, **kwargs)
+            return view(*args, **kwargs)
         except Http404 as e:
             content = unicode(e)
             status = 404
@@ -348,7 +349,7 @@ def activities_portal(request):
 
     # NB: max size is reached ; we are obliged to make a query to know the real count
     if floating_count == FLOATING_SIZE:
-      floating_count = floating_qs.count()
+        floating_count = floating_qs.count()
 
     tomorrow = localtime(now_val + timedelta(days=1))
     build_dt = lambda h, m, s: datetime(year=tomorrow.year, month=tomorrow.month, day=tomorrow.day,
