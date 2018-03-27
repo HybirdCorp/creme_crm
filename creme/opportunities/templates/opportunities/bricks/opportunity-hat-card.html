@@ -45,7 +45,7 @@
     <div class="card-info-field">
         <span class='card-info-key'>{% trans 'Estimated sales' %}</span>
         <span class='card-info-value'>
-            {% if object.estimated_sales == None %}
+            {% if object.estimated_sales is None %}
             —
             {% else %}
             {{object.estimated_sales|format_amount:object.currency}}
@@ -57,7 +57,7 @@
     <div class="card-info-field">
         <span class='card-info-key'>{% trans 'Made sales' %}</span>
         <span class='card-info-value'>
-            {% if object.made_sales == None %}
+            {% if object.made_sales is None %}
             —
             {% else %}
             {{object.made_sales|format_amount:object.currency}}

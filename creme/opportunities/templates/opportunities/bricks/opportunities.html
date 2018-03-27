@@ -35,14 +35,14 @@
         {% if opp_view_perm %}
         <td>{{opportunity.sales_phase}}</td>
         <td data-type="money">{# TODO: factorise with opportunity-hat-card.html #}
-            {% if opportunity.estimated_sales == None %}
+            {% if opportunity.estimated_sales is None %}
             —
             {% else %}
             {{opportunity.estimated_sales|format_amount:opportunity.currency}}
             {% endif %}
         </td>
         <td data-type="money">
-            {% if opportunity.made_sales == None %}
+            {% if opportunity.made_sales is None %}
             —
             {% else %}
             {{opportunity.made_sales|format_amount:opportunity.currency}}
