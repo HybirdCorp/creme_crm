@@ -342,7 +342,7 @@ class CremeCoreConfig(CremeAppConfig):
         self.hook_m2m_formfield()
         self.hook_datetime_widgets()
         self.hook_multiselection_widgets()
-        self.hook_widget_render()
+        # self.hook_widget_render()
 
         if settings.TESTS_ON:
             from .tests.fake_apps import ready
@@ -505,23 +505,24 @@ class CremeCoreConfig(CremeAppConfig):
         forms.MultipleChoiceField.widget = forms.ModelMultipleChoiceField.widget = \
              widgets.UnorderedMultipleChoiceWidget
 
-    @staticmethod
-    def hook_widget_render():
-        from django.forms.widgets import Widget
-
-        def build_attrs(self, extra_attrs=None, **kwargs):
-            attrs = dict(self.attrs, **kwargs)
-
-            if self.is_required:
-                attrs['required'] = ''
-
-            if extra_attrs:
-                attrs.update(extra_attrs)
-
-            return attrs
-
-
-        Widget.build_attrs = build_attrs
+    # NB: useless in Django 1.10 which does the job
+    # @staticmethod
+    # def hook_widget_render():
+    #     from django.forms.widgets import Widget
+    #
+    #     def build_attrs(self, extra_attrs=None, **kwargs):
+    #         attrs = dict(self.attrs, **kwargs)
+    #
+    #         if self.is_required:
+    #             attrs['required'] = ''
+    #
+    #         if extra_attrs:
+    #             attrs.update(extra_attrs)
+    #
+    #         return attrs
+    #
+    #
+    #     Widget.build_attrs = build_attrs
 
     @staticmethod
     def tag_ctype():
