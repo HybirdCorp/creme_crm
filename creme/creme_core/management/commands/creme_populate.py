@@ -85,6 +85,7 @@ class Command(BaseCommand):
             'entire site if no apps are specified.')
     args = '[appname ...]'
     leave_locale_alone = True
+    requires_migrations_checks = True
 
     def _signal_handler(self, sender, instance, **kwargs):
         if instance.pk and not isinstance(instance.pk, basestring):

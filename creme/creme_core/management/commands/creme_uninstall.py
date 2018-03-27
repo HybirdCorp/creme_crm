@@ -232,6 +232,7 @@ class Command(AppCommand):
 #    )
     help = 'Uninstall Creme apps correctly, by removing remaining data in DB.'  # TODO: and tables ????
     args = '[appname ...]'
+    requires_migrations_checks = True
 
     def _check_apps_dependencies(self, app_config):
         depending_app_names = []

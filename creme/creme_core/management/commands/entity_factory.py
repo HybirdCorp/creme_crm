@@ -273,6 +273,7 @@ class OptimizePGSQLContext(BaseOptimizeContext):
 class Command(BaseCommand):
     help = 'Create a lot of fake entities in order to test performances.'
     leave_locale_alone = True
+    requires_migrations_checks = True
 
     TYPES = {
         'contact':      _get_contact_n_factory,
