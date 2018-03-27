@@ -255,7 +255,8 @@ MIDDLEWARE = [
 
     'creme.creme_core.middleware.exceptions.Ajax500Middleware',  # It must be last middleware that catches all exceptions
     'creme.creme_core.middleware.exceptions.Ajax404Middleware',
-    'creme.creme_core.middleware.exceptions.Beautiful403Middleware',
+    # 'creme.creme_core.middleware.exceptions.Beautiful403Middleware',
+    'creme.creme_core.middleware.exceptions.Ajax403Middleware',
     'creme.creme_core.middleware.exceptions.Beautiful409Middleware',
 
     'django.middleware.security.SecurityMiddleware',
