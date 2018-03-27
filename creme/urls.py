@@ -11,7 +11,9 @@ from django.views.static import serve
 from creme.creme_core.apps import creme_app_configs
 
 logger = logging.getLogger(__name__)
-handler500 = 'creme.creme_core.views.exceptions.server_error'
+
+handler403 = 'creme.creme_core.views.exceptions.permission_denied'
+# handler500 = 'creme.creme_core.views.exceptions.server_error'
 
 urlpatterns = [
     url(r'^creme_login[/]?$',  login, {'template_name': 'authent/creme_login.html'}, name='creme_login'),

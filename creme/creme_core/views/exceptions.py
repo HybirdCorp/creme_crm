@@ -18,10 +18,43 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponseServerError
+import warnings
+
+from django.http import HttpResponseForbidden
 from django.template.loader import render_to_string
+from django.utils.encoding import smart_unicode
+from django.views.decorators.csrf import requires_csrf_token
 
 
 def server_error(request, template_name='500.html'):
     "500 error handler."
+    warnings.warn('creme.creme_core.views.exceptions.server_error() is deprecated ; '
+                  'use django.views.defaults.server_error() instead.',
+                  DeprecationWarning
+                 )
+    from django.http import HttpResponseServerError
+
     return HttpResponseServerError(render_to_string(template_name, request=request))
+
+
+@requires_csrf_token
+def permission_denied(request, exception, template_name='creme_core/forbidden.html'):
+    protected_objects = None
+    args = exception.args
+
+    if len(args) > 1:
+        msg = smart_unicode(args[0])
+        arg = args[1]
+
+        if isinstance(arg, dict):
+            protected_objects = arg.get('protected_objects')
+    else:
+        msg = smart_unicode(exception)
+
+    return HttpResponseForbidden(render_to_string(template_name,
+                                                  {'error_message':     msg,
+                                                   'protected_objects': protected_objects,
+                                                  },
+                                                  request=request,
+                                                 )
+                                )
