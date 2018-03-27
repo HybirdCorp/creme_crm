@@ -23,6 +23,7 @@ import re
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+from django.db.models.fields import FieldDoesNotExist
 from django.db.models.fields.related import ManyToManyField
 from django.forms.fields import ChoiceField
 from django.forms.forms import NON_FIELD_ERRORS
@@ -165,9 +166,17 @@ class BulkForm(CremeForm):
 
     def _bulk_clean_entity(self, entity, values):
         for key, value in values.iteritems():
-            setattr(entity, key, value)
+            # setattr(entity, key, value)
+            try:
+                mfield = entity._meta.get_field(key)
+            except FieldDoesNotExist:
+                pass
+            else:
+                if not getattr(mfield, 'many_to_many', False):
+                    setattr(entity, key, value)
 
         entity.full_clean()
+
         return entity
 
     def _bulk_clean_subfield(self, entity, values):
@@ -253,8 +262,19 @@ class BulkDefaultEditForm(BulkForm):
         entities = self.bulk_cleaned_entities
         field_value = self.cleaned_data['field_value']
 
-        if self.is_custom and entities:
-            custom_field.CustomFieldValue.save_values_for_entities(self.model_field, entities, field_value)
-        else:
-            for entity in entities:
-                entity.save()
+        # if self.is_custom and entities:
+        #     custom_field.CustomFieldValue.save_values_for_entities(self.model_field, entities, field_value)
+        # else:
+        #     for entity in entities:
+        #         entity.save()
+        if entities:
+            if self.is_custom:
+                custom_field.CustomFieldValue.save_values_for_entities(self.model_field, entities, field_value)
+            elif getattr(self.model_field, 'many_to_many', False):
+                name = self.model_field.name
+
+                for entity in entities:
+                    getattr(entity, name).set(field_value)
+            else:
+                for entity in entities:
+                    entity.save()
