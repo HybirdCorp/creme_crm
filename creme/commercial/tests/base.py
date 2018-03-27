@@ -7,7 +7,7 @@ skip_strategy_tests = False
 try:
     from unittest import skipIf
 
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
 
     from creme.creme_core.tests.base import CremeTestCase
 

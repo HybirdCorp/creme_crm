@@ -24,11 +24,11 @@ from functools import partial, wraps
 import logging
 
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
+from django.urls import reverse
 from django.utils.encoding import smart_unicode
 from django.utils.timezone import now, localtime
 from django.utils.translation import ugettext as _

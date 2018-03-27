@@ -73,7 +73,7 @@ class PollsConfig(CremeAppConfig):
         PReply    = self.PollReply
 
         if settings.OLD_MENU:
-            from django.core.urlresolvers import reverse_lazy as reverse
+            from django.urls import reverse_lazy as reverse
             from creme.creme_core.auth import build_creation_perm as cperm
 
             reg_item = creme_menu.register_app('polls', '/polls/').register_item

@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 
 def generate_portal_url(app_name):  # TODO; rename app_label

@@ -12,8 +12,8 @@ try:
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
-    from django.core.urlresolvers import reverse
     from django.test.utils import override_settings
+    from django.urls import reverse
     from django.utils.timezone import now
 
     from .base import ViewsTestCase
@@ -1326,8 +1326,10 @@ class ListViewTestCase(ViewsTestCase):
         camp2 = create_camp(name='Bonzais')
         camp3 = create_camp(name='Mushrooms')
 
-        camp1.mailing_lists = [ml1, ml2]
-        camp2.mailing_lists = [ml1]
+        # camp1.mailing_lists = [ml1, ml2]
+        # camp2.mailing_lists = [ml1]
+        camp1.mailing_lists.set([ml1, ml2])
+        camp2.mailing_lists.set([ml1])
 
         def search(term):
             response = self.assertPOST200(FakeEmailCampaign.get_lv_absolute_url(),
@@ -1370,8 +1372,10 @@ class ListViewTestCase(ViewsTestCase):
         img2 = create_img(name='Dragon logo')
         img3 = create_img(name='Mushrooms image')
 
-        img1.categories = [cat1, cat2]
-        img2.categories = [cat1]
+        # img1.categories = [cat1, cat2]
+        # img2.categories = [cat1]
+        img1.categories.set([cat1, cat2])
+        img2.categories.set([cat1])
 
         def search(searched):
             response = self.assertPOST200(FakeImage.get_lv_absolute_url(),
@@ -1419,8 +1423,10 @@ class ListViewTestCase(ViewsTestCase):
         img2 = create_img(name='Dragon logo')
         img3 = create_img(name='Mushrooms image')
 
-        img1.categories = [cat1, cat2]
-        img2.categories = [cat1]
+        # img1.categories = [cat1, cat2]
+        # img2.categories = [cat1]
+        img1.categories.set([cat1, cat2])
+        img2.categories.set([cat1])
 
         def search(searched):
             response = self.assertPOST200(FakeImage.get_lv_absolute_url(),

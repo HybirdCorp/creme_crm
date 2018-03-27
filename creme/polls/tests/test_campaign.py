@@ -4,7 +4,7 @@ try:
     from functools import partial
     from datetime import date
 
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
 
     from creme.creme_core.models import CremePropertyType
     from creme.creme_core.tests.views.base import BrickTestCaseMixin

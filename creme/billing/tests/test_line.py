@@ -5,7 +5,7 @@ try:
     from functools import partial
     from json import dumps as json_dump
 
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials

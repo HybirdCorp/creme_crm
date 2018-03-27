@@ -64,7 +64,8 @@ class MergeWidget(Widget):
         super(MergeWidget, self).__init__(*args, **kwargs)
         self._original_widget = original_widget
 
-    def render(self, name, value, attrs=None, choices=()):
+    # def render(self, name, value, attrs=None, choices=()):
+    def render(self, name, value, attrs=None):
         value_1, value_2, value_m = value or ('', '', '')
         widget = self._original_widget
         render = widget.render

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
     from django.utils.translation import ugettext as _
 
     from .base import _EmailsTestCase, skipIfCustomEmailTemplate, EmailTemplate

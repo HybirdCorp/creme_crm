@@ -5,8 +5,8 @@ from django.conf import settings
 if not settings.TESTS_ON:
     __all__ = ()
 else:
-    from django.core.urlresolvers import reverse
     from django.db.models import CharField, TextField, ForeignKey, ManyToManyField, PROTECT  # FileField
+    from django.urls import reverse
     from django.utils.translation import ugettext_lazy as _
 
     from creme.creme_core.models import CremeEntity

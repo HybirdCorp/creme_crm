@@ -5,8 +5,8 @@ try:
     # from json import loads as json_load
 
     from django.contrib.contenttypes.models import ContentType
-    from django.core.urlresolvers import reverse
     from django.test import override_settings
+    from django.urls import reverse
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials

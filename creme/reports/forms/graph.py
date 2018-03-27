@@ -20,11 +20,11 @@
 
 from future_builtins import map
 
-from django.core.urlresolvers import reverse
 from django.db.models import FieldDoesNotExist, DateTimeField, DateField, ForeignKey
 from django.forms.fields import ChoiceField, BooleanField
 from django.forms.utils import ValidationError # ErrorList
 from django.forms.widgets import Select, CheckboxInput
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms.base import CremeEntityForm

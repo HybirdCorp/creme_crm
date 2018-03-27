@@ -3,7 +3,7 @@
 try:
     from functools import partial
 
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
     from django.utils.translation import ugettext as _, ungettext
 
     from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin

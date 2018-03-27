@@ -15,7 +15,7 @@ try:
     from unittest import skipIf
 
     from django.conf import settings
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase

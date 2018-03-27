@@ -120,7 +120,8 @@ class GuiTestCase(CremeTestCase):
         cat2 = create_cat(name='Photo of product')
 
         img = FakeImage.objects.create(name="Casca's face", user=user, description="Casca's selfie")
-        img.categories = [cat1, cat2]
+        # img.categories = [cat1, cat2]
+        img.categories.set([cat1, cat2])
 
         create_contact = partial(FakeContact.objects.create, user=user)
         casca = create_contact(first_name='Casca', last_name='Mylove',
@@ -190,7 +191,8 @@ class GuiTestCase(CremeTestCase):
         lang2 = create_lang(name='Namek')
 
         goku = FakeContact.objects.create(user=user, first_name='Goku', last_name='Son')
-        goku.languages = [lang1, lang2]
+        # goku.languages = [lang1, lang2]
+        goku.languages.set([lang1, lang2])
 
         get_html_val = field_printers_registry.get_html_field_value
         result_fmt = '<ul><li>%s</li><li>%s</li></ul>'
@@ -212,7 +214,8 @@ class GuiTestCase(CremeTestCase):
     def test_field_printers03(self):
         "ManyToMany (CremeEntity)"
         user = self.login(is_superuser=False)
-        self.role.exportable_ctypes = [ContentType.objects.get_for_model(FakeEmailCampaign)]
+        # self.role.exportable_ctypes = [ContentType.objects.get_for_model(FakeEmailCampaign)]
+        self.role.exportable_ctypes.set([ContentType.objects.get_for_model(FakeEmailCampaign)])
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW   |
                                             EntityCredentials.CHANGE |
@@ -233,8 +236,10 @@ class GuiTestCase(CremeTestCase):
         ml1 = create_ml(name='ML#1')
         ml2 = create_ml(name='ML#2')
         ml3 = create_ml(name='ML#3', user=self.other_user)
-        camp1.mailing_lists = [ml1, ml2]
-        camp2.mailing_lists = [ml3]
+        # camp1.mailing_lists = [ml1, ml2]
+        # camp2.mailing_lists = [ml3]
+        camp1.mailing_lists.set([ml1, ml2])
+        camp2.mailing_lists.set([ml3])
 
         get_html_val = field_printers_registry.get_html_field_value
         get_csv_val  = field_printers_registry.get_csv_field_value
@@ -272,7 +277,8 @@ class GuiTestCase(CremeTestCase):
     def test_field_printers04(self):
         "Credentials"
         user = self.login(is_superuser=False, allowed_apps=['creme_core'])
-        self.role.exportable_ctypes = [ContentType.objects.get_for_model(FakeContact)]
+        # self.role.exportable_ctypes = [ContentType.objects.get_for_model(FakeContact)]
+        self.role.exportable_ctypes.set([ContentType.objects.get_for_model(FakeContact)])
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW   |
                                             EntityCredentials.CHANGE |

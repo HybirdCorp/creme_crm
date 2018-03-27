@@ -4,7 +4,7 @@ try:
     from datetime import date
     from decimal import Decimal
 
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
 
     from creme.creme_core.models import Currency
 

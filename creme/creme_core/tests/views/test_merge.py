@@ -8,7 +8,7 @@ try:
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
     from django.utils.translation import ugettext as _
 
     from .base import ViewsTestCase
@@ -334,8 +334,10 @@ class MergeViewsTestCase(ViewsTestCase):
         language1, language2 = Language.objects.all()[:2]
         language3 = Language.objects.create(name=u'Klingon', code='KLN')
 
-        contact01.languages = [language1]
-        contact02.languages = [language1, language2]
+        # contact01.languages = [language1]
+        # contact02.languages = [language1, language2]
+        contact01.languages.set([language1])
+        contact02.languages.set([language1, language2])
 
         url = self.build_merge_url(contact01, contact02)
         response = self.assertGET200(url)

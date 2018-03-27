@@ -4,7 +4,7 @@ try:
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import BrickTestCaseMixin

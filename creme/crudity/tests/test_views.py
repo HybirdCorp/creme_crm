@@ -9,8 +9,8 @@ try:
     from django.conf import settings
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
-    from django.core.urlresolvers import reverse
     from django.test.utils import override_settings
+    from django.urls import reverse
     from django.utils.translation import ungettext
 
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue

@@ -21,9 +21,9 @@
 from future_builtins import zip
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.db.models import (CharField, TextField, PositiveSmallIntegerField,
         ForeignKey, ManyToManyField, CASCADE)
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeEntity, CremeModel

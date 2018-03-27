@@ -5,9 +5,9 @@ from json import dumps as json_dump
 
 try:
     from django.core.exceptions import ValidationError
-    from django.core.urlresolvers import reverse
     from django.contrib.contenttypes.models import ContentType
     from django.db.models.query import Q, QuerySet
+    from django.urls import reverse
     from django.utils.translation import ugettext as _
 
     from .. import fake_forms

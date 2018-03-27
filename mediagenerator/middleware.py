@@ -1,3 +1,5 @@
+from django.utils.deprecation import MiddlewareMixin
+
 from .settings import DEV_MEDIA_URL, MEDIA_DEV_MODE
 
 # Only load other dependencies if they're needed
@@ -15,11 +17,13 @@ TEXT_MIME_TYPES = (
 )
 
 
-class MediaMiddleware(object):
+# class MediaMiddleware(object):
+class MediaMiddleware(MiddlewareMixin):
     """
     Middleware for serving and browser-side caching of media files.
 
-    This MUST be your *first* entry in MIDDLEWARE_CLASSES. Otherwise, some
+    # This MUST be your *first* entry in MIDDLEWARE_CLASSES. Otherwise, some
+    This MUST be your *first* entry in MIDDLEWARE. Otherwise, some
     other middleware might add ETags or otherwise manipulate the caching
     headers which would result in the browser doing unnecessary HTTP
     roundtrips for unchanged media.

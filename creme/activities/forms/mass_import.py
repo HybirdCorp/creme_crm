@@ -21,7 +21,7 @@
 from collections import OrderedDict
 from datetime import datetime, time
 from functools import partial
-from itertools import chain
+# from itertools import chain
 import logging
 
 from django.contrib.auth import get_user_model
@@ -241,7 +241,8 @@ class SplitColumnParticipantsExtractor(RelatedExtractor):
 
 
 class ParticipantsExtractorWidget(ExtractorWidget):
-    def render(self, name, value, attrs=None, choices=()):
+    # def render(self, name, value, attrs=None, choices=()):
+    def render(self, name, value, attrs=None):
         get = (value or {}).get
 
         # TODO: factorise
@@ -252,7 +253,8 @@ class ParticipantsExtractorWidget(ExtractorWidget):
         pattern_select_id = '%s_pattern' % name
 
         render_sel = self._render_select
-        col_choices = list(chain(self.choices, choices))
+        # col_choices = list(chain(self.choices, choices))
+        col_choices = list(self.choices)
         render_colsel = lambda name, sel_val: render_sel(name, choices=col_choices, sel_val=sel_val,
                                                          attrs={'id': name, 'class': 'csv_col_select'},
                                                         )
@@ -483,7 +485,8 @@ class SubjectsExtractor(RelatedExtractor):
 
 
 class SubjectsExtractorWidget(ExtractorWidget):
-    def render(self, name, value, attrs=None, choices=()):
+    # def render(self, name, value, attrs=None, choices=()):
+    def render(self, name, value, attrs=None):
         get = (value or {}).get
 
         # TODO: help_text that indicates what CTypes are used ?
@@ -494,7 +497,8 @@ class SubjectsExtractorWidget(ExtractorWidget):
 </label>
 %(create_check)s
 """ % {'colselect': self._render_select('%s_colselect' % name,
-                                        choices=chain(self.choices, choices),
+                                        # choices=chain(self.choices, choices),
+                                        choices=self.choices,
                                         sel_val=get('column_index', 0),
                                         attrs={'class': 'csv_col_select'},
                                        ),

@@ -86,7 +86,8 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
                                                   name='Funny signature',
                                                   body='I love you... not',
                                                  )
-        signature.images = [img1, img2]
+        # signature.images = [img1, img2]
+        signature.images.set([img1, img2])
 
         body = 'Want to meet you'
         body_html = '<p>Want to meet you</p>'

@@ -23,11 +23,11 @@ import re
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse  # NoReverseMatch
 from django.db.models.fields.related import ManyToManyField
 from django.forms.fields import ChoiceField
 from django.forms.forms import NON_FIELD_ERRORS
 from django.forms.widgets import Select
+from django.urls import reverse  # NoReverseMatch
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..gui.bulk_update import bulk_update_registry

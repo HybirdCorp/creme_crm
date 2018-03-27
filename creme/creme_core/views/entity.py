@@ -25,11 +25,11 @@ import logging
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
 from django.db.models import Q, FieldDoesNotExist, ProtectedError
 from django.forms.models import modelform_factory
 from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render, redirect  # get_list_or_404
+from django.urls import reverse
 from django.utils.html import format_html
 # from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _, ungettext

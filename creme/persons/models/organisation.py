@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.urlresolvers import reverse
 from django.db.models import (ForeignKey, CharField, TextField, PositiveIntegerField,
         BooleanField, DateField, EmailField, URLField, SET_NULL)
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.core.exceptions import SpecificProtectedError

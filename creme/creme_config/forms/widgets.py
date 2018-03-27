@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2017  Hybird
+#    Copyright (C) 2015-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,11 +31,13 @@ class CreatorModelChoiceWidget(Select):
         self.creation_allowed = creation_allowed
         self.creation_label = creation_label
 
-    def render(self, name, value, attrs=None, choices=()):
+    # def render(self, name, value, attrs=None, choices=()):
+    def render(self, name, value, attrs=None):
         url = self.creation_url
 
         if not url:
-            return super(CreatorModelChoiceWidget, self).render(name, value, attrs, choices)
+            # return super(CreatorModelChoiceWidget, self).render(name, value, attrs, choices)
+            return super(CreatorModelChoiceWidget, self).render(name, value, attrs)
 
         widget = ActionButtonList(delegate=DynamicSelect(options=self.choices),
                                   attrs=self.attrs,
@@ -47,4 +49,4 @@ class CreatorModelChoiceWidget(Select):
                           title=label if allowed else ugettext(u'Cannot create'),
                          )
 
-        return widget.render(name, value, attrs)  # TODO: choices ?
+        return widget.render(name, value, attrs)

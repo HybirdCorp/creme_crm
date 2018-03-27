@@ -21,9 +21,9 @@
 from datetime import timedelta
 from functools import partial
 
-from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render, redirect
+from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import ugettext as _
 

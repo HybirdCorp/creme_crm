@@ -5,7 +5,7 @@ try:
     from functools import partial
     from json import loads as load_json, dumps as dump_json
 
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
     from django.forms.widgets import Select
     from django.utils.translation import ugettext as _
 

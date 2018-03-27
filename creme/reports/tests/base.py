@@ -10,7 +10,7 @@ try:
     from unittest import skipIf
 
     from django.contrib.contenttypes.models import ContentType
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
     from django.utils.timezone import now
 
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,

@@ -20,9 +20,9 @@
 
 # import warnings
 
-from django.core.urlresolvers import reverse
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render, redirect
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.views import bricks

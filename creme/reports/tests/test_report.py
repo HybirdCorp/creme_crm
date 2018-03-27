@@ -8,7 +8,7 @@ try:
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
     from django.utils.encoding import smart_str
     from django.utils.formats import date_format
     from django.utils.html import escape
@@ -1879,8 +1879,10 @@ class ReportTestCase(BaseReportsTestCase):
         img2 = create_img(name='Spike pix')
         img3 = create_img(name='Jet pix')
 
-        img1.categories = [cat1, cat2]
-        img2.categories = [cat1]
+        # img1.categories = [cat1, cat2]
+        # img2.categories = [cat1]
+        img1.categories.set([cat1, cat2])
+        img2.categories.set([cat1])
 
         description = 'Bebop member'
         create_contact = partial(FakeContact.objects.create, user=user, description=description)
@@ -2013,8 +2015,10 @@ class ReportTestCase(BaseReportsTestCase):
         name2 = 'Camp#2'; camp2 = create_camp(name=name2)
 
         create_ml = partial(FakeMailingList.objects.create, user=user)
-        camp1.mailing_lists = [create_ml(name='ML#1'), create_ml(name='ML#2')]
-        camp2.mailing_lists = [create_ml(name='ML#3')]
+        # camp1.mailing_lists = [create_ml(name='ML#1'), create_ml(name='ML#2')]
+        # camp2.mailing_lists = [create_ml(name='ML#3')]
+        camp1.mailing_lists.set([create_ml(name='ML#1'), create_ml(name='ML#2')])
+        camp2.mailing_lists.set([create_ml(name='ML#3')])
 
         self.assertHeaders(['name', 'mailing_lists__name'], report)
         self.assertEqual([[name1, 'ML#1, ML#2'],
@@ -2056,8 +2060,10 @@ class ReportTestCase(BaseReportsTestCase):
         self.ml2 = ml2 = create_ml(name='ML#2')
         self.ml3 = ml3 = create_ml(name='ML#3')
 
-        self.camp1.mailing_lists = [ml1, ml2]
-        self.camp2.mailing_lists = [ml3]
+        # self.camp1.mailing_lists = [ml1, ml2]
+        # self.camp2.mailing_lists = [ml3]
+        self.camp1.mailing_lists.set([ml1, ml2])
+        self.camp2.mailing_lists.set([ml3])
 
         create_prop = CremeProperty.objects.create
         create_prop(type=self.ptype1, creme_entity=ml1)
@@ -2153,7 +2159,8 @@ class ReportTestCase(BaseReportsTestCase):
         cat1 = create_cat(name='Photo of contact')
         cat2 = create_cat(name='Photo of product')
 
-        img1.categories = [cat1, cat2]
+        # img1.categories = [cat1, cat2]
+        img1.categories.set([cat1, cat2])
 
         cats_str = u'%s, %s' % (cat1.name, cat2.name)
         self.assertEqual([[img1.name, img1.description, cats_str, cats_str],
@@ -2181,8 +2188,10 @@ class ReportTestCase(BaseReportsTestCase):
         guild2 = create_guild(name='Guild of assassins')
         guild3 = create_guild(name='Guild of mercenaries')
 
-        guild1.members = [contact1, contact2, contact3]
-        guild2.members = [contact4]
+        # guild1.members = [contact1, contact2, contact3]
+        # guild2.members = [contact4]
+        guild1.members.set([contact1, contact2, contact3])
+        guild2.members.set([contact4])
 
         report = Report.objects.create(name="Guilds report", user=user,
                                        ct=ContentType.objects.get_for_model(Guild),

@@ -19,7 +19,7 @@
 ################################################################################
 
 from collections import defaultdict
-from itertools import chain
+# from itertools import chain
 from json import dumps as json_dump
 
 from django.forms import Field, ValidationError
@@ -103,7 +103,8 @@ class CategoriesExtractorWidget(ExtractorWidget):
         super(CategoriesExtractorWidget, self).__init__(*args, **kwargs)
         self.categories = categories
 
-    def render(self, name, value, attrs=None, choices=()):
+    # def render(self, name, value, attrs=None, choices=()):
+    def render(self, name, value, attrs=None):
         value = value or {}
         get_value = value.get
 
@@ -136,7 +137,8 @@ class CategoriesExtractorWidget(ExtractorWidget):
         subcat_defvalselect_id = '%s_subcat_defval' % name
 
         render_sel = self._render_select
-        col_choices = list(chain(self.choices, choices))
+        # col_choices = list(chain(self.choices, choices))
+        col_choices = list(self.choices)
 
         def render_colsel(name, sel_val):
             return render_sel(name, choices=col_choices, sel_val=sel_val,

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,6 +24,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseForbidden, Http404
 from django.shortcuts import render
 from django.template.loader import render_to_string
+from django.utils.deprecation import MiddlewareMixin
 from django.utils.encoding import smart_unicode
 
 from creme.creme_core.core.exceptions import ConflictError
@@ -32,7 +33,8 @@ from creme.creme_core.core.exceptions import ConflictError
 logger = logging.getLogger(__name__)
 
 
-class Beautiful403Middleware(object):
+# class Beautiful403Middleware(object):
+class Beautiful403Middleware(MiddlewareMixin):
     def process_exception(self, request, exception):
         if isinstance(exception, PermissionDenied):
             protected_objects = None
@@ -59,7 +61,8 @@ class Beautiful403Middleware(object):
                                         )
 
 
-class _AlternativeErrorMiddleware(object):
+# class _AlternativeErrorMiddleware(object):
+class _AlternativeErrorMiddleware(MiddlewareMixin):
     error = None
     status = 400
     template = None

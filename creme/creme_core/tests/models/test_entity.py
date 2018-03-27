@@ -276,8 +276,10 @@ class EntityTestCase(CremeTestCase):
     def test_clone04(self):
         "ManyToMany"
         image1 = FakeImage.objects.create(user=self.user, name='Konoha by night')
-        image1.categories = categories = list(FakeImageCategory.objects.all())
+        # image1.categories = categories = list(FakeImageCategory.objects.all())
+        categories = list(FakeImageCategory.objects.all())
         self.assertTrue(categories)
+        image1.categories.set(categories)
 
         image2 = image1.clone()
         self.assertNotEqual(image1.pk, image2.pk)

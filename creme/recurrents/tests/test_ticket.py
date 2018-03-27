@@ -6,7 +6,7 @@ try:
 
     from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
     from django.utils.formats import date_format
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _

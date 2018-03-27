@@ -7,8 +7,8 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
     from django.core import mail as django_mail
-    from django.core.urlresolvers import reverse
     from django.test.utils import override_settings
+    from django.urls import reverse
     from django.utils.timezone import now, make_naive, get_current_timezone
     from django.utils.translation import ugettext as _
 

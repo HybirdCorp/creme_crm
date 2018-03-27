@@ -4,7 +4,7 @@ try:
     from django.utils.translation import ugettext as _
     from django.test import override_settings
 
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import BrickTestCaseMixin

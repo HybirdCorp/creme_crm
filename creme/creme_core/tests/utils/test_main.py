@@ -8,8 +8,8 @@ try:
     from pytz import timezone
 
     from django.conf import settings
-    from django.core.urlresolvers import reverse
     from django.http import Http404
+    from django.urls import reverse
     from django.utils.timezone import is_naive, is_aware, override as override_tz, make_aware
     from django.utils.translation import ugettext_lazy
 

@@ -5,9 +5,9 @@ try:
 
     from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
-    from django.core.urlresolvers import reverse
     from django.db.models import Max
     from django.test.utils import override_settings
+    from django.urls import reverse
     from django.utils.encoding import smart_unicode
     from django.utils.formats import date_format
     from django.utils.timezone import localtime, now

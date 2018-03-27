@@ -5,7 +5,7 @@ try:
     from tempfile import NamedTemporaryFile
 
     from django.conf import settings
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
     from django.test.utils import override_settings
     from django.utils.encoding import smart_str
     from django.utils.translation import ugettext as _

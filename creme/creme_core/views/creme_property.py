@@ -21,9 +21,9 @@
 # import warnings
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_list_or_404, get_object_or_404, render, redirect
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 # TODO: move them to creme_core ?

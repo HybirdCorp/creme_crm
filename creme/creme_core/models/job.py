@@ -23,11 +23,11 @@ import logging
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
 from django.db.models import (Model, CharField, TextField, DateTimeField,
         PositiveIntegerField, PositiveSmallIntegerField, BooleanField,
         ForeignKey, F, CASCADE)
 from django.db.transaction import atomic
+from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import get_language, ugettext_lazy as _
 

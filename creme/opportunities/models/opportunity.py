@@ -23,10 +23,10 @@ from functools import partial
 
 from django.apps import apps
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
 from django.db.transaction import atomic
 from django.db.models import (CharField, TextField, ForeignKey, PositiveIntegerField,
         DateField, PROTECT, SET_NULL,  BooleanField)
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK

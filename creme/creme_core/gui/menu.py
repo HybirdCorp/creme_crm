@@ -25,7 +25,7 @@ import math
 from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse_lazy as reverse
+from django.urls import reverse_lazy as reverse
 from django.utils.encoding import smart_unicode
 from django.utils.html import format_html, format_html_join, mark_safe  # escape escapejs
 from django.utils.translation import ugettext as _, ungettext, ugettext_lazy

@@ -11,9 +11,9 @@ try:
     from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
     from django.core.exceptions import ValidationError
-    from django.core.urlresolvers import reverse
     from django.db.models import Max
     from django.test.utils import override_settings
+    from django.urls import reverse
     from django.utils.formats import number_format
     from django.utils.translation import ugettext as _, ungettext
 

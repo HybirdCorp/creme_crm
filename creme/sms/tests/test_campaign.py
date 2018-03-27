@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
 
     from creme.creme_core.tests.base import CremeTestCase
 

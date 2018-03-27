@@ -7,7 +7,7 @@ try:
 
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.fake_constants import FAKE_REL_SUB_EMPLOYED_BY

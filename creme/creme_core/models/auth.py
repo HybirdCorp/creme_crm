@@ -494,6 +494,7 @@ class CremeUserManager(BaseUserManager):
 
 
 class CremeUser(AbstractBaseUser):
+    # NB: auth.models.AbstractUser.username max_length == 150 (since django 1.10) => increase too ?
     username = CharField(_(u'Username'), max_length=30, unique=True,
                          help_text=_(u'Required. 30 characters or fewer. '
                                      u'Letters, digits and @/./+/-/_ only.'
@@ -645,7 +646,8 @@ class CremeUser(AbstractBaseUser):
         assert self.is_team
         assert not any(user.is_team for user in users)
 
-        self.teammates_set = users
+        # self.teammates_set = users
+        self.teammates_set.set(users)
         self._teammates = None  # Clear cache (we could rebuild it but ...)
 
     def _get_credentials(self, entity):

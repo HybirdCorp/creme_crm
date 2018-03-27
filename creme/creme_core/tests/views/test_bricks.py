@@ -5,7 +5,7 @@ try:
     from json import dumps as json_dump # loads as load_json
 
     from django.contrib.contenttypes.models import ContentType
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.bricks import RelationsBrick

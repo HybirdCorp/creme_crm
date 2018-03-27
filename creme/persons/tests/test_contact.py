@@ -5,8 +5,8 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
     from django.core.exceptions import ValidationError
-    from django.core.urlresolvers import reverse
     from django.forms.widgets import TextInput
+    from django.urls import reverse
     from django.utils.translation import ugettext as _, pgettext
 
     from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin

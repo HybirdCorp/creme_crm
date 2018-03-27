@@ -147,7 +147,7 @@ class CrudityBackend(object):
 
             if issubclass(field.__class__, ManyToManyField):  # TODO: isinstance(field, ManyToManyField) ...
                 # setattr(instance, field_name, field.rel.to._default_manager.filter(pk__in=field_value.split()))
-                setattr(instance, field_name, field.remote_field.model._default_manager.filter(pk__in=field_value.split()))
+                getattr(instance, field_name).set(field.remote_field.model._default_manager.filter(pk__in=field_value.split()))
 
         return need_new_save
 

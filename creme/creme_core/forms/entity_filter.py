@@ -25,7 +25,6 @@ import json
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
 from django.db.models import (ForeignKey as ModelForeignKey, DateField as ModelDateField,
         IntegerField as ModelIntegerField, FloatField as ModelFloatField,
         DecimalField as ModelDecimalField, BooleanField as ModelBooleanField,
@@ -33,6 +32,7 @@ from django.db.models import (ForeignKey as ModelForeignKey, DateField as ModelD
 from django.db.models.fields.related import RelatedField as ModelRelatedField
 from django.forms import ModelMultipleChoiceField, DateField, ChoiceField, ValidationError
 from django.forms.fields import CallableChoiceIterator
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.utils.formats import date_format
 

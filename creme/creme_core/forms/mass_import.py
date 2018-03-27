@@ -20,14 +20,13 @@
 
 from future_builtins import filter
 from functools import partial
-from itertools import chain, izip_longest
+from itertools import izip_longest  # chain
 import logging
 from os.path import splitext
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core import validators
-from django.core.urlresolvers import reverse_lazy as reverse
 from django.db.models import Q, ManyToManyField, BooleanField as ModelBooleanField
 from django.db.models.fields import FieldDoesNotExist
 from django.db.transaction import atomic
@@ -37,6 +36,7 @@ from django.forms import (ValidationError, Field, BooleanField, MultipleChoiceFi
 from django.forms.widgets import SelectMultiple, HiddenInput
 from django.forms.utils import flatatt
 from django.template.defaultfilters import slugify
+from django.urls import reverse_lazy as reverse
 from django.utils.html import escape, format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -228,7 +228,8 @@ class ExtractorWidget(SelectMultiple):
 
         return u'\n'.join(output)
 
-    def render(self, name, value, attrs=None, choices=()):
+    # def render(self, name, value, attrs=None, choices=()):
+    def render(self, name, value, attrs=None):
         value = value or {}
         attrs = self.build_attrs(attrs, name=name)
         output = [u'<table %s><tbody><tr><td>' % flatatt(attrs)]
@@ -242,9 +243,10 @@ class ExtractorWidget(SelectMultiple):
             sel_val = 0
 
         out_append(rselect("%s_colselect" % name,
-                           choices=chain(self.choices, choices),
+                           # choices=chain(self.choices, choices),
+                           choices=self.choices,
                            sel_val=sel_val,
-                           attrs={'class': 'csv_col_select'}
+                           attrs={'class': 'csv_col_select'},
                           )
                   )
 
@@ -486,7 +488,8 @@ class EntityExtractorWidget(ExtractorWidget):
     def _build_create_id(self, name, model_id):
         return '{0}_{1}_{2}_create'.format(name, *model_id)
 
-    def _render_column_select(self, name, cmd, choices, model_id):
+    # def _render_column_select(self, name, cmd, choices, model_id):
+    def _render_column_select(self, name, cmd, model_id):
         sel_val = 0
 
         if cmd:
@@ -496,17 +499,20 @@ class EntityExtractorWidget(ExtractorWidget):
                 pass
 
         return self._render_select(self._build_colselect_id(name, model_id),
-                                   choices=chain(self.choices, choices),
+                                   # choices=chain(self.choices, choices),
+                                   choices=self.choices,
                                    sel_val=sel_val,
                                    attrs={'class': 'csv_col_select'},  # TODO: id
                                   )
 
-    def _render_line(self, output, name, cmd, choices, model):
+    # def _render_line(self, output, name, cmd, choices, model):
+    def _render_line(self, output, name, cmd, model):
         append = output.append
         model_id = self._build_model_id(model)
 
         append(u'<tr><td>%s: </td><td>' % model._meta.verbose_name)
-        append(self._render_column_select(name, cmd, choices, model_id))
+        # append(self._render_column_select(name, cmd, choices, model_id))
+        append(self._render_column_select(name=name, cmd=cmd, model_id=model_id))
         append(u'</td><td>&nbsp;%(label)s <input type="checkbox" name="%(name)s" %(checked)s></td></tr>' % {
                             'label':   _(u'Create if not found ?'),
                             'name':    self._build_create_id(name, model_id),
@@ -514,12 +520,14 @@ class EntityExtractorWidget(ExtractorWidget):
                         }
                      )
 
-    def render(self, name, value, attrs=None, choices=()):
+    # def render(self, name, value, attrs=None, choices=()):
+    def render(self, name, value, attrs=None):
         output = [u'<table %s><tbody>' % flatatt(self.build_attrs(attrs, name=name))]
         render_line = self._render_line
 
         for info, cmd in izip_longest(self.models_info, value or ()):
-            render_line(output, name, cmd, choices, info[0])
+            # render_line(output, name, cmd, choices, info[0])
+            render_line(output=output, name=name, cmd=cmd, model=info[0])
 
         output.append(u'</tbody></table>')
 
@@ -879,10 +887,10 @@ class CustomFieldExtractor(object):
         return self._value_castor(value), err_msg
 
 
-
 # TODO: make a BaseExtractorWidget ??
 class CustomFieldExtractorWidget(ExtractorWidget):
-    def render(self, name, value, attrs=None, choices=()):
+    # def render(self, name, value, attrs=None, choices=()):
+    def render(self, name, value, attrs=None):
         get = (value or {}).get
         output = [u'<table %s><tbody><tr><td>' % flatatt(self.build_attrs(attrs, name=name))]
         out_append = output.append
@@ -893,7 +901,8 @@ class CustomFieldExtractorWidget(ExtractorWidget):
             sel_val = 0
 
         out_append(self._render_select('%s_colselect' % name,
-                                       choices=chain(self.choices, choices),
+                                       # choices=chain(self.choices, choices),
+                                       choices=self.choices,
                                        sel_val=sel_val,
                                        attrs={'class': 'csv_col_select'},
                                       )
@@ -1167,7 +1176,8 @@ class ImportForm(CremeModelForm):
                         if extractor:
                             # TODO: factorise
                             extr_value, err_msg = extractor.extract_value(line)
-                            setattr(instance, m2m.name, extr_value)
+                            # setattr(instance, m2m.name, extr_value)
+                            getattr(instance, m2m.name).set(extr_value)
                             # append_error(line, err_msg, instance)
                             append_error(err_msg)
 

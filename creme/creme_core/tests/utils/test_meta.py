@@ -257,7 +257,8 @@ class MetaTestCase(CremeTestCase):
         l2 = create_language(name='French',   code='FRA')
         l3 = create_language(name='Japanese', code='JP')
 
-        al.languages = [l1, l3]
+        # al.languages = [l1, l3]
+        al.languages.set([l1, l3])
         self.assertEqual([l1, l3], FieldInfo(FakeContact, 'languages').value_from(al))
         self.assertEqual([l1.name, l3.name], FieldInfo(FakeContact, 'languages__name').value_from(al))
 

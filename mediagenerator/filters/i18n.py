@@ -4,7 +4,8 @@ from django.apps import apps
 from django.conf import settings
 from django.http import HttpRequest
 from django.utils.encoding import smart_str
-from django.views.i18n import javascript_catalog
+from django.utils import translation
+from django.views.i18n import JavaScriptCatalog  # javascript_catalog
 
 from mediagenerator.generators.bundles.base import Filter
 
@@ -61,8 +62,9 @@ class I18N(Filter):
     def _generate(self, language):
         language_bidi = language.split('-')[0] in settings.LANGUAGES_BIDI
 
-        request = HttpRequest()
-        request.GET['language'] = language
+        # Hybird FIX - Django1.10 version
+        # request = HttpRequest()
+        # request.GET['language'] = language
 
         # Add some JavaScript data
         content = 'var LANGUAGE_CODE = "%s";\n' % language
@@ -72,11 +74,15 @@ class I18N(Filter):
         # content += javascript_catalog(request,
         #     packages=settings.INSTALLED_APPS).content
 
-        # Hybird FIX
-        content += javascript_catalog(
-                        request,
-                        packages=[app_config.name for app_config in apps.app_configs.values()],
-                    ).content
+        # Hybird FIX - Django1.8 version
+        # content += javascript_catalog(
+        #                 request,
+        #                 packages=[app_config.name for app_config in apps.app_configs.values()],
+        #             ).content
+        # Hybird FIX - Django1.10 version
+        translation.activate(language)
+        content += JavaScriptCatalog(packages=[app_config.name for app_config in apps.app_configs.values()]) \
+                                    .get(HttpRequest()).content
 
         # The hgettext() function just calls gettext() internally, but it won't get indexed by makemessages.
         content += '\nwindow.hgettext = function(text) { return gettext(text); };\n'

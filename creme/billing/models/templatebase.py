@@ -22,7 +22,7 @@ from datetime import timedelta
 import logging
 # import warnings
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import PositiveIntegerField
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 

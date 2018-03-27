@@ -18,12 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.urlresolvers import reverse
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import (CharField, BooleanField, TextField, DateTimeField,
         ForeignKey, PositiveIntegerField, CASCADE)
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.urls import reverse
 
 from creme.creme_core.models import CremeModel
 from creme.creme_core.models.fields import CremeUserForeignKey, CreationDateTimeField

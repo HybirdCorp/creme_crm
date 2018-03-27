@@ -7,7 +7,7 @@ try:
     import html5lib
 
     from django.contrib.contenttypes.models import ContentType
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
 
     from ..base import CremeTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials

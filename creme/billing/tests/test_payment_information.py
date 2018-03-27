@@ -4,7 +4,7 @@ try:
     from decimal import Decimal
     from functools import partial
 
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
 
     from creme.creme_core.models import Currency, FieldsConfig
 

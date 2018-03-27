@@ -23,9 +23,9 @@ import logging
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.urlresolvers import reverse
 from django.db.models import (CharField, PositiveIntegerField,
         PositiveSmallIntegerField, BooleanField, ForeignKey, PROTECT, CASCADE)
+from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
@@ -44,8 +44,8 @@ class AbstractReport(CremeEntity):
                         blank=True, null=True, on_delete=PROTECT,
                        ).set_null_label(_(u'No filter'))
 
-    creation_label = _('Create a report')
-    save_label     = _('Save the report')
+    creation_label = _(u'Create a report')
+    save_label     = _(u'Save the report')
 
     _columns = None
 

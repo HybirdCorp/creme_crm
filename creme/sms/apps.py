@@ -63,7 +63,7 @@ class SMSConfig(CremeAppConfig):
 
     def register_menu(self, creme_menu):
         from django.conf import settings
-        from django.core.urlresolvers import reverse_lazy as reverse
+        from django.urls import reverse_lazy as reverse
 
         SMSCampaign = self.SMSCampaign
         MList       = self.MessagingList

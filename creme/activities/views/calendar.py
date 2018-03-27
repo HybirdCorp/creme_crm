@@ -26,9 +26,9 @@ from json import dumps as jsondumps
 import warnings
 
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
+from django.urls import reverse
 from django.utils.timezone import now, make_naive, get_current_timezone
 from django.utils.translation import ugettext as _
 

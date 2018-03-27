@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2016  Hybird
+#    Copyright (C) 2013-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.urlresolvers import reverse
 from django.db.models import (CharField, TextField, DateField,
         PositiveIntegerField, ForeignKey, PROTECT)
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeEntity
@@ -38,8 +38,8 @@ class AbstractPollCampaign(CremeEntity):
                                )
     expected_count = PositiveIntegerField(_('Expected replies number'), default=1)
 
-    creation_label = pgettext_lazy('polls', 'Create a campaign')
-    save_label     = pgettext_lazy('polls', 'Save the campaign of polls')
+    creation_label = pgettext_lazy('polls', u'Create a campaign')
+    save_label     = pgettext_lazy('polls', u'Save the campaign of polls')
 
     class Meta:
         abstract = True

@@ -351,7 +351,7 @@ class CremeCoreConfig(CremeAppConfig):
         super(CremeCoreConfig, self).all_apps_ready()
 
     def register_menu(self, creme_menu):
-        from django.core.urlresolvers import reverse_lazy as reverse
+        from django.urls import reverse_lazy as reverse
 
         if settings.OLD_MENU:
             reg_app = creme_menu.register_app
