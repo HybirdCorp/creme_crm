@@ -635,7 +635,8 @@ class CremeUser(AbstractBaseUser):
 
         if teammates is None:
             logger.debug('User.teammates: Cache MISS for user_id=%s', self.id)
-            self._teammates = teammates = {u.id: u for u in self.teammates_set.all()}
+            # self._teammates = teammates = {u.id: u for u in self.teammates_set.all()}
+            self._teammates = teammates = self.teammates_set.in_bulk()
         else:
             logger.debug('User.teammates: Cache HIT for user_id=%s', self.id)
 

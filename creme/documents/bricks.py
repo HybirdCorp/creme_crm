@@ -108,11 +108,13 @@ class LinkedDocsBrick(QuerysetBrick):
                     # ct_doc=ContentType.objects.get_for_model(Document),
         )
         relations = btc['page'].object_list
-        docs = {c.id: c
-                    for c in Document.objects.filter(pk__in=[r.object_entity_id for r in relations])
-                                             # .select_related('folder')
-                                             .select_related('linked_folder')
-               }
+        # docs = {c.id: c
+        #             for c in Document.objects.filter(pk__in=[r.object_entity_id for r in relations])
+        #                                      .select_related('folder')
+        #        }
+        docs = Document.objects.filter(pk__in=[r.object_entity_id for r in relations]) \
+                               .select_related('linked_folder') \
+                               .in_bulk()
 
         for relation in relations:
             relation.object_entity = docs[relation.object_entity_id]

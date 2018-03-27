@@ -1070,7 +1070,8 @@ class RelationsConditionsField(_ConditionsField):
             all_kwargs.append(kwargs)
 
         if entity_ids:
-            entities = {e.id: e for e in CremeEntity.objects.filter(pk__in=entity_ids)}
+            # entities = {e.id: e for e in CremeEntity.objects.filter(pk__in=entity_ids)}
+            entities = CremeEntity.objects.filter(pk__in=entity_ids).in_bulk()
 
             if len(entities) != len(entity_ids):
                 raise ValidationError(self.error_messages['invalidentity'],
@@ -1130,9 +1131,10 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
             all_kwargs.append(kwargs)
 
         if filter_ids:
-            filters = {f.id: f for f in EntityFilter.get_for_user(self.user)
-                                                    .filter(pk__in=filter_ids)
-                      }
+            # filters = {f.id: f for f in EntityFilter.get_for_user(self.user)
+            #                                         .filter(pk__in=filter_ids)
+            #           }
+            filters = EntityFilter.get_for_user(self.user).filter(pk__in=filter_ids).in_bulk()
 
             if len(filters) != len(filter_ids):
                 raise ValidationError(self.error_messages['invalidfilter'], code='invalidfilter')

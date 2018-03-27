@@ -241,7 +241,8 @@ class AbstractActObjectivePattern(CremeEntity):
         root_components = self._components_cache
 
         if root_components is None:
-            components = {comp.id: comp for comp in self.components.all()}
+            # components = {comp.id: comp for comp in self.components.all()}
+            components = self.components.in_bulk()
             root_components = []
 
             for comp in components.itervalues():
