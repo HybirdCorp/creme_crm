@@ -19,6 +19,76 @@ except Exception as e:
 
 
 class CremeCoreTagsTestCase(CremeTestCase):
+    def test_lt(self):
+        with self.assertNoException():
+            template = Template('{% load creme_core_tags %}'
+                                '{% with xlesser=x|lt:3 xequal=x|lt:2 xgreater=x|lt:1 %}'
+                                '{% if xlesser %}True{% endif %}#'
+                                '{% if not xequal %}False{% endif %}#'
+                                '{% if not xgreater %}False{% endif %}#'
+                                '{% if 0|lt:1 %}True{% endif %}'
+                                '{% endwith %}'
+                               )
+            render = template.render(Context({'x': 2}))
+
+        self.assertEqual('True#False#False#True', render.strip())
+
+    def test_lte(self):
+        with self.assertNoException():
+            template = Template('{% load creme_core_tags %}'
+                                '{% with xlesser=x|lte:3 xequal=x|lte:2 xgreater=x|lte:1 %}'
+                                '{% if xlesser %}True{% endif %}#'
+                                '{% if xequal %}True{% endif %}#'
+                                '{% if not xgreater %}False{% endif %}#'
+                                '{% if 0|lte:1 %}True{% endif %}'
+                                '{% endwith %}'
+                               )
+            render = template.render(Context({'x': 2}))
+
+        self.assertEqual('True#True#False#True', render.strip())
+
+    def test_gt(self):
+        with self.assertNoException():
+            template = Template('{% load creme_core_tags %}'
+                                '{% with xlesser=x|gt:3 xequal=x|gt:2 xgreater=x|gt:1 %}'
+                                '{% if not xlesser %}False{% endif %}#'
+                                '{% if not xequal %}False{% endif %}#'
+                                '{% if xgreater %}True{% endif %}#'
+                                '{% if 4|gt:3 %}True{% endif %}'
+                                '{% endwith %}'
+                               )
+            render = template.render(Context({'x': 2}))
+
+        self.assertEqual('False#False#True#True', render.strip())
+
+    def test_gte(self):
+        with self.assertNoException():
+            template = Template('{% load creme_core_tags %}'
+                                '{% with xlesser=x|gte:3 xequal=x|gte:2 xgreater=x|gte:1 %}'
+                                '{% if not xlesser %}False{% endif %}#'
+                                '{% if xequal %}True{% endif %}#'
+                                '{% if xgreater %}True{% endif %}#'
+                                '{% if 4|gte:3 %}True{% endif %}'
+                                '{% endwith %}'
+                               )
+            render = template.render(Context({'x': 2}))
+
+        self.assertEqual('False#True#True#True', render.strip())
+
+    def test_eq(self):
+        with self.assertNoException():
+            template = Template('{% load creme_core_tags %}'
+                                '{% with xlesser=x|eq:3 xequal=x|eq:2 xgreater=x|eq:1 %}'
+                                '{% if not xlesser %}False{% endif %}#'
+                                '{% if xequal %}True{% endif %}#'
+                                '{% if not xgreater %}False{% endif %}#'
+                                '{% if 3|eq:3 %}True{% endif %}'
+                                '{% endwith %}'
+                               )
+            render = template.render(Context({'x': 2}))
+
+        self.assertEqual('False#True#False#True', render.strip())
+
     def test_templatize(self):
         with self.assertNoException():
             template = Template('{% load creme_core_tags %}'

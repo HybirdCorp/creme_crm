@@ -147,25 +147,30 @@ def is_entity(obj):
 def is_relation(obj):
     return isinstance(obj, Relation)
 
-# @register.filter(name="lt")
-# def lt(object1, object2):
-#     return object1 < object2
-#
-# @register.filter(name="gt")
-# def gt(object1, object2):
-#     return object1 > object2
-#
-# @register.filter(name="lte")
-# def lte(object1, object2):
-#     return object1 <= object2
-#
-# @register.filter(name="gte")
-# def gte(object1, object2):
-#     return object1 >= object2
-#
-# @register.filter(name="eq")
-# def eq(object1, object2):
-#     return object1 == object2
+
+@register.filter(name='lt')
+def lt(x, y):
+    return x < y
+
+
+@register.filter(name='gt')
+def gt(x, y):
+    return x > y
+
+
+@register.filter(name='lte')
+def lte(x, y):
+    return x <= y
+
+
+@register.filter(name='gte')
+def gte(x, y):
+    return x >= y
+
+
+@register.filter(name='eq')
+def eq(x, y):
+    return x == y
 
 
 @register.filter
