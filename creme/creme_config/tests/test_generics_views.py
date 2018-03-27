@@ -5,7 +5,7 @@ try:
 
     from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
 
     from creme.creme_core.forms import CremeModelForm
     from creme.creme_core.gui.bricks import SimpleBrick, _BrickRegistry

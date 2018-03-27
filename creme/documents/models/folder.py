@@ -20,8 +20,8 @@
 
 from random import randint
 
-from django.core.urlresolvers import reverse
 from django.db.models import CharField, TextField, ForeignKey, SET_NULL, PROTECT
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.core.exceptions import SpecificProtectedError

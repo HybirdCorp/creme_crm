@@ -26,7 +26,7 @@
 
 from future_builtins import zip
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 
 class TemplateURLBuilderError(Exception):
@@ -95,7 +95,7 @@ class TemplateURLBuilder(object):
                               ]
 
     def resolve(self, viewname, urlconf=None, kwargs=None, current_app=None):
-        """This method works like django.core.urlresolvers.reverse(), excepted that:
+        """This method works like django.urls.reverse(), excepted that:
         - It has no 'args' parameter ; you have to use the 'kwargs' one.
         - The returned URL is not a valid URL (if you have passed some place_holders to the constructor, of course).
         """

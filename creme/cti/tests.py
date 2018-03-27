@@ -4,7 +4,7 @@ try:
     from datetime import timedelta
     # from json import loads as load_json
 
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
     from django.utils.timezone import now
 
     from creme.creme_core.tests.base import CremeTestCase

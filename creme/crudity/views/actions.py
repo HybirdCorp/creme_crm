@@ -21,10 +21,10 @@
 # import warnings
 
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
 from django.db.transaction import atomic
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, get_list_or_404
+from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required

@@ -7,7 +7,7 @@ try:
 
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
     from django.utils.formats import date_format, number_format
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _

@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.urlresolvers import reverse
 from django.db.models import ForeignKey, PROTECT
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from .base import Base

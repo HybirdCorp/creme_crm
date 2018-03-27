@@ -21,8 +21,8 @@
 import logging
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.db.models import PositiveIntegerField, CharField, BooleanField, ForeignKey, CASCADE
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy, ugettext
 
 from creme.creme_core.models import CremeEntity, InstanceBlockConfigItem

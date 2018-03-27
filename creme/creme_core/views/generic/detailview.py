@@ -24,9 +24,9 @@ from collections import defaultdict
 from itertools import chain
 import logging
 
-from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
 
 from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.gui.last_viewed import LastViewedItem

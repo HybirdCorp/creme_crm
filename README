@@ -34,7 +34,7 @@ DEPENDENCIES:
 (exact versions are indicated in the file 'creme/requirements.txt')
     - Core
         - Python 2.7
-        - Django 1.9
+        - Django 1.10
         - redis 2.10 (ie: the python library, & so you'll need the related server too, of course)
         - pytz
         - python-dateutil 1.5

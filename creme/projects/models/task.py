@@ -20,9 +20,9 @@
 
 from itertools import chain
 
-from django.core.urlresolvers import reverse
 from django.db.models import (CharField, TextField, DateTimeField, PositiveIntegerField,
         ForeignKey, ManyToManyField, PROTECT, CASCADE)
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, Relation

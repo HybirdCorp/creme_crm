@@ -21,16 +21,16 @@
 import copy
 from datetime import datetime
 from functools import partial
-from itertools import chain
+# from itertools import chain
 from json import dumps as json_dump
 from types import GeneratorType
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
 from django.db.models.query import Q
 from django.forms import widgets
 from django.forms.utils import flatatt
+from django.urls import reverse
 from django.utils.encoding import force_unicode
 from django.utils.html import conditional_escape, escape
 from django.utils.safestring import mark_safe
@@ -172,7 +172,8 @@ class DynamicSelect(widgets.Select, EnhancedSelectOptions):
     def render_option(self, selected_choices, option_value, option_label):
         return self.render_enchanced_option(selected_choices, option_value, option_label)
 
-    def render(self, name, value, attrs=None, choices=()):
+    # def render(self, name, value, attrs=None, choices=()):
+    def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name)
         context = widget_render_context('ui-creme-dselect', attrs)
 
@@ -193,7 +194,8 @@ class DynamicSelectMultiple(widgets.SelectMultiple, EnhancedSelectOptions):
     def render_option(self, selected_choices, option_value, option_label):
         return self.render_enchanced_option(selected_choices, option_value, option_label)
 
-    def render(self, name, value, attrs=None, choices=()):
+    # def render(self, name, value, attrs=None, choices=()):
+    def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name)
         context = widget_render_context('ui-creme-dselect', attrs)
 
@@ -891,7 +893,8 @@ class DependentSelect(widgets.Select):
         self.target_val = None
         super(DependentSelect, self).__init__(attrs, choices)
 
-    def render(self, name, value, attrs=None, choices=()):
+    # def render(self, name, value, attrs=None, choices=()):
+    def render(self, name, value, attrs=None):
         final_attrs = self.build_attrs(attrs, name=name)
         id = final_attrs['id']
         final_attrs['onchange'] = """(function() {
@@ -917,7 +920,7 @@ class DependentSelect(widgets.Select):
         return mark_safe('<script type="text/javascript">'
                             '$("#%(id)s").change();'
                          '</script>'
-                         '%(input)s' % {'input': super(DependentSelect, self).render(name, value, final_attrs, choices),
+                         '%(input)s' % {'input': super(DependentSelect, self).render(name, value, final_attrs),  # choices
                                         'id': id,
                                        }
                         )
@@ -1020,14 +1023,16 @@ class UnorderedMultipleChoiceWidget(widgets.SelectMultiple, EnhancedSelectOption
     def render_option(self, selected_choices, option_value, option_label):
         return self.render_enchanced_option(selected_choices, option_value, option_label)
 
-    def render(self, name, value, attrs=None, choices=()):
+    # def render(self, name, value, attrs=None, choices=()):
+    def render(self, name, value, attrs=None):
         if not self.choices and not self.creation_allowed:
             return _(u'No choice available.')
 
         count = self._choice_count()
         attrs = self.build_attrs(attrs, name=name)
         filtertype = self._build_filtertype(count)
-        input = widgets.SelectMultiple.render(self, name, value, {'class': 'ui-creme-input'}, choices)
+        # input = widgets.SelectMultiple.render(self, name, value, {'class': 'ui-creme-input'}, choices)
+        input = widgets.SelectMultiple.render(self, name, value, {'class': 'ui-creme-input'})
 
         context = widget_render_context('ui-creme-checklistselect', attrs,
                                         body=self._render_body(attrs, filtertype),
@@ -1114,7 +1119,8 @@ u"""<div class="%(css)s" style="%(style)s" widget="%(typename)s" %(viewless)s>
 
 
 class OrderedMultipleChoiceWidget(widgets.SelectMultiple):
-    def render(self, name, value, attrs=None, choices=()):
+    # def render(self, name, value, attrs=None, choices=()):
+    def render(self, name, value, attrs=None):
         if value is None: value = ()
         value_dict = {opt_value: order + 1 for order, opt_value in enumerate(value)}
         attrs = self.build_attrs(attrs, name=name)
@@ -1124,7 +1130,8 @@ class OrderedMultipleChoiceWidget(widgets.SelectMultiple):
 
         output = [u'<table %s><tbody>' % flatatt(attrs)]
 
-        for i, (opt_value, opt_label) in enumerate(chain(self.choices, choices)):
+        # for i, (opt_value, opt_label) in enumerate(chain(self.choices, choices)):
+        for i, (opt_value, opt_label) in enumerate(self.choices):
             order = value_dict.get(opt_value, '')
 
             output.append(
@@ -1189,7 +1196,8 @@ class ListEditionWidget(widgets.Widget):
     content = ()
     only_delete = False
 
-    def render(self, name, value, attrs=None, choices=()):
+    # def render(self, name, value, attrs=None, choices=()):
+    def render(self, name, value, attrs=None):
         output = [u'<table %s><tbody>' % flatatt(self.build_attrs(attrs, name=name))]
         row = (u'<tr>'
                     '<td><input type="checkbox" name="%(name)s_check_%(i)s" %(checked)s/></td>'

@@ -6,9 +6,11 @@
 from django.conf import settings
 # NB: do not 'from django.utils.timezone import activate as activate_tz' because it is harder to unit test
 from django.utils import timezone
+from django.utils.deprecation import MiddlewareMixin
 
 
-class TimezoneMiddleware(object):
+# class TimezoneMiddleware(object):
+class TimezoneMiddleware(MiddlewareMixin):
     def process_request(self, request):
         # NB: AnonymousUser has no 'time_zone' attribute (we need it for the login view)
         tz = getattr(request.user, 'time_zone', None)

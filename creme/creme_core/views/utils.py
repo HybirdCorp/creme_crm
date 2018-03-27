@@ -22,8 +22,15 @@
 
 from django.db.models.base import Model
 from django.http.response import JsonResponse  # HttpResponse
-from django.utils.http import PROTOCOL_TO_PORT
+# from django.utils.http import PROTOCOL_TO_PORT
 from django.utils.six.moves.urllib.parse import urlparse
+
+
+# NB: old django.utils.http.PROTOCOL_TO_PORT
+PROTOCOL_TO_PORT = {
+    'http': 80,
+    'https': 443,
+}
 
 
 def build_cancel_path(request):

@@ -8,8 +8,8 @@ try:
     from django.apps import apps
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
-    from django.core.urlresolvers import reverse
     from django.forms.utils import ValidationError
+    from django.urls import reverse
     from django.utils.encoding import force_unicode
     from django.utils.formats import date_format
     from django.utils.html import escape
@@ -242,7 +242,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         "Credentials errors"
         user = self.login(is_superuser=False)
         self._build_nolink_setcreds()
-        self.role.creatable_ctypes = [ContentType.objects.get_for_model(Activity)]
+        # self.role.creatable_ctypes = [ContentType.objects.get_for_model(Activity)]
+        self.role.creatable_ctypes.set([ContentType.objects.get_for_model(Activity)])
 
         other_user = self.other_user
 

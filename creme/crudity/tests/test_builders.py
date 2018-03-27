@@ -9,8 +9,8 @@ try:
     from xml.etree.ElementTree import XML, tostring
 
     from django.contrib.auth import get_user_model
-    from django.core.urlresolvers import reverse
     from django.db.models.fields import FieldDoesNotExist
+    from django.urls import reverse
     from django.utils.translation import ugettext as _
     from django.test.client import RequestFactory
 

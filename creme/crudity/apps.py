@@ -35,7 +35,7 @@ class CrudityConfig(CremeAppConfig):
 
     def register_menu(self, creme_menu):
         from django.conf import settings
-        from django.core.urlresolvers import reverse_lazy as reverse
+        from django.urls import reverse_lazy as reverse
 
         if settings.OLD_MENU:
             reg_item = creme_menu.register_app('crudity', '/crudity/').register_item

@@ -4,7 +4,7 @@ try:
     from decimal import Decimal
     from functools import partial
 
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
     from django.utils.translation import ugettext as _
 
     from creme.documents import get_document_model, get_folder_model
@@ -175,7 +175,7 @@ class ServiceTestCase(_ProductsTestCase):
                                          category=sub_cat.category,
                                          sub_category=sub_cat,
                                         )
-        service.images = [img_3]
+        service.images.set([img_3])
 
         url = reverse('products__add_images_to_service', args=(service.id,))
         self.assertGET200(url)
@@ -206,7 +206,7 @@ class ServiceTestCase(_ProductsTestCase):
                                          category=sub_cat.category,
                                          sub_category=sub_cat,
                                         )
-        service.images = [img_1, img_2]
+        service.images.set([img_1, img_2])
 
         url = reverse('products__remove_image', args=(service.id,))
         data = {'id': img_1.id}

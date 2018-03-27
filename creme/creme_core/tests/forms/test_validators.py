@@ -30,7 +30,7 @@ class CredsValidatorTestCase(CremeTestCase):
 
     def test_validate_anonymous_user(self):
         user = get_user(self.client)
-        self.assertTrue(user.is_anonymous())
+        self.assertTrue(user.is_anonymous)
 
         with self.assertRaises(ValidationError) as e:
             validators.validate_authenticated_user(None, 'we are legion', code='viewnotallowed')
@@ -68,7 +68,7 @@ class CredsValidatorTestCase(CremeTestCase):
         a = FakeContact.objects.create(last_name='Doe', first_name='John', user=other_user)
 
         user = get_user(self.client)
-        self.assertTrue(user.is_anonymous())
+        self.assertTrue(user.is_anonymous)
 
         with self.assertRaises(ValidationError) as e:
             validators.validate_viewable_entity(a, user)
@@ -124,7 +124,7 @@ class CredsValidatorTestCase(CremeTestCase):
         b = FakeContact.objects.create(last_name='Doe', first_name='B', user=other_user)
 
         user = get_user(self.client)
-        self.assertTrue(user.is_anonymous())
+        self.assertTrue(user.is_anonymous)
 
         with self.assertRaises(ValidationError) as e:
             validators.validate_viewable_entities([a, b], user)
@@ -178,7 +178,7 @@ class CredsValidatorTestCase(CremeTestCase):
         a = FakeContact.objects.create(last_name='Doe', first_name='John', user=other_user)
 
         user = get_user(self.client)
-        self.assertTrue(user.is_anonymous())
+        self.assertTrue(user.is_anonymous)
 
         with self.assertRaises(ValidationError) as e:
             validators.validate_editable_entity(a, user)
@@ -224,7 +224,7 @@ class CredsValidatorTestCase(CremeTestCase):
         b = FakeContact.objects.create(last_name='Doe', first_name='B', user=other_user)
 
         user = get_user(self.client)
-        self.assertTrue(user.is_anonymous())
+        self.assertTrue(user.is_anonymous)
 
         with self.assertRaises(ValidationError) as e:
             validators.validate_editable_entities([a, b], user)
@@ -278,7 +278,7 @@ class CredsValidatorTestCase(CremeTestCase):
         a = FakeContact.objects.create(last_name='Doe', first_name='John', user=other_user)
 
         user = get_user(self.client)
-        self.assertTrue(user.is_anonymous())
+        self.assertTrue(user.is_anonymous)
 
         with self.assertRaises(ValidationError) as e:
             validators.validate_linkable_entity(a, user)
@@ -334,7 +334,7 @@ class CredsValidatorTestCase(CremeTestCase):
         b = FakeContact.objects.create(last_name='Doe', first_name='B', user=other_user)
 
         user = get_user(self.client)
-        self.assertTrue(user.is_anonymous())
+        self.assertTrue(user.is_anonymous)
 
         with self.assertRaises(ValidationError) as e:
             validators.validate_linkable_entities([a, b], user)
@@ -382,7 +382,7 @@ class CredsValidatorTestCase(CremeTestCase):
 
     def test_validate_linkable_model_anonymous(self):
         user = get_user(self.client)
-        self.assertTrue(user.is_anonymous())
+        self.assertTrue(user.is_anonymous)
 
         with self.assertRaises(ValidationError) as e:
             validators.validate_linkable_model(FakeContact, user, user)

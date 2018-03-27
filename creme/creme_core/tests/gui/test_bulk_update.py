@@ -5,9 +5,9 @@ try:
     from itertools import chain
 
     from django.contrib.contenttypes.models import ContentType
-    from django.core.urlresolvers import reverse
     from django.db.models.query_utils import Q
     from django.forms.models import ModelMultipleChoiceField
+    from django.urls import reverse
 
     from ..base import CremeTestCase
     from ..fake_models import (FakeContact, FakeOrganisation, FakeAddress,

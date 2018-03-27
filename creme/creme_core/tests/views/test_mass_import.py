@@ -7,9 +7,9 @@ try:
     from unittest import skipIf
 
     from django.contrib.contenttypes.models import ContentType
-    from django.core.urlresolvers import reverse
     from django.template.defaultfilters import slugify
     from django.test.utils import override_settings
+    from django.urls import reverse
     from django.utils.encoding import smart_unicode
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _, ungettext

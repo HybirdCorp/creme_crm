@@ -6,8 +6,8 @@ try:
     from unittest import skipIf
 
     from django.conf import settings
-    from django.core.urlresolvers import reverse
     from django.test.utils import override_settings
+    from django.urls import reverse
     from django.utils import timezone as django_tz
     from django.utils.translation import ugettext as _, ungettext
 

@@ -3,17 +3,17 @@
 try:
     from functools import partial
 
-    from django.db.models.fields import FieldDoesNotExist
-    from django.core.urlresolvers import reverse
-    from django.template import Template, Context, TemplateSyntaxError
     from django.contrib.contenttypes.models import ContentType
+    from django.db.models.fields import FieldDoesNotExist
+    from django.template import Template, Context, TemplateSyntaxError
+    from django.urls import reverse
 
     from ..base import CremeTestCase
+    from ..fake_models import FakeOrganisation
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.forms.bulk import _CUSTOMFIELD_FORMAT
     from creme.creme_core.gui.bulk_update import bulk_update_registry
     from creme.creme_core.models import SetCredentials, CustomField
-    from ..fake_models import FakeOrganisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

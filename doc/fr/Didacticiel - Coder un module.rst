@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 05-02-2018 pour la version 1.8 de Creme
+:Version: 06-02-2018 pour la version 1.8 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -29,8 +29,8 @@ Creme est développé en utilisant un cadriciel (framework) Python spécialisé 
 la création de sites et applications Web : Django_.
 Si vous comptez réellement développer des modules pour Creme, la connaissance de
 Django sera sûrement nécessaire. Heureusement la documentation de celui-ci est vraiment
-complète et bien faite ; vous la trouverez ici : https://docs.djangoproject.com/fr/1.9/.
-Dans un premier temps, avoir lu le `didacticiel <https://docs.djangoproject.com/fr/1.9/intro/overview/>`_
+complète et bien faite ; vous la trouverez ici : https://docs.djangoproject.com/fr/1.10/.
+Dans un premier temps, avoir lu le `didacticiel <https://docs.djangoproject.com/fr/1.10/intro/overview/>`_
 devrait suffire.
 
 Creme utilise aussi la bibliothèque Javascript JQuery_ ; il se peut que pour
@@ -357,7 +357,7 @@ supprimera une fiche castor : ::
 
     [...]
 
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
 
 
     class Beaver(CremeEntity):
@@ -624,7 +624,7 @@ une pour la liste des castors, et une pour créer un nouveau castor : ::
         [...]
 
         def register_menu(self, creme_menu):
-            from django.core.urlresolvers import reverse_lazy
+            from django.urls import reverse_lazy
 
             reg_item = creme_menu.register_app('beavers', '/beavers/').register_item
             reg_item(reverse_lazy('beavers__portal'),        _(u'Portal'),          'beavers')
@@ -1034,8 +1034,8 @@ Il devrait ressembler à ça: ::
 
 Puis ajoutons un champ 'status' dans notre modèle ``Beaver`` : ::
 
-    from django.core.urlresolvers import reverse
     from django.db.models import CharField, DateField, ForeignKey  # <- NEW
+    from django.urls import reverse
     from django.utils.translation import ugettext_lazy as _
 
     from creme.creme_core.models import CremeEntity

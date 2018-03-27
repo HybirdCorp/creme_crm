@@ -4,8 +4,8 @@ try:
     from functools import partial
 
     from django.core.paginator import Paginator
-    from django.core.urlresolvers import reverse
     from django.template import Template, Context
+    from django.urls import reverse
     from django.utils.translation import ugettext as _
     from django.utils.html import escape
 

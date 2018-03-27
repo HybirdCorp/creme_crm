@@ -29,10 +29,10 @@ import warnings
 
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
 from django.core.validators import validate_email
 from django.db.models.query import QuerySet, Q
 from django.forms import fields, widgets, ValidationError, ModelChoiceField
+from django.urls import reverse
 from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 

@@ -8,7 +8,7 @@ try:
     from json import dumps as json_dump
     from unittest import skipIf
 
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
     from django.utils.formats import date_format
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
@@ -957,7 +957,8 @@ class ProjectsTestCase(CremeTestCase):
                                          )
 
         if parents is not None:
-            task.parent_tasks = parents
+            # task.parent_tasks = parents
+            task.parent_tasks.set(parents)
 
         return task
 

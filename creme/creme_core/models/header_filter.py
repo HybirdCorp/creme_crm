@@ -23,8 +23,8 @@ from json import loads as jsonloads, dumps as jsondumps
 import logging
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
 from django.db.models import Model, CharField, TextField, BooleanField, Q
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from .fields import CremeUserForeignKey, CTypeForeignKey

@@ -8,9 +8,9 @@ else:
     from decimal import Decimal
 
     from django.core.exceptions import ValidationError
-    from django.core.urlresolvers import reverse
     from django.db import models
     from django.db.models.query_utils import Q
+    from django.urls import reverse
     from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
     from ..core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList

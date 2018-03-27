@@ -21,8 +21,8 @@
 # import warnings
 
 # from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.shortcuts import render
+from django.urls import reverse
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import jsonify

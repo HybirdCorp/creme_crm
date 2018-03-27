@@ -105,7 +105,7 @@ class EmailsConfig(CremeAppConfig):
     def register_menu(self, creme_menu):
         from django.apps import apps
         from django.conf import settings
-        from django.core.urlresolvers import reverse_lazy as reverse
+        from django.urls import reverse_lazy as reverse
 
         ECampaign = self.EmailCampaign
         MList     = self.MailingList

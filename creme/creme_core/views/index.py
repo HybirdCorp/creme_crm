@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.urlresolvers import reverse
 from django.shortcuts import render
+from django.urls import reverse
 
 from ..auth.decorators import login_required
 from ..gui.bricks import brick_registry

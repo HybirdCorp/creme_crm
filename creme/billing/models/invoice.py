@@ -18,11 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.urlresolvers import reverse
 from django.db.models import ForeignKey, PROTECT, SET_NULL
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.persons.workflow import transform_target_into_customer
+
 from .. import get_template_base_model
 from ..constants import DEFAULT_DECIMAL
 from .base import Base

@@ -8,9 +8,9 @@ try:
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
-    from django.core.urlresolvers import reverse
-    from django.utils.translation import ugettext as _
     from django.test import override_settings
+    from django.urls import reverse
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.gui.field_printers import field_printers_registry
@@ -473,7 +473,8 @@ class DocumentTestCase(_DocumentsTestCase):
         user = self.login(allowed_apps=['creme_core', 'persons', 'documents'])
         other_user = self.other_user
 
-        self.role.exportable_ctypes = [ContentType.objects.get_for_model(Contact)]
+        # self.role.exportable_ctypes = [ContentType.objects.get_for_model(Contact)]
+        self.role.exportable_ctypes.set([ContentType.objects.get_for_model(Contact)])
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW   |
                                             EntityCredentials.CHANGE |

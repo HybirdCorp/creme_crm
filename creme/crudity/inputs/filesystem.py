@@ -45,7 +45,7 @@ class IniFileInput(CrudityInput):
     #     super(IniFileInput, self).__init__()
     #
     #     # NB: we define an inner class + avoid using a template file in order to reduce the API (will break soon).
-    #     from django.core.urlresolvers import reverse
+    #     from django.urls import reverse
     #     from django.utils.safestring import mark_safe
     #     from django.utils.translation import ugettext
     #

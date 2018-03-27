@@ -2,10 +2,10 @@
 
 try:
     from django.conf import settings
-    from django.core.urlresolvers import reverse
     from django.http import Http404
-    from django.utils.translation import ugettext as _
     from django.test.client import RequestFactory
+    from django.urls import reverse
+    from django.utils.translation import ugettext as _
 
     from ..fake_models import FakeContact, FakeImage, FakeOrganisation
     from creme.creme_core.models import Language, Currency

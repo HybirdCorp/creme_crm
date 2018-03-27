@@ -10,9 +10,9 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.core import mail
     from django.core.mail.backends.locmem import EmailBackend
-    from django.core.urlresolvers import reverse
     from django.db.models.query import QuerySet
     from django.test.utils import override_settings
+    from django.urls import reverse
     from django.utils.timezone import now, localtime
     from django.utils.translation import ugettext as _
 

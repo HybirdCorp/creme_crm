@@ -22,8 +22,8 @@ from collections import defaultdict
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
 from django.db.models import TextField, BooleanField, ForeignKey, PositiveIntegerField, CASCADE
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList

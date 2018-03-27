@@ -51,7 +51,7 @@ class RecurrentsConfig(CremeAppConfig):
         RGenerator = self.RecurrentGenerator
 
         if settings.OLD_MENU:
-            from django.core.urlresolvers import reverse_lazy as reverse
+            from django.urls import reverse_lazy as reverse
             from creme.creme_core.auth import build_creation_perm
 
             reg_item = creme_menu.register_app('recurrents', '/recurrents/').register_item

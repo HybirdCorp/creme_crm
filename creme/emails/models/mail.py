@@ -21,11 +21,11 @@
 import logging
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.db import IntegrityError
 from django.db.models import (PositiveIntegerField, PositiveSmallIntegerField,
         CharField, TextField, DateTimeField, ForeignKey, ManyToManyField, CASCADE)
 from django.db.transaction import atomic
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.models import CremeModel, CremeEntity
@@ -139,7 +139,8 @@ class AbstractEntityEmail(_Email, CremeEntity):
         email.genid_n_save()
 
         if attachments:
-            email.attachments = attachments
+            # email.attachments = attachments
+            email.attachments.set(attachments)
 
         email.send()
 

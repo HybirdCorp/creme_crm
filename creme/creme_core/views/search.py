@@ -24,9 +24,9 @@ from urllib import urlencode
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.shortcuts import render
+from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from .. import utils

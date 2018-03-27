@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,9 +24,11 @@ from django.utils.translation import ugettext as _, ugettext_lazy
 
 from ..utils import entities2unicode
 
+
 def validate_authenticated_user(user, message, code, **kwargs):
-    if user is None or not user.is_authenticated():
+    if user is None or not user.is_authenticated:
         raise ValidationError(message.format(**kwargs), code=code)
+
 
 # TODO: factorise
 # VIEW ----------------------

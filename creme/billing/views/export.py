@@ -25,10 +25,10 @@ import subprocess
 from tempfile import mkdtemp
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.template import loader
+from django.urls import reverse
 from django.utils.encoding import smart_str
 from django.utils.translation import ugettext as _
 

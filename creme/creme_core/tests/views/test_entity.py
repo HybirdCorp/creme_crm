@@ -10,8 +10,8 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.contrib.auth import get_user_model
     from django.core.exceptions import ValidationError
-    from django.core.urlresolvers import reverse
     from django.db.models import Max
+    from django.urls import reverse
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -745,7 +745,8 @@ class _BulkEditTestCase(ViewsTestCase):
 
     def create_image(self, name, user, categories=()):
         image = FakeImage.objects.create(user=user, name=name)
-        image.categories = categories
+        # image.categories = categories
+        image.categories.set(categories)
 
         return image
 

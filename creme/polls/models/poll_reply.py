@@ -19,9 +19,9 @@
 ################################################################################
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.db.models import (CharField, TextField, BooleanField, NullBooleanField,
         PositiveIntegerField, PositiveSmallIntegerField, ForeignKey, PROTECT, SET_NULL, CASCADE)
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.models import CremeModel, CremeEntity

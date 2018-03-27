@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2016  Hybird
+#    Copyright (C) 2015-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,6 +24,7 @@ from os.path import dirname
 from unittest.loader import TestLoader
 
 from django.apps import apps
+from django.core.management import call_command
 from django.test.runner import DiscoverRunner
 
 from ..management.commands.creme_populate import Command as PopulateCommand
@@ -57,6 +58,7 @@ class CremeDiscoverRunner(DiscoverRunner):
 
     def setup_databases(self, *args, **kwargs):
         res = super(CremeDiscoverRunner, self).setup_databases(*args, **kwargs)
-        PopulateCommand().execute(verbosity=0)
+        # PopulateCommand().execute(verbosity=0)
+        call_command(PopulateCommand(), verbosity=0)
 
         return res

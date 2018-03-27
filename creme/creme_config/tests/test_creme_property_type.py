@@ -2,7 +2,7 @@
 
 try:
     from django.contrib.contenttypes.models import ContentType
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
 
     from creme.creme_core.models import CremePropertyType, CremeProperty
     from creme.creme_core.tests.base import CremeTestCase

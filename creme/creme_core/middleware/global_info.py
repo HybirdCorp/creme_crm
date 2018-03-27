@@ -18,10 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.utils.deprecation import MiddlewareMixin
+
 from ..global_info import set_global_info, clear_global_info
 
 
-class GlobalInfoMiddleware(object):
+# class GlobalInfoMiddleware(object):
+class GlobalInfoMiddleware(MiddlewareMixin):
     def process_request(self, request):
         set_global_info(user=request.user,
                         per_request_cache={},

@@ -24,9 +24,9 @@ import uuid
 import warnings
 
 from django.db.models import Q  # ForeignKey
-from django.core.urlresolvers import reverse
 from django.forms.utils import flatatt
 from django.db.models import UUIDField
+from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -403,7 +403,8 @@ class CremeEntity(CremeAbstractEntity):
         """Handle the clone of all many to many fields"""
         for field in source._meta.many_to_many:
             field_name = field.name
-            setattr(self, field_name, getattr(source, field_name).all())
+            # setattr(self, field_name, getattr(source, field_name).all())
+            getattr(self, field_name).set(getattr(source, field_name).all())
 
     def _clone_object(self):
         """Clone and returns a new saved instance of self.

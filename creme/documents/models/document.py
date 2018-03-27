@@ -21,8 +21,8 @@
 from mimetypes import guess_type
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.db.models import CharField, TextField, FileField, ForeignKey, ManyToManyField, PROTECT
+from django.urls import reverse
 from django.utils.html import format_html
 # from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _

@@ -939,11 +939,16 @@ class EntityFiltersTestCase(CremeTestCase):
         l3 = create_language(name='Engrish',  code='EN')
 
         contacts = self.contacts
-        jet   = contacts['jet'];   jet.languages   = [l1, l3]
-        rei   = contacts['rei'];   rei.languages   = [l1]
-        asuka = contacts['asuka']; asuka.languages = [l1, l2, l3]
-        faye  = contacts['faye'];  faye.languages  = [l2, l3]
-        yui   = contacts['yui'];   yui.languages   = [l3]
+        # jet   = contacts['jet'];   jet.languages   = [l1, l3]
+        # rei   = contacts['rei'];   rei.languages   = [l1]
+        # asuka = contacts['asuka']; asuka.languages = [l1, l2, l3]
+        # faye  = contacts['faye'];  faye.languages  = [l2, l3]
+        # yui   = contacts['yui'];   yui.languages   = [l3]
+        jet   = contacts['jet'];   jet.languages.set([l1, l3])
+        rei   = contacts['rei'];   rei.languages.set([l1])
+        asuka = contacts['asuka']; asuka.languages.set([l1, l2, l3])
+        faye  = contacts['faye'];  faye.languages.set([l2, l3])
+        yui   = contacts['yui'];   yui.languages.set([l3])
 
         filter_contacts = FakeContact.objects.filter
         self.assertEqual(3, filter_contacts(languages__code='JP').count())

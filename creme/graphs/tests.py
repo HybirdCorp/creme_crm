@@ -7,7 +7,7 @@ try:
     from functools import partial
     from unittest import skipIf
 
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation
@@ -238,7 +238,8 @@ class GraphsTestCase(CremeTestCase):
 
         graph = Graph.objects.create(user=user, name='Graph01')
         rnode = RootNode.objects.create(graph=graph, entity=orga)
-        rnode.relation_types = [rtype01]
+        # rnode.relation_types = [rtype01]
+        rnode.relation_types.set([rtype01])
 
         url = rnode.get_edit_absolute_url()
         self.assertGET200(url)

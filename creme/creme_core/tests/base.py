@@ -11,9 +11,10 @@ from django.test import TestCase, TransactionTestCase
 from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
+from django.core.management import call_command
 from django.db.models.query_utils import Q
 from django.forms.formsets import BaseFormSet
+from django.urls import reverse
 from django.utils.timezone import utc, get_current_timezone, make_aware
 
 from ..global_info import clear_global_info
@@ -96,7 +97,9 @@ class _CremeTestCase(object):
         role.save()
 
         if creatable_models is not None:
-            role.creatable_ctypes = [ContentType.objects.get_for_model(model) for model in creatable_models]
+            # role.creatable_ctypes = [ContentType.objects.get_for_model(model) for model in creatable_models]
+            get_ct = ContentType.objects.get_for_model
+            role.creatable_ctypes.set([get_ct(model) for model in creatable_models])
 
         self.role = role
 
@@ -503,4 +506,5 @@ class CremeTransactionTestCase(TransactionTestCase, _CremeTestCase):
 
     @classmethod
     def populate(cls, *args):
-        PopulateCommand().execute(*args, verbosity=0)
+        # PopulateCommand().execute(*args, verbosity=0)
+        call_command(PopulateCommand(), verbosity=0)

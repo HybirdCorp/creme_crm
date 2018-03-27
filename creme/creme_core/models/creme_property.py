@@ -19,9 +19,9 @@
 ################################################################################
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
 from django.db.models import CharField, ForeignKey, ManyToManyField, BooleanField, Q, CASCADE
 from django.dispatch import receiver
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from ..signals import pre_merge_related, pre_replace_related
@@ -89,9 +89,12 @@ class CremePropertyType(CremeModel):
             generate_string_id_and_save(CremePropertyType, [property_type], str_pk)
 
         get_ct = ContentType.objects.get_for_model
-        property_type.subject_ctypes = [model if isinstance(model, ContentType) else get_ct(model)
+        # property_type.subject_ctypes = [model if isinstance(model, ContentType) else get_ct(model)
+        #                                     for model in subject_ctypes
+        #                                ]
+        property_type.subject_ctypes.set([model if isinstance(model, ContentType) else get_ct(model)
                                             for model in subject_ctypes
-                                       ]
+                                         ])
 
         return property_type
 

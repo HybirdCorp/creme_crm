@@ -9,8 +9,8 @@ try:
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
-    from django.core.urlresolvers import reverse
     from django.test.utils import override_settings
+    from django.urls import reverse
     from django.utils.encoding import force_unicode
     from django.utils.formats import date_format
     from django.utils.timezone import localtime
@@ -212,13 +212,15 @@ class CSVExportViewsTestCase(ViewsTestCase):
         url = self._build_dl_url(self.ct, list_url=FakeContact.get_lv_absolute_url())
         self.assertGET403(url)
 
-        self.role.exportable_ctypes = [self.ct]  # Set the 'export' credentials
+        # self.role.exportable_ctypes = [self.ct]  # Set the 'export' credentials
+        self.role.exportable_ctypes.set([self.ct])  # Set the 'export' credentials
         self.assertGET200(url)
 
     def test_list_view_export04(self):
         "Credential"
         user = self.login(is_superuser=False)
-        self.role.exportable_ctypes = [self.ct]
+        # self.role.exportable_ctypes = [self.ct]
+        self.role.exportable_ctypes.set([self.ct])
 
         self._build_hf_n_contacts()
 
@@ -268,7 +270,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
     def test_list_view_export06(self):
         "FK field on CremeEntity"
         user = self.login(is_superuser=False)
-        self.role.exportable_ctypes = [self.ct]
+        self.role.exportable_ctypes.set([self.ct])
 
         create_img = FakeImage.objects.create
         spike_face = create_img(name='Spike face', user=self.other_user, description="Spike's selfie")
@@ -308,8 +310,10 @@ class CSVExportViewsTestCase(ViewsTestCase):
         create_camp(name='Camp#3')
 
         create_ml = partial(FakeMailingList.objects.create, user=user)
-        camp1.mailing_lists = [create_ml(name='ML#1'), create_ml(name='ML#2')]
-        camp2.mailing_lists = [create_ml(name='ML#3')]
+        # camp1.mailing_lists = [create_ml(name='ML#1'), create_ml(name='ML#2')]
+        # camp2.mailing_lists = [create_ml(name='ML#3')]
+        camp1.mailing_lists.set([create_ml(name='ML#1'), create_ml(name='ML#2')])
+        camp2.mailing_lists.set([create_ml(name='ML#3')])
 
         HeaderFilter.create(pk='test_hf', name='Campaign view', model=FakeEmailCampaign,
                             cells_desc=[(EntityCellRegularField, {'name': 'name'}),
@@ -539,8 +543,10 @@ class CSVExportViewsTestCase(ViewsTestCase):
         ml1 = create_ml(name='Bebop staff')
         ml2 = create_ml(name='Mafia staff')
 
-        camp1.mailing_lists = [ml1, ml2]
-        camp2.mailing_lists = [ml1]
+        # camp1.mailing_lists = [ml1, ml2]
+        # camp2.mailing_lists = [ml1]
+        camp1.mailing_lists.set([ml1, ml2])
+        camp2.mailing_lists.set([ml1])
 
         HeaderFilter.create(pk='test_hf', name='Campaign view', model=FakeEmailCampaign,
                             cells_desc=[(EntityCellRegularField, {'name': 'name'}),

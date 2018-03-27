@@ -6,7 +6,7 @@ try:
     from json import dumps as jsondumps # loads as jsonloads
 
     from django.core.exceptions import ValidationError
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
     from django.utils.encoding import force_unicode
     from django.utils.html import escape
     from django.utils.timezone import make_naive, get_current_timezone
@@ -394,7 +394,8 @@ class CalendarTestCase(_ActivitiesTestCase):
         cal2 = create_cal(name='Cal #2')
 
         act = Activity.objects.create(user=user, title='Act#1', type_id=ACTIVITYTYPE_TASK)
-        act.calendars = (default_calendar, cal1)
+        # act.calendars = (default_calendar, cal1)
+        act.calendars.set([default_calendar, cal1])
 
         url = self.build_link_url(act.id)
         self.assertGET409(url)
@@ -465,7 +466,8 @@ class CalendarTestCase(_ActivitiesTestCase):
                      )
 
         for act in (act0, act1, act3, act4, act5):
-            act.calendars = [cal]
+            # act.calendars = [cal]
+            act.calendars.set([cal])
 
         create_rel = partial(Relation.objects.create, user=user, type_id=REL_SUB_PART_2_ACTIVITY)
         create_rel(subject_entity=user.linked_contact,            object_entity=act3)
@@ -551,10 +553,14 @@ class CalendarTestCase(_ActivitiesTestCase):
         act3 = create(title='Act#3', start=start + timedelta(days=32), end=start + timedelta(days=33))  # Start KO
         act4 = create(title='Act#4', start=start + timedelta(days=29), end=start + timedelta(days=30))
 
-        act1.calendars = [cal1]
-        act2.calendars = [cal2]
-        act3.calendars = [cal3]
-        act4.calendars = [cal3]
+        # act1.calendars = [cal1]
+        # act2.calendars = [cal2]
+        # act3.calendars = [cal3]
+        # act4.calendars = [cal3]
+        act1.calendars.set([cal1])
+        act2.calendars.set([cal2])
+        act3.calendars.set([cal3])
+        act4.calendars.set([cal3])
 
         create_ind = partial(Activity.objects.create, user=user, type_id=ACTIVITYTYPE_INDISPO)
         act6 = create_ind(title='Ind#1', start=start + timedelta(days=5), end=start + timedelta(days=6))
@@ -608,7 +614,8 @@ class CalendarTestCase(_ActivitiesTestCase):
                      )
 
         for act in (act0, act1, act3, act4, act5):
-            act.calendars = [cal]
+            # act.calendars = [cal]
+            act.calendars.set([cal])
 
         create_rel = partial(Relation.objects.create, user=user, type_id=REL_SUB_PART_2_ACTIVITY)
         create_rel(subject_entity=user.linked_contact,            object_entity=act3)

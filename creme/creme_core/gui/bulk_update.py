@@ -22,8 +22,8 @@ from functools import partial
 from itertools import chain
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
 from django.db.models import ForeignKey, FieldDoesNotExist
+from django.urls import reverse
 
 from ..core.entity_cell import EntityCellRegularField, EntityCellCustomField
 from ..models import CremeModel, CustomField, FieldsConfig
@@ -34,7 +34,6 @@ from ..utils.unicode_collation import collator
 
 class FieldNotAllowed(Exception):
     pass
-
 
 
 class _BulkUpdateRegistry(object):

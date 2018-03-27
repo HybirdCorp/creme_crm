@@ -290,7 +290,8 @@ class UserRoleCreatableCTypesStep(_UserRoleWizardFormStep):
 
     def save(self, *args, **kwargs):
         # Optimisation: we only save the M2M
-        self.instance.creatable_ctypes = self.cleaned_data['creatable_ctypes']
+        # self.instance.creatable_ctypes = self.cleaned_data['creatable_ctypes']
+        self.instance.creatable_ctypes.set(self.cleaned_data['creatable_ctypes'])
 
 
 class UserRoleExportableCTypesStep(_UserRoleWizardFormStep):
@@ -309,7 +310,8 @@ class UserRoleExportableCTypesStep(_UserRoleWizardFormStep):
 
     def save(self, *args, **kwargs):
         # Optimisation: we only save the M2M
-        self.instance.exportable_ctypes = self.cleaned_data['exportable_ctypes']
+        # self.instance.exportable_ctypes = self.cleaned_data['exportable_ctypes']
+        self.instance.exportable_ctypes.set(self.cleaned_data['exportable_ctypes'])
 
 
 class UserRoleCredentialsStep(AddCredentialsForm):

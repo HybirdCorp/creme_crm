@@ -4,7 +4,7 @@ try:
     from json import loads as json_decode
 
     from django.contrib.contenttypes.models import ContentType
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models.auth import SetCredentials

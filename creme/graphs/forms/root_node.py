@@ -55,7 +55,8 @@ class AddRootNodesForm(CremeForm):
 
         for entity in entities:
             root_node = create_node(entity=entity, graph=graph)
-            root_node.relation_types = rtypes
+            # root_node.relation_types = rtypes
+            root_node.relation_types.set(rtypes)
 
 
 class EditRootNodeForm(CremeModelForm):

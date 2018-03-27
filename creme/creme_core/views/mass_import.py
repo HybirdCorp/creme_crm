@@ -21,9 +21,9 @@
 from os.path import splitext
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.utils.encoding import smart_str
 from django.utils.translation import ugettext as _
 

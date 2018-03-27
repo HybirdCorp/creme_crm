@@ -374,7 +374,8 @@ class CustomFieldMultiEnum(CustomFieldValue):
         if not self.pk:
             self.save()  # M2M field need a pk
 
-        self.value = value
+        # self.value = value
+        self.value.set(value)
 
 
 _TABLES = OrderedDict([

@@ -164,7 +164,7 @@ ROOT_URLCONF = 'creme.urls'  # Means urls.py
 
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/creme_login/'
-LOGOUT_URL = '/creme_logout/'
+# LOGOUT_URL = '/creme_logout/'
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
@@ -231,19 +231,39 @@ TEMPLATES = [
     },
 ]
 
-MIDDLEWARE_CLASSES = [
-    'creme.creme_core.middleware.exceptions.Ajax500Middleware',  # It must be last middleware that catch all exceptions
+# MIDDLEWARE_CLASSES = [
+#     'creme.creme_core.middleware.exceptions.Ajax500Middleware',
+#     'creme.creme_core.middleware.exceptions.Ajax404Middleware',
+#     'creme.creme_core.middleware.exceptions.Beautiful403Middleware',
+#     'creme.creme_core.middleware.exceptions.Beautiful409Middleware',
+#
+#     'mediagenerator.middleware.MediaMiddleware',
+#
+#     'django.contrib.sessions.middleware.SessionMiddleware',
+#     'django.middleware.common.CommonMiddleware',
+#     'django.middleware.csrf.CsrfViewMiddleware',
+#     'django.contrib.auth.middleware.AuthenticationMiddleware',
+#     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+#     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+#     'django.middleware.locale.LocaleMiddleware',
+#
+#     'creme.creme_core.middleware.global_info.GlobalInfoMiddleware',
+#     'creme.creme_core.middleware.timezone.TimezoneMiddleware',
+# ]
+MIDDLEWARE = [
+    'mediagenerator.middleware.MediaMiddleware',  # Must be the first
+
+    'creme.creme_core.middleware.exceptions.Ajax500Middleware',  # It must be last middleware that catches all exceptions
     'creme.creme_core.middleware.exceptions.Ajax404Middleware',
     'creme.creme_core.middleware.exceptions.Beautiful403Middleware',
     'creme.creme_core.middleware.exceptions.Beautiful409Middleware',
 
-    'mediagenerator.middleware.MediaMiddleware',  # Media middleware has to come first
-
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',  # Must be after SessionMiddleware.
+    'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
 
@@ -343,12 +363,19 @@ DEFAULT_USER_EMAIL = ''  # Email address used in case the user doesn't have fill
 LOGGING_FORMATTERS = {
     'verbose': {
         '()': 'creme.utils.loggers.CremeFormatter',
-        'format': '%(asctime)s %(levelname)-7s [%(modulepath)s:%(lineno)d] - %(name)s : %(message)s',
+        # 'format': '%(asctime)s %(levelname)-7s [%(modulepath)s:%(lineno)d] - %(name)s : %(message)s',  # Creme 1.7's format
+        'format': '[%(asctime)s] %(levelname)-7s (%(modulepath)s:%(lineno)d) %(name)s : %(message)s',
+        'datefmt': '%Y-%m-%d %H:%M:%S',
     },
     'simple': {
         '()': 'creme.utils.loggers.CremeFormatter',
-        'format': '%(asctime)s [%(colored_levelname)s] - %(name)s : %(message)s',
+        # 'format': '%(asctime)s [%(colored_levelname)s] - %(name)s : %(message)s',  # Creme 1.7's format
+        'format': '[%(asctime)s] %(colored_levelname)s - %(name)s : %(message)s',
         'datefmt': '%Y-%m-%d %H:%M:%S',
+    },
+    'django.server': {
+        '()': 'django.utils.log.ServerFormatter',
+        'format': '[%(server_time)s] SERVER: %(message)s',
     },
 }
 
@@ -397,9 +424,23 @@ LOGGING = {
     'handlers': {
         'console': LOGGING_CONSOLE_HANDLER,
         'file':    LOGGING_FILE_HANDLER,
+        'django.server': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'django.server',
+        },
     },
     'loggers': {
-        '': LOGGING_DEFAULT_LOGGER  # The empty key '' means that all logs are redirected to this logger.
+        '': LOGGING_DEFAULT_LOGGER,  # The empty key '' means that all logs are redirected to this logger.
+        # 'django.db.backends': {  # To display the DB queries
+        #     'level':    'DEBUG',
+        #     'handlers': ['console'],
+        # },
+        'django.server': {
+            'handlers': ['django.server'],
+            'level': 'INFO',
+            'propagate': False,
+        },
     },
 }
 

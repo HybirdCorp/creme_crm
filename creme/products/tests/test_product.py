@@ -5,7 +5,7 @@ try:
     from functools import partial
     import json
 
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -469,7 +469,7 @@ class ProductTestCase(_ProductsTestCase):
                                          category=sub_cat.category,
                                          sub_category=sub_cat,
                                         )
-        product.images = [img_3]
+        product.images.set([img_3])
 
         url = reverse('products__add_images_to_product', args=(product.id,))
         self.assertGET200(url)
@@ -509,7 +509,7 @@ class ProductTestCase(_ProductsTestCase):
                                          category=sub_cat.category,
                                          sub_category=sub_cat,
                                         )
-        product.images = [img_1, img_2]
+        product.images.set([img_1, img_2])
 
         url = reverse('products__remove_image', args=(product.id,))
         data = {'id': img_1.id}
