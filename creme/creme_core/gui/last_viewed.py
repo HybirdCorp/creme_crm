@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -106,11 +106,13 @@ class LastViewedItem(object):
                 updated = True  # The settings has change since the list has been stored
                 del old_items[MAX_LAST_ITEMS:]
 
-            entities = {e.id: e for e in CremeEntity.objects
-                                                    .filter(is_deleted=False, 
-                                                            pk__in=[item.pk for item in old_items],
-                                                           )
-                       }
+            # entities = {e.id: e for e in CremeEntity.objects
+            #                                         .filter(is_deleted=False,
+            #                                                 pk__in=[item.pk for item in old_items],
+            #                                                )
+            #            }
+            entities = CremeEntity.objects.filter(is_deleted=False) \
+                                          .in_bulk([item.pk for item in old_items])
             updated |= (len(old_items) != len(entities))  # If any entity has been deleted -> must update
 
             for item in old_items:

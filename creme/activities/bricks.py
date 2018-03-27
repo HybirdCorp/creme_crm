@@ -63,10 +63,13 @@ class ParticipantsBrick(QuerysetBrick):
         relations = btc['page'].object_list
         # TODO: remove civility with better entity repr system ??
         # TODO: move in Relation.populate_real_objects() (with new arg for fixed model) ???
-        contacts = {c.id: c
-                        for c in Contact.objects.filter(pk__in=[r.object_entity_id for r in relations])
-                                                .select_related('user', 'is_user', 'civility')
-                   }
+        # contacts = {c.id: c
+        #                 for c in Contact.objects.filter(pk__in=[r.object_entity_id for r in relations])
+        #                                         .select_related('user', 'is_user', 'civility')
+        #            }
+        contacts = Contact.objects.filter(pk__in=[r.object_entity_id for r in relations]) \
+                                  .select_related('user', 'is_user', 'civility') \
+                                  .in_bulk()
 
         for relation in relations:
             relation.object_entity = contacts[relation.object_entity_id]
