@@ -21,7 +21,7 @@
 import logging
 # import warnings
 
-# from django.db.models import ForeignKey
+from django.db.models.fields import FieldDoesNotExist
 from django.db.transaction import atomic
 from django.forms import Field, Widget, Select, CheckboxInput
 from django.forms.models import fields_for_model, model_to_dict
@@ -209,7 +209,14 @@ class MergeEntitiesBaseForm(CremeForm):
             entity1 = self.entity1
 
             for name in self.fields.iterkeys():
-                setattr(entity1, name, cdata[name])
+                # setattr(entity1, name, cdata[name])
+                try:
+                    mfield = entity1._meta.get_field(name)
+                except FieldDoesNotExist:
+                    pass
+                else:
+                    if not getattr(mfield, 'many_to_many', False):
+                        setattr(entity1, name, cdata[name])
 
             entity1.full_clean()
 
@@ -218,15 +225,23 @@ class MergeEntitiesBaseForm(CremeForm):
     @atomic
     def save(self, *args, **kwargs):
         super(MergeEntitiesBaseForm, self).save(*args, **kwargs)
+        cdata = self.cleaned_data
 
         entity1 = self.entity1
         entity2 = self.entity2
 
         entity1.save()
-        self._post_entity1_update(entity1, entity2, self.cleaned_data)
+        self._post_entity1_update(entity1, entity2, cdata)
         pre_merge_related.send_robust(sender=entity1, other_entity=entity2)
 
         replace_related_object(entity2, entity1)
+
+        # ManyToManyFields
+        for m2m_field in entity1._meta.many_to_many:
+            name = m2m_field.name
+            m2m_data = cdata.get(name)
+            if m2m_data is not None:
+                getattr(entity1, name).set(m2m_data)
 
         try:
             entity2.delete()
