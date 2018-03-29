@@ -108,12 +108,17 @@
         <div class="list-header-buttons clearfix">
           {% if not is_popup_view %}
             {% has_perm_to create model as creation_perm %}{% has_perm_to export model as export_perm %}
+            {% if add_url %}
+                <a {% if creation_perm %}class="with-icon" href="{{add_url}}"{% else %}class="with-icon forbidden" title="{% trans 'Forbidden' %}"{% endif %}>
+                    {% widget_icon name='add' label=_('Create') size='listview-button' %}{{model.creation_label}}
+                </a>
+            {% endif %}
             {% get_export_backends as export_backends %}
             {% if export_backends|length > 2 %}{% url 'creme_core__dl_listview' as dl_url %}
-                <a class="with-icon" {% if export_perm %}href="{{dl_url}}?ct_id={{content_type_id}}&list_url={{request.path}}" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}}, 'type');"{% else %}class="forbidden" title="{% trans 'Forbidden' %}"{% endif %}>
+                <a {% if export_perm %}class="with-icon" href="{{dl_url}}?ct_id={{content_type_id}}&list_url={{request.path}}" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}}, 'type');"{% else %}class="with-icon forbidden" title="{% trans 'Forbidden' %}"{% endif %}>
                     {% trans 'Download' as label %}{% widget_icon name='document_csv' label=label size='listview-button' %}{{label}}
                 </a>
-                <a class="with-icon" {% if export_perm %}href="{{dl_url}}?ct_id={{content_type_id}}&list_url={{request.path}}&header=true" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}}, 'type');"{% else %}class="forbidden" title="{% trans 'Forbidden' %}"{% endif %}>
+                <a {% if export_perm %}class="with-icon" href="{{dl_url}}?ct_id={{content_type_id}}&list_url={{request.path}}&header=true" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}}, 'type');"{% else %}class="with-icon forbidden" title="{% trans 'Forbidden' %}"{% endif %}>
                     {% trans 'Download header' as label %}{% widget_icon name='document_csv' label=label size='listview-button' %}{{label}}
                 </a>
             {% endif %}
