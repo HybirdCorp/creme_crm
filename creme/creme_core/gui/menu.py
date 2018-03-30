@@ -646,7 +646,8 @@ else:
                 #                 self.label,
                 #             ) if context['user'].has_perm_to_create(self.model) else \
                 #        u'<span class="ui-creme-navigation-text-entry forbidden">%s</span>' % self.label
-                return format_html(u'<a href="{url}" class="quickform-menu-link">{label}</a>',
+                # return format_html(u'<a href="{url}" class="quickform-menu-link">{label}</a>',
+                return format_html(u'<a href="#" data-href="{url}" class="quickform-menu-link">{label}</a>',
                                    url=reverse('creme_core__quick_forms', args=(self.ct_id, 1)),
                                    label=self.label,
                                   ) \
