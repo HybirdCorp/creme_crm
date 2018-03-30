@@ -341,6 +341,7 @@ ul.button_list.vbox li {
 .buttons-list.instance-buttons .menu_button,
 .buttons-list.global-buttons .menu_button {
     padding-left: 10px;
+    padding-right: 10px;
     margin-top: 10px;
     margin-right: 5px;
 
@@ -361,6 +362,7 @@ ul.button_list.vbox li {
 .card-button.card-button-icon,
 .buttons-list .menu_button.menu-button-icon {
     padding-left: 38px;
+    padding-right: 20px;
     position: relative;
 }
 
