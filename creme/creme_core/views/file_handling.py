@@ -80,24 +80,37 @@ def handle_uploaded_file(f, path=None, name=None, max_length=None):
 
 
 @login_required
-def download_file(request, location, mimetype=None):
-    if mimetype is not None:
-        ftype = mimetype
+# def download_file(request, location, mimetype=None):
+def download_file(request, location):
+    # if mimetype is not None:
+    #     ftype = mimetype
+    # else:
+    #     name_parts = location.replace('\\', '/').rpartition('/')[2].split('.')
+    #
+    #     if len(name_parts) == 1:  # Should not happen
+    #         ftype = 'text/plain'
+    #         name = name_parts[0]
+    #     else:
+    #         if len(name_parts) > 2 and name_parts[-1] == 'txt' and \
+    #            name_parts[-2] not in settings.ALLOWED_EXTENSIONS:
+    #             name_parts.pop()  # Drop the added '.txt'
+    #
+    #         name = '.'.join(name_parts)
+    #         ftype = name_parts[-1]
+    name_parts = location.replace('\\', '/').rpartition('/')[2].split('.')
+
+    if len(name_parts) == 1:  # Should not happen
+        ftype = 'text/plain'
+        name = name_parts[0]
     else:
-        name_parts = location.replace('\\','/').rpartition('/')[2].split('.')
+        if len(name_parts) > 2 and name_parts[-1] == 'txt' and \
+                name_parts[-2] not in settings.ALLOWED_EXTENSIONS:
+            name_parts.pop()  # Drop the added '.txt'
 
-        if len(name_parts) == 1:  # Should not happen
-            ftype = 'text/plain'
-            name = name_parts[0]
-        else:
-            if len(name_parts) > 2 and name_parts[-1] == 'txt' and \
-               name_parts[-2] not in settings.ALLOWED_EXTENSIONS:
-                name_parts.pop()  # Drop the added '.txt'
+        name = '.'.join(name_parts)
+        ftype = name_parts[-1]
 
-            name = '.'.join(name_parts)
-            ftype = name_parts[-1]
-
-    path = settings.MEDIA_ROOT + os.sep + location.replace('../','').replace('..\\','')
+    path = settings.MEDIA_ROOT + os.sep + location.replace('../', '').replace('..\\', '')
 
     try:
         with open(path, 'rb') as f:
@@ -106,7 +119,7 @@ def download_file(request, location, mimetype=None):
         raise Http404(_('Invalid file'))
 
     response = HttpResponse(data, content_type=ftype)
-    response['Content-Disposition'] = "attachment; filename=%s" % (name.replace(' ','_'))
+    response['Content-Disposition'] = "attachment; filename=%s" % (name.replace(' ', '_'))
 
     return response
 
