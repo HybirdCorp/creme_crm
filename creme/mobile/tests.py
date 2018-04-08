@@ -177,7 +177,7 @@ class MobileTestCase(CremeTestCase):
     def test_logout(self):
         self.login()
         response = self.assertGET200(reverse('mobile__logout'), follow=True)
-        self.assertRedirects(response, settings.LOGIN_URL)
+        self.assertRedirects(response, reverse(settings.LOGIN_URL))
 
     @skipIfCustomActivity
     def test_portal(self):
