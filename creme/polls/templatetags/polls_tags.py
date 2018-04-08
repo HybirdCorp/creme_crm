@@ -122,6 +122,6 @@ def poll_stats_chart(node):
 
         return template.loader.render_to_string(chartpath, context)
     except Exception:
-        logger.exception('An error occured in {% poll_stats_chart %}')
+        logger.exception('An error occurred in {% poll_stats_chart %}')
 
         return _(u'[An error occurred]')
