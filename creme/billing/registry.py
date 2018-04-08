@@ -49,11 +49,12 @@ class AlgoRegistry(object):
             algos[name] = algo
 
     def get_algo(self, name):
-        algos = self._algos
-        if algos.has_key(name):
-            return algos[name]
-
-        return None
+        # algos = self._algos
+        # if algos.has_key(name):
+        #     return algos[name]
+        #
+        # return None
+        return self._algos.get(name)
 
     def __iter__(self):
         return self._algos.iteritems()
