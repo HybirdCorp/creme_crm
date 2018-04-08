@@ -42,8 +42,10 @@ _CUSTOMFIELD_FORMAT = 'customfield-%d'
 
 
 class BulkFieldSelectWidget(Select):
-    def build_attrs(self, extra_attrs=None, **kwargs):
-        attrs = super(BulkFieldSelectWidget, self).build_attrs(extra_attrs, **kwargs)
+    # def build_attrs(self, extra_attrs=None, **kwargs):
+    #     attrs = super(BulkFieldSelectWidget, self).build_attrs(extra_attrs, **kwargs)
+    def build_attrs(self, base_attrs, extra_attrs=None):
+        attrs = super(BulkFieldSelectWidget, self).build_attrs(base_attrs=base_attrs, extra_attrs=extra_attrs)
         attrs['onchange'] = 'creme.dialog.redirect($(this).val(), $(this));'
         return attrs
 

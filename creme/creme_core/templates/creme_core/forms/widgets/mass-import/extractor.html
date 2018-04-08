@@ -1,0 +1,43 @@
+{% load i18n creme_core_tags %}
+{% with id=widget.attrs.id name=widget.name sub_choices=widget.subfield_choices %}
+<table {# name="{{name}}" #}{% include 'django/forms/widgets/attrs.html' %}>
+    <tbody>
+        <tr>
+            <td class="csv_column_select">
+                {% include 'django/forms/widgets/select.html' with widget=widget.column_select %}
+            </td>
+            {% if sub_choices %}
+            <td class="csv_subfields_select">
+            {% with hide_select=sub_choices|length|eq:1 %} {# The 'select' tag is annoying if there is only one option #}
+                {% if not hide_select %}{% trans 'Search by:' %}{% endif %}
+
+                {% with sel=widget.searched_subfield %}
+                <select name="{{name}}_subfield"{% if hide_select %} hidden{% endif %}>
+                {% for ovalue, olabel in sub_choices %}
+                    <option value="{{ovalue}}"{% if ovalue == sel %} selected{% endif %}>{{olabel}}</option>
+                {% endfor %}
+                </select>
+                {% endwith %}
+
+                {% if widget.propose_creation %}&nbsp;
+                <label for="{{id}}_create">{% trans 'Create if not found?' %}
+                    <input type="checkbox" id="{{id}}_create" name="{{name}}_create"{% if widget.creation_checked %} checked{% endif %}>
+                </label>
+                {% endif %}
+                <script type="text/javascript">
+                    $(document).ready(function() {
+                        creme.forms.toImportField('{{id}}');
+                    });
+                </script>
+            {% endwith %}
+            </td>
+            {% endif %}
+            <td>&nbsp;
+                <label for="{{id}}_defval">{% trans 'Default value' %}:
+                    {% include widget.default_value_widget.template_name with widget=widget.default_value_widget %}
+                </label>
+            </td>
+        </tr>
+    </tbody>
+</table>
+{% endwith %}

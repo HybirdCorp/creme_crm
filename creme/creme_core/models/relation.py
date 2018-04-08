@@ -71,6 +71,7 @@ class RelationType(CremeModel):
         app_label = 'creme_core'
         verbose_name = _(u'Type of relationship')
         verbose_name_plural = _(u'Types of relationship')
+        ordering = ('predicate',)
 
     def __unicode__(self):
         sym_type = self.symmetric_type

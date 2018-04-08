@@ -1,0 +1,3 @@
+{% load i18n %}<input type="checkbox" name="{{widget.name}}_can_create"{% if widget.can_create_checked %} checked{% endif %}/>
+{% trans 'Create entities if they are not found ? (only fields followed by [CREATION] allows you to create, if they exist)' %}
+{% include 'creme_core/forms/widgets/selector-list.html' %}

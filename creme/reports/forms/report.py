@@ -26,7 +26,7 @@ from django.db.models import ForeignKey, ManyToManyField
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.forms.fields import ChoiceField, CharField
-from django.template.loader import render_to_string
+# from django.template.loader import render_to_string
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
@@ -185,24 +185,36 @@ class LinkFieldToReportForm(CremeForm):
 
 
 class ReportHandsWidget(EntityCellsWidget):
+    template_name = 'reports/forms/widgets/report-hands.html'
+
     def __init__(self, related_entities=(), *args, **kwargs):
         super(ReportHandsWidget, self).__init__(*args, **kwargs)
         self.related_entities = related_entities
         self.regular_aggregates = ()
         self.custom_aggregates = ()
 
-    def _build_render_context(self, name, value, attrs):
-        ctxt = super(ReportHandsWidget, self)._build_render_context(name, value, attrs)
-        ctxt['related_entities']   = self.related_entities
-        ctxt['regular_aggregates'] = self.regular_aggregates
-        ctxt['custom_aggregates']  = self.custom_aggregates
+    # def _build_render_context(self, name, value, attrs):
+    #     ctxt = super(ReportHandsWidget, self)._build_render_context(name, value, attrs)
+    #     ctxt['related_entities']   = self.related_entities
+    #     ctxt['regular_aggregates'] = self.regular_aggregates
+    #     ctxt['custom_aggregates']  = self.custom_aggregates
+    #
+    #     return ctxt
 
-        return ctxt
+    # def render(self, name, value, attrs=None):
+    #     return render_to_string('reports/reports_hands_widget.html',
+    #                             self._build_render_context( name, value, attrs)
+    #                            )
 
-    def render(self, name, value, attrs=None):
-        return render_to_string('reports/reports_hands_widget.html',
-                                self._build_render_context( name, value, attrs)
-                               )
+    def get_context(self, name, value, attrs):
+        context = super(ReportHandsWidget, self).get_context(name=name, value=value, attrs=attrs)
+
+        widget_cxt = context['widget']
+        widget_cxt['related_entities']   = self.related_entities
+        widget_cxt['regular_aggregates'] = self.regular_aggregates
+        widget_cxt['custom_aggregates']  = self.custom_aggregates
+
+        return context
 
 
 class ReportHandsField(EntityCellsField):

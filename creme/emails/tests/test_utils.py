@@ -59,7 +59,7 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
 
         MySender = self.TestEMailSender
         e_sender = MySender(body, body_html)
-        mail = EntityEmail(user=user, sender='m.kusanagi@section9.jp')
+        mail = EntityEmail(user=user, sender='m.kusanagi@section9.jp', recipient='bato@section9.jp')
 
         e_sender.send(mail)
 
@@ -70,6 +70,7 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
         self.assertEqual(MySender.subject, message.subject)
         self.assertEqual(body,             message.body)
         self.assertEqual(mail.sender,      message.from_email)
+        self.assertEqual([mail.recipient], message.recipients())
         self.assertEqual([(body_html, 'text/html')], message.alternatives)
 
         self.assertFalse(message.attachments)
@@ -94,7 +95,7 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
 
         MySender = self.TestEMailSender
         e_sender = MySender(body, body_html, signature=signature)
-        mail = EntityEmail(user=user, sender='m.kusanagi@section9.jp')
+        mail = EntityEmail(user=user, sender='m.kusanagi@section9.jp', recipient='bato@section9.jp')
 
         e_sender.send(mail)
 

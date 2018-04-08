@@ -3,6 +3,7 @@
 try:
     from json import dumps as json_dump
 
+    from django.urls import reverse
     from django.utils.html import escape
     from django.utils.translation import ugettext as _
 
@@ -78,45 +79,47 @@ class CreatorCategorySelectorWidgetTestCase(FieldTestCase):
     def test_render(self):
         user = self.login()
 
+        from django.utils.html import format_html_join
+
         categories = ChoiceModelIterator(Category.objects.all())
         creation_url, _allowed = config_registry.get_model_creation_info(SubCategory, user)
         widget = CreatorCategorySelector(categories=categories, creation_url=creation_url, creation_allowed=True)
-        value = json_dump({'category':1, 'subcategory':1})
+        value = json_dump({'category': 1, 'subcategory': 1})
 
-        html = u'''<ul class="hbox ui-creme-widget ui-layout widget-auto ui-creme-actionbuttonlist" style="" widget="ui-creme-actionbuttonlist">
+        html = u'''<ul class="hbox ui-creme-widget ui-layout widget-auto ui-creme-actionbuttonlist" widget="ui-creme-actionbuttonlist">
     <li class="delegate">
-        <div class="ui-creme-widget widget-auto ui-creme-chainedselect" style="" widget="ui-creme-chainedselect">
-            <input class="ui-creme-input ui-creme-chainedselect" name="sub_category" type="hidden" value="%(value)s" />
+        <div class="ui-creme-widget widget-auto ui-creme-chainedselect" widget="ui-creme-chainedselect">
+            <input class="ui-creme-input ui-creme-chainedselect" name="sub_category" type="hidden" value="{value}" />
             <ul class="ui-layout vbox">
                 <li chained-name="category" class="ui-creme-chainedselect-item">
-                    <span class="ui-creme-dselectlabel">%(categories_label)s</span>
+                    <span class="ui-creme-dselectlabel">{categories_label}</span>
                     <select class="ui-creme-input ui-creme-widget ui-creme-dselect" name="" url="" widget="ui-creme-dselect">
-                        %(categories)s
+                        {categories}
                     </select>
                 </li>
                 <li chained-name="subcategory" class="ui-creme-chainedselect-item">
-                    <span class="ui-creme-dselectlabel">%(sub_categories_label)s</span>
-                    <select class="ui-creme-input ui-creme-widget ui-creme-dselect" name="" url="/products/sub_category/${category}/json" widget="ui-creme-dselect">
+                    <span class="ui-creme-dselectlabel">{sub_categories_label}</span>
+                    <select class="ui-creme-input ui-creme-widget ui-creme-dselect" name="" url="{choices_url}" widget="ui-creme-dselect">
                     </select>
                 </li>
             </ul>
         </div>
     </li>
     <li>
-        <button class="ui-creme-actionbutton" name="create" title="%(create_title)s" alt="%(create_title)s" type="button"
-                popupUrl="%(create_url)s">
-            %(create_label)s
+        <button class="ui-creme-actionbutton" name="create" title="{create_title}" type="button" popupUrl="{create_url}">
+            {create_label}
         </button>
     </li>
-</ul>''' % {
-    'value': escape(value),
-    'categories': ''.join('<option value="%s">%s</option>' % (v, escape(l)) for v, l in ChoiceModelIterator(Category.objects.all())),
-    'categories_label': _(u'Category'),
-    'sub_categories_label': _(u'Sub-category'),
-    'create_title': _(u"Create"),
-    'create_label': SubCategory.creation_label,
-    'create_url': creation_url + '?category=${_delegate_.category}',
-}
+</ul>'''.format(
+            value=escape(value),
+            categories=format_html_join(u'', u'<option value="{}">{}</option>', Category.objects.values_list('id', 'name')),
+            categories_label=_(u'Category'),
+            sub_categories_label=_(u'Sub-category'),
+            choices_url=reverse('products__subcategories', args=('1234',)).replace('1234', '${category}'),
+            create_title=_(u'Create'),
+            create_label=SubCategory.creation_label,
+            create_url=creation_url + '?category=${_delegate_.category}',
+        )
 
         self.maxDiff = None
         self.assertHTMLEqual(html, widget.render('sub_category', value, attrs={'reset': False, 'direction': ChainedInput.VERTICAL}))

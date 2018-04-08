@@ -46,10 +46,10 @@ from ..utils.unicode_collation import collator
 from ..utils.url import TemplateURLBuilder
 from .base import CremeModelForm
 from .fields import JSONField
-from .widgets import (DynamicInput, SelectorList, ChainedInput,
+from .widgets import (DynamicInput, SelectorList, ChainedInput, Label,
         EntitySelector, DateRangeSelect,
         DynamicSelect, DynamicSelectMultiple, PolymorphicInput, CremeRadioSelect,
-        NullableDateRangeSelect)  # UnorderedMultipleChoiceWidget
+        NullableDateRangeSelect)
 
 
 TRUE = 'true'
@@ -79,23 +79,23 @@ class FieldConditionWidget(ChainedInput):  # TODO: rename FieldConditionSelector
         self.operators = operators
         self.autocomplete = autocomplete
 
-    def render(self, name, value, attrs=None):
-        field_attrs = {'auto': False, 'datatype': 'json'}
-
-        if self.autocomplete:
-            field_attrs['autocomplete'] = True
-
-        add_dselect = self.add_dselect
-        add_dselect('field',    options=self._build_fieldchoices(self.fields), attrs=field_attrs)
-        add_dselect('operator', options=self._build_operatorchoices(self.operators),
-                    attrs=dict(field_attrs,
-                               filter='context.field && item.value ? item.value.types.split(" ").indexOf(context.field.type) !== -1 : true',
-                               dependencies='field',
-                              ),
-                   )
-        self.add_input('value', self._build_valueinput(field_attrs), attrs=attrs)
-
-        return super(FieldConditionWidget, self).render(name, value, attrs)
+    # def render(self, name, value, attrs=None):
+    #     field_attrs = {'auto': False, 'datatype': 'json'}
+    #
+    #     if self.autocomplete:
+    #         field_attrs['autocomplete'] = True
+    #
+    #     add_dselect = self.add_dselect
+    #     add_dselect('field',    options=self._build_fieldchoices(self.fields), attrs=field_attrs)
+    #     add_dselect('operator', options=self._build_operatorchoices(self.operators),
+    #                 attrs=dict(field_attrs,
+    #                            filter='context.field && item.value ? item.value.types.split(" ").indexOf(context.field.type) !== -1 : true',
+    #                            dependencies='field',
+    #                           ),
+    #                )
+    #     self.add_input('value', self._build_valueinput(field_attrs), attrs=attrs)
+    #
+    #     return super(FieldConditionWidget, self).render(name, value, attrs)
 
     def _build_valueinput(self, field_attrs):
         pinput = PolymorphicInput(key='${field.type}.${operator.id}', attrs={'auto': False})
@@ -104,14 +104,12 @@ class FieldConditionWidget(ChainedInput):  # TODO: rename FieldConditionSelector
         add_input = pinput.add_input
         add_input('^enum(__null)?.(%d|%d)$' % EQUALS_OPS,
                   widget=DynamicSelectMultiple, attrs=field_attrs,
-                  # url='/creme_core/enumerable/${field.ctype}/json',
                   # TODO: use a GET arg instead of using a TemplateURLBuilder ?
                   url=TemplateURLBuilder(ct_id=(TemplateURLBuilder.Int, '${field.ctype}'))
                                         .resolve('creme_core__list_enumerable'),
                  )
 
         pinput.add_dselect('^user(__null)?.(%d|%d)$' % EQUALS_OPS,
-                           # '/creme_core/enumerable/userfilter/json',
                            reverse('creme_core__efilter_user_choices'),
                            attrs=field_attrs,
                           )
@@ -202,20 +200,49 @@ class FieldConditionWidget(ChainedInput):  # TODO: rename FieldConditionSelector
 
         return 'string'
 
+    def get_context(self, name, value, attrs):
+        field_attrs = {'auto': False, 'datatype': 'json'}
+
+        if self.autocomplete:
+            field_attrs['autocomplete'] = True
+
+        add_dselect = self.add_dselect
+        add_dselect('field',    options=self._build_fieldchoices(self.fields), attrs=field_attrs)
+        add_dselect('operator', options=self._build_operatorchoices(self.operators),
+                    attrs=dict(field_attrs,
+                               filter='context.field && item.value ? '
+                                      'item.value.types.split(" ").indexOf(context.field.type) !== -1 : '
+                                      'true',
+                               dependencies='field',
+                              ),
+                   )
+        self.add_input('value', self._build_valueinput(field_attrs), attrs=attrs)
+
+        return super(FieldConditionWidget, self).get_context(name=name, value=value, attrs=attrs)
+
 
 class RegularFieldsConditionsWidget(SelectorList):
-    def __init__(self, fields=(), attrs=None, enabled=True):
+    def __init__(self, fields=(), attrs=None, enabled=True):  # TODO: use/remove 'enabled'
         super(RegularFieldsConditionsWidget, self).__init__(None, attrs)
         self.fields = fields
 
-    def render(self, name, value, attrs=None):
+    # def render(self, name, value, attrs=None):
+    #     self.selector = FieldConditionWidget(fields=self.fields,
+    #                                          # todo: given by form field ?
+    #                                          operators=EntityFilterCondition._OPERATOR_MAP,
+    #                                          autocomplete=True,
+    #                                         )
+    #
+    #     return super(RegularFieldsConditionsWidget, self).render(name, value, attrs)
+
+    def get_context(self, name, value, attrs):
         self.selector = FieldConditionWidget(fields=self.fields,
                                              # TODO: given by form field ?
                                              operators=EntityFilterCondition._OPERATOR_MAP,
                                              autocomplete=True,
                                             )
 
-        return super(RegularFieldsConditionsWidget, self).render(name, value, attrs)
+        return super(RegularFieldsConditionsWidget, self).get_context(name=name, value=value, attrs=attrs)
 
 
 class DateFieldsConditionsWidget(SelectorList):
@@ -223,19 +250,19 @@ class DateFieldsConditionsWidget(SelectorList):
         super(DateFieldsConditionsWidget, self).__init__(None, enabled=enabled, attrs=attrs)
         self.fields = fields
 
-    def render(self, name, value, attrs=None):
-        self.selector = chained_input = ChainedInput()
-        sub_attrs = {'auto': False, 'datatype': 'json'}
-
-        chained_input.add_dselect('field', options=self._build_fieldchoices(self.fields), attrs=sub_attrs)
-
-        pinput = PolymorphicInput(key='${field.type}', attrs=sub_attrs)
-        pinput.add_input('daterange__null', NullableDateRangeSelect, attrs=sub_attrs)
-        pinput.add_input('daterange', DateRangeSelect, attrs=sub_attrs)
-
-        chained_input.add_input('range', pinput, attrs=sub_attrs)
-
-        return super(DateFieldsConditionsWidget, self).render(name, value, attrs)
+    # def render(self, name, value, attrs=None):
+    #     self.selector = chained_input = ChainedInput()
+    #     sub_attrs = {'auto': False, 'datatype': 'json'}
+    #
+    #     chained_input.add_dselect('field', options=self._build_fieldchoices(self.fields), attrs=sub_attrs)
+    #
+    #     pinput = PolymorphicInput(key='${field.type}', attrs=sub_attrs)
+    #     pinput.add_input('daterange__null', NullableDateRangeSelect, attrs=sub_attrs)
+    #     pinput.add_input('daterange', DateRangeSelect, attrs=sub_attrs)
+    #
+    #     chained_input.add_input('range', pinput, attrs=sub_attrs)
+    #
+    #     return super(DateFieldsConditionsWidget, self).render(name, value, attrs)
 
     def _build_fieldchoice(self, name, data):
         field = data[0]
@@ -265,6 +292,20 @@ class DateFieldsConditionsWidget(SelectorList):
                     for cat in sorted(categories.keys(), key=collator.sort_key)
                ]
 
+    def get_context(self, name, value, attrs):
+        self.selector = chained_input = ChainedInput()
+        sub_attrs = {'auto': False, 'datatype': 'json'}
+
+        chained_input.add_dselect('field', options=self._build_fieldchoices(self.fields), attrs=sub_attrs)
+
+        pinput = PolymorphicInput(key='${field.type}', attrs=sub_attrs)
+        pinput.add_input('daterange__null', NullableDateRangeSelect, attrs=sub_attrs)
+        pinput.add_input('daterange', DateRangeSelect, attrs=sub_attrs)
+
+        chained_input.add_input('range', pinput, attrs=sub_attrs)
+
+        return super(DateFieldsConditionsWidget, self).get_context(name=name, value=value, attrs=attrs)
+
 
 class CustomFieldConditionSelector(FieldConditionWidget):
     _CHOICETYPES = {
@@ -288,7 +329,6 @@ class CustomFieldConditionSelector(FieldConditionWidget):
         pinput = PolymorphicInput(key='${field.type}.${operator.id}', attrs={'auto': False})
         pinput.add_input('^enum(__null)?.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
                          widget=DynamicSelectMultiple,
-                         # url='/creme_core/enumerable/custom/${field.id}/json',
                          # TODO: use a GET arg instead of using a TemplateURLBuilder ?
                          url=TemplateURLBuilder(cf_id=(TemplateURLBuilder.Int, '${field.id}'))
                                                .resolve('creme_core__cfield_enums'),
@@ -329,34 +369,67 @@ class CustomFieldConditionSelector(FieldConditionWidget):
 
 # TODO: factorise RegularFieldsConditionsWidget ?
 class CustomFieldConditionWidget(SelectorList):
+    template_name = 'creme_core/forms/widgets/efilter-cfield-conditions.html'
+
     def __init__(self, fields=(), attrs=None, enabled=True):
         super(CustomFieldConditionWidget, self).__init__(None, attrs)
         self.fields = fields
 
-    def render(self, name, value, attrs=None):
-        fields = self.fields
+    # def render(self, name, value, attrs=None):
+    #     fields = self.fields
+    #
+    #     if not fields:
+    #         return _(u'No custom field at present.')
+    #
+    #     self.selector = CustomFieldConditionSelector(fields=fields, autocomplete=True,
+    #                                                  # TODO: given by form field ?
+    #                                                  operators=EntityFilterCondition._OPERATOR_MAP,
+    #                                                 )
+    #
+    #     return super(CustomFieldConditionWidget, self).render(name, value, attrs)
+
+    def get_context(self, name, value, attrs):
+        fields = list(self.fields)
 
         if not fields:
-            return _('No custom field at present.')
+            return Label(empty_label=_(u'No custom field at present.'))\
+                        .get_context(name=name, value=value, attrs=attrs)
 
         self.selector = CustomFieldConditionSelector(fields=fields, autocomplete=True,
                                                      # TODO: given by form field ?
                                                      operators=EntityFilterCondition._OPERATOR_MAP,
                                                     )
 
-        return super(CustomFieldConditionWidget, self).render(name, value, attrs)
+        return super(CustomFieldConditionWidget, self).get_context(name=name, value=value, attrs=attrs)
 
 
 class DateCustomFieldsConditionsWidget(SelectorList):
+    template_name = 'creme_core/forms/widgets/efilter-cfield-conditions.html'
+
     def __init__(self, date_fields_options=(), attrs=None, enabled=True):
-        super(DateCustomFieldsConditionsWidget, self).__init__(None, enabled=enabled, attrs=attrs)
+        super(DateCustomFieldsConditionsWidget, self).__init__(selector=None, enabled=enabled, attrs=attrs)
         self.date_fields_options = date_fields_options
 
-    def render(self, name, value, attrs=None):
+    # def render(self, name, value, attrs=None):
+    #     options = list(self.date_fields_options)
+    #
+    #     if not options:
+    #         return _(u'No date custom field at present.')
+    #
+    #     self.selector = chained_input = ChainedInput()
+    #     sub_attrs = {'auto': False}
+    #
+    #     chained_input.add_dselect('field', options=options, attrs=sub_attrs)
+    #     chained_input.add_input('range', NullableDateRangeSelect, attrs=sub_attrs)
+    #
+    #     return super(DateCustomFieldsConditionsWidget, self).render(name, value, attrs)
+
+    def get_context(self, name, value, attrs):
         options = list(self.date_fields_options)
 
         if not options:
-            return _(u'No date custom field at present.')
+            return Label(empty_label=_(u'No date custom field at present.'))\
+                        .get_context(name=name, value=value, attrs=attrs)
 
         self.selector = chained_input = ChainedInput()
         sub_attrs = {'auto': False}
@@ -364,12 +437,14 @@ class DateCustomFieldsConditionsWidget(SelectorList):
         chained_input.add_dselect('field', options=options, attrs=sub_attrs)
         chained_input.add_input('range', NullableDateRangeSelect, attrs=sub_attrs)
 
-        return super(DateCustomFieldsConditionsWidget, self).render(name, value, attrs)
+        return super(DateCustomFieldsConditionsWidget, self).get_context(name=name, value=value, attrs=attrs)
 
 
 class RelationTargetWidget(PolymorphicInput):
-    def __init__(self, key='', multiple=False, attrs=None, **kwargs):
-        super(RelationTargetWidget, self).__init__(key=key, attrs=attrs, **kwargs)
+    # def __init__(self, key='', multiple=False, attrs=None, **kwargs):
+    def __init__(self, key='', multiple=False, attrs=None):
+        # super(RelationTargetWidget, self).__init__(key=key, attrs=attrs, **kwargs)
+        super(RelationTargetWidget, self).__init__(key=key, attrs=attrs)
         self.add_input('^0$', widget=DynamicInput, type='hidden', attrs={'auto': False, 'value':'[]'})
         self.set_default_input(widget=EntitySelector, attrs={'auto': False, 'multiple': multiple})
 
@@ -379,16 +454,37 @@ class RelationsConditionsWidget(SelectorList):
         super(RelationsConditionsWidget, self).__init__(None, attrs=attrs)
         self.rtypes = rtypes
 
-    def render(self, name, value, attrs=None):
+    # def render(self, name, value, attrs=None):
+    #     self.selector = chained_input = ChainedInput()
+    #     # datatype = json => boolean are returned as json boolean, not strings
+    #     attrs_json = {'auto': False, 'datatype': 'json'}
+    #
+    #     rtype_name = 'rtype'
+    #     # ctype_url  = '/creme_core/entity_filter/rtype/${%s}/content_types' % rtype_name
+    #     # todo: use a GET arg instead of using a TemplateURLBuilder ?
+    #     ctype_url  = TemplateURLBuilder(rtype_id=(TemplateURLBuilder.Word, '${%s}' % rtype_name))\
+    #                                    .resolve('creme_core__ctypes_compatible_with_rtype_as_choices')
+    #
+    #     add_dselect = chained_input.add_dselect
+    #     add_dselect('has', options=_HAS_RELATION_OPTIONS.iteritems(), attrs=attrs_json)
+    #     add_dselect(rtype_name, options=self.rtypes, attrs={'auto': False, 'autocomplete': True})
+    #     add_dselect('ctype', options=ctype_url, attrs=dict(attrs_json, autocomplete=True))
+    #
+    #     chained_input.add_input('entity', widget=RelationTargetWidget,
+    #                             attrs={'auto': False}, key='${ctype}', multiple=True,
+    #                            )
+    #
+    #     return super(RelationsConditionsWidget, self).render(name, value, attrs)
+
+    def get_context(self, name, value, attrs):
         self.selector = chained_input = ChainedInput()
         # datatype = json => boolean are returned as json boolean, not strings
         attrs_json = {'auto': False, 'datatype': 'json'}
 
         rtype_name = 'rtype'
-        # ctype_url  = '/creme_core/entity_filter/rtype/${%s}/content_types' % rtype_name
         # TODO: use a GET arg instead of using a TemplateURLBuilder ?
-        ctype_url  = TemplateURLBuilder(rtype_id=(TemplateURLBuilder.Word, '${%s}' % rtype_name))\
-                                       .resolve('creme_core__ctypes_compatible_with_rtype_as_choices')
+        ctype_url = TemplateURLBuilder(rtype_id=(TemplateURLBuilder.Word, '${%s}' % rtype_name))\
+                                      .resolve('creme_core__ctypes_compatible_with_rtype_as_choices')
 
         add_dselect = chained_input.add_dselect
         add_dselect('has', options=_HAS_RELATION_OPTIONS.iteritems(), attrs=attrs_json)
@@ -399,7 +495,7 @@ class RelationsConditionsWidget(SelectorList):
                                 attrs={'auto': False}, key='${ctype}', multiple=True,
                                )
 
-        return super(RelationsConditionsWidget, self).render(name, value, attrs)
+        return super(RelationsConditionsWidget, self).get_context(name=name, value=value, attrs=name)
 
 
 class RelationSubfiltersConditionsWidget(SelectorList):
@@ -407,7 +503,31 @@ class RelationSubfiltersConditionsWidget(SelectorList):
         super(RelationSubfiltersConditionsWidget, self).__init__(None, attrs=attrs)
         self.rtypes = rtypes
 
-    def render(self, name, value, attrs=None):
+    # def render(self, name, value, attrs=None):
+    #     self.selector = chained_input = ChainedInput()
+    #
+    #     attrs_json = {'auto': False, 'datatype': 'json'}
+    #     rtype_name = 'rtype'
+    #     ctype_name = 'ctype'
+    #
+    #     add_dselect = chained_input.add_dselect
+    #     add_dselect('has', options=_HAS_RELATION_OPTIONS.iteritems(), attrs=attrs_json)
+    #     add_dselect(rtype_name, options=self.rtypes, attrs={'auto': False, 'autocomplete': True})
+    #     add_dselect(ctype_name, attrs=dict(attrs_json, autocomplete=True),
+    #                 # options='/creme_core/relation/type/${%s}/content_types/json' % rtype_name,
+    #                 # TODO: use a GET arg instead of using a TemplateURLBuilder ?
+    #                 options=TemplateURLBuilder(rtype_id=(TemplateURLBuilder.Word, '${%s}' % rtype_name))
+    #                                           .resolve('creme_core__ctypes_compatible_with_rtype'),
+    #                )
+    #     add_dselect('filter',
+    #                 # options='/creme_core/entity_filter/get_for_ctype/${%s}' % ctype_name,
+    #                 options=reverse('creme_core__efilters') + '?ct_id=${%s}' % ctype_name,
+    #                 attrs={'auto': False, 'autocomplete': True, 'data-placeholder': _(u'(no filter)')},
+    #                )
+    #
+    #     return super(RelationSubfiltersConditionsWidget, self).render(name, value, attrs)
+
+    def get_context(self, name, value, attrs):
         self.selector = chained_input = ChainedInput()
 
         attrs_json = {'auto': False, 'datatype': 'json'}
@@ -418,18 +538,16 @@ class RelationSubfiltersConditionsWidget(SelectorList):
         add_dselect('has', options=_HAS_RELATION_OPTIONS.iteritems(), attrs=attrs_json)
         add_dselect(rtype_name, options=self.rtypes, attrs={'auto': False, 'autocomplete': True})
         add_dselect(ctype_name, attrs=dict(attrs_json, autocomplete=True),
-                    # options='/creme_core/relation/type/${%s}/content_types/json' % rtype_name,
                     # TODO: use a GET arg instead of using a TemplateURLBuilder ?
                     options=TemplateURLBuilder(rtype_id=(TemplateURLBuilder.Word, '${%s}' % rtype_name))
                                               .resolve('creme_core__ctypes_compatible_with_rtype'),
                    )
         add_dselect('filter',
-                    # options='/creme_core/entity_filter/get_for_ctype/${%s}' % ctype_name,
                     options=reverse('creme_core__efilters') + '?ct_id=${%s}' % ctype_name,
                     attrs={'auto': False, 'autocomplete': True, 'data-placeholder': _(u'(no filter)')},
                    )
 
-        return super(RelationSubfiltersConditionsWidget, self).render(name, value, attrs)
+        return super(RelationSubfiltersConditionsWidget, self).get_context(name=name, value=value, attrs=attrs)
 
 
 class PropertiesConditionsWidget(SelectorList):
@@ -437,7 +555,18 @@ class PropertiesConditionsWidget(SelectorList):
         super(PropertiesConditionsWidget, self).__init__(None, attrs=attrs)
         self.ptypes = ptypes
 
-    def render(self, name, value, attrs=None):
+    # def render(self, name, value, attrs=None):
+    #     self.selector = chained_input = ChainedInput(attrs)
+    #
+    #     add_dselect = chained_input.add_dselect
+    #     add_dselect('has', options=_HAS_PROPERTY_OPTIONS.iteritems(),
+    #                 attrs={'auto': False, 'datatype': 'json'},
+    #                )
+    #     add_dselect('ptype', options=self.ptypes, attrs={'auto': False})
+    #
+    #     return super(PropertiesConditionsWidget, self).render(name, value, attrs)
+
+    def get_context(self, name, value, attrs):
         self.selector = chained_input = ChainedInput(attrs)
 
         add_dselect = chained_input.add_dselect
@@ -446,7 +575,7 @@ class PropertiesConditionsWidget(SelectorList):
                    )
         add_dselect('ptype', options=self.ptypes, attrs={'auto': False})
 
-        return super(PropertiesConditionsWidget, self).render(name, value, attrs)
+        return super(PropertiesConditionsWidget, self).get_context(name=name, value=value, attrs=attrs)
 
 
 # Form Fields-------------------------------------------------------------------
@@ -477,9 +606,9 @@ class _ConditionsField(JSONField):
 class RegularFieldsConditionsField(_ConditionsField):
     widget = RegularFieldsConditionsWidget
     default_error_messages = {
-        'invalidfield':    _(u"This field is invalid with this model."),
-        'invalidoperator': _(u"This operator is invalid."),
-        'invalidvalue':    _(u"This value is invalid."),
+        'invalidfield':    _(u'This field is invalid with this model.'),
+        'invalidoperator': _(u'This operator is invalid.'),
+        'invalidvalue':    _(u'This value is invalid.'),
     }
     excluded_fields = (ModelFileField,)
 
@@ -636,9 +765,9 @@ class RegularFieldsConditionsField(_ConditionsField):
 class DateFieldsConditionsField(_ConditionsField):
     widget = DateFieldsConditionsWidget
     default_error_messages = {
-        'invalidfield':     _(u"This field is not a date field for this model."),
-        'invaliddaterange': _(u"This date range is invalid."),
-        'emptydates':       _(u"Please enter a start date and/or a end date."),
+        'invalidfield':     _(u'This field is not a date field for this model.'),
+        'invaliddaterange': _(u'This date range is invalid.'),
+        'emptydates':       _(u'Please enter a start date and/or a end date.'),
     }
 
     _non_hiddable_fnames = ()
@@ -785,9 +914,9 @@ class DateFieldsConditionsField(_ConditionsField):
 class CustomFieldsConditionsField(_ConditionsField):
     widget = CustomFieldConditionWidget
     default_error_messages = {
-        'invalidcustomfield': _(u"This custom field is invalid with this model."),
-        'invalidoperator': _(u"This operator is invalid."),
-        'invalidvalue': _(u"This value is invalid."),
+        'invalidcustomfield': _(u'This custom field is invalid with this model.'),
+        'invalidoperator':    _(u'This operator is invalid.'),
+        'invalidvalue':       _(u'This value is invalid.'),
     }
 
     _NOT_ACCEPTED_TYPES = frozenset((CustomField.DATETIME,)) # TODO: "!= DATE" instead
@@ -911,7 +1040,7 @@ class CustomFieldsConditionsField(_ConditionsField):
 class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsConditionsField):
     widget = DateCustomFieldsConditionsWidget
     default_error_messages = {
-        'invalidcustomfield': _(u"This date custom field is invalid with this model."),
+        'invalidcustomfield': _(u'This date custom field is invalid with this model.'),
     }
 
     @CustomFieldsConditionsField.model.setter
@@ -981,9 +1110,9 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
 class RelationsConditionsField(_ConditionsField):
     widget = RelationsConditionsWidget
     default_error_messages = {
-        'invalidrtype':  _(u"This type of relationship type is invalid with this model."),
-        'invalidct':     _(u"This content type is invalid."),
-        'invalidentity': _(u"This entity is invalid."),
+        'invalidrtype':  _(u'This type of relationship type is invalid with this model.'),
+        'invalidct':     _(u'This content type is invalid.'),
+        'invalidentity': _(u'This entity is invalid.'),
     }
 
     @_ConditionsField.model.setter
@@ -1100,7 +1229,7 @@ class RelationsConditionsField(_ConditionsField):
 class RelationSubfiltersConditionsField(RelationsConditionsField):
     widget = RelationSubfiltersConditionsWidget
     default_error_messages = {
-        'invalidfilter': _(u"This filter is invalid."),
+        'invalidfilter': _(u'This filter is invalid.'),
     }
 
     def _condition_to_dict(self, condition):
@@ -1159,7 +1288,7 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
 class PropertiesConditionsField(_ConditionsField):
     widget = PropertiesConditionsWidget
     default_error_messages = {
-        'invalidptype': _(u"This property type is invalid with this model."),
+        'invalidptype': _(u'This property type is invalid with this model.'),
     }
 
     @_ConditionsField.model.setter
@@ -1203,8 +1332,6 @@ class PropertiesConditionsField(_ConditionsField):
 
 # TODO: factorise with _ConditionsField (mixin ?)
 class SubfiltersConditionsField(ModelMultipleChoiceField):
-    # widget = UnorderedMultipleChoiceWidget
-
     def __init__(self, model=CremeEntity, *args, **kwargs):
         super(SubfiltersConditionsField, self).__init__(queryset=EntityFilter.objects.none(), *args, **kwargs)
 

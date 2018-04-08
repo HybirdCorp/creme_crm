@@ -1,0 +1,9 @@
+{% load i18n %}{% spaceless %}
+<span>
+{% with widgets=widget.subwidgets %}
+    {% with widget=widgets.0 %}{% include widget.template_name %}{% endwith %}&nbsp;{% trans 'Hour(s)' %}&nbsp;
+    {% with widget=widgets.1 %}{% include widget.template_name %}{% endwith %}&nbsp;{% trans 'Minute(s)' %}&nbsp;
+    {% with widget=widgets.2 %}{% include widget.template_name %}{% endwith %}&nbsp;{% trans 'Second(s)' %}&nbsp;
+{% endwith %}
+</span>
+{% endspaceless %}

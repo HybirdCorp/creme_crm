@@ -44,6 +44,7 @@ class PropertiesBrick(QuerysetBrick):
     dependencies  = (CremeProperty,)
     verbose_name  = _(u'Properties')
     template_name = 'creme_core/bricks/properties.html'
+    order_by = 'type__text'  # TODO: in model ??
 
     def detailview_display(self, context):
         entity = context['object']
@@ -58,7 +59,7 @@ class RelationsBrick(QuerysetBrick):
     dependencies  = (Relation,)  # NB: (Relation, CremeEntity) but useless.
                                  # Useless because _iter_dependencies_info() has been overriden.
     relation_type_deps = ()  # Voluntarily void -> see detailview_display()
-    order_by      = 'type'
+    order_by      = 'type__predicate'
     verbose_name  = _(u'Relationships')
     template_name = 'creme_core/bricks/relations.html'
 

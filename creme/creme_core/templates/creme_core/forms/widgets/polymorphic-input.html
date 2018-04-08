@@ -1,0 +1,8 @@
+<span class="{{widget.class}}" widget="{{widget.widget_type}}" key="{{widget.key}}">
+    {% include widget.input.template_name with widget=widget.input %}
+    {% for sname, selector in widget.selectors %}
+    <script selector-key="{{sname}}" type="text/template">
+        {% include selector.template_name with widget=selector %}
+    </script>
+    {% endfor %}
+</span>

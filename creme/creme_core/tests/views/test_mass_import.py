@@ -1003,9 +1003,12 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         self.get_object_or_fail(CremeProperty, type=ptype1, creme_entity=rei.id)  # <= not 2 !
 
         self.assertIsNone(self.refresh(rei2).phone)
-        self.get_object_or_fail(FakeContact, **asuka_info)
 
-        asuka = self.get_object_or_fail(FakeContact, **asuka_info)
+        # asuka = self.get_object_or_fail(FakeContact, **asuka_info)  # TODO: if FakeContact.email.null == False
+        asuka = self.get_object_or_fail(FakeContact, first_name=asuka_info['first_name'], last_name=asuka_info['last_name'])
+        self.assertEqual(asuka.phone, asuka_info['phone'])
+        self.assertFalse(asuka.email)
+
         jresult = self.get_object_or_fail(MassImportJobResult, job=job, entity=asuka)
         self.assertFalse(jresult.updated)
 

@@ -1,0 +1,40 @@
+{% load i18n %}
+{% with name=widget.name id=widget.attrs.id mode=widget.mode %}
+{% if widget.propose_creation %}
+<label for="{{id}}_create">
+    <input id="{{id}}_create" type="checkbox" name="{{name}}_create"{% if widget.can_create %} checked{% endif %}/>
+    {% trans 'Create the Contacts who are not found?' %}
+</label>
+{% endif %}
+<ul class="multi-select">
+    <li>
+        <label for="{{name}}_mode1">
+            <input id="{{name}}_mode1" type="radio" name="{{name}}_mode" value="{{widget.MULTICOLUMNS}}"{% if mode == widget.MODE_MULTICOLUMNS %} checked{% endif %}>
+                {% trans 'Method #1: first name & last name are in separated cells (first name is optional)' %}
+                <br/>
+            <label for="{{id}}_first_name_colselect">{% trans 'First name' %}:
+                {% with widget=widget.firstname_column_select %}{% include widget.template_name %}{% endwith %}
+            </label>
+            <label for="{{id}}_last_name_colselect">{% trans 'Last name' %}:
+                {% with widget=widget.lastname_column_select %}{% include widget.template_name %}{% endwith %}
+            </label>
+        </label>
+    </li>
+    <li>
+        <label for="{{id}}_mode2">
+            <input id="{{id}}_mode2" type="radio" name="{{name}}_mode" value="{{widget.SPLITTEDCOLUMN}}"{% if mode == widget.SPLITTEDCOLUMN %} checked{% endif %}>
+                {% trans 'Method #2: several contacts in one cell (in all patterns the last name is the only required element)' %}
+                <br/>
+            <label for="{{id}}_colselect">
+                {% with widget=widget.pattern_column_select %}{% include widget.template_name %}{% endwith %}
+            </label>
+            <label for="{{id}}_separator">{% trans 'Separator' %}:
+                <input id="{{id}}_separator" type="text" name="{{name}}_separator" value="{{widget.separator}}">
+            </label>
+            <label for="{{id}}_pattern">{% trans 'Contact pattern' %}:
+                {% with widget=widget.pattern_select %}{% include widget.template_name %}{% endwith %}
+            </label>
+        </label>
+    </li>
+</ul>
+{% endwith %}

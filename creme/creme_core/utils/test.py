@@ -24,6 +24,7 @@ from os.path import dirname
 from unittest.loader import TestLoader
 
 from django.apps import apps
+from django.contrib.contenttypes.models import ContentType
 from django.core.management import call_command
 from django.test.runner import DiscoverRunner
 
@@ -60,5 +61,7 @@ class CremeDiscoverRunner(DiscoverRunner):
         res = super(CremeDiscoverRunner, self).setup_databases(*args, **kwargs)
         # PopulateCommand().execute(verbosity=0)
         call_command(PopulateCommand(), verbosity=0)
+
+        ContentType.objects.clear_cache()  # The cache seems corrupted when we switch to the test DB
 
         return res

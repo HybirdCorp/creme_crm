@@ -37,7 +37,7 @@ class AbstractAddress(CremeModel):
     city       = CharField(_(u'City'), max_length=100, blank=True).set_tags(optional=True)
     department = CharField(_(u'Department'), max_length=100, blank=True).set_tags(optional=True)
     state      = CharField(_(u'State'), max_length=100, blank=True).set_tags(optional=True)
-    country    = CharField(_(u"Country"), max_length=40, blank=True).set_tags(optional=True)
+    country    = CharField(_(u'Country'), max_length=40, blank=True).set_tags(optional=True)
 
     # TODO: use a real ForeignKey to CremeEntity (+ remove signal handlers )
     content_type = ForeignKey(ContentType, related_name="object_set", editable=False, on_delete=CASCADE)\
@@ -51,11 +51,13 @@ class AbstractAddress(CremeModel):
     ]
     STR_SEPARATOR = u' '
 
-    class Meta:
+    # class Meta:
+    class Meta(CremeModel.Meta):
         abstract = True
         app_label = 'persons'
         verbose_name = _(u'Address')
         verbose_name_plural = _(u'Addresses')
+        ordering = ('id',)
 
     def __unicode__(self):
         s = u''

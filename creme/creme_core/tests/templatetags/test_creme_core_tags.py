@@ -19,6 +19,21 @@ except Exception as e:
 
 
 class CremeCoreTagsTestCase(CremeTestCase):
+    def test_get_by_index(self):
+        with self.assertNoException():
+            template = Template('{% load creme_core_tags %}'
+                                '{{xs|get_by_index:0}}#'
+                                '{{xs|get_by_index:1}}#'
+                                '{{ys|get_by_index:1}}'
+                               )
+            render = template.render(Context({'xs': [1, 2, 3], 'ys': (4, 5)}))
+
+        self.assertEqual('1#2#5', render.strip())
+
+        template = Template('{% load creme_core_tags %}{{xs|get_by_index:2}}')
+        with self.assertRaises(IndexError):
+            template.render(Context({'xs': [1, 2]}))
+
     def test_lt(self):
         with self.assertNoException():
             template = Template('{% load creme_core_tags %}'

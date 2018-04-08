@@ -1,0 +1,12 @@
+<ul class="ui-layout hbox {{widget.class}}" widget="{{widget.widget_type}}">
+    <li class="delegate">
+        {% include widget.delegate.template_name with widget=widget.delegate %}
+    </li>
+    {% for widget in widget.buttons %}
+    <li>
+        <button class="ui-creme-actionbutton" name="{{widget.name}}" title="{{widget.title}}" type="button" {% include 'django/forms/widgets/attrs.html' %}>
+           {{widget.label}}
+        </button>
+    </li>
+    {% endfor %}
+</ul>

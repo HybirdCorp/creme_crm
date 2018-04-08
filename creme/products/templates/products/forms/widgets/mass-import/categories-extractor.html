@@ -1,0 +1,36 @@
+{% load i18n creme_core_tags %}
+{% with id=widget.attrs.id %}
+{% if widget.propose_creation %}
+<label for="{{id}}_create">
+    <input id="{{id}}_create" type="checkbox" name="{{widget.name}}_create"{% if widget.create %} checked{% endif %}/>
+    {% trans 'Create the Categories/Sub-Categories which are not found?' %}
+</label>
+{% endif %}
+<ul class="multi-select">
+    <li>
+        <label for="{{id}}_cat_colselect">{% trans 'Category' context 'products-category' %}:
+            {% with widget=widget.category_colselect %}{% include widget.template_name %}{% endwith %}
+        </label>
+        <label for="{{id}}_cat_defval">{% trans 'Default category' context 'products-category' %}:
+            {% with widget=widget.category_defvalselect %}{% include widget.template_name %}{% endwith %}
+        </label>
+    </li>
+    <li>
+        <label for="{{id}}_subcat_colselect">{% trans 'Sub-category' context 'products-sub_category' %}:
+            {% with widget=widget.subcategory_colselect %}{% include widget.template_name %}{% endwith %}
+        </label>
+        <label for="{{id}}_subcat_defval">{% trans 'Default sub-category' context 'products-sub_category' %}:
+            {% with widget=widget.subcategory_defvalselect %}{% include widget.template_name %}{% endwith %}
+        </label>
+    </li>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var subCatMap = {{widget.subcat_js_map|jsonify}};
+
+            $('#{{id}}_cat_defval').on('change', function(e) {
+                creme.forms.Select.fill($('#{{id}}_subcat_defval'), subCatMap[$(this).val()]);
+            });
+        });
+    </script>
+</ul>
+{% endwith %}

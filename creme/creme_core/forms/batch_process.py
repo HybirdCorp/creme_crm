@@ -21,11 +21,11 @@
 from collections import OrderedDict
 from functools import partial
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.forms import ModelChoiceField
 from django.forms.fields import CallableChoiceIterator
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
-from django.contrib.contenttypes.models import ContentType
 
 from ..core.batch_process import batch_operator_manager, BatchAction
 from ..creme_jobs.batch_process import batch_process_type
@@ -45,7 +45,35 @@ class BatchActionsWidget(SelectorList):
         self.model = model
         self.fields = fields
 
-    def render(self, name, value, attrs=None):
+    # def render(self, name, value, attrs=None):
+    #     self.selector = chained_input = ChainedInput()
+    #     sub_attrs = {'auto': False}
+    #
+    #     # todo: improve SelectorList.add_* to avoid attribute 'auto'
+    #     chained_input.add_dselect('name', attrs=sub_attrs, options=self.fields)
+    #     chained_input.add_dselect('operator', attrs=sub_attrs,
+    #                               # todo: use a GET arg instead of using a TemplateURLBuilder ?
+    #                               options=TemplateURLBuilder(field=(TemplateURLBuilder.Word, '${name}'))
+    #                                         .resolve('creme_core__batch_process_ops',
+    #                                                  kwargs={'ct_id': ContentType.objects.get_for_model(self.model).id}
+    #                                                 ),
+    #                              )
+    #
+    #     pinput = PolymorphicInput(key='${operator}', attrs=sub_attrs)
+    #     # todo: count if the operators with need_arg=False are more ?
+    #     pinput.set_default_input(widget=DynamicInput, attrs=sub_attrs)
+    #
+    #     for op_id, operator in batch_operator_manager.operators():
+    #         if not operator.need_arg:
+    #             pinput.add_input(op_id, widget=DynamicInput, attrs=sub_attrs, type='hidden')  # todo: DynamicHiddenInput
+    #
+    #     chained_input.add_input('value', pinput, attrs=sub_attrs)
+    #
+    #     return super(BatchActionsWidget, self).render(name, value, attrs)
+
+    def get_context(self, name, value, attrs):
+        # TODO: "if self.selector is None" ??
+        # TODO: creating the instance here is ugly (use a SelectorList instead of inherit it ?)
         self.selector = chained_input = ChainedInput()
         sub_attrs = {'auto': False}
 
@@ -53,7 +81,7 @@ class BatchActionsWidget(SelectorList):
         chained_input.add_dselect('name', attrs=sub_attrs, options=self.fields)
         chained_input.add_dselect('operator', attrs=sub_attrs,
                                   # TODO: use a GET arg instead of using a TemplateURLBuilder ?
-                                  options=TemplateURLBuilder(field=(TemplateURLBuilder.Word, '${name}'))\
+                                  options=TemplateURLBuilder(field=(TemplateURLBuilder.Word, '${name}'))
                                             .resolve('creme_core__batch_process_ops',
                                                      kwargs={'ct_id': ContentType.objects.get_for_model(self.model).id}
                                                     ),
@@ -69,7 +97,7 @@ class BatchActionsWidget(SelectorList):
 
         chained_input.add_input('value', pinput, attrs=sub_attrs)
 
-        return super(BatchActionsWidget, self).render(name, value, attrs)
+        return super(BatchActionsWidget, self).get_context(name=name, value=value, attrs=attrs)
 
 
 class BatchActionsField(JSONField):
@@ -181,7 +209,8 @@ class BatchActionsField(JSONField):
 
 
 class BatchProcessForm(CremeModelForm):
-    filter  = ModelChoiceField(label=pgettext_lazy('creme_core-noun', u'Filter'), queryset=EntityFilter.objects.none(),
+    filter  = ModelChoiceField(label=pgettext_lazy('creme_core-noun', u'Filter'),
+                               queryset=EntityFilter.objects.none(),
                                empty_label=_(u'All'), required=False,
                               )
     actions = BatchActionsField(label=_(u'Actions'))

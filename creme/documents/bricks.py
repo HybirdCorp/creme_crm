@@ -98,6 +98,7 @@ class LinkedDocsBrick(QuerysetBrick):
     relation_type_deps = (REL_SUB_RELATED_2_DOC, )
     verbose_name  = _(u'Linked documents')
     template_name = 'documents/bricks/linked-docs.html'
+    order_by      = 'id'  # For consistent ordering between 2 queries (for pages)
 
     def detailview_display(self, context):
         entity = context['object']

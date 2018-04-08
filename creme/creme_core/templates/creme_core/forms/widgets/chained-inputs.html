@@ -1,0 +1,14 @@
+{% load i18n creme_widgets %}
+<div class="{{widget.class}}" widget="{{widget.widget_type}}">
+    {% include widget.input.template_name with widget=widget.input %}
+    <ul class="ui-layout {{widget.direction}}">
+    {% for iname, input in widget.chained %}
+        <li chained-name="{{iname}}" class="ui-creme-chainedselect-item">
+            {% include input.template_name with widget=input %}
+        </li>
+    {% endfor %}
+    {% if widget.reset %}
+        <li>{% widget_icon name='delete' size='form-widget' label=_('Reset') class='reset' %}</li>
+    {% endif %}
+    </ul>
+</div>

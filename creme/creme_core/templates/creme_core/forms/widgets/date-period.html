@@ -1,0 +1,5 @@
+{% load creme_core_tags %}<ul class="ui-layout hbox">
+{% for idx in widget_indices %}
+{% with widget=widget.subwidgets|get_by_index:idx %}<li>{% include widget.template_name %}</li>{% endwith %}
+{% endfor %}
+</ul>

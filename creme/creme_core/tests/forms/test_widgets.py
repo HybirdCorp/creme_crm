@@ -59,40 +59,40 @@ class DynamicSelectTestCase(FieldTestCase):
         self.assertListEqual([(id_, str(id_)) for id_ in xrange(10)],
                              select.choices)
 
-    def test_render_options(self):
-        select = DynamicSelect()
-        self.assertEqual(u'<option value="%s">%s</option>' % (1, 'A'),
-                         select.render_option([], 1, 'A'))
+    # def test_render_options(self):
+    #     select = DynamicSelect()
+    #     self.assertEqual(u'<option value="%s">%s</option>' % (1, 'A'),
+    #                      select.render_option([], 1, 'A'))
+    #
+    #     self.assertEqual(u'<option value="%s" selected="selected">%s</option>' % (1, 'A'),
+    #                      select.render_option(['1'], '1', 'A'))
 
-        self.assertEqual(u'<option value="%s" selected="selected">%s</option>' % (1, 'A'),
-                         select.render_option(['1'], '1', 'A'))
-
-    def test_render_options_choices(self):
-        render_option = DynamicSelect().render_option
-        Choice = DynamicSelect.Choice
-
-        self.assertEqual(u'<option value="%s" disabled help="%s">%s</option>' % (1, 'is disabled', 'A'),
-                         render_option(['2'], Choice(1, True, 'is disabled'), 'A')
-                        )
-
-        self.assertEqual(u'<option value="%s" disabled selected="selected" help="%s">%s</option>' % (
-                                1, 'is disabled', 'A',
-                            ),
-                         render_option(['1'], Choice(1, True, 'is disabled'), 'A')
-                        )
-
-        self.assertEqual(u'<option value="%s" selected="selected" help="%s">%s</option>' % (
-                                2, 'is enabled', 'B',
-                            ),
-                         render_option(['2'], Choice(2, False, 'is enabled'), 'B')
-                        )
+    # def test_render_options_choices(self):
+    #     render_option = DynamicSelect().render_option
+    #     Choice = DynamicSelect.Choice
+    #
+    #     self.assertEqual(u'<option value="%s" disabled help="%s">%s</option>' % (1, 'is disabled', 'A'),
+    #                      render_option(['2'], Choice(1, True, 'is disabled'), 'A')
+    #                     )
+    #
+    #     self.assertEqual(u'<option value="%s" disabled selected="selected" help="%s">%s</option>' % (
+    #                             1, 'is disabled', 'A',
+    #                         ),
+    #                      render_option(['1'], Choice(1, True, 'is disabled'), 'A')
+    #                     )
+    #
+    #     self.assertEqual(u'<option value="%s" selected="selected" help="%s">%s</option>' % (
+    #                             2, 'is enabled', 'B',
+    #                         ),
+    #                      render_option(['2'], Choice(2, False, 'is enabled'), 'B')
+    #                     )
 
     def test_render(self):
         select = DynamicSelect(options=[(1, 'A'), (2, 'B')])
         self.assertHTMLEqual('<select class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect" '
                                      'name="test" url="" widget="ui-creme-dselect">'
                                '<option value="1">A</option>'
-                               '<option value="2" selected="selected">B</option>'
+                               '<option value="2" selected>B</option>'
                              '</select>',
                              select.render('test', 2)
                             )
@@ -106,7 +106,7 @@ class DynamicSelectTestCase(FieldTestCase):
         self.assertHTMLEqual('<select class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect" '
                                      'name="test" url="" widget="ui-creme-dselect">'
                                '<option value="1" disabled help="disabled">A</option>'
-                               '<option value="2" selected="selected" help="item B">B</option>'
+                               '<option value="2" selected help="item B">B</option>'
                                '<option value="3" help="item C">C</option>'
                              '</select>',
                              select.render('test', 2)
@@ -114,39 +114,40 @@ class DynamicSelectTestCase(FieldTestCase):
 
 
 class UnorderedMultipleChoiceTestCase(FieldTestCase):
-    def setUp(self):
-        super(UnorderedMultipleChoiceTestCase, self).setUp()
-        self.maxDiff = None
+    maxDiff = None
+    # def setUp(self):
+    #     super(UnorderedMultipleChoiceTestCase, self).setUp()
+    #     self.maxDiff = None
 
-    def test_render_options(self):
-        select = UnorderedMultipleChoiceWidget(choices=[(1, 'A'), (2, 'B')])
-        self.assertEqual(2, select._choice_count())
-
-        self.assertEqual(u'<option value="%s">%s</option>' % (1, 'A'),
-                         select.render_option([], 1, 'A')
-                        )
-
-        self.assertEqual(u'<option value="%s" selected="selected">%s</option>' % (1, 'A'),
-                         select.render_option(['1'], '1', 'A')
-                        )
-
-        html = '''<div class="ui-creme-widget widget-auto ui-creme-checklistselect"
-                       style="" widget="ui-creme-checklistselect">
-    <select multiple="multiple" class="ui-creme-input" name="A">
-        <option value="1">A</option>
-        <option value="2" selected="selected">B</option>
-    </select>
-    <span class="checklist-counter"></span>
-    <div class="checklist-header">
-        <a type="button" class="checklist-check-all hidden">%(check_all)s</a>
-        <a type="button" class="checklist-check-none hidden">%(check_none)s</a>
-    </div>
-    <div class="checklist-body"><ul class="checklist-content  "></ul></div>
-</div>''' % {
-            'check_all':  _(u'Check all'),
-            'check_none': _(u'Check none'),
-        }
-        self.assertHTMLEqual(html, select.render('A', (2,)))
+#     def test_render_options(self):
+#         select = UnorderedMultipleChoiceWidget(choices=[(1, 'A'), (2, 'B')])
+#         self.assertEqual(2, select._choice_count())
+#
+#         self.assertEqual(u'<option value="%s">%s</option>' % (1, 'A'),
+#                          select.render_option([], 1, 'A')
+#                         )
+#
+#         self.assertEqual(u'<option value="%s" selected="selected">%s</option>' % (1, 'A'),
+#                          select.render_option(['1'], '1', 'A')
+#                         )
+#
+#         html = '''<div class="ui-creme-widget widget-auto ui-creme-checklistselect"
+#                        style="" widget="ui-creme-checklistselect">
+#     <select multiple="multiple" class="ui-creme-input" name="A">
+#         <option value="1">A</option>
+#         <option value="2" selected="selected">B</option>
+#     </select>
+#     <span class="checklist-counter"></span>
+#     <div class="checklist-header">
+#         <a type="button" class="checklist-check-all hidden">%(check_all)s</a>
+#         <a type="button" class="checklist-check-none hidden">%(check_none)s</a>
+#     </div>
+#     <div class="checklist-body"><ul class="checklist-content  "></ul></div>
+# </div>''' % {
+#             'check_all':  _(u'Check all'),
+#             'check_none': _(u'Check none'),
+#         }
+#         self.assertHTMLEqual(html, select.render('A', (2,)))
 
 #     def test_render_options_extra(self):
 #         select = UnorderedMultipleChoiceWidget(choices=[(1, 'A'), (2, 'B')])
@@ -186,16 +187,15 @@ class UnorderedMultipleChoiceTestCase(FieldTestCase):
                                               )
         self.assertEqual(5, select._choice_count())
 
-        html = u'''<div class="ui-creme-widget widget-auto ui-creme-checklistselect"
-                        style="" widget="ui-creme-checklistselect" >
+        html = u'''<div class="ui-creme-widget widget-auto ui-creme-checklistselect" widget="ui-creme-checklistselect" >
     <select multiple="multiple" class="ui-creme-input" name="A">
         <optgroup label="Group A">
             <option value="1">A</option>
             <option value="2">B</option>
         </optgroup>
         <optgroup label="Group B">
-            <option value="3" selected="selected">C</option>
-            <option value="4" selected="selected">D</option>
+            <option value="3" selected>C</option>
+            <option value="4" selected>D</option>
             <option value="5">E</option>
         </optgroup>
     </select>
@@ -204,7 +204,7 @@ class UnorderedMultipleChoiceTestCase(FieldTestCase):
         <a type="button" class="checklist-check-all">%(check_all)s</a>
         <a type="button" class="checklist-check-none">%(check_none)s</a>
     </div>
-    <div class="checklist-body"><ul class="checklist-content  "></ul></div>
+    <div class="checklist-body"><ul class="checklist-content"></ul></div>
 </div>''' % {
             'check_all':  _(u'Check all'),
             'check_none': _(u'Check none'),
@@ -212,47 +212,48 @@ class UnorderedMultipleChoiceTestCase(FieldTestCase):
         self.assertHTMLEqual(html, select.render('A', (3, 4,)))
 
     def test_render_viewless(self):
+        name = 'my_field'
         select = UnorderedMultipleChoiceWidget(choices=[(1, 'A'), (2, 'B')], viewless=True)
         self.assertEqual(2, select._choice_count())
 
-        html = '''<div class="ui-creme-widget widget-auto ui-creme-checklistselect" less
-                       style="" widget="ui-creme-checklistselect">
-    <select multiple="multiple" class="ui-creme-input" name="A">
+        html = u'''<div class="ui-creme-widget widget-auto ui-creme-checklistselect" less widget="ui-creme-checklistselect">
+    <select multiple="multiple" class="ui-creme-input" name="%(name)s">
         <option value="1">A</option>
-        <option value="2" selected="selected">B</option>
+        <option value="2" selected>B</option>
     </select>
     <span class="checklist-counter"></span>
     <div class="checklist-header">
         <a type="button" class="checklist-check-all hidden">%(check_all)s</a>
         <a type="button" class="checklist-check-none hidden">%(check_none)s</a>
     </div>
-    <div class="checklist-body"><ul class="checklist-content  "></ul></div>
+    <div class="checklist-body"><ul class="checklist-content"></ul></div>
     <div class="checklist-footer"><a class="checklist-toggle-less">%(viewless_lbl)s</a></div>
 </div>''' % {
+            'name':       name,
             'check_all':  _(u'Check all'),
             'check_none': _(u'Check none'),
             'viewless_lbl': _(u'More'),
         }
-        self.assertHTMLEqual(html, select.render('A', (2,)))
+        self.assertHTMLEqual(html, select.render(name, (2,)))
 
-    def test_render_options_choices(self):
-        select = UnorderedMultipleChoiceWidget()
-        Choice = UnorderedMultipleChoiceWidget.Choice
-        self.assertEqual(u'<option value="%s" disabled help="%s">%s</option>' % (
-                                1, 'is disabled', 'A',
-                            ),
-                         select.render_option(['2'], Choice(1, True, 'is disabled'), 'A')
-                        )
-        self.assertEqual(u'<option value="%s" disabled selected="selected" help="%s">%s</option>' % (
-                                1, 'is disabled', 'A',
-                            ),
-                         select.render_option(['1'], Choice(1, True, 'is disabled'), 'A')
-                        )
-        self.assertEqual(u'<option value="%s" selected="selected" help="%s">%s</option>' % (
-                                2, 'is enabled', 'B',
-                            ),
-                         select.render_option(['2'], Choice(2, False, 'is enabled'), 'B')
-                        )
+    # def test_render_options_choices(self):
+    #     select = UnorderedMultipleChoiceWidget()
+    #     Choice = UnorderedMultipleChoiceWidget.Choice
+    #     self.assertEqual(u'<option value="%s" disabled help="%s">%s</option>' % (
+    #                             1, 'is disabled', 'A',
+    #                         ),
+    #                      select.render_option(['2'], Choice(1, True, 'is disabled'), 'A')
+    #                     )
+    #     self.assertEqual(u'<option value="%s" disabled selected="selected" help="%s">%s</option>' % (
+    #                             1, 'is disabled', 'A',
+    #                         ),
+    #                      select.render_option(['1'], Choice(1, True, 'is disabled'), 'A')
+    #                     )
+    #     self.assertEqual(u'<option value="%s" selected="selected" help="%s">%s</option>' % (
+    #                             2, 'is enabled', 'B',
+    #                         ),
+    #                      select.render_option(['2'], Choice(2, False, 'is enabled'), 'B')
+    #                     )
 
     def test_build_header_filtertype(self):
         select = UnorderedMultipleChoiceWidget()
@@ -271,133 +272,164 @@ class UnorderedMultipleChoiceTestCase(FieldTestCase):
         self.assertEqual('search', select._build_filtertype(30))
         self.assertEqual('search', select._build_filtertype(100))
 
-    def test_render_header_checkall(self):
-        select = UnorderedMultipleChoiceWidget()
-        self.assertHTMLEqual('<div class="checklist-header">'
-                                 '<a type="button" class="checklist-check-all hidden">%(check_all)s</a>'
-                                 '<a type="button" class="checklist-check-none hidden">%(check_none)s</a>'
-                             '</div>' % {
-                                 'check_all':  _(u'Check all'),
-                                 'check_none': _(u'Check none'),
-                             }, select._render_header({'checkall': True}, None, 1))
+    # def test_render_header_checkall(self):
+    #     select = UnorderedMultipleChoiceWidget()
+    #     self.assertHTMLEqual('<div class="checklist-header">'
+    #                              '<a type="button" class="checklist-check-all hidden">%(check_all)s</a>'
+    #                              '<a type="button" class="checklist-check-none hidden">%(check_none)s</a>'
+    #                          '</div>' % {
+    #                              'check_all':  _(u'Check all'),
+    #                              'check_none': _(u'Check none'),
+    #                          }, select._render_header({'checkall': True}, None, 1))
+    #
+    #     self.assertHTMLEqual('<div class="checklist-header">'
+    #                              '<a type="button" class="checklist-check-all">%(check_all)s</a>'
+    #                              '<a type="button" class="checklist-check-none">%(check_none)s</a>'
+    #                          '</div>' % {
+    #                              'check_all':  _(u'Check all'),
+    #                              'check_none': _(u'Check none'),
+    #                          }, select._render_header({'checkall': True}, None, 3))
+    #
+    #     self.assertHTMLEqual('<div class="checklist-header"></div>',
+    #                          select._render_header({'checkall': False}, None, 3))
 
-        self.assertHTMLEqual('<div class="checklist-header">'
-                                 '<a type="button" class="checklist-check-all">%(check_all)s</a>'
-                                 '<a type="button" class="checklist-check-none">%(check_none)s</a>'
-                             '</div>' % {
-                                 'check_all':  _(u'Check all'),
-                                 'check_none': _(u'Check none'),
-                             }, select._render_header({'checkall': True}, None, 3))
+    # def test_render_header_search(self):
+    #     select = UnorderedMultipleChoiceWidget()
+    #     self.assertHTMLEqual('<div class="checklist-header">'
+    #                              '<a type="button" class="checklist-check-all hidden">%(check_all)s</a>'
+    #                              '<a type="button" class="checklist-check-none hidden">%(check_none)s</a>'
+    #                              '<input type="search" class="checklist-filter" placeholder="%(filter_lbl)s">'
+    #                          '</div>' % {
+    #                              'check_all':  _(u'Check all'),
+    #                              'check_none': _(u'Check none'),
+    #                              'filter_lbl': pgettext('creme_core-noun', 'Search').upper(),
+    #                          }, select._render_header({'checkall': True}, 'search', 1))
+    #
+    #     self.assertHTMLEqual('<div class="checklist-header">'
+    #                              '<a type="button" class="checklist-check-all">%(check_all)s</a>'
+    #                              '<a type="button" class="checklist-check-none">%(check_none)s</a>'
+    #                              '<input type="search" class="checklist-filter" placeholder="%(filter_lbl)s">'
+    #                          '</div>' % {
+    #                              'check_all':  _(u'Check all'),
+    #                              'check_none': _(u'Check none'),
+    #                              'filter_lbl': pgettext('creme_core-noun', 'Search').upper(),
+    #                          }, select._render_header({'checkall': True}, 'search', 3))
 
-        self.assertHTMLEqual('<div class="checklist-header"></div>',
-                             select._render_header({'checkall': False}, None, 3))
+    def test_render_search(self):
+        name = 'my_choice_field'
+        select = UnorderedMultipleChoiceWidget(choices=[(1, 'A'), (2, 'B'), (3, 'C')])
+        self.assertEqual(10, select.MIN_SEARCH_COUNT)
+        self.assertEqual(30, select.MIN_FILTER_COUNT)
 
-    def test_render_header_search(self):
-        select = UnorderedMultipleChoiceWidget()
-        self.assertHTMLEqual('<div class="checklist-header">'
-                                 '<a type="button" class="checklist-check-all hidden">%(check_all)s</a>'
-                                 '<a type="button" class="checklist-check-none hidden">%(check_none)s</a>'
-                                 '<input type="search" class="checklist-filter" placeholder="%(filter_lbl)s">'
-                             '</div>' % {
-                                 'check_all':  _(u'Check all'),
-                                 'check_none': _(u'Check none'),
-                                 'filter_lbl': pgettext('creme_core-noun', 'Search').upper(),
-                             }, select._render_header({'checkall': True}, 'search', 1))
+        select.MIN_SEARCH_COUNT = 3
 
-        self.assertHTMLEqual('<div class="checklist-header">'
-                                 '<a type="button" class="checklist-check-all">%(check_all)s</a>'
-                                 '<a type="button" class="checklist-check-none">%(check_none)s</a>'
-                                 '<input type="search" class="checklist-filter" placeholder="%(filter_lbl)s">'
-                             '</div>' % {
-                                 'check_all':  _(u'Check all'),
-                                 'check_none': _(u'Check none'),
-                                 'filter_lbl': pgettext('creme_core-noun', 'Search').upper(),
-                             }, select._render_header({'checkall': True}, 'search', 3))
+        html = u'''<div class="ui-creme-widget widget-auto ui-creme-checklistselect" widget="ui-creme-checklistselect">
+    <select multiple="multiple" class="ui-creme-input" name="%(name)s">
+        <option value="1">A</option>
+        <option value="2">B</option>
+        <option value="3">C</option>
+    </select>
+    <span class="checklist-counter"></span>
+    <div class="checklist-header">
+        <a type="button" class="checklist-check-all">%(check_all)s</a>
+        <a type="button" class="checklist-check-none">%(check_none)s</a>
+        <input type="search" class="checklist-filter" placeholder="%(filter_lbl)s">
+    </div>
+    <div class="checklist-body"><ul class="checklist-content search"></ul></div>
+</div>''' % {
+            'name':       name,
+            'check_all':  _(u'Check all'),
+            'check_none': _(u'Check none'),
+            'filter_lbl': pgettext('creme_core-noun', u'Search').upper(),
+        }
+        self.assertHTMLEqual(html, select.render(name, value=None))
 
-    def test_render_header_filter(self):
-        select = UnorderedMultipleChoiceWidget()
-        self.assertHTMLEqual('<div class="checklist-header">'
-                                 '<a type="button" class="checklist-check-all hidden">%(check_all)s</a>'
-                                 '<a type="button" class="checklist-check-none hidden">%(check_none)s</a>'
-                                 '<input type="search" class="checklist-filter" placeholder="%(filter_lbl)s">'
-                             '</div>' % {
-                                 'check_all':  _(u'Check all'),
-                                 'check_none': _(u'Check none'),
-                                 'filter_lbl': _('Filter').upper(),
-                             }, select._render_header({'checkall': True}, 'filter', 1))
+    # def test_render_header_filter(self):
+    #     select = UnorderedMultipleChoiceWidget()
+    #     self.assertHTMLEqual('<div class="checklist-header">'
+    #                              '<a type="button" class="checklist-check-all hidden">%(check_all)s</a>'
+    #                              '<a type="button" class="checklist-check-none hidden">%(check_none)s</a>'
+    #                              '<input type="search" class="checklist-filter" placeholder="%(filter_lbl)s">'
+    #                          '</div>' % {
+    #                              'check_all':  _(u'Check all'),
+    #                              'check_none': _(u'Check none'),
+    #                              'filter_lbl': _('Filter').upper(),
+    #                          }, select._render_header({'checkall': True}, 'filter', 1))
+    #
+    #     self.assertHTMLEqual('<div class="checklist-header">'
+    #                              '<a type="button" class="checklist-check-all">%(check_all)s</a>'
+    #                              '<a type="button" class="checklist-check-none">%(check_none)s</a>'
+    #                              '<input type="search" class="checklist-filter" placeholder="%(filter_lbl)s">'
+    #                          '</div>' % {
+    #                              'check_all':  _(u'Check all'),
+    #                              'check_none': _(u'Check none'),
+    #                              'filter_lbl': _('Filter').upper(),
+    #                          }, select._render_header({'checkall': True}, 'filter', 3))
 
-        self.assertHTMLEqual('<div class="checklist-header">'
-                                 '<a type="button" class="checklist-check-all">%(check_all)s</a>'
-                                 '<a type="button" class="checklist-check-none">%(check_none)s</a>'
-                                 '<input type="search" class="checklist-filter" placeholder="%(filter_lbl)s">'
-                             '</div>' % {
-                                 'check_all':  _(u'Check all'),
-                                 'check_none': _(u'Check none'),
-                                 'filter_lbl': _('Filter').upper(),
-                             }, select._render_header({'checkall': True}, 'filter', 3))
+    # def test_render_header_creation(self):
+    #     select = UnorderedMultipleChoiceWidget(creation_url='/add', creation_allowed=True)
+    #     self.assertHTMLEqual('<div class="checklist-header">'
+    #                              '<a type="button" class="checklist-check-all hidden">%(check_all)s</a>'
+    #                              '<a type="button" class="checklist-check-none hidden">%(check_none)s</a>'
+    #                              '<a type="button" class="checklist-create" href="%(create_url)s">%(create_lbl)s</a>'
+    #                          '</div>'  % {
+    #                              'check_all':  _(u'Check all'),
+    #                              'check_none': _(u'Check none'),
+    #                              'create_url': '/add',
+    #                              'create_lbl': _(u'Create'),
+    #                          }, select._render_header({'checkall': True}, None, 1))
+    #
+    #     self.assertHTMLEqual('<div class="checklist-header">'
+    #                              '<a type="button" class="checklist-check-all">%(check_all)s</a>'
+    #                              '<a type="button" class="checklist-check-none">%(check_none)s</a>'
+    #                              '<a type="button" class="checklist-create" href="%(create_url)s">%(create_lbl)s</a>'
+    #                          '</div>' % {
+    #                              'check_all':  _(u'Check all'),
+    #                              'check_none': _(u'Check none'),
+    #                              'create_url': '/add',
+    #                              'create_lbl': _(u'Create'),
+    #                          }, select._render_header({'checkall': True}, None, 3))
 
-    def test_render_header_creation(self):
-        select = UnorderedMultipleChoiceWidget(creation_url='/add', creation_allowed=True)
-        self.assertHTMLEqual('<div class="checklist-header">'
-                                 '<a type="button" class="checklist-check-all hidden">%(check_all)s</a>'
-                                 '<a type="button" class="checklist-check-none hidden">%(check_none)s</a>'
-                                 '<a type="button" class="checklist-create" href="%(create_url)s">%(create_lbl)s</a>'
-                             '</div>'  % {
-                                 'check_all':  _(u'Check all'),
-                                 'check_none': _(u'Check none'),
-                                 'create_url': '/add',
-                                 'create_lbl': _(u'Create'),
-                             }, select._render_header({'checkall': True}, None, 1))
-
-        self.assertHTMLEqual('<div class="checklist-header">'
-                                 '<a type="button" class="checklist-check-all">%(check_all)s</a>'
-                                 '<a type="button" class="checklist-check-none">%(check_none)s</a>'
-                                 '<a type="button" class="checklist-create" href="%(create_url)s">%(create_lbl)s</a>'
-                             '</div>' % {
-                                 'check_all':  _(u'Check all'),
-                                 'check_none': _(u'Check none'),
-                                 'create_url': '/add',
-                                 'create_lbl': _(u'Create'),
-                             }, select._render_header({'checkall': True}, None, 3))
-
-    def test_render_header_creation_disabled(self):
-        select = UnorderedMultipleChoiceWidget(creation_url='/add')
-
-        self.assertHTMLEqual('<div class="checklist-header">'
-                                 '<a type="button" class="checklist-check-all hidden">%(check_all)s</a>'
-                                 '<a type="button" class="checklist-check-none hidden">%(check_none)s</a>'
-                                 '<a type="button" class="checklist-create" href="%(create_url)s" disabled>%(create_lbl)s</a>'
-                             '</div>'  % {
-                                 'check_all':  _(u'Check all'),
-                                 'check_none': _(u'Check none'),
-                                 'create_url': '/add',
-                                 'create_lbl': _(u'Create'),
-                             }, select._render_header({'checkall': True}, None, 1))
-
-        self.assertHTMLEqual('<div class="checklist-header">'
-                                 '<a type="button" class="checklist-check-all">%(check_all)s</a>'
-                                 '<a type="button" class="checklist-check-none">%(check_none)s</a>'
-                                 '<a type="button" class="checklist-create" href="%(create_url)s" disabled>%(create_lbl)s</a>'
-                             '</div>' % {
-                                 'check_all':  _(u'Check all'),
-                                 'check_none': _(u'Check none'),
-                                 'create_url': '/add',
-                                 'create_lbl': _(u'Create'),
-                             }, select._render_header({'checkall': True}, None, 3))
+    # def test_render_header_creation_disabled(self):
+    #     select = UnorderedMultipleChoiceWidget(creation_url='/add')
+    #
+    #     self.assertHTMLEqual('<div class="checklist-header">'
+    #                              '<a type="button" class="checklist-check-all hidden">%(check_all)s</a>'
+    #                              '<a type="button" class="checklist-check-none hidden">%(check_none)s</a>'
+    #                              '<a type="button" class="checklist-create" href="%(create_url)s" disabled>%(create_lbl)s</a>'
+    #                          '</div>'  % {
+    #                              'check_all':  _(u'Check all'),
+    #                              'check_none': _(u'Check none'),
+    #                              'create_url': '/add',
+    #                              'create_lbl': _(u'Create'),
+    #                          }, select._render_header({'checkall': True}, None, 1))
+    #
+    #     self.assertHTMLEqual('<div class="checklist-header">'
+    #                              '<a type="button" class="checklist-check-all">%(check_all)s</a>'
+    #                              '<a type="button" class="checklist-check-none">%(check_none)s</a>'
+    #                              '<a type="button" class="checklist-create" href="%(create_url)s" disabled>%(create_lbl)s</a>'
+    #                          '</div>' % {
+    #                              'check_all':  _(u'Check all'),
+    #                              'check_none': _(u'Check none'),
+    #                              'create_url': '/add',
+    #                              'create_lbl': _(u'Create'),
+    #                          }, select._render_header({'checkall': True}, None, 3))
 
     def test_render_empty(self):
         select = UnorderedMultipleChoiceWidget(creation_url='/add')
 
         self.assertFalse(select.creation_allowed)
-        self.assertHTMLEqual(_(u'No choice available.'), select.render('field', 1, {'checkall': True}))
+        # self.assertHTMLEqual(_(u'No choice available.'), select.render('field', 1, {'checkall': True}))
+        self.assertHTMLEqual(_(u'No choice available.'), select.render('field', [], {'checkall': True}))
 
     def test_render_empty_with_creation(self):
-        select = UnorderedMultipleChoiceWidget(creation_url='/add', creation_allowed=True)
+        name = 'field_1'
+        url = '/add/stuff'
+        select = UnorderedMultipleChoiceWidget(creation_url=url, creation_allowed=True)
 
         self.assertTrue(select.creation_allowed)
-        html = u'''<div class="ui-creme-widget widget-auto ui-creme-checklistselect"
-                        style="" widget="ui-creme-checklistselect" >
-    <select multiple="multiple" class="ui-creme-input" name="field">
+        html = u'''<div class="ui-creme-widget widget-auto ui-creme-checklistselect" widget="ui-creme-checklistselect" >
+    <select multiple="multiple" class="ui-creme-input" name="%(name)s">
     </select>
     <span class="checklist-counter"></span>
     <div class="checklist-header">
@@ -405,43 +437,100 @@ class UnorderedMultipleChoiceTestCase(FieldTestCase):
         <a type="button" class="checklist-check-none hidden">%(check_none)s</a>
         <a type="button" class="checklist-create" href="%(create_url)s">%(create_lbl)s</a>
     </div>
-    <div class="checklist-body"><ul class="checklist-content  "></ul></div>
+    <div class="checklist-body"><ul class="checklist-content"></ul></div>
 </div>''' % {
+            'name':       name,
+            'check_all':  _(u'Check all'),
+            'check_none': _(u'Check none'),
+            'create_url': url,
+            'create_lbl': _(u'Create'),
+        }
+
+        self.assertHTMLEqual(html, select.render(name, (), attrs={'checkall': True}))
+
+    def test_render_creation_not_allowed(self):
+        name = 'field_1'
+        select = UnorderedMultipleChoiceWidget(choices=[('a', '#1'), ('b', '#2')],
+                                               creation_url='/add', creation_allowed=False,
+                                              )
+
+        html = u'''<div class="ui-creme-widget widget-auto ui-creme-checklistselect" widget="ui-creme-checklistselect" >
+    <select multiple="multiple" class="ui-creme-input" name="%(name)s">
+        <option value="a">#1</option>
+        <option value="b">#2</option>
+    </select>
+    <span class="checklist-counter"></span>
+    <div class="checklist-header">
+        <a type="button" class="checklist-check-all hidden">%(check_all)s</a>
+        <a type="button" class="checklist-check-none hidden">%(check_none)s</a>
+        <a type="button" class="checklist-create" disabled href="%(create_url)s">%(create_lbl)s</a>
+    </div>
+    <div class="checklist-body"><ul class="checklist-content"></ul></div>
+</div>''' % {
+            'name':       name,
             'check_all':  _(u'Check all'),
             'check_none': _(u'Check none'),
             'create_url': '/add',
             'create_lbl': _(u'Create'),
         }
 
-        self.assertHTMLEqual(html, select.render('field', (), attrs={'checkall': True}))
+        self.assertHTMLEqual(html, select.render(name, ()))
+
+    def test_render_enhanced_options(self):
+        name = 'stuffs'
+        Choice = UnorderedMultipleChoiceWidget.Choice
+        select = UnorderedMultipleChoiceWidget(
+            choices=[(Choice(value=1, disabled=True, help='is disabled'), 'Choice #1'),
+                     (Choice(value=2, disabled=False),                    'Choice #2'),
+                    ],
+        )
+
+        html = u'''<div class="ui-creme-widget widget-auto ui-creme-checklistselect" widget="ui-creme-checklistselect" >
+    <select multiple="multiple" class="ui-creme-input" name="%(name)s">
+        <option value="1" disabled help="is disabled">Choice #1</option>
+        <option value="2" help="">Choice #2</option>
+    </select>
+    <span class="checklist-counter"></span>
+    <div class="checklist-header">
+        <a type="button" class="checklist-check-all hidden">%(check_all)s</a>
+        <a type="button" class="checklist-check-none hidden">%(check_none)s</a>
+    </div>
+    <div class="checklist-body"><ul class="checklist-content"></ul></div>
+</div>''' % {
+            'name':       name,
+            'check_all':  _(u'Check all'),
+            'check_none': _(u'Check none'),
+        }
+
+        self.assertHTMLEqual(html, select.render(name, ()))
 
 
 class ActionButtonListTestCase(FieldTestCase):
     def setUp(self):
         self.maxDiff = None
 
-    def test_render_action(self):
-        widget = ActionButtonList(Select(choices=[(1, 'A'), (2, 'B')]))
-
-        html = '''<li>
-    <button class="ui-creme-actionbutton" name="action_a" type="button" disabled=""
-            title="Do action A" alt="Do action A"
-            arg_A="12" arg_B="B">Action A</button>
-</li>'''
-        self.assertHTMLEqual(html,
-                             widget._render_action('action_a', 'Action A', enabled=False, title='Do action A',
-                                                   arg_A=12, arg_B='B'
-                                                  )
-                            )
+#     def test_render_action(self):
+#         widget = ActionButtonList(Select(choices=[(1, 'A'), (2, 'B')]))
+#
+#         html = '''<li>
+#     <button class="ui-creme-actionbutton" name="action_a" type="button" disabled=""
+#             title="Do action A" alt="Do action A"
+#             arg_A="12" arg_B="B">Action A</button>
+# </li>'''
+#         self.assertHTMLEqual(html,
+#                              widget._render_action('action_a', 'Action A', enabled=False, title='Do action A',
+#                                                    arg_A=12, arg_B='B'
+#                                                   )
+#                             )
 
     def test_render_empty_action_list(self):
         widget = ActionButtonList(Select(choices=[(1, 'A'), (2, 'B')]))
 
-        html = u'''<ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonlist" style="" widget="ui-creme-actionbuttonlist">
+        html = u'''<ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonlist" widget="ui-creme-actionbuttonlist">
     <li class="delegate">
         <select name="field">
             <option value="1">A</option>
-            <option value="2" selected="selected">B</option>
+            <option value="2" selected>B</option>
         </select>
     </li>
 </ul>'''
@@ -452,15 +541,15 @@ class ActionButtonListTestCase(FieldTestCase):
         widget.add_action('action_a', u'Action A', title='Do the action A')
         widget.add_action('action_b', u'Action B', False)
 
-        html = u'''<ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonlist" style="" widget="ui-creme-actionbuttonlist">
+        html = u'''<ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonlist" widget="ui-creme-actionbuttonlist">
     <li class="delegate">
         <select name="field">
-            <option value="1" selected="selected">A</option>
+            <option value="1" selected>A</option>
             <option value="2">B</option>
         </select>
     </li>
-    <li><button class="ui-creme-actionbutton" name="action_a" title="Do the action A" alt="Do the action A" type="button">Action A</button></li>
-    <li><button class="ui-creme-actionbutton" name="action_b" title="Action B" alt="Action B" type="button" disabled="">Action B</button></li>
+    <li><button class="ui-creme-actionbutton" name="action_a" title="Do the action A" type="button">Action A</button></li>
+    <li><button class="ui-creme-actionbutton" name="action_b" title="Action B" type="button" disabled>Action B</button></li>
 </ul>'''
         self.assertHTMLEqual(html, widget.render('field', 1))
 
@@ -488,18 +577,16 @@ class EntitySelectorTestCase(FieldTestCase):
         text_url = TemplateURLBuilder(entity_id=(TemplateURLBuilder.Int, '${id}')).resolve('creme_core__entity_as_json')
 
         widget = EntitySelector(content_type=12)
-        html = '''<span class="ui-creme-widget widget-auto ui-creme-entityselector" style="" widget="ui-creme-entityselector"
+        html = u'''<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
                         labelURL="%(text_url)s" label="%(label)s"
-                        popupURL="%(url)s" popupSelection="single"
-                        qfilter="%(q_filter)s">
+                        popupURL="%(url)s" popupSelection="single">
     <input name="field" type="hidden" class="ui-creme-input ui-creme-entityselector" value="1"/>
     <button type="button">%(label)s</button>
 </span>''' % {
-    'label': _(u'Select…'),
-    'text_url': text_url,
-    'url': url,
-    'q_filter': '',
-}
+            'label': _(u'Select…'),
+            'text_url': text_url,
+            'url': url,
+        }
         self.assertHTMLEqual(html, widget.render('field', '1'))
 
     def test_render_qfilter(self):
@@ -507,18 +594,18 @@ class EntitySelectorTestCase(FieldTestCase):
         text_url = TemplateURLBuilder(entity_id=(TemplateURLBuilder.Int, '${id}')).resolve('creme_core__entity_as_json')
 
         widget = EntitySelector(content_type=12)
-        html = '''<span class="ui-creme-widget widget-auto ui-creme-entityselector" style="" widget="ui-creme-entityselector"
+        html = u'''<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
                         labelURL="%(text_url)s" label="%(label)s"
                         popupURL="%(url)s" popupSelection="single"
                         qfilter="%(q_filter)s">
     <input name="field" type="hidden" class="ui-creme-input ui-creme-entityselector" value="1"/>
     <button type="button">%(label)s</button>
 </span>''' % {
-    'label': _(u'Select…'),
-    'text_url': text_url,
-    'url': url,
-    'q_filter': escape(json_dump({'pk__in': 12})),
-}
+            'label': _(u'Select…'),
+            'text_url': text_url,
+            'url': url,
+            'q_filter': escape(json_dump({'pk__in': 12})),
+        }
         self.assertHTMLEqual(html, widget.render('field', '1', attrs={'qfilter': {'pk__in': 12}}))
 
     def test_render_popup_options(self):
@@ -526,22 +613,22 @@ class EntitySelectorTestCase(FieldTestCase):
         text_url = TemplateURLBuilder(entity_id=(TemplateURLBuilder.Int, '${id}')).resolve('creme_core__entity_as_json')
 
         widget = EntitySelector(content_type=12)
-        html = '''<span class="ui-creme-widget widget-auto ui-creme-entityselector" style="" widget="ui-creme-entityselector"
+        html = u'''<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
                         labelURL="%(text_url)s" label="%(label)s"
-                        popupURL="%(url)s" popupSelection="multiple" popupAuto
-                        qfilter="%(q_filter)s">
+                        popupURL="%(url)s" popupSelection="multiple" popupAuto>
     <input name="field" type="hidden" class="ui-creme-input ui-creme-entityselector" value="1"/>
     <button type="button">%(label)s</button>
 </span>''' % {
-    'label': _(u'Select…'),
-    'text_url': text_url,
-    'url': url,
-    'q_filter': '',
-}
+            'label': _(u'Select…'),
+            'text_url': text_url,
+            'url': url,
+        }
         self.assertHTMLEqual(html, widget.render('field', '1', attrs={'multiple': True, 'autoselect': True}))
 
 
 class EntityCreatorWidgetTestCase(FieldTestCase):
+    maxDiff = None
+
     def _build_reset_action(self, enabled=True, value=''):
         return ('reset', _(u'Clear'), enabled, {'action': 'reset', 'title': _(u'Clear'), 'value': value})
 
@@ -611,51 +698,47 @@ class EntityCreatorWidgetTestCase(FieldTestCase):
 
     def test_render_no_model(self):
         widget = EntityCreatorWidget()
-        html = '''<ul class="hbox ui-creme-widget ui-layout widget-auto ui-creme-actionbuttonlist" style="" widget="ui-creme-actionbuttonlist">
+        html = u'''<ul class="hbox ui-creme-widget ui-layout widget-auto ui-creme-actionbuttonlist" widget="ui-creme-actionbuttonlist">
     <li class="delegate">
         <input name="field" style="display:none;" type="text" />
-        <span name="field">%(no_model_label)s</span>
+        <span>Model is not set</span>
     </li>
-</ul>''' % {
-    'no_model_label': u'Model is not set',
-}
+</ul>'''
         self.assertHTMLEqual(html, widget.render('field', ''))
 
     def test_render(self):
         ct_id = ContentType.objects.get_for_model(FakeContact).id
         creation_url = reverse('creme_core__quick_form', args=(ct_id,))
         widget = EntityCreatorWidget(FakeContact, creation_url=creation_url, creation_allowed=False)
-        html = '''<ul class="hbox ui-creme-widget ui-layout widget-auto ui-creme-actionbuttonlist" style="" widget="ui-creme-actionbuttonlist">
+        html = u'''<ul class="hbox ui-creme-widget ui-layout widget-auto ui-creme-actionbuttonlist" widget="ui-creme-actionbuttonlist">
     <li class="delegate">
-        <span class="ui-creme-widget ui-creme-entityselector" style="" widget="ui-creme-entityselector"
+        <span class="ui-creme-widget ui-creme-entityselector" widget="ui-creme-entityselector"
               labelURL="%(select_label_url)s" label="%(select_label)s"
-              popupURL="%(select_url)s" popupSelection="single"
-              qfilter="%(select_q_filter)s">
+              popupURL="%(select_url)s" popupSelection="single">
             <input name="field" type="hidden" class="ui-creme-input ui-creme-entityselector"/>
             <button type="button">%(select_label)s</button>
         </span>
     </li>
     <li>
-        <button class="ui-creme-actionbutton" action="reset" name="reset" title="%(reset_title)s" alt="%(reset_title)s" type="button" value="">
+        <button class="ui-creme-actionbutton" action="reset" name="reset" title="%(reset_title)s" type="button" value="">
             %(reset_label)s
         </button>
     </li>
     <li>
-        <button class="ui-creme-actionbutton" name="create" title="%(create_title)s" alt="%(create_title)s" type="button"
-                disabled="" popupUrl="%(create_url)s">
+        <button class="ui-creme-actionbutton" name="create" title="%(create_title)s" type="button" disabled popupUrl="%(create_url)s">
             %(create_label)s
         </button>
     </li>
 </ul>''' % {
-    'select_label': _(u'Select…'),
-    'select_label_url': EntitySelector(content_type=ct_id).text_url,
-    'select_url': EntitySelector(content_type=ct_id).url,
-    'select_q_filter': '',
-    'reset_title': _(u'Clear'),
-    'reset_label': _(u'Clear'),
-    'create_title': _(u"Can't create"),
-    'create_label': FakeContact.creation_label,
-    'create_url': creation_url,
-}
+            'select_label': _(u'Select…'),
+            'select_label_url': EntitySelector(content_type=ct_id).text_url,
+            'select_url': EntitySelector(content_type=ct_id).url,
+            # 'select_q_filter': '',  # qfilter="%(select_q_filter)s">
+            'reset_title': _(u'Clear'),
+            'reset_label': _(u'Clear'),
+            'create_title': _(u"Can't create"),
+            'create_label': FakeContact.creation_label,
+            'create_url': creation_url,
+        }
         self.assertHTMLEqual(html, widget.render('field', ''))
 

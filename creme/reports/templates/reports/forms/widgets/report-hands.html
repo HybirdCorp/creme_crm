@@ -1,20 +1,21 @@
-{% extends 'creme_core/entity_cells_widget.html' %}
+{% extends 'creme_core/forms/widgets/entity-cells.html' %}
 {% load i18n %}
 
 {% block extra_field_selectors %}
-    {% if related_entities %}
-        <div class="related_field_selectors inline_selectors">
-            <h4 class="selector_title">{% trans 'Related entities' %}</h4>
-            <ul class="selector_list">
-                {% for related_name, related_vname in related_entities %}
-                    <li class="selector" data-column="{{related_name}}"><input type="checkbox">{{related_vname}}</li>
-                {% endfor %}
-            </ul>
-        </div>
+    {% if widget.related_entities %}
+    <div class="related_field_selectors inline_selectors">
+        <h4 class="selector_title">{% trans 'Related entities' %}</h4>
+        <ul class="selector_list">
+            {% for related_name, related_vname in widget.related_entities %}
+            <li class="selector" data-column="{{related_name}}"><input type="checkbox">{{related_vname}}</li>
+            {% endfor %}
+        </ul>
+    </div>
     {% endif %}
 {% endblock %}
 
 {% block extra_selectors %}
+{% with regular_aggregates=widget.regular_aggregates custom_aggregates=widget.custom_aggregates %}
     {% if regular_aggregates or custom_aggregates %}
         <div class="aggregate_selectors ">
             <h3 class="selector_title">{% trans 'Aggregated values' %}</h3>
@@ -24,7 +25,7 @@
                 {% if regular_aggregates %}
                     <ul class="selector_list">
                         {% for agg_id, agg_vname in regular_aggregates %}
-                            <li class="selector" data-column="{{agg_id}}"><input type="checkbox">{{agg_vname}}</li>
+                        <li class="selector" data-column="{{agg_id}}"><input type="checkbox">{{agg_vname}}</li>
                         {% endfor %}
                     </ul>
                 {% else %}
@@ -37,7 +38,7 @@
                 {% if custom_aggregates %}
                     <ul class="selector_list">
                         {% for agg_id, agg_vname in custom_aggregates %}
-                            <li class="selector" data-column="{{agg_id}}"><input type="checkbox">{{agg_vname}}</li>
+                        <li class="selector" data-column="{{agg_id}}"><input type="checkbox">{{agg_vname}}</li>
                         {% endfor %}
                     </ul>
                 {% else %}
@@ -46,4 +47,5 @@
             </div>
         </div>
     {% endif %}
+{% endwith %}
 {% endblock %}

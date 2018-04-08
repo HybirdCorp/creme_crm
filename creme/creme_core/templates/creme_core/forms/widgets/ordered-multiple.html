@@ -1,0 +1,22 @@
+{% load creme_core_tags %}
+{% with name=widget.name orders=widget.orders %}
+<table name="{{name}}" {% include 'django/forms/widgets/attrs.html' %}>
+    <tbody>
+    {% for group_name, group_choices, group_index in widget.optgroups %}{# TODO: manage group ? #}
+        {% for option in group_choices %}
+        {% with order=orders|get_value:option.value %}
+        <tr name="oms_row_{{group_index}}">
+            <td><input class="oms_check" type="checkbox" name="{{name}}_check_{{group_index}}" {% if order %}checked{% endif %}/></td>
+            <td class="oms_value">{{option.label}}<input type="hidden" name="{{name}}_value_{{group_index}}" value="{{option.value}}" /></td>
+            <td><input class="oms_order" type="text" name="{{name}}_order_{{group_index}}" value="{{order}}"/></td>
+        </tr>
+        {% endwith %}
+    {% endfor %}{% endfor %}
+    </tbody>
+</table>
+<script type="text/javascript">
+    $(document).ready(function() {
+        creme.forms.toOrderedMultiSelect('{{widget.attrs.id}}', {{widget.attrs.reduced|default:'false'}});
+    });
+</script>
+{% endwith %}

@@ -1,0 +1,24 @@
+{% load i18n %}
+{% with id=widget.attrs.id %}
+<table {# name="{{widget.name}}" #} {% include 'django/forms/widgets/attrs.html' %}>
+    <tbody>
+        <tr>
+            <td class="csv_column_select">
+                {% include 'django/forms/widgets/select.html' with widget=widget.column_select %}
+            </td>
+            {% if widget.propose_creation %}
+            <td>&nbsp;
+                <label for="{{id}}_create">{% trans 'Create if not found?' %}:
+                    <input type="checkbox" id="{{id}}_create" name="{{widget.name}}_create"{% if widget.can_create %} checked{% endif %}>
+                </label>
+            </td>
+            {% endif %}
+            <td>&nbsp;
+                <label for="{{id}}_defval">{% trans 'Default value' %}:
+                    {% include widget.default_value_widget.template_name with widget=widget.default_value_widget %}
+                </label>
+            </td>
+        </tr>
+    </tbody>
+</table>
+{% endwith %}

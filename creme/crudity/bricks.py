@@ -49,6 +49,7 @@ class WaitingActionsBrick(CrudityQuerysetBrick):
     # dependencies  = ()
     verbose_name  = _(u'Waiting actions')
     template_name = 'crudity/bricks/waiting-actions.html'
+    order_by      = 'id'
 
     def __init__(self, backend):
         super(WaitingActionsBrick, self).__init__()
@@ -105,6 +106,7 @@ class CrudityHistoryBrick(CrudityQuerysetBrick):
     # dependencies  = ()
     verbose_name  = _(u'History')
     template_name = 'crudity/bricks/history.html'
+    order_by      = 'id'
 
     def __init__(self, ct):
         super(CrudityHistoryBrick, self).__init__()
