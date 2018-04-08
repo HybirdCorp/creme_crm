@@ -134,7 +134,7 @@ class RelatedActivityEditForm(CremeEntityForm):
                            .object_entity \
                            .get_real_entity()
         except Relation.DoesNotExist:
-            raise ConflictError('This Activity is not related to a projet task')
+            raise ConflictError('This Activity is not related to a project task.')
 
     def __init__(self, *args, **kwargs):
         super(RelatedActivityEditForm, self).__init__(*args, **kwargs)
