@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2015  Hybird
+#    Copyright (C) 2012-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,6 +27,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import CremeForm, CremeModelForm, CremeEntityForm
 from creme.creme_core.forms.fields import ListEditionField
+from creme.creme_core.forms.widgets import CremeRadioSelect
 from creme.creme_core.utils import find_first, update_model_instance
 
 from .. import get_pollform_model
@@ -305,7 +306,8 @@ class PollFormLineEditForm(_PollFormLineForm):
 class PollFormLineConditionsForm(CremeForm):
     use_or     = TypedChoiceField(label=_(u'Use OR or AND between conditions'),
                                   choices=[(0, _('AND')), (1, _('OR'))],
-                                  coerce=lambda x: bool(int(x))
+                                  coerce=(lambda x: bool(int(x))),
+                                  widget=CremeRadioSelect,
                                  )
     conditions = PollFormLineConditionsField(label=_('Conditions'), required=False)
 
