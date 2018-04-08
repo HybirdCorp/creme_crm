@@ -19,6 +19,7 @@
 ################################################################################
 
 from collections import defaultdict
+import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
@@ -30,7 +31,8 @@ from .models import Action, Alert, Memo, ToDo, UserMessage
 
 class _AssistantsBrick(QuerysetBrick):
     @staticmethod
-    def _populate_related_real_entities(assistants, user):  # TODO: remove 'user'
+    # def _populate_related_real_entities(assistants, user):
+    def _populate_related_real_entities(assistants):
         assistants = [assistant for assistant in assistants if assistant.entity_id]
         entities_ids_by_ct = defaultdict(set)
 
@@ -59,7 +61,9 @@ class _AssistantsBrick(QuerysetBrick):
         pass
 
     @classmethod
-    def _get_contenttype_id(cls):  # TODO: deprecate
+    def _get_contenttype_id(cls):
+        warnings.warn('_AssistantsBrick._get_contenttype_id() is deprecated.', DeprecationWarning)
+
         return ContentType.objects.get_for_model(cls.dependencies[0]).id
 
     def detailview_display(self, context):
@@ -80,7 +84,8 @@ class _AssistantsBrick(QuerysetBrick):
             context, self._get_queryset_for_portal(ct_ids, context),
             # ct_id=self._get_contenttype_id(),
         )
-        self._populate_related_real_entities(btc['page'].object_list, context['user'])
+        # self._populate_related_real_entities(btc['page'].object_list, context['user'])
+        self._populate_related_real_entities(btc['page'].object_list)
 
         return self._render(btc)
 
@@ -89,7 +94,8 @@ class _AssistantsBrick(QuerysetBrick):
                 context, self._get_queryset_for_home(context),
                 # ct_id=self._get_contenttype_id(),
         )
-        self._populate_related_real_entities(btc['page'].object_list, context['user'])
+        # self._populate_related_real_entities(btc['page'].object_list, context['user'])
+        self._populate_related_real_entities(btc['page'].object_list)
 
         return self._render(btc)
 

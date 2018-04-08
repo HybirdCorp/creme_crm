@@ -164,7 +164,7 @@ class AbstractProjectTask(CremeEntity):
 
     @staticmethod
     def clone_scope(tasks, project):
-        """Clone each task in 'tasks',assign them to 'project', and restore links between each task.
+        """Clone each task in 'tasks', assign them to 'project', and restore links between each task.
         @params tasks: an iterable of ProjectTask.
         @params project: a Project instance.
         """
