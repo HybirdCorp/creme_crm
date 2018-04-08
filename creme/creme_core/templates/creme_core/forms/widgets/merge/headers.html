@@ -1,0 +1,7 @@
+{% with labels=widget.labels %}
+<ul {% include 'django/forms/widgets/attrs.html' %}>
+    <li class="li_merge_entity_header1">{{labels.0}}</li>{# TODO: 'li_merge_entity_header1' => 'merge-entity-header merge-entity-header-1' + fix JS ?? #}
+    <li class="li_merge_result_header">{{labels.2}}</li>
+    <li class="li_merge_entity_header2">{{labels.1}}</li>
+</ul>
+{% endwith %}

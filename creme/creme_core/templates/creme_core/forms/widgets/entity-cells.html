@@ -1,22 +1,22 @@
 {% load i18n creme_core_tags %}
-<div class="hfilter_widget" {{attrs}}>
-    <input class="inner_value" type="hidden" name="{{name}}" value="{{value}}">
+<div class="hfilter_widget" {% include 'django/forms/widgets/attrs.html' %}>
+    <input class="inner_value" type="hidden" name="{{widget.name}}" value="{{widget.value}}">
     <div class="selectors">
         <div class="field_selectors">
             <h3 class="selector_title">{% trans 'Fields'%}</h3>
 
-            <div class="selector_filter">{% comment %}highlight : main fields | <a href="">popular</a> | <a href="">recent</a>{% endcomment %}
-                <input type="search" class="field_selector_filter" name="{{name}}_field_selector_filter" placeholder="{% trans 'SEARCH'%}" data-type="fields">
+            <div class="selector_filter">{# highlight : main fields | <a href="">popular</a> | <a href="">recent</a> #}
+                <input type="search" class="field_selector_filter" name="{{widget.name}}_field_selector_filter" placeholder="{% trans 'SEARCH'%}" data-type="fields">
             </div>
 
             <div class="basic_field_selectors">
                 <h4 class="selector_title">{% trans 'Regular fields'%}</h4>
                 <ul class="selector_list">
-                    {% for field_name, field_vname in model_fields %}
+                    {% for field_name, field_vname in widget.model_fields %}
                         <li class="selector" data-column="{{field_name}}">
-                            {% with subfields=model_subfields|get_value:field_name %}
+                            {% with subfields=widget.model_subfields|get_value:field_name %}
                                 {% if subfields and subfields|length > 1 %}
-                                    <input type="checkbox"><a href="" class="sub_selector_toggle" title="{% trans "Click to select the sub-fields" %}">{{field_vname}}</a>
+                                    <input type="checkbox"><a href="" class="sub_selector_toggle" title="{% trans 'Click to select the sub-fields' %}">{{field_vname}}</a>
                                     <div class="underlay-container">
                                         <div class="underlay_wrapper">
                                             <div class="arrow">
@@ -58,8 +58,8 @@
                 <h4 class="selector_title">{% trans 'Custom fields'%}</h4>
                 {% if custom_fields %}
                     <ul class="selector_list">
-                        {% for cfield_id, cfield_name in custom_fields %}
-                            <li class="selector" data-column="{{cfield_id}}"><input type="checkbox" /><label>{{cfield_name}}</label></li>
+                        {% for cfield_id, cfield_name in widget.custom_fields %}
+                        <li class="selector" data-column="{{cfield_id}}"><input type="checkbox" /><label>{{cfield_name}}</label></li>
                         {% endfor %}
                     </ul>
                 {% else %}
@@ -70,8 +70,8 @@
             <div class="computed_field_selectors inline_selectors">
                 <h4 class="selector_title">{% trans 'Computed fields' %}</h4>
                 <ul class="selector_list">
-                    {% for ffield_name, ffield_vname in function_fields %}
-                        <li class="selector" data-column="{{ffield_name}}"><input type="checkbox" /><label>{{ffield_vname}}</label></li>
+                    {% for ffield_name, ffield_vname in widget.function_fields %}
+                    <li class="selector" data-column="{{ffield_name}}"><input type="checkbox" /><label>{{ffield_vname}}</label></li>
                     {% endfor %}
                 </ul>
             </div>
@@ -84,8 +84,8 @@
 
             <div class="selector_filter">
                 <span class="filter_result"></span>
-{% comment %}filter : accounts & contacts | <a href="" class="relationship_filter_all">all relationship types</a>{% endcomment %}
-                <input type="search" class="field_selector_filter" name="{{name}}_relationships_selector_filter" placeholder="{% trans 'FILTER'%}" data-type="relationships">
+{# filter : accounts & contacts | <a href="" class="relationship_filter_all">all relationship types</a> #}
+                <input type="search" class="field_selector_filter" name="{{widget.name}}_relationships_selector_filter" placeholder="{% trans 'FILTER'%}" data-type="relationships">
             </div>
 
             <ul class="selector_list">
@@ -140,7 +140,7 @@
                 <li class="selector secondary_relationship" data-column="events-subject_came_event"><input type="checkbox">est venu à l'évènement</li>
                 [...]
                 {% endcomment %}
-                {% for rtype_id, rtype_name in relation_types %}
+                {% for rtype_id, rtype_name in widget.relation_types %}
                     <li class="selector" data-column="{{rtype_id}}"><input type="checkbox" /><label>{{rtype_name}}</label></li>
                 {% endfor %}
             </ul>
@@ -160,7 +160,7 @@
         <table class="preview_table">
             <thead class="preview_table_header">
                 <tr class="sortable_header"></tr>
-                {% comment %}<tr class="filterable_header"></tr>{% endcomment %}
+                {# <tr class="filterable_header"></tr> #}
             </thead>
             <tbody>
                 <tr class="preview_row"></tr>
@@ -171,7 +171,7 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
-            new creme.entity_cell.EntityCellsWidget('{{id}}', {{samples}});
+            new creme.entity_cell.EntityCellsWidget('{{widget.attrs.id}}', {{widget.samples|jsonify|safe}});
         });
     </script>
 </div>

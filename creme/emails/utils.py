@@ -112,8 +112,8 @@ class EMailSender(object):
 
     def send(self, mail, connection=None):
         """
-        @param mail Object with a class inheriting emails.models.mail._Email
-        @return True means: OK mail was sent
+        @param mail: Object with a class inheriting emails.models.mail._Email
+        @return True means <OK mail was sent>
         """
         ok = False
 
@@ -125,7 +125,7 @@ class EMailSender(object):
             msg = EmailMultiAlternatives(self.get_subject(mail), body, mail.sender,
                                          [mail.recipient], connection=connection,
                                         )
-            msg.attach_alternative(body_html, "text/html")
+            msg.attach_alternative(body_html, 'text/html')
 
             for image in self._mime_images:
                 msg.attach(image)

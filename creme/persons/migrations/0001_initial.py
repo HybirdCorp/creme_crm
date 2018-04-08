@@ -121,6 +121,7 @@ class Migration(migrations.Migration):
                 ('content_type', models.ForeignKey(related_name='object_set', editable=False, to='contenttypes.ContentType', on_delete=CASCADE)),
             ],
             options={
+                'ordering': ('id',),
                 'swappable': 'PERSONS_ADDRESS_MODEL',
                 'verbose_name': 'Address',
                 'verbose_name_plural': 'Addresses',

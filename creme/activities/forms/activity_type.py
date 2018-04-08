@@ -79,7 +79,17 @@ class ActivityTypeWidget(ChainedInput):
         self.creation_allowed = creation_allowed  # TODO: useless at the moment ...
         self.types = types
 
-    def render(self, name, value, attrs=None):
+    # def render(self, name, value, attrs=None):
+    #     add = partial(self.add_dselect, attrs={'auto': False})
+    #     add('type', options=self.types)
+    #     add('sub_type',
+    #         options=TemplateURLBuilder(type_id=(TemplateURLBuilder.Word, '${type}'))
+    #                                   .resolve('activities__get_types'),
+    #        )
+    #
+    #     return super(ActivityTypeWidget, self).render(name, value, attrs)
+
+    def get_context(self, name, value, attrs):
         add = partial(self.add_dselect, attrs={'auto': False})
         add('type', options=self.types)
         add('sub_type',
@@ -87,7 +97,7 @@ class ActivityTypeWidget(ChainedInput):
                                       .resolve('activities__get_types'),
            )
 
-        return super(ActivityTypeWidget, self).render(name, value, attrs)
+        return super(ActivityTypeWidget, self).get_context(name=name, value=value, attrs=attrs)
 
 
 class ActivityTypeField(JSONField):

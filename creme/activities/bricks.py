@@ -50,6 +50,7 @@ class ParticipantsBrick(QuerysetBrick):
     relation_type_deps = (constants.REL_OBJ_PART_2_ACTIVITY,)
     verbose_name  = _(u'Participants')
     template_name = 'activities//bricks/participants.html'
+    order_by      = 'id'  # For consistent ordering between 2 queries (for pages)
 
     target_ctypes = (Activity, )
 
@@ -92,6 +93,7 @@ class SubjectsBrick(QuerysetBrick):
     verbose_name  = _(u'Subjects')
     template_name = 'activities/bricks/subjects.html'
     target_ctypes = (Activity, )
+    order_by      = 'id'  # For consistent ordering between 2 queries (for pages)
 
     def detailview_display(self, context):
         activity = context['object']

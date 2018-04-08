@@ -1,0 +1,7 @@
+{% load i18n creme_core_tags %}{% trans 'Select…' as label %}
+<span class="{{widget.class}}" widget="{{widget.widget_type}}" labelURL="{{widget.text_url}}" label="{{label}}" popupURL="{{widget.url}}" popupSelection="{{widget.selection}}"
+      {% if widget.autoselect %}popupAuto{% endif %}
+      {% if widget.qfilter %}qfilter="{{widget.qfilter|jsonify}}"{% endif %}>
+    {% include widget.input.template_name with widget=widget.input %}
+    <button type="button"{% if widget.disabled %} disabled{% endif %}>{{label}}</button>
+</span>

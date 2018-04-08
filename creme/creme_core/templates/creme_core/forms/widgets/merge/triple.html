@@ -1,0 +1,5 @@
+<ul name="{{widget.name}}"{% include 'django/forms/widgets/attrs.html' %}>{# TODO: 'name' => 'data-name' + fix JS ?? #}
+    <li class="li_merge_entity1">{% with widget=widget.first %}{% include widget.template_name %}{% endwith %}</li>{# TODO: 'li_merge_entity1' => 'merge-entity merge-entity-1' + fix JS ?? #}
+    <li class="li_merge_result">{% with widget=widget.merged %}{% include widget.template_name %}{% endwith %}</li>
+    <li class="li_merge_entity2">{% with widget=widget.second %}{% include widget.template_name %}{% endwith %}</li>
+</ul>

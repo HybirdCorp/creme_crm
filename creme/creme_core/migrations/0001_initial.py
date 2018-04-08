@@ -448,6 +448,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'Language',
                 'verbose_name_plural': 'Languages',
+                'ordering': ('name',)
             },
         ),
         migrations.CreateModel(
@@ -484,6 +485,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'Type of relationship',
                 'verbose_name_plural': 'Types of relationship',
+                'ordering': ('predicate',)
             },
         ),
         migrations.CreateModel(

@@ -33,12 +33,12 @@ from django.db.transaction import atomic
 from django.forms.models import modelform_factory
 from django.forms import (ValidationError, Field, BooleanField, MultipleChoiceField,
         ModelChoiceField, ModelMultipleChoiceField, IntegerField)
-from django.forms.widgets import SelectMultiple, HiddenInput
-from django.forms.utils import flatatt
+from django.forms.widgets import Widget, Select, HiddenInput  # SelectMultiple
+# from django.forms.utils import flatatt
 from django.template.defaultfilters import slugify
 from django.urls import reverse_lazy as reverse
-from django.utils.html import escape, format_html, format_html_join
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html, format_html_join  # escape
+# from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.documents import get_document_model
@@ -84,7 +84,7 @@ def get_header(filedata, has_header):
             filedata.open()
             header = backend(filedata).next()
         except Exception as e:
-            raise ValidationError(ugettext("Error reading document: %(error)s.") % {'error': e})
+            raise ValidationError(ugettext(u'Error reading document: %(error)s.') % {'error': e})
         finally:
             filedata.close()
 
@@ -207,92 +207,155 @@ class Extractor(object):
         return value, err_msg
 
 
-class ExtractorWidget(SelectMultiple):
+class BaseExtractorWidget(Widget):
+    def __init__(self, *args, **kwargs):
+        super(BaseExtractorWidget, self).__init__(*args, **kwargs)
+        self.column_select = Select()
+
+    @property
+    def choices(self):
+        return self.column_select.choices
+
+    @choices.setter
+    def choices(self, choices):
+        self.column_select.choices = choices
+
+
+# class ExtractorWidget(SelectMultiple):
+class ExtractorWidget(BaseExtractorWidget):  # TODO: rename (Regular/Base)FieldExtractorWidget ??
+    template_name = 'creme_core/forms/widgets/mass-import/extractor.html'
+
     def __init__(self, *args, **kwargs):
         super(ExtractorWidget, self).__init__(*args, **kwargs)
         self.default_value_widget = None
-        self.subfield_select = None
+        self.subfield_select = None  # TODO: rename 'subfield_choices'
         self.propose_creation = False
 
-    def _render_select(self, name, choices, sel_val, attrs=None):
-        output = ['<select %s>' % flatatt(self.build_attrs(attrs, name=name))]
+    # def _render_select(self, name, choices, sel_val, attrs=None):
+    #     # output = ['<select %s>' % flatatt(self.build_attrs(attrs, name=name))]
+    #     output = ['<select %s>' % flatatt(self.build_attrs(self.attrs, extra_attrs=dict(attrs or {}, name=name)))]
+    #
+    #     output.extend(u'<option value="%s" %s>%s</option>' % (
+    #                         opt_value,
+    #                         (u'selected="selected"' if sel_val == opt_value else u''),
+    #                         escape(opt_label)
+    #                     ) for opt_value, opt_label in choices
+    #                  )
+    #
+    #     output.append('</select>')
+    #
+    #     return u'\n'.join(output)
 
-        output.extend(u'<option value="%s" %s>%s</option>' % (
-                            opt_value,
-                            (u'selected="selected"' if sel_val == opt_value else u''),
-                            escape(opt_label)
-                        ) for opt_value, opt_label in choices
-                     )
+    # # def render(self, name, value, attrs=None, choices=()):
+    # def render(self, name, value, attrs=None):
+    #     value = value or {}
+    #     # attrs = self.build_attrs(attrs, name=name)
+    #     attrs = self.build_attrs(self.attrs, extra_attrs=dict(attrs or {}, name=name))
+    #     output = [u'<table %s><tbody><tr><td>' % flatatt(attrs)]
+    #
+    #     out_append = output.append
+    #     rselect    = self._render_select
+    #
+    #     try:
+    #         sel_val = int(value.get('selected_column', -1))
+    #     except TypeError:
+    #         sel_val = 0
+    #
+    #     out_append(rselect("%s_colselect" % name,
+    #                        # choices=chain(self.choices, choices),
+    #                        choices=self.choices,
+    #                        sel_val=sel_val,
+    #                        attrs={'class': 'csv_col_select'},
+    #                       )
+    #               )
+    #
+    #     id_ = attrs['id']
+    #
+    #     if self.subfield_select:
+    #         hide_select = (len(self.subfield_select) == 1)  # The <select> is annoying if there is only one option
+    #
+    #         out_append(u'</td>'
+    #                     '<td class="csv_subfields_select">%(label)s %(select)s %(check)s'
+    #                         '<script type="text/javascript">'
+    #                             '$(document).ready(function() {'
+    #                                 "creme.forms.toImportField('%(id)s');"
+    #                             '});'
+    #                         '</script>' % {
+    #                       'label':  ugettext(u'Search by:') if not hide_select else '',
+    #                       'select': rselect("%s_subfield" % name, choices=self.subfield_select,
+    #                                         sel_val=value.get('subfield_search'),
+    #                                         attrs={'hidden': 'True'} if hide_select else None
+    #                                        ),
+    #                       'check':  '' if not self.propose_creation else
+    #                                 '&nbsp;%s <input type="checkbox" name="%s_create" %s>' % (
+    #                                        ugettext(u'Create if not found ?'),
+    #                                        name,
+    #                                        'checked' if value.get('subfield_create') else '',
+    #                                     ),
+    #                       'id':     id_,
+    #                     })
+    #
+    #     out_append(u'</td><td>&nbsp;%s:%s</td></tr></tbody></table>' % (
+    #                     ugettext(u"Default value"),
+    #                     self.default_value_widget.render("%s_defval" % name, value.get('default_value'),
+    #                                                      attrs={'id': "%s_defval" % id_},
+    #                                                     ),
+    #                 )
+    #               )
+    #
+    #     return mark_safe(u'\n'.join(output))
 
-        output.append('</select>')
-
-        return u'\n'.join(output)
-
-    # def render(self, name, value, attrs=None, choices=()):
-    def render(self, name, value, attrs=None):
+    def get_context(self, name, value, attrs):
         value = value or {}
-        attrs = self.build_attrs(attrs, name=name)
-        output = [u'<table %s><tbody><tr><td>' % flatatt(attrs)]
+        context = super(ExtractorWidget, self).get_context(name=name, value=value, attrs=attrs)
+        widget_cxt = context['widget']
 
-        out_append = output.append
-        rselect    = self._render_select
+        final_attrs = widget_cxt['attrs']
+        id_attr = final_attrs['id']
+        required = final_attrs.pop('required', False)
 
+        # Column <select> ------
         try:
-            sel_val = int(value.get('selected_column', -1))
+            selected_col = int(value.get('selected_column', -1))
         except TypeError:
-            sel_val = 0
+            selected_col = 0
 
-        out_append(rselect("%s_colselect" % name,
-                           # choices=chain(self.choices, choices),
-                           choices=self.choices,
-                           sel_val=sel_val,
-                           attrs={'class': 'csv_col_select'},
-                          )
-                  )
+        widget_cxt['column_select'] = self.column_select.get_context(name='{}_colselect'.format(name),
+                                                                     value=selected_col,
+                                                                     attrs={
+                                                                        'id': '{}_colselect'.format(id_attr),
+                                                                        'class': 'csv_col_select',
+                                                                        'required': required,
+                                                                     },
+                                                                    )['widget']
 
-        id_ = attrs['id']
+        # Sub-field <select> ------
+        widget_cxt['subfield_choices'] = self.subfield_select
+        widget_cxt['searched_subfield'] = value.get('subfield_search')
+        widget_cxt['propose_creation'] = self.propose_creation
+        widget_cxt['creation_checked'] = value.get('subfield_create', False)
 
-        if self.subfield_select:
-            hide_select = (len(self.subfield_select) == 1)  # The <select> is annoying if there is only one option
+        # Default value widget ------
+        widget_cxt['default_value_widget'] = self.default_value_widget \
+                                                 .get_context(name='{}_defval'.format(name),
+                                                              value=value.get('default_value'),
+                                                              attrs={
+                                                                  'id': '{}_defval'.format(id_attr),
+                                                                  'required': required,
+                                                              },
+                                                             )['widget']
 
-            out_append(u'</td>'
-                        '<td class="csv_subfields_select">%(label)s %(select)s %(check)s'
-                            '<script type="text/javascript">'
-                                '$(document).ready(function() {'
-                                    "creme.forms.toImportField('%(id)s');"
-                                '});'
-                            '</script>' % {
-                          'label':  ugettext(u'Search by:') if not hide_select else '',
-                          'select': rselect("%s_subfield" % name, choices=self.subfield_select,
-                                            sel_val=value.get('subfield_search'),
-                                            attrs={'hidden': 'True'} if hide_select else None
-                                           ),
-                          'check':  '' if not self.propose_creation else
-                                    '&nbsp;%s <input type="checkbox" name="%s_create" %s>' % (
-                                           ugettext(u'Create if not found ?'),
-                                           name,
-                                           'checked' if value.get('subfield_create') else '',
-                                        ),
-                          'id':     id_,
-                        })
-
-        out_append(u'</td><td>&nbsp;%s:%s</td></tr></tbody></table>' % (
-                        ugettext(u"Default value"),
-                        self.default_value_widget.render("%s_defval" % name, value.get('default_value'),
-                                                         attrs={'id': "%s_defval" % id_},
-                                                        ),
-                    )
-                  )
-
-        return mark_safe(u'\n'.join(output))
+        return context
 
     def value_from_datadict(self, data, files, name):
         get = data.get
-        return {'selected_column':  get("%s_colselect" % name),
-                'subfield_search':  get("%s_subfield" % name),
-                'subfield_create':  get("%s_create" % name, False),
-                'default_value':    self.default_value_widget.value_from_datadict(data, files, "%s_defval" % name)
-               }
+        return {
+            'selected_column':  get('{}_colselect'.format(name)),
+            'subfield_search':  get('{}_subfield'.format(name)),
+            'subfield_create':  get('{}_create'.format(name), False),
+            'default_value':    self.default_value_widget
+                                    .value_from_datadict(data=data, files=files, name='{}_defval'.format(name)),
+        }
 
 
 class ExtractorField(Field):
@@ -473,7 +536,10 @@ class EntityExtractor(object):
 
 
 # TODO: use ul/li instead of table...
-class EntityExtractorWidget(ExtractorWidget):
+# class EntityExtractorWidget(ExtractorWidget):
+class EntityExtractorWidget(BaseExtractorWidget):
+    template_name = 'creme_core/forms/widgets/mass-import/entity-extractor.html'
+
     def __init__(self, models_info=(), *args, **kwargs):
         super(EntityExtractorWidget, self).__init__(*args, **kwargs)
         # self.propose_creation = False # TODO
@@ -488,50 +554,89 @@ class EntityExtractorWidget(ExtractorWidget):
     def _build_create_id(self, name, model_id):
         return '{0}_{1}_{2}_create'.format(name, *model_id)
 
-    # def _render_column_select(self, name, cmd, choices, model_id):
-    def _render_column_select(self, name, cmd, model_id):
-        sel_val = 0
+    # # def _render_column_select(self, name, cmd, choices, model_id):
+    # def _render_column_select(self, name, cmd, model_id):
+    #     sel_val = 0
+    #
+    #     if cmd:
+    #         try:
+    #             sel_val = cmd.build_column_index()
+    #         except TypeError:
+    #             pass
+    #
+    #     return self._render_select(self._build_colselect_id(name, model_id),
+    #                                # choices=chain(self.choices, choices),
+    #                                choices=self.choices,
+    #                                sel_val=sel_val,
+    #                                attrs={'class': 'csv_col_select'},  # todo: id
+    #                               )
 
-        if cmd:
-            try:
-                sel_val = cmd.build_column_index()
-            except TypeError:
-                pass
+    # # def _render_line(self, output, name, cmd, choices, model):
+    # def _render_line(self, output, name, cmd, model):
+    #     append = output.append
+    #     model_id = self._build_model_id(model)
+    #
+    #     append(u'<tr><td>%s: </td><td>' % model._meta.verbose_name)
+    #     # append(self._render_column_select(name, cmd, choices, model_id))
+    #     append(self._render_column_select(name=name, cmd=cmd, model_id=model_id))
+    #     append(u'</td><td>&nbsp;%(label)s <input type="checkbox" name="%(name)s" %(checked)s></td></tr>' % {
+    #                         'label':   _(u'Create if not found ?'),
+    #                         'name':    self._build_create_id(name, model_id),
+    #                         'checked': 'checked' if cmd and cmd.create else '',
+    #                     }
+    #                  )
 
-        return self._render_select(self._build_colselect_id(name, model_id),
-                                   # choices=chain(self.choices, choices),
-                                   choices=self.choices,
-                                   sel_val=sel_val,
-                                   attrs={'class': 'csv_col_select'},  # TODO: id
-                                  )
+    # # def render(self, name, value, attrs=None, choices=()):
+    # def render(self, name, value, attrs=None):
+    #     # output = [u'<table %s><tbody>' % flatatt(self.build_attrs(attrs, name=name))]
+    #     output = [u'<table %s><tbody>' % flatatt(self.build_attrs(self.attrs, extra_attrs=dict(attrs or {}, name=name)))]
+    #     render_line = self._render_line
+    #
+    #     for info, cmd in izip_longest(self.models_info, value or ()):
+    #         # render_line(output, name, cmd, choices, info[0])
+    #         render_line(output=output, name=name, cmd=cmd, model=info[0])
+    #
+    #     output.append(u'</tbody></table>')
+    #
+    #     return mark_safe(u'\n'.join(output))
 
-    # def _render_line(self, output, name, cmd, choices, model):
-    def _render_line(self, output, name, cmd, model):
-        append = output.append
-        model_id = self._build_model_id(model)
+    def get_context(self, name, value, attrs):
+        context = super(EntityExtractorWidget, self).get_context(name=name, value=value, attrs=attrs)
 
-        append(u'<tr><td>%s: </td><td>' % model._meta.verbose_name)
-        # append(self._render_column_select(name, cmd, choices, model_id))
-        append(self._render_column_select(name=name, cmd=cmd, model_id=model_id))
-        append(u'</td><td>&nbsp;%(label)s <input type="checkbox" name="%(name)s" %(checked)s></td></tr>' % {
-                            'label':   _(u'Create if not found ?'),
-                            'name':    self._build_create_id(name, model_id),
-                            'checked': 'checked' if cmd and cmd.create else '',
-                        }
-                     )
+        def build_selected_value(cmd):
+            sel_val = 0
 
-    # def render(self, name, value, attrs=None, choices=()):
-    def render(self, name, value, attrs=None):
-        output = [u'<table %s><tbody>' % flatatt(self.build_attrs(attrs, name=name))]
-        render_line = self._render_line
+            if cmd:
+                try:
+                    sel_val = cmd.build_column_index()
+                except TypeError:
+                    pass
+
+            return sel_val
+
+        widget_cxt = context['widget']
+        get_sel_context = self.column_select.get_context
+        get_ct = ContentType.objects.get_for_model
+        id_attr = widget_cxt['attrs']['id']
+        build_ident = '{main}_{app}_{model}_colselect'.format
+        widget_cxt['lines'] = lines = []
 
         for info, cmd in izip_longest(self.models_info, value or ()):
-            # render_line(output, name, cmd, choices, info[0])
-            render_line(output=output, name=name, cmd=cmd, model=info[0])
+            ctype = get_ct(info[0])
+            fmt_kwargs = {'app': ctype.app_label, 'model': ctype.model}
 
-        output.append(u'</tbody></table>')
+            lines.append(
+                (ctype, cmd,
+                 get_sel_context(name=build_ident(main=name, **fmt_kwargs),
+                                 value=build_selected_value(cmd),
+                                 attrs={'id':    build_ident(main=id_attr, **fmt_kwargs),
+                                        'class': 'csv_col_select',
+                                       },
+                                )['widget']
+                )
+            )
 
-        return mark_safe(u'\n'.join(output))
+        return context
 
     def value_from_datadict(self, data, files, name):
         get = data.get
@@ -687,13 +792,45 @@ class MultiRelationsExtractor(object):
 
 
 class RelationExtractorSelector(SelectorList):
+    template_name = 'creme_core/forms/widgets/mass-import/relations-extractor.html'
+
     def __init__(self, columns=(), relation_types=(), attrs=None):
         super(RelationExtractorSelector, self).__init__(None, attrs=attrs)
         self.columns = columns
         self.relation_types = relation_types
         # TODO: autocomplete ?
 
-    def render(self, name, value, attrs=None):
+    # def render(self, name, value, attrs=None):
+    #     value = value or {}
+    #     self.selector = chained_input = ChainedInput(attrs)
+    #
+    #     # todo: use GET args instead of using TemplateURLBuilders ?
+    #     add = partial(chained_input.add_dselect, attrs={'auto': False, 'autocomplete': True})
+    #     add('rtype', options=self.relation_types, label=ugettext(u'The entity'))
+    #     add('ctype',
+    #         options=TemplateURLBuilder(rtype_id=(TemplateURLBuilder.Word, '${rtype}'))
+    #                                   .resolve('creme_core__ctypes_compatible_with_rtype')
+    #        )
+    #     add('searchfield',
+    #         options=TemplateURLBuilder(ct_id=(TemplateURLBuilder.Int, '${ctype}'))\
+    #                                   .resolve('creme_core__entity_info_fields'),
+    #         label=ugettext(u'which field'),
+    #        )
+    #     add('column', options=self.columns, label=ugettext(u'equals to'))
+    #
+    #     return mark_safe('<input type="checkbox" name="%(name)s_can_create" %(checked)s/>%(label)s'
+    #                      '%(super)s' % {
+    #                     'name':    name,
+    #                     'checked': 'checked' if value.get('can_create') else '',
+    #                     'label':   ugettext(u'Create entities if they are not found ? '
+    #                                         u'(only fields followed by [CREATION] '
+    #                                         u'allows you to create, if they exist)'
+    #                                        ),
+    #                     'super':   super(RelationExtractorSelector, self)
+    #                                     .render(name, value.get('selectorlist'), attrs),
+    #                 })
+
+    def get_context(self, name, value, attrs):
         value = value or {}
         self.selector = chained_input = ChainedInput(attrs)
 
@@ -705,29 +842,25 @@ class RelationExtractorSelector(SelectorList):
                                       .resolve('creme_core__ctypes_compatible_with_rtype')
            )
         add('searchfield',
-            options=TemplateURLBuilder(ct_id=(TemplateURLBuilder.Int, '${ctype}'))\
+            options=TemplateURLBuilder(ct_id=(TemplateURLBuilder.Int, '${ctype}'))
                                       .resolve('creme_core__entity_info_fields'),
             label=ugettext(u'which field'),
            )
         add('column', options=self.columns, label=ugettext(u'equals to'))
 
-        return mark_safe('<input type="checkbox" name="%(name)s_can_create" %(checked)s/>%(label)s'
-                         '%(super)s' % {
-                        'name':    name,
-                        'checked': 'checked' if value.get('can_create') else '',
-                        'label':   ugettext(u'Create entities if they are not found ? '
-                                            u'(only fields followed by [CREATION] '
-                                            u'allows you to create, if they exist)'
-                                           ),
-                        'super':   super(RelationExtractorSelector, self)
-                                        .render(name, value.get('selectorlist'), attrs),
-                    })
+        context = super(RelationExtractorSelector, self).get_context(name=name, attrs=attrs,
+                                                                     value=value.get('selectorlist'),
+                                                                    )
+        context['widget']['can_create_checked'] = value.get('can_create', False)
+
+        return context
 
     def value_from_datadict(self, data, files, name):
-        return {'selectorlist': super(RelationExtractorSelector, self)
-                                     .value_from_datadict(data, files, name),
-                'can_create':   data.get('%s_can_create' % name, False),
-               }
+        return {
+            'selectorlist': super(RelationExtractorSelector, self)
+                                 .value_from_datadict(data=data, files=files, name=name),
+            'can_create':   data.get('{}_can_create'.format(name), False),
+        }
 
 
 class RelationExtractorField(MultiRelationEntityField):
@@ -887,55 +1020,67 @@ class CustomFieldExtractor(object):
         return self._value_castor(value), err_msg
 
 
-# TODO: make a BaseExtractorWidget ??
+# TODO: make a BaseFieldExtractorWidget ??
 class CustomFieldExtractorWidget(ExtractorWidget):
-    # def render(self, name, value, attrs=None, choices=()):
-    def render(self, name, value, attrs=None):
-        get = (value or {}).get
-        output = [u'<table %s><tbody><tr><td>' % flatatt(self.build_attrs(attrs, name=name))]
-        out_append = output.append
+# class CustomFieldExtractorWidget(BaseExtractorWidget):
+    template_name = 'creme_core/forms/widgets/mass-import/cfield-extractor.html'
 
-        try:
-            sel_val = int(get('selected_column', -1))
-        except TypeError:
-            sel_val = 0
+    # # def render(self, name, value, attrs=None, choices=()):
+    # def render(self, name, value, attrs=None):
+    #     get = (value or {}).get
+    #     # output = [u'<table %s><tbody><tr><td>' % flatatt(self.build_attrs(attrs, name=name))]
+    #     output = [u'<table %s><tbody><tr><td>' % flatatt(self.build_attrs(self.attrs, extra_attrs=dict(attrs or {}, name=name)))]
+    #     out_append = output.append
+    #
+    #     try:
+    #         sel_val = int(get('selected_column', -1))
+    #     except TypeError:
+    #         sel_val = 0
+    #
+    #     out_append(self._render_select('%s_colselect' % name,
+    #                                    # choices=chain(self.choices, choices),
+    #                                    choices=self.choices,
+    #                                    sel_val=sel_val,
+    #                                    attrs={'class': 'csv_col_select'},
+    #                                   )
+    #               )
+    #
+    #     if self.propose_creation:
+    #         create_id = '%s_create' % name
+    #         out_append(u'</td><td>&nbsp;'
+    #                    u'<label for="%(id)s">%(label)s:<input type="checkbox" name="%(id)s" %(checked)s></label>' % {
+    #                         'id': create_id,
+    #                         'label': ugettext('Create if not found ?'),
+    #                         'checked': 'checked' if get('can_create') else '',
+    #                     }
+    #                   )
+    #
+    #     defval_id = '%s_defval' % attrs['id']
+    #     out_append(u'</td><td>&nbsp;<label for="%s">%s:%s</label></td></tr></tbody></table>' % (
+    #                     defval_id,
+    #                     ugettext('Default value'),
+    #                     self.default_value_widget.render('%s_defval' % name, get('default_value'),
+    #                                                      attrs={'id': defval_id},
+    #                                                     ),
+    #                 )
+    #               )
+    #
+    #     return mark_safe(u'\n'.join(output))
+    def get_context(self, name, value, attrs):
+        value = value or {}
+        context = super(CustomFieldExtractorWidget, self).get_context(name=name, value=value, attrs=attrs)
+        context['widget']['can_create'] = value.get('can_create', False)
 
-        out_append(self._render_select('%s_colselect' % name,
-                                       # choices=chain(self.choices, choices),
-                                       choices=self.choices,
-                                       sel_val=sel_val,
-                                       attrs={'class': 'csv_col_select'},
-                                      )
-                  )
-
-        if self.propose_creation:
-            create_id = '%s_create' % name
-            out_append(u'</td><td>&nbsp;'
-                       u'<label for="%(id)s">%(label)s:<input type="checkbox" name="%(id)s" %(checked)s></label>' % {
-                            'id': create_id,
-                            'label': ugettext('Create if not found ?'),
-                            'checked': 'checked' if get('can_create') else '',
-                        }
-                      )
-
-        defval_id = '%s_defval' % attrs['id']
-        out_append(u'</td><td>&nbsp;<label for="%s">%s:%s</label></td></tr></tbody></table>' % (
-                        defval_id,
-                        ugettext('Default value'),
-                        self.default_value_widget.render('%s_defval' % name, get('default_value'),
-                                                         attrs={'id': defval_id},
-                                                        ),
-                    )
-                  )
-
-        return mark_safe(u'\n'.join(output))
+        return context
 
     def value_from_datadict(self, data, files, name):
         get = data.get
-        return {'selected_column': get('%s_colselect' % name),
-                'can_create':      get('%s_create' % name, False),
-                'default_value':   self.default_value_widget.value_from_datadict(data, files, '%s_defval' % name),
-               }
+        return {
+            'selected_column': get('{}_colselect'.format(name)),
+            'can_create':      get('{}_create'.format(name), False),
+            'default_value':   self.default_value_widget
+                                   .value_from_datadict(data=data, files=files, name='{}_defval'.format(name)),
+        }
 
 
 # TODO: factorise

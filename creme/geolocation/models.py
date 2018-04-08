@@ -65,6 +65,7 @@ class GeoAddress(Model):
         app_label = 'geolocation'
         verbose_name = pgettext_lazy('geolocation-address', u'Address')
         verbose_name_plural = pgettext_lazy('geolocation-address', u'Addresses')
+        ordering = ('address_id',)
 
     def __init__(self, *args, **kwargs):
         super(GeoAddress, self).__init__(*args, **kwargs)
@@ -171,12 +172,13 @@ class Town(Model):
     latitude  = FloatField(verbose_name=_(u'Latitude'))
     longitude = FloatField(verbose_name=_(u'Longitude'))
 
-    creation_label = _('Create a town')
+    creation_label = _(u'Create a town')
 
     class Meta:
         app_label = 'geolocation'
         verbose_name = _(u'Town')
         verbose_name_plural = _(u'Towns')
+        ordering = ('name',)
 
     def __unicode__(self):
         return u"%s %s %s" % (self.zipcode, self.name, self.country)

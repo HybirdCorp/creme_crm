@@ -25,8 +25,8 @@ from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, superuser_required
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views import generic
+from creme.creme_core.views.decorators import POST_only
 
 from ..forms import user as user_forms
 from .portal import _config_portal

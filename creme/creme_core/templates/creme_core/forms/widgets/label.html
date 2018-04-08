@@ -1,0 +1,1 @@
+<input type="{{widget.type}}" name="{{widget.name}}"{% if widget.value is not None %} value="{{widget.value}}"{% endif %} style="display:none;"><span {% include 'django/forms/widgets/attrs.html' %}>{{widget.content}}</span>

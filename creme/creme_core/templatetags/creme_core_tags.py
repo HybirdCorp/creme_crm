@@ -57,6 +57,18 @@ def print_boolean(x):
 
 
 @register.filter
+def get_by_index(sequence, index):
+    """Get the Nth item in a sequence (index can be a context variable).
+    Context:
+       my_list=['a', 'b', 'c']
+       my_idx=1
+    Template:
+      {{my_list|get_by_index:my_idx}}{# Displays 'b' #}
+    """
+    return sequence[index]
+
+
+@register.filter
 def get_value(dic, key, default=''):
     """
     Usage:

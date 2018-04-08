@@ -1,0 +1,16 @@
+{% with only_delete=widget.only_delete name=widget.name %}
+<table name="{{name}}" {% include 'django/forms/widgets/attrs.html' %}>
+    <tbody>
+    {% for item in widget.items %}
+        <tr>
+            <td><input type="checkbox" name="{{name}}_check_{{forloop.counter0}}" {% if item.checked %}checked{% endif %}/></td>
+            {% if only_delete %}
+            <td><input type="text" name="{{name}}_value_{{forloop.counter0}}" value="{{item.label}}" style="display:none;"/><span>{{item.label}}</span></td>
+            {% else %}
+            <td><input type="text" name="{{name}}_value_{{forloop.counter0}}" value="{{item.label}}"/></td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endwith %}

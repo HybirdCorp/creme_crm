@@ -39,7 +39,7 @@ from ..models import Category, SubCategory
 #                      )
 #
 #         super(CategorySelector, self).__init__(attrs)
-#         self.creation_allowed = creation_allowed  # TODO: useless at the moment...
+#         self.creation_allowed = creation_allowed  # todo: useless at the moment...
 #         self.categories = categories
 #
 #     def render(self, name, value, attrs=None):
@@ -82,7 +82,21 @@ class CreatorCategorySelector(ActionButtonList):
                             # popupTitle=SubCategory.creation_label,
                            )
 
-    def render(self, name, value, attrs=None):
+    # def render(self, name, value, attrs=None):
+    #     selector = ChainedInput(self.attrs)
+    #     add = partial(selector.add_dselect, attrs={'auto': False})
+    #     add('category', options=self.categories, label=_(u'Category'))
+    #     add('subcategory', options=TemplateURLBuilder(category_id=(TemplateURLBuilder.Int, '${category}'))
+    #                                                  .resolve('products__subcategories'),
+    #         label=_(u'Sub-category')
+    #        )
+    #
+    #     self.delegate = selector
+    #     self._build_actions(attrs)
+    #
+    #     return super(CreatorCategorySelector, self).render(name, value, attrs)
+
+    def get_context(self, name, value, attrs):
         selector = ChainedInput(self.attrs)
         add = partial(selector.add_dselect, attrs={'auto': False})
         add('category', options=self.categories, label=_(u'Category'))
@@ -94,7 +108,7 @@ class CreatorCategorySelector(ActionButtonList):
         self.delegate = selector
         self._build_actions(attrs)
 
-        return super(CreatorCategorySelector, self).render(name, value, attrs)
+        return super(CreatorCategorySelector, self).get_context(name=name, value=value, attrs=attrs)
 
 
 class CategoryField(JSONField):

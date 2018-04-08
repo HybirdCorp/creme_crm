@@ -9,10 +9,9 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_models import (FakeContact, FakeAddress,
-            FakeCivility, FakeEmailCampaign)
     from creme.creme_core.forms.widgets import Label
-    from creme.creme_core.models import FieldsConfig
+    from creme.creme_core.models import (FieldsConfig,
+        FakeContact, FakeAddress, FakeCivility, FakeEmailCampaign)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

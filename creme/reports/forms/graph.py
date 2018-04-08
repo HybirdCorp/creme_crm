@@ -22,7 +22,7 @@ from future_builtins import map
 
 from django.db.models import FieldDoesNotExist, DateTimeField, DateField, ForeignKey
 from django.forms.fields import ChoiceField, BooleanField
-from django.forms.utils import ValidationError # ErrorList
+from django.forms.utils import ValidationError  # ErrorList
 from django.forms.widgets import Select, CheckboxInput
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -43,14 +43,24 @@ from ..report_aggregation_registry import field_aggregation_registry
 from ..report_chart_registry import report_chart_registry
 
 
-# TODO : TEMPORARY HACK. Toggle fields with an inline onchange script is a bit ugly.
+# TODO: TEMPORARY HACK. Toggle fields with an inline onchange script is a bit ugly.
 class AbscissaGroupBySelect(Select):
-    def build_attrs(self, extra_attrs=None, **kwargs):
-        types = ','.join("'%d'" % t for t in (RGT_CUSTOM_RANGE, RGT_RANGE))
+    # def build_attrs(self, extra_attrs=None, **kwargs):
+    #     types = ','.join("'%d'" % t for t in (RGT_CUSTOM_RANGE, RGT_RANGE))
+    #
+    #     attrs = super(AbscissaGroupBySelect, self).build_attrs(extra_attrs, **kwargs)
+    #     attrs['onchange'] = "creme.reports.toggleDaysField($(this), [%s]);" % types
+    #     return attrs
+    def get_context(self, name, value, attrs):
+        extra_args = {
+            'onchange': "creme.reports.toggleDaysField($(this), [{}]);".format(
+                            ','.join("'{}'".format(t) for t in (RGT_CUSTOM_RANGE, RGT_RANGE))
+                        ),
+        }
+        if attrs is not None:
+            extra_args.update(attrs)
 
-        attrs = super(AbscissaGroupBySelect, self).build_attrs(extra_attrs, **kwargs)
-        attrs['onchange'] = "creme.reports.toggleDaysField($(this), [%s]);" % types
-        return attrs
+        return super(AbscissaGroupBySelect, self).get_context(name=name, value=value, attrs=extra_args)
 
 
 class ReportGraphForm(CremeEntityForm):

@@ -25,9 +25,9 @@ from django.db.models.fields import FieldDoesNotExist
 from django.db.transaction import atomic
 from django.forms import Field, Widget, Select, CheckboxInput
 from django.forms.models import fields_for_model, model_to_dict
-from django.forms.utils import flatatt
-from django.utils.html import escape
-from django.utils.safestring import mark_safe
+# from django.forms.utils import flatatt
+# from django.utils.html import escape
+# from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
 from ..gui.merge import merge_form_registry
@@ -40,66 +40,131 @@ logger = logging.getLogger(__name__)
 
 
 class EntitiesHeaderWidget(Widget):
-    def render(self, name, value, attrs=None):
-        value_1, value_2, value_m = value or ('', '', '')
+    template_name = 'creme_core/forms/widgets/merge/headers.html'
 
-        return mark_safe(u'<ul %(attrs)s>'
-                             '<li class="li_merge_entity_header1">%(header_1)s</li>'
-                             '<li class="li_merge_result_header">%(header_merged)s</li>'
-                             '<li class="li_merge_entity_header2">%(header_2)s</li>'
-                          '</ul>' % {
-                            'attrs': flatatt(self.build_attrs(attrs, name=name,
-                                                              **{'class': 'merge_entity_field ui-layout hbox'}
-                                                             )
-                                            ),
-                            'header_1':      escape(value_1),
-                            'header_merged': escape(value_m),
-                            'header_2':      escape(value_2),
-                          }
-                        )
+    # def render(self, name, value, attrs=None):
+    #     value_1, value_2, value_m = value or ('', '', '')
+    #
+    #     return mark_safe(u'<ul %(attrs)s>'
+    #                          '<li class="li_merge_entity_header1">%(header_1)s</li>'
+    #                          '<li class="li_merge_result_header">%(header_merged)s</li>'
+    #                          '<li class="li_merge_entity_header2">%(header_2)s</li>'
+    #                       '</ul>' % {
+    #                         # 'attrs': flatatt(self.build_attrs(attrs, name=name,
+    #                         #                                   **{'class': 'merge_entity_field ui-layout hbox'}
+    #                         #                                  )
+    #                         #                 ),
+    #                         'attrs': flatatt(self.build_attrs(self.attrs,
+    #                                                           dict(attrs or {}, name=name,
+    #                                                                **{'class': 'merge_entity_field ui-layout hbox'}
+    #                                                               )
+    #                                           )
+    #                          ),
+    #                         'header_1':      escape(value_1),
+    #                         'header_merged': escape(value_m),
+    #                         'header_2':      escape(value_2),
+    #                       }
+    #                     )
+
+    def get_context(self, name, value, attrs):
+        # TODO: remove 'ui-layout hbox' + improve class 'merge_entity_field' (+ rename 'merge-entity-field')
+        extra_attrs = {'class': 'merge_entity_field ui-layout hbox'}
+        if attrs is not None:
+            extra_attrs.update(attrs)
+
+        context = super(EntitiesHeaderWidget, self).get_context(name=name, value=value, attrs=extra_attrs)
+        context['widget']['labels'] = value or ('', '', '')
+
+        return context
 
 
 class MergeWidget(Widget):
+    template_name = 'creme_core/forms/widgets/merge/triple.html'
+
     def __init__(self, original_widget, *args, **kwargs):
         super(MergeWidget, self).__init__(*args, **kwargs)
         self._original_widget = original_widget
 
-    # def render(self, name, value, attrs=None, choices=()):
-    def render(self, name, value, attrs=None):
+    # # def render(self, name, value, attrs=None, choices=()):
+    # def render(self, name, value, attrs=None):
+    #     value_1, value_2, value_m = value or ('', '', '')
+    #     widget = self._original_widget
+    #     render = widget.render
+    #     # todo: improve Wigdets with a 'read_only' param -> each type choose the right html attribute
+    #     ro_attr = 'disabled' if isinstance(widget, (Select, CheckboxInput)) else 'readonly'
+    #     w_id = attrs.get('id') or 'id_%s' % name
+    #
+    #     return mark_safe(u'<ul %(attrs)s>'
+    #                           '<li class="li_merge_entity1">%(input_1)s</li>'
+    #                           '<li class="li_merge_result">%(input_merged)s</li>'
+    #                           '<li class="li_merge_entity2">%(input_2)s</li>'
+    #                       '</ul>' % {
+    #                         'attrs': flatatt(self.build_attrs(attrs, name=name,
+    #                                                           **{'class': 'merge_entity_field ui-layout hbox'}
+    #                                                          )
+    #                                        ),
+    #                         'input_1':      render('%s_1' % name, value_1,
+    #                                                attrs={'id': '%s_1' % w_id, ro_attr: '', 'class': 'merge_entity1'},
+    #                                               ),
+    #                         'input_merged': render('%s_merged' % name, value_m,
+    #                                                attrs={'id': '%s_merged' % w_id, 'class': 'merge_result'},
+    #                                               ),
+    #                         'input_2':      render('%s_2' % name, value_2,
+    #                                                attrs={'id': '%s_2' % w_id, ro_attr: '', 'class': 'merge_entity2'},
+    #                                               ),
+    #                       }
+    #                     )
+
+    def get_context(self, name, value, attrs):
+        # TODO: see EntitiesHeaderWidget
+        extra_attrs = {'class': 'merge_entity_field ui-layout hbox'}
+        if attrs is not None:
+            extra_attrs.update(attrs)
+
+        context = super(MergeWidget, self).get_context(name=name, value=value, attrs=extra_attrs)
+        widget_cxt = context['widget']
+        id_attr = widget_cxt['attrs']['id']
+
         value_1, value_2, value_m = value or ('', '', '')
         widget = self._original_widget
-        render = widget.render
         # TODO: improve Wigdets with a 'read_only' param -> each type choose the right html attribute
         ro_attr = 'disabled' if isinstance(widget, (Select, CheckboxInput)) else 'readonly'
-        w_id = attrs.get('id') or 'id_%s' % name
 
-        return mark_safe(u'<ul %(attrs)s>'
-                              '<li class="li_merge_entity1">%(input_1)s</li>'
-                              '<li class="li_merge_result">%(input_merged)s</li>'
-                              '<li class="li_merge_entity2">%(input_2)s</li>'
-                          '</ul>' % {
-                            'attrs': flatatt(self.build_attrs(attrs, name=name,
-                                                              **{'class': 'merge_entity_field ui-layout hbox'}
-                                                             )
-                                           ),
-                            'input_1':      render('%s_1' % name, value_1,
-                                                   attrs={'id': '%s_1' % w_id, ro_attr: '', 'class': 'merge_entity1'},
-                                                  ),
-                            'input_merged': render('%s_merged' % name, value_m,
-                                                   attrs={'id': '%s_merged' % w_id, 'class': 'merge_result'},
-                                                  ),
-                            'input_2':      render('%s_2' % name, value_2,
-                                                   attrs={'id': '%s_2' % w_id, ro_attr: '', 'class': 'merge_entity2'},
-                                                  ),
-                          }
-                        )
+        # NB: the classes 'merge_entity1'/'merge_entity2'/'merge_result' won't be used by complexes Widget
+        #     (eg: CalendarWidget) so the CSS 'width: 99%;' won't be used for them
+        # TODO: is it a good way to do this ? (ex: always wrap widget in <div> for layout, & this layouts use
+        #       the extra classes given in attrs).
+        get_sub_context = self._original_widget.get_context
+        widget_cxt['first']  = get_sub_context(name='{}_1'.format(name),
+                                               value=value_1,
+                                               attrs={'id': '{}_1'.format(id_attr),
+                                                      ro_attr: '',
+                                                      'class': 'merge_entity1',
+                                                     },
+                                              )['widget']
+        widget_cxt['merged'] = get_sub_context(name='{}_merged'.format(name),
+                                               value=value_m,
+                                               attrs={'id': '{}_merged'.format(id_attr),
+                                                      'class': 'merge_result',
+                                                     },
+                                             )['widget']
+        widget_cxt['second'] = get_sub_context(name='{}_2'.format(name),
+                                               value=value_2,
+                                               attrs={'id': '{}_2'.format(id_attr),
+                                                      ro_attr: '',
+                                                      'class': 'merge_entity2',
+                                                     },
+                                             )['widget']
+
+        return context
 
     def value_from_datadict(self, data, files, name):
         value_from_datadict = self._original_widget.value_from_datadict
-        return (value_from_datadict(data, files, '%s_1' % name),
-                value_from_datadict(data, files, '%s_2' % name),
-                value_from_datadict(data, files, '%s_merged' % name),
-               )
+        return (
+            value_from_datadict(data=data, files=files, name='{}_1'.format(name)),
+            value_from_datadict(data=data, files=files, name='{}_2'.format(name)),
+            value_from_datadict(data=data, files=files, name='{}_merged'.format(name)),
+        )
 
 
 class MergeField(Field):
@@ -160,7 +225,7 @@ class MergeEntitiesBaseForm(CremeForm):
 
         for name, field in fields.iteritems():
             if name == 'entities_labels':
-                field.initial = (unicode(entity1), unicode(entity2), _('Merged entity'))
+                field.initial = (unicode(entity1), unicode(entity2), _(u'Merged entity'))
             else:
                 initial = [entity1_initial[name], entity2_initial[name]]
                 # We try to initialize with preferred one, but we use the other if it is empty.
@@ -267,7 +332,7 @@ def form_factory(model):
     if mergeform_factory is not None:
         base_form_class = mergeform_factory()
 
-        return type('Merge%sForm' % model.__name__, (base_form_class,),
+        return type('Merge{}Form'.format(model.__name__), (base_form_class,),
                     fields_for_model(model, formfield_callback=mergefield_factory,
                                      exclude=[f.name
                                                 for f in FieldsConfig.get_4_model(model)

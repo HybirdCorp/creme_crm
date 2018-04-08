@@ -39,6 +39,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'Address',
                 'verbose_name_plural': 'Addresses',
+                'ordering': ('address_id',)
             },
             bases=(models.Model,),
         ),
@@ -56,6 +57,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'Town',
                 'verbose_name_plural': 'Towns',
+                'ordering': ('name',)
             },
             bases=(models.Model,),
         ),

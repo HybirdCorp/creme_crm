@@ -334,7 +334,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
                                               participants_mode='2',  # Search with pattern
                                               participants_separator='/',
                                               participants_pattern=4,  # '$last_name $first_name'
-                                              participants_colselect=2,
+                                              # participants_colselect=2,
+                                              participants_pattern_colselect=2,
                                              )
                                    )
         self.assertNoFormError(response)
@@ -409,7 +410,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
                     participants_mode=2,  # Search with pattern
                     participants_separator='/',
                     participants_pattern=1,  # $civility $first_name $last_name
-                    participants_colselect=2,
+                    # participants_colselect=2,
+                    participants_pattern_colselect=2,
                    )
 
         response = self.client.post(url, data=dict(data, participants_pattern=5))  # Invalid pattern
@@ -483,7 +485,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
                                               participants_mode=2,  # Search with pattern
                                               participants_separator='#',
                                               participants_pattern=3,  # '$first_name $last_name'
-                                              participants_colselect=2,
+                                              # participants_colselect=2,
+                                              participants_pattern_colselect=2,
                                               participants_create=True,
                                              )
                                    )

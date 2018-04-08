@@ -361,7 +361,7 @@ def list_view_popup(request, model, mode=MODE_SINGLE_SELECTION, lv_state_id=None
 
     try:
         template_name, template_dict = list_view_content(request, model=model, extra_dict=extra_dict,
-                                                         template='creme_core/frags/list_view.html',
+                                                         template='creme_core/frags/list_view.html',  # TODO: rename list-view-popup.html
                                                          extra_q=extra_q,
                                                          mode=mode,
                                                          lv_state_id=lv_state_id,

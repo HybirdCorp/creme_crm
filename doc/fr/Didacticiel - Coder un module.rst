@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 06-02-2018 pour la version 1.8 de Creme
+:Version: 17-03-2018 pour la version 1.8 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -29,8 +29,8 @@ Creme est développé en utilisant un cadriciel (framework) Python spécialisé 
 la création de sites et applications Web : Django_.
 Si vous comptez réellement développer des modules pour Creme, la connaissance de
 Django sera sûrement nécessaire. Heureusement la documentation de celui-ci est vraiment
-complète et bien faite ; vous la trouverez ici : https://docs.djangoproject.com/fr/1.10/.
-Dans un premier temps, avoir lu le `didacticiel <https://docs.djangoproject.com/fr/1.10/intro/overview/>`_
+complète et bien faite ; vous la trouverez ici : https://docs.djangoproject.com/fr/1.11/.
+Dans un premier temps, avoir lu le `didacticiel <https://docs.djangoproject.com/fr/1.11/intro/overview/>`_
 devrait suffire.
 
 Creme utilise aussi la bibliothèque Javascript JQuery_ ; il se peut que pour
@@ -1700,7 +1700,7 @@ les blocs personnalisés. ::
             if not birthday:
                 return ugettext(u'N/A')
 
-            return ugettext(u'%s year(s)') % (date.today().year - birthday.year)
+            return ugettext(u'{} year(s)').format(date.today().year - birthday.year)
 
 
 **Notes** Dans le cas le plus simple, le *name* du FunctionField, qui lui sert
@@ -1721,7 +1721,7 @@ d'une app dont vous ne voulez pas toucher le code) : ::
             if not birthday:
                 age = ugettext(u'N/A)
             else:
-                age = ugettext(u'%s year(s)') % (date.today().year - birthday.year)
+                age = ugettext(u'{} year(s)').format(date.today().year - birthday.year)
 
             return FunctionFieldResult(age)
 

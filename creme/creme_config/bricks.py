@@ -109,6 +109,7 @@ class SettingsBrick(QuerysetBrick):
     verbose_name  = u'App settings'
     template_name = 'creme_config/bricks/setting-values.html'
     configurable  = False
+    order_by      = 'id'
 
     def detailview_display(self, context):
         app_name = context['app_name']
@@ -466,6 +467,7 @@ class RelationBlocksConfigBrick(_ConfigAdminBrick):
     dependencies  = (RelationBlockItem, BlockDetailviewLocation)
     verbose_name  = u'Relation blocks configuration'
     template_name = 'creme_config/bricks/relationbricks-configs.html'
+    order_by = 'relation_type__predicate'
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
@@ -615,6 +617,7 @@ class HistoryConfigBrick(_ConfigAdminBrick):
     dependencies  = (HistoryConfigItem,)
     verbose_name  = u'History configuration'
     template_name = 'creme_config/bricks/history-config.html'
+    order_by      = 'relation_type__predicate'
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(context, HistoryConfigItem.objects.all()))

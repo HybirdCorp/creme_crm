@@ -19,15 +19,15 @@
 ################################################################################
 
 from collections import defaultdict
-from json import dumps as json_dump
+# from json import dumps as json_dump
 import logging
 
 from django.db.transaction import atomic
 from django.forms.fields import EMPTY_VALUES, Field, ValidationError
-from django.forms.utils import flatatt
+# from django.forms.utils import flatatt
 from django.forms.widgets import Widget
-from django.template.loader import render_to_string
-from django.utils.safestring import mark_safe
+# from django.template.loader import render_to_string
+# from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from ..core.entity_cell import (EntityCellRegularField,
@@ -50,6 +50,8 @@ _RTYPE_PREFIX  = EntityCellRelation.type_id + '-'
 
 # TODO: move to a separated file ??
 class EntityCellsWidget(Widget):
+    template_name = 'creme_core/forms/widgets/entity-cells.html'
+
     def __init__(self, user=None, model=None, model_fields=(), model_subfields=None, custom_fields=(),
                  function_fields=(), relation_types=(), *args, **kwargs
                 ):
@@ -108,30 +110,46 @@ class EntityCellsWidget(Widget):
     def model(self, model):
         self._model = model or CremeEntity
 
-    def _build_render_context(self, name, value, attrs):
-        attrs_map = self.build_attrs(attrs, name=name)
+    # def _build_render_context(self, name, value, attrs):
+    #     attrs_map = self.build_attrs(attrs, name=name)
+    #
+    #     if isinstance(value, list):
+    #         value = ','.join('%s-%s' % (cell.type_id, cell.value) for cell in value)
+    #
+    #     return {'attrs': mark_safe(flatatt(attrs)),
+    #             'id':    attrs_map['id'],
+    #             'name':  name,
+    #             'value': value or '',
+    #
+    #             'samples': mark_safe(json_dump(self._build_samples())),
+    #
+    #             'model_fields':    self.model_fields,
+    #             'model_subfields': self.model_subfields,
+    #             'custom_fields':   self.custom_fields,
+    #             'function_fields': self.function_fields,
+    #             'relation_types':  self.relation_types,
+    #            }
 
+    # def render(self, name, value, attrs=None):
+    #     return render_to_string('creme_core/entity_cells_widget.html',
+    #                             self._build_render_context(name, value, attrs)
+    #                            )
+
+    def get_context(self, name, value, attrs):
         if isinstance(value, list):
             value = ','.join('%s-%s' % (cell.type_id, cell.value) for cell in value)
 
-        return {'attrs': mark_safe(flatatt(attrs)),
-                'id':    attrs_map['id'],
-                'name':  name,
-                'value': value or '',
+        context = super(EntityCellsWidget, self).get_context(name=name, value=value, attrs=attrs)
 
-                'samples': mark_safe(json_dump(self._build_samples())),
+        widget_cxt = context['widget']
+        widget_cxt['samples'] = self._build_samples()
+        widget_cxt['model_fields']    = self.model_fields
+        widget_cxt['model_subfields'] = self.model_subfields
+        widget_cxt['custom_fields']   = self.custom_fields
+        widget_cxt['function_fields'] = self.function_fields
+        widget_cxt['relation_types']  = self.relation_types
 
-                'model_fields':    self.model_fields,
-                'model_subfields': self.model_subfields,
-                'custom_fields':   self.custom_fields,
-                'function_fields': self.function_fields,
-                'relation_types':  self.relation_types,
-               }
-
-    def render(self, name, value, attrs=None):
-        return render_to_string('creme_core/entity_cells_widget.html',
-                                self._build_render_context( name, value, attrs)
-                               )
+        return context
 
 
 class EntityCellsField(Field):

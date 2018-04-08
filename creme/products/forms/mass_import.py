@@ -20,14 +20,15 @@
 
 from collections import defaultdict
 # from itertools import chain
-from json import dumps as json_dump
+# from json import dumps as json_dump
 
 from django.forms import Field, ValidationError
-from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
+from django.forms.widgets import Select
+# from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _, ugettext  # pgettext
 
 from creme.creme_core.forms.fields import ChoiceModelIterator
-from creme.creme_core.forms.mass_import import ImportForm4CremeEntity, ExtractorWidget
+from creme.creme_core.forms.mass_import import ImportForm4CremeEntity, BaseExtractorWidget  # ExtractorWidget
 
 from ..models import Category, SubCategory
 
@@ -98,15 +99,162 @@ class CategoriesExtractor(object):
         return category, sub_category, error_msg
 
 
-class CategoriesExtractorWidget(ExtractorWidget):
+# class CategoriesExtractorWidget(ExtractorWidget):
+class CategoriesExtractorWidget(BaseExtractorWidget):
+    template_name = 'products/forms/widgets/mass-import/categories-extractor.html'
+
     def __init__(self, categories=(), *args, **kwargs):
         super(CategoriesExtractorWidget, self).__init__(*args, **kwargs)
         self.categories = categories
+        self.propose_creation = False
 
-    # def render(self, name, value, attrs=None, choices=()):
-    def render(self, name, value, attrs=None):
+#     # def render(self, name, value, attrs=None, choices=()):
+#     def render(self, name, value, attrs=None):
+#         value = value or {}
+#         get_value = value.get
+#
+#         # Default values content -------
+#         cat_choices = list(self.categories)
+#
+#         # A mapping between categories & their sub-categories (in order to avoid HTTP requests later)
+#         sub_cat_map = defaultdict(list)
+#         if cat_choices:
+#             for sub_cat in SubCategory.objects.filter(category__in=[c[0] for c in cat_choices]):
+#                 sub_cat_map[sub_cat.category_id].append((sub_cat.id, sub_cat.name))
+#
+#         # NB: we need to work with an int, in order to not mix int & str as keys for 'sub_cat_map'.
+#         try:
+#             selected_cat_id = int(value['default_cat'])
+#         except (KeyError, ValueError, TypeError):
+#             selected_cat_id = cat_choices[0][0] if cat_choices else None
+#
+#         try:
+#             selected_subcat_id = int(value['default_subcat'])
+#         except (KeyError, ValueError, TypeError):
+#             selected_subcat_choice = sub_cat_map.get(selected_cat_id)  # Notice that get() cannot create a new key
+#             selected_subcat_id = selected_subcat_choice[0] if selected_subcat_choice else None
+#
+#         # Rendering -------
+#         cat_colselect_id    = '%s_cat_colselect' % name
+#         cat_defvalselect_id = '%s_cat_defval' % name
+#
+#         subcat_colselect_id    = '%s_subcat_colselect' % name
+#         subcat_defvalselect_id = '%s_subcat_defval' % name
+#
+#         render_sel = self._render_select
+#         # col_choices = list(chain(self.choices, choices))
+#         col_choices = list(self.choices)
+#
+#         def render_colsel(name, sel_val):
+#             return render_sel(name, choices=col_choices, sel_val=sel_val,
+#                               attrs={'id': name, 'class': 'csv_col_select'},
+#                              )
+#
+#         def get_selected_column(datadict_key):
+#             try:
+#                 return int(get_value(datadict_key, -1))
+#             except TypeError:
+#                 return 0
+#
+#         # NB: when a column is selected for the category but non for the sub-category, we do not disable
+#         #     the 0 option (in sub-category <select>, because we must force the selection of
+#         #     another option & it causes problems:
+#         #        - not very visible.
+#         #        - which option must we choose ? (it's arbitrary/stupid).
+#         #     Displaying a warning/error message causes problems too (eg: the message can be displayed
+#         #     twice -- python + js sides).
+#         return mark_safe(
+# u"""%(create_check)s
+# <ul class="multi-select">
+#     <li>
+#         <label for="%(cat_colselect_id)s">%(cat_label)s:%(cat_colselect)s</label>
+#         <label for="%(cat_defvalselect_id)s">%(cat_defval_label)s:%(cat_defvalselect)s</label>
+#     </li>
+#     <li>
+#         <label for="%(subcat_colselect_id)s">%(subcat_label)s:%(subcat_colselect)s</label>
+#         <label for="%(subcat_defvalselect_id)s">%(subcat_defval_label)s:%(subcat_defvalselect)s</label>
+#     </li>
+#     <script type='text/javascript'>
+#         $(document).ready(function() {
+#             var subCatMap = %(subcat_js_map)s;
+#
+#             $('#%(cat_defvalselect_id)s').on('change', function(e) {
+#                 creme.forms.Select.fill($('#%(subcat_defvalselect_id)s'), subCatMap[$(this).val()]);
+#             });
+#         });
+#     </script>
+# </ul>
+# """ % {'create_check': '' if not self.propose_creation else
+#                        u'<label for="%(id)s"><input id="%(id)s" type="checkbox" name="%(id)s" %(checked)s />%(label)s</label>' % {
+#                            'id': '%s_create' % name,
+#                            'checked': 'checked' if get_value('create') else '',
+#                            'label': _(u'Create the Categories/Sub-Categories which are not found?'),
+#                        },
+#
+#        'cat_label':        pgettext('products-category', u'Category'),
+#        'cat_colselect_id': cat_colselect_id,
+#        'cat_colselect':    render_colsel(cat_colselect_id, get_selected_column('cat_column_index')),
+#
+#        'cat_defval_label':    pgettext('products-category', u'Default category'),
+#        'cat_defvalselect_id': cat_defvalselect_id,
+#        'cat_defvalselect':    render_sel(cat_defvalselect_id,
+#                                          choices=cat_choices,
+#                                          sel_val=selected_cat_id,
+#                                          attrs={'id': cat_defvalselect_id},
+#                                         ),
+#
+#        'subcat_label':        pgettext('products-sub_category', u'Sub-category'),
+#        'subcat_colselect_id': subcat_colselect_id,
+#        'subcat_colselect':    render_colsel(subcat_colselect_id, get_selected_column('subcat_column_index')),
+#
+#        'subcat_defval_label':    pgettext('products-sub_category', u'Default sub-category'),
+#        'subcat_defvalselect_id': subcat_defvalselect_id,
+#        'subcat_defvalselect':    render_sel(subcat_defvalselect_id,
+#                                             choices=sub_cat_map[selected_cat_id],
+#                                             sel_val=selected_subcat_id,
+#                                             attrs={'id': subcat_defvalselect_id},
+#                                            ),
+#
+#        'subcat_js_map': json_dump(sub_cat_map),
+#       })
+
+    def get_context(self, name, value, attrs):
+        # NB: when a column is selected for the category but not for the sub-category, we do not disable
+        #     the 0 option in sub-category <select>, because we must force the selection of
+        #     another option & it causes problems:
+        #        - not very visible.
+        #        - which option must we choose ? (it's arbitrary/stupid).
+        #     Displaying a warning/error message causes problems too (eg: the message can be displayed
+        #     twice -- python + js sides).
+
         value = value or {}
-        get_value = value.get
+        context = super(CategoriesExtractorWidget, self).get_context(name=name, value=value, attrs=attrs)
+        widget_cxt = context['widget']
+        widget_cxt['propose_creation'] = self.propose_creation
+        widget_cxt['create'] = value.get('create', False)
+
+        id_attr = widget_cxt['attrs']['id']
+
+        # Column <select> x 2 -------
+        def column_select_context(name_fmt, selected_key):
+            try:
+                selected_column = int(value.get(selected_key, -1))
+            except TypeError:
+                selected_column = 0
+
+            return self.column_select.get_context(name=name_fmt.format(name),
+                                                  value=selected_column,
+                                                  attrs={'id':    name_fmt.format(id_attr),
+                                                         'class': 'csv_col_select',
+                                                        },
+                                                  )['widget']
+
+        widget_cxt['category_colselect'] = column_select_context(name_fmt='{}_cat_colselect',
+                                                                 selected_key='cat_column_index',
+                                                                )
+        widget_cxt['subcategory_colselect'] = column_select_context(name_fmt='{}_subcat_colselect',
+                                                                    selected_key='subcat_column_index',
+                                                                   )
 
         # Default values content -------
         cat_choices = list(self.categories)
@@ -129,106 +277,40 @@ class CategoriesExtractorWidget(ExtractorWidget):
             selected_subcat_choice = sub_cat_map.get(selected_cat_id)  # Notice that get() cannot create a new key
             selected_subcat_id = selected_subcat_choice[0] if selected_subcat_choice else None
 
-        # Rendering -------
-        cat_colselect_id    = '%s_cat_colselect' % name
-        cat_defvalselect_id = '%s_cat_defval' % name
+        widget_cxt['subcat_js_map'] = sub_cat_map
+        widget_cxt['category_defvalselect'] = Select(choices=cat_choices) \
+                                                    .get_context(name='{}_cat_defval'.format(name),
+                                                                 value=selected_cat_id,
+                                                                 attrs={'id': '{}_cat_defval'.format(id_attr),
+                                                                        'class': 'category-default-value',
+                                                                       },
+                                                                )['widget']
+        widget_cxt['subcategory_defvalselect'] = Select(choices=sub_cat_map[selected_cat_id]) \
+                                                       .get_context(name='{}_subcat_defval'.format(name),
+                                                                    value=selected_subcat_id,
+                                                                    attrs={'id': '{}_subcat_defval'.format(id_attr),
+                                                                           'class': 'subcategory-default-value',
+                                                                          },
+                                                                   )['widget']
 
-        subcat_colselect_id    = '%s_subcat_colselect' % name
-        subcat_defvalselect_id = '%s_subcat_defval' % name
-
-        render_sel = self._render_select
-        # col_choices = list(chain(self.choices, choices))
-        col_choices = list(self.choices)
-
-        def render_colsel(name, sel_val):
-            return render_sel(name, choices=col_choices, sel_val=sel_val,
-                              attrs={'id': name, 'class': 'csv_col_select'},
-                             )
-
-        def get_selected_column(datadict_key):
-            try:
-                return int(get_value(datadict_key, -1))
-            except TypeError:
-                return 0
-
-        # NB: when a column is selected for the category but non for the sub-category, we do not disable
-        #     the 0 option (in sub-category <select>, because we must force the selection of
-        #     another option & it causes problems:
-        #        - not very visible.
-        #        - which option must we choose ? (it's arbitrary/stupid).
-        #     Displaying a warning/error message causes problems too (eg: the message can be displayed
-        #     twice -- python + js sides).
-        return mark_safe(
-u"""%(create_check)s
-<ul class="multi-select">
-    <li>
-        <label for="%(cat_colselect_id)s">%(cat_label)s:%(cat_colselect)s</label>
-        <label for="%(cat_defvalselect_id)s">%(cat_defval_label)s:%(cat_defvalselect)s</label>
-    </li>
-    <li>
-        <label for="%(subcat_colselect_id)s">%(subcat_label)s:%(subcat_colselect)s</label>
-        <label for="%(subcat_defvalselect_id)s">%(subcat_defval_label)s:%(subcat_defvalselect)s</label>
-    </li>
-    <script type='text/javascript'>
-        $(document).ready(function() {
-            var subCatMap = %(subcat_js_map)s;
-
-            $('#%(cat_defvalselect_id)s').on('change', function(e) {
-                creme.forms.Select.fill($('#%(subcat_defvalselect_id)s'), subCatMap[$(this).val()]);
-            });
-        });
-    </script>
-</ul>
-""" % {'create_check': '' if not self.propose_creation else
-                       u'<label for="%(id)s"><input id="%(id)s" type="checkbox" name="%(id)s" %(checked)s />%(label)s</label>' % {
-                           'id': '%s_create' % name,
-                           'checked': 'checked' if get_value('create') else '',
-                           'label': _(u'Create the Categories/Sub-Categories which are not found?'),
-                       },
-
-       'cat_label':        pgettext('products-category', u'Category'),
-       'cat_colselect_id': cat_colselect_id,
-       'cat_colselect':    render_colsel(cat_colselect_id, get_selected_column('cat_column_index')),
-
-       'cat_defval_label':    pgettext('products-category', u'Default category'),
-       'cat_defvalselect_id': cat_defvalselect_id,
-       'cat_defvalselect':    render_sel(cat_defvalselect_id,
-                                         choices=cat_choices,
-                                         sel_val=selected_cat_id,
-                                         attrs={'id': cat_defvalselect_id},
-                                        ),
-
-       'subcat_label':        pgettext('products-sub_category', u'Sub-category'),
-       'subcat_colselect_id': subcat_colselect_id,
-       'subcat_colselect':    render_colsel(subcat_colselect_id, get_selected_column('subcat_column_index')),
-
-       'subcat_defval_label':    pgettext('products-sub_category', u'Default sub-category'),
-       'subcat_defvalselect_id': subcat_defvalselect_id,
-       'subcat_defvalselect':    render_sel(subcat_defvalselect_id,
-                                            choices=sub_cat_map[selected_cat_id],
-                                            sel_val=selected_subcat_id,
-                                            attrs={'id': subcat_defvalselect_id},
-                                           ),
-
-       'subcat_js_map': json_dump(sub_cat_map),
-      })
+        return context
 
     def value_from_datadict(self, data, files, name):
         get = data.get
         return {
-            'cat_column_index':    get('%s_cat_colselect' % name),
-            'subcat_column_index': get('%s_subcat_colselect' % name),
-            'default_cat':         get('%s_cat_defval' % name),
-            'default_subcat':      get('%s_subcat_defval' % name),
-            'create':              ('%s_create' % name) in data,
+            'cat_column_index':    get('{}_cat_colselect'.format(name)),
+            'subcat_column_index': get('{}_subcat_colselect'.format(name)),
+            'default_cat':         get('{}_cat_defval'.format(name)),
+            'default_subcat':      get('{}_subcat_defval'.format(name)),
+            'create':              '{}_create'.format(name) in data,
         }
 
 
 class CategoriesExtractorField(Field):
     widget = CategoriesExtractorWidget
     default_error_messages = {
-        'invalid_sub_cat': _('Select a valid sub-category.'),
-        'empty_sub_cat':   _('Select a column for the sub-category if you select a column for the category.'),
+        'invalid_sub_cat': _(u'Select a valid sub-category.'),
+        'empty_sub_cat':   _(u'Select a column for the sub-category if you select a column for the category.'),
     }
 
     def __init__(self, choices, categories, *args, **kwargs):

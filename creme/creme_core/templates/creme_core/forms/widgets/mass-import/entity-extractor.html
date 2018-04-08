@@ -1,0 +1,18 @@
+{% load i18n %}
+{% with name=widget.name id=widget.attrs.id %}
+<table {# name="{{name}}" #} {% include 'django/forms/widgets/attrs.html' %}>
+    <tbody>
+    {% for ctype, cmd, widget in widget.lines %}
+        {% with app=ctype.app_label model=ctype.model %}
+        <tr>
+            <td>{{ctype}}: </td>
+            <td>{% include widget.template_name %}</td>
+            <td>&nbsp;{% trans 'Create if not found?' %}
+                <input type="checkbox" name="{{name}}_{{app}}_{{model}}_create" id="{{id}}_{{app}}_{{model}}_create"{% if cmd and cmd.create %} checked{% endif %}>
+            </td>
+        </tr>
+        {% endwith %}
+    {% endfor %}
+    </tbody>
+</table>
+{% endwith %}

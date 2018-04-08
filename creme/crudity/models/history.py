@@ -28,22 +28,24 @@ from creme.creme_core.models.fields import CreationDateTimeField, CremeUserForei
 class History(CremeModel):
     entity      = ForeignKey(CremeEntity, verbose_name=_(u'Entity'), blank=False, null=False, on_delete=CASCADE)
     created     = CreationDateTimeField(_(u'Creation date'))
-    action      = CharField(_(u"Action"), max_length=100)  # Action (i.e: create, update...)
-    source      = CharField(_(u"Source"), max_length=100)  # Source (i.e: email raw, email from infopath, sms raw...)
+    action      = CharField(_(u'Action'), max_length=100)  # Action (i.e: create, update...)
+    source      = CharField(_(u'Source'), max_length=100)  # Source (i.e: email raw, email from infopath, sms raw...)
     description = TextField(_(u'Description'), blank=True, null=True)
-    user        = CremeUserForeignKey(verbose_name=_(u"Owner"), blank=True, null=True, default=None)  # Case of sandboxes are by user
+    user        = CremeUserForeignKey(verbose_name=_(u'Owner'), blank=True, null=True, default=None)  # Case of sandboxes are by user
 
     class Meta:
-        app_label = "crudity"
-        verbose_name = _(u"History")
-        verbose_name_plural = _(u"History")
+        app_label = 'crudity'
+        verbose_name = _(u'History')
+        verbose_name_plural = _(u'History')
 
     def get_entity(self):
         entity = self.entity
+
         if entity:
             entity = entity.get_real_entity()
+
         return entity
 
     def __unicode__(self):
         e = self.get_entity()
-        return u'History of "%s"' % e if e else u'History'
+        return u'History of "{}"'.format(e) if e else u'History'

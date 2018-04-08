@@ -37,6 +37,7 @@ class RootNodesBrick(QuerysetBrick):
     verbose_name  = _(u'Roots nodes of a graph')
     template_name = 'graphs/bricks/root-nodes.html'
     target_ctypes = (get_graph_model(),)
+    order_by      = 'entity__header_filter_search_field'
 
     def detailview_display(self, context):
         graph = context['object']

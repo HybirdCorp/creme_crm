@@ -1,0 +1,36 @@
+{% load i18n creme_core_tags %}{% spaceless %}
+{% with view_less=widget.view_less creation_allowed=widget.creation_allowed creation_url=widget.creation_url %}
+{% if widget.choice_count == 0 and not creation_allowed %}
+{% trans 'No choice available.' %}
+{% else %}
+<div class="{{widget.class}}" widget="{{widget.widget_type}}"{% if view_less %} less{% if view_less is not True %}="{{view_less}}"{% endif %}{% endif %}>
+    {% include 'django/forms/widgets/select.html' %}
+    <span class="checklist-counter"></span>
+    <div class="checklist-header">
+        {% if widget.checkall %}
+        {% with hide_checkall_buttons=widget.choice_count|lt:widget.MIN_CHECKALL_COUNT %}
+        <a type="button" class="checklist-check-all{% if hide_checkall_buttons %} hidden{% endif %}">{% trans 'Check all' %}</a>
+        <a type="button" class="checklist-check-none{% if hide_checkall_buttons %} hidden{% endif %}">{% trans 'Check none' %}</a>
+        {% endwith %}
+        {% endif %}
+
+        {% if creation_url %}
+        <a type="button" class="checklist-create" href="{{creation_url}}"{% if not creation_allowed %} disabled{% endif %}>{{widget.creation_label}}</a>
+        {% endif %}
+
+        {% if widget.filter_type %}
+        {% if widget.filter_type == 'filter' %}{% trans 'Filter' context 'creme_core-noun' as filter_name %}
+        {% else %}                             {% trans 'Search' context 'creme_core-noun' as filter_name %}{% endif %}
+        <input type="search" class="checklist-filter" placeholder="{{filter_name|upper}}">
+        {% endif %}
+    </div>
+    <div class="checklist-body"><ul class="checklist-content{% if widget.filter_type%} {{widget.filter_type}}{% endif %}{% if widget.column_type %} {{widget.column_type}}{% endif %}"></ul></div>
+    {% if widget.view_less %}
+    <div class="checklist-footer">
+       <a class="checklist-toggle-less">{% trans 'More' %}</a>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+{% endwith %}
+{% endspaceless %}
