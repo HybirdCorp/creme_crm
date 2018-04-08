@@ -162,8 +162,10 @@ APPEND_SLASH = False
 
 ROOT_URLCONF = 'creme.urls'  # Means urls.py
 
-LOGIN_REDIRECT_URL = '/'
-LOGIN_URL = '/creme_login/'
+# LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = 'creme_core__home'
+# LOGIN_URL = '/creme_login/'
+LOGIN_URL = 'creme_login'
 # LOGOUT_URL = '/creme_logout/'
 
 # Absolute path to the directory that holds media.

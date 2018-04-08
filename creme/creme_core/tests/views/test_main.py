@@ -47,10 +47,10 @@ class MiscViewsTestCase(ViewsTestCase):
         self.login()
 
         self.assertIn('_auth_user_id', self.client.session)
-        response = self.assertGET200('/creme_logout/', follow=True)
+        response = self.assertGET200(reverse('creme_logout'), follow=True)
         self.assertNotIn('_auth_user_id', self.client.session)
 
-        self.assertRedirects(response, '/creme_login/')
+        self.assertRedirects(response, reverse(settings.LOGIN_URL))
 
     def test_js_view(self):
         self.login()
