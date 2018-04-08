@@ -77,8 +77,8 @@ creme.billing.checkDiscount = function(element) {
     return true;
 };
 
-// TODO: remove 'ct_id' (useless with the modifications of 9/12/2016)
-creme.billing.markDelete = function(form_prefix, ct_id, line_id) {
+//creme.billing.markDelete = function(form_prefix, ct_id, line_id) {
+creme.billing.markDelete = function(form_prefix, line_id) {
     var checkbox_name = form_prefix + '-DELETE';
     var delete_checkbox = $('#id_' + checkbox_name);
     var line_td = $('#line_content_' + line_id);
@@ -88,11 +88,11 @@ creme.billing.markDelete = function(form_prefix, ct_id, line_id) {
     if (!to_delete) {
         delete_checkbox.uncheck();
         line_td.removeClass('bline-deletion-mark');
-        line_td.addClass('block_header_line_dark');
+//        line_td.addClass('block_header_line_dark');
     } else {
         delete_checkbox.check();
         line_td.addClass('bline-deletion-mark');
-        line_td.removeClass('block_header_line_dark');
+//        line_td.removeClass('block_header_line_dark');
     }
 
     // TODO: remove the id of <tbody> ??
@@ -317,7 +317,8 @@ creme.billing.initBoundedFields = function (element, currency, global_discount) 
             discounted.attr('data-value', exclusive_of_tax_discounted);
             inclusive_of_tax.attr('data-value', iot_value);
 
-            creme.billing.updateBlockTotals(currency);
+//            creme.billing.updateBlockTotals(currency);
+            creme.billing.updateBrickTotals(currency);
         }
 
         if (!vat_value_widget.val()) inclusive_of_tax.text('###');
@@ -423,7 +424,8 @@ creme.billing.serializeForm = function(form) {
 //    }
 //};
 
-creme.billing.updateBlockTotals = function(currency) {
+//creme.billing.updateBlockTotals = function(currency) {
+creme.billing.updateBrickTotals = function(currency) {
     var total_no_vat_element = $('h1[name=total_no_vat]');
     var total_vat_element    = $('h1[name=total_vat]');
 
