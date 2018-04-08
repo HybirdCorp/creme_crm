@@ -274,6 +274,7 @@ def bool_from_str_extended(value):
     raise ValueError('Can not be coerced to a boolean value: %s; must be in 0/1/false/true' % value)
 
 
+@mark_safe
 def bool_as_html(b):
     if b:
         checked = 'checked '
@@ -282,7 +283,7 @@ def bool_as_html(b):
         checked = ''
         label = _(u'No')
 
-    return mark_safe(u'<input type="checkbox" %sdisabled/>%s' % (checked, label))
+    return u'<input type="checkbox" {}disabled/>{}'.format(checked, label)
 
 
 _I2R_NUMERAL_MAP = [(1000, 'M'),  (900, 'CM'), (500, 'D'),  (400, 'CD'), (100, 'C'),
