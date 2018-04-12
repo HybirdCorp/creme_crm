@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,11 +35,12 @@ CreditNote = billing.get_credit_note_model()
 Quote      = billing.get_quote_model()
 Invoice    = billing.get_invoice_model()
 SalesOrder = billing.get_sales_order_model()
-_CLASS_MAP = {'credit_note': CreditNote,  # NB: unused
-              'invoice':     Invoice,
-              'quote':       Quote,
-              'sales_order': SalesOrder,
-             }
+_CLASS_MAP = {
+    'credit_note': CreditNote,  # NB: unused
+    'invoice':     Invoice,
+    'quote':       Quote,
+    'sales_order': SalesOrder,
+}
 CONVERT_MATRIX = {
     CreditNote: {'invoice'},
     Invoice:    {'quote', 'sales_order'},
@@ -56,9 +57,12 @@ def convert(request, document_id):
 
     allowed_dests = CONVERT_MATRIX.get(src.__class__)
     if not allowed_dests:
-        raise ConflictError('This entity cannot be convert to a(nother) billing document')
+        raise ConflictError('This entity cannot be converted to a(nother) billing document.')
 
     user.has_perm_to_view_or_die(src)
+
+    if src.is_deleted:
+        raise ConflictError('This entity cannot be converted because it is deleted.')
 
     dest_class_id = get_from_POST_or_404(request.POST, 'type')
     if dest_class_id not in allowed_dests:
