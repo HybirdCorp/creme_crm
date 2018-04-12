@@ -376,3 +376,13 @@ class ConvertTestCase(_BillingTestCase):
         self.login()
         order = self.create_salesorder_n_orgas('Order for Acracadia')[0]
         self._convert(409, order, 'sales_order')
+
+    @skipIfCustomQuote
+    def test_convert_error03(self):
+        "Deleted entity"
+        self.login()
+
+        quote = self.create_quote_n_orgas('My Quote')[0]
+        Quote.objects.filter(id=quote.id).update(is_deleted=True)
+
+        self._convert(409, quote, 'invoice')

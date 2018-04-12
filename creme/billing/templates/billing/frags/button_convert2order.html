@@ -1,7 +1,7 @@
 {% load i18n %}
-{% if has_perm %}
+{% if has_perm  and not object.is_deleted %}
     <a class="menu_button" onclick="$('#id_convert2order', $(this)).submit();">
-        {% trans "Convert to Salesorder" %}
+        {% trans 'Convert to Salesorder' %}
         <div style="display:none;">
             <form id="id_convert2order" method="POST" action="{% url 'billing__convert' object.id %}">{% csrf_token %}
                 <input type="hidden" name="type" value="sales_order" />
@@ -9,5 +9,5 @@
         </div>
     </a>
 {% else %}
-    <span class="menu_button forbidden" title="{% trans "forbidden" %}">{% trans "Convert to Salesorder" %}</span>
+    <span class="menu_button forbidden" title="{% trans 'forbidden' %}">{% trans 'Convert to Salesorder' %}</span>
 {% endif %}
