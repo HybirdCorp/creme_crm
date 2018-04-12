@@ -3,7 +3,7 @@
 
 {% block page_title %}{{object}} - {% endblock %}
 
-{% block body_classes %}{% if object.is_deleted %}is_deleted{% endif %}{% endblock %}
+{# {% block body_classes %}{% if object.is_deleted %}is_deleted{% endif %}{% endblock %} #}
 
 {% block before_content_1 %}<div class="detailview">
     <div class="buttons-list global-buttons">
@@ -34,7 +34,7 @@
                         {% block title %}
                             {{object|get_meta_value:'verbose_name'|capfirst}} : {{object|capfirst}}
                         {% endblock %}
-                        {% if object.is_deleted %} [{% trans 'deleted' %}]{% endif %}
+{#                        {% if object.is_deleted %} [{% trans 'deleted' %}]{% endif %} #}
                     </h1>
                 </div>
                 <div class="bar-actions">{% block title_buttons %}{% endblock %}</div>
