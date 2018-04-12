@@ -1,6 +1,8 @@
 {% extends 'creme_core/detailview.html' %}
 {% load i18n creme_core_tags creme_widgets creme_bricks %}
 
+{% block body_classes %}{% if object.is_deleted %}is_deleted{% endif %}{% endblock %}
+
 {% block global_buttons %}
     {{block.super}}
 

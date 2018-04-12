@@ -14,7 +14,7 @@
                 {% block title %}
                     {{object|get_meta_value:'verbose_name'|capfirst}} : {{object|capfirst}}
                 {% endblock %}
-                {% if object.is_deleted %}<span class="bar-deleted-indicator">[{% trans 'deleted' %}]</span>{% endif %}
+                {% if object.is_deleted %}<span class="bar-deleted-indicator">[{% trans 'Entity in the trash' %}]</span>{% endif %}
             </h1>
         </div>
         <div class="bar-actions">
