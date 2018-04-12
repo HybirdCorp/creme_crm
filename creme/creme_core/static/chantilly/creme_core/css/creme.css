@@ -304,7 +304,8 @@ ul.button_list.vbox li {
     margin-left: 0em;
 }
 
-.menu_button:hover {
+.menu_button:hover,
+.card-button:hover {
     background-color: #e6e6e6;
     text-decoration: none;
 }
