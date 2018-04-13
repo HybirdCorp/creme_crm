@@ -615,12 +615,12 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         jr_error = jr_errors[0]
         self.assertEqual(list(lines[2]), jr_error.line)
         self.assertEqual([_(u'Error while extracting value: tried to retrieve '
-                            u'the choice "%(value)s" (column %(column)s). '
-                            u'Raw error: [%(raw_error)s]') % {
-                                'raw_error': 'CustomFieldEnumValue matching query does not exist.',
-                                'column':    3,
-                                'value':     'strangulation',
-                            }
+                            u'the choice «{value}» (column {column}). '
+                            u'Raw error: [{raw_error}]').format(
+                                raw_error='CustomFieldEnumValue matching query does not exist.',
+                                column=3,
+                                value='strangulation',
+                            ),
                          ],
                          jr_error.messages
                         )
@@ -816,9 +816,9 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                                       data={'step': 0, 'document': doc.id}
                                      )
         self.assertFormError(response, 'form', None,
-                             _(u'Error reading document, unsupported file type: %(file)s.') % {
-                                    'file': doc.filedata.name,
-                                }
+                             _(u'Error reading document, unsupported file type: {file}.').format(
+                                    file=doc.filedata.name,
+                                )
                             )
 
     def test_import_error02(self):
