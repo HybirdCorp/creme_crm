@@ -1923,9 +1923,9 @@ class DateRangeWidget(widgets.MultiWidget):
         self.render_as = attrs.pop('render_as', 'table') if attrs else 'table'
 
         super(DateRangeWidget, self).__init__(
-            widgets=(widgets.Select(choices=choices, attrs={'class': 'range-type'}),
-                     CalendarWidget(attrs={'class': 'date-start'}),
-                     CalendarWidget(attrs={'class': 'date-end'}),
+            widgets=(widgets.Select(choices=choices, attrs={'data-daterange-type': True}),
+                     CalendarWidget(attrs={'data-daterange-field': 'start'}),
+                     CalendarWidget(attrs={'data-daterange-field': 'end'}),
                     ),
             attrs=attrs,
         )
