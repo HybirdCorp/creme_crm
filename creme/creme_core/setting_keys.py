@@ -6,11 +6,11 @@ from . import constants
 from .core.setting_key import SettingKey
 
 
-block_opening_key = SettingKey(id=constants.SETTING_BLOCK_DEFAULT_STATE_IS_OPEN,
+block_opening_key = SettingKey(id=constants.SETTING_BRICK_DEFAULT_STATE_IS_OPEN,
                                description=_(u'By default, are blocks open ?'),
                                app_label='creme_core', type=SettingKey.BOOL,
                               )
-block_showempty_key = SettingKey(id=constants.SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS,
+block_showempty_key = SettingKey(id=constants.SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS,
                                  description=_(u'By default, are empty fields displayed ?'),
                                  app_label='creme_core', type=SettingKey.BOOL,
                                 )
