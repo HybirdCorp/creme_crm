@@ -238,9 +238,7 @@ creme.reports.PreviewController = creme.component.Component.sub({
         var listeners = this._listeners;
         var header = this._header = $('.report-preview-header', element);
 
-        $('select[name="date_field"]',    header).change(listeners.update);
-        $('select[name="date_filter_0"]', header).change(listeners.update);
-
+        $('select[name="date_field"]', header).change(listeners.update);
         $('button[name="generate"]', header).click(listeners.redirect);
         $('button[name="download"]', header).click(listeners.download);
 
@@ -253,9 +251,7 @@ creme.reports.PreviewController = creme.component.Component.sub({
         var header = this._header;
 
         if (header !== undefined) {
-            $('select[name="date_field"]',    header).unbind('change', listeners.update);
-            $('select[name="date_filter_0"]', header).unbind('change', listeners.update);
-
+            $('select[name="date_field"]', header).unbind('change', listeners.update);
             $('button[name="generate"]', header).unbind('click', listeners.redirect);
             $('button[name="download"]', header).unbind('click', listeners.download);
         }
@@ -268,19 +264,11 @@ creme.reports.PreviewController = creme.component.Component.sub({
         var header = this._header;
 
         var has_datefield = !Object.isEmpty($('[name="date_field"]', header).val());
-        var has_customdaterange = Object.isEmpty($('[name="date_filter_0"]', header).val());
 
         $('.date-filter', header).toggle(has_datefield);
-        $('[name="date_filter_1"], [name="date_filter_2"]', header).each(function() {
-            $(this).parents('td:first').toggle(has_customdaterange);
-        });
-
-        if (!has_customdaterange) {
-            $('[name="date_filter_1"], [name="date_filter_2"]', header).val('');
-        }
 
         if (!has_datefield) {
-            $('[name^="date_filter_"]', header).val('');
+            $('.ui-creme-daterange', header).creme().widget().reset();
         }
     },
 

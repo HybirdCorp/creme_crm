@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2012  Hybird
+    Copyright (C) 2009-2018  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,38 +16,52 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-(function($) {"use strict";
+(function($) {
+"use strict";
 
 creme.widget.DateRange = creme.widget.declare('ui-creme-daterange', {
-    options: {
-    },
-
-    _get_end: function(element) {
-        return $('.date-end', element);
-    },
-
-    _get_start: function(element) {
-        return $('.date-start', element);
-    },
-
-    _get_type: function(element) {
-        return $('.range-type', element);
-    },
+    options: {},
 
     _create: function(element, options, cb, sync) {
         var self = this;
+        var datetype = this.dateType(element);
 
-        self._get_type(element).bind('change', function() {
-                if ($(this).val()) {
-                    self._get_start().parent().hide();
-                    self._get_end().parent().hide();
-                } else {
-                    self._get_start().parent().show();
-                    self._get_end().parent().show();
-                }
-            }).change();
+        datetype.on('change', function() {
+            self._onTypeChange(element, $(this).val());
+        });
+
+        self._onTypeChange(element, datetype.val());
         element.addClass('widget-ready');
+    },
+
+    _onTypeChange: function(element, value) {
+        var isCustomrange = Object.isEmpty(value);
+
+        element.find('[data-daterange-field]').each(function() {
+            $(this).parents('.daterange-field:first').toggleClass('hidden', !isCustomrange);
+        });
+
+        if (!isCustomrange) {
+            element.find('[data-daterange-field]').val('');
+        }
+    },
+
+    reset: function(element) {
+        this.dateType().val('');
+        this.endDate().val('');
+        this.startDate().val('');
+    },
+
+    endDate: function(element) {
+        return $('[data-daterange-field="end"]', element);
+    },
+
+    startDate: function(element) {
+        return $('[data-daterange-field="start"]', element);
+    },
+
+    dateType: function(element) {
+        return $('[data-daterange-type]', element);
     }
 });
-
 }(jQuery));
