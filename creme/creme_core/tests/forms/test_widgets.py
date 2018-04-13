@@ -272,6 +272,20 @@ class UnorderedMultipleChoiceTestCase(FieldTestCase):
         self.assertEqual('search', select._build_filtertype(30))
         self.assertEqual('search', select._build_filtertype(100))
 
+    def test_build_viewless(self):
+        select = UnorderedMultipleChoiceWidget()
+        self.assertEqual(False, select._build_viewless(None, 0))
+        self.assertEqual(True, select._build_viewless(True, 0))
+        self.assertEqual(5, select._build_viewless(5, 0))
+
+        self.assertEqual(False, select._build_viewless(None, 10))
+        self.assertEqual(True, select._build_viewless(True, 10))
+        self.assertEqual(5, select._build_viewless(5, 10))
+
+        self.assertEqual(True, select._build_viewless(None, 30))
+        self.assertEqual(True, select._build_viewless(True, 30))
+        self.assertEqual(5, select._build_viewless(5, 30))
+
     # def test_render_header_checkall(self):
     #     select = UnorderedMultipleChoiceWidget()
     #     self.assertHTMLEqual('<div class="checklist-header">'
@@ -341,6 +355,67 @@ class UnorderedMultipleChoiceTestCase(FieldTestCase):
             'check_all':  _(u'Check all'),
             'check_none': _(u'Check none'),
             'filter_lbl': pgettext('creme_core-noun', u'Search').upper(),
+        }
+        self.assertHTMLEqual(html, select.render(name, value=None))
+
+    def test_render_filter(self):
+        name = 'my_choice_field'
+        select = UnorderedMultipleChoiceWidget(choices=[(1, 'A'), (2, 'B'), (3, 'C'), (4, 'D')])
+        self.assertEqual(10, select.MIN_SEARCH_COUNT)
+        self.assertEqual(30, select.MIN_FILTER_COUNT)
+
+        select.MIN_SEARCH_COUNT = 2
+        select.MIN_FILTER_COUNT = 3
+
+        html = u'''<div class="ui-creme-widget widget-auto ui-creme-checklistselect" widget="ui-creme-checklistselect">
+    <select multiple="multiple" class="ui-creme-input" name="%(name)s">
+        <option value="1">A</option>
+        <option value="2">B</option>
+        <option value="3">C</option>
+        <option value="4">D</option>
+    </select>
+    <span class="checklist-counter"></span>
+    <div class="checklist-header">
+        <a type="button" class="checklist-check-all">%(check_all)s</a>
+        <a type="button" class="checklist-check-none">%(check_none)s</a>
+        <input type="search" class="checklist-filter" placeholder="%(filter_lbl)s">
+    </div>
+    <div class="checklist-body"><ul class="checklist-content filter"></ul></div>
+</div>''' % {
+            'name':       name,
+            'check_all':  _(u'Check all'),
+            'check_none': _(u'Check none'),
+            'filter_lbl': pgettext('creme_core-noun', u'Filter').upper(),
+        }
+        self.assertHTMLEqual(html, select.render(name, value=None))
+
+    def test_render_less(self):
+        name = 'my_choice_field'
+        select = UnorderedMultipleChoiceWidget(choices=[(1, 'A'), (2, 'B'), (3, 'C')])
+        self.assertEqual(20, select.MIN_LESS_COUNT)
+        self.assertEqual(10, select.MIN_SEARCH_COUNT)
+        self.assertEqual(30, select.MIN_FILTER_COUNT)
+
+        select.MIN_LESS_COUNT = 2
+
+        html = u'''<div class="ui-creme-widget widget-auto ui-creme-checklistselect" widget="ui-creme-checklistselect" less>
+    <select multiple="multiple" class="ui-creme-input" name="%(name)s">
+        <option value="1">A</option>
+        <option value="2">B</option>
+        <option value="3">C</option>
+    </select>
+    <span class="checklist-counter"></span>
+    <div class="checklist-header">
+        <a type="button" class="checklist-check-all">%(check_all)s</a>
+        <a type="button" class="checklist-check-none">%(check_none)s</a>
+    </div>
+    <div class="checklist-body"><ul class="checklist-content"></ul></div>
+    <div class="checklist-footer"><a class="checklist-toggle-less">%(more_lbl)s</a></div>
+</div>''' % {
+            'name':       name,
+            'check_all':  _(u'Check all'),
+            'check_none': _(u'Check none'),
+            'more_lbl': _(u'More'),
         }
         self.assertHTMLEqual(html, select.render(name, value=None))
 

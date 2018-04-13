@@ -1,58 +1,69 @@
-function mock_checklistselect_create(options, noauto, nodelegate) {
-    var options = options || {}
-    var select = $('<div widget="ui-creme-checklistselect" class="ui-creme-checklistselect ui-creme-widget"/>');
+(function($) {
+"use strict";
 
-    select.append($('<div class="checklist-content"/>'));
-    
-    if (!nodelegate)
-        select.append($('<select class="ui-creme-input" multiple/>'));
+QUnit.module("creme.widgets.checklistselect.js", new QUnitMixin(QUnitEventMixin, {
+    createCheckListSelectElement: function(options, noauto, nodelegate) {
+        var options = options || {}
+        var select = $('<div widget="ui-creme-checklistselect" class="ui-creme-checklistselect ui-creme-widget"/>');
 
-    for(var key in options) {
-        select.attr(key, options[key]);
+        select.append($('<div class="checklist-header">' +
+                            '<a type="button" class="checklist-check-all">Select All</a>' +
+                            '<a type="button" class="checklist-check-none">Unselect All</a>' +
+                        '</div>'));
+        select.append($('<div class="checklist-counter"/>'));
+        select.append($('<div class="checklist-content"/>'));
+
+        if (!nodelegate)
+            select.append($('<select class="ui-creme-input" multiple/>'));
+
+        for(var key in options) {
+            select.attr(key, options[key]);
+        }
+
+        select.toggleClass('widget-auto', !noauto);
+        return select;
+    },
+
+    addCheckListSelectChoice: function(element, label, value) {
+        var choice = $('<option value="' + (value.replace ? value.replace(/\"/g, '&quot;') : value) + '">' + label + '</option>');
+        $('select.ui-creme-input', element).append(choice);
+        return choice;
+    },
+
+    addCheckListSelectSearch: function(element, mode) {
+        mode = mode || 'filter';
+        $('.checklist-header', element).append('<input type="search" class="checklist-filter">');
+        $('.checklist-content', element).addClass(mode);
+    },
+
+    assertCheckListEntries: function(element, expected) {
+        var options = $('.checkbox-field', element);
+
+        equal(options.length, expected.length, 'checkbox count');
+
+        options.each(function(index) {
+            var expected_entry = expected[index];
+            var input = $('input[type="checkbox"]', this);
+            var label = $('.checkbox-label', this);
+            var is_visible = expected_entry.visible !== undefined ? expected_entry.visible : true;
+
+            var expected_label = ('<span class=\"checkbox-label-text\"%s>%s</span>' +
+                                  '<span class=\"checkbox-label-help\"%s></span>').format(expected_entry.disabled ? ' disabled=""' : '',
+                                                                                          expected_entry.label,
+                                                                                          expected_entry.disabled ? ' disabled=""' : '');
+
+            equal(label.html(), expected_label, 'checkbox %d label'.format(index));
+
+            equal(input.val(), expected_entry.value, 'checkbox %d value'.format(index));
+            equal(input.is('[disabled]'), expected_entry.disabled || false, 'checkbox %d disabled status'.format(index));
+            equal(input.get()[0].checked, expected_entry.selected || false, 'checkbox %d check status'.format(index));
+            equal($(this).is('.hidden'), !is_visible, 'checkbox %d visible status'.format(index));
+        });
     }
-
-    if (!noauto)
-        select.addClass('widget-auto');
-
-    return select;
-}
-
-function mock_checklistselect_add_choice(element, label, value) {
-    var choice = $('<option value="' + (value.replace ? value.replace(/\"/g, '&quot;') : value) + '">' + label + '</option>');
-    $('select.ui-creme-input', element).append(choice);
-    return choice;
-}
-
-function assertCheckListEntries(element, expected) {
-    var options = $('.checkbox-field', element);
-
-    equal(options.length, expected.length, 'checkbox count');
-
-    options.each(function(index) {
-        var expected_entry = expected[index];
-        var input = $('input[type="checkbox"]', this);
-        var label = $('.checkbox-label', this);
-
-        var expected_label = ('<span class=\"checkbox-label-text\"%s>%s</span>' +
-                              '<span class=\"checkbox-label-help\"%s></span>').format(expected_entry.disabled ? ' disabled=""' : '',
-                                                                                      expected_entry.label,
-                                                                                      expected_entry.disabled ? ' disabled=""' : '');
-
-        equal(label.html(), expected_label, 'checkbox %d label'.format(index));
-
-        equal(input.val(), expected_entry.value, 'checkbox %d value'.format(index));
-        equal(input.is('[disabled]'), expected_entry.disabled || false, 'checkbox %d disabled status'.format(index));
-        equal(input.get()[0].checked, expected_entry.selected || false, 'checkbox %d check status'.format(index));
-    });
-}
-
-QUnit.module("creme.widgets.checklistselect.js", {
-    setup: function() {},
-    teardown: function() {}
-});
+}));
 
 QUnit.test('creme.widget.CheckListSelect.create (no delegate)', function(assert) {
-    var element = mock_checklistselect_create({}, false, true);
+    var element = this.createCheckListSelectElement({}, false, true);
     var widget = creme.widget.create(element);
 
     equal(element.hasClass('widget-active'), true);
@@ -65,10 +76,10 @@ QUnit.test('creme.widget.CheckListSelect.create (no delegate)', function(assert)
 });
 
 QUnit.test('creme.widget.CheckListSelect.create (delegate)', function(assert) {
-    var element = mock_checklistselect_create();
-    mock_checklistselect_add_choice(element, 'item1', 12);
-    mock_checklistselect_add_choice(element, 'item2', 78);
-    mock_checklistselect_add_choice(element, 'item3', 1);
+    var element = this.createCheckListSelectElement();
+    this.addCheckListSelectChoice(element, 'item1', 12);
+    this.addCheckListSelectChoice(element, 'item2', 78);
+    this.addCheckListSelectChoice(element, 'item3', 1);
 
     var widget = creme.widget.create(element);
 
@@ -82,17 +93,17 @@ QUnit.test('creme.widget.CheckListSelect.create (delegate)', function(assert) {
                {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
                {label:'item3', value:"1",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
 
-    assertCheckListEntries(widget.content(),
+    this.assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12'},
                             {label:'item2', value:'78'},
                             {label:'item3', value:'1'}])
 });
 
 QUnit.test('creme.widget.CheckListSelect.create (disabled)', function(assert) {
-    var element = mock_checklistselect_create({disabled:true});
-    mock_checklistselect_add_choice(element, 'item1', 12);
-    mock_checklistselect_add_choice(element, 'item2', 78);
-    mock_checklistselect_add_choice(element, 'item3', 1);
+    var element = this.createCheckListSelectElement({disabled:true});
+    this.addCheckListSelectChoice(element, 'item1', 12);
+    this.addCheckListSelectChoice(element, 'item2', 78);
+    this.addCheckListSelectChoice(element, 'item3', 1);
 
     var widget = creme.widget.create(element);
 
@@ -106,17 +117,17 @@ QUnit.test('creme.widget.CheckListSelect.create (disabled)', function(assert) {
                {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
                {label:'item3', value:"1",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
 
-    assertCheckListEntries(widget.content(),
+    this.assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', disabled:true},
                             {label:'item2', value:'78', disabled:true},
                             {label:'item3', value:'1',  disabled:true}]);
 });
 
 QUnit.test('creme.widget.CheckListSelect.create (initial value)', function(assert) {
-    var element = mock_checklistselect_create();
-    mock_checklistselect_add_choice(element, 'item1', 12);
-    mock_checklistselect_add_choice(element, 'item2', 78);
-    mock_checklistselect_add_choice(element, 'item3', 1);
+    var element = this.createCheckListSelectElement();
+    this.addCheckListSelectChoice(element, 'item1', 12);
+    this.addCheckListSelectChoice(element, 'item2', 78);
+    this.addCheckListSelectChoice(element, 'item3', 1);
     $('select', element).val(['12', '1']);
 
     var widget = creme.widget.create(element);
@@ -129,7 +140,7 @@ QUnit.test('creme.widget.CheckListSelect.create (initial value)', function(asser
                {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
                {label:'item3', value:"1",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:true}], widget.model().all());
 
-    assertCheckListEntries(widget.content(),
+    this.assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', selected:true},
                             {label:'item2', value:'78', selected:false},
                             {label:'item3', value:'1',  selected:true}]);
@@ -138,9 +149,9 @@ QUnit.test('creme.widget.CheckListSelect.create (initial value)', function(asser
 });
 
 QUnit.test('creme.widget.CheckListSelect.disable', function(assert) {
-    var element = mock_checklistselect_create();
-    mock_checklistselect_add_choice(element, 'item1', 12);
-    mock_checklistselect_add_choice(element, 'item2', 78);
+    var element = this.createCheckListSelectElement();
+    this.addCheckListSelectChoice(element, 'item1', 12);
+    this.addCheckListSelectChoice(element, 'item2', 78);
 
     var widget = creme.widget.create(element);
 
@@ -151,7 +162,7 @@ QUnit.test('creme.widget.CheckListSelect.disable', function(assert) {
     deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
                {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
 
-    assertCheckListEntries(widget.content(),
+    this.assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', disabled:false},
                             {label:'item2', value:'78', disabled:false}]);
 
@@ -162,16 +173,16 @@ QUnit.test('creme.widget.CheckListSelect.disable', function(assert) {
     deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
                {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
 
-    assertCheckListEntries(widget.content(),
+    this.assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', disabled:true},
                             {label:'item2', value:'78', disabled:true}]);
 });
 
 QUnit.test('creme.widget.CheckListSelect.val', function(assert) {
-    var element = mock_checklistselect_create();
-    mock_checklistselect_add_choice(element, 'item1', 12);
-    mock_checklistselect_add_choice(element, 'item2', 78);
-    mock_checklistselect_add_choice(element, 'item3', 5);
+    var element = this.createCheckListSelectElement();
+    this.addCheckListSelectChoice(element, 'item1', 12);
+    this.addCheckListSelectChoice(element, 'item2', 78);
+    this.addCheckListSelectChoice(element, 'item3', 5);
 
     var widget = creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
@@ -180,7 +191,7 @@ QUnit.test('creme.widget.CheckListSelect.val', function(assert) {
     deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
                {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
                {label:'item3', value:"5",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
-    assertCheckListEntries(widget.content(),
+    this.assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', selected:false},
                             {label:'item2', value:'78', selected:false},
                             {label:'item3', value:'5',  selected:false}]);
@@ -191,17 +202,17 @@ QUnit.test('creme.widget.CheckListSelect.val', function(assert) {
     deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:true},
                {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
                {label:'item3', value:"5",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:true}], widget.model().all());
-    assertCheckListEntries(widget.content(),
+    this.assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', selected:true},
                             {label:'item2', value:'78', selected:false},
                             {label:'item3', value:'5',  selected:true}]);
 });
 
 QUnit.test('creme.widget.CheckListSelect.val (select / unselect)', function(assert) {
-    var element = mock_checklistselect_create();
-    mock_checklistselect_add_choice(element, 'item1', 12);
-    mock_checklistselect_add_choice(element, 'item2', 78);
-    mock_checklistselect_add_choice(element, 'item3', 5);
+    var element = this.createCheckListSelectElement();
+    this.addCheckListSelectChoice(element, 'item1', 12);
+    this.addCheckListSelectChoice(element, 'item2', 78);
+    this.addCheckListSelectChoice(element, 'item3', 5);
 
     var widget = creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
@@ -210,7 +221,7 @@ QUnit.test('creme.widget.CheckListSelect.val (select / unselect)', function(asse
     deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
                {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
                {label:'item3', value:"5",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
-    assertCheckListEntries(widget.content(),
+    this.assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', selected:false},
                             {label:'item2', value:'78', selected:false},
                             {label:'item3', value:'5',  selected:false}]);
@@ -221,7 +232,7 @@ QUnit.test('creme.widget.CheckListSelect.val (select / unselect)', function(asse
     deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:true},
                {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
                {label:'item3', value:"5",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
-    assertCheckListEntries(widget.content(),
+    this.assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', selected:true},
                             {label:'item2', value:'78', selected:false},
                             {label:'item3', value:'5',  selected:false}]);
@@ -233,7 +244,7 @@ QUnit.test('creme.widget.CheckListSelect.val (select / unselect)', function(asse
     deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
                {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
                {label:'item3', value:"5",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:true}], widget.model().all());
-    assertCheckListEntries(widget.content(),
+    this.assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', selected:false},
                             {label:'item2', value:'78', selected:false},
                             {label:'item3', value:'5',  selected:true}]);
@@ -241,16 +252,16 @@ QUnit.test('creme.widget.CheckListSelect.val (select / unselect)', function(asse
 });
 
 QUnit.test('creme.widget.CheckListSelect.selectAll', function(assert) {
-    var element = mock_checklistselect_create();
-    mock_checklistselect_add_choice(element, 'item1', 12);
-    mock_checklistselect_add_choice(element, 'item2', 78);
-    mock_checklistselect_add_choice(element, 'item3', 5);
+    var element = this.createCheckListSelectElement();
+    this.addCheckListSelectChoice(element, 'item1', 12);
+    this.addCheckListSelectChoice(element, 'item2', 78);
+    this.addCheckListSelectChoice(element, 'item3', 5);
 
     var widget = creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertCheckListEntries(widget.content(),
+    this.assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', selected:false},
                             {label:'item2', value:'78', selected:false},
                             {label:'item3', value:'5',  selected:false}]);
@@ -261,7 +272,7 @@ QUnit.test('creme.widget.CheckListSelect.selectAll', function(assert) {
     deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:true},
                {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:true},
                {label:'item3', value:"5",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:true}], widget.model().all());
-    assertCheckListEntries(widget.content(),
+    this.assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', selected:true},
                             {label:'item2', value:'78', selected:true},
                             {label:'item3', value:'5',  selected:true}]);
@@ -270,16 +281,16 @@ QUnit.test('creme.widget.CheckListSelect.selectAll', function(assert) {
 });
 
 QUnit.test('creme.widget.CheckListSelect.selectAll (disabled options)', function(assert) {
-    var element = mock_checklistselect_create();
-    mock_checklistselect_add_choice(element, 'item1', 12);
-    mock_checklistselect_add_choice(element, 'item2', 78).attr('disabled', 'disabled');
-    mock_checklistselect_add_choice(element, 'item3', 5);
+    var element = this.createCheckListSelectElement();
+    this.addCheckListSelectChoice(element, 'item1', 12);
+    this.addCheckListSelectChoice(element, 'item2', 78).attr('disabled', 'disabled');
+    this.addCheckListSelectChoice(element, 'item3', 5);
 
     var widget = creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertCheckListEntries(widget.content(),
+    this.assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', selected:false},
                             {label:'item2', value:'78', selected:false, disabled:true},
                             {label:'item3', value:'5',  selected:false}]);
@@ -290,7 +301,7 @@ QUnit.test('creme.widget.CheckListSelect.selectAll (disabled options)', function
     deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:true},
                {label:'item2', value:"78", group: undefined, help: undefined, disabled:true, visible:true, tags:[], selected:false},
                {label:'item3', value:"5",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:true}], widget.model().all());
-    assertCheckListEntries(widget.content(),
+    this.assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', selected:true},
                             {label:'item2', value:'78', selected:false, disabled:true},
                             {label:'item3', value:'5',  selected:true}]);
@@ -299,17 +310,17 @@ QUnit.test('creme.widget.CheckListSelect.selectAll (disabled options)', function
 });
 
 QUnit.test('creme.widget.CheckListSelect.unselectAll', function(assert) {
-    var element = mock_checklistselect_create();
-    mock_checklistselect_add_choice(element, 'item1', 12);
-    mock_checklistselect_add_choice(element, 'item2', 78);
-    mock_checklistselect_add_choice(element, 'item3', 5);
+    var element = this.createCheckListSelectElement();
+    this.addCheckListSelectChoice(element, 'item1', 12);
+    this.addCheckListSelectChoice(element, 'item2', 78);
+    this.addCheckListSelectChoice(element, 'item3', 5);
     $('select', element).val(['12', '5']);
 
     var widget = creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertCheckListEntries(widget.content(),
+    this.assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', selected:true},
                             {label:'item2', value:'78', selected:false},
                             {label:'item3', value:'5',  selected:true}]);
@@ -320,7 +331,7 @@ QUnit.test('creme.widget.CheckListSelect.unselectAll', function(assert) {
     deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
                {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
                {label:'item3', value:"5",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
-    assertCheckListEntries(widget.content(),
+    this.assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', selected:false},
                             {label:'item2', value:'78', selected:false},
                             {label:'item3', value:'5',  selected:false}]);
@@ -329,17 +340,17 @@ QUnit.test('creme.widget.CheckListSelect.unselectAll', function(assert) {
 });
 
 QUnit.test('creme.widget.CheckListSelect.reset', function(assert) {
-    var element = mock_checklistselect_create();
-    mock_checklistselect_add_choice(element, 'item1', 12);
-    mock_checklistselect_add_choice(element, 'item2', 78);
-    mock_checklistselect_add_choice(element, 'item3', 5);
+    var element = this.createCheckListSelectElement();
+    this.addCheckListSelectChoice(element, 'item1', 12);
+    this.addCheckListSelectChoice(element, 'item2', 78);
+    this.addCheckListSelectChoice(element, 'item3', 5);
     $('select', element).val(['12', '5']);
 
     var widget = creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertCheckListEntries(widget.content(),
+    this.assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', selected:true},
                             {label:'item2', value:'78', selected:false},
                             {label:'item3', value:'5',  selected:true}]);
@@ -350,10 +361,104 @@ QUnit.test('creme.widget.CheckListSelect.reset', function(assert) {
     deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
                {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
                {label:'item3', value:"5",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
-    assertCheckListEntries(widget.content(),
+    this.assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', selected:false},
                             {label:'item2', value:'78', selected:false},
                             {label:'item3', value:'5',  selected:false}]);
 
     deepEqual(null, widget.val());
 });
+
+QUnit.test('creme.widget.CheckListSelect.filter', function(assert) {
+    var element = this.createCheckListSelectElement();
+    this.addCheckListSelectSearch(element, 'filter');
+    this.addCheckListSelectChoice(element, 'itemAD', 12);
+    this.addCheckListSelectChoice(element, 'itemAB', 78);
+    this.addCheckListSelectChoice(element, 'itemABC', 5);
+
+    var widget = creme.widget.create(element);
+    equal(element.hasClass('widget-active'), true);
+    equal(element.hasClass('widget-ready'), true);
+
+    deepEqual([{label:'itemAD',   value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
+               {label:'itemAB',  value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
+               {label:'itemABC', value:"5",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
+
+    element.find('.checklist-filter').val('B').trigger($.Event("keyup", {keyCode: 13}));
+
+    deepEqual([{label:'itemAD',   value:"12", group: undefined, help: undefined, disabled:false, visible:false, tags:[], selected:false},
+               {label:'itemAB',  value:"78", group: undefined, help: undefined, disabled:false, visible:true,  tags:[], selected:false},
+               {label:'itemABC', value:"5",  group: undefined, help: undefined, disabled:false, visible:true,  tags:[], selected:false}], widget.model().all());
+    this.assertCheckListEntries(widget.content(),
+            [{label:'itemAD', value:'12', disabled: false, visible: false},
+             {label:'itemAB', value:'78', disabled: false, visible: true},
+             {label:'itemABC', value:'5',  disabled: false, visible: true}]);
+
+    element.find('.checklist-filter').val('BC').trigger($.Event("keyup", {keyCode: 13}));
+
+    deepEqual([{label:'itemAD',   value:"12", group: undefined, help: undefined, disabled:false, visible:false, tags:[], selected:false},
+               {label:'itemAB',  value:"78", group: undefined, help: undefined, disabled:false, visible:false, tags:[], selected:false},
+               {label:'itemABC', value:"5",  group: undefined, help: undefined, disabled:false, visible:true,  tags:[], selected:false}], widget.model().all());
+    this.assertCheckListEntries(widget.content(),
+            [{label:'itemAD', value:'12', disabled: false, visible: false},
+             {label:'itemAB', value:'78', disabled: false, visible: false},
+             {label:'itemABC', value:'5',  disabled: false, visible: true}]);
+
+    element.find('.checklist-filter').val('D').trigger($.Event("keyup", {keyCode: 13}));
+
+    deepEqual([{label:'itemAD',  value:"12", group: undefined, help: undefined, disabled:false, visible:true,  tags:[], selected:false},
+               {label:'itemAB',  value:"78", group: undefined, help: undefined, disabled:false, visible:false, tags:[], selected:false},
+               {label:'itemABC', value:"5",  group: undefined, help: undefined, disabled:false, visible:false, tags:[], selected:false}], widget.model().all());
+    this.assertCheckListEntries(widget.content(),
+            [{label:'itemAD', value:'12', disabled: false, visible: true},
+             {label:'itemAB', value:'78', disabled: false, visible: false},
+             {label:'itemABC', value:'5',  disabled: false, visible: false}]);
+});
+
+QUnit.test('creme.widget.CheckListSelect.search', function(assert) {
+    var element = this.createCheckListSelectElement();
+    this.addCheckListSelectSearch(element, 'search');
+    this.addCheckListSelectChoice(element, 'itemAD', 12);
+    this.addCheckListSelectChoice(element, 'itemAB', 78);
+    this.addCheckListSelectChoice(element, 'itemABC', 5);
+
+    var widget = creme.widget.create(element);
+    equal(element.hasClass('widget-active'), true);
+    equal(element.hasClass('widget-ready'), true);
+
+    deepEqual([{label:'itemAD',   value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
+               {label:'itemAB',  value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
+               {label:'itemABC', value:"5",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
+
+    element.find('.checklist-filter').val('B').trigger($.Event("keyup", {keyCode: 13}));
+
+    deepEqual([{label:'itemAD',   value:"12", group: undefined, help: undefined, disabled:true,  visible:true, tags:[], selected:false},
+               {label:'itemAB',  value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
+               {label:'itemABC', value:"5",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
+    this.assertCheckListEntries(widget.content(),
+            [{label:'itemAD', value:'12', disabled: true, visible: true},
+             {label:'itemAB', value:'78', disabled: false, visible: true},
+             {label:'itemABC', value:'5',  disabled: false, visible: true}]);
+
+    element.find('.checklist-filter').val('BC').trigger($.Event("keyup", {keyCode: 13}));
+
+    deepEqual([{label:'itemAD',   value:"12", group: undefined, help: undefined, disabled:true,  visible:true, tags:[], selected:false},
+               {label:'itemAB',  value:"78", group: undefined, help: undefined, disabled:true,  visible:true, tags:[], selected:false},
+               {label:'itemABC', value:"5",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
+    this.assertCheckListEntries(widget.content(),
+            [{label:'itemAD', value:'12', disabled: true, visible: true},
+             {label:'itemAB', value:'78', disabled: true, visible: true},
+             {label:'itemABC', value:'5',  disabled: false, visible: true}]);
+
+    element.find('.checklist-filter').val('D').trigger($.Event("keyup", {keyCode: 13}));
+
+    deepEqual([{label:'itemAD',  value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
+               {label:'itemAB',  value:"78", group: undefined, help: undefined, disabled:true,  visible:true, tags:[], selected:false},
+               {label:'itemABC', value:"5",  group: undefined, help: undefined, disabled:true,  visible:true, tags:[], selected:false}], widget.model().all());
+    this.assertCheckListEntries(widget.content(),
+            [{label:'itemAD', value:'12', disabled: false, visible: true},
+             {label:'itemAB', value:'78', disabled: true, visible: true},
+             {label:'itemABC', value:'5',  disabled: true, visible: true}]);
+});
+
+}(jQuery));

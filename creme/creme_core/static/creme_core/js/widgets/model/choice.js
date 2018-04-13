@@ -262,7 +262,7 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
             tags: (data.tags || []).join(' ')
         };
 
-        var item = $(('<${tag} class="checkbox-field" tags="${tags}" checklist-index="${index}" ${hidden} ${disabled}>' +
+        var item = $(('<${tag} class="checkbox-field ${hidden}" tags="${tags}" checklist-index="${index}" ${disabled}>' +
                          '<input type="checkbox" value="${value}" checklist-index="${index}" ${disabled} ${checked}/>' +
                          '<div class="checkbox-label">' +
                              '<span class="checkbox-label-text" ${disabled}>${label}</span>' +
