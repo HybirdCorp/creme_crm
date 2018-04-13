@@ -24,7 +24,7 @@ creme.widget = creme.widget || {};
 creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', {
     options: {
         datatype: 'string',
-        less:     10
+        less:     0
     },
 
     _create: function(element, options, cb, sync) {

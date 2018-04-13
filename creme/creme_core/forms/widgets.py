@@ -1548,6 +1548,7 @@ class ColorPickerWidget(widgets.TextInput):
 class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultiple):
     template_name = 'creme_core/forms/widgets/unordered-multiple.html'
 
+    MIN_LESS_COUNT = 20
     MIN_SEARCH_COUNT = 10
     MIN_FILTER_COUNT = 30
     MIN_CHECKALL_COUNT = 3
@@ -1609,6 +1610,12 @@ class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultipl
             return 'search'
         else:
             return 'filter'
+
+    def _build_viewless(self, viewless, count):
+        if not viewless:
+            return count >= self.MIN_LESS_COUNT
+
+        return viewless
 
     # def _render_viewless(self, attrs, viewless):
     #     if not viewless:
@@ -1678,14 +1685,18 @@ class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultipl
         widget_cxt['widget_type'] = widget_type
 
         widget_cxt['column_type'] = self.columntype
-        widget_cxt['view_less'] = self.viewless
+        widget_cxt['view_less'] = self._build_viewless(self.viewless, count)
+
         widget_cxt['checkall'] = final_attrs.pop('checkall', True)
+        widget_cxt['checkall_hidden'] = ' hidden' if count < self.MIN_CHECKALL_COUNT else ''
+
         widget_cxt['choice_count'] = count
         widget_cxt['filter_type'] = self._build_filtertype(count)
 
         widget_cxt['MIN_CHECKALL_COUNT'] = self.MIN_CHECKALL_COUNT
         widget_cxt['MIN_SEARCH_COUNT']   = self.MIN_SEARCH_COUNT  # NB: not used ; set for consistency/extensibility.
         widget_cxt['MIN_FILTER_COUNT']   = self.MIN_FILTER_COUNT  # Idem
+        widget_cxt['MIN_LESS_COUNT']     = self.MIN_LESS_COUNT
 
         widget_cxt['creation_allowed'] = self.creation_allowed
         widget_cxt['creation_url']     = self.creation_url
