@@ -36,6 +36,18 @@ from creme.creme_core.models.fields import CremeUserForeignKey
 CremeUser = get_user_model()
 
 
+# NB: password_validation.password_validators_help_text_html is not mark_safe()'ed.
+def _password_validators_help_text_html(password_validators=None):
+    help_texts = password_validation.password_validators_help_texts(password_validators)
+
+    if not help_texts:
+        return ''
+
+    return format_html(u'<ul>{}</ul>',
+                       format_html_join(u'', u'<li>{}</li>', ((text,) for text in help_texts))
+                      )
+
+
 # TODO: inherit from django.contrib.auth.forms.UserCreationForm
 #       => we need a Mixin to initialize the user in fields  (like HookableForm)
 class UserAddForm(CremeModelForm):
@@ -44,7 +56,10 @@ class UserAddForm(CremeModelForm):
         'password_mismatch': _(u"The two password fields didn't match."),
     }
 
-    password_1 = CharField(label=_(u'Password'), strip=False, widget=PasswordInput)
+    password_1 = CharField(label=_(u'Password'), strip=False, widget=PasswordInput,
+                           # help_text=password_validation.password_validators_help_text_html(),
+                           help_text=lazy(_password_validators_help_text_html, unicode),
+                          )
     # password_1   = CharField(label=_(u'Password'), min_length=6, widget=PasswordInput())
     password_2 = CharField(label=_(u'Confirm password'),
                            widget=PasswordInput, strip=False,
@@ -63,7 +78,7 @@ class UserAddForm(CremeModelForm):
         super(UserAddForm, self).__init__(*args, **kwargs)
 
         # NB: browser can ignore <em> tag in <option>...
-        self.fields['role'].empty_label = u'*%s*' % ugettext(u'Superuser')
+        self.fields['role'].empty_label = u'*{}*'.format(ugettext(u'Superuser'))
 
     # Copied from django.contrib.auth.forms.UserCreationForm
     def clean_password_2(self):
@@ -121,18 +136,6 @@ class UserEditForm(CremeModelForm):
         instance.is_superuser = (role is None)
 
         return super(UserEditForm, self).save(*args, **kwargs)
-
-
-# NB: password_validation.password_validators_help_text_html is not mark_safe()'ed.
-def _password_validators_help_text_html(password_validators=None):
-    help_texts = password_validation.password_validators_help_texts(password_validators)
-
-    if not help_texts:
-        return ''
-
-    return format_html(u'<ul>{}</ul>',
-                       format_html_join(u'', u'<li>{}</li>', ((text,) for text in help_texts))
-                      )
 
 
 # NB: we cannot use django.contrib.auth.forms.AdminPasswordChangeForm, because it defines a 'user'
