@@ -21,12 +21,12 @@
 {% block brick_table_rows %}
     {% has_perm_to unlink object as subject_unlink_perm %}{% url 'creme_core__delete_relation' as delete_url %}
     {% regroup page.object_list by type as relations_by_rtype %}
-    {% for relation_group in relations_by_rtype %}
+    {% for rtype, relations in relations_by_rtype %}
         {% if not relation.type.is_internal %}
-            {% for relation in relation_group.list %}{% with relation.object_entity.get_real_entity as entity_obj %}
+            {% for relation in relations %}{% with relation.object_entity.get_real_entity as entity_obj %}
                 {% has_perm_to unlink entity_obj as object_unlink_perm %}
         <tr>
-            <td {% brick_table_data_status primary %}>{% if forloop.first %}{{relation_group.grouper.predicate}}{% else %}&nbsp;{% endif %}</td>
+            <td {% brick_table_data_status primary %}>{% if forloop.first %}{{rtype.predicate}}{% else %}&nbsp;{% endif %}</td>
             <td>{% widget_entity_hyperlink entity_obj user %}</td>
             <td {% brick_table_data_status action %}>
                 {% brick_table_action id='delete' url=delete_url __id=relation.pk label=_('Delete this relationship') icon='unlink' enabled=subject_unlink_perm|and_op:object_unlink_perm %}
