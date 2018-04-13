@@ -7,10 +7,15 @@
                 {% include 'django/forms/widgets/select.html' with widget=widget.column_select %}
             </td>
             {% if widget.propose_creation %}
-            <td>&nbsp;
+            <td class="csv_cfvalue_creation">&nbsp;
                 <label for="{{id}}_create">{% trans 'Create if not found?' %}:
                     <input type="checkbox" id="{{id}}_create" name="{{widget.name}}_create"{% if widget.can_create %} checked{% endif %}>
                 </label>
+                <script type="text/javascript">
+                    $(document).ready(function() {
+                        creme.forms.toImportField('{{id}}', '.csv_cfvalue_creation');
+                    });
+                </script>
             </td>
             {% endif %}
             <td>&nbsp;
