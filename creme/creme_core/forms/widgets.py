@@ -1688,7 +1688,7 @@ class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultipl
         widget_cxt['view_less'] = self._build_viewless(self.viewless, count)
 
         widget_cxt['checkall'] = final_attrs.pop('checkall', True)
-        widget_cxt['checkall_hidden'] = ' hidden' if count < self.MIN_CHECKALL_COUNT else ''
+        widget_cxt['checkall_hidden'] = count < self.MIN_CHECKALL_COUNT
 
         widget_cxt['choice_count'] = count
         widget_cxt['filter_type'] = self._build_filtertype(count)
