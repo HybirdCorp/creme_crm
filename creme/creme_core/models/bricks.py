@@ -30,8 +30,8 @@ from django.db.models import (CharField, TextField, ForeignKey, OneToOneField,
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
 
-from ..constants import (SETTING_BLOCK_DEFAULT_STATE_IS_OPEN,
-        SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS, MODELBLOCK_ID)
+from ..constants import (SETTING_BRICK_DEFAULT_STATE_IS_OPEN,
+        SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS, MODELBLOCK_ID)
 from ..utils import creme_entity_content_types
 from .auth import UserRole
 from .base import CremeModel
@@ -586,15 +586,15 @@ class BlockState(CremeModel):
             return BlockState.objects.get(brick_id=brick_id, user=user)
         except BlockState.DoesNotExist:
             states = {sv.key_id: sv.value
-                        for sv in SettingValue.objects.filter(key_id__in=[SETTING_BLOCK_DEFAULT_STATE_IS_OPEN,
-                                                                          SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS,
+                        for sv in SettingValue.objects.filter(key_id__in=[SETTING_BRICK_DEFAULT_STATE_IS_OPEN,
+                                                                          SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS,
                                                                          ],
                                                              )
                      }
 
             return BlockState(brick_id=brick_id, user=user,
-                              is_open=states[SETTING_BLOCK_DEFAULT_STATE_IS_OPEN],
-                              show_empty_fields=states[SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS],
+                              is_open=states[SETTING_BRICK_DEFAULT_STATE_IS_OPEN],
+                              show_empty_fields=states[SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS],
                              )
 
     # @staticmethod
@@ -615,8 +615,8 @@ class BlockState(CremeModel):
 
         # TODO: Method for get_default_states?
         get_sv = SettingValue.objects.get  # TODO: group queries ?? + cache ?
-        is_default_open             = get_sv(key_id=SETTING_BLOCK_DEFAULT_STATE_IS_OPEN).value
-        is_default_fields_displayed = get_sv(key_id=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS).value
+        is_default_open             = get_sv(key_id=SETTING_BRICK_DEFAULT_STATE_IS_OPEN).value
+        is_default_fields_displayed = get_sv(key_id=SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS).value
 
         for state in BlockState.objects.filter(brick_id__in=brick_ids, user=user):
             states[state.brick_id] = state
