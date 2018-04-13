@@ -64,9 +64,8 @@ def get_backend(filedata):
     pathname, extension = splitext(filename)
     backend = import_backend_registry.get_backend(extension.replace('.', ''))
 
-    error_msg = ugettext(u'Error reading document, unsupported file type: %(file)s.') % {
-                                    'file': filename,
-                        } if backend is None else None
+    error_msg = ugettext(u'Error reading document, unsupported file type: {file}.')\
+                        .format(file=filename) if backend is None else None
 
     return backend, error_msg
 
@@ -84,7 +83,7 @@ def get_header(filedata, has_header):
             filedata.open()
             header = backend(filedata).next()
         except Exception as e:
-            raise ValidationError(ugettext(u'Error reading document: %(error)s.') % {'error': e})
+            raise ValidationError(ugettext(u'Error reading document: {error}.').format(error=e))
         finally:
             filedata.close()
 
@@ -180,22 +179,22 @@ class Extractor(object):
                                 value = creator.instance
                             else:
                                 err_msg = ugettext(u'Error while extracting value: tried to retrieve '
-                                                    'and then build "%(value)s" (column %(column)s) on %(model)s. '
-                                                    'Raw error: [%(raw_error)s]') % {
-                                                            'raw_error': e,
-                                                            'column':    self._column_index,
-                                                            'value':     line_value,
-                                                            'model':     self._fk_model._meta.verbose_name,
-                                                        }
+                                                   u'and then build «{value}» (column {column}) on {model}. '
+                                                   u'Raw error: [{raw_error}]').format(
+                                                        raw_error=e,
+                                                        column=self._column_index,
+                                                        value=line_value,
+                                                        model=self._fk_model._meta.verbose_name,
+                                )
                         else:
                             err_msg = ugettext(u'Error while extracting value: tried to retrieve '
-                                                '"%(value)s" (column %(column)s) on %(model)s. '
-                                                'Raw error: [%(raw_error)s]') % {
-                                                        'raw_error': e,
-                                                        'column':    self._column_index,
-                                                        'value':     line_value,
-                                                        'model':     self._fk_model._meta.verbose_name,
-                                                    }
+                                               u'«{value}» (column {column}) on {model}. '
+                                               u'Raw error: [{raw_error}]').format(
+                                                    raw_error=e,
+                                                    column=self._column_index,
+                                                    value=line_value,
+                                                    model=self._fk_model._meta.verbose_name,
+                            )
                 else:
                     try:
                         value = self._value_castor(line_value)
@@ -497,21 +496,21 @@ class EntityExtractor(object):
                     created.full_clean()  # Can raise ValidationError
                     created.save()  # TODO should we use save points for this line ?
                 except Exception as e:
-                    error_msg = _(u'Error while extracting value [%(raw_error)s]: '
-                                  u'tried to retrieve and then build "%(value)s" on %(model)s') % {
-                                        'raw_error': e,
-                                        'value': value,
-                                        'model': model._meta.verbose_name,
-                                    }
+                    error_msg = _(u'Error while extracting value [{raw_error}]: '
+                                  u'tried to retrieve and then build «{value}» on {model}').format(
+                                        raw_error=e,
+                                        value=value,
+                                        model=model._meta.verbose_name,
+                    )
                 else:
                     extracted = created
             else:
-                error_msg = _(u'Error while extracting value [%(raw_error)s]: '
-                              u'tried to retrieve "%(value)s" on %(model)s') % {
-                                    'raw_error': e,
-                                    'value':     value,
-                                    'model':     model._meta.verbose_name,
-                                }
+                error_msg = _(u'Error while extracting value [{raw_error}]: '
+                              u'tried to retrieve «{value}» on {model}').format(
+                                    raw_error=e,
+                                    value=value,
+                                    model=model._meta.verbose_name,
+                )
 
         return extracted, error_msg
 
@@ -740,41 +739,40 @@ class RelationExtractor(object):
                 object_entity = EntityCredentials.filter(user, model.objects.filter(**data)).first()
             except Exception as e:
                 err_msg = ugettext(u'Error while extracting value to build a Relation: '
-                                   u'tried to retrieve %(field)s="%(value)s" (column %(column)s) on %(model)s. '
-                                   u'Raw error: [%(raw_error)s]') % {
-                                        'raw_error': e,
-                                        'column':    self._column_index,
-                                        'field':     self._subfield_search,
-                                        'value':     value,
-                                        'model':     model._meta.verbose_name,
-                                    }
+                                   u'tried to retrieve {field}=«{value}» (column {column}) on {model}. '
+                                   u'Raw error: [{raw_error}]').format(
+                                        raw_error=e,
+                                        column=self._column_index,
+                                        field=self._subfield_search,
+                                        value=value,
+                                        model=model._meta.verbose_name,
+                )
             else:
-                if object_entity is not None:
-                    pass  # TODO: ugly
-                elif self._related_form:  # Try to create the referenced instance
-                    data['user'] = user.id
-                    creator = self._related_form(data=data)
+                if object_entity is None:
+                    if self._related_form:  # Try to create the referenced instance
+                        data['user'] = user.id
+                        creator = self._related_form(data=data)
 
-                    if creator.is_valid():
-                        object_entity = creator.save()
+                        if creator.is_valid():
+                            object_entity = creator.save()
+                        else:
+                            err_msg = ugettext(u'Error while extracting value: '
+                                               u'tried to build {model} with data={data} '
+                                               u'(column {column}) ➔ errors={errors}').format(
+                                                    model=model._meta.verbose_name,
+                                                    column=self._column_index,
+                                                    data=data,
+                                                    errors=creator.errors,
+                            )
                     else:
-                        err_msg = ugettext(u'Error while extracting value: '
-                                           u'tried to build %(model)s with data=%(data)s '
-                                           u'(column %(column)s) => errors=%(errors)s') % {
-                                                    'model':  model._meta.verbose_name,
-                                                    'column': self._column_index,
-                                                    'data':   data,
-                                                    'errors': creator.errors,
-                                                }
-                else:
-                    err_msg = ugettext(u'Error while extracting value to build a Relation: '
-                                       u'tried to retrieve %(field)s="%(value)s" '
-                                       u'(column %(column)s) on %(model)s') % {
-                                            'field': self._subfield_search,
-                                            'column': self._column_index,
-                                            'value': value,
-                                            'model': model._meta.verbose_name,
-                                        }
+                        err_msg = ugettext(u'Error while extracting value to build a Relation: '
+                                           u'tried to retrieve {field}=«{value}» '
+                                           u'(column {column}) on {model}').format(
+                                                field=self._subfield_search,
+                                                column=self._column_index,
+                                                value=value,
+                                                model=model._meta.verbose_name,
+                        )
 
         return (self._rtype, object_entity), err_msg
 
@@ -1003,12 +1001,12 @@ class CustomFieldExtractor(object):
                                )
                     else:
                         err_msg = ugettext(u'Error while extracting value: tried to retrieve '
-                                           u'the choice "%(value)s" (column %(column)s). '
-                                           u'Raw error: [%(raw_error)s]') % {
-                                                        'raw_error': e,
-                                                        'column':    self._column_index,
-                                                        'value':     value,
-                                                    }
+                                           u'the choice «{value}» (column {column}). '
+                                           u'Raw error: [{raw_error}]').format(
+                                                raw_error=e,
+                                                column=self._column_index,
+                                                value=value,
+                        )
 
                     value = None
 
@@ -1150,15 +1148,16 @@ class ImportForm(CremeModelForm):
     step       = IntegerField(widget=HiddenInput)
     document   = IntegerField(widget=HiddenInput)
     has_header = BooleanField(widget=HiddenInput, required=False)
-    key_fields = MultipleChoiceField(label=_(u'Key fields'), required=False,
-                                     choices=(),
-                                     widget=UnorderedMultipleChoiceWidget(columntype='wide'),
-                                     help_text=_(u'Select at least one field if you want to use the "update" mode. '
-                                                 u'If an entity already exists with the same field values, it will be simply updated '
-                                                 u'(ie: a new entity will not be created).\n'
-                                                 u'But if several entities are found, a new entity is created (in order to avoid errors).'
-                                                ),
-                                    )
+    key_fields = MultipleChoiceField(
+                        label=_(u'Key fields'), required=False,
+                        choices=(),
+                        widget=UnorderedMultipleChoiceWidget(columntype='wide'),
+                        help_text=_(u'Select at least one field if you want to use the "update" mode. '
+                                    u'If an entity already exists with the same field values, it will be simply updated '
+                                    u'(ie: a new entity will not be created).\n'
+                                    u'But if several entities are found, a new entity is created (in order to avoid errors).'
+                                   ),
+                    )
 
     error_messages = {
         'invalid_document': _(u"This document doesn't exist or doesn't exist any more."),
@@ -1493,15 +1492,15 @@ def form_factory(ct, header):
     header_dict = {}
 
     if header:
-        fstring = ugettext(u'Column %(index)s - %(name)s')
+        fstring = ugettext(u'Column {index} - {name}')
 
         for i, col_name in enumerate(header):
             i += 1
-            choices.append((i, fstring % {'index': i, 'name': col_name}))
+            choices.append((i, fstring.format(index=i, name=col_name)))
             header_dict[slugify(col_name)] = i
     else:
-        fstring = ugettext(u'Column %i')
-        choices.extend((i, fstring % i) for i in xrange(1, 21))
+        fstring = ugettext(u'Column {}')
+        choices.extend((i, fstring.format(i)) for i in xrange(1, 21))
 
     model_class = ct.model_class()
     customform_factory = import_form_registry.get(ct)

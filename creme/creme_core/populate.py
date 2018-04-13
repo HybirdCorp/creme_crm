@@ -66,11 +66,11 @@ class Populator(BasePopulator):
                                                             )
 
             if self.verbosity:
-                self.stdout.write('\n A super-user has been created with login="%(login)s"'
-                                  ' and password="%(password)s".' % {
-                                      'login':    login,
-                                      'password': password,
-                                  },
+                self.stdout.write('\n A super-user has been created with login="{login}"'
+                                  ' and password="{password}".'.format(
+                                      login=login,
+                                      password=password,
+                                  ),
                                   self.style.NOTICE,
                                  )
 
