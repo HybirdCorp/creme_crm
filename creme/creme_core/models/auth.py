@@ -117,10 +117,10 @@ class UserRole(Model):
 
         return self._extended_allowed_apps
 
-    def is_app_administrable(self, app_name):
+    def is_app_administrable(self, app_name):  # TODO: rename "app_label"
         return app_name in self.extended_admin_4_apps
 
-    def is_app_allowed_or_administrable(self, app_name):
+    def is_app_allowed_or_administrable(self, app_name):  # TODO: rename "app_label"
         return (app_name in self.extended_allowed_apps) or self.is_app_administrable(app_name)
 
     def _build_apps_verbose(self, app_names):   # TODO: rename app_labels
@@ -688,10 +688,10 @@ class CremeUser(AbstractBaseUser):
 
         return all(has_perm(perm, obj) for perm in perm_list)
 
-    def has_perm_to_access(self, app_name):
+    def has_perm_to_access(self, app_name):  # TODO: rename "app_label"
         return self.is_superuser or self.role.is_app_allowed_or_administrable(app_name)
 
-    def has_perm_to_admin(self, app_name):
+    def has_perm_to_admin(self, app_name):  # TODO: rename "app_label"
         return self.is_superuser or self.role.is_app_administrable(app_name)
 
     def has_perm_to_admin_or_die(self, app_name):  # TODO: rename 'app_label'

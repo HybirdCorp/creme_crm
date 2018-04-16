@@ -29,7 +29,7 @@ except Exception as e:
 @skipIfCustomOrganisation
 @skipIfCustomInvoice
 class LineTestCase(_BillingTestCase):
-    clean_files_in_teardown = False
+    # clean_files_in_teardown = False
 
     DEL_VAT_URL = reverse('creme_config__delete_instance', args=('creme_core', 'vat_value'))
 

@@ -33,7 +33,7 @@ def skipIfCustomFolder(test_func):
 
 
 class _DocumentsTestCase(CremeTestCase):
-    clean_files_in_teardown = True  # see CremeTestCase
+    # clean_files_in_teardown = True  # see CremeTestCase
 
     @classmethod
     def setUpClass(cls):

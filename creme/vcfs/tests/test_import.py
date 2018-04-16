@@ -1272,7 +1272,7 @@ PHOTO;TYPE=JPEG:""" \
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertTrue(contact.image)
         self.assertEqual(_(u'Image of %s') % contact, contact.image.title)
-        contact.image.filedata.delete()
+        # contact.image.filedata.delete()
 
     @skipIfCustomContact
     def test_add_contact_vcf15(self):
@@ -1311,7 +1311,7 @@ END:VCARD""" % path
         image = images[0]
         self.assertEqual(image, contact.image)
         self.assertEqual(_(u'Image of %s') % contact, image.title)
-        image.delete()
+        # image.delete()
 
     @skipIfCustomContact
     def test_add_contact_vcf16(self):

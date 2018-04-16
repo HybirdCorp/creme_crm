@@ -34,7 +34,7 @@ except Exception as e:
 
 @skipIfCustomEntityEmail
 class EntityEmailTestCase(_EmailsTestCase):
-    clean_files_in_teardown = True  # see CremeTestCase
+    # clean_files_in_teardown = True  # see CremeTestCase
 
     @classmethod
     def setUpClass(cls):

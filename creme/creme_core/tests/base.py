@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime, timedelta
-from os import remove as delete_file, listdir, makedirs
-from os import path as os_path
+# from os import remove as delete_file, listdir, makedirs
+# from os import path as os_path
 from unittest import skipIf
 from unittest.util import safe_repr
 import warnings
 
 from django.test import TestCase, TransactionTestCase
 from django.apps import apps
-from django.conf import settings
+# from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.management import call_command
 from django.db.models.query_utils import Q
@@ -48,34 +48,33 @@ class _AssertNoExceptionContext(object):
 
 
 class _CremeTestCase(object):
-    # NB: set this line in inherited classes to clean upload/documents directory in tearDown
-    # clean_files_in_teardown = True
+    # clean_files_in_teardown = True  # REMOVED
 
     @classmethod
     def setUpClass(cls):
-        cls.documents_dir = documents_dir = os_path.join(settings.MEDIA_ROOT,
-                                                         'upload',
-                                                         'documents',
-                                                        )
-
-        if os_path.exists(documents_dir):
-            cls.existing_doc_files = set(listdir(documents_dir))
-        else:
-            makedirs(documents_dir, 0755)
-            cls.existing_doc_files = set()
+        # cls.documents_dir = documents_dir = os_path.join(settings.MEDIA_ROOT,
+        #                                                  'upload',
+        #                                                  'documents',
+        #                                                 )
+        #
+        # if os_path.exists(documents_dir):
+        #     cls.existing_doc_files = set(listdir(documents_dir))
+        # else:
+        #     makedirs(documents_dir, 0755)
+        #     cls.existing_doc_files = set()
 
         warnings.filterwarnings('error', r"(.)* received a naive datetime (.)*",
                                 RuntimeWarning, r'django\.db\.models\.fields',
                                )
 
     def tearDown(self):
-        if getattr(self, 'clean_files_in_teardown', False):
-            existing_files = self.existing_doc_files
-            dir_path = self.documents_dir
-
-            for filename in listdir(dir_path):
-                if filename not in existing_files:
-                    delete_file(os_path.join(dir_path, filename))
+        # if getattr(self, 'clean_files_in_teardown', False):
+        #     existing_files = self.existing_doc_files
+        #     dir_path = self.documents_dir
+        #
+        #     for filename in listdir(dir_path):
+        #         if filename not in existing_files:
+        #             delete_file(os_path.join(dir_path, filename))
 
         clear_global_info()
 
@@ -240,7 +239,7 @@ class _CremeTestCase(object):
         except Exception as e:
             print_traceback()
 
-            raise self.failureException('An exception <%s> occured: %s' % (e.__class__.__name__, e))
+            raise self.failureException('An exception <%s> occurred: %s' % (e.__class__.__name__, e))
 
     # TODO: add an argument 'field' like assertNoFormsetError()
     def assertNoFormError(self, response, status=200, form='form'):
