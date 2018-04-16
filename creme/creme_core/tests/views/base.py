@@ -105,7 +105,7 @@ class BrickTestCaseMixin(object):
 
 # TODO: rename (MassImportBaseTestCaseMixin)
 class CSVImportBaseTestCaseMixin(object):
-    clean_files_in_teardown = True  # See CremeTestCase
+    # clean_files_in_teardown = True  # See CremeTestCase
 
     def _assertNoResultError(self, results):
         for r in results:

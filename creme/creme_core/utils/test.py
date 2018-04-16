@@ -21,9 +21,12 @@
 from __future__ import print_function
 
 from os.path import dirname
+from shutil import rmtree
+from tempfile import mkdtemp
 from unittest.loader import TestLoader
 
 from django.apps import apps
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.management import call_command
 from django.test.runner import DiscoverRunner
@@ -55,7 +58,28 @@ class CremeTestLoader(TestLoader):
 
 
 class CremeDiscoverRunner(DiscoverRunner):
+    """This test runner:
+        - populates the DB (in the Creme way).
+        - overrides settings.MEDIA_ROOT with a temporary directory
+          (so files created by the tests can be easily removed).
+    """
     test_loader = CremeTestLoader()
+
+    def __init__(self, *args, **kwargs):
+        super(CremeDiscoverRunner, self).__init__(*args, **kwargs)
+        self._mock_media_path = None
+        self._original_media_root = settings.MEDIA_ROOT
+
+    def setup_test_environment(self, **kwargs):
+        super(CremeDiscoverRunner, self).setup_test_environment(**kwargs)
+        self._mock_media_path = settings.MEDIA_ROOT = mkdtemp(prefix='creme_test_media')
+
+    def teardown_test_environment(self, **kwargs):
+        super(CremeDiscoverRunner, self).teardown_test_environment(**kwargs)
+        settings.MEDIA_ROOT = self._original_media_root
+
+        if self._mock_media_path:
+            rmtree(self._mock_media_path)
 
     def setup_databases(self, *args, **kwargs):
         res = super(CremeDiscoverRunner, self).setup_databases(*args, **kwargs)
