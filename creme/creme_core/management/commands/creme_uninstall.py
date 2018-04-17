@@ -60,7 +60,8 @@ def uninstall_handler(msg):
                    )
 
             if verbosity:
-                stdout_write(' [OK]', style.MIGRATE_SUCCESS)
+                # stdout_write(' [OK]', style.MIGRATE_SUCCESS)
+                stdout_write(' [OK]', style.SUCCESS)
 
         return _aux
 
@@ -131,7 +132,7 @@ def _uninstall_blocks(sender, **kwargs):
 @receiver(pre_uninstall_flush)
 @uninstall_handler('Deleting preferred menu entries...')
 def _uninstall_preferred_menu(sender, **kwargs):
-    PreferedMenuItem.objects.filter(url__startswith='/%s/' % sender.label).delete()
+    PreferedMenuItem.objects.filter(url__startswith='/{}/'.format(sender.label)).delete()
 
 
 @receiver(pre_uninstall_flush)
@@ -150,7 +151,7 @@ def _uninstall_setting_values(sender, **kwargs):
 @receiver(pre_uninstall_flush)
 @uninstall_handler('Deleting jobs...')
 def _uninstall_jobs(sender, **kwargs):
-    for job in Job.objects.filter(type_id__startswith='%s-' % sender.label):
+    for job in Job.objects.filter(type_id__startswith=sender.label + '-'):
         job.delete()
 
 
@@ -180,11 +181,11 @@ def _uninstall_entity_filters(sender, content_types, stdout_write, style, **kwar
                       }
 
             if parents:
-                stdout_write(' Beware: the filter "%s" (id=%s) was used as '
-                             'sub-filter by the following filter(s): %s' % (
-                                    efilter.name,
-                                    efilter.id,
-                                    ', '.join('<"%s" (id="%s")>' % (p.name, p.id)
+                stdout_write(u' Beware: the filter "{name}" (id={id}) was used as '
+                             u'sub-filter by the following filter(s): {parents}'.format(
+                                    name=efilter.name,
+                                    id=efilter.id,
+                                    parents=', '.join(u'<"{}" (id="{}")>'.format(p.name, p.id)
                                                   for p in parents.itervalues()
                                              ),
                                 ),
@@ -248,12 +249,12 @@ class Command(AppCommand):
                     depending_app_names.append(other_name)
 
         if depending_app_names:
-            raise CommandError('The following app(s) depend(s) on "%s" & '
-                               'must be uninstalled before:\n%s' % (
-                                       app_config.label,
-                                       '\n'.join(' - ' + name
-                                                    for name in depending_app_names
-                                                ),
+            raise CommandError('The following app(s) depend(s) on "{app}" & '
+                               'must be uninstalled before:\n{apps}'.format(
+                                        app=app_config.label,
+                                        apps='\n'.join(' - ' + name
+                                                           for name in depending_app_names
+                                                      ),
                                    )
                               )
 
@@ -278,15 +279,15 @@ class Command(AppCommand):
 
                 if not count:
                     if verbosity:
-                        self.stdout.write('No "%s" instance to delete.\n' % model.__name__)
+                        self.stdout.write('No "{}" instance to delete.\n'.format(model.__name__))
 
                     continue
 
                 if verbosity:
-                    self.stdout.write('Trying to flush "%s" (%s%s instances)...\n' % (
-                                            model.__name__,
-                                            count,
-                                            '' if first_trial else ' remaining',
+                    self.stdout.write('Trying to flush "{model}" ({count}{adj} instances)...\n'.format(
+                                            model=model.__name__,
+                                            count=count,
+                                            adj='' if first_trial else ' remaining',
                                         )
                                      )
 
@@ -311,7 +312,8 @@ class Command(AppCommand):
                     next_models_info.append((model, False))
                 elif verbosity:
                     self.stdout.write(' [OK] All instances have been deleted.',
-                                      self.style.MIGRATE_SUCCESS,
+                                      # self.style.MIGRATE_SUCCESS,
+                                      self.style.SUCCESS,
                                      )
 
             if not next_models_info:
@@ -321,14 +323,14 @@ class Command(AppCommand):
                 extra_errors = max(0, len(errors) - errors.max_size)
 
                 raise CommandError('[KO] Cannot flush all instances: aborting.\n'
-                                   '%s\n%s'
+                                   '{errors}\n{extra_errors}'
                                    'Please delete the problematic instances '
-                                   'manually before re-run this command.' % (
-                                        '\n'.join('- Cannot delete "%s" (id=%s) (original error: %s)' % (
-                                                        obj, obj.id, error,
-                                                    ) for obj, error in errors
+                                   'manually before re-run this command.'.format(
+                                        errors='\n'.join('- Cannot delete "{obj}" (id={id}) (original error: {error})'.format(
+                                                             obj=obj, id=obj.id, error=error,
+                                                        ) for obj, error in errors
                                                  ),
-                                        '(%s extra error(s))\n' % extra_errors if extra_errors else '',
+                                        extra_errors='({} extra error(s))\n'.format(extra_errors) if extra_errors else '',
                                     )
                                   )
 
@@ -349,10 +351,10 @@ class Command(AppCommand):
 
             for ctype, error in ctypes_info:
                 if verbosity:
-                    self.stdout.write('Trying to delete the ContentType "%s" (id=%s)%s...\n' % (
-                                            ctype,
-                                            ctype.id,
-                                            '' if error is None else ' again',
+                    self.stdout.write('Trying to delete the ContentType "{ctype}" (id={id}){again}...\n'.format(
+                                            ctype=ctype,
+                                            id=ctype.id,
+                                            again='' if error is None else ' again',
                                         )
                                      )
 
@@ -364,7 +366,8 @@ class Command(AppCommand):
                     progress = True
 
                     if verbosity:
-                        self.stdout.write(' [OK]', self.style.MIGRATE_SUCCESS)
+                        # self.stdout.write(' [OK]', self.style.MIGRATE_SUCCESS)
+                        self.stdout.write(' [OK]', self.style.SUCCESS)
 
             ctypes_info = next_ctypes_info
 
@@ -373,18 +376,20 @@ class Command(AppCommand):
 
         if ctypes_info:
             raise CommandError('There were errors when trying to the ContentTypes: aborting.\n'
-                               '%s\n'
+                               '{}\n'
                                'Sadly you have to solve this problem manually '
-                               'before re-run this command.' %
-                                    '\n'.join('- Cannot delete ContentType for "%s" '
-                                              '(original error: %s)' % ci
+                               'before re-run this command.'.format(
+                                    '\n'.join('- Cannot delete ContentType for "{}" '
+                                              '(original error: {})'.format(*ci)
                                                 for ci in ctypes_info
                                              ),
+                                )
                               )
 
         if verbosity > 1:
             self.stdout.write(' [OK] All related ContentTypes have been deleted.',
-                              self.style.MIGRATE_SUCCESS
+                              # self.style.MIGRATE_SUCCESS
+                              self.style.SUCCESS,
                              )
 
     def _delete_migrations(self, app_label, verbosity):
@@ -394,7 +399,8 @@ class Command(AppCommand):
         MigrationRecorder.Migration.objects.filter(app=app_label).delete()
 
         if verbosity:
-            self.stdout.write(' [OK]', self.style.MIGRATE_SUCCESS)
+            # self.stdout.write(' [OK]', self.style.MIGRATE_SUCCESS)
+            self.stdout.write(' [OK]', self.style.SUCCESS)
 
     # TODO: close cursor
     def _delete_tables(self, app_config, app_label, verbosity):
@@ -406,12 +412,11 @@ class Command(AppCommand):
 
         if dep_error:
             self.stderr.write(u" [KO] Dependencies loop (cannot find a safe deletion order).\n"
-                              u"SQL commands:\n%s\n" %
-                                u'\n'.join(sql_commands)  # TODO: .encode('utf-8')  ??
+                              u"SQL commands:\n{}\n".format(u'\n'.join(sql_commands)) # TODO: .encode('utf-8')  ??
                              )
 
             raise CommandError('Sadly you have to DELETE the remaining tables MANUALLY, '
-                               'and THEN REMOVE "%s" from your settings.' % app_label,
+                               'and THEN REMOVE "{}" from your settings.'.format(app_label),
                               )
 
         if sql_commands:
@@ -430,23 +435,25 @@ class Command(AppCommand):
                     cursor.execute(sql_command)
 
                     if verbosity:
-                        self.stdout.write(' [OK]', self.style.MIGRATE_SUCCESS)
+                        # self.stdout.write(' [OK]', self.style.MIGRATE_SUCCESS)
+                        self.stdout.write(' [OK]', self.style.SUCCESS)
             except Exception as e:
-                self.stderr.write(u" [KO] Original error: %(error)s.\n"
+                self.stderr.write(u" [KO] Original error: {error}.\n"
                                   u"Remaining SQL commands:\n"
-                                  u"%(commands)s\n" % {
-                                        'error': force_unicode(e),  # PostGreSQL returns localized errors...
-                                        'commands': u'\n'.join(sql_commands),  # TODO: .encode('utf-8')  ??
-                                      }
+                                  u"{commands}\n".format(
+                                        error=force_unicode(e),  # PostGreSQL returns localized errors...
+                                        commands=u'\n'.join(sql_commands),  # TODO: .encode('utf-8')  ??
+                                    )
                                  )
 
                 raise CommandError('Sadly you have to DELETE the remaining tables MANUALLY, '
-                                   'and THEN REMOVE "%s" from your settings.' % app_label,
+                                   'and THEN REMOVE "{}" from your settings.'.format(app_label),
                                   )
 
             if verbosity > 1:
                 self.stdout.write(' [OK] All tables have been deleted',
-                                  self.style.MIGRATE_SUCCESS
+                                  # self.style.MIGRATE_SUCCESS
+                                  self.style.SUCCESS,
                                  )
         elif verbosity:
             self.stdout.write('No table to delete.')
@@ -457,8 +464,8 @@ class Command(AppCommand):
 
         # self._check_creme_app(app_label)
         if not app_config.creme_app:
-            raise CommandError('"%s" seems not to be a Creme app '
-                               '(see settings.INSTALLED_CREME_APPS)' % app_label
+            raise CommandError('"{}" seems not to be a Creme app '
+                               '(see settings.INSTALLED_CREME_APPS)'.format(app_label)
                               )
 
         self._check_apps_dependencies(app_config)
@@ -482,8 +489,9 @@ class Command(AppCommand):
 
         if verbosity:
             self.stdout.write('\nUninstall is OK.\n'
-                              'You should now remove "%s" from your settings.\n' % app_config.name,
-                              self.style.MIGRATE_SUCCESS
+                              'You should now remove "{}" from your settings.\n'.format(app_config.name),
+                              # self.style.MIGRATE_SUCCESS
+                              self.style.SUCCESS,
                              )
 
 
