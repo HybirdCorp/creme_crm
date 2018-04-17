@@ -116,7 +116,7 @@ def get_best_locale(language_code=None):
                            }
 
         if prefixed_locales:
-            best_locale = '%s_%s' % (prefix, prefix.upper())
+            best_locale = '{}_{}'.format(prefix, prefix.upper())
             if best_locale in AVAILABLE_LOCALES:
                 return best_locale
 
@@ -225,14 +225,14 @@ class OptimizeMySQLContext(BaseOptimizeContext):
         else:
             # TODO: manage other engine
             if self.verbosity:
-                self.stdout.write('Unknown engine "%s" : no optimisation available.' % engine)
+                self.stdout.write('Unknown engine "{}" : no optimisation available.'.format(engine))
 
     def __exit__(self, exc_type, exc_value, traceback):
         cursor = self.cursor
 
         if self.engine == 'InnoDB':
             if self.flush_policy in ('1', '2'):
-                cursor.execute('SET GLOBAL innodb_flush_log_at_trx_commit=%s' % self.flush_policy)
+                cursor.execute('SET GLOBAL innodb_flush_log_at_trx_commit={}'.format(self.flush_policy))
         # else: # TODO: manage other engine
 
 
@@ -247,7 +247,7 @@ class OptimizePGSQLContext(BaseOptimizeContext):
             sql_cmd = 'SET synchronous_commit=off;'
 
             if self.verbosity:
-                self.stdout.write('Temporary optimization : %s' % sql_cmd)
+                self.stdout.write('Temporary optimization : {}'.format(sql_cmd))
 
             cursor.execute(sql_cmd)
 
@@ -306,11 +306,12 @@ class Command(BaseCommand):
                      help='Locale used for random data. [default: see settings.LANGUAGE_CODE]',
                     )
 
-    def handle(self, *app_names, **options):
+    # def handle(self, *app_names, **options):
+    def handle(self, *args, **options):
         get_opt = options.get
 
         if get_opt('list_types'):
-            self.stdout.write('\n'.join(' - %s' % m for m in self.TYPES.iterkeys()))
+            self.stdout.write('\n'.join(' - {}'.format(m) for m in self.TYPES.iterkeys()))
             return
 
         e_type = get_opt('type')
@@ -318,7 +319,7 @@ class Command(BaseCommand):
         try:
             _get_model_n_factory = self.TYPES[e_type]
         except KeyError:
-            self.stderr.write('"%s" is not a valid type ; use the -l option to get the valid types.' % e_type)
+            self.stderr.write('"{}" is not a valid type ; use the -l option to get the valid types.'.format(e_type))
             return
 
         locale = get_best_locale(get_opt('language_code'))
@@ -342,8 +343,8 @@ class Command(BaseCommand):
                                   'settings.py to improve the performances.'
                                  )
 
-            self.stdout.write('Locale: "%s" ' % locale)
-            self.stdout.write('Original "%s" count: %s' % (verbose_name, entity_model.objects.count()))
+            self.stdout.write('Locale: "{}" '.format(locale))
+            self.stdout.write('Original "{}" count: {}'.format(verbose_name, entity_model.objects.count()))
 
         # todo: only count queries, to reduce memory usage
         # from creme.creme_core.utils.profiling import CaptureQueriesContext
@@ -364,4 +365,4 @@ class Command(BaseCommand):
         if verbosity:
             # self.stdout.write('Queries count: %s' % len(context.captured_queries))
             # self.stdout.write('Queries: %s' % context.captured_queries)
-            self.stdout.write('New "%s" count: %s' % (verbose_name, entity_model.objects.count()))
+            self.stdout.write('New "{}" count: {}'.format(verbose_name, entity_model.objects.count()))

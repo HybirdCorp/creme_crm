@@ -36,8 +36,8 @@ from creme.creme_core.utils.dependence_sort import dependence_sort
 
 def _checked_app_label(app_label, app_labels):
     if app_label not in app_labels:
-        raise CommandError('"%s" seems not to be a Creme app '
-                           '(see settings.INSTALLED_CREME_APPS)' % app_label
+        raise CommandError('"{}" seems not to be a Creme app '
+                           '(see settings.INSTALLED_CREME_APPS)'.format(app_label)
                           )
 
     return app_label
@@ -55,7 +55,7 @@ class BasePopulator(object):
         self.build_dependencies(all_apps)
 
     def __repr__(self):
-        return '<Populator(%s)>' % self.app
+        return '<Populator({})>'.format(self.app)
 
     def build_dependencies(self, apps_set):
         deps = []
@@ -64,7 +64,7 @@ class BasePopulator(object):
             try:
                 deps.append(_checked_app_label(dep, apps_set))
             except CommandError as e:
-                self.stdout.write('BEWARE: ignored dependencies "%s", %s' % (dep, e),
+                self.stdout.write('BEWARE: ignored dependencies "{}", {}'.format(dep, e),
                                   self.style.NOTICE,
                                  )
 
@@ -83,7 +83,7 @@ class BasePopulator(object):
 class Command(BaseCommand):
     help = ('Populates the database for the specified applications, or the '
             'entire site if no apps are specified.')
-    args = '[appname ...]'
+    # args = '[appname ...]'
     leave_locale_alone = True
     requires_migrations_checks = True
 
@@ -92,15 +92,22 @@ class Command(BaseCommand):
             # Models with string pk should manage pk manually, so we can optimise
             self.models.add(sender)
 
-    def handle(self, *app_names, **options):
+    def add_arguments(self, parser):
+        parser.add_argument('args', metavar='app_labels', nargs='*',
+                            help='Optionally one or more application label.',
+                           )
+
+    # def handle(self, *app_names, **options):
+    def handle(self, *app_labels, **options):
         verbosity = options.get('verbosity')
 
         # eg: 'persons', 'creme_core'...
-        # all_apps = OrderedSet(creme_app.name for creme_app in creme_registry.iter_apps())
         all_apps = OrderedSet(app_config.label for app_config in creme_app_configs())
 
-        apps_2_populate = all_apps if not app_names else \
-                          [_checked_app_label(app, all_apps) for app in app_names]
+        # apps_2_populate = all_apps if not app_names else \
+        #                   [_checked_app_label(app, all_apps) for app in app_names]
+        apps_2_populate = all_apps if not app_labels else \
+                          [_checked_app_label(app, all_apps) for app in app_labels]
 
         # ----------------------------------------------------------------------
         populators = []
@@ -127,8 +134,9 @@ class Command(BaseCommand):
             total_missing_deps |= apps_2_populate
 
         if total_missing_deps and verbosity >= 1:
-            self.stdout.write('Additional dependencies will be populated: %s' %
-                                ', '.join(total_missing_deps),
+            self.stdout.write('Additional dependencies will be populated: {}'.format(
+                                    ', '.join(total_missing_deps)
+                                ),
                               self.style.NOTICE
                              )
 
@@ -150,27 +158,29 @@ class Command(BaseCommand):
 
         for populator in populators:
             if verbosity >= 1:
-                self.stdout.write('Populate "%s" ...' % populator.app, ending='')
+                self.stdout.write('Populate "{}" ...'.format(populator.app, ending=''))
                 self.stdout.flush()
 
             try:
                 populator.populate()
             except Exception as e:
-                self.stderr.write(' Populate "%s" failed (%s)' % (populator.app, safe_unicode_error(e)))
+                self.stderr.write(' Populate "{}" failed ({})'.format(populator.app, safe_unicode_error(e)))
                 if verbosity >= 1:
                     exc_type, exc_value, exc_traceback = sys.exc_info()
                     self.stderr.write(safe_unicode(''.join(format_exception(exc_type, exc_value, exc_traceback))))
 
             if verbosity >= 1:
-                self.stdout.write(' OK', self.style.MIGRATE_SUCCESS)
+                # self.stdout.write(' OK', self.style.MIGRATE_SUCCESS)
+                self.stdout.write(' OK', self.style.SUCCESS)
 
         pre_save.disconnect(dispatch_uid=dispatch_uid)
 
         # ----------------------------------------------------------------------
         if self.models:
             if verbosity >= 1:
-                self.stdout.write('Update sequences for models : %s' %
-                                    [model.__name__ for model in self.models],
+                self.stdout.write('Update sequences for models : {}'.format(
+                                        [model.__name__ for model in self.models]
+                                    ),
                                   ending='',
                                  )
                 self.stdout.flush()
@@ -184,20 +194,22 @@ class Command(BaseCommand):
             # connection.close() #seems useless (& does not work with mysql)
 
             if verbosity >= 1:
-                self.stdout.write(self.style.MIGRATE_SUCCESS(' OK'))
+                # self.stdout.write(self.style.MIGRATE_SUCCESS(' OK'))
+                self.stdout.write(self.style.SUCCESS(' OK'))
         elif verbosity >= 1:
                 self.stdout.write('No sequence to update.')
 
         if verbosity >= 1:
-            self.stdout.write(self.style.MIGRATE_SUCCESS('Populate is OK.'))
+            # self.stdout.write(self.style.MIGRATE_SUCCESS('Populate is OK.'))
+            self.stdout.write(self.style.SUCCESS('Populate is OK.'))
 
     def _get_populator(self, app_label, verbosity, all_apps, options):
         try:
             mod = import_module(apps.get_app_config(app_label).name + '.populate')
         except ImportError:
             if verbosity >= 1:
-                self.stdout.write(self.style.NOTICE('Disable populate for "%s": '
-                                                    'it does not have any "populate.py" script.' % app_label
+                self.stdout.write(self.style.NOTICE('Disable populate for "{}": '
+                                                    'it does not have any "populate.py" script.'.format(app_label)
                                                    )
                                  )
 
@@ -207,8 +219,8 @@ class Command(BaseCommand):
 
         if populator_class is None:
             if verbosity >= 1:
-                self.stdout.write(self.style.NOTICE('Disable populate for "%s": '
-                                                    'its populate.py script has no "Populator" class.' % app_label
+                self.stdout.write(self.style.NOTICE('Disable populate for "{}": '
+                                                    'its populate.py script has no "Populator" class.'.format(app_label)
                                                    )
                                  )
 
@@ -217,6 +229,6 @@ class Command(BaseCommand):
         try:
             populator = populator_class(verbosity, app_label, all_apps, options, self.stdout, self.style)
         except Exception as e:
-            self.stderr.write('Disable populate for "%s": error when creating populator [%s].' % (app_label, e))
+            self.stderr.write('Disable populate for "{}": error when creating populator [{}].'.format(app_label, e))
         else:
             return populator
