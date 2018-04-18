@@ -30,6 +30,7 @@ from .button_menu import ButtonMenuItem  # NOQA
 from .reminder import DateReminder  # NOQA
 
 from .history import HistoryLine, HistoryConfigItem  # NOQA
+from .imprint import Imprint  # NOQA
 from .search import SearchConfigItem  # NOQA
 
 from .job import Job, JobResult, EntityJobResult, MassImportJobResult  # NOQA

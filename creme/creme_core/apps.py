@@ -220,7 +220,7 @@ class CremeAppConfig(AppConfig):
             if hasattr(self, 'register_creme_app'):
                 logger.critical('The AppConfig for "%s" has a method register_creme_app() which is now useless.', self.name)
 
-            from .core import reminder, setting_key
+            from .core import imprint, reminder, setting_key
             from .gui import (bricks, bulk_update, button_menu, fields_config, field_printers, icons,
                       listview, mass_import, menu, merge, quick_forms, statistics)
 
@@ -239,6 +239,7 @@ class CremeAppConfig(AppConfig):
             self.register_fields_config(fields_config.fields_config_registry)
             self.register_field_printers(field_printers.field_printers_registry)
             self.register_icons(icons.icon_registry)
+            self.register_imprints(imprint.imprint_manager)
             self.register_mass_import(mass_import.import_form_registry)
             self.register_menu(menu.creme_menu)
             self.register_merge_forms(merge.merge_form_registry)
@@ -276,6 +277,9 @@ class CremeAppConfig(AppConfig):
         pass
 
     def register_icons(self, icon_registry):
+        pass
+
+    def register_imprints(self, imprint_manager):
         pass
 
     def register_mass_import(self, import_form_registry):
@@ -403,6 +407,7 @@ class CremeCoreConfig(CremeAppConfig):
                                 bricks.RelationsBrick,
                                 bricks.CustomFieldsBrick,
                                 bricks.HistoryBrick,
+                                bricks.ImprintsBrick,
                                 bricks.TrashBrick,
                                 bricks.StatisticsBrick,
                                 bricks.JobBrick,

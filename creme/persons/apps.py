@@ -97,6 +97,9 @@ class PersonsConfig(CremeAppConfig):
         reg_icon(self.Contact,      'images/contact_%(size)s.png')
         reg_icon(self.Organisation, 'images/organisation_%(size)s.png')
 
+    def register_imprints(self, imprint_manager):
+        imprint_manager.register(self.Contact, hours=1)
+
     def register_mass_import(self, import_form_registry):
         from .forms.mass_import import get_massimport_form_builder
 

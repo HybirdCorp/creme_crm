@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-17 20:15+0200\n"
+"POT-Creation-Date: 2018-04-18 11:18+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,57 +16,58 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: apps.py:312
+#: apps.py:316
 msgid "Core"
 msgstr "Cœur"
 
-#: apps.py:358 apps.py:366 templates/creme_core/header/menu-base.html:4
+#: apps.py:362 apps.py:370 templates/creme_core/header/menu-base.html:4
 #: templates/creme_core/header/menu-base.html:9
 #: templates/creme_core/home.html:8
 msgid "Home"
 msgstr "Accueil"
 
-#: apps.py:359 apps.py:369 templates/creme_core/my_page.html:8
+#: apps.py:363 apps.py:373 templates/creme_core/my_page.html:8
 msgid "My page"
 msgstr "Ma page"
 
-#: apps.py:368 models/auth.py:563 models/job.py:83 models/prefered_menu.py:27
+#: apps.py:372 models/auth.py:563 models/job.py:83 models/prefered_menu.py:27
+#: templates/creme_core/bricks/imprints.html:17
 #: templates/creme_core/bricks/job.html:59
 msgid "User"
 msgstr "Utilisateur"
 
-#: apps.py:372 templates/creme_core/base.html:83
+#: apps.py:376 templates/creme_core/base.html:83
 #: templates/creme_core/bricks/jobs-mine.html:7
 #: templates/creme_core/job/list-mine.html:4
 msgid "My jobs"
 msgstr "Mes jobs"
 
-#: apps.py:377 templates/creme_core/base.html:76
+#: apps.py:381 templates/creme_core/base.html:76
 msgid "Log out"
 msgstr "Se déconnecter"
 
-#: apps.py:381
+#: apps.py:385
 msgid "Tools"
 msgstr "Outils"
 
-#: apps.py:383 models/job.py:104 templates/creme_core/base.html:81
+#: apps.py:387 models/job.py:104 templates/creme_core/base.html:81
 #: templates/creme_core/bricks/jobs-all.html:17
 msgid "Jobs"
 msgstr "Jobs"
 
-#: apps.py:391
+#: apps.py:395
 msgid "+ Creation"
 msgstr "+ Création"
 
-#: apps.py:392
+#: apps.py:396
 msgid "Main entities"
 msgstr "Fiches principales"
 
-#: apps.py:394
+#: apps.py:398
 msgid "Other type of entity"
 msgstr "Autre type de fiche"
 
-#: apps.py:397
+#: apps.py:401
 msgid "Recent entities"
 msgstr "Fiches récentes"
 
@@ -138,12 +139,16 @@ msgstr "Champs personnalisés"
 msgid "History"
 msgstr "Historique"
 
-#: bricks.py:253 gui/menu.py:628 templates/creme_core/base.html:78
+#: bricks.py:255 templates/creme_core/bricks/imprints.html:7
+msgid "History of consultation"
+msgstr "Historique de consultation"
+
+#: bricks.py:286 gui/menu.py:628 templates/creme_core/base.html:78
 #: templates/creme_core/trash.html:4 templates/creme_core/trash.html:8
 msgid "Trash"
 msgstr "Corbeille"
 
-#: bricks.py:271 templates/creme_core/bricks/job.html:99
+#: bricks.py:304 templates/creme_core/bricks/job.html:99
 #: templates/creme_core/bricks/ptype-info.html:31
 #: templates/creme_core/bricks/statistics.html:7
 #: templates/creme_core/generics/portal.html:52
@@ -2007,6 +2012,7 @@ msgid "Delete <%(type)s>: “%(value)s”"
 msgstr "Suppression de <%(type)s>: “%(value)s”"
 
 #: models/history.py:534 templates/creme_core/bricks/history.html:14
+#: templates/creme_core/bricks/imprints.html:11
 msgid "Date"
 msgstr "Date"
 
@@ -2386,6 +2392,7 @@ msgid "Assigned to"
 msgstr "Assignée à"
 
 #: templates/creme_core/bricks/history.html:17
+#: templates/creme_core/bricks/imprints.html:14
 msgid "Concerned entity"
 msgstr "Fiche concernée"
 
@@ -2409,6 +2416,10 @@ msgstr "Modifier \"%(entity)s\""
 #: templates/creme_core/bricks/history.html:84
 msgid "No history for the moment"
 msgstr "Aucun historique pour le moment"
+
+#: templates/creme_core/bricks/imprints.html:40
+msgid "No consultation for the moment"
+msgstr "Aucune consultation pour le moment"
 
 #: templates/creme_core/bricks/job-errors.html:10 views/mass_import.py:141
 msgid "Errors"

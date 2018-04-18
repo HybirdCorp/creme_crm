@@ -11,6 +11,7 @@ def ready():
 
     already_run = True
 
+    from ..core.imprint import imprint_manager
     # from ..gui import (brick_registry, import_form_registry,
     #         merge_form_registry, quickforms_registry, smart_columns_registry)
     from ..gui.bricks import brick_registry
@@ -39,6 +40,9 @@ def ready():
                                           FakeInvoiceLine,
                                           FakeConfigEntity,
                                          )
+
+    imprint_manager.register(FakeOrganisation, hours=2)
+    imprint_manager.register(FakeContact, minutes=60)
 
     brick_registry.register(FakeAppPortalBrick)
     brick_registry.register_invalid_models(FakeInvoiceLine)  # See creme_config tests
