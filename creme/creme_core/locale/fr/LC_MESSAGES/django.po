@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-12 19:26+0200\n"
+"POT-Creation-Date: 2018-04-17 20:15+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -380,12 +380,51 @@ msgstr "Mémentos"
 msgid "Execute all reminders"
 msgstr "Exécuter tous les mémentos"
 
+#: creme_jobs/temp_files_cleaner.py:40
+msgid "Temporary files cleaner"
+msgstr "Nettoyeur de fichiers temporaires"
+
+#: creme_jobs/temp_files_cleaner.py:48
+msgid ""
+"The configured delay is invalid. Edit the job's configuration to fix it."
+msgstr ""
+"Le délai configuré est invalide. Modifiez la configuration du job pour le "
+"corriger."
+
+#: creme_jobs/temp_files_cleaner.py:62
+msgid "An error occurred while deleting the temporary file «{}»"
+msgstr ""
+"Une erreur s'est produite pendant la suppression du fichier temporaire «{}»"
+
+#: creme_jobs/temp_files_cleaner.py:65 creme_jobs/temp_files_cleaner.py:90
+msgid "Original error: {}"
+msgstr "Erreur originale : {}"
+
+#: creme_jobs/temp_files_cleaner.py:79
+msgid ""
+"The temporary file with id={} cannot be deleted because of its dependencies."
+msgstr ""
+"Le fichier temporaire avec id={} ne peut être supprimé à cause de ses "
+"dépendances."
+
+#: creme_jobs/temp_files_cleaner.py:87
+msgid ""
+"The temporary file with id={} cannot be deleted because of an unexpected "
+"error."
+msgstr ""
+"Le fichier temporaire avec id={} ne peut être supprimé à cause d'une erreur "
+"inattendue."
+
+#: creme_jobs/temp_files_cleaner.py:106
+msgid "Remove old temporary files"
+msgstr "Supprimer les vieux fichiers temporaires"
+
 #: forms/base.py:204 forms/base.py:229 forms/relation.py:244
 #: templates/creme_core/bricks/ptype-info.html:11
 msgid "General information"
 msgstr "Informations générales"
 
-#: forms/base.py:262 forms/mass_import.py:1353 models/base.py:118
+#: forms/base.py:262 forms/mass_import.py:1353 models/base.py:134
 #: models/entity_filter.py:112 models/header_filter.py:72
 msgid "Owner user"
 msgstr "Utilisateur propriétaire"
@@ -411,7 +450,7 @@ msgstr "Valeur invalide => %(error)s"
 
 #: forms/batch_process.py:212 templates/creme_core/entity_filter_form.html:4
 #: templates/creme_core/entity_filter_form.html:7
-#: templates/creme_core/forms/widgets/unordered-multiple.html:22
+#: templates/creme_core/forms/widgets/unordered-multiple.html:20
 #: templates/creme_core/templatetags/listview_entityfilters.html:4
 msgctxt "creme_core-noun"
 msgid "Filter"
@@ -821,7 +860,7 @@ msgstr ""
 "essayé de retrouver {field}=«{value}» (colonne {column}) sur {model}. Erreur "
 "brute: [{raw_error}]"
 
-#: forms/mass_import.py:760
+#: forms/mass_import.py:759
 #, python-brace-format
 msgid ""
 "Error while extracting value: tried to build {model} with data={data} "
@@ -830,7 +869,7 @@ msgstr ""
 "Erreur lors de l'extraction  de valeur: a essayé de construire {model} avec "
 "données={data} (colonne {column}) ➔ erreurs={errors}"
 
-#: forms/mass_import.py:769
+#: forms/mass_import.py:768
 #, python-brace-format
 msgid ""
 "Error while extracting value to build a Relation: tried to retrieve {field}"
@@ -839,27 +878,27 @@ msgstr ""
 "Erreur lors de l'extraction de valeur pour construire une Relation: a essayé "
 "de retrouver {field}=«{value}» (column {column}) sur {model}"
 
-#: forms/mass_import.py:838
+#: forms/mass_import.py:837
 msgid "The entity"
 msgstr "La fiche"
 
-#: forms/mass_import.py:846
+#: forms/mass_import.py:845
 msgid "which field"
 msgstr "quel champs"
 
-#: forms/mass_import.py:848
+#: forms/mass_import.py:847
 msgid "equals to"
 msgstr "Est égal à"
 
-#: forms/mass_import.py:868
+#: forms/mass_import.py:867
 msgid "This field doesn't exist in this ContentType."
 msgstr "Ce champ n'existe pas dans ce type de fiche."
 
-#: forms/mass_import.py:869
+#: forms/mass_import.py:868
 msgid "This column is not a valid choice."
 msgstr "Cette colonne n'est pas un choix valide'."
 
-#: forms/mass_import.py:1004
+#: forms/mass_import.py:1003
 #, python-brace-format
 msgid ""
 "Error while extracting value: tried to retrieve the choice «{value}» (column "
@@ -987,6 +1026,10 @@ msgstr ""
 msgid "Unlinkable entities"
 msgstr "Fiches non reliables"
 
+#: forms/temp_files_cleaner.py:34
+msgid "Remove temporary files which are older than:"
+msgstr "Supprimer les fichiers temporaires qui sont plus vieux que :"
+
 #: forms/validators.py:36 forms/validators.py:47
 msgid "Not authenticated user is not allowed to view entities"
 msgstr ""
@@ -1033,8 +1076,8 @@ msgstr "Vous n'êtes pas autorisé à relier avec un(e) «%s» de cet utilisateu
 msgid "Clear"
 msgstr "Effacer"
 
-#: forms/widgets.py:1062 forms/widgets.py:1144 forms/widgets.py:1557
-#: models/base.py:44 templates/creme_core/frags/list_view_content.html:113
+#: forms/widgets.py:1062 forms/widgets.py:1144 forms/widgets.py:1558
+#: models/base.py:45 templates/creme_core/frags/list_view_content.html:113
 #: templates/creme_core/generics/view_entity.html:18
 #: templates/creme_core/view_property_type.html:19
 msgid "Create"
@@ -1049,7 +1092,7 @@ msgctxt "creme_core-verb"
 msgid "Select"
 msgstr "Sélectionner"
 
-#: forms/widgets.py:1897
+#: forms/widgets.py:1908
 #, python-format
 msgid "%(dateperiod_value)s%(dateperiod_type)s"
 msgstr "%(dateperiod_value)s%(dateperiod_type)s"
@@ -1206,7 +1249,7 @@ msgstr "Voir"
 msgid "Change"
 msgstr "Modifier"
 
-#: models/auth.py:279 models/entity.py:279
+#: models/auth.py:279 models/entity.py:281
 #: templates/creme_core/bricks/base/hat-card.html:109
 #: templates/creme_core/bricks/generic/hat-bar.html:43
 #: templates/creme_core/frags/list_view_content.html:191
@@ -1368,7 +1411,7 @@ msgstr "Vous n'êtes pas autorisé à délier cette fiche: %s"
 msgid "You are not allowed to view this entity: %s"
 msgstr "Vous n'êtes pas autorisé à voir cette fiche: %s"
 
-#: models/base.py:45 templates/creme_core/generics/blockform/add_wizard.html:97
+#: models/base.py:46 templates/creme_core/generics/blockform/add_wizard.html:97
 #: templates/creme_core/generics/blockform/base.html:71
 #: templates/creme_core/generics/blockform/base.html:75
 #: templates/creme_core/generics/blockform/wizard_popup.html:88
@@ -1380,11 +1423,11 @@ msgstr "Vous n'êtes pas autorisé à voir cette fiche: %s"
 msgid "Save"
 msgstr "Enregistrer"
 
-#: models/base.py:110
+#: models/base.py:126
 msgid "Creation date"
 msgstr "Date de création"
 
-#: models/base.py:111
+#: models/base.py:127
 msgid "Last modification"
 msgstr "Dernière modification"
 
@@ -1542,12 +1585,12 @@ msgstr "Créer une fiche"
 msgid "Save the entity"
 msgstr "Enregistrer la fiche"
 
-#: models/entity.py:130 views/entity.py:75
+#: models/entity.py:132 views/entity.py:75
 #, python-format
 msgid "Entity #%s (not viewable)"
 msgstr "Fiche #%s (non visible)"
 
-#: models/entity.py:270 templates/creme_core/bricks/base/hat-card.html:101
+#: models/entity.py:272 templates/creme_core/bricks/base/hat-card.html:101
 #: templates/creme_core/bricks/generic/hat-bar.html:32
 #: templates/creme_core/frags/list_view_content.html:186
 #: templates/creme_core/generics/blockform/edit.html:8
@@ -1563,11 +1606,11 @@ msgstr "Fiche #%s (non visible)"
 msgid "Edit"
 msgstr "Modifier"
 
-#: models/entity.py:287 templates/creme_core/bricks/found-entities.html:20
+#: models/entity.py:289 templates/creme_core/bricks/found-entities.html:20
 msgid "See"
 msgstr "Voir"
 
-#: models/entity.py:290
+#: models/entity.py:292
 #, python-brace-format
 msgid "Go to the entity {entity}"
 msgstr "Accéder à la fiche {entity}"
@@ -2156,27 +2199,27 @@ msgstr "€"
 msgid "EUR"
 msgstr "EUR"
 
-#: populate.py:65
+#: populate.py:75
 msgid "replaceMe@byYourAddress.com"
 msgstr "remplacezMoi@parVotreAdresse.fr"
 
-#: populate.py:78
+#: populate.py:88
 msgid "United States dollar"
 msgstr "Dollar américain"
 
-#: populate.py:78
+#: populate.py:88
 msgid "$"
 msgstr "$"
 
-#: populate.py:78
+#: populate.py:88
 msgid "USD"
 msgstr "USD"
 
-#: populate.py:80
+#: populate.py:90
 msgid "French"
 msgstr "Français"
 
-#: populate.py:81
+#: populate.py:91
 msgid "English"
 msgstr "Anglais"
 
@@ -2779,7 +2822,7 @@ msgstr "Sélectionner…"
 msgid "Create if not found?"
 msgstr "Créer si non trouvé ?"
 
-#: templates/creme_core/forms/widgets/mass-import/cfield-extractor.html:17
+#: templates/creme_core/forms/widgets/mass-import/cfield-extractor.html:22
 #: templates/creme_core/forms/widgets/mass-import/extractor.html:36
 msgid "Default value"
 msgstr "Valeur par défaut"
@@ -2800,15 +2843,15 @@ msgstr ""
 msgid "No choice available."
 msgstr "Aucun choix disponible."
 
-#: templates/creme_core/forms/widgets/unordered-multiple.html:12
+#: templates/creme_core/forms/widgets/unordered-multiple.html:11
 msgid "Check all"
 msgstr "Tout sélectionner"
 
-#: templates/creme_core/forms/widgets/unordered-multiple.html:13
+#: templates/creme_core/forms/widgets/unordered-multiple.html:12
 msgid "Check none"
 msgstr "Tout déselectionner"
 
-#: templates/creme_core/forms/widgets/unordered-multiple.html:23
+#: templates/creme_core/forms/widgets/unordered-multiple.html:21
 #: templates/creme_core/search_results.html:47
 msgctxt "creme_core-noun"
 msgid "Search"
@@ -3452,7 +3495,7 @@ msgstr "Filtre supprimé avec succès"
 msgid "Current user"
 msgstr "Utilisateur courant"
 
-#: views/file_handling.py:119
+#: views/file_handling.py:120
 msgid "Invalid file"
 msgstr "Fichier invalide"
 

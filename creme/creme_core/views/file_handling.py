@@ -21,6 +21,7 @@
 import os
 from os.path import basename, join
 from random import randint
+import warnings
 
 from django.conf import settings
 from django.http import HttpResponse, Http404
@@ -129,4 +130,6 @@ def fetch_resources(uri, rel):
     `uri` is the href attribute from the html link element.
     `rel` gives a relative path, but it's not used here.
     """
+    warnings.warn('creme_core.views.file_handling.fetch_resources() is deprecated.', DeprecationWarning)
+
     return join(settings.MEDIA_ROOT, uri.replace(settings.MEDIA_URL, ''))

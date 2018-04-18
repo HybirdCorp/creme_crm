@@ -14,7 +14,7 @@ try:
 
     from ..base import CremeTestCase
     from ..fake_models import (FakeContact, FakeOrganisation, FakeCivility, FakeSector,
-           FakeImage, FakeImageCategory, FakeFileComponent)
+           FakeImage, FakeImageCategory)  # FakeFileComponent
     from creme.creme_core.core.field_tags import InvalidFieldTag
     from creme.creme_core.core.function_field import (FunctionField,
             FunctionFieldResult, FunctionFieldResultsList)
@@ -324,19 +324,19 @@ class EntityTestCase(CremeTestCase):
         self.assertRaises(ProtectedError, ce1.delete)
         self.assertRaises(ProtectedError, ce2.delete)
 
-    def test_delete_clean_filefield01(self):
-        "Deleting a model with a filefield also deletes related file"
-        embed_doc = FakeFileComponent.objects.create()
-        embed_doc.filedata.save("salade.txt", ContentFile("salade"), save=True)
-        filepath = embed_doc.filedata.path
-        self.assertTrue(exists(filepath))
-        self.assertNoException(embed_doc.delete)
-        self.assertFalse(exists(filepath))
+    # def test_delete_clean_filefield01(self):
+    #     "Deleting a model with a filefield also deletes related file"
+    #     embed_doc = FakeFileComponent.objects.create()
+    #     embed_doc.filedata.save("salade.txt", ContentFile("salade"), save=True)
+    #     filepath = embed_doc.filedata.path
+    #     self.assertTrue(exists(filepath))
+    #     self.assertNoException(embed_doc.delete)
+    #     self.assertFalse(exists(filepath))
 
-    def test_delete_clean_filefield02(self):
-        "Handle empty filefield + model clean & deletion"
-        embed_doc = FakeFileComponent.objects.create()
-        self.assertNoException(embed_doc.delete)
+    # def test_delete_clean_filefield02(self):
+    #     "Handle empty filefield + model clean & deletion"
+    #     embed_doc = FakeFileComponent.objects.create()
+    #     self.assertNoException(embed_doc.delete)
 
     def test_functionfields(self):
         with self.assertNoException():

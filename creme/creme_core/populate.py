@@ -25,12 +25,12 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext as _
 
-from . import bricks, constants, setting_keys
-from .creme_jobs import reminder_type
+from . import bricks, constants, creme_jobs, setting_keys
 from .management.commands.creme_populate import BasePopulator
 from .models import (RelationType, SettingValue, Currency, Language, Vat, Job,
         BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation, ButtonMenuItem)  # CremePropertyType
 from .utils import create_if_needed
+from .utils.date_period import date_period_registry
 
 # logger = logging.getLogger(__name__)
 
@@ -52,11 +52,21 @@ class Populator(BasePopulator):
         create_if_needed(Currency, {'pk': constants.DEFAULT_CURRENCY_PK}, name=_(u'Euro'), local_symbol=_(u'€'), international_symbol=_(u'EUR'), is_custom=False)
 
         # ---------------------------
-        Job.objects.get_or_create(type_id=reminder_type.id,
-                                  defaults={'language': settings.LANGUAGE_CODE,
-                                            'status':   Job.STATUS_OK,
-                                           },
-                                 )
+        create_job = Job.objects.get_or_create
+        create_job(type_id=creme_jobs.temp_files_cleaner_type.id,
+                   defaults={'language':    settings.LANGUAGE_CODE,
+                             'periodicity': date_period_registry.get_period('days', 1),
+                             'status':      Job.STATUS_OK,
+                             'data':        {'delay': date_period_registry.get_period('days', 1).as_dict()},
+                            },
+                  )
+        create_job(type_id=creme_jobs.reminder_type.id,
+                   defaults={'language': settings.LANGUAGE_CODE,
+                             'status':   Job.STATUS_OK,
+                            },
+                  )
+
+        # ---------------------------
 
         if not already_populated:
             login = password = 'root'
