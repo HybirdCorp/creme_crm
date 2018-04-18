@@ -2,6 +2,8 @@
 
 from .auth import CremeUser, EntityCredentials, UserRole, SetCredentials  # NOQA
 
+from file_ref import FileRef  # NOQA
+
 from .base import CremeModel, CremeAbstractEntity  # NOQA
 from .entity import CremeEntity  # NOQA
 

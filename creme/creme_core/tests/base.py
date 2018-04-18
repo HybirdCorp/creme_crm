@@ -162,8 +162,11 @@ class _CremeTestCase(object):
     def assertStillExists(self, instance):
         model = instance.__class__
 
+        pk = instance.pk
+        self.assertIsNotNone(pk)
+
         try:
-            return model.objects.get(pk=instance.pk)
+            return model.objects.get(pk=pk)
         except model.DoesNotExist:
             self.fail('Your object does not exist any more.')
 

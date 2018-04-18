@@ -23,9 +23,9 @@ import logging
 import uuid
 import warnings
 
-from django.db.models import Q  # ForeignKey
+from django.db.models import Q, UUIDField  # ForeignKey
+from django.db.transaction import atomic
 from django.forms.utils import flatatt
-from django.db.models import UUIDField
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
@@ -101,6 +101,7 @@ class CremeEntity(CremeAbstractEntity):
         self._properties = None
         self._cvalues_map = {}
 
+    @atomic
     def delete(self, using=None):
         from .history import _get_deleted_entity_ids
 
@@ -115,7 +116,8 @@ class CremeEntity(CremeAbstractEntity):
         for prop in self.properties.all():
             prop.delete(using=using)
 
-        super(CremeEntity, self).delete(using=using)
+        # super(CremeEntity, self).delete(using=using)
+        super(CremeEntity, self)._delete_without_transaction(using=using)
 
     def __unicode__(self):
         real_entity = self.get_real_entity()

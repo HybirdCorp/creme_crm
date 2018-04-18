@@ -13,20 +13,20 @@ try:
     from django.utils.timezone import localtime, now
     from django.utils.translation import ugettext as _, ungettext
 
-    from ..base import skipIfNotInstalled
+    # from ..base import skipIfNotInstalled
     from ..fake_models import FakeOrganisation
 
     from .base import ViewsTestCase, BrickTestCaseMixin
 
     from creme.creme_core.bricks import JobBrick, JobErrorsBrick, EntityJobErrorsBrick
     from creme.creme_core.core.job import JobManagerQueue  # Should be a test queue
-    from creme.creme_core.creme_jobs import batch_process_type, reminder_type
+    from creme.creme_core.creme_jobs import batch_process_type, reminder_type, temp_files_cleaner_type
     from creme.creme_core.creme_jobs.base import JobType
     from creme.creme_core.models import Job, EntityJobResult
     from creme.creme_core.utils.dates import dt_to_ISO8601
 
-    if apps.is_installed('creme.crudity'):
-        from creme.crudity.creme_jobs import crudity_synchronize_type
+    # if apps.is_installed('creme.crudity'):
+    #     from creme.crudity.creme_jobs import crudity_synchronize_type
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -156,24 +156,31 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         self.assertGET409(job.get_edit_absolute_url())
 
-    @skipIfNotInstalled('creme.crudity')
+    # @skipIfNotInstalled('creme.crudity')
     def test_editview03(self):
-        "Periodic: edit periodicity"
+        "Periodic: edit periodicity + specific data"
         queue = JobManagerQueue.get_main_queue()
         queue.clear()
 
         user = self.login()
         self.assertEqual([], queue.refreshed_jobs)
 
-        job = self.get_object_or_fail(Job, type_id=crudity_synchronize_type.id)
+        # job = self.get_object_or_fail(Job, type_id=crudity_synchronize_type.id)
+        job = self.get_object_or_fail(Job, type_id=temp_files_cleaner_type.id)
         self.assertEqual(JobType.PERIODIC, job.type.periodic)
         self.assertIsNone(job.user)
 
         old_reference_run = job.reference_run
 
-        pdict = {'type': 'minutes', 'value': 30}
+        # pdict = {'type': 'minutes', 'value': 30}
+        pdict = {'type': 'days', 'value': 1}
         self.assertEqual(pdict, job.periodicity.as_dict())
         self.assertEqual(pdict, job.real_periodicity.as_dict())
+
+        with self.assertNoException():
+            jdata = job.data
+
+        self.assertEqual({'delay': {'type': 'days', 'value': 1}}, jdata)
 
         url = job.get_edit_absolute_url()
         self.assertGET200(url)
@@ -184,7 +191,9 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                                                'periodicity_0': 'minutes',
                                                'periodicity_1': '180',
 
-                                               'user': user.id,
+                                               # 'user': user.id,
+                                               'delay_0': 'weeks',
+                                               'delay_1': '2',
                                               },
                                    )
         self.assertNoFormError(response)
@@ -193,6 +202,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         periodicity_dict = {'type': 'minutes', 'value': 180}
         self.assertEqual(periodicity_dict, job.periodicity.as_dict())
         self.assertEqual(old_reference_run, job.reference_run)
+        self.assertEqual({'delay': {'type': 'weeks', 'value': 2}}, job.data)
         self.assertEqual([(job,
                            {'enabled':       True,
                             'reference_run': dt_to_ISO8601(job.reference_run),
@@ -203,7 +213,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                          queue.refreshed_jobs
                         )
 
-    @skipIfNotInstalled('creme.crudity')
+    # @skipIfNotInstalled('creme.crudity')
     def test_editview04(self):
         "Periodic: edit reference_run"
         queue = JobManagerQueue.get_main_queue()
@@ -212,9 +222,11 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         user = self.login()
         self.assertEqual([], queue.refreshed_jobs)
 
-        job = self.get_object_or_fail(Job, type_id=crudity_synchronize_type.id)
+        # job = self.get_object_or_fail(Job, type_id=crudity_synchronize_type.id)
+        job = self.get_object_or_fail(Job, type_id=temp_files_cleaner_type.id)
 
-        pdict = {'type': 'minutes', 'value': 30}
+        # pdict = {'type': 'minutes', 'value': 30}
+        pdict = {'type': 'days', 'value': 1}
         self.assertEqual(pdict, job.periodicity.as_dict())
 
         response = self.client.post(job.get_edit_absolute_url(),
@@ -222,7 +234,9 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                                           'periodicity_0': pdict['type'],
                                           'periodicity_1': str(pdict['value']),
 
-                                          'user': user.id,
+                                          # 'user': user.id,
+                                          'delay_0': 'days',
+                                          'delay_1': 2,
                                          },
                                    )
         self.assertNoFormError(response)
@@ -232,21 +246,24 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(self.create_datetime(year=2014, month=8, day=26, hour=14),
                          job.reference_run
                         )
+        self.assertEqual({'delay': {'type': 'days', 'value': 2}}, job.data)
 
         self.assertTrue(queue.refreshed_jobs)
 
-    @skipIfNotInstalled('creme.crudity')
+    # @skipIfNotInstalled('creme.crudity')
     def test_editview05(self):
-        "No change"
+        "No change of periodicity/reference_run"
         queue = JobManagerQueue.get_main_queue()
         queue.clear()
 
         user = self.login()
 
-        job = self.get_object_or_fail(Job, type_id=crudity_synchronize_type.id)
+        # job = self.get_object_or_fail(Job, type_id=crudity_synchronize_type.id)
+        job = self.get_object_or_fail(Job, type_id=temp_files_cleaner_type.id)
         old_reference_run = job.reference_run
 
-        pdict = {'type': 'minutes', 'value': 30}
+        # pdict = {'type': 'minutes', 'value': 30}
+        pdict = {'type': 'days', 'value': 1}
         self.assertEqual(pdict, job.periodicity.as_dict())
 
         response = self.client.post(job.get_edit_absolute_url(),
@@ -256,7 +273,9 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                                           'periodicity_0': pdict['type'],
                                           'periodicity_1': str(pdict['value']),
 
-                                          'user': user.id,
+                                          # 'user': user.id,
+                                          'delay_0': 'weeks',
+                                          'delay_1': 1,
                                          },
                                    )
         self.assertNoFormError(response)
@@ -264,15 +283,17 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         job = self.refresh(job)
         self.assertEqual(pdict, job.periodicity.as_dict())
         self.assertEqual(old_reference_run, job.reference_run)
+        self.assertEqual({'delay': {'type': 'weeks', 'value': 1}}, job.data)
 
         self.assertEqual([], queue.refreshed_jobs)
 
-    @skipIfNotInstalled('creme.crudity')
+    # @skipIfNotInstalled('creme.crudity')
     def test_editview06(self):
         "Periodic: credentials errors"
         self.login(is_superuser=False)
 
-        job = self.get_object_or_fail(Job, type_id=crudity_synchronize_type.id)
+        # job = self.get_object_or_fail(Job, type_id=crudity_synchronize_type.id)
+        job = self.get_object_or_fail(Job, type_id=temp_files_cleaner_type.id)
         self.assertGET403(job.get_edit_absolute_url())
 
     def test_jobs_all01(self):

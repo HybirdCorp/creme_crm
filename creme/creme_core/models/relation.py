@@ -265,7 +265,7 @@ class Relation(CremeAbstractEntity):
     def filter_in(model, filter_predicate, value_for_filter):
         return Q(relations__type=filter_predicate,
                  relations__object_entity__header_filter_search_field__icontains=value_for_filter,
-                 )
+                )
 
 
 class SemiFixedRelationType(CremeModel):

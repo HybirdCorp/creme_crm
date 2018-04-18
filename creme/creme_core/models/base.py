@@ -21,17 +21,18 @@
 from collections import defaultdict
 from itertools import chain
 import logging
-import os
+# import os
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model, CharField, BooleanField, FileField  # Manager
-from django.db.models.query_utils import Q
+# from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.utils.translation import ugettext_lazy as _
 
 from ..core.function_field import FunctionFieldsManager
 from .fields import (CreationDateTimeField, ModificationDateTimeField,
          CremeUserForeignKey, CTypeForeignKey)
+from .file_ref import FileRef
 from .manager import LowNullsQuerySet
 
 
@@ -39,14 +40,14 @@ logger = logging.getLogger(__name__)
 
 
 class CremeModel(Model):
-    _delete_files = True  # Delegate the deletion of the file on system
-                          # when a model has one or more FileField sub-classes.
+    # _delete_files = True  # Delegate the deletion of the file on system
+    #                       # when a model has one or more FileField sub-classes.
     creation_label = _(u'Create')
     save_label     = _(u'Save')
-    # TODO : do a complete refactor for _CremeModel.selection_label
+    # TODO: do a complete refactor for _CremeModel.selection_label
     # selection_label = _('Select')
 
-    # TODO ? objects = LowNullsQuerySet.as_manager()
+    # TODO: objects = LowNullsQuerySet.as_manager() ??
 
     class Meta:
         abstract = True
@@ -57,7 +58,7 @@ class CremeModel(Model):
         """
         pass
 
-    def _delete_without_transaction(self, using=None):
+    def _delete_m2m(self):
         for m2m_field in self._meta.many_to_many:
             getattr(self, m2m_field.name).clear()
 
@@ -66,15 +67,30 @@ class CremeModel(Model):
                                  ):
             getattr(self, related_m2m_field.get_accessor_name()).clear()
 
+    @staticmethod
+    def _delete_stored_file(field_value):
+        FileRef.objects.create(filedata=unicode(field_value))
+
+    def _delete_stored_files(self):
+        for field in chain(self._meta.fields, self._meta.many_to_many):
+            if isinstance(field, FileField):
+                fname = field.name
+                file_instance = getattr(self, fname)
+
+                if file_instance:
+                    self._delete_stored_file(file_instance)
+
+    def _delete_without_transaction(self, using=None):
+        self._delete_m2m()
+        self._delete_stored_files()
         self._pre_delete()
         super(CremeModel, self).delete(using=using)
 
-    # def delete(self):
     def delete(self, using=None):
-        file_fields = [(field.name, getattr(self, field.name).path, unicode(getattr(self, field.name)))
-                        for field in chain(self._meta.fields, self._meta.many_to_many)
-                            if isinstance(field, FileField) and getattr(self, field.name)
-                      ] if self._delete_files else None
+        # file_fields = [(field.name, getattr(self, field.name).path, unicode(getattr(self, field.name)))
+        #                 for field in chain(self._meta.fields, self._meta.many_to_many)
+        #                     if isinstance(field, FileField) and getattr(self, field.name)
+        #               ] if self._delete_files else None
 
         try:
             with atomic():
@@ -83,14 +99,14 @@ class CremeModel(Model):
             logger.exception('Error in CremeModel.delete()')
             raise
 
-        if file_fields:
-            # obj_filter = self._default_manager.filter
-            obj_filter = self.__class__._default_manager.filter
-            os_remove = os.remove
-
-            for field_name, full_path, chrooted_path in file_fields:
-                if not obj_filter(Q(**{field_name: chrooted_path})).exists():
-                    os_remove(full_path)  # TODO: Catch OSError ?
+        # if file_fields:
+        #     # obj_filter = self._default_manager.filter
+        #     obj_filter = self.__class__._default_manager.filter
+        #     os_remove = os.remove
+        #
+        #     for field_name, full_path, chrooted_path in file_fields:
+        #         if not obj_filter(Q(**{field_name: chrooted_path})).exists():
+        #             os_remove(full_path)  # todo: Catch OSError ?
 
 
 # class CremeEntityManager(Manager):
