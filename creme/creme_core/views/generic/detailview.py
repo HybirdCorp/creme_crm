@@ -28,6 +28,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 
+from creme.creme_core.core.imprint import imprint_manager
 from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.models import BlockDetailviewLocation
@@ -97,6 +98,7 @@ def view_entity(request, object_id, model, # path='',
     user.has_perm_to_view_or_die(entity)
 
     LastViewedItem(request, entity)
+    imprint_manager.create_imprint(entity=entity, user=user)
 
     template_dict = {
         'object': entity,

@@ -1,0 +1,41 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
+
+{% block brick_extra_class %}{{block.super}} creme_core-imprints-brick{% if not user.is_superuser %} is-empty{% endif %}{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('History of consultation') icon='history' %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='id' status='primary' title=_('Date') %}
+
+    {% if not object %}
+    {% brick_table_column title=_('Concerned entity') %}
+    {% endif %}
+
+    {% brick_table_column title=_('User') %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for imprint in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %} data-type="date">
+            {% print_field object=imprint field='date' %}
+        </td>
+        {% if not object %}
+        <td>
+        {% with concerned_entity=imprint.entity.get_real_entity %}
+            {% widget_icon instance=concerned_entity size='brick-table' class='ctype-icon' %}
+            {% widget_entity_hyperlink concerned_entity user %}
+        {% endwith %}
+        </td>
+        {% endif %}
+        <td>{% widget_hyperlink imprint.user %}</td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% trans 'No consultation for the moment' %}
+{% endblock %}

@@ -31,7 +31,7 @@ from .core.entity_cell import EntityCellCustomField
 from .creme_jobs.base import JobType
 from .gui.bricks import Brick, QuerysetBrick, BricksManager
 from .gui.statistics import statistics_registry
-from .models import (CremeEntity, RelationType, Relation, CremeProperty, CustomField,
+from .models import (CremeEntity, RelationType, Relation, CremeProperty, CustomField, Imprint,
         Job, JobResult, MassImportJobResult, EntityJobResult)
 from .models.history import HistoryLine, TYPE_SYM_RELATION, TYPE_SYM_REL_DEL
 
@@ -161,7 +161,8 @@ class HistoryBrick(QuerysetBrick):
     verbose_name  = _(u'History')
     template_name = 'creme_core/bricks/history.html'
 
-    # TODO: factorise (see assistants.block) ??
+    # TODO: factorise (see assistants.bricks) ??
+    # TODO: remove 'user' argument
     @staticmethod
     def _populate_related_real_entities(hlines, user):
         hlines = [hline for hline in hlines if hline.entity_id]
@@ -242,6 +243,38 @@ class HistoryBrick(QuerysetBrick):
         # self._populate_users(hlines, user)
         HistoryLine.populate_users(hlines, user)
         self._populate_perms(hlines, user)
+
+        return self._render(btc)
+
+
+class ImprintsBrick(QuerysetBrick):
+    id_           = QuerysetBrick.generate_id('creme_core', 'imprints')
+    dependencies  = (Imprint,)
+    read_only     = True
+    order_by      = '-id'  # faster than '-date'
+    verbose_name  = _(u'History of consultation')
+    template_name = 'creme_core/bricks/imprints.html'
+
+    def detailview_display(self, context):
+        can_view = context['user'].is_superuser
+        qs = Imprint.objects.filter(entity=context['object'].pk) if can_view else Imprint.objects.none()
+
+        return self._render(self.get_template_context(context, qs))
+
+    def portal_display(self, context, ct_ids):
+        return self.home_display(context)  # Avoid crashes
+
+    def home_display(self, context):
+        can_view = context['user'].is_superuser
+        qs = Imprint.objects.all() if can_view else Imprint.objects.none()
+        btc = self.get_template_context(context, qs)
+
+        if not can_view:
+            CremeEntity.populate_real_entities(
+                CremeEntity.objects.filter(
+                        id__in=[imprint.entity_id for imprint in btc['page'].object_list],
+                    )
+            )
 
         return self._render(btc)
 
