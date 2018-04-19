@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,8 @@ class QuickFormsRegistry(object):
     def register(self, model, form):
         forms = self._forms
 
-        if forms.has_key(model):
+        # if forms.has_key(model):
+        if model in forms:
             # TODO: exception instead ?
             logger.warning("A Quick Form is already registered for the model : %s", model)
 
