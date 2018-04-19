@@ -25,9 +25,9 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext as _
 
-from . import bricks, constants, creme_jobs, setting_keys
+from . import bricks, constants, creme_jobs, sandboxes, setting_keys
 from .management.commands.creme_populate import BasePopulator
-from .models import (RelationType, SettingValue, Currency, Language, Vat, Job,
+from .models import (RelationType, SettingValue, Currency, Language, Vat, Job, Sandbox,
         BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation, ButtonMenuItem)  # CremePropertyType
 from .utils import create_if_needed
 from .utils.date_period import date_period_registry
@@ -65,6 +65,14 @@ class Populator(BasePopulator):
                              'status':   Job.STATUS_OK,
                             },
                   )
+
+        # ---------------------------
+
+        Sandbox.objects.get_or_create(uuid=constants.UUID_SANDBOX_SUPERUSERS,
+                                      defaults={# 'superuser': True,
+                                                'type_id':   sandboxes.OnlySuperusersType.id,
+                                               }
+                                     )
 
         # ---------------------------
 

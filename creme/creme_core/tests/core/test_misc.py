@@ -21,9 +21,10 @@ try:
     from creme.creme_core.core.imprint import _ImprintManager
     from creme.creme_core.core.job import JobManager
     from creme.creme_core.core.reminder import Reminder, reminder_registry
+    from creme.creme_core.core.sandbox import SandboxType, _SandboxTypeRegistry, sandbox_type_registry
     from creme.creme_core.core.setting_key import SettingKey, _SettingKeyRegistry
     from creme.creme_core.creme_jobs import reminder_type
-    from creme.creme_core.models import (RelationType, Job, Imprint,
+    from creme.creme_core.models import (RelationType, Job, Imprint, Sandbox,
         CustomField, CustomFieldEnumValue, FakeContact, FakeDocument)
     from creme.creme_core.utils.date_period import HoursPeriod
     from creme.creme_core.utils.dates import round_hour
@@ -644,6 +645,68 @@ class JobManagerTestCase(CremeTestCase):
         self.assertEqual(rounded_hour + timedelta(hours=1),
                          JobManager()._next_wakeup(job)
                         )
+
+
+class SandboxTestCase(CremeTestCase):
+    def test_registry01(self):
+        name = 'Test sandbox #1'
+
+        class TestSandboxType1(SandboxType):
+            id = SandboxType.generate_id('creme_core', 'test1')
+            verbose_name = name
+
+        sandbox_type_registry.register(TestSandboxType1)  # TODO: unregister in tearDown ?
+
+        sandbox = Sandbox(type_id=TestSandboxType1.id)
+
+        st_type = sandbox.type
+        self.assertIsInstance(st_type, TestSandboxType1)
+        self.assertEqual(name, st_type.verbose_name)
+
+    def test_registry02(self):
+        registry = _SandboxTypeRegistry()
+
+        st_id = SandboxType.generate_id('creme_core', 'test2')
+
+        class TestSandboxType2_2(SandboxType):
+            id = st_id
+            verbose_name = 'Test sandbox #2'
+
+        class TestSandboxType2_3(SandboxType):
+            id = st_id
+            verbose_name = 'Test sandbox #3'
+
+        registry.register(TestSandboxType2_2)
+
+        with self.assertRaises(_SandboxTypeRegistry.Error):
+            registry.register(TestSandboxType2_3)
+
+        sandbox1 = Sandbox(type_id=TestSandboxType2_2.id)
+        self.assertIsInstance(registry.get(sandbox1), TestSandboxType2_2)
+
+        class TestSandboxType2_4(SandboxType):  # Not registered
+            id = SandboxType.generate_id('creme_core', 'unknown')
+            verbose_name = 'Test sandbox #4'
+
+        sandbox2 = Sandbox(type_id=TestSandboxType2_4.id)
+        # TODO: assertLogs
+        self.assertIsNone(registry.get(sandbox2))
+
+    def test_sandbox_data(self):
+        user = self.login()
+        fmt = u'Restricted to "{}"'
+
+        class TestSandboxType3(SandboxType):
+            id = SandboxType.generate_id('creme_core', 'test3')
+
+            @property
+            def verbose_name(self):
+                return fmt.format(self.sandbox.user)
+
+        sandbox_type_registry.register(TestSandboxType3)  # TODO: unregister in tearDown ?
+
+        sandbox = Sandbox(type_id=TestSandboxType3.id, user=user)
+        self.assertEqual(fmt.format(user), sandbox.type.verbose_name)
 
 
 class ImprintManagerTestCase(CremeTestCase):

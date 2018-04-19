@@ -14,25 +14,26 @@ try:
     from django.urls import reverse
     from django.utils.translation import ugettext as _
 
+    from .base import ViewsTestCase, BrickTestCaseMixin
+
+    from creme.creme_core import constants
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.bricks import TrashBrick
     from creme.creme_core.forms.bulk import _CUSTOMFIELD_FORMAT, BulkDefaultEditForm
     from creme.creme_core.gui.bulk_update import bulk_update_registry
-    from creme.creme_core.models import (CremeEntity, RelationType, Relation, SetCredentials,
+    from creme.creme_core.models import (CremeEntity, RelationType, Relation,
+            SetCredentials, Sandbox,
             CremePropertyType, CremeProperty, HistoryLine, FieldsConfig, history,
             CustomField, CustomFieldInteger, CustomFieldFloat, CustomFieldBoolean,
             CustomFieldString, CustomFieldDateTime,
-            CustomFieldEnum, CustomFieldMultiEnum, CustomFieldEnumValue)
+            CustomFieldEnum, CustomFieldMultiEnum, CustomFieldEnumValue,
+            FakeContact, FakeOrganisation, FakePosition, FakeSector,
+            FakeAddress, FakeImage, FakeImageCategory)
     from creme.creme_core.utils import safe_unicode
 
-    from ..fake_models import (FakeContact, FakeOrganisation, FakePosition, FakeSector,
-               FakeAddress, FakeImage, FakeImageCategory)
-
-    from .base import ViewsTestCase, BrickTestCaseMixin
-
-    from creme.creme_config.tests.fake_models import FakeConfigEntity
+    from creme.creme_config.models import FakeConfigEntity
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
@@ -40,6 +41,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     DEL_ENTITIES_URL = reverse('creme_core__delete_entities')
     EMPTY_TRASH_URL  = reverse('creme_core__empty_trash')
     SEARCHNVIEW_URL  = reverse('creme_core__search_n_view_entities')
+    RESTRICT_URL     = reverse('creme_core__restrict_entity_2_superusers')
 
     def _build_delete_url(self, entity):
         return reverse('creme_core__delete_entity', args=(entity.id,))
@@ -737,6 +739,49 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                                 'value':  '123456789',
                                },
                          )
+
+    def test_restrict_entity_2_superusers01(self):
+        user = self.login()
+        contact = FakeContact.objects.create(user=user, first_name='Eikichi', last_name='Onizuka')
+
+        url = self.RESTRICT_URL
+        data = {'id': contact.id}
+        self.assertGET404(url, data=data)
+        self.assertPOST200(url, data=data)
+
+        sandbox = self.refresh(contact).sandbox
+        self.assertIsNotNone(sandbox)
+        self.assertEqual(constants.UUID_SANDBOX_SUPERUSERS, str(sandbox.uuid))
+
+        # Unset
+        self.assertPOST200(url, data=dict(data, set='false'))
+        self.assertIsNone(self.refresh(contact).sandbox)
+
+    def test_restrict_entity_2_superusers02(self):
+        "Entity already in a sandbox"
+        user = self.login()
+        sandbox = Sandbox.objects.create(type_id='creme_core-dont_care', user=user)
+        contact = FakeContact.objects.create(user=user, sandbox=sandbox,
+                                             first_name='Eikichi', last_name='Onizuka',
+                                            )
+
+        data = {'id': contact.id}
+        self.assertPOST409(self.RESTRICT_URL, data=data)
+        self.assertPOST409(self.RESTRICT_URL, data=dict(data, set='false'))
+
+        self.assertEqual(sandbox, self.refresh(contact).sandbox)
+
+    def test_restrict_entity_2_superusers03(self):
+        "Unset entity with no sandbox"
+        user = self.login()
+        contact = FakeContact.objects.create(user=user, first_name='Eikichi', last_name='Onizuka')
+        self.assertPOST409(self.RESTRICT_URL, data={'id': contact.id, 'set': 'false'})
+
+    def test_restrict_entity_2_superusers04(self):
+        "Not super-user"
+        user = self.login(is_superuser=False)
+        contact = FakeContact.objects.create(user=user, first_name='Eikichi', last_name='Onizuka')
+        self.assertPOST403(self.RESTRICT_URL, data={'id': contact.id})
 
 
 class _BulkEditTestCase(ViewsTestCase):

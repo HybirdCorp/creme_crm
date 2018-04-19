@@ -1005,6 +1005,12 @@ div.hat-bar {
     font-weight: 600;
 }
 
+.bar-sandboxed-indicator {
+    font-size: 0.8em;
+    color: #a15ed0;
+    font-weight: 600;
+}
+
 /* Title bar - end */
 
 /* (new) Footer */
