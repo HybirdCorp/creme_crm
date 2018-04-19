@@ -21,6 +21,7 @@
 import logging
 from operator import or_ as or_op
 from re import compile as re_compile
+import uuid
 
 import pytz
 
@@ -30,7 +31,7 @@ from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, _user_
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.core.validators import RegexValidator
-from django.db.models import (Model, CharField, TextField, BooleanField,
+from django.db.models import (Model, UUIDField, CharField, TextField, BooleanField,
         PositiveSmallIntegerField, PositiveIntegerField, EmailField,
         DateTimeField, ForeignKey, ManyToManyField, PROTECT, CASCADE, Q)
 from django.utils.timezone import now
@@ -81,7 +82,7 @@ class UserRole(Model):
 
     @admin_4_apps.setter
     def admin_4_apps(self, apps):
-        """@param apps Sequence of app labels (strings)"""
+        """@param apps: Sequence of app labels (strings)"""
         self._admin_4_apps = set(apps)
         self.raw_admin_4_apps = '\n'.join(apps)
 
@@ -165,11 +166,11 @@ class UserRole(Model):
 
     def can_do_on_model(self, user, model, owner, perm):
         """Can the given user execute an action (VIEW, CHANGE etc..) on this model.
-        @param user User instance ; user that try to do something.
-        @param model Class inheriting CremeEntity
-        @param owner User instance ; owner of the not-yet-existing instance of 'model'
-                     None means any user that would allows the action (if it exists of course)
-        @param perm See EntityCredentials.{VIEW, CHANGE, ...}
+        @param user: User instance ; user that try to do something.
+        @param model: Class inheriting CremeEntity
+        @param owner: User instance ; owner of the not-yet-existing instance of 'model'
+                      None means any user that would allows the action (if it exists of course)
+        @param perm: See EntityCredentials.{VIEW, CHANGE, ...}
         """
         return SetCredentials._can_do(self._get_setcredentials(), user, model, owner, perm)
 
@@ -296,7 +297,7 @@ class SetCredentials(Model):
         return format_str % args
 
     def _get_perms(self, user, entity):
-        """@return an integer with binary flags for permissions"""
+        """@return An integer with binary flags for permissions"""
         ctype_id = self.ctype_id
 
         if not ctype_id or ctype_id == entity.entity_type_id:
@@ -311,7 +312,7 @@ class SetCredentials(Model):
 
     @staticmethod
     def get_perms(sc_sequence, user, entity):
-        """@param sc_sequence Sequence of SetCredentials instances."""
+        """@param sc_sequence: Sequence of SetCredentials instances."""
         return reduce(or_op, (sc._get_perms(user, entity) for sc in sc_sequence), EntityCredentials.NONE)
 
     @staticmethod
@@ -457,7 +458,7 @@ class SetCredentials(Model):
 
 class CremeUserManager(BaseUserManager):
     def create_user(self, username, first_name, last_name, email, password=None, **extra_fields):
-        "Creates and saves a User"
+        "Creates and saves a (Creme)User instance."
         if not username:
             raise ValueError('The given username must be set')
 
@@ -629,6 +630,10 @@ class CremeUser(AbstractBaseUser):
 
     @property  # NB notice that cache and credentials are well updated when using this property
     def teammates(self):
+        """Dictionary of teamates users
+            key: user ID.
+            value CremeUser instance.
+        """
         assert self.is_team
 
         teammates = self._teammates
@@ -751,7 +756,7 @@ class CremeUser(AbstractBaseUser):
         eg: user.has_perm('myapp.export_mymodel') => user.has_perm_to_export(MyModel)
         """
         meta = model_or_entity._meta
-        return self.has_perm('%s.export_%s' % (meta.app_label, meta.object_name.lower()))
+        return self.has_perm('{}.export_{}'.format(meta.app_label, meta.object_name.lower()))
 
     def has_perm_to_export_or_die(self, model_or_entity):
         if not self.has_perm_to_export(model_or_entity):
@@ -761,10 +766,10 @@ class CremeUser(AbstractBaseUser):
 
     def has_perm_to_link(self, entity_or_model, owner=None):
         """Can the user link a future entity of a given class ?
-        @param entity_or_model {Instance of} class inheriting CremeEntity.
-        @param owner (only used when 1rst param is a class) Instance of auth.User ;
-                     owner of the (future) entity. 'None' means: is there an
-                     owner (at least) that allows linking.
+        @param entity_or_model: {Instance of} class inheriting CremeEntity.
+        @param owner: (only used when 1rst param is a class) Instance of auth.User ;
+                      owner of the (future) entity. 'None' means: is there an
+                      owner (at least) that allows linking.
         """
         assert not self.is_team  # Teams can not be logged, it has no sense
 
@@ -819,3 +824,30 @@ for fname in ('password', 'last_login'):
 
 del get_user_field
 
+
+class Sandbox(Model):
+    """When a CremeEntity is associated to a sandbox, only the user related to this sandbox
+    can have its regular permission on this entity.
+    A Sandbox can be related to a UserRole ; in these case all users with this role can access to this entity.
+
+    Notice that superusers ignore the Sandboxes ; so if a SandBox has no related user/role, the entities in
+    this sandbox are only accessible to the superusers (like the Sandbox built in creme_core.populate.py)
+    """
+    uuid      = UUIDField(unique=True, editable=False, default=uuid.uuid4)
+    type_id   = CharField(u'Type of sandbox', max_length=48, editable=False)
+    role      = ForeignKey(UserRole, verbose_name=u'Related role', null=True,
+                           default=None, on_delete=CASCADE, editable=False,
+                          )
+    # superuser = BooleanField(u'related to superusers', default=False, editable=False)
+    user      = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=u'Related user',
+                           null=True, default=None, on_delete=CASCADE, editable=False,
+                          )
+
+    class Meta:
+        app_label = 'creme_core'
+
+    @property
+    def type(self):
+        from creme.creme_core.core.sandbox import sandbox_type_registry
+
+        return sandbox_type_registry.get(self)

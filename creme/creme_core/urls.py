@@ -37,6 +37,8 @@ entity_patterns = [
     # url(r'^merge/select_other/(?P<entity1_id>\d+)[/]?$',        entity.select_entity_for_merge,  name='creme_core__select_entity_for_merge'),
     url(r'^merge[/]?$',                                         entity.merge,                    name='creme_core__merge_entities'),
     # url(r'^merge/(?P<entity1_id>\d+),(?P<entity2_id>\d+)[/]?$', entity.merge,                    name='creme_core__merge_entities'),
+
+    url(r'^restrict_to_superusers[/]?$', entity.restrict_to_superusers, name='creme_core__restrict_entity_2_superusers'),
 ]
 
 relation_patterns = [

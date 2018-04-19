@@ -220,7 +220,7 @@ class CremeAppConfig(AppConfig):
             if hasattr(self, 'register_creme_app'):
                 logger.critical('The AppConfig for "%s" has a method register_creme_app() which is now useless.', self.name)
 
-            from .core import imprint, reminder, setting_key
+            from .core import imprint, reminder, sandbox, setting_key
             from .gui import (bricks, bulk_update, button_menu, fields_config, field_printers, icons,
                       listview, mass_import, menu, merge, quick_forms, statistics)
 
@@ -245,6 +245,7 @@ class CremeAppConfig(AppConfig):
             self.register_merge_forms(merge.merge_form_registry)
             self.register_quickforms(quick_forms.quickforms_registry)
             self.register_reminders(reminder.reminder_registry)
+            self.register_sanboxes(sandbox.sandbox_type_registry)
 
             self.register_setting_keys(setting_key.setting_key_registry)
             if hasattr(self, 'register_setting_key'):
@@ -295,6 +296,9 @@ class CremeAppConfig(AppConfig):
         pass
 
     def register_reminders(self, reminder_registry):
+        pass
+
+    def register_sanboxes(self, sandbox_type_registry):
         pass
 
     # def register_setting_key(self, setting_key_registry):
@@ -419,6 +423,16 @@ class CremeCoreConfig(CremeAppConfig):
         from .models import CremeProperty
 
         bulk_update_registry.register(CremeProperty, exclude=('type', 'creme_entity'))  # TODO: tags modifiable=False ??
+
+    def register_buttons(self, button_registry):
+        from . import buttons
+
+        button_registry.register(buttons.Restrict2SuperusersButton)
+
+    def register_sanboxes(self, sandbox_type_registry):
+        from . import sandboxes
+
+        sandbox_type_registry.register(sandboxes.OnlySuperusersType)
 
     def register_setting_keys(self, setting_key_registry):
         from . import setting_keys

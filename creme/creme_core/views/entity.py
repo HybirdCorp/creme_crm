@@ -34,16 +34,17 @@ from django.utils.html import format_html
 # from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _, ungettext
 
-from ..auth.decorators import login_required
+from .. import constants
+from ..auth.decorators import login_required, superuser_required
 from ..core.exceptions import ConflictError, SpecificProtectedError
 from ..core.paginator import FlowPaginator
 from ..forms import CremeEntityForm
 from ..forms.bulk import BulkDefaultEditForm
 from ..forms.merge import form_factory as merge_form_factory, MergeEntitiesBaseForm
 from ..gui.bulk_update import bulk_update_registry, FieldNotAllowed
-from ..models import CremeEntity, EntityCredentials, FieldsConfig
+from ..models import CremeEntity, EntityCredentials, FieldsConfig, Sandbox
 from ..models.fields import UnsafeHTMLField
-from ..utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, jsonify
+from ..utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, jsonify, bool_from_str_extended
 from ..utils.translation import get_model_verbose_name
 # from ..utils.chunktools import iter_as_slices
 from ..utils.html import sanitize_html
@@ -743,6 +744,32 @@ def delete_related_to_entity(request, ct_id):
         return HttpResponse(content_type='text/javascript')
 
     return redirect(entity)
+
+
+@login_required
+@superuser_required
+@POST_only
+def restrict_to_superusers(request):
+    POST = request.POST
+    set_sandbox = get_from_POST_or_404(POST, 'set', cast=bool_from_str_extended, default='1')
+    entity = get_object_or_404(CremeEntity, id=get_from_POST_or_404(POST, 'id', cast=int))
+
+    if set_sandbox:
+        if entity.sandbox_id:
+            raise ConflictError('This entity is already in a sandbox.')
+
+        entity.sandbox = Sandbox.objects.get(uuid=constants.UUID_SANDBOX_SUPERUSERS)
+        entity.save()
+    else:
+        sandbox = entity.sandbox
+
+        if not sandbox or str(sandbox.uuid) != constants.UUID_SANDBOX_SUPERUSERS:
+            raise ConflictError('This entity is not in the "Restricted to superusers" sandbox.')
+
+        entity.sandbox = None
+        entity.save()
+
+    return HttpResponse()
 
 
 @login_required

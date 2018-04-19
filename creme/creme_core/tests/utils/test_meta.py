@@ -296,6 +296,7 @@ class MetaTestCase(CremeTestCase):
                           ('is_deleted',                 'is deleted'),
                           ('modified',                   _(u'Last modification')),
                           ('user',                       _(u'Owner user')),
+                          ('sandbox',                    'sandbox'),
                           ('uuid',                       'uuid'),
                          ],
                          choices, choices

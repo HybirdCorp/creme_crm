@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-18 11:18+0200\n"
+"POT-Creation-Date: 2018-04-19 18:52+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,58 +16,58 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: apps.py:316
+#: apps.py:320
 msgid "Core"
 msgstr "Cœur"
 
-#: apps.py:362 apps.py:370 templates/creme_core/header/menu-base.html:4
+#: apps.py:366 apps.py:374 templates/creme_core/header/menu-base.html:4
 #: templates/creme_core/header/menu-base.html:9
 #: templates/creme_core/home.html:8
 msgid "Home"
 msgstr "Accueil"
 
-#: apps.py:363 apps.py:373 templates/creme_core/my_page.html:8
+#: apps.py:367 apps.py:377 templates/creme_core/my_page.html:8
 msgid "My page"
 msgstr "Ma page"
 
-#: apps.py:372 models/auth.py:563 models/job.py:83 models/prefered_menu.py:27
+#: apps.py:376 models/auth.py:564 models/job.py:83 models/prefered_menu.py:27
 #: templates/creme_core/bricks/imprints.html:17
 #: templates/creme_core/bricks/job.html:59
 msgid "User"
 msgstr "Utilisateur"
 
-#: apps.py:376 templates/creme_core/base.html:83
+#: apps.py:380 templates/creme_core/base.html:83
 #: templates/creme_core/bricks/jobs-mine.html:7
 #: templates/creme_core/job/list-mine.html:4
 msgid "My jobs"
 msgstr "Mes jobs"
 
-#: apps.py:381 templates/creme_core/base.html:76
+#: apps.py:385 templates/creme_core/base.html:76
 msgid "Log out"
 msgstr "Se déconnecter"
 
-#: apps.py:385
+#: apps.py:389
 msgid "Tools"
 msgstr "Outils"
 
-#: apps.py:387 models/job.py:104 templates/creme_core/base.html:81
+#: apps.py:391 models/job.py:104 templates/creme_core/base.html:81
 #: templates/creme_core/bricks/jobs-all.html:17
 msgid "Jobs"
 msgstr "Jobs"
 
-#: apps.py:395
+#: apps.py:399
 msgid "+ Creation"
 msgstr "+ Création"
 
-#: apps.py:396
+#: apps.py:400
 msgid "Main entities"
 msgstr "Fiches principales"
 
-#: apps.py:398
+#: apps.py:402
 msgid "Other type of entity"
 msgstr "Autre type de fiche"
 
-#: apps.py:401
+#: apps.py:405
 msgid "Recent entities"
 msgstr "Fiches récentes"
 
@@ -119,7 +119,7 @@ msgid "XLSX file extension introduced by Microsoft Excel 2007."
 msgstr "Extension XLSX introduite par Microsoft Excel 2007."
 
 #: bricks.py:45 forms/mass_import.py:1356 models/creme_property.py:113
-#: models/entity.py:53 templates/creme_core/bricks/properties.html:7
+#: models/entity.py:55 templates/creme_core/bricks/properties.html:7
 msgid "Properties"
 msgstr "Propriétés"
 
@@ -154,6 +154,11 @@ msgstr "Corbeille"
 #: templates/creme_core/generics/portal.html:52
 msgid "Statistics"
 msgstr "Statistiques"
+
+#: buttons.py:52 templates/creme_core/buttons/restrict-to-superusers.html:8
+#: templates/creme_core/buttons/restrict-to-superusers.html:19
+msgid "Restrict to superusers"
+msgstr "Réserver aux super-utilisateurs"
 
 #: core/batch_process.py:41
 msgid "enter a whole number"
@@ -1208,210 +1213,210 @@ msgstr "À la première page"
 msgid "Next page"
 msgstr "Page suivante"
 
-#: models/auth.py:49 models/bricks.py:483 models/entity_filter.py:111
+#: models/auth.py:50 models/bricks.py:483 models/entity_filter.py:111
 #: models/i18n.py:28 templates/creme_core/bricks/relations.html:17
 #: templates/creme_core/bricks/trash.html:17
 msgid "Name"
 msgstr "Nom"
 
-#: models/auth.py:51
+#: models/auth.py:52
 msgid "Creatable resources"
 msgstr "Ressources créables"
 
-#: models/auth.py:52
+#: models/auth.py:53
 msgid "Exportable resources"
 msgstr "Ressources exportables"
 
-#: models/auth.py:56
+#: models/auth.py:57
 msgid "Create a role"
 msgstr "Créer un rôle"
 
-#: models/auth.py:57
+#: models/auth.py:58
 msgid "Save the role"
 msgstr "Enregistrer le rôle"
 
-#: models/auth.py:61 models/auth.py:528
+#: models/auth.py:62 models/auth.py:529
 msgid "Role"
 msgstr "Rôle"
 
-#: models/auth.py:62
+#: models/auth.py:63
 msgid "Roles"
 msgstr "Rôles"
 
-#: models/auth.py:265
+#: models/auth.py:266
 msgid "all entities"
 msgstr "toutes les fiches"
 
-#: models/auth.py:266
+#: models/auth.py:267
 msgid "user's own entities"
 msgstr "ses propres fiches"
 
-#: models/auth.py:277
+#: models/auth.py:278
 msgid "View"
 msgstr "Voir"
 
-#: models/auth.py:278
+#: models/auth.py:279
 msgid "Change"
 msgstr "Modifier"
 
-#: models/auth.py:279 models/entity.py:281
-#: templates/creme_core/bricks/base/hat-card.html:109
-#: templates/creme_core/bricks/generic/hat-bar.html:43
+#: models/auth.py:280 models/entity.py:284
+#: templates/creme_core/bricks/base/hat-card.html:111
+#: templates/creme_core/bricks/generic/hat-bar.html:47
 #: templates/creme_core/frags/list_view_content.html:191
 #: templatetags/creme_bricks.py:136
 msgid "Delete"
 msgstr "Supprimer"
 
-#: models/auth.py:280 templates/creme_core/generics/blockform/link_popup.html:2
+#: models/auth.py:281 templates/creme_core/generics/blockform/link_popup.html:2
 msgid "Link"
 msgstr "Lier"
 
-#: models/auth.py:281
+#: models/auth.py:282
 msgid "Unlink"
 msgstr "Délier"
 
-#: models/auth.py:284
+#: models/auth.py:285
 msgid "Nothing allowed"
 msgstr "Rien d'autorisé"
 
-#: models/auth.py:292
+#: models/auth.py:293
 #, python-format
 msgid "For %(set)s of type “%(type)s”: %(perms)s"
 msgstr "Pour %(set)s du type “%(type)s”: %(perms)s"
 
-#: models/auth.py:294
+#: models/auth.py:295
 #, python-format
 msgid "For %(set)s: %(perms)s"
 msgstr "Pour %(set)s: %(perms)s"
 
-#: models/auth.py:498
+#: models/auth.py:499
 msgid "Username"
 msgstr "Nom d'utilisateur"
 
 # Already in django.auth
-#: models/auth.py:499
+#: models/auth.py:500
 msgid "Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only."
 msgstr ""
 
 # Already in django.auth
-#: models/auth.py:503
+#: models/auth.py:504
 msgid ""
 "Enter a valid username. This value may contain only letters, numbers and @/./"
 "+/-/_ characters."
 msgstr ""
 
-#: models/auth.py:510
+#: models/auth.py:511
 msgid "Last name"
 msgstr "Nom"
 
-#: models/auth.py:511
+#: models/auth.py:512
 msgid "First name"
 msgstr "Prénom"
 
-#: models/auth.py:513
+#: models/auth.py:514
 msgid "Email address"
 msgstr "Adresse e-mail"
 
-#: models/auth.py:515
+#: models/auth.py:516
 msgid "Date joined"
 msgstr "Date d'inscription"
 
-#: models/auth.py:516
+#: models/auth.py:517
 msgid "Active?"
 msgstr "Actif ?"
 
-#: models/auth.py:522
+#: models/auth.py:523
 msgid "Is staff?"
 msgstr "Est administrateur ?"
 
-#: models/auth.py:525
+#: models/auth.py:526
 msgid "Is a superuser?"
 msgstr "Est un super-utilisateur ?"
 
-#: models/auth.py:532
+#: models/auth.py:533
 msgid "Is a team?"
 msgstr "Est une équipe ?"
 
-#: models/auth.py:533
+#: models/auth.py:534
 msgid "Teammates"
 msgstr "Coéquipiers"
 
-#: models/auth.py:537
+#: models/auth.py:538
 msgid "Time zone"
 msgstr "Fuseau horaire"
 
-#: models/auth.py:540
+#: models/auth.py:541
 msgid "Theme"
 msgstr "Thème"
 
-#: models/auth.py:553
+#: models/auth.py:554
 msgid "Create a user"
 msgstr "Créer un utilisateur"
 
-#: models/auth.py:554
+#: models/auth.py:555
 msgid "Save the user"
 msgstr "Enregistrer l'utilisateur"
 
-#: models/auth.py:564
+#: models/auth.py:565
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: models/auth.py:572
+#: models/auth.py:573
 #, python-format
 msgid "%s (team)"
 msgstr "%s (équipe)"
 
-#: models/auth.py:579
+#: models/auth.py:580
 #, python-format
 msgid "%(first_name)s %(last_name)s."
 msgstr "%(first_name)s %(last_name)s."
 
-#: models/auth.py:702
+#: models/auth.py:707
 #, python-format
 msgid "Invalid app \"%s\""
 msgstr "App invalide \"%s\""
 
-#: models/auth.py:704
+#: models/auth.py:709
 #, python-format
 msgid "You are not allowed to configure this app: %s"
 msgstr "Vous n'êtes pas autorisé à configurer cette app: %s"
 
-#: models/auth.py:720
+#: models/auth.py:725
 #, python-format
 msgid "You are not allowed to edit this entity: %s"
 msgstr "Vous n'êtes pas autorisé à modifier cette fiche: %s"
 
-#: models/auth.py:733
+#: models/auth.py:738
 #, python-format
 msgid "You are not allowed to create: %s"
 msgstr "Vous n'avez pas la permission de créer : %s"
 
-#: models/auth.py:745 views/entity.py:609
+#: models/auth.py:750 views/entity.py:610
 #, python-format
 msgid "You are not allowed to delete this entity: %s"
 msgstr "Vous n'êtes pas autorisé à supprimer cette fiche: %s"
 
-#: models/auth.py:758
+#: models/auth.py:763
 #, python-format
 msgid "You are not allowed to export: %s"
 msgstr "Vous n'avez pas la permission d'exporter: %s"
 
-#: models/auth.py:787
+#: models/auth.py:792
 #, python-format
 msgid "You are not allowed to link this entity: %s"
 msgstr "Vous n'êtes pas autorisé à relier cette fiche: %s"
 
-#: models/auth.py:790
+#: models/auth.py:795
 #, python-format
 msgid "You are not allowed to link: %s"
 msgstr "Vous n'avez pas la permission de lier: %s"
 
-#: models/auth.py:801
+#: models/auth.py:806
 #, python-format
 msgid "You are not allowed to unlink this entity: %s"
 msgstr "Vous n'êtes pas autorisé à délier cette fiche: %s"
 
-#: models/auth.py:811
+#: models/auth.py:816
 #, python-format
 msgid "You are not allowed to view this entity: %s"
 msgstr "Vous n'êtes pas autorisé à voir cette fiche: %s"
@@ -1582,21 +1587,21 @@ msgstr "Liste de choix"
 msgid "Multiple choice list"
 msgstr "Liste de choix multiples"
 
-#: models/entity.py:81
+#: models/entity.py:84
 msgid "Create an entity"
 msgstr "Créer une fiche"
 
-#: models/entity.py:82 views/generic/add.py:63
+#: models/entity.py:85 views/generic/add.py:63
 msgid "Save the entity"
 msgstr "Enregistrer la fiche"
 
-#: models/entity.py:132 views/entity.py:75
+#: models/entity.py:135 views/entity.py:76
 #, python-format
 msgid "Entity #%s (not viewable)"
 msgstr "Fiche #%s (non visible)"
 
-#: models/entity.py:272 templates/creme_core/bricks/base/hat-card.html:101
-#: templates/creme_core/bricks/generic/hat-bar.html:32
+#: models/entity.py:275 templates/creme_core/bricks/base/hat-card.html:103
+#: templates/creme_core/bricks/generic/hat-bar.html:36
 #: templates/creme_core/frags/list_view_content.html:186
 #: templates/creme_core/generics/blockform/edit.html:8
 #: templates/creme_core/generics/blockform/edit.html:13
@@ -1611,11 +1616,11 @@ msgstr "Fiche #%s (non visible)"
 msgid "Edit"
 msgstr "Modifier"
 
-#: models/entity.py:289 templates/creme_core/bricks/found-entities.html:20
+#: models/entity.py:292 templates/creme_core/bricks/found-entities.html:20
 msgid "See"
 msgstr "Voir"
 
-#: models/entity.py:292
+#: models/entity.py:295
 #, python-brace-format
 msgid "Go to the entity {entity}"
 msgstr "Accéder à la fiche {entity}"
@@ -1650,7 +1655,7 @@ msgid "This filter can't be edited/deleted"
 msgstr "Ce filtre ne peut être modifié/effacé"
 
 #: models/entity_filter.py:169 models/header_filter.py:120
-#: views/batch_process.py:43 views/batch_process.py:89 views/entity.py:175
+#: views/batch_process.py:43 views/batch_process.py:89 views/entity.py:176
 #: views/entity_filter.py:56 views/entity_filter.py:185
 #: views/generic/listview.py:348 views/header_filter.py:54
 #: views/header_filter.py:154
@@ -2205,29 +2210,33 @@ msgstr "€"
 msgid "EUR"
 msgstr "EUR"
 
-#: populate.py:75
+#: populate.py:83
 msgid "replaceMe@byYourAddress.com"
 msgstr "remplacezMoi@parVotreAdresse.fr"
 
-#: populate.py:88
+#: populate.py:96
 msgid "United States dollar"
 msgstr "Dollar américain"
 
-#: populate.py:88
+#: populate.py:96
 msgid "$"
 msgstr "$"
 
-#: populate.py:88
+#: populate.py:96
 msgid "USD"
 msgstr "USD"
 
-#: populate.py:90
+#: populate.py:98
 msgid "French"
 msgstr "Français"
 
-#: populate.py:91
+#: populate.py:99
 msgid "English"
 msgstr "Anglais"
+
+#: sandboxes.py:28
+msgid "Restricted to superusers"
+msgstr "Réservé aux super-utilisateurs"
 
 #: setting_keys.py:10
 msgid "By default, are blocks open ?"
@@ -2268,60 +2277,60 @@ msgid "Back to Top"
 msgstr "Revenir au début"
 
 #: templates/creme_core/bricks/base/hat-card.html:39
-#: templates/creme_core/bricks/generic/hat-bar.html:17
+#: templates/creme_core/bricks/generic/hat-bar.html:18
 msgid "Entity in the trash"
 msgstr "Fiche dans la corbeille"
 
-#: templates/creme_core/bricks/base/hat-card.html:59
+#: templates/creme_core/bricks/base/hat-card.html:61
 #: templates/creme_core/forms/widgets/entity-cells.html:6
 msgid "Fields"
 msgstr "Champs"
 
-#: templates/creme_core/bricks/base/hat-card.html:72
+#: templates/creme_core/bricks/base/hat-card.html:74
 msgid "Strategic summary"
 msgstr "Résumé stratégique"
 
-#: templates/creme_core/bricks/base/hat-card.html:109
-#: templates/creme_core/bricks/generic/hat-bar.html:43
-#: templates/creme_core/bricks/generic/hat-bar.html:77
+#: templates/creme_core/bricks/base/hat-card.html:111
+#: templates/creme_core/bricks/generic/hat-bar.html:47
+#: templates/creme_core/bricks/generic/hat-bar.html:81
 msgid "Do you really want to sent this entity to the trash?"
 msgstr "Voulez-vous vraiment envoyer cette fiche dans la corbeille ?"
 
-#: templates/creme_core/bricks/base/hat-card.html:115
-#: templates/creme_core/bricks/generic/hat-bar.html:53
+#: templates/creme_core/bricks/base/hat-card.html:117
+#: templates/creme_core/bricks/generic/hat-bar.html:57
 msgid "Clone"
 msgstr "Cloner"
 
-#: templates/creme_core/bricks/base/hat-card.html:115
-#: templates/creme_core/bricks/generic/hat-bar.html:53
+#: templates/creme_core/bricks/base/hat-card.html:117
+#: templates/creme_core/bricks/generic/hat-bar.html:57
 msgid "Do you really want to clone this entity?"
 msgstr "Voulez-vous vraiment cloner cette fiche ?"
 
-#: templates/creme_core/bricks/base/hat-card.html:121
-#: templates/creme_core/bricks/generic/hat-bar.html:63
+#: templates/creme_core/bricks/base/hat-card.html:123
+#: templates/creme_core/bricks/generic/hat-bar.html:67
 #: templates/creme_core/frags/list_view_content.html:207
 #: templates/creme_core/merge.html:4 templates/creme_core/merge.html:14
-#: views/entity.py:505
+#: views/entity.py:506
 msgid "Merge"
 msgstr "Fusionner"
 
-#: templates/creme_core/bricks/base/hat-card.html:125
-#: templates/creme_core/bricks/generic/hat-bar.html:71
+#: templates/creme_core/bricks/base/hat-card.html:127
+#: templates/creme_core/bricks/generic/hat-bar.html:75
 #: templates/creme_core/bricks/trash.html:28
 msgid "Restore"
 msgstr "Restaurer"
 
-#: templates/creme_core/bricks/base/hat-card.html:125
-#: templates/creme_core/bricks/generic/hat-bar.html:71
+#: templates/creme_core/bricks/base/hat-card.html:127
+#: templates/creme_core/bricks/generic/hat-bar.html:75
 msgid "Do you really want to restore this entity?"
 msgstr "Voulez-vous vraiment restaurer cette fiche ?"
 
-#: templates/creme_core/bricks/base/hat-card.html:126
-#: templates/creme_core/bricks/generic/hat-bar.html:77
+#: templates/creme_core/bricks/base/hat-card.html:128
+#: templates/creme_core/bricks/generic/hat-bar.html:81
 msgid "Delete permanently"
 msgstr "Supprimer définitivement"
 
-#: templates/creme_core/bricks/base/hat-card.html:126
+#: templates/creme_core/bricks/base/hat-card.html:128
 msgid "Do you really want to delete this entity definitely?"
 msgstr "Voulez-vous vraiment supprimer définitivement cette fiche ?"
 
@@ -2723,6 +2732,25 @@ msgstr "Supprimer définitivement"
 msgid "The trash is empty"
 msgstr "La corbeille est vide"
 
+#: templates/creme_core/buttons/restrict-to-superusers.html:4
+msgid "Are you sure you want to restrict this entity to superusers?"
+msgstr "Voulez-vous vraiment réserver cette fiche aux super-utilisateurs ?"
+
+#: templates/creme_core/buttons/restrict-to-superusers.html:11
+msgid "Are you sure you want this entity to be accessible to regular users?"
+msgstr ""
+"Voulez-vous vraiment que cette fiche soit accessible aux utilisateurs "
+"normaux ?"
+
+#: templates/creme_core/buttons/restrict-to-superusers.html:14
+msgid "Not restrict to superusers"
+msgstr "Ne pas réserver aux super-utilisateurs"
+
+#: templates/creme_core/buttons/restrict-to-superusers.html:17
+#, python-format
+msgid "Cannot restrict because already in «%(sandbox)s»"
+msgstr "Impossible de réserver car déjà dans «%(sandbox)s»"
+
 #: templates/creme_core/detailview.html:15
 msgid "Back to the list"
 msgstr "Retour à la liste"
@@ -2915,8 +2943,8 @@ msgstr "Tout sélectionner"
 msgid "Actions on the selected entities"
 msgstr "Actions sur les fiches sélectionnées"
 
-#: templates/creme_core/frags/list_view_content.html:186 views/entity.py:315
-#: views/entity.py:335
+#: templates/creme_core/frags/list_view_content.html:186 views/entity.py:316
+#: views/entity.py:336
 msgid "Multiple update"
 msgstr "Modification multiple"
 
@@ -3350,49 +3378,49 @@ msgstr "Nouvelles propriétés pour «%s»"
 msgid "The field \"{model}.{field}\" is hidden."
 msgstr "Le champ \"{model}.{field}\" est caché."
 
-#: views/entity.py:127
+#: views/entity.py:128
 #, python-format
 msgid "%s [CREATION]"
 msgstr "%s [CRÉATION]"
 
-#: views/entity.py:143
+#: views/entity.py:144
 msgid "This model does not use the generic clone view."
 msgstr "Ce modèle n'utilise pas la vue de clonage générique."
 
-#: views/entity.py:197
+#: views/entity.py:198
 msgid "This field is hidden."
 msgstr "Ce champ est caché."
 
-#: views/entity.py:207
+#: views/entity.py:208
 msgid "No entity corresponding to your search was found."
 msgstr "Aucun élément correspondant à votre recherche n'a été trouvé"
 
-#: views/entity.py:223
+#: views/entity.py:224
 msgid "You are not allowed to edit this entity"
 msgstr "Vous n'êtes pas autorisé à modifier cette fiche"
 
-#: views/entity.py:236 views/entity.py:261
+#: views/entity.py:237 views/entity.py:262
 #, python-format
 msgid "The field «%s» does not exist or cannot be edited"
 msgstr "Le champ «%s» n'existe pas ou ne peut être modifié."
 
-#: views/entity.py:240 views/generic/edit.py:129
+#: views/entity.py:241 views/generic/edit.py:129
 #, python-format
 msgid "Edit «%s»"
 msgstr "Modifier «%s»"
 
-#: views/entity.py:271
+#: views/entity.py:272
 msgid "You are not allowed to edit these entities"
 msgstr "Vous n'êtes pas autorisé à modifier ces fiches"
 
-#: views/entity.py:291
+#: views/entity.py:292
 #, python-format
 msgid "%(success)s «%(model)s» has been successfully modified."
 msgid_plural "%(success)s «%(model)s» have been successfully modified."
 msgstr[0] "%(success)s «%(model)s» a été modifié(e) avec succès."
 msgstr[1] "%(success)s «%(model)s» ont été modifié(e)s avec succès."
 
-#: views/entity.py:296
+#: views/entity.py:297
 #, python-format
 msgid "%(success)s of %(initial)s «%(model)s» has been successfully modified."
 msgid_plural ""
@@ -3402,36 +3430,36 @@ msgstr[0] ""
 msgstr[1] ""
 "%(success)s «%(model)s» sur %(initial)s ont été modifié(e)s avec succès."
 
-#: views/entity.py:302
+#: views/entity.py:303
 #, python-format
 msgid "%(forbidden)s was not editable."
 msgid_plural "%(forbidden)s were not editable."
 msgstr[0] "%(forbidden)s n'est pas modifiable."
 msgstr[1] "%(forbidden)s ne sont pas modifiables."
 
-#: views/entity.py:308
+#: views/entity.py:309
 #, python-format
 msgid "%(invalid)s has returned an error."
 msgid_plural "%(invalid)s have returned an error."
 msgstr[0] "%(invalid)s a retourné une erreur."
 msgstr[1] "%(invalid)s ont retourné une erreur."
 
-#: views/entity.py:329
+#: views/entity.py:330
 #, python-format
 msgid "%%s «%s» has been selected."
 msgstr "%%s «%s» a été sélectionné(e)."
 
-#: views/entity.py:330
+#: views/entity.py:331
 #, python-format
 msgid "%%s «%s» have been selected."
 msgstr "%%s «%s» ont été sélectionné(e)s."
 
-#: views/entity.py:494
+#: views/entity.py:495
 #, python-format
 msgid "Merge «%(entity1)s» with «%(entity2)s»"
 msgstr "Fusionner «%(entity1)s» avec «%(entity2)s»"
 
-#: views/entity.py:498
+#: views/entity.py:499
 msgid ""
 "You are going to merge two entities into a new one.\n"
 "Choose which information you want the old entities give to the new entity.\n"
@@ -3445,51 +3473,51 @@ msgstr ""
 "des vieilles fiches seront automatiquement disponibles dans la nouvelle "
 "fiche fusionnée."
 
-#: views/entity.py:551 views/entity.py:635 views/entity_filter.py:127
+#: views/entity.py:552 views/entity.py:636 views/entity_filter.py:127
 #, python-format
 msgid "\"%s\" can not be deleted because of its dependencies."
 msgstr "\"%s\" ne peut être supprimé à cause de ses dépendances."
 
-#: views/entity.py:556 views/entity.py:642
+#: views/entity.py:557 views/entity.py:643
 #, python-format
 msgid "\"%(entity)s\" deletion caused an unexpected error [%(error)s]."
 msgstr ""
 "La suppression de \"%(entity)s\" a provoqué une erreur inattendue "
 "[%(error)s]."
 
-#: views/entity.py:570 views/entity.py:679 views/relation.py:325
+#: views/entity.py:571 views/entity.py:680 views/relation.py:325
 #: views/relation.py:496
 msgid "Operation successfully completed"
 msgstr "Opération effectuée avec succès"
 
-#: views/entity.py:573
+#: views/entity.py:574
 msgid "The following entities cannot be deleted"
 msgstr "Les entités suivantes ne peuvent être effacées"
 
-#: views/entity.py:586
+#: views/entity.py:587
 msgid "This model does not use the generic deletion view."
 msgstr "Ce modèle n'utilise pas la vue de suppression générique."
 
-#: views/entity.py:602
+#: views/entity.py:603
 #, python-format
 msgid "%s does not use the generic deletion view."
 msgstr "%s n'utilise pas la vue de suppression générique."
 
-#: views/entity.py:612 views/entity.py:617
+#: views/entity.py:613 views/entity.py:618
 #, python-format
 msgid "%s : <b>Permission denied</b>"
 msgstr "%s : <b>Permission refusée</b>"
 
-#: views/entity.py:629
+#: views/entity.py:630
 #, python-format
 msgid "\"%s\" can not be deleted."
 msgstr "\"%s\" ne peut être supprimé."
 
-#: views/entity.py:658
+#: views/entity.py:659
 msgid "No selected entities"
 msgstr "Aucune fiche séléctionnée"
 
-#: views/entity.py:668 views/relation.py:464
+#: views/entity.py:669 views/relation.py:464
 #, python-format
 msgid "%s entities doesn't exist / doesn't exist any more"
 msgstr "%s fiche(s) n'existe(nt) pas ou plus"

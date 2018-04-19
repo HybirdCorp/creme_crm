@@ -13,15 +13,17 @@ try:
     from django.utils.translation import ugettext as _
 
     from ..base import CremeTestCase
-    from ..fake_models import FakeContact, FakeOrganisation, FakeInvoice, FakeInvoiceLine
-    from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import CremeUser
-    from creme.creme_core.models import (CremeEntity, CremePropertyType,
-            CremeProperty, Relation, UserRole, SetCredentials)
 
-    from creme.creme_config.tests.fake_models import FakeConfigEntity
+    from creme.creme_core import constants
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.models import (CremeUser, Sandbox, CremeEntity, CremePropertyType,
+            CremeProperty, Relation, UserRole, SetCredentials,
+            FakeContact, FakeOrganisation, FakeInvoice, FakeInvoiceLine)
+    from creme.creme_core.sandboxes import OnlySuperusersType
+
+    from creme.creme_config.models import FakeConfigEntity
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class CredentialsTestCase(CremeTestCase):
@@ -70,8 +72,19 @@ class CredentialsTestCase(CremeTestCase):
 
         return role
 
-    def _build_contact_qs(self):
-        return FakeContact.objects.filter(pk__in=(self.contact1.id, self.contact2.id))
+    def _build_contact_qs(self, *extra_contacts):
+        ids = [self.contact1.id, self.contact2.id]
+        ids.extend(c.id for c in extra_contacts)
+
+        return FakeContact.objects.filter(pk__in=ids)
+
+    def test_populate(self):
+        sandbox = self.get_object_or_fail(Sandbox, uuid=constants.UUID_SANDBOX_SUPERUSERS)
+        # self.assertIs(sandbox.superuser, True)
+        self.assertIsNone(sandbox.role)
+        self.assertIsNone(sandbox.user)
+        self.assertEqual(OnlySuperusersType.id, sandbox.type_id)
+        self.assertIsInstance(sandbox.type, OnlySuperusersType)
 
     def test_attributes01(self):
         user = self.user
@@ -216,6 +229,9 @@ class CredentialsTestCase(CremeTestCase):
         # Filtering ------------------------------------------------------------
         efilter = EntityCredentials.filter
         qs1 = self._build_contact_qs()
+
+        with self.assertNumQueries(1):
+            _ = user.teams
 
         with self.assertNumQueries(0):
             efilter(user, qs1)
@@ -1134,8 +1150,12 @@ class CredentialsTestCase(CremeTestCase):
         with self.assertNoException():
             qs2 = EntityCredentials.filter_entities(user, qs)
 
-        self.assertIs(qs, qs2)
+        # self.assertIs(qs, qs2)
+        result = [e.get_real_entity() for e in qs2]
+        self.assertEqual(4, len(result))
+        self.assertEqual({self.contact1, self.contact2, orga1, orga2}, set(result))
 
+        # ------
         with self.assertRaises(ValueError):
             EntityCredentials.filter(user, qs)
 
@@ -1207,7 +1227,7 @@ class CredentialsTestCase(CremeTestCase):
                           set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_ALL)]
                          )
 
-        create_econf = FakeConfigEntity.objects.create  # Need 'cremme_config' credentials
+        create_econf = FakeConfigEntity.objects.create  # Need 'creme_config' credentials
         ec1 = create_econf(user=user, name='Conf1')
         ec2 = create_econf(user=self.other_user, name='Conf2')
 
@@ -1234,4 +1254,212 @@ class CredentialsTestCase(CremeTestCase):
         qs2 = EntityCredentials.filter_entities(user, qs, as_model=FakeContact)
         self.assertEqual({self.contact1, orga1},
                          {e.get_real_entity() for e in qs2}
+                        )
+
+    def test_sandox01(self):
+        "Owned by super-users"
+        user = self.user
+        self._create_role('Coder', ['creme_core'], users=[user],
+                          set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_ALL)],
+                         )
+
+        # sandbox = Sandbox.objects.create(superuser=True)
+        sandbox = Sandbox.objects.create()
+        contact3 = FakeContact.objects.create(user=user, sandbox=sandbox, first_name='Ito', last_name=u'Ittosaï')
+
+        contact1 = self.contact1
+        self.assertTrue(user.has_perm_to_view(contact1))
+        self.assertFalse(user.has_perm_to_change(contact1))
+
+        contact2 = self.contact2
+        self.assertTrue(user.has_perm_to_view(contact2))
+        self.assertFalse(user.has_perm_to_change(contact2))
+
+        self.assertFalse(user.has_perm_to_view(contact3))
+        self.assertFalse(user.has_perm_to_change(contact3))
+
+        super_user = self.other_user
+        super_user.is_superuser = True
+        self.assertTrue(super_user.has_perm_to_view(contact3))
+
+        # Filtering ------------------------------------------------------------
+        ecfilter = EntityCredentials.filter
+        contact_qs = self._build_contact_qs(contact3).order_by('id')
+
+        self.assertEqual([contact1.id, contact2.id],
+                         self._ids_list(ecfilter(user, contact_qs, perm=EntityCredentials.VIEW))
+                        )
+        self.assertEqual([contact1.id, contact2.id, contact3.id],
+                         self._ids_list(ecfilter(super_user, contact_qs, perm=EntityCredentials.VIEW))
+                        )
+
+        # Filtering (filter_entities()) ----------------------------------------
+        create_orga = FakeOrganisation.objects.create
+        orga1 = create_orga(user=user, name='Yoshioka')
+        orga2 = create_orga(user=user, name='Miyamoto', sandbox=sandbox)
+
+        filter_entities = EntityCredentials.filter_entities
+        entities_qs = CremeEntity.objects.filter(pk__in=[contact1.id, contact2.id, contact3.id, orga1.id, orga2.id])
+        self.assertEqual({contact1, contact2, orga1},
+                         {e.get_real_entity() for e in filter_entities(user, entities_qs)}
+                        )
+        self.assertEqual({contact1, contact2, contact3, orga1, orga2},
+                         {e.get_real_entity() for e in filter_entities(super_user, entities_qs)}
+                        )
+
+    def test_sandox02(self):
+        "Owned by a role"
+        user = self.user
+        other_user = self.other_user
+
+        role1 = self._create_role('Coder', ['creme_core'], users=[user],
+                                  set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_ALL)],
+                                 )
+        self._create_role('DB admin', ['creme_core'], users=[other_user],
+                          set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_ALL)],
+                         )
+
+        sandbox = Sandbox.objects.create(role=role1)
+
+        contact3 = FakeContact.objects.create(user=user, sandbox=sandbox, first_name='Ito', last_name=u'Ittosaï')
+
+        contact1 = self.contact1
+        self.assertTrue(user.has_perm_to_view(contact1))
+        self.assertTrue(other_user.has_perm_to_view(contact1))
+
+        contact2 = self.contact2
+        self.assertTrue(user.has_perm_to_view(contact2))
+        self.assertTrue(other_user.has_perm_to_view(contact2))
+
+        self.assertTrue(user.has_perm_to_view(contact3))
+        self.assertFalse(other_user.has_perm_to_view(contact3))  # <== not the sandbox's role
+
+        # Super user
+        super_user = CremeUser.objects.create_superuser(username='super',
+                                                        first_name='Suppa', last_name='man',
+                                                        email='suppa@penguin.jp',
+                                                        password=self.password,
+                                                       )
+        self.assertTrue(super_user.has_perm_to_view(contact3))  # superusers ignore the Sandbox
+
+        # Filtering ------------------------------------------------------------
+        ecfilter = EntityCredentials.filter
+        contact_qs = self._build_contact_qs(contact3).order_by('id')
+
+        self.assertEqual([contact1.id, contact2.id, contact3.id],
+                         self._ids_list(ecfilter(user, contact_qs, perm=EntityCredentials.VIEW))
+                        )
+        self.assertEqual([contact1.id, contact2.id],
+                         self._ids_list(ecfilter(other_user, contact_qs, perm=EntityCredentials.VIEW))
+                        )
+
+        # Filtering (filter_entities(user, qs)) --------------------------------
+        create_orga = FakeOrganisation.objects.create
+        orga1 = create_orga(user=user, name='Yoshioka')
+        orga2 = create_orga(user=user, name='Miyamoto', sandbox=sandbox)
+
+        filter_entities = EntityCredentials.filter_entities
+        entities_qs = CremeEntity.objects.filter(pk__in=[contact1.id, contact2.id, contact3.id, orga1.id, orga2.id])
+        self.assertEqual({contact1, contact2, contact3, orga1, orga2},
+                         {e.get_real_entity() for e in filter_entities(user, entities_qs)}
+                        )
+        self.assertEqual({contact1, contact2, orga1},
+                         {e.get_real_entity() for e in filter_entities(other_user, entities_qs)}
+                        )
+
+    def test_sandox03(self):
+        "Owned by a user"
+        user = self.user
+        other_user = self.other_user
+
+        self._create_role('Coder', ['creme_core'], users=[user, other_user],
+                           set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_ALL)],
+                          )
+        sandbox = Sandbox.objects.create(user=user)
+
+        contact3 = FakeContact.objects.create(user=user, sandbox=sandbox, first_name='Ito', last_name=u'Ittosaï')
+
+        contact1 = self.contact1
+        self.assertTrue(user.has_perm_to_view(contact1))
+        self.assertTrue(other_user.has_perm_to_view(contact1))
+
+        contact2 = self.contact2
+        self.assertTrue(user.has_perm_to_view(contact2))
+        self.assertTrue(other_user.has_perm_to_view(contact2))
+
+        self.assertTrue(user.has_perm_to_view(contact3))
+        self.assertFalse(other_user.has_perm_to_view(contact3))  # <== not the sandbox's user
+
+        # Filtering ------------------------------------------------------------
+        ecfilter = EntityCredentials.filter
+        contact_qs = self._build_contact_qs(contact3).order_by('id')
+
+        self.assertEqual([contact1.id, contact2.id, contact3.id],
+                         self._ids_list(ecfilter(user, contact_qs, perm=EntityCredentials.VIEW))
+                        )
+        self.assertEqual([contact1.id, contact2.id],
+                         self._ids_list(ecfilter(other_user, contact_qs, perm=EntityCredentials.VIEW))
+                        )
+
+        # Filtering (filter_entities(user, qs)) --------------------------------
+        create_orga = FakeOrganisation.objects.create
+        orga1 = create_orga(user=user, name='Yoshioka')
+        orga2 = create_orga(user=user, name='Miyamoto', sandbox=sandbox)
+
+        filter_entities = EntityCredentials.filter_entities
+        entities_qs = CremeEntity.objects.filter(pk__in=[contact1.id, contact2.id, contact3.id, orga1.id, orga2.id])
+        self.assertEqual({contact1, contact2, contact3, orga1, orga2},
+                         {e.get_real_entity() for e in filter_entities(user, entities_qs)}
+                        )
+        self.assertEqual({contact1, contact2, orga1},
+                         {e.get_real_entity() for e in filter_entities(other_user, entities_qs)}
+                        )
+
+    def test_sandox04(self):
+        "Owned by a team"
+        user = self.user
+        other_user = self.other_user
+
+        self._create_role('Coder', ['creme_core'], users=[user, other_user],
+                           set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_ALL)],
+                          )
+        team = self._create_team('Teamee', [user])
+        sandbox = Sandbox.objects.create(user=team)
+
+        contact3 = FakeContact.objects.create(user=user, sandbox=sandbox, first_name='Ito', last_name=u'Ittosaï')
+
+        contact1 = self.contact1
+        self.assertTrue(user.has_perm_to_view(contact1))
+        self.assertTrue(other_user.has_perm_to_view(contact1))
+
+        contact2 = self.contact2
+        self.assertTrue(user.has_perm_to_view(contact2))
+        # self.assertTrue(other_user.has_perm_to_view(contact2))
+
+        self.assertTrue(user.has_perm_to_view(contact3))
+        self.assertFalse(other_user.has_perm_to_view(contact3))  # <== not in the sandbox's team
+
+        # Filtering ------------------------------------------------------------
+        ecfilter = EntityCredentials.filter
+        contact_qs = self._build_contact_qs(contact3).order_by('id')
+
+        self.assertEqual([contact1.id, contact2.id, contact3.id],
+                         self._ids_list(ecfilter(user, contact_qs, perm=EntityCredentials.VIEW))
+                        )
+        self.assertEqual([contact1.id, contact2.id],
+                         self._ids_list(ecfilter(other_user, contact_qs, perm=EntityCredentials.VIEW))
+                        )
+
+        # Filtering (filter_entities(user, qs)) --------------------------------
+        create_orga = FakeOrganisation.objects.create
+        orga1 = create_orga(user=user, name='Yoshioka')
+        orga2 = create_orga(user=user, name='Miyamoto', sandbox=sandbox)
+
+        filter_entities = EntityCredentials.filter_entities
+        entities_qs = CremeEntity.objects.filter(pk__in=[contact1.id, contact2.id, contact3.id, orga1.id, orga2.id])
+        self.assertEqual({contact1, contact2, contact3, orga1, orga2},
+                         {e.get_real_entity() for e in filter_entities(user, entities_qs)}
+                        )
+        self.assertEqual({contact1, contact2, orga1},
+                         {e.get_real_entity() for e in filter_entities(other_user, entities_qs)}
                         )

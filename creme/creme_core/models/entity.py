@@ -23,7 +23,7 @@ import logging
 import uuid
 import warnings
 
-from django.db.models import Q, UUIDField  # ForeignKey
+from django.db.models import Q, UUIDField, ForeignKey, PROTECT
 from django.db.transaction import atomic
 from django.forms.utils import flatatt
 from django.urls import reverse
@@ -32,6 +32,8 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
+
+from .auth import Sandbox
 from .base import CremeAbstractEntity, _SEARCH_FIELD_MAX_LENGTH
 
 
@@ -70,7 +72,8 @@ class _PrettyPropertiesField(FunctionField):
 
 
 class CremeEntity(CremeAbstractEntity):
-    uuid = UUIDField(unique=True, editable=False, default=uuid.uuid4).set_tags(viewable=False)
+    uuid    = UUIDField(unique=True, editable=False, default=uuid.uuid4).set_tags(viewable=False)
+    sandbox = ForeignKey(Sandbox, null=True, editable=False, on_delete=PROTECT).set_tags(viewable=False)
 
     function_fields = CremeAbstractEntity.function_fields.new(_PrettyPropertiesField())
 
