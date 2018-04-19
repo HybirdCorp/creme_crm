@@ -27,7 +27,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.base import DeserializationError
 from django.core.serializers.python import _get_model
 
-from creme.creme_core.registry import NotRegistered
+# from creme.creme_core.registry import NotRegistered
 from creme.creme_core.utils.collections import OrderedSet
 from creme.creme_core.utils.imports import import_apps_sub_modules
 
@@ -91,6 +91,9 @@ class FetcherInterface(object):
 
 
 class CRUDityRegistry(object):
+    class RegistrationError(Exception):
+        pass
+
     def __init__(self):
         self._fetchers = {}
         self._backends = {}
@@ -194,7 +197,8 @@ class CRUDityRegistry(object):
         try:
             return self._backends[model]
         except KeyError:
-            raise NotRegistered("No backend is registered for the model '%s'" % model)
+            # raise NotRegistered("No backend is registered for the model '%s'" % model)
+            raise self.RegistrationError('No backend is registered for the model "{}"'.format(model))
 
     def get_configured_backends(self):
         """Get backends instances which are configured and associated to an input
