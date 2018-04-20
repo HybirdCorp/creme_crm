@@ -95,7 +95,8 @@ class WaitingActionTestCase(CrudityTestCase):
     def test_data_property01(self):
         action = WaitingAction(ct=self.ct_contact)
         expected_data = {'first_name': 'Mario', 'last_name': 'Bros'}
-        action.data = action.set_data(expected_data)
+        # action.data = action.set_data(expected_data)
+        action.set_data(expected_data)
         action.save()
 
         self.assertEqual(expected_data, self.refresh(action).get_data())
@@ -109,7 +110,8 @@ class WaitingActionTestCase(CrudityTestCase):
                          'enemies': {'Bowser': 1, 'Koopa': 50},
                          'epoch': now(),
                         }
-        action.data = action.set_data(expected_data)
+        # action.data = action.set_data(expected_data)
+        action.set_data(expected_data)
         action.save()
 
         self.assertEqual(expected_data, self.refresh(action).get_data())

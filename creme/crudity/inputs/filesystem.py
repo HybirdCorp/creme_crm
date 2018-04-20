@@ -131,13 +131,14 @@ class IniFileInput(CrudityInput):
                                                subject=backend.subject,
                                                user=owner,
                                               )
-                        action.data = action.set_data(data)
+                        # action.data = action.set_data(data)
+                        action.set_data(data)
                         action.save()
                     else:
                         # TODO: should be a public method
                         backend._create_instance_n_history(data,
                                                            user=owner,
-                                                           source='%s - %s' % (backend.fetcher_name, self.name),
+                                                           source='{} - {}'.format(backend.fetcher_name, self.name),
                                                           )
 
                     # Cleaning
