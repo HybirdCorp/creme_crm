@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Crudity 1.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-03 12:52+0100\n"
+"POT-Creation-Date: 2018-04-20 17:00+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -24,27 +24,27 @@ msgstr "Gestion des données externes"
 msgid "Email waiting actions"
 msgstr "Actions en attente pour les emails"
 
-#: apps.py:43 apps.py:56 bricks.py:106 models/history.py:38
+#: apps.py:43 apps.py:56 bricks.py:107 models/history.py:38
 #: models/history.py:39 templates/crudity/history.html:4
 #: templates/crudity/history.html:9
 msgid "History"
 msgstr "Historique"
 
-#: apps.py:48 backends/models.py:210
+#: apps.py:48 backends/models.py:212
 msgid "External data"
 msgstr "Données externes"
 
-#: apps.py:51 bricks.py:50 models/actions.py:44
+#: apps.py:51 bricks.py:50 models/actions.py:45
 #: templates/crudity/waiting-actions.html:4
 #: templates/crudity/waiting-actions.html:52
 msgid "Waiting actions"
 msgstr "Actions en attente"
 
-#: backends/models.py:214
+#: backends/models.py:216
 msgid "Imported from external data."
 msgstr "Importé depuis des données externes."
 
-#: backends/models.py:248
+#: backends/models.py:250
 #, python-format
 msgid "Creation of %(entity)s"
 msgstr "Création de %(entity)s"
@@ -93,7 +93,7 @@ msgstr ""
 msgid "Email - Raw"
 msgstr "E-mail - Simple"
 
-#: inputs/email.py:199
+#: inputs/email.py:206
 msgid "Email - Infopath"
 msgstr "E-mail - Infopath"
 
@@ -102,7 +102,7 @@ msgid "File - INI"
 msgstr "Fichier - INI"
 
 #: models/actions.py:31 models/history.py:31
-#: templates/crudity/bricks/history.html:20
+#: templates/crudity/bricks/history.html:21
 msgid "Action"
 msgstr "Action"
 
@@ -110,33 +110,33 @@ msgstr "Action"
 msgid "Source"
 msgstr "Source"
 
-#: models/actions.py:37
-msgid "Ressource's type"
+#: models/actions.py:38
+msgid "Type of resource"
 msgstr "Type de ressource"
 
-#: models/actions.py:38
+#: models/actions.py:39
 msgid "Subject"
 msgstr "Sujet"
 
-#: models/actions.py:39 models/history.py:34
+#: models/actions.py:40 models/history.py:34
 msgid "Owner"
 msgstr "Propriétaire"
 
-#: models/actions.py:43
+#: models/actions.py:44
 msgid "Waiting action"
 msgstr "Action en attente"
 
-#: models/actions.py:68
+#: models/actions.py:70
 #, python-format
 msgid "You are not allowed to validate/delete the waiting action <%s>"
 msgstr ""
 "Vous n'êtes pas autorisé à valider/effacer cette action en attente <%s>"
 
-#: models/actions.py:70
+#: models/actions.py:72
 msgid "OK"
 msgstr "OK"
 
-#: models/history.py:29 templates/crudity/bricks/history.html:18
+#: models/history.py:29 templates/crudity/bricks/history.html:19
 msgid "Entity"
 msgstr "Fiche"
 
@@ -144,7 +144,7 @@ msgstr "Fiche"
 msgid "Creation date"
 msgstr "Date de création"
 
-#: models/history.py:33 templates/crudity/bricks/history.html:21
+#: models/history.py:33 templates/crudity/bricks/history.html:22
 msgid "Description"
 msgstr "Description"
 
@@ -180,11 +180,11 @@ msgstr[1] "%(count)s entrées d'historique - %(model)s"
 msgid "History item - %(model)s"
 msgstr "Entrées d'historique - {ctype}"
 
-#: templates/crudity/bricks/history.html:19
+#: templates/crudity/bricks/history.html:20
 msgid "Created"
 msgstr "Créé"
 
-#: templates/crudity/bricks/history.html:37
+#: templates/crudity/bricks/history.html:38
 #, python-format
 msgid "No history for «%(ctype)s»"
 msgstr "Aucun historique pour «%(ctype)s»"
@@ -292,6 +292,9 @@ msgstr ""
 #: views/actions.py:108
 msgid "Operation successfully completed"
 msgstr ""
+
+#~ msgid "Ressource's type"
+#~ msgstr "Type de ressource"
 
 #~ msgid "{count} History item - {ctype}"
 #~ msgid_plural "{count} History items - {ctype}"

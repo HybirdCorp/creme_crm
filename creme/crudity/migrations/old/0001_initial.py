@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models, migrations
+from django.db.models.deletion import CASCADE
 import django.utils.timezone
 
 import creme.creme_core.models.fields
@@ -48,7 +49,7 @@ class Migration(migrations.Migration):
                 ('source', models.CharField(max_length=100, verbose_name='Source')),
                 ('data', models.TextField(null=True, blank=True)),
                 ('subject', models.CharField(max_length=100, verbose_name='Subject')),
-                ('ct', creme.creme_core.models.fields.CTypeForeignKey(verbose_name="Ressource's type", to='contenttypes.ContentType')),
+                ('ct', creme.creme_core.models.fields.CTypeForeignKey(on_delete=CASCADE, verbose_name='Type of resource', to='contenttypes.ContentType')),
                 # ('user', creme.creme_core.models.fields.CremeUserForeignKey(default=None, blank=True, to='auth.User', null=True, verbose_name='Owner')),
                 ('user', creme.creme_core.models.fields.CremeUserForeignKey(default=None, blank=True, to=settings.AUTH_USER_MODEL, null=True, verbose_name='Owner')),
             ],

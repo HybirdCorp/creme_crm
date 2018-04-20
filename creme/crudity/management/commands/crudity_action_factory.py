@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017  Hybird
+#    Copyright (C) 2017-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -112,7 +112,7 @@ class Command(BaseCommand):
                         _get_model_n_factory = types_map.get(backend.model)
 
                         if _get_model_n_factory is None:
-                            self.stderr.write('"%s" is not managed ; use the -l option to get the managed types.' % backend.model)
+                            self.stderr.write('"{}" is not managed ; use the -l option to get the managed types.'.format(backend.model))
                             continue
 
                         backend_count += 1
@@ -121,23 +121,25 @@ class Command(BaseCommand):
                         for i in xrange(number):
                             action = WaitingAction(
                                 action=method,
-                                source='%s - %s' % (fetcher_name, input.name),
+                                source='{} - {}'.format(fetcher_name, input.name),
                                 ct=ContentType.objects.get_for_model(backend.model),
                                 subject=backend.subject,
                                 # user=owner,  TODO ?
                             )
-                            action.data = action.set_data(_entity_2_dict(factory.build()))
+                            # action.data = action.set_data(_entity_2_dict(factory.build()))
+                            action.set_data(_entity_2_dict(factory.build()))
 
                             try:
                                 action.save()
                             except Exception as e:
-                                self.stderr.write('A error occurred when saving "%s" (%s).' % (action, e))
+                                self.stderr.write('A error occurred when saving "{}" ({}).'.format(action, e))
                             else:
                                 action_count += 1
 
         if verbosity:
-            self.stdout.write('Number of backend used: %s\n'
-                              'Number of actions created: %s' % (
-                                    backend_count, action_count,
+            self.stdout.write('Number of backend used: {backends}\n'
+                              'Number of actions created: {actions}'.format(
+                                    backends=backend_count,
+                                    actions=action_count,
                                 )
                              )
