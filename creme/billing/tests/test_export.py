@@ -3,12 +3,14 @@
 try:
     from decimal import Decimal
     from functools import partial
+    from os.path import basename, dirname, exists, join
 
+    from django.conf import settings
     from django.urls import reverse
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import SetCredentials
+    from creme.creme_core.models import SetCredentials, FileRef
     from creme.creme_core.utils.secure_filename import secure_filename
 
     from creme.persons.tests.base import skipIfCustomOrganisation
@@ -17,7 +19,7 @@ try:
             skipIfCustomProductLine, skipIfCustomServiceLine, Organisation,
             Invoice, ProductLine, ServiceLine)
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 @skipIfCustomOrganisation
@@ -37,15 +39,32 @@ class ExportTestCase(_BillingTestCase):
         for price in ('10', '20'):
             create_line(on_the_fly_item='Fly ' + price, unit_price=Decimal(price))
 
+        existing_fileref_ids = list(FileRef.objects.values_list('id', flat=True))
+
         response = self.assertGET200(self._build_export_url(invoice), follow=True)
         self.assertEqual('pdf', response['Content-Type'])
 
-        cdisp = response['Content-Disposition']
-        self.assertTrue(cdisp.startswith('attachment; filename=%s' %
-                                         secure_filename('%s_%s' %(_('Invoice'), invoice.id))),
-                        '<%s> is not the expected value' % cdisp
-                       )
-        self.assertTrue(cdisp.endswith('.pdf'))
+        filerefs = FileRef.objects.exclude(id__in=existing_fileref_ids)
+        self.assertEqual(1, len(filerefs))
+
+        fileref = filerefs[0]
+        self.assertTrue(fileref.temporary)
+        self.assertEqual(u'{}_{}.pdf'.format(_(u'Invoice'), invoice.id), fileref.basename)
+        # self.assertEqual(user, fileref.user) TODO
+
+        fullpath = fileref.filedata.path
+        self.assertTrue(exists(fullpath), '<{}> does not exists ?!'.format(fullpath))
+        self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'billing'), dirname(fullpath))
+
+        # cdisp = response['Content-Disposition']
+        # self.assertTrue(cdisp.startswith('attachment; filename={}'.format(
+        #                                         secure_filename(u'{}_{}'.format(_(u'Invoice'), invoice.id))
+        #                                     )
+        #                                 ),
+        #                 '<{}> is not the expected value'.format(cdisp)
+        #                )
+        # self.assertTrue(cdisp.endswith('.pdf'))
+        self.assertEqual('attachment; filename={}'.format(basename(fullpath)), response['Content-Disposition'])
 
     @skipIfCustomQuote
     @skipIfCustomServiceLine

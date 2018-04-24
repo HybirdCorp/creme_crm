@@ -41,7 +41,7 @@ class CSVExportBackend(ExportBackend):
         return self.writer.writerow(row)
 
     def save(self, filename):
-        self.response['Content-Disposition'] = 'attachment; filename=%s.csv' % slugify(filename)
+        self.response['Content-Disposition'] = 'attachment; filename={}.csv'.format(slugify(filename))
 
 
 class SemiCSVExportBackend(CSVExportBackend):

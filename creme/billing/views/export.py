@@ -32,9 +32,9 @@ from django.urls import reverse
 from django.utils.encoding import smart_str
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.auth import decorators as auth_dec
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.models import CremeEntity
+from creme.creme_core.models import CremeEntity, FileRef
 from creme.creme_core.utils.file_handling import FileCreator
 from creme.creme_core.utils.secure_filename import secure_filename
 
@@ -51,8 +51,8 @@ TEMPLATE_PATHS = {
 }
 
 
-@login_required
-@permission_required('billing')
+@auth_dec.login_required
+@auth_dec.permission_required('billing')
 def export_as_pdf(request, base_id):
     entity = get_object_or_404(CremeEntity, pk=base_id).get_real_entity()
 
@@ -73,17 +73,17 @@ def export_as_pdf(request, base_id):
 
     template = loader.get_template(template_path)
     context = {
-            'plines':        entity.get_lines(billing.get_product_line_model()),
-            'slines':        entity.get_lines(billing.get_service_line_model()),
-            'source':        source,
-            'target':        target,
-            'object':        entity,
-            'document_name': document_name,
-        }
+        'plines':        entity.get_lines(billing.get_product_line_model()),
+        'slines':        entity.get_lines(billing.get_service_line_model()),
+        'source':        source,
+        'target':        target,
+        'object':        entity,
+        'document_name': document_name,
+    }
 
-    basename = secure_filename(u'%s_%i' % (document_name, entity.id))
+    basename = secure_filename(u'{}_{}'.format(document_name, entity.id))
     tmp_dir_path = mkdtemp(prefix='creme_billing_latex')
-    latex_file_path = path.join(tmp_dir_path, '%s.tex' % basename)
+    latex_file_path = path.join(tmp_dir_path, '{}.tex'.format(basename))
 
     with open(latex_file_path, 'w') as f:
         f.write(smart_str(template.render(context)))
@@ -96,13 +96,13 @@ def export_as_pdf(request, base_id):
                     ]
                    )
 
-    pdf_basename = '%s.pdf' % basename
+    pdf_basename = '{}.pdf'.format(basename)
     temp_pdf_file_path = path.join(tmp_dir_path, pdf_basename)
 
     if not path.exists(temp_pdf_file_path):
         logger.critical('It seems the PDF generation has failed. '
                         'The temporary directory has not been removed, '
-                        'so you can inspect the *.log file in %s' % tmp_dir_path
+                        'so you can inspect the *.log file in "%s"', tmp_dir_path
                        )
         # TODO: use a better exception class ?
         raise ConflictError(_(u'The generation of the PDF file has failed ; please contact your administrator.'))
@@ -114,7 +114,13 @@ def export_as_pdf(request, base_id):
 
     rmtree(tmp_dir_path)
 
+    fileref = FileRef.objects.create(# user=request.user, TODO
+                                     filedata='upload/billing/' + path.basename(final_path),
+                                     basename=pdf_basename,
+                                    )
+
     return HttpResponseRedirect(reverse('creme_core__dl_file',
-                                        args=('upload/billing/' + path.basename(final_path),),
+                                        # args=('upload/billing/' + path.basename(final_path),),
+                                        args=(fileref.filedata,),
                                        )
                                )

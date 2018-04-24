@@ -26,6 +26,7 @@ from django.template.defaultfilters import slugify
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
+from ..models import FileRef
 from ..utils.file_handling import FileCreator
 from ..utils.xlwt_utils import XlwtWriter
 
@@ -36,17 +37,22 @@ class XLSExportBackend(XlwtWriter, ExportBackend):
     id = 'xls'
     verbose_name = _(u'XLS File')
     help_text = ''
+    dir_parts = ('xls',)  # Sub-directory under {settings.MEDIA_ROOT}/upload
 
     def __init__(self, encoding='utf-8'):
         super(XLSExportBackend, self).__init__(encoding=encoding)
-        self.dir_path = join(settings.MEDIA_ROOT, 'upload', 'xls')
+        self.dir_path = join(settings.MEDIA_ROOT, 'upload', *self.dir_parts)
 
     def save(self, filename):
-        path = FileCreator(dir_path=self.dir_path,
-                           name='%s.%s' % (slugify(filename), self.id),
-                          ).create()
-        self.response = HttpResponseRedirect(reverse('creme_core__dl_file',
-                                                     args=('/upload/xls/%s' % basename(path),),
-                                                    )
-                                            )
+        name = '{}.{}'.format(slugify(filename), self.id)
+        path = FileCreator(dir_path=self.dir_path, name=name).create()
+        fileref = FileRef.objects.create(#  user=user,  TODO
+                                         basename=name,
+                                         filedata='upload/{}/{}'.format(
+                                                        '/'.join(self.dir_parts),
+                                                        basename(path),
+                                                    ),
+                                        )
+        self.response = HttpResponseRedirect(reverse('creme_core__dl_file', args=(fileref.filedata,)))
+
         super(XLSExportBackend, self).save(path)
