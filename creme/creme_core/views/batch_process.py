@@ -72,9 +72,11 @@ def batch_process(request, ct_id):
                                   )
         cancel_url = build_cancel_path(request)
 
-    return render(request, 'creme_core/batch_process.html',
+    return render(request,
+                  # 'creme_core/batch_process.html',
+                  'creme_core/forms/batch-process.html',
                   {'form':          bp_form,
-                   'submit_label':  _('Run'),
+                   'submit_label':  _(u'Run'),
                    'cancel_url':    cancel_url,
                   }
                  )
@@ -86,7 +88,7 @@ def get_ops(request, ct_id, field):
     ct = get_ct_or_404(ct_id)
 
     if not request.user.has_perm(ct.app_label):
-        raise PermissionDenied(_(u"You are not allowed to access to this app"))
+        raise PermissionDenied(_(u'You are not allowed to access to this app'))
 
     field_class = ct.model_class()._meta.get_field(field).__class__
 
