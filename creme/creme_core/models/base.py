@@ -130,7 +130,7 @@ class CremeAbstractEntity(CremeModel):
     header_filter_search_field = CharField(max_length=_SEARCH_FIELD_MAX_LENGTH, editable=False).set_tags(viewable=False)
 
     is_deleted = BooleanField(default=False, editable=False).set_tags(viewable=False)
-    is_actived = BooleanField(default=False, editable=False).set_tags(viewable=False)
+    # is_actived = BooleanField(default=False, editable=False).set_tags(viewable=False)
     user       = CremeUserForeignKey(verbose_name=_(u'Owner user'))
 
     # objects = CremeEntityManager()

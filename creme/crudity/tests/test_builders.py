@@ -97,7 +97,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         backend = self._get_backend(ContactFakeBackend, subject='create_contact',
                                     model=Contact,
                                     body_map={'user_id':     1,
-                                              'is_actived':  True,  # TODO: ignore this
+                                              # 'is_actived':  True,
                                               'first_name':  '',
                                               'last_name':   '',
                                               'email':       'none@none.com',
@@ -212,7 +212,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
     def test_myschema_xsd01(self):
         body_map = {'user_id':     1,
-                    'is_actived':  True,  # TODO: ignore this (editable=False)
+                    # 'is_actived':  True,
                     'first_name':  '',
                     'last_name':   '',
                     'email':       'none@none.com',
@@ -250,8 +250,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             # <xsd:element name="user_id" type="xsd:integer"/>
             'user_id': {'name': 'user_id', 'type': 'xsd:integer'},
 
-            # <xsd:element name="is_actived" type="xsd:boolean"/>
-            'is_actived': {'name': 'is_actived', 'type': 'xsd:boolean'},
+            # # <xsd:element name="is_actived" type="xsd:boolean"/>
+            # 'is_actived': {'name': 'is_actived', 'type': 'xsd:boolean'},
 
             # TODO: check if my:requiredString accepts empty strings
             # # <xsd:element name="first_name" type="xsd:string"/>
@@ -374,7 +374,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         backend = self._get_backend(ContactFakeBackend, subject='create_contact',
                                     model=Contact,
                                     body_map={'user_id':     1,
-                                              'is_actived':  True,
+                                              # 'is_actived':  True,
                                               'first_name':  '',
                                               'last_name':   '',
                                               'email':       'none@none.com',
@@ -403,7 +403,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
     def test_upgrade_xsl01(self):
         body_map = {'user_id':     1,
-                    'is_actived':  True,
+                    # 'is_actived':  True,
                     'first_name':  '',
                     'last_name':   '',
                     'email':       'none@none.com',
@@ -526,16 +526,16 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                 '%(xd)sbinding': 'my:description',
                 'contentEditable': 'true',
             }, 'span'),
-            'is_actived': ({  # TODO: remove (not editable)
-                'class':           'xdBehavior_Boolean',
-                '%(xd)sCtrlId':    'is_actived',
-                '%(xd)sxctname':   'CheckBox',
-                '%(xd)sbinding':   'my:is_actived',
-                '%(xd)sboundProp': 'xd:value',
-                '%(xd)soffValue':  'false',
-                '%(xd)sonValue':   'true',
-                'type':            'checkbox',
-            }, 'input'),
+            # 'is_actived': ({
+            #     'class':           'xdBehavior_Boolean',
+            #     '%(xd)sCtrlId':    'is_actived',
+            #     '%(xd)sxctname':   'CheckBox',
+            #     '%(xd)sbinding':   'my:is_actived',
+            #     '%(xd)sboundProp': 'xd:value',
+            #     '%(xd)soffValue':  'false',
+            #     '%(xd)sonValue':   'true',
+            #     'type':            'checkbox',
+            # }, 'input'),
             'birthday': ({
                 'class':           'xdDTPicker',
                 '%(xd)sCtrlId':    'birthday',
@@ -718,7 +718,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
     def test_render01(self):
         backend = self._get_backend(ContactFakeBackend, subject='create_contact',
                                     body_map={'user_id':     1,
-                                              'is_actived':  True,
+                                              # 'is_actived':  True,
                                               'first_name':  '',
                                               'last_name':   '',
                                               'email':       'none@none.com',
@@ -808,7 +808,7 @@ class InfopathFormFieldTestCase(CrudityTestCase):
 
     def test_get_field01(self):
         request = self.request
-        body_map = {'user_id': 1, 'is_actived': True, 'first_name': '', 'last_name': '',
+        body_map = {'user_id': 1, 'first_name': '', 'last_name': '',  # 'is_actived': True
                     'email': 'none@none.com', 'description': '', 'birthday': '',
                    }
 

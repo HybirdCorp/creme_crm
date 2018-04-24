@@ -7,12 +7,11 @@ try:
     from django.utils.translation import ugettext as _
 
     from ..base import CremeTestCase
-    from ..fake_models import (FakeContact, FakeOrganisation, FakeImage,
-            FakeEmailCampaign, FakeActivity)
-    from creme.creme_core.models import CremePropertyType, CremeProperty, CremeEntity, Language
+    from creme.creme_core.models import (CremePropertyType, CremeProperty, CremeEntity, Language,
+            FakeContact, FakeOrganisation, FakeImage, FakeEmailCampaign, FakeActivity)
     from creme.creme_core.utils import meta
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class MetaTestCase(CremeTestCase):
@@ -276,7 +275,7 @@ class MetaTestCase(CremeTestCase):
         expected = [('created',                    _(u'Creation date')),
                     ('header_filter_search_field', 'header filter search field'),
                     ('id',                         'ID'),
-                    ('is_actived',                 'is actived'),
+                    # ('is_actived',                 'is actived'),
                     ('is_deleted',                 'is deleted'),
                     ('modified',                   _(u'Last modification')),
                     ('uuid',                       'uuid'),
@@ -292,7 +291,7 @@ class MetaTestCase(CremeTestCase):
                           ('entity_type',                'entity type'),
                           ('header_filter_search_field', 'header filter search field'),
                           ('id',                         'ID'),
-                          ('is_actived',                 'is actived'),
+                          # ('is_actived',                 'is actived'),
                           ('is_deleted',                 'is deleted'),
                           ('modified',                   _(u'Last modification')),
                           ('user',                       _(u'Owner user')),

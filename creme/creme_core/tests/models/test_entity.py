@@ -23,7 +23,7 @@ try:
             CustomFieldInteger, CustomFieldFloat, CustomFieldBoolean, CustomFieldString,
             CustomFieldDateTime, CustomFieldEnum, CustomFieldMultiEnum)
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class EntityTestCase(CremeTestCase):
@@ -159,7 +159,7 @@ class EntityTestCase(CremeTestCase):
         created = modified = now()
         entity1 = CremeEntity.objects.create(user=user)
         original_ce = CremeEntity.objects.create(created=created, modified=modified,
-                                                 is_deleted=False, is_actived=True, user=user,
+                                                 is_deleted=False, user=user,  # is_actived=True
                                                 )
 
         create_rel = partial(Relation.objects.create, user=user,
@@ -180,7 +180,7 @@ class EntityTestCase(CremeTestCase):
         self.assertNotEqual(original_ce.modified, clone_ce.modified)
 
         self.assertEqual(original_ce.is_deleted,  clone_ce.is_deleted)
-        self.assertEqual(original_ce.is_actived,  clone_ce.is_actived)
+        # self.assertEqual(original_ce.is_actived,  clone_ce.is_actived)
         self.assertEqual(original_ce.entity_type, clone_ce.entity_type)
         self.assertEqual(original_ce.user,        clone_ce.user)
         self.assertEqual(original_ce.header_filter_search_field, clone_ce.header_filter_search_field)
