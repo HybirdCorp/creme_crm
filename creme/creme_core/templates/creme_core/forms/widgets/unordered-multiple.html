@@ -3,13 +3,15 @@
 {% if widget.choice_count == 0 and not creation_allowed %}
 {% trans 'No choice available.' %}
 {% else %}
-<div class="{{widget.class}}" widget="{{widget.widget_type}}"{% if widget.view_less %} less{% if widget.view_less is not True %}="{{view_less}}"{% endif %}{% endif %}>
+<div class="{{widget.class}}" widget="{{widget.widget_type}}"{% if widget.view_less %} less{% if widget.view_less is not True %}="{{widget.view_less}}"{% endif %}{% endif %}>
     {% include 'django/forms/widgets/select.html' %}
     <span class="checklist-counter"></span>
     <div class="checklist-header">
         {% if widget.checkall  %}
-        <a type="button" class="checklist-check-all{% if widget.checkall_hidden %} hidden{% endif %}">{% trans 'Check all' %}</a>
-        <a type="button" class="checklist-check-none{% if widget.checkall_hidden %} hidden{% endif %}">{% trans 'Check none' %}</a>
+        {% with checkall_hidden=widget.choice_count|lt:widget.MIN_CHECKALL_COUNT %}
+        <a type="button" class="checklist-check-all{% if checkall_hidden %} hidden{% endif %}">{% trans 'Check all' %}</a>
+        <a type="button" class="checklist-check-none{% if checkall_hidden %} hidden{% endif %}">{% trans 'Check none' %}</a>
+        {% endwith %}
         {% endif %}
 
         {% if creation_url %}

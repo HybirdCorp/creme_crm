@@ -1548,14 +1548,31 @@ class ColorPickerWidget(widgets.TextInput):
 class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultiple):
     template_name = 'creme_core/forms/widgets/unordered-multiple.html'
 
-    MIN_LESS_COUNT = 20
+    MODE_SEARCH = 'search'
+    MODE_FILTER = 'filter'
+    MODES = {MODE_SEARCH, MODE_FILTER}
+
     MIN_SEARCH_COUNT = 10
     MIN_FILTER_COUNT = 30
     MIN_CHECKALL_COUNT = 3
 
     def __init__(self, attrs=None, choices=(),
-                 columntype='', filtertype=None, viewless=None,
+                 columntype='', filtertype=None, viewless=20,  # viewless=None,
                  creation_url='', creation_allowed=False, creation_label=ugettext_lazy(u'Create')):
+        """Constructor.
+        @param attrs: See SelectMultiple.attrs.
+        @param choices: See SelectMultiple.choices.
+        @param columntype: Extra CSS class of the items container.
+        @param filtertype: 'search' to activate search mode (items which do not match are translucent) ;
+                           'filter' to activate filter mode (items which do not match are hidden) ;
+                           Empty to let the widget chose the mode.
+        @param viewless: An integer N to hide the items after the Nth item ;
+                         True to let the widget chose the value of N ;
+                         False to deactivate this "less" feature.
+        @param creation_url: URL to create a new element (in an inner-popup dialog) ; ignored if empty.
+        @param creation_allowed: False to disable the creation button (only used if 'creation_url' is given).
+        @param creation_label: Label of the creation button (only used if 'creation_url' is given).
+        """
         super(UnorderedMultipleChoiceWidget, self).__init__(attrs, choices)
         self.columntype = columntype
         self.filtertype = filtertype
@@ -1601,21 +1618,15 @@ class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultipl
         return sum(len(c[1]) if isinstance(c[1], (list, tuple)) else 1 for c in self.choices)
 
     def _build_filtertype(self, count):
-        if self.filtertype:
-            return self.filtertype
+        if self._filtertype:
+            return self._filtertype
 
         if count < self.MIN_SEARCH_COUNT:
             return None
         elif count < self.MIN_FILTER_COUNT:
-            return 'search'
+            return self.MODE_SEARCH
         else:
-            return 'filter'
-
-    def _build_viewless(self, viewless, count):
-        if not viewless:
-            return count >= self.MIN_LESS_COUNT
-
-        return viewless
+            return self.MODE_FILTER
 
     # def _render_viewless(self, attrs, viewless):
     #     if not viewless:
@@ -1668,6 +1679,19 @@ class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultipl
     #                 filtertype or '', self.columntype,
     #             )
 
+    @property
+    def filtertype(self):
+        return self._filtertype
+
+    @filtertype.setter
+    def filtertype(self, filtertype):
+        if filtertype and filtertype not in self.MODES:
+            raise ValueError('UnorderedMultipleChoiceWidget.filtertype: the value must be in {expected} '
+                             '(given value: "{value}")'.format(expected=self.MODES, value=filtertype)
+                            )
+
+        self._filtertype = filtertype
+
     def get_context(self, name, value, attrs):
         widget_type = 'ui-creme-checklistselect'
 
@@ -1678,17 +1702,16 @@ class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultipl
         context = super(UnorderedMultipleChoiceWidget, self).get_context(name=name, value=value, attrs=attrs)
         widget_cxt = context['widget']
 
-        final_attrs = context['widget']['attrs']
+        final_attrs = widget_cxt['attrs']
         css_class = 'ui-creme-widget widget-auto ' if final_attrs.pop('auto', True) else 'ui-creme-widget '
         widget_cxt['class'] = css_class + widget_type
         final_attrs['class'] = 'ui-creme-input'
         widget_cxt['widget_type'] = widget_type
 
         widget_cxt['column_type'] = self.columntype
-        widget_cxt['view_less'] = self._build_viewless(self.viewless, count)
+        widget_cxt['view_less'] = self.viewless
 
         widget_cxt['checkall'] = final_attrs.pop('checkall', True)
-        widget_cxt['checkall_hidden'] = count < self.MIN_CHECKALL_COUNT
 
         widget_cxt['choice_count'] = count
         widget_cxt['filter_type'] = self._build_filtertype(count)
@@ -1696,7 +1719,6 @@ class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultipl
         widget_cxt['MIN_CHECKALL_COUNT'] = self.MIN_CHECKALL_COUNT
         widget_cxt['MIN_SEARCH_COUNT']   = self.MIN_SEARCH_COUNT  # NB: not used ; set for consistency/extensibility.
         widget_cxt['MIN_FILTER_COUNT']   = self.MIN_FILTER_COUNT  # Idem
-        widget_cxt['MIN_LESS_COUNT']     = self.MIN_LESS_COUNT
 
         widget_cxt['creation_allowed'] = self.creation_allowed
         widget_cxt['creation_url']     = self.creation_url
