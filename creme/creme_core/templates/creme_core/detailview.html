@@ -1,5 +1,5 @@
 {% extends 'creme_core/base.html' %}
-{% load i18n creme_core_tags creme_bricks creme_menu creme_widgets %}
+{% load i18n creme_core_tags creme_bricks creme_widgets %}{# creme_menu #}
 
 {% block page_title %}{{object}} - {% endblock %}
 
@@ -43,13 +43,17 @@
     {% endblock %}
 
     <div class="buttons-list instance-buttons">
+{% comment %}
         {% block button_tab %}
             <ul>
-{#                {% get_button_menu %} #}
-                {% menu_buttons_display %}{# TODO: works only with CremeEntities => move to view entity.html ?? #}
+                {% get_button_menu %}
                 {% block extra_menu_buttons %}{% endblock %}
             </ul>
         {% endblock %}
+{% endcomment %}
+        <ul>
+            {% block instance_buttons %}{% endblock %}
+        </ul>
     </div>
 
 {# NB: we use "spaceless" in order to use ':empty' selector in CSS #}
