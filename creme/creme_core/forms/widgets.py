@@ -1978,6 +1978,18 @@ class DateRangeWidget(widgets.MultiWidget):
     #                     u''.join(u'<div>%s</div>' % w for w in rendered_widgets),
     #                 )
 
+    def get_context(self, name, value, attrs):
+        widget_type = 'ui-creme-daterange'
+        context = super(DateRangeWidget, self).get_context(name=name, value=value, attrs=attrs)
+
+        widget_cxt = context['widget']
+        final_attrs = widget_cxt['attrs']
+        css_class = 'ui-creme-widget widget-auto ' if final_attrs.pop('auto', True) else 'ui-creme-widget '
+        widget_cxt['class'] = css_class + widget_type
+        widget_cxt['widget_type'] = widget_type
+
+        return context
+
 
 class DurationWidget(widgets.MultiWidget):
     template_name = 'creme_core/forms/widgets/duration.html'
