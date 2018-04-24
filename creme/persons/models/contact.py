@@ -157,9 +157,11 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
     def get_lv_absolute_url():
         return reverse('persons__list_contacts')
 
-    def delete(self, using=None):
+    # def delete(self, using=None):
+    def delete(self, *args, **kwargs):
         self._check_deletion()  # Should not be useful (trashing should be blocked too)
-        super(AbstractContact, self).delete(using=using)
+        # super(AbstractContact, self).delete(using=using)
+        super(AbstractContact, self).delete(*args, **kwargs)
 
     def _post_save_clone(self, source):
         self._aux_post_save_clone(source)

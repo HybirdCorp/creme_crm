@@ -54,8 +54,9 @@ class Calendar(CremeModel):
         # return self.color if self.color else DEFAULT_CALENDAR_COLOR
         return self.color or DEFAULT_CALENDAR_COLOR
 
-    def delete(self, using=None):
-        super(Calendar, self).delete(using=using)
+    # def delete(self, using=None):
+    def delete(self, using=None, keep_parents=False):
+        super(Calendar, self).delete(using=using, keep_parents=keep_parents)
 
         if self.is_default:
             # Sadly we cannot update() on a slice...

@@ -80,13 +80,15 @@ class CremeModel(Model):
                 if file_instance:
                     self._delete_stored_file(file_instance)
 
-    def _delete_without_transaction(self, using=None):
+    # def _delete_without_transaction(self, using=None):
+    def _delete_without_transaction(self, using=None, keep_parents=False):
         self._delete_m2m()
         self._delete_stored_files()
-        self._pre_delete()
-        super(CremeModel, self).delete(using=using)
+        self._pre_delete()  # TODO: keep_parents ?
+        super(CremeModel, self).delete(using=using, keep_parents=keep_parents)
 
-    def delete(self, using=None):
+    # def delete(self, using=None):
+    def delete(self, using=None, keep_parents=False):
         # file_fields = [(field.name, getattr(self, field.name).path, unicode(getattr(self, field.name)))
         #                 for field in chain(self._meta.fields, self._meta.many_to_many)
         #                     if isinstance(field, FileField) and getattr(self, field.name)

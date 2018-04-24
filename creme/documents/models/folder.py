@@ -126,9 +126,11 @@ class AbstractFolder(CremeEntity):
 
         return False
 
-    def delete(self, using=None):
+    # def delete(self, using=None):
+    def delete(self, *args, **kwargs):
         self._check_deletion()  # Should not be useful (trashing should be blocked too)
-        super(AbstractFolder, self).delete(using=using)
+        # super(AbstractFolder, self).delete(using=using)
+        super(AbstractFolder, self).delete(*args, **kwargs)
 
     def get_parents(self):
         parents = []

@@ -285,7 +285,8 @@ class ActObjectivePatternComponent(CremeModel):
         return self.name
 
     # TODO: delete this code with new ForeignKey in Django1.3 ?? (maybe it causes more queries)
-    def delete(self):
+    # def delete(self):
+    def delete(self, *args, **kwargs):
         def find_node(nodes, pk):
             for node in nodes:
                 if node.id == pk:
