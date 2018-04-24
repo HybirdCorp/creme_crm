@@ -24,6 +24,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
 
+from . import constants
 from .statistics import CustomersStatistics
 
 
@@ -167,16 +168,14 @@ class PersonsConfig(CremeAppConfig):
         reg_qform(self.Organisation, OrganisationQuickForm)
 
     def register_smart_columns(self, smart_columns_registry):
-        from .constants import REL_SUB_EMPLOYED_BY, REL_OBJ_EMPLOYED_BY
-
         register = smart_columns_registry.register_model
         register(self.Contact).register_field('first_name') \
                               .register_field('last_name') \
                               .register_field('email') \
-                              .register_relationtype(REL_SUB_EMPLOYED_BY)
+                              .register_relationtype(constants.REL_SUB_EMPLOYED_BY)
         register(self.Organisation).register_field('name') \
                                    .register_field('billing_address__city') \
-                                   .register_relationtype(REL_OBJ_EMPLOYED_BY)
+                                   .register_relationtype(constants.REL_OBJ_EMPLOYED_BY)
 
     def register_statistics(self, statistics_registry):
         Contact = self.Contact
@@ -228,6 +227,7 @@ class PersonsConfig(CremeAppConfig):
                                                                         ),
                                     empty_label=None,
                                     widget=DynamicSelect(attrs={'autocomplete': True}),
+                                    initial=constants.REL_SUB_EMPLOYED_BY,
                                  )
 
             def set_required(name):
