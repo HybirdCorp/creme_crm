@@ -38,7 +38,7 @@ DEPENDENCIES:
         - redis 2.10 (ie: the python library, & so you'll need the related server too, of course)
         - pytz
         - python-dateutil 1.5
-        - bleach 1.4
+        - bleach 2.1
         - Pillow 3.4
         - django-formtools 2.1
         - Java >= 1.4 (only needed to build the compressed version of CSS and JavaScript files at installation time)
