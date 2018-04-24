@@ -51,7 +51,7 @@ def add(request, content_type_id, extra_template_dict=None):
     ct_entity = utils.get_ct_or_404(content_type_id)
 
     if not request.user.has_perm(ct_entity.app_label):
-        raise PermissionDenied(ugettext(u"You are not allowed to access to this app"))
+        raise PermissionDenied(ugettext(u'You are not allowed to access to this app'))
 
     model = ct_entity.model_class()
 
@@ -75,7 +75,8 @@ def add(request, content_type_id, extra_template_dict=None):
 
     return add_entity(request, HeaderFilterForm,
                       url_redirect=callback_url,
-                      template='creme_core/header_filter_form.html',
+                      # template='creme_core/header_filter_form.html',
+                      template='creme_core/forms/header-filter.html',
                       extra_initial={'content_type': ct_entity},
                       extra_template_dict=ctx,
                       function_post_save=lambda r, i: _set_current_hf(r, callback_url, i),
@@ -106,10 +107,12 @@ def edit(request, header_filter_id):
         hf_form = HeaderFilterForm(user=user, instance=hf)
         cancel_url = build_cancel_path(request)
 
-    return render(request, 'creme_core/header_filter_form.html',
+    return render(request,
+                  # 'creme_core/header_filter_form.html',
+                  'creme_core/forms/header-filter.html',
                   {'form': hf_form,
                    'cancel_url': cancel_url,
-                   'submit_label': _('Save the modified view'),
+                   'submit_label': _(u'Save the modified view'),
                   }
                  )
 

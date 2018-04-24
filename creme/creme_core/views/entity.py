@@ -490,7 +490,9 @@ def merge(request):
 
         cancel_url = build_cancel_path(request)
 
-    return render(request, 'creme_core/merge.html',
+    return render(request,
+                  # 'creme_core/merge.html',
+                  'creme_core/forms/merge.html',
                   {'form':   merge_form,
                    'title': _(u'Merge «%(entity1)s» with «%(entity2)s»') % {
                                    'entity1': entity1,

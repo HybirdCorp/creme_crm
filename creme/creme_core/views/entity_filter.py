@@ -73,7 +73,8 @@ def add(request, ct_id):
 
     return add_entity(request, EntityFilterCreateForm,
                       url_redirect=callback_url,
-                      template='creme_core/entity_filter_form.html',
+                      # template='creme_core/entity_filter_form.html',
+                      template='creme_core/forms/entity-filter.html',
                       extra_initial={'content_type': ct},
                       function_post_save=lambda req, instance: _set_current_efilter(req, callback_url, instance),
                      )
@@ -103,7 +104,9 @@ def edit(request, efilter_id):
         efilter_form = EntityFilterEditForm(user=user, instance=efilter)
         cancel_url = build_cancel_path(request)
 
-    return render(request, 'creme_core/entity_filter_form.html',
+    return render(request,
+                  # 'creme_core/entity_filter_form.html',
+                  'creme_core/forms/entity-filter.html',
                   {'form': efilter_form,
                    'cancel_url': cancel_url,
                    'submit_label': _(u'Save the modified filter'),
