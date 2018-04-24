@@ -60,7 +60,8 @@ class Migration(migrations.Migration):
                                               )
                 ),
                 ('parent_folder', models.ForeignKey(to=settings.DOCUMENTS_FOLDER_MODEL, null=True,
-                                                    blank=True, related_name='parent_folder_set', verbose_name='Parent folder',
+                                                    # blank=True, related_name='parent_folder_set', verbose_name='Parent folder',
+                                                    blank=True, related_name='children', verbose_name='Parent folder',
                                                     on_delete=PROTECT,
                                                    )
                 ),
