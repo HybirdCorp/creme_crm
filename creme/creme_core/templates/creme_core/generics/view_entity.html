@@ -1,5 +1,5 @@
 {% extends 'creme_core/detailview.html' %}
-{% load i18n creme_core_tags creme_widgets creme_bricks %}
+{% load i18n creme_core_tags creme_widgets creme_bricks creme_menu %}
 
 {% block body_classes %}{% if object.is_deleted %}is_deleted{% endif %}{% endblock %}
 
@@ -31,6 +31,10 @@
     {% brick_declare bricks.bottom %}
 
     {% brick_display bricks.hat %}
+{% endblock %}
+
+{% block instance_buttons %}
+    {% menu_buttons_display %}
 {% endblock %}
 
 {% block detail_view_top %}
