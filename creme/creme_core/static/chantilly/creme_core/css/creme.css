@@ -135,7 +135,10 @@ body {
 }
 
 body.is_deleted {
-    background-color: #cc3333;
+/*    background-color: #cc3333; */
+    background:                     #ff7e7e;
+    background:     -webkit-gradient(linear, 0% 0, 0% 30%, from(#ff7e7e), to(#ffeded));
+    background: -moz-linear-gradient(top, #ff7e7e 0%, #ffeded 30%);
 }
 
 /*
