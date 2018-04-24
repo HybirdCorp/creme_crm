@@ -41,7 +41,8 @@ class AbstractFolder(CremeEntity):
     description   = TextField(_(u'Description'), blank=True).set_tags(optional=True)
     parent_folder = ForeignKey('self', verbose_name=_(u'Parent folder'),
                                blank=True, null=True,
-                               related_name='parent_folder_set',  # TODO: rename 'children'
+                               # related_name='parent_folder_set',
+                               related_name='children',
                                on_delete=PROTECT,
                               )
     category      = ForeignKey(FolderCategory, verbose_name=_(u'Category'),
@@ -112,8 +113,8 @@ class AbstractFolder(CremeEntity):
         return actions
 
     def already_in_children(self, other_folder_id):
-        # children = self.children.all() TODO
-        children = self.parent_folder_set.all()
+        # children = self.parent_folder_set.all()
+        children = self.children.all()
 
         for child in children:
             if child.id == other_folder_id:
