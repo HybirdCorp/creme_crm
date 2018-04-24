@@ -5,13 +5,15 @@ skip_graphviz_tests = False
 
 try:
     from functools import partial
+    from os.path import basename, dirname, exists, join
     from unittest import skipIf
 
+    from django.conf import settings
     from django.urls import reverse
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation
-    from creme.creme_core.models import RelationType, Relation
+    from creme.creme_core.models import RelationType, Relation, FileRef
 
     from . import graph_model_is_custom, get_graph_model
     from .models import RootNode
@@ -19,7 +21,7 @@ try:
     skip_graph_tests = graph_model_is_custom()
     Graph = get_graph_model()
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 try:
     import pygraphviz
@@ -169,12 +171,27 @@ class GraphsTestCase(CremeTestCase):
         self.assertGET200(url)
         self.assertNoFormError(self.client.post(url, data={'relation_types': [rtype.pk]}))
 
+        existing_fileref_ids = list(FileRef.objects.values_list('id', flat=True))
+
         response = self.assertGET200(reverse('graphs__dl_image', args=(graph.id,)), follow=True)
         self.assertEqual('png', response['Content-Type'])
 
-        cdisp = response['Content-Disposition']
-        self.assertTrue(cdisp.startswith('attachment; filename=graph_%i' % graph.id))
-        self.assertTrue(cdisp.endswith('.png'))
+        filerefs = FileRef.objects.exclude(id__in=existing_fileref_ids)
+        self.assertEqual(1, len(filerefs))
+
+        fileref = filerefs[0]
+        self.assertTrue(fileref.temporary)
+        self.assertEqual(u'graph_{}.png'.format(graph.id), fileref.basename)
+        # self.assertEqual(user, fileref.user) TODO
+
+        fullpath = fileref.filedata.path
+        self.assertTrue(exists(fullpath), '<{}> does not exists ?!'.format(fullpath))
+        self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'graphs'), dirname(fullpath))
+
+        # cdisp = response['Content-Disposition']
+        # self.assertTrue(cdisp.startswith('attachment; filename=graph_{}'.format(graph.id)))
+        # self.assertTrue(cdisp.endswith('.png'))
+        self.assertEqual('attachment; filename={}'.format(basename(fullpath)), response['Content-Disposition'])
 
     def test_add_rootnode(self):
         user = self.login()

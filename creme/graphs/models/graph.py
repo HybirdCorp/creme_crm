@@ -27,7 +27,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
-from creme.creme_core.models import CremeModel, CremeEntity, RelationType, Relation
+from creme.creme_core.models import CremeModel, CremeEntity, RelationType, Relation, FileRef
 from creme.creme_core.utils.file_handling import FileCreator
 
 
@@ -66,8 +66,7 @@ class AbstractGraph(CremeEntity):
         return reverse('graphs__list_graphs')
 
     def generate_png(self, user):
-        from os.path import join  # exists
-        # from os import makedirs
+        from os.path import join
 
         import pygraphviz as pgv
 
@@ -138,23 +137,29 @@ class AbstractGraph(CremeEntity):
 
         graph.layout(prog='dot')  # Algo: neato dot twopi circo fdp nop
 
+        img_format = 'png'  # Format: pdf svg
+        img_basename = 'graph_{}.{}'.format(self.id, img_format)
+
         try:
-            path = FileCreator(join(settings.MEDIA_ROOT, 'upload', 'graphs'),
-                               'graph_%i.png' % self.id,
-                              ).create()
+            path = FileCreator(join(settings.MEDIA_ROOT, 'upload', 'graphs'), img_basename).create()
         except FileCreator.Error as e:
             raise Graph.GraphException(e)
 
-        # TODO: delete old files ???
         try:
             # graph.draw(join(dir_path, filename), format='png')  # Format: pdf svg
-            graph.draw(path, format='png')  # Format: pdf svg
+            graph.draw(path, format=img_format)  # Format: pdf svg
         except IOError as e:
             delete_file(path)
 
             raise Graph.GraphException(str(e))
 
-        return HttpResponseRedirect(reverse('creme_core__dl_file', args=('/upload/graphs/' + basename(path),)))
+        fileref = FileRef.objects.create( # user=request.user, TODO
+                                         filedata='upload/graphs/' + basename(path),
+                                         basename=img_basename,
+                                        )
+
+        # return HttpResponseRedirect(reverse('creme_core__dl_file', args=('/upload/graphs/' + basename(path),)))
+        return HttpResponseRedirect(reverse('creme_core__dl_file', args=(fileref.filedata,)))
 
     def _post_save_clone(self, source):
         for node in RootNode.objects.filter(graph=source):

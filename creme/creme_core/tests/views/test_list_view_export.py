@@ -3,6 +3,7 @@
 try:
     from datetime import date
     from functools import partial
+    from os.path import dirname, exists, join
     from unittest import skipIf
 
     import html5lib
@@ -23,9 +24,9 @@ try:
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.models import (RelationType, Relation, FieldsConfig,
-            CremePropertyType, CremeProperty, HeaderFilter)
+            CremePropertyType, CremeProperty, HeaderFilter, FileRef)
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 try:
     from creme.creme_core.backends import export_backend_registry
@@ -361,6 +362,8 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.login()
         cells = self._build_hf_n_contacts()
         lv_url = FakeContact.get_lv_absolute_url()
+        existing_fileref_ids = list(FileRef.objects.values_list('id', flat=True))
+
         response = self.assertGET200(self._build_dl_url(self.ct, doc_type='xls', list_url=lv_url),
                                      follow=True,
                                     )
@@ -374,6 +377,19 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                   ["", "Valentine", "Faye", "", "is beautiful/is a girl"]))
         self.assertEqual(it.next(), ["", "Wong", "Edward", "", "is a girl"])
         self.assertRaises(StopIteration, it.next)
+
+        # FileRef
+        filerefs = FileRef.objects.exclude(id__in=existing_fileref_ids)
+        self.assertEqual(1, len(filerefs))
+
+        fileref = filerefs[0]
+        self.assertTrue(fileref.temporary)
+        self.assertEqual(u'fakecontact.xls', fileref.basename)
+        # self.assertEqual(user, fileref.user) TODO
+
+        fullpath = fileref.filedata.path
+        self.assertTrue(exists(fullpath), '<{}> does not exists ?!'.format(fullpath))
+        self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'xls'), dirname(fullpath))
 
     @skipIf(XlsMissing, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_xls_export02(self):
