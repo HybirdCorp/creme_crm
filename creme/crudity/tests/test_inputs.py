@@ -28,11 +28,11 @@ try:
     from .base import (CrudityTestCase, ContactFakeBackend, DocumentFakeBackend, ActivityFakeBackend,
             Contact, Activity, Document, Folder)
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class InputsBaseTestCase(CrudityTestCase):  # TODO: rename EmailInputBaseTestCase ?
-    def _get_pop_email(self, body=u"", body_html=u"", senders=(), tos=(), ccs=(), subject=None, dates=(), attachments=()):
+    def _get_pop_email(self, body=u'', body_html=u'', senders=(), tos=(), ccs=(), subject=None, dates=(), attachments=()):
         return PopEmail(body=body, body_html=body_html, senders=senders, tos=tos, ccs=ccs,
                         subject=subject, dates=dates, attachments=attachments
                        )
@@ -79,7 +79,7 @@ class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
                                             body_map={'user_id': user.id, 'created': ''}
                                            )
         self.assertFalse(WaitingAction.objects.all())
-        email_input.create(self._get_pop_email(body=u'password=creme\nuser_id=%s\ncreated=01/02/2003\n' % user.id,
+        email_input.create(self._get_pop_email(body=u'password=creme\nuser_id={}\ncreated=01/02/2003\n'.format(user.id),
                                                senders=('creme@crm.org',),
                                                subject='create_ce',
                                               )
@@ -107,7 +107,7 @@ class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
         q_contact_existing_ids = self._get_existing_q(Contact)
 
         self.assertFalse(WaitingAction.objects.all())
-        email_input.create(self._get_pop_email(body=u'password=creme\nuser_id=%s\ncreated=01-02-2003\nfirst_name=é' % user.id,
+        email_input.create(self._get_pop_email(body=u'password=creme\nuser_id={}\ncreated=01-02-2003\nfirst_name=é'.format(user.id),
                                                senders=('creme@crm.org',),
                                                subject='create_ce',
                                               )
@@ -198,11 +198,11 @@ class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
                                            )
 
         self.assertEqual(0, WaitingAction.objects.count())
-        email_input.create(self._get_pop_email(body=u'password=creme\nuser_id=%s\ncreated=01/02/2003\ndescription=[[I\n want to\n create a    \ncreme entity\n]]\n' % user.id,
-                                               senders=('creme@crm.org',),
-                                               subject='create_ce',
-                                              )
-                          )
+        email_input.create(self._get_pop_email(
+            body=u'password=creme\nuser_id={}\ncreated=01/02/2003\ndescription=[[I\n want to\n create a    \ncreme entity\n]]\n'.format(user.id),
+            senders=('creme@crm.org',),
+            subject='create_ce',
+        ))
         self.assertEqual(1, WaitingAction.objects.count())
         self.assertEqual({'user_id': unicode(user.id),
                           'created': '01/02/2003',
@@ -239,7 +239,7 @@ entity
 
         ]]
         password=creme
-        user_id=%s
+        user_id={}
         created=01/02/2003
 
         description3=[[
@@ -250,7 +250,7 @@ entity
 
         ]]
 
-        """ % user.id
+        """.format(user.id)
 
         email_input.create(self._get_pop_email(body=body,
                                                senders=('creme@crm.org',),
@@ -292,7 +292,7 @@ entity
 
         ]]
         password=creme
-        user_id=%s
+        user_id={}
         description2=[[I'am the
         second description
         created=01/02/2003
@@ -305,7 +305,7 @@ entity
 
         ]]
 
-        """ % user.id
+        """.format(user.id)
 
         email_input.create(self._get_pop_email(body=body, senders=('creme@crm.org',), subject='create_ce'))
         wactions = WaitingAction.objects.all()
@@ -451,7 +451,7 @@ description3=[[<br>]]
                                            )
         self.assertEqual(0, WaitingAction.objects.count())
 
-        email_input.create(self._get_pop_email(body=u'password=creme\nuser_id=%s\ncreated=01/02/2003\n' % user.id,
+        email_input.create(self._get_pop_email(body=u'password=creme\nuser_id={}\ncreated=01/02/2003\n'.format(user.id),
                                                senders=('user@cremecrm.com',), subject='create_ce',
                                               )
                           )
@@ -487,7 +487,7 @@ description3=[[<br>]]
         self.assertEqual(0, WaitingAction.objects.count())
         self.assertEqual(0, History.objects.count())
 
-        email_input.create(self._get_pop_email(body=u'password=creme\nuser_id=%s\ncreated=01/02/2003\n' % user.id,
+        email_input.create(self._get_pop_email(body=u'password=creme\nuser_id={}\ncreated=01/02/2003\n'.format(user.id),
                                                senders=(other_user.email,),
                                                subject='create_ce',
                                               )
@@ -522,7 +522,7 @@ description3=[[<br>]]
         self.assertEqual(0, WaitingAction.objects.count())
         self.assertEqual(0, History.objects.count())
 
-        email_input.create(self._get_pop_email(body=u'password=creme\nuser_id=%s\ncreated=01/02/2003\n' % user.id,
+        email_input.create(self._get_pop_email(body=u'password=creme\nuser_id={}\ncreated=01/02/2003\n'.format(user.id),
                                                senders=(other_user.email,),
                                                subject='create_ce'
                                               )
@@ -551,7 +551,7 @@ description3=[[<br>]]
                                             subject='create_contact',
                                             body_map={'user_id':    user.id,
                                                       'created':    '',
-                                                      'is_actived': '',
+                                                      # 'is_actived': '',
                                                       'url_site':   '',
                                                      },
                                             model=Contact,
@@ -559,8 +559,9 @@ description3=[[<br>]]
         contact_count = Contact.objects.count()
         self.assertEqual(0, WaitingAction.objects.count())
 
-        email_input.create(PopEmail(body=u'password=creme\nuser_id=%s\ncreated=01-02-2003\nis_actived=false\nurl_site=plop' % user.id,
-                                    senders=('creme@crm.org',), subject='create_contact'
+        # email_input.create(PopEmail(body=u'password=creme\nuser_id=%s\ncreated=01-02-2003\nis_actived=false\nurl_site=plop' % user.id,
+        email_input.create(PopEmail(body=u'password=creme\nuser_id={}\ncreated=01-02-2003\nurl_site=plop'.format(user.id),
+                                    senders=('creme@crm.org',), subject='create_contact',
                                    )
                           )
         self.assertEqual(0, WaitingAction.objects.count())
@@ -569,7 +570,7 @@ description3=[[<br>]]
         contact = self.get_object_or_fail(Contact, url_site='plop')
         self.assertEqual(user, contact.user)
         self.assertEqual(self.create_datetime(year=2003, month=2, day=1), contact.created)
-        self.assertIs(contact.is_actived, False)
+        # self.assertIs(contact.is_actived, False)
 
     def test_get_owner01(self):
         "The sandbox is not by user"
@@ -616,7 +617,7 @@ description3=[[<br>]]
         email_input = self._get_email_input(ContactFakeBackend, password='creme',
                                             subject='create_contact',  # TODO: factorise
                                             body_map={'user_id':     user.id,
-                                                      'is_actived':  True,
+                                                      # 'is_actived':  True,
                                                       'first_name':  '',
                                                       'last_name':   '',
                                                       'email':       'none@none.com',
@@ -629,7 +630,7 @@ description3=[[<br>]]
                                            )
 
         body = ['password=creme',
-                'user_id=%s'  % user.id,
+                'user_id={}'.format(user.id),
                 'created=01/02/2003',
                 'last_name=Bros',
                 'first_name=Mario',
@@ -656,7 +657,7 @@ description3=[[<br>]]
                           'first_name':  'Mario',
                           'email':       'mario@bros.com',
                           'url_site':    'http://mario.com',
-                          'is_actived':  True,
+                          # 'is_actived':  True,
                           'birthday':    '02/08/1987',
                           'description': 'A plumber',
                         },
@@ -671,7 +672,7 @@ description3=[[<br>]]
         self.assertEqual(self.create_datetime(year=2003, month=2, day=1), contact.created)
         self.assertEqual('mario@bros.com', contact.email)
         self.assertEqual('http://mario.com', contact.url_site)
-        self.assertIs(contact.is_actived, True)
+        # self.assertIs(contact.is_actived, True)
         self.assertEqual(date(year=1987, month=8, day=2), contact.birthday)
         self.assertEqual('A plumber', contact.description)
 
@@ -687,7 +688,7 @@ description3=[[<br>]]
         email_input = self._get_email_input(ActivityFakeBackend, password='creme',
                                             subject=subject,
                                             body_map={'user_id':     user.id,
-                                                      'is_actived':  True,
+                                                      # 'is_actived':  True,
                                                       'title':       '',
                                                       'type_id':     ACTIVITYTYPE_MEETING,
                                                       'sub_type_id': ACTIVITYSUBTYPE_MEETING_MEETING,
@@ -833,14 +834,14 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         other_user = self.other_user
         xml_content = """
         <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\Raph\Desktop\Infopath\create_contact.xsn" name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xml:lang="fr">
-            <my:user_id>%s</my:user_id>
+            <my:user_id>{}</my:user_id>
             <my:created xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">2003-02-01</my:created>
             <my:description>
                 <div xmlns="http://www.w3.org/1999/xhtml">My creme entity</div>
                 <div xmlns="http://www.w3.org/1999/xhtml"> </div>
                 <div xmlns="http://www.w3.org/1999/xhtml">description</div>
             </my:description>
-        </my:CremeCRMCrudity>""" % other_user.id
+        </my:CremeCRMCrudity>""".format(other_user.id)
 
         infopath_input = self._get_infopath_input(ContactFakeBackend, password='creme',
                                                   subject='create_ce_infopath',
@@ -879,7 +880,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
 
 
-            <my:user_id>%s</my:user_id>
+            <my:user_id>{}</my:user_id>
                                                     <my:created xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">2003-02-01</my:created>
         <my:description>
                     <div xmlns="http://www.w3.org/1999/xhtml">My creme entity</div>
@@ -889,7 +890,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
 
 
-            </my:description> </my:CremeCRMCrudity>""" % other_user.id
+            </my:description> </my:CremeCRMCrudity>""".format(other_user.id)
 
         infopath_input = self._get_infopath_input(ContactFakeBackend, password = 'creme',
                                                   subject='create_ce_infopath',
@@ -928,14 +929,14 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
                        name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?>
 <?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?>
 <my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xml:lang="fr">
-    <my:user_id>%s</my:user_id>
+    <my:user_id>{}</my:user_id>
     <my:created xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">2003-02-01</my:created>
     <my:description>
         <div xmlns="http://www.w3.org/1999/xhtml">My creme entity</div>
         <div xmlns="http://www.w3.org/1999/xhtml"> </div>
         <div xmlns="http://www.w3.org/1999/xhtml">description</div>
     </my:description>
-</my:CremeCRMCrudity>""" % other_user.id
+</my:CremeCRMCrudity>""".format(other_user.id)
 
         infopath_input = self._get_infopath_input(ContactFakeBackend, password='creme',
                                                   subject='create_ce_infopath',
@@ -972,14 +973,14 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
         xml_content = """
 <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\Raph\Desktop\Infopath\create_contact.xsn" name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xml:lang="fr">
-    <my:user_id>%s</my:user_id>
+    <my:user_id>{}</my:user_id>
     <my:created xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">2003-02-01</my:created>
     <my:description>
         <div xmlns="http://www.w3.org/1999/xhtml">My creme entity</div>
         <div xmlns="http://www.w3.org/1999/xhtml"> </div>
         <div xmlns="http://www.w3.org/1999/xhtml">description</div>
     </my:description>
-</my:CremeCRMCrudity>""" % other_user.id
+</my:CremeCRMCrudity>""".format(other_user.id)
 
         infopath_input = self._get_infopath_input(ContactFakeBackend, password='creme',
                                                   subject='create_ce_infopath',
@@ -1051,14 +1052,14 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
         xml_content = """
 <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\Raph\Desktop\Infopath\create_contact.xsn" name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xml:lang="fr">
-    <my:user_id>%s</my:user_id>
+    <my:user_id>{}</my:user_id>
     <my:created xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">2003-02-01</my:created>
     <my:description>
         <div xmlns="http://www.w3.org/1999/xhtml">My creme entity</div>
         <div xmlns="http://www.w3.org/1999/xhtml"> </div>
         <div xmlns="http://www.w3.org/1999/xhtml">description</div>
     </my:description>
-</my:CremeCRMCrudity>""" % (other_user.id, )
+</my:CremeCRMCrudity>""".format(other_user.id)
 
         infopath_input = self._get_infopath_input(ContactFakeBackend, password='creme',
                                                   in_sandbox=False,
@@ -1089,7 +1090,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         user = self.user
         xml_content = """
 <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\User\Desktop\Infopath\create_contact.xsn" name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xml:lang="fr">
-    <my:user_id>%s</my:user_id>
+    <my:user_id>{}</my:user_id>
     <my:created xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">2003-02-01</my:created>
     <my:first_name>Mario</my:first_name>
     <my:last_name>Bros</my:last_name>
@@ -1100,11 +1101,11 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
     <my:description>
         <div xmlns="http://www.w3.org/1999/xhtml">A plumber</div>
     </my:description>
-</my:CremeCRMCrudity>""" % user.id
+</my:CremeCRMCrudity>""".format(user.id)
 
         infopath_input = self._get_infopath_input(ContactFakeBackend, password='creme', subject="create_ce_infopath",
                                                   body_map={'user_id':     user.id,
-                                                            'is_actived':  True,
+                                                            # 'is_actived':  True,
                                                             'first_name':  '',
                                                             'last_name':   '',
                                                             'email':       'none@none.com',
@@ -1131,7 +1132,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         filename, blob = decode_b64binary(img_content)
         expected_data = {"user_id": "%s"  % (user.id,), "created": "2003-02-01", "last_name": "Bros",
                          "first_name": "Mario", "email": "mario@bros.com", "url_site": "http://mario.com",
-                         "is_actived": True, "birthday": "02/08/1987", "description": "A plumber",
+                         # "is_actived": True,
+                         "birthday": "02/08/1987", "description": "A plumber",
                          "image": (filename, blob),
                         }
         self.maxDiff = None
@@ -1146,7 +1148,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual('Mario', contact.first_name)
         self.assertEqual('mario@bros.com', contact.email)
         self.assertEqual('http://mario.com', contact.url_site)
-        self.assertEqual(True, contact.is_actived)
+        # self.assertEqual(True, contact.is_actived)
         self.assertEqual(self.create_datetime(year=1987, month=8, day=2).date(), contact.birthday)
         self.assertEqual('A plumber', contact.description)
         self.assertTrue(contact.image)
@@ -1172,7 +1174,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
         xml_content = """
 <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\User\Desktop\Infopath\create_contact.xsn" name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xml:lang="fr">
-    <my:user_id>%s</my:user_id>
+    <my:user_id>{}</my:user_id>
     <my:created xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">2003-02-01</my:created>
     <my:first_name>Mario</my:first_name>
     <my:last_name>Bros</my:last_name>
@@ -1181,17 +1183,17 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
     <my:birthday xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">02/08/1987</my:birthday>
     <my:language>
         <my:language_value xsi:nil="true"></my:language_value>
-        <my:language_value>%s</my:language_value>
-        <my:language_value>%s</my:language_value>
+        <my:language_value>{}</my:language_value>
+        <my:language_value>{}</my:language_value>
     </my:language>
     <my:description>
         <div xmlns="http://www.w3.org/1999/xhtml">A plumber</div>
     </my:description>
-</my:CremeCRMCrudity>""" % (user.id, languages[0].id, languages[1].id)
+</my:CremeCRMCrudity>""".format(user.id, languages[0].id, languages[1].id)
 
         infopath_input = self._get_infopath_input(ContactFakeBackend, password='creme', subject="create_ce_infopath",
                                                   body_map={'user_id':     user.id,
-                                                            'is_actived':  True,
+                                                            # 'is_actived':  True,
                                                             'first_name':  '',
                                                             'last_name':   '',
                                                             'email':       'none@none.com',
@@ -1218,8 +1220,9 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         wa = wactions[0]
         expected_data = {'user_id': str(user.id), 'created': '2003-02-01', 'last_name': 'Bros',
                          'first_name': 'Mario', 'email': 'mario@bros.com', 'url_site': 'http://mario.com',
-                         'is_actived': True, 'birthday': '02/08/1987', 'description': 'A plumber',
-                         'language': '\n%s\n%s' % (languages[0].id, languages[1].id),
+                         # 'is_actived': True,
+                         'birthday': '02/08/1987', 'description': 'A plumber',
+                         'language': '\n{}\n{}'.format(languages[0].id, languages[1].id),
                         }
         self.assertEqual(expected_data, wa.get_data())
 
@@ -1232,7 +1235,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual('Mario', contact.first_name)
         self.assertEqual('mario@bros.com', contact.email)
         self.assertEqual('http://mario.com', contact.url_site)
-        self.assertIs(contact.is_actived, True)
+        # self.assertIs(contact.is_actived, True)
         self.assertEqual(self.create_datetime(year=1987, month=8, day=2).date(), contact.birthday)
         self.assertEqual('A plumber', contact.description)
         self.assertEqual({languages[0], languages[1]}, set(contact.language.all()))
@@ -1244,7 +1247,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
         xml_content = """
         <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\User\Desktop\Infopath\create_contact.xsn" name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xml:lang="fr">
-            <my:user_id>%s</my:user_id>
+            <my:user_id>{}</my:user_id>
             <my:created xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">2003-02-01</my:created>
             <my:first_name>Mario</my:first_name>
             <my:last_name>Bros</my:last_name>
@@ -1253,18 +1256,18 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
             <my:birthday xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">02/08/1987</my:birthday>
             <my:language>
                 <my:language_value xsi:nil="true"></my:language_value>
-                <my:language_value>%s</my:language_value>
-                <my:language_value>%s</my:language_value>
+                <my:language_value>{}</my:language_value>
+                <my:language_value>{}</my:language_value>
             </my:language>
             <my:description>
                 <div xmlns="http://www.w3.org/1999/xhtml">A plumber</div>
             </my:description>
-        </my:CremeCRMCrudity>""" % (user.id, languages[0].id, languages[1].id)
+        </my:CremeCRMCrudity>""".format(user.id, languages[0].id, languages[1].id)
 
         infopath_input = self._get_infopath_input(ContactFakeBackend, password='creme',
                                                   subject='create_ce_infopath',
                                                   body_map={'user_id':     user.id,
-                                                            'is_actived':  True,
+                                                            # 'is_actived':  True,
                                                             'first_name':  '',
                                                             'last_name':   '',
                                                             'email':       'none@none.com',
@@ -1295,7 +1298,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual('Mario', contact.first_name)
         self.assertEqual('mario@bros.com', contact.email)
         self.assertEqual('http://mario.com', contact.url_site)
-        self.assertIs(contact.is_actived, True)
+        # self.assertIs(contact.is_actived, True)
         self.assertEqual(self.create_datetime(year=1987, month=8, day=2).date(), contact.birthday)
         self.assertEqual('A plumber', contact.description)
         self.assertEqual(set(languages[:2]), set(contact.language.all()))
@@ -1320,14 +1323,14 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
                       "LnyKcUan4GLGhKU+y82Ol8A49h31zz9A1IAAAAAElFTkSuQmCC"
         xml_content = """
 <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\User\Desktop\Infopath\create_document.xsn" name="urn:schemas-microsoft-com:office:infopath:create-document:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xml:lang="fr">
-    <my:user_id>%s</my:user_id>
+    <my:user_id>{}</my:user_id>
     <my:title>My doc</my:title>
-    <my:linked_folder_id>%s</my:linked_folder_id>
-    <my:filedata>%s</my:filedata>
+    <my:linked_folder_id>{}</my:linked_folder_id>
+    <my:filedata>{}</my:filedata>
     <my:description>
         <div xmlns="http://www.w3.org/1999/xhtml">A document</div>
     </my:description>
-</my:CremeCRMCrudity>""" % (user.id, folder.id, img_content)
+</my:CremeCRMCrudity>""".format(user.id, folder.id, img_content)
 
         infopath_input = self._get_infopath_input(DocumentFakeBackend, password='creme', subject='create_ce_infopath',
                                                   body_map={'user_id':     user.id,
