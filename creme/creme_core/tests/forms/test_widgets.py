@@ -184,6 +184,7 @@ class UnorderedMultipleChoiceTestCase(FieldTestCase):
         select = UnorderedMultipleChoiceWidget(choices=[('Group A', ((1, 'A'), (2, 'B'))),
                                                         ('Group B', ((3, 'C'), (4, 'D'), (5, 'E'))),
                                                        ],
+                                               viewless=False,
                                               )
         self.assertEqual(5, select._choice_count())
 
@@ -201,40 +202,93 @@ class UnorderedMultipleChoiceTestCase(FieldTestCase):
     </select>
     <span class="checklist-counter"></span>
     <div class="checklist-header">
-        <a type="button" class="checklist-check-all">%(check_all)s</a>
-        <a type="button" class="checklist-check-none">%(check_none)s</a>
+        <a type="button" class="checklist-check-all">{check_all}</a>
+        <a type="button" class="checklist-check-none">{check_none}</a>
     </div>
     <div class="checklist-body"><ul class="checklist-content"></ul></div>
-</div>''' % {
-            'check_all':  _(u'Check all'),
-            'check_none': _(u'Check none'),
-        }
+</div>'''.format(
+            check_all=_(u'Check all'),
+            check_none=_(u'Check none'),
+        )
         self.assertHTMLEqual(html, select.render('A', (3, 4,)))
 
-    def test_render_viewless(self):
+    def test_render_viewless01(self):
+        "Default behaviour (integer value => 20)"
+        name = 'my_field'
+        select = UnorderedMultipleChoiceWidget(choices=[(1, 'A'), (2, 'B')])
+        self.assertEqual(2, select._choice_count())
+
+        html = u'''<div class="ui-creme-widget widget-auto ui-creme-checklistselect" less="20" widget="ui-creme-checklistselect">
+    <select multiple="multiple" class="ui-creme-input" name="{name}">
+        <option value="1">A</option>
+        <option value="2">B</option>
+    </select>
+    <span class="checklist-counter"></span>
+    <div class="checklist-header">
+        <a type="button" class="checklist-check-all hidden">{check_all}</a>
+        <a type="button" class="checklist-check-none hidden">{check_none}</a>
+    </div>
+    <div class="checklist-body"><ul class="checklist-content"></ul></div>
+    <div class="checklist-footer"><a class="checklist-toggle-less">{viewless_lbl}</a></div>
+</div>'''.format(
+            name=name,
+            check_all=_(u'Check all'),
+            check_none=_(u'Check none'),
+            viewless_lbl=_(u'More'),
+        )
+        self.assertHTMLEqual(html, select.render(name, ()))
+
+    def test_render_viewless02(self):
+        "Let the JS chose the behaviour"
         name = 'my_field'
         select = UnorderedMultipleChoiceWidget(choices=[(1, 'A'), (2, 'B')], viewless=True)
         self.assertEqual(2, select._choice_count())
 
         html = u'''<div class="ui-creme-widget widget-auto ui-creme-checklistselect" less widget="ui-creme-checklistselect">
-    <select multiple="multiple" class="ui-creme-input" name="%(name)s">
+    <select multiple="multiple" class="ui-creme-input" name="{name}">
         <option value="1">A</option>
         <option value="2" selected>B</option>
     </select>
     <span class="checklist-counter"></span>
     <div class="checklist-header">
-        <a type="button" class="checklist-check-all hidden">%(check_all)s</a>
-        <a type="button" class="checklist-check-none hidden">%(check_none)s</a>
+        <a type="button" class="checklist-check-all hidden">{check_all}</a>
+        <a type="button" class="checklist-check-none hidden">{check_none}</a>
     </div>
     <div class="checklist-body"><ul class="checklist-content"></ul></div>
-    <div class="checklist-footer"><a class="checklist-toggle-less">%(viewless_lbl)s</a></div>
-</div>''' % {
-            'name':       name,
-            'check_all':  _(u'Check all'),
-            'check_none': _(u'Check none'),
-            'viewless_lbl': _(u'More'),
-        }
+    <div class="checklist-footer"><a class="checklist-toggle-less">{viewless_lbl}</a></div>
+</div>'''.format(
+                name=name,
+                check_all=_(u'Check all'),
+                check_none=_(u'Check none'),
+                viewless_lbl=_(u'More'),
+        )
         self.assertHTMLEqual(html, select.render(name, (2,)))
+
+    def test_render_viewless03(self):
+        "Custom integer value"
+        name = 'my_field'
+        select = UnorderedMultipleChoiceWidget(choices=[(1, 'A'), (2, 'B')], viewless=30)
+        self.assertEqual(2, select._choice_count())
+
+        html = u'''<div class="ui-creme-widget widget-auto ui-creme-checklistselect" less="30" widget="ui-creme-checklistselect">
+    <select multiple="multiple" class="ui-creme-input" name="{name}">
+        <option value="1">A</option>
+        <option value="2">B</option>
+    </select>
+    <span class="checklist-counter"></span>
+    <div class="checklist-header">
+        <a type="button" class="checklist-check-all hidden">{check_all}</a>
+        <a type="button" class="checklist-check-none hidden">{check_none}</a>
+    </div>
+    <div class="checklist-body"><ul class="checklist-content"></ul></div>
+    <div class="checklist-footer"><a class="checklist-toggle-less">{viewless_lbl}</a></div>
+</div>'''.format(
+                name=name,
+                check_all=_(u'Check all'),
+                check_none=_(u'Check none'),
+                viewless_lbl=_(u'More'),
+        )
+        self.assertHTMLEqual(html, select.render(name, ()))
 
     # def test_render_options_choices(self):
     #     select = UnorderedMultipleChoiceWidget()
@@ -255,7 +309,20 @@ class UnorderedMultipleChoiceTestCase(FieldTestCase):
     #                      select.render_option(['2'], Choice(2, False, 'is enabled'), 'B')
     #                     )
 
-    def test_build_header_filtertype(self):
+    def test_filtertype(self):
+        select1 = UnorderedMultipleChoiceWidget()
+        self.assertIsNone(select1.filtertype)
+
+        select2 = UnorderedMultipleChoiceWidget(filtertype='search')
+        self.assertEqual('search', select2.filtertype)
+
+        select2.filtertype = 'filter'
+        self.assertEqual('filter', select2.filtertype)
+
+        with self.assertRaises(ValueError):
+            select2.filtertype = 'invalid'
+
+    def test_build_filtertype(self):
         select = UnorderedMultipleChoiceWidget()
         self.assertIsNone(select._build_filtertype(0))
         self.assertIsNone(select._build_filtertype(5))
@@ -271,20 +338,6 @@ class UnorderedMultipleChoiceTestCase(FieldTestCase):
         self.assertEqual('search', select._build_filtertype(20))
         self.assertEqual('search', select._build_filtertype(30))
         self.assertEqual('search', select._build_filtertype(100))
-
-    def test_build_viewless(self):
-        select = UnorderedMultipleChoiceWidget()
-        self.assertEqual(False, select._build_viewless(None, 0))
-        self.assertEqual(True, select._build_viewless(True, 0))
-        self.assertEqual(5, select._build_viewless(5, 0))
-
-        self.assertEqual(False, select._build_viewless(None, 10))
-        self.assertEqual(True, select._build_viewless(True, 10))
-        self.assertEqual(5, select._build_viewless(5, 10))
-
-        self.assertEqual(True, select._build_viewless(None, 30))
-        self.assertEqual(True, select._build_viewless(True, 30))
-        self.assertEqual(5, select._build_viewless(5, 30))
 
     # def test_render_header_checkall(self):
     #     select = UnorderedMultipleChoiceWidget()
@@ -329,38 +382,65 @@ class UnorderedMultipleChoiceTestCase(FieldTestCase):
     #                              'filter_lbl': pgettext('creme_core-noun', 'Search').upper(),
     #                          }, select._render_header({'checkall': True}, 'search', 3))
 
-    def test_render_search(self):
+    def test_render_search01(self):
+        "Automatic/default behaviour"
         name = 'my_choice_field'
-        select = UnorderedMultipleChoiceWidget(choices=[(1, 'A'), (2, 'B'), (3, 'C')])
+        select = UnorderedMultipleChoiceWidget(choices=[(1, 'A'), (2, 'B'), (3, 'C')], viewless=False)
         self.assertEqual(10, select.MIN_SEARCH_COUNT)
         self.assertEqual(30, select.MIN_FILTER_COUNT)
 
         select.MIN_SEARCH_COUNT = 3
 
         html = u'''<div class="ui-creme-widget widget-auto ui-creme-checklistselect" widget="ui-creme-checklistselect">
-    <select multiple="multiple" class="ui-creme-input" name="%(name)s">
+    <select multiple="multiple" class="ui-creme-input" name="{name}">
         <option value="1">A</option>
         <option value="2">B</option>
         <option value="3">C</option>
     </select>
     <span class="checklist-counter"></span>
     <div class="checklist-header">
-        <a type="button" class="checklist-check-all">%(check_all)s</a>
-        <a type="button" class="checklist-check-none">%(check_none)s</a>
-        <input type="search" class="checklist-filter" placeholder="%(filter_lbl)s">
+        <a type="button" class="checklist-check-all">{check_all}</a>
+        <a type="button" class="checklist-check-none">{check_none}</a>
+        <input type="search" class="checklist-filter" placeholder="{filter_lbl}">
     </div>
     <div class="checklist-body"><ul class="checklist-content search"></ul></div>
-</div>''' % {
-            'name':       name,
-            'check_all':  _(u'Check all'),
-            'check_none': _(u'Check none'),
-            'filter_lbl': pgettext('creme_core-noun', u'Search').upper(),
-        }
+</div>'''.format(
+            name=name,
+            check_all=_(u'Check all'),
+            check_none=_(u'Check none'),
+            filter_lbl=pgettext('creme_core-noun', u'Search').upper(),
+        )
         self.assertHTMLEqual(html, select.render(name, value=None))
 
-    def test_render_filter(self):
+    def test_render_search02(self):
+        "Fixed behaviour"
         name = 'my_choice_field'
-        select = UnorderedMultipleChoiceWidget(choices=[(1, 'A'), (2, 'B'), (3, 'C'), (4, 'D')])
+        select = UnorderedMultipleChoiceWidget(choices=[(1, 'A'), (2, 'B')], viewless=False, filtertype='search')
+
+        html = u'''<div class="ui-creme-widget widget-auto ui-creme-checklistselect" widget="ui-creme-checklistselect">
+    <select multiple="multiple" class="ui-creme-input" name="{name}">
+        <option value="1">A</option>
+        <option value="2">B</option>
+    </select>
+    <span class="checklist-counter"></span>
+    <div class="checklist-header">
+        <a type="button" class="checklist-check-all hidden">{check_all}</a>
+        <a type="button" class="checklist-check-none hidden">{check_none}</a>
+        <input type="search" class="checklist-filter" placeholder="{filter_lbl}">
+    </div>
+    <div class="checklist-body"><ul class="checklist-content search"></ul></div>
+</div>'''.format(
+                name=name,
+                check_all=_(u'Check all'),
+                check_none=_(u'Check none'),
+                filter_lbl=pgettext('creme_core-noun', u'Search').upper(),
+        )
+        self.assertHTMLEqual(html, select.render(name, value=None))
+
+    def test_render_filter01(self):
+        "Automatic/default behaviour"
+        name = 'my_choice_field'
+        select = UnorderedMultipleChoiceWidget(choices=[(1, 'A'), (2, 'B'), (3, 'C'), (4, 'D')], viewless=False)
         self.assertEqual(10, select.MIN_SEARCH_COUNT)
         self.assertEqual(30, select.MIN_FILTER_COUNT)
 
@@ -368,7 +448,7 @@ class UnorderedMultipleChoiceTestCase(FieldTestCase):
         select.MIN_FILTER_COUNT = 3
 
         html = u'''<div class="ui-creme-widget widget-auto ui-creme-checklistselect" widget="ui-creme-checklistselect">
-    <select multiple="multiple" class="ui-creme-input" name="%(name)s">
+    <select multiple="multiple" class="ui-creme-input" name="{name}">
         <option value="1">A</option>
         <option value="2">B</option>
         <option value="3">C</option>
@@ -376,47 +456,69 @@ class UnorderedMultipleChoiceTestCase(FieldTestCase):
     </select>
     <span class="checklist-counter"></span>
     <div class="checklist-header">
-        <a type="button" class="checklist-check-all">%(check_all)s</a>
-        <a type="button" class="checklist-check-none">%(check_none)s</a>
-        <input type="search" class="checklist-filter" placeholder="%(filter_lbl)s">
+        <a type="button" class="checklist-check-all">{check_all}</a>
+        <a type="button" class="checklist-check-none">{check_none}</a>
+        <input type="search" class="checklist-filter" placeholder="{filter_lbl}">
     </div>
     <div class="checklist-body"><ul class="checklist-content filter"></ul></div>
-</div>''' % {
-            'name':       name,
-            'check_all':  _(u'Check all'),
-            'check_none': _(u'Check none'),
-            'filter_lbl': pgettext('creme_core-noun', u'Filter').upper(),
-        }
+</div>'''.format(
+            name=name,
+            check_all=_(u'Check all'),
+            check_none=_(u'Check none'),
+            filter_lbl=pgettext('creme_core-noun', u'Filter').upper(),
+        )
         self.assertHTMLEqual(html, select.render(name, value=None))
 
-    def test_render_less(self):
+    def test_render_filter02(self):
+        "Fixed behaviour"
         name = 'my_choice_field'
-        select = UnorderedMultipleChoiceWidget(choices=[(1, 'A'), (2, 'B'), (3, 'C')])
-        self.assertEqual(20, select.MIN_LESS_COUNT)
+        select = UnorderedMultipleChoiceWidget(choices=[(1, 'A'), (2, 'B')], viewless=False, filtertype='filter')
+
+        html = u'''<div class="ui-creme-widget widget-auto ui-creme-checklistselect" widget="ui-creme-checklistselect">
+    <select multiple="multiple" class="ui-creme-input" name="{name}">
+        <option value="1">A</option>
+        <option value="2">B</option>
+    </select>
+    <span class="checklist-counter"></span>
+    <div class="checklist-header">
+        <a type="button" class="checklist-check-all hidden">{check_all}</a>
+        <a type="button" class="checklist-check-none hidden">{check_none}</a>
+        <input type="search" class="checklist-filter" placeholder="{filter_lbl}">
+    </div>
+    <div class="checklist-body"><ul class="checklist-content filter"></ul></div>
+</div>'''.format(
+                name=name,
+                check_all=_(u'Check all'),
+                check_none=_(u'Check none'),
+                filter_lbl=pgettext('creme_core-noun', u'Filter').upper(),
+        )
+        self.assertHTMLEqual(html, select.render(name, value=None))
+
+    def test_render_less01(self):
+        name = 'my_choice_field'
+        select = UnorderedMultipleChoiceWidget(choices=[(1, 'A'), (2, 'B'), (3, 'C')], viewless=True)
         self.assertEqual(10, select.MIN_SEARCH_COUNT)
         self.assertEqual(30, select.MIN_FILTER_COUNT)
 
-        select.MIN_LESS_COUNT = 2
-
         html = u'''<div class="ui-creme-widget widget-auto ui-creme-checklistselect" widget="ui-creme-checklistselect" less>
-    <select multiple="multiple" class="ui-creme-input" name="%(name)s">
+    <select multiple="multiple" class="ui-creme-input" name="{name}">
         <option value="1">A</option>
         <option value="2">B</option>
         <option value="3">C</option>
     </select>
     <span class="checklist-counter"></span>
     <div class="checklist-header">
-        <a type="button" class="checklist-check-all">%(check_all)s</a>
-        <a type="button" class="checklist-check-none">%(check_none)s</a>
+        <a type="button" class="checklist-check-all">{check_all}</a>
+        <a type="button" class="checklist-check-none">{check_none}</a>
     </div>
     <div class="checklist-body"><ul class="checklist-content"></ul></div>
-    <div class="checklist-footer"><a class="checklist-toggle-less">%(more_lbl)s</a></div>
-</div>''' % {
-            'name':       name,
-            'check_all':  _(u'Check all'),
-            'check_none': _(u'Check none'),
-            'more_lbl': _(u'More'),
-        }
+    <div class="checklist-footer"><a class="checklist-toggle-less">{more_lbl}</a></div>
+</div>'''.format(
+            name=name,
+            check_all=_(u'Check all'),
+            check_none=_(u'Check none'),
+            more_lbl=_(u'More'),
+        )
         self.assertHTMLEqual(html, select.render(name, value=None))
 
     # def test_render_header_filter(self):
@@ -500,26 +602,26 @@ class UnorderedMultipleChoiceTestCase(FieldTestCase):
     def test_render_empty_with_creation(self):
         name = 'field_1'
         url = '/add/stuff'
-        select = UnorderedMultipleChoiceWidget(creation_url=url, creation_allowed=True)
+        select = UnorderedMultipleChoiceWidget(creation_url=url, creation_allowed=True, viewless=False)
 
         self.assertTrue(select.creation_allowed)
         html = u'''<div class="ui-creme-widget widget-auto ui-creme-checklistselect" widget="ui-creme-checklistselect" >
-    <select multiple="multiple" class="ui-creme-input" name="%(name)s">
+    <select multiple="multiple" class="ui-creme-input" name="{name}">
     </select>
     <span class="checklist-counter"></span>
     <div class="checklist-header">
-        <a type="button" class="checklist-check-all hidden">%(check_all)s</a>
-        <a type="button" class="checklist-check-none hidden">%(check_none)s</a>
-        <a type="button" class="checklist-create" href="%(create_url)s">%(create_lbl)s</a>
+        <a type="button" class="checklist-check-all hidden">{check_all}</a>
+        <a type="button" class="checklist-check-none hidden">{check_none}</a>
+        <a type="button" class="checklist-create" href="{create_url}">{create_lbl}</a>
     </div>
     <div class="checklist-body"><ul class="checklist-content"></ul></div>
-</div>''' % {
-            'name':       name,
-            'check_all':  _(u'Check all'),
-            'check_none': _(u'Check none'),
-            'create_url': url,
-            'create_lbl': _(u'Create'),
-        }
+</div>'''.format(
+            name=name,
+            check_all=_(u'Check all'),
+            check_none=_(u'Check none'),
+            create_url=url,
+            create_lbl=_(u'Create'),
+        )
 
         self.assertHTMLEqual(html, select.render(name, (), attrs={'checkall': True}))
 
@@ -527,27 +629,28 @@ class UnorderedMultipleChoiceTestCase(FieldTestCase):
         name = 'field_1'
         select = UnorderedMultipleChoiceWidget(choices=[('a', '#1'), ('b', '#2')],
                                                creation_url='/add', creation_allowed=False,
+                                               viewless=False,
                                               )
 
         html = u'''<div class="ui-creme-widget widget-auto ui-creme-checklistselect" widget="ui-creme-checklistselect" >
-    <select multiple="multiple" class="ui-creme-input" name="%(name)s">
+    <select multiple="multiple" class="ui-creme-input" name="{name}">
         <option value="a">#1</option>
         <option value="b">#2</option>
     </select>
     <span class="checklist-counter"></span>
     <div class="checklist-header">
-        <a type="button" class="checklist-check-all hidden">%(check_all)s</a>
-        <a type="button" class="checklist-check-none hidden">%(check_none)s</a>
-        <a type="button" class="checklist-create" disabled href="%(create_url)s">%(create_lbl)s</a>
+        <a type="button" class="checklist-check-all hidden">{check_all}</a>
+        <a type="button" class="checklist-check-none hidden">{check_none}</a>
+        <a type="button" class="checklist-create" disabled href="{create_url}">{create_lbl}</a>
     </div>
     <div class="checklist-body"><ul class="checklist-content"></ul></div>
-</div>''' % {
-            'name':       name,
-            'check_all':  _(u'Check all'),
-            'check_none': _(u'Check none'),
-            'create_url': '/add',
-            'create_lbl': _(u'Create'),
-        }
+</div>'''.format(
+            name=name,
+            check_all=_(u'Check all'),
+            check_none=_(u'Check none'),
+            create_url='/add',
+            create_lbl=_(u'Create'),
+        )
 
         self.assertHTMLEqual(html, select.render(name, ()))
 
@@ -558,24 +661,25 @@ class UnorderedMultipleChoiceTestCase(FieldTestCase):
             choices=[(Choice(value=1, disabled=True, help='is disabled'), 'Choice #1'),
                      (Choice(value=2, disabled=False),                    'Choice #2'),
                     ],
+            viewless=False,
         )
 
         html = u'''<div class="ui-creme-widget widget-auto ui-creme-checklistselect" widget="ui-creme-checklistselect" >
-    <select multiple="multiple" class="ui-creme-input" name="%(name)s">
+    <select multiple="multiple" class="ui-creme-input" name="{name}">
         <option value="1" disabled help="is disabled">Choice #1</option>
         <option value="2" help="">Choice #2</option>
     </select>
     <span class="checklist-counter"></span>
     <div class="checklist-header">
-        <a type="button" class="checklist-check-all hidden">%(check_all)s</a>
-        <a type="button" class="checklist-check-none hidden">%(check_none)s</a>
+        <a type="button" class="checklist-check-all hidden">{check_all}</a>
+        <a type="button" class="checklist-check-none hidden">{check_none}</a>
     </div>
     <div class="checklist-body"><ul class="checklist-content"></ul></div>
-</div>''' % {
-            'name':       name,
-            'check_all':  _(u'Check all'),
-            'check_none': _(u'Check none'),
-        }
+</div>'''.format(
+            name=name,
+            check_all=_(u'Check all'),
+            check_none=_(u'Check none'),
+        )
 
         self.assertHTMLEqual(html, select.render(name, ()))
 
