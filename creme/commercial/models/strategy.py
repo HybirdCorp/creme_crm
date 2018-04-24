@@ -80,16 +80,16 @@ class AbstractStrategy(CremeEntity):
 
         self._segments_categories = {}
 
-    def delete(self):
-        CommercialAssetScore.objects.filter(asset__strategy=self.id).delete()
-        MarketSegmentCharmScore.objects.filter(charm__strategy=self.id).delete()
-        MarketSegmentCategory.objects.filter(strategy=self.id).delete()
-
-        self.segment_info.all().delete()
-        self.assets.all().delete()
-        self.charms.all().delete()
-
-        super(AbstractStrategy, self).delete()
+    # def delete(self):
+    #     CommercialAssetScore.objects.filter(asset__strategy=self.id).delete()
+    #     MarketSegmentCharmScore.objects.filter(charm__strategy=self.id).delete()
+    #     MarketSegmentCategory.objects.filter(strategy=self.id).delete()
+    #
+    #     self.segment_info.all().delete()
+    #     self.assets.all().delete()
+    #     self.charms.all().delete()
+    #
+    #     super(AbstractStrategy, self).delete()
 
     def get_absolute_url(self):
         return reverse('commercial__view_strategy', args=(self.id,))
@@ -345,14 +345,16 @@ class MarketSegmentDescription(CremeModel):
     def __unicode__(self):
         return self.segment.name
 
-    def delete(self):
-        strategy = self.strategy
-
-        CommercialAssetScore.objects.filter(segment_desc=self, asset__strategy=strategy).delete()
-        MarketSegmentCharmScore.objects.filter(segment_desc=self, charm__strategy=strategy).delete()
-        MarketSegmentCategory.objects.filter(strategy=strategy, segment_desc=self).delete()
-
-        super(MarketSegmentDescription, self).delete()
+    # def delete(self):
+    def delete(self, *args, **kwargs):
+        # strategy = self.strategy
+        #
+        # CommercialAssetScore.objects.filter(segment_desc=self, asset__strategy=strategy).delete()
+        # MarketSegmentCharmScore.objects.filter(segment_desc=self, charm__strategy=strategy).delete()
+        # MarketSegmentCategory.objects.filter(strategy=strategy, segment_desc=self).delete()
+        #
+        # super(MarketSegmentDescription, self).delete()
+        super(MarketSegmentDescription, self).delete(*args, **kwargs)
 
         self.strategy._clear_caches()  # NB: not really useful...
 

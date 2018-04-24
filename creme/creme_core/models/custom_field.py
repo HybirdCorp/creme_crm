@@ -70,14 +70,16 @@ class CustomField(CremeModel):
     def __unicode__(self):
         return self.name
 
-    def delete(self, using=None):
+    # def delete(self, using=None):
+    def delete(self, *args, **kwargs):
         for value_class in _TABLES.itervalues():
             value_class.objects.filter(custom_field=self).delete()
 
         # Beware: we don't call the CustomFieldEnumValue.delete() to avoid loop.
         self.customfieldenumvalue_set.all().delete()
 
-        super(CustomField, self).delete(using=using)
+        # super(CustomField, self).delete(using=using)
+        super(CustomField, self).delete(*args, **kwargs)
 
     def type_verbose_name(self):
         return _TABLES[self.field_type].verbose_name
@@ -294,9 +296,11 @@ class CustomFieldEnumValue(CremeModel):
     def __unicode__(self):
         return self.value
 
-    def delete(self, using=None):
+    # def delete(self, using=None):
+    def delete(self, *args, **kwargs):
         CustomFieldEnum.objects.filter(custom_field=self.custom_field_id, value=str(self.id)).delete()
-        super(CustomFieldEnumValue, self).delete(using=using)
+        # super(CustomFieldEnumValue, self).delete(using=using)
+        super(CustomFieldEnumValue, self).delete(*args, **kwargs)
 
 
 class CustomFieldEnum(CustomFieldValue):

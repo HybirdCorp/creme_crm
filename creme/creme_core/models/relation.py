@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -84,12 +84,14 @@ class RelationType(CremeModel):
         self.subject_ctypes.add(*cts)
         self.symmetric_type.object_ctypes.add(*cts)
 
-    # def delete(self):
-    def delete(self, using=None):
+    # def delete(self, using=None):
+    def delete(self, using=None, keep_parents=False):
         sym_type = self.symmetric_type
 
-        super(RelationType, sym_type).delete(using=using)
-        super(RelationType, self).delete(using=using)
+        # super(RelationType, sym_type).delete(using=using)
+        super(RelationType, sym_type).delete(using=using, keep_parents=keep_parents)
+        # super(RelationType, self).delete(using=using)
+        super(RelationType, self).delete(using=using, keep_parents=keep_parents)
 
     @staticmethod
     def get_compatible_ones(ct, include_internals=False):

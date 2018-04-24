@@ -60,13 +60,16 @@ class AbstractSMSCampaign(CremeEntity):
     def get_lv_absolute_url():
         return reverse('sms__list_campaigns')
 
-    def delete(self):
+    # def delete(self):
+    def delete(self, *args, **kwargs):
         self.lists.clear()
 
         for sending in self.sendings.all():
-            sending.delete()
+            # sending.delete()
+            sending.delete(*args, **kwargs)
 
-        super(AbstractSMSCampaign, self).delete()
+        # super(AbstractSMSCampaign, self).delete()
+        super(AbstractSMSCampaign, self).delete(*args, **kwargs)
 
     def all_recipients(self):
         mlists = self.lists.filter(is_deleted=False)

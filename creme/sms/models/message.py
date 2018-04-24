@@ -75,14 +75,16 @@ class Sending(CremeModel):
         items = ((self.messages.filter(status=status).count(), status_name) for status, status_name in MESSAGE_STATUS.iteritems())
         return ', '.join((u'%s %s' % (count, label[1] if count > 1 else label[0]) for count, label in items if count > 0))
 
-    def delete(self, using=None):
-        ws = SamoussaBackEnd()
+    # def delete(self, using=None):
+    def delete(self, *args, **kwargs):
+        ws = SamoussaBackEnd()  # TODO: 'with'
         ws.connect()
         ws.delete_messages(user_data=self.id)
         ws.close()
 
-        self.messages.all().delete()  # TODO: useful ??
-        return super(Sending, self).delete(using=using)
+        # self.messages.all().delete()
+        # return super(Sending, self).delete(using=using)
+        return super(Sending, self).delete(*args, **kwargs)
 
 
 # TODO: keep the related entity (to hide the number when the entity is not viewable)

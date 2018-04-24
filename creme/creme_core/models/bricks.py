@@ -320,10 +320,12 @@ class RelationBlockItem(CremeModel):
     def __unicode__(self):  # NB: useful for creme_config titles
         return self.relation_type.predicate
 
-    def delete(self, using=None):
+    # def delete(self, using=None):
+    def delete(self, *args, **kwargs):
         BlockDetailviewLocation.objects.filter(brick_id=self.brick_id).delete()
 
-        super(RelationBlockItem, self).delete(using=using)
+        # super(RelationBlockItem, self).delete(using=using)
+        super(RelationBlockItem, self).delete(*args, **kwargs)
 
     @property
     def all_ctypes_configured(self):
@@ -497,12 +499,14 @@ class CustomBlockConfigItem(CremeModel):
     def __unicode__(self):
         return self.name
 
-    def delete(self, using=None):
+    # def delete(self, using=None):
+    def delete(self, *args, **kwargs):
         brick_id = self.generate_id()
         BlockDetailviewLocation.objects.filter(brick_id=brick_id).delete()
         BlockState.objects.filter(brick_id=brick_id).delete()
 
-        super(CustomBlockConfigItem, self).delete(using=using)
+        # super(CustomBlockConfigItem, self).delete(using=using)
+        super(CustomBlockConfigItem, self).delete(*args, **kwargs)
 
     def generate_id(self):
         return 'customblock-%s' % self.id

@@ -105,7 +105,8 @@ class CremeEntity(CremeAbstractEntity):
         self._cvalues_map = {}
 
     @atomic
-    def delete(self, using=None):
+    # def delete(self, using=None):
+    def delete(self, using=None, keep_parents=False):
         from .history import _get_deleted_entity_ids
 
         # Pre-delete signal is sent to auxiliary _before_, then sent to the entity
@@ -120,7 +121,7 @@ class CremeEntity(CremeAbstractEntity):
             prop.delete(using=using)
 
         # super(CremeEntity, self).delete(using=using)
-        super(CremeEntity, self)._delete_without_transaction(using=using)
+        super(CremeEntity, self)._delete_without_transaction(using=using, keep_parents=keep_parents)
 
     def __unicode__(self):
         real_entity = self.get_real_entity()

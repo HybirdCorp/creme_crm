@@ -99,11 +99,14 @@ class AbstractProject(CremeEntity):
                                   }
                                  )  # TODO: code & params ??
 
-    def delete(self):
+    # def delete(self):
+    def delete(self, *args, **kwargs):
         for task in self.get_tasks():
-            task.delete()
+            # task.delete()
+            task.delete(*args, **kwargs)
 
-        super(AbstractProject, self).delete()
+        # super(AbstractProject, self).delete()
+        super(AbstractProject, self).delete(*args, **kwargs)
 
     def get_tasks(self):
         if self.tasks_list is None:
