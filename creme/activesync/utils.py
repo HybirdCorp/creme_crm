@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -105,7 +105,8 @@ def b64_encode_file(file_path):
     return len_encoded, value
 
 
-def b64_from_pil_image(im, quality=75, reduce_by=1, out_format='JPEG'):
+# def b64_from_pil_image(im, quality=75, reduce_by=1, out_format='JPEG'):
+def b64_from_pil_image(im, quality=75, reduce_by=1.0, out_format='JPEG'):
     """Get a PIL Image.
     Returns (image content in base64), image content in base64)
     """
@@ -126,23 +127,36 @@ def get_b64encoded_img_of_max_weight(image_file_path, max_weight):
     """Get an image file path and max weight (in bytes).
     Returns base64 encoded string of an image file with weight < max_weight
     """
-
     im = Image.open(image_file_path)
 
     file_size = os.path.getsize(image_file_path)
 
-    if file_size*KNOW_BASE64_INCREASE <= max_weight:
+    if file_size * KNOW_BASE64_INCREASE <= max_weight:
         content_size, content = b64_encode_file(image_file_path)
 
         if content_size <= max_weight:
             return content
 
     # TODO: Optimize the end image by a better non-linear reduction, quality, ...
-    content_size, content = b64_from_pil_image(im, reduce_by=.5)
-    while content_size > max_weight:
-        content_size, content = b64_from_pil_image(im, reduce_by=.5)
+    # content_size, content = b64_from_pil_image(im, reduce_by=.5)
+    # while content_size > max_weight:
+    #     content_size, content = b64_from_pil_image(im, reduce_by=.5)
+    #
+    # return content
+    img_format = im.format
 
-    return content
+    for _i in xrange(50):
+        content_size, content = b64_from_pil_image(im, reduce_by=0.5, out_format=img_format)
+
+        if content_size <= max_weight:
+            return content
+
+    logger.warn('get_b64encoded_img_of_max_weight(): '
+                'cannot not manage to reduce the size of the file <%s> enough (max_weight=%s)',
+                image_file_path, max_weight,
+               )
+
+    return ''
 
 
 def decode_AS_timezone(tz):
