@@ -22,6 +22,7 @@ from collections import defaultdict
 from json import dumps as encode_json
 
 from django.contrib.contenttypes.models import ContentType
+from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.bricks import Brick
@@ -63,10 +64,16 @@ class _MapBrick(Brick):
         return choices
 
     def get_addresses_as_dict(self, entity):
-        return [address_as_dict(address)
-                    for address in Address.objects.filter(object_id=entity.id)
-                                                  .select_related('geoaddress')
-               ]
+        # return [address_as_dict(address)
+        #             for address in Address.objects.filter(object_id=entity.id)
+        #                                           .select_related('geoaddress')
+        #        ]
+        return [
+            {k: (escape(v) if isinstance(v, basestring) else v)
+                    for k, v in address_as_dict(address).iteritems()
+            } for address in Address.objects.filter(object_id=entity.id)
+                                            .select_related('geoaddress')
+        ]
 
 
 class GoogleDetailMapBrick(_MapBrick):
