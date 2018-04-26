@@ -20,6 +20,7 @@ try:
     from ..fake_models import (FakeContact, FakeOrganisation, FakeAddress, FakeCivility, FakeSector,
             FakeImage, FakeImageCategory, FakeActivity, FakeActivityType,
             FakeEmailCampaign, FakeMailingList, FakeDocument, FakeFolder, FakeFolderCategory)
+
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.gui.listview import ListViewState
@@ -28,10 +29,9 @@ try:
             CremePropertyType, CremeProperty, CustomField, CustomFieldEnumValue)
     from creme.creme_core.models.entity_filter import EntityFilterList
     from creme.creme_core.models.header_filter import HeaderFilterList
-    from creme.creme_core.utils import safe_unicode
     from creme.creme_core.utils.profiling import CaptureQueriesContext
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class ListViewTestCase(ViewsTestCase):

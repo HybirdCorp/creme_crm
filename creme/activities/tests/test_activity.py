@@ -12,7 +12,7 @@ try:
     from django.urls import reverse
     from django.utils.encoding import force_unicode
     from django.utils.formats import date_format
-    from django.utils.html import escape
+    # from django.utils.html import escape
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _, ungettext
 
@@ -35,7 +35,7 @@ try:
         from creme.assistants.models import Alert, UserMessage
         from creme.assistants.constants import PRIO_NOT_IMP_PK
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 @skipIfCustomActivity

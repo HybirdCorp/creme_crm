@@ -11,7 +11,7 @@ try:
     from ..models import GeoAddress, Town
     from .base import GeoLocationBaseTestCase, Address, Organisation, Contact
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 @skipIfCustomOrganisation
@@ -49,7 +49,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
                                      )
 
         with self.assertNumQueries(0):
-            geoaddress = address.geoaddress
+            _ = address.geoaddress
 
     def test_create_empty_address(self):
         address = Address.objects.create(owner=self.orga)

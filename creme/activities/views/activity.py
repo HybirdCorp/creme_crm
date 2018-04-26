@@ -20,7 +20,7 @@
 
 from datetime import datetime
 from functools import partial
-import warnings
+# import warnings
 
 from django.db.models import Q
 from django.http import Http404, HttpResponse

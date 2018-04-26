@@ -15,6 +15,7 @@ try:
 
     from ..base import CremeTestCase
     from ..fake_models import FakeContact, FakeCivility, FakeOrganisation, FakeImage
+
     from creme.creme_core.global_info import set_global_info
     from creme.creme_core.models import (CremeEntity, Language,
             Relation, RelationType, CremeProperty, CremePropertyType,
@@ -23,7 +24,7 @@ try:
             EntityFilter, EntityFilterCondition)
     from creme.creme_core.models.entity_filter import EntityFilterList
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class EntityFiltersTestCase(CremeTestCase):
@@ -341,7 +342,7 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertNoException(lambda: build_4_field(values=[str(other_folder.id)], user=self.user))
 
         # other_user cannot link (not authenticated)
-        with self.assertRaises(EntityFilterCondition.ValueError) as e:
+        with self.assertRaises(EntityFilterCondition.ValueError):
             build_4_field(values=[str(folder.id)], user=self.other_user)
 
     def test_create_again01(self):

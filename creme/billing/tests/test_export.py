@@ -11,7 +11,7 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import SetCredentials, FileRef
-    from creme.creme_core.utils.secure_filename import secure_filename
+    # from creme.creme_core.utils.secure_filename import secure_filename
 
     from creme.persons.tests.base import skipIfCustomOrganisation
 

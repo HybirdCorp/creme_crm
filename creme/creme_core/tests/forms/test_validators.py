@@ -5,13 +5,14 @@ try:
     from django.core.exceptions import ValidationError
     from django.utils.translation import ugettext as _
 
+    from ..base import CremeTestCase
+
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.forms import validators
     from creme.creme_core.models import CremeUser, FakeContact
     from creme.creme_core.models.auth import SetCredentials
-    from creme.creme_core.tests.base import CremeTestCase
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class CredsValidatorTestCase(CremeTestCase):
@@ -85,6 +86,8 @@ class CredsValidatorTestCase(CremeTestCase):
         # view permission set for owned entities
         with self.assertRaises(ValidationError) as e:
             validators.validate_viewable_entity(a, user)
+
+        self.assertEqual(e.exception.code, 'viewnotallowed')
 
     def test_validate_viewable_entity_notallowed_all(self):
         user = self.login(is_superuser=False)

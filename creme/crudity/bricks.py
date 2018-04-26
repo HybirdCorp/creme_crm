@@ -20,7 +20,7 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
-from django.utils.translation import ugettext_lazy as _, ugettext, ngettext
+from django.utils.translation import ugettext_lazy as _, ugettext  # ngettext
 
 from creme.creme_core.gui.bricks import QuerysetBrick
 from creme.creme_core.models import SettingValue

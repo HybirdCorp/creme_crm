@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from functools import partial
+    # from functools import partial
 
     from django.core.paginator import Paginator
     from django.template import Template, Context
-    from django.urls import reverse
+    # from django.urls import reverse
     from django.utils.translation import ugettext as _
-    from django.utils.html import escape
 
     from ..base import CremeTestCase
-    from ..fake_models import FakeOrganisation
-    from creme.creme_core.core.entity_cell import EntityCellCustomField
+
+    # from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellCustomField
     from creme.creme_core.core.paginator import FlowPaginator
     # from creme.creme_core.forms.bulk import _CUSTOMFIELD_FORMAT
-    from creme.creme_core.forms.header_filter import EntityCellRegularField
-    from creme.creme_core.models import CustomField, CustomFieldEnumValue
-    from creme.creme_core.utils.meta import FieldInfo
+    from creme.creme_core.models import FakeOrganisation  # CustomField, CustomFieldEnumValue
+    # from creme.creme_core.utils.meta import FieldInfo
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 # TODO: write complete tests for EntityCells

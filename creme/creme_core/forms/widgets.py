@@ -602,8 +602,8 @@ class ChainedInput(widgets.TextInput):
         widget_cxt['input'] = widgets.HiddenInput().get_context(name=name, value=value, attrs=final_attrs)['widget']
 
         widget_cxt['chained'] = [
-            (name, w_input.get_context(name='', value='', attrs=None)['widget'])
-                for name, w_input in self.inputs
+            (w_name, w_input.get_context(name='', value='', attrs=None)['widget'])
+                for w_name, w_input in self.inputs
         ]
 
         return context

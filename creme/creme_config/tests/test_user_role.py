@@ -11,7 +11,7 @@ try:
     from creme.creme_core.models import CremeUser as User
     from creme.creme_core.models import UserRole, SetCredentials
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
-    from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation, FakeActivity
+    from creme.creme_core.tests.fake_models import FakeContact  # FakeOrganisation FakeActivity
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
     from creme.documents.models import Document
@@ -20,7 +20,7 @@ try:
 
     from ..bricks import UserRolesBrick
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):

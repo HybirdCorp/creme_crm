@@ -3,9 +3,9 @@
 try:
     from decimal import Decimal
     from functools import partial
-    from os.path import exists
+    # from os.path import exists
 
-    from django.core.files.base import ContentFile
+    # from django.core.files.base import ContentFile
     from django.contrib.contenttypes.models import ContentType
     from django.db import IntegrityError
     from django.db.models.deletion import ProtectedError

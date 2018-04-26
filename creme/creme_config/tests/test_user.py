@@ -14,7 +14,7 @@ try:
     from creme.creme_core.core.setting_key import SettingKey, UserSettingKey, user_setting_key_registry
     from creme.creme_core.models import CremeUser as User
     from creme.creme_core.models import (CremeEntity, RelationType,
-            EntityCredentials, UserRole, SetCredentials, Mutex, SettingValue)
+            EntityCredentials, UserRole, SetCredentials, Mutex)  # SettingValue
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
@@ -24,7 +24,7 @@ try:
 
     from ..bricks import UsersBrick, TeamsBrick, UserPreferredMenusBrick, BlockMypageLocationsBrick
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 def skipIfNotCremeUser(test_func):
