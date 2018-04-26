@@ -125,7 +125,7 @@ Run the following commands in the root directory:
     >> python manage.py generatemedia
     >> python manage.py creme_populate
 
-If you are upgrading from Creme 1.6, clean all existing sessions, for example like this:
+If you are upgrading from Creme 1.7, clean all existing sessions, for example like this:
     >> python manage.py shell
     > from django.contrib.sessions.models import Session
     > Session.objects.all().delete()

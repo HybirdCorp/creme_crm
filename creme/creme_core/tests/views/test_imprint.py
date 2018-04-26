@@ -11,7 +11,7 @@ try:
     from creme.creme_core.bricks import ImprintsBrick
     from creme.creme_core.core.imprint import imprint_manager
     from creme.creme_core.models import (Imprint, BlockDetailviewLocation, BlockPortalLocation,
-        FakeContact, FakeOrganisation)
+        FakeOrganisation)
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 

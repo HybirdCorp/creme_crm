@@ -9,9 +9,9 @@ try:
     from creme.creme_core.creme_jobs import reminder_type
     from creme.creme_core.models import Job
     from creme.creme_core.utils.date_period import MinutesPeriod
-    from creme.creme_core.utils.dates import round_hour, dt_to_ISO8601
+    from creme.creme_core.utils.dates import dt_to_ISO8601
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class JobViewsTestCase(CremeTestCase):

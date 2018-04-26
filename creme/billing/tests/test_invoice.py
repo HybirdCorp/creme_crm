@@ -19,13 +19,13 @@ try:
     from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
 
     from ..constants import (REL_SUB_BILL_ISSUED, REL_OBJ_BILL_ISSUED,
-            REL_SUB_BILL_RECEIVED, REL_OBJ_BILL_RECEIVED, REL_SUB_HAS_LINE, AMOUNT_PK, PERCENT_PK)
+            REL_SUB_BILL_RECEIVED, REL_OBJ_BILL_RECEIVED, AMOUNT_PK, PERCENT_PK)  # REL_SUB_HAS_LINE
     from ..models import InvoiceStatus, AdditionalInformation, PaymentTerms
     from .base import (_BillingTestCase, _BillingTestCaseMixin, skipIfCustomInvoice,
             skipIfCustomProductLine, skipIfCustomServiceLine,
             Organisation, Address, Invoice, ProductLine, ServiceLine)
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 @skipIfCustomOrganisation

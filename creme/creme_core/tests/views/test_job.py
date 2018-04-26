@@ -3,7 +3,7 @@
 try:
     # from json import loads as json_load
 
-    from django.apps import apps
+    # from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
     from django.db.models import Max
     from django.test.utils import override_settings
@@ -28,7 +28,7 @@ try:
     # if apps.is_installed('creme.crudity'):
     #     from creme.crudity.creme_jobs import crudity_synchronize_type
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
@@ -162,7 +162,8 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         queue = JobManagerQueue.get_main_queue()
         queue.clear()
 
-        user = self.login()
+        # user = \
+        self.login()
         self.assertEqual([], queue.refreshed_jobs)
 
         # job = self.get_object_or_fail(Job, type_id=crudity_synchronize_type.id)
@@ -219,7 +220,8 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         queue = JobManagerQueue.get_main_queue()
         queue.clear()
 
-        user = self.login()
+        # user = \
+        self.login()
         self.assertEqual([], queue.refreshed_jobs)
 
         # job = self.get_object_or_fail(Job, type_id=crudity_synchronize_type.id)
@@ -256,7 +258,8 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         queue = JobManagerQueue.get_main_queue()
         queue.clear()
 
-        user = self.login()
+        # user = \
+        self.login()
 
         # job = self.get_object_or_fail(Job, type_id=crudity_synchronize_type.id)
         job = self.get_object_or_fail(Job, type_id=temp_files_cleaner_type.id)

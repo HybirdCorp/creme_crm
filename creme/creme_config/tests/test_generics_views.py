@@ -4,7 +4,7 @@ try:
     from json import dumps as json_dump  # loads as json_load
 
     from django.apps import apps
-    from django.contrib.contenttypes.models import ContentType
+    # from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
 
     from creme.creme_core.forms import CremeModelForm
@@ -16,7 +16,7 @@ try:
 
     from ..bricks import GenericModelBrick, PropertyTypesBrick, SettingsBrick
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.fromat(__name__, e))
 
 
 class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):

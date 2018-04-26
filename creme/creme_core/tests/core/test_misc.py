@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from functools import partial
     from datetime import timedelta
-    from time import sleep
+    from functools import partial
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
@@ -12,11 +11,11 @@ try:
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.tests.base import CremeTestCase
+    from ..base import CremeTestCase
 
     from creme.creme_core.core.batch_process import batch_operator_manager, BatchAction
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
-            EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
+        EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldsManager
     from creme.creme_core.core.imprint import _ImprintManager
     from creme.creme_core.core.job import JobManager
@@ -29,7 +28,7 @@ try:
     from creme.creme_core.utils.date_period import HoursPeriod
     from creme.creme_core.utils.dates import round_hour
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class FunctionFieldsTestCase(CremeTestCase):
