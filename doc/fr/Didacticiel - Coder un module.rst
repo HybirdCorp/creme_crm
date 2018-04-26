@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 17-03-2018 pour la version 1.8 de Creme
+:Version: 26-04-2018 pour la version 1.8 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -2738,7 +2738,153 @@ Quelques explications sur les paramètres :
 Jobs
 ~~~~
 
-**TODO**
+Dans Creme1.7, un système de job a été introduit ; il va permettre de s'occuper
+de tâches :
+
+ - qui mettent longtemps à s'exécuter, en fournissant à l'utilisateur une barre
+   de progression, la possibilité de changer de page (ou de fermer le navigateur)
+   sans que la tâche ne soit interrompue, ainsi que la garantie que la tâche
+   soit terminée correctement même en cas de crash du serveur (panne de courant etc…).
+   Ex: Creme se sert de cet aspect pour les imports CSV/XLS.
+ - qui doivent être exécutées périodiquement (ou au moins à une date précise) sans
+   qu'il n'y ait besoin d'un utilisateur pour les déclencher. Cela remplace
+   avantageusement une commande associée à une configuration CRON, car cela ne
+   nécessite pas de travail particulier pour l'administrateur (quand il
+   installe/désinstalle une app par exemple).
+   Ex: Creme se sert de cet aspect pour les envois de campagnes d'e-mails.
+
+Nous allons faire le squelette d'un job qui fait une tâche quotidienne qui irait
+chercher l'état de santé d'un castor, par exemple en lisant un fichier créé par
+un autre logiciel ou en se connectant à un service Web (cette partie du code sera
+laissée en exercice pour le lecteur de toutes les façons).
+
+Tout d'abord nous allons créer le type de job, qui va contenir le code de notre tâche.
+Pour cela notre app doit contenir un *package* ``creme_jobs`` ; si votre app doit contenir
+plusieurs jobs, vous pouvez opter pour un répertoire ``beavers/creme_jobs/``.
+Ici on va juste créer un simple fichier ``beavers/creme_jobs.py`` : ::
+
+
+    # -*- coding: utf-8 -*-
+
+    from django.conf import settings
+    from django.utils.translation import ugettext_lazy as _, ugettext
+
+    from creme.creme_core.creme_jobs.base import JobType
+
+
+    class _BeaversHealthType(JobType):
+        id           = JobType.generate_id('beavers', 'beavers_health')
+        verbose_name = _(u'Check the health of the beavers')
+        periodic     = JobType.PERIODIC
+
+        def _execute(self, job):
+            [...]
+            # C'est ici que vous allez mettre votre code qui va récupérer les données
+
+        def get_description(self, job):
+            # Vous devez renvoyer une liste de chaînes (traduites de préférence) ;
+            # elle sera utilisée dans la vue détaillée du job.
+            # La liste permet de mettre des informations supplémentaires comme
+            # l'URL du service utilisée dans notre cas.
+            return [
+                ugettext(u'Check the health of the beavers by connecting to our health service'),
+                ugettext(u'URL is {}').format(settings.BEAVERS_HEALTH_URL),
+            ]
+
+
+    beavers_health_type = _BeaversHealthType()
+
+    # Il est important que votre *package* contienne une variable "jobs" qui
+    # est une liste d'instances de vos types.
+    # Creme va venir chercher cette variable pour connaître les types de jobs.
+    jobs = (beavers_health_type,)
+
+**Explications** : on définit ici un type de job, qui sera utilisé par des
+instances de ``creme_core.models.Job``.
+Comme d'habitude, on crée un identifiant (attribut ``id``) pour notre classe
+qui va servir à la retrouver depuis une *string* en base de données. Le champ
+``verbose_name`` sera utilisé dans l'interface pour désigner notre job, comme
+dans la liste des jobs par exemple. L'attribut ``periodic`` désigne le type de
+périodicité utilisée par ce type de job ; la valeur peut être :
+
+ - ``JobType.NOT_PERIODIC`` : les instances de ``Job`` avec cette valeur sont
+   créées à la volée, puis exécutées une seule fois dès que possible par le
+   gestionnaire de jobs. Par exemple, l import de fichier CSV de Creme
+   fonctionne comme ça ; chaque import génère un ``Job`` qui contient toutes
+   les données nécessaires (qui ont été rentrées via le formulaire d'import).
+ - ``JobType.PERIODIC`` : une seul instance de ``Job`` possédera ce type et sera
+   créée dans le fichier ``populate.py`` (voir après) et ne sera supprimée
+   qu'à la désinstallation de l'app correspondante. Le job est exécuté
+   de manière périodique. Ex: aller consulter une boîte mail, la présence d'un
+   fichier via FTP…
+ - ``JobType.PSEUDO_PERIODIC`` : comme dans le cas précédent il n'y aura qu'une
+   seule instance de ``Job`` ; le job est exécuté selon les données en base qui
+   définissent la prochaine exécution. Par exemple si un job d'envoi d'e-mails
+   doit faire un envoi dans 17 heures puis un dans 3 jours.
+
+Comme nous avons créé un job périodique, il nous faut créer l'instance de ``Job``
+dans notre ``populate.py`` : ::
+
+    from django.conf import settings
+
+    from creme.creme_core.management.commands.creme_populate import BasePopulator
+    from creme.creme_core.models import Job
+    from creme.creme_core.utils.date_period import date_period_registry
+    [...]
+
+    from .creme_jobs import beavers_health_type
+    [...]
+
+    class Populator(BasePopulator):
+        dependencies = ['creme_core']
+
+        def populate(self):
+            [...]
+
+            Job.objects.get_or_create(type_id=beavers_health_type.id,
+                                      defaults={'language':    settings.LANGUAGE_CODE,
+                                                # ATTENTION: nous devons définir une periode
+                                                'periodicity': date_period_registry.get_period('days', 1),
+                                                'status':      Job.STATUS_OK,
+                                               }
+                                     )
+
+**Gestion des erreurs** : il est très probable que vos jobs puissent rencontrer
+des soucis ; dans notre exemple le service Web distant pourrait être indisponible.
+Cela peut être une bonne idée de pouvoir indiquer dans l'interface ce qui s'est passé
+lors de la dernière exécution. La plupart des méthodes de ``JobType`` prennent un
+paramètre ``job`` qui est l'instance de ``Job`` associée. Et vous avez be base des
+modèles qui permettent de créer des résultats associés à ce job (ils sont affichés
+dans le bloc d'erreurs de la vue détaillée du job). Voici un exemple : ::
+
+    [...]
+    from creme.creme_core.models import JobResult
+
+
+    class _BeaversHealthType(JobType):
+        [...]
+
+        def _execute(self, job):
+            try:
+                [...]
+            except MyConnectionError as e:
+                JobResult.objects.create(
+                    job=job,
+                    messages=[ugettext(u'An error occurred during connection.'),
+                              ugettext(u'Original error: {}').format(e),
+                             ],
+                )
+
+
+Vous pouvez créer votre propre type d'exception et votre propre bloc d'erreur
+(voir ``JobType.results_bricks``).
+
+**Configuration du job** : un job périodique peut être configuré via un formulaire
+accessible depuis la liste des jobs ; cela permet de changer la période de ce job.
+Mais il est possible qu'un job propose un formulaire configuration plus poussé, via
+la méthode ``JobType.get_config_form_class()`` ; les données supplémentaires
+peuvent être stockées dans l'instance de ``Job``, qui possède une propriété
+``data`` (attention les données doivent pouvoir être sérialisée en JSON).
 
 
 Liste des différents services
