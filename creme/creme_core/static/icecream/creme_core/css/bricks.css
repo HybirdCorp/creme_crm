@@ -23,9 +23,9 @@
 
     display: inline-block;
 
-    -webkit-box-shadow: 0 1px 2px rgba(0,0,0,0.10);
-       -moz-box-shadow: 0 1px 2px rgba(0,0,0,0.10);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.10);
+    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
+       -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
 
     width: 100%;
 }
@@ -53,7 +53,6 @@ table.table_detail_view + table.table_detail_view {
 }
 
 .brick .brick-header {
-/*    display: inline-block; */
     display: flex;
 
     width: 100%;
@@ -68,8 +67,6 @@ table.table_detail_view + table.table_detail_view {
     font-size: 11px;
     color: #666;
     font-weight: 600;
-
-    /* border-right: 1px solid #d9d9d9;  right border of the block */
 }
 
 .brick .brick-content {
@@ -77,9 +74,6 @@ table.table_detail_view + table.table_detail_view {
 
     overflow-y: auto;
     overflow-x: hidden;
-
-    /* border-left: 1px solid #d9d9d9;  left border of the block */
-    /* border-right: 1px solid #d9d9d9;  right border of the block */
 }
 
 .brick .brick-content.is-paginated {
@@ -99,8 +93,6 @@ table.table_detail_view + table.table_detail_view {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-
-    /* border-left: 1px solid #d9d9d9; left border of the block */
 }
 
 .brick .brick-header-menu:not(.is-disabled):hover {
@@ -162,17 +154,9 @@ table.table_detail_view + table.table_detail_view {
     margin-left: 8px;
 }
 
-/* block menu end */
+/* brick menu end */
 
-/* block header */
-
-/*
-.brick .brick-header-icon {
-    height: 10px;
-    min-width: 10px;
-    max-width: 10px;
-}
-*/
+/* brick header */
 
 /* tmp: svg tests*/
 .brick img.brick-header-icon {
@@ -300,23 +284,23 @@ table.table_detail_view + table.table_detail_view {
 /* buttons - action types test */
 /* todo: find better name/namespace for enums like this ? creme-actions-* ? is-action-link ? */
 .brick .brick-header-button.action-type-add {
-    color: #3bab07; /* hsl(101, 92%, 35%) */
+    color: #3bab07;
 }
 
 .brick .brick-header-button.action-type-add:hover {
-    color: #44c408; /* hsl(101, 92%, 40%) */
+    color: #44c408;
 }
 
 .brick .brick-header-button.action-type-link,
 .brick .brick-header-button.action-type-link:hover,
 .brick .brick-header-button.action-type-add-relationships,
 .brick .brick-header-button.action-type-add-relationships:hover {
-    color: #479ef5; /* hsl(210, 90%, 62%) */
+    color: #479ef5;
 }
 
 .brick .brick-header-button.action-type-delete,
 .brick .brick-header-button.action-type-delete:hover {
-    color: #fa4242; /* hsl(0, 95%, 62%) */
+    color: #fa4242;
 }
 
 /* buttons - action types test - end */
@@ -339,7 +323,7 @@ table.table_detail_view + table.table_detail_view {
 
 /* button icon alignment/image hijacking test - end */
 
-/* block types - table type */
+/* brick types - table type */
 
 .brick.brick-table .brick-content {
     padding: 0;
@@ -396,7 +380,6 @@ table.table_detail_view + table.table_detail_view {
 
 /* thead tr's border-bottom distributed in here to allow overrides */
 .brick-table .brick-table-content > thead + tbody > tr:first-child {
-/*    border-top: 1px solid #ededed; */
     border-top: 1px solid #dedede;
 }
 
@@ -475,7 +458,7 @@ table.table_detail_view + table.table_detail_view {
     whitespace: no-wrap
 }
 
-/* block types - table type - end */
+/* brick types - table type - end */
 
 /* action buttons in tables */
 
@@ -504,14 +487,11 @@ table.table_detail_view + table.table_detail_view {
 }
 
 .brick-table .brick-table-content .brick-table-icon {
-/*    display: inline-block; */
-/*    padding: 6px 10px 3px 10px; */
     padding-top: 6px;
 }
 
 .brick-table .brick-table-content .brick-table-action .brick-table-action-icon,
 .brick-list .brick-content .brick-action .brick-action-icon {
-/*    border: 1px solid #d7d7d7; */
     border-bottom: 1px solid #bdbdbd;
     border-radius: 4px;
 
@@ -574,9 +554,6 @@ table.table_detail_view + table.table_detail_view {
 
 .brick .brick-footer {
     padding: 5px 10px;
-
-    /* border-left: 1px solid #d9d9d9;  right border of the block */
-    /* border-right: 1px solid #d9d9d9;  right border of the block */
 }
 
 .brick .brick-pagination {
@@ -699,7 +676,7 @@ table.table_detail_view + table.table_detail_view {
 
 /* block indicator - end */
 
-/* block types - tiles type */
+/* brick types - tiles type */
 
 .brick-tiles .brick-tile {
     display: inline-block;
@@ -731,12 +708,6 @@ table.table_detail_view + table.table_detail_view {
     display: flex;
     flex-wrap: nowrap;
 }
-
-/*
-.brick-tiles .brick-tile[data-field-editable] .brick-tile-name {
-    color: #222;
-}
-*/
 
 .is-content-reduced .brick-tile.brick-tile-empty-value {
     display: none;
@@ -800,10 +771,6 @@ table.table_detail_view + table.table_detail_view {
     width: 100%;
 
     margin-top: 3px;
-/*    padding-top: 10px; */
-/*    padding-bottom: 3px; */
-
-/*    border-top: 1px solid #dedede; */
 }
 
 .brick-tiles .brick-tile-multiline-value:not(:last-child) {
@@ -824,9 +791,9 @@ table.table_detail_view + table.table_detail_view {
     vertical-align: top;
 }
 
-/* block types - tiles type - end */
+/* brick types - tiles type - end */
 
-/* block types - key/value list */
+/* brick types - key/value list */
 
 .brick-kv-list .brick-content {
     display: flex;
@@ -913,7 +880,7 @@ table.table_detail_view + table.table_detail_view {
     border-left: 0;
 }
 
-/* block types - key/value list - end */
+/* brick types - key/value list - end */
 
 /* block states - is loading */
 
@@ -929,9 +896,11 @@ table.table_detail_view + table.table_detail_view {
     font-weight: 700;
 }
 
+/*
 .brick.is-loading .brick-content {
-/*    opacity: 0.6;*/
+    opacity: 0.6;
 }
+*/
 
 .brick.is-collapsed .brick-content,
 .brick.is-collapsed .brick-footer {
@@ -944,9 +913,9 @@ table.table_detail_view + table.table_detail_view {
     top: 1px;
 }
 
-/* block states - is loading - end */
+/* brick states - is loading - end */
 
-/* block states - is loading - tests */
+/* brick states - is loading - tests */
 /* if any of those tests are interesting, find real class names of value, and encode this feature in the block component class instead of its state is-loading class */
 
 /* using the block header background as a progress bar indicator */
@@ -1022,10 +991,10 @@ table.table_detail_view + table.table_detail_view {
     transition: width 0.3s ease-in-out;
 }
 
-/* block states - is loading - tests - end */
+/* brick states - is loading - tests - end */
 
 
-/* block types - list type */
+/* brick types - list type */
 .brick-list .brick-list-empty {
     text-transform: uppercase;
     text-align: left;
@@ -1044,13 +1013,15 @@ table.table_detail_view + table.table_detail_view {
     padding: 0px 0px 5px 0px;
 }
 
-/* block types - list type - end */
+/* brick types - list type - end */
 
-/* block types - scrollable type */
+/* brick types - scrollable type */
 
+/*
 .brick-scrollable .brick-scrollable-container {
-    /*a default max-height: 200px could be added here to limit every block's height, but block by block overrides would actually be added to the container's style attribute in the html template */
+    // a default max-height: 200px could be added here to limit every block's height, but block by block overrides would actually be added to the container's style attribute in the html template
 }
+*/
 
 /* when the header is fixed, the bottom border (which is normally distributed into the first row) needs to be specified */
 .brick-table.brick-scrollable .brick-table-content > thead > tr {
@@ -1065,9 +1036,9 @@ table.table_detail_view + table.table_detail_view {
     background: #fcfcfc;
 }
 
-/* block types - scrollable type - end */
+/* brick types - scrollable type - end */
 
-/* block types - selectable type */
+/* brick types - selectable type */
 
 .brick-selectable .brick-selection-indicator {
     font-weight: 700;
@@ -1090,10 +1061,10 @@ table.table_detail_view + table.table_detail_view {
 }
 
 .brick-table.brick-selectable .brick-table-content > tbody > tr.is-selected > td {
-    border-top: 1px solid #5cadff; /* hsl(210, 100%, 68%) */
-    border-bottom: 1px solid #5cadff; /* hsl(210, 100%, 68%) */
+    border-top: 1px solid #5cadff;
+    border-bottom: 1px solid #5cadff;
 
-    background: rgba(71, 158, 245, 0.07); /* hsla(210, 90%, 62%, 0.07) */
+    background: rgba(71, 158, 245, 0.07);
 }
 
 .brick-table.brick-selectable .brick-table-content > tbody > tr:nth-child(2n):last-child {
@@ -1104,9 +1075,9 @@ table.table_detail_view + table.table_detail_view {
     border-bottom: 1px solid transparent;
 }
 
-/* block types - selectable type - end */
+/* brick types - selectable type - end */
 
-/* block types - reorderable type */
+/* brick types - reorderable type */
 
 .icon.brick-reorderable-handle-icon {
     width: 15px;
@@ -1172,10 +1143,10 @@ table.table_detail_view + table.table_detail_view {
 
 */
 
-/* block types - reorderable type - end */
+/* brick types - reorderable type - end */
 
-/* block types - list of cards */
-/* block types - list of cards - end */
+/* brick types - list of cards */
+/* brick types - list of cards - end */
 
 
 /* hack: uppercase punctuation characters alignment ... */
@@ -1210,7 +1181,6 @@ table.table_detail_view + table.table_detail_view {
     background: rgb(254, 254, 252);
     font-style: italic;
 }
-
 
 /* clearfix */
 
@@ -1264,7 +1234,6 @@ svg.icon {
 .brick .help-box {
     background-color: #fff7a1;
     padding: 5px;
-/*    border: 1px solid #ccc; */
 }
 
 /* Trash brick */
@@ -1325,7 +1294,6 @@ svg.icon {
 
 .creme_core-specific-relations-brick .relation-group-value {
     flex: 1;
-    /*margin-left: 10px;*/
 }
 
 .creme_core-specific-relations-brick .relation-group.brick-table {

@@ -39,7 +39,6 @@ html, body {
 
 html {
     color: black;
-/*    background-color: #fcfcfc; 99% */
 
     /* bg gradient where possible */
     background:                     #fcfcfc;
@@ -50,18 +49,13 @@ html {
 
 html.central_panel {
     min-height: 100%;
-/*    background-color: #e6f2f7; */
     background-color: transparent;
-
 }
 
 body {
     color: black;
     background: none;
 
-    /* margin-left: auto ; margin-right: auto ;*/
-/*    font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif; */
-    /*font-size: 14px;*/
     font-size: 0.8em;
 }
 
@@ -72,11 +66,9 @@ html.is_deleted {
 body.central_panel {
     padding: 0;
 
-/*    background-color: #e6f2f7; */
     background-color: transparent;
     color: black;
 
-/*    font-family: "Lucida Grande","DejaVu Sans","Bitstream Vera Sans",Verdana,Arial,sans-serif; */
     font-size: 0.9em;
 }
 
@@ -87,7 +79,7 @@ body.is_deleted {
     background: -moz-linear-gradient(top, #eee 0%, #fcfcfc 15%);
 }
 
-/* B0se [END] */
+/* Base [END] */
 
 /* Default styling overrides */
 
@@ -215,7 +207,6 @@ button {
 
 /* page header - search and "quick create" */
 .research_box {
-/*    padding: 7px;*/
     margin-top: 7px;
     display: inline-block;
 }
@@ -229,15 +220,8 @@ button {
     padding: 7px;
 
     color: #2c596c;
-/*    background: #f5f5f5;*/
     background: #fafafa;
     border: 1px solid #d7e2e7;
-
-/*
-    -webkit-border-radius: 4px;
-       -moz-border-radius: 4px;
-            border-radius: 4px;
-*/
 }
 
 /* Page header - search and "quick create" - end */
@@ -250,21 +234,16 @@ button {
     margin: 4px 0 4px 5px;
 
     color: #2c596c;
-/*    background: #f5f5f5;*/
     background: #fafafa;
     border: 1px solid #d7e2e7;
-
-    /*-moz-border-radius: 4px;
-    -webkit-border-radius: 4px;*/
 }
 
 /* page header - "last pages viewed" and "quick access pages" - end */
 
 /* page header - type, title, actions bar */
-/* TODO: remove 'table_header' is 1.8 */
+/* TODO: remove 'table_header' in 1.8 */
 .table_header {
     width: 100%;
-    /* margin-top: 15px; */
     margin-bottom: 5px;
     padding-top: 10px;
     border-top: 1px solid #ccc;
@@ -328,21 +307,6 @@ ul.button_list.vbox li {
     padding-right: 5px;
 }
 
-/*
-.menu_button {
-    white-space: nowrap;
-    cursor: pointer;
-
-    color: #22439f;
-    background-color: #fafafa;
-
-    margin-left: 0.1em;
-    padding: 5px;
-
-    border: 1px solid #ccc;
-}
-*/
-
 .menu_button,
 .card-button {
     padding: 7px 20px;
@@ -404,13 +368,6 @@ ul.button_list.vbox li {
     text-decoration: none;
 }
 
-/*
-.menu_button img {
-    height: 22px;
-    position: relative;
-    top: 6px;
-}
-*/
 .menu_button img,
 .card-button img {
     position: relative;
@@ -533,75 +490,26 @@ ul.button_list.vbox li {
 
 /* Error pages - end */
 
-/*
-#div {
-    background: white;
-}
-*/
-
 .forbidden, .faded {
     opacity: 0.5;
 }
-
-/*
-.zone_spacer {
-    clear: both;
-    padding: 0px ;
-}
-*/
 
 .zone_spacer_5px { /* TODO: remove in 1.8 */
     clear: both;
     padding : 5px;
 }
 
-/*
-.Menu_Gauche {
-    font-family:  Verdana, Tahoma, Arial, Helvetica, sans-serif;
-    font-size: 16px;
-}
-*/
-
-/*
-#main-body {
-  padding-bottom : 5px;
-  margin-bottom : 5px;
-}
-*/
-
 .spacer {  /* TODO: move to forms.css */
   clear: both;
 }
-
-/*
-.zone_content {
-    padding-left : 5px;
-    padding-right : 5px;
-    margin-left : 310px;
-
-    border-left: 1px solid black;
-    border-right: 1px solid black;
-}
-*/
-
-/*
-.zone_content2 {
-    clear: both;
-    padding-left : 5px;
-    padding-right : 5px;
-    border-left: 1px solid black;
-    border-right: 1px solid black;
-}
-*/
 
 .wait {
     list-style-image : url(icecream/images/wait.gif);
 }
 
 .main_content {
-/*    height: 80%; */
     height: auto;
-    /* padding-top: 0; guit: uncomment/fix when old menu is removed */
+    /* padding-top: 0; TODO: guit -> uncomment/fix when old menu is removed */
 
     /* 269px = 269px footer
        39px = page decoration
@@ -732,12 +640,6 @@ ul.button_list.vbox li {
     border: 0;
 }
 
-/*
-#tree_menu {
-    height: 100%;
-}
-*/
-
 .help_box {
     background-color: #fff7a1;
     padding: 5px;
@@ -748,12 +650,6 @@ ul.button_list.vbox li {
 .help_box.with-table table {
     width: 100%;
 }
-
-/*
-.selectable {
-
-}
-*/
 
 .selectable:hover {
     background-color: #fff7d0 !important;
@@ -771,14 +667,9 @@ ul.button_list.vbox li {
     cursor: pointer;
 }
 
-
 /* Buttons */
 /* TODO remove lots of this (all?) in 1.8 */
-/*
-.buttons {
 
-}
-*/
 
 .buttons a, .buttons button, .buttons span {
     display: block;
@@ -932,23 +823,7 @@ ul.button_list.vbox li {
 
 /* Buttons - end */
 
-/*
-.zoom_box {
-    -webkit-transition: width 2s ease, height 2s ease;
-       -moz-transition: width 2s ease, height 2s ease;
-         -o-transition: width 2s ease, height 2s ease;
-        -ms-transition: width 2s ease, height 2s ease;
-            transition: width 2s ease, height 2s ease;
-}
-
-.zoom_box:active {
-    width: 200%;
-    height: 200%;
-    z-index: 2000;
-}
-*/
-
-/* TODO: remove in 1.8 (old menu) */
+/* TODO: remove when old menu is removed */
 .top_fixed {
     display: block;
     top: 0 !important;
@@ -987,13 +862,6 @@ ul.button_list.vbox li {
 }
 
 /* Dialogs - end */
-
-/*
-a .empty-field {
-    font-style: italic;
-    font-weight: 500;
-}
-*/
 
 span.enumerator-item {
     font-weight: 800;

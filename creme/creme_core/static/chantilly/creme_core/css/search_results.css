@@ -1,20 +1,3 @@
-/*
-.search_results{}
-.search_results .table_header .logo {}
-.search_results .table_header .title {}
-.search_results .table_header .actions {}
-
-.search_results .help_box {
-    margin-bottom: 1em;
-}
-
-.search_results .result {
-    margin-bottom: 1em;
-    width: 100%;
-    overflow-x: auto;
-}
-*/
-
 .search-form {
     margin-bottom: 10px;
 }

@@ -128,16 +128,16 @@ td.strategy_score_3 {
 }
 
 .strategy-cat[data-score="3"] {
-    background: #ff2514; /*#66a1dd*/;
+    background: #ff2514;
     color: white;
 }
 
 .strategy-cat[data-score="2"] {
-    background: #ff9900; /*#cdddab;*/
+    background: #ff9900;
 }
 
 .strategy-cat[data-score="1"] {
-    background: #ffff00; /*#e2f1f6;*/
+    background: #ffff00;
 }
 
 .charm-matrix .charm-score-total .charm-title,

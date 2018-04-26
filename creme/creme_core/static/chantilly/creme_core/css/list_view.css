@@ -3,13 +3,6 @@
     padding: 0px 4px 0px 0px;
     margin: 12px 5px 15px 0px;
 
-/*
-    border: 1px solid #548295;
-    -webkit-border-radius: 4px;
-       -moz-border-radius: 4px;
-            border-radius: 4px;
-*/
-
     border-top:    none;
     border-left:   1px solid #e1e9ec;
     border-bottom: none;
@@ -35,11 +28,8 @@
 }
 
 .list-title {
-/*    text-transform: uppercase; */
     font-size: 23px;
     font-weight: 600;
-
-/*    flex: 1; */
 }
 
 .list-title .list-title-stats {
@@ -50,7 +40,6 @@
 
 .list-control-group {
     display: inline-block;
-/*    min-width: 200px; */
 }
 
 .list-control-group + .list-control-group {
@@ -61,7 +50,6 @@
     display: inline-block;
     border: 0;
     padding: 0;
-/*    font-size: 0px; */
 }
 
 .list-control-group .legend {
@@ -73,8 +61,6 @@
 }
 
 .list-control-group .legend img {
-/*    width: 16px; */
-/*    height: 16px; */
     position: relative;
     top: 6px;
     left: -4px;
@@ -82,7 +68,6 @@
 }
 
 .list-control-group select {
-/*    margin-left: 10px; */
     max-width: 300px;
 }
 
@@ -90,7 +75,6 @@
     position: relative;
     top: 5px;
     margin-left: 10px;
-/*    cursor: pointer; */
 }
 
 .ui-creme-listview-standalone .button-right {
@@ -176,13 +160,13 @@
     padding: 0px;
 }
 
-/* TODO: remove ".title" stuffes in 1.8 */
+/* TODO: remove ".title" stuffs in 1.8 */
 .list_view thead .title th h2 {
     padding-top: 0.6em;
     padding-bottom: 0.6em;
 }
 
-/* TODO: remove ".sub_title" stuffes in 1.8 */
+/* TODO: remove ".sub_title" stuffs in 1.8 */
 .list_view thead .sub_title th h4, .list_view thead .title th h2 {
     height: 1px;
     margin-top: 0px;
@@ -193,7 +177,7 @@
     border: 0;
 }
 
-/* TODO: remove ".filters" stuffes in 1.8 */
+/* TODO: remove ".filters" stuffs in 1.8 */
 .list_view thead .lines_modifiers .filters, .list_view thead .lines_modifiers .views {
     vertical-align: baseline;
     width: 50%;
@@ -204,7 +188,6 @@
 }
 
 .list_view thead .lines_modifiers .views {
-    /*text-align: right;*/
     text-align: left;
 }
 
@@ -219,15 +202,6 @@
 }
 
 /** Hide the temporary legend used by the IceCream theme */
-/*.list_view fieldset .legend {
-    display: none;
-}*/
-
-/*.list_view fieldset legend {
-    padding: 0 10px;
-    border-left: #548295 1px solid;
-    border-right: #548295 1px solid;
-}*/
 
 .list_view fieldset .legend {
   display: inline-block;
@@ -257,9 +231,10 @@
 }
 
 .list_view tr#list_thead_toolbar button.listview-header-button-with-icon img {
-    -webkit-align-self: center;
-        -ms-flex-item-align: center;
-            align-self: center;
+    -ms-flex-item-align: center;
+     -webkit-align-self: center;
+             align-self: center;
+
     z-index: 1;
     top: -5px;
     left: -5px;
@@ -282,6 +257,7 @@
     outline: none;
 
     border: 1px solid #d5e0e5;
+
     -webkit-border-radius: 4px;
        -moz-border-radius: 4px;
             border-radius: 4px;
@@ -344,19 +320,13 @@
 
 .list_view .columns_top th {
     background: #e9f6fb;
-/*
-    border-top:   1px solid #548295;
-    border-left:  1px solid #548295;
-    border-right: 1px solid #548295;
-*/
+
     border-top:   1px solid #cce0e8;
     border-right: 1px solid #e1e9ec;
 }
 
 .list_view > thead tr.columns_top,
 .list_view > thead tr.columns_bottom,
-/*.list_view .columns_top th.sorted,*/
-/*.list_view .columns_bottom th.sorted,*/
 .list_view > tbody tr:not(.odd) {
     background: #fcfeff;
 }
@@ -373,11 +343,6 @@
 .list_view .columns_bottom th {
     padding-bottom: 2px;
 
-/*
-    border-bottom: 1px solid #548295;
-    border-left:   1px solid #548295;
-    border-right:  1px solid #548295;
-*/
     border-bottom: 1px solid #cce0e8;
     border-top:    1px solid #cce0e8;
 
@@ -513,7 +478,6 @@
     border-right: 4px solid transparent;
     bottom: 3px;
 
-/*    left: 100%; */
     margin-bottom: 2px;
     margin-left: 4px;
     border-top: 0;
@@ -663,14 +627,6 @@
     position: relative;
 }
 
-/*
-.listview .default-row-action a {
-    display: inline-block;
-    height: 21px;
-    padding-right: 15px;
-}
-*/
-
 .listview .default-row-action .listview-action-icon {
     top: 3px;
     margin-left: 5px;
@@ -710,15 +666,8 @@
 
 /*.list_view tbody tr:nth-of-type(odd) { CSS3*/
 .list_view tbody tr.odd {
-/*    background-color: #E6F2F7; */
     background-color: #f8fdff;
 }
-
-/*
-.list_view tbody tr {
-    border-bottom: 1px solid #333;
-}
-*/
 
 .list_view tbody td {
     padding-left: 5px;
@@ -727,13 +676,9 @@
 
     white-space: nowrap;
     text-align: center;
-/*    color: #376e86; */
 
-/*    border-bottom: 1px solid #548295; */
     border-bottom: 1px solid #e1e9ec;
-/*    border-left:   1px solid #548295; */
-/*    border-right:  1px solid #548295; */
-    border-right: 1px solid #e1e9ec;
+    border-right:  1px solid #e1e9ec;
 }
 
 .list_view tbody td ul {
@@ -755,7 +700,6 @@
 .list_view button[disabled="true"],
 .list_view button[disabled="true"]:hover,
 .list_view button[disabled="true"]:active {
-/*    background-color: #CCCCCC; */
     color: #919191;
     cursor: auto;
 }
@@ -770,8 +714,6 @@
 .list_view select {
     border: #548295 1px solid;
     border-radius: 4px;
-/*    color: #254B5B; */
-/*    background-color: #DDEEFF; */
     background-color: white;
 }
 
@@ -810,10 +752,6 @@
 
 
 .list_view .cl_lv ul {
-/*
-    padding-top:    0px;
-    padding-bottom: 0px;
-*/
     padding: 0 0 0 15px;
 }
 
@@ -832,12 +770,6 @@
     height: 18px;
 }
 
-/*
-.list_view tbody .lv-cell-content {
-    border-right: 0px;
-}
-*/
-
 .listview.listview-standalone tbody .lv-cell-content {
     border-right: 0px;
 }
@@ -849,8 +781,6 @@
     min-width: 22px;
     width: 22px;
     padding: 0px;
-/*    border-left: 0px; */
-/*    border-right: 1px solid #548295; */
 }
 
 .list_view tbody .lv-cell-action a {
@@ -987,7 +917,6 @@
 .floated-header-anchor {
     display: none;
 
-/*    position: fixed; */
     height: 10px;
 
     pointer-events: none;
@@ -1056,7 +985,6 @@
     align-items: center;
 
     border-top: 1px solid hsl(197, 25%, 80%);
-/*    padding-top: 7px; */
     padding-bottom: 2px;
 
     /* -- */

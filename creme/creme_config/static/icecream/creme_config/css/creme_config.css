@@ -6,7 +6,6 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
 }
 
 .theme_picker, .tz_picker {
-    /* padding: 2px; */
     display: inline-block;
     margin-bottom: 15px;
     margin-top: 5px;
@@ -18,22 +17,11 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
 
 .theme_picker label, .tz_picker label {
     font-weight: bolder;
-/*
-    color: white;
-    font-size: 1em;
-    background-color: #94C6DB;
-    padding: 3px;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-    -o-border-radius: 4px;
-    border-radius: 4px;
-*/
 }
 
 /* Search/Blocks config */
 .search-conf-ctype, .blocks-conf-ctype {
     vertical-align: top;
-/*     font-weight: bolder; */
 }
 
 .search-conf-info ul, .blocks-conf-info ul {
@@ -110,12 +98,6 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
     font-weight: 400;
 }
 
-/*
-.creme_config-search-brick .brick-content {
-    padding: 0;
-}
-*/
-
 .creme_config-search-brick .brick-content .brick-list-item:last-child {
     padding-bottom: 5px;
 }
@@ -169,7 +151,6 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
     padding-bottom: 5px;
 
     background: #fcfcfc;
-    /*border-bottom: 1px solid #dedede;*/
 }
 
 .creme_config-search-brick .search-config-action {
@@ -243,7 +224,6 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
     padding-bottom: 5px;
 
     background: #fcfcfc;
-    /*border-bottom: 1px solid #dedede;*/
 }
 
 .creme_config-buttonmenu-brick .buttonmenu-config-action {
@@ -300,10 +280,6 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
     font-weight: 400;
 }
 
-/*.creme_config-brickloc-detail-brick .brick-content {
-    padding: 0;
-} */
-
 .creme_config-brickloc-detail-brick .brick-content .brick-list-item:last-child {
     padding-bottom: 5px;
 }
@@ -357,7 +333,6 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
     padding-bottom: 5px;
 
     background: #fcfcfc;
-    /*border-bottom: 1px solid #dedede;*/
 }
 
 .creme_config-brickloc-detail-brick .brickloc-config-action {
@@ -396,10 +371,6 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
     width: 30%;
     white-space: nowrap;
 }
-
-/* .creme_config-rtypebricks-brick .brick-content {
-    padding: 0;
-} */
 
 .creme_config-rtypebricks-brick .brick-content .brick-list-item:last-child {
     padding-bottom: 0px;
@@ -454,7 +425,6 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
     padding-bottom: 5px;
 
     background: #fcfcfc;
-    /*border-bottom: 1px solid #dedede;*/
 }
 
 .creme_config-rtypebricks-brick .rtypebrick-config-action {
@@ -572,7 +542,6 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
     padding-bottom: 5px;
 
     background: #fcfcfc;
-    /*border-bottom: 1px solid #dedede;*/
 }
 
 .creme_config-customfields-brick .cfields-config-action {

@@ -252,9 +252,11 @@ button[type="button"].ui-creme-actionbutton {
     cursor: pointer;
     margin: 0px;
     min-height: 20px;
+
     -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 4px;
+       -moz-border-radius: 4px;
+            border-radius: 4px;
+
     background-repeat: no-repeat;
     background-position: 2px 50%;
     border: 1px solid #6E9EB2;
@@ -264,14 +266,11 @@ button[type="button"].ui-creme-actionbutton {
 
 button[type="button"].ui-creme-actionbutton:hover {
     -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 4px;
+       -moz-border-radius: 4px;
+            border-radius: 4px;
+
     text-decoration: none;
     color:#22439f;
-    /*
-    border: 1px solid #6E9EB2;
-    background-color: #D9E5EA;
-    */
     background-color: #f4fafd;
 }
 
@@ -370,8 +369,8 @@ span.ui-creme-datepicker-trigger {
 
     -webkit-transition: none;
        -moz-transition: none;
-         -o-transition: none;
         -ms-transition: none;
+         -o-transition: none;
             transition: none;
 }
 
@@ -542,8 +541,8 @@ span.ui-creme-datepicker-trigger {
 
     -webkit-transition: none;
        -moz-transition: none;
-         -o-transition: none;
         -ms-transition: none;
+         -o-transition: none;
             transition: none;
 }
 
@@ -568,6 +567,7 @@ span.ui-creme-datepicker-trigger {
     -webkit-appearance: none;
        -moz-appearance: none;
             appearance: none;
+
     width: 0;
     height: 0;
     border: 0 !important;
@@ -603,13 +603,15 @@ span.ui-creme-datepicker-trigger {
 }
 
 
-.checklist-content.ie-layout-fallback .checkbox-field, .checklist-content.ie-layout-fallback .checkbox-group-header {
+.checklist-content.ie-layout-fallback .checkbox-field,
+.checklist-content.ie-layout-fallback .checkbox-group-header {
     display: inline-block;
     width: 180px;
     max-width: 180px;
 }
 
-.checklist-content.ie-layout-fallback.wide .checkbox-field, .checklist-content.ie-layout-fallback.wide .checkbox-group-header {
+.checklist-content.ie-layout-fallback.wide .checkbox-field,
+.checklist-content.ie-layout-fallback.wide .checkbox-group-header {
     width: 360px;
     max-width: 360px;
 }

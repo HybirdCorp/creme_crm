@@ -50,10 +50,6 @@ select.line-vat {
     text-align: right;
 }
 
-/* line-background-color {
-    background-color: #ffffff;
-}*/
-
 .linetable-container, .linetable {  /* <= TODO: remove with blocks */
     width: 100%;
 

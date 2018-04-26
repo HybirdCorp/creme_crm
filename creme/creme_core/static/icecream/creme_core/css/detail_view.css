@@ -54,51 +54,16 @@
 }
 
 /* Buttons lists (global, entity, business) */
-/* .detailview .model_buttons, .detailview .file_buttons { */
 .detailview .global-buttons {
     padding-top: 5px;
     padding-bottom: 5px;
 }
+
 .detailview .instance-buttons,
 .portal .instance-buttons /* HACK: remove when portals are gone */ {
     padding-top: 5px;
     padding-bottom: 20px;
 }
-
-/*
-.detailview .model_buttons {
-    margin-left: -1px; Counter the box-sizing about border and padding
-}
-*/
-
-
-/*
-.file_buttons ul.button_list.hbox, .model_buttons ul.button_list.hbox, #sub_content>.zone_spacer_5px>ul.button_list.hbox {
-    line-height: normal;
-}
-
-*/
-
-/*
-.detailview .file_buttons {
-    margin-left: -2px; Counter the box-sizing about border and padding, and existing 2px left-spacing added to separate the buttons
-}*/
-
-
-/*.detailview .column.last:before,*/
-/*.detailview .column.last:after {*/
-    /*content:"";*/
-    /*display:table;*/
-/*}*/
-
-/*.detailview .column.last:after {*/
-    /*content:"after";*/
-    /*clear:both;*/
-/*}*/
-
-/*.detailview .column.last {*/
-    /*zoom:1; *//* For IE 6/7 (trigger hasLayout) */
-/*}*/
 
 .detailview .entity-buttons {
     font-size: 0;

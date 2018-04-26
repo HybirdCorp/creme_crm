@@ -2,15 +2,13 @@
 .table_detail_view {
     width: 100%;
 
-/*    padding: 2px; */ /* no padding removes the white border inside blocks */
-    padding: 0;
+    padding: 0;  /* no padding removes the white border inside blocks */
 
     border-spacing: 0px;
 
     /*margin-left: 5px; problem with address blocks in contact form */
     margin-bottom: 10px;
 
-/*    border: 1px solid #548295;*/
     border: 1px solid #ccc;
     border-radius: 0; /* disable rounded corners forced by .ui-corner-all hardcoded in the html templates */
 
@@ -21,46 +19,13 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.15);
 }
 
-/* Rounded corners inside blocks, on everything */
-/*
-.table_detail_view th,
-.table_detail_view td,
-.table_detail_view tr,
-.table_detail_view thead {
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-}
-*/
-
-/* field headers, column titles */
 .table_detail_view > tbody > tr > th {
-/*    color: #376e86;*/
     color: #4b6671; /* desaturate */
-    /*white-space:nowrap;*/
     padding: 2px 6px;
 }
 
-/*.table_detail_view tbody th{
-    font-weight:bold;
-    background-color:#dde8ed;
-}
-*/
-
-/*.table_detail_view tbody td{
-    border-width: 1px 1px 0 0;
-    border-style: solid;
-    border-color: #548295;
-}*/
-
-/* pink background on hover */
-/*
-.table_detail_view tbody td:hover {
-    background-color: #f7d6d2; 
-}
-*/
-
-/* white background in inner tables td:hover */
-/* -> switch to a hover specific for header_dark and header_light */
+/* white background in inner tables td:hover
+   -> switch to a hover specific for header_dark and header_light */
 .table_detail_view tbody td table tbody td:hover {
     background-color: #ffffff;
 }
@@ -70,8 +35,6 @@
     font-size: 1em;
     font-weight: bolder;
     color: #376e86;
-/*    background-color: #dcedf4;*/
-/*    background: #f0f0f0;  94% */
     background: #f5f5f5; /* 96% */
 }
 
@@ -80,7 +43,6 @@
 }
 
 .table_detail_view thead .actions {
-    /*width: 20%;*/
     text-align: right;
 }
 
@@ -96,27 +58,28 @@
 }
 
 .table_detail_view .block_header .label {
-    /*width: 80%;*/
-    /*width: 100%;*/
     text-align: left;
 }
 
 .table_detail_view .block_header .actions {
-    /*width: 20%;*/
     text-align: right;
 }
 
+/*
 .table_detail_view .header {}
 .table_detail_view .header.toolbar {}
 .table_detail_view .header .action {}
 .table_detail_view .content {}
 .table_detail_view .content.empty {}
+*/
 .table_detail_view .content .action {
     text-align: center;
 }
+/*
 .table_detail_view tfoot .next {}
 .table_detail_view tfoot .previous {}
 .table_detail_view tfoot .page_selector {}
+*/
 
 .table_detail_view .header .selectable,
 .table_detail_view .content .selectable {
@@ -131,37 +94,6 @@
 .table_detail_view .collapsable tr:nth-child(1) td {
     padding-top: 2px;
 }
-
-/*
-.table_detail_view tbody.collapsable tr th {
-    max-width: 30%;
-    width: 30%;
-}
-
-.table_detail_view tbody.collapsable tr td {
-    max-width: 70%;
-    width: 70%;
-}
-*/
-
-/*.table_detail_view > tbody > tr > th {
-    color:#376e86;
-    padding-left:5px;
-    padding-right:5px;
-    white-space:nowrap;
-    padding:2px 0px;
-}*/
-
-/*.table_detail_view tbody td:hover {
-    background-color: #f7d6d2;
-}*/
-
-/*.table_detail_view thead {
-    font-size: 1em;
-    font-weight: bolder;
-    color: #376e86;
-    background-color: #def2fa;
-}*/
 
 .table_detail_view tr.header th:not(.action) {
     text-align: left;
@@ -191,24 +123,20 @@
 /* zebra striping on blocks with multiple lines */
 
 .block_header_line_light {
-/*    background-color: #f0f0f0;  desaturate */
     background-color: #f7f7f7; /* lighten */
 }
 
 .block_line_light {
     padding: 2px 4px;
-/*    background-color: #f7f7f7;  desaturate */
     background-color: #ffffff; /* lighten */
 }
 
 .block_header_line_dark  {
-/*    background-color: #e3e3e3;  desaturate */
     background-color: #f0f0f0; /* lighten */
 }
 
 .block_line_dark {
     padding: 2px 4px;
-/*    background-color: #e8e8e8;  desaturate */
     background-color: #f5f5f5; /* lighten */
 }
 
@@ -244,7 +172,6 @@ th_info {
 .td_info {
     max-width: 70%;
     width: 70%;
-/*    text-align: right;*/
     text-align: left;
 }
 
