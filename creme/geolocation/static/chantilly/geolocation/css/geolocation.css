@@ -55,8 +55,10 @@
             flex-direction: column;
 }
 
+/*
 .block-geoaddress-item .block-geoaddress-title {
 }
+*/
 
 .block-geoaddress-item .block-geoaddress-content {
     opacity: 0.6;

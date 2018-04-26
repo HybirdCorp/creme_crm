@@ -32,11 +32,10 @@ td.width_inner_edit_address {
     font-size: 14px;
 }
 
-.persons-organisation-card-brick .card-employees /*, brick-card-persons-organisation .card-targets */ {
+.persons-organisation-card-brick .card-employees {
     margin-top: 3px;
 }
 
-/* brick-card-persons-organisation .card-job a, */
 .persons-organisation-card-brick .card-employees a {
     text-decoration: underline;
 }
@@ -82,26 +81,17 @@ td.width_inner_edit_address {
 
 .persons-addresses-brick .address-container {
     flex: 1;
-/*    padding-left: 5px;*/
     margin-right: 5px;
 }
 
 .persons-addresses-brick .address-title {
     display: inline-block;
     text-transform: uppercase;
-/*
-    font-size: 11px;
-    font-weight: 600;
-*/
     vertical-align: top;
 
     position: relative;
     top: -1px;
 
-/*
-    color: #777;
-    color: #444;
-*/
     color: hsla(199, 9%, 50%, 1); /* see .brick-tiles .brick-tile-name */
 }
 
@@ -120,11 +110,6 @@ td.width_inner_edit_address {
 
 .persons-addresses-brick .address-option-key {
     text-transform: uppercase;
-    /* font-size: 11px; */
-    /* font-weight: 600; */
-    /* color: #444; */
-/*    color: #5e6b71; */
-/*    color: hsla(199, 9%, 50%, 1); */
     color: hsla(197, 15%, 50%, 1); /* see .brick-tiles .brick-tile-name */
 }
 
@@ -142,10 +127,7 @@ td.width_inner_edit_address {
     background: #fafafa;
     outline: 1px solid #ccc;
 
-/*    text-transform: uppercase; */
     text-transform: none;
-/*    font-size: 11px; */
-/*    font-weight: 600; */
     color: #444;
     text-decoration: none;
     white-space: nowrap;
@@ -168,11 +150,8 @@ td.width_inner_edit_address {
 .persons-addresses-brick .is-empty {
     padding: 5px 10px;
 
-/*    text-transform: uppercase; */
     text-align: left;
     font-weight: 600;
-/*    font-size: 11px; */
-/*    color: #777; */
     color: #5e6b71;
 
     cursor: default;

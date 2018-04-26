@@ -481,10 +481,17 @@ span.create-group-entry {
 
 .search-results-group-title:hover a {text-decoration: underline;}
 
-.search-result:hover, .search-result-selected {background: #f7b5ad;}
+.search-result:hover,
+.search-result-selected {
+    background: #f7b5ad;
+}
 
-.search-result:hover a, .search-result:hover .search-result-reason,
-.search-result-selected a, .search-result-selected .search-result-reason {color: white;} /* TODO: find the selection color */
+.search-result:hover a,
+.search-result:hover .search-result-reason,
+.search-result-selected a,
+.search-result-selected .search-result-reason {
+    color: white;
+} /* TODO: find the selection color */
 
 img.search-icon-default {
     position: relative;

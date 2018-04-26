@@ -61,13 +61,8 @@ table.table_detail_view + table.table_detail_view {
     padding: 0;
     margin: 0;
 
-/*    background: #f5f5f5; */
     background: #e9f6fb;
-
-/*    text-transform: uppercase; */
-/*    font-size: 13px; */
     font-size: 14px;
-/*    color: #0c181d; */
     color: hsla(198, 41%, 35%, 1);
     font-weight: 600;
 }
@@ -127,9 +122,7 @@ table.table_detail_view + table.table_detail_view {
 
     padding: 3px 0px;
 
-/*    color: #666; */
     color: hsla(197, 42%, 20%, 1);
-/*    text-transform: uppercase; */
     font-size: 11px;
     font-weight: 600;
     cursor: pointer;
@@ -164,23 +157,6 @@ table.table_detail_view + table.table_detail_view {
 /* brick menu end */
 
 /* brick header */
-
-/*
-.brick .brick-header-icon {
-    height: 10px;
-    min-width: 10px;
-    max-width: 10px;
-}
-*/
-
-/* tmp: svg tests*/
-/*
-.brick img.brick-header-icon {
-    height: 16px;
-    min-width: 16px;
-    max-width: 16px;
-}
-*/
 
 .brick .brick-title-container .brick-header-icon {
     margin-right: 5px;
@@ -224,7 +200,6 @@ table.table_detail_view + table.table_detail_view {
 
     cursor: pointer;
 
-/*    color: #666; */
     color: hsla(197, 42%, 20%, 1);
     white-space: nowrap;
 
@@ -258,14 +233,6 @@ table.table_detail_view + table.table_detail_view {
     background:      -o-linear-gradient(transparent, #aaa);
     background:         linear-gradient(transparent, #aaa);
 }
-
-/*
-.brick .brick-header-buttons img.brick-header-icon {
-    height: 10px;
-    min-width: 10px;
-    max-width: 10px;
-}
-*/
 
 .brick .brick-header-button-title {
     display: inline-block;
@@ -318,12 +285,12 @@ table.table_detail_view + table.table_detail_view {
 .brick .brick-header-button.action-type-link:hover,
 .brick .brick-header-button.action-type-add-relationships,
 .brick .brick-header-button.action-type-add-relationships:hover {
-    color: #479ef5; /* hsl(210, 90%, 62%) */
+    color: #479ef5;
 }
 
 .brick .brick-header-button.action-type-delete,
 .brick .brick-header-button.action-type-delete:hover {
-    color: #fa4242; /* hsl(0, 95%, 62%) */
+    color: #fa4242;
 }
 
 /* buttons - action types test - end */
@@ -350,7 +317,7 @@ table.table_detail_view + table.table_detail_view {
 
 /* button icon alignment/image hijacking test - end */
 
-/* block types - table type */
+/* brick types - table type */
 
 .brick.brick-table .brick-content {
     padding: 0;
@@ -378,20 +345,16 @@ table.table_detail_view + table.table_detail_view {
 }
 
 .brick-table .brick-content:not(.is-empty) .brick-table-content > thead > tr {
-/*    color: #666; */
     color: hsla(197, 42%, 20%, 1);
     background: #f5fcff;
 }
 
 .brick-table .brick-table-content > thead > tr > th {
-/*    text-transform: uppercase; */
     text-align: left;
     font-weight: 600;
-/*    font-size: 11px; */
-    cursor: default;
-/*    color: #777; */
-/*    color: #5e6b71; */
     color: hsla(220, 26%, 50%, 1);
+
+    cursor: default;
 }
 
 .brick-table .brick-table-content > tbody > tr {
@@ -428,13 +391,11 @@ table.table_detail_view + table.table_detail_view {
     margin-right: 10px;
     position: relative;
     cursor: pointer;
-/*    color: #222; */
     color: hsla(198, 42%, 15%, 1);
 }
 
 .brick-table .brick-table-content > thead .brick-table-sortable.brick-table-sorted {
     font-weight: 700;
-/*    color: #666; */
     color: hsla(197, 42%, 20%, 1);
 }
 
@@ -482,7 +443,7 @@ table.table_detail_view + table.table_detail_view {
     whitespace: no-wrap
 }
 
-/* block types - table type - end */
+/* brick types - table type - end */
 
 /* action buttons in tables */
 
@@ -516,23 +477,8 @@ table.table_detail_view + table.table_detail_view {
 }
 
 .brick-table .brick-table-content .brick-table-icon {
-/*    display: inline-block; */
-/*    padding: 6px 10px 3px 10px; */
     padding-top: 6px;
 }
-
-/*
-.brick-table .brick-table-content .brick-table-action .brick-table-action-icon,
-.brick-list .brick-content .brick-action .brick-action-icon {
-    border-bottom: 1px solid #bdbdbd;
-    border-radius: 4px;
-
-    -webkit-box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
-            box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
-
-    background: linear-gradient(#fcfcfc, #f0f0f0);
-}
-*/
 
 /* action buttons in tables - end */
 
@@ -545,7 +491,6 @@ table.table_detail_view + table.table_detail_view {
 }
 
 .brick-table .brick-table-content tr > [data-type='money'] .data-type-currency-symbol {
-/*    color: #666; */
     color: hsla(197, 42%, 20%, 1);
 }
 
@@ -576,7 +521,6 @@ table.table_detail_view + table.table_detail_view {
 .brick-table .brick-table-content > thead [data-table-primary-column],
 .brick-table .brick-table-content > thead [data-table-primary-column] .brick-table-sortable {
     font-weight: 700;
-/*    color: #666; */
     color: hsla(197, 42%, 20%, 1);
 }
 
@@ -590,7 +534,7 @@ table.table_detail_view + table.table_detail_view {
 
 /* examples of render hijacking for data types - end */
 
-/* block content types - pagination */
+/* brick content types - pagination */
 
 .brick .brick-footer {
     padding: 5px 10px;
@@ -620,7 +564,6 @@ table.table_detail_view + table.table_detail_view {
     text-decoration: none;
     font-size: 12px;
     font-weight: 600;
-/*    color: #666; */
     color: hsla(197, 42%, 20%, 1);
 
     cursor: pointer;
@@ -693,9 +636,9 @@ table.table_detail_view + table.table_detail_view {
     color: #FF851B;
 }
 
-/* block content types - pagination - end */
+/* brick content types - pagination - end */
 
-/* block indicator */
+/* brick indicator */
 
 .brick .brick-indicator {
     display: inline-block;
@@ -715,9 +658,9 @@ table.table_detail_view + table.table_detail_view {
     background: #414141;
 }
 
-/* block indicator - end */
+/* brick indicator - end */
 
-/* block types - tiles type */
+/* brick types - tiles type */
 
 .brick-tiles .brick-tile {
     display: inline-block;
@@ -742,21 +685,12 @@ table.table_detail_view + table.table_detail_view {
 }
 
 .brick-tiles .brick-tile-name {
-    text-transform: uppercase;
-/*    font-size: 11.5px; */
-/*    font-weight: 600; */
-/*    color: #5e6b71; */
-/*    color: hsla(199, 9%, 50%, 1); */
-    color: hsla(197, 15%, 50%, 1);
     display: flex;
     flex-wrap: nowrap;
-}
 
-/*
-.brick-tiles .brick-tile[data-field-editable] .brick-tile-name {
-    color: #222;
+    text-transform: uppercase;
+    color: hsla(197, 15%, 50%, 1);
 }
-*/
 
 .is-content-reduced .brick-tile.brick-tile-empty-value {
     display: none;
@@ -778,17 +712,20 @@ table.table_detail_view + table.table_detail_view {
 }
 
 .brick-tiles .brick-tile-action {
+    display: inline-block;
+
+    max-height: 16px;
+    padding: 0px 7px 0px 5px;
+    margin-left: 5px;
+
     opacity: 0;
     visibility: hidden;
-    padding: 0px 7px 0px 5px;
+    transition: all 0.1s ease-in;
+
     background: #fafafa;
-    margin-left: 5px;
     outline: 1px solid #ccc;
     text-decoration: none;
-    display: inline-block;
-    transition: all 0.1s ease-in;
     white-space: nowrap;
-    max-height: 16px;
 }
 
 .brick-tiles .brick-tile:hover .brick-tile-action {
@@ -797,7 +734,6 @@ table.table_detail_view + table.table_detail_view {
 }
 
 .brick-tiles .brick-tile-action-title {
-/*    text-transform: uppercase; */
     white-space: nowrap;
     font-size: 11px;
     font-weight: 600;
@@ -820,10 +756,6 @@ table.table_detail_view + table.table_detail_view {
     width: 100%;
 
     margin-top: 3px;
-/*    padding-top: 10px; */
-/*    padding-bottom: 3px; */
-
-/*    border-top: 1px solid #cce0e8; */
 }
 
 .brick-tiles .brick-tile-multiline-value:not(:last-child) {
@@ -844,9 +776,9 @@ table.table_detail_view + table.table_detail_view {
     vertical-align: top;
 }
 
-/* block types - tiles type - end */
+/* brick types - tiles type - end */
 
-/* block types - key/value list */
+/* brick types - key/value list */
 
 .brick-kv-list .brick-content {
     display: flex;
@@ -861,7 +793,6 @@ table.table_detail_view + table.table_detail_view {
     height: 28px;
     padding: 7px 10px;
 
-/*    text-transform: uppercase; */
     font-size: 11px;
     font-weight: 600;
     color: #777;
@@ -912,7 +843,6 @@ table.table_detail_view + table.table_detail_view {
 /* key/value list variation: compact keys for high number of rows */
 
 .brick-kv-list .brick-kv-group.-ui-compact .brick-kv-key {
-/*    text-transform: uppercase; */
     font-size: 11px;
     font-weight: 600;
     color: #444;
@@ -933,9 +863,9 @@ table.table_detail_view + table.table_detail_view {
     border-left: 0;
 }
 
-/* block types - key/value list - end */
+/* brick types - key/value list - end */
 
-/* block states - is loading */
+/* brick states - is loading */
 
 .brick .brick-title .brick-loading-indicator {
     display: none;
@@ -949,9 +879,11 @@ table.table_detail_view + table.table_detail_view {
     font-weight: 700;
 }
 
+/*
 .brick.is-loading .brick-content {
-/*    opacity: 0.6;*/
+    opacity: 0.6;
 }
+*/
 
 .brick.is-collapsed .brick-content,
 .brick.is-collapsed .brick-footer {
@@ -964,9 +896,9 @@ table.table_detail_view + table.table_detail_view {
     top: 1px;
 }
 
-/* block states - is loading - end */
+/* brick states - is loading - end */
 
-/* block states - is loading - tests */
+/* brick states - is loading - tests */
 /* if any of those tests are interesting, find real class names of value, and encode this feature in the block component class instead of its state is-loading class */
 
 /* using the block header background as a progress bar indicator */
@@ -1011,13 +943,6 @@ table.table_detail_view + table.table_detail_view {
     position: relative;
 }
 
-/*
-.brick.is-loading.is-loading-border .brick-loading-indicator {
-    color: hsl(210, 90%, 62%);
-    color: hsl(210, 90%, 45%);
-}
-*/
-
 .brick.is-loading.is-loading-border::before {
     content: ' ';
     position: absolute;
@@ -1025,36 +950,26 @@ table.table_detail_view + table.table_detail_view {
     width: 20%;
     height: 2px;
 
-    top: 25px; /* at the top of the block content */
+    top: 25px; /* at the top of the brick content */
     top: 24px; /* at the bottom of the block header */
 
-    background: #479ef5; /* hsl(210, 90%, 62%) */
+    background: #479ef5;
     z-index: 1;
-
-
-    /* shadow: With or without you, I can't live © U2 1987 */
-/*
-    -webkit-box-shadow: 0 2px 1px 1px hsla(210, 90%, 62%, 0.15);
-       -moz-box-shadow: 0 2px 1px 1px hsla(210, 90%, 62%, 0.15);
-            box-shadow: 0 2px 1px 1px hsla(210, 90%, 62%, 0.15);
-*/
 
     transition: width 0.3s ease-in-out;
 }
 
-/* block states - is loading - tests - end */
+/* brick states - is loading - tests - end */
 
 
-/* block types - list type */
+/* brick types - list type */
 .brick-list .brick-list-empty {
-/*    text-transform: uppercase; */
+    padding: 5px 10px;
+
     text-align: left;
     font-weight: 600;
-/*    font-size: 11px; */
     cursor: default;
-/*    color: #777; */
     color: #5e6b71;
-    padding: 5px 10px;
 }
 
 .brick-list .brick-content {
@@ -1065,13 +980,15 @@ table.table_detail_view + table.table_detail_view {
     padding: 0px 0px 5px 0px;
 }
 
-/* block types - list type - end */
+/* brick types - list type - end */
 
-/* block types - scrollable type */
+/* brick types - scrollable type */
 
+ /*
 .brick-scrollable .brick-scrollable-container {
-    /*a default max-height: 200px could be added here to limit every block's height, but block by block overrides would actually be added to the container's style attribute in the html template */
+   // a default max-height: 200px could be added here to limit every block's height, but block by block overrides would actually be added to the container's style attribute in the html template
 }
+*/
 
 /* when the header is fixed, the bottom border (which is normally distributed into the first row) needs to be specified */
 .brick-table.brick-scrollable .brick-table-content > thead > tr {
@@ -1086,13 +1003,13 @@ table.table_detail_view + table.table_detail_view {
     background: #f8fdff;
 }
 
-/* block types - scrollable type - end */
+/* brick types - scrollable type - end */
 
-/* block types - selectable type */
+/* brick types - selectable type */
 
 .brick-selectable .brick-selection-indicator {
     font-weight: 700;
-    color: #5799db; /* hsl(210, 65%, 60%) */
+    color: #5799db;
     display: none;
 }
 
@@ -1111,10 +1028,10 @@ table.table_detail_view + table.table_detail_view {
 }
 
 .brick-table.brick-selectable .brick-table-content > tbody > tr.is-selected > td {
-    border-top: 1px solid #5cadff; /* hsl(210, 100%, 68%) */
-    border-bottom: 1px solid #5cadff; /* hsl(210, 100%, 68%) */
+    border-top: 1px solid #5cadff;
+    border-bottom: 1px solid #5cadff;
 
-    background: rgba(71, 158, 245, 0.07); /* hsla(210, 90%, 62%, 0.07) */
+    background: rgba(71, 158, 245, 0.07);
 }
 
 .brick-table.brick-selectable .brick-table-content > tbody > tr:nth-child(2n):last-child {
@@ -1125,9 +1042,9 @@ table.table_detail_view + table.table_detail_view {
     border-bottom: 1px solid transparent;
 }
 
-/* block types - selectable type - end */
+/* brick types - selectable type - end */
 
-/* block types - reorderable type */
+/* brick types - reorderable type */
 
 .icon.brick-reorderable-handle-icon {
     width: 15px;
@@ -1193,10 +1110,10 @@ table.table_detail_view + table.table_detail_view {
 
 */
 
-/* block types - reorderable type - end */
+/* brick types - reorderable type - end */
 
-/* block types - list of cards */
-/* block types - list of cards - end */
+/* brick types - list of cards */
+/* brick types - list of cards - end */
 
 
 /* hack: uppercase punctuation characters alignment ... */
@@ -1285,7 +1202,6 @@ svg.icon {
 .brick .help-box {
     background-color: #fff7a1;
     padding: 5px;
-/*    border: 1px solid #ccc; */
 }
 
 /* Trash brick */
@@ -1309,12 +1225,6 @@ svg.icon {
     padding: 0;
 }
 
-/*
-.creme_core-specific-relations-brick .brick-content .brick-list-item:last-child {
-    padding-bottom: 5px;
-}
-*/
-
 .creme_core-specific-relations-brick .relation-item {
     font-size: 13px;
 }
@@ -1336,17 +1246,10 @@ svg.icon {
 
 .creme_core-specific-relations-brick .relation-group-key {
     min-width: 160px;
-
-    /* relation counter experiment: */
-/*
-    min-width: 170px;
-    margin-left: 15px;
-*/
 }
 
 .creme_core-specific-relations-brick .relation-group-value {
     flex: 1;
-    /*margin-left: 10px;*/
 }
 
 .creme_core-specific-relations-brick .relation-group.brick-table {
@@ -1363,7 +1266,6 @@ svg.icon {
     align-self: flex-start;
     padding-top: 2px;
 
-/*    text-transform: uppercase; */
     font-size: 11px;
     font-weight: 600;
 }
@@ -1372,7 +1274,6 @@ svg.icon {
     padding-top: 3px;
     padding-bottom: 3px;
 
-/*    background: #fafafa; */
     background: #fff3f2;
     border-bottom: 1px solid #cce0e8;
 }

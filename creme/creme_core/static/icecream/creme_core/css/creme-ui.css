@@ -1,5 +1,4 @@
 .ui-widget {
-/*    font-family: 'Open Sans', 'Verdana', sans-serif; */
     font-family: 'Open Sans', 'Verdana', sans-serif;
 }
 
@@ -206,15 +205,17 @@ ul.ui-layout.vbox li {
 
 /*----------------------------------*/
 .ui-creme-entityselector > button[type="button"] {
+    min-width: 110px;
     padding: 2px 6px;
-    background-color: #f5f5f5;
-    color: #22439f;
+
     border-radius: 4px;
     border: 1px solid #ccc;
-/*    font-family: "Lucida Grande", Tahoma, Arial, Verdana, sans-serif; */
+
+    background-color: #f5f5f5;
+    color: #22439f;
     white-space: nowrap;
-    min-width: 110px;
     text-align: left;
+
     cursor: pointer;
 }
 
@@ -274,13 +275,14 @@ ul.ui-layout.vbox li {
 }
 
 .ui-creme-overlay.page-loading .overlay-content h2 {
+    width: 100%;
+    position: fixed;
+    vertical-align: middle;
+    bottom: 50%;
+
+    opacity: 1.0;
     color: #376e86;
     text-align: center;
-    position: fixed;
-    bottom: 50%;
-    width: 100%;
-    opacity: 1.0;
-    vertical-align: middle;
 }
 
 .ui-creme-overlay .overlay-content .subtitle {
@@ -386,31 +388,18 @@ button[type="button"].ui-creme-actionbutton {
     cursor: pointer;
     margin: 0px;
     min-height: 20px;
-/*
-    -webkit-border-radius: 4px;
-       -moz-border-radius: 4px;
-            border-radius: 4px;
-*/
+
     background-repeat: no-repeat;
     background-position: 2px 50%;
     border: 1px solid #6E9EB2;
-/*    background-color: #D9E5EA;*/
+
     background-color: #ebebeb; /* desaturate and lighten */
     color: #22439f;
 }
 
 button[type="button"].ui-creme-actionbutton:hover {
-/*
-    -webkit-border-radius: 4px;
-       -moz-border-radius: 4px;
-            border-radius: 4px;
-*/
     text-decoration: none;
     color: #22439f;
-    /*
-    border: 1px solid #6E9EB2;
-    background-color: #D9E5EA;
-    */
     background-color: #f4fafd;
 }
 
@@ -421,7 +410,6 @@ button[type="button"].ui-creme-actionbutton[disabled] {
 }
 
 button[type="button"].ui-creme-actionbutton[disabled]:hover {
-/*    background-color: #D9E5EA;*/
     background-color: #ebebeb; /* desaturate and lighten */
 }
 
@@ -510,8 +498,8 @@ span.ui-creme-datepicker-trigger {
 
     -webkit-transition: none;
        -moz-transition: none;
-         -o-transition: none;
         -ms-transition: none;
+         -o-transition: none;
             transition: none;
 }
 

@@ -66,10 +66,6 @@ select.line-vat {
     text-align: right;
 }
 
-/* line-background-color {
-    background-color: #ffffff;
-}*/
-
 .linetable-container, .linetable {
     width: 100%;
 
@@ -91,7 +87,6 @@ select.line-vat {
 
 .linetable th {
     color: #376e86; /* See .table_detail_view > tbody > tr > th { */
-    /* padding: 2px 6px; */
     text-align: left;
 }
 

@@ -51,16 +51,9 @@
 }
 
 /* Buttons lists (global, entity, business) */
-/*
-.detailview .global-buttons {
-    padding-top: 5px;
-    padding-bottom: 5px;
-}
-*/
 
 .detailview .instance-buttons,
 .portal .instance-buttons /* HACK: remove when portals are gone */ {
-    /* padding-top: 5px; */
     padding-bottom: 20px;
 }
 
@@ -108,36 +101,23 @@
     box-shadow: none;
     background: none;
 
-/*    border: 0; */
-
     color: #311714;
     background-color: #fff3f2;
     border: 3px solid #fdedeb;
     border-radius: 10px;
 }
 
-/*
-.global-buttons + .brick.brick-hat-bar {
-    border-top-color: rgb(204, 204, 204);
-    border-top-style: solid;
-    border-top-width: 1px;
-}
-*/
-
 /* Card brick */
 
 .brick-hat-card .hat-card {
     display: flex;
     min-height: 200px;
-/*    padding-bottom: 30px; */
-/*    border-bottom: 1px solid #ccc; */
     margin-bottom: 15px;
 }
 
 .brick-hat-card .hat-card-main {
     flex-grow: 1;
     margin-right: 10px;
-/*    border-top: 1px solid #ccc; */
 
     vertical-align: top;
     padding: 10px 10px 0 10px;
@@ -146,7 +126,6 @@
 .brick-hat-card .hat-card-sidebar {
     min-width: 400px;
 
-/*    border-top: 1px solid #ccc; */
     margin-left: 10px;
 
     vertical-align: top;
@@ -158,13 +137,6 @@
     min-width: 350px;
 }
 
-/*
-.brick-hat-card .hat-card-sidebar .card-button-icon {
-    padding-right: 10px;
-    padding-left: 25px;
-
-}
-*/
 .brick-hat-card .hat-card-sidebar .card-button-icon {
     margin-left: 4px;
 }
@@ -235,7 +207,6 @@
 
     font-weight: 600;
     font-size: 16px;
-/*    color: #666; */
     color: #311714;
 }
 
@@ -412,7 +383,6 @@
     margin: 0;
     margin-bottom: 15px;
 
-/*    border: 0; */
     padding: 0;
 
     box-shadow: none;
@@ -430,7 +400,4 @@
 .brick-hat-card .card-icon > div {
     width: 25px;
     height: 25px;
-/*    border: 1px solid #ddd; */
-/*    padding-left: 1px; */
-/*    padding-top: 1px; */
 }

@@ -42,7 +42,6 @@ div.submit_buttons a {
     padding-left: 20px;
 }
 
-/* input[type="text"], input[type="password"], input[type="number"] { */
 input:not([type="submit"]):not([type="file"]),
 textarea {
     border: 1px solid #6eaac4;
@@ -60,28 +59,6 @@ button.is-form-submit, input.is-form-submit {
     color: grey;
 }
 
-/*
-input[type="text"]:disabled, input[type="text"][readonly] {
-    border: 0px;
-    color: #6eaac4;
-    background: #ffffff;
-
-    -webkit-border-radius: 4px;
-       -moz-border-radius: 4px;
-            border-radius: 4px;
-}
-*/
-
-/*
-textarea {
-    border: 1px solid #6eaac4;
-
-    -webkit-border-radius: 4px;
-       -moz-border-radius: 4px;
-            border-radius: 4px;
-}
-*/
-
 input:disabled,
 input[readonly],
 textarea:disabled,
@@ -94,19 +71,6 @@ textarea[readonly] {
        -moz-border-radius: 4px;
             border-radius: 4px;
 }
-
-/*input[type="text"]:invalid,
-input[type="password"]:invalid,
-input[type="number"]:invalid,
-textarea:invalid {
-    border: 1px solid #ff0000;
-}*/
-/*
-input:invalid,
-textarea:invalid {
-    border: 1px solid #ff0000;
-}
-*/
 
 .help-text ul {
     margin: 0px;
@@ -132,7 +96,6 @@ form .table_detail_view.dual_column .td_info > textarea,
 .ui-dialog-content form .table_detail_view .td_info > select,
 .ui-dialog-content form .table_detail_view .td_info span > select,
 .ui-dialog-content form .table_detail_view .td_info > textarea {
-/*    width: 100%; */
     width: 98.5%;
 }
 
@@ -245,9 +208,9 @@ form .table_detail_view .merge_result {
 /* Apply a natural box layout model to all elements
     TODO: does not work at wished when not global...
 .hfilter_widget * {
-    -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
-    box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
 }*/
 
 .hfilter_widget .selectors {
@@ -329,9 +292,11 @@ form .table_detail_view .merge_result {
     margin-left: 15px;
 }
 
-/*.hfilter_widget .basic_field_selectors > .selector_list {
+/*
+.hfilter_widget .basic_field_selectors > .selector_list {
     width: 100%;
-}*/
+}
+*/
 
 .hfilter_widget .basic_field_selectors > .selector_list > .selector {
     margin-right: 0px;
@@ -353,7 +318,8 @@ form .table_detail_view .merge_result {
 /* TODO: uncomment when secondary relationship are managed
 .hfilter_widget .relationship_selectors .secondary_relationship {
     display: none;
-}*/
+}
+*/
 
 .hfilter_widget .selector .selected_count {
     opacity: 0.5;

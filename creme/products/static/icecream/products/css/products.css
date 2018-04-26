@@ -13,13 +13,15 @@
 }
 
 .brick-tiles.products-images-brick .brick-tiles-empty {
+    padding: 5px 10px;
+
     text-transform: uppercase;
     text-align: left;
     font-weight: 600;
     font-size: 11px;
-    cursor: default;
     color: #777;
-    padding: 5px 10px;
+
+    cursor: default;
 }
 
 .brick-tiles.products-images-brick .brick-tile-value img {
