@@ -39,7 +39,7 @@ DEPENDENCIES:
         - pytz
         - python-dateutil 1.5
         - bleach 2.1
-        - Pillow 3.4
+        - Pillow 5
         - django-formtools 2.1
         - Java >= 1.4 (only needed to build the compressed version of CSS and JavaScript files at installation time)
 
