@@ -47,9 +47,9 @@ creme.widget.DateRange = creme.widget.declare('ui-creme-daterange', {
     },
 
     reset: function(element) {
-        this.dateType().val('');
         this.endDate().val('');
         this.startDate().val('');
+        this.dateType().val('').change();
     },
 
     endDate: function(element) {
