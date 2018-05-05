@@ -1,3 +1,12 @@
+/* TODO: fix jquery-css/creme-theme/jquery-ui-1.11.4.custom.css ?? */
+.ui-widget,
+.ui-widget input,
+.ui-widget select,
+.ui-widget textarea,
+.ui-widget button {
+    font-family: "Lucida Grande","DejaVu Sans","Bitstream Vera Sans",Verdana,Arial,sans-serif;
+}
+
 /*----------------------------------*/
 .ui-creme-timepicker { margin:0; padding:0; list-style:none;}
 .ui-creme-timepicker li { margin:0; padding:0; position:relative; display:inline-block;}

@@ -42,6 +42,10 @@ div.submit_buttons a {
     padding-left: 20px;
 }
 
+input, textarea, select, button {
+    font-family: "Lucida Grande","DejaVu Sans","Bitstream Vera Sans",Verdana,Arial,sans-serif;
+}
+
 input:not([type="submit"]):not([type="file"]),
 textarea {
     border: 1px solid #6eaac4;
