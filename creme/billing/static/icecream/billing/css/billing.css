@@ -127,10 +127,10 @@ select.line-vat {
     background-color: #f08080;
 }
 
-.bline-input-error {
+.bline-input-error,
+.bline-form input.bline-input-error {
     background-color: #f08080;
 }
-
 
 ul.bline-error-list {
     margin-top: 5px;
