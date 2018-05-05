@@ -17,7 +17,7 @@ try:
 
     from .base import ViewsTestCase, BrickTestCaseMixin
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
@@ -91,14 +91,15 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             ctxt = response.context
             models = ctxt['models']
-            blocks = ctxt['blocks']
+            # bricks = ctxt['blocks']
+            bricks = ctxt['bricks']
 
         self.assertEqual(['Test Contact'], models)
 
-        self.assertIsInstance(blocks, list)
-        self.assertEqual(1, len(blocks))
+        self.assertIsInstance(bricks, list)
+        self.assertEqual(1, len(bricks))
 
-        block = blocks[0]
+        block = bricks[0]
         self.assertIsInstance(block, QuerysetBrick)
         self.assertIn(self.CONTACT_BLOCKID, block.id_)
         self.assertEqual('creme_core/bricks/found-entities.html',
@@ -128,14 +129,15 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self._search('cox')
         context = response.context
 
-        self.assertGreaterEqual(len(context['blocks']), 2)
+        # self.assertGreaterEqual(len(context['blocks']), 2)
+        self.assertGreaterEqual(len(context['bricks']), 2)
 
-        self.assertContains(response, ' id="%s' % self.CONTACT_BLOCKID)
+        self.assertContains(response, ' id="{}'.format(self.CONTACT_BLOCKID))
         self.assertContains(response, self.alan.get_absolute_url())
         self.assertNotContains(response, self.linus.get_absolute_url())
         self.assertNotContains(response, self.linus2.get_absolute_url())
 
-        self.assertContains(response, ' id="%s' % self.ORGA_BLOCKID)
+        self.assertContains(response, ' id="{}'.format(self.ORGA_BLOCKID))
         self.assertContains(response, self.coxco.get_absolute_url())
         self.assertNotContains(response, self.linusfo.get_absolute_url())
 

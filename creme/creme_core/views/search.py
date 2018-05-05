@@ -56,7 +56,7 @@ class FoundEntitiesBrick(QuerysetBrick):
         self.user = user
         self.ctype = ctype = ContentType.objects.get_for_model(model)
         self.id_ = id or self.generate_id('creme_core',
-                                          'found-%s-%s-%s' % (
+                                          'found-{}-{}-{}'.format(
                                                 ctype.app_label,
                                                 ctype.model,
                                                 # We generate an unique ID for each research, in order
@@ -111,7 +111,7 @@ def search(request):
 
     t_ctx  = {'bricks_reload_url': reverse('creme_core__reload_search_brick') + '?' + urlencode({'search': research})}
     models = []
-    blocks = []
+    bricks = []
 
     if not research:
         if settings.OLD_MENU:
@@ -134,11 +134,12 @@ def search(request):
         searcher = Searcher(models, user)
 
         models = list(searcher.models)  # Remove disabled models
-        blocks.extend(FoundEntitiesBrick(searcher, model, research, user) for model in models)
+        bricks.extend(FoundEntitiesBrick(searcher, model, research, user) for model in models)
 
     t_ctx['research'] = research
     t_ctx['models'] = [m._meta.verbose_name for m in models]
-    t_ctx['blocks'] = blocks
+    # t_ctx['blocks'] = bricks
+    t_ctx['bricks'] = bricks
     t_ctx['selected_ct_id'] = int(ct_id) if ct_id.isdigit() else None
 
     return render(request, 'creme_core/search_results.html', t_ctx)
