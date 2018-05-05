@@ -87,10 +87,11 @@ class Migration(migrations.Migration):
                     ('username', models.CharField(help_text='Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.',
                                                   unique=True, max_length=30, verbose_name='Username',
                                                   validators=[RegexValidator(re.compile(b'^[\\w.@+-]+$'),
-                                                                             'Enter a valid username. This value may contain only letters, numbers and @/./+/-/_ characters.',
+                                                                             'Enter a valid username. This value may contain only letters, numbers, and @/./+/-/_ characters.',
                                                                              b'invalid',
                                                                             ),
                                                   ],
+                                                  error_messages={b'unique': 'A user with that username already exists.'},
                                                  )
                     ),
                     ('first_name', models.CharField(max_length=100, verbose_name='First name', blank=True)),
