@@ -502,11 +502,14 @@ class CremeUser(AbstractBaseUser):
                                     ),
                          validators=[RegexValidator(re_compile('^[\w.@+-]+$'),
                                                     _(u'Enter a valid username. '
-                                                      u'This value may contain only letters, numbers '
+                                                      u'This value may contain only letters, numbers, '
                                                       u'and @/./+/-/_ characters.'),
                                                     'invalid',
                                                    ),
                                     ],
+                         error_messages={
+                             'unique': _(u'A user with that username already exists.'),
+                         },
                         )
     last_name  = CharField(_(u'Last name'), max_length=100, blank=True)
     first_name = CharField(_(u'First name'), max_length=100, blank=True)\

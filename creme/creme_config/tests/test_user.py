@@ -220,7 +220,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                                          }
                                    )
         self.assertFormError(response, 'form', 'username',
-                             _(u'Enter a valid username. This value may contain only letters, numbers '
+                             _(u'Enter a valid username. This value may contain only letters, numbers, '
                                u'and @/./+/-/_ characters.')
                             )
 
@@ -292,10 +292,11 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                                            }
                                      )
         self.assertFormError(response, 'form', 'username',
-                             _(u'%(model_name)s with this %(field_label)s already exists.') % {
-                                    'model_name':  _('User'),
-                                    'field_label': _('Username'),
-                                }
+                             # _(u'%(model_name)s with this %(field_label)s already exists.') % {
+                             #        'model_name':  _('User'),
+                             #        'field_label': _('Username'),
+                             #    }
+                             _(u'A user with that username already exists.')
                             )
 
     @skipIfNotCremeUser

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-23 00:35+0200\n"
+"POT-Creation-Date: 2018-05-04 21:01+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -30,7 +30,7 @@ msgstr "Accueil"
 msgid "My page"
 msgstr "Ma page"
 
-#: apps.py:376 models/auth.py:564 models/job.py:83 models/prefered_menu.py:27
+#: apps.py:376 models/auth.py:567 models/job.py:83 models/prefered_menu.py:27
 #: templates/creme_core/bricks/imprints.html:17
 #: templates/creme_core/bricks/job.html:59
 msgid "User"
@@ -123,7 +123,7 @@ msgstr "Extension XLSX introduite par Microsoft Excel 2007."
 msgid "Properties"
 msgstr "Propriétés"
 
-#: bricks.py:63 forms/relation.py:36 gui/bricks.py:439 models/relation.py:209
+#: bricks.py:63 forms/relation.py:36 gui/bricks.py:439 models/relation.py:211
 #: templates/creme_core/bricks/relations.html:7
 #: templates/creme_core/forms/widgets/entity-cells.html:83
 msgid "Relationships"
@@ -435,7 +435,7 @@ msgstr "Supprimer les vieux fichiers temporaires"
 msgid "General information"
 msgstr "Informations générales"
 
-#: forms/base.py:262 forms/mass_import.py:1353 models/base.py:134
+#: forms/base.py:262 forms/mass_import.py:1353 models/base.py:136
 #: models/entity_filter.py:112 models/header_filter.py:72
 msgid "Owner user"
 msgstr "Utilisateur propriétaire"
@@ -997,7 +997,7 @@ msgstr "Colonne {}"
 msgid "Merged entity"
 msgstr "Fiche fusionnée"
 
-#: forms/relation.py:37 models/relation.py:283
+#: forms/relation.py:37 models/relation.py:285
 msgid "Semi-fixed types of relationship"
 msgstr "Types de relation semi-fixés"
 
@@ -1087,7 +1087,7 @@ msgstr "Vous n'êtes pas autorisé à relier avec un(e) «%s» de cet utilisateu
 msgid "Clear"
 msgstr "Effacer"
 
-#: forms/widgets.py:1062 forms/widgets.py:1144 forms/widgets.py:1557
+#: forms/widgets.py:1062 forms/widgets.py:1144 forms/widgets.py:1561
 #: models/base.py:45 templates/creme_core/frags/list_view_content.html:113
 #: templates/creme_core/generics/view_entity.html:18
 #: templates/creme_core/view_property_type.html:19
@@ -1103,7 +1103,7 @@ msgctxt "creme_core-verb"
 msgid "Select"
 msgstr "Sélectionner"
 
-#: forms/widgets.py:1913
+#: forms/widgets.py:1930
 #, python-format
 msgid "%(dateperiod_value)s%(dateperiod_type)s"
 msgstr "%(dateperiod_value)s%(dateperiod_type)s"
@@ -1134,13 +1134,13 @@ msgstr "Informations sur la fiche"
 msgid "Title bar"
 msgstr "Barre de titre"
 
-#: gui/field_printers.py:151 models/custom_field.py:274 models/history.py:136
+#: gui/field_printers.py:151 models/custom_field.py:276 models/history.py:136
 #: models/history.py:137 templatetags/creme_listview.py:121
 #: utils/__init__.py:281
 msgid "Yes"
 msgstr "Oui"
 
-#: gui/field_printers.py:151 models/custom_field.py:274 models/history.py:136
+#: gui/field_printers.py:151 models/custom_field.py:276 models/history.py:136
 #: models/history.py:138 templatetags/creme_listview.py:125
 #: utils/__init__.py:284
 msgid "No"
@@ -1214,7 +1214,7 @@ msgstr "À la première page"
 msgid "Next page"
 msgstr "Page suivante"
 
-#: models/auth.py:50 models/bricks.py:483 models/entity_filter.py:111
+#: models/auth.py:50 models/bricks.py:485 models/entity_filter.py:111
 #: models/i18n.py:28 templates/creme_core/bricks/relations.html:17
 #: templates/creme_core/bricks/trash.html:17
 msgid "Name"
@@ -1236,7 +1236,7 @@ msgstr "Créer un rôle"
 msgid "Save the role"
 msgstr "Enregistrer le rôle"
 
-#: models/auth.py:62 models/auth.py:529
+#: models/auth.py:62 models/auth.py:532
 msgid "Role"
 msgstr "Rôle"
 
@@ -1260,7 +1260,7 @@ msgstr "Voir"
 msgid "Change"
 msgstr "Modifier"
 
-#: models/auth.py:280 models/entity.py:284
+#: models/auth.py:280 models/entity.py:285
 #: templates/creme_core/bricks/base/hat-card.html:111
 #: templates/creme_core/bricks/generic/hat-bar.html:47
 #: templates/creme_core/frags/list_view_content.html:191
@@ -1294,130 +1294,136 @@ msgstr "Pour %(set)s: %(perms)s"
 msgid "Username"
 msgstr "Nom d'utilisateur"
 
-# Already in django.auth
 #: models/auth.py:500
 msgid "Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only."
 msgstr ""
+"Requis. 30 caractères maximum. Uniquement des lettres, nombres et les "
+"caractères « @ », « . », « + », « - » et « _ »."
 
 # Already in django.auth
 #: models/auth.py:504
 msgid ""
-"Enter a valid username. This value may contain only letters, numbers and @/./"
-"+/-/_ characters."
+"Enter a valid username. This value may contain only letters, numbers, and "
+"@/./+/-/_ characters."
 msgstr ""
 
+# Already in django.auth
 #: models/auth.py:511
+msgid "A user with that username already exists."
+msgstr ""
+
+#: models/auth.py:514
 msgid "Last name"
 msgstr "Nom"
 
-#: models/auth.py:512
+#: models/auth.py:515
 msgid "First name"
 msgstr "Prénom"
 
-#: models/auth.py:514
+#: models/auth.py:517
 msgid "Email address"
 msgstr "Adresse e-mail"
 
-#: models/auth.py:516
+#: models/auth.py:519
 msgid "Date joined"
 msgstr "Date d'inscription"
 
-#: models/auth.py:517
+#: models/auth.py:520
 msgid "Active?"
 msgstr "Actif ?"
 
-#: models/auth.py:523
+#: models/auth.py:526
 msgid "Is staff?"
 msgstr "Est administrateur ?"
 
-#: models/auth.py:526
+#: models/auth.py:529
 msgid "Is a superuser?"
 msgstr "Est un super-utilisateur ?"
 
-#: models/auth.py:533
+#: models/auth.py:536
 msgid "Is a team?"
 msgstr "Est une équipe ?"
 
-#: models/auth.py:534
+#: models/auth.py:537
 msgid "Teammates"
 msgstr "Coéquipiers"
 
-#: models/auth.py:538
+#: models/auth.py:541
 msgid "Time zone"
 msgstr "Fuseau horaire"
 
-#: models/auth.py:541
+#: models/auth.py:544
 msgid "Theme"
 msgstr "Thème"
 
-#: models/auth.py:554
+#: models/auth.py:557
 msgid "Create a user"
 msgstr "Créer un utilisateur"
 
-#: models/auth.py:555
+#: models/auth.py:558
 msgid "Save the user"
 msgstr "Enregistrer l'utilisateur"
 
-#: models/auth.py:565
+#: models/auth.py:568
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: models/auth.py:573
+#: models/auth.py:576
 #, python-format
 msgid "%s (team)"
 msgstr "%s (équipe)"
 
-#: models/auth.py:580
+#: models/auth.py:583
 #, python-format
 msgid "%(first_name)s %(last_name)s."
 msgstr "%(first_name)s %(last_name)s."
 
-#: models/auth.py:707
+#: models/auth.py:710
 #, python-format
 msgid "Invalid app \"%s\""
 msgstr "App invalide \"%s\""
 
-#: models/auth.py:709
+#: models/auth.py:712
 #, python-format
 msgid "You are not allowed to configure this app: %s"
 msgstr "Vous n'êtes pas autorisé à configurer cette app: %s"
 
-#: models/auth.py:725
+#: models/auth.py:728
 #, python-format
 msgid "You are not allowed to edit this entity: %s"
 msgstr "Vous n'êtes pas autorisé à modifier cette fiche: %s"
 
-#: models/auth.py:738
+#: models/auth.py:741
 #, python-format
 msgid "You are not allowed to create: %s"
 msgstr "Vous n'avez pas la permission de créer : %s"
 
-#: models/auth.py:750 views/entity.py:612
+#: models/auth.py:753 views/entity.py:612
 #, python-format
 msgid "You are not allowed to delete this entity: %s"
 msgstr "Vous n'êtes pas autorisé à supprimer cette fiche: %s"
 
-#: models/auth.py:763
+#: models/auth.py:766
 #, python-format
 msgid "You are not allowed to export: %s"
 msgstr "Vous n'avez pas la permission d'exporter: %s"
 
-#: models/auth.py:792
+#: models/auth.py:795
 #, python-format
 msgid "You are not allowed to link this entity: %s"
 msgstr "Vous n'êtes pas autorisé à relier cette fiche: %s"
 
-#: models/auth.py:795
+#: models/auth.py:798
 #, python-format
 msgid "You are not allowed to link: %s"
 msgstr "Vous n'avez pas la permission de lier: %s"
 
-#: models/auth.py:806
+#: models/auth.py:809
 #, python-format
 msgid "You are not allowed to unlink this entity: %s"
 msgstr "Vous n'êtes pas autorisé à délier cette fiche: %s"
 
-#: models/auth.py:816
+#: models/auth.py:819
 #, python-format
 msgid "You are not allowed to view this entity: %s"
 msgstr "Vous n'êtes pas autorisé à voir cette fiche: %s"
@@ -1434,15 +1440,15 @@ msgstr "Vous n'êtes pas autorisé à voir cette fiche: %s"
 msgid "Save"
 msgstr "Enregistrer"
 
-#: models/base.py:126
+#: models/base.py:128
 msgid "Creation date"
 msgstr "Date de création"
 
-#: models/base.py:127
+#: models/base.py:129
 msgid "Last modification"
 msgstr "Dernière modification"
 
-#: models/bricks.py:53 models/bricks.py:482 models/button_menu.py:32
+#: models/bricks.py:53 models/bricks.py:484 models/button_menu.py:32
 #: models/custom_field.py:54
 msgid "Related type"
 msgstr "Type associé"
@@ -1451,7 +1457,7 @@ msgstr "Type associé"
 msgid "Related role"
 msgstr "Rôle associé"
 
-#: models/bricks.py:304 models/bricks.py:567
+#: models/bricks.py:304 models/bricks.py:571
 msgid "Block ID"
 msgstr "Identifiant de bloc"
 
@@ -1459,15 +1465,15 @@ msgstr "Identifiant de bloc"
 msgid "Related type of relationship"
 msgstr "Type de relation associé"
 
-#: models/bricks.py:407
+#: models/bricks.py:409
 msgid "Brick ID"
 msgstr "Identifiant de bloc"
 
-#: models/bricks.py:408
+#: models/bricks.py:410
 msgid "Block related entity"
 msgstr "Fiche associée au bloc"
 
-#: models/bricks.py:410
+#: models/bricks.py:412
 msgid "Verbose"
 msgstr "Verbeux"
 
@@ -1560,31 +1566,31 @@ msgstr "Enregistrer le champ personnalisé"
 msgid "Custom field"
 msgstr "Champ personnalisé"
 
-#: models/custom_field.py:201
+#: models/custom_field.py:203
 msgid "String"
 msgstr "Chaîne de caractères"
 
-#: models/custom_field.py:217
+#: models/custom_field.py:219
 msgid "Integer"
 msgstr "Nombre entier"
 
-#: models/custom_field.py:234
+#: models/custom_field.py:236
 msgid "Decimal"
 msgstr "Nombre à virgule"
 
-#: models/custom_field.py:250
+#: models/custom_field.py:252
 msgid "Date and time"
 msgstr "Date et heure"
 
-#: models/custom_field.py:268
+#: models/custom_field.py:270
 msgid "Boolean (2 values: Yes/No)"
 msgstr "Booléen (2 valeurs: Oui/Non)"
 
-#: models/custom_field.py:305
+#: models/custom_field.py:309
 msgid "Choice list"
 msgstr "Liste de choix"
 
-#: models/custom_field.py:339
+#: models/custom_field.py:343
 msgid "Multiple choice list"
 msgstr "Liste de choix multiples"
 
@@ -1596,12 +1602,12 @@ msgstr "Créer une fiche"
 msgid "Save the entity"
 msgstr "Enregistrer la fiche"
 
-#: models/entity.py:135 views/entity.py:76
+#: models/entity.py:136 views/entity.py:76
 #, python-format
 msgid "Entity #%s (not viewable)"
 msgstr "Fiche #%s (non visible)"
 
-#: models/entity.py:275 templates/creme_core/bricks/base/hat-card.html:103
+#: models/entity.py:276 templates/creme_core/bricks/base/hat-card.html:103
 #: templates/creme_core/bricks/generic/hat-bar.html:36
 #: templates/creme_core/frags/list_view_content.html:186
 #: templates/creme_core/generics/blockform/edit.html:8
@@ -1617,11 +1623,11 @@ msgstr "Fiche #%s (non visible)"
 msgid "Edit"
 msgstr "Modifier"
 
-#: models/entity.py:292 templates/creme_core/bricks/found-entities.html:20
+#: models/entity.py:293 templates/creme_core/bricks/found-entities.html:20
 msgid "See"
 msgstr "Voir"
 
-#: models/entity.py:295
+#: models/entity.py:296
 #, python-brace-format
 msgid "Go to the entity {entity}"
 msgstr "Accéder à la fiche {entity}"
@@ -1971,7 +1977,7 @@ msgstr "Suppression de propriété"
 msgid "Delete property “%s”"
 msgstr "Suppression de la propriété “%s”"
 
-#: models/history.py:393 models/relation.py:208
+#: models/history.py:393 models/relation.py:210
 #: templates/creme_core/frags/list_view_content.html:201
 msgid "Relationship"
 msgstr "Relation"
@@ -2110,7 +2116,7 @@ msgstr "Url"
 msgid "Order"
 msgstr "Ordre"
 
-#: models/relation.py:64 models/relation.py:272
+#: models/relation.py:64 models/relation.py:274
 msgid "Predicate"
 msgstr "Prédicat"
 
@@ -2118,7 +2124,7 @@ msgstr "Prédicat"
 msgid "Create a type of relationship"
 msgstr "Créer un type de relation"
 
-#: models/relation.py:68 models/relation.py:277
+#: models/relation.py:68 models/relation.py:279
 msgid "Save the type"
 msgstr "Enregistrer le type"
 
@@ -2134,16 +2140,16 @@ msgstr "Types de relation"
 msgid "No relationship"
 msgstr "Aucune relation"
 
-#: models/relation.py:196
+#: models/relation.py:198
 msgid "You can't add/delete the relationships with this type (internal type)"
 msgstr ""
 "Vous ne pouvez pas ajouter/supprimer les relations de ce type (type interne)"
 
-#: models/relation.py:276
+#: models/relation.py:278
 msgid "Create a semi-fixed type of relationship"
 msgstr "Créer un type de relation semi-fixé"
 
-#: models/relation.py:282
+#: models/relation.py:284
 msgid "Semi-fixed type of relationship"
 msgstr "Type de relation semi-fixé"
 
@@ -3634,11 +3640,11 @@ msgstr "Il manque une propriété compatible pour la fiche objet avec l'id=%s"
 msgid "Permission denied to entity with id=%s"
 msgstr "Permission refusée pour la fiche avec l'id=%s"
 
-#: views/search.py:118 views/search.py:213
+#: views/search.py:118 views/search.py:214
 msgid "Empty search…"
 msgstr "Recherche vide…"
 
-#: views/search.py:120 views/search.py:215
+#: views/search.py:120 views/search.py:216
 #, python-format
 msgid "Please enter at least %s characters"
 msgstr "Veuillez entrer au moins %s caractères"
