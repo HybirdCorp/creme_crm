@@ -1,7 +1,10 @@
+/*
 .block-geoaddress-header {
     padding: 2px;
 }
+*/
 
+/*
 .block-geoaddress-items {
     display: -webkit-box;
     display: -webkit-flex;
@@ -14,6 +17,7 @@
         -ms-flex-direction: column;
             flex-direction: column;
 }
+*/
 
 .block-geoaddress-item {
     display: -webkit-box;

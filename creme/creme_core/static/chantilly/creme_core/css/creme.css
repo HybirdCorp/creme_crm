@@ -2,7 +2,8 @@
     opacity: 0.5;
 }
 
-/* Errors */ /* TODO: remove in creme 1.8 */
+/* Errors */
+/*
 html.central_panel {
     background-color: #e6f2f7;
 }
@@ -76,6 +77,7 @@ body.central_panel {
     margin-right: auto;
     padding: 1em 0 1em 0;
 }
+*/
 /* Errors - end */
 
 html {
@@ -175,7 +177,7 @@ td p {
             border-radius: 4px;
 }
 
-/* TODO: remove 'button_list' in 1.8 */
+/*
 ul.button_list {
     margin: 0;
     padding: 0;
@@ -198,6 +200,7 @@ ul.button_list.vbox li {
     position: relative;
     display: block;
 }
+*/
 
 .buttons-list > ul {
     display: inline-table;
@@ -324,10 +327,12 @@ ul.button_list.vbox li {
     left: 8px;
 }
 
-.zone_spacer_5px { /* TODO: remove in 1.8 */
+/*
+.zone_spacer_5px {
     clear: both;
     padding : 5px;
 }
+*/
 
 .spacer {
   clear: both;
@@ -396,6 +401,7 @@ ul.button_list.vbox li {
     float: right;
 }
 
+/*
 #footer {
     clear: both;
     display: block;
@@ -410,6 +416,7 @@ ul.button_list.vbox li {
     border: 1px solid #fdedeb;
     background: #fff3f2;
 }
+*/
 
 .errorlist {
     border: 1px solid #cd0a0a;
@@ -468,6 +475,7 @@ ul.button_list.vbox li {
     padding-top: 3px;
 }
 
+/*
 .back_pink {
     background-color: #f7cbc6;
 }
@@ -475,7 +483,9 @@ ul.button_list.vbox li {
 .back_blue {
     background-color: #b4e6fb;
 }
+*/
 
+/*
 .button_link:hover {
     cursor: pointer;
     text-decoration: none;
@@ -484,7 +494,9 @@ ul.button_list.vbox li {
 .button_link img {
     border: 0;
 }
+*/
 
+/*
 .table_header {
     margin-bottom: 10px;
     padding: 0px ;
@@ -509,10 +521,12 @@ ul.button_list.vbox li {
     width: 20%;
     text-align: right;
 }
+*/
 
 img {
     border:0;
 }
+
 a img {
     -webkit-transition: opacity 400ms ease-in;
        -moz-transition: opacity 400ms ease-in;
@@ -523,19 +537,25 @@ a img:hover {
     opacity: 0.8;
 }
 
+/*
 #tree_menu {
     height:100%;
 }
+*/
 
 .ui-state-default, .ui-widget-content .ui-state-default {
     font-size: 1.1em;
 }
 
+/*
 .ui-paging-info, ui-icon ui-icon-newwin {
     font-weight: bold;
 }
+*/
 
+/*
 .ui-pg-selbox { height:20px !important;}
+*/
 
 .help_box {
     background-color: #fff7a1;
@@ -572,7 +592,6 @@ a img:hover {
     cursor: pointer;
 }
 
-
 .research_box {
     padding: 7px;
     display: inline-block;
@@ -607,22 +626,26 @@ a img:hover {
             border-radius: 4px;
 }
 
+/* TODO: remove with old menu */
 .pointer {
     cursor: pointer;
 }
 
+/*
 .defaultcur {
     cursor: default;
 }
+*/
 
 /* Buttons */
-/* TODO remove lots of this (all?) in 1.8 */
-
-.buttons a, .buttons button, .buttons span {
+/*
+.buttons a,
+.buttons button,
+.buttons span {
     display: block;
     float: right;
     margin: 0 7px 1px 0;
-    padding: 1px 7px; /* Links */
+    padding: 1px 7px; // Links
 
     background-color: #f5f5f5;
     border: 1px solid #dedede;
@@ -647,14 +670,14 @@ a img:hover {
 .buttons button {
     width: auto;
     overflow: visible;
-    padding: 4px 10px 3px 7px; /* IE6 */
+    padding: 4px 10px 3px 7px; // IE6
 }
 .buttons button[type] {
-    padding: 5px 10px 5px 7px; /* Firefox */
-    line-height: 17px; /* Safari */
+    padding: 5px 10px 5px 7px; // Firefox
+    line-height: 17px; // Safari
 }
 *:first-child+html button[type] {
-    padding: 4px 10px 3px 7px; /* IE7 */
+    padding: 4px 10px 3px 7px; // IE7
 }
 .buttons button img, .buttons a img , .buttons span img {
     margin: 0 3px -3px 0 !important;
@@ -663,8 +686,10 @@ a img:hover {
     width: 16px;
     height: 16px;
 }
+*/
 
 /* Buttons - normal */
+/*
 .buttons button:hover, .buttons a:hover {
     background-color: #dff4ff;
     border: 1px solid #c2e1ef;
@@ -675,12 +700,16 @@ a img:hover {
     border: 1px solid #6299c5;
     color: #fff;
 }
+*/
 
 /* Button - link */
-.buttons button.link, .buttons a.link {
+/*
+.buttons button.link,
+.buttons a.link {
     color: #518DC9;
 }
-.buttons a.link:hover, button.link:hover {
+.buttons a.link:hover,
+button.link:hover {
     background-color: #dff4ff;
     border: 1px solid #c2e1ef;
     color: #336699;
@@ -690,12 +719,17 @@ a img:hover {
     border: 1px solid #518DC9;
     color: #fff;
 }
+*/
 
 /* Buttons - add */
-.buttons button.add, .buttons a.add, .buttons span.add {
+/*
+.buttons button.add,
+.buttons a.add,
+.buttons span.add {
     color: #529214;
 }
-.buttons a.add:hover, button.add:hover {
+.buttons a.add:hover,
+button.add:hover {
     background-color: #E6EFC2;
     border: 1px solid #C6D880;
     color: #529214;
@@ -705,12 +739,16 @@ a img:hover {
     border: 1px solid #529214;
     color: #fff;
 }
+*/
 
 /* Buttons - list */
-.buttons a.list, button.list {
+/*
+.buttons a.list,
+button.list {
     color: #D9BD41;
 }
-.buttons a.list:hover, button.list:hover {
+.buttons a.list:hover,
+button.list:hover {
     background: #FFEB91;
     border: 1px solid #fbc2c4;
 }
@@ -719,12 +757,16 @@ a img:hover {
     border: 1px solid #FFEB91;
     color: #fff;
 }
+*/
 
 /* Buttons - negative */
-.buttons a.negative, button.negative {
+/*
+.buttons a.negative,
+button.negative {
     color: #d12f19;
 }
-.buttons a.negative:hover, button.negative:hover {
+.buttons a.negative:hover,
+button.negative:hover {
     background: #fbe3e4;
     border: 1px solid #fbc2c4;
     color: #d12f19;
@@ -734,12 +776,16 @@ a img:hover {
     border: 1px solid #d12f19;
     color: #fff;
 }
+*/
 
 /* Buttons - download */
-.buttons a.download, button.download {
+/*
+.buttons a.download,
+button.download {
     color: #4c4c96;
 }
-.buttons a.download:hover, button.download:hover {
+.buttons a.download:hover,
+button.download:hover {
     background: #9292e1;
     border: 1px solid #9c9cf8;
     color: #25254a;
@@ -750,9 +796,11 @@ a img:hover {
     border: 1px solid #4c4c96;
     color: #fff;
 }
+*/
 
 /* Buttons - toggle view */
-.buttons a.view_more{
+/*
+.buttons a.view_more {
     min-width: 0;
     background-image: url("chantilly/images/view_more_22.png");
     background-repeat: no-repeat;
@@ -769,10 +817,13 @@ a img:hover {
     height: 22px;
     width: 16px;
 }
+*/
 
+/*
 .collapser {
     cursor: pointer;
 }
+*/
 
 /* Buttons - end */
 

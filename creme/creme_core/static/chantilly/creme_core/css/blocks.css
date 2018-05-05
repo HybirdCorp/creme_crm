@@ -114,6 +114,7 @@
     text-align: right;
 }
 
+/*
 .th_info_4_columns {
     max-width: 15%;
     width: 15%;
@@ -125,6 +126,7 @@
     width: 35%;
     text-align: left;
 }
+*/
 
 .td_valid {
     background-color: #90ee90;
@@ -149,6 +151,7 @@
     content: "";
 }
 
+/*
 .edit_inner {
     max-width: 70%;
     width: 0;
@@ -156,27 +159,33 @@
     text-align: right;
     white-space: nowrap;
 }
+*/
 
 .block_header tbody tr td:hover {
     background-color: transparent;
 }
 
+/*
 table.collapsed .block_icon {
     height: 22px;
 }
+*/
 
 table.collapsed .collapsable {
     display: none;
 }
 
+/*
 table.hide_empty_fields tr.content.collapsable-field {
 	display: none;
 }
+*/
 
 table.collapsed {
     opacity: 0.5;
 }
 
+/*
 .creme-block-pager-container {
     text-align: center;
 }
@@ -247,6 +256,7 @@ table.collapsed {
 .creme-block-pager .pager-input.active input.invalid-page {
     background-color: orange;
 }
+*/
 
 /* Block containers */
 /* Only seems to be used in Reports' preview report page. Blocks inside need to be flush with the scrollbar.
@@ -264,6 +274,7 @@ table.collapsed {
 
 /* TODO: all table blocks should better control the default margin & padding of the elements they
          add in tds, so that they don't break the layout (like ul, p, etc currently do. Until then: */
+/*
 .table_detail_view#block_creme_core-history tr.content ul {
     margin: 2px 0;
     padding-left: 15px;
@@ -274,3 +285,4 @@ table.collapsed {
     margin: 2px;
     padding: 0;
 }
+*/

@@ -13,16 +13,17 @@
 .ui-creme-datetimepicker li img.ui-datepicker-trigger { vertical-align:middle; }
 
 /*----------------------------------*/
-.ui-creme-calendarpicker li img.ui-datepicker-trigger { vertical-align:middle; }
+/* .ui-creme-calendarpicker li img.ui-datepicker-trigger { vertical-align:middle; } */
 
 /*----------------------------------*/
+/*
 .ui-creme-rel-selector-list { margin:0;padding:0; }
 .ui-creme-rel-selector-list .ui-creme-rel-selector li { float:left; }
 .ui-creme-rel-selector-list .ui-creme-rel-selector li.last { float:none; }
 .ui-creme-rel-selector-list .add { cursor:pointer; }
 .ui-creme-rel-selector-list select { font-family:Verdana,Tahoma,Arial,Helvetica,sans-serif;font-size:13px; }
 .ui-creme-rel-selector-list button[type="button"] { font-family:Verdana,Tahoma,Arial,Helvetica,sans-serif; font-size:13px; }
-
+*/
 
 /*----------------------------------*/
 ul.ui-layout { margin:0; padding:0; list-style:none; }
@@ -335,6 +336,7 @@ span.ui-creme-datepicker-trigger {
 }
 
 /*----------------------------------*/
+/*
 .ui-creme-autosave .autosave-status {
     background-image: none;
     width:16px;
@@ -351,6 +353,7 @@ span.ui-creme-datepicker-trigger {
     background-image: url("chantilly/images/edit_16.png");
     display:block;
 }
+*/
 
 /*---------------------------------*/
 .checklist-header {

@@ -312,7 +312,7 @@
     min-width: 150px;
 }
 
-/* TODO: remove ".title" stuffes in 1.8 */
+/*
 .list_view > thead .title h2 {
     margin-bottom: 5px;
 }
@@ -322,12 +322,15 @@
     margin: 0;
     padding-top: 10px;
 }
+*/
 
+/*
 .list_view .fieldset-title {
     margin-right: 15px;
 }
+*/
 
-/* TODO: remove ".filters" stuffes in 1.8 */
+/*
 .list_view .filters select {
     margin-right: 10px;
 }
@@ -344,12 +347,15 @@
 .list_view thead th.title .filters {
     float: right;
 }
+*/
 
-/* TODO: remove ".sub_title" stuffs in 1.8 */
+/*
 .list_view thead .sub_title h4 {
     height: 1px;
 }
+*/
 
+/*
 .list_view fieldset {
     padding: 0px;
 
@@ -359,13 +365,15 @@
 .list_view fieldset .legend {
   display: inline-block;
 }
+*/
 
-/* TODO: remove ".views" stuffs in 1.8 */
+/*
 .list_view .views .legend {
   margin-left: 20px;
 }
+*/
 
-/* TODO: remove '#list_thead_toolbar' in 1.8 */
+/*
 .list_view tr#list_thead_toolbar {
     text-align: left;
 }
@@ -413,7 +421,9 @@
     padding-bottom: 12px;
 }
 
-.list_view .toolbar button, .list_view .toolbar a, .list_view button {
+.list_view .toolbar button,
+.list_view .toolbar a,
+.list_view button {
     border: 1px solid #ccc;
 
     background-color: #fafafa;
@@ -424,7 +434,9 @@
     outline: none;
 }
 
-.list_view .toolbar button:hover, .list_view .toolbar a:hover, .list_view button:hover {
+.list_view .toolbar button:hover,
+.list_view .toolbar a:hover,
+.list_view button:hover {
     background-color: #e6e6e6;
     cursor: pointer;
 
@@ -432,10 +444,11 @@
     text-decoration: none;
     outline: none;
 }
-
+*/
 
 /* ListView results header - column titles and filters rows */
-.list_view thead .columns_top, .list_view thead .columns_bottom {
+.list_view thead .columns_top,
+.list_view thead .columns_bottom {
     background-color: #f2f2f2;
 }
 
@@ -444,10 +457,12 @@
     background: white;
 }
 
+/*
 .list_view .page_information {
     text-align: left;
     padding-bottom: 5px;
 }
+*/
 
 .list_view .columns_top .column button {
     width: 100%;
@@ -464,8 +479,8 @@
 
 .list_view .columns_top .column button > div {
     display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
+    display:  -ms-flexbox;
+    display:         flex;
 }
 
 .list_view .columns_top .column .lv-sort-toggle-title {
@@ -539,8 +554,8 @@
 .list_view .columns_bottom .lv-search-daterange .date-start,
 .list_view .columns_bottom .lv-search-daterange .date-end {
     display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
+    display:  -ms-flexbox;
+    display:         flex;
 
     -webkit-flex-direction: row;
         -ms-flex-direction: row;
@@ -550,7 +565,6 @@
      -webkit-align-self: stretch;
              align-self: stretch;
 }
-
 
 .list_view .columns_bottom .lv-search-daterange label {
     flex-grow: 1;

@@ -1,11 +1,15 @@
+/*
 td.width_inner_edit_address {
     width: 2%;
 }
+*/
 
+/*
 #block_persons-managed_organisations .tips {
     font-weight: 500;
     padding-left: 15px;
 }
+*/
 
 /* Brick card contact */
 
@@ -28,7 +32,8 @@ td.width_inner_edit_address {
 
 /* Brick card organisation */
 
-.persons-organisation-card-brick .card-job, .persons-organisation-card-brick .card-employees {
+.persons-organisation-card-brick .card-job,
+.persons-organisation-card-brick .card-employees {
     font-size: 14px;
 }
 
