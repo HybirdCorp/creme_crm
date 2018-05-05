@@ -100,7 +100,7 @@
 .calendar_filter input,
 .floating_event_filter input {
     width: 100%;
-    font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
+/*    font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif; */
     font-size: 9px;
 }
 
