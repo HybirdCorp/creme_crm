@@ -6,7 +6,8 @@
 {% block brick_script %}
     <script type="text/javascript">
          $('.brick[id="{{brick_id}}"]').on('brick-ready', function(event, brick) {
-             var controller = new creme.geolocation.PersonsNeighborhoodBlock(brick, {
+{#             var controller = new creme.geolocation.PersonsNeighborhoodBlock(brick, { #}
+             var controller = new creme.geolocation.PersonsNeighborhoodBrick(brick, {
                  apiKey: '{{google_api_key}}',
                  radius: {{radius}},
                  neighboursUrl: '{% url 'geolocation__neighbours' %}',
@@ -30,8 +31,10 @@
     {% else %}
 {#    <div class="block-geoaddress-header"> #}
     <div class="geolocation-brick-header">
-        <span class="block-geoaddress-counter">{% trans 'None of' %}</span>&nbsp;
-        <select class="block-geoaddress-filter">
+{#        <span class="block-geoaddress-counter">{% trans 'None of' %}</span>&nbsp; #}
+        <span class="brick-geoaddress-counter">{% trans 'None of' %}</span>&nbsp;
+{#        <select class="block-geoaddress-filter"> #}
+        <select class="brick-geoaddress-filter">
             <option value="">{% trans 'All the contacts and organisations' %}</option>
             {% for groupname, choices in address_filters %}
                 <optgroup label="{{groupname}}">
@@ -42,7 +45,8 @@
             {% endfor %}
         </select>
         &nbsp;{% trans 'around' %}&nbsp;
-        <select class="block-geoaddress-source">
+{#        <select class="block-geoaddress-source"> #}
+        <select class="brick-geoaddress-source">
             {% for address in ref_addresses %}
                 <option value="{{address.id}}">{% if address.title %}{{address.title}}{% else %}{{address.content}}{% endif %}</option>
             {% empty %}
@@ -52,10 +56,12 @@
 {#        {% blocktrans with radius_distance=radius|format_distance %}within a radius of {{radius_distance}}.{% endblocktrans %} #}
         {% blocktrans with radius_distance=radius|geolocation_distance %}within a radius of {{radius_distance}}.{% endblocktrans %}
     </div>
-    <div class="block-geoaddress-error">
+{#    <div class="block-geoaddress-error"> #}
+    <div class="brick-geoaddress-error">
         {% has_perm_to admin 'geolocation' as admin_perm %}{% url 'creme_config__app_portal' 'geolocation' as config_url %}
         {% brick_action id='redirect' display='text' url=config_url label=_('Google API key may be missing or invalid. Please try to configure it or contact your administrator.') enabled=admin_perm %}
     </div>
-    <div class="block-geoaddress-canvas"></div>{# TODO: rename the class when blocks have been removed #}
+{#    <div class="block-geoaddress-canvas"></div> #}
+    <div class="brick-geoaddress-canvas"></div>
     {% endif %}
 {% endblock %}

@@ -19,7 +19,8 @@
 }
 */
 
-.block-geoaddress-item {
+/* .block-geoaddress-item { */
+.brick-geoaddress-item {
     display: -webkit-box;
     display: -webkit-flex;
     display: -ms-flexbox;
@@ -29,18 +30,21 @@
     padding-bottom: 2px;
 }
 
-.block-geoaddress-item input[type="checkbox"] {
+/* .block-geoaddress-item input[type="checkbox"] { */
+.brick-geoaddress-item input[type="checkbox"] {
     margin-left: 4px;
     margin-bottom: 0px;
     margin-top: 2px;
     align-self: flex-start;
 }
 
-.block-geoaddress-item:not(.item-selected) {
+/* .block-geoaddress-item:not(.item-selected) { */
+.brick-geoaddress-item:not(.item-selected) {
     opacity: 0.5;
 }
 
-.block-geoaddress-item .block-geoaddress-label {
+/* .block-geoaddress-item .block-geoaddress-label { */
+.brick-geoaddress-item .brick-geoaddress-label {
     margin-right: 4px;
     cursor: default;
 
@@ -64,26 +68,30 @@
 }
 */
 
-.block-geoaddress-item .block-geoaddress-content {
+/* .block-geoaddress-item .block-geoaddress-content { */
+.brick-geoaddress-item .brick-geoaddress-content {
     opacity: 0.6;
     font-size: 11px;
     font-style: italic;
 }
 
-.block-geoaddress-item .block-geoaddress-position {
+/* .block-geoaddress-item .block-geoaddress-position { */
+.brick-geoaddress-item .brick-geoaddress-position {
     opacity: 0.6;
     font-size: 11px;
     font-style: italic;
 }
 
-.block-geoaddress-item .block-geoaddress-reset {
+/* .block-geoaddress-item .block-geoaddress-reset { */
+.brick-geoaddress-item .brick-geoaddress-reset {
     color: #777;
     margin-right: 4px;
     align-self: top;
     cursor: pointer;
 }
 
-.block-geoaddress-canvas {
+/* .block-geoaddress-canvas { */
+.brick-geoaddress-canvas {
     padding: 0px;
     margin: 1px;
     height: 300px;
@@ -93,7 +101,8 @@
     padding: 0;
 }
 
-.geolocation-brick .block-geoaddress-canvas {
+/* .geolocation-brick .block-geoaddress-canvas { */
+.geolocation-brick .brick-geoaddress-canvas {
     margin: 0;
 }
 
@@ -115,15 +124,18 @@
     padding: 5px 10px;
 }
 
-.geolocation-brick .block-geoaddress-error {
+/* .geolocation-brick .block-geoaddress-error { */
+.geolocation-brick .brick-geoaddress-error {
     padding: 3px 10px;
     display: none;
 }
 
-.geolocation-brick .block-geoaddress-error a {
+/* .geolocation-brick .block-geoaddress-error a { */
+.geolocation-brick .brick-geoaddress-error a {
     color: #ff6a6a;
 }
 
-.geolocation-brick.is-geolocation-disabled .block-geoaddress-error {
+/* .geolocation-brick.is-geolocation-disabled .block-geoaddress-error { */
+.geolocation-brick.is-geolocation-disabled .brick-geoaddress-error {
     display: block;
 }
