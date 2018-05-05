@@ -1,15 +1,22 @@
-input[type='textbox'].creme-field-error {  /* used ?? */
+/*
+input[type='textbox'].creme-field-error {
     background-color: #f08080;
 }
+*/
 
-td.discount-functional-error { /* used ?? */
+/*
+td.discount-functional-error {
     background-color: #f08080;
 }
+*/
 
-/* TODO: prefix by .billing-lines-brick when blocks templates are removed x N */
+/* TODO: add prefix '.billing-lines-brick' x N ?? */
+
+/*
 td.line-error {
     background-color: #f7d6d2;
 }
+*/
 
 input.line-on_the_fly {
     text-align: center;
@@ -50,7 +57,8 @@ select.line-vat {
     text-align: right;
 }
 
-.linetable-container, .linetable {  /* <= TODO: remove with blocks */
+/*.linetable-container, */
+.linetable {
     width: 100%;
 
     margin: 0;
@@ -60,14 +68,13 @@ select.line-vat {
     border-spacing: 0;
 }
 
-/* TODO: remove with blocks */
+/*
 .linetable-container .linetable-header {
     border-right: 1px solid #ddd;
     width: 2%;
     text-align: center;
 }
 
-/* TODO: remove with blocks */
 .linetable-separator {
     height: 13px;
 }
@@ -76,6 +83,7 @@ select.line-vat {
     border-bottom: 1px solid #ccc;
     background: #f0f0f0;
 }
+*/
 
 .linetable th {
     color: #4b6671; /* See .table_detail_view > tbody > tr > th { */
@@ -115,7 +123,9 @@ select.line-vat {
     width: 7%;
 }
 
-.bline-total-no-tax, .bline-total-discounted, .bline-total {
+.bline-total-no-tax,
+.bline-total-discounted,
+.bline-total {
     width: 10%;
 }
 
@@ -140,6 +150,7 @@ ul.bline-error-list > li {
     margin-top: 10px;
 }
 
+/*
 #block_billing-credit_notes .cnote-total-no-tax,
 #block_billing-credit_notes .cnote-total,
 #block_billing-credit_notes .cnote-unlink {
@@ -159,6 +170,7 @@ ul.bline-error-list > li {
     text-align: center;
     width: 10%;
 }
+*/
 
 /* Bricks */
 
@@ -238,9 +250,11 @@ ul.bline-error-list > li {
 /*    margin-right: 11px;*/
 }
 
-.billing-list-brick .billing-schedule-beginning { /* Not used ? */
+/*
+.billing-list-brick .billing-schedule-beginning {
     font-weight: 600;
 }
+*/
 
 .billing-list-brick .billing-type {
     margin-right: 3px;
@@ -258,8 +272,8 @@ ul.bline-error-list > li {
     font-size: 11px;
     font-weight: 600;
     color: #333;
-    _color: #FF4136; /* red */
-    _color: #FF851B; /* orange */
+    /* color: #FF4136; // red */
+    /* color: #FF851B; // orange */
 }
 
 .billing-list-brick .billing-action {
@@ -276,9 +290,10 @@ ul.bline-error-list > li {
     top: 3px;
 }
 
+/* Experiments
 .billing-list-brick .billing-warning {
-    color: #FF4136; /* red */
-    color: #FF851B; /* orange */
+    color: #FF4136; // red
+    color: #FF851B; // orange
     cursor: default;
 }
 
@@ -319,6 +334,7 @@ ul.bline-error-list > li {
 
     fill: #666;
 }
+*/
 
 .billing-item .billing-select-account {
     opacity: 0;

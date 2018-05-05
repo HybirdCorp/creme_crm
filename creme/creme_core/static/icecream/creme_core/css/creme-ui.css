@@ -30,13 +30,16 @@
     background: #fff;
 }
 
+/*
 .ui-paging-info, ui-icon ui-icon-newwin {
     font-weight: bold;
 }
-
+*/
+/*
 .ui-pg-selbox {
     height: 20px !important;
 }
+*/
 
 .ui-datepicker {
     z-index: 1100; /* use z-index to display over inner popups (1000) */
@@ -108,22 +111,22 @@
 .ui-creme-datetimepicker li img.ui-datepicker-trigger { vertical-align: middle; }
 
 /*----------------------------------*/
-.ui-creme-calendarpicker li img.ui-datepicker-trigger { vertical-align: middle; }
+/* .ui-creme-calendarpicker li img.ui-datepicker-trigger { vertical-align: middle; } */
 
 /*----------------------------------*/
+/*
 .ui-creme-rel-selector-list { margin:0; padding:0; }
 .ui-creme-rel-selector-list .ui-creme-rel-selector li { float: left; }
 .ui-creme-rel-selector-list .ui-creme-rel-selector li.last { float: none; }
 .ui-creme-rel-selector-list .add { cursor: pointer; }
-/*
 .ui-creme-rel-selector-list select { font-family:Verdana,Tahoma,Arial,Helvetica,sans-serif; font-size:13px; }
 .ui-creme-rel-selector-list button[type="button"] { font-family:Verdana,Tahoma,Arial,Helvetica,sans-serif; font-size:13px; }
-*/
 .ui-creme-rel-selector-list select,
 .ui-creme-rel-selector-list button[type="button"] {
     font-family: 'Open Sans', 'Verdana', sans-serif;
     font-size: 12.5px;
 }
+*/
 
 /*----------------------------------*/
 ul.ui-layout { margin:0; padding:0; list-style:none; }
@@ -356,17 +359,20 @@ ul.ui-layout.vbox li {
 }
 
 .ui-creme-jqueryplot .jqplot-target .jqplot-actions button {
+    float: right;
+
     padding: 0;
-    border: 0;
     width: 24px;
     height: 24px;
+
     background-color: #f4fafd;
     background-repeat: no-repeat;
     background-position: 50% 50%;
-    float: right;
+
+    border: 0;
     -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 4px;
+       -moz-border-radius: 4px;
+            border-radius: 4px;
 }
 
 .ui-creme-jqueryplot .jqplot-target .jqplot-actions button:hover {
@@ -457,13 +463,15 @@ span.ui-creme-datepicker-trigger {
     background-position: center;
 }
 
-.toggle-icon.toggle-collapsed, .toggle-collapsed .toggle-icon {
+.toggle-icon.toggle-collapsed,
+.toggle-collapsed .toggle-icon {
     background-image: url("icecream/images/expandme.gif");
     background-repeat: no-repeat;
     background-position: center;
 }
 
 /*----------------------------------*/
+/*
 .ui-creme-autosave .autosave-status {
     background-image: none;
     width:16px;
@@ -480,6 +488,7 @@ span.ui-creme-datepicker-trigger {
     background-image: url("icecream/images/edit_16.png");
     display:block;
 }
+*/
 
 /*---------------------------------*/
 .checklist-header {
@@ -731,13 +740,15 @@ span.ui-creme-datepicker-trigger {
 }
 
 
-.checklist-content.ie-layout-fallback .checkbox-field, .checklist-content.ie-layout-fallback .checkbox-group-header {
+.checklist-content.ie-layout-fallback .checkbox-field,
+.checklist-content.ie-layout-fallback .checkbox-group-header {
     display: inline-block;
     width: 180px;
     max-width: 180px;
 }
 
-.checklist-content.ie-layout-fallback.wide .checkbox-field, .checklist-content.ie-layout-fallback.wide .checkbox-group-header {
+.checklist-content.ie-layout-fallback.wide .checkbox-field,
+.checklist-content.ie-layout-fallback.wide .checkbox-group-header {
     width: 360px;
     max-width: 360px;
 }
@@ -805,8 +816,10 @@ span.ui-creme-datepicker-trigger {
     pointer-events: none;
 }
 
-/* The block margins are useful only when there's more than one block on the page, which is almost never the case in dialog forms. Maybe the 'block' abstraction shouldn't be used here. In any case the templates need to be cleaned up to remove the override, to differentiate between blocks in pages vs. blocks in dialogs.
-(The thinking in this rule is if there's only one block in a container, it'll pick up the margin 0. If there are more than one block, only the last one will have its margin overriden, the others would still be visually separated) */
+/* The block margins are useful only when there's more than one block on the page, which is almost never the case in dialog forms.
+   Maybe the 'block' abstraction shouldn't be used here. In any case the templates need to be cleaned up to remove the override, to differentiate between blocks in pages vs. blocks in dialogs.
+(The thinking in this rule is if there's only one block in a container, it'll pick up the margin 0.
+ If there are more than one block, only the last one will have its margin overridden, the others would still be visually separated) */
 .ui-dialog .table_detail_view:last-child {
     margin: 0;
 }
@@ -816,6 +829,7 @@ span.ui-creme-datepicker-trigger {
 }
 
 /* Left-side menu overrides - until its removal */
+/* TODO: remove with old menu */
 
 .fg-menu-container, .fg-menu {
     background: #fff;

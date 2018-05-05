@@ -1,12 +1,15 @@
+/*
 .block-geoaddress-header {
     padding: 2px;
 }
+*/
 
+/*
 .block-geoaddress-items {
     display: -webkit-box;
     display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
+    display:  -ms-flexbox;
+    display:         flex;
 
     -webkit-box-orient: vertical;
     -webkit-box-direction: normal;
@@ -14,12 +17,13 @@
         -ms-flex-direction: column;
             flex-direction: column;
 }
+*/
 
 .block-geoaddress-item {
     display: -webkit-box;
     display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
+    display:  -ms-flexbox;
+    display:         flex;
 
     padding-top: 2px;
     padding-bottom: 2px;
@@ -42,8 +46,8 @@
 
     display: -webkit-box;
     display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
+    display:  -ms-flexbox;
+    display:         flex;
 
     align-self: top;
     flex-grow: 1;
@@ -68,8 +72,8 @@
 .block-geoaddress-item .block-geoaddress-action {
     display: -webkit-box;
     display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
+    display:  -ms-flexbox;
+    display:         flex;
 
     margin-right: 4px;
     text-align: right;

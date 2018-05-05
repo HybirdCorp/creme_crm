@@ -37,7 +37,13 @@ div.submit_buttons a {
     padding-left: 20px;
 }
 
-input, textarea, select, textarea, .ui-widget input, .ui-widget select, .ui-widget textarea, label {
+input,
+textarea,
+select,
+.ui-widget input,
+.ui-widget textarea,
+.ui-widget select,
+label {
     font-family: 'Open Sans', 'Verdana', sans-serif;
     font-size: 13px;
 }
@@ -65,7 +71,8 @@ textarea {
     border: 1px solid #cd0a0a !important;
 }
 
-button.is-form-submit, input.is-form-submit {
+button.is-form-submit,
+input.is-form-submit {
     color: grey;
 }
 
@@ -81,7 +88,8 @@ textarea[readonly] {
     padding-left: 20px;
 }
 
-ul.radio_select, ul.multi-select {
+ul.radio_select,
+ul.multi-select {
     list-style-type: none;
     padding: 0;
 }

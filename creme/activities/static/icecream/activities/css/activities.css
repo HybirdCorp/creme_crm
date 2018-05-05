@@ -1,13 +1,17 @@
+/*
 .compact_list {
     list-style-position: inside;
     margin: 0;
     padding-left: 0;
 }
+*/
 
+/*
 .creme-future-activity {
     width: 15%;
     white-space: nowrap;
 }
+*/
 
 /* calendar sidebar */
 
@@ -25,9 +29,21 @@
 }
 
 /* apply a natural box layout model to all elements */
-.menu_calendar, .menu_calendar * { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; }
+.menu_calendar, .menu_calendar * {
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
+}
 
-.menu_calendar hr { display: block; height: 1px; border: 0; border-top: 1px solid #ccc; margin: 1em 0; padding: 0; }
+.menu_calendar hr {
+    display: block;
+    height: 1px;
+    margin: 1em 0;
+    padding: 0;
+
+    border: 0;
+    border-top: 1px solid #ccc;
+}
 
 .menu_calendar h4 {
     margin: 0;
@@ -52,7 +68,6 @@
     display: inline-block;
 }
 
-
 .menu_sub_element_list {
     margin: 0 0 0 5px;
     padding: 0;
@@ -60,9 +75,9 @@
 
 .floating_event {
     cursor: move;
-    cursor: grab;
+    cursor:         grab;
+    cursor:    -moz-grab;
     cursor: -webkit-grab;
-    cursor: -moz-grab;
 }
 
 .floating_event:hover {
@@ -70,16 +85,18 @@
 }
 
 .floating_event.ui-draggable-dragging {
-    cursor: grabbing;
+    cursor:         grabbing;
+    cursor:    -moz-grabbing;
     cursor: -webkit-grabbing;
-    cursor: -moz-grabbing;
 }
 
-.calendar_filter, .floating_event_filter {
+.calendar_filter,
+.floating_event_filter {
     margin: 5px 5px 8px 5px;
 }
 
-.calendar_filter input, .floating_event_filter input {
+.calendar_filter input,
+.floating_event_filter input {
     width: 100%;
     font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
     font-size: 9px;
@@ -92,7 +109,6 @@
 .my_calendars .calendar_item:first-child {
     margin-top: 5px;
 }
-
 
 .other_calendars .calendar_label_owner {
     margin-bottom: 3px;
@@ -119,11 +135,14 @@
 }
 
 
-.calendar .fc-event-time, .calendar .fc-event-type, .calendar .fc-event-title {
+.calendar .fc-event-time,
+.calendar .fc-event-type,
+.calendar .fc-event-title {
     font-size: 13px;
 }
 
-.calendar .fc-event-time, .calendar .fc-event-type {
+.calendar .fc-event-time,
+.calendar .fc-event-type {
     font-weight: 500;
 }
 
@@ -136,7 +155,9 @@
     padding: 2px 2px 15px 2px;
 }
 
-.calendar .fc-event, .calendar .fc-agenda .fc-event-time, .calendar .fc-event a {
+.calendar .fc-event,
+.calendar .fc-agenda .fc-event-time,
+.calendar .fc-event a {
     border: none;
     background: none;
     text-shadow: none;
@@ -187,7 +208,8 @@
 
 /* calendar header widget repositioning */
 
-.calendar .fc-header-left table, .calendar .fc-header-center table {
+.calendar .fc-header-left table,
+.calendar .fc-header-center table {
     position: relative;
 }
 
@@ -270,9 +292,11 @@
     border-bottom: 1px solid #dedede;
 }
 
+/*
 .activities-list-brick .activity-schedule {
-/*    margin-right: 11px;*/
+//    margin-right: 11px;
 }
+*/
 
 .activities-list-brick .activity-schedule-beginning {
     font-weight: 600;
@@ -392,7 +416,8 @@
     background: white;
 }
 
-.brick .activity-calendar-default, .brick .activity-calendar-public {
+.brick .activity-calendar-default,
+.brick .activity-calendar-public {
     text-align: center;
 }
 

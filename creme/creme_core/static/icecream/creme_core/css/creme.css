@@ -47,10 +47,12 @@ html {
     background-repeat: repeat-x;
 }
 
+/*
 html.central_panel {
     min-height: 100%;
     background-color: transparent;
 }
+*/
 
 body {
     color: black;
@@ -63,6 +65,7 @@ html.is_deleted {
     background: #eee;
 }
 
+/*
 body.central_panel {
     padding: 0;
 
@@ -71,9 +74,9 @@ body.central_panel {
 
     font-size: 0.9em;
 }
+*/
 
 body.is_deleted {
-/*    background-color: #775555; */
     background:                     #eee;
     background:     -webkit-gradient(linear, 0% 0%, 0% 15%, from(#eee), to(#fcfcfc));
     background: -moz-linear-gradient(top, #eee 0%, #fcfcfc 15%);
@@ -151,11 +154,12 @@ button {
     padding-right: 20px;
 }
 
-#top {
+#top {  /* TODO: remove with old menu */
     margin-top: 10px;
     padding-left: 5px;
 }
 
+/*
 #footer {
   clear: both;
   display: block;
@@ -166,6 +170,7 @@ button {
   margin-left: 1.2%;
   padding: 10px 0px;
 }
+*/
 
 /* Page structure - header and footer - end */
 
@@ -241,7 +246,8 @@ button {
 /* page header - "last pages viewed" and "quick access pages" - end */
 
 /* page header - type, title, actions bar */
-/* TODO: remove 'table_header' in 1.8 */
+
+/*
 .table_header {
     width: 100%;
     margin-bottom: 5px;
@@ -257,16 +263,17 @@ button {
     font-size: 1.8em;
 }
 
-.table_header td:last-child img { /* page actions buttons */
+.table_header td:last-child img {
     position: relative;
     height: 50px;
 }
+*/
 
 /* Page header - type, title, actions bar - end */
 
 /* Page header and top areas - list of buttons: "global-buttons" and "instance-buttons" */
 
-/* TODO: remove 'button_list' in 1.8 */
+/*
 ul.button_list {
     margin: 0;
     padding: 0;
@@ -293,6 +300,7 @@ ul.button_list.vbox li {
     position: relative;
     display: block;
 }
+*/
 
 .buttons-list > ul {
     display: inline-table;
@@ -420,8 +428,8 @@ ul.button_list.vbox li {
 
 /* Page header and top areas - end */
 
-/* Error pages */ /* TODO: remove in 1.8 */
-
+/* Error pages */
+/*
 .central_panel #branding h1 {
     padding: 0 10px;
     font-size: 18px;
@@ -487,6 +495,7 @@ ul.button_list.vbox li {
     margin-right: auto;
     padding: 1em 0 1em 0;
 }
+*/
 
 /* Error pages - end */
 
@@ -494,10 +503,12 @@ ul.button_list.vbox li {
     opacity: 0.5;
 }
 
-.zone_spacer_5px { /* TODO: remove in 1.8 */
+/*
+.zone_spacer_5px {
     clear: both;
     padding : 5px;
 }
+*/
 
 .spacer {  /* TODO: move to forms.css */
   clear: both;
@@ -584,6 +595,7 @@ ul.button_list.vbox li {
     padding-top: 3px;
 }
 
+/*
 .back_pink {
     background-color: #f7cbc6;
 }
@@ -591,9 +603,9 @@ ul.button_list.vbox li {
 .back_blue {
     background-color: #b4e6fb;
 }
+*/
 
-
-/* This seems to be block-related and could be moved to blocks.css  TODO: remove in 1.8 */
+/* This seems to be block-related and could be moved to blocks.css */
 /* Buttons (for example: 'validate') in the blocks */
 .table_detail_view td button {
     padding: 0px;
@@ -604,7 +616,6 @@ ul.button_list.vbox li {
     max-width: 30%;
     width: 30%;
     text-align: left;
-
 }
 
 .td_info {
@@ -613,6 +624,7 @@ ul.button_list.vbox li {
     text-align: left;
 }
 
+/*
 .th_info_4_columns {
     max-width: 15%;
     width: 15%;
@@ -624,6 +636,7 @@ ul.button_list.vbox li {
     width: 33%;
     text-align: left;
 }
+*/
 
 /* This seems duplicated/overridden in blocks.css - end */
 
@@ -631,6 +644,7 @@ ul.button_list.vbox li {
     background-color: transparent;
 }
 
+/*
 .button_link:hover {
     cursor: pointer;
     text-decoration: none;
@@ -639,6 +653,7 @@ ul.button_list.vbox li {
 .button_link img {
     border: 0;
 }
+*/
 
 .help_box {
     background-color: #fff7a1;
@@ -663,56 +678,65 @@ ul.button_list.vbox li {
     text-align: center;
 }
 
+/* TODO: remove with old menu */
 .pointer {
     cursor: pointer;
 }
 
 /* Buttons */
-/* TODO remove lots of this (all?) in 1.8 */
-
-
-.buttons a, .buttons button, .buttons span {
+/*
+.buttons a,
+.buttons button,
+.buttons span {
     display: block;
     float: right;
+    min-width: 110px;
     margin: 0 7px 1px 0;
+    padding: 3px 7px; // Links
+
+    white-space: nowrap;
+    text-align: left;
     background-color: #f5f5f5;
-    border: 1px solid #B6D3E0;
     font-family: "Lucida Grande", Tahoma, Arial, Verdana, sans-serif;
     font-size: 100%;
     text-decoration: none;
     font-weight: bold;
     color: #565656;
+
     cursor: pointer;
-    padding: 3px 7px; /* Links */
-    -moz-border-radius: 4px;
+
+    border: 1px solid #B6D3E0;
     -webkit-border-radius: 4px;
-    border-radius: 4px;
-    white-space: nowrap;
-    min-width: 110px;
-    text-align: left;
+       -moz-border-radius: 4px;
+            border-radius: 4px;
 }
 .buttons button {
     width: auto;
     overflow: visible;
-    padding: 4px 10px 3px 7px; /* IE6 */
+    padding: 4px 10px 3px 7px; // IE6
 }
 .buttons button[type] {
-    padding: 5px 10px 5px 7px; /* Firefox */
-    line-height: 17px; /* Safari */
+    padding: 5px 10px 5px 7px; // Firefox
+    line-height: 17px; // Safari
 }
 *:first-child+html button[type] {
-    padding: 4px 10px 3px 7px; /* IE7 */
+    padding: 4px 10px 3px 7px; // IE7
 }
-.buttons button img, .buttons a img , .buttons span img {
+.buttons button img,
+.buttons a img,
+.buttons span img {
     margin: 0 3px -3px 0 !important;
     padding: 0;
     border: none;
     width: 16px;
     height: 16px;
 }
+*/
 
 /* Buttons - normal */
-.buttons button:hover, .buttons a:hover {
+/*
+.buttons button:hover,
+.buttons a:hover {
     background-color: #dff4ff;
     border: 1px solid #c2e1ef;
     color: #336699;
@@ -722,12 +746,16 @@ ul.button_list.vbox li {
     border: 1px solid #6299c5;
     color: #fff;
 }
+*/
 
 /* Button - link */
-.buttons button.link, .buttons a.link {
+/*
+.buttons button.link,
+.buttons a.link {
     color: #518DC9;
 }
-.buttons a.link:hover, button.link:hover {
+.buttons a.link:hover,
+button.link:hover {
     background-color: #dff4ff;
     border: 1px solid #c2e1ef;
     color: #336699;
@@ -737,12 +765,17 @@ ul.button_list.vbox li {
     border: 1px solid #518DC9;
     color: #fff;
 }
+*/
 
 /* Buttons - add */
-.buttons button.add, .buttons a.add, .buttons span.add {
+/*
+.buttons button.add,
+.buttons a.add,
+.buttons span.add {
     color: #529214;
 }
-.buttons a.add:hover, button.add:hover {
+.buttons a.add:hover,
+button.add:hover {
     background-color: #E6EFC2;
     border: 1px solid #C6D880;
     color: #529214;
@@ -752,12 +785,16 @@ ul.button_list.vbox li {
     border: 1px solid #529214;
     color: #fff;
 }
+*/
 
 /* Buttons - list */
-.buttons a.list, button.list {
+/*
+.buttons a.list,
+button.list {
     color: #D9BD41;
 }
-.buttons a.list:hover, button.list:hover {
+.buttons a.list:hover,
+button.list:hover {
     background: #FFEB91;
     border: 1px solid #fbc2c4;
 }
@@ -766,12 +803,16 @@ ul.button_list.vbox li {
     border: 1px solid #FFEB91;
     color: #fff;
 }
+*/
 
 /* Buttons - negative */
-.buttons a.negative, button.negative {
+/*
+.buttons a.negative,
+button.negative {
     color: #d12f19;
 }
-.buttons a.negative:hover, button.negative:hover {
+.buttons a.negative:hover,
+button.negative:hover {
     background: #fbe3e4;
     border: 1px solid #fbc2c4;
     color: #d12f19;
@@ -781,12 +822,16 @@ ul.button_list.vbox li {
     border: 1px solid #d12f19;
     color: #fff;
 }
+*/
 
 /* Buttons - download */
-.buttons a.download, button.download {
+/*
+.buttons a.download,
+button.download {
     color: #4c4c96;
 }
-.buttons a.download:hover, button.download:hover {
+.buttons a.download:hover,
+button.download:hover {
     background: #9292e1;
     border: 1px solid #9c9cf8;
     color: #25254a;
@@ -797,8 +842,10 @@ ul.button_list.vbox li {
     border: 1px solid #4c4c96;
     color: #fff;
 }
+*/
 
 /* Buttons - toggle view */
+/*
 .buttons a.view_more {
     min-width: 0;
     background-image: url("icecream/images/view_more_22.png");
@@ -816,10 +863,13 @@ ul.button_list.vbox li {
     height: 22px;
     width: 16px;
 }
+*/
 
+/*
 .collapser {
     cursor: pointer;
 }
+*/
 
 /* Buttons - end */
 
@@ -834,13 +884,12 @@ ul.button_list.vbox li {
 
 /* Dialogs */
 
-/* TODO: remove all 'table_header' stuffes in 1.8  */
-.ui-dialog-content .table_header h1,
+/*.ui-dialog-content .table_header h1, */
 .ui-dialog-content .hat-bar-container .hat-bar .bar-title h1 {
     font-size: 15px;
 }
 
-.ui-dialog-content .table_header td:first-child img,
+/*.ui-dialog-content .table_header td:first-child img,*/
 .ui-dialog-content .hat-bar-container .hat-bar .bar-icon img {
     height: 20px;
     width: 20px;

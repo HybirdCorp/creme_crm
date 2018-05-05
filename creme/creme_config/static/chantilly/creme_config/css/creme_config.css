@@ -4,7 +4,8 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
     height: 14px;
 }
 
-.theme_picker, .tz_picker {
+.theme_picker,
+.tz_picker {
     display: inline-block;
     margin-bottom: 15px;
     margin-top: 5px;
@@ -14,20 +15,25 @@ li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2) {
     margin-left: 20px;
 }
 
-.theme_picker label, .tz_picker label {
+.theme_picker label,
+.tz_picker label {
     font-weight: bolder;
 }
 
 /* Search/Blocks config */
-.search-conf-ctype, .blocks-conf-ctype {
+/*
+.search-conf-ctype,
+.blocks-conf-ctype {
     vertical-align: top;
 }
 
-.search-conf-info ul, .blocks-conf-info ul {
+.search-conf-info ul,
+.blocks-conf-info ul {
     list-style: outside none none;
     margin: 0;
     padding: 0;
 }
+*/
 
 .creme_config-configurable-model-brick th.configmodel-column-order {
     width: 50px;

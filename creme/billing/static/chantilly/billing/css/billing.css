@@ -1,10 +1,14 @@
+/*
 input[type='textbox'].creme-field-error {
     background-color: #f08080;
 }
+*/
 
+/*
 td.discount-functional-error {
     background-color: #f08080;
 }
+*/
 
 td.line-error {
     background-color: #f7d6d2;
@@ -66,7 +70,8 @@ select.line-vat {
     text-align: right;
 }
 
-.linetable-container, .linetable {
+/* .linetable-container, */
+.linetable {
     width: 100%;
 
     margin: 0;
@@ -76,6 +81,7 @@ select.line-vat {
     border-spacing: 0;
 }
 
+/*
 .linetable-container .linetable-header {
     width: 2%;
     text-align: center;
@@ -84,6 +90,7 @@ select.line-vat {
 .linetable-separator {
     height: 18px;
 }
+*/
 
 .linetable th {
     color: #376e86; /* See .table_detail_view > tbody > tr > th { */
@@ -119,14 +126,18 @@ select.line-vat {
     width: 7%;
 }
 
-.bline-total-no-tax, .bline-total-discounted, .bline-total {
+.bline-total-no-tax,
+.bline-total-discounted,
+.bline-total {
     width: 10%;
 }
 
-.bline-item, th.bline-item {
+.bline-item,
+th.bline-item {
    text-align: center;
 }
 
+/*
 #block_billing-credit_notes .cnote-total-no-tax,
 #block_billing-credit_notes .cnote-total {
     text-align: right;
@@ -150,6 +161,7 @@ select.line-vat {
     text-align: center;
     width: 5%;
 }
+*/
 
 /* Bricks */
 
@@ -212,13 +224,17 @@ select.line-vat {
     font-weight: 600;
 }
 
+/*
 .billing-list-brick .billing-schedule {
-/*    margin-right: 11px;*/
+//    margin-right: 11px;
 }
+*/
 
+/*
 .billing-list-brick .billing-schedule-beginning {
     font-weight: 600;
 }
+*/
 
 .billing-list-brick .billing-type {
     margin-right: 3px;
@@ -236,8 +252,8 @@ select.line-vat {
     font-size: 11px;
     font-weight: 600;
     color: #333;
-    _color: #FF4136; /* red */
-    _color: #FF851B; /* orange */
+    /* color: #FF4136; // red */
+    /* color: #FF851B; // orange */
 }
 
 .billing-list-brick .billing-action {
@@ -255,9 +271,10 @@ select.line-vat {
     top: 3px;
 }
 
+/* Experiments
 .billing-list-brick .billing-warning {
-    color: #FF4136; /* red */
-    color: #FF851B; /* orange */
+    color: #FF4136; // red
+    color: #FF851B; // orange
     cursor: default;
 }
 
@@ -298,6 +315,7 @@ select.line-vat {
 
     fill: #666;
 }
+*/
 
 .billing-item .billing-select-account {
     opacity: 0;

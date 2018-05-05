@@ -10,6 +10,8 @@
     margin-left: 10px;
 }
 
-#sub_content > .search_results > .table_header td:first-child { /* page headers... */
-    width: 5%; /* backwards compatibility - 5% is hardcoded in the form 'generics/blockform/base.html' template */
+/*
+#sub_content > .search_results > .table_header td:first-child {
+    width: 5%; // backwards compatibility - 5% is hardcoded in the form 'generics/blockform/base.html' template
 }
+*/
