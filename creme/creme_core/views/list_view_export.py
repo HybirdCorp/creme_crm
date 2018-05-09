@@ -30,12 +30,15 @@ from ..gui.listview import ListViewState
 from ..models import EntityFilter, EntityCredentials
 from ..models.header_filter import HeaderFilterList
 from ..utils import get_ct_or_404, get_from_GET_or_404, bool_from_str_extended
+from ..utils.queries import QSerializer
+
 
 logger = logging.getLogger(__name__)
 
 
 # TODO: stream response ??
 # TODO: factorise with list_view()
+# TODO: do not use ListViewState any more => only GET arguments ( + remove 'list_url' arg)
 @login_required
 # def dl_listview(request, ct_id=None, doc_type=None, header_only=None):
 def dl_listview(request):
@@ -82,6 +85,11 @@ def dl_listview(request):
     # else:
     #     header_only = get_from_GET_or_404(GET, 'header', cast=bool_from_str_extended, default='0')
     header_only = get_from_GET_or_404(GET, 'header', cast=bool_from_str_extended, default='0')
+    hf_id = get_from_GET_or_404(GET, 'hfilter')
+
+    backend = export_backend_registry.get_backend(doc_type)
+    if backend is None:
+        raise Http404('No such exporter for extension "{}"'.format(doc_type))
 
     ct    = get_ct_or_404(ct_id)
     model = ct.model_class()
@@ -90,16 +98,14 @@ def dl_listview(request):
 
     user.has_perm_to_export_or_die(model)
 
-    backend = export_backend_registry.get_backend(doc_type)
-    if backend is None:
-        raise Http404('Unknown extension')
+    hf = HeaderFilterList(ct, user).select_by_id(hf_id)
+    if hf is None:
+        raise Http404('Invalid header filter "{}"'.format(hf))
 
     # TODO: is it possible that session doesn't content the state (eg: url linked and open directly)
     #   => now yes, the GET request doesn't create or update session state.
     current_lvs = ListViewState.get_or_create_state(request, url=url)
 
-    user = request.user
-    hf = current_lvs.set_headerfilter(HeaderFilterList(ct, user), request.GET.get('hfilter', -1))
     cells = hf.filtered_cells
 
     writer = backend()
@@ -120,8 +126,12 @@ def dl_listview(request):
         if efilter_id:
             entities_qs = EntityFilter.objects.get(pk=efilter_id).filter(entities_qs)
 
-        if current_lvs.extra_q:
-            entities_qs = entities_qs.filter(current_lvs.extra_q)
+        # if current_lvs.extra_q:
+        #     entities_qs = entities_qs.filter(current_lvs.extra_q)
+        #     use_distinct = True  # todo: test + only if needed
+        extra_q = GET.get('extra_q')
+        if extra_q is not None:
+            entities_qs = entities_qs.filter(QSerializer().loads(extra_q))
             use_distinct = True  # TODO: test + only if needed
 
         lv_state_q = current_lvs.get_q_with_research(model, cells)

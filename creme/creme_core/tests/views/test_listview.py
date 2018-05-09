@@ -12,8 +12,10 @@ try:
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
+    from django.db.models import Q
     from django.test.utils import override_settings
     from django.urls import reverse
+    from django.utils.http import urlquote
     from django.utils.timezone import now
 
     from .base import ViewsTestCase
@@ -30,6 +32,7 @@ try:
     from creme.creme_core.models.entity_filter import EntityFilterList
     from creme.creme_core.models.header_filter import HeaderFilterList
     from creme.creme_core.utils.profiling import CaptureQueriesContext
+    from creme.creme_core.utils.queries import QSerializer
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -896,6 +899,41 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(bebop.name, content)
         self.assertIn(redtail.name, content)
         self.assertIn(dragons.name, content)
+
+    def test_header_buttons(self):
+        self.login()
+        hf = self._build_hf()
+        ct_id = self.ctype.id
+
+        qdict = {'name': 'Bebop'}
+        response = self.assertGET200(self.url, data={'hfilter': hf.id, 'q_filter': json_dump(qdict)})
+
+        page_tree = html5lib.parse(response.content, namespaceHTMLElements=False)
+        buttons_node = page_tree.find(".//div[@class='list-header-buttons clearfix']")
+        self.assertIsNotNone(buttons_node)
+
+        hrefs = [button_node.attrib.get('href') for button_node in buttons_node.findall('a')]
+        self.assertEqual(FakeOrganisation.get_create_absolute_url(), hrefs[0])
+
+        dl_url = '{}?ct_id={}'.format(reverse('creme_core__dl_listview'), ct_id)
+        dl_uri = hrefs[1]
+        self.assertTrue(dl_uri.startswith(dl_url),
+                        'URI <{}> does not starts with <{}>'.format(dl_uri, dl_url)
+                       )
+        self.assertIn('list_url={}'.format(self.url), dl_uri)
+        self.assertIn('hfilter={}'.format(hf.id),     dl_uri)
+        self.assertIn('extra_q={}'.format(urlquote(QSerializer().dumps(Q(**qdict)))), dl_uri)
+
+        dl_header_uri = hrefs[2]
+        self.assertTrue(dl_header_uri.startswith(dl_url),
+                        'URI <{}> does not starts with <{}>'.format(dl_header_uri, dl_url)
+                       )
+        self.assertIn('header=true', dl_header_uri)
+
+        self.assertEqual(reverse('creme_core__mass_import',   args=(self.ctype.id,)), hrefs[3])
+        self.assertEqual('{}?list_url={}'.format(reverse('creme_core__batch_process', args=(ct_id,)), self.url),
+                         hrefs[4]
+                        )
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=1000000, PAGE_SIZES=[10, 25], DEFAULT_PAGE_SIZE_IDX=1)
     def test_search_regularfields01(self):

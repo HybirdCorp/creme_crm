@@ -115,10 +115,10 @@
             {% endif %}
             {% get_export_backends as export_backends %}
             {% if export_backends|length > 2 %}{% url 'creme_core__dl_listview' as dl_url %}
-                <a {% if export_perm %}class="with-icon" href="{{dl_url}}?ct_id={{content_type_id}}&list_url={{request.path}}" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}}, 'type');"{% else %}class="with-icon forbidden" title="{% trans 'Forbidden' %}"{% endif %}>
+                <a {% if export_perm %}class="with-icon" href="{{dl_url}}?ct_id={{content_type_id}}&list_url={{request.path}}&hfilter={{header_filters.selected.id}}&extra_q={{extra_filter|urlencode}}" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}}, 'type');"{% else %}class="with-icon forbidden" title="{% trans 'Forbidden' %}"{% endif %}>
                     {% trans 'Download' as label %}{% widget_icon name='document_csv' label=label size='listview-button' %}{{label}}
                 </a>
-                <a {% if export_perm %}class="with-icon" href="{{dl_url}}?ct_id={{content_type_id}}&list_url={{request.path}}&header=true" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}}, 'type');"{% else %}class="with-icon forbidden" title="{% trans 'Forbidden' %}"{% endif %}>
+                <a {% if export_perm %}class="with-icon" href="{{dl_url}}?ct_id={{content_type_id}}&list_url={{request.path}}&hfilter={{header_filters.selected.id}}&header=true" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}}, 'type');"{% else %}class="with-icon forbidden" title="{% trans 'Forbidden' %}"{% endif %}>
                     {% trans 'Download header' as label %}{% widget_icon name='document_csv' label=label size='listview-button' %}{{label}}
                 </a>
             {% endif %}
