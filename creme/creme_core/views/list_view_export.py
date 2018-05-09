@@ -29,6 +29,7 @@ from ..core.paginator import FlowPaginator
 from ..gui.listview import ListViewState
 from ..models import EntityFilter, EntityCredentials
 from ..models.header_filter import HeaderFilterList
+from ..models.history import _HLTEntityExport
 from ..utils import get_ct_or_404, get_from_GET_or_404, bool_from_str_extended
 from ..utils.queries import QSerializer
 
@@ -123,8 +124,10 @@ def dl_listview(request):
         use_distinct = False
 
         efilter_id = current_lvs.entity_filter_id
+        efilter = None
         if efilter_id:
-            entities_qs = EntityFilter.objects.get(pk=efilter_id).filter(entities_qs)
+            efilter = EntityFilter.objects.get(pk=efilter_id)
+            entities_qs = efilter.filter(entities_qs)
 
         # if current_lvs.extra_q:
         #     entities_qs = entities_qs.filter(current_lvs.extra_q)
@@ -148,12 +151,15 @@ def dl_listview(request):
                                   key=ordering[0], per_page=1024,
                                  )
 
+        total_count = 0
+
         for entities_page in paginator.pages():
             entities = entities_page.object_list
 
             hf.populate_entities(entities, user)  # Optimisation time !!!
 
             for entity in entities:
+                total_count += 1
                 line = []
 
                 for cell in cells:
@@ -166,6 +172,8 @@ def dl_listview(request):
                     line.append(smart_str(res) if res else '')
 
                 writerow(line)
+
+        _HLTEntityExport.create_line(ctype=ct, user=user, count=total_count, hfilter=hf, efilter=efilter)
 
     writer.save(ct.model)
 

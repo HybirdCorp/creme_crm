@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-04 21:01+0200\n"
+"POT-Creation-Date: 2018-05-09 16:07+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -248,7 +248,7 @@ msgstr "%(field)s ➔ %(operator)s : «%(value)s»"
 #: templates/creme_core/bricks/jobs-all.html:27
 #: templates/creme_core/bricks/jobs-mine.html:14
 #: templates/creme_core/bricks/trash.html:18
-#: templates/creme_core/frags/list_view_content.html:182
+#: templates/creme_core/frags/list_view_content.html:183
 #: templates/creme_core/templatetags/widgets/entity_actions.html:32
 msgid "Actions"
 msgstr "Actions"
@@ -299,7 +299,7 @@ msgstr "Saisissez une couleur HTML valide."
 
 #: creme_jobs/batch_process.py:42
 #: templates/creme_core/forms/batch-process.html:5
-#: templates/creme_core/frags/list_view_content.html:138
+#: templates/creme_core/frags/list_view_content.html:139
 msgid "Batch process"
 msgstr "Traitement par lots"
 
@@ -467,7 +467,7 @@ msgctxt "creme_core-noun"
 msgid "Filter"
 msgstr "Filtre"
 
-#: forms/batch_process.py:214
+#: forms/batch_process.py:214 models/history.py:561
 #: templates/creme_core/templatetags/listview_columns_header.html:12
 #: templates/creme_core/templatetags/listview_columns_header.html:19
 #: templates/creme_core/templatetags/listview_entityfilters.html:7
@@ -1134,14 +1134,14 @@ msgstr "Informations sur la fiche"
 msgid "Title bar"
 msgstr "Barre de titre"
 
-#: gui/field_printers.py:151 models/custom_field.py:276 models/history.py:136
-#: models/history.py:137 templatetags/creme_listview.py:121
+#: gui/field_printers.py:151 models/custom_field.py:276 models/history.py:137
+#: models/history.py:138 templatetags/creme_listview.py:121
 #: utils/__init__.py:281
 msgid "Yes"
 msgstr "Oui"
 
-#: gui/field_printers.py:151 models/custom_field.py:276 models/history.py:136
-#: models/history.py:138 templatetags/creme_listview.py:125
+#: gui/field_printers.py:151 models/custom_field.py:276 models/history.py:137
+#: models/history.py:139 templatetags/creme_listview.py:125
 #: utils/__init__.py:284
 msgid "No"
 msgstr "Non"
@@ -1263,7 +1263,7 @@ msgstr "Modifier"
 #: models/auth.py:280 models/entity.py:285
 #: templates/creme_core/bricks/base/hat-card.html:111
 #: templates/creme_core/bricks/generic/hat-bar.html:47
-#: templates/creme_core/frags/list_view_content.html:191
+#: templates/creme_core/frags/list_view_content.html:192
 #: templatetags/creme_bricks.py:136
 msgid "Delete"
 msgstr "Supprimer"
@@ -1522,7 +1522,7 @@ msgid "Types of property"
 msgstr "Types de propriété"
 
 #: models/creme_property.py:112
-#: templates/creme_core/frags/list_view_content.html:196
+#: templates/creme_core/frags/list_view_content.html:197
 msgid "Property"
 msgstr "Propriété"
 
@@ -1609,7 +1609,7 @@ msgstr "Fiche #%s (non visible)"
 
 #: models/entity.py:276 templates/creme_core/bricks/base/hat-card.html:103
 #: templates/creme_core/bricks/generic/hat-bar.html:36
-#: templates/creme_core/frags/list_view_content.html:186
+#: templates/creme_core/frags/list_view_content.html:187
 #: templates/creme_core/generics/blockform/edit.html:8
 #: templates/creme_core/generics/blockform/edit.html:13
 #: templates/creme_core/generics/blockform/edit_popup.html:3
@@ -1662,9 +1662,9 @@ msgid "This filter can't be edited/deleted"
 msgstr "Ce filtre ne peut être modifié/effacé"
 
 #: models/entity_filter.py:169 models/header_filter.py:120
-#: views/batch_process.py:43 views/batch_process.py:91 views/entity.py:176
+#: views/batch_process.py:43 views/batch_process.py:92 views/entity.py:176
 #: views/entity_filter.py:56 views/entity_filter.py:188
-#: views/generic/listview.py:348 views/header_filter.py:54
+#: views/generic/listview.py:349 views/header_filter.py:54
 #: views/header_filter.py:157
 msgid "You are not allowed to access to this app"
 msgstr "Vous n'êtes autorisé à accéder à cette application: %s"
@@ -1924,122 +1924,131 @@ msgstr "Cette vue ne peut être supprimée"
 msgid "You are not allowed to edit/delete this view"
 msgstr "Vous n'êtes pas autorisé à modifier/supprimer cette vue"
 
-#: models/history.py:139
+#: models/history.py:140
 msgid "N/A"
 msgstr "NC"
 
-#: models/history.py:261 models/history.py:267
+#: models/history.py:263 models/history.py:269
 #, python-format
 msgid "Set field “%(field)s”"
 msgstr "Champ “%(field)s” modifié"
 
-#: models/history.py:269
+#: models/history.py:271
 #, python-format
 msgid "Set field “%(field)s” to “%(value)s”"
 msgstr "Champ “%(field)s” mis à “%(value)s”"
 
-#: models/history.py:275
+#: models/history.py:277
 #, python-format
 msgid "Set field “%(field)s” from “%(oldvalue)s” to “%(value)s”"
 msgstr "Champ “%(field)s” passe de “%(oldvalue)s” à “%(value)s”"
 
-#: models/history.py:292
+#: models/history.py:294
 msgid "Creation"
 msgstr "Création"
 
-#: models/history.py:305
+#: models/history.py:307
 msgid "Edition"
 msgstr "Modification"
 
-#: models/history.py:322
+#: models/history.py:324
 msgid "Deletion"
 msgstr "Suppression"
 
-#: models/history.py:335
+#: models/history.py:337
 msgid "Related modification"
 msgstr "Modification liée"
 
-#: models/history.py:359
+#: models/history.py:361
 msgid "Property creation"
 msgstr "Création de propriété"
 
-#: models/history.py:360
+#: models/history.py:362
 #, python-format
 msgid "Add property “%s”"
 msgstr "Ajout de la propriété “%s”"
 
-#: models/history.py:381
+#: models/history.py:383
 msgid "Property deletion"
 msgstr "Suppression de propriété"
 
-#: models/history.py:382
+#: models/history.py:384
 #, python-format
 msgid "Delete property “%s”"
 msgstr "Suppression de la propriété “%s”"
 
-#: models/history.py:393 models/relation.py:210
-#: templates/creme_core/frags/list_view_content.html:201
+#: models/history.py:395 models/relation.py:210
+#: templates/creme_core/frags/list_view_content.html:202
 msgid "Relationship"
 msgstr "Relation"
 
-#: models/history.py:396
+#: models/history.py:398
 #, python-format
 msgid "Add a relationship “%s”"
 msgstr "Ajout de la relation: “%s”"
 
-#: models/history.py:436
+#: models/history.py:438
 msgid "Relationship deletion"
 msgstr "Suppression de Relation"
 
-#: models/history.py:437
+#: models/history.py:439
 #, python-format
 msgid "Delete a relationship “%s”"
 msgstr "Suppression de la relation “%s”"
 
-#: models/history.py:452
+#: models/history.py:454
 msgid "Auxiliary (creation)"
 msgstr "Auxiliaire (création)"
 
-#: models/history.py:473
+#: models/history.py:475
 #, python-format
 msgid "Add <%(type)s>: “%(value)s”"
 msgstr "Ajout de <%(type)s>: “%(value)s”"
 
-#: models/history.py:481
+#: models/history.py:483
 msgid "Auxiliary (edition)"
 msgstr "Auxiliaire (modification)"
 
-#: models/history.py:501
+#: models/history.py:503
 #, python-format
 msgid "Edit <%(type)s>: “%(value)s”"
 msgstr "Modification de <%(type)s>: “%(value)s”"
 
-#: models/history.py:512
+#: models/history.py:514
 msgid "Auxiliary (deletion)"
 msgstr "Auxiliaire (suppression)"
 
-#: models/history.py:521
+#: models/history.py:523
 #, python-format
 msgid "Delete <%(type)s>: “%(value)s”"
 msgstr "Suppression de <%(type)s>: “%(value)s”"
 
-#: models/history.py:534 templates/creme_core/bricks/history.html:14
+#: models/history.py:531
+msgid "Mass export"
+msgstr "Export en masse"
+
+#: models/history.py:557
+#, python-brace-format
+msgid "Export of {counter} «{type}» (view «{view}» & filter «{filter}»)"
+msgstr "Export de {counter} «{type}» (vue «{view}» & filtre «{filter}»)"
+
+#: models/history.py:572 templates/creme_core/bricks/history.html:14
 #: templates/creme_core/bricks/imprints.html:11
 msgid "Date"
 msgstr "Date"
 
-#: models/history.py:535 templates/creme_core/bricks/job.html:50
+#: models/history.py:573 templates/creme_core/bricks/job.html:50
 #: templates/creme_core/bricks/jobs-all.html:22
 #: templates/creme_core/bricks/jobs-mine.html:12
 #: templates/creme_core/bricks/trash.html:16
 msgid "Type"
 msgstr "Type"
 
-#: models/history.py:548
+#: models/history.py:586
 msgid "Line of history"
 msgstr "Ligne d'historique"
 
-#: models/history.py:549
+#: models/history.py:587
 msgid "Lines of history"
 msgstr "Lignes d'historique"
 
@@ -2317,7 +2326,7 @@ msgstr "Voulez-vous vraiment cloner cette fiche ?"
 #: templates/creme_core/bricks/generic/hat-bar.html:67
 #: templates/creme_core/forms/merge.html:4
 #: templates/creme_core/forms/merge.html:14
-#: templates/creme_core/frags/list_view_content.html:207 views/entity.py:508
+#: templates/creme_core/frags/list_view_content.html:208 views/entity.py:508
 msgid "Merge"
 msgstr "Fusionner"
 
@@ -2948,68 +2957,68 @@ msgstr "Télécharger l'en-tête"
 msgid "Import"
 msgstr "Importer"
 
-#: templates/creme_core/frags/list_view_content.html:148
+#: templates/creme_core/frags/list_view_content.html:149
 #: templates/creme_core/templatetags/search-form.html:4
 #: templates/creme_core/templatetags/search_panel.html:4
 msgctxt "creme_core-verb"
 msgid "Search"
 msgstr "Rechercher"
 
-#: templates/creme_core/frags/list_view_content.html:153
+#: templates/creme_core/frags/list_view_content.html:154
 msgid "Clear search"
 msgstr "Effacer la recherche"
 
-#: templates/creme_core/frags/list_view_content.html:174
+#: templates/creme_core/frags/list_view_content.html:175
 msgid "Select all"
 msgstr "Tout sélectionner"
 
-#: templates/creme_core/frags/list_view_content.html:181
+#: templates/creme_core/frags/list_view_content.html:182
 msgid "Actions on the selected entities"
 msgstr "Actions sur les fiches sélectionnées"
 
-#: templates/creme_core/frags/list_view_content.html:186 views/entity.py:316
+#: templates/creme_core/frags/list_view_content.html:187 views/entity.py:316
 #: views/entity.py:336
 msgid "Multiple update"
 msgstr "Modification multiple"
 
-#: templates/creme_core/frags/list_view_content.html:191
+#: templates/creme_core/frags/list_view_content.html:192
 msgid "Multiple deletion"
 msgstr "Suppression multiple"
 
-#: templates/creme_core/frags/list_view_content.html:196
+#: templates/creme_core/frags/list_view_content.html:197
 msgid "Multiple property adding"
 msgstr "Ajout de propriété multiple"
 
-#: templates/creme_core/frags/list_view_content.html:201
+#: templates/creme_core/frags/list_view_content.html:202
 msgid "Multiple relationship adding"
 msgstr "Ajout de relation multiple"
 
-#: templates/creme_core/frags/list_view_content.html:207
+#: templates/creme_core/frags/list_view_content.html:208
 msgid "Merge 2 entities"
 msgstr "Fusionner 2 fiches"
 
-#: templates/creme_core/frags/list_view_content.html:219
+#: templates/creme_core/frags/list_view_content.html:220
 #, python-format
 msgid "Sort by %(col_title)s"
 msgstr "Trier par %(col_title)s"
 
-#: templates/creme_core/frags/list_view_content.html:261
+#: templates/creme_core/frags/list_view_content.html:262
 msgid "No entity exists / matches your search"
 msgstr "Aucun élément n'existe / ne correspond à votre recherche"
 
-#: templates/creme_core/frags/list_view_content.html:272
+#: templates/creme_core/frags/list_view_content.html:273
 #, python-format
 msgid "Recordings %(start_index)s - %(end_index)s on %(entities_count)s"
 msgstr "Enregistrements %(start_index)s - %(end_index)s sur %(entities_count)s"
 
-#: templates/creme_core/frags/list_view_content.html:274
+#: templates/creme_core/frags/list_view_content.html:275
 #, python-format
 msgid "%(entities_count)s recording"
 msgid_plural "%(entities_count)s recordings"
 msgstr[0] "%(entities_count)s enregistrement"
 msgstr[1] "%(entities_count)s enregistrements"
 
-#: templates/creme_core/frags/list_view_content.html:286
+#: templates/creme_core/frags/list_view_content.html:287
 msgid "Nb / Page"
 msgstr "Nb / Page"
 
@@ -3363,7 +3372,7 @@ msgstr "N'est pas vide"
 msgid "(truncated cell)"
 msgstr "(cellule tronquée)"
 
-#: views/batch_process.py:79
+#: views/batch_process.py:80
 msgid "Run"
 msgstr "Exécuter"
 
@@ -3558,7 +3567,7 @@ msgstr "Vous ne pouvez pas modifier ce modèle"
 msgid "List of %s"
 msgstr "Liste des %s"
 
-#: views/generic/listview.py:312 views/generic/listview.py:373
+#: views/generic/listview.py:313 views/generic/listview.py:374
 msgid "The desired list does not have any view, please create one."
 msgstr "La liste souhaitée n'a aucune vue, veuillez en créer au moins une."
 
