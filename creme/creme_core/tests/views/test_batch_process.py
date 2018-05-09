@@ -19,7 +19,7 @@ try:
     from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
             SetCredentials, Job, EntityJobResult, FakeContact, FakeOrganisation)
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class BatchProcessViewsTestCase(ViewsTestCase):
@@ -36,10 +36,19 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         cls.orga_ct       = get_ct(FakeOrganisation)
         cls.contact_ct_id = get_ct(FakeContact).id
 
-    def _build_add_url(self, model):
-        return reverse('creme_core__batch_process',
+    # def _build_add_url(self, model):
+    #     return reverse('creme_core__batch_process',
+    #                    args=(ContentType.objects.get_for_model(model).id,),
+    #                   ) + '?list_url=' + model.get_lv_absolute_url()
+    def _build_add_url(self, model, efilter_id=None):
+        uri = reverse('creme_core__batch_process',
                        args=(ContentType.objects.get_for_model(model).id,),
-                      ) + '?list_url=' + model.get_lv_absolute_url()
+                      )
+
+        if efilter_id:
+            uri += '?efilter={}'.format(efilter_id)
+
+        return uri
 
     def _get_job(self, response):
         with self.assertNoException():
@@ -255,11 +264,11 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                                  ],
                                      )
 
-        # We set the current list view state
-        # Now needs a POST request for session changes.
-        self.assertPOST200(FakeOrganisation.get_lv_absolute_url(), data={'filter': efilter.id})
+        # # We set the current list view state
+        # # Now needs a POST request for session changes.
+        # self.assertPOST200(FakeOrganisation.get_lv_absolute_url(), data={'filter': efilter.id})
 
-        response = self.assertGET200(self._build_add_url(FakeOrganisation))
+        response = self.assertGET200(self._build_add_url(FakeOrganisation, efilter_id=efilter.id))
 
         with self.assertNoException():
             form = response.context['form']

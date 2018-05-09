@@ -134,7 +134,8 @@
                 </a>
                 {% endif %}
             {% endif %}
-            <a class="with-icon" href="{% url 'creme_core__batch_process' content_type_id %}?list_url={{request.path}}">
+{#            <a class="with-icon" href="{% url 'creme_core__batch_process' content_type_id %}?list_url={{request.path}}"> #}
+            <a class="with-icon" href="{% url 'creme_core__batch_process' content_type_id %}{% if list_view_state.entity_filter_id %}?efilter={{list_view_state.entity_filter_id}}{% endif %}">
                 {% trans 'Batch process' as label %}{% widget_icon name='batch_process' label=label size='listview-button' %}{{label}}
             </a>
             {% block extra_buttons %}{% endblock %}
