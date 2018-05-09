@@ -26,7 +26,9 @@ try:
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.models import (RelationType, Relation, FieldsConfig,
-            CremePropertyType, CremeProperty, HeaderFilter, FileRef)
+            CremePropertyType, CremeProperty, FileRef,
+            HeaderFilter, EntityFilter, EntityFilterCondition)
+    from creme.creme_core.models.history import TYPE_EXPORT, HistoryLine
     from creme.creme_core.utils.queries import QSerializer
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
@@ -181,11 +183,14 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.login()
         # cells = self._build_hf_n_contacts()
         cells = self._build_hf_n_contacts().cells
+        existing_hline_ids = list(HistoryLine.objects.values_list('id', flat=True))
+
         response = self.assertGET200(self._build_contact_dl_url(header=True))
 
         self.assertEqual([u','.join(u'"%s"' % hfi.title for hfi in cells)],
                          [force_unicode(line) for line in response.content.splitlines()]
                         )
+        self.assertFalse(HistoryLine.objects.exclude(id__in=existing_hline_ids))
 
         # # Legacy
         # response = self.assertGET200(self._build_dl_url(self.ct.id, header=True, use_GET=False),
@@ -211,16 +216,17 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
     def test_list_view_export01(self):
         "csv"
-        self.login()
+        user = self.login()
         # cells = self._build_hf_n_contacts()
-        cells = self._build_hf_n_contacts().cells
+        hf = self._build_hf_n_contacts()
+        existing_hline_ids = list(HistoryLine.objects.values_list('id', flat=True))
 
         response = self.assertGET200(self._build_contact_dl_url())
 
         # TODO: sort the relations/properties by they verbose_name ??
         result = response.content.splitlines()
         it = (force_unicode(line) for line in result)
-        self.assertEqual(it.next(), u','.join(u'"%s"' % hfi.title for hfi in cells))
+        self.assertEqual(it.next(), u','.join(u'"%s"' % hfi.title for hfi in hf.cells))
         self.assertEqual(it.next(), u'"","Black","Jet","Bebop",""')
         self.assertIn(it.next(), (u'"","Spiegel","Spike","Bebop/Swordfish",""',
                                   u'"","Spiegel","Spike","Swordfish/Bebop",""')
@@ -234,6 +240,29 @@ class CSVExportViewsTestCase(ViewsTestCase):
         # # Legacy
         # response = self.assertGET200(self._build_dl_url(self.ct.id, use_GET=False), data={'list_url': lv_url})
         # self.assertEqual(result, response.content.splitlines())
+
+        # History
+        hlines = HistoryLine.objects.exclude(id__in=existing_hline_ids)
+        self.assertEqual(1, len(hlines))
+
+        hline = hlines[0]
+        self.assertEqual(self.ct,      hline.entity_ctype)
+        self.assertEqual(user,         hline.entity_owner)
+        self.assertEqual(TYPE_EXPORT,  hline.type)
+
+        count = len(result) - 1
+        self.assertEqual([count, hf.name],
+                         hline.modifications
+                        )
+        self.assertEqual([_(u'Export of {counter} «{type}» (view «{view}» & filter «{filter}»)').format(
+                                    counter=count,
+                                    type='Test Contacts',
+                                    view=hf.name,
+                                    filter=_(u'All'),
+                                ),
+                         ],
+                         hline.get_verbose_modifications(user),
+                        )
 
     def test_list_view_export02(self):
         "scsv"
@@ -313,9 +342,9 @@ class CSVExportViewsTestCase(ViewsTestCase):
         result = [force_unicode(line) for line in response.content.splitlines()]
         self.assertEqual(2, len(result))
         self.assertEqual(result[1],
-                         u'"%s","%s"' % (spike.last_name,
-                                         date_format(localtime(spike.created), 'DATETIME_FORMAT'),
-                                       )
+                         u'"{}","{}"'.format(spike.last_name,
+                                             date_format(localtime(spike.created), 'DATETIME_FORMAT'),
+                                            )
                         )
 
     def test_list_view_export06(self):
@@ -415,6 +444,49 @@ class CSVExportViewsTestCase(ViewsTestCase):
         result = [force_unicode(line) for line in response.content.splitlines()]
         self.assertEqual(2, len(result))
         self.assertEqual(u'"","Wong","Edward","","is a girl"', result[1])
+
+    def test_list_view_export_with_filter01(self):
+        user = self.login()
+        hf = self._build_hf_n_contacts()
+        efilter = EntityFilter.create('test-filter01', 'Red', FakeContact,
+                                      user=user, is_custom=False,
+                                      conditions=[EntityFilterCondition.build_4_field(
+                                                        model=FakeContact,
+                                                        operator=EntityFilterCondition.ISTARTSWITH,
+                                                        name='last_name', values=['Wong'],
+                                                    ),
+                                                 ],
+                                     )
+
+        existing_hline_ids = list(HistoryLine.objects.values_list('id', flat=True))
+
+        url = FakeContact.get_lv_absolute_url()
+        # TODO: remove when filter ID is sent to export view as GET arg
+        self.assertPOST200(url, data={'filter': efilter.id})
+
+        response = self.assertGET200(self._build_contact_dl_url(list_url=url))
+        result = [force_unicode(line) for line in response.content.splitlines()]
+        self.assertEqual(2, len(result))
+
+        self.assertEqual(u'"","Wong","Edward","","is a girl"', result[1])
+
+        # History
+        hlines = HistoryLine.objects.exclude(id__in=existing_hline_ids)
+        self.assertEqual(1, len(hlines))
+
+        hline = hlines[0]
+        self.assertEqual([1, hf.name, efilter.name],
+                         hline.modifications
+                        )
+        self.assertEqual([_(u'Export of {counter} «{type}» (view «{view}» & filter «{filter}»)').format(
+                                    counter=1,
+                                    type='Test Contact',
+                                    view=hf.name,
+                                    filter=efilter.name,
+                                ),
+                         ],
+                         hline.get_verbose_modifications(user),
+                        )
 
     @skipIf(XlsMissing, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_xls_export01(self):

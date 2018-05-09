@@ -39,6 +39,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from ..global_info import get_global_info, set_global_info
 from ..signals import pre_merge_related
 from ..utils.dates import dt_to_ISO8601, dt_from_ISO8601, date_from_ISO8601, date_to_ISO8601
+from ..utils.translation import get_model_verbose_name
 from .entity import CremeEntity
 from .relation import RelationType, Relation
 from .creme_property import CremePropertyType, CremeProperty
@@ -189,6 +190,7 @@ TYPE_AUX_CREATION = 10
 TYPE_AUX_EDITION  = 11
 TYPE_AUX_DELETION = 12
 TYPE_PROP_DEL     = 13
+TYPE_EXPORT       = 20
 
 
 class _HistoryLineType(object):
@@ -524,6 +526,42 @@ class _HLTAuxDeletion(_HLTAuxCreation):
                     }
 
 
+@TYPES_MAP(TYPE_EXPORT)
+class _HLTEntityExport(_HistoryLineType):
+    verbose_name = _(u'Mass export')
+
+    @classmethod
+    def create_line(cls, ctype, user, count, hfilter, efilter=None):
+        """Builder of HistoryLine representing a CSV/XLS/... massive export.
+
+        @param ctype: ContentType instance ; type of exported entities.
+        @param user: User who does the export.
+        @param hfilter: HeaderFilter instance used.
+        @param efilter: EntityFilter instance used (or None).
+        @return: Created instance of line.
+        """
+        modifs = [count, hfilter.name]
+        if efilter:
+            modifs.append(efilter.name)
+
+        return HistoryLine.objects.create(
+                entity_ctype=ctype,
+                entity_owner=user,
+                type=cls.type_id,
+                value=HistoryLine._encode_attrs(instance='', modifs=modifs),
+        )
+
+    def verbose_modifications(self, modifications, entity_ctype, user):
+        count = modifications[0]
+
+        yield ugettext(u'Export of {counter} «{type}» (view «{view}» & filter «{filter}»)').format(
+                counter=count,
+                type=get_model_verbose_name(entity_ctype.model_class(), count),
+                view=modifications[1],
+                filter=modifications[2] if len(modifications) >= 3 else ugettext(u'All'),
+        )
+
+
 class HistoryLine(Model):
     entity       = ForeignKey(CremeEntity, null=True, on_delete=SET_NULL)
     entity_ctype = CTypeForeignKey()  # We do not use entity.entity_type because
@@ -549,7 +587,8 @@ class HistoryLine(Model):
         verbose_name_plural = _(u'Lines of history')
 
     def __repr__(self):
-        return 'HistoryLine(entity_id={entity_id}, entity_owner_id={owner_id}, username={username}, date={date}, type={type}, value={value})'.format(
+        return 'HistoryLine(entity_id={entity_id}, entity_owner_id={owner_id}, username={username}, ' \
+                           'date={date}, type={type}, value={value})'.format(
                     entity_id=self.entity_id,
                     owner_id=self.entity_owner_id,
                     username=self.username,
@@ -625,8 +664,10 @@ class HistoryLine(Model):
         """
         instance._hline_reassigned = (old_reference, new_reference, field_name)
 
-    @staticmethod
-    def _encode_attrs(instance, modifs=(), related_line_id=None):
+    # @staticmethod
+    # def _encode_attrs(instance, modifs=(), related_line_id=None):
+    @classmethod
+    def _encode_attrs(cls, instance, modifs=(), related_line_id=None):
         value = [unicode(instance)]
         if related_line_id:
             value.append(related_line_id)
@@ -725,8 +766,10 @@ class HistoryLine(Model):
 
         return self._related_line
 
-    @staticmethod
-    def _create_line_4_instance(instance, ltype, date=None, modifs=(), related_line_id=None):
+    # @staticmethod
+    # def _create_line_4_instance(instance, ltype, date=None, modifs=(), related_line_id=None):
+    @classmethod
+    def _create_line_4_instance(cls, instance, ltype, date=None, modifs=(), related_line_id=None):
         """Builder.
         @param ltype: See TYPE_*
         @param date: If not given, will be 'now'.
@@ -737,13 +780,15 @@ class HistoryLine(Model):
                   'entity_ctype': instance.entity_type,
                   'entity_owner': instance.user,
                   'type': ltype,
-                  'value': HistoryLine._encode_attrs(instance, modifs=modifs,
-                                                     related_line_id=related_line_id,
-                                                    ),
+                  # 'value': HistoryLine._encode_attrs(instance, modifs=modifs,
+                  'value': cls._encode_attrs(instance, modifs=modifs,
+                                             related_line_id=related_line_id,
+                                            ),
                  }
         if date: kwargs['date'] = date
 
-        return HistoryLine.objects.create(**kwargs)
+        # return HistoryLine.objects.create(**kwargs)
+        return cls.objects.create(**kwargs)
 
     def save(self, *args, **kwargs):
         if self.ENABLED:
