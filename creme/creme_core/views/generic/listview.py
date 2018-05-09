@@ -37,7 +37,7 @@ from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.entity_filter import EntityFilterList
 from creme.creme_core.models.header_filter import HeaderFilterList
 from creme.creme_core.utils import get_from_POST_or_404, get_from_GET_or_404  # get_ct_or_404
-from creme.creme_core.utils.queries import get_q_from_dict
+from creme.creme_core.utils.queries import get_q_from_dict, QSerializer
 
 from .popup import inner_popup
 
@@ -276,6 +276,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
         'add_url':            model.get_create_absolute_url(),
         'extra_bt_templates': None,  # TODO: () instead ???,
         'show_actions':       show_actions,
+        'extra_filter':       QSerializer().dumps(extra_filter),
         'q_filter':           json_q_filter,
         'research_cellkeys':  {cell_key for cell_key, _value in current_lvs.research},
         'is_popup_view':      False,
