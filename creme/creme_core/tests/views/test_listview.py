@@ -931,9 +931,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn('header=true', dl_header_uri)
 
         self.assertEqual(reverse('creme_core__mass_import',   args=(self.ctype.id,)), hrefs[3])
-        self.assertEqual('{}?list_url={}'.format(reverse('creme_core__batch_process', args=(ct_id,)), self.url),
-                         hrefs[4]
-                        )
+        self.assertEqual(reverse('creme_core__batch_process', args=(ct_id,)),         hrefs[4])
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=1000000, PAGE_SIZES=[10, 25], DEFAULT_PAGE_SIZE_IDX=1)
     def test_search_regularfields01(self):
