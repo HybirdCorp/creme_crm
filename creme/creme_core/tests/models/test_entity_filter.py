@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from creme.creme_core.tests.fake_models import FakeDocument, FakeFolder
 
 try:
     from datetime import date, timedelta
@@ -14,7 +13,7 @@ try:
     from creme import __version__
 
     from ..base import CremeTestCase
-    from ..fake_models import FakeContact, FakeCivility, FakeOrganisation, FakeImage
+    from ..fake_models import FakeContact, FakeCivility, FakeOrganisation, FakeImage, FakeDocument, FakeFolder
 
     from creme.creme_core.global_info import set_global_info
     from creme.creme_core.models import (CremeEntity, Language,

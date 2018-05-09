@@ -187,7 +187,7 @@ def get_users_activities(request, calendar_ids=None):
     GET = request.GET
 
     if calendar_ids is not None:
-        warnings.warn('activities.calendar.views.get_users_activities(): '
+        warnings.warn('activities.views.calendar.get_users_activities(): '
                       'the URL argument "calendar_ids" is deprecated ; '
                       'use the GET parameter "calendar_id" instead.',
                       DeprecationWarning
