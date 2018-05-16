@@ -152,7 +152,7 @@
                 - In JavaScript :
                     - These functions have been removed : creme.component.is(), creme.object.isempty(), creme.object.isnone().
                     - In 'creme.utils', these functions have been removed :
-                        innerPopupNReload(), toggleCheckallState(), autoCheckallState(), decorateSearchResult(), openQuickForms(), getBlocksDeps().
+                        innerPopupNReload(), toggleCheckallState(), autoCheckallState(), decorateSearchResult(), getBlocksDeps().
                     - The module 'creme.blocks' has been removed.
                     - In 'creme.exports.exportAs()' the URL cannot be a format string anymore.
                     - In 'creme.lv_widget', these functions have been removed : deleteEntityFilter(), deleteHeaderFilter().

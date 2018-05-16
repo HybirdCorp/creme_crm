@@ -386,17 +386,17 @@ creme.utils.appendInUrl = function(url, strToAppend) {
 //    });
 //};
 
-//creme.utils.openQuickForms = function(element) {
-//    // NB: deprecated because it does not use reversed URLs
-//    //     creme.menu.openQuickForm() is OK, but need the new menu.
-//    console.warn('creme.utils.openQuickForms() is deprecated.');
-//
-//    var uri = '/creme_core/quickforms/%s/%s';
-//    var type = $('[name="ct_id"]', element).val();
-//    var count = $('[name="entity_count"]', element).val();
-//
-//    creme.dialogs.form(uri.format(type, count), {reloadOnSuccess: true}).open();
-//};
+creme.utils.openQuickForms = function(element) {
+    // NB: deprecated because it does not use reversed URLs
+    //     creme.menu.openQuickForm() is OK, but need the new menu.
+    console.warn('creme.utils.openQuickForms() is deprecated.');
+
+    var uri = '/creme_core/quickforms/%s/%s';
+    var type = $('[name="ct_id"]', element).val();
+    var count = $('[name="entity_count"]', element).val();
+
+    creme.dialogs.form(uri.format(type, count), {reloadOnSuccess: true}).open();
+};
 
 //creme.utils.autoCheckallState = function(from, select_all_selector, checkboxes_selector) {
 //    console.warn('creme.utils.autoCheckallState() is deprecated.');
