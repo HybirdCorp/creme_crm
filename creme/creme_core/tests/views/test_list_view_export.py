@@ -110,8 +110,9 @@ class CSVExportViewsTestCase(ViewsTestCase):
         # return cells
         return hf
 
+    @staticmethod
     # def _build_dl_url(ct, doc_type='csv', header=False, list_url='', use_GET=True):
-    def _build_dl_url(self, ct_id, doc_type='csv', header=False, list_url='', hfilter_id=None, **kwargs):
+    def _build_dl_url(ct_id, doc_type='csv', header=False, list_url='', hfilter_id=None, **kwargs):
         # if not use_GET:
         #     return reverse('creme_core__dl_listview_header' if header else 'creme_core__dl_listview',
         #                    args=(ct.id, doc_type)
@@ -400,9 +401,8 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                             ],
                                 )
 
-        lv_url = FakeEmailCampaign.get_lv_absolute_url()
         response = self.assertGET200(self._build_dl_url(ContentType.objects.get_for_model(FakeEmailCampaign).id,
-                                                        list_url=lv_url,
+                                                        list_url=FakeEmailCampaign.get_lv_absolute_url(),
                                                         hfilter_id=hf.id,
                                                        ),
                                     )
