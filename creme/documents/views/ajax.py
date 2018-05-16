@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.core.serializers import serialize
 from django.http import HttpResponse
 
@@ -30,6 +32,8 @@ from .. import get_document_model, get_folder_model
 @login_required
 @permission_required('documents')
 def get_child_folders(request):
+    warnings.warn('documents.views.ajax.get_child_folders() is deprecated', DeprecationWarning)
+
     if request.POST.has_key('id'):
         folders = get_folder_model().objects.filter(parent_folder=request.POST['id']) \
                                             .order_by('-title')
@@ -44,6 +48,8 @@ def get_child_folders(request):
 @login_required
 @permission_required('documents')
 def get_child_documents(request):
+    warnings.warn('documents.views.ajax.get_child_documents() is deprecated', DeprecationWarning)
+
     if request.POST.has_key('id'):
         documents = get_document_model().objects.filter(folder=request.POST['id'])
         documents = EntityCredentials.filter(request.user, documents)
