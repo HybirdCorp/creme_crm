@@ -453,6 +453,7 @@
             * Activities :
                 - The function 'views.calendar._get_one_activity_per_calendar()' is now a generator.
             * Reports :
+                - The global variable 'views.report._order_direction' has been removed.
                 - The tag 'templatetags.reports_tags.report_chart_json()' does not take the context any more.
                 - In 'forms.report', the constructors of the following classes take an additional argument "model" :
                     _EntityCellRelated, _EntityCellAggregate, _EntityCellCustomAggregate.
