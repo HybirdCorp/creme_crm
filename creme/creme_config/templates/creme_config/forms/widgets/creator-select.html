@@ -1,0 +1,5 @@
+{% if widget.delegate %}
+    {% include 'creme_core/forms/widgets/action-button-list.html' %}
+{% else %}
+    {% include 'django/forms/widgets/select.html' %}
+{% endif %}

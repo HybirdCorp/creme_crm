@@ -10,6 +10,7 @@ try:
     from creme.creme_core.tests.fake_models import FakePosition
 
     from ..forms.fields import CreatorModelChoiceField, CreatorModelMultipleChoiceField
+    from ..forms.widgets import CreatorModelChoiceWidget
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -172,6 +173,57 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
 
         field.user = self._create_superuser()
         self.assertEqual((self.ADD_URL, True), field.creation_url_n_allowed)
+
+    def test_render_url_n_allowed(self):
+        widget = CreatorModelChoiceWidget(choices=[(1, 'A'), (2, 'B')],
+                                          creation_url=self.ADD_URL,
+                                          creation_allowed=True,
+                                         )
+        name = 'test'
+        expected = \
+u'''<ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonlist"
+        widget="ui-creme-actionbuttonlist">
+    <li class="delegate">
+        <select class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect" name="{name}" url=""
+                widget="ui-creme-dselect">
+            <option value="1" selected>A</option>
+            <option value="2">B</option>
+        </select>
+    </li>
+    <li>
+        <button class="ui-creme-actionbutton" name="create" title="{create_label}"
+                type="button" popupurl="{create_url}">{create_label}</button>
+    </li>
+</ul>'''.format(create_url=self.ADD_URL,
+                create_label=_(u'Create'),
+                name=name,
+               )
+
+        self.assertHTMLEqual(expected, widget.render(name, 1))
+        self.assertHTMLEqual(expected, widget.render(name, 1, attrs={}))
+
+    def test_render_url_n_allowed_disabled(self):
+        widget = CreatorModelChoiceWidget(choices=[(1, 'A'), (2, 'B')],
+                                          creation_url=self.ADD_URL,
+                                          creation_allowed=True,
+                                          attrs=dict(disabled=True)
+                                         )
+        name = 'testnoaction'
+
+        self.assertHTMLEqual(
+u'''<select name="{name}" disabled>
+    <option value="1" selected>A</option>
+    <option value="2">B</option>
+</select>'''.format(name=name),
+            widget.render(name, 1, attrs={'disabled': True})
+        )
+        self.assertHTMLEqual(
+u'''<select name="{name}" disabled readonly>
+    <option value="1" selected>A</option>
+    <option value="2">B</option>
+</select>'''.format(name=name),
+            widget.render(name, 1, attrs={'readonly': True})
+        )
 
 
 class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):

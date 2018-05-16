@@ -25,8 +25,7 @@ from creme.creme_core.forms.widgets import ActionButtonList, DynamicSelect
 
 
 class CreatorModelChoiceWidget(Select):
-    regular_template_name = 'django/forms/widgets/select.html'
-    creator_template_name = 'creme_core/forms/widgets/action-button-list.html'
+    template_name = 'creme_config/forms/widgets/creator-select.html'
 
     def __init__(self, creation_url='', creation_allowed=False, creation_label=_(u'Create'), *args, **kwargs):
         super(CreatorModelChoiceWidget, self).__init__(*args, **kwargs)
@@ -54,26 +53,24 @@ class CreatorModelChoiceWidget(Select):
     #
     #     return widget.render(name, value, attrs)
 
-    @property
-    def template_name(self):
-        return self.creator_template_name if self.creation_url else self.regular_template_name
-
     def get_context(self, name, value, attrs):
+        context = super(CreatorModelChoiceWidget, self).get_context(name=name, value=value, attrs=attrs)
         url = self.creation_url
 
         if url:
-            button_list = ActionButtonList(delegate=DynamicSelect(options=self.choices),
-                                           attrs=self.attrs,
-                                          )
+            final_attrs = context['widget']['attrs']
 
-            allowed = self.creation_allowed
-            label = unicode(self.creation_label)
-            button_list.add_action('create', label, enabled=allowed, popupUrl=url,
-                                   title=label if allowed else ugettext(u'Cannot create'),
-                                  )
+            if final_attrs is None or not ('disabled' in final_attrs or 'readonly' in final_attrs):
+                button_list = ActionButtonList(delegate=DynamicSelect(options=self.choices),
+                                               attrs=self.attrs,
+                                              )
 
-            context = button_list.get_context(name=name, value=value, attrs=attrs)
-        else:
-            context = super(CreatorModelChoiceWidget, self).get_context(name=name, value=value, attrs=attrs)
+                allowed = self.creation_allowed
+                label = unicode(self.creation_label)
+                button_list.add_action('create', label, enabled=allowed, popupUrl=url,
+                                       title=label if allowed else ugettext(u'Cannot create'),
+                                      )
+
+                context = button_list.get_context(name=name, value=value, attrs=attrs)
 
         return context
