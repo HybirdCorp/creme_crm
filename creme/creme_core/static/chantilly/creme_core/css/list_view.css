@@ -429,6 +429,7 @@
     border: 0 !important;
     background: none;
     color: currentColor;
+    cursor: pointer;
 }
 
 .list_view thead th:last-child {
