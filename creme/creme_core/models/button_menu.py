@@ -45,7 +45,7 @@ class ButtonMenuItem(CremeModel):
         return unicode(button.verbose_name) if button else ugettext('Deprecated button')
 
     @staticmethod
-    def create_if_needed(pk, model, button, order):
+    def create_if_needed(pk, model, button, order):  # TODO: rename 'button_class'
         """Creation helper ; useful for populate.py scripts.
         @param model: Can be None for 'all models'.
         """

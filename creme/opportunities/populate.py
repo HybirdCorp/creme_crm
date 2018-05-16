@@ -34,7 +34,7 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme import persons, products
 
 from . import get_opportunity_model, bricks, constants
-from .buttons import linked_opportunity_button
+from .buttons import LinkedOpportunityButton
 from .models import SalesPhase, Origin
 from .setting_keys import quote_key
 
@@ -176,8 +176,8 @@ class Populator(BasePopulator):
 
             # ---------------------------
             create_button = ButtonMenuItem.create_if_needed
-            create_button(pk='opportunities-linked_opp_button',         model=Organisation, button=linked_opportunity_button, order=30)  # TODO: This pk is kept for compatibility
-            create_button(pk='opportunities-linked_opp_button_contact', model=Contact,      button=linked_opportunity_button, order=30)
+            create_button(pk='opportunities-linked_opp_button',         model=Organisation, button=LinkedOpportunityButton, order=30)  # TODO: This pk is kept for compatibility
+            create_button(pk='opportunities-linked_opp_button_contact', model=Contact,      button=LinkedOpportunityButton, order=30)
 
             # ---------------------------
             create_bdl = BlockDetailviewLocation.create_if_needed

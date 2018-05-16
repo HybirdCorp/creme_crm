@@ -185,17 +185,17 @@ class Populator(BasePopulator):
 
             # ---------------------------
             create_bmi = core_models.ButtonMenuItem.create_if_needed
-            create_bmi(pk='persons-customer_contact_button', model=Contact, button=buttons.become_customer_button, order=20)
-            create_bmi(pk='persons-prospect_contact_button', model=Contact, button=buttons.become_prospect_button, order=21)
-            create_bmi(pk='persons-suspect_contact_button',  model=Contact, button=buttons.become_suspect_button,  order=22)
-            create_bmi(pk='persons-inactive_contact_button', model=Contact, button=buttons.become_inactive_button, order=24)
+            create_bmi(pk='persons-customer_contact_button', model=Contact, button=buttons.BecomeCustomerButton, order=20)
+            create_bmi(pk='persons-prospect_contact_button', model=Contact, button=buttons.BecomeProspectButton, order=21)
+            create_bmi(pk='persons-suspect_contact_button',  model=Contact, button=buttons.BecomeSuspectButton,  order=22)
+            create_bmi(pk='persons-inactive_contact_button', model=Contact, button=buttons.BecomeInactiveButton, order=24)
 
-            create_bmi(pk='persons-customer_orga_button',  model=Organisation, button=buttons.become_customer_button,    order=20)
-            create_bmi(pk='persons-prospect_orga_button',  model=Organisation, button=buttons.become_prospect_button,    order=21)
-            create_bmi(pk='persons-suspect_orga_button',   model=Organisation, button=buttons.become_suspect_button,     order=22)
-            create_bmi(pk='persons-inactive_orga_button',  model=Organisation, button=buttons.become_inactive_button,    order=23)
-            create_bmi(pk='persons-supplier_button',       model=Organisation, button=buttons.become_supplier_button,    order=24)
-            create_bmi(pk='persons-linked_contact_button', model=Organisation, button=buttons.add_linked_contact_button, order=25)
+            create_bmi(pk='persons-customer_orga_button',  model=Organisation, button=buttons.BecomeCustomerButton,   order=20)
+            create_bmi(pk='persons-prospect_orga_button',  model=Organisation, button=buttons.BecomeProspectButton,   order=21)
+            create_bmi(pk='persons-suspect_orga_button',   model=Organisation, button=buttons.BecomeSuspectButton,    order=22)
+            create_bmi(pk='persons-inactive_orga_button',  model=Organisation, button=buttons.BecomeInactiveButton,   order=23)
+            create_bmi(pk='persons-supplier_button',       model=Organisation, button=buttons.BecomeSupplierButton,   order=24)
+            create_bmi(pk='persons-linked_contact_button', model=Organisation, button=buttons.AddLinkedContactButton, order=25)
 
             # Populate bricks ------------------
             rbi_1 = core_models.RelationBlockItem.create(constants.REL_SUB_CUSTOMER_SUPPLIER)
