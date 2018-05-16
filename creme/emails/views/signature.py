@@ -60,6 +60,7 @@ def delete(request):
     signature.delete()
 
     if request.is_ajax():
-        return HttpResponse(content_type='text/javascript')
+        # return HttpResponse(content_type='text/javascript')
+        return HttpResponse()
 
     return HttpResponseRedirect('/')

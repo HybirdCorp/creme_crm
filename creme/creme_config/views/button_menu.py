@@ -70,7 +70,8 @@ class ButtonMenuWizard(PopupWizardMixin, SessionWizardView):
     def done(self, form_list, **kwargs):
         form_list[1].save()
 
-        return HttpResponse(content_type='text/javascript')
+        # return HttpResponse(content_type='text/javascript')
+        return HttpResponse()
 
     def get_form_kwargs(self, step):
         kwargs = super(ButtonMenuWizard, self).get_form_kwargs(step)

@@ -133,7 +133,8 @@ def delete(request):
         status = 400
 
     if request.is_ajax():
-        return HttpResponse(return_msg, content_type="text/javascript", status=status)
+        # return HttpResponse(return_msg, content_type="text/javascript", status=status)
+        return HttpResponse(return_msg, status=status)
 
     return HttpResponseRedirect(callback_url)
 

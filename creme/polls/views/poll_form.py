@@ -119,7 +119,8 @@ def disable_line(request, line_id):
         raise PermissionDenied(e.args[0])
 
     if request.is_ajax():
-        return HttpResponse(content_type='text/javascript')
+        # return HttpResponse(content_type='text/javascript')
+        return HttpResponse()
 
     return redirect(pform)
 

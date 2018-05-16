@@ -106,7 +106,8 @@ class PortalBricksWizard(PopupWizardMixin, SessionWizardView):
         # with atomic():
         conf_step.save()
 
-        return HttpResponse(content_type='text/javascript')
+        # return HttpResponse(content_type='text/javascript')
+        return HttpResponse()
 
     def get_form_kwargs(self, step):
         kwargs = super(PortalBricksWizard, self).get_form_kwargs(step)
@@ -165,7 +166,8 @@ class CustomBrickWizard(PopupWizardMixin, SessionWizardView):
             conf_step.instance = resource_step.save()
             conf_step.save()
 
-        return HttpResponse(content_type='text/javascript')
+        # return HttpResponse(content_type='text/javascript')
+        return HttpResponse()
 
     def get_form_instance(self, step):
         if step == '1':
@@ -331,7 +333,8 @@ class RelationCTypeBrickWizard(PopupWizardMixin, SessionWizardView):
     def done(self, form_list, **kwargs):
         form_list[1].save()
 
-        return HttpResponse(content_type='text/javascript')
+        # return HttpResponse(content_type='text/javascript')
+        return HttpResponse()
 
     def get_context_data(self, form, **kwargs):
         context = super(RelationCTypeBrickWizard, self).get_context_data(form, **kwargs)

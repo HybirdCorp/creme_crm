@@ -156,7 +156,8 @@ def delete_model(request, app_name, model_name):
 
         # TODO: factorise ??
         if request.is_ajax():
-            return HttpResponse(msg, content_type='text/javascript', status=400)
+            # return HttpResponse(msg, content_type='text/javascript', status=400)
+            return HttpResponse(msg, status=400)
 
         raise Http404(msg)
 
@@ -185,9 +186,11 @@ def reorder(request, app_name, model_name, object_id):
     try:
         reorder_instances(moved_instance=instance, new_order=new_order)
     except Exception as e:
-        return HttpResponse(e, status=409, content_type='text/javascript')
+        # return HttpResponse(e, status=409, content_type='text/javascript')
+        return HttpResponse(e, status=409)
 
-    return HttpResponse(content_type='text/javascript')
+    # return HttpResponse(content_type='text/javascript')
+    return HttpResponse()
 
 
 # @login_required

@@ -136,7 +136,8 @@ def delete(request, job_id):
     url = request.POST.get('back_url') or reverse('creme_core__my_jobs')
 
     if request.is_ajax():
-        return HttpResponse(content=url, content_type='text/javascript')
+        # return HttpResponse(content=url, content_type='text/javascript')
+        return HttpResponse(content=url)
 
     return HttpResponseRedirect(url)
 

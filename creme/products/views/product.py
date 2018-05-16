@@ -116,6 +116,7 @@ def remove_image(request, entity_id):
     entity.images.remove(img_id)
 
     if request.is_ajax():
-        return HttpResponse(content_type='text/javascript')
+        # return HttpResponse(content_type='text/javascript')
+        return HttpResponse()
 
     return redirect(entity)

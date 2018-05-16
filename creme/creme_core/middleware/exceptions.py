@@ -55,7 +55,8 @@ class Beautiful403Middleware(MiddlewareMixin):
                 msg = smart_unicode(exception)
 
             if request.is_ajax():  # TODO: use protected_objects ??
-                return HttpResponse(msg, content_type='text/javascript', status=403)
+                # return HttpResponse(msg, content_type='text/javascript', status=403)
+                return HttpResponse(msg, status=403)
 
             return HttpResponseForbidden(render_to_string('creme_core/forbidden.html',
                                                           {'error_message':     msg,
@@ -81,7 +82,8 @@ class _AlternativeErrorMiddleware(MiddlewareMixin):
                 if self.log_ajax:
                     logger.exception('Error (status=%s)', self.status)
 
-                return HttpResponse(msg, content_type='text/javascript', status=self.status)
+                # return HttpResponse(msg, content_type='text/javascript', status=self.status)
+                return HttpResponse(msg, status=self.status)
 
             if self.template is None:
                 return

@@ -121,4 +121,5 @@ def generate_number(request, invoice_id):
     else:
         raise Http404('This invoice has already a number: %s.' % invoice)
 
-    return HttpResponse(content_type='text/javascript')
+    # return HttpResponse(content_type='text/javascript')
+    return HttpResponse()
