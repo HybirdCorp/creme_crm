@@ -44,13 +44,14 @@ class CalendarTestCase(_ActivitiesTestCase):
         return reverse('activities__link_calendar', args=(activity_id,))
 
     def _get_cal_activities(self, calendars, start=None, end=None, status=200):
-        data = {}
+        # data = {}
+        data = {'calendar_id': [str(c.id) for c in calendars]}
         if start: data['start'] = start
         if end:   data['end'] = end
 
         return self.assertGET(status,
                               reverse('activities__calendars_activities',
-                                      args=(','.join(str(c.id) for c in calendars),)
+                                      # args=(','.join(str(c.id) for c in calendars),)
                                      ),
                               data=data,
                              )
