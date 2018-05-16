@@ -27,6 +27,7 @@
     # We use our own fork of 'django-generator', because the vanilla one does not support Django 1.9+.
         - Some useless (in our workflow) features have been removed, in order to get less code to support.
         - The annoying error messages about "URL not found" have been removed.
+    # The old menu ("settings.OLD_MENU = True") is now deprecated.
 
   Developers side :
   -----------------
@@ -59,16 +60,28 @@
             - In 'creme_core.forms.widgets' :
                 - These functions are now deprecated : widget_render_input(), widget_render_hidden_input(), widget_render_context().
                 - The method 'EnhancedSelectOptions.render_label()' is deprecated.
-            - In 'creme_core.gui.bricks.BricksManager', the methods 'get_dependencies_map()' & '_get_dependencies_ids()' are now deprecated.
+            - In 'creme_core.gui' :
+                - The old menu API is deprecated.
+                - In 'bricks.BricksManager', the methods 'get_dependencies_map()' & '_get_dependencies_ids()' are now deprecated.
             - In 'creme_core.registry' :
                 - The exception class 'NotRegistered' is now deprecated.
                 - The methods 'register()' & 'get()' of 'CremeRegistry' are now deprecated.
             - In 'creme_core.buttons.ButtonsRegistry.register()', registering 'Button' instances is deprecated (register classes instead).
               In all apps with global buttons instances, these ones are deprecated.
-            - These templatetags are deprecated :
-                - {% timedelta_pprint %} (use {% date_timedelta_pprint %} instead).
-                - {% get_button_menu %} (use {% menu_buttons_display %} instead).
+            - In 'creme_core.templatetags' :
+                - {% timedelta_pprint %} is deprecated (use {% date_timedelta_pprint %} instead).
+                - In the library 'creme_menu' :
+                    - The tags activated by <settings.OLD_MENU = True> are deprecated.
+                    - {% get_last_items_menu %} & {% get_prefered_menu %} are deprecated (their template too).
+                    - {% get_button_menu %} is deprecated (use {% menu_buttons_display %} instead).
                 - {% ctype_is_registered_for_import %} (use the filter "ctype_can_be_mass_imported" (from the library 'creme_ctype') instead).
+                - In the library 'creme_search', the tag {% get_search_panel %} (& is template) is deprecated.
+                - The templatetags library "creme_quickforms" is deprecated.
+            - In JavaScript :
+               - The function 'creme.utils.confirmBeforeGo()' is deprecated.
+               - In 'creme.menu' :
+                 - The variable 'actions' is deprecated.
+                 - The functions 'sideMenu()', 'NavIt()' & 'HNavIt()' are deprecated.
             - Apps :
                 * Documents :
                     - In 'views.ajax', the function 'get_child_documents()' & 'get_child_documents()' are deprecated.

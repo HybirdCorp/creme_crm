@@ -24,10 +24,12 @@
 (function($) {"use strict";
 
 creme.menu = {};
-creme.menu.actions = {};
+creme.menu.actions = {};  // Deprecated
 
-// Old menu API ----------------------------------------------------------------
+// Old menu API (deprecated) --------------------------------------------------
 creme.menu.NavIt = function(trigger_selector, options, listeners) {
+    console.warn('creme.menu.NavIt() is deprecated.');
+
     var options = options || {};
     var listeners = listeners || {};
 
@@ -62,10 +64,14 @@ creme.menu.NavIt = function(trigger_selector, options, listeners) {
 };
 
 creme.menu.HNavIt = function(trigger_selector, options, listeners) {
+    console.warn('creme.menu.HNavIt() is deprecated.');
+
     creme.menu.NavIt(trigger_selector, $.extend({ArrowSideOnRight: false}, options || {}), listeners);
 };
 
 creme.menu.sideMenu = function(options) {
+    console.warn('creme.menu.sideMenu() is deprecated.');
+
     var document_width_onload  = $(document).width();
     var document_height_onload = $(document).height();
 

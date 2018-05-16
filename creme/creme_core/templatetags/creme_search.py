@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django import template
 from django.contrib.contenttypes.models import ContentType
 
@@ -29,9 +31,12 @@ from ..utils.unicode_collation import collator
 register = template.Library()
 
 
-# TODO: remove when OLD_MENU is removed (remove load from base.html too)
 @register.inclusion_tag('creme_core/templatetags/search_panel.html', takes_context=True)
 def get_search_panel(context):
+    warnings.warn('{% get_search_panel %} is deprecated ; use {% search_form %} instead.',
+                  DeprecationWarning
+                 )
+
     get_ct = ContentType.objects.get_for_model
     content_types = [{'id':           get_ct(model).id,
                       'verbose_name': unicode(model._meta.verbose_name),

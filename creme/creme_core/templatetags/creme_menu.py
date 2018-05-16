@@ -40,6 +40,10 @@ if settings.OLD_MENU:
 
     from ..utils.unicode_collation import collator
 
+    warnings.warn('The old templatetags (settings.OLD_MENU = True) are deprecated.',
+                  DeprecationWarning
+                 )
+
     class MenuItem(object):
         __slots__ = ('url', 'name', 'has_perm')
 
@@ -107,9 +111,10 @@ else:
         return creme_menu.render(context)
 
 
-# TODO: remove when old menu is removed (template too)
 @register.inclusion_tag('creme_core/templatetags/prefered_menu.html')
 def get_prefered_menu(request):
+    warnings.warn('{% get_prefered_menu %} is deprecated.', DeprecationWarning)
+
     from ..models import PreferedMenuItem
 
     return {'items': PreferedMenuItem.objects.filter(Q(user=request.user) |
@@ -118,9 +123,10 @@ def get_prefered_menu(request):
            }
 
 
-# TODO: remove when old menu is removed (template too)
 @register.inclusion_tag('creme_core/templatetags/last_items_menu.html')
 def get_last_items_menu(request):
+    warnings.warn('{% get_last_items_menu %} is deprecated.', DeprecationWarning)
+
     from ..gui.last_viewed import LastViewedItem
 
     return {'items': LastViewedItem.get_all(request)}

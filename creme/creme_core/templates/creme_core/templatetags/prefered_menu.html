@@ -1,4 +1,5 @@
-{% load i18n %}
+{% load i18n creme_core_tags %}
+{% log 'The template file "creme/creme_core/templates/creme_core/templatetags/prefered_menu.html" is deprecated.' level='WARN' %}
 <div id="preferred_menu">
     <strong>{% trans "Preferred menu:" %} </strong>
     {% for item in items %}

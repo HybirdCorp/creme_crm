@@ -1,4 +1,5 @@
-{% load i18n %}
+{% load i18n creme_core_tags %}
+{% log 'The template file "creme/creme_core/templates/creme_core/templatetags/last_items_menu.html" is deprecated.' level='WARN' %}
 <div id="last_viewed">
     <strong>{% trans "Last viewed pages:" %}&nbsp; &nbsp;</strong>
     {% for item in items %}
