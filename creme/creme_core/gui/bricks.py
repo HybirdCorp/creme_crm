@@ -578,20 +578,20 @@ class BricksManager(object):
 
         if dep_map is None:
             self._dependencies_map = dep_map = defaultdict(list)
-            wilcarded_blocks = []
+            wilcarded_bricks = []
 
-            for block in self._bricks:
-                dependencies = block.dependencies
+            for brick in self._bricks:
+                dependencies = brick.dependencies
 
                 if dependencies == '*':
-                    wilcarded_blocks.append(block)
+                    wilcarded_bricks.append(brick)
                 else:
                     for dep in dependencies:
-                        dep_map[dep].append(block)
+                        dep_map[dep].append(brick)
 
-            if wilcarded_blocks:
-                for dep_blocks in dep_map.itervalues():
-                    dep_blocks.extend(wilcarded_blocks)
+            if wilcarded_bricks:
+                for dep_bricks in dep_map.itervalues():
+                    dep_bricks.extend(wilcarded_bricks)
 
         return dep_map
 
@@ -652,8 +652,8 @@ class BricksManager(object):
     @property
     def used_relationtypes_ids(self):
         if self._used_relationtypes is None:
-            self._used_relationtypes = {rt_id for block in self._build_dependencies_map()[Relation]
-                                            for rt_id in block.relation_type_deps
+            self._used_relationtypes = {rt_id for brick in self._build_dependencies_map()[Relation]
+                                            for rt_id in brick.relation_type_deps
                                        }
 
         return self._used_relationtypes
@@ -773,10 +773,10 @@ class _BrickRegistry(object):
         return self._brick_classes.iteritems()
 
     def get_brick_4_instance(self, ibi, entity=None):
-        """Get a Block instance corresponding to a InstanceBlockConfigItem.
-        @param ibi InstanceBlockConfigItem instance.
-        @param entity CremeEntity instance if your Block has to be displayed on its detailview.
-        @return Block instance.
+        """Get a Brick instance corresponding to a InstanceBlockConfigItem.
+        @param ibi: InstanceBlockConfigItem instance.
+        @param entity: CremeEntity instance if your Block has to be displayed on its detailview.
+        @return Brick instance.
         """
         brick_id = ibi.brick_id
         brick_class = self._instance_brick_classes.get(InstanceBlockConfigItem.get_base_id(brick_id))
