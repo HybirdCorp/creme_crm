@@ -67,8 +67,8 @@ def delete_ct(request):
     for field in CustomField.objects.filter(content_type=get_from_POST_or_404(request.POST, 'id')):
         field.delete()
 
-    if request.is_ajax():
-        return HttpResponse(content_type='text/javascript')
+    # if request.is_ajax():
+    #     return HttpResponse(content_type='text/javascript')
 
     return HttpResponse()
 
@@ -79,7 +79,7 @@ def delete(request):
     field = CustomField.objects.get(pk=get_from_POST_or_404(request.POST, 'id'))
     field.delete()
 
-    if request.is_ajax():
-        return HttpResponse(content_type='text/javascript')
+    # if request.is_ajax():
+    #     return HttpResponse(content_type='text/javascript')
 
     return HttpResponse()

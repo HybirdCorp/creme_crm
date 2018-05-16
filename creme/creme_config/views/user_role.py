@@ -92,7 +92,8 @@ class UserRoleCreationWizard(PopupWizardMixin, SessionWizardView):
 
             form_list[4].save()
 
-        return HttpResponse(content_type='text/javascript')
+        # return HttpResponse(content_type='text/javascript')
+        return HttpResponse()
 
     def get_form_instance(self, step):
         if step in ('0', '1', '2', '3'):
@@ -141,7 +142,8 @@ class UserRoleEditionWizard(PopupWizardMixin, SessionWizardView):
             form_list[2].save()
             form_list[3].save()
 
-        return HttpResponse('', content_type='text/javascript')
+        # return HttpResponse('', content_type='text/javascript')
+        return HttpResponse()
 
     def get_form_instance(self, step):
         return self.role

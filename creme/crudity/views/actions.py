@@ -110,7 +110,8 @@ def delete(request):
         status = 400
         message = ','.join(errors)
 
-    return HttpResponse(message, content_type='text/javascript', status=status)
+    # return HttpResponse(message, content_type='text/javascript', status=status)
+    return HttpResponse(message, status=status)
 
 
 @jsonify

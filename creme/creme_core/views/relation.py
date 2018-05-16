@@ -272,7 +272,8 @@ def delete(request):
     relation.get_real_entity().delete()
 
     if request.is_ajax():
-        return HttpResponse(content_type='text/javascript')
+        # return HttpResponse(content_type='text/javascript')
+        return HttpResponse()
 
     return redirect(subject.get_real_entity())
 
@@ -299,7 +300,8 @@ def delete_similar(request):
         relation.get_real_entity().delete()
 
     if request.is_ajax():
-        return HttpResponse(content_type='text/javascript')
+        # return HttpResponse(content_type='text/javascript')
+        return HttpResponse()
 
     return redirect(subject.get_real_entity())
 
@@ -327,7 +329,8 @@ def delete_all(request):  # TODO: deprecate ?
         status = min(errors.iterkeys())
         message = ",".join(msg for error_messages in errors.itervalues() for msg in error_messages)
 
-    return HttpResponse(message, content_type='text/javascript', status=status)
+    # return HttpResponse(message, content_type='text/javascript', status=status)
+    return HttpResponse(message, status=status)
 
 
 # @login_required

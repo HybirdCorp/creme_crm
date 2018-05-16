@@ -377,7 +377,8 @@ def clean(request):
         update_model_instance(preply, is_complete=False)
 
     if request.is_ajax():
-        return HttpResponse(content_type='text/javascript')
+        # return HttpResponse(content_type='text/javascript')
+        return HttpResponse()
 
     return redirect(preply)
 

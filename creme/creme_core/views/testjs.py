@@ -210,11 +210,13 @@ def test_http_response(request):
 
     if request.is_ajax():
         return HttpResponse('XML Http Response %d' % status,
-                            content_type='text/javascript', status=status,
+                            # content_type='text/javascript',
+                            status=status,
                            )
 
     return HttpResponse('<p>Http Response %d</p>' % status,
-                        content_type='text/html', status=status,
+                        # content_type='text/html',
+                        status=status,
                        )
 
 

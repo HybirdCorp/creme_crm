@@ -304,7 +304,8 @@ def set_invitation_status(request, event_id, contact_id):
 
     event.set_invitation_status(contact, status, user)
 
-    return HttpResponse(content_type='text/javascript')
+    # return HttpResponse(content_type='text/javascript')
+    return HttpResponse()
 
 
 @login_required
@@ -316,7 +317,8 @@ def set_presence_status(request, event_id, contact_id):
 
     event.set_presence_status(contact, status, user)
 
-    return HttpResponse(content_type='text/javascript')
+    # return HttpResponse(content_type='text/javascript')
+    return HttpResponse()
 
 
 def abstract_add_related_opportunity(request, event_id, contact_id,

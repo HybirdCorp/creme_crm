@@ -292,13 +292,16 @@
             - The middleware "django.middleware.security.SecurityMiddleware" has been added in the default configuration ; it probably won't be a problem excepted on very specific install.
             - Beware 'formtools' has been added in 'INSTALLED_DJANGO_APPS'.
             - The logging configuration have slightly changed (formats of messages are different).
+        # In views of all apps, the content-type of the response have been cleaned ; it probably does not break anything (or only unit tests).
+            - In views which return JSON data with "text/javascript" as content_type, the content_type is now "application/json" (many of these views use creme_core.utils.jsonify()).
+            - Lots of responses, with "text/javascript" as content_type, & which return a empty/string/HTML-fragment content,  have now  "text/html' as content_type.
+              It probably only break unit tests.
         # In 'creme_core.models' :
             - The class attribute 'CremeModel._delete_files' has been removed ; override the methods _delete_stored_file()/_delete_stored_files() to customise the behaviour.
             - The field 'CremeAbstractEntity.is_actived' has been removed (so it's removed from 'CremeEntity' & 'Relation').
             - The fields "block_id" of the following models (in 'bricks') have been renamed to "brick_id" :
                 BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation, RelationBlockItem, InstanceBlockConfigItem, BlockState.
             - In the method 'BlockDetailviewLocation.id_is_4_model()', the argument "block_id" is renamed "brick_id".
-        # In views which return JSON data with "text/javascript" as content_type, the content_type is now "application/json" (many of these views use creme_core.utils.jsonify()) ; it probably does not break anything.
         # In 'creme_core.views' :
             - The view 'search.search()' injects now a variable "bricks" instead of "blocks" ;
               the related template 'creme_core/search_results.html' has changed to use "bricks".

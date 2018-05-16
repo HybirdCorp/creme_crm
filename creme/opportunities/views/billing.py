@@ -79,7 +79,8 @@ def current_quote(request, opp_id, quote_id, action):
         relations.delete()
 
     if request.is_ajax():
-        return HttpResponse(content_type='text/javascript')
+        # return HttpResponse(content_type='text/javascript')
+        return HttpResponse()
 
     return redirect(opp)
 
@@ -156,6 +157,7 @@ def generate_new_doc(request, opp_id, ct_id):
         workflow_action(opp.emitter, opp.target, user)
 
     if request.is_ajax():
-        return HttpResponse(content_type='text/javascript')
+        # return HttpResponse(content_type='text/javascript')
+        return HttpResponse()
 
     return redirect(opp)

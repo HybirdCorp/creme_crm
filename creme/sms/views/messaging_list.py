@@ -112,7 +112,8 @@ def _delete_aux(request, mlist_id, deletor):
     deletor(messaging_list, subobject_id)
 
     if request.is_ajax():
-        return HttpResponse('', content_type='text/javascript')
+        # return HttpResponse('', content_type='text/javascript')
+        return HttpResponse()
 
     return redirect(messaging_list)
 

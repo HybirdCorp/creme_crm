@@ -112,6 +112,7 @@ def delete_messaging_list(request, campaign_id):
     campaign.lists.remove(request.POST.get('id'))
 
     if request.is_ajax():
-        return HttpResponse(content_type='text/javascript')
+        # return HttpResponse(content_type='text/javascript')
+        return HttpResponse()
 
     return redirect(campaign)

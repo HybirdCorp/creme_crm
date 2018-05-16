@@ -187,4 +187,5 @@ def multi_save_lines(request, document_id):
     for formset in formset_to_save:
         formset.save()
 
-    return HttpResponse(content_type='text/javascript')
+    # return HttpResponse(content_type='text/javascript')
+    return HttpResponse()

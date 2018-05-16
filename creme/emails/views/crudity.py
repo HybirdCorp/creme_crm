@@ -84,7 +84,8 @@ def set_emails_status(request, status):
         status = 200
         message = _(u'Operation successfully completed')
 
-    return HttpResponse(message, content_type='text/javascript', status=status)
+    # return HttpResponse(message, content_type='text/javascript', status=status)
+    return HttpResponse(message, status=status)
 
 
 @login_required

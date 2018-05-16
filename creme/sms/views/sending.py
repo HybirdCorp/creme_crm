@@ -59,7 +59,8 @@ def delete(request):
     sending.delete()  # TODO: try/except ??
 
     if request.is_ajax():
-        return HttpResponse('success', content_type='text/javascript')
+        # return HttpResponse('success', content_type='text/javascript')
+        return HttpResponse('success')  # TODO: no message, status is OK...
 
     return redirect(campaign)
 
@@ -111,7 +112,8 @@ def delete_message(request):
         return HttpResponse(e, status=500)  # TODO: WTF ?!
 
     if request.is_ajax():
-        return HttpResponse('success', content_type='text/javascript')
+        # return HttpResponse('success', content_type='text/javascript')
+        return HttpResponse('success')  # TODO: no message, status is OK...
 
     return redirect(campaign)
 

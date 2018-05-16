@@ -581,7 +581,8 @@ def empty_trash(request):
             format_html_join(u'', u'<li>{}</li>', ((msg,) for msg in errors)),
         )
 
-    return HttpResponse(message, content_type='text/javascript', status=status)
+    # return HttpResponse(message, content_type='text/javascript', status=status)
+    return HttpResponse(message, status=status)
 
 
 @login_required
@@ -600,7 +601,8 @@ def restore_entity(request, entity_id):
     entity.restore()
 
     if request.is_ajax():
-        return HttpResponse(content_type='text/javascript')
+        # return HttpResponse(content_type='text/javascript')
+        return HttpResponse()
 
     return redirect(entity)
 
@@ -660,10 +662,12 @@ def delete_entities(request):
     try:
         entity_ids = [int(e_id) for e_id in get_from_POST_or_404(request.POST, 'ids').split(',') if e_id]
     except ValueError:
-        return HttpResponse('Bad POST argument', content_type='text/javascript', status=400)
+        # return HttpResponse('Bad POST argument', content_type='text/javascript', status=400)
+        return HttpResponse('Bad POST argument', status=400)
 
     if not entity_ids:
-        return HttpResponse(_(u'No selected entities'), content_type='text/javascript', status=400)
+        # return HttpResponse(_(u'No selected entities'), content_type='text/javascript', status=400)
+        return HttpResponse(_(u'No selected entities'), status=400)
 
     logger.debug('delete_entities() -> ids: %s ', entity_ids)
 
@@ -715,7 +719,8 @@ def delete_entity(request, entity_id):
         raise PermissionDenied(msg, args)
 
     if request.is_ajax():
-        return HttpResponse(content_type='text/javascript')
+        # return HttpResponse(content_type='text/javascript')
+        return HttpResponse()
 
     if hasattr(entity, 'get_lv_absolute_url'):
         url = entity.get_lv_absolute_url()
@@ -748,7 +753,8 @@ def delete_related_to_entity(request, ct_id):
         raise PermissionDenied(e.args[0])
 
     if request.is_ajax():
-        return HttpResponse(content_type='text/javascript')
+        # return HttpResponse(content_type='text/javascript')
+        return HttpResponse()
 
     return redirect(entity)
 

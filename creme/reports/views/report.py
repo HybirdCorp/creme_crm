@@ -105,7 +105,8 @@ def unlink_report(request):
     field.selected = False
     field.save()
 
-    return HttpResponse(content_type='text/javascript')
+    # return HttpResponse(content_type='text/javascript')
+    return HttpResponse()
 
 
 @login_required
@@ -210,9 +211,11 @@ def reorder_field(request, field_id):
     try:
         reorder_instances(moved_instance=rfield, new_order=new_order, queryset=report.fields)
     except Exception as e:
-        return HttpResponse(e, status=409, content_type='text/javascript')
+        # return HttpResponse(e, status=409, content_type='text/javascript')
+        return HttpResponse(e, status=409)
 
-    return HttpResponse(content_type='text/javascript')
+    # return HttpResponse(content_type='text/javascript')
+    return HttpResponse()
 
 
 @login_required
@@ -240,4 +243,5 @@ def set_selected(request):
         rfield.selected = checked
         rfield.save()
 
-    return HttpResponse(content_type='text/javascript')
+    # return HttpResponse(content_type='text/javascript')
+    return HttpResponse()

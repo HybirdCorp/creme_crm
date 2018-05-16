@@ -166,7 +166,8 @@ def delete_from_type(request):
     ptype.cremeproperty_set.filter(creme_entity=entity).delete()
 
     if request.is_ajax():
-        return HttpResponse(content_type='text/javascript')
+        # return HttpResponse(content_type='text/javascript')
+        return HttpResponse()
 
     return redirect(ptype)
 

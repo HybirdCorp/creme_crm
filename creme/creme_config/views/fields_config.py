@@ -95,7 +95,8 @@ class FieldConfigWizard(PopupWizardMixin, SessionWizardView):
         configure_step = form_list[1]
         configure_step.save()
 
-        return HttpResponse(content_type='text/javascript')
+        # return HttpResponse(content_type='text/javascript')
+        return HttpResponse()
 
     def get_form_instance(self, step):
         cleaned_data = self.get_cleaned_data_for_step('0')

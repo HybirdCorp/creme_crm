@@ -114,4 +114,5 @@ def delete_relation_type(request, graph_id):
     request.user.has_perm_to_change_or_die(graph)
     graph.orbital_relation_types.remove(rtype_id)
 
-    return HttpResponse(content_type='text/javascript')
+    # return HttpResponse(content_type='text/javascript')
+    return HttpResponse()

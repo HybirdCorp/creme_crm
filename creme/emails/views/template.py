@@ -100,6 +100,7 @@ def delete_attachment(request, template_id):
     template.attachments.remove(attachment_id)
 
     if request.is_ajax():
-        return HttpResponse(content_type='text/javascript')
+        # return HttpResponse(content_type='text/javascript')
+        return HttpResponse()
 
     return redirect(template)
