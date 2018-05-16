@@ -35,8 +35,7 @@ from creme.creme_core.models import (RelationType, SearchConfigItem, SettingValu
 from creme import persons
 
 from creme import emails
-from . import bricks, constants
-from .buttons import entityemail_link_button
+from . import buttons, bricks, constants
 from .creme_jobs import entity_emails_send_type, campaign_emails_send_type
 from .setting_keys import emailcampaign_sender
 
@@ -221,4 +220,4 @@ class Populator(BasePopulator):
                 create_bdl(brick_id=LinkedDocsBrick.id_, order=600, zone=RIGHT, model=EmailCampaign)
 
             # ---------------------------
-            ButtonMenuItem.create_if_needed(pk='emails-entity_email_link_button', model=EntityEmail, button=entityemail_link_button, order=20)
+            ButtonMenuItem.create_if_needed(pk='emails-entity_email_link_button', model=EntityEmail, button=buttons.EntityEmailLinkButton, order=20)

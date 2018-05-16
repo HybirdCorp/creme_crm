@@ -137,10 +137,10 @@ class Populator(BasePopulator):
                 except ImportError as e:
                     logger.info(str(e))
                 else:
-                    from creme.tickets.buttons import linked_2_ticket_button
+                    from creme.tickets.buttons import Linked2TicketButton
 
                     create_bmi = ButtonMenuItem.create_if_needed
-                    create_bmi(pk='tickets-linked_contact_button', model=get_contact_model(),      button=linked_2_ticket_button, order=50)
-                    create_bmi(pk='tickets-linked_orga_button',    model=get_organisation_model(), button=linked_2_ticket_button, order=50)
+                    create_bmi(pk='tickets-linked_contact_button', model=get_contact_model(),      button=Linked2TicketButton, order=50)
+                    create_bmi(pk='tickets-linked_orga_button',    model=get_organisation_model(), button=Linked2TicketButton, order=50)
 
                     logger.info("'Persons' app is installed => add button 'Linked to a ticket' to Contact & Organisation")

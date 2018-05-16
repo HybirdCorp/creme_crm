@@ -248,15 +248,15 @@ class Populator(BasePopulator):
 
             # ---------------------------
             create_bmi = ButtonMenuItem.create_if_needed
-            create_bmi(pk='billing-generate_invoice_number', model=Invoice, button=buttons.generate_invoice_number_button, order=0)
+            create_bmi(pk='billing-generate_invoice_number', model=Invoice, button=buttons.GenerateInvoiceNumberButton, order=0)
 
-            create_bmi(pk='billing-quote_orga_button',      model=Organisation, button=buttons.add_related_quote,      order=100)
-            create_bmi(pk='billing-salesorder_orga_button', model=Organisation, button=buttons.add_related_salesorder, order=101)
-            create_bmi(pk='billing-invoice_orga_button',    model=Organisation, button=buttons.add_related_invoice,    order=102)
+            create_bmi(pk='billing-quote_orga_button',      model=Organisation, button=buttons.AddQuoteButton,      order=100)
+            create_bmi(pk='billing-salesorder_orga_button', model=Organisation, button=buttons.AddSalesOrderButton, order=101)
+            create_bmi(pk='billing-invoice_orga_button',    model=Organisation, button=buttons.AddInvoiceButton,    order=102)
 
-            create_bmi(pk='billing-quote_contact_button',      model=Contact, button=buttons.add_related_quote,      order=100)
-            create_bmi(pk='billing-salesorder_contact_button', model=Contact, button=buttons.add_related_salesorder, order=101)
-            create_bmi(pk='billing-invoice_contact_button',    model=Contact, button=buttons.add_related_invoice,    order=102)
+            create_bmi(pk='billing-quote_contact_button',      model=Contact, button=buttons.AddQuoteButton,      order=100)
+            create_bmi(pk='billing-salesorder_contact_button', model=Contact, button=buttons.AddSalesOrderButton, order=101)
+            create_bmi(pk='billing-invoice_contact_button',    model=Contact, button=buttons.AddInvoiceButton,    order=102)
 
             # ---------------------------
             get_ct = ContentType.objects.get_for_model

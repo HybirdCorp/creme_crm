@@ -15,7 +15,7 @@ try:
     from creme.persons.tests.base import (skipIfCustomAddress, skipIfCustomContact,
             skipIfCustomOrganisation)
 
-    from creme.vcfs.buttons import generate_vcf_button
+    from creme.vcfs.buttons import GenerateVcfButton
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -62,12 +62,12 @@ class VcfExportTestCase(CremeTestCase):
     def test_button(self):
         self.login()
         ButtonMenuItem.create_if_needed(pk='vcfs-test_button', model=Contact,
-                                        button=generate_vcf_button, order=100,
+                                        button=GenerateVcfButton, order=100,
                                        )
 
         contact = self.create_contact()
         response = self.assertGET200(contact.get_absolute_url())
-        self.assertTemplateUsed(response, generate_vcf_button.template_name)
+        self.assertTemplateUsed(response, GenerateVcfButton.template_name)
 
     def test_get_empty_vcf(self):
         user = self.login()

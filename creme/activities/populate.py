@@ -198,7 +198,7 @@ class Populator(BasePopulator):
 
             # ---------------------------
             create_button = ButtonMenuItem.create_if_needed
-            create_button('activities-add_activity_button',  model=None, button=buttons.add_activity_button,  order=10)
-            create_button('activities-add_meeting_button',   model=None, button=buttons.add_meeting_button,   order=11)
-            create_button('activities-add_phonecall_button', model=None, button=buttons.add_phonecall_button, order=12)
-            create_button('activities-add_task_button',      model=None, button=buttons.add_task_button,      order=13)
+            create_button('activities-add_activity_button',  model=None, button=buttons.AddRelatedActivityButton, order=10)
+            create_button('activities-add_meeting_button',   model=None, button=buttons.AddMeetingButton,         order=11)
+            create_button('activities-add_phonecall_button', model=None, button=buttons.AddPhoneCallButton,       order=12)
+            create_button('activities-add_task_button',      model=None, button=buttons.AddTaskButton,            order=13)
