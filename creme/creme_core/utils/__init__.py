@@ -24,6 +24,8 @@
 #
 ################################################################################
 
+from future_builtins import map
+
 from decimal import Decimal
 from json import dumps as json_dump
 import logging
@@ -47,8 +49,9 @@ logger = logging.getLogger(__name__)
 def creme_entity_content_types():
     "Generator which yields ContentType instances corresponding to registered entity models."
     from ..registry import creme_registry
-    get_for_model = ContentType.objects.get_for_model
-    return (get_for_model(model) for model in creme_registry.iter_entity_models())
+    # get_for_model = ContentType.objects.get_for_model
+    # return (get_for_model(model) for model in creme_registry.iter_entity_models())
+    return map(ContentType.objects.get_for_model, creme_registry.iter_entity_models())
 
 
 def get_ct_or_404(ct_id):
@@ -60,7 +63,7 @@ def get_ct_or_404(ct_id):
     try:
         ct = ContentType.objects.get_for_id(ct_id)
     except ContentType.DoesNotExist:
-        raise Http404('No content type with this id: %s' % ct_id)
+        raise Http404('No content type with this id: {}'.format(ct_id))
 
     return ct
 
@@ -189,7 +192,7 @@ def _get_from_request_or_404(method, method_name, key, cast=None, **kwargs):
 
     if value is None:
         if 'default' not in kwargs:
-            raise Http404('No %s argument with this key: %s' % (method_name, key))
+            raise Http404('No {} argument with this key: "{}".'.format(method_name, key))
 
         value = kwargs['default']
 
@@ -197,7 +200,7 @@ def _get_from_request_or_404(method, method_name, key, cast=None, **kwargs):
         try:
             value = cast(value)
         except Exception as e:
-            raise Http404('Problem with argument "%s" : it can not be coerced (%s)' % (key, str(e)))
+            raise Http404('Problem with argument "{}" : it can not be coerced ({})'.format(key, str(e)))
 
     return value
 
@@ -211,8 +214,10 @@ def get_from_POST_or_404(POST, key, cast=None, **kwargs):
 
 
 def find_first(iterable, function, *default):
-    """
-    @param default: Optional argument.
+    """Returns the first element of an iterable which corresponds to a constraint.
+    @param function: Callable which takes one argument (an element form "iterable")
+           & returns a value used as a boolean ('True' to accept the element).
+    @param default: Optional argument ; if given, it is returned if no element is found.
     """
     for elt in iterable:
         if function(elt):
@@ -225,6 +230,11 @@ def find_first(iterable, function, *default):
 
 
 def split_filter(predicate, iterable):
+    """Split an iterable into 2 lists : accepted elements & rejected elements
+    @param predicate: A callable which takes one argument (an element from "iterable")
+           & returns a value used as a boolean ('True' to accept the element).
+    @return: 2 lists (accepted then rejected).
+    """
     ok = []
     ko = []
 
@@ -248,7 +258,8 @@ def related2unicode(entity, user):
     """Return a unicode object representing a related entity with its owner,
     with care of permissions of this owner.
     """
-    return u'%s - %s' % (entity.get_related_entity().allowed_unicode(user), unicode(entity))
+    # return u'%s - %s' % (entity.get_related_entity().allowed_unicode(user), unicode(entity))
+    return u'{} - {}'.format(entity.get_related_entity().allowed_unicode(user), entity)
 
 
 __BFS_MAP = {
@@ -263,7 +274,7 @@ def bool_from_str(string):
     if b is not None:
         return b
 
-    raise ValueError('Can not be coerced to a boolean value: %s' % str(string))
+    raise ValueError('Can not be coerced to a boolean value: {}'.format(string))
 
 
 def bool_from_str_extended(value):
@@ -271,7 +282,7 @@ def bool_from_str_extended(value):
     if value in ('1', 'true'): return True
     if value in ('0', 'false'): return False
 
-    raise ValueError('Can not be coerced to a boolean value: %s; must be in 0/1/false/true' % value)
+    raise ValueError('Can not be coerced to a boolean value: {}; must be in 0/1/false/true'.format(value))
 
 
 @mark_safe
@@ -336,6 +347,7 @@ def truncate_str(str, max_length, suffix=''):
 
 
 def ellipsis(s, length):
+    "Ensures that an unicode-string has a maximum length."
     if len(s) > length:
         s = s[:length - 1] + u'…'
 
