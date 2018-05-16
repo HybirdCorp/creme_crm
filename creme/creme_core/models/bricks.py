@@ -421,12 +421,14 @@ class InstanceBlockConfigItem(CremeModel):
     def __unicode__(self):
         return self.brick.verbose_name
 
-    def delete(self, using=None):
+    # def delete(self, using=None):
+    def delete(self, *args, **kwargs):
         brick_id = self.brick_id
         BlockDetailviewLocation.objects.filter(brick_id=brick_id).delete()
         BlockState.objects.filter(brick_id=brick_id).delete()
 
-        super(InstanceBlockConfigItem, self).delete(using=using)
+        # super(InstanceBlockConfigItem, self).delete(using=using)
+        super(InstanceBlockConfigItem, self).delete(*args, **kwargs)
 
     # @property
     # def block(self):
