@@ -30,7 +30,7 @@ from django.forms.models import modelform_factory
 from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render, redirect  # get_list_or_404
 from django.urls import reverse
-from django.utils.html import format_html
+from django.utils.html import format_html, format_html_join
 # from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _, ungettext
 
@@ -573,8 +573,13 @@ def empty_trash(request):
         message = _(u'Operation successfully completed')
     else:
         status = 409
-        message = _(u'The following entities cannot be deleted') + \
-                  u'<ul>%s</ul>' % u'\n'.join(u'<li>%s</li>' % msg for msg in errors)
+        # message = _(u'The following entities cannot be deleted') + \
+        #           u'<ul>%s</ul>' % u'\n'.join(u'<li>%s</li>' % msg for msg in errors)
+        message = format_html(
+            u'{}<ul>{}</ul>',
+            _(u'The following entities cannot be deleted'),
+            format_html_join(u'', u'<li>{}</li>', ((msg,) for msg in errors)),
+        )
 
     return HttpResponse(message, content_type='text/javascript', status=status)
 
