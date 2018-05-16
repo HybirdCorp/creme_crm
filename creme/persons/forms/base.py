@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.models import CremeEntity
 
-from .address import UnnamedAddressForm as AddressForm
+from .address import UnnamedAddressForm as AddressForm, _AuxiliaryAddressForm
 
 
 logger = logging.getLogger(__name__)
@@ -35,7 +35,8 @@ _SHIPPING_ADDRESS_FIELD = 'shipping_address'
 
 
 def _get_address_field_names(addr_fieldname):
-    form = AddressForm(entity=None, user=None, prefix=addr_fieldname)
+    # form = AddressForm(entity=None, user=None, prefix=addr_fieldname)
+    form = _AuxiliaryAddressForm(prefix=addr_fieldname)
     return [form.add_prefix(name) for name in form.base_fields.iterkeys()]
 
 
@@ -46,7 +47,7 @@ class _BasePersonForm(CremeEntityForm):
              )
 
     class Meta(CremeEntityForm.Meta):
-        model = CremeEntity # Overload me
+        model = CremeEntity  # Overload me
 
     # Used by template (address blocks have a special layout + buttons to copy addresses)
     # See _init_address_fields()
