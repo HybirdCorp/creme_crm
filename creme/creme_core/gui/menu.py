@@ -21,6 +21,7 @@
 from json import dumps as json_dump
 import logging
 import math
+import warnings
 
 from django.apps import apps
 from django.conf import settings
@@ -42,6 +43,10 @@ logger = logging.getLogger(__name__)
 
 
 if settings.OLD_MENU:
+    warnings.warn('The old menu API (settings.OLD_MENU = True) is deprecated.',
+                  DeprecationWarning
+                 )
+
     # ---------------- Old Menu API --------------------------------------------
     class MenuItem(object):
         __slots__ = ('url', 'name', 'perm')

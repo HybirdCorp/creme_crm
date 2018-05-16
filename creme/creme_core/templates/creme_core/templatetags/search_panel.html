@@ -1,4 +1,5 @@
-{% load i18n creme_widgets %}
+{% load i18n creme_core_tags creme_widgets %}
+{% log 'The template file "creme/creme_core/templates/creme_core/templatetags/search_panel.html" is deprecated.' level='WARN' %}
 <div class="research_box">
     <form method="GET" action="{% url 'creme_core__search' %}">
         <span>{% trans "Search" context "creme_core-verb" as label %}

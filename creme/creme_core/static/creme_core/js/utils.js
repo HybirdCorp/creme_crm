@@ -93,8 +93,10 @@ creme.utils.showDialog = function(text, options, div_id) {
     }, options));
 };
 
-// TODO : only used by menu, so refactor it when horizontal menu will replace old one.
+
 creme.utils.confirmBeforeGo = function(url, ajax, ajax_options) { //TODO: factorise (see ajaxDelete()) ??
+    console.warn('creme.utils.confirmBeforeGo() is deprecated.');
+
     creme.dialogs.confirm(gettext("Are you sure ?"))
                  .onOk(function() {
                      if (ajax) {
