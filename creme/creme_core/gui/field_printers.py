@@ -159,12 +159,12 @@ def print_boolean_csv(entity, fval, user, field):
 
 
 def print_url_html(entity, fval, user, field):
-    if not fval:
-        return ''
-
-    esc_fval = escape(fval)
+    # if not fval:
+    #     return ''
+    #
+    # esc_fval = escape(fval)
     # return '<a href="%s" target="_blank">%s</a>' % (esc_fval, esc_fval)
-    return format_html(u'<a href="{url}" target="_blank">{url}</a>', url=esc_fval)
+    return format_html(u'<a href="{url}" target="_blank">{url}</a>', url=fval) if fval else ''
 
 
 def print_datetime(entity, fval, user, field):
