@@ -185,7 +185,7 @@ def _uninstall_entity_filters(sender, content_types, stdout_write, style, **kwar
                              u'sub-filter by the following filter(s): {parents}'.format(
                                     name=efilter.name,
                                     id=efilter.id,
-                                    parents=', '.join(u'<"{}" (id="{}")>'.format(p.name, p.id)
+                                    parents=u', '.join(u'<"{}" (id="{}")>'.format(p.name, p.id)
                                                   for p in parents.itervalues()
                                              ),
                                 ),
@@ -322,13 +322,13 @@ class Command(AppCommand):
             if not progress:
                 extra_errors = max(0, len(errors) - errors.max_size)
 
-                raise CommandError('[KO] Cannot flush all instances: aborting.\n'
-                                   '{errors}\n{extra_errors}'
-                                   'Please delete the problematic instances '
-                                   'manually before re-run this command.'.format(
-                                        errors='\n'.join('- Cannot delete "{obj}" (id={id}) (original error: {error})'.format(
+                raise CommandError(u'[KO] Cannot flush all instances: aborting.\n'
+                                   u'{errors}\n{extra_errors}'
+                                   u'Please delete the problematic instances '
+                                   u'manually before re-run this command.'.format(
+                                        errors=u'\n'.join(u'- Cannot delete "{obj}" (id={id}) (original error: {error})'.format(
                                                              obj=obj, id=obj.id, error=error,
-                                                        ) for obj, error in errors
+                                                          ) for obj, error in errors
                                                  ),
                                         extra_errors='({} extra error(s))\n'.format(extra_errors) if extra_errors else '',
                                     )
@@ -351,7 +351,7 @@ class Command(AppCommand):
 
             for ctype, error in ctypes_info:
                 if verbosity:
-                    self.stdout.write('Trying to delete the ContentType "{ctype}" (id={id}){again}...\n'.format(
+                    self.stdout.write(u'Trying to delete the ContentType "{ctype}" (id={id}){again}...\n'.format(
                                             ctype=ctype,
                                             id=ctype.id,
                                             again='' if error is None else ' again',
@@ -375,14 +375,14 @@ class Command(AppCommand):
                 break
 
         if ctypes_info:
-            raise CommandError('There were errors when trying to the ContentTypes: aborting.\n'
-                               '{}\n'
-                               'Sadly you have to solve this problem manually '
-                               'before re-run this command.'.format(
-                                    '\n'.join('- Cannot delete ContentType for "{}" '
-                                              '(original error: {})'.format(*ci)
+            raise CommandError(u'There were errors when trying to the ContentTypes: aborting.\n'
+                               u'{}\n'
+                               u'Sadly you have to solve this problem manually '
+                               u'before re-run this command.'.format(
+                                    u'\n'.join(u'- Cannot delete ContentType for "{}" '
+                                               u'(original error: {})'.format(*ci)
                                                 for ci in ctypes_info
-                                             ),
+                                              ),
                                 )
                               )
 
@@ -406,43 +406,65 @@ class Command(AppCommand):
     def _delete_tables(self, app_config, app_label, verbosity):
         connection = connections[DEFAULT_DB_ALIAS]  # TODO: options.get('database') ?
 
-#         sql_commands = sql_delete(app, no_style(), connection)
-#         sql_commands = sql_delete(app_config, no_style(), connection, close_connection=False)
-        sql_commands, dep_error = sql_delete_V2(app_config, no_style(), connection)
+# #         sql_commands = sql_delete(app, no_style(), connection)
+# #         sql_commands = sql_delete(app_config, no_style(), connection, close_connection=False)
+#         sql_commands, dep_error = sql_delete_V2(app_config, no_style(), connection)
+        models, dep_error = ordered_models_to_delete(app_config, connection)
 
         if dep_error:
             self.stderr.write(u" [KO] Dependencies loop (cannot find a safe deletion order).\n"
-                              u"SQL commands:\n{}\n".format(u'\n'.join(sql_commands)) # TODO: .encode('utf-8')  ??
+                              # u"SQL commands:\n{}\n".format(u'\n'.join(sql_commands))  # todo: .encode('utf-8')  ??
+                              u"Tables:\n{}\n".format(u'\n'.join(model._meta.db_table for model in models))
                              )
 
             raise CommandError('Sadly you have to DELETE the remaining tables MANUALLY, '
                                'and THEN REMOVE "{}" from your settings.'.format(app_label),
                               )
 
-        if sql_commands:
+        # if sql_commands:
+        if models:
             if verbosity:
                 self.stdout.write('Trying to delete tables...')
 
-            try:
-                cursor = connection.cursor()
+            schema_editor = connection.schema_editor()
 
-                while sql_commands:
-                    sql_command = sql_commands.pop(0)
+            try:
+                # cursor = connection.cursor()
+
+                # while sql_commands:
+                while models:
+                    # sql_command = sql_commands.pop(0)
+                    model = models.pop(0)
 
                     if verbosity:
-                        self.stdout.write(sql_command)
+                        # self.stdout.write(sql_command)
+                        meta = model._meta
+                        self.stdout.write(u' Drop the model "{app}.{model}" (table: "{table}").'.format(
+                                                app=meta.app_label,
+                                                model=model.__name__,
+                                                table=meta.db_table,
+                                            )
+                                         )
 
-                    cursor.execute(sql_command)
+                    # cursor.execute(sql_command)
+                    schema_editor.delete_model(model)
 
                     if verbosity:
                         # self.stdout.write(' [OK]', self.style.MIGRATE_SUCCESS)
                         self.stdout.write(' [OK]', self.style.SUCCESS)
             except Exception as e:
-                self.stderr.write(u" [KO] Original error: {error}.\n"
-                                  u"Remaining SQL commands:\n"
-                                  u"{commands}\n".format(
+                # self.stderr.write(u" [KO] Original error: {error}.\n"
+                #                   u"Remaining SQL commands:\n"
+                #                   u"{commands}\n".format(
+                #                         error=force_unicode(e),  # PostGreSQL returns localized errors...
+                #                         commands=u'\n'.join(sql_commands),  # todo: .encode('utf-8')  ??
+                #                     )
+                #                  )
+                self.stderr.write(u' [KO] Original error: {error}.\n'
+                                  u'Remaining tables:\n'
+                                  u'{models}\n'.format(
                                         error=force_unicode(e),  # PostGreSQL returns localized errors...
-                                        commands=u'\n'.join(sql_commands),  # TODO: .encode('utf-8')  ??
+                                        models=u'\n'.join(model._meta.db_table for model in models),
                                     )
                                  )
 
@@ -497,7 +519,7 @@ class Command(AppCommand):
 
 ################################################################################
 # Copyright (c) Django Software Foundation and individual contributors.
-# Copyright (c) Hybird - 2015
+# Copyright (c) Hybird - 2018
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -526,72 +548,76 @@ class Command(AppCommand):
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ################################################################################
 
-# NOT USED
-# NB: copied from django/core/management/sql.py  (+ check_for_migrations removed)
-# 1 - check_for_migrations() annoys us because we want to uninstall Creme apps,
-#     which have migrations ; it dnagerous but we know what we are doing
-# 2 - sql_destroy_model() strangely returns references that cause errors with MySQL & PGSQL !
-def sql_delete(app_config, style, connection, close_connection=True):
-    "Returns a list of the DROP TABLE SQL statements for the given app."
-#    check_for_migrations(app_config, connection)
+# # NOT USED
+# # NB: copied from django/core/management/sql.py  (+ check_for_migrations removed)
+# # 1 - check_for_migrations() annoys us because we want to uninstall Creme apps,
+# #     which have migrations ; it dnagerous but we know what we are doing
+# # 2 - sql_destroy_model() strangely returns references that cause errors with MySQL & PGSQL !
+# def sql_delete(app_config, style, connection, close_connection=True):
+#     "Returns a list of the DROP TABLE SQL statements for the given app."
+# #    check_for_migrations(app_config, connection)
+#
+#     from django.db import router
+#
+#     # This should work even if a connection isn't available
+#     try:
+#         cursor = connection.cursor()
+#     except Exception:
+#         cursor = None
+#
+#     try:
+#         # Figure out which tables already exist
+#         if cursor:
+#             table_names = connection.introspection.table_names(cursor)
+#         else:
+#             table_names = []
+#
+#         output = []
+#
+#         # Output DROP TABLE statements for standard application tables.
+#         to_delete = set()
+#
+#         references_to_delete = {}
+#         app_models = router.get_migratable_models(app_config, connection.alias, include_auto_created=True)
+#         for model in app_models:
+#             if cursor and connection.introspection.table_name_converter(model._meta.db_table) in table_names:
+#                 # The table exists, so it needs to be dropped
+#                 opts = model._meta
+#                 for f in opts.local_fields:
+#                     # if f.rel and f.rel.to not in to_delete:
+#                     if f.remote_field and f.remote_field.model not in to_delete:
+#                         # references_to_delete.setdefault(f.rel.to, []).append((model, f))
+#                         references_to_delete.setdefault(f.remote_field.model, []).append((model, f))
+#
+#                 to_delete.add(model)
+#
+#         for model in app_models:
+#             if connection.introspection.table_name_converter(model._meta.db_table) in table_names:
+#                 output.extend(connection.creation.sql_destroy_model(model, references_to_delete, style))
+#     finally:
+#         # Close database connection explicitly, in case this output is being piped
+#         # directly into a database client, to avoid locking issues.
+#         if cursor and close_connection:
+#             cursor.close()
+#             connection.close()
+#
+#     # if not output:
+#     #     output.append('-- App creates no tables in the database. Nothing to do.')
+#
+#     return output[::-1]  # Reverse it, to deal with table dependencies.
 
-    from django.db import router
 
-    # This should work even if a connection isn't available
-    try:
-        cursor = connection.cursor()
-    except Exception:
-        cursor = None
-
-    try:
-        # Figure out which tables already exist
-        if cursor:
-            table_names = connection.introspection.table_names(cursor)
-        else:
-            table_names = []
-
-        output = []
-
-        # Output DROP TABLE statements for standard application tables.
-        to_delete = set()
-
-        references_to_delete = {}
-        app_models = router.get_migratable_models(app_config, connection.alias, include_auto_created=True)
-        for model in app_models:
-            if cursor and connection.introspection.table_name_converter(model._meta.db_table) in table_names:
-                # The table exists, so it needs to be dropped
-                opts = model._meta
-                for f in opts.local_fields:
-                    # if f.rel and f.rel.to not in to_delete:
-                    if f.remote_field and f.remote_field.model not in to_delete:
-                        # references_to_delete.setdefault(f.rel.to, []).append((model, f))
-                        references_to_delete.setdefault(f.remote_field.model, []).append((model, f))
-
-                to_delete.add(model)
-
-        for model in app_models:
-            if connection.introspection.table_name_converter(model._meta.db_table) in table_names:
-                output.extend(connection.creation.sql_destroy_model(model, references_to_delete, style))
-    finally:
-        # Close database connection explicitly, in case this output is being piped
-        # directly into a database client, to avoid locking issues.
-        if cursor and close_connection:
-            cursor.close()
-            connection.close()
-
-    # if not output:
-    #     output.append('-- App creates no tables in the database. Nothing to do.')
-
-    return output[::-1]  # Reverse it, to deal with table dependencies.
-
-
-# Creme version of sql_delete, which does not alter FK columns but drops tables
-# in an correct order.
-# TODO: use sql_destroy_indexes() ??
-def sql_delete_V2(app_config, style, connection):
-    """SQL queries which drop tables of the given app.
-    @return A tuple (command, loop_error).
-            'command' is a list of the DROP TABLE SQL statements (strings)
+# def sql_delete_V2(app_config, style, connection): # todo: use sql_destroy_indexes() ??
+#     """SQL queries which drop tables of the given app.
+#     @return A tuple (command, loop_error).
+#             'command' is a list of the DROP TABLE SQL statements (strings)
+#             'loop_error' is a boolean which indicates dependencies loop error.
+#     """
+def ordered_models_to_delete(app_config, connection):
+    """Models of the given app to delete.
+    @return A tuple (models, loop_error).
+            'models' is a list of the models classes to delete ;
+                     the order respects the dependencies between the models.
             'loop_error' is a boolean which indicates dependencies loop error.
     """
     from django.db import router
@@ -600,10 +626,11 @@ def sql_delete_V2(app_config, style, connection):
     from creme.creme_core.utils.dependence_sort import dependence_sort, DependenciesLoopError
 
     class ModelInfo(object):
-        def __init__(self, model, dependencies, sql_cmd):
+        # def __init__(self, model, dependencies, sql_cmd):
+        def __init__(self, model, dependencies):
             self.model = model
             self.dependencies = dependencies
-            self.sql_cmd = sql_cmd
+            # self.sql_cmd = sql_cmd
 
     models_info = []
     cursor = connection.cursor()
@@ -633,10 +660,9 @@ def sql_delete_V2(app_config, style, connection):
 
                 models_info.append(ModelInfo(model=model,
                                              dependencies=dependencies,
-                                             sql_cmd=connection.creation.sql_destroy_model(model, [], style)[0],
+                                             # sql_cmd=connection.creation.sql_destroy_model(model, [], style)[0],
                                             )
                                   )
-
     finally:
         cursor.close()
 
@@ -651,4 +677,5 @@ def sql_delete_V2(app_config, style, connection):
     else:
         models_info.reverse()  # The dependencies must be deleted _after_
 
-    return [mi.sql_cmd for mi in models_info], dep_error
+    # return [mi.sql_cmd for mi in models_info], dep_error
+    return [mi.model for mi in models_info], dep_error
