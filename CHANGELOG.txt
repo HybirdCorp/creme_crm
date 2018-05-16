@@ -448,6 +448,8 @@
         # The attribute 'creme_core.buttons.ButtonsRegistry._buttons' has been renamed to "_button_classes".
         # The JavaScript widget 'creme.widget.DateRange' has been entirely reworked.
         # Apps :
+            * Creme_config :
+                - The variable 'templatetags.creme_config_tags._USER_SETTINGS_BLOCK' has been removed.
             * Activities :
                 - The function 'views.calendar._get_one_activity_per_calendar()' is now a generator.
             * Reports :

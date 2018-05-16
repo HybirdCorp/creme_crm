@@ -28,7 +28,7 @@ from django.template import Library  # Node as TemplateNode
 
 
 register = Library()
-_USER_SETTINGS_BLOCK = 'user_settings_blocks'
+# _USER_SETTINGS_BLOCK = 'user_settings_blocks'
 
 
 @register.filter(name='is_custom')
