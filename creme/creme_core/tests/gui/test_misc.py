@@ -612,19 +612,19 @@ class GuiTestCase(CremeTestCase):
 
     def test_button_registry(self):
         class TestButton1(Button):
-            id_ = Button.generate_id('creme_core', 'test_button_registry_legacy1')
+            id_ = Button.generate_id('creme_core', 'test_button_registry_1')
 
         class TestButton2(Button):
-            id_ = Button.generate_id('creme_core', 'test_button_registry_legacy2')
+            id_ = Button.generate_id('creme_core', 'test_button_registry_2')
 
             def ok_4_display(self, entity):
                 return False
 
         class TestButton3(Button):
-            id_ = Button.generate_id('creme_core', 'test_button_registry_legacy3')
+            id_ = Button.generate_id('creme_core', 'test_button_registry_3')
 
         class TestButton4(Button):
-            id_ = Button.generate_id('creme_core', 'test_button_registry_legacy4')
+            id_ = Button.generate_id('creme_core', 'test_button_registry_4')
 
         registry = ButtonsRegistry()
         registry.register(TestButton1, TestButton2, TestButton3, TestButton4)
@@ -638,12 +638,12 @@ class GuiTestCase(CremeTestCase):
         get = registry.get_button
         self.assertIsInstance(get(TestButton1.id_), TestButton1)
         self.assertIsInstance(get(TestButton2.id_), TestButton2)
-        self.assertIsNone(get(Button.generate_id('creme_core', 'test_button_registry_legacy_invalid')))
+        self.assertIsNone(get(Button.generate_id('creme_core', 'test_button_registry_invalid')))
 
         c = FakeContact(first_name='Casca', last_name='Mylove')
         buttons = registry.get_buttons([TestButton3.id_,
                                         TestButton2.id_,  # No because ok_4_display() returns False
-                                        'test_button_registry_legacy_invalid',
+                                        'test_button_registry_invalid',
                                         TestButton1.id_,
                                        ],
                                        entity=c
