@@ -70,6 +70,8 @@
                 - {% get_button_menu %} (use {% menu_buttons_display %} instead).
                 - {% ctype_is_registered_for_import %} (use the filter "ctype_can_be_mass_imported" (from the library 'creme_ctype') instead).
             - Apps :
+                * Documents :
+                    - In 'views.ajax', the function 'get_child_documents()' & 'get_child_documents()' are deprecated.
                 * Activities :
                     - In the view 'calendar.get_users_activities()', the URL argument "calendar_ids" is deprecated (use the GET parameter "calendar_id" instead).
                 * Assistants :
