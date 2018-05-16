@@ -42,7 +42,7 @@
         "yaxis": {
             "tickRenderer": "jqplot.CanvasAxisTickRenderer",
             "tickOptions": {
-                "formatString": {% if rgraph.is_count %}"%d"{% else %}"%d"{% endif %},
+                "formatString": "%d",
                 "textColor":  "black",
                 "fontSize":   "9pt"
             },

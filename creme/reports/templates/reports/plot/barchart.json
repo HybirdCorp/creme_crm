@@ -39,7 +39,7 @@
                 "fontSize":   "9pt",
                 "textColor":  "black"
                 {% if plotXAxisAngle %}
-                "angle": {{plotXAxisAngle}},
+                , "angle": {{plotXAxisAngle}}
                 {% endif %}
             },
             "labelRenderer": "jqplot.CanvasAxisLabelRenderer"
@@ -57,7 +57,7 @@
             "pad": 1.0,
             "tickRenderer": "jqplot.CanvasAxisTickRenderer",
             "tickOptions": {
-                "formatString": {% if rgraph.is_count %}"%d"{% else %}"%d"{% endif %},
+                "formatString": "%d",{# {% if rgraph.is_count %}"%d"{% else %}"%d"{% endif %} #}
                 "textColor":  "black",
                 "fontSize":   {% if is_small %}"8pt"{% else %}"9pt"{% endif %}
             },
