@@ -274,7 +274,7 @@ class BlockTestCase(CremeTestCase):
         loc = [loc for loc in locs if loc.zone == zone][0]
         self.assertEqual(model,  loc.content_type.model_class())
 
-    def test_create_portal01(self):
+    def test_create_portal(self):
         app_name = 'persons'
         order = 25
         brick_id = HistoryBrick.id_
@@ -286,21 +286,32 @@ class BlockTestCase(CremeTestCase):
         # self.assertEqual(_('History'), unicode(loc.block_verbose_name))
         self.assertEqual(_('History'), unicode(loc.brick_verbose_name))
 
-    def test_create_portal02(self):
+    def test_create_or_update_portal01(self):
+        app_name = 'persons'
+        order = 25
+        brick_id = HistoryBrick.id_
+        loc = BlockPortalLocation.create_or_update(app_name=app_name, brick_id=brick_id, order=order)
+        self.get_object_or_fail(BlockPortalLocation, pk=loc.pk, app_name=app_name,
+                                brick_id=brick_id, order=order,
+                               )
+
+        self.assertEqual(_('History'), unicode(loc.brick_verbose_name))
+
+    def test_create_or_update_portal02(self):
         order = 10
         brick_id = HistoryBrick.id_
-        loc = BlockPortalLocation.create(block_id=brick_id, order=order)
+        loc = BlockPortalLocation.create_or_update(brick_id=brick_id, order=order)
         self.get_object_or_fail(BlockPortalLocation, pk=loc.pk, app_name='',
                                 brick_id=brick_id, order=order,
                                )
 
-    def test_create_portal03(self):
+    def test_create_or_update_portal03(self):
         app_name = 'billing'
         brick_id = HistoryBrick.id_
-        BlockPortalLocation.create(block_id=brick_id, order=3, app_name=app_name)
+        BlockPortalLocation.create_or_update(brick_id=brick_id, order=3, app_name=app_name)
 
         order = 10
-        BlockPortalLocation.create(block_id=brick_id, order=order, app_name=app_name)
+        BlockPortalLocation.create_or_update(brick_id=brick_id, order=order, app_name=app_name)
 
         locs = BlockPortalLocation.objects.filter(app_name=app_name, brick_id=brick_id)
         self.assertEqual(1, len(locs))
