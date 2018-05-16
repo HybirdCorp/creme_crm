@@ -163,12 +163,12 @@ def edit_fields(request, report_id):
     #                                      title_format=_(u'Edit columns of «%s»'),
     #                                     )
 
-_order_direction = {
-    'up':   -1,
-    'down':  1,
-}
-
-
+# _order_direction = {
+#     'up':   -1,
+#     'down':  1,
+# }
+#
+#
 # @login_required
 # @permission_required('reports')
 # def change_field_order(request):
@@ -183,7 +183,7 @@ _order_direction = {
 #
 #     request.user.has_perm_to_change_or_die(report)
 #
-#     field.order += _order_direction[direction]  # TODO: manage bad direction arg
+#     field.order += _order_direction[direction]  # todo: manage bad direction arg
 #     try:
 #         other_field = report.fields.get(order=field.order)
 #     except Field.DoesNotExist:
