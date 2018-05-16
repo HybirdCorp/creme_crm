@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 26-04-2018 pour la version 1.8 de Creme
+:Version: 14-05-2018 pour la version 1.8 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -75,8 +75,8 @@ Avant tout assurez vous d'avoir une instance de Creme fonctionnelle :
 
     from .settings import TEMPLATES
     TEMPLATES[0]['OPTIONS']['loaders'] = (
-        'django.template.loaders.filesystem.Loader',
         'django.template.loaders.app_directories.Loader',
+        'django.template.loaders.filesystem.Loader',
     )
 
 Nous vous conseillons d'utiliser l'app `django extensions <https://github.com/django-extensions/django-extensions>`_
