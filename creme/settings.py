@@ -380,6 +380,11 @@ LOGGING_FORMATTERS = {
         '()': 'django.utils.log.ServerFormatter',
         'format': '[%(server_time)s] SERVER: %(message)s',
     },
+    'django.db.backends': {
+        '()': 'creme.utils.loggers.CremeFormatter',
+        'format': '[%(asctime)s] QUERY: %(message)s',
+        'datefmt': '%Y-%m-%d %H:%M:%S',
+    },
 }
 
 # This filter removes all logs containing '/static_media/' string (useful when log level is DEBUG)
@@ -432,12 +437,18 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'django.server',
         },
+        'django.db.backends': {
+            'level':     'DEBUG',
+            'class':     'logging.StreamHandler',
+            'formatter': 'django.db.backends',
+        },
     },
     'loggers': {
         '': LOGGING_DEFAULT_LOGGER,  # The empty key '' means that all logs are redirected to this logger.
-        # 'django.db.backends': {  # To display the DB queries
+        # 'django.db.backends': {  # To display the DB queries (beware works only with <settings.DEBUG==True>.
         #     'level':    'DEBUG',
-        #     'handlers': ['console'],
+        #     'handlers': ['django.db.backends'],
+        #     'propagate': False,
         # },
         'django.server': {
             'handlers': ['django.server'],
