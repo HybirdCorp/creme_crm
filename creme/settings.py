@@ -1049,7 +1049,7 @@ IS_ZPUSH = True
 # 1 = Server object replaces client object.
 CONFLICT_MODE = 1
 
-ACTIVE_SYNC_DEBUG = DEBUG  # Make appears some debug informations on the UI
+ACTIVE_SYNC_DEBUG = DEBUG  # Make appears some debug information on the UI
 
 LIMIT_SYNC_KEY_HISTORY = 50  # Number of sync_keys kept in db by user
 

@@ -18,8 +18,8 @@ urlpatterns = [
     url(r'^campaign/sending/delete[/]?$',                   sending.delete, name='sms__delete_sending'),
 
     # Campaign: sending details block
-    url(r'^campaign/sending/(?P<id>\d+)[/]?$',                  sending.detailview,            name='sms__view_sending'),
-    url(r'^campaign/sending/message/delete[/]?$',               sending.delete_message,        name='sms__delete_message'),
+    url(r'^campaign/sending/(?P<id>\d+)[/]?$',                 sending.detailview,            name='sms__view_sending'),
+    url(r'^campaign/sending/message/delete[/]?$',              sending.delete_message,        name='sms__delete_message'),
     url(r'^campaign/sending/(?P<id>\d+)/messages/sync[/]?$',   sending.sync_messages,         name='sms__sync_messages'),
     url(r'^campaign/sending/(?P<id>\d+)/messages/send[/]?$',   sending.send_messages,         name='sms__send_messages'),
     url(r'^campaign/sending/(?P<id>\d+)/messages/reload[/]?$', sending.reload_messages_brick, name='sms__reload_messages_brick'),

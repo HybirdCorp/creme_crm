@@ -57,18 +57,19 @@
                 - In 'bricks.BlockPortalLocation' :
                     - The method 'create()' is deprecated (use create_or_update() instead).
                     - The method 'create_empty_config()' is deprecated.
-                - The method 'brickd.BlockMypageLocation.create()' is deprecated (use 'create_or_update()' instead).
+                - The method 'bricks.BlockMypageLocation.create()' is deprecated (use 'create_or_update()' instead).
             - In 'creme_core.forms.widgets' :
                 - These functions are now deprecated : widget_render_input(), widget_render_hidden_input(), widget_render_context().
                 - The method 'EnhancedSelectOptions.render_label()' is deprecated.
             - In 'creme_core.gui' :
                 - The old menu API is deprecated.
                 - In 'bricks.BricksManager', the methods 'get_dependencies_map()' & '_get_dependencies_ids()' are now deprecated.
+                - In 'buttons.ButtonsRegistry.register()', registering 'Button' instances is deprecated (register classes instead).
+                  In all apps with global buttons instances, these ones are deprecated.
+            - The method 'HistoryBrick._populate_users()' is deprecated (use 'HistoryLine.populate_users()' instead).
             - In 'creme_core.registry' :
                 - The exception class 'NotRegistered' is now deprecated.
                 - The methods 'register()' & 'get()' of 'CremeRegistry' are now deprecated.
-            - In 'creme_core.buttons.ButtonsRegistry.register()', registering 'Button' instances is deprecated (register classes instead).
-              In all apps with global buttons instances, these ones are deprecated.
             - In 'creme_core.templatetags' :
                 - {% timedelta_pprint %} is deprecated (use {% date_timedelta_pprint %} instead).
                 - In the library 'creme_bricks', in {% brick_display %}, the option "render='portal'" is deprecated.
@@ -244,15 +245,12 @@
                     - The "order" parameter has been removed in these views: graph.fetch_graph() & graph.fetch_graph_from_instanceblock().
                     - These JavaScript functions have been removed : changeOrder(), unlink_report(), setSelected(), doAjaxAction() & openGraphEdition()
                 * Emails :
-                    - The following models fields are now 'blank=False' (blank was useless because these fields are not editable):
-                        _Email.reads, _Email.sending_date, _Email.reception_date, AbstractEntityEmail.identifier, EmailSending.signature.
                     - In views:
                         - The functions 'crudity.reload_sync_blocks()' & 'sending.reload_block_mails()' have been removed.
                         - In 'crudity.synchronisation()' the template variable "entityemail_ct_id" is not injected anymore.
                     - These template files have been removed :  'templatetags/_block_synchronization.html' &  'frags/ajax/synchronize.html'.
                     - In these Bricks, the variable "ct_id" is not injected anymore : EmailRecipientsBrick & MailsBrick.
                     - These JavaScript functions have been removed: allowExternalImages(), confirmResend() & resend().
-
                 * Geolocation :
                     - These arguments of views have been removed :
                         - set_address_info() (the argument "address_id").
@@ -262,8 +260,8 @@
                 * Crudity :
                     - The setting CREME_GET_EMAIL_JOB_USER_ID has been removed.
                     - These functions in 'views' have been removed: actions.fetch(), actions._fetch(), actions.reload_block(), history.reload().
-                    - The method registry.FetcherInterface.add_fetcher() has been removed.
                     - In views.history.history(), the context variable "blocks" is not injected anymore.
+                    - The method registry.FetcherInterface.add_fetcher() has been removed.
                     - These global variables have been removed :
                         - In 'buttons' : infopath_create_form_button & email_template_create_button.
                         - In 'fetchers.pop' : pop_fetcher.
@@ -429,6 +427,9 @@
                     - 'creme.geolocation.PersonsBlock'             became 'creme.geolocation.PersonsBrick'.
                     - 'creme.geolocation.AddressesBlock'           became 'creme.geolocation.AddressesBrick'.
                     - 'creme.geolocation.PersonsNeighborhoodBlock' became 'creme.geolocation.PersonsNeighborhoodBrick'.
+            * Emails :
+                - The following models fields are now 'blank=False' (blank was useless because these fields are not editable):
+                  _Email.reads, _Email.sending_date, _Email.reception_date, AbstractEntityEmail.identifier, EmailSending.signature.
             * Crudity :
                 - The field 'models.WaitingAction.data' has been renamed "raw_data".
                 - The method 'models.WaitingAction.set_data()' now assigns the data & returns nothing.
@@ -471,7 +472,6 @@
             - These methods of 'SelectorList' have been removed: _render_action(), _render_actions().
             - The method '_render_inputs()' of 'ChainedInput' & 'PolymorphicInput' have been removed.
             - The class 'CremeRadioFieldRenderer' has been removed (because 'django.forms.widgets.RadioFieldRenderer' has been removed).
-        # The method 'HistoryBrick._populate_users()' is deprecated (use 'HistoryLine.populate_users()' instead).
         # The attribute 'creme_core.buttons.ButtonsRegistry._buttons' has been renamed to "_button_classes".
         # The JavaScript widget 'creme.widget.DateRange' has been entirely reworked.
         # Apps :
