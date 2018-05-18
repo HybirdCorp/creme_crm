@@ -19,6 +19,7 @@
 ################################################################################
 
 from itertools import chain
+import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import URLField, EmailField, ManyToManyField, ForeignKey
@@ -58,6 +59,9 @@ class BrickLocationsField(MultipleChoiceField):
 
 class _BrickLocationsForm(CremeForm):
     def _build_portal_locations_field(self, app_name, field_name, block_locations):
+        warnings.warn('creme_config.forms.bricks._BrickLocationsForm._build_portal_locations_field() is deprecated.',
+                      DeprecationWarning
+                     )
         bricks = self.fields[field_name]
         choices = [(brick.id_, unicode(brick.verbose_name))
                         for brick in gui_bricks.brick_registry.get_compatible_portal_blocks(app_name)
@@ -67,6 +71,17 @@ class _BrickLocationsForm(CremeForm):
 
         bricks.choices = choices
         bricks.initial = [bl.brick_id for bl in block_locations]
+
+    def _build_home_locations_field(self, field_name, brick_locations):
+        bricks = self.fields[field_name]
+        choices = [(brick.id_, unicode(brick.verbose_name))
+                        for brick in gui_bricks.brick_registry.get_compatible_home_bricks()
+                  ]
+        sort_key = collator.sort_key
+        choices.sort(key=lambda c: sort_key(c[1]))
+
+        bricks.choices = choices
+        bricks.initial = [bl.brick_id for bl in brick_locations]
 
     def _save_locations(self, location_model, location_builder,
                         # blocks_partitions,
@@ -257,6 +272,10 @@ class BrickDetailviewLocationsEditForm(_BrickDetailviewLocationsForm):
 
 
 class _BlockPortalLocationsForm(_BrickLocationsForm):
+    def __init__(self, *args, **kwargs):
+        warnings.warn('creme_config.forms.bricks._BlockPortalLocationsForm is deprecated.', DeprecationWarning)
+        super(_BlockPortalLocationsForm, self).__init__(*args, **kwargs)
+
     def _save_portal_locations(self, app_name, old_locations=(), block_ids=()):
         self._save_locations(BlockPortalLocation,
                              lambda: BlockPortalLocation(app_name=app_name),
@@ -265,13 +284,13 @@ class _BlockPortalLocationsForm(_BrickLocationsForm):
                             )
 
 
-# TODO: deprecated in 1.8 when portals are deprecated
 class BlockPortalLocationsAddForm(_BlockPortalLocationsForm):
     app_name = ChoiceField(label=_(u'Related application'), choices=(),
                            widget=DynamicSelect(attrs={'autocomplete': True}),
                           )
 
     def __init__(self, *args, **kwargs):
+        warnings.warn('creme_config.forms.bricks.BlockPortalLocationsAddForm is deprecated.', DeprecationWarning)
         super(BlockPortalLocationsAddForm, self).__init__(*args, **kwargs)
 
         excluded_apps = set(BlockPortalLocation.objects.values_list('app_name', flat=True))
@@ -291,6 +310,7 @@ class BlockPortalLocationsEditForm(_BlockPortalLocationsForm):
     blocks = BrickLocationsField(label=_(u'Blocks to display on the portal'))
 
     def __init__(self, app_name, block_locations, *args, **kwargs):
+        warnings.warn('creme_config.forms.bricks.BlockPortalLocationsEditForm is deprecated.', DeprecationWarning)
         super(BlockPortalLocationsEditForm, self).__init__(*args, **kwargs)
         self.app_name = app_name
         self.locations = block_locations
@@ -303,6 +323,23 @@ class BlockPortalLocationsEditForm(_BlockPortalLocationsForm):
         self._save_portal_locations(self.app_name, self.locations, self.cleaned_data['blocks'])
 
 
+class BrickHomeLocationsForm(_BrickLocationsForm):
+    bricks = BrickLocationsField(label=_(u'Blocks to display on the home'))
+
+    def __init__(self, *args, **kwargs):
+        super(BrickHomeLocationsForm, self).__init__(*args, **kwargs)
+        self.locations = locations = BlockPortalLocation.objects.filter(app_name='creme_core')
+
+        self._build_home_locations_field(field_name='bricks', brick_locations=locations)
+
+    def save(self, *args, **kwargs):
+        self._save_locations(location_model=BlockPortalLocation,
+                             location_builder=lambda: BlockPortalLocation(app_name='creme_core'),
+                             bricks_partitions={1: self.cleaned_data['bricks']},  # 1 is a "nameless" zone
+                             old_locations=self.locations,
+                            )
+
+
 class BrickMypageLocationsForm(_BrickLocationsForm):
     blocks = BrickLocationsField(label=_(u'Blocks to display on the "My Page" of the users'))
 
@@ -311,9 +348,10 @@ class BrickMypageLocationsForm(_BrickLocationsForm):
         self.owner = owner
         self.locations = locations = BlockMypageLocation.objects.filter(user=owner)
 
-        self._build_portal_locations_field(app_name='creme_core', field_name='blocks',
-                                           block_locations=locations,
-                                          )
+        # self._build_portal_locations_field(app_name='creme_core', field_name='blocks',
+        #                                    block_locations=locations,
+        #                                   )
+        self._build_home_locations_field(field_name='blocks', brick_locations=locations)
 
     def save(self, *args, **kwargs):
         self._save_locations(BlockMypageLocation,

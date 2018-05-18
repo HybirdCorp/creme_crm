@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
+import warnings
 
 from django.apps import apps
 from django.db.transaction import atomic
@@ -99,6 +99,11 @@ class PortalBricksWizard(PopupWizardMixin, SessionWizardView):
     wizard_title = _(u'New blocks configuration')
     template_name = 'creme_core/generics/blockform/add_wizard_popup.html'
     permission = 'creme_core.can_admin'
+
+    def dispatch(self, *args, **kwargs):
+        warnings.warn('creme_config.views.bricks.PortalBricksWizard() is deprecated.', DeprecationWarning)
+
+        return super(PortalBricksWizard, self).dispatch(*args, **kwargs)
 
     def done(self, form_list, **kwargs):
         conf_step = form_list[1]
@@ -229,6 +234,8 @@ def edit_detailview(request, ct_id, role):
 @login_required
 @permission_required('creme_core.can_admin')
 def edit_portal(request, app_name):
+    warnings.warn('creme_config.views.bricks.edit_portal() is deprecated.', DeprecationWarning)
+
     if app_name == 'default':
         app_name = ''
         title = _(u'Edit default portal configuration')
@@ -261,6 +268,29 @@ def edit_portal(request, app_name):
                        'creme_core/generics/blockform/edit_popup.html',
                        {'form':  locs_form,
                         'title': title,
+                        'submit_label': _(u'Save the modifications'),
+                       },
+                       is_valid=locs_form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                      )
+
+
+@login_required
+@permission_required('creme_core.can_admin')
+def edit_home(request):
+    if request.method == 'POST':
+        locs_form = bricks.BrickHomeLocationsForm(user=request.user, data=request.POST)
+
+        if locs_form.is_valid():
+            locs_form.save()
+    else:
+        locs_form = bricks.BrickHomeLocationsForm(user=request.user)
+
+    return inner_popup(request,
+                       'creme_core/generics/blockform/edit_popup.html',
+                       {'form':  locs_form,
+                        'title': _(u'Edit home configuration'),
                         'submit_label': _(u'Save the modifications'),
                        },
                        is_valid=locs_form.is_valid(),
@@ -443,6 +473,8 @@ def delete_detailview(request):
 @login_required
 @permission_required('creme_core.can_admin')
 def delete_portal(request):
+    warnings.warn('creme_config.views.bricks.delete_portal() is deprecated.', DeprecationWarning)
+
     app_label = get_from_POST_or_404(request.POST, 'id')
 
     if app_label == 'creme_core':

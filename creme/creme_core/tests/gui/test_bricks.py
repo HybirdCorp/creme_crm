@@ -14,7 +14,7 @@ try:
         InstanceBlockConfigItem, RelationBlockItem, CustomBlockConfigItem)
     from creme.creme_core.views.bricks import build_context
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class BrickRegistryTestCase(CremeTestCase):
@@ -54,8 +54,8 @@ class BrickRegistryTestCase(CremeTestCase):
             id_           = Brick.generate_id('creme_core', 'foobar_brick_5')
             verbose_name  = u'Testing purpose'
 
-            def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
-            def home_display(self, context):           return '<table id="%s"></table>' % self.id_
+            def portal_display(self, context, ct_ids): return '<table id="{}"></table>'.format(self.id_)
+            def home_display(self, context):           return '<table id="{}"></table>'.format(self.id_)
 
         class FakeContactBrick(SimpleBrick):
             verbose_name = u'Fake Contact block'
@@ -487,7 +487,7 @@ class BrickRegistryTestCase(CremeTestCase):
     def test_get_compatible_portal_blocks02(self):
         "Home"
         class FoobarBlock1(Brick):
-            id_ = Brick.generate_id('creme_core', 'BlockRegistryTestCase__test_get_compatible_portal_blocks02_1')
+            id_ = Brick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_compatible_portal_blocks02_1')
             verbose_name  = u'Testing purpose'
 
             # NB: only home_display() method
@@ -496,14 +496,14 @@ class BrickRegistryTestCase(CremeTestCase):
             def home_display(self, context): return '<table id="%s"></table>' % self.id_
 
         class FoobarBlock2(Brick):
-            id_  = Brick.generate_id('creme_core', 'BlockRegistryTestCase__test_get_compatible_portal_blocks02_2')
+            id_  = Brick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_compatible_portal_blocks02_2')
             verbose_name  = u'Testing purpose'
             configurable  = False  # <----
 
             def home_display(self, context): return '<table id="%s"></table>' % self.id_
 
         class FoobarBlock3(Brick):
-            id_ = Brick.generate_id('creme_core', 'BlockRegistryTestCase__test_get_compatible_portal_blocks02_3')
+            id_ = Brick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_compatible_portal_blocks02_3')
             verbose_name  = u'Testing purpose'
 
             # def home_display(self, context): [...]
@@ -516,17 +516,48 @@ class BrickRegistryTestCase(CremeTestCase):
         self.assertEqual(1, len(blocks))
         self.assertIsInstance(blocks[0], FoobarBlock1)
 
+    def test_get_compatible_home_bricks(self):
+        class FoobarBrick1(Brick):
+            id_ = Brick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_compatible_home_bricks_1')
+            verbose_name = u'Testing purpose'
+
+            # NB: only home_display() method
+            # def detailview_display(self, context): [...]
+            # def portal_display(self, context, ct_ids): [...]
+            def home_display(self, context): return '<table id="{}"></table>'.format(self.id_)
+
+        class FoobarBrick2(Brick):
+            id_  = Brick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_compatible_home_bricks_2')
+            verbose_name = u'Testing purpose'
+            configurable = False  # <----
+
+            def home_display(self, context): return '<table id="{}"></table>'.format(self.id_)
+
+        class FoobarBrick3(Brick):
+            id_ = Brick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_compatible_home_bricks_3')
+            verbose_name = u'Testing purpose'
+
+            # def home_display(self, context): [...]
+            def portal_display(self, context, ct_ids): return '<table id="{}"></table>'.format(self.id_)
+
+        brick_registry = _BrickRegistry()
+        brick_registry.register(FoobarBrick1, FoobarBrick2, FoobarBrick3)
+
+        blocks = list(brick_registry.get_compatible_home_bricks())
+        self.assertEqual(1, len(blocks))
+        self.assertIsInstance(blocks[0], FoobarBrick1)
+
     def test_get_bricks01(self):
         class QuuxBrick1(SimpleBrick):
-            id_          = SimpleBrick.generate_id('creme_core', 'BlockRegistryTestCase__test_get_bricks_1')
+            id_          = SimpleBrick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_bricks_1')
             verbose_name = u'Testing purpose #1'
 
         class QuuxBrick2(SimpleBrick):
-            id_          = SimpleBrick.generate_id('creme_core', 'BlockRegistryTestCase__test_get_bricks_2')
+            id_          = SimpleBrick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_bricks_2')
             verbose_name = u'Testing purpose #2'
 
         class QuuxBrick3(SimpleBrick):
-            id_          = SimpleBrick.generate_id('creme_core', 'BlockRegistryTestCase__test_get_bricks_3')
+            id_          = SimpleBrick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_bricks_3')
             verbose_name = u'Testing purpose #3'
 
         self.assertFalse(InstanceBlockConfigItem.id_is_specific(QuuxBrick1.id_))
@@ -545,14 +576,14 @@ class BrickRegistryTestCase(CremeTestCase):
         # assertBricks([QuuxBrick1, QuuxBrick2], brick_registry.get_blocks([QuuxBrick1.id_, QuuxBrick2.id_]))
 
         # Not registered -------------
-        bricks = list(brick_registry.get_bricks([SimpleBrick.generate_id('creme_core', 'BlockRegistryTestCase__test_get_bricks_4')]))
+        bricks = list(brick_registry.get_bricks([SimpleBrick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_bricks_4')]))
         self.assertEqual(1, len(bricks))
         self.assertIsInstance(bricks[0], Brick)
 
     def test_get_bricks02(self):
         "Specific relation blocks, custom blocks"
         class QuuxBrick1(SimpleBrick):
-            id_          = SimpleBrick.generate_id('creme_core', 'BlockRegistryTestCase__test_get_bricks_2')
+            id_          = SimpleBrick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_bricks_2')
             verbose_name = u'Testing purpose #1'
 
         rtype = RelationType.create(('test-subject_loves', 'loves'), ('test-object_loved', 'is loved by'))[0]
