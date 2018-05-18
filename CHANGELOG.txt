@@ -47,8 +47,9 @@
                 - The view 'django.contrib.auth.views.login()' is now deprecated ; so we use the class-based view 'LoginView'.
             - The middleware class 'creme_core.middleware.exceptions.Beautiful403Middleware' is deprecated.
             - In 'creme_core.views' :
-                - The function 'views.exceptions.server_error()' is deprecated (use 'django.views.defaults.server_error()' instead).
-                - The function 'views.file_handling.fetch_resources()' is deprecated (it was not used for a long time).
+                - The functions 'bricks.reload_portal()' & 'bricks.render_portal_brick()' are deprecated.
+                - The function 'exceptions.server_error()' is deprecated (use 'django.views.defaults.server_error()' instead).
+                - The function 'file_handling.fetch_resources()' is deprecated (it was not used for a long time).
             - In 'creme_core.models' :
                 - In 'bricks.BlockDetailviewLocation' :
                     - The methods 'create_empty_config()' & the attribute 'ZONES' are deprecated.
@@ -70,6 +71,7 @@
               In all apps with global buttons instances, these ones are deprecated.
             - In 'creme_core.templatetags' :
                 - {% timedelta_pprint %} is deprecated (use {% date_timedelta_pprint %} instead).
+                - In the library 'creme_bricks', in {% brick_display %}, the option "render='portal'" is deprecated.
                 - In the library 'creme_menu' :
                     - The tags activated by <settings.OLD_MENU = True> are deprecated.
                     - {% get_last_items_menu %} & {% get_prefered_menu %} are deprecated (their template too).
@@ -82,13 +84,20 @@
                - In 'creme.menu' :
                  - The variable 'actions' is deprecated.
                  - The functions 'sideMenu()', 'NavIt()' & 'HNavIt()' are deprecated.
+            - In all apps, the methods 'portal_display()' of Bricks are deprecated.
             - Apps :
+                * Creme_config :
+                    - The function 'utils.generate_portal_url()' is deprecated.
                 * Documents :
                     - In 'views.ajax', the function 'get_child_documents()' & 'get_child_documents()' are deprecated.
                 * Activities :
                     - In the view 'calendar.get_users_activities()', the URL argument "calendar_ids" is deprecated (use the GET parameter "calendar_id" instead).
+                    - In 'bricks', the methods 'FutureActivitiesBrick._get_queryset_for_ctypes()' & 'PastActivitiesBrick._get_queryset_for_ctypes()' are deprecated.
                 * Assistants :
                     - The method 'bricks._AssistantsBrick._get_contenttype_id()' is deprecated.
+                    - All the methods '_get_queryset_for_portal()' of the Bricks are deprecated.
+                * Emails :
+                    - 'bricks.SignaturesBrick' is deprecated.
         # Django 1.11 raises UnorderedObjectListWarning warnings when the pagination is made on a unordered queryset ; some models were missing a Meta.ordering.
         # A model FileRef has been added ; it provides a way to remove an old bug with deletion of model referencing files.
           The related files were automatically delete when instances were deleted, so it caused problems when the DB deletion was rollbacked.

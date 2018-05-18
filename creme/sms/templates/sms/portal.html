@@ -1,7 +1,10 @@
 {% extends 'creme_core/generics/portal.html' %}
-{% load i18n creme_widgets %}
+{% load i18n creme_core_tags creme_widgets %}
 
-{% block logo %}{% widget_icon name='sms' size='brick-hat-bar' label=_('SMS') %}{% endblock %}
+{% block logo %}
+    {% log 'The template file "creme/sms/templates/sms/portal.html" is deprecated.' level='WARN' %}
+    {% widget_icon name='sms' size='brick-hat-bar' label=_('SMS') %}
+{% endblock %}
 {% block title %}{% trans 'SMS Campaigns portal' %}{% endblock %}
 {% block list_url %}{% url 'sms__list_campaigns' %}{% endblock %}
 {% block list_msg %}{% trans 'List of campaigns' %}{% endblock %}

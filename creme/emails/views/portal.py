@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.views.generic import app_portal
@@ -28,6 +30,8 @@ from .. import get_emailcampaign_model, get_mailinglist_model
 
 
 def portal(request):
+    warnings.warn('emails.views.portal.portal() is deprecated.', DeprecationWarning)
+
     EmailCampaign = get_emailcampaign_model()
     MailingList   = get_mailinglist_model()
     stats = (

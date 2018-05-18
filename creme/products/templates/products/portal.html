@@ -1,7 +1,10 @@
 {% extends 'creme_core/generics/portal.html' %}
-{% load i18n creme_widgets %}
+{% load i18n creme_core_tags creme_widgets %}
 
-{% block logo %}{% widget_icon name='product' size='brick-hat-bar' label=_('Products') %}{% endblock %}
+{% block logo %}
+    {% log 'The template file "creme/products/templates/products/portal.html" is deprecated.' level='WARN' %}
+    {% widget_icon name='product' size='brick-hat-bar' label=_('Products') %}
+{% endblock %}
 {% block title %}{% trans 'Products & Services portal' %}{% endblock %}
 {% block list_url %}{% url 'products__list_products' %}{% endblock %}
 {% block list_msg %}{% trans 'List of products' %}{% endblock %}

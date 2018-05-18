@@ -20,6 +20,7 @@
 
 from collections import OrderedDict
 from functools import partial
+import warnings
 
 from django.apps import apps
 # from django.contrib.contenttypes.models import ContentType
@@ -489,6 +490,10 @@ if apps.is_installed('creme.activities'):
             return neglected_orgas
 
         def portal_display(self, context, ct_ids):
+            warnings.warn('persons.bricks.NeglectedOrganisationsBrick.portal_display() is deprecated.',
+                          DeprecationWarning
+                         )
+
             if not context['user'].has_perm('persons'):
                 raise PermissionDenied('Error: you are not allowed to view this block: %s' % self.id_)
 

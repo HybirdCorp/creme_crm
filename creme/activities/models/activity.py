@@ -151,7 +151,7 @@ END:VEVENT
 
     # TODO: test
     @classmethod
-    def _get_linked_for_ctypes_aux(cls, ct_ids):
+    def _get_linked_for_ctypes_aux(cls, ct_ids):  # TODO: deprecate ?
         types = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
         return cls.objects.filter(is_deleted=False,
                                   relations__object_entity__entity_type__in=ct_ids,
@@ -178,7 +178,7 @@ END:VEVENT
         return cls._get_linked_aux(entity).filter(end__gt=today).order_by('start')
 
     @classmethod
-    def get_future_linked_for_ctypes(cls, ct_ids, today):
+    def get_future_linked_for_ctypes(cls, ct_ids, today):  # TODO: deprecate ?
         return cls._get_linked_for_ctypes_aux(ct_ids).filter(end__gt=today).order_by('start')
 
     @classmethod
@@ -190,7 +190,7 @@ END:VEVENT
         return cls._get_linked_aux(entity).filter(end__lte=today).order_by('-start')
 
     @classmethod
-    def get_past_linked_for_ctypes(cls, ct_ids, today):
+    def get_past_linked_for_ctypes(cls, ct_ids, today):  # TODO: deprecate ?
         return cls._get_linked_for_ctypes_aux(ct_ids).filter(end__lte=today).order_by('-start')
 
     @classmethod

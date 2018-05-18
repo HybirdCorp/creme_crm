@@ -18,8 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.urls import reverse
 
 
-def generate_portal_url(app_name):  # TODO; rename app_label
+def generate_portal_url(app_name):
+    warnings.warn('creme_config.utils.generate_portal_url() is deprecated', DeprecationWarning)
+
     return reverse('creme_config__app_portal', args=(app_name,))

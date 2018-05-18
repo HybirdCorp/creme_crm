@@ -1,7 +1,10 @@
 {% extends 'creme_core/generics/portal.html' %}
-{% load i18n creme_widgets %}
+{% load i18n creme_core_tags creme_widgets %}
 
-{% block logo %}{% widget_icon name='invoice' size='brick-hat-bar' label=_('Billing') %}{% endblock %}
+{% block logo %}
+    {% log 'The template file "creme/billing/templates/billing/portal.html" is deprecated.' level='WARN' %}
+    {% widget_icon name='invoice' size='brick-hat-bar' label=_('Billing') %}
+{% endblock %}
 {% block title %}{% trans 'Billing portal' %}{% endblock %}
 {% block list_url %}{% url 'billing__list_invoices' %}{% endblock %}
 {% block list_msg %}{% trans 'List of invoices' %}{% endblock %}

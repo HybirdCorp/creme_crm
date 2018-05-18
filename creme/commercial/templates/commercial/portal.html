@@ -1,6 +1,10 @@
 {% extends 'creme_core/generics/portal.html' %}
-{% load i18n creme_widgets %}
-{% block logo %}{% widget_icon name='commercial' size='brick-hat-bar' label=_('Commercial strategy') %}{% endblock %}
+{% load i18n creme_core_tags creme_widgets %}
+
+{% block logo %}
+    {% log 'The template file "creme/commercial/templates/commercial/portal.html" is deprecated.' level='WARN' %}
+    {% widget_icon name='commercial' size='brick-hat-bar' label=_('Commercial strategy') %}
+{% endblock %}
 {% block title %}{% trans 'Commercial portal' %}{% endblock %}
 {% block list_url %}{% url 'commercial__list_acts' %}{% endblock %}
 {% block list_msg %}{% trans 'List of commercial actions' %}{% endblock %}

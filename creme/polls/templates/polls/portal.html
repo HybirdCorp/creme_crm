@@ -1,7 +1,10 @@
 {% extends 'creme_core/generics/portal.html' %}
-{% load i18n creme_widgets %}
+{% load i18n creme_core_tags creme_widgets %}
 
-{% block logo %}{% widget_icon name='poll' size='brick-hat-bar' label=_('Polls') %}{% endblock %}
+{% block logo %}
+    {% log 'The template file "creme/polls/templates/polls/portal.html" is deprecated.' level='WARN' %}
+    {% widget_icon name='poll' size='brick-hat-bar' label=_('Polls') %}
+{% endblock %}
 {% block title %}{% trans 'Polls portal' %}{% endblock %}
 {% block list_url %}{% url 'polls__list_forms' %}{% endblock %}
 {% block list_msg %}{% trans 'List of forms' %}{% endblock %}

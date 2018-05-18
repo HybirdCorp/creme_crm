@@ -66,8 +66,8 @@ class Brick(object):
          in order to avoid the confusion with the {% block %} templatetag)
 
     Bricks can be displayed on (see creme_core.templatetags.creme_bricks):
-        - a detail-view (and so are related to a CremeEntity),
-        - a portal (related to the content types of an app)
+        - a detail-view (and so are related to a CremeEntity).
+        - a portal (related to the content types of an app) (DEPRECATED).
         - the homepage - ie the portal of creme_core (related to all the apps).
 
     A Brick can be directly displayed on a page (this is the only solution for
@@ -85,7 +85,7 @@ class Brick(object):
     def detailview_display(self, context):
         return 'VOID BLOCK FOR DETAILVIEW: %s' % self.verbose_name
 
-    def portal_display(self, context, ct_ids):
+    def portal_display(self, context, ct_ids):  # DEPRECATED
         return 'VOID BLOCK FOR PORTAL: %s' % self.verbose_name
 
     def home_display(self, context):

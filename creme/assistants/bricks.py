@@ -58,11 +58,13 @@ class _AssistantsBrick(QuerysetBrick):
 
     def _get_queryset_for_portal(self, ct_ids, context):
         """OVERLOAD ME"""
-        pass
+        warnings.warn('assistants.bricks._AssistantsBrick._get_queryset_for_portal() is deprecated.',
+                      DeprecationWarning
+                     )
 
     @classmethod
     def _get_contenttype_id(cls):
-        warnings.warn('_AssistantsBrick._get_contenttype_id() is deprecated.', DeprecationWarning)
+        warnings.warn('assistants.bricks._AssistantsBrick._get_contenttype_id() is deprecated.', DeprecationWarning)
 
         return ContentType.objects.get_for_model(cls.dependencies[0]).id
 
@@ -80,6 +82,8 @@ class _AssistantsBrick(QuerysetBrick):
         return self._render(btc)
 
     def portal_display(self, context, ct_ids):
+        warnings.warn('assistants.bricks._AssistantsBrick.portal_display() is deprecated.', DeprecationWarning)
+
         btc = self.get_template_context(
             context, self._get_queryset_for_portal(ct_ids, context),
             # ct_id=self._get_contenttype_id(),
@@ -114,6 +118,9 @@ class TodosBrick(_AssistantsBrick):
         return ToDo.get_todos_for_home(context['user'])
 
     def _get_queryset_for_portal(self, ct_ids, context):
+        warnings.warn('assistants.bricks.TodosBrick._get_queryset_for_portal() is deprecated.',
+                      DeprecationWarning
+                     )
         return ToDo.get_todos_for_ctypes(ct_ids, context['user'])
 
 
@@ -131,6 +138,9 @@ class MemosBrick(_AssistantsBrick):
         return Memo.get_memos_for_home(context['user'])
 
     def _get_queryset_for_portal(self, ct_ids, context):
+        warnings.warn('assistants.bricks.MemosBrick._get_queryset_for_portal() is deprecated.',
+                      DeprecationWarning
+                     )
         return Memo.get_memos_for_ctypes(ct_ids, context['user'])
 
 
@@ -148,6 +158,9 @@ class AlertsBrick(_AssistantsBrick):
         return Alert.get_alerts_for_home(context['user'])
 
     def _get_queryset_for_portal(self, ct_ids, context):
+        warnings.warn('assistants.bricks.AlertsBrick._get_queryset_for_portal() is deprecated.',
+                      DeprecationWarning
+                     )
         return Alert.get_alerts_for_ctypes(ct_ids, context['user'])
 
 
@@ -165,6 +178,9 @@ class ActionsOnTimeBrick(_AssistantsBrick):
         return Action.get_actions_it_for_home(context['user'], context['today'])
 
     def _get_queryset_for_portal(self, ct_ids, context):
+        warnings.warn('assistants.bricks.ActionsOnTimeBrick._get_queryset_for_portal() is deprecated.',
+                      DeprecationWarning
+                     )
         return Action.get_actions_it_for_ctypes(ct_ids, context['user'], context['today'])
 
 
@@ -182,6 +198,9 @@ class ActionsNotOnTimeBrick(_AssistantsBrick):
         return  Action.get_actions_nit_for_home(context['user'], context['today'])
 
     def _get_queryset_for_portal(self, ct_ids, context):
+        warnings.warn('assistants.bricks.ActionsNotOnTimeBrick._get_queryset_for_portal() is deprecated.',
+                      DeprecationWarning
+                     )
         return Action.get_actions_nit_for_ctypes(ct_ids, context['user'], context['today'])
 
 
@@ -199,4 +218,7 @@ class UserMessagesBrick(_AssistantsBrick):
         return UserMessage.get_messages_for_home(context['user'])
 
     def _get_queryset_for_portal(self, ct_ids, context):
+        warnings.warn('assistants.bricks.UserMessagesBrick._get_queryset_for_portal() is deprecated.',
+                      DeprecationWarning
+                     )
         return UserMessage.get_messages_for_ctypes(ct_ids, context['user'])

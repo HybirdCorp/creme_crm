@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017  Hybird
+#    Copyright (C) 2017-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@ from collections import Iterator
 from functools import partial
 from json import loads as json_load
 import logging
+import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
@@ -78,6 +79,8 @@ def render_home_brick(brick, context):
 
 
 def render_portal_brick(brick, context, ct_ids):
+    warnings.warn('creme_core.views.bricks.render_portal_brick() is deprecated.', DeprecationWarning)
+
     fun = getattr(brick, 'portal_display', None)
 
     if fun:
@@ -202,6 +205,8 @@ def reload_home(request):
 @login_required
 @jsonify
 def reload_portal(request):
+    warnings.warn('creme_core.views.bricks.reload_portal() is deprecated.', DeprecationWarning)
+
     brick_ids = get_brick_ids_or_404(request)
     ct_ids = request.GET.getlist('ct_id')
     app_labels = {get_ct_or_404(ct_id).model_class()._meta.app_label for ct_id in ct_ids}

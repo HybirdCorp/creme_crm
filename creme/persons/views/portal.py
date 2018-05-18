@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.db.models import Count
 from django.utils.translation import ugettext as _
 
@@ -30,6 +32,8 @@ from ..constants import REL_OBJ_CUSTOMER_SUPPLIER
 
 
 def portal(request):
+    warnings.warn('persons.views.portal.portal() is deprecated.', DeprecationWarning)
+
     Contact = persons.get_contact_model()
     Organisation = persons.get_organisation_model()
     stats = [(_('Number of contacts'),      Contact.objects.count()),
