@@ -32,7 +32,7 @@ from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.gui.bricks import brick_registry  # Brick
 from creme.creme_core.utils.imports import import_apps_sub_modules
 
-from creme.creme_config.utils import generate_portal_url
+# from creme.creme_config.utils import generate_portal_url
 
 
 logger = logging.getLogger(__name__)
@@ -86,7 +86,8 @@ class AppConfigRegistry(object):
 
     @property
     def portal_url(self):
-        return generate_portal_url(self.name)
+        # return generate_portal_url(self.name)
+        return reverse('creme_config__app_portal', args=(self.name,))
 
     def register_model(self, model, model_name_in_url, form_class=None):
         # NB: the key is the model & not the ContentType.id, because these IDs

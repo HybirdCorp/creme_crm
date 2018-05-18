@@ -215,6 +215,8 @@ class HistoryBrick(QuerysetBrick):
         return self._render(btc)
 
     def portal_display(self, context, ct_ids):
+        warnings.warn('creme_core.bricks.HistoryBrick.portal_display() is deprecated.', DeprecationWarning)
+
         btc = self.get_template_context(
                     context,
                     HistoryLine.objects.filter(entity_ctype__in=ct_ids),
@@ -262,6 +264,8 @@ class ImprintsBrick(QuerysetBrick):
         return self._render(self.get_template_context(context, qs))
 
     def portal_display(self, context, ct_ids):
+        warnings.warn('creme_core.bricks.ImprintsBrick.portal_display() is deprecated.', DeprecationWarning)
+
         return self.home_display(context)  # Avoid crashes
 
     def home_display(self, context):

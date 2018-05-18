@@ -1,7 +1,10 @@
 {% extends 'creme_core/generics/portal.html' %}
-{% load i18n creme_widgets %}
+{% load i18n creme_core_tags creme_widgets %}
 
-{% block logo %}{% widget_icon name='calendar' size='brick-hat-bar' label=_('Activities') %}{% endblock %}
+{% block logo %}
+    {% log 'The template file "creme/activities/templates/activities/portal.html" is deprecated.' level='WARN' %}
+    {% widget_icon name='calendar' size='brick-hat-bar' label=_('Activities') %}
+{% endblock %}
 {% block title %}{% trans 'Activities portal' %}{% endblock %}
 
 {% block header_link %}

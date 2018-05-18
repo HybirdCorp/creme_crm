@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.views.generic import app_portal
@@ -28,6 +30,8 @@ from ... import billing
 
 
 def portal(request):
+    warnings.warn('billing.views.portal.portal() is deprecated.', DeprecationWarning)
+
     Invoice    = billing.get_invoice_model()
     Quote      = billing.get_quote_model()
     SalesOrder = billing.get_sales_order_model()

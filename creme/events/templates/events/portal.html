@@ -1,7 +1,10 @@
 {% extends 'creme_core/generics/portal.html' %}
-{% load i18n creme_widgets %}
+{% load i18n creme_core_tags creme_widgets %}
 
-{% block logo %}{% widget_icon name='event' size='brick-hat-bar' label=_('Events') %}{% endblock %}
+{% block logo %}
+    {% log 'The template file "creme/events/templates/events/portal.html" is deprecated.' level='WARN' %}
+    {% widget_icon name='event' size='brick-hat-bar' label=_('Events') %}
+{% endblock %}
 {% block title %}{% trans 'Events portal' %}{% endblock %}
 {% block list_url %}{% url 'events__list_events' %}{% endblock %}
 {% block list_msg %}{% trans 'List of events' %}{% endblock %}

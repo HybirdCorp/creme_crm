@@ -19,6 +19,7 @@
 ################################################################################
 
 from itertools import chain
+import warnings
 
 from django.utils.translation import ugettext_lazy as _
 
@@ -130,6 +131,9 @@ class FutureActivitiesBrick(QuerysetBrick):
             return Activity.get_future_linked(entity, context['today'])
 
     def _get_queryset_for_ctypes(self, ct_ids, context):
+        warnings.warn('activities.bricks.FutureActivitiesBrick._get_queryset_for_ctypes() is deprecated.',
+                      DeprecationWarning
+                     )
         return Activity.get_future_linked_for_ctypes(ct_ids, context['today'])
 
     def get_template_context(self, *args, **kwargs):
@@ -167,6 +171,8 @@ class FutureActivitiesBrick(QuerysetBrick):
         ))
 
     def portal_display(self, context, ct_ids):
+        warnings.warn('activities.bricks.FutureActivitiesBrick.portal_display() is deprecated.', DeprecationWarning)
+
         return self._render(self.get_template_context(
                     context,
                     self._get_queryset_for_ctypes(ct_ids, context).select_related('status'),
@@ -193,6 +199,9 @@ class PastActivitiesBrick(FutureActivitiesBrick):
             return Activity.get_past_linked(entity, context['today'])
 
     def _get_queryset_for_ctypes(self, ct_ids, context):
+        warnings.warn('activities.bricks.PastActivitiesBrick._get_queryset_for_ctypes() is deprecated.',
+                      DeprecationWarning
+                     )
         return Activity.get_past_linked_for_ctypes(ct_ids, context['today'])
 
 

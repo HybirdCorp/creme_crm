@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
@@ -274,6 +276,8 @@ class SignaturesBrick(QuerysetBrick):
     target_apps   = ('emails',)
 
     def portal_display(self, context, ct_ids):
+        warnings.warn('emails.bricks.SignaturesBrick is deprecated.', DeprecationWarning)
+
         user = context['user']
 
         if not user.has_perm('emails'):
@@ -292,8 +296,8 @@ class MySignaturesBrick(QuerysetBrick):
     verbose_name  = 'My Email signatures'
     template_name = 'emails/bricks/signatures.html'
     configurable  = False
-    # NB: used by the view creme_core.views.blocks.reload_basic ; None means 'No special permission required'.
-    #     The block must be visible by all users ; we check permissions in the render to disabled only forbidden things.
+    # NB: used by the view creme_core.views.bricks.reload_basic ; None means "No special permission required".
+    #     The brick must be visible by all users ; we check permissions in the render to disabled only forbidden things.
     permission    = None
 
     def detailview_display(self, context):

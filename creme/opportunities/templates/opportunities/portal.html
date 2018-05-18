@@ -1,7 +1,10 @@
 {% extends 'creme_core/generics/portal.html' %}
-{% load i18n creme_widgets %}
+{% load i18n creme_core_tags creme_widgets %}
 
-{% block logo %}{% widget_icon name='opportunity' size='brick-hat-bar' label=_('Opportunities') %}{% endblock %}
+{% block logo %}
+    {% log 'The template file "creme/opportunities/templates/opportunities/portal.html" is deprecated.' level='WARN' %}
+    {% widget_icon name='opportunity' size='brick-hat-bar' label=_('Opportunities') %}
+{% endblock %}
 {% block title %}{% trans 'Opportunities portal' %}{% endblock %}
 {% block list_url %}{% url 'opportunities__list_opportunities' %}{% endblock %}
 {% block list_msg %}{% trans 'List of opportunities' %}{% endblock %}

@@ -1,7 +1,10 @@
 {% extends 'creme_core/generics/portal.html' %}
-{% load i18n creme_widgets %}
+{% load i18n creme_core_tags creme_widgets %}
 
-{% block logo %}{% widget_icon name='document' size='brick-hat-bar' label=_('Documents') %}{% endblock %}
+{% block logo %}
+    {% log 'The template file "creme/documents/templates/documents/portal.html" is deprecated.' level='WARN' %}
+    {% widget_icon name='document' size='brick-hat-bar' label=_('Documents') %}
+{% endblock %}
 {% block title %}{% trans "Document Portal" %}{% endblock %}
 {% block list_url %}{% url 'documents__list_documents' %}{% endblock %}
 {% block list_msg %}{% trans 'List of documents' %}{% endblock %}
