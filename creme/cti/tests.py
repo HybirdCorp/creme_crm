@@ -22,7 +22,7 @@ try:
 
     from creme.cti.bricks import CallersBrick
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 Contact = get_contact_model()
@@ -79,7 +79,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
 
         html = get_html_val(contact, 'phone', user)
         self.assertIn(contact.phone, html)
-        self.assertIn('<a onclick="creme.cti.phoneCall', html)
+        self.assertIn('<a class="cti-phonecall" onclick="creme.cti.phoneCall', html)
 
     @skipIfCustomContact
     def test_add_phonecall01(self):
