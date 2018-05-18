@@ -307,7 +307,7 @@ class StatisticsBrick(Brick):
     id_           = Brick.generate_id('creme_core', 'statistics')
     verbose_name  = _(u'Statistics')
     template_name = 'creme_core/bricks/statistics.html'
-    target_apps   = ('creme_core',)
+    target_apps   = ('creme_core',)  # DEPRECATED
 
     def home_display(self, context):
         has_perm = context['user'].has_perm

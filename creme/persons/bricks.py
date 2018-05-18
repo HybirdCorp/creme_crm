@@ -437,7 +437,7 @@ if apps.is_installed('creme.activities'):
         dependencies  = (Activity,)
         verbose_name  = _(u'Neglected organisations')
         template_name = 'persons/bricks/neglected-organisations.html'
-        target_apps   = ('persons', 'creme_core')
+        target_apps   = ('persons', 'creme_core')  # DEPRECATED
 
         _RTYPE_IDS_CUSTOMERS = (constants.REL_SUB_CUSTOMER_SUPPLIER, constants.REL_SUB_PROSPECT)
         _RTYPE_IDS_ORGA_N_ACT = (activities_constants.REL_SUB_ACTIVITY_SUBJECT, activities_constants.REL_SUB_LINKED_2_ACTIVITY)

@@ -25,7 +25,7 @@ try:
 
     from creme.creme_config import bricks
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 # Test Bricks ------------------------------------------------------------------
@@ -33,13 +33,13 @@ class _BaseCompleteBrick(Brick):
     verbose_name = u'Testing purpose'
 
     def detailview_display(self, context):
-        return '<table id="%s"></table>' % self.id_
+        return '<table id="{}"></table>'.format(self.id_)
 
     def home_display(self, context):
-        return '<table id="%s"></table>' % self.id_
+        return '<table id="{}"></table>'.format(self.id_)
 
     def portal_display(self, context, ct_ids):
-        return '<table id="%s"></table>' % self.id_
+        return '<table id="{}"></table>'.format(self.id_)
 
 
 class CompleteBrick1(_BaseCompleteBrick):
@@ -65,10 +65,10 @@ class HomePortalBrick(Brick):
     # def detailview_display(self, context): NO
 
     def home_display(self, context):
-        return '<table id="%s"></table>' % self.id_
+        return '<table id="{}"></table>'.format(self.id_)
 
     def portal_display(self, context, ct_ids):
-        return '<table id="%s"></table>' % self.id_
+        return '<table id="{}"></table>'.format(self.id_)
 
 
 class PortalOnlyBrick1(Brick):
@@ -76,7 +76,7 @@ class PortalOnlyBrick1(Brick):
     verbose_name = u'Testing purpose'
 
     def portal_display(self, context, ct_ids):
-        return '<table id="%s"></table>' % self.id_
+        return '<table id="{}"></table>'.format(self.id_)
 
 
 class PortalOnlyBrick2(Brick):
@@ -85,7 +85,7 @@ class PortalOnlyBrick2(Brick):
     configurable = False  # <----
 
     def portal_display(self, context, ct_ids):
-        return '<table id="%s"></table>' % self.id_
+        return '<table id="{}"></table>'.format(self.id_)
 
 
 class PortalOnlyBrick3(Brick):
@@ -94,7 +94,7 @@ class PortalOnlyBrick3(Brick):
     target_apps  = ('persons', 'billing')
 
     def portal_display(self, context, ct_ids):
-        return '<table id="%s"></table>' % self.id_
+        return '<table id="{}"></table>'.format(self.id_)
 
 
 class PortalOnlyBrick4(Brick):
@@ -103,18 +103,30 @@ class PortalOnlyBrick4(Brick):
     target_apps  = ('billing', 'documents')
 
     def portal_display(self, context, ct_ids):
-        return '<table id="%s"></table>' % self.id_
+        return '<table id="{}"></table>'.format(self.id_)
 
 
-class HomeOnlyBrick(Brick):
-    id_          = Brick.generate_id('creme_config', 'testbrickconfig_home_only')
+class HomeOnlyBrick1(Brick):
+    id_          = Brick.generate_id('creme_config', 'testbrickconfig_home_only_1')
     verbose_name = u'Testing purpose'
 
     # def detailview_display(self, context): return self._render(self.get_block_template_context(context))
     # def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
 
     def home_display(self, context):
-        return '<table id="%s"></table>' % self.id_
+        return '<table id="{}"></table>'.format(self.id_)
+
+
+class HomeOnlyBrick2(Brick):
+    id_          = Brick.generate_id('creme_config', 'testbrickconfig_home_only_2')
+    verbose_name = u'Testing purpose'
+    configurable = False  # <----
+
+    # def detailview_display(self, context): return self._render(self.get_block_template_context(context))
+    # def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
+
+    def home_display(self, context):
+        return '<table id="{}"></table>'.format(self.id_)
 
 
 class DetailviewInstanceBrick(Brick):
@@ -125,7 +137,7 @@ class DetailviewInstanceBrick(Brick):
         self.ibci = instance_block_config_item
 
     def detailview_display(self, context):
-        return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (self.id_, self.ibci.entity)
+        return '<table id="{id}"><thead><tr>{entity}</tr></thead></table>'.format(id=self.id_, entity=self.ibci.entity)
 
 
 class PortalInstanceBrick(Brick):
@@ -137,7 +149,19 @@ class PortalInstanceBrick(Brick):
         self.ibci = instance_block_config_item
 
     def portal_display(self, context, ct_ids):
-        return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (self.id_, self.ibci.entity)
+        return '<table id="{id}"><thead><tr>{entity}</tr></thead></table>'.format(id=self.id_, entity=self.ibci.entity)
+
+
+class HomeInstanceBrick(Brick):
+    id_          = InstanceBlockConfigItem.generate_base_id('creme_config', 'test_home_instance')
+    verbose_name = u'Testing purpose'
+
+    def __init__(self, instance_block_config_item):
+        super(HomeInstanceBrick, self).__init__()
+        self.ibci = instance_block_config_item
+
+    def home_display(self, context):
+        return '<table id="{id}"><thead><tr>{entity}</tr></thead></table>'.format(id=self.id_, entity=self.ibci.entity)
 
 
 class FakeContactHatBrick(Brick):
@@ -145,7 +169,7 @@ class FakeContactHatBrick(Brick):
     verbose_name = u'Fake contact header brick'
 
     def detailview_display(self, context):
-        return '<table id="%s"></table>' % self.id_
+        return '<table id="{}"></table>'.format(self.id_)
 
 
 # Test case --------------------------------------------------------------------
@@ -178,11 +202,12 @@ class BricksConfigTestCase(CremeTestCase):
                                 PortalOnlyBrick2,
                                 PortalOnlyBrick3,
                                 PortalOnlyBrick4,
-                                HomeOnlyBrick,
+                                HomeOnlyBrick1,
+                                HomeOnlyBrick2,
                                )
 
         block_registry.register_4_instance(DetailviewInstanceBrick)
-        block_registry.register_4_instance(PortalInstanceBrick)
+        block_registry.register_4_instance(PortalInstanceBrick, HomeInstanceBrick)
 
     @classmethod
     def tearDownClass(cls):
@@ -790,7 +815,7 @@ class BricksConfigTestCase(CremeTestCase):
         brick_top_id = CompleteBrick1.id_
         brick_top_index = self._find_field_index(top_field, brick_top_id)
         response = self.client.post(url,
-                                    data={'hat':                            FakeContactHatBrick.id_,
+                                    data={'hat': FakeContactHatBrick.id_,
 
                                           'top_check_%s' % brick_top_index: 'on',
                                           'top_value_%s' % brick_top_index: brick_top_id,
@@ -1056,7 +1081,7 @@ class BricksConfigTestCase(CremeTestCase):
         with self.assertNoException():
             blocks_field = response.context['form'].fields['blocks']
 
-        self._find_field_index(blocks_field, HomeOnlyBrick.id_)
+        self._find_field_index(blocks_field, HomeOnlyBrick1.id_)
 
     def test_edit_portal06(self):
         "Edit portal of unknown app"
@@ -1214,6 +1239,53 @@ class BricksConfigTestCase(CremeTestCase):
                                       }
                                      )
         self.assertIn(app_name, [e[0] for e in response.context['form'].fields['app_name'].choices])
+
+    def test_edit_home(self):
+        app_name = 'creme_core'
+
+        BlockPortalLocation.create_or_update(brick_id=HistoryBrick.id_, order=8, app_name=app_name)
+
+        naru = FakeContact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
+        instance_brick_id = InstanceBlockConfigItem.generate_id(HomeInstanceBrick, naru, '')
+        InstanceBlockConfigItem.objects.create(brick_id=instance_brick_id, entity=naru, verbose='All stuffes')
+
+        url = reverse('creme_config__edit_home_bricks')
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            bricks_field = response.context['form'].fields['bricks']
+
+        self._find_field_index(bricks_field, CompleteBrick1.id_)
+        self._find_field_index(bricks_field, HomeOnlyBrick1.id_)
+        self._find_field_index(bricks_field, HomePortalBrick.id_)
+        self._find_field_index(bricks_field, instance_brick_id)
+
+        self._assertNotInChoices(bricks_field, RelationsBrick.id_,   'No home_display().')
+        self._assertNotInChoices(bricks_field, PortalOnlyBrick1.id_, 'No home_display().')
+        self._assertNotInChoices(bricks_field, HomeOnlyBrick2.id_,   'Brick is not configurable')
+
+        choices = bricks_field.choices
+        brick_id1 = choices[0][0]
+        brick_id2 = choices[1][0]
+
+        index1 = self._find_field_index(bricks_field, brick_id1)
+        index2 = self._find_field_index(bricks_field, brick_id2)
+
+        response = self.client.post(url, data={'bricks_check_{}'.format(index1): 'on',
+                                               'bricks_value_{}'.format(index1): brick_id1,
+                                               'bricks_order_{}'.format(index1): 1,
+
+                                               'bricks_check_{}'.format(index2): 'on',
+                                               'bricks_value_{}'.format(index2): brick_id2,
+                                               'bricks_order_{}'.format(index2): 2,
+                                               }
+                                    )
+        self.assertNoFormError(response)
+
+        b_locs = list(BlockPortalLocation.objects.filter(app_name=app_name))
+        self.assertEqual(2, len(b_locs))
+        self.assertEqual(1, self._find_location(brick_id1, b_locs).order)
+        self.assertEqual(2, self._find_location(brick_id2, b_locs).order)
 
     def test_delete_home(self):
         "Can not delete home conf"

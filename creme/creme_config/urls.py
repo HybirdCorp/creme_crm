@@ -84,11 +84,12 @@ bricks_patterns = [
     url(r'^detailview/edit/(?P<ct_id>\d+)/(?P<role>\w+)[/]?$', bricks.edit_detailview,   name='creme_config__edit_detailview_bricks'),
     url(r'^detailview/delete[/]?$',                            bricks.delete_detailview, name='creme_config__delete_detailview_bricks'),
 
-    url(r'^portal/wizard[/]?$',                 bricks.PortalBricksWizard.as_view(), name='creme_config__create_portal_bricks'),
+    url(r'^portal/wizard[/]?$',                 bricks.PortalBricksWizard.as_view(), name='creme_config__create_portal_bricks'),  # DEPRECATED
     # url(r'^portal/add[/]?$',                    bricks.add_portal,                   name='creme_config__create_portal_bricks_legacy'),
-    url(r'^portal/edit/(?P<app_name>\w+)[/]?$', bricks.edit_portal,                  name='creme_config__edit_portal_bricks'),
-    url(r'^portal/delete[/]?$',                 bricks.delete_portal,                name='creme_config__delete_portal_bricks'),
+    url(r'^portal/edit/(?P<app_name>\w+)[/]?$', bricks.edit_portal,                  name='creme_config__edit_portal_bricks'),  # DEPRECATED
+    url(r'^portal/delete[/]?$',                 bricks.delete_portal,                name='creme_config__delete_portal_bricks'),  # DEPRECATED
 
+    url(r'^home/edit[/]?$',   bricks.edit_home,   name='creme_config__edit_home_bricks'),
     url(r'^home/delete[/]?$', bricks.delete_home, name='creme_config__delete_home_brick'),
 
     url(r'^mypage/edit/default[/]?$',   bricks.edit_default_mypage,   name='creme_config__edit_default_mypage_bricks'),

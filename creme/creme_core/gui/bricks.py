@@ -126,6 +126,7 @@ class Brick(object):
     # Example of value: target_ctypes = (Contact, Organisation)  # Available for detail-views of Contact & Organisation
     target_ctypes = ()
 
+    # DEPRECATED
     # Sequence of names of the Apps which can have this Brick on their portal.
     # A empty sequence means that all Apps are ok.
     # Example of value: target_apps = ('persons',)  # Available for the portal of 'persons'
@@ -1041,8 +1042,9 @@ class _BrickRegistry(object):
             if brick_id:  # Only generic hat brick's ID is empty
                 yield brick_cls()
 
-    # TODO: deprecate/delete when OLD_MENU is gone (+ add a method get_compatible_home_bricks() )
     def get_compatible_portal_blocks(self, app_name):
+        warnings.warn('_BlockRegistry.get_compatible_portal_blocks() is deprecated.', DeprecationWarning)
+
         method_name = 'home_display' if app_name == 'creme_core' else 'portal_display'
 
         for brick_cls in self._brick_classes.itervalues():
@@ -1057,6 +1059,21 @@ class _BrickRegistry(object):
 
             if hasattr(block, method_name) and \
                     (not block.target_apps or app_name in block.target_apps):
+                yield block
+
+    def get_compatible_home_bricks(self):
+        method_name = 'home_display'
+
+        for brick_cls in self._brick_classes.itervalues():
+            brick = brick_cls()
+
+            if brick.configurable and hasattr(brick, method_name):
+                yield brick
+
+        for ibi in InstanceBlockConfigItem.objects.all():
+            block = self.get_brick_4_instance(ibi)
+
+            if hasattr(block, method_name):
                 yield block
 
     def is_model_invalid(self, model):
