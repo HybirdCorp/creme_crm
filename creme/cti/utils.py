@@ -45,7 +45,7 @@ def print_phone(entity, fval, user, field):  # TODO: rename  print_phone_html ?
     #                                 ).render()
     #     }
     return format_html(
-        u"""{number}&nbsp;<a onclick="creme.cti.phoneCall('{external_url}', '{creme_url}', '{number}', {id});">{icon}</a>""",
+        u"""{number}&nbsp;<a class="cti-phonecall" onclick="creme.cti.phoneCall('{external_url}', '{creme_url}', '{number}', {id});">{icon}</a>""",
         external_url=settings.ABCTI_URL,
         creme_url=reverse('cti__create_phonecall_as_caller'),
         number=fval,
