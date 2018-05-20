@@ -26,7 +26,7 @@ from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import AppCommand, CommandError
-from django.core.management.color import no_style
+# from django.core.management.color import no_style
 from django.db import connections, DEFAULT_DB_ALIAS
 from django.db.migrations.recorder import MigrationRecorder
 from django.dispatch import receiver
