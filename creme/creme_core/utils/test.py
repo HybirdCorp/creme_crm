@@ -23,18 +23,40 @@ from __future__ import print_function
 from os.path import dirname
 from shutil import rmtree
 from tempfile import mkdtemp
-from unittest.loader import TestLoader
+import unittest
 
 from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.management import call_command
-from django.test.runner import DiscoverRunner
+from django.test.runner import DiscoverRunner, ParallelTestSuite, _init_worker
 
 from ..management.commands.creme_populate import Command as PopulateCommand
 
 
-class CremeTestLoader(TestLoader):
+class CremeTestSuite(unittest.TestSuite):
+    """This test suite populates the DB in the Creme way."""
+    def run(self, *args, **kwargs):
+        call_command(PopulateCommand(), verbosity=0)
+        ContentType.objects.clear_cache()  # The cache seems corrupted when we switch to the test DB
+
+        return super(CremeTestSuite, self).run(*args, **kwargs)
+
+
+def creme_init_worker(counter):
+    _init_worker(counter)
+    call_command(PopulateCommand(), verbosity=0)
+    ContentType.objects.clear_cache()  # The cache seems corrupted when we switch to the test DB
+
+
+class CremeParallelTestSuite(ParallelTestSuite):
+    """This test suite populates the DB in the Creme way (parallel version)."""
+    init_worker = creme_init_worker
+
+
+class CremeTestLoader(unittest.TestLoader):
+    suiteClass = CremeTestSuite
+
     def __init__(self):
         super(CremeTestLoader, self).__init__()
         self._allowed_paths = [app_conf.path for app_conf in apps.get_app_configs()]
@@ -50,7 +72,7 @@ class CremeTestLoader(TestLoader):
             if not any(path_is_ok(allowed_path) for allowed_path in self._allowed_paths):
                 if dir_path not in self._ignored_dir_paths:
                     self._ignored_dir_paths.add(dir_path)
-                    print('"%s" is ignored because app seems not installed.' % dir_path)
+                    print('"{}" is ignored because app seems not installed.'.format(dir_path))
 
                 return False
 
@@ -58,11 +80,11 @@ class CremeTestLoader(TestLoader):
 
 
 class CremeDiscoverRunner(DiscoverRunner):
-    """This test runner:
-        - populates the DB (in the Creme way).
-        - overrides settings.MEDIA_ROOT with a temporary directory
-          (so files created by the tests can be easily removed).
+    """This test runner overrides settings.MEDIA_ROOT with a temporary directory
+    (so files created by the tests can be easily removed).
     """
+    test_suite = CremeTestSuite
+    parallel_test_suite = CremeParallelTestSuite
     test_loader = CremeTestLoader()
 
     def __init__(self, *args, **kwargs):
@@ -81,11 +103,11 @@ class CremeDiscoverRunner(DiscoverRunner):
         if self._mock_media_path:
             rmtree(self._mock_media_path)
 
-    def setup_databases(self, *args, **kwargs):
-        res = super(CremeDiscoverRunner, self).setup_databases(*args, **kwargs)
-        # PopulateCommand().execute(verbosity=0)
-        call_command(PopulateCommand(), verbosity=0)
-
-        ContentType.objects.clear_cache()  # The cache seems corrupted when we switch to the test DB
-
-        return res
+    # def setup_databases(self, *args, **kwargs):
+    #     res = super(CremeDiscoverRunner, self).setup_databases(*args, **kwargs)
+    #     # PopulateCommand().execute(verbosity=0)
+    #     call_command(PopulateCommand(), verbosity=0)
+    #
+    #     ContentType.objects.clear_cache()  # The cache seems corrupted when we switch to the test DB
+    #
+    #     return res
