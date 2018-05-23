@@ -61,10 +61,12 @@ class Populator(BasePopulator):
             create_bdl(brick_id=bricks.GoogleNeighboursMapBrick.id_, order=600, zone=BlockDetailviewLocation.BOTTOM, model=Organisation)
             create_bdl(brick_id=bricks.GoogleNeighboursMapBrick.id_, order=600, zone=BlockDetailviewLocation.BOTTOM, model=Contact)
 
-            BlockMypageLocation.create_or_update(brick_id=bricks.GoogleFilteredMapBrick.id_, order=20)
+            # BlockMypageLocation.create(block_id=bricks.GoogleFilteredMapBrick.id_, order=20)
+            BlockMypageLocation.objects.create(brick_id=bricks.GoogleFilteredMapBrick.id_, order=20, user=None)
 
             # Add this bloc only if the root user exists (creme_core populated)
             root = get_user_model().objects.filter(pk=1).first()
             if root:
                 logger.info('Creme core is installed => the block PersonsFilterMap can be activated')
-                BlockMypageLocation.create_or_update(brick_id=bricks.GoogleFilteredMapBrick.id_, order=8, user=root)
+                # BlockMypageLocation.create(block_id=bricks.GoogleFilteredMapBrick.id_, order=8, user=root)
+                BlockMypageLocation.objects.create(brick_id=bricks.GoogleFilteredMapBrick.id_, order=8, user=root)
