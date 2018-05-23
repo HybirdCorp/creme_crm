@@ -70,6 +70,7 @@
                 - In 'buttons.ButtonsRegistry.register()', registering 'Button' instances is deprecated (register classes instead).
                   In all apps with global buttons instances, these ones are deprecated.
             - The method 'HistoryBrick._populate_users()' is deprecated (use 'HistoryLine.populate_users()' instead).
+            - In 'creme_core.core.reminders.ReminderRegistry.register()', registering an instance is deprecated; register a class instead.
             - In 'creme_core.registry' :
                 - The exception class 'NotRegistered' is now deprecated.
                 - The methods 'register()' & 'get()' of 'CremeRegistry' are now deprecated.
@@ -106,6 +107,7 @@
                 * Assistants :
                     - The method 'bricks._AssistantsBrick._get_contenttype_id()' is deprecated.
                     - All the methods '_get_queryset_for_portal()' of the Bricks are deprecated.
+                    - The global variables 'reminders.reminder_alert' & 'reminders.reminder_todo' are deprecated.
                 * Emails :
                     - 'bricks.SignaturesBrick' is deprecated.
         # Django 1.11 raises UnorderedObjectListWarning warnings when the pagination is made on a unordered queryset ; some models were missing a Meta.ordering.

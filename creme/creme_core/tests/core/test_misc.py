@@ -19,7 +19,7 @@ try:
     from creme.creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldsManager
     from creme.creme_core.core.imprint import _ImprintManager
     from creme.creme_core.core.job import JobManager
-    from creme.creme_core.core.reminder import Reminder, reminder_registry
+    from creme.creme_core.core.reminder import Reminder, ReminderRegistry, reminder_registry
     from creme.creme_core.core.sandbox import SandboxType, _SandboxTypeRegistry, sandbox_type_registry
     from creme.creme_core.core.setting_key import SettingKey, _SettingKeyRegistry
     from creme.creme_core.creme_jobs import reminder_type
@@ -574,6 +574,71 @@ class SettingKeyTestCase(CremeTestCase):
             registry.unregister(sk3)
 
 
+class ReminderTestCase(CremeTestCase):
+    def test_empty(self):
+        registry = ReminderRegistry()
+
+        self.assertFalse(list(registry))
+        self.assertFalse(list(registry.itervalues()))
+
+    def test_register_legacy(self):
+        registry = ReminderRegistry()
+
+        class TestReminder1(Reminder):
+            id = Reminder.generate_id('creme_core', 'ReminderTestCase_test_register_legacy_1')
+
+        class TestReminder2(Reminder):
+            id = Reminder.generate_id('creme_core', 'ReminderTestCase_test_register_legacy_2')
+
+        reminder1 = TestReminder1()
+        reminder2 = TestReminder2()
+        registry.register(reminder1)
+        registry.register(reminder2)
+        self.assertEqual({(reminder1.id, reminder1),
+                          (reminder2.id, reminder2),
+                         },
+                         set(registry)
+                        )
+        self.assertEqual({reminder1, reminder2}, set(registry.itervalues()))
+
+        # --
+        registry.unregister(reminder1)
+        self.assertEqual([reminder2], list(registry.itervalues()))
+
+        with self.assertNoException():
+            registry.unregister(reminder1)
+
+    def test_register(self):
+        registry = ReminderRegistry()
+
+        class TestReminder1(Reminder):
+            id = Reminder.generate_id('creme_core', 'ReminderTestCase_test_register_1')
+
+        class TestReminder2(Reminder):
+            id = Reminder.generate_id('creme_core', 'ReminderTestCase_test_register_2')
+
+        registry.register(TestReminder1)
+        registry.register(TestReminder2)
+
+        items = dict(registry)
+        self.assertEqual(2, len(items))
+        self.assertIsInstance(items[TestReminder1.id], TestReminder1)
+        self.assertIsInstance(items[TestReminder2.id], TestReminder2)
+
+        self.assertEqual({TestReminder1, TestReminder2},
+                         {r.__class__ for r in registry.itervalues()}
+                        )
+
+        # --
+        registry.unregister(TestReminder1)
+        self.assertEqual([TestReminder2],
+                         [r.__class__ for r in registry.itervalues()]
+                        )
+
+        with self.assertNoException():
+            registry.unregister(TestReminder1)
+
+
 class JobManagerTestCase(CremeTestCase):
     def setUp(self):
         super(JobManagerTestCase, self).setUp()
@@ -624,7 +689,8 @@ class JobManagerTestCase(CremeTestCase):
             def next_wakeup(self, now_value):
                 return wake_up
 
-        self._register_reminder(TestReminder())
+        # self._register_reminder(TestReminder())
+        self._register_reminder(TestReminder)
         self.assertEqual(wake_up, JobManager()._next_wakeup(job))
 
     @override_settings(PSEUDO_PERIOD=1)
@@ -639,7 +705,8 @@ class JobManagerTestCase(CremeTestCase):
             def next_wakeup(self, now_value):
                 return rounded_hour + timedelta(minutes=70)
 
-        self._register_reminder(TestReminder())
+        # self._register_reminder(TestReminder())
+        self._register_reminder(TestReminder)
 
         self.assertEqual(rounded_hour + timedelta(hours=1),
                          JobManager()._next_wakeup(job)

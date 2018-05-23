@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+import warnings
 
 from django.conf import settings
 from django.core.mail import EmailMessage, get_connection
@@ -128,10 +129,18 @@ class ReminderRegistry(object):
     def __init__(self):
         self._reminders = {}
 
-    def register(self, reminder):
+    def register(self, reminder):  # TODO: rename 'reminder_class'
+        """Register a class of Reminder.
+        @type reminder: Class "inheriting" creme_core.core.reminder.Reminder.
         """
-        @type reminder creme_core.core.reminder.Reminder
-        """
+        if isinstance(reminder, Reminder):
+            warnings.warn('ReminderRegistry.register(): registering an instance is deprecated; '
+                          'register a class instead.',
+                          DeprecationWarning
+                         )
+        else:
+            reminder = reminder()
+
         reminders = self._reminders
         reminder_id = reminder.id
 
@@ -144,9 +153,11 @@ class ReminderRegistry(object):
     def unregister(self, reminder):
         self._reminders.pop(reminder.id, None)
 
+    # TODO: returns Reminder instances & not tuples
     def __iter__(self):
         return self._reminders.iteritems()
 
+    # TODO: deprecate when __iter__ returns Reminder instances
     def itervalues(self):
         return self._reminders.itervalues()
 
