@@ -57,7 +57,7 @@
                 - In 'bricks.BlockPortalLocation' :
                     - The method 'create()' is deprecated (use create_or_update() instead).
                     - The method 'create_empty_config()' is deprecated.
-                - The method 'bricks.BlockMypageLocation.create()' is deprecated (use 'create_or_update()' instead).
+                - The method 'bricks.BlockMypageLocation.create()' is deprecated (use 'bricks.BlockMypageLocation.objects.create()' instead).
             - In 'creme_core.forms.widgets' :
                 - These functions are now deprecated : widget_render_input(), widget_render_hidden_input(), widget_render_context().
                 - The method 'EnhancedSelectOptions.render_label()' is deprecated.

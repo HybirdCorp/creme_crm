@@ -256,18 +256,14 @@ class BlockMypageLocation(CremeModel):
     @staticmethod
     def create(block_id, order, user=None):
         warnings.warn('BlockMypageLocation.create() is deprecated ; '
-                      'use create_or_update() instead.',
+                      'use BlockMypageLocation.objects.create() instead.',
                       DeprecationWarning
                      )
 
-        return BlockMypageLocation.create_or_update(brick_id=block_id, order=order, user=user)
-
-    @staticmethod
-    def create_or_update(brick_id, order, user=None):
         try:
-            loc = BlockMypageLocation.objects.get(user=user, brick_id=brick_id)
+            loc = BlockMypageLocation.objects.get(user=user, brick_id=block_id)
         except Exception:
-            loc = BlockMypageLocation.objects.create(user=user, brick_id=brick_id, order=order)
+            loc = BlockMypageLocation.objects.create(user=user, brick_id=block_id, order=order)
         else:
             loc.order = order
             loc.save()

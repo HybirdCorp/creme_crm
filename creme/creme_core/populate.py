@@ -113,8 +113,10 @@ class Populator(BasePopulator):
             BlockPortalLocation.create_or_update(brick_id=bricks.StatisticsBrick.id_, order=8,  app_name='creme_core')
             BlockPortalLocation.create_or_update(brick_id=bricks.HistoryBrick.id_,    order=10, app_name='creme_core')
 
-            BlockMypageLocation.create_or_update(brick_id=bricks.HistoryBrick.id_, order=8)
-            BlockMypageLocation.create_or_update(brick_id=bricks.HistoryBrick.id_, order=8, user=root)
+            # BlockMypageLocation.create(block_id=bricks.HistoryBrick.id_, order=8)
+            # BlockMypageLocation.create(block_id=bricks.HistoryBrick.id_, order=8, user=root)
+            BlockMypageLocation.objects.create(brick_id=bricks.HistoryBrick.id_, order=8, user=None)
+            BlockMypageLocation.objects.create(brick_id=bricks.HistoryBrick.id_, order=8, user=root)
 
             # ---------------------------
             if not ButtonMenuItem.objects.filter(content_type=None).exists():

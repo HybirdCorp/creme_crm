@@ -18,13 +18,15 @@ try:
             CremeEntity, InstanceBlockConfigItem,
             RelationBlockItem, RelationType, CustomBlockConfigItem)
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
-class BlockTestCase(CremeTestCase):
+# class BlockTestCase(CremeTestCase):
+class BrickTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        super(BlockTestCase, cls).setUpClass()
+        # super(BlockTestCase, cls).setUpClass()
+        super(BrickTestCase, cls).setUpClass()
 
         cls._bdl_backup = list(BlockDetailviewLocation.objects.all())
         cls._bpl_backup = list(BlockPortalLocation.objects.all())
@@ -36,7 +38,8 @@ class BlockTestCase(CremeTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        super(BlockTestCase, cls).tearDownClass()
+        # super(BlockTestCase, cls).tearDownClass()
+        super(BrickTestCase, cls).tearDownClass()
 
         BlockDetailviewLocation.objects.all().delete()
         BlockPortalLocation.objects.all().delete()
@@ -359,17 +362,17 @@ class BlockTestCase(CremeTestCase):
     def test_create_mypage02(self):
         order = 10
         brick_id = HistoryBrick.id_
-        loc = BlockMypageLocation.create_or_update(brick_id=brick_id, order=order)
+        loc = BlockMypageLocation.create(block_id=brick_id, order=order)
         self.get_object_or_fail(BlockMypageLocation, pk=loc.pk, user=None,
                                 brick_id=brick_id, order=order,
                                )
 
     def test_create_mypage03(self):
         brick_id = HistoryBrick.id_
-        BlockMypageLocation.create_or_update(brick_id=brick_id, order=3)
+        BlockMypageLocation.create(block_id=brick_id, order=3)
 
         order = 10
-        loc = BlockMypageLocation.create_or_update(brick_id=brick_id, order=order)
+        loc = BlockMypageLocation.create(block_id=brick_id, order=order)
         self.get_object_or_fail(BlockMypageLocation, pk=loc.pk, user=None,
                                 brick_id=brick_id, order=order,
                                )
@@ -377,7 +380,7 @@ class BlockTestCase(CremeTestCase):
     def test_mypage_new_user(self):
         brick_id = HistoryBrick.id_
         order = 3
-        BlockMypageLocation.create_or_update(brick_id=brick_id, order=order)
+        BlockMypageLocation.objects.create(brick_id=brick_id, order=order)
 
         user = get_user_model().objects.create(username='Kirika')
         user.set_password('password')
