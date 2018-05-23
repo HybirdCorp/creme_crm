@@ -47,9 +47,9 @@
                 - The view 'django.contrib.auth.views.login()' is now deprecated ; so we use the class-based view 'LoginView'.
             - The middleware class 'creme_core.middleware.exceptions.Beautiful403Middleware' is deprecated.
             - In 'creme_core.views' :
-                - The functions 'bricks.reload_portal()' & 'bricks.render_portal_brick()' are deprecated.
                 - The function 'exceptions.server_error()' is deprecated (use 'django.views.defaults.server_error()' instead).
                 - The function 'file_handling.fetch_resources()' is deprecated (it was not used for a long time).
+                - The functions 'bricks.reload_portal()' & 'bricks.render_portal_brick()' are deprecated.
             - In 'creme_core.models' :
                 - In 'bricks.BlockDetailviewLocation' :
                     - The methods 'create_empty_config()' & the attribute 'ZONES' are deprecated.
@@ -63,7 +63,10 @@
                 - The method 'EnhancedSelectOptions.render_label()' is deprecated.
             - In 'creme_core.gui' :
                 - The old menu API is deprecated.
-                - In 'bricks.BricksManager', the methods 'get_dependencies_map()' & '_get_dependencies_ids()' are now deprecated.
+                - In 'bricks' :
+                    - In 'BricksManager', the methods 'get_dependencies_map()' & '_get_dependencies_ids()' are now deprecated.
+                    - The attribute 'Brick.target_apps' is deprecated.
+                    - The method '_BrickRegistry.get_compatible_portal_blocks()' is deprecated.
                 - In 'buttons.ButtonsRegistry.register()', registering 'Button' instances is deprecated (register classes instead).
                   In all apps with global buttons instances, these ones are deprecated.
             - The method 'HistoryBrick._populate_users()' is deprecated (use 'HistoryLine.populate_users()' instead).
@@ -89,6 +92,12 @@
             - Apps :
                 * Creme_config :
                     - The function 'utils.generate_portal_url()' is deprecated.
+                    - In 'views.bricks' :
+                        - The class-view 'PortalBricksWizard' is deprecated.
+                        - The function-views 'delete_portal()' & 'edit_portal()' are deprecated.
+                    - In 'forms.bricks' :
+                        - The classes '_BlockPortalLocationsForm', 'BlockPortalLocationsAddForm' & 'BlockPortalLocationsEditForm' are deprecated.
+                        - The method '_BrickLocationsForm._build_portal_locations_field()' is deprecated.
                 * Documents :
                     - In 'views.ajax', the function 'get_child_documents()' & 'get_child_documents()' are deprecated.
                 * Activities :
@@ -314,6 +323,7 @@
             - The middleware "django.middleware.security.SecurityMiddleware" has been added in the default configuration ; it probably won't be a problem excepted on very specific install.
             - Beware 'formtools' has been added in 'INSTALLED_DJANGO_APPS'.
             - The logging configuration have slightly changed (formats of messages are different).
+        # Using a method 'register_setting_key()' in a class inheriting CremeAppConfig is deprecated ; rename it 'register_setting_keys()'.
         # In views of all apps, the content-type of the response have been cleaned ; it probably does not break anything (or only unit tests).
             - In views which return JSON data with "text/javascript" as content_type, the content_type is now "application/json" (many of these views use creme_core.utils.jsonify()).
             - Lots of responses, with "text/javascript" as content_type, & which return a empty/string/HTML-fragment content,  have now  "text/html' as content_type.
