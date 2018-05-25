@@ -42,6 +42,7 @@ from creme.creme_core.utils import (get_from_GET_or_404, get_from_POST_or_404,
 from creme.creme_core.utils.dates import make_aware_dt, dt_from_ISO8601
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import add_entity
+from creme.creme_core.views.utils import build_cancel_path
 
 from creme import persons
 from creme.persons import constants as persons_constants
@@ -282,7 +283,7 @@ def search_person(request):
 
 
 def _get_page_url(request):
-    return request.META.get('HTTP_REFERER', reverse('mobile__portal'))  # TODO: build_cancel_path() ?
+    return build_cancel_path(request) or reverse('mobile__portal')
 
 
 @lw_exceptions
