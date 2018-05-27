@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Products 1.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-01 12:05+0100\n"
+"POT-Creation-Date: 2018-05-27 20:05+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -39,8 +39,8 @@ msgstr "Gestion"
 msgid "Images of product/service"
 msgstr "Images du produit/service"
 
-#: forms/base.py:31 forms/fields.py:90 forms/product.py:46 models/product.py:47
-#: models/service.py:41
+#: forms/base.py:31 forms/fields.py:105 forms/product.py:46
+#: models/product.py:47 models/service.py:41
 msgid "Sub-category"
 msgstr "Sous-catégorie"
 
@@ -57,76 +57,52 @@ msgstr ""
 msgid "Can't create"
 msgstr ""
 
-#: forms/fields.py:87 models/product.py:46 models/service.py:40
+#: forms/fields.py:102 models/product.py:46 models/service.py:40
 msgid "Category"
 msgstr "Catégorie"
 
-#: forms/fields.py:102
+#: forms/fields.py:117
 msgid "This category doesn't exist."
 msgstr "Cette catégorie n'existe pas."
 
-#: forms/fields.py:103
+#: forms/fields.py:118
 msgid "This category causes constraint error."
 msgstr "Cette catégorie cause une erreur de contrainte."
 
-#: forms/fields.py:104
+#: forms/fields.py:119
 msgid "This sub-category causes constraint error."
 msgstr "Cette sous-catégorie cause une erreur de contrainte."
 
-#: forms/mass_import.py:68
+#: forms/mass_import.py:69
 #, python-format
 msgid "The category «%s» does not exist"
 msgstr "La catégorie «%s»  n'existe pas."
 
-#: forms/mass_import.py:86
+#: forms/mass_import.py:87
 #, python-format
 msgid "The sub-category «%s» does not exist"
 msgstr "La sous-catégorie «%s» n'existe pas."
 
-#: forms/mass_import.py:90
+#: forms/mass_import.py:91
 #, python-format
 msgid ""
-"The category «%(cat)s» and the sub-category «%(sub_cat)s are not matching."
+"The category «%(cat)s» and the sub-category «%(sub_cat)s» are not matching."
 msgstr ""
-"La catégorie «%(cat)s» et la ssous-catégorie «%(sub_cat)s ne correspondent "
+"La catégorie «%(cat)s» et la ssous-catégorie «%(sub_cat)s» ne correspondent "
 "pas."
 
-#: forms/mass_import.py:184
-msgid "Create the Categories/Sub-Categories which are not found?"
-msgstr "Créer les Catégories/Sous-Catégories qui ne sont pas trouvées ?"
-
-#: forms/mass_import.py:187 models/other_models.py:38
-msgctxt "products-category"
-msgid "Category"
-msgstr "Catégorie"
-
-#: forms/mass_import.py:191
-msgctxt "products-category"
-msgid "Default category"
-msgstr "Catégorie par défaut"
-
-#: forms/mass_import.py:199 models/other_models.py:55
-msgctxt "products-sub_category"
-msgid "Sub-category"
-msgstr "Sous-catégorie"
-
-#: forms/mass_import.py:203
-msgctxt "products-sub_category"
-msgid "Default sub-category"
-msgstr "Sous-catégorie par défaut"
-
-#: forms/mass_import.py:228
+#: forms/mass_import.py:312
 msgid "Select a valid sub-category."
 msgstr "Sélectionnez une sous-catégorie valide."
 
-#: forms/mass_import.py:229
+#: forms/mass_import.py:313
 msgid ""
 "Select a column for the sub-category if you select a column for the category."
 msgstr ""
 "Sélectionnez une colonne pour la sous-catégorie si sous sélectionnez une "
 "colonne pour la catégorie."
 
-#: forms/mass_import.py:295
+#: forms/mass_import.py:379
 msgid "Categories"
 msgstr "Catégories"
 
@@ -143,6 +119,12 @@ msgstr "Description"
 msgctxt "products-category"
 msgid "Create a category"
 msgstr "Créer une catégorie"
+
+#: models/other_models.py:38
+#: templates/products/forms/widgets/mass-import/categories-extractor.html:11
+msgctxt "products-category"
+msgid "Category"
+msgstr "Catégorie"
 
 #: models/other_models.py:39
 msgctxt "products-category"
@@ -161,6 +143,12 @@ msgstr "Catégorie parente"
 msgctxt "products-sub_category"
 msgid "Create a sub-category"
 msgstr "Créer une sous-catégorie"
+
+#: models/other_models.py:55
+#: templates/products/forms/widgets/mass-import/categories-extractor.html:19
+msgctxt "products-sub_category"
+msgid "Sub-category"
+msgstr "Sous-catégorie"
 
 #: models/other_models.py:56
 msgctxt "products-sub_category"
@@ -211,7 +199,7 @@ msgstr "Enregistrer le produit"
 msgid "Product"
 msgstr "Produit"
 
-#: models/product.py:59 templates/products/portal.html:4
+#: models/product.py:59 templates/products/portal.html:6
 msgid "Products"
 msgstr "Produits"
 
@@ -405,19 +393,33 @@ msgstr "Enlever cette image"
 msgid "No image for the moment"
 msgstr "Pas d'image pour le moment"
 
-#: templates/products/portal.html:5
+#: templates/products/forms/widgets/mass-import/categories-extractor.html:6
+msgid "Create the Categories/Sub-Categories which are not found?"
+msgstr "Créer les Catégories/Sous-Catégories qui ne sont pas trouvées ?"
+
+#: templates/products/forms/widgets/mass-import/categories-extractor.html:14
+msgctxt "products-category"
+msgid "Default category"
+msgstr "Catégorie par défaut"
+
+#: templates/products/forms/widgets/mass-import/categories-extractor.html:22
+msgctxt "products-sub_category"
+msgid "Default sub-category"
+msgstr "Sous-catégorie par défaut"
+
+#: templates/products/portal.html:8
 msgid "Products & Services portal"
 msgstr "Portail Produits & Services"
 
-#: templates/products/portal.html:7
+#: templates/products/portal.html:10
 msgid "List of products"
 msgstr "Liste des produits"
 
-#: views/portal.py:33
+#: views/portal.py:37
 msgid "Number of products"
 msgstr "Nombre de produit(s)"
 
-#: views/portal.py:34
+#: views/portal.py:38
 msgid "Number of services"
 msgstr "Nombre de service(s)"
 

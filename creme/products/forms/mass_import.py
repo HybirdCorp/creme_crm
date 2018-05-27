@@ -88,7 +88,7 @@ class CategoriesExtractor(object):
 
             # Error checking
             if sub_category.category_id != category.id:
-                error_msg = ugettext(u'The category «%(cat)s» and the sub-category «%(sub_cat)s are not matching.') % {
+                error_msg = ugettext(u'The category «%(cat)s» and the sub-category «%(sub_cat)s» are not matching.') % {
                     'cat':     category,
                     'sub_cat': sub_category,
                 }
