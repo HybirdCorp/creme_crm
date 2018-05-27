@@ -704,7 +704,7 @@ class ProductTestCase(_ProductsTestCase):
         self.assertEqual(3, len(jr_errors))
 
         jr_error1 = jr_errors[0]
-        self.assertEqual([_(u'The category «%(cat)s» and the sub-category «%(sub_cat)s are not matching.') % {
+        self.assertEqual([_(u'The category «%(cat)s» and the sub-category «%(sub_cat)s» are not matching.') % {
                                 'cat':     cat2,
                                 'sub_cat': sub_cat11,
                             },
