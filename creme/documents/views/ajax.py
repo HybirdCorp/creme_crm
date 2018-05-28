@@ -18,43 +18,43 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
-from django.core.serializers import serialize
-from django.http import HttpResponse
-
-from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.models import EntityCredentials
-
-from .. import get_document_model, get_folder_model
-
-
-@login_required
-@permission_required('documents')
-def get_child_folders(request):
-    warnings.warn('documents.views.ajax.get_child_folders() is deprecated', DeprecationWarning)
-
-    if request.POST.has_key('id'):
-        folders = get_folder_model().objects.filter(parent_folder=request.POST['id']) \
-                                            .order_by('-title')
-        folders = EntityCredentials.filter(request.user, folders)
-        data = serialize('json', folders, fields=('title', 'description', 'parent_folder'))
-    else:
-        data = {}
-
-    return HttpResponse(data, content_type="text/javascript")
-
-
-@login_required
-@permission_required('documents')
-def get_child_documents(request):
-    warnings.warn('documents.views.ajax.get_child_documents() is deprecated', DeprecationWarning)
-
-    if request.POST.has_key('id'):
-        documents = get_document_model().objects.filter(folder=request.POST['id'])
-        documents = EntityCredentials.filter(request.user, documents)
-        data = serialize('json', documents, fields=('title', 'description', 'folder', 'filedata'))
-    else:
-        data = {}
-
-    return HttpResponse(data, content_type="text/javascript")
+# import warnings
+#
+# from django.core.serializers import serialize
+# from django.http import HttpResponse
+#
+# from creme.creme_core.auth.decorators import login_required, permission_required
+# from creme.creme_core.models import EntityCredentials
+#
+# from .. import get_document_model, get_folder_model
+#
+#
+# @login_required
+# @permission_required('documents')
+# def get_child_folders(request):
+#     warnings.warn('documents.views.ajax.get_child_folders() is deprecated', DeprecationWarning)
+#
+#     if request.POST.has_key('id'):
+#         folders = get_folder_model().objects.filter(parent_folder=request.POST['id']) \
+#                                             .order_by('-title')
+#         folders = EntityCredentials.filter(request.user, folders)
+#         data = serialize('json', folders, fields=('title', 'description', 'parent_folder'))
+#     else:
+#         data = {}
+#
+#     return HttpResponse(data, content_type="text/javascript")
+#
+#
+# @login_required
+# @permission_required('documents')
+# def get_child_documents(request):
+#     warnings.warn('documents.views.ajax.get_child_documents() is deprecated', DeprecationWarning)
+#
+#     if request.POST.has_key('id'):
+#         documents = get_document_model().objects.filter(folder=request.POST['id'])
+#         documents = EntityCredentials.filter(request.user, documents)
+#         data = serialize('json', documents, fields=('title', 'description', 'folder', 'filedata'))
+#     else:
+#         data = {}
+#
+#     return HttpResponse(data, content_type="text/javascript")
