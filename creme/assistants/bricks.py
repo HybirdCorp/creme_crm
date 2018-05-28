@@ -31,7 +31,6 @@ from .models import Action, Alert, Memo, ToDo, UserMessage
 
 class _AssistantsBrick(QuerysetBrick):
     @staticmethod
-    # def _populate_related_real_entities(assistants, user):
     def _populate_related_real_entities(assistants):
         assistants = [assistant for assistant in assistants if assistant.entity_id]
         entities_ids_by_ct = defaultdict(set)
@@ -72,7 +71,6 @@ class _AssistantsBrick(QuerysetBrick):
         entity = context['object']
         btc = self.get_template_context(
                 context, self._get_queryset_for_detailview(entity, context),
-                # ct_id=self._get_contenttype_id(),
         )
 
         # NB: optimisation ; it avoids the retrieving of the entity during template rendering.
@@ -86,9 +84,7 @@ class _AssistantsBrick(QuerysetBrick):
 
         btc = self.get_template_context(
             context, self._get_queryset_for_portal(ct_ids, context),
-            # ct_id=self._get_contenttype_id(),
         )
-        # self._populate_related_real_entities(btc['page'].object_list, context['user'])
         self._populate_related_real_entities(btc['page'].object_list)
 
         return self._render(btc)
@@ -96,9 +92,7 @@ class _AssistantsBrick(QuerysetBrick):
     def home_display(self, context):
         btc = self.get_template_context(
                 context, self._get_queryset_for_home(context),
-                # ct_id=self._get_contenttype_id(),
         )
-        # self._populate_related_real_entities(btc['page'].object_list, context['user'])
         self._populate_related_real_entities(btc['page'].object_list)
 
         return self._render(btc)

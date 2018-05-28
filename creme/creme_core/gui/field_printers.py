@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from itertools import chain
 from os.path import splitext
 # import warnings
 
@@ -26,7 +25,7 @@ from django.conf import settings
 from django.db import models
 from django.template.defaultfilters import linebreaks
 from django.utils.formats import date_format, number_format
-from django.utils.html import escape, format_html, format_html_join  # urlize
+from django.utils.html import escape, format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.timezone import localtime
 from django.utils.translation import ungettext, ugettext as _
@@ -66,15 +65,7 @@ def image_size(image, max_h=MAX_HEIGHT, max_w=MAX_WIDTH):
         h /= ratio
         w /= ratio
 
-    # return "height=%s width=%s" % (h, w)
     return format_html('height="{}" width="{}"', h, w)
-
-
-# def simple_print(entity, fval, user, field):
-#     warnings.warn('simple_print() is deprecated ; use simple_print_html() instead.',
-#                   DeprecationWarning
-#                  )
-#     return simple_print_html(entity, fval, user, field)
 
 
 def simple_print_html(entity, fval, user, field):
@@ -86,15 +77,7 @@ def simple_print_csv(entity, fval, user, field):
 
 
 def print_color_html(entity, fval, user, field):
-    # return '''<span style="background:#{0};">{0}</span>'''.format(fval) if fval else ''
     return format_html('''<span style="background:#{color};">{color}</span>''', color=fval) if fval else ''
-
-
-# def print_image(entity, fval, user, field):
-#     warnings.warn('print_image() is deprecated ; use print_image_html() instead.',
-#                   DeprecationWarning
-#                  )
-#     return print_image_html(entity, fval, user, field)
 
 
 def print_file_html(entity, fval, user, field):
@@ -110,10 +93,6 @@ def print_file_html(entity, fval, user, field):
 
 
 def print_image_html(entity, fval, user, field):
-    # return """<a onclick="creme.dialogs.image('%(url)s').open();"><img src="%(url)s" %(size)s alt="%(url)s"/></a>""" % {
-    #             'url':  fval.url,
-    #             'size': image_size(fval),
-    #         } if fval else ''
     return format_html(
         """<a onclick="creme.dialogs.image('{url}').open();"><img src="{url}" {size}/></a>""",  # alt="{???}"
         url=fval.url,
@@ -133,13 +112,6 @@ def print_decimal(entity, fval, user, field):
     return number_format(fval, use_l10n=True) if fval is not None else ''
 
 
-# def print_boolean(entity, fval, user, field):
-#     warnings.warn('print_boolean() is deprecated ; use print_boolean_html() instead.',
-#                   DeprecationWarning
-#                  )
-#     return print_boolean_html(entity, fval, user, field)
-
-
 def print_boolean_html(entity, fval, user, field):
     return bool_as_html(fval) if fval is not None else ''
 
@@ -149,13 +121,6 @@ def print_boolean_csv(entity, fval, user, field):
         return ''
 
     return _('Yes') if fval else _('No')
-
-
-# def print_urlfield(entity, fval, user, field):
-#     warnings.warn('print_urlfield() is deprecated ; use print_url_html() instead.',
-#                   DeprecationWarning
-#                  )
-#     return print_url_html(entity, fval, user, field)
 
 
 def print_url_html(entity, fval, user, field):
@@ -173,13 +138,6 @@ def print_datetime(entity, fval, user, field):
 
 def print_date(entity, fval, user, field):
     return date_format(fval, 'DATE_FORMAT') if fval else ''
-
-
-# def print_foreignkey(entity, fval, user, field):
-#     warnings.warn('print_foreignkey() is deprecated ; use print_foreignkey_html() instead.',
-#                   DeprecationWarning
-#                  )
-#     return print_foreignkey_html(entity, fval, user, field)
 
 
 class FKPrinter(object):
@@ -219,13 +177,6 @@ def print_foreignkey_csv(entity, fval, user, field):
     return unicode(fval) if fval else u''
 
 
-# def print_many2many(entity, fval, user, field):
-#     warnings.warn('print_many2many() is deprecated ; use print_many2many_html() instead.',
-#                   DeprecationWarning
-#                  )
-#     return print_many2many_html(entity, fval, user, field)
-
-
 class M2MPrinter(object):
     @staticmethod
     def enumerator_all(entity, fval, user, field):
@@ -241,11 +192,6 @@ class M2MPrinter(object):
 
     @staticmethod
     def printer_entity_html(instance, related_entity, fval, user, field):
-        # return u'<a target="_blank" href="%s"%s>%s</a>' % (
-        #             instance.get_absolute_url(),
-        #             ' class="is_deleted"' if instance.is_deleted else u'',
-        #             instance.get_entity_summary(user),
-        #         ) if user.has_perm_to_view(instance) else settings.HIDDEN_VALUE
         return format_html(
             u'<a target="_blank" href="{url}"{attrs}>{content}</a>',
             url=instance.get_absolute_url(),
@@ -258,14 +204,6 @@ class M2MPrinter(object):
 
     def __call__(self, entity, fval, user, field):
         printer, enumerator = self._sub_printers[fval.model]
-        # output = [u'<li>%s</li>' % printer(e, entity, fval, user, field)
-        #             for e in enumerator(entity, fval, user, field)
-        #          ]
-        #
-        # if output:
-        #     output = chain(['<ul>'], output, ['</ul>'])
-        #
-        # return ''.join(output)
         li_tags = format_html_join(
             '', u'<li>{}</li>',
             ((printer(e, entity, fval, user, field),) for e in enumerator(entity, fval, user, field))
@@ -318,7 +256,6 @@ def print_duration(entity, fval, user, field):
 
 
 def print_email_html(entity, fval, user, field):
-    # return '<a href="mailto:%s">%s</a>' % (fval, fval) if fval else ''
     return format_html(u'<a href="mailto:{email}">{email}</a>', email=fval) if fval else ''
 
 
@@ -423,13 +360,12 @@ class _FieldPrintersRegistry(object):
         @param printer: A callable object. See simple_print_html() for arguments/return.
         @param output: string in {'html', 'csv'}.
         """
-        # self._printers[field] = printer
         self._printers_maps[output][field] = printer
 
     def register_listview_css_class(self, field, css_class, header_css_class):
         """Register a listview css class for field.
-        @param field A class inheriting django.models.Field
-        @param css_class A string
+        @param field: A class inheriting django.models.Field
+        @param css_class: A string.
         """
         self._listview_css_printers[field] = css_class
         self._header_listview_css_printers[field] = header_css_class
@@ -484,16 +420,6 @@ class _FieldPrintersRegistry(object):
                     else:
                         def printer(obj, user):
                             has_perm = user.has_perm_to_view
-                            # lines = ['<li>%s</li>' % (
-                            #                 sub_printer(e, user) if has_perm(e)
-                            #                 else HIDDEN_VALUE
-                            #             ) for e in getattr(obj, base_name).filter(is_deleted=False)
-                            #         ]
-                            #
-                            # if lines:
-                            #     lines = chain(('<ul>',), lines, ('</ul>',))
-                            #
-                            # return ''.join(lines)
                             li_tags = format_html_join(
                                 u'', u'<li>{}</li>',
                                 ([sub_printer(e, user) if has_perm(e) else HIDDEN_VALUE]
@@ -510,14 +436,6 @@ class _FieldPrintersRegistry(object):
                                             )
                     else:
                         def printer(obj, user):
-                            # lines = ['<li>%s</li>' % sub_printer(a, user)
-                            #             for a in getattr(obj, base_name).all()
-                            #         ]
-                            #
-                            # if lines:
-                            #     lines = chain(('<ul>',), lines, ('</ul>',))
-                            #
-                            # return ''.join(lines)
                             li_tags = format_html_join(
                                 u'', u'<li>{}</li>',
                                 ((sub_printer(a, user),) for a in getattr(obj, base_name).all())

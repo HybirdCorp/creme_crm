@@ -27,7 +27,6 @@ from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.base import DeserializationError
 from django.core.serializers.python import _get_model
 
-# from creme.creme_core.registry import NotRegistered
 from creme.creme_core.utils.collections import OrderedSet
 from creme.creme_core.utils.imports import import_apps_sub_modules
 
@@ -44,16 +43,9 @@ class FetcherInterface(object):
     FetcherInterface abstract those to act like one fetcher.
     """
     def __init__(self, fetchers):
-        # self.fetchers = fetchers
         self.fetchers = list(fetchers)
         self._inputs = defaultdict(dict)
         self._default_backend = None
-
-    # def add_fetcher(self, fetcher):
-    #     warnings.warn('FetcherInterface.add_fetcher() is deprecated ; use add_fetchers() instead.',
-    #                   DeprecationWarning,
-    #                  )
-    #     self.fetchers.extend(fetcher)
 
     def add_fetchers(self, fetchers):
         self.fetchers.extend(fetchers)
@@ -360,7 +352,6 @@ class CRUDityRegistry(object):
 
         for fetcher_multiplex in self.get_fetchers():
             # TODO: FetcherInterface.has_backends() ?
-            # if not any(crud_input.backends
             if not any(crud_input.has_backends
                            for inputs_per_method in fetcher_multiplex.get_inputs()
                                for crud_input in inputs_per_method.itervalues()

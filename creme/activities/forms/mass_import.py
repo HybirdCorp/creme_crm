@@ -21,18 +21,16 @@
 from collections import OrderedDict
 from datetime import datetime, time
 from functools import partial
-# from itertools import chain
 import logging
 
 from django.contrib.auth import get_user_model
 from django.db.models.query_utils import Q
 from django.forms import Field, ModelMultipleChoiceField, ValidationError
-# from django.utils.safestring import mark_safe
 from django.forms.widgets import Select
 from django.utils.translation import ugettext as _, ugettext_lazy
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.forms.mass_import import ImportForm4CremeEntity, BaseExtractorWidget  # ExtractorWidget
+from creme.creme_core.forms.mass_import import ImportForm4CremeEntity, BaseExtractorWidget
 from creme.creme_core.forms.validators import validate_linkable_entities
 from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.utils.dates import make_aware_dt
@@ -241,96 +239,12 @@ class SplitColumnParticipantsExtractor(RelatedExtractor):
         return extracted, global_err_msg
 
 
-# class ParticipantsExtractorWidget(ExtractorWidget):
 class ParticipantsExtractorWidget(BaseExtractorWidget):
     template_name = 'activities/forms/widgets/mass-import/participants-extractor.html'
 
     def __init__(self, *args, **kwargs):
         super(ParticipantsExtractorWidget, self).__init__(*args, **kwargs)
         self.propose_creation = False
-
-#     # def render(self, name, value, attrs=None, choices=()):
-#     def render(self, name, value, attrs=None):
-#         get = (value or {}).get
-#
-#         # todo: factorise
-#         firstname_id = '%s_first_name_colselect' % name
-#         lastname_id = '%s_last_name_colselect' % name
-#         colselect_id = '%s_colselect' % name
-#         separator_id = '%s_separator' % name
-#         pattern_select_id = '%s_pattern' % name
-#
-#         render_sel = self._render_select
-#         # col_choices = list(chain(self.choices, choices))
-#         col_choices = list(self.choices)
-#         render_colsel = lambda name, sel_val: render_sel(name, choices=col_choices, sel_val=sel_val,
-#                                                          attrs={'id': name, 'class': 'csv_col_select'},
-#                                                         )
-#
-#         checked = 'checked'
-#         mode = get('mode', 0)
-#
-#         return mark_safe(
-# u"""%(create_check)s
-# <ul class="multi-select">
-#     <li>
-#         <label for="%(name)s_mode1">
-#             <input id="%(name)s_mode1" type="radio" name="%(name)s_mode" value="%(MULTICOLUMNS)s" %(mode_1_checked)s>%(mode_1_label)s<br/>
-#             <label for="%(firstname_id)s">%(firstname_label)s:%(firstname_select)s</label>
-#             <label for="%(lastname_id)s">%(lastname_label)s:%(lastname_select)s</label>
-#         </label>
-#     </li>
-#     <li>
-#         <label for="%(name)s_mode2">
-#             <input id="%(name)s_mode2" type="radio" name="%(name)s_mode" value="%(SPLITTEDCOLUMN)s" %(mode_2_checked)s>%(mode_2_label)s<br/>
-#             <label for="%(colselect_id)s">%(colselect)s</label>
-#             <label for="%(separator_id)s">%(separator_label)s:<input id="%(separator_id)s" type="text" name="%(separator_id)s" value="%(separator_value)s"></label>
-#             <label for="%(pattern_select_id)s">%(pattern_label)s:%(pattern_select)s</label>
-#         </label>
-#     </li>
-# </ul>
-# """ % {'name': name,
-#
-#        'create_check': '' if not self.propose_creation else
-#                        '<label for="%(id)s"><input id="%(id)s" type="checkbox" name="%(id)s" %(checked)s />%(label)s</label>' % {
-#                                 'id':      '%s_create' % name,
-#                                 'checked': checked if get('create') else '',
-#                                 'label':   _('Create the Contacts who are not found?'),
-#                             },
-#
-#        'MULTICOLUMNS':   MODE_MULTICOLUMNS,
-#        'SPLITTEDCOLUMN': MODE_SPLITTEDCOLUMN,
-#
-#        'mode_1_checked': checked if mode == MODE_MULTICOLUMNS else '',
-#        'mode_1_label':   _('Method #1: first name & last name are in separated cells (first name is optional)'),
-#
-#        'firstname_id':     firstname_id,
-#        'firstname_label':  _('First name'),
-#        'firstname_select': render_colsel(firstname_id, get('first_name_column_index')),
-#
-#        'lastname_id':     lastname_id,
-#        'lastname_label':  _('Last name'),
-#        'lastname_select': render_colsel(lastname_id, sel_val=get('last_name_column_index')),
-#
-#        'mode_2_checked': checked if mode == MODE_SPLITTEDCOLUMN else '',
-#        'mode_2_label':   _('Method #2: several contacts in one cell (in all patterns the last name is the only required element)'),
-#
-#        'separator_id':    separator_id,
-#        'separator_label': _('Separator'),
-#        'separator_value': get('separator', '/'),
-#
-#        'colselect_id': colselect_id,
-#        'colselect':    render_colsel(colselect_id, sel_val=get('column_index', 0)),
-#
-#        'pattern_label':     _('Contact pattern'),
-#        'pattern_select_id': pattern_select_id,
-#        'pattern_select':    render_sel(pattern_select_id, sel_val=get('pattern_id'),
-#                                        choices=[(pattern_id, unicode(pattern.verbose_name))
-#                                                     for pattern_id, pattern in _PATTERNS.iteritems()
-#                                                ],
-#                                        attrs={'id': pattern_select_id, 'class': 'csv_pattern_select'},
-#                                       ),
-#       })
 
     def get_context(self, name, value, attrs):
         value = value or {}
@@ -388,7 +302,6 @@ class ParticipantsExtractorWidget(BaseExtractorWidget):
             'first_name_column_index': as_int(get('{}_first_name_colselect'.format(name))),
             'last_name_column_index':  as_int(get('{}_last_name_colselect'.format(name))),
 
-            # 'column_index': as_int(get('{}_colselect'.format(name))),
             'pattern_column_index': as_int(get('{}_pattern_colselect'.format(name))),
             'separator':    get('{}_separator'.format(name), '/'),
             'pattern_id':   get('{}_pattern'.format(name)),
@@ -456,7 +369,6 @@ class ParticipantsExtractorField(Field):
                                                      create_if_unfound,
                                                     )
         elif mode == MODE_SPLITTEDCOLUMN:
-            # index = clean_index('column_index')
             index = clean_index('pattern_column_index')
 
             if not index:  # TODO test
@@ -542,7 +454,6 @@ class SubjectsExtractor(RelatedExtractor):
         return extracted, err_msg
 
 
-# class SubjectsExtractorWidget(ExtractorWidget):
 class SubjectsExtractorWidget(BaseExtractorWidget):
     template_name = 'activities/forms/widgets/mass-import/subjects-extractor.html'
 
@@ -550,36 +461,6 @@ class SubjectsExtractorWidget(BaseExtractorWidget):
         super(SubjectsExtractorWidget, self).__init__(*args, **kwargs)
         self.propose_creation = False
 
-#     # def render(self, name, value, attrs=None, choices=()):
-#     def render(self, name, value, attrs=None):
-#         get = (value or {}).get
-#
-#         # todo: help_text that indicates what CTypes are used ?
-#         return mark_safe(
-# """%(colselect)s
-# <label for="%(separator_id)s">
-#     %(separator_label)s:<input id="%(separator_id)s" type="text" name="%(separator_id)s" value="%(separator_value)s" />
-# </label>
-# %(create_check)s
-# """ % {'colselect': self._render_select('%s_colselect' % name,
-#                                         # choices=chain(self.choices, choices),
-#                                         choices=self.choices,
-#                                         sel_val=get('column_index', 0),
-#                                         attrs={'class': 'csv_col_select'},
-#                                        ),
-#
-#        'separator_id':    '%s_separator' % name,
-#        'separator_label': _('Separator'),
-#        'separator_value': get('separator', '/'),
-#
-#         'create_check': '' if not self.propose_creation else
-#                         '<label for="%(id)s"><input id="%(id)s" type="checkbox" name="%(id)s" %(checked)s />%(label)s</label>' % {
-#                             'id':      '%s_create' % name,
-#                             'checked': 'checked' if get('create') else '',
-#                             'label':   _('Create the Organisations which are not found?'),
-#                          }
-#
-#       })
     def get_context(self, name, value, attrs):
         value = value or {}
         context = super(SubjectsExtractorWidget, self).get_context(name=name, value=value, attrs=attrs)
@@ -616,7 +497,6 @@ class SubjectsExtractorWidget(BaseExtractorWidget):
         get = data.get
 
         return {
-            # 'column_index': as_int(get('{}_colselect'.format(name))),
             'selected_column': as_int(get('{}_colselect'.format(name))),
             'create':          get('{}_create'.format(name), False),
             'separator':       get('{}_separator'.format(name), '/'),
@@ -653,7 +533,6 @@ class SubjectsExtractorField(Field):
         return index
 
     def clean(self, value):
-        # index = self._clean_index(value, 'column_index')
         index = self._clean_index(value, 'selected_column')
 
         if not index:
@@ -689,8 +568,7 @@ def get_massimport_form_builder(header_dict, choices):
 
         blocks = ImportForm4CremeEntity.blocks.new(
                             ('participants',   _(u'Participants & subjects'),
-                             ['my_participation',  # 'my_calendar',
-                              'participating_users', 'participants', 'subjects']
+                             ['my_participation', 'participating_users', 'participants', 'subjects']
                             ),
                         )
 
@@ -721,7 +599,6 @@ def get_massimport_form_builder(header_dict, choices):
                     instance.end = start + instance.type.as_timedelta()
                 elif start > instance.end:
                     instance.end = start + instance.type.as_timedelta()
-                    # self.append_error(line, _(u'End time is before start time'), instance)
                     self.append_error(_(u'End time is before start time'))
             else:
                 instance.floating_type = constants.FLOATING
@@ -782,7 +659,6 @@ def get_massimport_form_builder(header_dict, choices):
             dyn_participants, err_messages = cdata['participants'].extract_value(line, self.user)
 
             for err_msg in err_messages:
-                # self.append_error(line, err_msg, instance)
                 self.append_error(err_msg)
 
             for participant in dyn_participants:
@@ -795,7 +671,6 @@ def get_massimport_form_builder(header_dict, choices):
             subjects, err_messages = cdata['subjects'].extract_value(line, self.user)
 
             for err_msg in err_messages:
-                # self.append_error(line, err_msg, instance)
                 self.append_error(err_msg)
 
             for subject in subjects:

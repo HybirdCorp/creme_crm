@@ -24,27 +24,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from .constants import UUID_SANDBOX_SUPERUSERS
 from .gui.button_menu import Button
-# from .gui.merge import merge_form_registry
-
-
-# class MergeEntitiesButton(Button):
-#     id_           = Button.generate_id('creme_core', 'merge_entities')
-#     verbose_name  = _(u'Merge two entities')
-#     template_name = 'creme_core/templatetags/button_merge_entities.html'
-#
-#     def get_ctypes(self):
-#         return merge_form_registry.models
-#
-#     def ok_4_display(self, entity):
-#         return merge_form_registry.get(entity.__class__) is not None
-#
-#     def render(self, context):
-#         warnings.warn('creme_core.buttons.MergeEntitiesButton is deprecated.', DeprecationWarning)
-#
-#         super(MergeEntitiesButton, self).render(context)
-#
-#
-# merge_entities_button = MergeEntitiesButton()
 
 
 class Restrict2SuperusersButton(Button):

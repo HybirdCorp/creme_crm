@@ -66,7 +66,6 @@ class FoundEntitiesBrick(QuerysetBrick):
                                          )
 
     @staticmethod
-    # def parse_block_id(block_id):
     def parse_brick_id(brick_id):
         "@return A ContentType instance if valid, else None"
         parts = brick_id.split('-')
@@ -138,37 +137,10 @@ def search(request):
 
     t_ctx['research'] = research
     t_ctx['models'] = [m._meta.verbose_name for m in models]
-    # t_ctx['blocks'] = bricks
     t_ctx['bricks'] = bricks
     t_ctx['selected_ct_id'] = int(ct_id) if ct_id.isdigit() else None
 
     return render(request, 'creme_core/search_results.html', t_ctx)
-
-
-# @login_required
-# @utils.jsonify
-# def reload_block(request, block_id, research):
-#     warnings.warn("/creme_core/search/reload_block/{{block_id}}/{{search}} is now deprecated. "
-#                   "Use /creme_core/search/reload_brick/ view instead "
-#                   "[ie: reverse('creme_core__reload_search_brick') + '?block_id=' + block_id + '&search=' + research ].",
-#                   DeprecationWarning
-#                  )
-#
-#     from . import blocks
-#
-#     ctype = FoundEntitiesBrick.parse_block_id(block_id)
-#
-#     if ctype is None:
-#         raise Http404('Invalid block ID')
-#
-#     if len(research) < MIN_RESEARCH_LENGTH:
-#         raise Http404(u"Please enter at least %s characters" % MIN_RESEARCH_LENGTH)
-#
-#     user = request.user
-#     model = ctype.model_class()
-#     block = FoundEntitiesBrick(Searcher([model], user), model, research, user, id=block_id)
-#
-#     return [(block.id_, block.detailview_display(blocks.build_context(request)))]
 
 
 @login_required
@@ -176,7 +148,6 @@ def search(request):
 def reload_brick(request):
     GET = request.GET
     brick_id = utils.get_from_GET_or_404(GET, 'brick_id')
-    # ctype = FoundEntitiesBrick.parse_block_id(brick_id)
     ctype = FoundEntitiesBrick.parse_brick_id(brick_id)
 
     if ctype is None:

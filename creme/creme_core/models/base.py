@@ -21,11 +21,9 @@
 from collections import defaultdict
 from itertools import chain
 import logging
-# import os
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model, CharField, BooleanField, FileField  # Manager
-# from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.utils.translation import ugettext_lazy as _
 
@@ -40,8 +38,6 @@ logger = logging.getLogger(__name__)
 
 
 class CremeModel(Model):
-    # _delete_files = True  # Delegate the deletion of the file on system
-    #                       # when a model has one or more FileField sub-classes.
     creation_label = _(u'Create')
     save_label     = _(u'Save')
     # TODO: do a complete refactor for _CremeModel.selection_label
@@ -80,35 +76,19 @@ class CremeModel(Model):
                 if file_instance:
                     self._delete_stored_file(file_instance)
 
-    # def _delete_without_transaction(self, using=None):
     def _delete_without_transaction(self, using=None, keep_parents=False):
         self._delete_m2m()
         self._delete_stored_files()
         self._pre_delete()  # TODO: keep_parents ?
         super(CremeModel, self).delete(using=using, keep_parents=keep_parents)
 
-    # def delete(self, using=None):
     def delete(self, using=None, keep_parents=False):
-        # file_fields = [(field.name, getattr(self, field.name).path, unicode(getattr(self, field.name)))
-        #                 for field in chain(self._meta.fields, self._meta.many_to_many)
-        #                     if isinstance(field, FileField) and getattr(self, field.name)
-        #               ] if self._delete_files else None
-
         try:
             with atomic():
                 self._delete_without_transaction(using=using)
         except:
             logger.exception('Error in CremeModel.delete()')
             raise
-
-        # if file_fields:
-        #     # obj_filter = self._default_manager.filter
-        #     obj_filter = self.__class__._default_manager.filter
-        #     os_remove = os.remove
-        #
-        #     for field_name, full_path, chrooted_path in file_fields:
-        #         if not obj_filter(Q(**{field_name: chrooted_path})).exists():
-        #             os_remove(full_path)  # todo: Catch OSError ?
 
 
 # class CremeEntityManager(Manager):
@@ -132,7 +112,6 @@ class CremeAbstractEntity(CremeModel):
     header_filter_search_field = CharField(max_length=_SEARCH_FIELD_MAX_LENGTH, editable=False).set_tags(viewable=False)
 
     is_deleted = BooleanField(default=False, editable=False).set_tags(viewable=False)
-    # is_actived = BooleanField(default=False, editable=False).set_tags(viewable=False)
     user       = CremeUserForeignKey(verbose_name=_(u'Owner user'))
 
     # objects = CremeEntityManager()
@@ -182,8 +161,8 @@ class CremeAbstractEntity(CremeModel):
     def populate_real_entities(entities):
         """Faster than call get_real_entity() of each CremeAbstractEntity object,
         because it groups queries by ContentType.
-        @param entities Iterable containing CremeAbstractEntity objects.
-                        Beware it can be iterated twice (ie: can't be a generator)
+        @param entities: Iterable containing CremeAbstractEntity objects.
+                         Beware it can be iterated twice (ie: can't be a generator)
         """
         entities_by_ct = defaultdict(list)
 

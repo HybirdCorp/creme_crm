@@ -20,12 +20,11 @@
 
 from json import dumps as json_dump
 
-# from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField
-from creme.creme_core.models import Relation
 from creme.creme_core.gui.bricks import SimpleBrick, QuerysetBrick, EntityBrick
+from creme.creme_core.models import Relation
 
 from creme import documents
 from .constants import REL_SUB_RELATED_2_DOC
@@ -63,13 +62,11 @@ class FolderDocsBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         folder_id = context['object'].id
-        # q_dict = {'folder': folder_id}
         q_dict = {'linked_folder': folder_id}
         return self._render(self.get_template_context(
                     context,
                     Document.objects.filter(**q_dict),
                     # Document.objects.filter(is_deleted=False, **q_dict), TODO: problem deleted docs avoid folder deletion...
-                    # ct_id=ContentType.objects.get_for_model(Document).id,
                     q_filter=json_dump(q_dict),
         ))
 
@@ -106,13 +103,8 @@ class LinkedDocsBrick(QuerysetBrick):
                     context,
                     Document.get_linkeddoc_relations(entity),
                     predicate_id=REL_SUB_RELATED_2_DOC,
-                    # ct_doc=ContentType.objects.get_for_model(Document),
         )
         relations = btc['page'].object_list
-        # docs = {c.id: c
-        #             for c in Document.objects.filter(pk__in=[r.object_entity_id for r in relations])
-        #                                      .select_related('folder')
-        #        }
         docs = Document.objects.filter(pk__in=[r.object_entity_id for r in relations]) \
                                .select_related('linked_folder') \
                                .in_bulk()

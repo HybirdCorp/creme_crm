@@ -24,9 +24,7 @@ from django.template import Library, loader
 register = Library()
 
 
-# @register.simple_tag(takes_context=True)
 @register.simple_tag
-# def report_chart_json(context, rgraph, chart, is_small=False):
 def report_chart_json(rgraph, chart, is_small=False):
     return loader.render_to_string(chart.template,
                                    {'rgraph': rgraph, 'chart': chart, 'is_small': is_small},

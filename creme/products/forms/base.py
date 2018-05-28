@@ -44,10 +44,6 @@ class _BaseForm(CremeEntityForm):
         return super(_BaseForm, self).save(*args, **kwargs)
 
 
-# class _BaseCreateForm(_BaseForm):
-#     pass
-
-
 class _BaseEditForm(_BaseForm):
     class Meta(_BaseForm.Meta):
         # model = OVERLOAD ME

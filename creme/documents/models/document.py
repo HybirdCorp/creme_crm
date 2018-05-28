@@ -24,7 +24,6 @@ from django.conf import settings
 from django.db.models import CharField, TextField, FileField, ForeignKey, ManyToManyField, PROTECT
 from django.urls import reverse
 from django.utils.html import format_html
-# from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, Relation
@@ -37,7 +36,6 @@ class AbstractDocument(CremeEntity):
     title       = CharField(_(u'Name'), max_length=100)
     description = TextField(_(u'Description'), blank=True).set_tags(optional=True)
     filedata    = FileField(_(u'File'), max_length=500, upload_to='upload/documents')
-    # folder      = ForeignKey(settings.DOCUMENTS_FOLDER_MODEL,
     linked_folder = ForeignKey(settings.DOCUMENTS_FOLDER_MODEL,
                                verbose_name=_(u'Folder'), on_delete=PROTECT,
                               )
@@ -61,7 +59,6 @@ class AbstractDocument(CremeEntity):
         ordering = ('title',)
 
     def __unicode__(self):
-        # return u'%s - %s' % (self.folder, self.title)
         return u'%s - %s' % (self.linked_folder, self.title)
 
     def get_absolute_url(self):
@@ -92,11 +89,6 @@ class AbstractDocument(CremeEntity):
             return self.allowed_unicode(user)
 
         if self.mime_type.is_image:
-            # return mark_safe(u'<img class="entity-summary" src="%(url)s" alt="%(name)s" title="%(name)s"/>' % {
-            #                         'url':  self.get_dl_url(),
-            #                         'name': self.title,
-            #                     }
-            #                 )
             return format_html(u'<img class="entity-summary" src="{url}" alt="{name}" title="{name}"/>',
                                url=self.get_dl_url(),
                                name=self.title,

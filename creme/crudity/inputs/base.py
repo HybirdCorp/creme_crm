@@ -31,15 +31,12 @@ class CrudityInput(object):
     brickheader_action_templates = ()
 
     def __init__(self):
-        # self.backends = {}
         self._backends = {}
-        # self._buttons = []
         self._brickheader_actions = [TemplateBrickHeaderAction(template_name=tn)
                                         for tn in self.brickheader_action_templates
                                     ]
 
     def add_backend(self, backend):
-        # backend.add_buttons(*self._buttons)
         self._backends[backend.subject] = backend
 
     def get_backends(self):  # TODO: rename 'backends' + property + generator ?
@@ -61,9 +58,6 @@ class CrudityInput(object):
             return fun(data)
 
         return None
-
-    # def register_buttons(self, *buttons):
-    #     self._buttons.extend(buttons)
 
     @property
     def brickheader_actions(self):

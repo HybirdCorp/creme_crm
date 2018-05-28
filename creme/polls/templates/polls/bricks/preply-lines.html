@@ -43,7 +43,7 @@
             <div class="poll-response">
                 {% if not node.applicable %}
                     {% trans "N/A" context "polls" %}
-                {% elif node.type == 101 %}{% comment %}MULTI_ENUM{% endcomment %}
+                {% elif node.type == 101 %}{# MULTI_ENUM #}
                     {% for item in node.answer %}
                         {% widget_join %}{{item}}{% end_widget_join %}
                     {% endfor %}

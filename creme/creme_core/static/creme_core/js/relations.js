@@ -26,35 +26,10 @@ creme.relations = creme.relations || {};
 
 creme.relations.addRelationTo = function(subject_id, rtype_id, ctype_id, options, data) {
     var $body = $('body');
-
     var save_url = $body.attr('data-save-relations-url');
-//    if (save_url === undefined) {
-//        console.warn('creme.relations.addRelationTo(): hard-coded save-URL is deprecated ; set the URL as the <body> attribute "data-save-relations-url" (see base.html).');
-//        save_url = '/creme_core/relation/add_from_predicate/save';
-//    }
-
     var selection_url = $body.attr('data-select-relations-objects-url');
-//    if (selection_url === undefined) {
-//        console.warn('creme.relations.addRelationTo(): hard-coded selection-URL is deprecated ; set the URL as the <body> attribute "data-select-relations-objects-url" (see base.html).');
-//        selection_url = '/creme_core/relation/objects2link/';
-//    }
-
     var query = new creme.ajax.Backend().query().url(save_url);
-
     var options = options || {};
-//    if (options.blockReloadUrl) {
-//        console.warn('creme.relations.addRelationTo(): the option "blockReloadUrl" is deprecated ; remove it, so the Bricks will be automatically reloaded.');
-//
-//        query.onDone(function(event, data) {creme.blocks.reload(options.blockReloadUrl);});
-//    } else {
-//        var reload_on_success = options.reloadOnSuccess;
-//
-//        if (reload_on_success === 'window') {
-//            query.onDone(function(event, data) {creme.utils.reload(window);});
-//        } else if (reload_on_success !== false) {
-//            query.onDone(function() {new creme.bricks.BricksReloader().dependencies(['creme_core.relation', 'creme_core.relation.' + rtype_id]).action().start();});
-//        }
-//    }
     var reload_on_success = options.reloadOnSuccess;
 
     if (reload_on_success === 'window') {

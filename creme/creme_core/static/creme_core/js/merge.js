@@ -24,26 +24,6 @@
 
 creme.merge = creme.merge || {};
 
-//creme.merge.selectOtherEntityNRedirect = function(model_id, selection_url, merge_url) {
-//    console.warn('creme.lv_widget.selectOtherEntityNRedirect() is deprecated.');
-//
-//    if (selection_url === undefined) {
-//        selection_url = '/creme_core/entity/merge/select_other/';
-//    }
-//
-//    if (merge_url === undefined) {
-//        merge_url = '/creme_core/entity/merge/';
-//    }
-//
-//    var action = creme.lv_widget.listViewAction(selection_url + '?' + $.param({id1: model_id}), {multiple: false});
-//
-//    action.onDone(function(event, data) {
-//        window.location.href = merge_url + '?' + $.param({id1: model_id, id2: data[0]});
-//    });
-//
-//    return action.start();
-//};
-
 creme.merge.initializeMergeForm = function(form) {
     var getter = function(input) {
         if (input.is('input[type="checkbox"]')) {
@@ -93,4 +73,5 @@ creme.merge.initializeMergeForm = function(form) {
         });
     });
 };
+
 }(jQuery));

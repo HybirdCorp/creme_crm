@@ -27,7 +27,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
 from ..gui.icons import icon_registry, get_icon_size_px, get_icon_by_name
-from ..utils.media import get_current_theme_from_context  # get_creme_media_url
+from ..utils.media import get_current_theme_from_context
 from . import KWARG_RE
 
 
@@ -215,47 +215,6 @@ class IconRendererNode(TemplateNode):
 # WIDGET ICON [END] ------------------------------------------------------------
 
 
-# @register.inclusion_tag('creme_core/templatetags/widgets/add_button.html', takes_context=True)
-# def get_add_button(context, entity, user):
-#     warnings.warn('{% get_add_button %} is deprecated.', DeprecationWarning)
-#
-#     context['can_add'] = user.has_perm_to_create(entity)
-#
-#     return context
-
-
-# @register.inclusion_tag('creme_core/templatetags/widgets/delete_button.html', takes_context=True)
-# def get_delete_button(context, entity, user):
-#     warnings.warn('{% get_edit_button %} is deprecated.', DeprecationWarning)
-#
-#     context['can_delete'] = user.has_perm_to_delete(entity)
-#     return context
-
-
-# @register.inclusion_tag('creme_core/templatetags/widgets/restore_button.html', takes_context=True)
-# def get_restore_button(context, entity, user):
-#     warnings.warn('{% get_restore_button %} is deprecated.', DeprecationWarning)
-#
-#     context['can_delete'] = user.has_perm_to_delete(entity)
-#     return context
-
-
-# @register.inclusion_tag('creme_core/templatetags/widgets/edit_button.html', takes_context=True)
-# def get_edit_button(context, entity, user):
-#     warnings.warn('{% get_edit_button %} is deprecated.', DeprecationWarning)
-#
-#     context['can_change'] = user.has_perm_to_change(entity)
-#     return context
-
-
-# @register.inclusion_tag('creme_core/templatetags/widgets/clone_button.html', takes_context=True)
-# def get_clone_button(context, entity, user):
-#     warnings.warn('{% get_clone_button %} is deprecated.', DeprecationWarning)
-#
-#     context['can_create'] = user.has_perm_to_create(entity)
-#     return context
-
-
 @register.inclusion_tag('creme_core/templatetags/widgets/entity_actions.html', takes_context=True)
 def get_entity_actions(context, entity):
     user = context['user']
@@ -269,13 +228,12 @@ def get_entity_actions(context, entity):
 @register.simple_tag
 def widget_hyperlink(instance):
     """{% widget_hyperlink my_instance %}
-    @param instance Instance of DjangoModel which has a get_absolute_url() method
+    @param instance: Instance of DjangoModel which has a get_absolute_url() method
            & should have overload its __unicode__() method too.
            BEWARE: it must not be a CremeEntity instance, or an auxiliary instance,
            because the permissions are not checked.
     """
     try:
-        # return u'<a href="%s">%s</a>' % (instance.get_absolute_url(), escape(instance))
         return format_html(u'<a href="{}">{}</a>', instance.get_absolute_url(), instance)
     except AttributeError:
         return escape(instance)
@@ -285,11 +243,6 @@ def widget_hyperlink(instance):
 def widget_entity_hyperlink(entity, user, ignore_deleted=False):
     "{% widget_entity_hyperlink my_entity user %}"
     if user.has_perm_to_view(entity):
-        # return u'<a href="%s"%s>%s</a>' % (
-        #                 entity.get_absolute_url(),
-        #                 ' class="is_deleted"' if entity.is_deleted and not ignore_deleted else '',
-        #                 escape(entity)
-        #             )
         return format_html(
             u'<a href="{url}"{deleted}>{label}</a>',
             url=entity.get_absolute_url(),
@@ -313,67 +266,6 @@ def widget_select_or_msg(items, void_msg):
 @register.inclusion_tag('creme_core/templatetags/widgets/enumerator.html')
 def widget_enumerator(items, threshold=None, empty=''):
     return {'items': items, 'threshold': threshold, 'empty_label': empty}
-
-
-# def _get_image_path_for_model(theme, model, size):
-#     warnings.warn('creme_widgets._get_image_path_for_model() is deprecated.', DeprecationWarning)
-#
-#     from ..constants import ICON_SIZE_MAP
-#
-#     path = icon_registry.get(model, ICON_SIZE_MAP[size])
-#
-#     if not path:
-#         return ''
-#
-#     try:
-#         path = get_creme_media_url(theme, path)
-#     except KeyError:
-#         path = ''
-#
-#     return path
-
-
-# def _get_image_for_model(theme, model, size):
-#     warnings.warn('creme_widgets._get_image_for_model() is deprecated.', DeprecationWarning)
-#
-#     path = _get_image_path_for_model(theme, model, size)
-#     return u'<img src="%(src)s" alt="%(title)s" title="%(title)s" />' % {
-#                     'src':   path,
-#                     'title': model._meta.verbose_name,
-#                 }
-
-
-# @register.simple_tag(takes_context=True)
-# def get_image_for_object(context, obj, size):
-#     """{% get_image_for_object object 'big' %}"""
-#     warnings.warn('{% get_image_for_object ... %} is deprecated ; '
-#                   'use {% widget_icon instance= ... %} instead.',
-#                   DeprecationWarning
-#                  )
-#
-#     return _get_image_for_model(context['THEME_NAME'], obj.__class__, size)
-
-
-# @register.simple_tag(takes_context=True)
-# def get_image_for_ctype(context, ctype, size):
-#     """{% get_image_for_ctype ctype 'small' %}"""
-#     warnings.warn('{% get_image_for_ctype ... %} is deprecated ; '
-#                   'use {% widget_icon ctype= ... %} instead.',
-#                   DeprecationWarning
-#                  )
-#
-#     return _get_image_for_model(context['THEME_NAME'], ctype.model_class(), size)
-
-
-# @register.simple_tag(takes_context=True)
-# def get_image_path_for_ctype(context, ctype, size):
-#     """{% get_image_path_for_ctype ctype 'small' %}"""
-#     warnings.warn('{% get_image_path_for_ctype ... %} is deprecated ; '
-#                   'use {% widget_icon ctype= ... %} instead.',
-#                   DeprecationWarning
-#                  )
-#
-#     return _get_image_path_for_model(context['THEME_NAME'], ctype.model_class(), size)
 
 
 @register.tag(name='widget_join')

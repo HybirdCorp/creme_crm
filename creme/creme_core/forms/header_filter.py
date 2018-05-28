@@ -110,31 +110,6 @@ class EntityCellsWidget(Widget):
     def model(self, model):
         self._model = model or CremeEntity
 
-    # def _build_render_context(self, name, value, attrs):
-    #     attrs_map = self.build_attrs(attrs, name=name)
-    #
-    #     if isinstance(value, list):
-    #         value = ','.join('%s-%s' % (cell.type_id, cell.value) for cell in value)
-    #
-    #     return {'attrs': mark_safe(flatatt(attrs)),
-    #             'id':    attrs_map['id'],
-    #             'name':  name,
-    #             'value': value or '',
-    #
-    #             'samples': mark_safe(json_dump(self._build_samples())),
-    #
-    #             'model_fields':    self.model_fields,
-    #             'model_subfields': self.model_subfields,
-    #             'custom_fields':   self.custom_fields,
-    #             'function_fields': self.function_fields,
-    #             'relation_types':  self.relation_types,
-    #            }
-
-    # def render(self, name, value, attrs=None):
-    #     return render_to_string('creme_core/entity_cells_widget.html',
-    #                             self._build_render_context(name, value, attrs)
-    #                            )
-
     def get_context(self, name, value, attrs):
         if isinstance(value, list):
             value = ','.join('%s-%s' % (cell.type_id, cell.value) for cell in value)

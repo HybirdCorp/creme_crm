@@ -29,7 +29,7 @@ from formtools.wizard.views import SessionWizardView
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import ButtonMenuItem
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.views.generic import inner_popup  # add_model_with_popup
+from creme.creme_core.views.generic import inner_popup
 from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
 from ..forms.button_menu import ButtonMenuAddForm, ButtonMenuEditForm
@@ -39,19 +39,6 @@ from .portal import _config_portal
 @login_required
 def portal(request):
     return _config_portal(request, 'creme_config/button_menu_portal.html')
-
-
-# @login_required
-# @permission_required('creme_core.can_admin')
-# def add(request):
-#     warnings.warn('creme_config/button_menu/add is now deprecated. Use creme_config/button_menu/wizard view instead.',
-#                   DeprecationWarning
-#                  )
-#
-#     return add_model_with_popup(request, ButtonMenuAddForm,
-#                                 _(u'New buttons configuration'),
-#                                 submit_label=_(u'Save the configuration'),
-#                                )
 
 
 class ButtonMenuWizard(PopupWizardMixin, SessionWizardView):

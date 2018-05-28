@@ -21,7 +21,6 @@
 
 creme.geolocation = creme.geolocation || {};
 
-//creme.geolocation.PersonsBlock = creme.component.Component.sub({
 creme.geolocation.PersonsBrick = creme.component.Component.sub({
     STATUS_LABELS: {
         0: gettext("Not localized"),
@@ -50,7 +49,6 @@ creme.geolocation.PersonsBrick = creme.component.Component.sub({
 
         this.addressItems().each(function() {
             var checkbox = $('input[type="checkbox"]', this);
-//            var resetbutton = $('.block-geoaddress-reset', this);
             var resetbutton = $('.brick-geoaddress-reset', this);
 
             resetbutton.click(self._onRefreshLocation.bind(self));
@@ -113,17 +111,14 @@ creme.geolocation.PersonsBrick = creme.component.Component.sub({
     },
 
     addressItem: function(address_id) {
-//        return $('.block-geoaddress-item[data-addressid="' + address_id + '"]', this._brick.element());
         return $('.brick-geoaddress-item[data-addressid="' + address_id + '"]', this._brick.element());
     },
 
     addressItems: function() {
-//        return $('.block-geoaddress-item', this._brick.element());
         return $('.brick-geoaddress-item', this._brick.element());
     },
 
     canvas: function() {
-//        return $('.block-geoaddress-canvas', this._brick.element());
         return $('.brick-geoaddress-canvas', this._brick.element());
     },
 
@@ -131,9 +126,7 @@ creme.geolocation.PersonsBrick = creme.component.Component.sub({
         var item = this.addressItem(address_id);
         var is_complete = (status === creme.geolocation.LocationStatus.COMPLETE);
 
-//        item.find('.block-geoaddress-status').html(this.STATUS_LABELS[status]);
         item.find('.brick-geoaddress-status').html(this.STATUS_LABELS[status]);
-//        item.find('.block-geoaddress-action').toggleClass('block-geoaddress-iscomplete', is_complete);
         item.find('.brick-geoaddress-action').toggleClass('brick-geoaddress-iscomplete', is_complete);
     },
 
@@ -146,7 +139,6 @@ creme.geolocation.PersonsBrick = creme.component.Component.sub({
         }
 
         // result.formatted_address
-//        this.addressItem(address_id).find('.block-geoaddress-position').html(content);
         this.addressItem(address_id).find('.brick-geoaddress-position').html(content);
     },
 
@@ -181,17 +173,11 @@ creme.geolocation.PersonsBrick = creme.component.Component.sub({
 });
 
 
-//creme.geolocation.AddressesBlock = creme.component.Component.sub({
 creme.geolocation.AddressesBrick = creme.component.Component.sub({
     _init_: function(brick, options) {
         options = options || {};
 
-//        if (!options.addressesUrl) {
-//            console.warn('creme.geolocation.AddressesBlock(): hard-coded "addressesUrl" is deprecated ; give it as the second parameter.');
-//        }
-
         this._brick = brick;
-//        this._addressesUrl = options.addressesUrl || '/geolocation/get_addresses/';
         this._addressesUrl = options.addressesUrl;
 
         var controller = this._controller = new creme.geolocation.GoogleMapController(options);
@@ -219,7 +205,6 @@ creme.geolocation.AddressesBrick = creme.component.Component.sub({
 
     _onCanvasStatus: function(event, status) {
         if (status) {
-//            var filterSelector = this._filterSelector = $('.block-geoaddress-filter', this._brick.element());
             var filterSelector = this._filterSelector = $('.brick-geoaddress-filter', this._brick.element());
             filterSelector.change(this._onFilterChange.bind(this));
             this._updateFilter(filterSelector.val());
@@ -287,29 +272,21 @@ creme.geolocation.AddressesBrick = creme.component.Component.sub({
 
     _showCount: function(count) {
         var content = !count ? gettext('No address from') : ngettext('%0$d address from', '%0$d addresses from', count).format(count);
-//        $('.block-geoaddress-counter', this._brick.element()).html(content);
         $('.brick-geoaddress-counter', this._brick.element()).html(content);
     },
 
     canvas: function() {
-//        return $('.block-geoaddress-canvas', this._brick.element());
         return $('.brick-geoaddress-canvas', this._brick.element());
     }
 });
 
 
-//creme.geolocation.PersonsNeighborhoodBlock = creme.component.Component.sub({
 creme.geolocation.PersonsNeighborhoodBrick = creme.component.Component.sub({
     _init_: function(brick, options) {
         options = options || {};
 
-//        if (!options.neighboursUrl) {
-//            console.warn('creme.geolocation.PersonsNeighborhoodBlock(): hard-coded "neighboursUrl" is deprecated');
-//        }
-
         this._radius = options.radius || 1;
         this._brick = brick;
-//        this._neighboursUrl = options.neighboursUrl || '/geolocation/get_neighbours/';
         this._neighboursUrl = options.neighboursUrl;
 
         var controller = this._controller = new creme.geolocation.GoogleMapController(options);
@@ -339,9 +316,7 @@ creme.geolocation.PersonsNeighborhoodBrick = creme.component.Component.sub({
         if (status) {
             var container = this._brick.element();
 
-//            this._sourceSelector = $('.block-geoaddress-source', container).change(this._onChange.bind(this));
             this._sourceSelector = $('.brick-geoaddress-source', container).change(this._onChange.bind(this));
-//            this._filterSelector = $('.block-geoaddress-filter', container).change(this._onChange.bind(this));
             this._filterSelector = $('.brick-geoaddress-filter', container).change(this._onChange.bind(this));
             this._onChange();
         }
@@ -465,12 +440,10 @@ creme.geolocation.PersonsNeighborhoodBrick = creme.component.Component.sub({
 
     _showCount: function(count) {
         var counter = !count ? gettext('None of') : ngettext('%0$d of', '%0$d of', count).format(count);
-//        $('.block-geoaddress-counter', this._brick.element()).html(counter);
         $('.brick-geoaddress-counter', this._brick.element()).html(counter);
     },
 
     canvas: function() {
-//        return $('.block-geoaddress-canvas', this._brick.element());
         return $('.brick-geoaddress-canvas', this._brick.element());
     }
 });

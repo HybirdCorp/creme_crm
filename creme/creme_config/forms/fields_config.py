@@ -33,14 +33,6 @@ from creme.creme_core.forms.widgets import DynamicSelect, Label
 from creme.creme_core.models import FieldsConfig
 
 
-# def _get_fields_enum(ctype):
-#     warnings.warn("_get_fields_enum() is deprecated ; use FieldsConfig.field_enumerator() instead.",
-#                   DeprecationWarning
-#                  )
-#
-#     return FieldsConfig.field_enumerator(ctype.model_class())
-
-
 class FieldsConfigAddForm(CremeForm):
     ctype = CTypeChoiceField(label=_(u'Related resource'),
                              help_text=_(u'The proposed types of resource have '

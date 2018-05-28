@@ -35,7 +35,6 @@ from creme.creme_core.models.fields import MoneyField
 from ..constants import (REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED,
         REL_SUB_HAS_LINE, REL_OBJ_HAS_LINE, REL_OBJ_LINE_RELATED_ITEM,
         REL_OBJ_CREDIT_NOTE_APPLIED, DEFAULT_DECIMAL)
-# from ..utils import round_to_2
 
 from .algo import ConfigBillingAlgo
 from .fields import BillingDiscountField
@@ -179,26 +178,6 @@ class Base(CremeEntity):
             except Exception as e:
                 logger.debug('Exception during billing.generate_number(): %s', e)
 
-    # @property
-    # def product_lines(self):
-    #     warnings.warn("billing.Base.product_lines() method is deprecated; use get_lines(ProductLine) instead",
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     from .. import get_product_line_model
-    #
-    #     return self.get_lines(get_product_line_model())
-    #
-    # @property
-    # def service_lines(self):
-    #     warnings.warn("billing.Base.service_lines() method is deprecated; use get_lines(ServiceLine) instead",
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     from .. import get_service_line_model
-    #
-    #     return self.get_lines(get_service_line_model())
-
     def get_lines(self, klass):
         assert not klass._meta.abstract, '"klass" cannot be an abstract model (use ProductLine or ServiceLine)'
 
@@ -211,30 +190,6 @@ class Base(CremeEntity):
                                                        )
 
         return lines
-
-    # def get_product_lines_total_price_exclusive_of_tax(self):
-    #     warnings.warn("billing.Base.get_product_lines_total_price_exclusive_of_tax() method is deprecated.",
-    #                   DeprecationWarning
-    #                  )
-    #     return round_to_2(sum(l.get_price_exclusive_of_tax(self) for l in self.product_lines))
-    #
-    # def get_product_lines_total_price_inclusive_of_tax(self):
-    #     warnings.warn("billing.Base.get_product_lines_total_price_inclusive_of_tax() method is deprecated.",
-    #                   DeprecationWarning
-    #                  )
-    #     return round_to_2(sum(l.get_price_inclusive_of_tax(self) for l in self.product_lines))
-    #
-    # def get_service_lines_total_price_exclusive_of_tax(self):
-    #     warnings.warn("billing.Base.get_service_lines_total_price_exclusive_of_tax() method is deprecated.",
-    #                   DeprecationWarning
-    #                  )
-    #     return round_to_2(sum(l.get_price_exclusive_of_tax(self) for l in self.service_lines))
-    #
-    # def get_service_lines_total_price_inclusive_of_tax(self):
-    #     warnings.warn("billing.Base.get_service_lines_total_price_inclusive_of_tax() method is deprecated.",
-    #                   DeprecationWarning
-    #                  )
-    #     return round_to_2(sum(l.get_price_inclusive_of_tax(self) for l in self.service_lines))
 
     def iter_all_lines(self):
         from ..registry import lines_registry
@@ -336,13 +291,6 @@ class Base(CremeEntity):
         # NB: not copied:
         # - additional_info
         # - payment_terms
-
-    # def _build_lines(self, template, klass):
-    #     warnings.warn("billing.Base._build_lines() method is deprecated; use _post_clone() instead",
-    #                   DeprecationWarning
-    #                  )
-    #     for line in template.get_lines(klass):
-    #         line.clone(self)
 
     def _build_relations(self, template):
         logger.debug("=> Clone relations")

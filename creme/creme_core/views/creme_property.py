@@ -33,7 +33,7 @@ from ..auth.decorators import login_required, permission_required
 from ..forms.creme_property import AddPropertiesForm, AddPropertiesBulkForm
 from ..gui.bricks import QuerysetBrick, Brick
 from ..models import CremeEntity, CremePropertyType
-from ..utils import creme_entity_content_types, get_ct_or_404, get_from_POST_or_404, jsonify  # get_from_GET_or_404
+from ..utils import creme_entity_content_types, get_ct_or_404, get_from_POST_or_404, jsonify
 from . import generic, bricks as bricks_views
 from .utils import build_cancel_path
 
@@ -45,9 +45,6 @@ from .utils import build_cancel_path
 def add_properties_bulk(request, ct_id):
     user = request.user
     model = get_ct_or_404(ct_id).model_class()
-    # entities = get_list_or_404(model, pk__in=request.POST.getlist('ids') or
-    #                                          request.GET.getlist('ids')
-    #                           )
     entities = get_list_or_404(model,
                                pk__in=request.POST.getlist('ids')
                                       if request.method == 'POST' else
@@ -217,7 +214,6 @@ class TaggedEntitiesBrick(QuerysetBrick):
         self.dependencies = (ctype.model_class(),)
 
     @staticmethod
-    # def parse_block_id(block_id):
     def parse_brick_id(brick_id):
         "@return A ContentType instance if valid, else None"
         parts = brick_id.split('-')
@@ -293,39 +289,6 @@ def type_detailview(request, ptype_id):
                  )
 
 
-# @login_required
-# @jsonify
-# def reload_block(request, ptype_id, block_id):
-#     warnings.warn("The view /creme_core/property/type/{{pt_id}}/reload_block/{{block_id}} is now deprecated."
-#                   "Use /creme_core/property/type/{{pt_id}}/reload_bricks/ view instead"
-#                   "[ie: reverse('creme_core__reload_ptype_bricks', args=(ptype.id,)) ].",
-#                   DeprecationWarning
-#                  )
-#     from .blocks import build_context, _get_depblock_ids
-#
-#     ptype = get_object_or_404(CremePropertyType, id=ptype_id)
-#     block_renders = []
-#     ctypes = ptype.subject_ctypes.all()
-#
-#     context = build_context(request, object=ptype)
-#
-#     for b_id in _get_depblock_ids(request, block_id):
-#         if b_id == PropertyTypeInfoBrick.id_:
-#             block = PropertyTypeInfoBrick(ptype, ctypes)
-#         elif b_id == TaggedMiscEntitiesBrick.id_:
-#             block = TaggedMiscEntitiesBrick(ptype, ctypes)
-#         else:
-#             ctype = TaggedEntitiesBrick.parse_block_id(b_id)
-#             if ctype is None:
-#                 raise Http404('Invalid block id "%s"' % b_id)
-#
-#             block = TaggedEntitiesBrick(ptype, ctype)
-#
-#         block_renders.append((block.id_, block.detailview_display(context)))
-#
-#     return block_renders
-
-
 @login_required
 @jsonify
 def reload_bricks(request, ptype_id):
@@ -340,7 +303,6 @@ def reload_bricks(request, ptype_id):
         elif b_id == TaggedMiscEntitiesBrick.id_:
             brick = TaggedMiscEntitiesBrick(ptype, ctypes)
         else:
-            # ctype = TaggedEntitiesBrick.parse_block_id(b_id)
             ctype = TaggedEntitiesBrick.parse_brick_id(b_id)
             if ctype is None:
                 raise Http404('Invalid brick id "%s"' % b_id)

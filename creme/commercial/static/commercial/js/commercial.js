@@ -21,19 +21,6 @@
 
 creme.commercial = creme.commercial || {};
 
-//creme.commercial.postScore = function(url, model_id, segment_desc_id, orga_id, select, reload_url) {
-//    console.warn('creme.commercial.postScore() is deprecated (use setScore() & bricks actions instead).');
-//
-//    var data = {
-//            score:           $(select).val(),
-//            model_id:        model_id,
-//            segment_desc_id: segment_desc_id,
-//            orga_id:         orga_id
-//        };
-//
-//    creme.blocks.ajaxPOSTQuery(url, {blockReloadUrl: reload_url}, data).start();
-//}
-
 creme.commercial.setScore = function(select_input, url, scored_instance_id, segment_desc_id, orga_id) {
     var $select = $(select_input);
     var brick = $select.parents('.brick').creme().widget().brick();
@@ -48,26 +35,5 @@ creme.commercial.setScore = function(select_input, url, scored_instance_id, segm
                .onDone(function() {brick.refresh();})
                .start();
 }
-
-//creme.commercial.postCategory = function(url, segment_desc_id, orga_id, select, reload_url) {
-//    console.warn('creme.commercial.postCategory() is deprecated (use bricks actions instead).');
-//
-//    var data = {
-//            category:        $(select).val(),
-//            segment_desc_id: segment_desc_id,
-//            orga_id:         orga_id
-//        };
-//
-//    creme.blocks.ajaxPOSTQuery(url, {blockReloadUrl: reload_url}, data).start();
-//}
-
-//creme.commercial.increaseObjectiveCounter = function(url, inc, reload_url) {
-//    console.warn('creme.commercial.increaseObjectiveCounter() is deprecated (use bricks actions instead).');
-//
-//    creme.blocks.ajaxPOSTQuery(url,
-//                               {blockReloadUrl: reload_url},
-//                               {diff: inc})
-//                .start();
-//}
 
 }(jQuery));

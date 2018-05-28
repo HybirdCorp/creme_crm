@@ -232,7 +232,7 @@
     opacity: 0.5;
 }
 
-/* Listview page header buttons - end */
+/* Listview page header buttons - [end] */
 
 /* Listview - header columns */
 
@@ -312,140 +312,6 @@
     min-width: 150px;
 }
 
-/*
-.list_view > thead .title h2 {
-    margin-bottom: 5px;
-}
-
-.list_view thead th.title h2 {
-    float: left;
-    margin: 0;
-    padding-top: 10px;
-}
-*/
-
-/*
-.list_view .fieldset-title {
-    margin-right: 15px;
-}
-*/
-
-/*
-.list_view .filters select {
-    margin-right: 10px;
-}
-
-.list_view .filters img, .list_view .views img {
-    position: relative;
-    top: 5px;
-}
-
-.list_view .filters fieldset > img:first-child {
-    top: 8px;
-}
-
-.list_view thead th.title .filters {
-    float: right;
-}
-*/
-
-/*
-.list_view thead .sub_title h4 {
-    height: 1px;
-}
-*/
-
-/*
-.list_view fieldset {
-    padding: 0px;
-
-    border: 0px;
-}
-
-.list_view fieldset .legend {
-  display: inline-block;
-}
-*/
-
-/*
-.list_view .views .legend {
-  margin-left: 20px;
-}
-*/
-
-/*
-.list_view tr#list_thead_toolbar {
-    text-align: left;
-}
-
-.list_view tr#list_thead_toolbar a {
-    padding: 5px;
-}
-
-.list_view tr#list_thead_toolbar a img {
-    height: 22px;
-    position: relative;
-    top: 6px;
-}
-
-.list_view tr#list_thead_toolbar button.clear-search {
-    height: 26px;
-    padding: 4px;
-}
-
-.list_view tr#list_thead_toolbar button.listview-header-button-with-icon {
-    position: relative;
-    top: 6px;
-}
-
-.list_view tr#list_thead_toolbar button.listview-header-button-with-icon > div {
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-}
-
-.list_view tr#list_thead_toolbar button.listview-header-button-with-icon img {
-    -webkit-align-self: center;
-        -ms-flex-item-align: center;
-            align-self: center;
-}
-
-.list_view tr#list_thead_toolbar button.listview-header-button-with-icon span {
-    -webkit-align-self: center;
-        -ms-flex-item-align: center;
-            align-self: center;
-}
-
-.list_view .toolbar th {
-    padding-top: 5px;
-    padding-bottom: 12px;
-}
-
-.list_view .toolbar button,
-.list_view .toolbar a,
-.list_view button {
-    border: 1px solid #ccc;
-
-    background-color: #fafafa;
-    cursor: pointer;
-
-    font-weight: normal;
-    color: #22439f;
-    outline: none;
-}
-
-.list_view .toolbar button:hover,
-.list_view .toolbar a:hover,
-.list_view button:hover {
-    background-color: #e6e6e6;
-    cursor: pointer;
-
-    font-weight: normal;
-    text-decoration: none;
-    outline: none;
-}
-*/
-
 /* ListView results header - column titles and filters rows */
 .list_view thead .columns_top,
 .list_view thead .columns_bottom {
@@ -456,13 +322,6 @@
 .list_view > tbody {
     background: white;
 }
-
-/*
-.list_view .page_information {
-    text-align: left;
-    padding-bottom: 5px;
-}
-*/
 
 .list_view .columns_top .column button {
     width: 100%;
@@ -704,7 +563,7 @@
     border-top: 4px solid currentColor;
 }
 
-/* Listview - header columns - end */
+/* Listview - header columns - [end] */
 
 /* Listview - row and header actions */
 
@@ -874,7 +733,7 @@
     color: white !important;
 }
 
-/* Listview - row and header actions - end */
+/* Listview - row and header actions - [end] */
 
 /* Listview - general cell styling */
 
@@ -1176,7 +1035,7 @@
     transition: background-color 0.1s ease-in-out;
 }
 
-/* Listview - row selection - end */
+/* Listview - row selection - [end] */
 
 /* The stickytude attitude */
 
@@ -1193,7 +1052,7 @@
     position: static;
 }
 
-/* The stickytude attitude - end */
+/* The stickytude attitude - [end] */
 
 /* Listview - floating header */
 
@@ -1219,7 +1078,7 @@
     border-bottom: 1px solid rgba(84, 130, 149, 0.3) !important;
 }
 
-/* Listview - floating header - end */
+/* Listview - floating header - [end] */
 
 /* Listview - inner edition */
 
@@ -1239,7 +1098,7 @@
     opacity: 0.6;
 }
 
-/* Listview - inner edition -end */
+/* Listview - inner edition - [end] */
 
 /* Listview - footer & pager */
 
@@ -1373,4 +1232,4 @@
     color: #ff851b;
 }
 
-/* Listview - footer & pager -end */
+/* Listview - footer & pager - [end] */

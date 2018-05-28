@@ -18,10 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-
-# from django.conf import settings
-# from django.db.models import Model, CharField, TextField, ForeignKey
 from django.db import models
 
 from ..core.setting_key import setting_key_registry
@@ -29,18 +25,10 @@ from ..core.setting_key import setting_key_registry
 
 class SettingValue(models.Model):
     key_id    = models.CharField(max_length=100)  # See SettingKey.id
-    # user      = ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
     value_str = models.TextField()
 
     class Meta:
         app_label = 'creme_core'
-
-    # def __init__(self, *args, **kwargs):
-    #     super(SettingValue, self).__init__(*args, **kwargs)
-    #     if self.user_id:
-    #         warnings.warn("SettingValue.user attribute is deprecated ; use UserSettingValue instead.",
-    #                       DeprecationWarning
-    #                      )
 
     @property
     def key(self):
@@ -73,14 +61,3 @@ class SettingValue(models.Model):
         value = self.value
 
         return self.key.value_as_html(value) if value is not None else ''
-
-    # @staticmethod
-    # def create_if_needed(key, user, value):
-    #     warnings.warn("SettingValue.create_if_needed() is deprecated ; "
-    #                   "use SettingValue.objects.get_or_create() instead.",
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     return SettingValue.objects.get_or_create(key_id=key.id, user=user,
-    #                                               defaults={'value': value},
-    #                                              )[0]

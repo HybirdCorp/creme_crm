@@ -23,8 +23,6 @@ from collections import defaultdict
 
 from django.apps import apps
 
-# from ..models import FieldsConfig
-
 
 class FieldsConfigRegistry(object):
     """Register the fields of other apps which are required."""
@@ -32,31 +30,9 @@ class FieldsConfigRegistry(object):
         # Structure: [model][field_name] -> set of app_labels
         self._needed_fields = defaultdict(lambda: defaultdict(set))
 
-    # @property
-    # def ctypes(self):
-    #     warnings.warn("FieldsConfigRegistry.ctypes property is deprecated.",
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     from itertools import ifilter, imap
-    #
-    #     from django.contrib.contenttypes.models import ContentType
-    #
-    #     return imap(ContentType.objects.get_for_model,
-    #                 ifilter(FieldsConfig.is_model_valid, apps.get_models())
-    #                )
-
     def get_needing_apps(self, model, field_name):
         for app_label in self._needed_fields[model][field_name]:
             yield apps.get_app_config(app_label)
-
-    # def is_model_valid(self, model):
-    #     warnings.warn("FieldsConfigRegistry.is_model_valid() method is deprecated ; "
-    #                   "use FieldsConfig.is_model_valid() instead.",
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     return FieldsConfig.is_model_valid(model)
 
     def register_needed_fields(self, app_label, model, *field_names):
         model_fields = self._needed_fields[model]

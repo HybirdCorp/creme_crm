@@ -6,12 +6,6 @@
     margin-left: 10px;
 }
 
-/*
-#sub_content > .search_results > .table_header td:first-child {
-    width: 5%; // backwards compatibility - 5% is hardcoded in the form 'generics/blockform/base.html' template
-}
-*/
-
 /* Advanced search results bricks */
 .creme_core-search-brick table th {
     min-width: 100px;

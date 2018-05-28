@@ -34,7 +34,6 @@ from .taskstatus import TaskStatus
 
 class AbstractProjectTask(CremeEntity):
     title        = CharField(_(u'Title'), max_length=100)
-    # project = ForeignKey(Project,
     linked_project = ForeignKey(Project, on_delete=CASCADE,  # TODO: settings.PROJECTS_PROJECT_MODEL ?
                                 verbose_name=_(u'Project'), related_name='tasks_set', editable=False,
                                )
@@ -76,7 +75,6 @@ class AbstractProjectTask(CremeEntity):
         return reverse('projects__edit_task', args=(self.id,))
 
     def get_related_entity(self):
-        # return self.project
         return self.linked_project
 
     def _pre_delete(self):
@@ -174,7 +172,6 @@ class AbstractProjectTask(CremeEntity):
 
         for task in tasks:
             new_task = task.clone()
-            # new_task.project = project
             new_task.linked_project = project
             new_task.save()
             # new_task = task.clone(project) TODO

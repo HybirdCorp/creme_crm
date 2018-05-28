@@ -33,26 +33,6 @@ class CreatorModelChoiceWidget(Select):
         self.creation_allowed = creation_allowed
         self.creation_label = creation_label
 
-    # # def render(self, name, value, attrs=None, choices=()):
-    # def render(self, name, value, attrs=None):
-    #     url = self.creation_url
-    #
-    #     if not url:
-    #         # return super(CreatorModelChoiceWidget, self).render(name, value, attrs, choices)
-    #         return super(CreatorModelChoiceWidget, self).render(name, value, attrs)
-    #
-    #     widget = ActionButtonList(delegate=DynamicSelect(options=self.choices),
-    #                               attrs=self.attrs,
-    #                              )
-    #
-    #     allowed = self.creation_allowed
-    #     label = unicode(self.creation_label)
-    #     widget.add_action('create', label, enabled=allowed, popupUrl=url,
-    #                       title=label if allowed else ugettext(u'Cannot create'),
-    #                      )
-    #
-    #     return widget.render(name, value, attrs)
-
     def get_context(self, name, value, attrs):
         context = super(CreatorModelChoiceWidget, self).get_context(name=name, value=value, attrs=attrs)
         url = self.creation_url

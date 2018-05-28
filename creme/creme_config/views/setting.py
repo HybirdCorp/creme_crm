@@ -26,7 +26,6 @@ from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.models import SettingValue
-# from creme.creme_core.utils import jsonify
 from creme.creme_core.views.generic import inner_popup
 
 from ..forms.setting import SettingForm
@@ -36,15 +35,10 @@ from ..forms.setting import SettingForm
 @login_required
 def edit(request, svalue_id):
     svalue = get_object_or_404(SettingValue, pk=svalue_id)
-
     if svalue.key.hidden:
         raise Http404('You can not edit a SettingValue which is hidden.')
 
-    # if svalue.user_id is not None:
-    #     raise Http404('You can not edit a SettingValue which belongs to a user.')
-
     user = request.user
-
     user.has_perm_to_admin_or_die(svalue.key.app_label)
 
     if request.method == 'POST':
@@ -64,21 +58,3 @@ def edit(request, svalue_id):
                        reload=False,
                        delegate_reload=True,
                       )
-
-
-# @login_required
-# @jsonify
-# def reload_block(request, app_name):
-#     warnings.warn('The view creme_config.views.setting.reload_block() is deprecated; '
-#                   'use creme_config.views.generic_views.reload_app_bricks() instead.',
-#                   DeprecationWarning
-#                  )
-#     from creme.creme_core.views.blocks import build_context
-#
-#     from ..blocks import settings_block
-#
-#     request.user.has_perm_to_admin_or_die(app_name)
-#
-#     context = build_context(request, app_name=app_name)
-#
-#     return [(settings_block.id_, settings_block.detailview_display(context))]

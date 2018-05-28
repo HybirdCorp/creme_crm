@@ -20,7 +20,7 @@
 
 from future_builtins import filter
 from functools import partial
-from itertools import izip_longest  # chain
+from itertools import izip_longest
 import logging
 from os.path import splitext
 
@@ -33,12 +33,10 @@ from django.db.transaction import atomic
 from django.forms.models import modelform_factory
 from django.forms import (ValidationError, Field, BooleanField, MultipleChoiceField,
         ModelChoiceField, ModelMultipleChoiceField, IntegerField)
-from django.forms.widgets import Widget, Select, HiddenInput  # SelectMultiple
-# from django.forms.utils import flatatt
+from django.forms.widgets import Widget, Select, HiddenInput
 from django.template.defaultfilters import slugify
 from django.urls import reverse_lazy as reverse
-from django.utils.html import format_html, format_html_join  # escape
-# from django.utils.safestring import mark_safe
+from django.utils.html import format_html, format_html_join
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.documents import get_document_model
@@ -107,11 +105,6 @@ class UploadForm(CremeForm):
         self._header = None
         document_f = self.fields['document']
         document_f.user = self.user
-        # document_f.help_text = mark_safe(u'<ul class="help-texts">%s</ul>' %
-        #                                  u''.join(u'<li>%s: %s</li>' % (be.verbose_name, be.help_text)
-        #                                              for be in import_backend_registry.iterbackends()
-        #                                          )
-        #                                 )
         document_f.help_text = format_html(
             u'<ul class="help-texts">{}</ul>',
             format_html_join(u'', u'<li>{}: {}</li>',
@@ -220,7 +213,6 @@ class BaseExtractorWidget(Widget):
         self.column_select.choices = choices
 
 
-# class ExtractorWidget(SelectMultiple):
 class ExtractorWidget(BaseExtractorWidget):  # TODO: rename (Regular/Base)FieldExtractorWidget ??
     template_name = 'creme_core/forms/widgets/mass-import/extractor.html'
 
@@ -229,80 +221,6 @@ class ExtractorWidget(BaseExtractorWidget):  # TODO: rename (Regular/Base)FieldE
         self.default_value_widget = None
         self.subfield_select = None  # TODO: rename 'subfield_choices'
         self.propose_creation = False
-
-    # def _render_select(self, name, choices, sel_val, attrs=None):
-    #     # output = ['<select %s>' % flatatt(self.build_attrs(attrs, name=name))]
-    #     output = ['<select %s>' % flatatt(self.build_attrs(self.attrs, extra_attrs=dict(attrs or {}, name=name)))]
-    #
-    #     output.extend(u'<option value="%s" %s>%s</option>' % (
-    #                         opt_value,
-    #                         (u'selected="selected"' if sel_val == opt_value else u''),
-    #                         escape(opt_label)
-    #                     ) for opt_value, opt_label in choices
-    #                  )
-    #
-    #     output.append('</select>')
-    #
-    #     return u'\n'.join(output)
-
-    # # def render(self, name, value, attrs=None, choices=()):
-    # def render(self, name, value, attrs=None):
-    #     value = value or {}
-    #     # attrs = self.build_attrs(attrs, name=name)
-    #     attrs = self.build_attrs(self.attrs, extra_attrs=dict(attrs or {}, name=name))
-    #     output = [u'<table %s><tbody><tr><td>' % flatatt(attrs)]
-    #
-    #     out_append = output.append
-    #     rselect    = self._render_select
-    #
-    #     try:
-    #         sel_val = int(value.get('selected_column', -1))
-    #     except TypeError:
-    #         sel_val = 0
-    #
-    #     out_append(rselect("%s_colselect" % name,
-    #                        # choices=chain(self.choices, choices),
-    #                        choices=self.choices,
-    #                        sel_val=sel_val,
-    #                        attrs={'class': 'csv_col_select'},
-    #                       )
-    #               )
-    #
-    #     id_ = attrs['id']
-    #
-    #     if self.subfield_select:
-    #         hide_select = (len(self.subfield_select) == 1)  # The <select> is annoying if there is only one option
-    #
-    #         out_append(u'</td>'
-    #                     '<td class="csv_subfields_select">%(label)s %(select)s %(check)s'
-    #                         '<script type="text/javascript">'
-    #                             '$(document).ready(function() {'
-    #                                 "creme.forms.toImportField('%(id)s');"
-    #                             '});'
-    #                         '</script>' % {
-    #                       'label':  ugettext(u'Search by:') if not hide_select else '',
-    #                       'select': rselect("%s_subfield" % name, choices=self.subfield_select,
-    #                                         sel_val=value.get('subfield_search'),
-    #                                         attrs={'hidden': 'True'} if hide_select else None
-    #                                        ),
-    #                       'check':  '' if not self.propose_creation else
-    #                                 '&nbsp;%s <input type="checkbox" name="%s_create" %s>' % (
-    #                                        ugettext(u'Create if not found ?'),
-    #                                        name,
-    #                                        'checked' if value.get('subfield_create') else '',
-    #                                     ),
-    #                       'id':     id_,
-    #                     })
-    #
-    #     out_append(u'</td><td>&nbsp;%s:%s</td></tr></tbody></table>' % (
-    #                     ugettext(u"Default value"),
-    #                     self.default_value_widget.render("%s_defval" % name, value.get('default_value'),
-    #                                                      attrs={'id': "%s_defval" % id_},
-    #                                                     ),
-    #                 )
-    #               )
-    #
-    #     return mark_safe(u'\n'.join(output))
 
     def get_context(self, name, value, attrs):
         value = value or {}
@@ -388,13 +306,10 @@ class ExtractorField(Field):
     @user.setter
     def user(self, user):
         self._user = user
-        # rel = self._modelfield.rel
         remote_field = self._modelfield.remote_field
 
-        # if rel:
         if remote_field:
             from creme.creme_config.registry import config_registry, NotRegisteredInConfig
-            # model = rel.to
             model = remote_field.model
             creation_perm = False
             app_name = model._meta.app_label
@@ -440,7 +355,6 @@ class ExtractorField(Field):
         subfield_search = value['subfield_search']
         if subfield_search:
             modelfield = self._modelfield
-            # extractor.set_subfield_search(subfield_search, modelfield.rel.to,
             extractor.set_subfield_search(subfield_search, modelfield.remote_field.model,
                                           multiple=isinstance(modelfield, ManyToManyField),
                                           # TODO: improve widget to disable creation check instead of hide it.
@@ -467,7 +381,7 @@ class EntityExtractionCommand(object):
 
 class EntityExtractor(object):
     def __init__(self, extraction_cmds):
-        "@params extraction_cmds List of EntityExtractionCommands"
+        "@params extraction_cmds: List of EntityExtractionCommands"
         self._commands = extraction_cmds
 
     def _extract_entity(self, line, user, command):
@@ -535,7 +449,6 @@ class EntityExtractor(object):
 
 
 # TODO: use ul/li instead of table...
-# class EntityExtractorWidget(ExtractorWidget):
 class EntityExtractorWidget(BaseExtractorWidget):
     template_name = 'creme_core/forms/widgets/mass-import/entity-extractor.html'
 
@@ -552,52 +465,6 @@ class EntityExtractorWidget(BaseExtractorWidget):
 
     def _build_create_id(self, name, model_id):
         return '{0}_{1}_{2}_create'.format(name, *model_id)
-
-    # # def _render_column_select(self, name, cmd, choices, model_id):
-    # def _render_column_select(self, name, cmd, model_id):
-    #     sel_val = 0
-    #
-    #     if cmd:
-    #         try:
-    #             sel_val = cmd.build_column_index()
-    #         except TypeError:
-    #             pass
-    #
-    #     return self._render_select(self._build_colselect_id(name, model_id),
-    #                                # choices=chain(self.choices, choices),
-    #                                choices=self.choices,
-    #                                sel_val=sel_val,
-    #                                attrs={'class': 'csv_col_select'},  # todo: id
-    #                               )
-
-    # # def _render_line(self, output, name, cmd, choices, model):
-    # def _render_line(self, output, name, cmd, model):
-    #     append = output.append
-    #     model_id = self._build_model_id(model)
-    #
-    #     append(u'<tr><td>%s: </td><td>' % model._meta.verbose_name)
-    #     # append(self._render_column_select(name, cmd, choices, model_id))
-    #     append(self._render_column_select(name=name, cmd=cmd, model_id=model_id))
-    #     append(u'</td><td>&nbsp;%(label)s <input type="checkbox" name="%(name)s" %(checked)s></td></tr>' % {
-    #                         'label':   _(u'Create if not found ?'),
-    #                         'name':    self._build_create_id(name, model_id),
-    #                         'checked': 'checked' if cmd and cmd.create else '',
-    #                     }
-    #                  )
-
-    # # def render(self, name, value, attrs=None, choices=()):
-    # def render(self, name, value, attrs=None):
-    #     # output = [u'<table %s><tbody>' % flatatt(self.build_attrs(attrs, name=name))]
-    #     output = [u'<table %s><tbody>' % flatatt(self.build_attrs(self.attrs, extra_attrs=dict(attrs or {}, name=name)))]
-    #     render_line = self._render_line
-    #
-    #     for info, cmd in izip_longest(self.models_info, value or ()):
-    #         # render_line(output, name, cmd, choices, info[0])
-    #         render_line(output=output, name=name, cmd=cmd, model=info[0])
-    #
-    #     output.append(u'</tbody></table>')
-    #
-    #     return mark_safe(u'\n'.join(output))
 
     def get_context(self, name, value, attrs):
         context = super(EntityExtractorWidget, self).get_context(name=name, value=value, attrs=attrs)
@@ -798,36 +665,6 @@ class RelationExtractorSelector(SelectorList):
         self.relation_types = relation_types
         # TODO: autocomplete ?
 
-    # def render(self, name, value, attrs=None):
-    #     value = value or {}
-    #     self.selector = chained_input = ChainedInput(attrs)
-    #
-    #     # todo: use GET args instead of using TemplateURLBuilders ?
-    #     add = partial(chained_input.add_dselect, attrs={'auto': False, 'autocomplete': True})
-    #     add('rtype', options=self.relation_types, label=ugettext(u'The entity'))
-    #     add('ctype',
-    #         options=TemplateURLBuilder(rtype_id=(TemplateURLBuilder.Word, '${rtype}'))
-    #                                   .resolve('creme_core__ctypes_compatible_with_rtype')
-    #        )
-    #     add('searchfield',
-    #         options=TemplateURLBuilder(ct_id=(TemplateURLBuilder.Int, '${ctype}'))\
-    #                                   .resolve('creme_core__entity_info_fields'),
-    #         label=ugettext(u'which field'),
-    #        )
-    #     add('column', options=self.columns, label=ugettext(u'equals to'))
-    #
-    #     return mark_safe('<input type="checkbox" name="%(name)s_can_create" %(checked)s/>%(label)s'
-    #                      '%(super)s' % {
-    #                     'name':    name,
-    #                     'checked': 'checked' if value.get('can_create') else '',
-    #                     'label':   ugettext(u'Create entities if they are not found ? '
-    #                                         u'(only fields followed by [CREATION] '
-    #                                         u'allows you to create, if they exist)'
-    #                                        ),
-    #                     'super':   super(RelationExtractorSelector, self)
-    #                                     .render(name, value.get('selectorlist'), attrs),
-    #                 })
-
     def get_context(self, name, value, attrs):
         value = value or {}
         self.selector = chained_input = ChainedInput(attrs)
@@ -1020,50 +857,8 @@ class CustomFieldExtractor(object):
 
 # TODO: make a BaseFieldExtractorWidget ??
 class CustomFieldExtractorWidget(ExtractorWidget):
-# class CustomFieldExtractorWidget(BaseExtractorWidget):
     template_name = 'creme_core/forms/widgets/mass-import/cfield-extractor.html'
 
-    # # def render(self, name, value, attrs=None, choices=()):
-    # def render(self, name, value, attrs=None):
-    #     get = (value or {}).get
-    #     # output = [u'<table %s><tbody><tr><td>' % flatatt(self.build_attrs(attrs, name=name))]
-    #     output = [u'<table %s><tbody><tr><td>' % flatatt(self.build_attrs(self.attrs, extra_attrs=dict(attrs or {}, name=name)))]
-    #     out_append = output.append
-    #
-    #     try:
-    #         sel_val = int(get('selected_column', -1))
-    #     except TypeError:
-    #         sel_val = 0
-    #
-    #     out_append(self._render_select('%s_colselect' % name,
-    #                                    # choices=chain(self.choices, choices),
-    #                                    choices=self.choices,
-    #                                    sel_val=sel_val,
-    #                                    attrs={'class': 'csv_col_select'},
-    #                                   )
-    #               )
-    #
-    #     if self.propose_creation:
-    #         create_id = '%s_create' % name
-    #         out_append(u'</td><td>&nbsp;'
-    #                    u'<label for="%(id)s">%(label)s:<input type="checkbox" name="%(id)s" %(checked)s></label>' % {
-    #                         'id': create_id,
-    #                         'label': ugettext('Create if not found ?'),
-    #                         'checked': 'checked' if get('can_create') else '',
-    #                     }
-    #                   )
-    #
-    #     defval_id = '%s_defval' % attrs['id']
-    #     out_append(u'</td><td>&nbsp;<label for="%s">%s:%s</label></td></tr></tbody></table>' % (
-    #                     defval_id,
-    #                     ugettext('Default value'),
-    #                     self.default_value_widget.render('%s_defval' % name, get('default_value'),
-    #                                                      attrs={'id': defval_id},
-    #                                                     ),
-    #                 )
-    #               )
-    #
-    #     return mark_safe(u'\n'.join(output))
     def get_context(self, name, value, attrs):
         value = value or {}
         context = super(CustomFieldExtractorWidget, self).get_context(name=name, value=value, attrs=attrs)
@@ -1185,7 +980,6 @@ class ImportForm(CremeModelForm):
                 .exclude(lambda field, deep: get_fconf(field.model).is_field_hidden(field)) \
                 .choices()
 
-    # def append_error(self, line, err_msg, instance=None):
     def append_error(self, err_msg):
         if err_msg:
             self.import_errors.append(unicode(err_msg))
@@ -1214,7 +1008,7 @@ class ImportForm(CremeModelForm):
     def _post_instance_creation(self, instance, line, updated):  # Overload me
         pass
 
-    def _pre_instance_save(self, instance, line): # overload me
+    def _pre_instance_save(self, instance, line):  # Overload me
         pass
 
     def process(self, job):
@@ -1275,7 +1069,6 @@ class ImportForm(CremeModelForm):
                         is_empty = not extractor._column_index or is_empty_value(line[extractor._column_index - 1])
                         extr_values.append((fname, extr_value, is_empty))
 
-                        # append_error(line, err_msg, instance)
                         append_error(err_msg)
 
                     if key_fields:
@@ -1292,11 +1085,9 @@ class ImportForm(CremeModelForm):
                                 instance = found[0]
                                 job_result.updated = updated = True
                             else:
-                                append_error(# line,
-                                             ugettext(u'Several entities corresponding to the search have been found. '
+                                append_error(ugettext(u'Several entities corresponding to the search have been found. '
                                                       u'So a new entity have been created to avoid errors.'
                                                      ),
-                                             # instance
                                             )
 
                     for fname, cleaned_value in regular_fields:
@@ -1320,9 +1111,7 @@ class ImportForm(CremeModelForm):
                         if extractor:
                             # TODO: factorise
                             extr_value, err_msg = extractor.extract_value(line)
-                            # setattr(instance, m2m.name, extr_value)
                             getattr(instance, m2m.name).set(extr_value)
-                            # append_error(line, err_msg, instance)
                             append_error(err_msg)
 
                     job_result.entity = instance
@@ -1335,10 +1124,8 @@ class ImportForm(CremeModelForm):
                 try:
                     for messages in e.message_dict.itervalues():
                         for message in messages:
-                            # append_error(line, unicode(message), instance)
                             append_error(unicode(message))
                 except:
-                    # append_error(line, str(e), instance)
                     append_error(str(e))
 
                 job_result.messages = self.import_errors
@@ -1421,11 +1208,9 @@ class ImportForm4CremeEntity(ImportForm):
             try:
                 value, err_msg = cdata[_CUSTOM_NAME % cfield.id].extract_value(line)
             except ValidationError as e:
-                # self.append_error(line, e.messages[0], instance)
                 self.append_error(e.messages[0])
             else:
                 if err_msg is not None:
-                    # self.append_error(line, err_msg, instance)
                     self.append_error(err_msg)
                 elif value is not None and value != u'':
                     CustomFieldValue.save_values_for_entities(cfield, [instance], value)
@@ -1451,7 +1236,6 @@ class ImportForm4CremeEntity(ImportForm):
 
         for (rtype, entity), err_msg in cdata['dyn_relations'].extract_value(line, user):
             if err_msg:
-                # self.append_error(line, err_msg, instance)
                 self.append_error(err_msg)
             elif entity is not None:
                 create_relation(type=rtype, object_entity=entity)
@@ -1516,7 +1300,7 @@ def form_factory(ct, header):
                                   formfield_callback=partial(extractorfield_factory,
                                                              header_dict=header_dict,
                                                              choices=choices,
-                                                            )
+                                                            ),
                                  )
     modelform.choices = choices
     modelform.header_dict = header_dict

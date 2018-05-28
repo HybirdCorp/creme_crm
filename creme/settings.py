@@ -162,11 +162,8 @@ APPEND_SLASH = False
 
 ROOT_URLCONF = 'creme.urls'  # Means urls.py
 
-# LOGIN_REDIRECT_URL = '/'
 LOGIN_REDIRECT_URL = 'creme_core__home'
-# LOGIN_URL = '/creme_login/'
 LOGIN_URL = 'creme_login'
-# LOGOUT_URL = '/creme_logout/'
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
@@ -233,31 +230,11 @@ TEMPLATES = [
     },
 ]
 
-# MIDDLEWARE_CLASSES = [
-#     'creme.creme_core.middleware.exceptions.Ajax500Middleware',
-#     'creme.creme_core.middleware.exceptions.Ajax404Middleware',
-#     'creme.creme_core.middleware.exceptions.Beautiful403Middleware',
-#     'creme.creme_core.middleware.exceptions.Beautiful409Middleware',
-#
-#     'mediagenerator.middleware.MediaMiddleware',
-#
-#     'django.contrib.sessions.middleware.SessionMiddleware',
-#     'django.middleware.common.CommonMiddleware',
-#     'django.middleware.csrf.CsrfViewMiddleware',
-#     'django.contrib.auth.middleware.AuthenticationMiddleware',
-#     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
-#     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-#     'django.middleware.locale.LocaleMiddleware',
-#
-#     'creme.creme_core.middleware.global_info.GlobalInfoMiddleware',
-#     'creme.creme_core.middleware.timezone.TimezoneMiddleware',
-# ]
 MIDDLEWARE = [
     'mediagenerator.middleware.MediaMiddleware',  # Must be the first
 
     'creme.creme_core.middleware.exceptions.Ajax500Middleware',  # It must be last middleware that catches all exceptions
     'creme.creme_core.middleware.exceptions.Ajax404Middleware',
-    # 'creme.creme_core.middleware.exceptions.Beautiful403Middleware',
     'creme.creme_core.middleware.exceptions.Ajax403Middleware',
     'creme.creme_core.middleware.exceptions.Beautiful409Middleware',
 
@@ -353,7 +330,7 @@ EMAIL_HOST_PASSWORD = ''
 EMAIL_USE_TLS       = False
 # EMAIL_PORT         = 1025 # Default value in django/conf/global_settings.py
 
-# Tip: _developpement_ SMTP server
+# Tip: _development_ SMTP server
 # => python -m smtpd -n -c DebuggingServer localhost:1025
 
 DEFAULT_USER_EMAIL = ''  # Email address used in case the user doesn't have filled his one.
@@ -366,13 +343,11 @@ DEFAULT_USER_EMAIL = ''  # Email address used in case the user doesn't have fill
 LOGGING_FORMATTERS = {
     'verbose': {
         '()': 'creme.utils.loggers.CremeFormatter',
-        # 'format': '%(asctime)s %(levelname)-7s [%(modulepath)s:%(lineno)d] - %(name)s : %(message)s',  # Creme 1.7's format
         'format': '[%(asctime)s] %(levelname)-7s (%(modulepath)s:%(lineno)d) %(name)s : %(message)s',
         'datefmt': '%Y-%m-%d %H:%M:%S',
     },
     'simple': {
         '()': 'creme.utils.loggers.CremeFormatter',
-        # 'format': '%(asctime)s [%(colored_levelname)s] - %(name)s : %(message)s',  # Creme 1.7's format
         'format': '[%(asctime)s] %(colored_levelname)s - %(name)s : %(message)s',
         'datefmt': '%Y-%m-%d %H:%M:%S',
     },
@@ -425,7 +400,6 @@ LOGGING_DEFAULT_LOGGER = {
 
 LOGGING = {
     'version': 1,
-    # 'disable_existing_loggers': True,
     'disable_existing_loggers': False,
     'formatters': LOGGING_FORMATTERS,
     'filters': LOGGING_FILTERS,
@@ -493,7 +467,6 @@ REPOSITORY = 'https://bitbucket.org/hybird/creme_crm/src/'
 
 # GUI [END]#####################################################################
 
-
 # MEDIA GENERATOR & THEME SETTINGS #############################################
 # http://www.allbuttonspressed.com/projects/django-mediagenerator
 
@@ -510,7 +483,6 @@ THEMES = [
     ('icecream',  _('Ice cream')),
     ('chantilly', _('Chantilly')),
 ]
-# DEFAULT_THEME = 'icecream'
 
 CSS_DEFAULT_LISTVIEW = 'left_align'
 CSS_NUMBER_LISTVIEW = 'right_align'
@@ -695,8 +667,6 @@ CREME_CORE_JS = ['main.js',
 
                     'creme_core/js/menu.js',
                     'creme_core/js/search.js',
-                    # 'creme_core/js/blocks.js',  # TODO: delete the file in Creme 2.0
-
                     'creme_core/js/bricks.js',
 
                     'creme_core/js/list_view.core.js',
@@ -716,8 +686,6 @@ CREME_OPTLIB_JS = [
 
 CREME_OPT_JS = [  # OPTIONAL APPS
     ('creme.persons',       'persons/js/persons.js'),
-
-    # ('creme.assistants',    'assistants/js/assistants.js'),   TODO: remove in 2.0
 
     ('creme.activities',    'activities/js/activities.js'),
 
@@ -832,7 +800,6 @@ COPY_MEDIA_FILETYPES = {
 }
 
 # MEDIA GENERATOR & THEME SETTINGS [END] #######################################
-
 
 # APPS CONFIGURATION ###########################################################
 
@@ -994,8 +961,6 @@ CREME_GET_EMAIL_SSL_CERTFILE = ''  # PEM formatted certificate chain file (only 
 # The contained files are used to create entity (ex: the input 'ini' used .ini files) ; used files are deleted.
 CRUDITY_FILESYS_FETCHER_DIR = ''
 
-# CREME_GET_EMAIL_JOB_USER_ID = 1
-
 # CRUDITY_BACKENDS configures the backends (it's a list of dict)
 # Here a template of a crudity backend configuration:
 #CRUDITY_BACKENDS = [
@@ -1131,4 +1096,3 @@ if exists(_LOCALE_OVERLOAD):
     LOCALE_PATHS.append(_LOCALE_OVERLOAD)
 
 INSTALLED_APPS = INSTALLED_DJANGO_APPS + INSTALLED_CREME_APPS
-

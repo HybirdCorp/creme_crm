@@ -61,7 +61,6 @@ class CrudityBackend(object):
     body_map    = {}    # Mapping email body's key <==> model's key, value in the dict is the default value
     limit_froms = ()    # If "recipient" doesn't the backend policy
     subject     = u''   # Matched subject
-    # blocks      = ()    # Blocks classes
     brick_classes = (WaitingActionsBrick,)   # Bricks classes
 
     def __init__(self, config, crud_input=None, *args, **kwargs):
@@ -88,7 +87,6 @@ class CrudityBackend(object):
 
     @property
     def is_configured(self):
-        # return all([self.subject, self.body_map, self.model])
         return bool(self.subject and self.body_map and self.model)
 
     def _check_configuration(self):
@@ -111,7 +109,6 @@ class CrudityBackend(object):
     @property
     def is_sandbox_by_user(self):
         if self._sandbox_by_user is None:
-            # self._sandbox_by_user = SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER, user=None).value
             self._sandbox_by_user = SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER).value
 
         return self._sandbox_by_user
@@ -146,7 +143,6 @@ class CrudityBackend(object):
                 continue
 
             if issubclass(field.__class__, ManyToManyField):  # TODO: isinstance(field, ManyToManyField) ...
-                # setattr(instance, field_name, field.rel.to._default_manager.filter(pk__in=field_value.split()))
                 getattr(instance, field_name).set(field.remote_field.model._default_manager.filter(pk__in=field_value.split()))
 
         return need_new_save
@@ -186,7 +182,6 @@ class CrudityBackend(object):
                     elif isinstance(field, BooleanField) and isinstance(field_value, basestring):
                         data[field_name] = field_value = field.to_python(field_value.strip()[0:1].lower()) #Trick to obtain 't'/'f' or '1'/'0'
 
-                    # elif isinstance(field, ForeignKey) and issubclass(field.rel.to, Document):
                     elif isinstance(field, ForeignKey) and issubclass(field.remote_field.model, Document):
                         filename, blob = field_value  # Should be pre-processed by the input
                         upload_path = Document._meta.get_field('filedata').upload_to.split('/')
@@ -255,15 +250,7 @@ class CrudityBackend(object):
 
         return is_created, instance
 
-    # def add_buttons(self, *buttons):
-    #     self.buttons.extend(buttons)
-
     def get_id(self):
         subject = self.subject
         return self.fetcher_name if subject == '*' else \
                '%s|%s|%s' % (self.fetcher_name, self.input_name, self.subject)
-
-    # def get_rendered_buttons(self):
-    #     return [button.render({'backend': self})
-    #                 for button in self.buttons if self.is_configured
-    #            ]

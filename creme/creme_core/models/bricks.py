@@ -54,7 +54,6 @@ class BlockDetailviewLocation(CremeModel):
     role         = ForeignKey(UserRole, verbose_name=_(u'Related role'), null=True, default=None, on_delete=CASCADE)
     # TODO: a UserRole for superusers instead ??
     superuser    = BooleanField(u'related to superusers', default=False, editable=False)
-    # block_id     = CharField(max_length=100)
     brick_id     = CharField(max_length=100)
     order        = PositiveIntegerField()
     zone         = PositiveSmallIntegerField()
@@ -128,17 +127,7 @@ class BlockDetailviewLocation(CremeModel):
     def create_4_model_brick(order, zone, model=None, role=None):
         return BlockDetailviewLocation.create_if_needed(brick_id=MODELBLOCK_ID, order=order, zone=zone, model=model, role=role)
 
-    # @staticmethod
-    # def create_4_model_block(order, zone, model=None, role=None):
-    #     warnings.warn('BlockDetailviewLocation.create_4_model_block() is deprecated ; '
-    #                   'use create_4_model_brick() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     return BlockDetailviewLocation.create(MODELBLOCK_ID, order, zone, model, role)
-
     @staticmethod
-    # def id_is_4_model(block_id):
     def id_is_4_model(brick_id):
         return brick_id == MODELBLOCK_ID
 
@@ -164,7 +153,6 @@ class BlockDetailviewLocation(CremeModel):
 
 class BlockPortalLocation(CremeModel):
     app_name = CharField(max_length=40)
-    # block_id = CharField(max_length=100)
     brick_id = CharField(max_length=100)
     order    = PositiveIntegerField()
 
@@ -206,13 +194,6 @@ class BlockPortalLocation(CremeModel):
         if not BlockPortalLocation.objects.filter(app_name=app_name).exists():
             BlockPortalLocation.objects.create(app_name=app_name, brick_id='', order=1)
 
-    # @property
-    # def block_verbose_name(self):
-    #     warnings.warn('BlockPortalLocation.block_verbose_name is deprecated ; use brick_verbose_name instead.',
-    #                   DeprecationWarning
-    #                  )
-    #     return self.brick_verbose_name
-
     @property
     def brick_verbose_name(self):
         from ..gui.bricks import brick_registry
@@ -223,7 +204,6 @@ class BlockPortalLocation(CremeModel):
 # TODO: merge with BlockPortalLocation when portals have been removed ?
 class BlockMypageLocation(CremeModel):
     user     = ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=CASCADE)
-    # block_id = CharField(max_length=100)
     brick_id = CharField(max_length=100)
     order    = PositiveIntegerField()
 
@@ -270,16 +250,6 @@ class BlockMypageLocation(CremeModel):
 
         return loc
 
-    # @property
-    # def block_verbose_name(self):
-    #     warnings.warn('BlockMypageLocation.block_verbose_name is deprecated ; use brick_verbose_name instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     from creme.creme_core.gui.bricks import brick_registry
-    #
-    #     return brick_registry.get_blocks((self.block_id,))[0].verbose_name
-
     # TODO: factorise ?
     @property
     def brick_verbose_name(self):
@@ -296,10 +266,8 @@ post_save.connect(BlockMypageLocation._copy_default_config, sender=settings.AUTH
 class RelationBlockItem(CremeModel):
     # TODO: 'brick_id' not really useful (can be dynamically generated with the RelationType)
     #        + in the 'brick_id': 1)remove the app_name  2)"specificblock_" => "rtypebrick_" (need data migration)
-    # block_id       = CharField(_(u"Block ID"), max_length=100, editable=False)
     brick_id       = CharField(_(u'Block ID'), max_length=100, editable=False)
     relation_type  = OneToOneField(RelationType, verbose_name=_(u'Related type of relationship'), on_delete=CASCADE)
-    # json_cells_map = TextField(editable=False, null=True)
     json_cells_map = TextField(editable=False, default='{}')  # TODO: JSONField
 
     _cells_map = None
@@ -316,11 +284,9 @@ class RelationBlockItem(CremeModel):
     def __unicode__(self):  # NB: useful for creme_config titles
         return self.relation_type.predicate
 
-    # def delete(self, using=None):
     def delete(self, *args, **kwargs):
         BlockDetailviewLocation.objects.filter(brick_id=self.brick_id).delete()
 
-        # super(RelationBlockItem, self).delete(using=using)
         super(RelationBlockItem, self).delete(*args, **kwargs)
 
     @property
@@ -401,13 +367,11 @@ class RelationBlockItem(CremeModel):
 
 
 class InstanceBlockConfigItem(CremeModel):
-    # block_id = CharField(_(u'Brick ID'), max_length=300, blank=False, null=False, editable=False)
     brick_id = CharField(_(u'Brick ID'), max_length=300, blank=False, null=False, editable=False)
     entity   = ForeignKey(CremeEntity, verbose_name=_(u'Block related entity'), on_delete=CASCADE)
     data     = TextField(blank=True, null=True)
     verbose  = CharField(_(u'Verbose'), max_length=200, blank=True, null=True)  # TODO: remove
 
-    # _block = None
     _brick = None
 
     class Meta:
@@ -426,14 +390,6 @@ class InstanceBlockConfigItem(CremeModel):
         # super(InstanceBlockConfigItem, self).delete(using=using)
         super(InstanceBlockConfigItem, self).delete(*args, **kwargs)
 
-    # @property
-    # def block(self):
-    #     warnings.warn('InstanceBlockConfigItem.block is deprecated ; use "brick" instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     return self.brick
-
     @property
     def brick(self):
         brick = self._brick
@@ -449,7 +405,6 @@ class InstanceBlockConfigItem(CremeModel):
         return getattr(self.brick, 'errors', None)
 
     @staticmethod
-    # def id_is_specific(block_id):
     def id_is_specific(brick_id):
         return brick_id.startswith(u'instanceblock_')
 
@@ -458,7 +413,6 @@ class InstanceBlockConfigItem(CremeModel):
         return u'instanceblock_%s-%s' % (app_name, name)
 
     @staticmethod
-    # def generate_id(block_class, entity, key):
     def generate_id(brick_class, entity, key):
         """@param key: String that allows to make the difference between 2 instances
                        of the same Block class and the same CremeEntity instance.
@@ -468,11 +422,9 @@ class InstanceBlockConfigItem(CremeModel):
                              'forbidden character in key "%s"' % key
                             )
 
-        # return u'%s|%s-%s' % (block_class.id_, entity.id, key)
         return u'%s|%s-%s' % (brick_class.id_, entity.id, key)
 
     @staticmethod
-    # def get_base_id(block_id):
     def get_base_id(brick_id):
         return brick_id.split('|', 1)[0]
 
@@ -481,7 +433,6 @@ class CustomBlockConfigItem(CremeModel):
     id           = CharField(primary_key=True, max_length=100, editable=False)
     content_type = CTypeForeignKey(verbose_name=_(u'Related type'), editable=False)
     name         = CharField(_(u'Name'), max_length=200)
-    # json_cells   = TextField(editable=False, null=True)
     json_cells   = TextField(editable=False, default='[]')  # TODO: JSONField
 
     _cells = None
@@ -497,25 +448,15 @@ class CustomBlockConfigItem(CremeModel):
     def __unicode__(self):
         return self.name
 
-    # def delete(self, using=None):
     def delete(self, *args, **kwargs):
         brick_id = self.generate_id()
         BlockDetailviewLocation.objects.filter(brick_id=brick_id).delete()
         BlockState.objects.filter(brick_id=brick_id).delete()
 
-        # super(CustomBlockConfigItem, self).delete(using=using)
         super(CustomBlockConfigItem, self).delete(*args, **kwargs)
 
     def generate_id(self):
         return 'customblock-%s' % self.id
-
-    # @staticmethod
-    # def id_from_block_id(block_id):
-    #     warnings.warn('CustomBlockConfigItem.id_from_block_id() is deprecated ; use id_from_brick_id() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     return CustomBlockConfigItem.id_from_brick_id(block_id)
 
     @staticmethod
     def id_from_brick_id(brick_id):
@@ -565,7 +506,6 @@ class CustomBlockConfigItem(CremeModel):
 
 class BlockState(CremeModel):
     user              = ForeignKey(settings.AUTH_USER_MODEL, on_delete=CASCADE)
-    # block_id          = CharField(_(u"Block ID"), max_length=100)
     brick_id          = CharField(_(u"Block ID"), max_length=100)
     is_open           = BooleanField(default=True)  # Is brick has to appear as opened or closed
     show_empty_fields = BooleanField(default=True)  # Are empty fields in brick have to be shown or not
@@ -573,13 +513,6 @@ class BlockState(CremeModel):
     class Meta:
         app_label = 'creme_core'
         unique_together = ('user', 'brick_id')
-
-    # @staticmethod
-    # def get_for_block_id(block_id, user):
-    #     warnings.warn('BlockState.get_for_block_id() is deprecated ; use get_for_brick_id() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #     return BlockState.get_for_brick_id(block_id, user)
 
     @staticmethod
     def get_for_brick_id(brick_id, user):
@@ -598,13 +531,6 @@ class BlockState(CremeModel):
                               is_open=states[SETTING_BRICK_DEFAULT_STATE_IS_OPEN],
                               show_empty_fields=states[SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS],
                              )
-
-    # @staticmethod
-    # def get_for_block_ids(block_ids, user):
-    #     warnings.warn('BlockState.get_for_block_ids() is deprecated ; use get_for_brick_ids() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #     return BlockState.get_for_brick_ids(block_ids, user)
 
     @staticmethod
     def get_for_brick_ids(brick_ids, user):
@@ -631,20 +557,3 @@ class BlockState(CremeModel):
             states[brick_id] = block_state(brick_id=brick_id)
 
         return states
-
-    # @property
-    # def classes(self):
-    #     """Generate CSS classes for current state"""
-    #     warnings.warn('BlockState.classes is deprecated ; '
-    #                   'use the templatetag creme_bricks.brick_state_classes instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     classes = []
-    #     if not self.is_open:
-    #         classes.append('collapsed')
-    #
-    #     if not self.show_empty_fields:
-    #         classes.append('hide_empty_fields')
-    #
-    #     return ' '.join(classes)

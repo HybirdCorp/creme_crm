@@ -17,44 +17,13 @@
 *******************************************************************************/
 
 /*
- * Requires : creme, jQuery, creme.blocks, creme.bricks
+ * Requires : creme, jQuery, creme.bricks
  */
 
 (function($) {
 "use strict";
 
 creme.emails = {};
-
-//creme.emails.confirmResend = function(message, resend_url, ids, block_url) {
-//    console.warn('creme.emails.confirmResend() is deprecated ; use an action with the url "emails__resend_emails" instead.');
-//    return creme.blocks.confirmPOSTQuery(resend_url,
-//                                         {blockReloadUrl: block_url,
-//                                          messageOnSuccess: gettext('Process done'),
-//                                          confirm: message
-//                                         },
-//                                         {ids: ids}
-//                                        )
-//                       .start();
-//};
-
-//creme.emails.resend = function(resend_url, ids, block_url) {
-//    console.warn('creme.emails.resend() is deprecated ; use an action with the url "emails__resend_emails" instead.');
-//
-//    return creme.blocks.ajaxPOSTQuery(resend_url,
-//                                      {blockReloadUrl: block_url,
-//                                       messageOnSuccess: gettext('Process done')
-//                                      })
-//                       .data({ids: ids})
-//                       .start();
-//};
-
-//creme.emails.allowExternalImages = function(block_id) {
-//    console.warn('creme.emails.allowExternalImages() is deprecated ; use the action "email-toggle-images" instead.');
-//
-//    var iframe = $('#' + block_id).find('iframe');
-//    iframe.attr('src', iframe.attr('src') + '?external_img=on');
-//};
-
 
 (function() {
     var emptySelectionAction = function(message) {

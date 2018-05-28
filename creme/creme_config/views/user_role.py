@@ -32,10 +32,10 @@ from creme.creme_core.auth.decorators import login_required, superuser_required,
 from creme.creme_core.models import UserRole, SetCredentials
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views.decorators import POST_only
-from creme.creme_core.views.generic import add_model_with_popup, inner_popup  # edit_model_with_popup
+from creme.creme_core.views.generic import add_model_with_popup, inner_popup
 from creme.creme_core.views.generic.wizard import PopupWizardMixin
 
-from ..forms.user_role import AddCredentialsForm, EditCredentialsForm, UserRoleDeleteForm  # UserRoleCreateForm, UserRoleEditForm
+from ..forms.user_role import AddCredentialsForm, EditCredentialsForm, UserRoleDeleteForm
 from ..forms import user_role as user_role_forms
 from .portal import _config_portal
 
@@ -44,18 +44,6 @@ from .portal import _config_portal
 def portal(request):
     return _config_portal(request, 'creme_config/user_role_portal.html')
 
-
-# @login_required
-# @superuser_required
-# def add(request):
-#     warnings.warn("creme_config/role/add/ is now deprecated. "
-#                   "Use creme_config/role/wizard view instead.",
-#                   DeprecationWarning
-#                  )
-#
-#     return add_model_with_popup(request, UserRoleCreateForm, _(u'New role'),
-#                                 submit_label=UserRole.save_label,
-#                                )
 
 
 class UserRoleCreationWizard(PopupWizardMixin, SessionWizardView):
@@ -155,17 +143,6 @@ class UserRoleEditionWizard(PopupWizardMixin, SessionWizardView):
             kwargs['allowed_app_names'] = self.get_cleaned_data_for_step('0')['allowed_apps']
 
         return kwargs
-
-
-# @login_required
-# @superuser_required
-# def edit(request, role_id):
-#     warnings.warn("creme_config/role/edit/{{role.id}} is now deprecated. "
-#                   "Use creme_config/role/wizard/{{role.id}} view instead.",
-#                   DeprecationWarning
-#                  )
-#
-#     return edit_model_with_popup(request, {'pk': role_id}, UserRole, UserRoleEditForm)
 
 
 @login_required

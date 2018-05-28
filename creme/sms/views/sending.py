@@ -118,25 +118,6 @@ def delete_message(request):
     return redirect(campaign)
 
 
-# @jsonify
-# @login_required
-# @permission_required('sms')
-# def reload_block_messages(request, id):
-#     warnings.warn('sms.views.sending.reload_block_messages() is deprecated ; use reload_messages_brick() instead.',
-#                   DeprecationWarning
-#                  )
-#
-#     from creme.creme_core.views import blocks
-#
-#     sending = get_object_or_404(Sending, id=id)
-#     request.user.has_perm_to_view_or_die(sending.campaign)
-#
-#     context = blocks.build_context(request, object=sending)
-#     block = MessagesBrick()
-#
-#     return [(block.id_, block.detailview_display(context))]
-
-
 @login_required
 @permission_required('sms')
 @jsonify

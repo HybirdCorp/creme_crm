@@ -196,28 +196,16 @@ def add_relations(request, subject_id, rtype_id=None):
 
 # TODO: Factorise with add_properties_bulk and bulk_update?
 @login_required
-# def add_relations_bulk(request, model_ct_id, relations_types=None):
 def add_relations_bulk(request, model_ct_id):
     rtype_ids = None
 
-    # if relations_types is not None:
-    #     warnings.warn('creme_core.views.relation.add_relations_bulk(): '
-    #                   'the URL argument "relations_types" is deprecated ; '
-    #                   'use the GET parameter "rtype" instead.',
-    #                   DeprecationWarning
-    #                  )
-    #     rtype_ids = [rt for rt in relations_types.split(',') if rt]
-    # else:
-    #     if request.method == 'GET':
-    #         rtype_ids = request.GET.getlist('rtype') or None
     if request.method == 'GET':
         rtype_ids = request.GET.getlist('rtype') or None
 
     user = request.user
     model = utils.get_ct_or_404(model_ct_id).model_class()
 
-    # TODO: rename 'ids' -> 'entity' ?
-    # entities = get_list_or_404(model, pk__in=request.POST.getlist('ids') or request.GET.getlist('ids'))
+    # TODO: rename 'ids' -> 'entity/id' ?
     entities = get_list_or_404(model,
                                pk__in=request.POST.getlist('ids') if request.method == 'POST' else
                                       request.GET.getlist('ids'),
@@ -331,47 +319,6 @@ def delete_all(request):  # TODO: deprecate ?
 
     # return HttpResponse(message, content_type='text/javascript', status=status)
     return HttpResponse(message, status=status)
-
-
-# @login_required
-# def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=False, *args, **kwargs):
-#     """Display an inner popup to select entities to link as relations' objects.
-#     @param rtype_id RelationType id of the future relations.
-#     @param subject_id Id of the entity used as subject for relations.
-#     @param object_ct_id Id of the ContentType of the future relations' objects.
-#     @param o2m One-To-Many ; if false, it seems Many-To-Many => multi selection.
-#     """
-#     warnings.warn('creme_core.views.relation.objects_to_link_selection() is deprecated ; '
-#                   'use creme_core.views.select_relations_objects() instead.',
-#                   DeprecationWarning
-#                  )
-#
-#     subject = get_object_or_404(CremeEntity, pk=subject_id)
-#     request.user.has_perm_to_link_or_die(subject)
-#
-#     rtype = get_object_or_404(RelationType, pk=rtype_id)
-#     rtype.is_not_internal_or_die()
-#
-#     # TODO: filter with relation creds too
-#     # NB: list() because the serialization of sub-QuerySet does not work with the JSON session
-#     extra_q = ~Q(pk__in=list(CremeEntity.objects
-#                                         .filter(relations__type=rtype.symmetric_type_id,
-#                                                 relations__object_entity=subject_id,
-#                                                )
-#                                         .values_list('id', flat=True)
-#                             )
-#                 )
-#
-#     prop_types = list(rtype.object_properties.all())
-#     if prop_types:
-#         extra_q &= Q(properties__type__in=prop_types)
-#
-#     # TODO: seems unused
-#     extra_q_kw = kwargs.get('extra_q')
-#     if extra_q_kw is not None:
-#         extra_q &= extra_q_kw
-#
-#     return listview.list_view_popup_from_widget(request, object_ct_id, o2m, extra_q=extra_q)
 
 
 @login_required

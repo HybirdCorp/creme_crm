@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime, timedelta
-# from os import remove as delete_file, listdir, makedirs
-# from os import path as os_path
 from unittest import skipIf
 from unittest.util import safe_repr
 import warnings
 
 from django.test import TestCase, TransactionTestCase
 from django.apps import apps
-# from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.management import call_command
 from django.db.models.query_utils import Q
@@ -48,34 +45,13 @@ class _AssertNoExceptionContext(object):
 
 
 class _CremeTestCase(object):
-    # clean_files_in_teardown = True  # REMOVED
-
     @classmethod
     def setUpClass(cls):
-        # cls.documents_dir = documents_dir = os_path.join(settings.MEDIA_ROOT,
-        #                                                  'upload',
-        #                                                  'documents',
-        #                                                 )
-        #
-        # if os_path.exists(documents_dir):
-        #     cls.existing_doc_files = set(listdir(documents_dir))
-        # else:
-        #     makedirs(documents_dir, 0755)
-        #     cls.existing_doc_files = set()
-
         warnings.filterwarnings('error', r"(.)* received a naive datetime (.)*",
                                 RuntimeWarning, r'django\.db\.models\.fields',
                                )
 
     def tearDown(self):
-        # if getattr(self, 'clean_files_in_teardown', False):
-        #     existing_files = self.existing_doc_files
-        #     dir_path = self.documents_dir
-        #
-        #     for filename in listdir(dir_path):
-        #         if filename not in existing_files:
-        #             delete_file(os_path.join(dir_path, filename))
-
         clear_global_info()
 
     def login(self, is_superuser=True, is_staff=False, allowed_apps=('creme_core',),
@@ -96,7 +72,6 @@ class _CremeTestCase(object):
         role.save()
 
         if creatable_models is not None:
-            # role.creatable_ctypes = [ContentType.objects.get_for_model(model) for model in creatable_models]
             get_ct = ContentType.objects.get_for_model
             role.creatable_ctypes.set([get_ct(model) for model in creatable_models])
 
@@ -115,15 +90,6 @@ class _CremeTestCase(object):
         self.assertTrue(logged, 'Not logged in')
 
         return self.user
-
-    # @classmethod
-    # def populate(cls, *args):
-    #     warnings.warn("_CremeTestCase.populate() method is deprecated, "
-    #                   "because it's useless if you are not in a CremeTransactionTestCase.",
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     PopulateCommand().execute(*args, verbosity=0)
 
     def assertCountOccurrences(self, member, container, count, msg=None):
         """Like self.assertEqual(count, container.count(member),
@@ -466,16 +432,6 @@ class _CremeTestCase(object):
                             ),
                       )
 
-    # @staticmethod
-    # def build_bulkedit_url(entities, fieldname=None):
-    #     args = [ContentType.objects.get_for_model(entities[0]).pk,
-    #             ','.join(str(e.pk) for e in entities),
-    #            ]
-    #     if fieldname:
-    #         args.append(fieldname)
-    #
-    #     return reverse('creme_core__bulk_edit_field_legacy', args=args)
-
     @staticmethod
     def build_bulkupdate_url(model, fieldname=None):
         args = [ContentType.objects.get_for_model(model).id]
@@ -508,5 +464,4 @@ class CremeTransactionTestCase(TransactionTestCase, _CremeTestCase):
 
     @classmethod
     def populate(cls, *args):
-        # PopulateCommand().execute(*args, verbosity=0)
         call_command(PopulateCommand(), verbosity=0)

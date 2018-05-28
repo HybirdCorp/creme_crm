@@ -20,7 +20,7 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
-from django.utils.translation import ugettext_lazy as _, ugettext  # ngettext
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.gui.bricks import QuerysetBrick
 from creme.creme_core.models import SettingValue
@@ -75,7 +75,8 @@ class WaitingActionsBrick(CrudityQuerysetBrick):
             waiting_actions = waiting_actions.filter(user=context['user'])
 
         crud_input = backend.crud_input
-        btc = self.get_template_context(
+
+        return self._render(self.get_template_context(
                     context,
                     waiting_actions,
                     waiting_ct=ct,
@@ -83,23 +84,7 @@ class WaitingActionsBrick(CrudityQuerysetBrick):
                     extra_header_actions=(action.render(backend=backend) for action in crud_input.brickheader_actions)
                                          if crud_input else
                                          (),
-        )
-        # count = btc['page'].paginator.count
-        #
-        # if count:
-        #     title = ngettext(u'{count} Waiting action - {ctype} - {source}',
-        #                      u'{count} Waiting actions - {ctype} - {source}',
-        #                      count
-        #                     ).format(count=count,
-        #                              ctype=ct,
-        #                              source=backend.verbose_source,
-        #                             )
-        # else:
-        #     title = ugettext(u'Waiting actions - {ctype} - {source}').format(ctype=ct, source=backend.verbose_source)
-        #
-        # btc['title'] = title
-
-        return self._render(btc)
+        ))
 
 
 class CrudityHistoryBrick(CrudityQuerysetBrick):
@@ -126,17 +111,4 @@ class CrudityHistoryBrick(CrudityQuerysetBrick):
         if self.is_sandbox_by_user:
             histories = histories.filter(user=context['user'])
 
-        btc = self.get_template_context(context, histories, ct=ct)
-        # count = btc['page'].paginator.count
-        #
-        # if count:
-        #     title = ngettext(u'{count} History item - {ctype}',
-        #                      u'{count} History items - {ctype}',
-        #                      count
-        #                     ).format(count=count, ctype=ct)
-        # else:
-        #     title = ugettext(u'History items - {ctype}').format(ctype=ct)
-        #
-        # btc['title'] = title
-
-        return self._render(btc)
+        return self._render(self.get_template_context(context, histories, ct=ct))

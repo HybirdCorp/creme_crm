@@ -34,19 +34,12 @@ from ..forms.quick import CSVDocumentWidgetQuickForm, ImageQuickForm
 Document = get_document_model()
 
 
-# def abstract_add_doc_from_widget(request, count=None, form=CSVDocumentWidgetQuickForm,
 def abstract_add_doc_from_widget(request, form=CSVDocumentWidgetQuickForm,
                                  template='creme_core/generics/form/add_innerpopup.html',
                                  submit_label=_(u'Save the document'),
                                  title=Document.creation_label,
                                 ):
-    # if count is not None:
-    #     warnings.warn('abstract_add_doc_from_widget(): the argument "count" is deprecated.',
-    #                   DeprecationWarning
-    #                  )
-
     user = request.user
-
     if not user.has_perm_to_create(Document):
         raise PermissionDenied('You are not allowed to create a document')
 
@@ -75,13 +68,7 @@ def abstract_add_doc_from_widget(request, form=CSVDocumentWidgetQuickForm,
 
 
 @login_required
-# def add_csv_from_widget(request, count=None):
 def add_csv_from_widget(request):
-    # if count is not None:
-    #     warnings.warn('add_csv_from_widget(): the argument "count" is deprecated.',
-    #                   DeprecationWarning
-    #                  )
-
     return abstract_add_doc_from_widget(request)
 
 

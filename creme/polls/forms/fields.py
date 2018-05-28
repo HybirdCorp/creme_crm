@@ -35,19 +35,6 @@ class PollFormLineConditionsWidget(SelectorList):
         super(PollFormLineConditionsWidget, self).__init__(selector=None, attrs=attrs)
         self.sources = sources
 
-    # def render(self, name, value, attrs=None):
-    #     self.selector = chained_input = ChainedInput()
-    #
-    #     src_name = 'source'
-    #     add = partial(chained_input.add_dselect, attrs={'auto': False})
-    #     add(src_name, options=self.sources)
-    #     add('choice',
-    #         options=TemplateURLBuilder(line_id=(TemplateURLBuilder.Int, '${%s}' % src_name))
-    #                                   .resolve('polls__form_line_choices')
-    #        )
-    #
-    #     return super(PollFormLineConditionsWidget, self).render(name, value, attrs)
-
     def get_context(self, name, value, attrs):
         self.selector = chained_input = ChainedInput()
 
@@ -80,7 +67,7 @@ class PollFormLineConditionsField(JSONField):
 
     @sources.setter
     def sources(self, sources):
-        "@param sources Sequence of PollFormLines"
+        "@param sources: Sequence of PollFormLines"
         self._sources = valid_sources = [
                 source for source in sources
                         if source.poll_line_type.get_choices()

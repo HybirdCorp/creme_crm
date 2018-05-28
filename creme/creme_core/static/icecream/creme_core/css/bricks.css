@@ -356,10 +356,6 @@ table.table_detail_view + table.table_detail_view {
 
 .brick-table .brick-content:not(.is-empty) .brick-table-content > thead > tr {
     color: #666;
-/*
-    border-bottom: 1px solid #ededed;
-    border-bottom: 1px solid #dedede;
-*/
     background: #fcfcfc;
 }
 
@@ -1257,12 +1253,6 @@ svg.icon {
     padding: 0;
 }
 
-/*
-.creme_core-specific-relations-brick .brick-content .brick-list-item:last-child {
-    padding-bottom: 5px;
-}
-*/
-
 .creme_core-specific-relations-brick .relation-item {
     font-size: 13px;
 }
@@ -1322,108 +1312,6 @@ svg.icon {
     background: #fafafa;
     border-bottom: 1px solid #dedede;
 }
-
-/*
-.creme_core-specific-relations-brick .brick-table .brick-table-content .brick-table-action {
-     display: inline-block;
-     width: 100%;
-    padding: 0px;
-}
-*/
-
-/*
-.creme_core-specific-relations-brick .relation-schedule-beginning {
-    font-weight: 600;
-}
-*/
-
-/*
-.creme_core-specific-relations-brick .relation-type {
-    margin-right: 3px;
-    text-transform: uppercase;
-    font-size: 11px;
-    font-weight: 600;
-}
-*/
-
-/*
-.creme_core-specific-relations-brick .relation-title {
-    font-weight: 600;
-}
-*/
-
-/*
-.creme_core-specific-relations-brick .relation-status {
-    text-transform: uppercase;
-    font-size: 11px;
-    font-weight: 600;
-    color: #333;
-    _color: #FF4136; // red
-    _color: #FF851B; // orange
-}
-*/
-
-/*
-.creme_core-specific-relations-brick .relation-action {
-    margin-left: 15px;
-    padding-left: 5px;
-}
-
-.creme_core-specific-relations-brick .relation-action img {
-    position: relative;
-    top: 3px;
-}
-*/
-
-/*
-.creme_core-specific-relations-brick .relation-warning {
-    color: #FF4136; // red
-    color: #FF851B; // orange
-    cursor: default;
-}
-
-.creme_core-specific-relations-brick .relation-warning .relation-warning-icon {
-    width: 16px;
-    height: 16px;
-
-    margin-top: -2px;
-    position: relative;
-    top: 4px;
-
-    fill: currentColor;
-}
-
-.creme_core-specific-relations-brick .relation-warning-label {
-    display: inline-block;
-
-    margin-left: 3px;
-    padding-top: 2px;
-
-    text-transform: uppercase;
-    font-size: 11px;
-    font-weight: 700;
-}
-*/
-
-/*
-.creme_core-specific-relations-brick .relation-relation {
-    font-weight: 600;
-    color: #333;
-}
-*/
-
-/*
-.creme_core-specific-relations-brick .relation-group .relation-type-icon {
-    width: 14px;
-    height: 14px;
-
-    margin-top: -2px;
-    position: relative;
-    top: 3px;
-
-    fill: #666;
-}
-*/
 
 /* Specific relation brick - end */
 

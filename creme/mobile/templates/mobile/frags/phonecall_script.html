@@ -44,7 +44,7 @@
 
       // Cookie way (page is reload after click on a phone number)
       d.setTime(d.getTime() + 24 * 60 * 60 * 1000);
-{% comment %}      document.cookie = PHONECALL_COOKIE + JSON.stringify(phonecall_data) + "; expires=" + d.toGMTString();{% endcomment %}
+{#      document.cookie = PHONECALL_COOKIE + JSON.stringify(phonecall_data) + "; expires=" + d.toGMTString(); #}
       document.cookie = PHONECALL_COOKIE + JSON.stringify(phonecall_data) + "; expires=" + d.toUTCString();
 
       // Timer way (page is just suspended after click on a phone number)

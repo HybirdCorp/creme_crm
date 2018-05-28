@@ -41,7 +41,7 @@ from ..gui.field_printers import field_printers_registry
 from ..models import CremeEntity, Relation
 from ..utils import safe_unicode, bool_as_html
 from ..utils.currency_format import currency
-from ..utils.media import get_creme_media_url  # get_current_theme
+from ..utils.media import get_creme_media_url
 from ..utils.meta import FieldInfo
 from ..utils.translation import plural
 from ..utils.unicode_collation import collator
@@ -118,7 +118,6 @@ def get_field_verbose_name(model_or_entity, field_name):
 
 
 # TODO: deprecate ?
-# @register.assignment_tag(takes_context=True)
 @register.simple_tag(takes_context=True)
 def get_viewable_fields(context, instance):
     is_hidden = context['fields_configs'].get_4_model(instance.__class__).is_field_hidden
@@ -301,7 +300,6 @@ def get_entity_summary(entity, user):
 
 @register.simple_tag(takes_context=True)
 def get_entity_html_attrs(context, entity):
-    # return u' '.join(u'%s="%s"' % item for item in entity.get_html_attrs(context).iteritems())
     return format_html_join(' ', '{}="{}"', entity.get_html_attrs(context).iteritems())
 
 
@@ -312,13 +310,6 @@ def grouper(value, n):
     return izip_longest(fillvalue=None, *args)
 
 
-# moved to a creme_history.py
-# @register.filter
-# def verbose_modifications(history_line, user):
-#     return history_line.get_verbose_modifications(user)
-
-
-# @register.assignment_tag
 @register.simple_tag
 def url_join(*args, **params):
     """ Add some GET parameters to a URL.
@@ -507,7 +498,6 @@ class HasPermToNode(TemplateNode):
 
 @register.simple_tag(takes_context=True)
 def creme_media_url(context, url):
-    # return get_creme_media_url(context.get('THEME_NAME', 'chantilly'), url)
     return get_creme_media_url(context.get('THEME_NAME') or settings.THEMES[0][0], url)
 
 
@@ -529,12 +519,10 @@ class MediaNode(TemplateNode):
     def render(self, context):
         bundle = self.bundle_var.eval(context)
 
-        # return _render_include_media(get_current_theme() + bundle, variation={})
         return _render_include_media(context['THEME_NAME'] + bundle, variation={})
 
 
 # TODO: creme_backends module ? (wait for list-view rework to see if it's still useful)
-# @register.assignment_tag
 @register.simple_tag
 def get_export_backends():
     return json_dump([[backend.id, unicode(backend.verbose_name)]
@@ -543,13 +531,11 @@ def get_export_backends():
                     )
 
 
-# @register.assignment_tag
 @register.simple_tag
 def get_import_backends():
     return json_dump([[backend.id] for backend in import_backend_registry.iterbackends()])
 
 
-# @register.assignment_tag(name='hg_info')
 @register.simple_tag(name='hg_info')
 def get_hg_info():
     from ..utils.version import get_hg_info

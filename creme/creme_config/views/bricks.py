@@ -29,7 +29,6 @@ from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 from formtools.wizard.views import SessionWizardView
 
 from creme.creme_core.auth.decorators import login_required, permission_required
-# from creme.creme_core.gui import brick_registry
 from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.models import (CremeEntity, UserRole,
     BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
@@ -73,20 +72,6 @@ def add_detailview(request, ct_id):
                                )
 
 
-# @login_required
-# @permission_required('creme_core.can_admin')
-# def add_portal(request):
-#     warnings.warn("creme_config/blocks/portal/add is now deprecated. "
-#                   "Use creme_config/blocks/portal/wizard view instead.",
-#                   DeprecationWarning
-#                  )
-#
-#     return add_model_with_popup(request, bricks.BlockPortalLocationsAddForm,
-#                                 _(u'New blocks configuration'),
-#                                 submit_label=_(u'Save the configuration'),
-#                                )
-
-
 class PortalBricksWizard(PopupWizardMixin, SessionWizardView):
     class _RelationStep(bricks.BlockPortalLocationsAddForm):
         step_submit_label = pgettext_lazy('creme_config-verb', u'Select')
@@ -106,10 +91,7 @@ class PortalBricksWizard(PopupWizardMixin, SessionWizardView):
         return super(PortalBricksWizard, self).dispatch(*args, **kwargs)
 
     def done(self, form_list, **kwargs):
-        conf_step = form_list[1]
-
-        # with atomic():
-        conf_step.save()
+        form_list[1].save()
 
         # return HttpResponse(content_type='text/javascript')
         return HttpResponse()
@@ -132,20 +114,6 @@ def create_rtype_brick(request):
                                 title=_(u'New type of block'),
                                 submit_label=_(u'Save the block'),
                                )
-
-
-# @login_required
-# @permission_required('creme_core.can_admin')
-# def add_custom_block(request):
-#     warnings.warn("creme_config/blocks/custom/add is now deprecated. "
-#                   "Use creme_config/blocks/custom/wizard view instead.",
-#                   DeprecationWarning
-#                  )
-#
-#     return add_model_with_popup(request, bricks.CustomBrickConfigItemCreateForm,
-#                                 _(u'New custom block'),
-#                                 submit_label=_(u'Save the block'),
-#                                )
 
 
 class CustomBrickWizard(PopupWizardMixin, SessionWizardView):
@@ -329,22 +297,6 @@ def edit_default_mypage(request):
 @login_required
 def edit_mypage(request):
     return _edit_mypage(request, _(u'Edit "My page"'), user=request.user)
-
-
-# @login_required
-# @permission_required('creme_core.can_admin')
-# def add_ctypes_2_relation_block(request, rbi_id):
-#     warnings.warn("creme_config/blocks/relation_block/add_ctypes/{{rbi_id}} is now deprecated. "
-#                   "Use creme_config/blocks/relation_block/{{rbi_id}}/wizard view instead.",
-#                   DeprecationWarning
-#                  )
-#
-#     from ..forms.blocks import RelationBlockItemAddCtypesForm
-#
-#     return edit_model_with_popup(request, {'id': rbi_id}, RelationBlockItem,
-#                                  RelationBlockItemAddCtypesForm,
-#                                  ugettext(u'New customised types for «%s»'),
-#                                 )
 
 
 class RelationCTypeBrickWizard(PopupWizardMixin, SessionWizardView):

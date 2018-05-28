@@ -47,68 +47,6 @@ def EmptyMultipleChoiceField(required=False, *args, **kwargs):
     return MultipleChoiceField(required=required, choices=(), *args, **kwargs)
 
 
-# class UserRoleCreateForm(CremeModelForm):
-#     creatable_ctypes  = MultiEntityCTypeChoiceField(label=_(u'Creatable resources'), required=False)
-#     exportable_ctypes = MultiEntityCTypeChoiceField(label=_(u'Exportable resources'), required=False)
-#     allowed_apps      = EmptyMultipleChoiceField(label=_(u'Allowed applications'))
-#     admin_4_apps      = EmptyMultipleChoiceField(label=_(u'Administrated applications'))
-#
-#     class Meta:
-#         model = UserRole
-#         exclude = ('raw_allowed_apps', 'raw_admin_4_apps')
-#
-#     def __init__(self, *args, **kwargs):
-#         warnings.warn("UserRoleCreateForm is now deprecated. Use the wizard instead",
-#                       DeprecationWarning
-#                      )
-#
-#         super(UserRoleCreateForm, self).__init__(*args, **kwargs)
-#         fields = self.fields
-#
-#         def app_choices(apps):
-#             sort_key = collator.sort_key
-#
-#             return sorted(((app.label, unicode(app.verbose_name)) for app in apps),
-#                           key=lambda t: sort_key(t[1])
-#                          )
-#
-#         CRED_REGULAR = CremeAppConfig.CRED_REGULAR
-#         fields['allowed_apps'].choices = app_choices(app for app in creme_app_configs()
-#                                                        if app.credentials & CRED_REGULAR
-#                                                     )
-#         CRED_ADMIN = CremeAppConfig.CRED_ADMIN
-#         fields['admin_4_apps'].choices = app_choices(app for app in creme_app_configs()
-#                                                        if app.credentials & CRED_ADMIN
-#                                                     )
-#
-#     @staticmethod
-#     def app_choices(apps):
-#         sort_key = collator.sort_key
-#
-#         return sorted(((app.name, unicode(app.verbose_name)) for app in apps),
-#                       key=lambda t: sort_key(t[1])
-#                      )
-#
-#     def save(self, *args, **kwargs):
-#         instance = self.instance
-#         cleaned  = self.cleaned_data
-#
-#         instance.allowed_apps = cleaned['allowed_apps']
-#         instance.admin_4_apps = cleaned['admin_4_apps']
-#
-#         return super(UserRoleCreateForm, self).save(*args, **kwargs)
-
-
-# class UserRoleEditForm(UserRoleCreateForm):
-#     def __init__(self, *args, **kwargs):
-#         super(UserRoleEditForm, self).__init__(*args, **kwargs)
-#         fields = self.fields
-#         role = self.instance
-#
-#         fields['allowed_apps'].initial = role.allowed_apps
-#         fields['admin_4_apps'].initial = role.admin_4_apps
-
-
 class EditCredentialsForm(CremeModelForm):
     can_view   = BooleanField(label=_(u'Can view'),   required=False)
     can_change = BooleanField(label=_(u'Can change'), required=False)
@@ -290,7 +228,6 @@ class UserRoleCreatableCTypesStep(_UserRoleWizardFormStep):
 
     def save(self, *args, **kwargs):
         # Optimisation: we only save the M2M
-        # self.instance.creatable_ctypes = self.cleaned_data['creatable_ctypes']
         self.instance.creatable_ctypes.set(self.cleaned_data['creatable_ctypes'])
 
 
@@ -310,7 +247,6 @@ class UserRoleExportableCTypesStep(_UserRoleWizardFormStep):
 
     def save(self, *args, **kwargs):
         # Optimisation: we only save the M2M
-        # self.instance.exportable_ctypes = self.cleaned_data['exportable_ctypes']
         self.instance.exportable_ctypes.set(self.cleaned_data['exportable_ctypes'])
 
 

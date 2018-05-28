@@ -1,6 +1,0 @@
-{% load i18n creme_core_tags creme_widgets %}
-{# No particular permission is required, the view already check if user has perm to access to the view #}
-<a class="download" href="{% url 'crudity__dl_email_template' backend.subject %}">
-    {% widget_icon name='download' size='brick-header-action' label=_('Download') %}
-    {% blocktrans with backend.model|get_meta_value:'verbose_name' as verbose_name %}Email template for «{{verbose_name}}»{% endblocktrans %}
-</a>

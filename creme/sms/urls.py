@@ -24,11 +24,11 @@ urlpatterns = [
     url(r'^campaign/sending/(?P<id>\d+)/messages/send[/]?$',   sending.send_messages,         name='sms__send_messages'),
     url(r'^campaign/sending/(?P<id>\d+)/messages/reload[/]?$', sending.reload_messages_brick, name='sms__reload_messages_brick'),
 
-    # MessagingList list: recipients block
+    # MessagingList list: recipients brick
     url(r'^messaging_list/(?P<mlist_id>\d+)/recipient/add[/]?$',     recipient.add,          name='sms__add_recipients'),
     url(r'^messaging_list/(?P<mlist_id>\d+)/recipient/add_csv[/]?$', recipient.add_from_csv, name='sms__add_recipients_from_csv'),
 
-    # MessagingList list: contacts block
+    # MessagingList list: contacts brick
     url(r'^messaging_list/(?P<mlist_id>\d+)/contact/add[/]?$',             messaging_list.add_contacts,             name='sms__add_contacts_to_mlist'),
     url(r'^messaging_list/(?P<mlist_id>\d+)/contact/add_from_filter[/]?$', messaging_list.add_contacts_from_filter, name='sms__add_contacts_to_mlist_from_filter'),
     url(r'^messaging_list/(?P<mlist_id>\d+)/contact/delete[/]?',           messaging_list.delete_contact,           name='sms__remove_contact_from_mlist'),

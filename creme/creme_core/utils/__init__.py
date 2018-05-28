@@ -178,15 +178,14 @@ def jsonify(func):
         else:
             msg = json_dump(rendered, default=decimal_serializer)
 
-        # return HttpResponse(msg, content_type='text/javascript', status=status)
         return HttpResponse(msg, content_type='application/json', status=status)
 
     return _aux
 
 
 def _get_from_request_or_404(method, method_name, key, cast=None, **kwargs):
-    """@param cast A function that cast the return value,
-                   and raise an Exception if it is not possible (eg: int).
+    """@param cast: A function that cast the return value,
+                    and raise an Exception if it is not possible (eg: int).
     """
     value = method.get(key)
 
@@ -399,13 +398,6 @@ def prefixed_truncate(s, prefix, length):
         raise ValueError('Prefix is too short for this length')
 
     return prefix + s[:rem_len]
-
-
-# def is_testenvironment(request):
-#     warnings.warn("is_testenvironment() function is deprecated ; use settings.TESTS_ON instead",
-#                   DeprecationWarning
-#                  )
-#     return request.META.get('SERVER_NAME') == 'testserver'
 
 
 def safe_unicode(value, encodings=None):

@@ -25,9 +25,6 @@ from django.db.models.fields import FieldDoesNotExist
 from django.db.transaction import atomic
 from django.forms import Field, Widget, Select, CheckboxInput
 from django.forms.models import fields_for_model, model_to_dict
-# from django.forms.utils import flatatt
-# from django.utils.html import escape
-# from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
 from ..gui.merge import merge_form_registry
@@ -41,30 +38,6 @@ logger = logging.getLogger(__name__)
 
 class EntitiesHeaderWidget(Widget):
     template_name = 'creme_core/forms/widgets/merge/headers.html'
-
-    # def render(self, name, value, attrs=None):
-    #     value_1, value_2, value_m = value or ('', '', '')
-    #
-    #     return mark_safe(u'<ul %(attrs)s>'
-    #                          '<li class="li_merge_entity_header1">%(header_1)s</li>'
-    #                          '<li class="li_merge_result_header">%(header_merged)s</li>'
-    #                          '<li class="li_merge_entity_header2">%(header_2)s</li>'
-    #                       '</ul>' % {
-    #                         # 'attrs': flatatt(self.build_attrs(attrs, name=name,
-    #                         #                                   **{'class': 'merge_entity_field ui-layout hbox'}
-    #                         #                                  )
-    #                         #                 ),
-    #                         'attrs': flatatt(self.build_attrs(self.attrs,
-    #                                                           dict(attrs or {}, name=name,
-    #                                                                **{'class': 'merge_entity_field ui-layout hbox'}
-    #                                                               )
-    #                                           )
-    #                          ),
-    #                         'header_1':      escape(value_1),
-    #                         'header_merged': escape(value_m),
-    #                         'header_2':      escape(value_2),
-    #                       }
-    #                     )
 
     def get_context(self, name, value, attrs):
         # TODO: remove 'ui-layout hbox' + improve class 'merge_entity_field' (+ rename 'merge-entity-field')
@@ -84,36 +57,6 @@ class MergeWidget(Widget):
     def __init__(self, original_widget, *args, **kwargs):
         super(MergeWidget, self).__init__(*args, **kwargs)
         self._original_widget = original_widget
-
-    # # def render(self, name, value, attrs=None, choices=()):
-    # def render(self, name, value, attrs=None):
-    #     value_1, value_2, value_m = value or ('', '', '')
-    #     widget = self._original_widget
-    #     render = widget.render
-    #     # todo: improve Wigdets with a 'read_only' param -> each type choose the right html attribute
-    #     ro_attr = 'disabled' if isinstance(widget, (Select, CheckboxInput)) else 'readonly'
-    #     w_id = attrs.get('id') or 'id_%s' % name
-    #
-    #     return mark_safe(u'<ul %(attrs)s>'
-    #                           '<li class="li_merge_entity1">%(input_1)s</li>'
-    #                           '<li class="li_merge_result">%(input_merged)s</li>'
-    #                           '<li class="li_merge_entity2">%(input_2)s</li>'
-    #                       '</ul>' % {
-    #                         'attrs': flatatt(self.build_attrs(attrs, name=name,
-    #                                                           **{'class': 'merge_entity_field ui-layout hbox'}
-    #                                                          )
-    #                                        ),
-    #                         'input_1':      render('%s_1' % name, value_1,
-    #                                                attrs={'id': '%s_1' % w_id, ro_attr: '', 'class': 'merge_entity1'},
-    #                                               ),
-    #                         'input_merged': render('%s_merged' % name, value_m,
-    #                                                attrs={'id': '%s_merged' % w_id, 'class': 'merge_result'},
-    #                                               ),
-    #                         'input_2':      render('%s_2' % name, value_2,
-    #                                                attrs={'id': '%s_2' % w_id, ro_attr: '', 'class': 'merge_entity2'},
-    #                                               ),
-    #                       }
-    #                     )
 
     def get_context(self, name, value, attrs):
         # TODO: see EntitiesHeaderWidget
@@ -189,18 +132,6 @@ class MergeField(Field):
     def clean(self, value):
         return self._original_field.clean(value[2])
 
-    # def set_merge_initial(self, initial):
-    #     warnings.warn('MergeField.set_merge_initial: this method is deprecated, simply use initial property instead.', DeprecationWarning)
-    #     self.initial = initial
-    #     qs = self._restricted_queryset
-    #
-    #     if qs is not None:
-    #         field = self._original_field
-    #         field.queryset = qs.filter(pk__in=initial)
-    #
-    #         if None not in initial:
-    #             field.empty_label = None
-
 
 class MergeEntitiesBaseForm(CremeForm):
     entities_labels = Field(label='', required=False, widget=EntitiesHeaderWidget)
@@ -274,7 +205,6 @@ class MergeEntitiesBaseForm(CremeForm):
             entity1 = self.entity1
 
             for name in self.fields.iterkeys():
-                # setattr(entity1, name, cdata[name])
                 try:
                     mfield = entity1._meta.get_field(name)
                 except FieldDoesNotExist:

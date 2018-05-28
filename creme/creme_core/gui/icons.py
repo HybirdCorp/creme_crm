@@ -20,8 +20,7 @@
 
 import logging  # warnings
 
-from django.utils.html import format_html  # escape
-# from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 
 from ..utils.media import get_creme_media_url
 
@@ -181,12 +180,6 @@ class Icon(BaseIcon):
     def render(self, css_class=''):
         final_css_class = self.css_class + css_class
 
-        # return mark_safe(u'<img src="{url}" {attrs} title="{label}" alt="{label}" width="{size}px"/>'.format(
-        #         size=self.size,
-        #         label=escape(self.label),
-        #         attrs=u' class="{}"'.format(final_css_class) if final_css_class else '',
-        #         url=self.url,
-        # ))
         return format_html(
             u'<img src="{url}" {attrs} title="{label}" alt="{label}" width="{size}px"/>',
             size=self.size,
@@ -205,15 +198,6 @@ class SVGIcon(BaseIcon):
     def render(self, css_class=''):
         final_css_class = self.css_class + css_class
 
-        # return mark_safe('<svg xmlns="http://www.w3.org/2000/svg" viewBox="{box}" {attrs} title="{label}" alt="{label}" height="{size}px" width="{size}px">'
-        #                     '<path d="{path}"></path>'
-        #                  '</svg>'.format(
-        #         size=self.size,
-        #         label=escape(self.label),
-        #         attrs=u' class="{}"'.format(final_css_class) if final_css_class else '',
-        #         box=self.view_box,
-        #         path=self.svg_path,
-        # ))
         return format_html(
             u'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{box}" {attrs} title="{label}" alt="{label}" height="{size}px" width="{size}px">'
                 u'<path d="{path}"></path>'
@@ -290,15 +274,6 @@ class IconRegistry(object):
               Notice that it means there is currently a limitation on the image name/format.
         """
         self._icons_4_objects[model] = info_function
-
-    # def get(self, model, size):
-    #     warnings.warn('The method creme_core.gui.icons.IconRegistry.get() is deprecated ; '
-    #                   'use IconRegistry.get_4_model() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     path = self._icons.get(model)
-    #     return path and (path % {'size': size})
 
     def get_4_model(self, model, theme, size_px):
         url = ''

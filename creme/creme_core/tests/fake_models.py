@@ -70,7 +70,6 @@ else:
         title       = models.CharField(_(u'Title'), max_length=100)
 #        description = models.TextField(_(u'Description'), blank=True, null=True).set_tags(optional=True)
         filedata    = models.FileField(_(u'File'), max_length=100, upload_to='upload/creme_core-tests')
-        # folder      = models.ForeignKey(FakeFolder, verbose_name=_(u'Folder'), on_delete=models.PROTECT)
         linked_folder = models.ForeignKey(FakeFolder, verbose_name=_(u'Folder'), on_delete=models.PROTECT)
 
 #        creation_label = _('Create a document')
@@ -483,7 +482,6 @@ else:
 
         @staticmethod
         def get_lv_absolute_url():
-            # return '/tests/e_campaigns'
             return reverse('creme_core__list_fake_ecampaigns')
 
 
@@ -519,12 +517,10 @@ else:
 
         @staticmethod
         def get_lv_absolute_url():
-            # return '/tests/invoices'
             return reverse('creme_core__list_fake_invoices')
 
 
     class FakeInvoiceLine(CremeEntity):
-        # invoice       = models.ForeignKey(FakeInvoice, on_delete=models.CASCADE)
         linked_invoice = models.ForeignKey(FakeInvoice, on_delete=models.CASCADE)
         item          = models.CharField(u'Item', max_length=100, blank=True, null=True)
         quantity      = models.DecimalField(_(u'Quantity'),

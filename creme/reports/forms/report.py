@@ -26,7 +26,6 @@ from django.db.models import ForeignKey, ManyToManyField
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.forms.fields import ChoiceField, CharField
-# from django.template.loader import render_to_string
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
@@ -52,8 +51,6 @@ Report = get_report_model()
 class _EntityCellRelated(EntityCell):
     type_id = 'related'
 
-    # def __init__(self, agg_id):
-    #     super(_EntityCellRelated, self).__init__(value=agg_id, title='Related')
     def __init__(self, model, agg_id):
         super(_EntityCellRelated, self).__init__(model=model, value=agg_id, title='Related')
 
@@ -61,8 +58,6 @@ class _EntityCellRelated(EntityCell):
 class _EntityCellAggregate(EntityCell):
     type_id = 'regular_aggregate'
 
-    # def __init__(self, agg_id):
-    #     super(_EntityCellAggregate, self).__init__(value=agg_id, title='Aggregate')
     def __init__(self, model, agg_id):
         super(_EntityCellAggregate, self).__init__(model=model, value=agg_id, title='Aggregate')
 
@@ -70,8 +65,6 @@ class _EntityCellAggregate(EntityCell):
 class _EntityCellCustomAggregate(EntityCell):
     type_id = 'custom_aggregate'
 
-    # def __init__(self, agg_id):
-    #     super(_EntityCellCustomAggregate, self).__init__(value=agg_id, title='Custom Aggregate')
     def __init__(self, model, agg_id):
         super(_EntityCellCustomAggregate, self).__init__(model=model, value=agg_id, title='Custom Aggregate')
 
@@ -131,7 +124,7 @@ class ReportCreateForm(CremeEntityForm):
 
             for i, cell in enumerate(self.cleaned_data['hf'].filtered_cells, start=1):
                 # TODO: check in clean() that id is OK
-                build_field(name=cell.value, order=i,  # title=cell.title
+                build_field(name=cell.value, order=i,
                             type=_CELL_2_HAND_MAP[cell.type_id],
                            )
 
@@ -193,19 +186,6 @@ class ReportHandsWidget(EntityCellsWidget):
         self.regular_aggregates = ()
         self.custom_aggregates = ()
 
-    # def _build_render_context(self, name, value, attrs):
-    #     ctxt = super(ReportHandsWidget, self)._build_render_context(name, value, attrs)
-    #     ctxt['related_entities']   = self.related_entities
-    #     ctxt['regular_aggregates'] = self.regular_aggregates
-    #     ctxt['custom_aggregates']  = self.custom_aggregates
-    #
-    #     return ctxt
-
-    # def render(self, name, value, attrs=None):
-    #     return render_to_string('reports/reports_hands_widget.html',
-    #                             self._build_render_context( name, value, attrs)
-    #                            )
-
     def get_context(self, name, value, attrs):
         context = super(ReportHandsWidget, self).get_context(name=name, value=value, attrs=attrs)
 
@@ -232,7 +212,6 @@ class ReportHandsField(EntityCellsField):
     def _regular_fields_enum(self, model):
         fields = super(ReportHandsField, self)._regular_fields_enum(model)
         fields.filter(lambda field, depth: not (depth and isinstance(field, (ForeignKey, ManyToManyField))
-                                                # and issubclass(field.rel.to, CremeEntity)
                                                 and issubclass(field.remote_field.model, CremeEntity)
                                                )
                      )

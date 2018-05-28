@@ -23,7 +23,6 @@ import logging
 import warnings
 
 from django.conf import settings
-# from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
@@ -50,7 +49,6 @@ class PropertiesBrick(QuerysetBrick):
         entity = context['object']
         return self._render(self.get_template_context(
                     context, entity.properties.select_related('type'),
-                    # ct_id=ContentType.objects.get_for_model(CremeProperty).id,
         ))
 
 
@@ -226,7 +224,6 @@ class HistoryBrick(QuerysetBrick):
         user = context['user']
 
         self._populate_related_real_entities(hlines, user)
-        # self._populate_users(hlines, user)
         HistoryLine.populate_users(hlines, user)
         self._populate_perms(hlines, user)
 
@@ -242,7 +239,6 @@ class HistoryBrick(QuerysetBrick):
         user = context['user']
 
         self._populate_related_real_entities(hlines, user)
-        # self._populate_users(hlines, user)
         HistoryLine.populate_users(hlines, user)
         self._populate_perms(hlines, user)
 

@@ -43,7 +43,6 @@
         {% endif %}
         <td>{{line.get_type_str}}</td>
         <td data-type="list">
-{#            {% with modifications=line|verbose_modifications:user %} #}
             {% with modifications=line|history_modifications:user %}
                 {% if modifications|length == 1 %}
                     {{modifications.0}}
@@ -57,22 +56,20 @@
                         {% if related_entity %}
                             {% widget_entity_hyperlink related_entity user %}
                         {% else %}
-                            {{related_line.entity_repr}}{% comment %}TODO: improve credentials here !! {% endcomment %}
+                            {{related_line.entity_repr}}{# TODO: improve credentials here !! #}
                         {% endif %}
                     {% else %}
                         {% if related_entity %}
                             {% trans "Edition of :" %}&nbsp;{% widget_entity_hyperlink related_entity user %}
                         {% else %}
-                            {% blocktrans with related_line.entity_repr as entity %}Edit "{{entity}}"{% endblocktrans %}{% comment %}TODO: improve credentials here !! {% endcomment %}
+                            {% blocktrans with related_line.entity_repr as entity %}Edit "{{entity}}"{% endblocktrans %}{# TODO: improve credentials here !! #}
                         {% endif %}
                         <br/>
-{#                        {% for modif in related_line|verbose_modifications:user %} - {{modif}}<br/>{% endfor %} #}
                         {% for modif in related_line|history_modifications:user %} - {{modif}}<br/>{% endfor %}
                     {% endif %}
                 {% endwith %}
              {% endif %}
         </td>
-{#        <td>{{line.user|default:line.username}}</td> #}
         <td>{% if line.user != None %}{% widget_hyperlink line.user %}{% else %}{{line.username}}{% endif %}</td>
     </tr>
     {% endfor %}
