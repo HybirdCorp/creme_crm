@@ -124,6 +124,5 @@ class ReminderTodo(AssistantReminder):
         return wakeup
 
 
-# DEPRECATED
-reminder_alert = ReminderAlert()
-reminder_todo  = ReminderTodo()
+# reminder_alert = ReminderAlert()
+# reminder_todo  = ReminderTodo()
