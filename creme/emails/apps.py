@@ -64,7 +64,7 @@ class EmailsConfig(CremeAppConfig):
                                 bricks.MailsHistoryBrick,
                                 bricks.MailPopupBrick,
                                 bricks.LwMailsHistoryBrick,
-                                bricks.SignaturesBrick,
+                                # bricks.SignaturesBrick,
                                 bricks.MySignaturesBrick,
                                )
         brick_registry.register_hat(self.EntityEmail, main_brick_cls=bricks.EntityEmailBarHatBrick)

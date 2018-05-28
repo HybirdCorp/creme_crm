@@ -18,11 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import PermissionDenied
+# from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.bricks import SimpleBrick, QuerysetBrick
@@ -266,26 +266,26 @@ class LwMailsHistoryBrick(QuerysetBrick):
         ))
 
 
-class SignaturesBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('emails', 'signatures')
-    dependencies  = (EmailSignature,)
-    order_by      = 'name'
-    verbose_name  = _(u'Email signatures')
-    template_name = 'emails/bricks/signatures.html'
-    target_apps   = ('emails',)
-
-    def portal_display(self, context, ct_ids):
-        warnings.warn('emails.bricks.SignaturesBrick is deprecated.', DeprecationWarning)
-
-        user = context['user']
-
-        if not user.has_perm('emails'):
-            raise PermissionDenied('Error: you are not allowed to view this block: %s' % self.id_)
-
-        return self._render(self.get_template_context(
-                    context, EmailSignature.objects.filter(user=user),
-                    has_app_perm=True,  # We've just checked it.
-        ))
+# class SignaturesBrick(QuerysetBrick):
+#     id_           = QuerysetBrick.generate_id('emails', 'signatures')
+#     dependencies  = (EmailSignature,)
+#     order_by      = 'name'
+#     verbose_name  = _(u'Email signatures')
+#     template_name = 'emails/bricks/signatures.html'
+#     target_apps   = ('emails',)
+#
+#     def portal_display(self, context, ct_ids):
+#         warnings.warn('emails.bricks.SignaturesBrick is deprecated.', DeprecationWarning)
+#
+#         user = context['user']
+#
+#         if not user.has_perm('emails'):
+#             raise PermissionDenied('Error: you are not allowed to view this block: %s' % self.id_)
+#
+#         return self._render(self.get_template_context(
+#                     context, EmailSignature.objects.filter(user=user),
+#                     has_app_perm=True,  # We've just checked it.
+#         ))
 
 
 class MySignaturesBrick(QuerysetBrick):
