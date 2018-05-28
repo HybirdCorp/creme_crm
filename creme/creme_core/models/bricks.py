@@ -21,7 +21,7 @@
 from functools import partial
 from json import loads as jsonloads, dumps as jsondumps
 import logging
-import warnings
+# import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -64,7 +64,7 @@ class BlockDetailviewLocation(CremeModel):
     BOTTOM = 4
     HAT    = 5
 
-    ZONES = (HAT, TOP, LEFT, RIGHT, BOTTOM)   # DEPRECATED
+    # ZONES = (HAT, TOP, LEFT, RIGHT, BOTTOM)
     ZONE_NAMES = {
         HAT:    'hat',
         TOP:    'top',
@@ -88,13 +88,13 @@ class BlockDetailviewLocation(CremeModel):
                 zone=self.zone,
         )
 
-    @staticmethod
-    def create(block_id, order, zone, model=None, role=None):
-        warnings.warn('BlockDetailviewLocation.create() is deprecated ; '
-                      'use create_if_needed() instead.',
-                      DeprecationWarning
-                     )
-        return BlockDetailviewLocation.create_if_needed(brick_id=block_id, order=order, zone=zone, model=model, role=role)
+    # @staticmethod
+    # def create(block_id, order, zone, model=None, role=None):
+    #     warnings.warn('BlockDetailviewLocation.create() is deprecated ; '
+    #                   'use create_if_needed() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #     return BlockDetailviewLocation.create_if_needed(brick_id=block_id, order=order, zone=zone, model=model, role=role)
 
     @staticmethod
     def create_if_needed(brick_id, order, zone, model=None, role=None):
@@ -136,19 +136,19 @@ class BlockDetailviewLocation(CremeModel):
         ct = ContentType.objects.get_for_model(model)
         return BlockDetailviewLocation.objects.filter(content_type=ct).exists()
 
-    @staticmethod
-    def create_empty_config(model=None):
-        warnings.warn('BlockDetailviewLocation.create_empty_config() is deprecated.',
-                      DeprecationWarning
-                     )
-
-        ct = ContentType.objects.get_for_model(model) if model else None
-
-        if not BlockDetailviewLocation.objects.filter(content_type=ct).exists():
-            create = BlockDetailviewLocation.objects.create
-
-            for zone in BlockDetailviewLocation.ZONES:
-                create(content_type=ct, brick_id='', order=1, zone=zone)
+    # @staticmethod
+    # def create_empty_config(model=None):
+    #     warnings.warn('BlockDetailviewLocation.create_empty_config() is deprecated.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     ct = ContentType.objects.get_for_model(model) if model else None
+    #
+    #     if not BlockDetailviewLocation.objects.filter(content_type=ct).exists():
+    #         create = BlockDetailviewLocation.objects.create
+    #
+    #         for zone in BlockDetailviewLocation.ZONES:
+    #             create(content_type=ct, brick_id='', order=1, zone=zone)
 
 
 class BlockPortalLocation(CremeModel):
@@ -165,13 +165,13 @@ class BlockPortalLocation(CremeModel):
                 id=self.id, app=self.app_name, brick_id=self.brick_id, order=self.order,
             )
 
-    @staticmethod
-    def create(block_id, order, app_name=''):
-        warnings.warn('BlockPortalLocation.create() is deprecated ; '
-                      'use create_or_update() instead.',
-                      DeprecationWarning
-                     )
-        return BlockPortalLocation.create_or_update(brick_id=block_id, order=order, app_name=app_name)
+    # @staticmethod
+    # def create(block_id, order, app_name=''):
+    #     warnings.warn('BlockPortalLocation.create() is deprecated ; '
+    #                   'use create_or_update() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #     return BlockPortalLocation.create_or_update(brick_id=block_id, order=order, app_name=app_name)
 
     @staticmethod
     def create_or_update(brick_id, order, app_name=''):
@@ -185,14 +185,14 @@ class BlockPortalLocation(CremeModel):
 
         return loc
 
-    @staticmethod
-    def create_empty_config(app_name=''):
-        warnings.warn('BlockPortalLocation.create_empty_config() is deprecated.',
-                      DeprecationWarning
-                     )
-
-        if not BlockPortalLocation.objects.filter(app_name=app_name).exists():
-            BlockPortalLocation.objects.create(app_name=app_name, brick_id='', order=1)
+    # @staticmethod
+    # def create_empty_config(app_name=''):
+    #     warnings.warn('BlockPortalLocation.create_empty_config() is deprecated.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     if not BlockPortalLocation.objects.filter(app_name=app_name).exists():
+    #         BlockPortalLocation.objects.create(app_name=app_name, brick_id='', order=1)
 
     @property
     def brick_verbose_name(self):
@@ -233,22 +233,22 @@ class BlockMypageLocation(CremeModel):
                                 ' (if it is the first user, do not worry because it is normal)' % instance
                                )
 
-    @staticmethod
-    def create(block_id, order, user=None):
-        warnings.warn('BlockMypageLocation.create() is deprecated ; '
-                      'use BlockMypageLocation.objects.create() instead.',
-                      DeprecationWarning
-                     )
-
-        try:
-            loc = BlockMypageLocation.objects.get(user=user, brick_id=block_id)
-        except Exception:
-            loc = BlockMypageLocation.objects.create(user=user, brick_id=block_id, order=order)
-        else:
-            loc.order = order
-            loc.save()
-
-        return loc
+    # @staticmethod
+    # def create(block_id, order, user=None):
+    #     warnings.warn('BlockMypageLocation.create() is deprecated ; '
+    #                   'use BlockMypageLocation.objects.create() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     try:
+    #         loc = BlockMypageLocation.objects.get(user=user, brick_id=block_id)
+    #     except Exception:
+    #         loc = BlockMypageLocation.objects.create(user=user, brick_id=block_id, order=order)
+    #     else:
+    #         loc.order = order
+    #         loc.save()
+    #
+    #     return loc
 
     # TODO: factorise ?
     @property

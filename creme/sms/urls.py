@@ -3,11 +3,11 @@
 from django.conf.urls import url
 
 from creme import sms
-from .views import portal, campaign, sending, recipient, messaging_list
+from .views import campaign, sending, recipient, messaging_list  # portal
 
 
 urlpatterns = [
-    url(r'^$', portal.portal, name='sms__portal'),
+    # url(r'^$', portal.portal, name='sms__portal'),
 
     # Campaign: messaging_lists block
     url(r'^campaign/(?P<campaign_id>\d+)/messaging_list/add[/]?$',    campaign.add_messaging_list,    name='sms__add_mlists_to_campaign'),

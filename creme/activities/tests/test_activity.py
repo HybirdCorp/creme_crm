@@ -157,9 +157,9 @@ class ActivityTestCase(_ActivitiesTestCase):
         # self.assertIsNone(sv.user)
         self.assertIs(sv.value, True)
 
-    def test_portal(self):
-        self.login()
-        self.assertGET200(reverse('activities__portal'))
+    # def test_portal(self):
+    #     self.login()
+    #     self.assertGET200(reverse('activities__portal'))
 
     def test_get_subtypes(self):
         self.login()

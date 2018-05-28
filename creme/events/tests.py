@@ -34,7 +34,7 @@ try:
     skip_event_tests = event_model_is_custom()
     Event = get_event_model()
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 Contact = get_contact_model()
@@ -78,9 +78,9 @@ class EventsTestCase(CremeTestCase):
 
         self.assertTrue(EventType.objects.exists())
 
-    def test_portal(self):
-        self.login()
-        self.assertGET200(reverse('events__portal'))
+    # def test_portal(self):
+    #     self.login()
+    #     self.assertGET200(reverse('events__portal'))
 
     def _create_event(self, name, etype=None, start_date='2010-11-3', **extra_data):
         etype = etype or EventType.objects.all()[0]

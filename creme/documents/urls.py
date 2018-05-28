@@ -7,7 +7,7 @@ from .views import portal, ajax
 
 
 urlpatterns = [
-    url(r'^$', portal.portal, name='documents__portal'),
+    # url(r'^$', portal.portal, name='documents__portal'),
 
     url(r'^getChildFolders[/]?$',   ajax.get_child_folders,   name='documents__child_folders'),
     url(r'^getChildDocuments[/]?$', ajax.get_child_documents, name='documents__child_documents'),

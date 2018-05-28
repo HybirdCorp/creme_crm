@@ -18,30 +18,30 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
-from django.utils.translation import ugettext as _
-
-from creme.creme_core.views.generic import app_portal
-
-from creme.creme_config.utils import generate_portal_url
-
-from ... import billing
-
-
-def portal(request):
-    warnings.warn('billing.views.portal.portal() is deprecated.', DeprecationWarning)
-
-    Invoice    = billing.get_invoice_model()
-    Quote      = billing.get_quote_model()
-    SalesOrder = billing.get_sales_order_model()
-    stats = (
-                (_('Number of invoices'),    Invoice.objects.count()),
-                (_('Number of quotes'),      Quote.objects.count()),
-                (_('Number of salesorders'), SalesOrder.objects.count()),
-            )
-
-    return app_portal(request, 'billing', 'billing/portal.html',
-                      (Invoice, Quote, SalesOrder), stats,
-                      config_url=generate_portal_url('billing')
-                     )
+# import warnings
+#
+# from django.utils.translation import ugettext as _
+#
+# from creme.creme_core.views.generic import app_portal
+#
+# from creme.creme_config.utils import generate_portal_url
+#
+# from ... import billing
+#
+#
+# def portal(request):
+#     warnings.warn('billing.views.portal.portal() is deprecated.', DeprecationWarning)
+#
+#     Invoice    = billing.get_invoice_model()
+#     Quote      = billing.get_quote_model()
+#     SalesOrder = billing.get_sales_order_model()
+#     stats = (
+#                 (_('Number of invoices'),    Invoice.objects.count()),
+#                 (_('Number of quotes'),      Quote.objects.count()),
+#                 (_('Number of salesorders'), SalesOrder.objects.count()),
+#             )
+#
+#     return app_portal(request, 'billing', 'billing/portal.html',
+#                       (Invoice, Quote, SalesOrder), stats,
+#                       config_url=generate_portal_url('billing')
+#                      )

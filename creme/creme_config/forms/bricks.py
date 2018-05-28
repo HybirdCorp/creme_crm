@@ -19,14 +19,14 @@
 ################################################################################
 
 from itertools import chain
-import warnings
+# import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import URLField, EmailField, ManyToManyField, ForeignKey
 from django.forms import MultipleChoiceField, ChoiceField, ModelChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.apps import creme_app_configs
+# from creme.creme_core.apps import creme_app_configs
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
 from creme.creme_core.forms import CremeForm, CremeModelForm, FieldBlockManager
 from creme.creme_core.forms.fields import EntityCTypeChoiceField
@@ -42,7 +42,7 @@ from creme.creme_core.utils.unicode_collation import collator
 
 
 __all__ = ('BrickDetailviewLocationsAddForm', 'BrickDetailviewLocationsEditForm',
-           'BlockPortalLocationsAddForm', 'BlockPortalLocationsEditForm',
+           # 'BlockPortalLocationsAddForm', 'BlockPortalLocationsEditForm',
            'BrickMypageLocationsForm',
            'RTypeBrickAddForm', 'RTypeBrickItemAddCtypeForm', 'RTypeBrickItemEditCtypeForm',
            'CustomBrickConfigItemCreateForm', 'CustomBrickConfigItemEditForm',
@@ -57,19 +57,19 @@ class BrickLocationsField(MultipleChoiceField):
 
 
 class _BrickLocationsForm(CremeForm):
-    def _build_portal_locations_field(self, app_name, field_name, block_locations):
-        warnings.warn('creme_config.forms.bricks._BrickLocationsForm._build_portal_locations_field() is deprecated.',
-                      DeprecationWarning
-                     )
-        bricks = self.fields[field_name]
-        choices = [(brick.id_, unicode(brick.verbose_name))
-                        for brick in gui_bricks.brick_registry.get_compatible_portal_blocks(app_name)
-                  ]
-        sort_key = collator.sort_key
-        choices.sort(key=lambda c: sort_key(c[1]))
-
-        bricks.choices = choices
-        bricks.initial = [bl.brick_id for bl in block_locations]
+    # def _build_portal_locations_field(self, app_name, field_name, block_locations):
+    #     warnings.warn('creme_config.forms.bricks._BrickLocationsForm._build_portal_locations_field() is deprecated.',
+    #                   DeprecationWarning
+    #                  )
+    #     bricks = self.fields[field_name]
+    #     choices = [(brick.id_, unicode(brick.verbose_name))
+    #                     for brick in gui_bricks.brick_registry.get_compatible_portal_blocks(app_name)
+    #               ]
+    #     sort_key = collator.sort_key
+    #     choices.sort(key=lambda c: sort_key(c[1]))
+    #
+    #     bricks.choices = choices
+    #     bricks.initial = [bl.brick_id for bl in block_locations]
 
     def _build_home_locations_field(self, field_name, brick_locations):
         bricks = self.fields[field_name]
@@ -269,56 +269,56 @@ class BrickDetailviewLocationsEditForm(_BrickDetailviewLocationsForm):
             hat_f.initial = selected[0] if selected else hat_f.choices[0][0]
 
 
-class _BlockPortalLocationsForm(_BrickLocationsForm):
-    def __init__(self, *args, **kwargs):
-        warnings.warn('creme_config.forms.bricks._BlockPortalLocationsForm is deprecated.', DeprecationWarning)
-        super(_BlockPortalLocationsForm, self).__init__(*args, **kwargs)
-
-    def _save_portal_locations(self, app_name, old_locations=(), block_ids=()):
-        self._save_locations(BlockPortalLocation,
-                             lambda: BlockPortalLocation(app_name=app_name),
-                             {1: block_ids},  # 1 is a "nameless" zone
-                             old_locations,
-                            )
-
-
-class BlockPortalLocationsAddForm(_BlockPortalLocationsForm):
-    app_name = ChoiceField(label=_(u'Related application'), choices=(),
-                           widget=DynamicSelect(attrs={'autocomplete': True}),
-                          )
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn('creme_config.forms.bricks.BlockPortalLocationsAddForm is deprecated.', DeprecationWarning)
-        super(BlockPortalLocationsAddForm, self).__init__(*args, **kwargs)
-
-        excluded_apps = set(BlockPortalLocation.objects.values_list('app_name', flat=True))
-        excluded_apps.add('creme_core')
-        excluded_apps.add('creme_config')
-
-        self.fields['app_name'].choices = [(app_config.label, app_config.verbose_name)
-                                               for app_config in creme_app_configs()
-                                                   if not app_config.label in excluded_apps
-                                          ]
-
-    def save(self, *args, **kwargs):
-        self._save_portal_locations(self.cleaned_data['app_name'])
+# class _BlockPortalLocationsForm(_BrickLocationsForm):
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn('creme_config.forms.bricks._BlockPortalLocationsForm is deprecated.', DeprecationWarning)
+#         super(_BlockPortalLocationsForm, self).__init__(*args, **kwargs)
+#
+#     def _save_portal_locations(self, app_name, old_locations=(), block_ids=()):
+#         self._save_locations(BlockPortalLocation,
+#                              lambda: BlockPortalLocation(app_name=app_name),
+#                              {1: block_ids},  # 1 is a "nameless" zone
+#                              old_locations,
+#                             )
 
 
-class BlockPortalLocationsEditForm(_BlockPortalLocationsForm):
-    blocks = BrickLocationsField(label=_(u'Blocks to display on the portal'))
+# class BlockPortalLocationsAddForm(_BlockPortalLocationsForm):
+#     app_name = ChoiceField(label=_(u'Related application'), choices=(),
+#                            widget=DynamicSelect(attrs={'autocomplete': True}),
+#                           )
+#
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn('creme_config.forms.bricks.BlockPortalLocationsAddForm is deprecated.', DeprecationWarning)
+#         super(BlockPortalLocationsAddForm, self).__init__(*args, **kwargs)
+#
+#         excluded_apps = set(BlockPortalLocation.objects.values_list('app_name', flat=True))
+#         excluded_apps.add('creme_core')
+#         excluded_apps.add('creme_config')
+#
+#         self.fields['app_name'].choices = [(app_config.label, app_config.verbose_name)
+#                                                for app_config in creme_app_configs()
+#                                                    if not app_config.label in excluded_apps
+#                                           ]
+#
+#     def save(self, *args, **kwargs):
+#         self._save_portal_locations(self.cleaned_data['app_name'])
 
-    def __init__(self, app_name, block_locations, *args, **kwargs):
-        warnings.warn('creme_config.forms.bricks.BlockPortalLocationsEditForm is deprecated.', DeprecationWarning)
-        super(BlockPortalLocationsEditForm, self).__init__(*args, **kwargs)
-        self.app_name = app_name
-        self.locations = block_locations
 
-        self._build_portal_locations_field(app_name=app_name, field_name='blocks',
-                                           block_locations=block_locations,
-                                          )
-
-    def save(self, *args, **kwargs):
-        self._save_portal_locations(self.app_name, self.locations, self.cleaned_data['blocks'])
+# class BlockPortalLocationsEditForm(_BlockPortalLocationsForm):
+#     blocks = BrickLocationsField(label=_(u'Blocks to display on the portal'))
+#
+#     def __init__(self, app_name, block_locations, *args, **kwargs):
+#         warnings.warn('creme_config.forms.bricks.BlockPortalLocationsEditForm is deprecated.', DeprecationWarning)
+#         super(BlockPortalLocationsEditForm, self).__init__(*args, **kwargs)
+#         self.app_name = app_name
+#         self.locations = block_locations
+#
+#         self._build_portal_locations_field(app_name=app_name, field_name='blocks',
+#                                            block_locations=block_locations,
+#                                           )
+#
+#     def save(self, *args, **kwargs):
+#         self._save_portal_locations(self.app_name, self.locations, self.cleaned_data['blocks'])
 
 
 class BrickHomeLocationsForm(_BrickLocationsForm):

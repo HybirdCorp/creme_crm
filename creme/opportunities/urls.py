@@ -4,11 +4,11 @@ from django.apps import apps
 from django.conf.urls import url
 
 from . import opportunity_model_is_custom
-from .views import portal
+# from .views import portal
 
 
 urlpatterns = [
-    url(r'^$', portal.portal, name='opportunities__portal'),
+    # url(r'^$', portal.portal, name='opportunities__portal'),
 ]
 
 if not opportunity_model_is_custom():

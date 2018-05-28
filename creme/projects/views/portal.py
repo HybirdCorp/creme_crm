@@ -18,20 +18,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
-from django.utils.translation import ugettext as _
-
-from creme.creme_core.views.generic import app_portal
-
-from .. import get_project_model
-
-
-def portal(request):
-    warnings.warn('projects.views.portal.portal() is deprecated.', DeprecationWarning)
-
-    Project = get_project_model()
-    stats = ((_('Number of projects'),  Project.objects.count()),
-            )
-
-    return app_portal(request, 'projects', 'projects/portal.html', Project, stats)
+# import warnings
+#
+# from django.utils.translation import ugettext as _
+#
+# from creme.creme_core.views.generic import app_portal
+#
+# from .. import get_project_model
+#
+#
+# def portal(request):
+#     warnings.warn('projects.views.portal.portal() is deprecated.', DeprecationWarning)
+#
+#     Project = get_project_model()
+#     stats = ((_('Number of projects'),  Project.objects.count()),
+#             )
+#
+#     return app_portal(request, 'projects', 'projects/portal.html', Project, stats)

@@ -79,15 +79,15 @@ class _AssistantsBrick(QuerysetBrick):
 
         return self._render(btc)
 
-    def portal_display(self, context, ct_ids):
-        warnings.warn('assistants.bricks._AssistantsBrick.portal_display() is deprecated.', DeprecationWarning)
-
-        btc = self.get_template_context(
-            context, self._get_queryset_for_portal(ct_ids, context),
-        )
-        self._populate_related_real_entities(btc['page'].object_list)
-
-        return self._render(btc)
+    # def portal_display(self, context, ct_ids):
+    #     warnings.warn('assistants.bricks._AssistantsBrick.portal_display() is deprecated.', DeprecationWarning)
+    #
+    #     btc = self.get_template_context(
+    #         context, self._get_queryset_for_portal(ct_ids, context),
+    #     )
+    #     self._populate_related_real_entities(btc['page'].object_list)
+    #
+    #     return self._render(btc)
 
     def home_display(self, context):
         btc = self.get_template_context(

@@ -20,7 +20,7 @@
 
 from collections import defaultdict
 from itertools import chain
-import warnings
+# import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
@@ -94,16 +94,16 @@ class ApproachesBrick(QuerysetBrick):
                     context, approaches,
         ))
 
-    def portal_display(self, context, ct_ids):
-        warnings.warn('commercial.bricks.ApproachesBrick.portal_display() is deprecated.', DeprecationWarning)
-
-        btc = self.get_template_context(
-                    context,
-                    CommercialApproach.get_approaches_for_ctypes(ct_ids),
-         )
-        self._populate_related_real_entities(btc['page'].object_list, context['user'])
-
-        return self._render(btc)
+    # def portal_display(self, context, ct_ids):
+    #     warnings.warn('commercial.bricks.ApproachesBrick.portal_display() is deprecated.', DeprecationWarning)
+    #
+    #     btc = self.get_template_context(
+    #                 context,
+    #                 CommercialApproach.get_approaches_for_ctypes(ct_ids),
+    #      )
+    #     self._populate_related_real_entities(btc['page'].object_list, context['user'])
+    #
+    #     return self._render(btc)
 
     def home_display(self, context):
         btc = self.get_template_context(

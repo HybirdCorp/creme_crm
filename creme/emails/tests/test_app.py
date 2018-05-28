@@ -12,7 +12,7 @@ try:
             REL_SUB_RELATED_TO, SETTING_EMAILCAMPAIGN_SENDER)
     from .base import _EmailsTestCase, Contact, Organisation, EntityEmail
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class EmailsTestCase(_EmailsTestCase):
@@ -23,9 +23,9 @@ class EmailsTestCase(_EmailsTestCase):
 
         self.assertEqual(1, SettingValue.objects.filter(key_id=SETTING_EMAILCAMPAIGN_SENDER).count())
 
-    def test_portal(self):
-        self.login()
-        self.assertGET200(reverse('emails__portal'))
+    # def test_portal(self):
+    #     self.login()
+    #     self.assertGET200(reverse('emails__portal'))
 
     @skipIfCustomContact
     def test_fieldconfigs_warning(self):

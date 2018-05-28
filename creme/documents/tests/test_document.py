@@ -26,7 +26,7 @@ try:
     from ..constants import REL_SUB_RELATED_2_DOC, UUID_FOLDER_RELATED2ENTITIES
     from ..utils import get_csv_folder_or_create
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 @skipIfCustomDocument
@@ -47,9 +47,9 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertTrue(FolderCategory.objects.exists())
         self.assertTrue(DocumentCategory.objects.exists())
 
-    def test_portal(self):
-        self.login()
-        self.assertGET200(reverse('documents__portal'))
+    # def test_portal(self):
+    #     self.login()
+    #     self.assertGET200(reverse('documents__portal'))
 
     @override_settings(ALLOWED_EXTENSIONS=('txt', 'pdf'))
     def test_createview01(self):

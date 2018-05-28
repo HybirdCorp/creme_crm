@@ -18,20 +18,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
-from django.utils.translation import ugettext as _
-
-from creme.creme_core.views.generic import app_portal
-
-from .. import get_rgenerator_model
-
-
-def portal(request):
-    warnings.warn('recurrents.views.portal.portal() is deprecated.', DeprecationWarning)
-
-    RecurrentGenerator = get_rgenerator_model()
-    stats = ((_(u'Number of generators'),  RecurrentGenerator.objects.count()),
-            )
-
-    return app_portal(request, 'recurrents', 'recurrents/portal.html', RecurrentGenerator, stats)
+# import warnings
+#
+# from django.utils.translation import ugettext as _
+#
+# from creme.creme_core.views.generic import app_portal
+#
+# from .. import get_rgenerator_model
+#
+#
+# def portal(request):
+#     warnings.warn('recurrents.views.portal.portal() is deprecated.', DeprecationWarning)
+#
+#     RecurrentGenerator = get_rgenerator_model()
+#     stats = ((_(u'Number of generators'),  RecurrentGenerator.objects.count()),
+#             )
+#
+#     return app_portal(request, 'recurrents', 'recurrents/portal.html', RecurrentGenerator, stats)

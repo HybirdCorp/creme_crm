@@ -581,32 +581,32 @@ class ReminderTestCase(CremeTestCase):
         self.assertFalse(list(registry))
         self.assertFalse(list(registry.itervalues()))
 
-    def test_register_legacy(self):
-        registry = ReminderRegistry()
-
-        class TestReminder1(Reminder):
-            id = Reminder.generate_id('creme_core', 'ReminderTestCase_test_register_legacy_1')
-
-        class TestReminder2(Reminder):
-            id = Reminder.generate_id('creme_core', 'ReminderTestCase_test_register_legacy_2')
-
-        reminder1 = TestReminder1()
-        reminder2 = TestReminder2()
-        registry.register(reminder1)
-        registry.register(reminder2)
-        self.assertEqual({(reminder1.id, reminder1),
-                          (reminder2.id, reminder2),
-                         },
-                         set(registry)
-                        )
-        self.assertEqual({reminder1, reminder2}, set(registry.itervalues()))
-
-        # --
-        registry.unregister(reminder1)
-        self.assertEqual([reminder2], list(registry.itervalues()))
-
-        with self.assertNoException():
-            registry.unregister(reminder1)
+    # def test_register_legacy(self):
+    #     registry = ReminderRegistry()
+    #
+    #     class TestReminder1(Reminder):
+    #         id = Reminder.generate_id('creme_core', 'ReminderTestCase_test_register_legacy_1')
+    #
+    #     class TestReminder2(Reminder):
+    #         id = Reminder.generate_id('creme_core', 'ReminderTestCase_test_register_legacy_2')
+    #
+    #     reminder1 = TestReminder1()
+    #     reminder2 = TestReminder2()
+    #     registry.register(reminder1)
+    #     registry.register(reminder2)
+    #     self.assertEqual({(reminder1.id, reminder1),
+    #                       (reminder2.id, reminder2),
+    #                      },
+    #                      set(registry)
+    #                     )
+    #     self.assertEqual({reminder1, reminder2}, set(registry.itervalues()))
+    #
+    #     # --
+    #     registry.unregister(reminder1)
+    #     self.assertEqual([reminder2], list(registry.itervalues()))
+    #
+    #     with self.assertNoException():
+    #         registry.unregister(reminder1)
 
     def test_register(self):
         registry = ReminderRegistry()

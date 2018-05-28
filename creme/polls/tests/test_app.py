@@ -2,7 +2,7 @@
 
 try:
     from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
+    # from django.urls import reverse
 
     from creme.creme_core.models import HeaderFilter
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
@@ -14,13 +14,13 @@ try:
     from ..bricks import PersonPollRepliesBrick
     from ..models import PollType
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class PollsAppTestCase(_PollsTestCase, BrickTestCaseMixin):
-    def test_portal(self):
-        self.login()
-        self.assertGET200(reverse('polls__portal'))
+    # def test_portal(self):
+    #     self.login()
+    #     self.assertGET200(reverse('polls__portal'))
 
     def test_populate(self):
         get_ct = ContentType.objects.get_for_model

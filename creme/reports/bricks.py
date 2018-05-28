@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.utils.translation import ugettext_lazy as _
 
@@ -107,11 +107,11 @@ class ReportGraphBrick(Brick):
                     report_charts=report_chart_registry,
         ))
 
-    def portal_display(self, context, ct_ids):
-        warnings.warn('reports.bricks.ReportGraphBrick.portal_display() is deprecated.', DeprecationWarning)
-
-        # No specific things on portals so we use home display
-        return self.home_display(context)
+    # def portal_display(self, context, ct_ids):
+    #     warnings.warn('reports.bricks.ReportGraphBrick.portal_display() is deprecated.', DeprecationWarning)
+    #
+    #     # No specific things on portals so we use home display
+    #     return self.home_display(context)
 
     def home_display(self, context):  # TODO: factorise detailview_display()
         fetcher = self.fetcher

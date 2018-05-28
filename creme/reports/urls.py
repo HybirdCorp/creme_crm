@@ -4,11 +4,11 @@ from django.conf import settings
 from django.conf.urls import url
 
 from . import report_model_is_custom, rgraph_model_is_custom
-from .views import portal, export, report, graph, bricks
+from .views import export, report, graph, bricks  # portal
 
 
 urlpatterns = [
-    url(r'^$', portal.portal, name='reports__portal'),
+    # url(r'^$', portal.portal, name='reports__portal'),
 
     url(r'^export/preview/(?P<report_id>\d+)[/]?$', export.preview, name='reports__export_report_preview'),
     url(r'^export/filter/(?P<report_id>\d+)[/]?$',  export.filter,  name='reports__export_report_filter'),

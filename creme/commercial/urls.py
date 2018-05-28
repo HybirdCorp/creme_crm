@@ -7,11 +7,11 @@ from creme.persons import contact_model_is_custom
 from creme.opportunities import opportunity_model_is_custom
 
 from . import act_model_is_custom, pattern_model_is_custom, strategy_model_is_custom
-from .views import portal, commercial_approach, market_segment, act, strategy
+from .views import commercial_approach, market_segment, act, strategy  # portal
 
 
 urlpatterns = [
-    url(r'^$', portal.portal, name='commercial__portal'),
+    # url(r'^$', portal.portal, name='commercial__portal'),
 
     url(r'^approach/add/(?P<entity_id>\d+)[/]?$', commercial_approach.add, name='commercial__create_approach'),
 

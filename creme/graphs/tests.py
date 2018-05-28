@@ -40,9 +40,9 @@ class GraphsTestCase(CremeTestCase):
                                                  *args, **kwargs
                                                 )
 
-    def test_portal(self):
-        self.login()
-        self.assertGET200(reverse('graphs__portal'))
+    # def test_portal(self):
+    #     self.login()
+    #     self.assertGET200(reverse('graphs__portal'))
 
     def test_graph_create(self):
         user = self.login()

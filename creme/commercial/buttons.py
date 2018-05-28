@@ -41,5 +41,4 @@ class CompleteGoalButton(Button):
         return super(CompleteGoalButton, self).render(context)
 
 
-# DEPRECATED
-complete_goal_button = CompleteGoalButton()
+# complete_goal_button = CompleteGoalButton()

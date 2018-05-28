@@ -18,26 +18,26 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
-from django.utils.translation import ugettext as _
-
-from creme.creme_core.views.generic import app_portal
-
-from creme.creme_config.utils import generate_portal_url
-
-from .. import get_pollform_model, get_pollreply_model
-
-
-def portal(request):
-    warnings.warn('polls.views.portal.portal() is deprecated.', DeprecationWarning)
-
-    PollForm  = get_pollform_model()
-    PollReply = get_pollreply_model()
-    stats = ((_('Number of forms'),   PollForm.objects.count()),
-             (_('Number of replies'), PollReply.objects.count()),
-            )
-
-    return app_portal(request, 'polls', 'polls/portal.html', (PollForm, PollReply),
-                      stats, config_url=generate_portal_url('polls')
-                     )
+# import warnings
+#
+# from django.utils.translation import ugettext as _
+#
+# from creme.creme_core.views.generic import app_portal
+#
+# from creme.creme_config.utils import generate_portal_url
+#
+# from .. import get_pollform_model, get_pollreply_model
+#
+#
+# def portal(request):
+#     warnings.warn('polls.views.portal.portal() is deprecated.', DeprecationWarning)
+#
+#     PollForm  = get_pollform_model()
+#     PollReply = get_pollreply_model()
+#     stats = ((_('Number of forms'),   PollForm.objects.count()),
+#              (_('Number of replies'), PollReply.objects.count()),
+#             )
+#
+#     return app_portal(request, 'polls', 'polls/portal.html', (PollForm, PollReply),
+#                       stats, config_url=generate_portal_url('polls')
+#                      )

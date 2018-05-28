@@ -20,7 +20,7 @@
 
 from collections import defaultdict
 import logging
-import warnings
+# import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -181,13 +181,13 @@ class HistoryBrick(QuerysetBrick):
             # Should not happen (means that entity does not exist anymore) but...
             hline.entity = entities_map.get(hline.entity_id)
 
-    @staticmethod
-    def _populate_users(hlines, user):
-        warnings.warn('HistoryBrick._populate_users() is deprecated ; use HistoryLine.populate_users() instead.',
-                      DeprecationWarning
-                     )
-
-        HistoryLine.populate_users(hlines, user)
+    # @staticmethod
+    # def _populate_users(hlines, user):
+    #     warnings.warn('HistoryBrick._populate_users() is deprecated ; use HistoryLine.populate_users() instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     HistoryLine.populate_users(hlines, user)
 
     @staticmethod
     def _populate_perms(hlines, user):
@@ -303,7 +303,7 @@ class StatisticsBrick(Brick):
     id_           = Brick.generate_id('creme_core', 'statistics')
     verbose_name  = _(u'Statistics')
     template_name = 'creme_core/bricks/statistics.html'
-    target_apps   = ('creme_core',)  # DEPRECATED
+    # target_apps   = ('creme_core',)  # DEPRECATED
 
     def home_display(self, context):
         has_perm = context['user'].has_perm

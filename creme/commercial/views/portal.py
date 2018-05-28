@@ -18,26 +18,26 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
-from django.utils.translation import ugettext_lazy as _
-
-from creme.creme_core.views.generic import app_portal
-
-from creme.creme_config.utils import generate_portal_url
-
-from .. import get_act_model, get_strategy_model
-
-
-def portal(request):
-    warnings.warn('commercial.views.portal.portal() is deprecated.', DeprecationWarning)
-
-    Act = get_act_model()
-    Strategy = get_strategy_model()
-    stats = ((_('Number of commercial actions'),    Act.objects.count()),
-             (_('Number of commercial strategies'), Strategy.objects.count()),
-            )
-
-    return app_portal(request, 'commercial', 'commercial/portal.html', Act,
-                      stats, config_url=generate_portal_url('commercial'),
-                     )
+# import warnings
+#
+# from django.utils.translation import ugettext_lazy as _
+#
+# from creme.creme_core.views.generic import app_portal
+#
+# from creme.creme_config.utils import generate_portal_url
+#
+# from .. import get_act_model, get_strategy_model
+#
+#
+# def portal(request):
+#     warnings.warn('commercial.views.portal.portal() is deprecated.', DeprecationWarning)
+#
+#     Act = get_act_model()
+#     Strategy = get_strategy_model()
+#     stats = ((_('Number of commercial actions'),    Act.objects.count()),
+#              (_('Number of commercial strategies'), Strategy.objects.count()),
+#             )
+#
+#     return app_portal(request, 'commercial', 'commercial/portal.html', Act,
+#                       stats, config_url=generate_portal_url('commercial'),
+#                      )

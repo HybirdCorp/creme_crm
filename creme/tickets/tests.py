@@ -72,10 +72,10 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertTrue(rtype.subject_ctypes.filter(id=get_ct(get_contact_model()).id).exists())
         self.assertTrue(rtype.symmetric_type.object_ctypes.filter(id=ticket_ct.id).exists())
 
-    def test_portal(self):
-        self.login()
-        # self.assertGET200('/tickets/')
-        self.assertGET200(reverse('tickets__portal'))
+    # def test_portal(self):
+    #     self.login()
+    #     # self.assertGET200('/tickets/')
+    #     self.assertGET200(reverse('tickets__portal'))
 
     def test_detailview01(self):
         self.login()

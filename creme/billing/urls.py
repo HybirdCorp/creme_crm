@@ -3,11 +3,11 @@
 from django.conf.urls import url, include
 
 from .. import billing
-from .views import portal, export, payment_information, convert, line
+from .views import export, payment_information, convert, line  # portal
 
 
 urlpatterns = [
-    url(r'^$', portal.portal, name='billing__portal'),
+    # url(r'^$', portal.portal, name='billing__portal'),
 
     url(r'^generate_pdf/(?P<base_id>\d+)[/]?$', export.export_as_pdf, name='billing__export'),
 

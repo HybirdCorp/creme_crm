@@ -20,10 +20,10 @@
 
 from collections import OrderedDict
 from functools import partial
-import warnings
+# import warnings
 
 from django.apps import apps
-from django.core.exceptions import PermissionDenied
+# from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -435,7 +435,7 @@ if apps.is_installed('creme.activities'):
         dependencies  = (Activity,)
         verbose_name  = _(u'Neglected organisations')
         template_name = 'persons/bricks/neglected-organisations.html'
-        target_apps   = ('persons', 'creme_core')  # DEPRECATED
+        # target_apps   = ('persons', 'creme_core')  # DEPRECATED
 
         _RTYPE_IDS_CUSTOMERS = (constants.REL_SUB_CUSTOMER_SUPPLIER, constants.REL_SUB_PROSPECT)
         _RTYPE_IDS_ORGA_N_ACT = (activities_constants.REL_SUB_ACTIVITY_SUBJECT, activities_constants.REL_SUB_LINKED_2_ACTIVITY)
@@ -487,18 +487,18 @@ if apps.is_installed('creme.activities'):
 
             return neglected_orgas
 
-        def portal_display(self, context, ct_ids):
-            warnings.warn('persons.bricks.NeglectedOrganisationsBrick.portal_display() is deprecated.',
-                          DeprecationWarning
-                         )
-
-            if not context['user'].has_perm('persons'):
-                raise PermissionDenied('Error: you are not allowed to view this block: %s' % self.id_)
-
-            return self._render(self.get_template_context(
-                        context,
-                        self._get_neglected(context['today']),
-            ))
+        # def portal_display(self, context, ct_ids):
+        #     warnings.warn('persons.bricks.NeglectedOrganisationsBrick.portal_display() is deprecated.',
+        #                   DeprecationWarning
+        #                  )
+        #
+        #     if not context['user'].has_perm('persons'):
+        #         raise PermissionDenied('Error: you are not allowed to view this block: %s' % self.id_)
+        #
+        #     return self._render(self.get_template_context(
+        #                 context,
+        #                 self._get_neglected(context['today']),
+        #     ))
 
         def home_display(self, context):
             # We do not check the 'persons' permission, because it's only

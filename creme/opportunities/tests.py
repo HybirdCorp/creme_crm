@@ -54,7 +54,7 @@ try:
 
     skip_opportunity_tests = opportunity_model_is_custom()
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 Organisation = get_organisation_model()
@@ -195,9 +195,9 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertTrue(rtype.subject_ctypes.filter(id=get_ct(Contact).id).exists())
         self.assertTrue(rtype.symmetric_type.object_ctypes.filter(id=ct.id).exists())
 
-    def test_portal(self):
-        self.login()
-        self.assertGET200(reverse('opportunities__portal'))
+    # def test_portal(self):
+    #     self.login()
+    #     self.assertGET200(reverse('opportunities__portal'))
 
     @skipIfCustomOrganisation
     def test_createview01(self):

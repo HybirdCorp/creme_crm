@@ -71,7 +71,7 @@ bricks_patterns = [
     url(r'^reload[/]?$',                               bricks.reload_basic,      name='creme_core__reload_bricks'),
     url(r'^reload/detailview/(?P<entity_id>\d+)[/]?$', bricks.reload_detailview, name='creme_core__reload_detailview_bricks'),
     url(r'^reload/home[/]?$',                          bricks.reload_home,       name='creme_core__reload_home_bricks'),
-    url(r'^reload/portal[/]?$',                        bricks.reload_portal,     name='creme_core__reload_portal_bricks'),
+    # url(r'^reload/portal[/]?$',                        bricks.reload_portal,     name='creme_core__reload_portal_bricks'),
 
     url(r'^set_state[/]?$', bricks.set_state, name='creme_core__set_brick_state'),
 ]

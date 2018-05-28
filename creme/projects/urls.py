@@ -5,15 +5,15 @@ from django.conf.urls import url
 from creme.activities import activity_model_is_custom
 
 from . import project_model_is_custom, task_model_is_custom
-from .views import portal, project, task, resource
+from .views import project, task, resource  # portal
 
 
 urlpatterns = [
-    url(r'^$', portal.portal, name='projects__portal'),
+    # url(r'^$', portal.portal, name='projects__portal'),
 
     # TODO: Define what user could do or not if projet is 'close'
     #       (with the use of the button that sets an effective end date)
-    # TODO: change url ?? project/close/(?P<project_id>\d+)
+    # TODO: change url ?? project/close/(?P<project_id>\d+) ? 'id' as POST argument ?
     url(r'^project/(?P<project_id>\d+)/close[/]?$', project.close, name='projects__close_project'),
 
     url(r'^task/parent/delete[/]?$',               task.delete_parent, name='projects__remove_parent_task'),

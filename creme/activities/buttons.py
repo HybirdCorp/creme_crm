@@ -76,8 +76,7 @@ class AddTaskButton(AddRelatedActivityButton):
     activity_type = constants.ACTIVITYTYPE_TASK
 
 
-# DEPRECATED
-add_activity_button  = AddRelatedActivityButton()
-add_meeting_button   = AddMeetingButton()
-add_phonecall_button = AddPhoneCallButton()
-add_task_button      = AddTaskButton()
+# add_activity_button  = AddRelatedActivityButton()
+# add_meeting_button   = AddMeetingButton()
+# add_phonecall_button = AddPhoneCallButton()
+# add_task_button      = AddTaskButton()

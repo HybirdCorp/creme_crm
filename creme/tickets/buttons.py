@@ -41,5 +41,4 @@ class Linked2TicketButton(Button):
         return super(Linked2TicketButton, self).render(context)
 
 
-# DEPRECATED
-linked_2_ticket_button = Linked2TicketButton()
+# linked_2_ticket_button = Linked2TicketButton()
