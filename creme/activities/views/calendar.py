@@ -23,7 +23,7 @@ from copy import copy
 from datetime import datetime, timedelta
 import logging
 from json import dumps as jsondumps
-import warnings
+# import warnings
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
@@ -183,19 +183,21 @@ def user_calendar(request):
 @login_required
 @permission_required('activities')
 @jsonify
-def get_users_activities(request, calendar_ids=None):
+# def get_users_activities(request, calendar_ids=None):
+def get_users_activities(request):
     GET = request.GET
 
-    if calendar_ids is not None:
-        warnings.warn('activities.views.calendar.get_users_activities(): '
-                      'the URL argument "calendar_ids" is deprecated ; '
-                      'use the GET parameter "calendar_id" instead.',
-                      DeprecationWarning
-                     )
-
-        calendar_ids = calendar_ids.split(',')
-    else:
-        calendar_ids = GET.getlist('calendar_id')
+    # if calendar_ids is not None:
+    #     warnings.warn('activities.views.calendar.get_users_activities(): '
+    #                   'the URL argument "calendar_ids" is deprecated ; '
+    #                   'use the GET parameter "calendar_id" instead.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     calendar_ids = calendar_ids.split(',')
+    # else:
+    #     calendar_ids = GET.getlist('calendar_id')
+    calendar_ids = GET.getlist('calendar_id')
 
     user = request.user
     contacts = list(get_contact_model().objects.exclude(is_user=None)

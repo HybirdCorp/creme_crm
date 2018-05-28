@@ -19,7 +19,7 @@
 ################################################################################
 
 from itertools import chain
-import warnings
+# import warnings
 
 from django.utils.translation import ugettext_lazy as _
 
@@ -130,11 +130,11 @@ class FutureActivitiesBrick(QuerysetBrick):
         else:
             return Activity.get_future_linked(entity, context['today'])
 
-    def _get_queryset_for_ctypes(self, ct_ids, context):
-        warnings.warn('activities.bricks.FutureActivitiesBrick._get_queryset_for_ctypes() is deprecated.',
-                      DeprecationWarning
-                     )
-        return Activity.get_future_linked_for_ctypes(ct_ids, context['today'])
+    # def _get_queryset_for_ctypes(self, ct_ids, context):
+    #     warnings.warn('activities.bricks.FutureActivitiesBrick._get_queryset_for_ctypes() is deprecated.',
+    #                   DeprecationWarning
+    #                  )
+    #     return Activity.get_future_linked_for_ctypes(ct_ids, context['today'])
 
     def get_template_context(self, *args, **kwargs):
         ctxt = super(FutureActivitiesBrick, self).get_template_context(*args, **kwargs)
@@ -198,11 +198,11 @@ class PastActivitiesBrick(FutureActivitiesBrick):
         else:
             return Activity.get_past_linked(entity, context['today'])
 
-    def _get_queryset_for_ctypes(self, ct_ids, context):
-        warnings.warn('activities.bricks.PastActivitiesBrick._get_queryset_for_ctypes() is deprecated.',
-                      DeprecationWarning
-                     )
-        return Activity.get_past_linked_for_ctypes(ct_ids, context['today'])
+    # def _get_queryset_for_ctypes(self, ct_ids, context):
+    #     warnings.warn('activities.bricks.PastActivitiesBrick._get_queryset_for_ctypes() is deprecated.',
+    #                   DeprecationWarning
+    #                  )
+    #     return Activity.get_past_linked_for_ctypes(ct_ids, context['today'])
 
 
 class UserCalendarsBrick(QuerysetBrick):
