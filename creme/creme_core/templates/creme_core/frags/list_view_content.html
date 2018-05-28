@@ -7,75 +7,9 @@
       {% if whoami %}whoami="{{whoami}}"{% endif %} {% if not o2m %}multiple{% endif %}
       {% if is_popup_view %}reload-url="{% url 'creme_core__listview_popup' %}"{% endif %}>
 
+{# TODO: remove #}
 {% if not is_popup_view %}
 {% block extrahead %}
-{% comment %}
-<script>
-    $(function() {
-        var $list = $('.listview-standalone#list');
-
-        // only one standalone listview is allowed per page
-        if ($list.length != 1) {
-            return;
-        }
-
-        $('.footer, .page-decoration').css('transform', 'translateX(0)');
-
-        // TODO: call this function when the ajax loading of the list returns, or the elements are reset to left: 0
-        function handleHorizontalStickiness() {
-            var scrollLeft = $(document).scrollLeft();
-            var viewportWidth = $(window).width();
-
-            // Simple stickiness to left: 0
-            $('.sticky-container-standalone .sticks-horizontally, .listview-standalone .sticks-horizontally, .footer, .page-decoration').css('transform', 'translateX(' + scrollLeft + 'px)');
-
-            // complex stickiness between two absolute values modeled as position: fixed over the viewport
-            var listAnchorStickingStart = $list.offset().left;
-            var listAnchorStickingEnd = listAnchorStickingStart + $list.width();
-
-            var overShooting = scrollLeft + viewportWidth >= listAnchorStickingEnd;
-            var overshoot = Math.abs(Math.ceil(listAnchorStickingEnd - viewportWidth - scrollLeft));
-
-            $('.floated-header-anchor').css({
-                'left': Math.max(0, listAnchorStickingStart - scrollLeft),
-                'right': overShooting ? overshoot : 0
-            });
-        }
-
-        function handleVerticalConstraints() {
-            var scrollTop = $(document).scrollTop();
-            $('.listview-actions-popover').each(function() {
-                var $popover = $(this);
-                var offset = $popover.offset();
-
-                var $floatContainer = $('.floatThead-container');
-                var floatingOffset = $floatContainer.offset();
-
-                // Check for collisions
-                if (offset.top < floatingOffset.top + $floatContainer.innerHeight() + 5 /* safe zone */) {
-                    var isRowPopover = $popover.hasClass ('row-actions-popover');
-                    var isHeaderPopover = $popover.hasClass ('header-actions-popover');
-                    var containerIsFloating = $floatContainer.hasClass ('floated');
-
-                    // Vertical constraint 1 : close row actions popovers when they collide with the floating header
-                    // Vertical constraint 3 : close header actions popovers when they are opened while the header is floating, and the document is scrolled
-                    var popoverNeedsClosing = isRowPopover || (isHeaderPopover && containerIsFloating);
-                    if (popoverNeedsClosing) {
-                        $popover.trigger('modal-close');
-                    }
-                }
-            });
-        }
-
-        $(document).on('scroll', function(e) {
-            handleHorizontalStickiness();
-            handleVerticalConstraints();
-        });
-
-        handleHorizontalStickiness();
-    });
-</script>
-{% endcomment %}
 {% endblock %}
 {% endif %}
 
@@ -122,10 +56,6 @@
                     {% trans 'Download header' as label %}{% widget_icon name='document_csv' label=label size='listview-button' %}{{label}}
                 </a>
             {% endif %}
-{% comment %}
-            {% ctype_is_registered_for_import content_type as can_import %}
-            {% if can_import %}
-{% endcomment %}
             {% if content_type|ctype_can_be_mass_imported %}
                 {% get_import_backends as import_backends %}
                 {% if import_backends|length > 2 %}
@@ -134,7 +64,6 @@
                 </a>
                 {% endif %}
             {% endif %}
-{#            <a class="with-icon" href="{% url 'creme_core__batch_process' content_type_id %}?list_url={{request.path}}"> #}
             <a class="with-icon" href="{% url 'creme_core__batch_process' content_type_id %}{% if list_view_state.entity_filter_id %}?efilter={{list_view_state.entity_filter_id}}{% endif %}">
                 {% trans 'Batch process' as label %}{% widget_icon name='batch_process' label=label size='listview-button' %}{{label}}
             </a>

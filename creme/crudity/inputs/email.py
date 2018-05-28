@@ -31,7 +31,6 @@ from django.utils.translation import ugettext_lazy as _
 from creme.documents import get_document_model
 
 from ..backends.models import CrudityBackend
-# from ..buttons import EmailTemplateCreateButton, InfopathCreateFormButton, infopath_create_form_button, email_template_create_button
 from ..constants import LEFT_MULTILINE_SEP, RIGHT_MULTILINE_SEP
 from ..models import WaitingAction
 from ..utils import strip_html, strip_html_, decode_b64binary
@@ -65,11 +64,6 @@ class CreateEmailInput(EmailInput):
     method = 'create'
     verbose_method = _(u'Create')
     brickheader_action_templates = ('crudity/bricks/header-actions/email-creation-template.html',)
-
-    # def __init__(self, template_creation_button=EmailTemplateCreateButton):
-    #     super(CreateEmailInput, self).__init__()
-    #     if template_creation_button:
-    #         self.register_buttons(template_creation_button())
 
     def create(self, email):
         backend = self.get_backend(CrudityBackend.normalize_subject(email.subject)) # or self.get_backend("*")
@@ -142,13 +136,6 @@ class CreateEmailInput(EmailInput):
         self._pre_process_data(backend, data)
 
         if backend.in_sandbox:
-            # action         = WaitingAction()
-            # action.data    = action.set_data(data)
-            # action.action  = 'create'
-            # action.source  = 'email - %s' % self.name
-            # action.ct      = ContentType.objects.get_for_model(backend.model)
-            # action.subject = backend.subject
-            # action.user    = owner
             action = WaitingAction(
                 action='create',
                 source='email - {}'.format(self.name),
@@ -168,14 +155,6 @@ class CreateEmailInput(EmailInput):
     @staticmethod
     def get_owner(is_sandbox_by_user, sender=None):
         """Returns the owner to assign to waiting actions and history"""
-        # if is_sandbox_by_user:
-        #     User = get_user_model()
-        #     try:
-        #         return User.objects.filter(email=sender)[0]
-        #     except IndexError:
-        #         return User.objects.filter(is_superuser=True).order_by('-pk')[0] # No need to catch IndexError
-        #
-        # return None
         owner = None
 
         if is_sandbox_by_user:
@@ -207,9 +186,6 @@ class CreateInfopathInput(CreateEmailInput):
     brickheader_action_templates = ('crudity/bricks/header-actions/infopath-creation-form.html',)
 
     MIME_TYPES = ['application/x-microsoft-infopathform']
-
-    # def __init__(self, template_creation_button=InfopathCreateFormButton):
-    #     super(CreateInfopathInput, self).__init__(template_creation_button=template_creation_button)
 
     def _pre_process_data(self, backend, data):
         model_get_field = backend.model._meta.get_field
@@ -280,11 +256,5 @@ class CreateInfopathInput(CreateEmailInput):
                     data[tag] = "\n".join(child.text or '' for child in children)
                 else:
                     data[tag] = node.text
+
         return data
-
-
-# create_email_input = CreateEmailInput()
-# create_email_input.register_buttons(email_template_create_button)
-#
-# create_infopath_input = CreateInfopathInput()
-# create_infopath_input.register_buttons(infopath_create_form_button)

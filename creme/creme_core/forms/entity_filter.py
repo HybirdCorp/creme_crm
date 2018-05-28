@@ -79,24 +79,6 @@ class FieldConditionWidget(ChainedInput):  # TODO: rename FieldConditionSelector
         self.operators = operators
         self.autocomplete = autocomplete
 
-    # def render(self, name, value, attrs=None):
-    #     field_attrs = {'auto': False, 'datatype': 'json'}
-    #
-    #     if self.autocomplete:
-    #         field_attrs['autocomplete'] = True
-    #
-    #     add_dselect = self.add_dselect
-    #     add_dselect('field',    options=self._build_fieldchoices(self.fields), attrs=field_attrs)
-    #     add_dselect('operator', options=self._build_operatorchoices(self.operators),
-    #                 attrs=dict(field_attrs,
-    #                            filter='context.field && item.value ? item.value.types.split(" ").indexOf(context.field.type) !== -1 : true',
-    #                            dependencies='field',
-    #                           ),
-    #                )
-    #     self.add_input('value', self._build_valueinput(field_attrs), attrs=attrs)
-    #
-    #     return super(FieldConditionWidget, self).render(name, value, attrs)
-
     def _build_valueinput(self, field_attrs):
         pinput = PolymorphicInput(key='${field.type}.${operator.id}', attrs={'auto': False})
 
@@ -147,7 +129,6 @@ class FieldConditionWidget(ChainedInput):  # TODO: rename FieldConditionSelector
             choice_value = {'name': name, 'type': choice_type}
 
             if choice_type in EntityFilterCondition._FIELDTYPES_RELATED:
-                # choice_value['ctype'] = ContentType.objects.get_for_model(subfield.rel.to).id
                 choice_value['ctype'] = ContentType.objects.get_for_model(subfield.remote_field.model).id
         else:
             choice_type = FieldConditionWidget.field_choicetype(field)
@@ -155,7 +136,6 @@ class FieldConditionWidget(ChainedInput):  # TODO: rename FieldConditionSelector
             choice_value = {'name': name, 'type': choice_type}
 
             if choice_type in EntityFilterCondition._FIELDTYPES_RELATED:
-                # choice_value['ctype'] = ContentType.objects.get_for_model(field.rel.to).id
                 choice_value['ctype'] = ContentType.objects.get_for_model(field.remote_field.model).id
 
         return category, (json.dumps(choice_value), choice_label)
@@ -175,15 +155,12 @@ class FieldConditionWidget(ChainedInput):  # TODO: rename FieldConditionSelector
 
     @staticmethod
     def field_choicetype(field):
-        # isnull = '__null' if getattr(field, 'null', False) else ''
         isnull = '__null' if field.null or field.many_to_many else ''
 
         if isinstance(field, ModelRelatedField):
-            # if issubclass(field.rel.to, get_user_model()):
             if issubclass(field.remote_field.model, get_user_model()):
                 return 'user' + isnull
 
-            # if not issubclass(field.rel.to, CremeEntity) and field.get_tag('enumerable'):
             if not issubclass(field.remote_field.model, CremeEntity) and field.get_tag('enumerable'):
                 return 'enum' + isnull
 
@@ -226,15 +203,6 @@ class RegularFieldsConditionsWidget(SelectorList):
         super(RegularFieldsConditionsWidget, self).__init__(None, attrs)
         self.fields = fields
 
-    # def render(self, name, value, attrs=None):
-    #     self.selector = FieldConditionWidget(fields=self.fields,
-    #                                          # todo: given by form field ?
-    #                                          operators=EntityFilterCondition._OPERATOR_MAP,
-    #                                          autocomplete=True,
-    #                                         )
-    #
-    #     return super(RegularFieldsConditionsWidget, self).render(name, value, attrs)
-
     def get_context(self, name, value, attrs):
         self.selector = FieldConditionWidget(fields=self.fields,
                                              # TODO: given by form field ?
@@ -249,20 +217,6 @@ class DateFieldsConditionsWidget(SelectorList):
     def __init__(self, fields=(), attrs=None, enabled=True):
         super(DateFieldsConditionsWidget, self).__init__(None, enabled=enabled, attrs=attrs)
         self.fields = fields
-
-    # def render(self, name, value, attrs=None):
-    #     self.selector = chained_input = ChainedInput()
-    #     sub_attrs = {'auto': False, 'datatype': 'json'}
-    #
-    #     chained_input.add_dselect('field', options=self._build_fieldchoices(self.fields), attrs=sub_attrs)
-    #
-    #     pinput = PolymorphicInput(key='${field.type}', attrs=sub_attrs)
-    #     pinput.add_input('daterange__null', NullableDateRangeSelect, attrs=sub_attrs)
-    #     pinput.add_input('daterange', DateRangeSelect, attrs=sub_attrs)
-    #
-    #     chained_input.add_input('range', pinput, attrs=sub_attrs)
-    #
-    #     return super(DateFieldsConditionsWidget, self).render(name, value, attrs)
 
     def _build_fieldchoice(self, name, data):
         field = data[0]
@@ -375,19 +329,6 @@ class CustomFieldConditionWidget(SelectorList):
         super(CustomFieldConditionWidget, self).__init__(None, attrs)
         self.fields = fields
 
-    # def render(self, name, value, attrs=None):
-    #     fields = self.fields
-    #
-    #     if not fields:
-    #         return _(u'No custom field at present.')
-    #
-    #     self.selector = CustomFieldConditionSelector(fields=fields, autocomplete=True,
-    #                                                  # TODO: given by form field ?
-    #                                                  operators=EntityFilterCondition._OPERATOR_MAP,
-    #                                                 )
-    #
-    #     return super(CustomFieldConditionWidget, self).render(name, value, attrs)
-
     def get_context(self, name, value, attrs):
         fields = list(self.fields)
 
@@ -410,20 +351,6 @@ class DateCustomFieldsConditionsWidget(SelectorList):
         super(DateCustomFieldsConditionsWidget, self).__init__(selector=None, enabled=enabled, attrs=attrs)
         self.date_fields_options = date_fields_options
 
-    # def render(self, name, value, attrs=None):
-    #     options = list(self.date_fields_options)
-    #
-    #     if not options:
-    #         return _(u'No date custom field at present.')
-    #
-    #     self.selector = chained_input = ChainedInput()
-    #     sub_attrs = {'auto': False}
-    #
-    #     chained_input.add_dselect('field', options=options, attrs=sub_attrs)
-    #     chained_input.add_input('range', NullableDateRangeSelect, attrs=sub_attrs)
-    #
-    #     return super(DateCustomFieldsConditionsWidget, self).render(name, value, attrs)
-
     def get_context(self, name, value, attrs):
         options = list(self.date_fields_options)
 
@@ -441,9 +368,7 @@ class DateCustomFieldsConditionsWidget(SelectorList):
 
 
 class RelationTargetWidget(PolymorphicInput):
-    # def __init__(self, key='', multiple=False, attrs=None, **kwargs):
     def __init__(self, key='', multiple=False, attrs=None):
-        # super(RelationTargetWidget, self).__init__(key=key, attrs=attrs, **kwargs)
         super(RelationTargetWidget, self).__init__(key=key, attrs=attrs)
         self.add_input('^0$', widget=DynamicInput, type='hidden', attrs={'auto': False, 'value':'[]'})
         self.set_default_input(widget=EntitySelector, attrs={'auto': False, 'multiple': multiple})
@@ -453,28 +378,6 @@ class RelationsConditionsWidget(SelectorList):
     def __init__(self, rtypes=(), attrs=None):
         super(RelationsConditionsWidget, self).__init__(None, attrs=attrs)
         self.rtypes = rtypes
-
-    # def render(self, name, value, attrs=None):
-    #     self.selector = chained_input = ChainedInput()
-    #     # datatype = json => boolean are returned as json boolean, not strings
-    #     attrs_json = {'auto': False, 'datatype': 'json'}
-    #
-    #     rtype_name = 'rtype'
-    #     # ctype_url  = '/creme_core/entity_filter/rtype/${%s}/content_types' % rtype_name
-    #     # todo: use a GET arg instead of using a TemplateURLBuilder ?
-    #     ctype_url  = TemplateURLBuilder(rtype_id=(TemplateURLBuilder.Word, '${%s}' % rtype_name))\
-    #                                    .resolve('creme_core__ctypes_compatible_with_rtype_as_choices')
-    #
-    #     add_dselect = chained_input.add_dselect
-    #     add_dselect('has', options=_HAS_RELATION_OPTIONS.iteritems(), attrs=attrs_json)
-    #     add_dselect(rtype_name, options=self.rtypes, attrs={'auto': False, 'autocomplete': True})
-    #     add_dselect('ctype', options=ctype_url, attrs=dict(attrs_json, autocomplete=True))
-    #
-    #     chained_input.add_input('entity', widget=RelationTargetWidget,
-    #                             attrs={'auto': False}, key='${ctype}', multiple=True,
-    #                            )
-    #
-    #     return super(RelationsConditionsWidget, self).render(name, value, attrs)
 
     def get_context(self, name, value, attrs):
         self.selector = chained_input = ChainedInput()
@@ -503,30 +406,6 @@ class RelationSubfiltersConditionsWidget(SelectorList):
         super(RelationSubfiltersConditionsWidget, self).__init__(None, attrs=attrs)
         self.rtypes = rtypes
 
-    # def render(self, name, value, attrs=None):
-    #     self.selector = chained_input = ChainedInput()
-    #
-    #     attrs_json = {'auto': False, 'datatype': 'json'}
-    #     rtype_name = 'rtype'
-    #     ctype_name = 'ctype'
-    #
-    #     add_dselect = chained_input.add_dselect
-    #     add_dselect('has', options=_HAS_RELATION_OPTIONS.iteritems(), attrs=attrs_json)
-    #     add_dselect(rtype_name, options=self.rtypes, attrs={'auto': False, 'autocomplete': True})
-    #     add_dselect(ctype_name, attrs=dict(attrs_json, autocomplete=True),
-    #                 # options='/creme_core/relation/type/${%s}/content_types/json' % rtype_name,
-    #                 # TODO: use a GET arg instead of using a TemplateURLBuilder ?
-    #                 options=TemplateURLBuilder(rtype_id=(TemplateURLBuilder.Word, '${%s}' % rtype_name))
-    #                                           .resolve('creme_core__ctypes_compatible_with_rtype'),
-    #                )
-    #     add_dselect('filter',
-    #                 # options='/creme_core/entity_filter/get_for_ctype/${%s}' % ctype_name,
-    #                 options=reverse('creme_core__efilters') + '?ct_id=${%s}' % ctype_name,
-    #                 attrs={'auto': False, 'autocomplete': True, 'data-placeholder': _(u'(no filter)')},
-    #                )
-    #
-    #     return super(RelationSubfiltersConditionsWidget, self).render(name, value, attrs)
-
     def get_context(self, name, value, attrs):
         self.selector = chained_input = ChainedInput()
 
@@ -554,17 +433,6 @@ class PropertiesConditionsWidget(SelectorList):
     def __init__(self, ptypes=(), attrs=None):
         super(PropertiesConditionsWidget, self).__init__(None, attrs=attrs)
         self.ptypes = ptypes
-
-    # def render(self, name, value, attrs=None):
-    #     self.selector = chained_input = ChainedInput(attrs)
-    #
-    #     add_dselect = chained_input.add_dselect
-    #     add_dselect('has', options=_HAS_PROPERTY_OPTIONS.iteritems(),
-    #                 attrs={'auto': False, 'datatype': 'json'},
-    #                )
-    #     add_dselect('ptype', options=self.ptypes, attrs={'auto': False})
-    #
-    #     return super(PropertiesConditionsWidget, self).render(name, value, attrs)
 
     def get_context(self, name, value, attrs):
         self.selector = chained_input = ChainedInput(attrs)
@@ -617,7 +485,6 @@ class RegularFieldsConditionsField(_ConditionsField):
 
     def _build_related_fields(self, field, fields, fconfigs):
         fname = field.name
-        # related_model = field.rel.to
         related_model = field.remote_field.model
         field_hidden = fconfigs.get_4_model(field.model).is_field_hidden(field)
         excluded = self.excluded_fields
@@ -690,7 +557,6 @@ class RegularFieldsConditionsField(_ConditionsField):
                 values = u','.join(unicode(value) for value in search_info['values'])
 
             if field_entry['type'] in EntityFilterCondition._FIELDTYPES_RELATED:
-                # field_entry['ctype'] = ContentType.objects.get_for_model(field.rel.to).id
                 field_entry['ctype'] = ContentType.objects.get_for_model(field.remote_field.model).id
 
             dicts.append({'field':    field_entry,
@@ -776,7 +642,6 @@ class DateFieldsConditionsField(_ConditionsField):
     # TODO: factorise with RegularFieldsConditionsField
     def _build_related_fields(self, field, fields, fconfigs):
         fname = field.name
-        # related_model = field.rel.to
         related_model = field.remote_field.model
         field_hidden = fconfigs.get_4_model(field.model).is_field_hidden(field)
         is_sfield_hidden = fconfigs.get_4_model(related_model).is_field_hidden
@@ -822,7 +687,7 @@ class DateFieldsConditionsField(_ConditionsField):
         return self._fields
 
     def _format_date(self, date_dict):
-        """@param date_dict dict or None; if not None => {"year": 2011, "month": 7, "day": 25}"""
+        """@param date_dict: dict or None; if not None => {"year": 2011, "month": 7, "day": 25}"""
         return date_format(date(**date_dict), 'DATE_FORMAT') if date_dict else ''
 
     # TODO : factorise with RegularFieldsConditionsField
@@ -1131,7 +996,6 @@ class RelationsConditionsField(_ConditionsField):
 
         # TODO: regroup queries....
         entity_id = value.get('entity_id')
-        # If entity_id and not CremeEntity.objects.filter(pk=entity_id).exists():
         if entity_id:
             try:
                 entity = CremeEntity.objects.get(pk=entity_id)
@@ -1199,7 +1063,6 @@ class RelationsConditionsField(_ConditionsField):
             all_kwargs.append(kwargs)
 
         if entity_ids:
-            # entities = {e.id: e for e in CremeEntity.objects.filter(pk__in=entity_ids)}
             entities = CremeEntity.objects.filter(pk__in=entity_ids).in_bulk()
 
             if len(entities) != len(entity_ids):
@@ -1260,9 +1123,6 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
             all_kwargs.append(kwargs)
 
         if filter_ids:
-            # filters = {f.id: f for f in EntityFilter.get_for_user(self.user)
-            #                                         .filter(pk__in=filter_ids)
-            #           }
             filters = EntityFilter.get_for_user(self.user).filter(pk__in=filter_ids).in_bulk()
 
             if len(filters) != len(filter_ids):

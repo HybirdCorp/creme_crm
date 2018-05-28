@@ -82,7 +82,6 @@ class AbstractTemplateBase(Base):
         vstatus = self._verbose_status_cache
 
         if vstatus is None or vstatus.id != self.status_id:
-            # status_model = self.ct.model_class()._meta.get_field('status').rel.to
             status_model = self.ct.model_class()._meta.get_field('status').remote_field.model
 
             try:
@@ -116,14 +115,6 @@ class AbstractTemplateBase(Base):
         instance.save()
 
         return instance
-
-    # def build(self, template, new_ct):
-    #     " This build is in case of convert a template with a ct into another template with a different ct"
-    #     warnings.warn('TemplateBase.build() method is deprecated.', DeprecationWarning)
-    #
-    #     self.status_id = 1
-    #     self.ct = new_ct
-    #     return super(AbstractTemplateBase, self).build(template)
 
 
 class TemplateBase(AbstractTemplateBase):

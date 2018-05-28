@@ -42,7 +42,7 @@ ID_LENGTH = 32
 
 class _Email(CremeModel):
     reads          = PositiveIntegerField(_(u'Number of reads'), null=True,
-                                          default=0, editable=False,  # blank=True
+                                          default=0, editable=False,
                                          )
     status         = PositiveSmallIntegerField(_(u'Status'), editable=False,
                                                default=constants.MAIL_STATUS_NOTSENT,
@@ -53,8 +53,8 @@ class _Email(CremeModel):
     recipient      = CharField(_(u'Recipient'), max_length=100)
     subject        = CharField(_(u'Subject'), max_length=100, blank=True)
     body           = TextField(_(u'Body'))
-    sending_date   = DateTimeField(_(u'Sending date'), null=True, editable=False)  # blank=True
-    reception_date = DateTimeField(_(u'Reception date'), null=True, editable=False)  # blank=True
+    sending_date   = DateTimeField(_(u'Sending date'), null=True, editable=False)
+    reception_date = DateTimeField(_(u'Reception date'), null=True, editable=False)
 
     class Meta:
         abstract = True
@@ -76,7 +76,7 @@ class _Email(CremeModel):
 
 class AbstractEntityEmail(_Email, CremeEntity):
     identifier  = CharField(_(u'Email ID'), unique=True, max_length=ID_LENGTH,
-                            editable=False,  # null=False blank=False
+                            editable=False,
                             default=generate_id,  # TODO: lambda for this
                            )
     body_html   = UnsafeHTMLField(_(u'Body (HTML)'))
@@ -139,7 +139,6 @@ class AbstractEntityEmail(_Email, CremeEntity):
         email.genid_n_save()
 
         if attachments:
-            # email.attachments = attachments
             email.attachments.set(attachments)
 
         email.send()

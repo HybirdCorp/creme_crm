@@ -37,7 +37,7 @@
                 {% endif %}
             {% endfor %}
 
-            {% comment %} TODO ??
+{% comment %} TODO ??
                 <div style="display: none; visibility: hidden;">
                     {% for persist_key, persist_values in persisted.items %}
                         {% for persist_value in persist_values %}
@@ -46,7 +46,7 @@
                         {% endfor %}
                     {% endfor %}
                 </div>
-            {% endcomment %}
+{% endcomment %}
 
             {% if form.non_field_errors %}
                 <table class="table_detail_view ui-corner-all">
@@ -63,7 +63,7 @@
                 </table>
             {% endif %}
 
-            {% if form.forms %}{% comment %}TODO: improve this case{% endcomment %}
+            {% if form.forms %}{# TODO: improve this case #}
                 {{form.management_form}}
                 {% for subform in form.forms %}
                     {{subform.as_p}}

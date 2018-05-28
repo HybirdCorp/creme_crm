@@ -28,15 +28,13 @@ from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required
-# from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.utils import get_from_POST_or_404, jsonify  # get_ct_or_404
+from creme.creme_core.utils import get_from_POST_or_404, jsonify
 from creme.creme_core.utils.db import reorder_instances
 from creme.creme_core.views import bricks as bricks_views, generic
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.utils import json_update_from_widget_response
 
 from ..bricks import GenericModelBrick, SettingsBrick
-# from ..registry import config_registry
 
 
 logger = logging.getLogger(__name__)
@@ -193,49 +191,6 @@ def reorder(request, app_name, model_name, object_id):
     return HttpResponse()
 
 
-# @login_required
-# @POST_only
-# def swap_order(request, app_name, model_name, object_id, offset):
-#     warnings.warn('generic_views.swap_order() is deprecated ; use reorder() instead.', DeprecationWarning)
-#
-#     model = _get_modelconf(_get_appconf(request.user, app_name), model_name).model
-#
-#     if not any(f.name == 'order' for f in model._meta.get_fields()):
-#         raise Http404('Invalid model (no "user" field)')
-#
-#     if model._meta.ordering[0] != 'order':
-#         raise ConflictError('The "order" field should be used for ordering')
-#
-#     found = None
-#     ordered = []
-#
-#     for i, instance in enumerate(model.objects.all()):
-#         new_order = i + 1
-#
-#         if str(instance.pk) == object_id:  # Manage the model with string as pk
-#             found = i
-#             new_order += offset
-#
-#         ordered.append([new_order, instance])
-#
-#     if found is None:
-#         raise Http404('Invalid object id (not found)')
-#
-#     swapped_index = found + offset
-#
-#     if not (0 <= swapped_index < len(ordered)):
-#         raise Http404('Invalid object id')
-#
-#     ordered[swapped_index][0] -= offset  # Update new_order
-#
-#     for new_order, instance in ordered:
-#         if new_order != instance.order:
-#             instance.order = new_order
-#             instance.save()
-#
-#     return HttpResponse()
-
-
 @login_required
 def portal_app(request, app_name):
     app_config = _get_appconf(request.user, app_name)
@@ -248,29 +203,6 @@ def portal_app(request, app_name):
                    'bricks_reload_url': reverse('creme_config__reload_app_bricks', args=(app_name,)),
                   }
                  )
-
-
-# @login_required
-# @jsonify
-# def reload_block(request, ct_id):
-#     warnings.warn('generics.views.reload_block() is deprecated ; use reload_brick() instead.', DeprecationWarning)
-#
-#     from creme.creme_core.views import blocks as blocks_views
-#     from ..blocks import generic_models_block
-#
-#     model = get_ct_or_404(ct_id).model_class()
-#     app_name = model._meta.app_label
-#
-#     request.user.has_perm_to_admin_or_die(app_name)
-#
-#     context = blocks_views.build_context(
-#                 request,
-#                 model=model,
-#                 model_name=config_registry.get_app(app_name).get_model_conf(model=model).name_in_url,
-#                 app_name=app_name,
-#     )
-#
-#     return [(generic_models_block.id_, generic_models_block.detailview_display(context))]
 
 
 @login_required

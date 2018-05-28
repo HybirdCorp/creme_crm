@@ -32,33 +32,6 @@ from django.db.models import FieldDoesNotExist, DateField
 from .unicode_collation import collator
 
 
-# def get_instance_field_info(obj, field_name):
-#     """ For a field_name 'att1__att2__att3', it searches and returns the tuple
-#     (class of obj.att1.att2.get_field('att3'), obj.att1.att2.att3)
-#     @return : (field_class, field_value)
-#     """
-#     warnings.warn("get_instance_field_info() function is deprecated ; use FieldInfo.value_from() instead.",
-#                   DeprecationWarning
-#                  )
-#
-#     subfield_names = field_name.split('__')
-#
-#     try:
-#         for subfield_name in subfield_names[:-1]:
-#             obj = getattr(obj, subfield_name)  # Can be None if a M2M has no related value
-#
-#         subfield_name = subfield_names[-1]
-#         field = obj._meta.get_field(subfield_name)
-#         field_value = getattr(obj, subfield_name)
-#
-#         if field.many_to_many:
-#             field_value = field_value.all()
-#
-#         return field.__class__, field_value
-#     except (AttributeError, FieldDoesNotExist):
-#         return None, ''
-
-
 class FieldInfo(object):
     """Class which stores a 'chain' of fields for a given model.
 
@@ -106,16 +79,13 @@ class FieldInfo(object):
 
         for subfield_name in subfield_names[:-1]:
             field = model._meta.get_field(subfield_name)
-            # rel = getattr(field, 'rel', None)
             remote_field = getattr(field, 'remote_field', None)
 
-            # if rel is None:
             if remote_field is None:
                 raise FieldDoesNotExist('"%s" is not a ForeignKey/ManyToManyField,'
                                         ' so it can have a sub-field' % subfield_name
                                        )
 
-            # model = rel.to
             model = remote_field.model
             fields.append(field)
 
@@ -134,7 +104,6 @@ class FieldInfo(object):
 
             if new_fields and idx.start:
                 try:
-                    # fi._model = self.__fields[idx.start - 1].rel.to
                     fi._model = self.__fields[idx.start - 1].remote_field.model
                 except IndexError:
                     pass
@@ -255,7 +224,6 @@ class ModelFieldEnumerator(object):
                     if rem_depth:
                         if include_fk:
                             fields_info.append(field_info)
-                        # deeper_fields_args.append((field.rel.to, field_info))
                         deeper_fields_args.append((field.remote_field.model, field_info))
                     elif include_fk:
                         fields_info.append(field_info)
@@ -270,9 +238,9 @@ class ModelFieldEnumerator(object):
 
     def filter(self, function=None, **kwargs):
         """Filter the field sequence.
-        @param function Callable which takes 2 arguments (field instance, deep),
-                        and returns a boolean ('True' means 'the field is accepted').
-        @param kwargs Keywords can be a true field attribute name, or a creme tag.
+        @param function: Callable which takes 2 arguments (field instance, deep),
+               and returns a boolean ('True' means 'the field is accepted').
+        @param kwargs: Keywords can be a true field attribute name, or a creme tag.
                Eg: ModelFieldEnumerator(Contact).filter(editable=True, viewable=True)
         """
         self._ffilters.append(_FilterModelFieldQuery(function, **kwargs))

@@ -29,7 +29,6 @@ from ..auth.decorators import login_required
 from ..core.batch_process import batch_operator_manager
 from ..forms.batch_process import BatchProcessForm
 from ..models import Job
-# from ..gui.listview import ListViewState
 from ..utils import get_ct_or_404, jsonify
 from .utils import build_cancel_path
 
@@ -42,7 +41,6 @@ def batch_process(request, ct_id):
     if not user.has_perm(ct.app_label):  # TODO: factorise
         raise PermissionDenied(_(u"You are not allowed to access to this app"))
 
-    # if Job.objects.filter(user=user).count() >= settings.MAX_JOBS_PER_USER:
     if Job.not_finished_jobs(user).count() >= settings.MAX_JOBS_PER_USER:
         return HttpResponseRedirect(reverse('creme_core__my_jobs'))
 
@@ -56,25 +54,14 @@ def batch_process(request, ct_id):
 
         cancel_url = POST.get('cancel_url')
     else:
-        # efilter_id = None
-        # list_url = request.GET.get('list_url')
-        #
-        # if list_url:
-        #     lvs = ListViewState.get_state(request, url=list_url)
-        #
-        #     if lvs:
-        #         efilter_id = lvs.entity_filter_id
-
         bp_form = BatchProcessForm(user=user,
                                    initial={'content_type': ct,
-                                            # 'filter': efilter_id,
                                             'filter': request.GET.get('efilter'),
                                            },
                                   )
         cancel_url = build_cancel_path(request)
 
     return render(request,
-                  # 'creme_core/batch_process.html',
                   'creme_core/forms/batch-process.html',
                   {'form':          bp_form,
                    'submit_label':  _(u'Run'),

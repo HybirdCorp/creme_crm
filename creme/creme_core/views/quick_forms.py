@@ -23,7 +23,7 @@
 
 from django.core.exceptions import PermissionDenied
 from django.forms.formsets import formset_factory
-from django.http import Http404  # HttpResponse
+from django.http import Http404
 from django.utils.translation import ugettext as _
 
 from ..auth.decorators import login_required
@@ -38,22 +38,6 @@ from .utils import json_update_from_widget_response
 #       it does not raise a Validation exception, but it causes a SQL integrity
 #       error ; we are saved by the 'empty_label=None' of user field, but it is
 #       not really perfect...
-
-# def json_quickform_response(instance):
-#     warnings.warn('creme_core.views.quick_forms.json_quickform_response(): is deprecated. '
-#                   'The <json> tag need for compatibility with (very) old versions of IE is no longer needed. '
-#                   'Use creme.creme_core.views.utils.json_update_from_widget_response(form.instance) instead.',
-#                   DeprecationWarning
-#                  )
-#
-#     response = {'value': instance.id,
-#                 'added': [(instance.id, unicode(instance))],
-#                }
-#
-#     return HttpResponse(u'<json>%s</json>' % json_dump(response),
-#                         content_type="text/html",
-#                        )
-
 
 @login_required
 def add(request, ct_id, count):
@@ -88,7 +72,6 @@ def add(request, ct_id, count):
         qformset = qformset_class(data=request.POST, files=request.FILES or None)
 
         if qformset.is_valid():
-            # for form in qformset.forms:
             for form in qformset:
                 form.save()
     else:
@@ -105,11 +88,7 @@ def add(request, ct_id, count):
 
 
 @login_required
-# def add_from_widget(request, ct_id, count=None):
 def add_from_widget(request, ct_id):
-    # if count is not None:
-    #     warnings.warn('add_from_widget(): the argument "count" is deprecated.', DeprecationWarning)
-
     model = get_ct_or_404(ct_id).model_class()
     model_name = model._meta.verbose_name
     user = request.user

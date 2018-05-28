@@ -28,11 +28,6 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from .checks import Tags, check_uninstalled_apps  # NB: it registers other checks too
-# from .core.reminder import reminder_registry
-# from .core.setting_key import setting_key_registry, user_setting_key_registry
-# from .gui import (creme_menu, brick_registry, bulk_update_registry, button_registry,
-#         fields_config_registry, field_printers_registry, icon_registry, import_form_registry,
-#         merge_form_registry, quickforms_registry, smart_columns_registry, statistics_registry)
 from .registry import creme_registry
 
 
@@ -75,10 +70,6 @@ class MediaGeneratorConfig(AppConfig):
     def _build_MEDIA_BUNDLES(self):
         is_installed = apps.is_installed
 
-        # MEDIA_BUNDLES = (settings.CREME_I18N_JS,
-        #                  settings.CREME_LIB_JS + tuple(js for app, js in settings.CREME_OPTLIB_JS if is_installed(app)),
-        #                  settings.CREME_CORE_JS + tuple(js for app, js in settings.CREME_OPT_JS if is_installed(app))
-        #                 )
         MEDIA_BUNDLES = [
             settings.CREME_I18N_JS,
             settings.CREME_LIB_JS + [js for app, js in settings.CREME_OPTLIB_JS if is_installed(app)],
@@ -86,23 +77,12 @@ class MediaGeneratorConfig(AppConfig):
         ]
 
         if settings.FORCE_JS_TESTVIEW:
-            # MEDIA_BUNDLES += (settings.TEST_CREME_LIB_JS,
-            #                   settings.TEST_CREME_CORE_JS + tuple(js for app, js in settings.TEST_CREME_OPT_JS if is_installed(app))
-            #                  )
             MEDIA_BUNDLES.append(settings.TEST_CREME_LIB_JS)
             MEDIA_BUNDLES.append(settings.TEST_CREME_CORE_JS + [js for app, js in settings.TEST_CREME_OPT_JS if is_installed(app)])
 
-        # MEDIA_BUNDLES += settings.CREME_OPT_MEDIA_BUNDLES
         MEDIA_BUNDLES += settings.CREME_OPT_MEDIA_BUNDLES
 
-        # CREME_CSS = settings.CREME_CORE_CSS + tuple(css for app, css in settings.CREME_OPT_CSS if is_installed(app))
         CREME_CSS = settings.CREME_CORE_CSS + [css for app, css in settings.CREME_OPT_CSS if is_installed(app)]
-        # MEDIA_BUNDLES += tuple((theme_dir + CREME_CSS[0], ) +
-        #                        tuple(theme_dir + '/' + css_file if not isinstance(css_file, dict) else css_file
-        #                                 for css_file in CREME_CSS[1:]
-        #                             )
-        #                         for theme_dir, theme_vb_name in settings.THEMES
-        #                       )
         MEDIA_BUNDLES.extend(
             [theme_dir + CREME_CSS[0]] +
             [css_file if isinstance(css_file, dict) else '{}/{}'.format(theme_dir, css_file)
@@ -112,46 +92,6 @@ class MediaGeneratorConfig(AppConfig):
 
         settings.CREME_CSS = CREME_CSS  # For compatibility (should not be useful)
         settings.MEDIA_BUNDLES = MEDIA_BUNDLES
-
-    # def _fix_i18n_filter(self):
-    #     # NB: we do not fix in creme.__init__ because it does not work well (strange loading behaviour).
-    #
-    #     # Code copied from mediagenerator/filters/i18n.py ----------------------
-    #     #  Copyright (c) Waldemar Kornewald, Thomas Wanschik, and all contributors.
-    #     #  Copyright 2016 - Hybird
-    #     #  BSD License
-    #     from django.http import HttpRequest
-    #     from django.views.i18n import javascript_catalog
-    #
-    #     def _generate(self, language):
-    #         language_bidi = language.split('-')[0] in settings.LANGUAGES_BIDI
-    #         request = HttpRequest()
-    #         request.GET['language'] = language
-    #         # Add some JavaScript data
-    #         content = 'var LANGUAGE_CODE = "%s";\n' % language
-    #         content += 'var LANGUAGE_BIDI = ' + \
-    #             (language_bidi and 'true' or 'false') + ';\n'
-    #
-    #         # content += javascript_catalog(request,
-    #         #     packages=settings.INSTALLED_APPS).content
-    #
-    #         # DAT FIX
-    #         content += javascript_catalog(
-    #                         request,
-    #                         packages=[app_config.name for app_config in apps.app_configs.values()],
-    #                     ).content
-    #
-    #         # The hgettext() function just calls gettext() internally, but
-    #         # it won't get indexed by makemessages.
-    #         content += '\nwindow.hgettext = function(text) { return gettext(text); };\n'
-    #         # Add a similar hngettext() function
-    #         content += 'window.hngettext = function(singular, plural, count) { return ngettext(singular, plural, count); };\n'
-    #         return content
-    #
-    #     # Code copied from mediagenerator/filters/i18n.py [END]-----------------
-    #
-    #     from mediagenerator.filters.i18n import I18N
-    #     I18N._generate = _generate
 
 
 class CremeAppConfig(AppConfig):
@@ -167,7 +107,6 @@ class CremeAppConfig(AppConfig):
     credentials = CRED_REGULAR|CRED_ADMIN
 
     # Lots of problems with ContentType table which can be not created yet.
-    # MIGRATION_MODE = ('migrate' in argv)
     MIGRATION_MODE = any(cmd in argv for cmd in settings.NO_SQL_COMMANDS)  # TODO: rename
 
     @property
@@ -227,13 +166,6 @@ class CremeAppConfig(AppConfig):
             self.register_entity_models(creme_registry)
 
             self.register_bricks(bricks.brick_registry)
-            # if hasattr(self, 'register_blocks'):
-            #     warnings.warn('The AppConfig for "%s" has a method "register_blocks()" which is now deprecated ; '
-            #                   'you should rename it register_bricks().' % self.name,
-            #                   DeprecationWarning
-            #                  )
-            #     self.register_blocks(brick_registry)
-
             self.register_bulk_update(bulk_update.bulk_update_registry)
             self.register_buttons(button_menu.button_registry)
             self.register_fields_config(fields_config.fields_config_registry)
@@ -301,7 +233,6 @@ class CremeAppConfig(AppConfig):
     def register_sanboxes(self, sandbox_type_registry):
         pass
 
-    # def register_setting_key(self, setting_key_registry):
     def register_setting_keys(self, setting_key_registry):
         pass
 
@@ -330,15 +261,6 @@ class CremeCoreConfig(CremeAppConfig):
             return
 
         checks.register(Tags.settings)(check_uninstalled_apps)  # Crashes in migrate mode.
-        # self.hook_fk_formfield()
-        # self.hook_m2m_formfield()
-        # self.hook_datetime_widgets()
-        # self.hook_multiselection_widgets()
-        # self.hook_widget_render()
-        #
-        # if settings.TESTS_ON:
-        #     from .tests.fake_apps import ready
-        #     ready()
 
     def all_apps_ready(self):
         if self.MIGRATION_MODE:
@@ -350,7 +272,6 @@ class CremeCoreConfig(CremeAppConfig):
         self.hook_m2m_formfield()
         self.hook_datetime_widgets()
         self.hook_multiselection_widgets()
-        # self.hook_widget_render()
 
         if settings.TESTS_ON:
             from .tests.fake_apps import ready
@@ -456,13 +377,10 @@ class CremeCoreConfig(CremeAppConfig):
 
         def new_fk_formfield(self, **kwargs):
             model = self.remote_field.model
-            # if issubclass(self.rel.to, CremeEntity):
             if issubclass(model, CremeEntity):
                 return CreatorEntityField(label=self.verbose_name,
-                                          # model=self.rel.to,
                                           model=model,
                                           required=not self.blank,
-                                          # q_filter=self.rel.limit_choices_to,
                                           q_filter=self.remote_field.limit_choices_to,
                                          )
 
@@ -488,13 +406,10 @@ class CremeCoreConfig(CremeAppConfig):
         def new_m2m_formfield(self, **kwargs):
             model = self.remote_field.model
 
-            # if issubclass(self.rel.to, CremeEntity):
             if issubclass(model, CremeEntity):
                 return MultiCreatorEntityField(label=self.verbose_name,
-                                               # model=self.rel.to,
                                                model=model,
                                                required=not self.blank,
-                                               # q_filter=self.rel.limit_choices_to,
                                                q_filter=self.remote_field.limit_choices_to,
                                               )
 
@@ -523,25 +438,6 @@ class CremeCoreConfig(CremeAppConfig):
 
         forms.MultipleChoiceField.widget = forms.ModelMultipleChoiceField.widget = \
              widgets.UnorderedMultipleChoiceWidget
-
-    # NB: useless in Django 1.10 which does the job
-    # @staticmethod
-    # def hook_widget_render():
-    #     from django.forms.widgets import Widget
-    #
-    #     def build_attrs(self, extra_attrs=None, **kwargs):
-    #         attrs = dict(self.attrs, **kwargs)
-    #
-    #         if self.is_required:
-    #             attrs['required'] = ''
-    #
-    #         if extra_attrs:
-    #             attrs.update(extra_attrs)
-    #
-    #         return attrs
-    #
-    #
-    #     Widget.build_attrs = build_attrs
 
     @staticmethod
     def tag_ctype():

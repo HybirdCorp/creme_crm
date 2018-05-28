@@ -105,7 +105,6 @@ class CremeEntity(CremeAbstractEntity):
         self._cvalues_map = {}
 
     @atomic
-    # def delete(self, using=None):
     def delete(self, using=None, keep_parents=False):
         from .history import _get_deleted_entity_ids
 
@@ -120,7 +119,6 @@ class CremeEntity(CremeAbstractEntity):
         for prop in self.properties.all():
             prop.delete(using=using)
 
-        # super(CremeEntity, self).delete(using=using)
         super(CremeEntity, self)._delete_without_transaction(using=using, keep_parents=keep_parents)
 
     def __unicode__(self):
@@ -331,38 +329,6 @@ class CremeEntity(CremeAbstractEntity):
             logger.debug(u'Fill properties cache entity_id=%s', entity_id)
             entity._properties = properties_map[entity_id]
 
-    # @staticmethod
-    # def populate_fk_fields(entities, field_names):
-    #     """@param entities: Sequence of CremeEntity (iterated several times -> not an iterator)
-    #                         with the _same_ ContentType.
-    #     """
-    #     warnings.warn('CremeEntity.populate_fk_fields() method is deprecated ; '
-    #                   'use creme_core.utils.db.populate_related() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     if not entities:
-    #         return
-    #
-    #     get_field = entities[0]._meta.get_field
-    #
-    #     for fname in field_names:
-    #         field = get_field(fname)
-    #
-    #         if isinstance(field, ForeignKey):
-    #             ids = set()
-    #             for entity in entities:
-    #                 attr_id = getattr(entity, fname + '_id')
-    #                 if attr_id:
-    #                     ids.add(attr_id)
-    #
-    #             attr_values = {o.id: o for o in field.rel.to.objects.filter(pk__in=ids)}
-    #
-    #             for entity in entities:
-    #                 attr_id = getattr(entity, fname + '_id')
-    #                 if attr_id:
-    #                     setattr(entity, fname, attr_values[attr_id])
-
     def save(self, *args, **kwargs):
         self.header_filter_search_field = self._search_field_value()[:_SEARCH_FIELD_MAX_LENGTH]
 
@@ -409,7 +375,6 @@ class CremeEntity(CremeAbstractEntity):
         """Handle the clone of all many to many fields"""
         for field in source._meta.many_to_many:
             field_name = field.name
-            # setattr(self, field_name, getattr(source, field_name).all())
             getattr(self, field_name).set(getattr(source, field_name).all())
 
     def _clone_object(self):

@@ -176,9 +176,7 @@ class Brick(object):
             else:
                 yield unicode(dep)
 
-    # def _build_template_context(self, context, block_name, block_context, **extra_kwargs):
     def _build_template_context(self, context, brick_id, brick_context, **extra_kwargs):
-        # context['block_name'] = context['brick_id'] = block_name
         context['brick_id'] = brick_id
         context['state'] = BricksManager.get(context).get_state(self.id_, context['user'])
         context['dependencies'] = list(self._iter_dependencies_info())
@@ -188,14 +186,6 @@ class Brick(object):
         context.update(extra_kwargs)
 
         return context
-
-    # def get_block_template_context(self, context, update_url='', **extra_kwargs):
-    #     warnings.warn('Brick.get_block_template_context() is deprecated ; '
-    #                   'use get_template_context() instead '
-    #                   '(notice that the argument "update_url" has been removed).',
-    #                   DeprecationWarning
-    #                  )
-    #     return self.get_template_context(context, **extra_kwargs)
 
     def get_template_context(self, context, **extra_kwargs):
         """ Build the brick template context.
@@ -214,7 +204,6 @@ class Brick(object):
             brick_context = self.context_class.from_dict(serialized_context)
 
         template_context = self._build_template_context(context, brick_id, brick_context,
-                                                        # base_url=base_url,
                                                         **extra_kwargs
                                                        )
 
@@ -267,7 +256,6 @@ class PaginatedBrick(Brick):
     context_class = _PaginatedBrickContext
     page_size     = settings.BLOCK_SIZE  # Number of items in the page
 
-    # def _build_template_context(self, context, block_name, block_context, **extra_kwargs):
     def _build_template_context(self, context, brick_id, brick_context, **extra_kwargs):
         request = context['request']
         objects = extra_kwargs.pop('objects')
@@ -293,12 +281,6 @@ class PaginatedBrick(Brick):
                 context=context, brick_id=brick_id, brick_context=brick_context, page=page,
                 **extra_kwargs
         )
-
-    # def get_block_template_context(self, *args, **kwargs):
-    #     warnings.warn('PaginatedBrick.get_block_template_context() is deprecated ; use get_template_context() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #     return self.get_template_context(*args, **kwargs)
 
     def get_template_context(self, context, objects, **extra_kwargs):
         """@param objects: Sequence of objects to display in the brick."""
@@ -367,7 +349,6 @@ class QuerysetBrick(PaginatedBrick):
 
         return True
 
-    # def _build_template_context(self, context, block_name, block_context, **extra_kwargs):
     def _build_template_context(self, context, brick_id, brick_context, **extra_kwargs):
         request = context['request']
         order_by = ''
@@ -388,14 +369,8 @@ class QuerysetBrick(PaginatedBrick):
                 **extra_kwargs
         )
 
-    # def get_block_template_context(self, *args, **kwargs):
-    #     warnings.warn('QuerysetBrick.get_block_template_context() is deprecated ; use get_template_context() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #     return self.get_template_context(*args, **kwargs)
-
     def get_template_context(self, context, queryset, **extra_kwargs):
-        """@param queryset Set of objects to display in the block."""
+        """@param queryset: Set of objects to display in the block."""
         return PaginatedBrick.get_template_context(self, context, objects=queryset, **extra_kwargs)
 
 
@@ -481,7 +456,6 @@ class SpecificRelationsBrick(QuerysetBrick):
 
         groups = []  # List of tuples (entities_with_same_ct, headerfilter_items)
         unconfigured_group = []  # Entities that do not have a customised columns setting
-        # colspan = 1  # Unconfigured_group has one column
         get_ct = ContentType.objects.get_for_id
 
         for ct_id, entities in entities_by_ct.iteritems():
@@ -489,14 +463,12 @@ class SpecificRelationsBrick(QuerysetBrick):
 
             if cells:
                 groups.append((entities, cells))
-                # colspan = max(colspan, len(cells))
             else:
                 unconfigured_group.extend(entities)
 
         groups.append((unconfigured_group, None))  # 'unconfigured_group' must be at the end
 
         btc['groups'] = groups
-        # btc['colspan'] = colspan + 1  # Add one because of 'Unlink' column
 
         return self._render(btc)
 
@@ -505,11 +477,10 @@ class CustomBrick(Brick):
     """Brick that can be customised by the user to display information of an entity.
     It can display regular, custom & function fields, relationships... (see HeaderFilter & EntityCells)
     """
-    # template_name = 'creme_core/templatetags/block_custom.html'
     template_name = 'creme_core/bricks/custom.html'
 
     def __init__(self, id_, customblock_conf_item):
-        "@param customblock_conf_item Instance of CustomBlockConfigItem"
+        "@param customblock_conf_item: Instance of CustomBlockConfigItem"
         super(CustomBrick, self).__init__()
         self.id_ = id_
         # TODO: related models (by FK/M2M/...) ?
@@ -567,12 +538,6 @@ class BricksManager(object):
     def brick_is_registered(self, brick):
         brick_id = brick.id_
         return any(b.id_ == brick_id for b in self._bricks)
-
-    # def block_is_registered(self, block):
-    #     warnings.warn('BlocksManager.block_is_registered() is deprecated ; use brick_is_registered() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #     return self.brick_is_registered(block)
 
     def _build_dependencies_map(self):
         dep_map = self._dependencies_map
@@ -683,15 +648,7 @@ class _BrickRegistry(object):
         setdefault = self._brick_classes.setdefault
 
         for brick_cls in brick_classes:
-            # if isinstance(brick_cls, Brick):
-            #     warnings.warn('_BrickRegistry.register(): registering brick instance is deprecated ;'
-            #                   'register brick class instead (brick ID=%s)' % brick_cls.id_,
-            #                   DeprecationWarning
-            #                  )
-            #     brick_cls = brick_cls.__class__
-
             if setdefault(brick_cls.id_, brick_cls) is not brick_cls:
-                # raise _BrickRegistry.RegistrationError("Duplicated brick's id: %s" % brick_cls.id_)
                 raise self.RegistrationError("Duplicated brick's id: {}".format(brick_cls.id_))
 
     def register_4_instance(self, *brick_classes):  # TODO: factorise
@@ -713,18 +670,6 @@ class _BrickRegistry(object):
             add(model)
 
     def register_4_model(self, model, brick_cls):  # TODO: had an 'overload' arg ??
-        # if isinstance(brick_cls, Brick):
-        #     warnings.warn('_BrikRegistry.register_4_model(): registering brick instance is deprecated ;'
-        #                   'register brick class instead (model=%s)' % model,
-        #                   DeprecationWarning
-        #                  )
-        #     brick_cls = brick_cls.__class__
-
-        # if brick_cls.id_ is not None:
-        #     warnings.warn('_BrickRegistry.register_4_model(): brick for model=%s should have '
-        #                   'an id_ == None (currently: %s)' % ( model, brick_cls.id_),
-        #                   DeprecationWarning
-        #                  )
         assert brick_cls.id_ is None
 
         # NB: the key is the class, not the ContentType.id because it can cause
@@ -802,12 +747,6 @@ class _BrickRegistry(object):
 
         return brick
 
-    # def get_block_4_instance(self, ibi, entity=None):
-    #     warnings.warn('_BlockRegistry.get_block_4_instance() is deprecated ; use get_brick_4_instance() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #     return self.get_brick_4_instance(ibi, entity)
-
     def get_bricks(self, brick_ids, entity=None):
         """Bricks type can be SpecificRelationsBlock/InstanceBlockConfigItem:
         in this case, they are not really registered, but created on the fly.
@@ -876,54 +815,6 @@ class _BrickRegistry(object):
             else:
                 yield brick_cls()
 
-    # def get_blocks(self, block_ids, entity=None):
-    #     warnings.warn('_BlockRegistry.get_blocks() is deprecated ; '
-    #                   'use get_bricks() instead (beware it is a generator).',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     specific_ids = list(filter(SpecificRelationsBrick.id_is_specific, block_ids))
-    #     instance_ids = list(filter(InstanceBlockConfigItem.id_is_specific, block_ids))
-    #     custom_ids   = list(filter(None, map(CustomBlockConfigItem.id_from_block_id, block_ids)))
-    #
-    #     relation_blocks_items = {rbi.block_id: rbi
-    #                                 for rbi in RelationBlockItem.objects.filter(block_id__in=specific_ids)
-    #                             } if specific_ids else {}
-    #     instance_blocks_items = {ibi.block_id: ibi
-    #                                 for ibi in InstanceBlockConfigItem.objects.filter(block_id__in=instance_ids)
-    #                             } if instance_ids else {}
-    #     custom_blocks_items = {cbci.generate_id(): cbci
-    #                                 for cbci in CustomBlockConfigItem.objects.filter(id__in=custom_ids)
-    #                           } if custom_ids else {}
-    #
-    #     blocks = []
-    #
-    #     for id_ in block_ids:
-    #         rbi = relation_blocks_items.get(id_)
-    #         ibi = instance_blocks_items.get(id_)
-    #         cbci = custom_blocks_items.get(id_)
-    #
-    #         if rbi:
-    #             block = SpecificRelationsBrick(rbi)
-    #         elif ibi:
-    #             block = self.get_block_4_instance(ibi, entity)
-    #         elif cbci:
-    #             block = CustomBrick(id_, cbci)
-    #         elif id_.startswith('modelblock_'):
-    #             block = self.get_block_4_object(ContentType.objects.get_by_natural_key(*id_[len('modelblock_'):].split('-')))
-    #         else:
-    #             brick_cls = self._brick_classes.get(id_)
-    #
-    #             if brick_cls is None:
-    #                 logger.warning('Brick seems deprecated: %s', id_)
-    #                 block = Brick()
-    #             else:
-    #                 block = brick_cls()
-    #
-    #         blocks.append(block)
-    #
-    #     return blocks
-
     def get_brick_4_object(self, obj_or_ct):
         """Return the Brick that displays fields for a CremeEntity instance.
         @param obj_or_ct: Model (class inheriting CremeEntity), or ContentType instance
@@ -951,12 +842,6 @@ class _BrickRegistry(object):
         brick.id_ = self._generate_modelbrick_id(model)
 
         return brick
-
-    # def get_block_4_object(self, obj_or_ct):
-    #     warnings.warn('_BlockRegistry.get_block_4_object() is deprecated ; use get_brick_4_object() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #     return self.get_brick_4_object(obj_or_ct)
 
     def get_generic_hat_brick(self, model):
         brick_cls = self._hat_brick_classes[model].get('')
@@ -1006,34 +891,6 @@ class _BrickRegistry(object):
 
             for cbci in CustomBlockConfigItem.objects.filter(content_type=ContentType.objects.get_for_model(model)):
                 yield CustomBrick(cbci.generate_id(), cbci)
-
-    # def get_compatible_blocks(self, model=None):
-    #     warnings.warn('_BlockRegistry.get_compatible_blocks() is deprecated ; '
-    #                   'use get_compatible_bricks() instead '
-    #                   '(beware: it returns object-brick too).',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     for brick_cls in self._brick_classes.itervalues():
-    #         block = brick_cls()
-    #
-    #         if block.configurable and hasattr(block, 'detailview_display') \
-    #            and (not block.target_ctypes or model in block.target_ctypes):
-    #             yield block
-    #
-    #     for rbi in RelationBlockItem.objects.all():
-    #         yield SpecificRelationsBrick(rbi)
-    #
-    #     for ibi in InstanceBlockConfigItem.objects.all():
-    #         block = self.get_block_4_instance(ibi)
-    #
-    #         if hasattr(block, 'detailview_display') \
-    #                 and (not block.target_ctypes or model in block.target_ctypes):
-    #             yield block
-    #
-    #     if model:
-    #         for cbci in CustomBlockConfigItem.objects.filter(content_type=ContentType.objects.get_for_model(model)):
-    #             yield CustomBrick(cbci.generate_id(), cbci)
 
     def get_compatible_hat_bricks(self, model):
         yield self.get_generic_hat_brick(model)

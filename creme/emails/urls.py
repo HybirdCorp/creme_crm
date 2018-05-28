@@ -94,9 +94,8 @@ if apps.is_installed('creme.crudity'):
     from .views import crudity
 
     urlpatterns += [
-        url(r'^mail/spam[/]?$',          crudity.spam,            name='emails__crudity_spam'),
-        url(r'^mail/validated[/]?$',     crudity.validated,       name='emails__crudity_validated'),
-        url(r'^mail/waiting[/]?$',       crudity.waiting,         name='emails__crudity_waiting'),
-        url(r'^synchronization[/]?$',    crudity.synchronisation, name='emails__crudity_sync'),
-        # url(r'^sync_blocks/reload[/]?$', crudity.reload_sync_blocks, name='emails__crudity_reload_sync_blocks'),
+        url(r'^mail/spam[/]?$',       crudity.spam,            name='emails__crudity_spam'),
+        url(r'^mail/validated[/]?$',  crudity.validated,       name='emails__crudity_validated'),
+        url(r'^mail/waiting[/]?$',    crudity.waiting,         name='emails__crudity_waiting'),
+        url(r'^synchronization[/]?$', crudity.synchronisation, name='emails__crudity_sync'),
     ]

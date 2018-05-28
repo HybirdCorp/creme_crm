@@ -181,7 +181,6 @@ def get_listview_columns_header(context):
                         if field.null or field.many_to_many:
                             choices.append((NULL_FK, _('* is empty *')))
 
-                        # choices.extend((o.id, o) for o in field.rel.to.objects.distinct())
                         choices.extend((o.id, o) for o in field.remote_field.model.objects.distinct())
 
                     _build_select_search_widget(widget_ctx, search_value, choices)
@@ -229,21 +228,6 @@ def get_listview_columns_header(context):
 # ------------------------------------------------------------------------------
 
 
-# @register.simple_tag
-# def get_listview_cell(cell, entity, user):
-#     warnings.warn('{% get_listview_cell %} is deprecated ; use {% render_cell %} (from lib creme_cells) instead.',
-#                   DeprecationWarning
-#                  )
-#
-#     try:
-#         return cell.render_html(entity, user)
-#     except Exception as e:
-#         logger.critical('Templatetag "get_listview_cell": %s', e)
-#
-#     return u''
-
-
-# @register.assignment_tag
 @register.simple_tag
 def ctype_is_registered_for_import(ctype):
     warnings.warn('{% ctype_is_registered_for_import %} is deprecated ; '
@@ -256,7 +240,6 @@ def ctype_is_registered_for_import(ctype):
     return import_form_registry.is_registered(ctype)
 
 
-# @register.assignment_tag
 @register.simple_tag
 def listview_header_colspan(cells, is_readonly, is_single_select):
     if is_readonly:

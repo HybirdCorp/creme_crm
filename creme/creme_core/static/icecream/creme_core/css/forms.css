@@ -312,10 +312,6 @@ form .table_detail_view .merge_result {
     margin-left: 15px;
 }
 
-/*.hfilter_widget .basic_field_selectors > .selector_list {
-    width: 100%;
-}*/
-
 .hfilter_widget .basic_field_selectors > .selector_list > .selector {
     margin-right: 0px;
     width: 230px; /* to compute with the largest element of the list */
@@ -642,12 +638,6 @@ table .dragtable-col-placeholder:first {
 .dcms_div table tr.content td:hover {
     background:none;
 }
-
-/*
-.dcms_div table .buttons {
-    width: 20%;
-}
-*/
 
 .dcms_button {
     display: block;

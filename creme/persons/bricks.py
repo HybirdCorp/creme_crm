@@ -23,7 +23,6 @@ from functools import partial
 import warnings
 
 from django.apps import apps
-# from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
 
@@ -275,7 +274,6 @@ class ManagersBrick(QuerysetBrick):
         return self._render(self.get_template_context(context,
                     self._get_people_qs(orga).select_related('civility'),
                     rtype_id=self.relation_type_deps[0],
-                    # ct=ContentType.objects.get_for_model(Contact),
                     add_title=self._get_add_title(),
                     hidden_fields={fname
                                     for fname in ('phone', 'mobile', 'email')
@@ -503,13 +501,11 @@ if apps.is_installed('creme.activities'):
             ))
 
         def home_display(self, context):
-            # We do not check the 'persons' permission, because it's only statistics for people who cannot see Organisations
-            # return self._render(self.get_block_template_context(
+            # We do not check the 'persons' permission, because it's only
+            # statistics for people who cannot see Organisations.
             return self._render(self.get_template_context(
                         context,
                         self._get_neglected(context['today']),
-                        # # update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
-                        # update_url=reverse('creme_core__reload_home_blocks', args=(self.id_,)),
             ))
 
     bricks_list += (

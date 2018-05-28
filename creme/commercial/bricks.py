@@ -34,9 +34,9 @@ from creme.opportunities import get_opportunity_model
 from creme.opportunities.constants import REL_SUB_TARGETS
 
 from creme import commercial
+from .constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW, REL_OBJ_COMPLETE_GOAL
 from .models import (CommercialApproach, MarketSegment, MarketSegmentDescription,
         CommercialAsset, MarketSegmentCharm, ActObjective, ActObjectivePatternComponent)
-from .constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW, REL_OBJ_COMPLETE_GOAL
 
 
 get_ct = ContentType.objects.get_for_model
@@ -156,7 +156,6 @@ class AssetsBrick(QuerysetBrick):
         strategy = context['object']
         return self._render(self.get_template_context(
                     context, strategy.assets.all(),
-                    # ct_id=get_ct(CommercialAsset).id,
         ))
 
 
@@ -172,7 +171,6 @@ class CharmsBrick(QuerysetBrick):
         strategy = context['object']
         return self._render(self.get_template_context(
                     context, strategy.charms.all(),
-                    # ct_id=get_ct(MarketSegmentCharm).id,
         ))
 
 
@@ -240,9 +238,8 @@ class AssetsCharmsMatrixBrick(Brick):
     configurable  = False
 
     def detailview_display(self, context):
-        # NB: credentials are OK : we are sure to use the custom relaod view if 'strategy' & 'orga' are in the context
+        # NB: credentials are OK : we are sure to use the custom reload view if 'strategy' & 'orga' are in the context
         strategy = context['strategy']
-        # orga = context['orga']
         return self._render(self.get_template_context(
                         context,
                         segment_info=strategy.get_segment_descriptions_list(),

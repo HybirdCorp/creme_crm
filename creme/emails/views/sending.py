@@ -61,23 +61,6 @@ def detailview(request, sending_id):
                  )
 
 
-# @jsonify
-# @login_required
-# @permission_required('emails')
-# def reload_block_mails(request, sending_id):
-#     warnings.warn('emails.views.sending.reload_block_mails() is deprecated ; use reload_mails_brick() instead.',
-#                   DeprecationWarning
-#                  )
-#
-#     from creme.creme_core.views import blocks
-#
-#     context = blocks.build_context(request)
-#     context['object'] = _get_sending(request, sending_id)
-#     block = MailsBrick()
-#
-#     return [(block.id_, block.detailview_display(context))]
-
-
 # Useful method because EmailSending is not a CremeEntity (should be ?)
 @login_required
 @permission_required('emails')

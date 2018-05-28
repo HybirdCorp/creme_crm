@@ -157,10 +157,8 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
     def get_lv_absolute_url():
         return reverse('persons__list_contacts')
 
-    # def delete(self, using=None):
     def delete(self, *args, **kwargs):
         self._check_deletion()  # Should not be useful (trashing should be blocked too)
-        # super(AbstractContact, self).delete(using=using)
         super(AbstractContact, self).delete(*args, **kwargs)
 
     def _post_save_clone(self, source):
@@ -200,14 +198,6 @@ class Contact(AbstractContact):
 
 
 # Manage the related User ------------------------------------------------------
-
-# def _create_linked_contact(user):
-#     warnings.warn("_create_linked_contact() is deprecated ; use AbstractContact._create_linked_contact() instead.",
-#                   DeprecationWarning
-#                  )
-#
-#     return get_contact_model()._create_linked_contact(user)
-
 
 def _get_linked_contact(self):
     if self.is_team:

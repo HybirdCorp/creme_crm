@@ -19,16 +19,13 @@
 ################################################################################
 
 from collections import defaultdict
-# from itertools import chain
-# from json import dumps as json_dump
 
 from django.forms import Field, ValidationError
 from django.forms.widgets import Select
-# from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _, ugettext  # pgettext
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms.fields import ChoiceModelIterator
-from creme.creme_core.forms.mass_import import ImportForm4CremeEntity, BaseExtractorWidget  # ExtractorWidget
+from creme.creme_core.forms.mass_import import ImportForm4CremeEntity, BaseExtractorWidget
 
 from ..models import Category, SubCategory
 
@@ -99,7 +96,6 @@ class CategoriesExtractor(object):
         return category, sub_category, error_msg
 
 
-# class CategoriesExtractorWidget(ExtractorWidget):
 class CategoriesExtractorWidget(BaseExtractorWidget):
     template_name = 'products/forms/widgets/mass-import/categories-extractor.html'
 
@@ -107,116 +103,6 @@ class CategoriesExtractorWidget(BaseExtractorWidget):
         super(CategoriesExtractorWidget, self).__init__(*args, **kwargs)
         self.categories = categories
         self.propose_creation = False
-
-#     # def render(self, name, value, attrs=None, choices=()):
-#     def render(self, name, value, attrs=None):
-#         value = value or {}
-#         get_value = value.get
-#
-#         # Default values content -------
-#         cat_choices = list(self.categories)
-#
-#         # A mapping between categories & their sub-categories (in order to avoid HTTP requests later)
-#         sub_cat_map = defaultdict(list)
-#         if cat_choices:
-#             for sub_cat in SubCategory.objects.filter(category__in=[c[0] for c in cat_choices]):
-#                 sub_cat_map[sub_cat.category_id].append((sub_cat.id, sub_cat.name))
-#
-#         # NB: we need to work with an int, in order to not mix int & str as keys for 'sub_cat_map'.
-#         try:
-#             selected_cat_id = int(value['default_cat'])
-#         except (KeyError, ValueError, TypeError):
-#             selected_cat_id = cat_choices[0][0] if cat_choices else None
-#
-#         try:
-#             selected_subcat_id = int(value['default_subcat'])
-#         except (KeyError, ValueError, TypeError):
-#             selected_subcat_choice = sub_cat_map.get(selected_cat_id)  # Notice that get() cannot create a new key
-#             selected_subcat_id = selected_subcat_choice[0] if selected_subcat_choice else None
-#
-#         # Rendering -------
-#         cat_colselect_id    = '%s_cat_colselect' % name
-#         cat_defvalselect_id = '%s_cat_defval' % name
-#
-#         subcat_colselect_id    = '%s_subcat_colselect' % name
-#         subcat_defvalselect_id = '%s_subcat_defval' % name
-#
-#         render_sel = self._render_select
-#         # col_choices = list(chain(self.choices, choices))
-#         col_choices = list(self.choices)
-#
-#         def render_colsel(name, sel_val):
-#             return render_sel(name, choices=col_choices, sel_val=sel_val,
-#                               attrs={'id': name, 'class': 'csv_col_select'},
-#                              )
-#
-#         def get_selected_column(datadict_key):
-#             try:
-#                 return int(get_value(datadict_key, -1))
-#             except TypeError:
-#                 return 0
-#
-#         # NB: when a column is selected for the category but non for the sub-category, we do not disable
-#         #     the 0 option (in sub-category <select>, because we must force the selection of
-#         #     another option & it causes problems:
-#         #        - not very visible.
-#         #        - which option must we choose ? (it's arbitrary/stupid).
-#         #     Displaying a warning/error message causes problems too (eg: the message can be displayed
-#         #     twice -- python + js sides).
-#         return mark_safe(
-# u"""%(create_check)s
-# <ul class="multi-select">
-#     <li>
-#         <label for="%(cat_colselect_id)s">%(cat_label)s:%(cat_colselect)s</label>
-#         <label for="%(cat_defvalselect_id)s">%(cat_defval_label)s:%(cat_defvalselect)s</label>
-#     </li>
-#     <li>
-#         <label for="%(subcat_colselect_id)s">%(subcat_label)s:%(subcat_colselect)s</label>
-#         <label for="%(subcat_defvalselect_id)s">%(subcat_defval_label)s:%(subcat_defvalselect)s</label>
-#     </li>
-#     <script type='text/javascript'>
-#         $(document).ready(function() {
-#             var subCatMap = %(subcat_js_map)s;
-#
-#             $('#%(cat_defvalselect_id)s').on('change', function(e) {
-#                 creme.forms.Select.fill($('#%(subcat_defvalselect_id)s'), subCatMap[$(this).val()]);
-#             });
-#         });
-#     </script>
-# </ul>
-# """ % {'create_check': '' if not self.propose_creation else
-#                        u'<label for="%(id)s"><input id="%(id)s" type="checkbox" name="%(id)s" %(checked)s />%(label)s</label>' % {
-#                            'id': '%s_create' % name,
-#                            'checked': 'checked' if get_value('create') else '',
-#                            'label': _(u'Create the Categories/Sub-Categories which are not found?'),
-#                        },
-#
-#        'cat_label':        pgettext('products-category', u'Category'),
-#        'cat_colselect_id': cat_colselect_id,
-#        'cat_colselect':    render_colsel(cat_colselect_id, get_selected_column('cat_column_index')),
-#
-#        'cat_defval_label':    pgettext('products-category', u'Default category'),
-#        'cat_defvalselect_id': cat_defvalselect_id,
-#        'cat_defvalselect':    render_sel(cat_defvalselect_id,
-#                                          choices=cat_choices,
-#                                          sel_val=selected_cat_id,
-#                                          attrs={'id': cat_defvalselect_id},
-#                                         ),
-#
-#        'subcat_label':        pgettext('products-sub_category', u'Sub-category'),
-#        'subcat_colselect_id': subcat_colselect_id,
-#        'subcat_colselect':    render_colsel(subcat_colselect_id, get_selected_column('subcat_column_index')),
-#
-#        'subcat_defval_label':    pgettext('products-sub_category', u'Default sub-category'),
-#        'subcat_defvalselect_id': subcat_defvalselect_id,
-#        'subcat_defvalselect':    render_sel(subcat_defvalselect_id,
-#                                             choices=sub_cat_map[selected_cat_id],
-#                                             sel_val=selected_subcat_id,
-#                                             attrs={'id': subcat_defvalselect_id},
-#                                            ),
-#
-#        'subcat_js_map': json_dump(sub_cat_map),
-#       })
 
     def get_context(self, name, value, attrs):
         # NB: when a column is selected for the category but not for the sub-category, we do not disable

@@ -20,14 +20,12 @@
 
 # import warnings
 
-# from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
-# from creme.creme_core.utils import jsonify
 
 from creme.crudity import registry
 
@@ -58,7 +56,6 @@ def synchronisation(request):
     return render(request, template_name='emails/synchronize.html',
                   context={'bricks':            bricks_obj,
                            'bricks_reload_url': reverse('crudity__reload_actions_bricks'),
-                           # 'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id,
                           },
                  )
 
@@ -104,22 +101,3 @@ def validated(request):
 @permission_required('emails')
 def waiting(request):
     return set_emails_status(request, constants.MAIL_STATUS_SYNCHRONIZED_WAITING)
-
-
-# @jsonify
-# @permission_required('emails')
-# def reload_sync_blocks(request):
-#     warnings.warn('emails.views.crudity.reload_sync_blocks() is deprecated ; use reload_bricks() instead.',
-#                   DeprecationWarning
-#                  )
-#
-#     from creme.creme_core.views.blocks import build_context
-#     from .. import blocks
-#
-#     ctx = build_context(request)
-#     mail_waiting_sync_block = blocks.WaitingSynchronizationMailsBlock()
-#     mail_spam_sync_block    = blocks.SpamSynchronizationMailsBlock()
-#
-#     return [(mail_waiting_sync_block.id_, mail_waiting_sync_block.detailview_display(ctx)),
-#             (mail_spam_sync_block.id_,    mail_spam_sync_block.detailview_display(ctx)),
-#            ]

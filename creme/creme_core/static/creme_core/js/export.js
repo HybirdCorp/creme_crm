@@ -36,12 +36,6 @@ creme.exports.exportAs = function(url, formats, fieldname) {
                              required: true
                          })
                         .onOk(function(event, data) {
-//                             if (Object.isEmpty(fieldname)) {
-//                                 console.warn('creme.exports.exportAs(): URL as format string is deprecated ; use the the "fieldname" parameter instead.');
-//                                 creme.utils.goTo(url.format(data));
-//                             } else {
-//                                 creme.utils.goTo(url + '&' + fieldname + '=' + data);
-//                             }
                             creme.utils.goTo(url + '&' + fieldname + '=' + data);
                          })
                         .open();

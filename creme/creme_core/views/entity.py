@@ -28,10 +28,9 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Q, FieldDoesNotExist, ProtectedError
 from django.forms.models import modelform_factory
 from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseBadRequest
-from django.shortcuts import get_object_or_404, render, redirect  # get_list_or_404
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
-# from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _, ungettext
 
 from .. import constants
@@ -46,7 +45,6 @@ from ..models import CremeEntity, EntityCredentials, FieldsConfig, Sandbox
 from ..models.fields import UnsafeHTMLField
 from ..utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, jsonify, bool_from_str_extended
 from ..utils.translation import get_model_verbose_name
-# from ..utils.chunktools import iter_as_slices
 from ..utils.html import sanitize_html
 from ..utils.meta import ModelFieldEnumerator
 
@@ -342,68 +340,8 @@ def bulk_update_field(request, ct_id, field_name=None):
                       )
 
 
-# @login_required
-# def bulk_edit_field(request, ct_id, id, field_name):
-#     warnings.warn("/creme_core/entity/edit/bulk/{{ct}}/{{ids...}}/field/{{fieldname}} is now deprecated."
-#                   "Use /creme_core/entity/update/bulk/{{ct}}/field/{{fieldname}} view instead"
-#                   "[ie: reverse('creme_core__bulk_update', args=(ct.id, 'my_field')) ].",
-#                   DeprecationWarning
-#                  )
-#
-#     user = request.user
-#     model = get_ct_or_404(ct_id).model_class()
-#     entities = get_list_or_404(model, pk__in=id.split(','))
-#     viewname = 'creme_core__bulk_edit_field_legacy'
-#
-#     filtered = [e for e in entities if _bulk_has_perm(e, user)]
-#
-#     if not filtered:
-#         raise PermissionDenied(_(u'You are not allowed to edit these entities'))
-#
-#     if field_name is None:
-#         field_name = bulk_update_registry.get_default_field(model).name
-#
-#     try:
-#         form_class = bulk_update_registry.get_form(model, field_name, BulkDefaultEditForm)
-#
-#         if request.method == 'POST':
-#             form = form_class(entities=filtered, user=user, data=request.POST, is_bulk=True)
-#             form.bulk_viewname = viewname
-#
-#             if form.is_valid():
-#                 form.save()
-#                 return render(request, 'creme_core/frags/bulk_process_report.html',
-#                               {'form':  form,
-#                                'title': _(u'Multiple update'),
-#                               },
-#                              )
-#         else:
-#             form = form_class(entities=filtered, user=user, is_bulk=True)
-#             form.bulk_viewname = viewname
-#
-#     except (FieldDoesNotExist, FieldNotAllowed):
-#         return HttpResponseBadRequest(_(u'The field «%s» does not exist or cannot be edited') % field_name)
-#
-#     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
-#                        {'form':  form,
-#                         'title': _(u'Multiple update'),
-#                        },
-#                        is_valid=form.is_valid(),
-#                        reload=False, delegate_reload=True,
-#                       )
-
-
 @login_required
-# def select_entity_for_merge(request, entity1_id=None):
 def select_entity_for_merge(request):
-    # if entity1_id is None:
-    #     entity1_id = get_from_GET_or_404(request.GET, 'id1', cast=int)
-    # else:
-    #     warnings.warn('creme_core.views.entity.select_entity_for_merge(): '
-    #                   'the URL argument "entity1_id" is deprecated ; '
-    #                   'use the GET parameter "id1" instead.',
-    #                   DeprecationWarning
-    #                  )
     entity1_id = get_from_GET_or_404(request.GET, 'id1', cast=int)
     entity1 = get_object_or_404(CremeEntity, pk=entity1_id)
 
@@ -421,26 +359,9 @@ def select_entity_for_merge(request):
 
 
 @login_required
-# def merge(request, entity1_id=None, entity2_id=None):
 def merge(request):
     GET = request.GET
-
-    # if entity1_id is None:
-    #     entity1_id = get_from_GET_or_404(GET, 'id1', cast=int)
-    # else:
-    #     warnings.warn('creme_core.views.entity.merge(): the URL argument "entity1_id" is deprecated ; '
-    #                   'use the GET parameter "id1" instead.',
-    #                   DeprecationWarning
-    #                  )
     entity1_id = get_from_GET_or_404(GET, 'id1', cast=int)
-
-    # if entity2_id is None:
-    #     entity2_id = get_from_GET_or_404(GET, 'id2', cast=int)
-    # else:
-    #     warnings.warn('creme_core.views.entity.merge(): the URL argument "entity2_id" is deprecated ; '
-    #                   'use the GET parameter "id2" instead.',
-    #                   DeprecationWarning
-    #                  )
     entity2_id = get_from_GET_or_404(GET, 'id2', cast=int)
 
     entity1 = get_object_or_404(CremeEntity, pk=entity1_id)
@@ -491,7 +412,6 @@ def merge(request):
         cancel_url = build_cancel_path(request)
 
     return render(request,
-                  # 'creme_core/merge.html',
                   'creme_core/forms/merge.html',
                   {'form':   merge_form,
                    'title': _(u'Merge «%(entity1)s» with «%(entity2)s»') % {
@@ -698,7 +618,6 @@ def delete_entities(request):
                             )
         content_type = 'application/json'
 
-    # return HttpResponse(message, content_type='text/javascript', status=status)
     return HttpResponse(message, content_type=content_type, status=status)
 
 

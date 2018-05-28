@@ -29,7 +29,6 @@ from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from ..core.batch_process import batch_operator_manager, BatchAction
 from ..creme_jobs.batch_process import batch_process_type
-# from ..gui import bulk_update_registry
 from ..gui.bulk_update import bulk_update_registry
 from ..models import CremeEntity, EntityFilter, Job
 from ..utils.unicode_collation import collator
@@ -44,32 +43,6 @@ class BatchActionsWidget(SelectorList):
         super(BatchActionsWidget, self).__init__(selector=None, attrs=attrs)
         self.model = model
         self.fields = fields
-
-    # def render(self, name, value, attrs=None):
-    #     self.selector = chained_input = ChainedInput()
-    #     sub_attrs = {'auto': False}
-    #
-    #     # todo: improve SelectorList.add_* to avoid attribute 'auto'
-    #     chained_input.add_dselect('name', attrs=sub_attrs, options=self.fields)
-    #     chained_input.add_dselect('operator', attrs=sub_attrs,
-    #                               # todo: use a GET arg instead of using a TemplateURLBuilder ?
-    #                               options=TemplateURLBuilder(field=(TemplateURLBuilder.Word, '${name}'))
-    #                                         .resolve('creme_core__batch_process_ops',
-    #                                                  kwargs={'ct_id': ContentType.objects.get_for_model(self.model).id}
-    #                                                 ),
-    #                              )
-    #
-    #     pinput = PolymorphicInput(key='${operator}', attrs=sub_attrs)
-    #     # todo: count if the operators with need_arg=False are more ?
-    #     pinput.set_default_input(widget=DynamicInput, attrs=sub_attrs)
-    #
-    #     for op_id, operator in batch_operator_manager.operators():
-    #         if not operator.need_arg:
-    #             pinput.add_input(op_id, widget=DynamicInput, attrs=sub_attrs, type='hidden')  # todo: DynamicHiddenInput
-    #
-    #     chained_input.add_input('value', pinput, attrs=sub_attrs)
-    #
-    #     return super(BatchActionsWidget, self).render(name, value, attrs)
 
     def get_context(self, name, value, attrs):
         # TODO: "if self.selector is None" ??

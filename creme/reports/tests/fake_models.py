@@ -5,7 +5,7 @@ from django.conf import settings
 if not settings.TESTS_ON:
     __all__ = ()
 else:
-    from django.db.models import CharField, TextField, ForeignKey, ManyToManyField, PROTECT  # FileField
+    from django.db.models import CharField, TextField, ForeignKey, ManyToManyField, PROTECT
     from django.urls import reverse
     from django.utils.translation import ugettext_lazy as _
 
@@ -41,7 +41,6 @@ else:
         title       = CharField(_(u'Title'), max_length=100)
         description = TextField(_(u'Description'), blank=True, null=True)
 #        filedata    = FileField(_(u'File'), max_length=500, upload_to='upload/documents')
-#         folder      = ForeignKey(FakeReportsFolder, verbose_name=_(u'Folder'), on_delete=PROTECT)
         linked_folder = ForeignKey(FakeReportsFolder, verbose_name=_(u'Folder'), on_delete=PROTECT)
 
         class Meta:

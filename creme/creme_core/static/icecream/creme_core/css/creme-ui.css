@@ -30,17 +30,6 @@
     background: #fff;
 }
 
-/*
-.ui-paging-info, ui-icon ui-icon-newwin {
-    font-weight: bold;
-}
-*/
-/*
-.ui-pg-selbox {
-    height: 20px !important;
-}
-*/
-
 .ui-datepicker {
     z-index: 1100; /* use z-index to display over inner popups (1000) */
 }
@@ -52,12 +41,6 @@
 .ui-dialog-content .ui-creme-overlay {
     background-color: #fff;
 }
-
-/*
-.ui-dialog .ui-dialog-buttonset button:focus {
-  outline: none;
-}
-*/
 
 .ui-dialog .ui-dialog-buttonset button {
     border: 1px solid #d7d7d7;
@@ -111,24 +94,6 @@
 .ui-creme-datetimepicker li img.ui-datepicker-trigger { vertical-align: middle; }
 
 /*----------------------------------*/
-/* .ui-creme-calendarpicker li img.ui-datepicker-trigger { vertical-align: middle; } */
-
-/*----------------------------------*/
-/*
-.ui-creme-rel-selector-list { margin:0; padding:0; }
-.ui-creme-rel-selector-list .ui-creme-rel-selector li { float: left; }
-.ui-creme-rel-selector-list .ui-creme-rel-selector li.last { float: none; }
-.ui-creme-rel-selector-list .add { cursor: pointer; }
-.ui-creme-rel-selector-list select { font-family:Verdana,Tahoma,Arial,Helvetica,sans-serif; font-size:13px; }
-.ui-creme-rel-selector-list button[type="button"] { font-family:Verdana,Tahoma,Arial,Helvetica,sans-serif; font-size:13px; }
-.ui-creme-rel-selector-list select,
-.ui-creme-rel-selector-list button[type="button"] {
-    font-family: 'Open Sans', 'Verdana', sans-serif;
-    font-size: 12.5px;
-}
-*/
-
-/*----------------------------------*/
 ul.ui-layout { margin:0; padding:0; list-style:none; }
 ul.ui-layout li { margin:0; padding:0; list-style:none; }
 
@@ -138,7 +103,6 @@ ul.ui-layout.hbox li {
     vertical-align: middle;
     padding-right: 4px;
 }
-/*ul.ui-layout.hbox li button { margin: 0px 2px; }*/
 ul.ui-layout.hbox li input { margin: 0px 2px; }
 
 ul.ui-layout.vbox li {

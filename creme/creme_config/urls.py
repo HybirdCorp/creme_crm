@@ -33,8 +33,6 @@ user_settings_patterns = [
 
 role_patterns = [
     url(r'^portal[/]?$',                            user_role.portal,                           name='creme_config__roles'),
-    # url(r'^add[/]?$',                               user_role.add,                              name='creme_config__create_role_legacy'),
-    # url(r'^edit/(?P<role_id>\d+)[/]?$',             user_role.edit,                             name='creme_config__edit_role_legacy'),
     url(r'^wizard[/]?$',                            user_role.UserRoleCreationWizard.as_view(), name='creme_config__create_role'),
     url(r'^wizard/(?P<role_id>\d+)[/]?$',           user_role.UserRoleEditionWizard.as_view(),  name='creme_config__edit_role'),
     url(r'^delete/(?P<role_id>\d+)[/]?$',           user_role.delete,                           name='creme_config__delete_role'),
@@ -61,7 +59,6 @@ property_type_patterns = [
 
 fields_config_patterns = [
     url(r'^portal[/]?$',                 fields_config.portal,                      name='creme_config__fields'),
-    # url(r'^add[/]?$',                    fields_config.add,                         name='creme_config__create_fields_config_legacy'),
     url(r'^wizard[/]?$',                 fields_config.FieldConfigWizard.as_view(), name='creme_config__create_fields_config'),
     url(r'^edit/(?P<fconf_id>\d+)[/]?$', fields_config.edit,                        name='creme_config__edit_fields_config'),
     url(r'^delete[/]?$',                 fields_config.delete,                      name='creme_config__delete_fields_config'),
@@ -76,7 +73,6 @@ custom_fields_patterns = [
     url(r'^delete[/]?$',                 custom_fields.delete,       name='creme_config__delete_custom_field'),
 ]
 
-# bricks_patterns = blocks_patterns = [
 bricks_patterns = [
     url(r'^portal[/]?$', bricks.portal, name='creme_config__bricks'),
 
@@ -85,7 +81,6 @@ bricks_patterns = [
     url(r'^detailview/delete[/]?$',                            bricks.delete_detailview, name='creme_config__delete_detailview_bricks'),
 
     url(r'^portal/wizard[/]?$',                 bricks.PortalBricksWizard.as_view(), name='creme_config__create_portal_bricks'),  # DEPRECATED
-    # url(r'^portal/add[/]?$',                    bricks.add_portal,                   name='creme_config__create_portal_bricks_legacy'),
     url(r'^portal/edit/(?P<app_name>\w+)[/]?$', bricks.edit_portal,                  name='creme_config__edit_portal_bricks'),  # DEPRECATED
     url(r'^portal/delete[/]?$',                 bricks.delete_portal,                name='creme_config__delete_portal_bricks'),  # DEPRECATED
 
@@ -100,7 +95,6 @@ bricks_patterns = [
     # TODO: change url ('rtype_brick/' ? 'rtype/' ?)
     url(r'^relation_block/add[/]?$',                                       bricks.create_rtype_brick,                 name='creme_config__create_rtype_brick'),
     url(r'^relation_block/(?P<rbi_id>\d+)/wizard[/]?$',                    bricks.RelationCTypeBrickWizard.as_view(), name='creme_config__add_cells_to_rtype_brick'),
-    # url(r'^relation_block/add_ctypes/(?P<rbi_id>\d+)[/]?$',                bricks.add_ctypes_2_relation_block,        name='creme_config__add_ctype_config_to_rtype_brick'),
     url(r'^relation_block/(?P<rbi_id>\d+)/edit_ctype/(?P<ct_id>\d+)[/]?$', bricks.edit_cells_of_rtype_brick,          name='creme_config__edit_cells_of_rtype_brick'),
     url(r'^relation_block/(?P<rbi_id>\d+)/delete_ctype[/]?$',              bricks.delete_cells_of_rtype_brick,        name='creme_config__delete_cells_of_rtype_brick'),
     url(r'^relation_block/delete[/]?$',                                    bricks.delete_rtype_brick,                 name='creme_config__delete_rtype_brick'),
@@ -109,7 +103,6 @@ bricks_patterns = [
     url(r'^instance_block/delete[/]?$', bricks.delete_instance_brick, name='creme_config__delete_instance_brick'),
 
     url(r'^custom/wizard[/]?$',                    bricks.CustomBrickWizard.as_view(), name='creme_config__create_custom_brick'),
-    # url(r'^custom/add[/]?$',                       bricks.add_custom_block,            name='creme_config__create_custom_brick_legacy'),
     url(r'^custom/edit/(?P<cbci_id>[-_\w]+)[/]?$', bricks.edit_custom_brick,           name='creme_config__edit_custom_brick'),
     url(r'^custom/delete[/]?$',                    bricks.delete_custom_brick,         name='creme_config__delete_custom_brick'),
 ]
@@ -122,7 +115,6 @@ prefered_menu_patterns = [
 button_menu_patterns = [
     url(r'^portal[/]?$',              button_menu.portal,                     name='creme_config__buttons'),
     url(r'^wizard[/]?$',              button_menu.ButtonMenuWizard.as_view(), name='creme_config__add_buttons_to_ctype'),
-    # url(r'^add[/]?$',                 button_menu.add,                        name='creme_config__add_buttons_to_ctype_legacy'),
     url(r'^edit/(?P<ct_id>\d+)[/]?$', button_menu.edit,                       name='creme_config__edit_ctype_buttons'),
     url(r'^delete[/]?$',              button_menu.delete,                     name='creme_config__delete_ctype_buttons'),
 ]
@@ -142,7 +134,6 @@ history_patterns = [
 
 setting_patterns = [
     url(r'^edit/(?P<svalue_id>\d+)[/]?$', setting.edit, name='creme_config__edit_setting'),
-    # url(r'^(?P<app_name>\w+)/reload[/]?$', setting.reload_block, name='creme_config__reload_settings_block'),
 ]
 
 urlpatterns = [
@@ -163,18 +154,15 @@ urlpatterns = [
     url(r'^settings/',      include(setting_patterns)),
 
     # Generic portal config
-    # url(r'^models/(?P<ct_id>\d+)/reload[/]?$', generics_views.reload_block,       name='creme_config__reload_model_block_legacy'),
-    url(r'^(?P<app_name>\w+)/portal[/]?$',     generics_views.portal_app,         name='creme_config__app_portal'),
-    url(r'^(?P<app_name>\w+)/reload[/]?$',     generics_views.reload_app_bricks,  name='creme_config__reload_app_bricks'),
+    url(r'^(?P<app_name>\w+)/portal[/]?$', generics_views.portal_app,        name='creme_config__app_portal'),
+    url(r'^(?P<app_name>\w+)/reload[/]?$', generics_views.reload_app_bricks, name='creme_config__reload_app_bricks'),
     url(r'^(?P<app_name>\w+)/(?P<model_name>\w+)/', include([
-        url(r'^portal[/]?$',                        generics_views.portal_model,               name='creme_config__model_portal'),
-        url(r'^add[/]?$',                           generics_views.add_model,                  name='creme_config__create_instance'),
-        url(r'^add_widget[/]?$',                    generics_views.add_model_from_widget,      name='creme_config__create_instance_from_widget'),
-        url(r'^edit/(?P<object_id>[\w-]+)[/]?$',    generics_views.edit_model,                 name='creme_config__edit_instance'),
-        url(r'^(?P<object_id>[\w-]+)/reorder[/]?$', generics_views.reorder,                    name='creme_config__reorder_instance'),
-        # url(r'^down/(?P<object_id>[\w-]+)[/]?$',    generics_views.swap_order, {'offset': 1},  name='creme_config__move_instance_down'),
-        # url(r'^up/(?P<object_id>[\w-]+)[/]?$',      generics_views.swap_order, {'offset': -1}, name='creme_config__move_instance_up'),
-        url(r'^delete[/]?$',                        generics_views.delete_model,               name='creme_config__delete_instance'),
-        url(r'^reload[/]?$',                        generics_views.reload_model_brick,         name='creme_config__reload_model_brick'),
+        url(r'^portal[/]?$',                        generics_views.portal_model,          name='creme_config__model_portal'),
+        url(r'^add[/]?$',                           generics_views.add_model,             name='creme_config__create_instance'),
+        url(r'^add_widget[/]?$',                    generics_views.add_model_from_widget, name='creme_config__create_instance_from_widget'),
+        url(r'^edit/(?P<object_id>[\w-]+)[/]?$',    generics_views.edit_model,            name='creme_config__edit_instance'),
+        url(r'^(?P<object_id>[\w-]+)/reorder[/]?$', generics_views.reorder,               name='creme_config__reorder_instance'),
+        url(r'^delete[/]?$',                        generics_views.delete_model,          name='creme_config__delete_instance'),
+        url(r'^reload[/]?$',                        generics_views.reload_model_brick,    name='creme_config__reload_model_brick'),
     ]))
 ]

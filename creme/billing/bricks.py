@@ -158,7 +158,6 @@ class CreditNotesBrick(PaginatedBrick):
                     context,
                     billing_document.get_credit_notes(),
                     rtype_id=self.relation_type_deps[0],
-                    # ct=ContentType.objects.get_for_model(CreditNote),
                     add_title=_(u'Create a credit note'),
                     hidden_fields={fname
                                        for fname in ('issuing_date', 'expiration_date', 'comment')
@@ -302,7 +301,6 @@ class PaymentInformationBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(context,
                     PaymentInformation.objects.filter(organisation=organisation),
-                    # ct_id=ContentType.objects.get_for_model(PaymentInformation).id,
         ))
 
 
@@ -329,7 +327,6 @@ class BillingPaymentInformationBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(
                     context, pi_qs,
-                    # ct_id=ContentType.objects.get_for_model(PaymentInformation).id,
                     organisation=organisation,
                     field_hidden=hidden,
         ))

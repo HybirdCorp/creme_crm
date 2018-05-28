@@ -128,16 +128,11 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
 
     /* global google setTimeout */
     _init_: function (options) {
-//        if (!options.infoUrl) {
-//            console.warn('creme.geolocation.GoogleMapController(): hard-coded "infoUrl" is deprecated ; give it as parameter.');
-//        }
-
         this.defaultZoomValue = 12;
         this.defaultLat = 48;
         this.defaultLn = 2;
         this.defaultLargeZoom = 4;
 
-//        this._infoUrl = options.infoUrl || '/geolocation/set_address_info/';
         this._infoUrl = options.infoUrl;
         this._events = new creme.component.EventHandler();
 
@@ -371,7 +366,6 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
     saveLocation: function(marker, options, geocoded, status) {
         var self = this;
 
-//        creme.ajax.query('/geolocation/set_address_info/%s'.format(options.address.id), {}, {
         creme.ajax.query(this._infoUrl, {}, {
                              id:        options.address.id,
                              latitude:  marker.position.lat(),

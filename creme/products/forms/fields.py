@@ -32,28 +32,6 @@ from creme.creme_core.utils.url import TemplateURLBuilder
 from ..models import Category, SubCategory
 
 
-# class CategorySelector(ChainedInput):
-#     def __init__(self, categories=(), attrs=None, creation_allowed=True):
-#         warnings.warn("CategorySelector is deprecated, use CreatorCategorySelector instead.",
-#                       DeprecationWarning
-#                      )
-#
-#         super(CategorySelector, self).__init__(attrs)
-#         self.creation_allowed = creation_allowed  # todo: useless at the moment...
-#         self.categories = categories
-#
-#     def render(self, name, value, attrs=None):
-#         add = partial(self.add_dselect, attrs={'auto': False})
-#         add('category', options=self.categories, label=_(u'Category'))
-#         add('subcategory',
-#             options=TemplateURLBuilder(category_id=(TemplateURLBuilder.Int, '${category}'))
-#                                       .resolve('products__subcategories'),
-#             label=_(u'Sub-category'),
-#            )
-#
-#         return super(CategorySelector, self).render(name, value, attrs)
-
-
 class CreatorCategorySelector(ActionButtonList):
     def __init__(self, categories=(), attrs=None, creation_url='', creation_allowed=False):
         super(CreatorCategorySelector, self).__init__(attrs)
@@ -81,20 +59,6 @@ class CreatorCategorySelector(ActionButtonList):
                             # TODO : Temporarily disable this title for UI consistency.
                             # popupTitle=SubCategory.creation_label,
                            )
-
-    # def render(self, name, value, attrs=None):
-    #     selector = ChainedInput(self.attrs)
-    #     add = partial(selector.add_dselect, attrs={'auto': False})
-    #     add('category', options=self.categories, label=_(u'Category'))
-    #     add('subcategory', options=TemplateURLBuilder(category_id=(TemplateURLBuilder.Int, '${category}'))
-    #                                                  .resolve('products__subcategories'),
-    #         label=_(u'Sub-category')
-    #        )
-    #
-    #     self.delegate = selector
-    #     self._build_actions(attrs)
-    #
-    #     return super(CreatorCategorySelector, self).render(name, value, attrs)
 
     def get_context(self, name, value, attrs):
         selector = ChainedInput(self.attrs)

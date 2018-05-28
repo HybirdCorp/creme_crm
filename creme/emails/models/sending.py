@@ -84,9 +84,9 @@ class EmailSending(CremeModel):
 
     subject     = CharField(_(u'Subject'), max_length=100, editable=False)
     body        = TextField(_(u'Body'), editable=False)
-    body_html   = TextField(_(u'Body (HTML)'), null=True, editable=False)  # blank=True
+    body_html   = TextField(_(u'Body (HTML)'), null=True, editable=False)
     signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'),
-                             null=True, editable=False, on_delete=SET_NULL,  # blank=True
+                             null=True, editable=False, on_delete=SET_NULL,
                             )
     attachments = ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL,
                                   verbose_name=_(u'Attachments'), editable=False,

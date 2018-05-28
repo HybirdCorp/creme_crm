@@ -35,7 +35,6 @@ logger = logging.getLogger(__name__)
 
 class AbstractReportGraph(CremeEntity):
     name     = CharField(pgettext_lazy('reports-graphs', u'Name of the graph'), max_length=100)
-    # report   = ForeignKey(settings.REPORTS_REPORT_MODEL, editable=False)
     linked_report = ForeignKey(settings.REPORTS_REPORT_MODEL, editable=False, on_delete=CASCADE)
     abscissa = CharField(_(u'X axis'), max_length=100, editable=False)
     ordinate = CharField(_(u'Y axis'), max_length=100, editable=False)
@@ -63,12 +62,11 @@ class AbstractReportGraph(CremeEntity):
         return reverse('reports__view_graph', args=(self.id,))
 
     def get_related_entity(self):
-        # return self.report
         return self.linked_report
 
     def fetch(self, extra_q=None, order='ASC'):
         assert order == 'ASC' or order == 'DESC'
-        # report = self.report
+
         report = self.linked_report
         entities = report.ct.model_class().objects.filter(is_deleted=False)
 
@@ -83,7 +81,7 @@ class AbstractReportGraph(CremeEntity):
     @staticmethod
     def get_fetcher_from_instance_block(instance_block_config):
         """Build a GraphFetcher related to this ReportGraph & an InstanceBlockConfigItem.
-        @param instance_block_config An instance of InstanceBlockConfigItem.
+        @param instance_block_config: An instance of InstanceBlockConfigItem.
         @return A GraphFetcher instance.
         """
         from ..core.graph import (GraphFetcher, RegularFieldLinkedGraphFetcher,
@@ -166,7 +164,6 @@ class AbstractReportGraph(CremeEntity):
 
     @property
     def model(self):
-        # return self.report.ct.model_class()
         return self.linked_report.ct.model_class()
 
 

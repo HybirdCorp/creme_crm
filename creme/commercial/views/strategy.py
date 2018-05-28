@@ -265,50 +265,6 @@ def set_segment_category(request, strategy_id):
     return HttpResponse()
 
 
-# @login_required
-# @permission_required('commercial')
-# @jsonify
-# def _reload_matrix(request, strategy_id, orga_id, block):
-#     warnings.warn('commercial.views.strategy._reload_matrix() is now deprecated.', DeprecationWarning)
-#
-#     from creme.creme_core.views import blocks
-#
-#     strategy, orga = _get_strategy_n_orga(request, strategy_id, orga_id)
-#     context = blocks.build_context(request, orga=orga, strategy=strategy)
-#
-#     return [(block.id_, block.detailview_display(context))]
-
-
-# def reload_assets_matrix(request, strategy_id, orga_id):
-#     warnings.warn("commercial.views.strategy.reload_assets_matrix() is now deprecated. "
-#                   "Use commercial.views.strategy.reload_matrix_brick view instead"
-#                   "[ie: reverse('commercial__reload_evaluation_brick', args=(strategy.id, orga.id)) ].",
-#                   DeprecationWarning
-#                  )
-#
-#     return _reload_matrix(request, strategy_id, orga_id, AssetsMatrixBrick())
-
-
-# def reload_charms_matrix(request, strategy_id, orga_id):
-#     warnings.warn("commercial.views.strategy.reload_charms_matrix() is now deprecated. "
-#                   "Use commercial.views.strategy.reload_matrix_brick view instead"
-#                   "[ie: reverse('commercial__reload_evaluation_brick', args=(strategy.id, orga.id)) ].",
-#                   DeprecationWarning
-#                  )
-#
-#     return _reload_matrix(request, strategy_id, orga_id, CharmsMatrixBrick())
-
-
-# def reload_assets_charms_matrix(request, strategy_id, orga_id):
-#     warnings.warn("commercial.views.strategy.reload_assets_charms_matrix() is now deprecated. "
-#                   "Use commercial.views.strategy.reload_matrix_brick view instead"
-#                   "[ie: reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)) ].",
-#                   DeprecationWarning
-#                  )
-#
-#     return _reload_matrix(request, strategy_id, orga_id, AssetsCharmsMatrixBrick())
-
-
 @login_required
 @permission_required('commercial')
 @jsonify

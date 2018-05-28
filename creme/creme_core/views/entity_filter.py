@@ -73,7 +73,6 @@ def add(request, ct_id):
 
     return add_entity(request, EntityFilterCreateForm,
                       url_redirect=callback_url,
-                      # template='creme_core/entity_filter_form.html',
                       template='creme_core/forms/entity-filter.html',
                       extra_initial={'content_type': ct},
                       function_post_save=lambda req, instance: _set_current_efilter(req, callback_url, instance),
@@ -105,7 +104,6 @@ def edit(request, efilter_id):
         cancel_url = build_cancel_path(request)
 
     return render(request,
-                  # 'creme_core/entity_filter_form.html',
                   'creme_core/forms/entity-filter.html',
                   {'form': efilter_form,
                    'cancel_url': cancel_url,
@@ -160,28 +158,10 @@ def get_content_types(request, rtype_id):
 
 @login_required
 @utils.jsonify
-# def get_for_ctype(request, ct_id=None, include_all=None):
 def get_for_ctype(request):
     GET = request.GET
-
-    # if ct_id is None:
-    #     ct_id = utils.get_from_GET_or_404(GET, 'ct_id', int)
-    # else:
-    #     warnings.warn('entity_filter.get_for_ctype(): the URL argument "ct_id" is deprecated ; '
-    #                   'use the GET parameter instead.',
-    #                   DeprecationWarning
-    #                  )
     ct_id = utils.get_from_GET_or_404(GET, 'ct_id', int)
-
-    # if include_all is None:
-    #     include_all = utils.get_from_GET_or_404(GET, 'all', cast=utils.bool_from_str_extended, default='0')
-    # else:
-    #     warnings.warn('entity_filter.get_for_ctype(): the URL argument "include_all" is deprecated ; '
-    #                   'use the GET parameter "all" instead.',
-    #                   DeprecationWarning
-    #                  )
     include_all = utils.get_from_GET_or_404(GET, 'all', cast=utils.bool_from_str_extended, default='0')
-
     ct = utils.get_ct_or_404(ct_id)
     user = request.user
 

@@ -27,7 +27,6 @@ from django.forms import MultipleChoiceField, ChoiceField, ModelChoiceField, Val
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.apps import creme_app_configs
-# from creme.creme_core.constants import MODELBLOCK_ID
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
 from creme.creme_core.forms import CremeForm, CremeModelForm, FieldBlockManager
 from creme.creme_core.forms.fields import EntityCTypeChoiceField
@@ -84,7 +83,6 @@ class _BrickLocationsForm(CremeForm):
         bricks.initial = [bl.brick_id for bl in brick_locations]
 
     def _save_locations(self, location_model, location_builder,
-                        # blocks_partitions,
                         bricks_partitions,
                         old_locations=(), role=None, superuser=False,
                        ):
@@ -441,7 +439,6 @@ class RTypeBrickItemEditCtypeForm(CremeModelForm):
             # have a higher semantic (ask to the fields printer how it renders theme ???)
             if isinstance(field, (URLField, EmailField, ManyToManyField)) or \
                (isinstance(field, ForeignKey) and issubclass(field.remote_field.model, CremeEntity)):
-               # (isinstance(field, ForeignKey) and issubclass(field.rel.to, CremeEntity)):
                 return False
         elif isinstance(cell, EntityCellRelation):
             return False

@@ -232,21 +232,6 @@ END:VEVENT
     def display_review():
         return SettingValue.objects.get(key_id=DISPLAY_REVIEW_ACTIVITIES_BLOCKS).value
 
-    # def count_lines_display_block(self):
-    #     warnings.warn('AbstractActivity.count_lines_display_block() is deprecated.', DeprecationWarning)
-    #
-    #     total = 1
-    #     if self.get_subject_relations():
-    #         total += 1
-    #     if self.get_participant_relations():
-    #         total += 1
-    #     if self.get_linkedto_relations():
-    #         total += 1
-    #     if self.display_review() and self.minutes:
-    #         total += 1
-    #
-    #     return total
-
     def _copy_relations(self, source):
         super(AbstractActivity, self)._copy_relations(source, allowed_internal=[REL_OBJ_PART_2_ACTIVITY])
 

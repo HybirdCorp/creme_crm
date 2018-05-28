@@ -65,21 +65,9 @@
     text-align: right;
 }
 
-/*
-.table_detail_view .header {}
-.table_detail_view .header.toolbar {}
-.table_detail_view .header .action {}
-.table_detail_view .content {}
-.table_detail_view .content.empty {}
-*/
 .table_detail_view .content .action {
     text-align: center;
 }
-/*
-.table_detail_view tfoot .next {}
-.table_detail_view tfoot .previous {}
-.table_detail_view tfoot .page_selector {}
-*/
 
 .table_detail_view .header .selectable,
 .table_detail_view .content .selectable {
@@ -104,13 +92,6 @@
     padding-right: 5px;
 }
 
-/*
-.block_icon {
-    height: 22px;
-    position: relative;
-    top: 2px;
-}
-*/
 
 /**/
 .table_detail_view .content td:first-child {
@@ -181,20 +162,6 @@ th_info {
     text-align: right;
 }
 
-/*
-.th_info_4_columns {
-    max-width: 15%;
-    width: 15%;
-    text-align: left;
-}
-
-.td_info_4_columns {
-    max-width: 33%;
-    width: 35%;
-    text-align: left;
-}
-*/
-
 .td_valid {
     background-color: #90ee90;
 }
@@ -217,31 +184,9 @@ th_info {
     content: "";
 }
 
-/*
-.edit_inner {
-    max-width: 70%;
-    width: 0;
-    padding: 2px;
-    text-align: right;
-    white-space: nowrap;
-}
-*/
-
-/*
-table.collapsed .block_icon {
-    height: 22px;
-}
-*/
-
 table.collapsed .collapsable {
     display: none;
 }
-
-/*
-table.hide_empty_fields tr.content.collapsable-field {
-    display: none;
-}
-*/
 
 table.collapsed {
     opacity: 0.5;
@@ -250,79 +195,6 @@ table.collapsed {
 .table_detail_view.collapsed .block_header {
     border-bottom: none;
 }
-
-/*
-.creme-block-pager-container {
-    text-align: center;
-}
-
-.creme-block-pager {
-    margin: 3px;
-    padding: 0px;
-}
-
-.creme-block-pager li {
-    display: inline-block;
-    list-style: none;
-    margin: 0;
-}
-
-.creme-block-pager a:not([disabled]):hover {
-    background-color: #fff;
-    text-decoration: none;
-    text-shadow: none;
-    cursor: pointer;
-    color: #000;
-}
-
-.creme-block-pager a[disabled] {
-    border: 0;
-    text-decoration: none;
-    color: black;
-    cursor: default;
-}
-
-.creme-block-pager a {
-    display: inline;
-    border: 1px solid #79A2B4;
-    padding: 1px 5px;
-}
-
-.creme-block-pager .pager-prev {
-    margin-right: 8px;
-}
-
-.creme-block-pager .pager-next {
-    margin-left: 8px;
-}
-
-.creme-block-pager .pager-input input {
-    display: none;
-}
-
-.creme-block-pager .pager-input.active a {
-    display: none;
-}
-
-.creme-block-pager .pager-input.active input {
-    padding: 0px 5px;
-    width: 40px;
-    color: black;
-    text-align: center;
-    border: 1px solid #79A2B4;
-    background-color: transparent;
-    display: inline-block;
-    margin: 0px;
-
-    -webkit-border-radius: 0;
-       -moz-border-radius: 0;
-            border-radius: 0;
-}
-
-.creme-block-pager .pager-input.active input.invalid-page {
-    background-color: orange;
-}
-*/
 
 /* Block containers */
 /* Only seems to be used in Reports' preview report page. Blocks inside need to be flush with the scrollbar.
@@ -338,26 +210,3 @@ table.collapsed {
 }
 
 /* Block containers - end */
-
-/* TMP: Core blocks overrides — until most of the presentational classes are removed from the templates */
-
-/* todo: vertical alignment in most blocks should be set to top when columns' sizes and content linebreaks are better controlled
-.table_detail_view#block_creme_core-history tr.content {
-    vertical-align: top;
-}
-*/
-
-/* todo: all table blocks should better control the default margin & padding of the elements they
-         add in tds, so that they don't break the layout (like ul, p, etc currently do. Until then: */
-/*
-.table_detail_view#block_creme_core-history tr.content ul {
-    margin: 2px 0;
-    padding-left: 15px;
-}
-
-.table_detail_view#block_creme_core-statistics tr.content ul {
-    list-style: outside none none;
-    margin: 2px;
-    padding: 0;
-}
-*/

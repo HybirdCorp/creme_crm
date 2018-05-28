@@ -41,7 +41,6 @@ class AbstractFolder(CremeEntity):
     description   = TextField(_(u'Description'), blank=True).set_tags(optional=True)
     parent_folder = ForeignKey('self', verbose_name=_(u'Parent folder'),
                                blank=True, null=True,
-                               # related_name='parent_folder_set',
                                related_name='children',
                                on_delete=PROTECT,
                               )
@@ -106,14 +105,12 @@ class AbstractFolder(CremeEntity):
         actions['others'].append(EntityAction('%s?parent_id=%s' % (self.get_lv_absolute_url(), self.id),
                                               ugettext(u'Explore'),
                                               user.has_perm_to_view(self),
-                                              # icon="images/view_16.png",
                                               icon='view',
                                              ),
                                 )  # TODO: Ajaxify this
         return actions
 
     def already_in_children(self, other_folder_id):
-        # children = self.parent_folder_set.all()
         children = self.children.all()
 
         for child in children:
@@ -126,10 +123,8 @@ class AbstractFolder(CremeEntity):
 
         return False
 
-    # def delete(self, using=None):
     def delete(self, *args, **kwargs):
         self._check_deletion()  # Should not be useful (trashing should be blocked too)
-        # super(AbstractFolder, self).delete(using=using)
         super(AbstractFolder, self).delete(*args, **kwargs)
 
     def get_parents(self):

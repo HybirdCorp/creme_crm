@@ -48,14 +48,6 @@ def get_today(request):
     return {'today': now()}
 
 
-# def get_blocks_manager(request):
-#     warnings.warn('"creme.creme_core.context_processor.get_blocks_manager" is deprecated ; '
-#                   'use "creme.creme_core.context_processor.get_bricks_manager" in your settings instead.',
-#                   DeprecationWarning
-#                  )
-#     return get_bricks_manager(request)
-
-
 def get_bricks_manager(request):
     return {BricksManager.var_name: BricksManager()}
 

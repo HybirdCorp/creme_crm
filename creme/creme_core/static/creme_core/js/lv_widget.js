@@ -19,7 +19,6 @@
 (function($) {
     "use strict";
 
-// if(!creme.relations) creme.relations = {}  ???
 creme.lv_widget = {};
 
 // TODO: beware it won't work from a Popover element with would be displayed in a popup list-view
@@ -34,28 +33,6 @@ creme.lv_widget.findList = function(element) {
 
     return container.find('form.ui-creme-listview:first');
 };
-
-//creme.lv_widget.deleteEntityFilter = function(list, filterid) {
-//    console.warn('creme.lv_widget.deleteEntityFilter() is deprecated ; use creme.lv_widget.deleteFilter() instead.');
-//
-//    var query = creme.utils.confirmPOSTQuery('/creme_core/entity_filter/delete', {}, {id: filterid});
-//    query.onDone(function(event, data) {
-//        list.list_view('reload');
-//    });
-//
-//    return query.start();
-//};
-
-//creme.lv_widget.deleteHeaderFilter = function(list, filterid) {
-//    console.warn('creme.lv_widget.deleteHeaderFilter() is deprecated ; use creme.lv_widget.deleteFilter() instead.');
-//
-//    var query = creme.utils.confirmPOSTQuery('/creme_core/header_filter/delete', {}, {id: filterid});
-//    query.onDone(function(event, data) {
-//        list.list_view('reload');
-//    });
-//
-//    return query.start();
-//};
 
 creme.lv_widget.deleteFilter = function(list, filter_id, url) {
     return creme.utils.confirmPOSTQuery(url, {}, {id: filter_id})
@@ -296,7 +273,6 @@ creme.lv_widget.handleSort = function(sort_field, sort_order, new_sort_field, in
     }
 };
 
-/*  creme.lv_widget.initialize = function(options, dialog) { */
 creme.lv_widget.initialize = function(options, listview) {
     var submit_handler, history_handler;
     var dialog = listview.parents('.ui-dialog-content:first');
@@ -648,7 +624,6 @@ creme.lv_widget.ListViewLauncher = creme.widget.declare('ui-creme-listview', {
     },
 
     _create: function(element, options, cb, sync, args) {
-        // var dialog = options.whoami ? $('#' + options.whoami) : undefined;
         var multiple = element.is('[multiple]') || options.multiple;
         var list = this._list = element.find('.listview');
 
@@ -755,6 +730,5 @@ creme.lv_widget.ListViewLauncher = creme.widget.declare('ui-creme-listview', {
         return element.data('list_view');
     }
 });
-
 
 }(jQuery));

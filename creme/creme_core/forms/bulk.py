@@ -28,7 +28,7 @@ from django.db.models.fields.related import ManyToManyField
 from django.forms.fields import ChoiceField
 from django.forms.forms import NON_FIELD_ERRORS
 from django.forms.widgets import Select
-from django.urls import reverse  # NoReverseMatch
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..gui.bulk_update import bulk_update_registry
@@ -42,8 +42,6 @@ _CUSTOMFIELD_FORMAT = 'customfield-%d'
 
 
 class BulkFieldSelectWidget(Select):
-    # def build_attrs(self, extra_attrs=None, **kwargs):
-    #     attrs = super(BulkFieldSelectWidget, self).build_attrs(extra_attrs, **kwargs)
     def build_attrs(self, base_attrs, extra_attrs=None):
         attrs = super(BulkFieldSelectWidget, self).build_attrs(base_attrs=base_attrs, extra_attrs=extra_attrs)
         attrs['onchange'] = 'creme.dialog.redirect($(this).val(), $(this));'
@@ -86,18 +84,12 @@ class BulkForm(CremeForm):
                 required=False,
             )
 
-    def _bulk_field_url(self, model, fieldname, entities):
-        kwargs = {'ct_id': ContentType.objects.get_for_model(model).id,
-                  'field_name': fieldname,
-                 }
-
-        # try:
-        #     return reverse(self._bulk_viewname, kwargs=kwargs)
-        # except NoReverseMatch:
-        #     # NB: ugly hack to support the old view bulk_edit_field().
-        #     kwargs['id'] = ','.join(str(e.pk) for e in entities)
-        #     return reverse(self._bulk_viewname, kwargs=kwargs)
-        return reverse(self._bulk_viewname, kwargs=kwargs)
+    def _bulk_field_url(self, model, fieldname, entities):  # TODO: remove 'entities'
+        return reverse(self._bulk_viewname,
+                       kwargs={'ct_id': ContentType.objects.get_for_model(model).id,
+                               'field_name': fieldname,
+                              }
+                      )
 
     def _bulk_formfield(self, user, instance=None):
         if self.is_custom:
@@ -168,7 +160,6 @@ class BulkForm(CremeForm):
 
     def _bulk_clean_entity(self, entity, values):
         for key, value in values.iteritems():
-            # setattr(entity, key, value)
             try:
                 mfield = entity._meta.get_field(key)
             except FieldDoesNotExist:
@@ -264,11 +255,6 @@ class BulkDefaultEditForm(BulkForm):
         entities = self.bulk_cleaned_entities
         field_value = self.cleaned_data['field_value']
 
-        # if self.is_custom and entities:
-        #     custom_field.CustomFieldValue.save_values_for_entities(self.model_field, entities, field_value)
-        # else:
-        #     for entity in entities:
-        #         entity.save()
         if entities:
             if self.is_custom:
                 custom_field.CustomFieldValue.save_values_for_entities(self.model_field, entities, field_value)

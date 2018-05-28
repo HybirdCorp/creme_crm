@@ -33,7 +33,6 @@ class WaitingAction(CremeModel):
     # NB: - If default backend (subject="*"): fetcher_name.
     #     - If not  'fetcher_name - input_name'  (i.e: email - raw, email - infopath, sms - raw...).
     source  = CharField(_(u'Source'), max_length=100)
-    # data    = TextField(blank=True, null=True)
     raw_data = TextField(blank=True, null=True)  # Pickled data
     ct      = CTypeForeignKey(verbose_name=_(u'Type of resource'))  # Redundant, but faster bd recovery
     subject = CharField(_(u'Subject'), max_length=100)
@@ -45,14 +44,9 @@ class WaitingAction(CremeModel):
         verbose_name_plural = _(u'Waiting actions')
 
     def get_data(self):
-        # data = loads(self.data.encode('utf-8'))
         data = loads(self.raw_data.encode('utf-8'))
 
         if isinstance(data, dict):
-            # d = {}
-            # for k,v in data.iteritems():
-            #     d[k] = v.decode('utf8') if isinstance(v, basestring) else v
-            # data = d
             data = {
                 k: v.decode('utf8') if isinstance(v, basestring) else v
                     for k, v in data.iteritems()
@@ -61,7 +55,6 @@ class WaitingAction(CremeModel):
         return data
 
     def set_data(self, data):
-        # return dumps(data)
         self.raw_data = dumps(data)
 
     def can_validate_or_delete(self, user):

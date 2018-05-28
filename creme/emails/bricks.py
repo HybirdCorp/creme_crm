@@ -210,7 +210,6 @@ class MailsBrick(QuerysetBrick):
         return self._render(self.get_template_context(
             context,
             sending.get_mails().select_related('recipient_entity'),
-            # ct_id=ContentType.objects.get_for_model(LightWeightEmail).id,
         ))
 
 

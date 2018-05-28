@@ -164,39 +164,6 @@ def edit_fields(request, report_id):
     #                                      title_format=_(u'Edit columns of «%s»'),
     #                                     )
 
-# _order_direction = {
-#     'up':   -1,
-#     'down':  1,
-# }
-#
-#
-# @login_required
-# @permission_required('reports')
-# def change_field_order(request):
-#     warnings.warn('reports.views.report.change_field_order() is deprecated ; use reorder_field() instead.',
-#                   DeprecationWarning
-#                  )
-#
-#     POST = request.POST
-#     field = get_object_or_404(Field, pk=get_from_POST_or_404(POST, 'field_id'))
-#     direction = POST.get('direction', 'up')
-#     report = field.report
-#
-#     request.user.has_perm_to_change_or_die(report)
-#
-#     field.order += _order_direction[direction]  # todo: manage bad direction arg
-#     try:
-#         other_field = report.fields.get(order=field.order)
-#     except Field.DoesNotExist:
-#         return HttpResponse(status=403, content_type='text/javascript')
-#
-#     other_field.order -= _order_direction[direction]
-#
-#     field.save()
-#     other_field.save()
-#
-#     return HttpResponse(status=200, content_type='text/javascript')
-
 
 @POST_only
 @login_required

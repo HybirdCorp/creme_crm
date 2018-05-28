@@ -75,7 +75,6 @@ def add(request, content_type_id, extra_template_dict=None):
 
     return add_entity(request, HeaderFilterForm,
                       url_redirect=callback_url,
-                      # template='creme_core/header_filter_form.html',
                       template='creme_core/forms/header-filter.html',
                       extra_initial={'content_type': ct_entity},
                       extra_template_dict=ctx,
@@ -108,7 +107,6 @@ def edit(request, header_filter_id):
         cancel_url = build_cancel_path(request)
 
     return render(request,
-                  # 'creme_core/header_filter_form.html',
                   'creme_core/forms/header-filter.html',
                   {'form': hf_form,
                    'cancel_url': cancel_url,
@@ -141,15 +139,7 @@ def delete(request):
 
 @login_required
 @utils.jsonify
-# def get_for_ctype(request, ct_id=None):
 def get_for_ctype(request):
-    # if ct_id is None:
-    #     ct_id = utils.get_from_GET_or_404(request.GET, 'ct_id', int)
-    # else:
-    #     warnings.warn('header_filter.get_for_ctype(): the URL argument "ct_id" is deprecated ; '
-    #                   'use the GET parameter instead.',
-    #                   DeprecationWarning
-    #                  )
     ct_id = utils.get_from_GET_or_404(request.GET, 'ct_id', int)
     ct = utils.get_ct_or_404(ct_id)
     user = request.user

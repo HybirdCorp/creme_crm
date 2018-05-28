@@ -28,14 +28,13 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse_lazy as reverse
 from django.utils.encoding import smart_unicode
-from django.utils.html import format_html, format_html_join, mark_safe  # escape escapejs
+from django.utils.html import format_html, format_html_join, mark_safe
 from django.utils.translation import ugettext as _, ungettext, ugettext_lazy
 
 from ..auth import build_creation_perm as cperm
 from ..models import CremeEntity
-# from ..registry import creme_registry
 from ..templatetags.creme_widgets import get_icon_size_px, get_icon_by_name
-from ..utils.media import get_current_theme_from_context  # get_creme_media_url
+from ..utils.media import get_current_theme_from_context
 from ..utils.unicode_collation import collator
 
 
@@ -65,7 +64,6 @@ if settings.OLD_MENU:
             """@param force_order Order of the item in the menu ; None if the verbose_name is use as key."""
             self.app_name = app_name
             self.app_url = app_url
-            # self.name = verbose_name or creme_registry.get_app(app_name).verbose_name
             self.name = verbose_name or apps.get_app_config(app_name).verbose_name
             self.force_order = force_order
             self._items = []
@@ -184,16 +182,11 @@ else:
             img = self.render_icon(context)
             label = self.render_label(context)
 
-            # return u'<span>%s%s</span>' % (img, label)
             return format_html(u'<span>{}{}</span>', img, label)
 
         def render_icon(self, context):
             icon = self.icon
 
-            # return '<img height="30" width="30" src="%s" alt="%s" />' % (
-            #     get_creme_media_url(context.get('THEME_NAME', 'icecream'), icon),
-            #     self.icon_label,
-            # ) if icon else ''
             if icon:
                 theme = get_current_theme_from_context(context)
 
@@ -456,18 +449,6 @@ else:
         def render(self, context, level=0):
             level += 1
 
-            # return u'%s%s<ul>%s</ul>' % (
-            #         self.render_icon(context),
-            #         self.render_label(context),
-            #         # todo: attr 'no_wrapping' instead of isinstance() ??
-            #         u''.join(item.render(context, level) if isinstance(item, ItemSeparator) else
-            #                  u'<li class="ui-creme-navigation-item-level%s ui-creme-navigation-item-id_%s">%s</li>' % (
-            #                     level,
-            #                     item.id,
-            #                     item.render(context, level),
-            #                 ) for item in self
-            #             ),
-            # )
             return format_html(
                 u'{icon}{label}<ul>{li_tags}</ul>',
                 icon=self.render_icon(context),
@@ -490,7 +471,6 @@ else:
             self.css_class = css_classes
 
         def render(self, context, level=0):
-            # return u'<span class="%s">%s</span>' % (self.css_class, self.render_label(context))
             return format_html(u'<span class="{}">{}</span>', self.css_class, self.render_label(context))
 
 
@@ -584,10 +564,8 @@ else:
             label = self.render_label(context)
 
             if not self._has_perm(context):
-                # return u'<span class="ui-creme-navigation-text-entry forbidden">%s%s</span>' % (img, label)
                 return format_html(u'<span class="ui-creme-navigation-text-entry forbidden">{}{}</span>', img, label)
 
-            # return u'<a href="%s">%s%s</a>' % (self.url, img, label)
             return format_html(u'<a href="{url}">{img}{label}</a>', url=self.url, img=img, label=label)
 
 
@@ -616,14 +594,6 @@ else:
         def render(self, context, level=0):
             count = CremeEntity.objects.filter(is_deleted=True).count()
 
-            # return '<a href="%s">' \
-            #           '%s <span class="ui-creme-navigation-punctuation">(</span>' \
-            #           '%s<span class="ui-creme-navigation-punctuation">)</span>' \
-            #        '</a>' % (
-            #             self.url,
-            #             _(u'Trash'),
-            #             ungettext(u'%s entity', u'%s entities', count) % count,
-            #         )
             return format_html(
                 u'<a href="{url}">'
                     u'{label} <span class="ui-creme-navigation-punctuation">(</span>'
@@ -644,14 +614,6 @@ else:
                 self.model = model
 
             def render(self, context, level=0):
-                # # return u'<a href="" class="quickform-menu-link" data-ct-id="%s">%s</a>' % (
-                # return u'<a href="%s" class="quickform-menu-link">%s</a>' % (
-                #                 # self.ct_id,
-                #                 reverse('creme_core__quick_forms', args=(self.ct_id, 1)),
-                #                 self.label,
-                #             ) if context['user'].has_perm_to_create(self.model) else \
-                #        u'<span class="ui-creme-navigation-text-entry forbidden">%s</span>' % self.label
-                # return format_html(u'<a href="{url}" class="quickform-menu-link">{label}</a>',
                 return format_html(u'<a href="#" data-href="{url}" class="quickform-menu-link">{label}</a>',
                                    url=reverse('creme_core__quick_forms', args=(self.ct_id, 1)),
                                    label=self.label,
@@ -743,7 +705,6 @@ else:
                 return url
 
             def render(self, context, level=0):  # Useless (only to_dict() is used, render is done by JavaScript).
-                # return u'<a href="%s">%s</a>' % (self.url, self.label)
                 return format_html(u'<a href="{}">{}</a>', self.url, self.label)
 
             def to_dict(self, user):
@@ -851,14 +812,6 @@ else:
             self._groups.remove(*group_ids)
 
         def render(self, context, level=0):
-            # return u'<a href="" class="anyform-menu-link" title="%s"' \
-            #        u' data-grouped-links="%s"' \
-            #        u'>%s%s</a>' % (
-            #             escape(_(u'Create an entity of any type')),
-            #             escape(json_dump(self.as_grid(context['user']))),
-            #             self.render_icon(context),
-            #             self.render_label(context),
-            #         )
             return format_html(
                 u'<a href="" class="anyform-menu-link" title="{title}" data-grouped-links="{links}">{icon}{label}</a>',
                 title=_(u'Create an entity of any type'),
@@ -888,26 +841,14 @@ else:
             lv_items = LastViewedItem.get_all(context['request'])
 
             if lv_items:
-                # li_tags = u''.join(u'<li><a href="{}">{}</a></li>'.format(
-                #                         lvi.url,
-                #                         escape(lvi.name),
-                #                     ) for lvi in lv_items
-                #                   )
                 li_tags = format_html_join(u'', u'<li><a href="{}">{}</a></li>',
                                            ((lvi.url, lvi.name) for lvi in lv_items)
                                           )
             else:
-                # li_tags = u'<li><span class="ui-creme-navigation-text-entry">%s</span></li>' % \
-                #             _(u'No recently visited entity')
                 li_tags = format_html(u'<li><span class="ui-creme-navigation-text-entry">{}</span></li>',
                                       _(u'No recently visited entity')
                                      )
 
-            # return u'%s%s<ul>%s</ul>' % (
-            #         self.render_icon(context),
-            #         self.render_label(context),
-            #         li_tags,
-            # )
             return format_html(u'{icon}{label}<ul>{li_tags}</ul>',
                                icon=self.render_icon(context),
                                label=self.render_label(context),
@@ -952,14 +893,6 @@ else:
             return res
 
         def render(self, context, level=0):
-            # return u'<ul class="ui-creme-navigation">%s</ul>' % (
-            #     u''.join(u'<li class="ui-creme-navigation-item-level%s ui-creme-navigation-item-id_%s">%s</li>' % (
-            #                     level,
-            #                     item.id,
-            #                     item.render(context, level),
-            #                 ) for item in self
-            #             ),
-            # )
             return format_html(
                 u'<ul class="ui-creme-navigation">{}</ul>',
                 format_html_join(

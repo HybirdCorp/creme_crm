@@ -41,36 +41,6 @@ class IniFileInput(CrudityInput):
     verbose_method = _(u'Create')  # TODO: factorise + retrieve with 'method'
     brickheader_action_templates = ('crudity/bricks/header-actions/inifile-creation-template.html',)
 
-    # def __init__(self):
-    #     super(IniFileInput, self).__init__()
-    #
-    #     # NB: we define an inner class + avoid using a template file in order to reduce the API (will break soon).
-    #     from django.urls import reverse
-    #     from django.utils.safestring import mark_safe
-    #     from django.utils.translation import ugettext
-    #
-    #     from creme.creme_core.gui.button_menu import Button
-    #     from creme.creme_core.templatetags.creme_core_tags import creme_media_url
-    #
-    #     class IniTemplateCreateButton(Button):
-    #         id_ = Button.generate_id('crudity', 'ini_create_form')
-    #         verbose_name = u''
-    #
-    #         def render(self, context):
-    #             backend = context['backend']
-    #
-    #             return mark_safe(u'<a class="download" href="{url}">'
-    #                                 u'<img src="{src}" border="0" title="{title}" alt="{title}" />{label}'
-    #                              u'</a>'.format(
-    #                                  url=reverse('crudity__dl_fs_ini_template', args=(backend.subject,)),
-    #                                  title=ugettext(u'Download'),
-    #                                  src=creme_media_url(context, 'images/download_22.png'),
-    #                                  label=ugettext(u'File .ini template for «%s»') % backend.model._meta.verbose_name,
-    #                                 )
-    #                             )
-    #
-    #     self.register_buttons(IniTemplateCreateButton())
-
     def create(self, file_path):
         backend = None
         config = ConfigParser.RawConfigParser()

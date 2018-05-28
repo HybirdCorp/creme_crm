@@ -1,4 +1,4 @@
-{% load i18n creme_core_tags mobile_tags %}{% comment %}TODO: remove mobile_tags if orga can participate {% endcomment %}
+{% load i18n creme_core_tags mobile_tags %}{# TODO: remove mobile_tags if orga can participate #}
 {% has_perm_to change activity as edit_perm %}
 {% with participant_relations=activity.get_participant_relations organisations=activity|orga_subjects has_button=buttons_template|and_op:edit_perm start=activity.start %}
 <div class='card card-activity {{extra_classes}} activity-type-{{activity.type_id}} {% if is_floating %}activity-floating{% endif %} {% if activity.is_all_day %}activity-all-day{% endif %} {% if has_button %}activity-with-actions{% endif %} {% if not participant_relations and not organisations %}activity-without-participants{% endif %}'
