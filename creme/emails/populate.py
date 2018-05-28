@@ -29,8 +29,8 @@ from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (RelationType, SearchConfigItem, SettingValue,
-        BlockDetailviewLocation, BlockPortalLocation, CustomBlockConfigItem,
-        ButtonMenuItem, HeaderFilter, Job)
+        BlockDetailviewLocation, CustomBlockConfigItem,
+        ButtonMenuItem, HeaderFilter, Job)  # BlockPortalLocation
 
 from creme import persons
 
@@ -194,8 +194,8 @@ class Populator(BasePopulator):
             create_bdl(brick_id=bricks.MailsHistoryBrick.id_, order=600, zone=RIGHT, model=Contact)
             create_bdl(brick_id=bricks.MailsHistoryBrick.id_, order=600, zone=RIGHT, model=Organisation)
 
-            BlockPortalLocation.create_or_update(app_name='emails', brick_id=bricks.SignaturesBrick.id_, order=10)
-            BlockPortalLocation.create_or_update(app_name='emails', brick_id=core_bricks.HistoryBrick.id_, order=30)
+            # BlockPortalLocation.create_or_update(app_name='emails', brick_id=bricks.SignaturesBrick.id_, order=10)
+            # BlockPortalLocation.create_or_update(app_name='emails', brick_id=core_bricks.HistoryBrick.id_, order=30)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail views')
@@ -208,9 +208,9 @@ class Populator(BasePopulator):
                     create_bdl(brick_id=a_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=model)
                     create_bdl(brick_id=a_bricks.UserMessagesBrick.id_, order=400, zone=RIGHT, model=model)
 
-                BlockPortalLocation.create_or_update(app_name='emails', brick_id=a_bricks.MemosBrick.id_,        order=100)
-                BlockPortalLocation.create_or_update(app_name='emails', brick_id=a_bricks.AlertsBrick.id_,       order=200)
-                BlockPortalLocation.create_or_update(app_name='emails', brick_id=a_bricks.UserMessagesBrick.id_, order=300)
+                # BlockPortalLocation.create_or_update(app_name='emails', brick_id=a_bricks.MemosBrick.id_,        order=100)
+                # BlockPortalLocation.create_or_update(app_name='emails', brick_id=a_bricks.AlertsBrick.id_,       order=200)
+                # BlockPortalLocation.create_or_update(app_name='emails', brick_id=a_bricks.UserMessagesBrick.id_, order=300)
 
             if apps.is_installed('creme.documents'):
                 # logger.info("Documents app is installed => we use the documents block on EmailCampaign's detail view")
