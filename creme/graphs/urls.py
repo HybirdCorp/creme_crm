@@ -3,11 +3,11 @@
 from django.conf.urls import url
 
 from . import graph_model_is_custom
-from .views import portal, graph, root_node
+from .views import graph, root_node  # portal
 
 
 urlpatterns = [
-    url(r'^$', portal.portal, name='graphs__portal'),
+    # url(r'^$', portal.portal, name='graphs__portal'),
 
     url(r'^graph/(?P<graph_id>\d+)/png[/]?$', graph.dl_png, name='graphs__dl_image'),
 

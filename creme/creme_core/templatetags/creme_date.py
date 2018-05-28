@@ -27,13 +27,13 @@ from django.utils.translation import ungettext
 register = template.Library()
 
 
-@register.filter(name='timedelta_pprint')
-def _timedelta_pprint(timedelta_):
-    warnings.warn('The tag {% timedelta_pprint %} is deprecated ; use {% date_timedelta_pprint %} instead.',
-                  DeprecationWarning
-                 )
-
-    return timedelta_pprint(timedelta_)
+# @register.filter(name='timedelta_pprint')
+# def _timedelta_pprint(timedelta_):
+#     warnings.warn('The tag {% timedelta_pprint %} is deprecated ; use {% date_timedelta_pprint %} instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     return timedelta_pprint(timedelta_)
 
 
 @register.filter(name='date_timedelta_pprint')

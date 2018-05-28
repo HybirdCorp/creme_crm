@@ -18,24 +18,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
-from django.utils.translation import ugettext as _
-
-from creme.creme_core.views.generic import app_portal
-
-from creme.creme_config.utils import generate_portal_url
-
-from .. import get_opportunity_model
-
-
-def portal(request):
-    warnings.warn('opportunities.views.portal.portal() is deprecated.', DeprecationWarning)
-
-    Opportunity = get_opportunity_model()
-    stats = ((_(u'Number of opportunities'),  Opportunity.objects.count()),
-            )
-
-    return app_portal(request, 'opportunities', 'opportunities/portal.html',
-                      Opportunity, stats, config_url=generate_portal_url('opportunities'),
-                     )
+# import warnings
+#
+# from django.utils.translation import ugettext as _
+#
+# from creme.creme_core.views.generic import app_portal
+#
+# from creme.creme_config.utils import generate_portal_url
+#
+# from .. import get_opportunity_model
+#
+#
+# def portal(request):
+#     warnings.warn('opportunities.views.portal.portal() is deprecated.', DeprecationWarning)
+#
+#     Opportunity = get_opportunity_model()
+#     stats = ((_(u'Number of opportunities'),  Opportunity.objects.count()),
+#             )
+#
+#     return app_portal(request, 'opportunities', 'opportunities/portal.html',
+#                       Opportunity, stats, config_url=generate_portal_url('opportunities'),
+#                      )

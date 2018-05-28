@@ -18,28 +18,28 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
-from django.utils.translation import ugettext as _
-
-from creme.creme_core.views.generic.portal import app_portal
-
-from creme.creme_config.utils import generate_portal_url
-
-from .. import get_activity_model, constants
-
-
-def portal(request):
-    warnings.warn('activities.views.portal.portal() is deprecated.', DeprecationWarning)
-
-    Activity = get_activity_model()
-    act_filter = Activity.objects.filter
-    stats = ((_(u'Activities count'),  Activity.objects.count()),
-             (_(u'Meetings count'),    act_filter(type=constants.ACTIVITYTYPE_MEETING).count()),
-             (_(u'Phone calls count'), act_filter(type=constants.ACTIVITYTYPE_PHONECALL).count()),
-             (_(u'Tasks count'),       act_filter(type=constants.ACTIVITYTYPE_TASK).count()),
-            )
-
-    return app_portal(request, 'activity', 'activities/portal.html', Activity,
-                      stats, config_url=generate_portal_url('activities'),
-                     )
+# import warnings
+#
+# from django.utils.translation import ugettext as _
+#
+# from creme.creme_core.views.generic.portal import app_portal
+#
+# from creme.creme_config.utils import generate_portal_url
+#
+# from .. import get_activity_model, constants
+#
+#
+# def portal(request):
+#     warnings.warn('activities.views.portal.portal() is deprecated.', DeprecationWarning)
+#
+#     Activity = get_activity_model()
+#     act_filter = Activity.objects.filter
+#     stats = ((_(u'Activities count'),  Activity.objects.count()),
+#              (_(u'Meetings count'),    act_filter(type=constants.ACTIVITYTYPE_MEETING).count()),
+#              (_(u'Phone calls count'), act_filter(type=constants.ACTIVITYTYPE_PHONECALL).count()),
+#              (_(u'Tasks count'),       act_filter(type=constants.ACTIVITYTYPE_TASK).count()),
+#             )
+#
+#     return app_portal(request, 'activity', 'activities/portal.html', Activity,
+#                       stats, config_url=generate_portal_url('activities'),
+#                      )

@@ -11,7 +11,7 @@ try:
     from .. import constants, bricks
     from .base import Contact, Organisation
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class PersonsAppTestCase(CremeTestCase, BrickTestCaseMixin):
@@ -38,9 +38,9 @@ class PersonsAppTestCase(CremeTestCase, BrickTestCaseMixin):
                                     efilter.filter(Organisation.objects.all())
                                    )
 
-    def test_portal(self):
-        self.login()
-        self.assertGET200(reverse('persons__portal'))
+    # def test_portal(self):
+    #     self.login()
+    #     self.assertGET200(reverse('persons__portal'))
 
     def test_config_portal(self):
         self.login()

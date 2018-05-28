@@ -3,11 +3,11 @@
 from django.conf.urls import url
 
 from creme import polls
-from .views import portal, poll_form, poll_reply
+from .views import poll_form, poll_reply  # portal
 
 
 urlpatterns = [
-    url(r'^$', portal.portal, name='polls__portal'),
+    # url(r'^$', portal.portal, name='polls__portal'),
 
     url(r'^poll_form/stats/(?P<pform_id>\d+)[/]?$', poll_form.stats, name='polls__form_stats'),
 

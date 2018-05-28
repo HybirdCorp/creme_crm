@@ -21,7 +21,7 @@ try:
             CreditNote, Invoice, Quote, SalesOrder, TemplateBase,
             ProductLine, ServiceLine)
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
@@ -52,9 +52,9 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         self.assertTrue(rtype.subject_ctypes.filter(id=get_ct(Contact).id).exists())
         self.assertEqual(len(ct_ids), rtype.symmetric_type.object_ctypes.filter(id__in=ct_ids).count())
 
-    def test_portal(self):
-        self.login()
-        self.assertGET200(reverse('billing__portal'))
+    # def test_portal(self):
+    #     self.login()
+    #     self.assertGET200(reverse('billing__portal'))
 
     @skipIfCustomOrganisation
     def test_algoconfig(self):

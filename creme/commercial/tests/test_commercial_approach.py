@@ -36,7 +36,7 @@ try:
     from ..models import CommercialApproach
     from .base import Organisation, Contact, Activity, Opportunity
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
@@ -315,12 +315,12 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.assertGET200('/')
         self._get_commap_brick_node(response)
 
-    def test_brick03(self):
-        "Commercial portal"
-        BlockPortalLocation.create_or_update(app_name='commercial', brick_id=ApproachesBrick.id_, order=100)
-
-        response = self.assertGET200(reverse('commercial__portal'))
-        self._get_commap_brick_node(response)
+    # def test_brick03(self):
+    #     "Commercial portal"
+    #     BlockPortalLocation.create_or_update(app_name='commercial', brick_id=ApproachesBrick.id_, order=100)
+    #
+    #     response = self.assertGET200(reverse('commercial__portal'))
+    #     self._get_commap_brick_node(response)
 
     def _send_mails(self):
         job = self.get_object_or_fail(Job, type_id=com_approaches_emails_send_type.id)

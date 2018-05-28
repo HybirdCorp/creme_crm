@@ -4,11 +4,11 @@ from django.apps import apps
 from django.conf.urls import url, include
 
 from creme import emails
-from .views import portal, campaign, sending, recipient, mailing_list, template, mail, signature
+from .views import campaign, sending, recipient, mailing_list, template, mail, signature  # portal
 
 
 urlpatterns = [
-    url(r'^$', portal.portal, name='emails__portal'),
+    # url(r'^$', portal.portal, name='emails__portal'),
 
     # Campaign: mailing_list block
     url(r'^campaign/(?P<campaign_id>\d+)/mailing_list/add[/]?$',    campaign.add_ml,    name='emails__add_mlists_to_campaign'),

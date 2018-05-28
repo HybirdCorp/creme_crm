@@ -12,7 +12,7 @@ try:
             REL_SUB_COMPLETE_GOAL, PROP_IS_A_SALESMAN)
     from .base import Act, Contact
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class CommercialTestCase(CremeTestCase):
@@ -96,6 +96,6 @@ class CommercialTestCase(CremeTestCase):
         self.assertEqual(2, salesmen_page.paginator.count)
         self.assertEqual(set(salesmen), set(salesmen_page.object_list))
 
-    def test_portal(self):
-        self.login()
-        self.assertGET200(reverse('commercial__portal'))
+    # def test_portal(self):
+    #     self.login()
+    #     self.assertGET200(reverse('commercial__portal'))

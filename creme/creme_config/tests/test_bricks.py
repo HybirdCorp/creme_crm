@@ -67,43 +67,43 @@ class HomePortalBrick(Brick):
     def home_display(self, context):
         return '<table id="{}"></table>'.format(self.id_)
 
-    def portal_display(self, context, ct_ids):
-        return '<table id="{}"></table>'.format(self.id_)
+    # def portal_display(self, context, ct_ids):
+    #     return '<table id="{}"></table>'.format(self.id_)
 
 
-class PortalOnlyBrick1(Brick):
-    id_          = Brick.generate_id('creme_config', 'testbrickconfig_portal_only_1')
-    verbose_name = u'Testing purpose'
-
-    def portal_display(self, context, ct_ids):
-        return '<table id="{}"></table>'.format(self.id_)
-
-
-class PortalOnlyBrick2(Brick):
-    id_          = Brick.generate_id('creme_config', 'testbrickconfig_portal_only_2')
-    verbose_name = u'Testing purpose'
-    configurable = False  # <----
-
-    def portal_display(self, context, ct_ids):
-        return '<table id="{}"></table>'.format(self.id_)
+# class PortalOnlyBrick1(Brick):
+#     id_          = Brick.generate_id('creme_config', 'testbrickconfig_portal_only_1')
+#     verbose_name = u'Testing purpose'
+#
+#     def portal_display(self, context, ct_ids):
+#         return '<table id="{}"></table>'.format(self.id_)
 
 
-class PortalOnlyBrick3(Brick):
-    id_          = Brick.generate_id('creme_config', 'testbrickconfig_portal_only_3')
-    verbose_name = u'Testing purpose'
-    target_apps  = ('persons', 'billing')
+# class PortalOnlyBrick2(Brick):
+#     id_          = Brick.generate_id('creme_config', 'testbrickconfig_portal_only_2')
+#     verbose_name = u'Testing purpose'
+#     configurable = False  # <----
+#
+#     def portal_display(self, context, ct_ids):
+#         return '<table id="{}"></table>'.format(self.id_)
 
-    def portal_display(self, context, ct_ids):
-        return '<table id="{}"></table>'.format(self.id_)
+
+# class PortalOnlyBrick3(Brick):
+#     id_          = Brick.generate_id('creme_config', 'testbrickconfig_portal_only_3')
+#     verbose_name = u'Testing purpose'
+#     target_apps  = ('persons', 'billing')
+#
+#     def portal_display(self, context, ct_ids):
+#         return '<table id="{}"></table>'.format(self.id_)
 
 
-class PortalOnlyBrick4(Brick):
-    id_          = Brick.generate_id('creme_config', 'testbrickconfig_portal_only_4')
-    verbose_name = u'Testing purpose'
-    target_apps  = ('billing', 'documents')
-
-    def portal_display(self, context, ct_ids):
-        return '<table id="{}"></table>'.format(self.id_)
+# class PortalOnlyBrick4(Brick):
+#     id_          = Brick.generate_id('creme_config', 'testbrickconfig_portal_only_4')
+#     verbose_name = u'Testing purpose'
+#     target_apps  = ('billing', 'documents')
+#
+#     def portal_display(self, context, ct_ids):
+#         return '<table id="{}"></table>'.format(self.id_)
 
 
 class HomeOnlyBrick1(Brick):
@@ -140,16 +140,16 @@ class DetailviewInstanceBrick(Brick):
         return '<table id="{id}"><thead><tr>{entity}</tr></thead></table>'.format(id=self.id_, entity=self.ibci.entity)
 
 
-class PortalInstanceBrick(Brick):
-    id_          = InstanceBlockConfigItem.generate_base_id('creme_config', 'test_portal_instance')
-    verbose_name = u'Testing purpose'
-
-    def __init__(self, instance_block_config_item):
-        super(PortalInstanceBrick, self).__init__()
-        self.ibci = instance_block_config_item
-
-    def portal_display(self, context, ct_ids):
-        return '<table id="{id}"><thead><tr>{entity}</tr></thead></table>'.format(id=self.id_, entity=self.ibci.entity)
+# class PortalInstanceBrick(Brick):
+#     id_          = InstanceBlockConfigItem.generate_base_id('creme_config', 'test_portal_instance')
+#     verbose_name = u'Testing purpose'
+#
+#     def __init__(self, instance_block_config_item):
+#         super(PortalInstanceBrick, self).__init__()
+#         self.ibci = instance_block_config_item
+#
+#     def portal_display(self, context, ct_ids):
+#         return '<table id="{id}"><thead><tr>{entity}</tr></thead></table>'.format(id=self.id_, entity=self.ibci.entity)
 
 
 class HomeInstanceBrick(Brick):
@@ -176,7 +176,7 @@ class FakeContactHatBrick(Brick):
 
 class BricksConfigTestCase(CremeTestCase):
     DEL_DETAIL_URL = reverse('creme_config__delete_detailview_bricks')
-    PORTAL_WIZARD_URL = reverse('creme_config__create_portal_bricks')
+    # PORTAL_WIZARD_URL = reverse('creme_config__create_portal_bricks')
     CUSTOM_WIZARD_URL = reverse('creme_config__create_custom_brick')
 
     @classmethod
@@ -198,16 +198,17 @@ class BricksConfigTestCase(CremeTestCase):
         cls.brick_registry = block_registry = deepcopy(gui_bricks.brick_registry)
         block_registry.register(CompleteBrick1, CompleteBrick2, CompleteBrick3, CompleteBrick4,
                                 HomePortalBrick,
-                                PortalOnlyBrick1,
-                                PortalOnlyBrick2,
-                                PortalOnlyBrick3,
-                                PortalOnlyBrick4,
+                                # PortalOnlyBrick1,
+                                # PortalOnlyBrick2,
+                                # PortalOnlyBrick3,
+                                # PortalOnlyBrick4,
                                 HomeOnlyBrick1,
                                 HomeOnlyBrick2,
                                )
 
         block_registry.register_4_instance(DetailviewInstanceBrick)
-        block_registry.register_4_instance(PortalInstanceBrick, HomeInstanceBrick)
+        # block_registry.register_4_instance(PortalInstanceBrick, HomeInstanceBrick)
+        block_registry.register_4_instance(HomeInstanceBrick)
 
     @classmethod
     def tearDownClass(cls):
@@ -958,287 +959,287 @@ class BricksConfigTestCase(CremeTestCase):
     #     self.assertNotIn('creme_core',   names)
     #     self.assertNotIn('creme_config', names)
 
-    def test_edit_portal01(self):
-        self.assertGET404(reverse('creme_config__edit_portal_bricks', args=('persons',)))
-
-    def test_edit_portal02(self):
-        app_name = 'persons'
-
-        naru = FakeContact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
-
-        instance_brick_id = InstanceBlockConfigItem.generate_id(PortalInstanceBrick, naru, '')
-        InstanceBlockConfigItem.objects.create(brick_id=instance_brick_id, entity=naru, verbose='All stuffes')
-
-        brick1 = PortalOnlyBrick1
-        brick2 = PortalOnlyBrick2; assert not brick2.configurable
-        brick3 = PortalOnlyBrick3; assert app_name in brick3.target_apps
-        brick4 = PortalOnlyBrick4; assert app_name not in brick4.target_apps
-
-        # self.client.post(reverse('creme_config__create_portal_bricks_legacy'), data={'app_name': app_name})
-        BlockPortalLocation.objects.create(app_name=app_name, brick_id=HistoryBrick.id_, order=1)
-        self.assertEqual(1, BlockPortalLocation.objects.filter(app_name=app_name).count())
-
-        url = reverse('creme_config__edit_portal_bricks', args=(app_name,))
-        response = self.assertGET200(url)
-
-        with self.assertNoException():
-            blocks_field = response.context['form'].fields['blocks']
-
-        choices = blocks_field.choices
-        self.assertGreaterEqual(len(choices), 2)
-        self._find_field_index(blocks_field, brick1.id_)
-        self._assertNotInChoices(blocks_field, brick2.id_, 'Block is not configurable')
-        self._find_field_index(blocks_field, brick3.id_)
-        self._assertNotInChoices(blocks_field, brick4.id_, 'Block is not compatible with this app')
-        self._find_field_index(blocks_field, instance_brick_id)
-
-        brick_id1 = choices[0][0]
-        brick_id2 = choices[1][0]
-
-        index1 = self._find_field_index(blocks_field, brick_id1)
-        index2 = self._find_field_index(blocks_field, brick_id2)
-
-        response = self.client.post(url, data={'blocks_check_%s' % index1: 'on',
-                                               'blocks_value_%s' % index1: brick_id1,
-                                               'blocks_order_%s' % index1: 1,
-
-                                               'blocks_check_%s' % index2: 'on',
-                                               'blocks_value_%s' % index2: brick_id2,
-                                               'blocks_order_%s' % index2: 2,
-                                              }
-                                   )
-        self.assertNoFormError(response)
-
-        b_locs = list(BlockPortalLocation.objects.filter(app_name=app_name))
-        self.assertEqual(2, len(b_locs))
-        self.assertEqual(1, self._find_location(brick_id1, b_locs).order)
-        self.assertEqual(2, self._find_location(brick_id2, b_locs).order)
-
-    def _get_blocks_4_portal(self):
-        bricks = [block for brick_id, block in self.brick_registry
-                            if hasattr(block, 'portal_display')
-                 ]
-        self.assertGreaterEqual(len(bricks), 2, bricks)
-
-        return bricks
-
-    def test_edit_portal03(self):
-        "Set no block -> fake blocks"
-        app_name = 'persons'
-        blocks = self._get_blocks_4_portal()
-
-        create_loc = partial(BlockPortalLocation.objects.create, app_name=app_name)
-        create_loc(brick_id=blocks[0].id_, order=1)
-        create_loc(brick_id=blocks[1].id_, order=2)
-
-        url = reverse('creme_config__edit_portal_bricks', args=(app_name,))
-        response = self.assertGET200(url)
-
-        with self.assertNoException():
-            blocks_field = response.context['form'].fields['blocks']
-
-        self.assertEqual([blocks[0].id_, blocks[1].id_], blocks_field.initial)
-
-        self.assertNoFormError(self.client.post(url, data={}))
-
-        b_locs = list(BlockPortalLocation.objects.filter(app_name=app_name))
-        self.assertEqual(1, len(b_locs))
-
-        bpl = b_locs[0]
-        self.assertEqual(1,  bpl.order)
-        self.assertEqual('', bpl.brick_id)
-
-    def test_edit_portal04(self):
-        "Default conf"
-        BlockPortalLocation.objects.filter(app_name='').delete()
-        url = reverse('creme_config__edit_portal_bricks', args=('default',))
-        self.assertGET404(url)
-
-        bricks = self._get_blocks_4_portal()
-        create_loc = partial(BlockPortalLocation.objects.create, app_name='')
-        create_loc(brick_id=bricks[0].id_, order=1)
-        create_loc(brick_id=bricks[1].id_, order=2)
-
-        self.assertGET200(url)
-
-        self.assertNoFormError(self.client.post(url, data={}))
-
-        b_locs = list(BlockPortalLocation.objects.filter(app_name=''))
-        self.assertEqual(1, len(b_locs))
-
-        bpl = b_locs[0]
-        self.assertEqual(1,  bpl.order)
-        self.assertEqual('', bpl.brick_id)
-
-    def test_edit_portal05(self):
-        "Home -> use 'home_display' method"
-        app_name = 'creme_core'
-
-        BlockPortalLocation.create_or_update(brick_id=HistoryBrick.id_, order=8, app_name=app_name)
-
-        response = self.assertGET200(reverse('creme_config__edit_portal_bricks', args=(app_name,)))
-
-        with self.assertNoException():
-            blocks_field = response.context['form'].fields['blocks']
-
-        self._find_field_index(blocks_field, HomeOnlyBrick1.id_)
-
-    def test_edit_portal06(self):
-        "Edit portal of unknown app"
-        app_name = 'unknown'
-        self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name).exists())
-        self.assertGET404(reverse('creme_config__edit_portal_bricks', args=(app_name,)))
-
-    def test_delete_portal(self):
-        app_name = 'persons'
-        # self.client.post(reverse('creme_config__create_portal_bricks_legacy'), data={'app_name': app_name})
-        BlockPortalLocation.objects.create(app_name=app_name, brick_id=HistoryBrick.id_, order=1)
-
-        self.assertPOST200(reverse('creme_config__delete_portal_bricks'), data={'id': app_name})
-        self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
-
-    @skipIfNotInstalled('creme.persons')
-    def test_portal_wizard_appname_step(self):
-        app_name = 'persons'
-        self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
-
-        response = self.assertGET200(self.PORTAL_WIZARD_URL)
-        self.assertIn(app_name, [e[0] for e in response.context['form'].fields['app_name'].choices])
-
-        response = self.assertPOST200(self.PORTAL_WIZARD_URL,
-                                      {'portal_bricks_wizard-current_step': '0',
-                                       '0-app_name': app_name,
-                                      }
-                                     )
-
-        brick_ids = [e[0] for e in response.context['form'].fields['blocks'].choices]
-        self.assertIn('block_creme_core-history', brick_ids)
-
-        # last step is not submitted so nothing yet in database
-        self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
-
-    def test_portal_wizard_appname_step_invalid(self):
-        response = self.assertPOST200(self.PORTAL_WIZARD_URL,
-                                      {'portal_bricks_wizard-current_step': '0',
-                                       '0-app_name': 'unregistered_app',
-                                      }
-                                     )
-
-        self.assertFormError(response, 'form', 'app_name',
-                             _(u'Select a valid choice. %(value)s is not one of the available choices.') % {
-                                    'value': 'unregistered_app',
-                                }
-                            )
-
-    @skipIfNotInstalled('creme.persons')
-    def test_portal_wizard_config_step(self):
-        app_name = 'persons'
-        self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
-
-        response = self.assertGET200(self.PORTAL_WIZARD_URL)
-        self.assertIn(app_name, [e[0] for e in response.context['form'].fields['app_name'].choices])
-
-        response = self.assertPOST200(self.PORTAL_WIZARD_URL,
-                                      {'portal_bricks_wizard-current_step': '0',
-                                       '0-app_name': app_name,
-                                      }
-                                     )
-
-        brick_field = response.context['form'].fields['blocks']
-        brick_ids = [e[0] for e in brick_field.choices]
-        self.assertIn('block_creme_core-history', brick_ids)
-
-        history_brick_index = self._find_field_index(brick_field, 'block_creme_core-history')
-
-        response = self.assertPOST200(self.PORTAL_WIZARD_URL,
-                                      {'portal_bricks_wizard-current_step': '1',
-                                       '1-blocks_check_%s' % history_brick_index: 'on',
-                                       '1-blocks_value_%s' % history_brick_index: 'block_creme_core-history',
-                                       '1-blocks_order_%s' % history_brick_index: 1,
-                                      }
-                                     )
-        self.assertNoFormError(response)
-
-        bricks = list(BlockPortalLocation.objects.filter(app_name=app_name)
-                                                 .order_by('order')
-                                                 .values_list('brick_id', 'order')
-                     )
-        self.assertEqual([('block_creme_core-history', 1)], bricks)
-
-    @skipIfNotInstalled('creme.assistants')
-    def test_portal_wizard_config_step_assistants(self):
-        app_name = 'assistants'
-        self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
-
-        response = self.assertGET200(self.PORTAL_WIZARD_URL)
-        self.assertIn(app_name, [e[0] for e in response.context['form'].fields['app_name'].choices])
-
-        response = self.assertPOST200(self.PORTAL_WIZARD_URL,
-                                      {'portal_bricks_wizard-current_step': '0',
-                                       '0-app_name': app_name,
-                                      }
-                                     )
-
-        brick_field = response.context['form'].fields['blocks']
-        brick_ids = [e[0] for e in brick_field.choices]
-
-        self.assertIn('block_assistants-memos', brick_ids)
-        self.assertIn('block_assistants-messages', brick_ids)
-        self.assertIn('block_creme_core-history', brick_ids)
-
-        history_brick_index = self._find_field_index(brick_field, 'block_creme_core-history')
-        memos_brick_index = self._find_field_index(brick_field, 'block_assistants-memos')
-        messages_brick_index = self._find_field_index(brick_field, 'block_assistants-messages')
-
-        response = self.assertPOST200(self.PORTAL_WIZARD_URL,
-                                      {'portal_bricks_wizard-current_step': '1',
-                                       '1-blocks_check_%s' % history_brick_index: 'on',
-                                       '1-blocks_value_%s' % history_brick_index: 'block_creme_core-history',
-                                       '1-blocks_order_%s' % history_brick_index: 1,
-                                       '1-blocks_check_%s' % memos_brick_index: 'on',
-                                       '1-blocks_value_%s' % memos_brick_index: 'block_assistants-memos',
-                                       '1-blocks_order_%s' % memos_brick_index: 2,
-                                       '1-blocks_check_%s' % messages_brick_index: 'on',
-                                       '1-blocks_value_%s' % messages_brick_index: 'block_assistants-messages',
-                                       '1-blocks_order_%s' % messages_brick_index: 3,
-                                      }
-                                     )
-        self.assertNoFormError(response)
-
-        self.assertListEqual([('block_creme_core-history', 1),
-                              ('block_assistants-memos', 2),
-                              ('block_assistants-messages', 3),
-                             ],
-                             list(BlockPortalLocation.objects.filter(app_name=app_name)
-                                                             .order_by('order')
-                                                             .values_list('brick_id', 'order')
-                                 )
-                            )
-
-    @skipIfNotInstalled('creme.persons')
-    def test_portal_wizard_go_back(self):
-        app_name = 'persons'
-        self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
-
-        response = self.assertGET200(self.PORTAL_WIZARD_URL)
-        self.assertIn(app_name, [e[0] for e in response.context['form'].fields['app_name'].choices])
-
-        response = self.assertPOST200(self.PORTAL_WIZARD_URL,
-                                      {'portal_bricks_wizard-current_step': '0',
-                                       '0-app_name': app_name,
-                                      }
-                                     )
-
-        brick_ids = [e[0] for e in response.context['form'].fields['blocks'].choices]
-        self.assertIn('block_creme_core-history', brick_ids)
-
-        # Return to first step
-        response = self.assertPOST200(self.PORTAL_WIZARD_URL,
-                                      {'portal_bricks_wizard-current_step': '1',
-                                       'wizard_goto_step': '0',
-                                      }
-                                     )
-        self.assertIn(app_name, [e[0] for e in response.context['form'].fields['app_name'].choices])
+    # def test_edit_portal01(self):
+    #     self.assertGET404(reverse('creme_config__edit_portal_bricks', args=('persons',)))
+
+    # def test_edit_portal02(self):
+    #     app_name = 'persons'
+    #
+    #     naru = FakeContact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
+    #
+    #     instance_brick_id = InstanceBlockConfigItem.generate_id(PortalInstanceBrick, naru, '')
+    #     InstanceBlockConfigItem.objects.create(brick_id=instance_brick_id, entity=naru, verbose='All stuffes')
+    #
+    #     brick1 = PortalOnlyBrick1
+    #     brick2 = PortalOnlyBrick2; assert not brick2.configurable
+    #     brick3 = PortalOnlyBrick3; assert app_name in brick3.target_apps
+    #     brick4 = PortalOnlyBrick4; assert app_name not in brick4.target_apps
+    #
+    #     # self.client.post(reverse('creme_config__create_portal_bricks_legacy'), data={'app_name': app_name})
+    #     BlockPortalLocation.objects.create(app_name=app_name, brick_id=HistoryBrick.id_, order=1)
+    #     self.assertEqual(1, BlockPortalLocation.objects.filter(app_name=app_name).count())
+    #
+    #     url = reverse('creme_config__edit_portal_bricks', args=(app_name,))
+    #     response = self.assertGET200(url)
+    #
+    #     with self.assertNoException():
+    #         blocks_field = response.context['form'].fields['blocks']
+    #
+    #     choices = blocks_field.choices
+    #     self.assertGreaterEqual(len(choices), 2)
+    #     self._find_field_index(blocks_field, brick1.id_)
+    #     self._assertNotInChoices(blocks_field, brick2.id_, 'Block is not configurable')
+    #     self._find_field_index(blocks_field, brick3.id_)
+    #     self._assertNotInChoices(blocks_field, brick4.id_, 'Block is not compatible with this app')
+    #     self._find_field_index(blocks_field, instance_brick_id)
+    #
+    #     brick_id1 = choices[0][0]
+    #     brick_id2 = choices[1][0]
+    #
+    #     index1 = self._find_field_index(blocks_field, brick_id1)
+    #     index2 = self._find_field_index(blocks_field, brick_id2)
+    #
+    #     response = self.client.post(url, data={'blocks_check_%s' % index1: 'on',
+    #                                            'blocks_value_%s' % index1: brick_id1,
+    #                                            'blocks_order_%s' % index1: 1,
+    #
+    #                                            'blocks_check_%s' % index2: 'on',
+    #                                            'blocks_value_%s' % index2: brick_id2,
+    #                                            'blocks_order_%s' % index2: 2,
+    #                                           }
+    #                                )
+    #     self.assertNoFormError(response)
+    #
+    #     b_locs = list(BlockPortalLocation.objects.filter(app_name=app_name))
+    #     self.assertEqual(2, len(b_locs))
+    #     self.assertEqual(1, self._find_location(brick_id1, b_locs).order)
+    #     self.assertEqual(2, self._find_location(brick_id2, b_locs).order)
+
+    # def _get_blocks_4_portal(self):
+    #     bricks = [block for brick_id, block in self.brick_registry
+    #                         if hasattr(block, 'portal_display')
+    #              ]
+    #     self.assertGreaterEqual(len(bricks), 2, bricks)
+    #
+    #     return bricks
+
+    # def test_edit_portal03(self):
+    #     "Set no block -> fake blocks"
+    #     app_name = 'persons'
+    #     blocks = self._get_blocks_4_portal()
+    #
+    #     create_loc = partial(BlockPortalLocation.objects.create, app_name=app_name)
+    #     create_loc(brick_id=blocks[0].id_, order=1)
+    #     create_loc(brick_id=blocks[1].id_, order=2)
+    #
+    #     url = reverse('creme_config__edit_portal_bricks', args=(app_name,))
+    #     response = self.assertGET200(url)
+    #
+    #     with self.assertNoException():
+    #         blocks_field = response.context['form'].fields['blocks']
+    #
+    #     self.assertEqual([blocks[0].id_, blocks[1].id_], blocks_field.initial)
+    #
+    #     self.assertNoFormError(self.client.post(url, data={}))
+    #
+    #     b_locs = list(BlockPortalLocation.objects.filter(app_name=app_name))
+    #     self.assertEqual(1, len(b_locs))
+    #
+    #     bpl = b_locs[0]
+    #     self.assertEqual(1,  bpl.order)
+    #     self.assertEqual('', bpl.brick_id)
+
+    # def test_edit_portal04(self):
+    #     "Default conf"
+    #     BlockPortalLocation.objects.filter(app_name='').delete()
+    #     url = reverse('creme_config__edit_portal_bricks', args=('default',))
+    #     self.assertGET404(url)
+    #
+    #     bricks = self._get_blocks_4_portal()
+    #     create_loc = partial(BlockPortalLocation.objects.create, app_name='')
+    #     create_loc(brick_id=bricks[0].id_, order=1)
+    #     create_loc(brick_id=bricks[1].id_, order=2)
+    #
+    #     self.assertGET200(url)
+    #
+    #     self.assertNoFormError(self.client.post(url, data={}))
+    #
+    #     b_locs = list(BlockPortalLocation.objects.filter(app_name=''))
+    #     self.assertEqual(1, len(b_locs))
+    #
+    #     bpl = b_locs[0]
+    #     self.assertEqual(1,  bpl.order)
+    #     self.assertEqual('', bpl.brick_id)
+
+    # def test_edit_portal05(self):
+    #     "Home -> use 'home_display' method"
+    #     app_name = 'creme_core'
+    #
+    #     BlockPortalLocation.create_or_update(brick_id=HistoryBrick.id_, order=8, app_name=app_name)
+    #
+    #     response = self.assertGET200(reverse('creme_config__edit_portal_bricks', args=(app_name,)))
+    #
+    #     with self.assertNoException():
+    #         blocks_field = response.context['form'].fields['blocks']
+    #
+    #     self._find_field_index(blocks_field, HomeOnlyBrick1.id_)
+
+    # def test_edit_portal06(self):
+    #     "Edit portal of unknown app"
+    #     app_name = 'unknown'
+    #     self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name).exists())
+    #     self.assertGET404(reverse('creme_config__edit_portal_bricks', args=(app_name,)))
+
+    # def test_delete_portal(self):
+    #     app_name = 'persons'
+    #     # self.client.post(reverse('creme_config__create_portal_bricks_legacy'), data={'app_name': app_name})
+    #     BlockPortalLocation.objects.create(app_name=app_name, brick_id=HistoryBrick.id_, order=1)
+    #
+    #     self.assertPOST200(reverse('creme_config__delete_portal_bricks'), data={'id': app_name})
+    #     self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
+
+    # @skipIfNotInstalled('creme.persons')
+    # def test_portal_wizard_appname_step(self):
+    #     app_name = 'persons'
+    #     self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
+    #
+    #     response = self.assertGET200(self.PORTAL_WIZARD_URL)
+    #     self.assertIn(app_name, [e[0] for e in response.context['form'].fields['app_name'].choices])
+    #
+    #     response = self.assertPOST200(self.PORTAL_WIZARD_URL,
+    #                                   {'portal_bricks_wizard-current_step': '0',
+    #                                    '0-app_name': app_name,
+    #                                   }
+    #                                  )
+    #
+    #     brick_ids = [e[0] for e in response.context['form'].fields['blocks'].choices]
+    #     self.assertIn('block_creme_core-history', brick_ids)
+    #
+    #     # last step is not submitted so nothing yet in database
+    #     self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
+
+    # def test_portal_wizard_appname_step_invalid(self):
+    #     response = self.assertPOST200(self.PORTAL_WIZARD_URL,
+    #                                   {'portal_bricks_wizard-current_step': '0',
+    #                                    '0-app_name': 'unregistered_app',
+    #                                   }
+    #                                  )
+    #
+    #     self.assertFormError(response, 'form', 'app_name',
+    #                          _(u'Select a valid choice. %(value)s is not one of the available choices.') % {
+    #                                 'value': 'unregistered_app',
+    #                             }
+    #                         )
+
+    # @skipIfNotInstalled('creme.persons')
+    # def test_portal_wizard_config_step(self):
+    #     app_name = 'persons'
+    #     self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
+    #
+    #     response = self.assertGET200(self.PORTAL_WIZARD_URL)
+    #     self.assertIn(app_name, [e[0] for e in response.context['form'].fields['app_name'].choices])
+    #
+    #     response = self.assertPOST200(self.PORTAL_WIZARD_URL,
+    #                                   {'portal_bricks_wizard-current_step': '0',
+    #                                    '0-app_name': app_name,
+    #                                   }
+    #                                  )
+    #
+    #     brick_field = response.context['form'].fields['blocks']
+    #     brick_ids = [e[0] for e in brick_field.choices]
+    #     self.assertIn('block_creme_core-history', brick_ids)
+    #
+    #     history_brick_index = self._find_field_index(brick_field, 'block_creme_core-history')
+    #
+    #     response = self.assertPOST200(self.PORTAL_WIZARD_URL,
+    #                                   {'portal_bricks_wizard-current_step': '1',
+    #                                    '1-blocks_check_%s' % history_brick_index: 'on',
+    #                                    '1-blocks_value_%s' % history_brick_index: 'block_creme_core-history',
+    #                                    '1-blocks_order_%s' % history_brick_index: 1,
+    #                                   }
+    #                                  )
+    #     self.assertNoFormError(response)
+    #
+    #     bricks = list(BlockPortalLocation.objects.filter(app_name=app_name)
+    #                                              .order_by('order')
+    #                                              .values_list('brick_id', 'order')
+    #                  )
+    #     self.assertEqual([('block_creme_core-history', 1)], bricks)
+
+    # @skipIfNotInstalled('creme.assistants')
+    # def test_portal_wizard_config_step_assistants(self):
+    #     app_name = 'assistants'
+    #     self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
+    #
+    #     response = self.assertGET200(self.PORTAL_WIZARD_URL)
+    #     self.assertIn(app_name, [e[0] for e in response.context['form'].fields['app_name'].choices])
+    #
+    #     response = self.assertPOST200(self.PORTAL_WIZARD_URL,
+    #                                   {'portal_bricks_wizard-current_step': '0',
+    #                                    '0-app_name': app_name,
+    #                                   }
+    #                                  )
+    #
+    #     brick_field = response.context['form'].fields['blocks']
+    #     brick_ids = [e[0] for e in brick_field.choices]
+    #
+    #     self.assertIn('block_assistants-memos', brick_ids)
+    #     self.assertIn('block_assistants-messages', brick_ids)
+    #     self.assertIn('block_creme_core-history', brick_ids)
+    #
+    #     history_brick_index = self._find_field_index(brick_field, 'block_creme_core-history')
+    #     memos_brick_index = self._find_field_index(brick_field, 'block_assistants-memos')
+    #     messages_brick_index = self._find_field_index(brick_field, 'block_assistants-messages')
+    #
+    #     response = self.assertPOST200(self.PORTAL_WIZARD_URL,
+    #                                   {'portal_bricks_wizard-current_step': '1',
+    #                                    '1-blocks_check_%s' % history_brick_index: 'on',
+    #                                    '1-blocks_value_%s' % history_brick_index: 'block_creme_core-history',
+    #                                    '1-blocks_order_%s' % history_brick_index: 1,
+    #                                    '1-blocks_check_%s' % memos_brick_index: 'on',
+    #                                    '1-blocks_value_%s' % memos_brick_index: 'block_assistants-memos',
+    #                                    '1-blocks_order_%s' % memos_brick_index: 2,
+    #                                    '1-blocks_check_%s' % messages_brick_index: 'on',
+    #                                    '1-blocks_value_%s' % messages_brick_index: 'block_assistants-messages',
+    #                                    '1-blocks_order_%s' % messages_brick_index: 3,
+    #                                   }
+    #                                  )
+    #     self.assertNoFormError(response)
+    #
+    #     self.assertListEqual([('block_creme_core-history', 1),
+    #                           ('block_assistants-memos', 2),
+    #                           ('block_assistants-messages', 3),
+    #                          ],
+    #                          list(BlockPortalLocation.objects.filter(app_name=app_name)
+    #                                                          .order_by('order')
+    #                                                          .values_list('brick_id', 'order')
+    #                              )
+    #                         )
+
+    # @skipIfNotInstalled('creme.persons')
+    # def test_portal_wizard_go_back(self):
+    #     app_name = 'persons'
+    #     self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
+    #
+    #     response = self.assertGET200(self.PORTAL_WIZARD_URL)
+    #     self.assertIn(app_name, [e[0] for e in response.context['form'].fields['app_name'].choices])
+    #
+    #     response = self.assertPOST200(self.PORTAL_WIZARD_URL,
+    #                                   {'portal_bricks_wizard-current_step': '0',
+    #                                    '0-app_name': app_name,
+    #                                   }
+    #                                  )
+    #
+    #     brick_ids = [e[0] for e in response.context['form'].fields['blocks'].choices]
+    #     self.assertIn('block_creme_core-history', brick_ids)
+    #
+    #     # Return to first step
+    #     response = self.assertPOST200(self.PORTAL_WIZARD_URL,
+    #                                   {'portal_bricks_wizard-current_step': '1',
+    #                                    'wizard_goto_step': '0',
+    #                                   }
+    #                                  )
+    #     self.assertIn(app_name, [e[0] for e in response.context['form'].fields['app_name'].choices])
 
     def test_edit_home(self):
         app_name = 'creme_core'
@@ -1261,7 +1262,7 @@ class BricksConfigTestCase(CremeTestCase):
         self._find_field_index(bricks_field, instance_brick_id)
 
         self._assertNotInChoices(bricks_field, RelationsBrick.id_,   'No home_display().')
-        self._assertNotInChoices(bricks_field, PortalOnlyBrick1.id_, 'No home_display().')
+        # self._assertNotInChoices(bricks_field, PortalOnlyBrick1.id_, 'No home_display().')
         self._assertNotInChoices(bricks_field, HomeOnlyBrick2.id_,   'Brick is not configurable')
 
         choices = bricks_field.choices
@@ -1287,17 +1288,17 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertEqual(1, self._find_location(brick_id1, b_locs).order)
         self.assertEqual(2, self._find_location(brick_id2, b_locs).order)
 
-    def test_delete_home(self):
-        "Can not delete home conf"
-        # TODO: use a helper method ??
-        app_name = 'creme_core'
-        bricks = [block for brick_id, block in self.brick_registry
-                            if hasattr(block, 'home_display')
-                 ]
-        self.assertGreaterEqual(len(bricks), 1)
-
-        BlockPortalLocation.objects.create(app_name=app_name, brick_id=bricks[0].id_, order=1)
-        self.assertPOST404(reverse('creme_config__delete_portal_bricks'), data={'id': app_name})
+    # def test_delete_home(self):
+    #     "Can not delete home conf"
+    #     # todo: use a helper method ??
+    #     app_name = 'creme_core'
+    #     bricks = [block for brick_id, block in self.brick_registry
+    #                         if hasattr(block, 'home_display')
+    #              ]
+    #     self.assertGreaterEqual(len(bricks), 1)
+    #
+    #     BlockPortalLocation.objects.create(app_name=app_name, brick_id=bricks[0].id_, order=1)
+    #     self.assertPOST404(reverse('creme_config__delete_portal_bricks'), data={'id': app_name})
 
     def test_delete_home_location_item(self):
         app_name = 'creme_core'

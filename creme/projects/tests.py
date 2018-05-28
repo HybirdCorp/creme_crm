@@ -38,7 +38,7 @@ try:
     Project = get_project_model()
     ProjectTask = get_task_model()
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 def skipIfCustomProject(test_func):
@@ -132,9 +132,9 @@ class ProjectsTestCase(CremeTestCase):
         self.assertTrue(pstatus_orders)
         self.assertTrue(range(len(pstatus_orders) + 1), pstatus_orders)
 
-    def test_portal(self):
-        self.login()
-        self.assertGET200(reverse('projects__portal'))
+    # def test_portal(self):
+    #     self.login()
+    #     self.assertGET200(reverse('projects__portal'))
 
     def create_project(self, name, status=None, start_date='2010-10-11', end_date='2010-12-31'):
         status = status or ProjectStatus.objects.all()[0]

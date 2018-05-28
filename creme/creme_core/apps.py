@@ -20,7 +20,7 @@
 
 import logging
 from sys import argv
-import warnings
+# import warnings
 
 from django.apps import AppConfig, apps
 from django.core import checks
@@ -180,12 +180,12 @@ class CremeAppConfig(AppConfig):
             self.register_sanboxes(sandbox.sandbox_type_registry)
 
             self.register_setting_keys(setting_key.setting_key_registry)
-            if hasattr(self, 'register_setting_key'):
-                warnings.warn('The AppConfig for "%s" has a method "register_setting_key()" which is now deprecated ; '
-                              'you should rename it register_setting_keys().' % self.name,
-                              DeprecationWarning
-                             )
-                self.register_setting_key(setting_key.setting_key_registry)
+            # if hasattr(self, 'register_setting_key'):
+            #     warnings.warn('The AppConfig for "%s" has a method "register_setting_key()" which is now deprecated ; '
+            #                   'you should rename it register_setting_keys().' % self.name,
+            #                   DeprecationWarning
+            #                  )
+            #     self.register_setting_key(setting_key.setting_key_registry)
 
             self.register_statistics(statistics.statistics_registry)
             self.register_user_setting_keys(setting_key.user_setting_key_registry)

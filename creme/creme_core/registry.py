@@ -19,17 +19,17 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 
 from django.utils.datastructures import OrderedSet
 
 logger = logging.getLogger(__name__)
 
 
-class NotRegistered(Exception):
-    def __init__(self, *args, **kwargs):
-        warnings.warn('creme_core.registry.NotRegistered is deprecated.', DeprecationWarning)
-        super(NotRegistered, self).__init__(*args, **kwargs)
+# class NotRegistered(Exception):
+#     def __init__(self, *args, **kwargs):
+#         warnings.warn('creme_core.registry.NotRegistered is deprecated.', DeprecationWarning)
+#         super(NotRegistered, self).__init__(*args, **kwargs)
 
 
 class CremeRegistry(object):
@@ -59,21 +59,21 @@ class CremeRegistry(object):
     def iter_entity_models(self):
         return iter(self._entity_models)
 
-    def register(self, key, value):
-        """A generic registry map"""
-        warnings.warn('creme_core.registry.CremeRegistry.register() is deprecated.', DeprecationWarning)
-
-        self._generic_registry[key] = value
-
-    def get(self, key):
-        warnings.warn('creme_core.registry.CremeRegistry.get() is deprecated.', DeprecationWarning)
-
-        value = self._generic_registry.get(key)
-
-        if value is None:
-            raise NotRegistered("Nothing registered with this key: %s" % (key,))
-
-        return value
+    # def register(self, key, value):
+    #     """A generic registry map"""
+    #     warnings.warn('creme_core.registry.CremeRegistry.register() is deprecated.', DeprecationWarning)
+    #
+    #     self._generic_registry[key] = value
+    #
+    # def get(self, key):
+    #     warnings.warn('creme_core.registry.CremeRegistry.get() is deprecated.', DeprecationWarning)
+    #
+    #     value = self._generic_registry.get(key)
+    #
+    #     if value is None:
+    #         raise NotRegistered("Nothing registered with this key: %s" % (key,))
+    #
+    #     return value
 
 
 creme_registry = CremeRegistry()

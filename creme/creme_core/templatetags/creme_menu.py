@@ -132,13 +132,13 @@ def get_last_items_menu(request):
     return {'items': LastViewedItem.get_all(request)}
 
 
-@register.inclusion_tag('creme_core/templatetags/menu_buttons.html', takes_context=True)
-def get_button_menu(context):
-    warnings.warn('The tag {% get_button_menu %} is deprecated ; use {% menu_buttons_display %} instead.',
-                  DeprecationWarning
-                 )
-
-    return menu_buttons_display(context)
+# @register.inclusion_tag('creme_core/templatetags/menu_buttons.html', takes_context=True)
+# def get_button_menu(context):
+#     warnings.warn('The tag {% get_button_menu %} is deprecated ; use {% menu_buttons_display %} instead.',
+#                   DeprecationWarning
+#                  )
+#
+#     return menu_buttons_display(context)
 
 
 # TODO: rename template file (menu-buttons.html)

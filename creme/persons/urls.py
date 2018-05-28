@@ -3,7 +3,7 @@
 from django.conf.urls import url, include
 
 from creme import persons
-from .views import portal, crud_relations, organisation
+from .views import crud_relations, organisation  # portal
 
 
 become_patterns = [
@@ -15,7 +15,7 @@ become_patterns = [
 ]
 
 urlpatterns = [
-    url(r'^$', portal.portal, name='persons__portal'),
+    # url(r'^$', portal.portal, name='persons__portal'),
 
     url(r'^organisation/managed[/]?$',     organisation.set_managed,   name='persons__orga_set_managed'),
     url(r'^organisation/not_managed[/]?$', organisation.unset_managed, name='persons__orga_unset_managed'),

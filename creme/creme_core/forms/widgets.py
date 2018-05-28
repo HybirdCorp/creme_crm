@@ -23,7 +23,7 @@ from functools import partial
 from json import dumps as json_dump
 import logging
 from types import GeneratorType
-import warnings
+# import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -39,44 +39,44 @@ from ..utils.url import TemplateURLBuilder
 logger = logging.getLogger(__name__)
 
 
-def widget_render_input(renderer, widget, name, value, context, **kwargs):
-    warnings.warn('creme_core.forms.widgets.widget_render_input() is deprecated.', DeprecationWarning)
-
-    input_attrs = {'class':  ' '.join(['ui-creme-input', context.get('css', '')]),
-                   'widget': context.get('typename', None),
-                  }
-    input_attrs.update(kwargs)
-
-    return renderer(widget, name, value, input_attrs)
-
-
-def widget_render_hidden_input(widget, name, value, context):
-    warnings.warn('creme_core.forms.widgets.widget_render_hidden_input() is deprecated.', DeprecationWarning)
-
-    input_attrs = {'class': ' '.join(['ui-creme-input', context.get('typename')]),
-                   'type':  'hidden',
-                  }
-
-    return widgets.Input.render(widget, name, value, input_attrs)
-
-
-def widget_render_context(typename, attrs, css='', **kwargs):
-    warnings.warn('creme_core.forms.widgets.widget_render_context() is deprecated.', DeprecationWarning)
-
-    # todo: other atts are not used ?! (eg: ColorPickerWidget which only passes 'attrs' to widget_render_context())
-    id   = attrs.get('id')
-    auto = attrs.pop('auto', True)
-    css = ' '.join((css, 'ui-creme-widget widget-auto' if auto else 'ui-creme-widget', typename)).strip()
-    context = {'style':      '',
-               'typename':   typename,
-               'css':        css,
-               'auto':       auto,
-               'id':         id,
-              }
-
-    context.update(kwargs)
-
-    return context
+# def widget_render_input(renderer, widget, name, value, context, **kwargs):
+#     warnings.warn('creme_core.forms.widgets.widget_render_input() is deprecated.', DeprecationWarning)
+#
+#     input_attrs = {'class':  ' '.join(['ui-creme-input', context.get('css', '')]),
+#                    'widget': context.get('typename', None),
+#                   }
+#     input_attrs.update(kwargs)
+#
+#     return renderer(widget, name, value, input_attrs)
+#
+#
+# def widget_render_hidden_input(widget, name, value, context):
+#     warnings.warn('creme_core.forms.widgets.widget_render_hidden_input() is deprecated.', DeprecationWarning)
+#
+#     input_attrs = {'class': ' '.join(['ui-creme-input', context.get('typename')]),
+#                    'type':  'hidden',
+#                   }
+#
+#     return widgets.Input.render(widget, name, value, input_attrs)
+#
+#
+# def widget_render_context(typename, attrs, css='', **kwargs):
+#     warnings.warn('creme_core.forms.widgets.widget_render_context() is deprecated.', DeprecationWarning)
+#
+#     # todo: other atts are not used ?! (eg: ColorPickerWidget which only passes 'attrs' to widget_render_context())
+#     id   = attrs.get('id')
+#     auto = attrs.pop('auto', True)
+#     css = ' '.join((css, 'ui-creme-widget widget-auto' if auto else 'ui-creme-widget', typename)).strip()
+#     context = {'style':      '',
+#                'typename':   typename,
+#                'css':        css,
+#                'auto':       auto,
+#                'id':         id,
+#               }
+#
+#     context.update(kwargs)
+#
+#     return context
 
 
 # TODO: to be improved....
@@ -137,15 +137,15 @@ class EnhancedSelectOptions(object):
     def choices(self, choices):
         self._set_options(choices)
 
-    def render_label(self, output, label):
-        warnings.warn('creme_core.forms.widgets.EnhancedSelectOptions.render_label() is deprecated.',
-                      DeprecationWarning
-                     )
-
-        if not self.label:
-            return output
-
-        return u'<span class="ui-creme-dselectlabel">%s</span>%s' % (self.label, output)
+    # def render_label(self, output, label):
+    #     warnings.warn('creme_core.forms.widgets.EnhancedSelectOptions.render_label() is deprecated.',
+    #                   DeprecationWarning
+    #                  )
+    #
+    #     if not self.label:
+    #         return output
+    #
+    #     return u'<span class="ui-creme-dselectlabel">%s</span>%s' % (self.label, output)
 
 
 class DynamicSelect(EnhancedSelectOptions, widgets.Select):

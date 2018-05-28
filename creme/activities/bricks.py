@@ -170,13 +170,13 @@ class FutureActivitiesBrick(QuerysetBrick):
                     rtype_id=constants.REL_SUB_LINKED_2_ACTIVITY,
         ))
 
-    def portal_display(self, context, ct_ids):
-        warnings.warn('activities.bricks.FutureActivitiesBrick.portal_display() is deprecated.', DeprecationWarning)
-
-        return self._render(self.get_template_context(
-                    context,
-                    self._get_queryset_for_ctypes(ct_ids, context).select_related('status'),
-        ))
+    # def portal_display(self, context, ct_ids):
+    #     warnings.warn('activities.bricks.FutureActivitiesBrick.portal_display() is deprecated.', DeprecationWarning)
+    #
+    #     return self._render(self.get_template_context(
+    #                 context,
+    #                 self._get_queryset_for_ctypes(ct_ids, context).select_related('status'),
+    #     ))
 
     def home_display(self, context):
         return self._render(self.get_template_context(

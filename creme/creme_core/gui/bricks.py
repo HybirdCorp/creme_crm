@@ -85,9 +85,6 @@ class Brick(object):
     def detailview_display(self, context):
         return 'VOID BLOCK FOR DETAILVIEW: %s' % self.verbose_name
 
-    def portal_display(self, context, ct_ids):  # DEPRECATED
-        return 'VOID BLOCK FOR PORTAL: %s' % self.verbose_name
-
     def home_display(self, context):
         return 'VOID BLOCK FOR HOME: %s' % self.verbose_name
     """
@@ -126,11 +123,11 @@ class Brick(object):
     # Example of value: target_ctypes = (Contact, Organisation)  # Available for detail-views of Contact & Organisation
     target_ctypes = ()
 
-    # DEPRECATED
-    # Sequence of names of the Apps which can have this Brick on their portal.
-    # A empty sequence means that all Apps are ok.
-    # Example of value: target_apps = ('persons',)  # Available for the portal of 'persons'
-    target_apps = ()
+    # # DEPRECATED
+    # # Sequence of names of the Apps which can have this Brick on their portal.
+    # # A empty sequence means that all Apps are ok.
+    # # Example of value: target_apps = ('persons',)  # Available for the portal of 'persons'
+    # target_apps = ()
     # ATTRIBUTES USED BY THE CONFIGURATION GUI FOR THE BRICKS [END] ----------------------------------------------------
 
     GENERIC_HAT_BRICK_ID = 'hatbrick'
@@ -561,31 +558,31 @@ class BricksManager(object):
 
         return dep_map
 
-    def _get_dependencies_ids(self, block):
-        warnings.warn('BricksManager._get_dependencies_ids() is deprecated.', DeprecationWarning)
-        dep_map = self._build_dependencies_map()
-        depblocks_ids = set()
-
-        if not block.read_only:
-            id_ = block.id_
-
-            dependencies = block.dependencies
-            if dependencies == '*':
-                dependencies = dep_map.keys()
-
-            for dep in dependencies:
-                for other_block in dep_map[dep]:
-                    if other_block.id_ == id_:
-                        continue
-
-                    if dep == Relation:
-                        if other_block.dependencies != '*' and \
-                           not set(block.relation_type_deps) & set(other_block.relation_type_deps):
-                            continue
-
-                    depblocks_ids.add(other_block.id_)
-
-        return depblocks_ids
+    # def _get_dependencies_ids(self, block):
+    #     warnings.warn('BricksManager._get_dependencies_ids() is deprecated.', DeprecationWarning)
+    #     dep_map = self._build_dependencies_map()
+    #     depblocks_ids = set()
+    #
+    #     if not block.read_only:
+    #         id_ = block.id_
+    #
+    #         dependencies = block.dependencies
+    #         if dependencies == '*':
+    #             dependencies = dep_map.keys()
+    #
+    #         for dep in dependencies:
+    #             for other_block in dep_map[dep]:
+    #                 if other_block.id_ == id_:
+    #                     continue
+    #
+    #                 if dep == Relation:
+    #                     if other_block.dependencies != '*' and \
+    #                        not set(block.relation_type_deps) & set(other_block.relation_type_deps):
+    #                         continue
+    #
+    #                 depblocks_ids.add(other_block.id_)
+    #
+    #     return depblocks_ids
 
     @staticmethod
     def get(context):
@@ -594,10 +591,10 @@ class BricksManager(object):
     def get_remaining_groups(self):
         return self._bricks_groups.keys()
 
-    def get_dependencies_map(self):
-        warnings.warn('BricksManager.get_dependencies_map() is deprecated.', DeprecationWarning)
-        get_dep = self._get_dependencies_ids
-        return {block.id_: get_dep(block) for block in self._bricks}
+    # def get_dependencies_map(self):
+    #     warnings.warn('BricksManager.get_dependencies_map() is deprecated.', DeprecationWarning)
+    #     get_dep = self._get_dependencies_ids
+    #     return {block.id_: get_dep(block) for block in self._bricks}
 
     def get_state(self, brick_id, user):
         "Get the state for a brick and fill a cache to avoid multiple SQL requests"

@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 
 from django.conf import settings
 from django.core.mail import EmailMessage, get_connection
@@ -133,13 +133,13 @@ class ReminderRegistry(object):
         """Register a class of Reminder.
         @type reminder: Class "inheriting" creme_core.core.reminder.Reminder.
         """
-        if isinstance(reminder, Reminder):
-            warnings.warn('ReminderRegistry.register(): registering an instance is deprecated; '
-                          'register a class instead.',
-                          DeprecationWarning
-                         )
-        else:
-            reminder = reminder()
+        # if isinstance(reminder, Reminder):
+        #     warnings.warn('ReminderRegistry.register(): registering an instance is deprecated; '
+        #                   'register a class instead.',
+        #                   DeprecationWarning
+        #                  )
+        # else:
+        #     reminder = reminder()
 
         reminders = self._reminders
         reminder_id = reminder.id
@@ -148,7 +148,8 @@ class ReminderRegistry(object):
             # TODO: exception instead ?
             logger.warning("Duplicate reminder's id or reminder registered twice : %s", reminder_id)
 
-        reminders[reminder_id] = reminder
+        # reminders[reminder_id] = reminder
+        reminders[reminder_id] = reminder()
 
     def unregister(self, reminder):
         self._reminders.pop(reminder.id, None)

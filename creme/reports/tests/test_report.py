@@ -35,7 +35,7 @@ try:
             RFT_AGG_FIELD, RFT_AGG_CUSTOM, RFT_RELATED)
     from ..models import Field
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 try:
     from creme.creme_core.backends import export_backend_registry
@@ -137,9 +137,9 @@ class ReportTestCase(BaseReportsTestCase):
 
         return user
 
-    def test_portal(self):
-        self.login()
-        self.assertGET200(reverse('reports__portal'))
+    # def test_portal(self):
+    #     self.login()
+    #     self.assertGET200(reverse('reports__portal'))
 
     def test_columns(self):
         self.login()

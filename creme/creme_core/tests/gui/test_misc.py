@@ -560,55 +560,55 @@ class GuiTestCase(CremeTestCase):
         self.assertIn('icecream/images/organisation_22', icon3.url)
         self.assertEqual(u'Test Organisation',           icon3.label)
 
-    def test_button_registry_legacy(self):
-        class TestButton1(Button):
-            id_ = Button.generate_id('creme_core', 'test_button_registry_legacy1')
-
-        class TestButton2(Button):
-            id_ = Button.generate_id('creme_core', 'test_button_registry_legacy2')
-
-            def ok_4_display(self, entity):
-                return False
-
-        class TestButton3(Button):
-            id_ = Button.generate_id('creme_core', 'test_button_registry_legacy3')
-
-        class TestButton4(Button):
-            id_ = Button.generate_id('creme_core', 'test_button_registry_legacy4')
-
-        registry = ButtonsRegistry()
-        registry.register(TestButton1(), TestButton2(), TestButton3(), TestButton4())
-
-        class DuplicatedTestButton(Button):
-            id_ = TestButton1.id_
-
-        with self.assertRaises(ButtonsRegistry.RegistrationError):
-            registry.register(DuplicatedTestButton())
-
-        get = registry.get_button
-        self.assertIsInstance(get(TestButton1.id_), TestButton1)
-        self.assertIsInstance(get(TestButton2.id_), TestButton2)
-        self.assertIsNone(get(Button.generate_id('creme_core', 'test_button_registry_legacy_invalid')))
-
-        c = FakeContact(first_name='Casca', last_name='Mylove')
-        buttons = registry.get_buttons([TestButton3.id_,
-                                        TestButton2.id_,  # No because ok_4_display() returns False
-                                        'test_button_registry_legacy_invalid',
-                                        TestButton1.id_,
-                                       ],
-                                       entity=c
-                                      )
-        self.assertIsInstance(buttons, list)
-        self.assertEqual(2, len(buttons))
-        self.assertIsInstance(buttons[0], TestButton3)
-        self.assertIsInstance(buttons[1], TestButton1)
-
-        all_button_items = list(registry)
-        self.assertEqual(4, len(all_button_items))
-
-        button_item = all_button_items[0]
-        self.assertIsInstance(button_item[1], Button)
-        self.assertEqual(button_item[0], button_item[1].id_)
+    # def test_button_registry_legacy(self):
+    #     class TestButton1(Button):
+    #         id_ = Button.generate_id('creme_core', 'test_button_registry_legacy1')
+    #
+    #     class TestButton2(Button):
+    #         id_ = Button.generate_id('creme_core', 'test_button_registry_legacy2')
+    #
+    #         def ok_4_display(self, entity):
+    #             return False
+    #
+    #     class TestButton3(Button):
+    #         id_ = Button.generate_id('creme_core', 'test_button_registry_legacy3')
+    #
+    #     class TestButton4(Button):
+    #         id_ = Button.generate_id('creme_core', 'test_button_registry_legacy4')
+    #
+    #     registry = ButtonsRegistry()
+    #     registry.register(TestButton1(), TestButton2(), TestButton3(), TestButton4())
+    #
+    #     class DuplicatedTestButton(Button):
+    #         id_ = TestButton1.id_
+    #
+    #     with self.assertRaises(ButtonsRegistry.RegistrationError):
+    #         registry.register(DuplicatedTestButton())
+    #
+    #     get = registry.get_button
+    #     self.assertIsInstance(get(TestButton1.id_), TestButton1)
+    #     self.assertIsInstance(get(TestButton2.id_), TestButton2)
+    #     self.assertIsNone(get(Button.generate_id('creme_core', 'test_button_registry_legacy_invalid')))
+    #
+    #     c = FakeContact(first_name='Casca', last_name='Mylove')
+    #     buttons = registry.get_buttons([TestButton3.id_,
+    #                                     TestButton2.id_,  # No because ok_4_display() returns False
+    #                                     'test_button_registry_legacy_invalid',
+    #                                     TestButton1.id_,
+    #                                    ],
+    #                                    entity=c
+    #                                   )
+    #     self.assertIsInstance(buttons, list)
+    #     self.assertEqual(2, len(buttons))
+    #     self.assertIsInstance(buttons[0], TestButton3)
+    #     self.assertIsInstance(buttons[1], TestButton1)
+    #
+    #     all_button_items = list(registry)
+    #     self.assertEqual(4, len(all_button_items))
+    #
+    #     button_item = all_button_items[0]
+    #     self.assertIsInstance(button_item[1], Button)
+    #     self.assertEqual(button_item[0], button_item[1].id_)
 
     def test_button_registry(self):
         class TestButton1(Button):

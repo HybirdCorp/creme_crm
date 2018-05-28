@@ -18,27 +18,27 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
-from django.utils.translation import ugettext as _
-
-from creme.creme_core.views.generic import app_portal
-
-from creme.creme_config.utils import generate_portal_url
-
-from .. import get_product_model, get_service_model
-
-
-def portal(request):
-    warnings.warn('products.views.portal.portal() is deprecated.', DeprecationWarning)
-
-    Product = get_product_model()
-    Service = get_service_model()
-    stats = ((_('Number of products'), Product.objects.count()),
-             (_('Number of services'), Service.objects.count()),
-            )
-
-    return app_portal(request, 'products', 'products/portal.html',
-                      (Product, Service), stats,
-                      config_url=generate_portal_url('products'),
-                     )
+# import warnings
+#
+# from django.utils.translation import ugettext as _
+#
+# from creme.creme_core.views.generic import app_portal
+#
+# from creme.creme_config.utils import generate_portal_url
+#
+# from .. import get_product_model, get_service_model
+#
+#
+# def portal(request):
+#     warnings.warn('products.views.portal.portal() is deprecated.', DeprecationWarning)
+#
+#     Product = get_product_model()
+#     Service = get_service_model()
+#     stats = ((_('Number of products'), Product.objects.count()),
+#              (_('Number of services'), Service.objects.count()),
+#             )
+#
+#     return app_portal(request, 'products', 'products/portal.html',
+#                       (Product, Service), stats,
+#                       config_url=generate_portal_url('products'),
+#                      )

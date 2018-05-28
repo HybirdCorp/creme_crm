@@ -3,7 +3,7 @@
 from django.conf.urls import url, include
 
 from . import activity_model_is_custom, constants
-from .views import portal, activity, bricks, calendar
+from .views import activity, bricks, calendar  # portal
 
 
 calendar_patterns = [
@@ -18,7 +18,7 @@ calendar_patterns = [
 ]
 
 urlpatterns = [
-    url(r'^$', portal.portal, name='activities__portal'),
+    # url(r'^$', portal.portal, name='activities__portal'),
 
     url(r'^activities/ical[/]?$', activity.download_ical, name='activities__dl_ical'),
 

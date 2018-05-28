@@ -18,29 +18,29 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
-from django.utils.translation import ugettext as _
-
-from creme.creme_core.views.generic import app_portal
-
-from .. import get_smscampaign_model, get_messaginglist_model
-from ..models import Sending, SMSAccount
-
-
-def portal(request):
-    warnings.warn('sms.views.portal.portal() is deprecated.', DeprecationWarning)
-
-    SMSCampaign   = get_smscampaign_model()
-    MessagingList = get_messaginglist_model()
-    stats = ((_('Number of campaigns'),       SMSCampaign.objects.count()),
-             (_('Number of messaging lists'), MessagingList.objects.count()),
-             (_("Number of sendings"),        Sending.objects.count()),
-            )
-
-    account, created = SMSAccount.objects.get_or_create(pk=1)
-    account.sync()
-
-    return app_portal(request, 'sms', 'sms/portal.html', (SMSCampaign, MessagingList), stats, 
-                      extra_template_dict={'account': account},
-                     )
+# import warnings
+#
+# from django.utils.translation import ugettext as _
+#
+# from creme.creme_core.views.generic import app_portal
+#
+# from .. import get_smscampaign_model, get_messaginglist_model
+# from ..models import Sending, SMSAccount
+#
+#
+# def portal(request):
+#     warnings.warn('sms.views.portal.portal() is deprecated.', DeprecationWarning)
+#
+#     SMSCampaign   = get_smscampaign_model()
+#     MessagingList = get_messaginglist_model()
+#     stats = ((_('Number of campaigns'),       SMSCampaign.objects.count()),
+#              (_('Number of messaging lists'), MessagingList.objects.count()),
+#              (_("Number of sendings"),        Sending.objects.count()),
+#             )
+#
+#     account, created = SMSAccount.objects.get_or_create(pk=1)
+#     account.sync()
+#
+#     return app_portal(request, 'sms', 'sms/portal.html', (SMSCampaign, MessagingList), stats,
+#                       extra_template_dict={'account': account},
+#                      )

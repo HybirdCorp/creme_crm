@@ -49,5 +49,4 @@ class EntityEmailLinkButton(Button):
         return super(EntityEmailLinkButton, self).render(context)
 
 
-# DEPRECATED
-entityemail_link_button = EntityEmailLinkButton()
+# entityemail_link_button = EntityEmailLinkButton()

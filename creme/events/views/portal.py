@@ -18,24 +18,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
-from django.utils.translation import ugettext_lazy as _
-
-from creme.creme_core.views.generic import app_portal
-
-from creme.creme_config.utils import generate_portal_url
-
-from .. import get_event_model
-
-
-def portal(request):
-    warnings.warn('events.views.portal.portal() is deprecated.', DeprecationWarning)
-
-    Event = get_event_model()
-    stats = ((_('Number of events'), Event.objects.count()),
-            )
-
-    return app_portal(request, 'events', 'events/portal.html', Event, stats,
-                      config_url=generate_portal_url('events'),
-                     )
+# import warnings
+#
+# from django.utils.translation import ugettext_lazy as _
+#
+# from creme.creme_core.views.generic import app_portal
+#
+# from creme.creme_config.utils import generate_portal_url
+#
+# from .. import get_event_model
+#
+#
+# def portal(request):
+#     warnings.warn('events.views.portal.portal() is deprecated.', DeprecationWarning)
+#
+#     Event = get_event_model()
+#     stats = ((_('Number of events'), Event.objects.count()),
+#             )
+#
+#     return app_portal(request, 'events', 'events/portal.html', Event, stats,
+#                       config_url=generate_portal_url('events'),
+#                      )

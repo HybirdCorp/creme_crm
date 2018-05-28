@@ -3,11 +3,11 @@
 from django.conf.urls import url
 
 from . import rgenerator_model_is_custom
-from .views import portal
+# from .views import portal
 
 
 urlpatterns = [
-    url(r'^$', portal.portal, name='recurrents__portal'),
+    # url(r'^$', portal.portal, name='recurrents__portal'),
 ]
 
 if not rgenerator_model_is_custom():

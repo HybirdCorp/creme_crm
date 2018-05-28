@@ -20,10 +20,10 @@
 
 from datetime import date, time
 from decimal import Decimal
-from functools import partial
+# from functools import partial
 from json import dumps as json_dump
 import logging
-import warnings
+# import warnings
 
 # from django.contrib.contenttypes.models import ContentType
 # from django.core.urlresolvers import reverse
@@ -39,7 +39,7 @@ from ..gui.bulk_update import bulk_update_registry
 from ..gui.pager import PagerContext
 from ..utils.media import get_current_theme_from_context
 from ..utils.translation import plural as is_plural
-from ..views.bricks import render_detailview_brick, render_home_brick, render_portal_brick
+from ..views.bricks import render_detailview_brick, render_home_brick  # render_portal_brick
 from ..views.entity import _bulk_has_perm
 
 from .creme_widgets import get_icon_size_px, get_icon_by_name
@@ -799,7 +799,6 @@ def brick_display(context, *bricks, **kwargs):
     Possible values are:
        - 'detail'  => detailview_display() (default value)
        - 'home'    => home_display()
-       - 'portal'  => portal_display()  (DEPRECATED).
     """
     context_dict = context.flatten()
     render_type = kwargs.get('render', 'detail')
@@ -808,11 +807,12 @@ def brick_display(context, *bricks, **kwargs):
         render = render_detailview_brick
     elif render_type == 'home':
         render = render_home_brick
-    elif render_type == 'portal':
-        warnings.warn('''In {% brick_display %}, the option "render='portal'" is deprecated.''', DeprecationWarning)
-        render = partial(render_portal_brick, ct_ids=context['ct_ids'])
+    # elif render_type == 'portal':
+    #     warnings.warn('''In {% brick_display %}, the option "render='portal'" is deprecated.''', DeprecationWarning)
+    #     render = partial(render_portal_brick, ct_ids=context['ct_ids'])
     else:
-        raise ValueError('{% brick_display %}: "render" argument must be in {detail|home|portal}.')
+        # raise ValueError('{% brick_display %}: "render" argument must be in {detail|home|portal}.')
+        raise ValueError('{% brick_display %}: "render" argument must be in {detail|home}.')
 
     bricks_to_render = []
 

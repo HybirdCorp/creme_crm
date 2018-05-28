@@ -100,15 +100,14 @@ class AddQuoteButton(_AddBillingDocumentButton):
     url_name        = 'billing__create_related_quote'
 
 
-# DEPRECATED ----------------------
-generate_invoice_number_button = GenerateInvoiceNumberButton()
-add_related_quote              = AddQuoteButton()
-add_related_salesorder         = AddSalesOrderButton()
-add_related_invoice            = AddInvoiceButton()
-
-button_list = (
-        generate_invoice_number_button,
-        add_related_quote,
-        add_related_salesorder,
-        add_related_invoice,
-    )
+# generate_invoice_number_button = GenerateInvoiceNumberButton()
+# add_related_quote              = AddQuoteButton()
+# add_related_salesorder         = AddSalesOrderButton()
+# add_related_invoice            = AddInvoiceButton()
+#
+# button_list = (
+#         generate_invoice_number_button,
+#         add_related_quote,
+#         add_related_salesorder,
+#         add_related_invoice,
+#     )

@@ -20,7 +20,7 @@ try:
 
     from .base import BrickTestCaseMixin
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
@@ -31,7 +31,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
         string_format_detail = '<div id=%s>DETAIL</div>'
         string_format_home   = '<div id=%s>HOME</div>'
-        string_format_portal = '<div id=%s>PORTAL</div>'
+        # string_format_portal = '<div id=%s>PORTAL</div>'
 
         def detailview_display(self, context):
             return self.string_format_detail % self.id_
@@ -39,8 +39,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         def home_display(self, context):
             return self.string_format_home % self.id_
 
-        def portal_display(self, context, ct_ids):
-            return self.string_format_portal % self.id_
+        # def portal_display(self, context, ct_ids):
+        #     return self.string_format_portal % self.id_
 
     def test_set_state01(self):
         user = self.login()
@@ -429,83 +429,83 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                          response.json()
                         )
 
-    def test_reload_portal01(self):
-        self.login()
-
-        class FoobarBrick1(self.TestBrick):
-            id_ = Brick.generate_id('creme_core', 'test_bricks_reload_portal01_1')
-            ct_ids = None
-
-            def portal_display(self, context, ct_ids):
-                FoobarBrick1.ct_ids = ct_ids
-                return super(FoobarBrick1, self).portal_display(context, ct_ids)
-
-        class FoobarBrick2(self.TestBrick):
-            id_ = Brick.generate_id('creme_core', 'test_bricks_reload_portal01_2')
-            ct_ids = None
-
-            def portal_display(self, context, ct_ids):
-                FoobarBrick2.ct_ids = ct_ids
-                return super(FoobarBrick2, self).portal_display(context, ct_ids)
-
-        brick_registry.register(FoobarBrick1, FoobarBrick2)
-
-        get_ct = ContentType.objects.get_for_model
-        ct_id1 = get_ct(FakeContact).id
-        ct_id2 = get_ct(FakeOrganisation).id
-
-        response = self.assertGET200(reverse('creme_core__reload_portal_bricks'),
-                                     data={'brick_id': [FoobarBrick1.id_, FoobarBrick2.id_, 'silly_id'],
-                                           'ct_id':    [ct_id1, ct_id2],
-                                           },
-                                    )
-        # self.assertEqual('text/javascript', response['Content-Type'])
-        self.assertEqual('application/json', response['Content-Type'])
-        self.assertEqual([[FoobarBrick1.id_, self.TestBrick.string_format_portal % FoobarBrick1.id_],
-                          [FoobarBrick2.id_, self.TestBrick.string_format_portal % FoobarBrick2.id_],
-                         ],
-                         # load_json(response.content)
-                         response.json()
-                        )
-
-        ct_ids = [str(ct_id1), str(ct_id2)]
-        self.assertEqual(ct_ids, FoobarBrick1.ct_ids)
-        self.assertEqual(ct_ids, FoobarBrick2.ct_ids)
-
-    def test_reload_portal02(self):
-        "Do not have the credentials"
-        self.login(is_superuser=False, allowed_apps=['documents'])
-
-        class FoobarBrick1(self.TestBrick):
-            id_ = Brick.generate_id('creme_core', 'test_bricks_reload_portal02_1')
-
-        brick_registry.register(FoobarBrick1)
-
-        self.assertGET403(reverse('creme_core__reload_portal_bricks'),
-                          data={'brick_id': FoobarBrick1.id_,
-                                'ct_id': ContentType.objects.get_for_model(FakeContact).id,
-                               },
-                         )
-
-    def test_reload_portal03(self):
-        "Not superuser"
-        model = FakeContact
-        self.login(is_superuser=False, allowed_apps=[model._meta.app_label])
-
-        class FoobarBlock1(self.TestBrick):
-            id_ = Brick.generate_id('creme_core', 'test_bricks_reload_portal03')
-
-        brick_registry.register(FoobarBlock1)
-
-        response = self.assertGET200(reverse('creme_core__reload_portal_bricks'),
-                                     data={'brick_id': FoobarBlock1.id_,
-                                           'ct_id': ContentType.objects.get_for_model(model).id,
-                                          },
-                                    )
-        self.assertEqual([[FoobarBlock1.id_, self.TestBrick.string_format_portal % FoobarBlock1.id_]],
-                         # load_json(response.content)
-                         response.json()
-                        )
+    # def test_reload_portal01(self):
+    #     self.login()
+    #
+    #     class FoobarBrick1(self.TestBrick):
+    #         id_ = Brick.generate_id('creme_core', 'test_bricks_reload_portal01_1')
+    #         ct_ids = None
+    #
+    #         def portal_display(self, context, ct_ids):
+    #             FoobarBrick1.ct_ids = ct_ids
+    #             return super(FoobarBrick1, self).portal_display(context, ct_ids)
+    #
+    #     class FoobarBrick2(self.TestBrick):
+    #         id_ = Brick.generate_id('creme_core', 'test_bricks_reload_portal01_2')
+    #         ct_ids = None
+    #
+    #         def portal_display(self, context, ct_ids):
+    #             FoobarBrick2.ct_ids = ct_ids
+    #             return super(FoobarBrick2, self).portal_display(context, ct_ids)
+    #
+    #     brick_registry.register(FoobarBrick1, FoobarBrick2)
+    #
+    #     get_ct = ContentType.objects.get_for_model
+    #     ct_id1 = get_ct(FakeContact).id
+    #     ct_id2 = get_ct(FakeOrganisation).id
+    #
+    #     response = self.assertGET200(reverse('creme_core__reload_portal_bricks'),
+    #                                  data={'brick_id': [FoobarBrick1.id_, FoobarBrick2.id_, 'silly_id'],
+    #                                        'ct_id':    [ct_id1, ct_id2],
+    #                                        },
+    #                                 )
+    #     # self.assertEqual('text/javascript', response['Content-Type'])
+    #     self.assertEqual('application/json', response['Content-Type'])
+    #     self.assertEqual([[FoobarBrick1.id_, self.TestBrick.string_format_portal % FoobarBrick1.id_],
+    #                       [FoobarBrick2.id_, self.TestBrick.string_format_portal % FoobarBrick2.id_],
+    #                      ],
+    #                      # load_json(response.content)
+    #                      response.json()
+    #                     )
+    #
+    #     ct_ids = [str(ct_id1), str(ct_id2)]
+    #     self.assertEqual(ct_ids, FoobarBrick1.ct_ids)
+    #     self.assertEqual(ct_ids, FoobarBrick2.ct_ids)
+    #
+    # def test_reload_portal02(self):
+    #     "Do not have the credentials"
+    #     self.login(is_superuser=False, allowed_apps=['documents'])
+    #
+    #     class FoobarBrick1(self.TestBrick):
+    #         id_ = Brick.generate_id('creme_core', 'test_bricks_reload_portal02_1')
+    #
+    #     brick_registry.register(FoobarBrick1)
+    #
+    #     self.assertGET403(reverse('creme_core__reload_portal_bricks'),
+    #                       data={'brick_id': FoobarBrick1.id_,
+    #                             'ct_id': ContentType.objects.get_for_model(FakeContact).id,
+    #                            },
+    #                      )
+    #
+    # def test_reload_portal03(self):
+    #     "Not superuser"
+    #     model = FakeContact
+    #     self.login(is_superuser=False, allowed_apps=[model._meta.app_label])
+    #
+    #     class FoobarBlock1(self.TestBrick):
+    #         id_ = Brick.generate_id('creme_core', 'test_bricks_reload_portal03')
+    #
+    #     brick_registry.register(FoobarBlock1)
+    #
+    #     response = self.assertGET200(reverse('creme_core__reload_portal_bricks'),
+    #                                  data={'brick_id': FoobarBlock1.id_,
+    #                                        'ct_id': ContentType.objects.get_for_model(model).id,
+    #                                       },
+    #                                 )
+    #     self.assertEqual([[FoobarBlock1.id_, self.TestBrick.string_format_portal % FoobarBlock1.id_]],
+    #                      # load_json(response.content)
+    #                      response.json()
+    #                     )
 
     def test_relations_brick01(self):
         user = self.login()

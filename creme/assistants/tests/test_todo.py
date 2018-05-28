@@ -244,31 +244,31 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertEqual(2, len(page.object_list))
         self.assertEqual(set(todos), set(page.object_list))
 
-    def test_block_reload03(self):
-        "Portal"
-        self._create_several_todos()
-
-        ct_id = ContentType.objects.get_for_model(FakeContact).id
-        todos = ToDo.get_todos_for_ctypes([ct_id], self.user)
-        self.assertEqual(2, len(todos))
-
-        response = self.assertGET200(reverse('creme_core__reload_portal_bricks'),
-                                     data={'brick_id': TodosBrick.id_,
-                                           'ct_id': ct_id,
-                                          },
-                                    )
-        self.assertEqual('application/json', response['Content-Type'])
-
-        content = response.json()
-        self.assertEqual(1, len(content))
-        self.assertEqual(2, len(content[0]))
-        self.assertEqual(TodosBrick.id_, content[0][0])
-
-        with self.assertNoException():
-            page = response.context['page']
-
-        self.assertEqual(2, len(page.object_list))
-        self.assertEqual(set(todos), set(page.object_list))
+    # def test_block_reload03(self):
+    #     "Portal"
+    #     self._create_several_todos()
+    #
+    #     ct_id = ContentType.objects.get_for_model(FakeContact).id
+    #     todos = ToDo.get_todos_for_ctypes([ct_id], self.user)
+    #     self.assertEqual(2, len(todos))
+    #
+    #     response = self.assertGET200(reverse('creme_core__reload_portal_bricks'),
+    #                                  data={'brick_id': TodosBrick.id_,
+    #                                        'ct_id': ct_id,
+    #                                       },
+    #                                 )
+    #     self.assertEqual('application/json', response['Content-Type'])
+    #
+    #     content = response.json()
+    #     self.assertEqual(1, len(content))
+    #     self.assertEqual(2, len(content[0]))
+    #     self.assertEqual(TodosBrick.id_, content[0][0])
+    #
+    #     with self.assertNoException():
+    #         page = response.context['page']
+    #
+    #     self.assertEqual(2, len(page.object_list))
+    #     self.assertEqual(set(todos), set(page.object_list))
 
     def _oldify_todo(self, todo):
         cdate = todo.creation_date

@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
-from django.apps import apps
+# from django.apps import apps
 from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -72,39 +72,39 @@ def add_detailview(request, ct_id):
                                )
 
 
-class PortalBricksWizard(PopupWizardMixin, SessionWizardView):
-    class _RelationStep(bricks.BlockPortalLocationsAddForm):
-        step_submit_label = pgettext_lazy('creme_config-verb', u'Select')
-
-    class _ConfigStep(bricks.BlockPortalLocationsEditForm):
-        step_prev_label = _(u'Previous step')
-        step_submit_label = _(u'Save the configuration')
-
-    form_list = (_RelationStep, _ConfigStep)
-    wizard_title = _(u'New blocks configuration')
-    template_name = 'creme_core/generics/blockform/add_wizard_popup.html'
-    permission = 'creme_core.can_admin'
-
-    def dispatch(self, *args, **kwargs):
-        warnings.warn('creme_config.views.bricks.PortalBricksWizard() is deprecated.', DeprecationWarning)
-
-        return super(PortalBricksWizard, self).dispatch(*args, **kwargs)
-
-    def done(self, form_list, **kwargs):
-        form_list[1].save()
-
-        # return HttpResponse(content_type='text/javascript')
-        return HttpResponse()
-
-    def get_form_kwargs(self, step):
-        kwargs = super(PortalBricksWizard, self).get_form_kwargs(step)
-
-        if step == '1':
-            cleaned_data = self.get_cleaned_data_for_step('0')
-            kwargs['app_name'] = cleaned_data['app_name']
-            kwargs['block_locations'] = ()
-
-        return kwargs
+# class PortalBricksWizard(PopupWizardMixin, SessionWizardView):
+#     class _RelationStep(bricks.BlockPortalLocationsAddForm):
+#         step_submit_label = pgettext_lazy('creme_config-verb', u'Select')
+#
+#     class _ConfigStep(bricks.BlockPortalLocationsEditForm):
+#         step_prev_label = _(u'Previous step')
+#         step_submit_label = _(u'Save the configuration')
+#
+#     form_list = (_RelationStep, _ConfigStep)
+#     wizard_title = _(u'New blocks configuration')
+#     template_name = 'creme_core/generics/blockform/add_wizard_popup.html'
+#     permission = 'creme_core.can_admin'
+#
+#     def dispatch(self, *args, **kwargs):
+#         warnings.warn('creme_config.views.bricks.PortalBricksWizard() is deprecated.', DeprecationWarning)
+#
+#         return super(PortalBricksWizard, self).dispatch(*args, **kwargs)
+#
+#     def done(self, form_list, **kwargs):
+#         form_list[1].save()
+#
+#         # return HttpResponse(content_type='text/javascript')
+#         return HttpResponse()
+#
+#     def get_form_kwargs(self, step):
+#         kwargs = super(PortalBricksWizard, self).get_form_kwargs(step)
+#
+#         if step == '1':
+#             cleaned_data = self.get_cleaned_data_for_step('0')
+#             kwargs['app_name'] = cleaned_data['app_name']
+#             kwargs['block_locations'] = ()
+#
+#         return kwargs
 
 
 @login_required
@@ -199,49 +199,49 @@ def edit_detailview(request, ct_id, role):
                                )
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def edit_portal(request, app_name):
-    warnings.warn('creme_config.views.bricks.edit_portal() is deprecated.', DeprecationWarning)
-
-    if app_name == 'default':
-        app_name = ''
-        title = _(u'Edit default portal configuration')
-    elif app_name == 'creme_core':
-        title = _(u'Edit home configuration')
-    else:
-        try:
-            app_config = apps.get_app_config(app_name)
-        except LookupError as e:
-            raise Http404(str(e))
-
-        title = ugettext(u'Edit portal configuration for «%s»') % app_config.verbose_name
-
-    b_locs = BlockPortalLocation.objects.filter(app_name=app_name).order_by('order')
-
-    if not b_locs:  # TODO: a default config must exist (it works for now because there is always 'assistants' app)
-        raise Http404('This configuration does not exist (any more ?)')
-
-    if request.method == 'POST':
-        locs_form = bricks.BlockPortalLocationsEditForm(app_name=app_name, block_locations=b_locs, user=request.user,
-                                                        data=request.POST,
-                                                        )
-
-        if locs_form.is_valid():
-            locs_form.save()
-    else:
-        locs_form = bricks.BlockPortalLocationsEditForm(app_name=app_name, block_locations=b_locs, user=request.user)
-
-    return inner_popup(request,
-                       'creme_core/generics/blockform/edit_popup.html',
-                       {'form':  locs_form,
-                        'title': title,
-                        'submit_label': _(u'Save the modifications'),
-                       },
-                       is_valid=locs_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def edit_portal(request, app_name):
+#     warnings.warn('creme_config.views.bricks.edit_portal() is deprecated.', DeprecationWarning)
+#
+#     if app_name == 'default':
+#         app_name = ''
+#         title = _(u'Edit default portal configuration')
+#     elif app_name == 'creme_core':
+#         title = _(u'Edit home configuration')
+#     else:
+#         try:
+#             app_config = apps.get_app_config(app_name)
+#         except LookupError as e:
+#             raise Http404(str(e))
+#
+#         title = ugettext(u'Edit portal configuration for «%s»') % app_config.verbose_name
+#
+#     b_locs = BlockPortalLocation.objects.filter(app_name=app_name).order_by('order')
+#
+#     if not b_locs:  # todo: a default config must exist (it works for now because there is always 'assistants' app)
+#         raise Http404('This configuration does not exist (any more ?)')
+#
+#     if request.method == 'POST':
+#         locs_form = bricks.BlockPortalLocationsEditForm(app_name=app_name, block_locations=b_locs, user=request.user,
+#                                                         data=request.POST,
+#                                                         )
+#
+#         if locs_form.is_valid():
+#             locs_form.save()
+#     else:
+#         locs_form = bricks.BlockPortalLocationsEditForm(app_name=app_name, block_locations=b_locs, user=request.user)
+#
+#     return inner_popup(request,
+#                        'creme_core/generics/blockform/edit_popup.html',
+#                        {'form':  locs_form,
+#                         'title': title,
+#                         'submit_label': _(u'Save the modifications'),
+#                        },
+#                        is_valid=locs_form.is_valid(),
+#                        reload=False,
+#                        delegate_reload=True,
+#                       )
 
 
 @login_required
@@ -422,19 +422,19 @@ def delete_detailview(request):
     return HttpResponse()
 
 
-@login_required
-@permission_required('creme_core.can_admin')
-def delete_portal(request):
-    warnings.warn('creme_config.views.bricks.delete_portal() is deprecated.', DeprecationWarning)
-
-    app_label = get_from_POST_or_404(request.POST, 'id')
-
-    if app_label == 'creme_core':
-        raise Http404('Home config can not be deleted')
-
-    BlockPortalLocation.objects.filter(app_name=app_label).delete()
-
-    return HttpResponse()
+# @login_required
+# @permission_required('creme_core.can_admin')
+# def delete_portal(request):
+#     warnings.warn('creme_config.views.bricks.delete_portal() is deprecated.', DeprecationWarning)
+#
+#     app_label = get_from_POST_or_404(request.POST, 'id')
+#
+#     if app_label == 'creme_core':
+#         raise Http404('Home config can not be deleted')
+#
+#     BlockPortalLocation.objects.filter(app_name=app_label).delete()
+#
+#     return HttpResponse()
 
 
 @login_required

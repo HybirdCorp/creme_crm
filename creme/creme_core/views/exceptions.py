@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 
 from django.http import HttpResponseForbidden
 from django.template.loader import render_to_string
@@ -26,15 +26,15 @@ from django.utils.encoding import smart_unicode
 from django.views.decorators.csrf import requires_csrf_token
 
 
-def server_error(request, template_name='500.html'):
-    "500 error handler."
-    warnings.warn('creme.creme_core.views.exceptions.server_error() is deprecated ; '
-                  'use django.views.defaults.server_error() instead.',
-                  DeprecationWarning
-                 )
-    from django.http import HttpResponseServerError
-
-    return HttpResponseServerError(render_to_string(template_name, request=request))
+# def server_error(request, template_name='500.html'):
+#     "500 error handler."
+#     warnings.warn('creme.creme_core.views.exceptions.server_error() is deprecated ; '
+#                   'use django.views.defaults.server_error() instead.',
+#                   DeprecationWarning
+#                  )
+#     from django.http import HttpResponseServerError
+#
+#     return HttpResponseServerError(render_to_string(template_name, request=request))
 
 
 @requires_csrf_token

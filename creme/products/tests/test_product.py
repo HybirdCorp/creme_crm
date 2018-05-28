@@ -18,7 +18,7 @@ try:
     from .. import get_product_model
     from ..models import Category, SubCategory
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 Product = get_product_model()
@@ -30,9 +30,9 @@ class ProductTestCase(_ProductsTestCase):
         self.assertTrue(Category.objects.exists())
         self.assertTrue(SubCategory.objects.exists())
 
-    def test_portal(self):
-        self.login()
-        self.assertGET200(reverse('products__portal'))
+    # def test_portal(self):
+    #     self.login()
+    #     self.assertGET200(reverse('products__portal'))
 
     def test_ajaxview01(self):
         self.login()

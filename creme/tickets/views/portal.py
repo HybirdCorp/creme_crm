@@ -18,31 +18,31 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
-from django.utils.translation import ugettext as _
-
-from creme.creme_core.views.generic import app_portal
-
-from creme.creme_config.utils import generate_portal_url
-
-from .. import get_ticket_model
-from ..models.status import OPEN_PK, CLOSED_PK
-
-
-def portal(request):
-    warnings.warn('tickets.views.portal.portal() is deprecated.', DeprecationWarning)
-
-    Ticket = get_ticket_model()
-    tickets = Ticket.objects
-    count = tickets.count()
-    closed_percentage = '%s %%' % (100.0 * tickets.filter(status=CLOSED_PK).count() / count) if count else ''
-
-    stats = ((_('Number of tickets'),             count),
-             (_('Number of open tickets'),        tickets.filter(status=OPEN_PK).count()),
-             (_(u'Percentage of closed tickets'), closed_percentage),
-            )
-
-    return app_portal(request, 'tickets', 'tickets/portal.html', Ticket,
-                      stats, config_url=generate_portal_url('tickets'),
-                     )
+# import warnings
+#
+# from django.utils.translation import ugettext as _
+#
+# from creme.creme_core.views.generic import app_portal
+#
+# from creme.creme_config.utils import generate_portal_url
+#
+# from .. import get_ticket_model
+# from ..models.status import OPEN_PK, CLOSED_PK
+#
+#
+# def portal(request):
+#     warnings.warn('tickets.views.portal.portal() is deprecated.', DeprecationWarning)
+#
+#     Ticket = get_ticket_model()
+#     tickets = Ticket.objects
+#     count = tickets.count()
+#     closed_percentage = '%s %%' % (100.0 * tickets.filter(status=CLOSED_PK).count() / count) if count else ''
+#
+#     stats = ((_('Number of tickets'),             count),
+#              (_('Number of open tickets'),        tickets.filter(status=OPEN_PK).count()),
+#              (_(u'Percentage of closed tickets'), closed_percentage),
+#             )
+#
+#     return app_portal(request, 'tickets', 'tickets/portal.html', Ticket,
+#                       stats, config_url=generate_portal_url('tickets'),
+#                      )

@@ -5,11 +5,11 @@ from django.conf.urls import url, include
 from creme.opportunities import opportunity_model_is_custom
 
 from . import event_model_is_custom
-from .views import portal, event
+from .views import event  # portal
 
 
 urlpatterns = [
-    url(r'^$', portal.portal, name='events__portal'),
+    # url(r'^$', portal.portal, name='events__portal'),
 
     url(r'^event/(?P<event_id>\d+)/contacts[/]?$',      event.list_contacts, name='events__list_related_contacts'),
     url(r'^event/(?P<event_id>\d+)/link_contacts[/]?$', event.link_contacts, name='events__link_contacts'),

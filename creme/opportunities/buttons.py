@@ -38,5 +38,4 @@ class LinkedOpportunityButton(Button):
         return (persons.get_organisation_model(), persons.get_contact_model())
 
 
-# DEPRECATED
-linked_opportunity_button = LinkedOpportunityButton()
+# linked_opportunity_button = LinkedOpportunityButton()

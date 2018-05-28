@@ -3,11 +3,11 @@
 from django.conf.urls import url
 
 from creme import tickets
-from .views import portal
+# from .views import portal
 
 
 urlpatterns = [
-    url(r'^$', portal.portal, name='tickets__portal'),
+    # url(r'^$', portal.portal, name='tickets__portal'),
 ]
 
 if not tickets.ticket_model_is_custom():
