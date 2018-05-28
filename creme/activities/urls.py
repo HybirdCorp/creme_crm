@@ -9,7 +9,7 @@ from .views import activity, bricks, calendar  # portal
 calendar_patterns = [
     url(r'^user[/]?$',                      calendar.user_calendar,        name='activities__calendar'),
     url(r'^activities[/]?$',                calendar.get_users_activities, name='activities__calendars_activities'),
-    url(r'^users_activities/(?P<calendar_ids>([\d]+){0,1}(,[\d]+)*)[/]?$', calendar.get_users_activities, name='activities__calendars_activities'),  # DEPRECATED
+    # url(r'^users_activities/(?P<calendar_ids>([\d]+){0,1}(,[\d]+)*)[/]?$', calendar.get_users_activities, name='activities__calendars_activities'),
     url(r'^activity/update[/]?$',           calendar.update_activity_date, name='activities__set_activity_dates'),
     url(r'^add[/]?$',                       calendar.add_user_calendar,    name='activities__create_calendar'),
     url(r'^(?P<calendar_id>\d+)/edit[/]?$', calendar.edit_user_calendar,   name='activities__edit_calendar'),
