@@ -22,7 +22,7 @@ try:
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
     from creme.persons.models import Contact, Organisation
 
-    from ..bricks import UsersBrick, TeamsBrick, UserPreferredMenusBrick, BlockMypageLocationsBrick
+    from ..bricks import UsersBrick, TeamsBrick, BlockMypageLocationsBrick  # UserPreferredMenusBrick
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -915,8 +915,8 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.assertGET200(reverse('creme_config__user_settings'))
         doc = self.get_html_tree(response.content)
 
-        if settings.OLD_MENU:
-            self.get_brick_node(doc, UserPreferredMenusBrick.id_)
+        # if settings.OLD_MENU:
+        #     self.get_brick_node(doc, UserPreferredMenusBrick.id_)
 
         self.get_brick_node(doc, BlockMypageLocationsBrick.id_)
 

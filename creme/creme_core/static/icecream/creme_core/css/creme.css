@@ -136,16 +136,18 @@ button {
     padding-right: 20px;
 }
 
-#top {  /* TODO: remove with old menu */
+/*
+#top {
     margin-top: 10px;
     padding-left: 5px;
 }
+*/
 
 /* Page structure - header and footer - [end] */
 
 /* Page structure - left navigation menu */
-/* TODO: remove when old menu is removed */
 
+/*
 .menu_expanded {
     display: block;
     height: 100%;
@@ -170,12 +172,12 @@ button {
     text-align: center;
 }
 
-/* logo on top of the menu */
 #logo_container {
     padding-left: 0%;
     padding-bottom: 10px;
     padding-top: 10px;
 }
+*/
 
 /* page structure - left navigation menu - [end] */
 
@@ -201,9 +203,10 @@ button {
 /* Page header - search and "quick create" - [end] */
 
 /* Page header - "last pages viewed" and "quick access pages" */
-/* TODO: remove when old menu is removed */
 
-#last_viewed, #preferred_menu {
+
+/*
+#last_viewed , #preferred_menu {
     padding: 6px 0 6px 6px;
     margin: 4px 0 4px 5px;
 
@@ -211,6 +214,7 @@ button {
     background: #fafafa;
     border: 1px solid #d7e2e7;
 }
+*/
 
 /* page header - "last pages viewed" and "quick access pages" - [end] */
 
@@ -354,7 +358,6 @@ button {
 
 .main_content {
     height: auto;
-    /* padding-top: 0; TODO: guit -> uncomment/fix when old menu is removed */
 
     /* 269px = 269px footer
        39px = page decoration
@@ -367,7 +370,8 @@ button {
     width: 98%;
 
     margin-left: 1.2%;
-    padding-top: 3px;
+/*    padding-top: 3px; */
+    padding-top: 40px;
 
     clear: both;
 }
@@ -477,12 +481,13 @@ button {
     text-align: center;
 }
 
-/* TODO: remove with old menu */
+/*
 .pointer {
     cursor: pointer;
 }
+*/
 
-/* TODO: remove when old menu is removed */
+/*
 .top_fixed {
     display: block;
     top: 0 !important;
@@ -490,6 +495,7 @@ button {
     left: 0;
     position: fixed;
 }
+*/
 
 /* Dialogs */
 

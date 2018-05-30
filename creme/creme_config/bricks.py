@@ -37,7 +37,7 @@ from creme.creme_core.models import (CremeModel, CremeEntity, UserRole, SettingV
         CustomField, CustomFieldEnumValue,
         BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
         RelationBlockItem, InstanceBlockConfigItem, CustomBlockConfigItem,
-        ButtonMenuItem, SearchConfigItem, HistoryConfigItem, PreferedMenuItem)
+        ButtonMenuItem, SearchConfigItem, HistoryConfigItem)  # PreferedMenuItem
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils import creme_entity_content_types
 from creme.creme_core.utils.unicode_collation import collator
@@ -394,32 +394,31 @@ class BlockDetailviewLocationsBrick(PaginatedBrick):
         return self._render(btc)
 
 
-# TODO: remove when portals/old_menu are removed (template file too)
-class BlockPortalLocationsBrick(PaginatedBrick):
-    id_           = PaginatedBrick.generate_id('creme_config', 'blocks_portal_locations')
-    dependencies  = (BlockPortalLocation,)
-    page_size     = _PAGE_SIZE - 2  # '-2' because there is always the line for default config & home config on each page
-    verbose_name  = u'Blocks locations on portals'
-    template_name = 'creme_config/bricks/bricklocations-portals.html'
-    permission    = None  # NB: used by the view creme_core.views.blocks.reload_basic()
-    configurable  = False
-
-    def detailview_display(self, context):
-        app_configs = []
-
-        for label in (BlockPortalLocation.objects.exclude(app_name='creme_core')
-                                                 .order_by('app_name')  # In order that distinct() works correctly
-                                                 .distinct()
-                                                 .values_list('app_name', flat=True)):
-            try:
-                app_configs.append(apps.get_app_config(label))
-            except LookupError:
-                logger.warn('BlockPortalLocationsBlock: the app "%s" is not installed', label)
-
-        sort_key = collator.sort_key
-        app_configs.sort(key=lambda app: sort_key(app.verbose_name))
-
-        return self._render(self.get_template_context(context, app_configs))
+# class BlockPortalLocationsBrick(PaginatedBrick):
+#     id_           = PaginatedBrick.generate_id('creme_config', 'blocks_portal_locations')
+#     dependencies  = (BlockPortalLocation,)
+#     page_size     = _PAGE_SIZE - 2  # '-2' because there is always the line for default config & home config on each page
+#     verbose_name  = u'Blocks locations on portals'
+#     template_name = 'creme_config/bricks/bricklocations-portals.html'
+#     permission    = None  # NB: used by the view creme_core.views.blocks.reload_basic()
+#     configurable  = False
+#
+#     def detailview_display(self, context):
+#         app_configs = []
+#
+#         for label in (BlockPortalLocation.objects.exclude(app_name='creme_core')
+#                                                  .order_by('app_name')  # In order that distinct() works correctly
+#                                                  .distinct()
+#                                                  .values_list('app_name', flat=True)):
+#             try:
+#                 app_configs.append(apps.get_app_config(label))
+#             except LookupError:
+#                 logger.warn('BlockPortalLocationsBlock: the app "%s" is not installed', label)
+#
+#         sort_key = collator.sort_key
+#         app_configs.sort(key=lambda app: sort_key(app.verbose_name))
+#
+#         return self._render(self.get_template_context(context, app_configs))
 
 
 class BlockHomeLocationsBrick(_ConfigAdminBrick):
@@ -634,23 +633,23 @@ class UserRolesBrick(_ConfigAdminBrick):
         return self._render(self.get_template_context(context, UserRole.objects.all()))
 
 
-class UserPreferredMenusBrick(QuerysetBrick):
-    id_           = QuerysetBrick.generate_id('creme_config', 'user_prefered_menus')
-    dependencies  = (PreferedMenuItem,)
-    verbose_name  = u'My preferred menus'
-    template_name = 'creme_config/bricks/preferred-menus.html'
-    configurable  = False
-    order_by      = 'order'
-    permission    = None  # NB: used by the view creme_core.views.blocks.reload_basic ;
-                          #     None means 'No special permission required'
-
-    def detailview_display(self, context):
-        # NB: credentials OK: user can only view his own settings
-        return self._render(self.get_template_context(
-                    context,
-                    PreferedMenuItem.objects.filter(user=context['user']),
-                    page_size=self.page_size,
-        ))
+# class UserPreferredMenusBrick(QuerysetBrick):
+#     id_           = QuerysetBrick.generate_id('creme_config', 'user_prefered_menus')
+#     dependencies  = (PreferedMenuItem,)
+#     verbose_name  = u'My preferred menus'
+#     template_name = 'creme_config/bricks/preferred-menus.html'
+#     configurable  = False
+#     order_by      = 'order'
+#     permission    = None  # NB: used by the view creme_core.views.blocks.reload_basic ;
+#                           #     None means 'No special permission required'
+#
+#     def detailview_display(self, context):
+#         # NB: credentials OK: user can only view his own settings
+#         return self._render(self.get_template_context(
+#                     context,
+#                     PreferedMenuItem.objects.filter(user=context['user']),
+#                     page_size=self.page_size,
+#         ))
 
 
 class UserSettingValuesBrick(Brick):

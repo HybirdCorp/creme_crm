@@ -88,7 +88,7 @@ class ActivitiesConfig(CremeAppConfig):
         import_form_registry.register(self.Activity, mass_import.get_massimport_form_builder)
 
     def register_menu(self, creme_menu):
-        from django.conf import settings
+        # from django.conf import settings
         from django.urls import reverse_lazy as reverse
 
         from creme.creme_core.auth import build_creation_perm
@@ -96,53 +96,53 @@ class ActivitiesConfig(CremeAppConfig):
         Activity = self.Activity
         creation_perm = build_creation_perm(Activity)
 
-        if settings.OLD_MENU:
-            reg_item = creme_menu.register_app('activities', '/activities/').register_item
-            reg_item(reverse('activities__portal'),                               _(u'Portal of activities'),     'activities')
-            reg_item(reverse('activities__calendar'),                             _(u'Calendar'),                 'activities')
-            reg_item(reverse('activities__create_activity'),                      Activity.creation_label,        creation_perm)
-            reg_item(reverse('activities__create_activity', args=('meeting',)),   _(u'Create a meeting'),         creation_perm)
-            reg_item(reverse('activities__create_activity', args=('phonecall',)), _(u'Create a phone call'),      creation_perm)
-            reg_item(reverse('activities__create_activity', args=('task',)),      _(u'Create a task'),            creation_perm)
-            reg_item(reverse('activities__create_indispo'),                       _(u'Create an unavailability'), creation_perm)
-            reg_item(reverse('activities__list_activities'),                      _(u'All activities'),           'activities')
-            reg_item(reverse('activities__list_phone_calls'),                     _(u'All phone calls'),          'activities')
-            reg_item(reverse('activities__list_meetings'),                        _(u'All meetings'),             'activities')
-        else:
-            URLItem = creme_menu.URLItem
-            creme_menu.get('features') \
-                      .get_or_create(creme_menu.ContainerItem, 'activities-main', priority=10,
-                                     defaults={'label': _(u'Activities')},
-                                    ) \
-                      .add(URLItem('activities-calendar',
-                                   url=reverse('activities__calendar'),
-                                   label=_(u'Calendar'), perm='activities',
-                                  ),
-                           priority=10
-                          ) \
-                      .add(URLItem.list_view('activities-activities', model=Activity),
-                           priority=20
-                           ) \
-                      .add(URLItem('activities-phone_calls',
-                                   url=reverse('activities__list_phone_calls'),
-                                   label=_(u'Phone calls'), perm='activities',
-                                  ),
-                           priority=30
-                          ) \
-                      .add(URLItem('activities-meetings',
-                                   url=reverse('activities__list_meetings'),
-                                   label=_(u'Meetings'), perm='activities',
-                                  ),
-                           priority=40
-                          )
+        # if settings.OLD_MENU:
+        #     reg_item = creme_menu.register_app('activities', '/activities/').register_item
+        #     reg_item(reverse('activities__portal'),                               _(u'Portal of activities'),     'activities')
+        #     reg_item(reverse('activities__calendar'),                             _(u'Calendar'),                 'activities')
+        #     reg_item(reverse('activities__create_activity'),                      Activity.creation_label,        creation_perm)
+        #     reg_item(reverse('activities__create_activity', args=('meeting',)),   _(u'Create a meeting'),         creation_perm)
+        #     reg_item(reverse('activities__create_activity', args=('phonecall',)), _(u'Create a phone call'),      creation_perm)
+        #     reg_item(reverse('activities__create_activity', args=('task',)),      _(u'Create a task'),            creation_perm)
+        #     reg_item(reverse('activities__create_indispo'),                       _(u'Create an unavailability'), creation_perm)
+        #     reg_item(reverse('activities__list_activities'),                      _(u'All activities'),           'activities')
+        #     reg_item(reverse('activities__list_phone_calls'),                     _(u'All phone calls'),          'activities')
+        #     reg_item(reverse('activities__list_meetings'),                        _(u'All meetings'),             'activities')
+        # else:
+        URLItem = creme_menu.URLItem
+        creme_menu.get('features') \
+                  .get_or_create(creme_menu.ContainerItem, 'activities-main', priority=10,
+                                 defaults={'label': _(u'Activities')},
+                                ) \
+                  .add(URLItem('activities-calendar',
+                               url=reverse('activities__calendar'),
+                               label=_(u'Calendar'), perm='activities',
+                              ),
+                       priority=10
+                      ) \
+                  .add(URLItem.list_view('activities-activities', model=Activity),
+                       priority=20
+                       ) \
+                  .add(URLItem('activities-phone_calls',
+                               url=reverse('activities__list_phone_calls'),
+                               label=_(u'Phone calls'), perm='activities',
+                              ),
+                       priority=30
+                      ) \
+                  .add(URLItem('activities-meetings',
+                               url=reverse('activities__list_meetings'),
+                               label=_(u'Meetings'), perm='activities',
+                              ),
+                       priority=40
+                      )
 
-            creme_menu.get('creation', 'any_forms') \
-                      .get_or_create_group('activities-main', _(u'Activities'), priority=5) \
-                      .add_link('activities-create_phonecall',      label=_(u'Phone call'),     url=reverse('activities__create_activity', args=('phonecall',)), perm=creation_perm, priority=5) \
-                      .add_link('activities-create_meeting',        label=_(u'Meeting'),        url=reverse('activities__create_activity', args=('meeting',)),   perm=creation_perm, priority=10) \
-                      .add_link('activities-create_activity',       label=_(u'Activity'),       url=reverse('activities__create_activity'),                      perm=creation_perm, priority=15) \
-                      .add_link('activities-create_task',           label=_(u'Task'),           url=reverse('activities__create_activity', args=('task',)),      perm=creation_perm, priority=20) \
-                      .add_link('activities-create_unavailability', label=_(u'Unavailability'), url=reverse('activities__create_indispo'),                       perm=creation_perm, priority=25)
+        creme_menu.get('creation', 'any_forms') \
+                  .get_or_create_group('activities-main', _(u'Activities'), priority=5) \
+                  .add_link('activities-create_phonecall',      label=_(u'Phone call'),     url=reverse('activities__create_activity', args=('phonecall',)), perm=creation_perm, priority=5) \
+                  .add_link('activities-create_meeting',        label=_(u'Meeting'),        url=reverse('activities__create_activity', args=('meeting',)),   perm=creation_perm, priority=10) \
+                  .add_link('activities-create_activity',       label=_(u'Activity'),       url=reverse('activities__create_activity'),                      perm=creation_perm, priority=15) \
+                  .add_link('activities-create_task',           label=_(u'Task'),           url=reverse('activities__create_activity', args=('task',)),      perm=creation_perm, priority=20) \
+                  .add_link('activities-create_unavailability', label=_(u'Unavailability'), url=reverse('activities__create_indispo'),                       perm=creation_perm, priority=25)
 
     def register_smart_columns(self, smart_columns_registry):
         smart_columns_registry.register_model(self.Activity) \

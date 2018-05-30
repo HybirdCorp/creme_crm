@@ -286,10 +286,11 @@ class BricksConfigTestCase(CremeTestCase):
 
         fmt = 'id="%s"'
         self.assertContains(response, fmt % bricks.BlockDetailviewLocationsBrick.id_)
-        if settings.OLD_MENU:
-            self.assertContains(response, fmt % bricks.BlockPortalLocationsBrick.id_)
-        else:
-            self.assertContains(response, fmt % bricks.BlockHomeLocationsBrick.id_)
+        # if settings.OLD_MENU:
+        #     self.assertContains(response, fmt % bricks.BlockPortalLocationsBrick.id_)
+        # else:
+        #     self.assertContains(response, fmt % bricks.BlockHomeLocationsBrick.id_)
+        self.assertContains(response, fmt % bricks.BlockHomeLocationsBrick.id_)
         self.assertContains(response, fmt % bricks.BlockDefaultMypageLocationsBrick.id_)
         self.assertContains(response, fmt % bricks.RelationBlocksConfigBrick.id_)
         self.assertContains(response, fmt % bricks.InstanceBlocksConfigBrick.id_)

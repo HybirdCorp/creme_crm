@@ -65,24 +65,24 @@ class ReportsConfig(CremeAppConfig):
         reg_icon(self.ReportGraph, 'images/graph_%(size)s.png')
 
     def register_menu(self, creme_menu):
-        from django.conf import settings
+        # from django.conf import settings
 
         Report = self.Report
 
-        if settings.OLD_MENU:
-            from django.urls import reverse_lazy as reverse
-            from creme.creme_core.auth import build_creation_perm as cperm
-
-            reg_item = creme_menu.register_app('reports', '/reports/').register_item
-            reg_item(reverse('reports__portal'),        _(u'Portal of reports'), 'reports')
-            reg_item(reverse('reports__list_reports'),  _(u'All reports'),       'reports')
-            reg_item(reverse('reports__create_report'), Report.creation_label,   cperm(Report))
-        else:
-            creme_menu.get('features') \
-                      .get_or_create(creme_menu.ContainerItem, 'analysis', priority=500,
-                                     defaults={'label': _(u'Analysis')},
-                                    ) \
-                      .add(creme_menu.URLItem.list_view('reports-reports', model=Report), priority=20)
-            creme_menu.get('creation', 'any_forms') \
-                      .get_or_create_group('analysis', _(u'Analysis'), priority=500) \
-                      .add_link('reports-create_report', Report, priority=20)
+        # if settings.OLD_MENU:
+        #     from django.urls import reverse_lazy as reverse
+        #     from creme.creme_core.auth import build_creation_perm as cperm
+        #
+        #     reg_item = creme_menu.register_app('reports', '/reports/').register_item
+        #     reg_item(reverse('reports__portal'),        _(u'Portal of reports'), 'reports')
+        #     reg_item(reverse('reports__list_reports'),  _(u'All reports'),       'reports')
+        #     reg_item(reverse('reports__create_report'), Report.creation_label,   cperm(Report))
+        # else:
+        creme_menu.get('features') \
+                  .get_or_create(creme_menu.ContainerItem, 'analysis', priority=500,
+                                 defaults={'label': _(u'Analysis')},
+                                ) \
+                  .add(creme_menu.URLItem.list_view('reports-reports', model=Report), priority=20)
+        creme_menu.get('creation', 'any_forms') \
+                  .get_or_create_group('analysis', _(u'Analysis'), priority=500) \
+                  .add_link('reports-create_report', Report, priority=20)

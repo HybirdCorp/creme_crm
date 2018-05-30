@@ -34,29 +34,29 @@ class CrudityConfig(CremeAppConfig):
         from . import signals
 
     def register_menu(self, creme_menu):
-        from django.conf import settings
+        # from django.conf import settings
         from django.urls import reverse_lazy as reverse
 
-        if settings.OLD_MENU:
-            reg_item = creme_menu.register_app('crudity', '/crudity/').register_item
-            reg_item(reverse('crudity__actions'), _(u'Email waiting actions'), 'crudity')
-            reg_item(reverse('crudity__history'), _(u'History'),               'crudity')
-        else:
-            URLItem = creme_menu.URLItem
-            creme_menu.get('features', 'tools') \
-                      .get_or_create(creme_menu.ItemGroup, 'crudity', priority=250,
-                                     defaults={'label': _(u'External data')},
-                                    ) \
-                      .add(URLItem('crudity-waiting_actions', url=reverse('crudity__actions'),
-                                   label=_(u'Waiting actions'), perm='crudity',
-                                  ),
-                           priority=10,
-                          ) \
-                      .add(URLItem('crudity-history', reverse('crudity__history'),
-                                   label=_(u'History'), perm='crudity',
-                                  ),
-                           priority=20,
-                          )
+        # if settings.OLD_MENU:
+        #     reg_item = creme_menu.register_app('crudity', '/crudity/').register_item
+        #     reg_item(reverse('crudity__actions'), _(u'Email waiting actions'), 'crudity')
+        #     reg_item(reverse('crudity__history'), _(u'History'),               'crudity')
+        # else:
+        URLItem = creme_menu.URLItem
+        creme_menu.get('features', 'tools') \
+                  .get_or_create(creme_menu.ItemGroup, 'crudity', priority=250,
+                                 defaults={'label': _(u'External data')},
+                                ) \
+                  .add(URLItem('crudity-waiting_actions', url=reverse('crudity__actions'),
+                               label=_(u'Waiting actions'), perm='crudity',
+                              ),
+                       priority=10,
+                      ) \
+                  .add(URLItem('crudity-history', reverse('crudity__history'),
+                               label=_(u'History'), perm='crudity',
+                              ),
+                       priority=20,
+                      )
 
     def register_setting_keys(self, setting_key_registry):
         from . import setting_keys

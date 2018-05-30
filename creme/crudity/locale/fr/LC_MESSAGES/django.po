@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Creme-Crudity 1.8\n"
+"Project-Id-Version: Creme Creme-Crudity 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-20 17:00+0200\n"
+"POT-Creation-Date: 2018-05-29 12:01+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -20,31 +20,26 @@ msgstr ""
 msgid "External data management"
 msgstr "Gestion des données externes"
 
-#: apps.py:42
-msgid "Email waiting actions"
-msgstr "Actions en attente pour les emails"
-
-#: apps.py:43 apps.py:56 bricks.py:107 models/history.py:38
-#: models/history.py:39 templates/crudity/history.html:4
-#: templates/crudity/history.html:9
-msgid "History"
-msgstr "Historique"
-
-#: apps.py:48 backends/models.py:212
+#: apps.py:48 backends/models.py:208
 msgid "External data"
 msgstr "Données externes"
 
-#: apps.py:51 bricks.py:50 models/actions.py:45
+#: apps.py:51 bricks.py:50 models/actions.py:44
 #: templates/crudity/waiting-actions.html:4
 #: templates/crudity/waiting-actions.html:52
 msgid "Waiting actions"
 msgstr "Actions en attente"
 
-#: backends/models.py:216
+#: apps.py:56 bricks.py:92 models/history.py:38 models/history.py:39
+#: templates/crudity/history.html:4 templates/crudity/history.html:9
+msgid "History"
+msgstr "Historique"
+
+#: backends/models.py:212
 msgid "Imported from external data."
 msgstr "Importé depuis des données externes."
 
-#: backends/models.py:250
+#: backends/models.py:246
 #, python-format
 msgid "Creation of %(entity)s"
 msgstr "Création de %(entity)s"
@@ -54,7 +49,7 @@ msgstr "Création de %(entity)s"
 msgid "Error: you are not allowed to view this block: %s"
 msgstr "Erreur: vous n'êtes pas autorisé à voir ce block: %s"
 
-#: builders/infopath.py:424 inputs/email.py:66 inputs/filesystem.py:41
+#: builders/infopath.py:424 inputs/email.py:65 inputs/filesystem.py:41
 msgid "Create"
 msgstr "Créer"
 
@@ -89,11 +84,11 @@ msgstr ""
 "Ex: l'utilisateur possédant les e-mails/dossier/documents créés pendant la "
 "synchronisation des e-mails"
 
-#: inputs/email.py:54
+#: inputs/email.py:53
 msgid "Email - Raw"
 msgstr "E-mail - Simple"
 
-#: inputs/email.py:206
+#: inputs/email.py:193
 msgid "Email - Infopath"
 msgstr "E-mail - Infopath"
 
@@ -110,29 +105,29 @@ msgstr "Action"
 msgid "Source"
 msgstr "Source"
 
-#: models/actions.py:38
+#: models/actions.py:37
 msgid "Type of resource"
 msgstr "Type de ressource"
 
-#: models/actions.py:39
+#: models/actions.py:38
 msgid "Subject"
 msgstr "Sujet"
 
-#: models/actions.py:40 models/history.py:34
+#: models/actions.py:39 models/history.py:34
 msgid "Owner"
 msgstr "Propriétaire"
 
-#: models/actions.py:44
+#: models/actions.py:43
 msgid "Waiting action"
 msgstr "Action en attente"
 
-#: models/actions.py:70
+#: models/actions.py:67
 #, python-format
 msgid "You are not allowed to validate/delete the waiting action <%s>"
 msgstr ""
 "Vous n'êtes pas autorisé à valider/effacer cette action en attente <%s>"
 
-#: models/actions.py:72
+#: models/actions.py:69
 msgid "OK"
 msgstr "OK"
 
@@ -212,7 +207,7 @@ msgid "Waiting actions - %(model)s - %(source)s"
 msgstr "Actions en attente - %(model)s - %(source)s"
 
 #: templates/crudity/bricks/waiting-actions.html:26
-#: templates/crudity/bricks/waiting-actions.html:65
+#: templates/crudity/bricks/waiting-actions.html:66
 msgid "Validate"
 msgstr "Valider"
 
@@ -240,7 +235,7 @@ msgstr "Actions"
 msgid "Select this line"
 msgstr "Sélectionner cette ligne"
 
-#: templates/crudity/bricks/waiting-actions.html:75
+#: templates/crudity/bricks/waiting-actions.html:76
 #, python-format
 msgid "No waiting action for «%(ctype)s» from «%(backend)s»"
 msgstr "Aucune action en attente pour «%(ctype)s» venant de «%(backend)s»"
@@ -261,21 +256,6 @@ msgstr "Entrez une adresse e-mail valide. Par exemple: creme@crm.org"
 msgid "Select..."
 msgstr "Sélectionner..."
 
-#: templates/crudity/templatetags/button_email_template_create.html:4
-#: templates/crudity/templatetags/button_infopath_create_form.html:4
-msgid "Download"
-msgstr "Télécharger"
-
-#: templates/crudity/templatetags/button_email_template_create.html:5
-#, python-format
-msgid "Email template for «%(verbose_name)s»"
-msgstr "Modèle d'e-mail pour «%(verbose_name)s»"
-
-#: templates/crudity/templatetags/button_infopath_create_form.html:5
-#, python-format
-msgid "Infopath form for «%(verbose_name)s»"
-msgstr "Formulaire Infopath pour «%(verbose_name)s»"
-
 #: templates/crudity/waiting-actions.html:58
 msgid "Refresh"
 msgstr "Rafraîchir"
@@ -289,9 +269,21 @@ msgstr ""
 "administrateur (settings.CRUDITY_BACKENDS)."
 
 # Already in creme_core
-#: views/actions.py:108
+#: views/actions.py:88
 msgid "Operation successfully completed"
 msgstr ""
+
+#~ msgid "Email waiting actions"
+#~ msgstr "Actions en attente pour les emails"
+
+#~ msgid "Download"
+#~ msgstr "Télécharger"
+
+#~ msgid "Email template for «%(verbose_name)s»"
+#~ msgstr "Modèle d'e-mail pour «%(verbose_name)s»"
+
+#~ msgid "Infopath form for «%(verbose_name)s»"
+#~ msgstr "Formulaire Infopath pour «%(verbose_name)s»"
 
 #~ msgid "Ressource's type"
 #~ msgstr "Type de ressource"

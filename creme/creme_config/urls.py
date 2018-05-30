@@ -111,10 +111,10 @@ bricks_patterns = [
     url(r'^custom/delete[/]?$',                    bricks.delete_custom_brick,         name='creme_config__delete_custom_brick'),
 ]
 
-prefered_menu_patterns = [
-    url(r'^edit[/]?$',      prefered_menu.edit,      name='creme_config__edit_preferred_menu'),
-    url(r'^mine/edit[/]?$', prefered_menu.edit_mine, name='creme_config__edit_my_preferred_menu'),
-] if settings.OLD_MENU else []
+# prefered_menu_patterns = [
+#     url(r'^edit[/]?$',      prefered_menu.edit,      name='creme_config__edit_preferred_menu'),
+#     url(r'^mine/edit[/]?$', prefered_menu.edit_mine, name='creme_config__edit_my_preferred_menu'),
+# ] if settings.OLD_MENU else []
 
 button_menu_patterns = [
     url(r'^portal[/]?$',              button_menu.portal,                     name='creme_config__buttons'),
@@ -152,7 +152,7 @@ urlpatterns = [
     url(r'^custom_fields/', include(custom_fields_patterns)),
     # url(r'^blocks/',        include(bricks_patterns)),
     url(r'^bricks/',        include(bricks_patterns)),
-    url(r'^prefered_menu/', include(prefered_menu_patterns)),
+    # url(r'^prefered_menu/', include(prefered_menu_patterns)),
     url(r'^button_menu/',   include(button_menu_patterns)),
     url(r'^search/',        include(search_patterns)),
     url(r'^history/',       include(history_patterns)),

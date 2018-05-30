@@ -79,39 +79,39 @@ class OpportunitiesConfig(CremeAppConfig):
         import_form_registry.register(self.Opportunity, get_mass_form_builder)
 
     def register_menu(self, creme_menu):
-        from django.conf import settings
+        # from django.conf import settings
 
         Opportunity = self.Opportunity
 
-        if settings.OLD_MENU:
-            from django.urls import reverse_lazy as reverse
-            from creme.creme_core.auth import build_creation_perm as cperm
+        # if settings.OLD_MENU:
+        #     from django.urls import reverse_lazy as reverse
+        #     from creme.creme_core.auth import build_creation_perm as cperm
+        #
+        #     reg_item = creme_menu.register_app('opportunities', '/opportunities/').register_item
+        #     reg_item(reverse('opportunities__portal'),             _(u'Portal of opportunities'), 'opportunities')
+        #     reg_item(reverse('opportunities__list_opportunities'), _(u'All opportunities'),       'opportunities')
+        #     reg_item(reverse('opportunities__create_opportunity'), Opportunity.creation_label,    cperm(Opportunity))
+        # else:
+        URLItem = creme_menu.URLItem
 
-            reg_item = creme_menu.register_app('opportunities', '/opportunities/').register_item
-            reg_item(reverse('opportunities__portal'),             _(u'Portal of opportunities'), 'opportunities')
-            reg_item(reverse('opportunities__list_opportunities'), _(u'All opportunities'),       'opportunities')
-            reg_item(reverse('opportunities__create_opportunity'), Opportunity.creation_label,    cperm(Opportunity))
-        else:
-            URLItem = creme_menu.URLItem
+        container = creme_menu.get('features') \
+                              .get_or_create(creme_menu.ContainerItem, 'opportunities-commercial', priority=30,
+                                             defaults={'label': _(u'Commercial')},
+                                            ) \
+                              .add(URLItem.list_view('opportunities-opportunities', model=Opportunity), priority=10)
+        creme_menu.get('creation', 'main_entities') \
+                  .add(URLItem.creation_view('opportunities-create_opportunity', model=Opportunity), priority=50)
 
-            container = creme_menu.get('features') \
-                                  .get_or_create(creme_menu.ContainerItem, 'opportunities-commercial', priority=30,
-                                                 defaults={'label': _(u'Commercial')},
-                                                ) \
-                                  .add(URLItem.list_view('opportunities-opportunities', model=Opportunity), priority=10)
-            creme_menu.get('creation', 'main_entities') \
-                      .add(URLItem.creation_view('opportunities-create_opportunity', model=Opportunity), priority=50)
+        create_any = creme_menu.get('creation', 'any_forms') \
+                               .get_or_create_group('opportunities-commercial', _(u'Commercial'), priority=20) \
+                               .add_link('opportunities-create_opportunity', Opportunity, priority=3)
 
-            create_any = creme_menu.get('creation', 'any_forms') \
-                                   .get_or_create_group('opportunities-commercial', _(u'Commercial'), priority=20) \
-                                   .add_link('opportunities-create_opportunity', Opportunity, priority=3)
+        if self.billing_installed:
+            from creme.billing import get_quote_model
+            Quote = get_quote_model()
 
-            if self.billing_installed:
-                from creme.billing import get_quote_model
-                Quote = get_quote_model()
-
-                container.add(URLItem.list_view('opportunities-quotes', model=Quote), priority=20)
-                create_any.add_link('create_quote', Quote, priority=20)
+            container.add(URLItem.list_view('opportunities-quotes', model=Quote), priority=20)
+            create_any.add_link('create_quote', Quote, priority=20)
 
     def register_setting_keys(self, setting_key_registry):
         from .setting_keys import quote_key

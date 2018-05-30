@@ -83,7 +83,7 @@ class CommercialConfig(CremeAppConfig):
         reg_icon(self.Strategy, 'images/commercial_%(size)s.png')
 
     def register_menu(self, creme_menu):
-        from django.conf import settings
+        # from django.conf import settings
         from django.urls import reverse_lazy as reverse
 
         from creme.persons import get_contact_model
@@ -92,53 +92,53 @@ class CommercialConfig(CremeAppConfig):
         Pattern  = self.Pattern
         Strategy = self.Strategy
 
-        if settings.OLD_MENU:
-            from creme.creme_core.auth import build_creation_perm as cperm
+        # if settings.OLD_MENU:
+        #     from creme.creme_core.auth import build_creation_perm as cperm
+        #
+        #     reg_item = creme_menu.register_app('commercial', '/commercial/').register_item
+        #     reg_item(reverse('commercial__portal'),          _(u'Portal of commercial strategy'), 'commercial')
+        #     reg_item(reverse('commercial__list_segments'),   _(u'All market segments'),           'commercial')
+        #     reg_item(reverse('commercial__list_acts'),       _(u'All commercial actions'),        'commercial')
+        #     reg_item(reverse('commercial__create_act'),      Act.creation_label,                  cperm(Act))
+        #     reg_item(reverse('commercial__list_strategies'), _(u'All strategies'),                'commercial')
+        #     reg_item(reverse('commercial__create_strategy'), Strategy.creation_label,             cperm(Strategy))
+        #     reg_item(reverse('commercial__list_patterns'),   _(u'All objective patterns'),        'commercial')
+        #     reg_item(reverse('commercial__create_pattern'),  Pattern.creation_label,              cperm(Pattern))
+        #
+        #     reg_item = creme_menu.get_app_item('persons').register_item
+        #     reg_item(reverse('commercial__list_salesmen'),   _(u'All salesmen'),   'persons')
+        #     reg_item(reverse('commercial__create_salesman'), _(u'Add a salesman'), cperm(get_contact_model()))
+        # else:
+        from .models import MarketSegment
 
-            reg_item = creme_menu.register_app('commercial', '/commercial/').register_item
-            reg_item(reverse('commercial__portal'),          _(u'Portal of commercial strategy'), 'commercial')
-            reg_item(reverse('commercial__list_segments'),   _(u'All market segments'),           'commercial')
-            reg_item(reverse('commercial__list_acts'),       _(u'All commercial actions'),        'commercial')
-            reg_item(reverse('commercial__create_act'),      Act.creation_label,                  cperm(Act))
-            reg_item(reverse('commercial__list_strategies'), _(u'All strategies'),                'commercial')
-            reg_item(reverse('commercial__create_strategy'), Strategy.creation_label,             cperm(Strategy))
-            reg_item(reverse('commercial__list_patterns'),   _(u'All objective patterns'),        'commercial')
-            reg_item(reverse('commercial__create_pattern'),  Pattern.creation_label,              cperm(Pattern))
+        URLItem = creme_menu.URLItem
+        features = creme_menu.get('features')
+        features.get('persons-directory') \
+                .add(URLItem('commercial-salesmen', url=reverse('commercial__list_salesmen'),
+                             label=_(u'Salesmen'), perm='persons',
+                            ),
+                     priority=100
+                    )
+        features.get_or_create(creme_menu.ContainerItem, 'opportunities-commercial', priority=30,
+                               defaults={'label': _(u'Commercial')},
+                              ) \
+                .add(URLItem.list_view('commercial-acts',       model=Act),           priority=50) \
+                .add(URLItem.list_view('commercial-strategies', model=Strategy),      priority=55) \
+                .add(URLItem.list_view('commercial-segments',   model=MarketSegment), priority=60) \
+                .add(URLItem.list_view('commercial-patterns',   model=Pattern),       priority=70)
 
-            reg_item = creme_menu.get_app_item('persons').register_item
-            reg_item(reverse('commercial__list_salesmen'),   _(u'All salesmen'),   'persons')
-            reg_item(reverse('commercial__create_salesman'), _(u'Add a salesman'), cperm(get_contact_model()))
-        else:
-            from .models import MarketSegment
+        creation = creme_menu.get('creation')
+        creation.get('main_entities').add(URLItem.creation_view('commercial-create_act', model=Act), priority=100)
 
-            URLItem = creme_menu.URLItem
-            features = creme_menu.get('features')
-            features.get('persons-directory') \
-                    .add(URLItem('commercial-salesmen', url=reverse('commercial__list_salesmen'),
-                                 label=_(u'Salesmen'), perm='persons',
-                                ),
-                         priority=100
-                        )
-            features.get_or_create(creme_menu.ContainerItem, 'opportunities-commercial', priority=30,
-                                   defaults={'label': _(u'Commercial')},
-                                  ) \
-                    .add(URLItem.list_view('commercial-acts',       model=Act),           priority=50) \
-                    .add(URLItem.list_view('commercial-strategies', model=Strategy),      priority=55) \
-                    .add(URLItem.list_view('commercial-segments',   model=MarketSegment), priority=60) \
-                    .add(URLItem.list_view('commercial-patterns',   model=Pattern),       priority=70)
-
-            creation = creme_menu.get('creation')
-            creation.get('main_entities').add(URLItem.creation_view('commercial-create_act', model=Act), priority=100)
-
-            any_forms = creation.get('any_forms')
-            any_forms.get_or_create_group('persons-directory', _(u'Directory'), priority=10) \
-                     .add_link('create_salesman', model=get_contact_model(), label=_(u'Salesman'),
-                               url=reverse('commercial__create_salesman'), priority=10,
-                              )
-            any_forms.get_or_create_group('opportunities-commercial', _(u'Commercial'), priority=15) \
-                     .add_link('commercial-create_act',      Act,      priority=50) \
-                     .add_link('commercial-create_strategy', Strategy, priority=55) \
-                     .add_link('commercial-create_pattern',  Pattern,  priority=60)
+        any_forms = creation.get('any_forms')
+        any_forms.get_or_create_group('persons-directory', _(u'Directory'), priority=10) \
+                 .add_link('create_salesman', model=get_contact_model(), label=_(u'Salesman'),
+                           url=reverse('commercial__create_salesman'), priority=10,
+                          )
+        any_forms.get_or_create_group('opportunities-commercial', _(u'Commercial'), priority=15) \
+                 .add_link('commercial-create_act',      Act,      priority=50) \
+                 .add_link('commercial-create_strategy', Strategy, priority=55) \
+                 .add_link('commercial-create_pattern',  Pattern,  priority=60)
 
     def register_setting_keys(self, setting_key_registry):
         from . import setting_keys

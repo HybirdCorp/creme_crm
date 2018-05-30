@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Products 1.8\n"
+"Project-Id-Version: Creme Products 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-27 20:05+0200\n"
+"POT-Creation-Date: 2018-05-29 12:33+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -19,18 +19,6 @@ msgstr ""
 msgid "Products and services"
 msgstr "Produits et services"
 
-#: apps.py:82
-msgid "Portal of products and services"
-msgstr "Portail des produits et services"
-
-#: apps.py:83
-msgid "All products"
-msgstr "Lister les produits"
-
-#: apps.py:85
-msgid "All services"
-msgstr "Lister les services"
-
 #: apps.py:91 apps.py:96
 msgid "Management"
 msgstr "Gestion"
@@ -39,51 +27,51 @@ msgstr "Gestion"
 msgid "Images of product/service"
 msgstr "Images du produit/service"
 
-#: forms/base.py:31 forms/fields.py:105 forms/product.py:46
-#: models/product.py:47 models/service.py:41
+#: forms/base.py:31 forms/fields.py:69 forms/product.py:46 models/product.py:47
+#: models/service.py:41
 msgid "Sub-category"
 msgstr "Sous-catégorie"
 
-#: forms/base.py:62 models/product.py:50 models/service.py:48
+#: forms/base.py:58 models/product.py:50 models/service.py:48
 #: templates/products/bricks/images.html:7
 msgid "Images"
 msgstr "Images"
 
-#: forms/fields.py:80
+#: forms/fields.py:58
 msgid "Create"
 msgstr ""
 
-#: forms/fields.py:80
+#: forms/fields.py:58
 msgid "Can't create"
 msgstr ""
 
-#: forms/fields.py:102 models/product.py:46 models/service.py:40
+#: forms/fields.py:66 models/product.py:46 models/service.py:40
 msgid "Category"
 msgstr "Catégorie"
 
-#: forms/fields.py:117
+#: forms/fields.py:81
 msgid "This category doesn't exist."
 msgstr "Cette catégorie n'existe pas."
 
-#: forms/fields.py:118
+#: forms/fields.py:82
 msgid "This category causes constraint error."
 msgstr "Cette catégorie cause une erreur de contrainte."
 
-#: forms/fields.py:119
+#: forms/fields.py:83
 msgid "This sub-category causes constraint error."
 msgstr "Cette sous-catégorie cause une erreur de contrainte."
 
-#: forms/mass_import.py:69
+#: forms/mass_import.py:66
 #, python-format
 msgid "The category «%s» does not exist"
 msgstr "La catégorie «%s»  n'existe pas."
 
-#: forms/mass_import.py:87
+#: forms/mass_import.py:84
 #, python-format
 msgid "The sub-category «%s» does not exist"
 msgstr "La sous-catégorie «%s» n'existe pas."
 
-#: forms/mass_import.py:91
+#: forms/mass_import.py:88
 #, python-format
 msgid ""
 "The category «%(cat)s» and the sub-category «%(sub_cat)s» are not matching."
@@ -91,18 +79,18 @@ msgstr ""
 "La catégorie «%(cat)s» et la ssous-catégorie «%(sub_cat)s» ne correspondent "
 "pas."
 
-#: forms/mass_import.py:312
+#: forms/mass_import.py:198
 msgid "Select a valid sub-category."
 msgstr "Sélectionnez une sous-catégorie valide."
 
-#: forms/mass_import.py:313
+#: forms/mass_import.py:199
 msgid ""
 "Select a column for the sub-category if you select a column for the category."
 msgstr ""
 "Sélectionnez une colonne pour la sous-catégorie si sous sélectionnez une "
 "colonne pour la catégorie."
 
-#: forms/mass_import.py:379
+#: forms/mass_import.py:265
 msgid "Categories"
 msgstr "Catégories"
 
@@ -195,11 +183,11 @@ msgstr "Créer un produit"
 msgid "Save the product"
 msgstr "Enregistrer le produit"
 
-#: models/product.py:58
+#: models/product.py:59
 msgid "Product"
 msgstr "Produit"
 
-#: models/product.py:59 templates/products/portal.html:6
+#: models/product.py:60
 msgid "Products"
 msgstr "Produits"
 
@@ -219,11 +207,11 @@ msgstr "Créer un service"
 msgid "Save the service"
 msgstr "Enregistrer le service"
 
-#: models/service.py:56
+#: models/service.py:57
 msgid "Service"
 msgstr "Service"
 
-#: models/service.py:57
+#: models/service.py:58
 msgid "Services"
 msgstr "Services"
 
@@ -407,22 +395,6 @@ msgctxt "products-sub_category"
 msgid "Default sub-category"
 msgstr "Sous-catégorie par défaut"
 
-#: templates/products/portal.html:8
-msgid "Products & Services portal"
-msgstr "Portail Produits & Services"
-
-#: templates/products/portal.html:10
-msgid "List of products"
-msgstr "Liste des produits"
-
-#: views/portal.py:37
-msgid "Number of products"
-msgstr "Nombre de produit(s)"
-
-#: views/portal.py:38
-msgid "Number of services"
-msgstr "Nombre de service(s)"
-
 #: views/product.py:98 views/service.py:82
 #, python-format
 msgid "New images for «%s»"
@@ -431,6 +403,27 @@ msgstr "Nouvelles images pour «%s»"
 #: views/product.py:100 views/service.py:84
 msgid "Link the images"
 msgstr "Lier les images"
+
+#~ msgid "Portal of products and services"
+#~ msgstr "Portail des produits et services"
+
+#~ msgid "All products"
+#~ msgstr "Lister les produits"
+
+#~ msgid "All services"
+#~ msgstr "Lister les services"
+
+#~ msgid "Products & Services portal"
+#~ msgstr "Portail Produits & Services"
+
+#~ msgid "List of products"
+#~ msgstr "Liste des produits"
+
+#~ msgid "Number of products"
+#~ msgstr "Nombre de produit(s)"
+
+#~ msgid "Number of services"
+#~ msgstr "Nombre de service(s)"
 
 #~ msgid "Viewing is not allowed"
 #~ msgstr "Visionnage interdit"

@@ -24,9 +24,9 @@
 (function($) {"use strict";
 
 creme.menu = {};
-creme.menu.actions = {};  // Deprecated
+//creme.menu.actions = {};  // Deprecated
 
-// Old menu API (deprecated) --------------------------------------------------
+/*
 creme.menu.NavIt = function(trigger_selector, options, listeners) {
     console.warn('creme.menu.NavIt() is deprecated.');
 
@@ -228,9 +228,7 @@ creme.menu.sideMenu = function(options) {
         }
     });
 };
-
-
-// New menu API ----------------------------------------------------------------
+*/
 
 creme.menu.bindEvents = function() {
     var menu = $('.ui-creme-navigation');

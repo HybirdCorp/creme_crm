@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 17-05-2018 pour la version 2.0 de Creme
+:Version: 18-05-2018 pour la version 2.0 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -495,8 +495,8 @@ nous créons la méthode ``get_absolute_url()`` : ::
 La vue d'édition
 ~~~~~~~~~~~~~~~~
 
-Contrairement aux autres types de fiche, nos castors ne peuvent pas être modifiés
-globalement (avec le gros stylo dans les vues détaillées)
+Contrairement aux autres types de fiche, nos castors ne peuvent pas (encore) être
+modifiés globalement (avec le gros stylo dans les vues détaillées).
 
 Ajoutons cette vue dans ``views/beaver.py`` : ::
 
@@ -530,120 +530,8 @@ Ainsi que la méthode ``get_edit_absolute_url`` : ::
             return reverse('beavers__edit_beaver', args=(self.id,))
 
 
-La vue de portail
-~~~~~~~~~~~~~~~~~
-
-**Note** : cette partie est obsolète avec le nouveau menu. À moins d'utiliser
-explicitement le vieux menu, vous pouvez sautez cette partie.
-
-La plupart des apps possède un portail ; il sert notamment à afficher les blocs
-relatifs aux entités de l'app en question (par exemple tous les ToDos attachés
-à des castors dans notre cas), ainsi que des statistiques. C'est très simple à
-mettre en place ; nous afficherons le nombre de castors en tout dans nos
-statistiques. Ajouter le fichier ``views/portal.py`` suivant : ::
-
-    # -*- coding: utf-8 -*-
-
-    from django.utils.translation import ugettext as _
-
-    from creme.creme_core.views.generic import app_portal
-
-    from creme.creme_config.utils import generate_portal_url
-
-    from creme.beavers.models import Beaver
-
-
-    def portal(request):
-        stats = (
-                    (_(u'Number of beavers'), Beaver.objects.count()),
-                )
-
-        return app_portal(request, 'beavers', 'beavers/portal.html', Beaver,
-                          stats, config_url=generate_portal_url('beavers')
-                         )
-
-Il faut mettre à jour le fichier ``beavers/urls.py`` : ::
-
-    # -*- coding: utf-8 -*-
-
-    from django.conf.urls import url
-
-    from .views import beaver, portal  # <- UPDATE
-
-
-    urlpatterns = [
-        url(r'^$', portal.portal, name='beavers__portal'),  # <- NEW
-
-        [...]
-    ]
-
-
-Si vous tentez d'accéder au portail, vous déclenchez une erreur. En effet, il
-reste encore un tout petit peu de travail pour qu'il fonctionne. Toute à l'heure
-dans ``views/portal.py``, dans la fonction ``app_portal()`` nous avons fait
-référence à un fichier 'template' qui n'existe pas : ``beavers/portal.html``.
-Remédions y ; tout d'abord créez un répertoire ``templates`` dans ``beavers/``, et
-qui contiendra lui-même un répertoire ``beavers`` (attention il faut suivre) : ::
-
-    > mkdir templates
-    > cd templates
-    > mkdir beavers
-
-
-Ne reste plus qu'à créer le fameux fichier ``beavers/templates/beavers/portal.html`` : ::
-
-    {% extends "creme_core/generics/portal.html" %}
-    {% load i18n %}
-    {% block title %}{% trans "Beaver portal" %}{% endblock %}
-    {% block list_url %}{% url 'beavers__list_beavers' %}{% endblock %}
-    {% block list_msg %}{% trans "List of beavers" %}{% endblock %}
-
-Vous remarquerez qu'il ne sert qu'à surcharger des blocs du portail génériques ;
-d'autres blocs sont surchargeables, par exemple celui pour rajouter une icône
-à votre portail.
-
-
 Faire apparaître les entrées dans le menu
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Vieille API
-***********
-
-Si dans votre ``local_settings.py``, vous mettez ``OLD_MENU = True``, vous activez alors
-l'ancienne API de menu (celle de Creme 1.6 et versions antérieures). Cette API sera supprimée
-dans le futur, et il est vivement conseillé d'utiliser la nouvelle API (activée par défaut).
-Cette vieille API est principalement là pour permettre un passage plus facile à Creme 1.7 aux
-personnes ayant développé des modules avec Creme 1.6.
-
-Dans notre fichier ``apps.py``, nous ajoutons la méthode ``BeaversConfig.register_menu()``
-et nous créons 3 entrées dans le menu de notre app : une pour afficher le portail,
-une pour la liste des castors, et une pour créer un nouveau castor : ::
-
-    [...]
-
-    class BeaversConfig(CremeAppConfig):
-        [...]
-
-        def register_menu(self, creme_menu):
-            from django.urls import reverse_lazy
-
-            reg_item = creme_menu.register_app('beavers', '/beavers/').register_item
-            reg_item(reverse_lazy('beavers__portal'),        _(u'Portal'),          'beavers')
-            reg_item(reverse_lazy('beavers__list_beavers'),  _(u'All beavers'),     'beavers')
-            reg_item(reverse_lazy('beavers__create_beaver'), Beaver.creation_label, 'beavers.add_beaver')
-
-
-**Note** : nous utilisons ``reverse_lazy()`` et pas ``reverse()`` afin de
-prévenir des problèmes de chargement trop précoce.
-
-Si nous relançons le serveur, et rechargeons notre page dans le navigateur, nous
-voyons bien une nouvelle entrée dans le menu rétractable à gauche, portant le
-label "Beavers management". Et si on entre dans le menu, il contient bien les 3
-liens attendus.
-
-
-API actuelle
-************
 
 Dans notre fichier ``apps.py``, nous ajoutons la méthode ``BeaversConfig.register_menu()``
 et nous créons tout d'abord une nouvelle entrée de niveau 2 dans l'entrée de niveau 1
@@ -1490,7 +1378,7 @@ Dans ``beavers/urls.py`` : ::
 
     [...]
 
-    from .views import beaver, portal, ticket  # <- UPDATE
+    from .views import beaver, ticket  # <- UPDATE
 
     [...]
 
@@ -1624,10 +1512,6 @@ Utilisation de la création rapide
 Dans l'éntrée de menu '+ Création', se trouve la section 'Création rapide'
 qui permet de créer des nouvelles fiche via une petite popup (et pas en
 allant sur une nouvelle page avec un gros formulaire).
-
-**Notes** : dans le vieux menu, c'est en haut de chaque page que se trouve
-le panneau de création rapide, qui permet de créer entre 1 et 9 fiches du
-même type, en même temps.
 
 Les formulaires de création rapide sont en général, et pour des raisons évidentes,
 des versions simplifiées des formulaires desdites entités. Par exemple, le formulaire

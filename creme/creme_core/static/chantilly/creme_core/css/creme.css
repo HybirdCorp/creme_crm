@@ -63,7 +63,7 @@ td p {
     margin: 5px;
 }
 
-/* TODO: remove when old menu is removed */
+/*
 #last_viewed {
     padding-top : 6px;
     padding-left : 6px;
@@ -80,8 +80,9 @@ td p {
        -moz-border-radius: 4px;
             border-radius: 4px;
 }
+*/
 
-/* TODO: remove when old menu is removed */
+/*
 #preferred_menu {
     padding-top : 6px;
     padding-left : 6px;
@@ -232,7 +233,7 @@ td p {
     list-style-image : url(chantilly/images/wait.gif);
 }
 
-/* TODO: remove when old menu is removed */
+/*
 .menu_expanded {
     display: block;
     height: 100%;
@@ -260,6 +261,7 @@ td p {
     font-weight: bold;
     text-align: center;
 }
+*/
 
 .main_content {
     clear: both;
@@ -270,7 +272,8 @@ td p {
     width: 98%;
     margin-left: 1.2%;
 
-    padding-top: 3px;
+    /* padding-top: 3px; */
+    padding-top: 40px;
 }
 
 .header {
@@ -435,13 +438,14 @@ a img:hover {
             border-radius: 4px;
 }
 
-/* TODO: remove with old menu */
+/*
 .pointer {
     cursor: pointer;
 }
+*/
 
 
-/* TODO: remove when old menu is removed */
+/*
 .top_fixed {
     display: block;
     top: 0 !important;
@@ -455,6 +459,7 @@ a img:hover {
     padding-bottom: 10px;
     padding-top: 10px;
 }
+*/
 
 span.enumerator-item {
     font-weight: 800;

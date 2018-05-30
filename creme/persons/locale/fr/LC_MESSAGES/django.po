@@ -2,53 +2,41 @@
 # Copyright (C) 2018 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin.py makemessages -l fr -i "tests/*" -i "migrations/*"
+# > django-admin.py makemessages -l fr -i "tests/*"
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Persons 1.8\n"
+"Project-Id-Version: Creme Persons 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-01 17:33+0100\n"
+"POT-Creation-Date: 2018-05-29 12:31+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps.py:32
+#: apps.py:33
 msgid "Accounts and Contacts"
 msgstr "Comptes et Contacts"
 
-#: apps.py:120
-msgid "Portal of accounts and contacts"
-msgstr "Portail des comptes et contacts"
-
-#: apps.py:121
-msgid "All contacts"
-msgstr "Lister les contacts"
-
-#: apps.py:123 apps.py:138
-msgid "My customers / prospects / suspects"
-msgstr "Mes clients / prospects / suspects"
-
-#: apps.py:124
-msgid "All organisations"
-msgstr "Lister les sociétés"
-
-#: apps.py:133 apps.py:146 templates/persons/view_contact.html:8
+#: apps.py:137 apps.py:150 templates/persons/view_contact.html:8
 #: templates/persons/view_organisation.html:8
 msgid "Directory"
 msgstr "Annuaire"
 
-#: apps.py:189
+#: apps.py:142
+msgid "My customers / prospects / suspects"
+msgstr "Mes clients / prospects / suspects"
+
+#: apps.py:191
 msgid "Customers"
 msgstr "Clients"
 
-#: apps.py:216
+#: apps.py:218
 msgid "User organisation"
 msgstr "Société de l'utilisateur"
 
-#: apps.py:221
+#: apps.py:223
 msgid "Position in the organisation"
 msgstr "Statut dans la société"
 
@@ -72,31 +60,31 @@ msgstr "Responsables d'une société"
 msgid "Create a manager"
 msgstr "Créer un responsable"
 
-#: bricks.py:289
+#: bricks.py:288
 msgid "Organisation employees"
 msgstr "Salariés d'une société"
 
-#: bricks.py:296
+#: bricks.py:295
 msgid "Create an employee"
 msgstr "Créer un salarié"
 
-#: bricks.py:365
+#: bricks.py:364
 msgid "Addresses (detailed)"
 msgstr "Adresses (détaillées)"
 
-#: bricks.py:371
+#: bricks.py:370
 msgid "Addresses (pretty)"
 msgstr "Adresses (jolies)"
 
-#: bricks.py:396
+#: bricks.py:395
 msgid "Other addresses (detailed)"
 msgstr "Adresses supplémentaires (détaillées)"
 
-#: bricks.py:403
+#: bricks.py:402
 msgid "Other addresses (pretty)"
 msgstr "Adresses supplémentaires (jolies)"
 
-#: bricks.py:437 templates/persons/bricks/neglected-organisations.html:7
+#: bricks.py:436 templates/persons/bricks/neglected-organisations.html:7
 msgid "Neglected organisations"
 msgstr "Sociétés délaissées"
 
@@ -124,21 +112,21 @@ msgstr "Transformer en fournisseur"
 msgid "Create a related contact"
 msgstr "Créer un contact lié"
 
-#: forms/address.py:75 forms/base.py:44 forms/base.py:104
+#: forms/address.py:85 forms/base.py:45 forms/base.py:105
 #: forms/mass_import.py:80 forms/mass_import.py:119 forms/merge.py:104
 #: forms/merge.py:146 models/base.py:32
 #: templates/persons/bricks/base/addresses.html:29
 msgid "Billing address"
 msgstr "Adresse de facturation"
 
-#: forms/address.py:80 forms/base.py:45 forms/base.py:105
+#: forms/address.py:90 forms/base.py:46 forms/base.py:106
 #: forms/mass_import.py:81 forms/mass_import.py:120 forms/merge.py:105
 #: forms/merge.py:147 models/base.py:37
 #: templates/persons/bricks/base/addresses.html:42
 msgid "Shipping address"
 msgstr "Adresse de livraison"
 
-#: forms/contact.py:40 populate.py:312
+#: forms/contact.py:40 populate.py:339
 msgid "Contact details"
 msgstr "Coordonnées du contact"
 
@@ -166,7 +154,7 @@ msgstr "Impossible de fusionner 2 Contacts représentant des utilisateurs"
 msgid "Set as managed"
 msgstr "Marquer comme géré"
 
-#: forms/quick.py:40 models/organisation.py:94
+#: forms/quick.py:40 models/organisation.py:95
 msgid "Organisation"
 msgstr "Société"
 
@@ -204,7 +192,7 @@ msgstr "Entrez le nom d'une société existante"
 msgid "Name"
 msgstr "Nom"
 
-#: models/address.py:34 models/address.py:57
+#: models/address.py:34 models/address.py:58
 #: templates/persons/bricks/organisation-hat-card.html:71
 msgid "Address"
 msgstr "Adresse"
@@ -233,7 +221,7 @@ msgstr "État"
 msgid "Country"
 msgstr "Pays"
 
-#: models/address.py:58 templates/persons/bricks/base/addresses.html:7
+#: models/address.py:59 templates/persons/bricks/base/addresses.html:7
 msgid "Addresses"
 msgstr "Adresses"
 
@@ -315,41 +303,41 @@ msgstr "Créer un contact"
 msgid "Save the contact"
 msgstr "Enregistrer le contact"
 
-#: models/contact.py:105
+#: models/contact.py:106
 msgid "Contact"
 msgstr "Contact"
 
-#: models/contact.py:106 templates/persons/portal.html:4
+#: models/contact.py:107
 msgid "Contacts"
 msgstr "Contacts"
 
-#: models/contact.py:113 templatetags/persons_tags.py:78
+#: models/contact.py:114 templatetags/persons_tags.py:78
 #, python-format
 msgid "%(civility)s %(first_name)s %(last_name)s"
 msgstr "%(civility)s %(first_name)s %(last_name)s"
 
-#: models/contact.py:120 templatetags/persons_tags.py:85
+#: models/contact.py:121 templatetags/persons_tags.py:85
 #, python-format
 msgid "%(first_name)s %(last_name)s"
 msgstr "%(first_name)s %(last_name)s"
 
-#: models/contact.py:129
+#: models/contact.py:130
 msgid "A user is associated with this contact."
 msgstr "Un utilisateur est relié à ce contact."
 
-#: models/contact.py:136
+#: models/contact.py:137
 msgid "This Contact is related to a user and must have a first name."
 msgstr "Ce Contact est lié à un utilisateur et doit avoir un prénom."
 
-#: models/contact.py:139
+#: models/contact.py:140
 msgid "This Contact is related to a user and must have an e-mail address."
 msgstr "Ce Contact est lié à un utilisateur et doit avoir une adresse e-mail."
 
-#: models/contact.py:189 populate.py:149
+#: models/contact.py:190 populate.py:154
 msgid "N/A"
 msgstr "NC"
 
-#: models/contact.py:190
+#: models/contact.py:191
 msgid "complete@Me.com"
 msgstr "completez@Moi.fr"
 
@@ -419,11 +407,11 @@ msgstr "Créer une société"
 msgid "Save the organisation"
 msgstr "Enregistrer la société"
 
-#: models/organisation.py:95
+#: models/organisation.py:96
 msgid "Organisations"
 msgstr "Sociétés"
 
-#: models/organisation.py:103
+#: models/organisation.py:104
 msgid "The last managed organisation cannot be deleted."
 msgstr "La dernière société gérée ne peut pas être supprimée."
 
@@ -601,83 +589,83 @@ msgstr "Vue de Société"
 msgid "Prospect/Suspect view"
 msgstr "Vue Prospect/Suspect"
 
-#: populate.py:146
+#: populate.py:151
 msgid "Madam"
 msgstr "Madame"
 
-#: populate.py:146
+#: populate.py:151
 msgid "Mrs."
 msgstr "Mme"
 
-#: populate.py:147
+#: populate.py:152
 msgid "Miss"
 msgstr "Mademoiselle"
 
-#: populate.py:147
+#: populate.py:152
 msgid "Ms."
 msgstr "Mlle"
 
-#: populate.py:148
+#: populate.py:153
 msgid "Mister"
 msgstr "Monsieur"
 
-#: populate.py:148
+#: populate.py:153
 msgid "Mr."
 msgstr "Mr"
 
-#: populate.py:155
+#: populate.py:160
 msgid "ReplaceByYourSociety"
 msgstr "RemplacezParVotreSociété"
 
-#: populate.py:160
+#: populate.py:169
 msgid "CEO"
 msgstr "PDG"
 
-#: populate.py:161
+#: populate.py:170
 msgid "Secretary"
 msgstr "Secrétaire"
 
-#: populate.py:162
+#: populate.py:171
 msgid "Technician"
 msgstr "Technicien"
 
-#: populate.py:165
+#: populate.py:180
 msgid "Food Industry"
 msgstr "Agro-Alimentaire"
 
-#: populate.py:166
+#: populate.py:181
 msgid "Industry"
 msgstr "Industrie"
 
-#: populate.py:167
+#: populate.py:182
 msgid "Software"
 msgstr "Logiciel"
 
-#: populate.py:168
+#: populate.py:183
 msgid "Telecom"
 msgstr "Télécom"
 
-#: populate.py:169
+#: populate.py:184
 msgid "Restoration"
 msgstr "Restauration"
 
-#: populate.py:210
+#: populate.py:237
 msgid "Organisation information"
 msgstr "Informations sur la société"
 
-#: populate.py:238
+#: populate.py:265
 msgid "Organisation details"
 msgstr "Coordonnées de la société"
 
-#: populate.py:248
+#: populate.py:275
 msgid "Organisation complementary information"
 msgstr "Informations complémentaires sur la société"
 
-#: populate.py:291
+#: populate.py:318
 msgid "Contact information"
 msgstr "Informations sur le contact"
 
-#: populate.py:324
+#: populate.py:351
 msgid "Contact complementary information"
 msgstr "Informations complémentaires sur le contact"
 
@@ -939,16 +927,12 @@ msgstr ""
 
 # Already in creme_core
 #: templates/persons/edit_contact_form.html:4
+#: templates/persons/edit_contact_form.html:6
 #: templates/persons/edit_organisation_form.html:4
+#: templates/persons/edit_organisation_form.html:6
 #, python-format
 msgid "Edit «%(object)s»"
 msgstr ""
-
-#: templates/persons/edit_contact_form.html:7
-#: templates/persons/edit_organisation_form.html:7
-#, python-format
-msgid "Edit «%s»"
-msgstr "Modifier «%s»"
 
 #: templates/persons/frags/billing_block.html:12
 msgid "Copy the address to right side"
@@ -957,14 +941,6 @@ msgstr "Copier l'adresse à droite"
 #: templates/persons/frags/shipping_block.html:12
 msgid "Copy the address to left side"
 msgstr "Copier l'adresse à gauche"
-
-#: templates/persons/portal.html:5
-msgid "Accounts & contacts portal"
-msgstr "Portail Comptes & contacts"
-
-#: templates/persons/portal.html:7
-msgid "List of contacts"
-msgstr "Liste des contacts"
 
 #: templates/persons/view_contact.html:9
 #: templates/persons/view_organisation.html:9
@@ -1027,35 +1003,49 @@ msgstr "Modifier l'adresse de livraison pour «%s»"
 msgid "Edit address for «%s»"
 msgstr "Modifier l'adresse pour «%s»"
 
-#: views/organisation.py:96
+#: views/organisation.py:95
 msgid "List of my suspects / prospects / customers"
 msgstr "Liste de mes suspects / prospects / clients"
 
-#: views/organisation.py:120
+#: views/organisation.py:119
 msgid "Add some managed organisations"
 msgstr "Ajouter des sociétés gérées"
 
 # Already in creme_core
-#: views/organisation.py:121
+#: views/organisation.py:120
 msgid "Save the modifications"
 msgstr ""
 
-#: views/organisation.py:145
+#: views/organisation.py:144
 msgid "You must have at least one managed organisation."
 msgstr "Vous devez avoir au moins une société gérée."
 
-#: views/portal.py:35
-msgid "Number of contacts"
-msgstr "Nombre de contact(s)"
+#~ msgid "Portal of accounts and contacts"
+#~ msgstr "Portail des comptes et contacts"
 
-#: views/portal.py:36
-msgid "Number of organisations"
-msgstr "Nombre de société(s)"
+#~ msgid "All contacts"
+#~ msgstr "Lister les contacts"
 
-#: views/portal.py:44
-#, python-format
-msgid "Number of customers of %s"
-msgstr "Nombre de client(s) de %s"
+#~ msgid "All organisations"
+#~ msgstr "Lister les sociétés"
+
+#~ msgid "Edit «%s»"
+#~ msgstr "Modifier «%s»"
+
+#~ msgid "Accounts & contacts portal"
+#~ msgstr "Portail Comptes & contacts"
+
+#~ msgid "List of contacts"
+#~ msgstr "Liste des contacts"
+
+#~ msgid "Number of contacts"
+#~ msgstr "Nombre de contact(s)"
+
+#~ msgid "Number of organisations"
+#~ msgstr "Nombre de société(s)"
+
+#~ msgid "Number of customers of %s"
+#~ msgstr "Nombre de client(s) de %s"
 
 #~ msgid "Modify %(object)s"
 #~ msgstr "Modifier %(object)s"
