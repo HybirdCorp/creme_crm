@@ -92,16 +92,15 @@ class ButtonsRegistry(object):
 
         return cls() if cls else None
 
-    def get_buttons(self, id_list, entity):  # TODO: generator
-        """Get the list of Buttons to be displayed on the detail-view of an entity.
+    def get_buttons(self, id_list, entity):
+        """Generate the Buttons to be displayed on the detail-view of an entity.
         Deprecated buttons & buttons that should not be displayed for this entity
         are ignored.
         @param id_list: Sequence of button IDs.
         @param entity: CremeEntity instance.
-        @return List of creme_core.gui.button_menu.Button instances.
+        @yield creme_core.gui.button_menu.Button instances.
         """
         button_classes = self._button_classes
-        buttons_2_display = []
 
         for button_id in id_list:
             button_cls = button_classes.get(button_id)
@@ -112,9 +111,7 @@ class ButtonsRegistry(object):
                 button = button_cls()
 
                 if button.ok_4_display(entity):
-                    buttons_2_display.append(button)
-
-        return buttons_2_display
+                    yield button
 
     def __iter__(self):
         for b_id, b_cls in self._button_classes.iteritems():
