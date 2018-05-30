@@ -395,7 +395,7 @@ class EntityFilter(Model):  # CremeModel ???
                             try:
                                 copy_num = int(copy_num_str) + 1
                             except ValueError:
-                                raise ValueError('Malformed EntityFilter PK/version: %s', latest_pk)
+                                raise ValueError('Malformed EntityFilter PK/version: {}'.format(latest_pk))
 
                             new_pk += str(copy_num)
                             new_name += '(%i)' % copy_num
