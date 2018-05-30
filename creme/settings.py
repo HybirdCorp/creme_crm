@@ -507,7 +507,7 @@ CREME_CORE_CSS = ['main.css',
                     'creme_core/css/bricks.css',
                     'creme_core/css/home.css',
                     'creme_core/css/my_page.css',
-                    'creme_core/css/portal.css',
+                    # 'creme_core/css/portal.css',  # TODO: remove the file
                     'creme_core/css/list_view.css',
                     'creme_core/css/detail_view.css',
                     'creme_core/css/search_results.css',

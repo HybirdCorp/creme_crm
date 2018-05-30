@@ -8,7 +8,8 @@
     {% if conf_perm %}<a href="{% url 'creme_config__portal' %}">{% trans 'Configuration' %} > </a>{% endif %}{% trans 'Types of relationship' %}
 {% endblock %}
 
-{% block before_statistics %}
+{# {% block before_statistics %} #}
+{% block portal_bricks %}
     {% brick_import app='creme_config' name='relation_types' as rtypes_brick %}
     {% brick_import app='creme_config' name='custom_relation_types' as custom_rtypes_brick %}
     {% brick_import app='creme_config' name='semifixed_relation_types' as semifixed_rtypes_brick %}

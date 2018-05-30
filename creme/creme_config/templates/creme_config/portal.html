@@ -1,13 +1,30 @@
-{% extends 'creme_core/generics/portal.html' %}
+{# {% extends 'creme_core/generics/portal.html' %} #}
+{% extends 'creme_core/base.html' %}
 {% load i18n creme_core_tags creme_bricks creme_widgets %}
 
 {% block page_title %}{% trans 'Configuration' %} - {% endblock %}
+
+{% block before_content_1 %}<div class="portal the_cake_is_a_lie">{% endblock %}
+
+{% comment %}
 {% block logo %}{% widget_icon name='config' size='brick-hat-bar' label=_('Configuration') %}{% endblock %}
 {% block title %}{% trans 'Creme configuration portal' %}{% endblock %}
 {% block bar_actions %}{% endblock %}
 {% block creme_blocks_import %}{% endblock %}
+{% endcomment %}
 
-{% block before_statistics %}
+{% block content %}
+    <div class="hat-bar-container">
+        <div class="hat-bar">
+            <div class="bar-icon">{% block logo %}{% widget_icon name='config' size='brick-hat-bar' label=_('Configuration') %}{% endblock %}</div>
+            <div class="bar-title">
+                <h1>{% block title %}{% trans 'Creme configuration portal' %}{% endblock %}</h1>
+            </div>
+        </div>
+    </div>
+
+{# {% block before_statistics %} #}
+    {% block portal_bricks %}
     <div class="brick brick-table">
         <div class="brick-header">
             <div class="brick-title-container">
@@ -92,7 +109,11 @@
             </table>
         </div>
     </div>
+    {% endblock %}
+{# {% endblock %} #}
+
+{# {% block statistics %}{% endblock %} #}
+{# {% block extra_infos %}{% endblock %} #}
 {% endblock %}
 
-{% block statistics %}{% endblock %}
-{% block extra_infos %}{% endblock %}
+{% block after_content_3 %}</div>{% endblock %}
