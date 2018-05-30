@@ -23,6 +23,7 @@ import logging
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import Field, FieldDoesNotExist, BooleanField, DateField
+from django.utils.html import format_html, format_html_join
 from django.utils.translation import ugettext_lazy as _
 
 from ..models import CremeEntity, RelationType, CustomField
@@ -476,13 +477,12 @@ class EntityCellRelation(EntityCell):
         if len(related_entities) == 1:
             return widget_entity_hyperlink(related_entities[0], user)
 
-        relations_list = ['<ul>']
-        relations_list.extend(u'<li>%s</li>' % widget_entity_hyperlink(e, user)
-                                for e in related_entities
-                             )
-        relations_list.append('</ul>')
-
-        return u''.join(relations_list)
+        return format_html(u'<ul>{}</ul>',
+                           format_html_join(
+                               '', u'<li>{}</li>',
+                               ([widget_entity_hyperlink(e, user)] for e in related_entities)
+                           )
+                          )
 
     def render_csv(self, entity, user):
         has_perm = user.has_perm_to_view
