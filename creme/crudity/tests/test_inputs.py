@@ -88,7 +88,8 @@ class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
         wactions = WaitingAction.objects.all()
         self.assertEqual(1, len(wactions))
         self.assertEqual({'user_id': unicode(user.id), 'created': '01/02/2003'},
-                         wactions[0].get_data()
+                         # wactions[0].get_data()
+                         wactions[0].data
                         )
 
     @skipIfCustomContact
@@ -149,7 +150,8 @@ class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
         self.assertEqual(1, WaitingAction.objects.count())
         self.assertEqual(c_count, Contact.objects.count())
         self.assertEqual({'user_id': user.id, 'created': '01-02-2003'},
-                         WaitingAction.objects.all()[0].get_data()
+                         # WaitingAction.objects.all()[0].get_data()
+                         WaitingAction.objects.all()[0].data
                         )
 
     @skipIfCustomContact
@@ -208,7 +210,8 @@ class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
                           'created': '01/02/2003',
                           'description': 'I\n want to\n create a    \ncreme entity\n',
                          },
-                         WaitingAction.objects.all()[0].get_data()
+                         # WaitingAction.objects.all()[0].get_data()
+                         WaitingAction.objects.all()[0].data
                         )
 
     def test_create_email_input08(self):
@@ -264,7 +267,8 @@ entity
                           'created':     u'01/02/2003',
                           'description': u'I\n\n        want\n\n        to\n                    create\n                a\ncreme\nentity\n\n        ',
                          },
-                         wactions[0].get_data()
+                         # wactions[0].get_data()
+                         wactions[0].data
                         )
 
     def test_create_email_input09(self):
@@ -314,7 +318,8 @@ entity
                           'created':     '01/02/2003',
                           'description': 'I',
                          },
-                         wactions[0].get_data()
+                         # wactions[0].get_data()
+                         wactions[0].data
                         )
 
     def test_create_email_input10(self):
@@ -352,7 +357,8 @@ entity
                           'created':     '01-02-2003',
                           'description': 'I\n want to\n create a    \ncreme entity\n',
                          },
-                         wactions[0].get_data()
+                         # wactions[0].get_data()
+                         wactions[0].data
                         )
 
     def test_create_email_input11(self):
@@ -393,7 +399,8 @@ description3=[[<br>]]
                           'created':     '01-02-2003',
                           'description': 'I\n want to\n create a    \ncreme entity\n',
                          },
-                         wactions[0].get_data()
+                         # wactions[0].get_data()
+                         wactions[0].data
                         )
 
     def test_create_email_input12(self):
@@ -438,7 +445,8 @@ description3=[[<br>]]
                           'created': u'01-02-2003',
                           'description': 'I',
                          },
-                         wactions[0].get_data()
+                         # wactions[0].get_data()
+                         wactions[0].data
                         )
 
     def test_create_email_input13(self):
@@ -455,14 +463,13 @@ description3=[[<br>]]
                                                senders=('user@cremecrm.com',), subject='create_ce',
                                               )
                           )
-        # self.assertEqual(1, WaitingAction.objects.filter(user=user).count())
         admin = get_user_model().objects.get_admin()
         self.assertEqual(1, WaitingAction.objects.filter(user=admin).count())
         self.assertEqual(0, WaitingAction.objects.filter(user=None).count())
 
         wa = WaitingAction.objects.all()[0]
-        self.assertEqual({'user_id': unicode(user.id), 'created': '01/02/2003'}, wa.get_data())
-        # self.assertEqual(user, wa.user)
+        # self.assertEqual({'user_id': unicode(user.id), 'created': '01/02/2003'}, wa.get_data())
+        self.assertEqual({'user_id': unicode(user.id), 'created': '01/02/2003'}, wa.data)
         self.assertEqual(admin, wa.user)
 
     @skipIfCustomContact
@@ -661,7 +668,8 @@ description3=[[<br>]]
                           'birthday':    '02/08/1987',
                           'description': 'A plumber',
                         },
-                        wa.get_data()
+                        # wa.get_data()
+                        wa.data
                        )
 
         email_input.get_backend(CrudityBackend.normalize_subject('create_contact')).create(wa)
@@ -672,7 +680,6 @@ description3=[[<br>]]
         self.assertEqual(self.create_datetime(year=2003, month=2, day=1), contact.created)
         self.assertEqual('mario@bros.com', contact.email)
         self.assertEqual('http://mario.com', contact.url_site)
-        # self.assertIs(contact.is_actived, True)
         self.assertEqual(date(year=1987, month=8, day=2), contact.birthday)
         self.assertEqual('A plumber', contact.description)
 
@@ -865,9 +872,10 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
                           'created':     '2003-02-01',
                           'description': 'My creme entity\n\ndescription',
                          },
-                         wa.get_data()
+                         # wa.get_data()
+                         wa.data
                         )
-        self.assertIsNone(wa.user) # Sandbox is not by user
+        self.assertIsNone(wa.user)  # Sandbox is not by user
 
     def test_create07(self):
         "Allowed with valid but weird xml"
@@ -914,7 +922,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
                           'created':     '2003-02-01',
                           'description': u'My creme entity\n\ndescription',
                          },
-                         wactions[0].get_data()
+                         # wactions[0].get_data()
+                         wactions[0].data
                         )
 
     def test_create08(self):
@@ -960,7 +969,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
                           'created':     '2003-02-01',
                           'description': 'My creme entity\n\ndescription',
                          },
-                         wa.get_data()
+                         # wa.get_data()
+                         wa.data
                         )
         # self.assertEqual(user, wa.user)
         self.assertEqual(get_user_model().objects.get_admin(), wa.user)
@@ -1006,7 +1016,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
                           'created':     '2003-02-01',
                           'description': 'My creme entity\n\ndescription',
                          },
-                         wa.get_data()
+                         # wa.get_data()
+                         wa.data
                         )
         self.assertEqual(other_user, wa.user)
 
@@ -1137,7 +1148,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
                          "image": (filename, blob),
                         }
         self.maxDiff = None
-        self.assertEqual(expected_data, wa.get_data())
+        # self.assertEqual(expected_data, wa.get_data())
+        self.assertEqual(expected_data, wa.data)
 
         infopath_input.get_backend(CrudityBackend.normalize_subject('create_ce_infopath')).create(wa)
         contact = Contact.objects.filter(q_contact_existing_ids)[0]
@@ -1148,7 +1160,6 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual('Mario', contact.first_name)
         self.assertEqual('mario@bros.com', contact.email)
         self.assertEqual('http://mario.com', contact.url_site)
-        # self.assertEqual(True, contact.is_actived)
         self.assertEqual(self.create_datetime(year=1987, month=8, day=2).date(), contact.birthday)
         self.assertEqual('A plumber', contact.description)
         self.assertTrue(contact.image)
@@ -1220,11 +1231,11 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         wa = wactions[0]
         expected_data = {'user_id': str(user.id), 'created': '2003-02-01', 'last_name': 'Bros',
                          'first_name': 'Mario', 'email': 'mario@bros.com', 'url_site': 'http://mario.com',
-                         # 'is_actived': True,
                          'birthday': '02/08/1987', 'description': 'A plumber',
                          'language': '\n{}\n{}'.format(languages[0].id, languages[1].id),
                         }
-        self.assertEqual(expected_data, wa.get_data())
+        # self.assertEqual(expected_data, wa.get_data())
+        self.assertEqual(expected_data, wa.data)
 
         infopath_input.get_backend(CrudityBackend.normalize_subject('create_ce_infopath')).create(wa)
         contact = Contact.objects.filter(q_contact_existing_ids)[0]
@@ -1358,13 +1369,12 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         filename, blob = decode_b64binary(img_content)
         self.assertEqual({'user_id':     unicode(user.id),
                           'title':       u'My doc',
-                          # 'folder_id':   unicode(folder.id),
                           'linked_folder_id': unicode(folder.id),
                           'description': u'A document',
-                          # 'filedata': img_content,
                           'filedata': (filename, blob),
                          },
-                         wa.get_data()
+                         # wa.get_data()
+                         wa.data
                         )
 
         infopath_input.get_backend(CrudityBackend.normalize_subject('create_ce_infopath')).create(wa)
@@ -1492,7 +1502,8 @@ class FileSystemInputTestCase(CrudityTestCase):
                           'last_name':   'Baggins',
                           'description': 'this hobbit will\nsave the world',
                          },
-                         waction.get_data()
+                         # waction.get_data()
+                         waction.data
                         )
 
         owner = waction.user
@@ -1531,7 +1542,8 @@ class FileSystemInputTestCase(CrudityTestCase):
                           'last_name':   'Baggins',
                           # 'description': 'this hobbit will\nsave the world',
                          },
-                         wactions[0].get_data()
+                         # wactions[0].get_data()
+                         wactions[0].data
                         )
 
     def test_sandbox_by_user01(self):
@@ -1564,7 +1576,8 @@ class FileSystemInputTestCase(CrudityTestCase):
                           'first_name': 'Bilbo',
                           'last_name':  'Baggins',
                          },
-                         waction.get_data()
+                         # waction.get_data()
+                         waction.data
                         )
         self.assertEqual(self.other_user, waction.user)
 
@@ -1600,7 +1613,8 @@ class FileSystemInputTestCase(CrudityTestCase):
                           'first_name': 'Samwise',
                           'last_name':  'Gamgee',
                          },
-                         waction.get_data()
+                         # waction.get_data()
+                         waction.data
                         )
         owner = waction.user
         self.assertIsNotNone(owner)

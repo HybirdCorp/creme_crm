@@ -44,7 +44,8 @@
             <input class="row-selector" value="{{waiting_action.pk}}" title="{% trans 'Select this line' %}" type="checkbox"/>
         </td>
         <td>
-        {% for k, v in waiting_action.get_data.items %}
+{#        {% for k, v in waiting_action.get_data.items %} #}
+        {% for k, v in waiting_action.data.items %}
             {% if forloop.counter0|mod:4 == 0 %}
             <p>
             {% else %}

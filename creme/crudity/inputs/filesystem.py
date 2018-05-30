@@ -95,15 +95,22 @@ class IniFileInput(CrudityInput):
                     # Create instances
                     if backend.in_sandbox:
                         # TODO: factorise with other inputs
-                        action = WaitingAction(action=self.method,
-                                               ct=ContentType.objects.get_for_model(backend.model),
-                                               source='%s - %s' % (backend.fetcher_name, self.name),
-                                               subject=backend.subject,
-                                               user=owner,
-                                              )
-                        # action.data = action.set_data(data)
-                        action.set_data(data)
-                        action.save()
+                        # action = WaitingAction(action=self.method,
+                        #                        ct=ContentType.objects.get_for_model(backend.model),
+                        #                        source='%s - %s' % (backend.fetcher_name, self.name),
+                        #                        subject=backend.subject,
+                        #                        user=owner,
+                        #                       )
+                        # action.set_data(data)
+                        # action.save()
+                        WaitingAction.objects.create(
+                              action=self.method,
+                              ct=ContentType.objects.get_for_model(backend.model),
+                              source='{} - {}'.format(backend.fetcher_name, self.name),
+                              subject=backend.subject,
+                              user=owner,
+                              data=data,
+                        )
                     else:
                         # TODO: should be a public method
                         backend._create_instance_n_history(data,

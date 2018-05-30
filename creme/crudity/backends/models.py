@@ -123,7 +123,8 @@ class CrudityBackend(object):
         return re.sub('\s', '', subject or '').upper()
 
     def create(self, action):
-        return self._create_instance_n_history(action.get_data(), action.user, action.source, action.action)
+        # return self._create_instance_n_history(action.get_data(), action.user, action.source, action.action)
+        return self._create_instance_n_history(action.data, action.user, action.source, action.action)
 
     def _create_instance_before_save(self, instance, data):
         """Called before the instance is saved"""
