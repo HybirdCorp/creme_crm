@@ -10,7 +10,8 @@
     {% blocktrans with model|get_meta_value:'verbose_name' as model_name %}Type : {{model_name}}{% endblocktrans %}
 {% endblock %}
 
-{% block before_statistics %}
+{# {% block before_statistics %} #}
+{% block portal_bricks %}
     {% brick_declare model_brick %}
     {% brick_display model_brick %}
 {% endblock %}

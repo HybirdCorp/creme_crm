@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
@@ -32,6 +34,8 @@ from creme.creme_core.models import BlockPortalLocation
 
 @login_required
 def app_portal(request, app_name, template, models, stats, config_url=None, extra_template_dict=None):
+    warnings.warn('creme_core.views.generic.portal.app_portal() is deprecated.', DeprecationWarning)
+
     has_perm = request.user.has_perm
 
     if not has_perm(app_name):

@@ -1,7 +1,10 @@
 {% extends 'creme_core/base.html' %}
 {% load i18n creme_core_tags creme_bricks creme_widgets %}
 
-{% block before_content_1 %}<div class="portal the_cake_is_a_lie">{% endblock %}
+{% block before_content_1 %}
+    {% log 'The template file "creme/creme_core/templates/creme_core/generics/portal.html" is deprecated.' level='WARN' %}
+    <div class="portal the_cake_is_a_lie">
+{% endblock %}
 
 {% block content %}
     <div class="hat-bar-container">
