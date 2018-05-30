@@ -29,8 +29,8 @@ from .gui.bricks import BricksManager
 from .models import FieldsConfig
 
 
-def get_logo_url(request):
-    return {'logo_url': settings.LOGO_URL}
+# def get_logo_url(request):
+#     return {'logo_url': settings.LOGO_URL}
 
 
 def get_css_theme(request):
@@ -75,8 +75,8 @@ def get_django_version(request):
     return {}
 
 
-def get_old_menu(request):
-    return {'OLD_MENU': settings.OLD_MENU}
+# def get_old_menu(request):
+#     return {'OLD_MENU': settings.OLD_MENU}
 
 
 def get_site_domain(request):

@@ -66,33 +66,33 @@ class PollsConfig(CremeAppConfig):
         reg_icon(self.PollCampaign, 'images/poll_%(size)s.png')
 
     def register_menu(self, creme_menu):
-        from django.conf import settings
+        # from django.conf import settings
 
         PCampaign = self.PollCampaign
         PForm     = self.PollForm
         PReply    = self.PollReply
 
-        if settings.OLD_MENU:
-            from django.urls import reverse_lazy as reverse
-            from creme.creme_core.auth import build_creation_perm as cperm
-
-            reg_item = creme_menu.register_app('polls', '/polls/').register_item
-            reg_item(reverse('polls__portal'),          _(u'Portal of polls'),    'polls')
-            reg_item(reverse('polls__list_forms'),      _(u'All forms'),          'polls')
-            reg_item(reverse('polls__create_form'),     PForm.creation_label,     cperm(PForm))
-            reg_item(reverse('polls__list_replies'),    _(u'All replies'),        'polls')
-            reg_item(reverse('polls__create_reply'),    PReply.creation_label,    cperm(PReply))
-            reg_item(reverse('polls__list_campaigns'),  _(u'All campaigns'),      'polls')
-            reg_item(reverse('polls__create_campaign'), PCampaign.creation_label, cperm(PCampaign))
-        else:
-            LvURLItem = creme_menu.URLItem.list_view
-            creme_menu.get('features', 'tools') \
-                      .get_or_create(creme_menu.ItemGroup, 'polls', priority=300, defaults={'label': _(u'Polls')}) \
-                      .add(LvURLItem('polls-pforms',    model=PForm),     priority=10) \
-                      .add(LvURLItem('polls-preplies',  model=PReply),    priority=20) \
-                      .add(LvURLItem('polls-campaigns', model=PCampaign), priority=30)
-            creme_menu.get('creation', 'any_forms') \
-                      .get_or_create_group('tools', _(u'Tools'), priority=100) \
-                      .add_link('polls-create_pform',    PForm,     priority=300) \
-                      .add_link('polls-create_preply',   PReply,    priority=302) \
-                      .add_link('polls-create_campaign', PCampaign, priority=304)
+        # if settings.OLD_MENU:
+        #     from django.urls import reverse_lazy as reverse
+        #     from creme.creme_core.auth import build_creation_perm as cperm
+        #
+        #     reg_item = creme_menu.register_app('polls', '/polls/').register_item
+        #     reg_item(reverse('polls__portal'),          _(u'Portal of polls'),    'polls')
+        #     reg_item(reverse('polls__list_forms'),      _(u'All forms'),          'polls')
+        #     reg_item(reverse('polls__create_form'),     PForm.creation_label,     cperm(PForm))
+        #     reg_item(reverse('polls__list_replies'),    _(u'All replies'),        'polls')
+        #     reg_item(reverse('polls__create_reply'),    PReply.creation_label,    cperm(PReply))
+        #     reg_item(reverse('polls__list_campaigns'),  _(u'All campaigns'),      'polls')
+        #     reg_item(reverse('polls__create_campaign'), PCampaign.creation_label, cperm(PCampaign))
+        # else:
+        LvURLItem = creme_menu.URLItem.list_view
+        creme_menu.get('features', 'tools') \
+                  .get_or_create(creme_menu.ItemGroup, 'polls', priority=300, defaults={'label': _(u'Polls')}) \
+                  .add(LvURLItem('polls-pforms',    model=PForm),     priority=10) \
+                  .add(LvURLItem('polls-preplies',  model=PReply),    priority=20) \
+                  .add(LvURLItem('polls-campaigns', model=PCampaign), priority=30)
+        creme_menu.get('creation', 'any_forms') \
+                  .get_or_create_group('tools', _(u'Tools'), priority=100) \
+                  .add_link('polls-create_pform',    PForm,     priority=300) \
+                  .add_link('polls-create_preply',   PReply,    priority=302) \
+                  .add_link('polls-create_campaign', PCampaign, priority=304)

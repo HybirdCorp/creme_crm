@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Recurrents 1.8\n"
+"Project-Id-Version: Creme Recurrents 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-01 12:09+0100\n"
+"POT-Creation-Date: 2018-05-29 12:50+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -18,14 +18,6 @@ msgstr ""
 #: apps.py:28
 msgid "Recurrent documents"
 msgstr "Documents récurrents"
-
-#: apps.py:58
-msgid "Portal of recurrent documents"
-msgstr "Portail des documents récurrents"
-
-#: apps.py:59
-msgid "All recurrent generators"
-msgstr "Lister les générateurs récurrents"
 
 #: apps.py:65
 msgid "Management"
@@ -67,23 +59,23 @@ msgstr "Type de ressource recurrente"
 msgid "Related model"
 msgstr "Modèle utilisé"
 
-#: models/recurrentgenerator.py:40
+#: models/recurrentgenerator.py:41
 msgid "Active ?"
 msgstr "Actif ?"
 
-#: models/recurrentgenerator.py:42
+#: models/recurrentgenerator.py:43
 msgid "Create a generator"
 msgstr "Créer un générateur"
 
-#: models/recurrentgenerator.py:43
+#: models/recurrentgenerator.py:44
 msgid "Save the generator"
 msgstr "Enregistrer le générateur"
 
-#: models/recurrentgenerator.py:48
+#: models/recurrentgenerator.py:50
 msgid "Recurrent generator"
 msgstr "Générateur récurrent"
 
-#: models/recurrentgenerator.py:49
+#: models/recurrentgenerator.py:51
 msgid "Recurrent generators"
 msgstr "Générateurs récurrents"
 
@@ -91,21 +83,23 @@ msgstr "Générateurs récurrents"
 msgid "Generator view"
 msgstr "Vue des générateurs"
 
-#: templates/recurrents/portal.html:4
-msgid "Recurrent doc"
-msgstr "Doc récurrent"
+#~ msgid "Portal of recurrent documents"
+#~ msgstr "Portail des documents récurrents"
 
-#: templates/recurrents/portal.html:5
-msgid "Recurrent documents portal"
-msgstr "Portail Documents Récurrents"
+#~ msgid "All recurrent generators"
+#~ msgstr "Lister les générateurs récurrents"
 
-#: templates/recurrents/portal.html:7
-msgid "List of recurrent generators"
-msgstr "Liste des générateurs récurrents"
+#~ msgid "Recurrent doc"
+#~ msgstr "Doc récurrent"
 
-#: views/portal.py:30
-msgid "Number of generators"
-msgstr "Nombre de générateur(s)"
+#~ msgid "Recurrent documents portal"
+#~ msgstr "Portail Documents Récurrents"
+
+#~ msgid "List of recurrent generators"
+#~ msgstr "Liste des générateurs récurrents"
+
+#~ msgid "Number of generators"
+#~ msgstr "Nombre de générateur(s)"
 
 #~ msgid "Date of the first recurrent generation"
 #~ msgstr "Date de première génération récurrente"

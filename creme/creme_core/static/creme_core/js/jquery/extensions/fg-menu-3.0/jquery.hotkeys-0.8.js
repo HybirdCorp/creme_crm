@@ -10,6 +10,8 @@
  * Binny V A, http://www.openjs.com/scripts/events/keyboard_shortcuts/
 */
 
+/* TODO: remove me */
+
 (function(jQuery){
 
 	jQuery.hotkeys = {

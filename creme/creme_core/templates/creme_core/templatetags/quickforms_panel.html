@@ -1,7 +1,7 @@
 {% load i18n creme_core_tags creme_widgets %}
+{% log 'The template file "creme/creme_core/templates/creme_core/templatetags/quickforms_panel.html" is deprecated.' level='WARN' %}
 <div class="quickform_box">
     <span>{% trans "Quick creation" as label %}
-{#        <img border="0" title="{{label}}" alt="{{label}}" src="{% creme_media_url 'images/quick_22.png' %}" align="top"> #}
         {% widget_icon name='quick' size='small' label=label %}
         <select name="entity_count" {% if not content_types %}disabled="true"{% endif %}>
             {% for i in 9|xrange:1 %}<option value="{{i}}">{{i}}</option>{% endfor %}

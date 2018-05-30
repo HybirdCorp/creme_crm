@@ -10,6 +10,7 @@ Copyright (c) 2009 Filament Group
 Dual licensed under the MIT (filamentgroup.com/examples/mit-license.txt) and GPL (filamentgroup.com/examples/gpl-license.txt) licenses.
 --------------------------------------------------------------------*/
 
+/* TODO: remove me */
 
 var allUIMenus = [];
 

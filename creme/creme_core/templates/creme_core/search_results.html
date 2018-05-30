@@ -50,9 +50,7 @@
         </div>
     </div>
 
-    {% if not OLD_MENU %}
-        {% search_form user selected_ct_id research %}
-    {% endif %}
+    {% search_form user selected_ct_id research %}
 
     {% if research or models %}
         <div class="help_box">

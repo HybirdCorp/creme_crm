@@ -36,24 +36,24 @@ class VCFsConfig(CremeAppConfig):
         button_registry.register(buttons.GenerateVcfButton)
 
     def register_menu(self, creme_menu):
-        from django.conf import settings
+        # from django.conf import settings
         from django.urls import reverse_lazy as reverse
 
         from creme.creme_core.auth import build_creation_perm
 
         from creme.persons import get_contact_model
 
-        if settings.OLD_MENU:
-            creme_menu.get_app_item('persons') \
-                      .register_item(reverse('vcfs__import'),
-                                     _(u'Import contact from VCF file'),
-                                     build_creation_perm(get_contact_model()),
-                                    )
-        else:
-            creme_menu.get('features', 'persons-directory') \
-                      .add(creme_menu.URLItem('vcfs-import', url=reverse('vcfs__import'),
-                                              label=_(u'Import from a VCF file'),
-                                              perm=build_creation_perm(get_contact_model()),
-                                             ),
-                           priority=200
-                          )
+        # if settings.OLD_MENU:
+        #     creme_menu.get_app_item('persons') \
+        #               .register_item(reverse('vcfs__import'),
+        #                              _(u'Import contact from VCF file'),
+        #                              build_creation_perm(get_contact_model()),
+        #                             )
+        # else:
+        creme_menu.get('features', 'persons-directory') \
+                  .add(creme_menu.URLItem('vcfs-import', url=reverse('vcfs__import'),
+                                          label=_(u'Import from a VCF file'),
+                                          perm=build_creation_perm(get_contact_model()),
+                                         ),
+                       priority=200,
+                      )

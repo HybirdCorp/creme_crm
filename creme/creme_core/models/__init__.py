@@ -25,7 +25,7 @@ from .currency import Currency  # NOQA
 from .vat import Vat  # NOQA
 
 from .bricks import *  # NOQA
-from .prefered_menu import PreferedMenuItem  # NOQA
+# from .prefered_menu import PreferedMenuItem
 from .button_menu import ButtonMenuItem  # NOQA
 
 from .reminder import DateReminder  # NOQA

@@ -4,7 +4,7 @@ try:
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
-    from django.test import override_settings
+    # from django.test import override_settings
     from django.urls import reverse
     from django.utils.translation import ugettext as _
 
@@ -143,7 +143,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertIn(_(u'Contact'), vnames)
         self.assertIn(_(u'Organisation'), vnames)
 
-    @override_settings(OLD_MENU=False)
+    # @override_settings(OLD_MENU=False)
     def test_search04(self):
         "Error"
         self.login()
@@ -155,20 +155,20 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
                         )
         self.assertEqual(404, self._search('linus', 1024).status_code)  # ct_id=1024 DOES NOT EXIST
 
-    @override_settings(OLD_MENU=True)
-    def test_search04_legacy(self):
-        "Error"
-        self.login()
-        self._setup_contacts()
-        self._setup_orgas()
-
-        self.assertEqual(_(u'Please enter at least %s characters') % 3,
-                         self._search('ox').context['error_message']
-                        )
-        self.assertEqual(_(u'Empty search…'),
-                         self._search().context['error_message']
-                        )
-        self.assertEqual(404, self._search('linus', 1024).status_code)  # ct_id=1024 DOES NOT EXIST
+    # @override_settings(OLD_MENU=True)
+    # def test_search04_legacy(self):
+    #     "Error"
+    #     self.login()
+    #     self._setup_contacts()
+    #     self._setup_orgas()
+    #
+    #     self.assertEqual(_(u'Please enter at least %s characters') % 3,
+    #                      self._search('ox').context['error_message']
+    #                     )
+    #     self.assertEqual(_(u'Empty search…'),
+    #                      self._search().context['error_message']
+    #                     )
+    #     self.assertEqual(404, self._search('linus', 1024).status_code)  # ct_id=1024 DOES NOT EXIST
 
     def test_search05(self):
         "No config for Contact"

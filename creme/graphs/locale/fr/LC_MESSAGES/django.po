@@ -6,27 +6,19 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Graphs 1.8\n"
+"Project-Id-Version: Creme Graphs 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-25 10:52+0200\n"
+"POT-Creation-Date: 2018-05-29 12:27+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps.py:28 models/graph.py:48
+#: apps.py:28 models/graph.py:49
 msgctxt "graphs"
 msgid "Graphs"
 msgstr "Graphes"
-
-#: apps.py:64
-msgid "Portal of graphs"
-msgstr "Portail des graphes"
-
-#: apps.py:65
-msgid "All graphs"
-msgstr "Liste des graphes"
 
 #: apps.py:70 apps.py:74
 msgid "Analysis"
@@ -36,7 +28,7 @@ msgstr "Analyse"
 msgid "Roots nodes of a graph"
 msgstr "Nœuds racines d'un graphe"
 
-#: bricks.py:52
+#: bricks.py:53
 msgid "Peripheral types of relation of a graph"
 msgstr "Types de relation périphériques d'un graphe"
 
@@ -48,7 +40,7 @@ msgstr "Types des relations périphériques"
 msgid "Root entities"
 msgstr "Fiches racines"
 
-#: forms/root_node.py:39 forms/root_node.py:62
+#: forms/root_node.py:39 forms/root_node.py:63
 msgid "Related types of relations"
 msgstr "Types de relation associés"
 
@@ -67,7 +59,7 @@ msgctxt "graphs"
 msgid "Save the graph"
 msgstr "Enregistrer le graphe"
 
-#: models/graph.py:47 templates/graphs/portal.html:4
+#: models/graph.py:48 templates/graphs/portal.html:4
 msgctxt "graphs"
 msgid "Graph"
 msgstr "Graphe"
@@ -178,10 +170,6 @@ msgstr "Ce graphe est trop gros !"
 msgid "Add relation types to «%s»"
 msgstr "Ajouter des types de relation à «%s»"
 
-#: views/portal.py:31
-msgid "Number of graphs"
-msgstr "Nombre de graphe(s)"
-
 #: views/root_node.py:38
 #, python-format
 msgid "Add root nodes to «%s»"
@@ -191,6 +179,15 @@ msgstr "Ajouter des nœuds racines à «%s»"
 #, python-format
 msgid "Edit root node for «%s»"
 msgstr "Modifier le nœud racine pour «%s»"
+
+#~ msgid "Portal of graphs"
+#~ msgstr "Portail des graphes"
+
+#~ msgid "All graphs"
+#~ msgstr "Liste des graphes"
+
+#~ msgid "Number of graphs"
+#~ msgstr "Nombre de graphe(s)"
 
 #~ msgid "%s Peripheral type of relation"
 #~ msgstr "%s Type de relation périphérique"

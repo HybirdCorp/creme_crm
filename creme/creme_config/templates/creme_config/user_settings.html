@@ -23,16 +23,20 @@
         </form>
     </div>
 
+{% comment %}
     {% if OLD_MENU %}
         {% brick_import app='creme_config' name='user_prefered_menus' as preferred_menus_brick %}
     {% endif %}
+{% endcomment %}
     {% brick_import app='creme_config' name='blocks_mypage_locations' as blocks_mypage_locations_brick %}
     {% brick_import app='creme_config' name='user_setting_values' as user_setting_values_brick %}
     {% brick_declare apps_usersettings_bricks %}
 
+{% comment %}
     {% if OLD_MENU %}
         {% brick_display preferred_menus_brick %}
     {% endif %}
+{% endcomment %}
     {% brick_display blocks_mypage_locations_brick user_setting_values_brick apps_usersettings_bricks %}
 
     {% brick_end %}

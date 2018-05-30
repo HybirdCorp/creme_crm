@@ -22,7 +22,7 @@ from time import time
 from urllib import urlencode
 # import warnings
 
-from django.conf import settings
+# from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
 from django.shortcuts import render
@@ -112,10 +112,11 @@ def search(request):
     models = []
     bricks = []
 
-    if not research:
-        if settings.OLD_MENU:
-            t_ctx['error_message'] = _(u'Empty search…')
-    elif len(research) < MIN_RESEARCH_LENGTH:
+    # if not research:
+    #     if settings.OLD_MENU:
+    #         t_ctx['error_message'] = _(u'Empty search…')
+    # elif len(research) < MIN_RESEARCH_LENGTH:
+    if len(research) < MIN_RESEARCH_LENGTH:
         t_ctx['error_message'] = _(u'Please enter at least %s characters') % MIN_RESEARCH_LENGTH
     else:
         if not ct_id:

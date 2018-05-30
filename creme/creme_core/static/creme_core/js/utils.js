@@ -94,7 +94,8 @@ creme.utils.showDialog = function(text, options, div_id) {
 };
 
 
-creme.utils.confirmBeforeGo = function(url, ajax, ajax_options) { //TODO: factorise (see ajaxDelete()) ??
+/*
+creme.utils.confirmBeforeGo = function(url, ajax, ajax_options) { //todo: factorise (see ajaxDelete()) ??
     console.warn('creme.utils.confirmBeforeGo() is deprecated.');
 
     creme.dialogs.confirm(gettext("Are you sure ?"))
@@ -104,7 +105,7 @@ creme.utils.confirmBeforeGo = function(url, ajax, ajax_options) { //TODO: factor
                                    url: url,
                                    data: {},
                                    success: function(data, status, req) {
-                                       creme.utils.reload(); //TODO: reload list-view content instead (so rename the function)
+                                       creme.utils.reload(); //todo: reload list-view content instead (so rename the function)
                                    },
                                    error: function(req, status, error) {
                                        creme.dialogs.warning(req.responseText || gettext("Error")).open();
@@ -120,6 +121,7 @@ creme.utils.confirmBeforeGo = function(url, ajax, ajax_options) { //TODO: factor
                   })
                  .open();
 };
+*/
 
 creme.utils.confirmSubmit = function(atag, msg) {
     creme.dialogs.confirm(msg || gettext('Are you sure ?'))
@@ -330,6 +332,7 @@ creme.utils.appendInUrl = function(url, strToAppend) {
     return url + anchor;
 };
 
+/*
 creme.utils.openQuickForms = function(element) {
     // NB: deprecated because it does not use reversed URLs
     //     creme.menu.openQuickForm() is OK, but need the new menu.
@@ -341,6 +344,7 @@ creme.utils.openQuickForms = function(element) {
 
     creme.dialogs.form(uri.format(type, count), {reloadOnSuccess: true}).open();
 };
+*/
 
 creme.utils.showErrorNReload = function() {
     creme.dialogs.warning('<p><b>' + gettext("Error !") + '</b></p><p>' + gettext("The page will be reload !") + '</p>')

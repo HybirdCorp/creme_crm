@@ -2,52 +2,40 @@
 # Copyright (C) 2018 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin.py makemessages -l fr -i "tests/*" -i "migrations/*"
+# > django-admin.py makemessages -l fr -i "tests/*"
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Documents 1.8\n"
+"Project-Id-Version: Creme Documents 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-01 11:52+0100\n"
+"POT-Creation-Date: 2018-05-29 12:03+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps.py:29 models/document.py:58 templates/documents/portal.html:4
+#: apps.py:31 models/document.py:59
 msgid "Documents"
 msgstr "Documents"
 
-#: apps.py:115
-msgid "Portal of documents"
-msgstr "Portail des documents"
-
-#: apps.py:116
-msgid "All documents"
-msgstr "Lister les documents"
-
-#: apps.py:118
-msgid "All folders"
-msgstr "Lister les classeurs"
-
-#: apps.py:126
+#: apps.py:140
 msgid "Tools"
 msgstr "Outils"
 
-#: bricks.py:44
+#: bricks.py:43
 msgid "Information on the document"
 msgstr "Informations sur le document"
 
-#: bricks.py:59
+#: bricks.py:58
 msgid "Folder documents"
 msgstr "Documents du classeur"
 
-#: bricks.py:80
+#: bricks.py:78
 msgid "Child Folders"
 msgstr "Classeurs enfants"
 
-#: bricks.py:98 templates/documents/bricks/linked-docs.html:7
+#: bricks.py:96 templates/documents/bricks/linked-docs.html:7
 msgid "Linked documents"
 msgstr "Documents liés"
 
@@ -73,7 +61,7 @@ msgstr "Ce classeur est un des classeurs enfant de «%(folder)s»"
 msgid "«%(folder)s» cannot be its own parent"
 msgstr "«%(folder)s» ne peut pas être son propre parent"
 
-#: forms/quick.py:100
+#: forms/quick.py:104
 msgid "Image file"
 msgstr "Fichier image"
 
@@ -90,7 +78,7 @@ msgstr "Description"
 msgid "File"
 msgstr "Fichier"
 
-#: models/document.py:40 models/folder.py:64
+#: models/document.py:40 models/folder.py:66
 msgid "Folder"
 msgstr "Classeur"
 
@@ -106,11 +94,11 @@ msgstr "Catégories"
 msgid "Create a document"
 msgstr "Créer un document"
 
-#: models/document.py:52 views/quick_forms.py:40
+#: models/document.py:52 views/quick_forms.py:39
 msgid "Save the document"
 msgstr "Enregistrer le document"
 
-#: models/document.py:57
+#: models/document.py:58
 msgid "Document"
 msgstr "Document"
 
@@ -122,31 +110,31 @@ msgstr "Titre"
 msgid "Parent folder"
 msgstr "Classeur parent"
 
-#: models/folder.py:46
+#: models/folder.py:47
 msgid "Category"
 msgstr "Catégorie"
 
-#: models/folder.py:57
+#: models/folder.py:58
 msgid "Create a folder"
 msgstr "Créer un classeur"
 
-#: models/folder.py:58
+#: models/folder.py:59
 msgid "Save the folder"
 msgstr "Enregistrer le classeur"
 
-#: models/folder.py:65
+#: models/folder.py:67
 msgid "Folders"
 msgstr "Classeurs"
 
-#: models/folder.py:73
+#: models/folder.py:75
 msgid "This folder is a system folder."
 msgstr "Ce classeur est un classeur système."
 
-#: models/folder.py:92
+#: models/folder.py:94
 msgid "Copy"
 msgstr "Copie"
 
-#: models/folder.py:105
+#: models/folder.py:107
 msgid "Explore"
 msgstr "Explorer"
 
@@ -192,31 +180,31 @@ msgstr "concerne le document"
 msgid "document related to"
 msgstr "document concerné par"
 
-#: populate.py:62
+#: populate.py:65
 msgid "Product image"
 msgstr "Image de produit"
 
-#: populate.py:67
+#: populate.py:70
 msgid "Organisation logo"
 msgstr "Logo de société"
 
-#: populate.py:72
+#: populate.py:75
 msgid "Contact photograph"
 msgstr "Photo de contact"
 
-#: populate.py:90
+#: populate.py:93
 msgid "Folder containing all the documents related to entities"
 msgstr "Classeur contenant tous les documents créés à partir des fiches"
 
-#: populate.py:96 populate.py:117
+#: populate.py:99 populate.py:121
 msgid "Images"
 msgstr "Images"
 
-#: populate.py:102
+#: populate.py:105
 msgid "Document view"
 msgstr "Vue de Document"
 
-#: populate.py:109
+#: populate.py:113
 msgid "Folder view"
 msgstr "Vue de Classeur"
 
@@ -261,7 +249,6 @@ msgid "Contained documents"
 msgstr "Documents contenus"
 
 #: templates/documents/bricks/documents.html:13
-#: templates/documents/portal.html:7
 msgid "List of documents"
 msgstr "Liste des documents"
 
@@ -308,10 +295,6 @@ msgstr "Aucun document lié"
 msgid "Previous folder"
 msgstr "Classeur parent"
 
-#: templates/documents/portal.html:5
-msgid "Document Portal"
-msgstr "Portail Document"
-
 #: utils.py:30
 msgid "CSV Documents"
 msgstr "Documents CSV"
@@ -322,7 +305,7 @@ msgstr ""
 "Classeur contenant tous les documents CSV utilisés lors des imports de "
 "données"
 
-#: views/document.py:52
+#: views/document.py:53
 #, python-format
 msgid "New document for «%s»"
 msgstr "Ajout de document à «%s»"
@@ -337,21 +320,31 @@ msgstr "Nouveau classeur enfant pour «%s»"
 msgid "List sub-folders of «%s»"
 msgstr "Liste des sous-dossiers de «%s»"
 
-#: views/portal.py:33
-msgid "Number of documents"
-msgstr "Nombre de document(s)"
-
-#: views/portal.py:34
-msgid "Number of folders"
-msgstr "Nombre de classeur(s)"
-
-#: views/quick_forms.py:92
+#: views/quick_forms.py:79
 msgid "Save the image"
 msgstr "Enregistrer l'image"
 
-#: views/quick_forms.py:93
+#: views/quick_forms.py:80
 msgid "Create an image"
 msgstr "Créer une image"
+
+#~ msgid "Portal of documents"
+#~ msgstr "Portail des documents"
+
+#~ msgid "All documents"
+#~ msgstr "Lister les documents"
+
+#~ msgid "All folders"
+#~ msgstr "Lister les classeurs"
+
+#~ msgid "Document Portal"
+#~ msgstr "Portail Document"
+
+#~ msgid "Number of documents"
+#~ msgstr "Nombre de document(s)"
+
+#~ msgid "Number of folders"
+#~ msgstr "Nombre de classeur(s)"
 
 #~ msgid "%s Child Folder"
 #~ msgstr "%s Classeurs enfant"

@@ -15,7 +15,7 @@ try:
 
     from ..base import CremeTestCase
     from ..fake_models import FakeContact, FakeCivility
-    from creme.creme_core.models import PreferedMenuItem
+    # from creme.creme_core.models import PreferedMenuItem
     from creme.creme_core.utils import (find_first, truncate_str, split_filter,
         create_if_needed, update_model_instance, get_from_GET_or_404, get_from_POST_or_404,
         safe_unicode, safe_unicode_error, int_2_roman, ellipsis, ellipsis_multi, prefixed_truncate)
@@ -89,27 +89,27 @@ class MiscTestCase(CremeTestCase):
         civ = create_if_needed(FakeCivility, {'pk': pk}, title=title + '2')
         self.assertEqual(title, civ.title)
 
-    def test_create_if_needed02(self):
-        user = self.login()
-        url = '/foo/bar'
-        label = 'Oh yeah'
-        order = 3
-        pmi = create_if_needed(PreferedMenuItem, {'user': user, 'url': url}, label=label, order=order)
-
-        self.assertIsInstance(pmi, PreferedMenuItem)
-        self.assertEqual(user,   pmi.user)
-        self.assertEqual(url,    pmi.url)
-        self.assertEqual(label,  pmi.label)
-        self.assertEqual(order,  pmi.order)
-
-        pmi = self.get_object_or_fail(PreferedMenuItem, pk=pmi.pk)  # Check has been saved
-
-        self.assertEqual(label,  pmi.label)
-        self.assertEqual(order,  pmi.order)
-
-        pmi = create_if_needed(PreferedMenuItem, {'user': user, 'url': url}, label=label + ' new', order=order + 2)
-        self.assertEqual(label,  pmi.label)
-        self.assertEqual(order,  pmi.order)
+    # def test_create_if_needed02(self):
+    #     user = self.login()
+    #     url = '/foo/bar'
+    #     label = 'Oh yeah'
+    #     order = 3
+    #     pmi = create_if_needed(PreferedMenuItem, {'user': user, 'url': url}, label=label, order=order)
+    #
+    #     self.assertIsInstance(pmi, PreferedMenuItem)
+    #     self.assertEqual(user,   pmi.user)
+    #     self.assertEqual(url,    pmi.url)
+    #     self.assertEqual(label,  pmi.label)
+    #     self.assertEqual(order,  pmi.order)
+    #
+    #     pmi = self.get_object_or_fail(PreferedMenuItem, pk=pmi.pk)  # Check has been saved
+    #
+    #     self.assertEqual(label,  pmi.label)
+    #     self.assertEqual(order,  pmi.order)
+    #
+    #     pmi = create_if_needed(PreferedMenuItem, {'user': user, 'url': url}, label=label + ' new', order=order + 2)
+    #     self.assertEqual(label,  pmi.label)
+    #     self.assertEqual(order,  pmi.order)
 
     def test_update_model_instance01(self):
         self.login()

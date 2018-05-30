@@ -282,48 +282,48 @@ class CremeCoreConfig(CremeAppConfig):
     def register_menu(self, creme_menu):
         from django.urls import reverse_lazy as reverse
 
-        if settings.OLD_MENU:
-            reg_app = creme_menu.register_app
-            reg_app('creme_core', reverse('creme_core__home'),    _(u'Home'),    force_order=0)
-            reg_app('my_page',    reverse('creme_core__my_page'), _(u'My page'), force_order=1)  # HACK: see creme_core/auth/backend.py
-        else:
-            from .gui.menu import (ItemGroup, ContainerItem, URLItem, TrashItem, LastViewedEntitiesItem,
-                    QuickCreationItemGroup, CreationFormsItem)
-            from .gui.quick_forms import quickforms_registry
+        # if settings.OLD_MENU:
+        #     reg_app = creme_menu.register_app
+        #     reg_app('creme_core', reverse('creme_core__home'),    _(u'Home'),    force_order=0)
+        #     reg_app('my_page',    reverse('creme_core__my_page'), _(u'My page'), force_order=1)  # HACK: see creme_core/auth/backend.py
+        # else:
+        from .gui.menu import (ItemGroup, ContainerItem, URLItem, TrashItem, LastViewedEntitiesItem,
+                QuickCreationItemGroup, CreationFormsItem)
+        from .gui.quick_forms import quickforms_registry
 
-            creme_menu.add(ContainerItem('creme', label='Creme')
-                              .add(URLItem('home', url=reverse('creme_core__home'), label=_(u'Home')), priority=10)
-                              .add(TrashItem('trash'), priority=20)  # TODO: icon ?
-                              .add(ItemGroup('user', label=_(u'User'))
-                                      .add(URLItem('my_page', url=reverse('creme_core__my_page'), label=_(u'My page')),
-                                           priority=10,
-                                          )
-                                      .add(URLItem('my_jobs', url=reverse('creme_core__my_jobs'), label=_(u'My jobs')),
-                                           priority=20,
-                                          ),
-                                   priority=30,
-                                  )
-                              .add(URLItem('logout', url=reverse('creme_logout'), label=_(u'Log out')), priority=40),
-                           priority=10,
-                          ) \
-                      .add(ItemGroup('features')
-                                .add(ContainerItem('tools', label=_(u'Tools'))
-                                        .add(URLItem('creme_core-jobs', url=reverse('creme_core__jobs'),
-                                                     label=_(u'Jobs'), perm=lambda user: user.is_superuser  # TODO: '*superuser*'' ?
-                                                    ),
-                                             priority=5,
-                                            ),
-                                     priority=100,
-                                    ),
-                           priority=20,
-                          ) \
-                      .add(ContainerItem('creation', label=_(u'+ Creation'))
-                               .add(ItemGroup('main_entities', label=_(u'Main entities')), priority=10)
-                               .add(QuickCreationItemGroup('quick_forms', registry=quickforms_registry), priority=20)
-                               .add(CreationFormsItem('any_forms', label=_(u'Other type of entity')), priority=30),
-                           priority=30,
-                          ) \
-                      .add(LastViewedEntitiesItem('recent_entities', label=_(u'Recent entities')), priority=40)
+        creme_menu.add(ContainerItem('creme', label='Creme')
+                          .add(URLItem('home', url=reverse('creme_core__home'), label=_(u'Home')), priority=10)
+                          .add(TrashItem('trash'), priority=20)  # TODO: icon ?
+                          .add(ItemGroup('user', label=_(u'User'))
+                                  .add(URLItem('my_page', url=reverse('creme_core__my_page'), label=_(u'My page')),
+                                       priority=10,
+                                      )
+                                  .add(URLItem('my_jobs', url=reverse('creme_core__my_jobs'), label=_(u'My jobs')),
+                                       priority=20,
+                                      ),
+                               priority=30,
+                              )
+                          .add(URLItem('logout', url=reverse('creme_logout'), label=_(u'Log out')), priority=40),
+                       priority=10,
+                      ) \
+                  .add(ItemGroup('features')
+                            .add(ContainerItem('tools', label=_(u'Tools'))
+                                    .add(URLItem('creme_core-jobs', url=reverse('creme_core__jobs'),
+                                                 label=_(u'Jobs'), perm=lambda user: user.is_superuser  # TODO: '*superuser*'' ?
+                                                ),
+                                         priority=5,
+                                        ),
+                                 priority=100,
+                                ),
+                       priority=20,
+                      ) \
+                  .add(ContainerItem('creation', label=_(u'+ Creation'))
+                           .add(ItemGroup('main_entities', label=_(u'Main entities')), priority=10)
+                           .add(QuickCreationItemGroup('quick_forms', registry=quickforms_registry), priority=20)
+                           .add(CreationFormsItem('any_forms', label=_(u'Other type of entity')), priority=30),
+                       priority=30,
+                      ) \
+                  .add(LastViewedEntitiesItem('recent_entities', label=_(u'Recent entities')), priority=40)
 
     def register_bricks(self, brick_registry):
         from . import bricks

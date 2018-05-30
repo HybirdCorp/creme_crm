@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Polls 1.8\n"
+"Project-Id-Version: Creme Polls 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-01 12:04+0100\n"
+"POT-Creation-Date: 2018-05-29 12:32+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,66 +16,50 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: apps.py:28 apps.py:90 templates/polls/portal.html:4
+#: apps.py:28 apps.py:90
 msgid "Polls"
 msgstr "Sondages"
-
-#: apps.py:80
-msgid "Portal of polls"
-msgstr "Portail des sondages"
-
-#: apps.py:81
-msgid "All forms"
-msgstr "Lister les formulaires"
-
-#: apps.py:83
-msgid "All replies"
-msgstr "Lister les réponses"
-
-#: apps.py:85
-msgid "All campaigns"
-msgstr "Lister les campagnes"
 
 #: apps.py:95
 msgid "Tools"
 msgstr "Outils"
 
-#: bricks.py:47
+#: bricks.py:44
 msgid "Form lines"
 msgstr "Lignes de formulaire"
 
-#: bricks.py:62
+#: bricks.py:59
 #, python-format
 msgid "%s Question"
 msgid_plural "%s Questions"
 msgstr[0] "%s Question"
 msgstr[1] "%s Questions"
 
-#: bricks.py:63
+#: bricks.py:60
 #, python-format
 msgid "%s Section"
 msgid_plural "%s Sections"
 msgstr[0] "%s Section"
 msgstr[1] "%s Sections"
 
-#: bricks.py:66
+#: bricks.py:63
 #, python-brace-format
 msgid "{questions} and {sections}"
 msgstr "{questions} et {sections}"
 
-#: bricks.py:72 models/poll_form.py:213
+#: bricks.py:69 models/poll_form.py:214
 msgid "Questions"
 msgstr "Questions"
 
-#: bricks.py:93
+#: bricks.py:88
 msgid "Reply lines"
 msgstr "Lignes de réponse"
 
-#: bricks.py:114 models/poll_reply.py:61
+#: bricks.py:109 models/poll_reply.py:62
 msgid "Form replies"
 msgstr "Réponses à des formulaires"
 
-#: bricks.py:132
+#: bricks.py:126
 msgid "Related form replies"
 msgstr "Réponses de formulaires reliées"
 
@@ -193,28 +177,28 @@ msgstr "Cette source est invalide."
 msgid "This choice is invalid."
 msgstr "Ce choix est invalide."
 
-#: forms/poll_form.py:96 models/poll_form.py:39 models/poll_form.py:199
+#: forms/poll_form.py:97 models/poll_form.py:39 models/poll_form.py:200
 #: models/poll_reply.py:46
 msgid "Type"
 msgstr "Type"
 
-#: forms/poll_form.py:99
+#: forms/poll_form.py:100
 msgid "Lower bound"
 msgstr "Borne inférieure"
 
-#: forms/poll_form.py:100 forms/poll_form.py:103
+#: forms/poll_form.py:101 forms/poll_form.py:104
 msgid "For integer type only."
 msgstr "Pour les nombres entiers uniquement."
 
-#: forms/poll_form.py:102
+#: forms/poll_form.py:103
 msgid "Upper bound"
 msgstr "Borne supérieure"
 
-#: forms/poll_form.py:105
+#: forms/poll_form.py:106
 msgid "Available choices"
 msgstr "Choix disponibles"
 
-#: forms/poll_form.py:106
+#: forms/poll_form.py:107
 msgid ""
 "Give the possible choices (one per line) if you choose the type \"Choice list"
 "\"."
@@ -222,28 +206,28 @@ msgstr ""
 "Mettez les choix possibles (un par ligne) si vous avez choisi le type  "
 "\"Liste de choix\"."
 
-#: forms/poll_form.py:145
+#: forms/poll_form.py:146
 msgid "Start of section"
 msgstr "Début de section"
 
-#: forms/poll_form.py:146
+#: forms/poll_form.py:147
 #, python-format
 msgid "Before: «%(question)s» (#%(number)s)"
 msgstr "Avant: «%(question)s» (n°%(number)s)"
 
-#: forms/poll_form.py:151
+#: forms/poll_form.py:152
 msgid "End of section"
 msgstr "Fin de section"
 
-#: forms/poll_form.py:153
+#: forms/poll_form.py:154
 msgid "Order"
 msgstr "Ordre"
 
-#: forms/poll_form.py:209
+#: forms/poll_form.py:210
 msgid "Choices can not be empty."
 msgstr "Les choix ne peuvent pas être vides."
 
-#: forms/poll_form.py:210
+#: forms/poll_form.py:211
 #, python-format
 msgid ""
 "You can not delete the choice \"%(choice)s\" because it is used in a "
@@ -252,35 +236,35 @@ msgstr ""
 "vous ne pouvez pas supprimer le choix \"%(choice)s\" car il est utilisé dans "
 "une condition par la question \"%(question)s\"."
 
-#: forms/poll_form.py:228
+#: forms/poll_form.py:229
 msgid "Existing choices"
 msgstr "Choix existants"
 
-#: forms/poll_form.py:229
+#: forms/poll_form.py:230
 msgid "Uncheck the choices you want to delete."
 msgstr "Décochez les choix que vous voulez supprimer."
 
-#: forms/poll_form.py:232
+#: forms/poll_form.py:233
 msgid "New choices of the list"
 msgstr "Nouveaux choix de la liste"
 
-#: forms/poll_form.py:233
+#: forms/poll_form.py:234
 msgid "Give the new possible choices (one per line)."
 msgstr "Rentrez les nouveaux choix possibles (un par ligne)."
 
-#: forms/poll_form.py:306 models/poll_form.py:203 models/poll_reply.py:117
+#: forms/poll_form.py:307 models/poll_form.py:204 models/poll_reply.py:118
 msgid "Use OR or AND between conditions"
 msgstr "Utiliser OU ou ET entre les conditions"
 
-#: forms/poll_form.py:307 models/poll_form.py:263
+#: forms/poll_form.py:308 models/poll_form.py:264
 msgid "AND"
 msgstr "ET"
 
-#: forms/poll_form.py:307 models/poll_form.py:263
+#: forms/poll_form.py:308 models/poll_form.py:264
 msgid "OR"
 msgstr "OU"
 
-#: forms/poll_form.py:310 templates/polls/bricks/pform-lines.html:70
+#: forms/poll_form.py:312 templates/polls/bricks/pform-lines.html:70
 msgid "Conditions"
 msgstr "Conditions"
 
@@ -290,7 +274,7 @@ msgid "User"
 msgstr ""
 
 #: forms/poll_reply.py:49 models/campaign.py:32 models/poll_form.py:38
-#: models/poll_form.py:151 models/poll_reply.py:35 models/poll_reply.py:92
+#: models/poll_form.py:152 models/poll_reply.py:35 models/poll_reply.py:93
 #: models/poll_type.py:28
 msgid "Name"
 msgstr "Nom"
@@ -300,7 +284,7 @@ msgctxt "polls"
 msgid "Related campaign"
 msgstr "Campagne associée"
 
-#: forms/poll_reply.py:53 views/portal.py:34
+#: forms/poll_reply.py:53
 msgid "Number of replies"
 msgstr "Nombre de réponses"
 
@@ -332,8 +316,8 @@ msgstr "Personne qui a rempli"
 msgid "Replies"
 msgstr "Réponses"
 
-#: forms/poll_reply.py:186 models/poll_form.py:205 models/poll_form.py:212
-#: models/poll_reply.py:119 views/poll_reply.py:224
+#: forms/poll_reply.py:186 models/poll_form.py:206 models/poll_form.py:213
+#: models/poll_reply.py:120 views/poll_reply.py:241
 msgid "Question"
 msgstr "Question"
 
@@ -377,11 +361,11 @@ msgctxt "polls"
 msgid "Save the campaign of polls"
 msgstr "Enregistrer la campagne"
 
-#: models/campaign.py:47
+#: models/campaign.py:48
 msgid "Campaign of polls"
 msgstr "Campagne de sondages"
 
-#: models/campaign.py:48
+#: models/campaign.py:49
 msgid "Campaigns of polls"
 msgstr "Campagnes de sondage"
 
@@ -393,55 +377,55 @@ msgstr "Créer un formulaire"
 msgid "Save the form of poll"
 msgstr "Enregistrer le formulaire"
 
-#: models/poll_form.py:47
+#: models/poll_form.py:48
 msgid "Form of poll"
 msgstr "Formulaire de sondage"
 
-#: models/poll_form.py:48
+#: models/poll_form.py:49
 msgid "Forms of poll"
 msgstr "Formulaires de sondage"
 
-#: models/poll_form.py:152 models/poll_reply.py:93
+#: models/poll_form.py:153 models/poll_reply.py:94
 msgid "Section body"
 msgstr "Corps de section"
 
-#: models/poll_form.py:154
+#: models/poll_form.py:155
 msgid "Create a section"
 msgstr "Créer une section"
 
-#: models/poll_form.py:155
+#: models/poll_form.py:156
 msgid "Save the section"
 msgstr "Enregistrer la section"
 
-#: models/poll_form.py:159 models/poll_reply.py:97
+#: models/poll_form.py:160 models/poll_reply.py:98
 msgid "Section"
 msgstr "Section"
 
-#: models/poll_form.py:160 models/poll_reply.py:98
+#: models/poll_form.py:161 models/poll_reply.py:99
 msgid "Sections"
 msgstr "Sections"
 
-#: models/poll_form.py:181
+#: models/poll_form.py:182
 msgid "There is at least one question in this section."
 msgstr "Il y a au moins une question dans cette section."
 
-#: models/poll_form.py:207
+#: models/poll_form.py:208
 msgid "Create a question"
 msgstr "Créer une question"
 
-#: models/poll_form.py:208
+#: models/poll_form.py:209
 msgid "Save the question"
 msgstr "Enregistrer la question"
 
-#: models/poll_form.py:232 models/poll_form.py:245
+#: models/poll_form.py:233 models/poll_form.py:246
 msgid "There is at least one other question which depends on this question."
 msgstr "Il y a au moins une autre question qui dépend de celle-ci."
 
-#: models/poll_form.py:242
+#: models/poll_form.py:243
 msgid "This question is already disabled."
 msgstr "Cette question est déjà désactivée."
 
-#: models/poll_form.py:296
+#: models/poll_form.py:297
 msgid "Save the condition"
 msgstr "Enregistrer la condition"
 
@@ -463,15 +447,15 @@ msgstr "Enregistrer la réponse"
 msgid "Save the replies"
 msgstr "Enregistrer les réponses"
 
-#: models/poll_reply.py:60
+#: models/poll_reply.py:61
 msgid "Form reply"
 msgstr "Réponse à un formulaire"
 
-#: models/poll_reply.py:114
+#: models/poll_reply.py:115
 msgid "Applicable"
 msgstr "Applicable"
 
-#: models/poll_reply.py:120 models/poll_reply.py:153 views/poll_reply.py:227
+#: models/poll_reply.py:121 models/poll_reply.py:154 views/poll_reply.py:244
 msgid "Answer"
 msgstr "Réponse"
 
@@ -500,15 +484,15 @@ msgstr "Vue de Réponse"
 msgid "Campaign view"
 msgstr "Vue de Campagne"
 
-#: populate.py:81
+#: populate.py:85
 msgid "Survey"
 msgstr "Enquête"
 
-#: populate.py:82
+#: populate.py:86
 msgid "Monitoring"
 msgstr "Suivi"
 
-#: populate.py:83
+#: populate.py:87
 msgid "Assessment"
 msgstr "Contrôle des connaissances"
 
@@ -585,7 +569,7 @@ msgid "Are you sure?"
 msgstr "Êtes-vous sûr ?"
 
 #: templates/polls/bricks/pform-lines.html:100
-#: templates/polls/bricks/preply-lines.html:63
+#: templates/polls/bricks/preply-lines.html:62
 #: templates/polls/bricks/preply-stats.html:45
 msgid "No question or section for the moment"
 msgstr "Pas de question ou de section pour le moment"
@@ -621,7 +605,7 @@ msgstr "Réponses"
 msgid "Clean"
 msgstr "Effacer"
 
-#: templates/polls/bricks/preply-lines.html:45 views/poll_reply.py:211
+#: templates/polls/bricks/preply-lines.html:45 views/poll_reply.py:210
 msgctxt "polls"
 msgid "N/A"
 msgstr "Sans objet"
@@ -630,33 +614,25 @@ msgstr "Sans objet"
 msgid "Statistics"
 msgstr "Statistiques"
 
-#: templates/polls/portal.html:5
-msgid "Polls portal"
-msgstr "Portail des sondages"
-
-#: templates/polls/portal.html:7
-msgid "List of forms"
-msgstr "Liste des formulaires"
-
 #: templates/polls/stats.html:4
 msgid "Poll statistics"
 msgstr "Statistiques de sondage"
 
-#: templatetags/polls_tags.py:49
+#: templatetags/polls_tags.py:47
 #, python-format
 msgid "The answer to the question #%(number)s contains «%(answer)s»."
 msgstr "La réponse à la question n°%(number)s contient «%(answer)s»."
 
-#: templatetags/polls_tags.py:52
+#: templatetags/polls_tags.py:50
 #, python-format
 msgid "The answer to the question #%(number)s is «%(answer)s»."
 msgstr "La réponse à la question n°%(number)s est «%(answer)s»."
 
-#: templatetags/polls_tags.py:127
+#: templatetags/polls_tags.py:90
 msgid "[An error occurred]"
 msgstr "[Une erreur s'est produite]"
 
-#: views/poll_form.py:91 views/poll_form.py:180
+#: views/poll_form.py:91 views/poll_form.py:181
 #, python-format
 msgid "New question for «%s»"
 msgstr "Nouvelle question pour «%s»"
@@ -666,63 +642,80 @@ msgstr "Nouvelle question pour «%s»"
 msgid "Question for «%s»"
 msgstr "Question pour «%s»"
 
-#: views/poll_form.py:136
+#: views/poll_form.py:137
 #, python-format
 msgid "Condition for «%s»"
 msgstr "Condition pour «%s»"
 
-#: views/poll_form.py:147 views/poll_form.py:167
+#: views/poll_form.py:148 views/poll_form.py:168
 #, python-format
 msgid "New section for «%s»"
 msgstr "Nouvelle section pour «%s»"
 
-#: views/poll_form.py:157
+#: views/poll_form.py:158
 #, python-format
 msgid "Section for «%s»"
 msgstr "Section pour «%s»"
 
-#: views/poll_reply.py:88 views/poll_reply.py:106 views/poll_reply.py:124
+#: views/poll_reply.py:87 views/poll_reply.py:105 views/poll_reply.py:123
 #, python-format
 msgid "New replies for «%s»"
 msgstr "Nouvelles réponses pour «%s»"
 
-#: views/poll_reply.py:202
+#: views/poll_reply.py:201
 #, python-format
 msgid "Existing replies for «%s»"
 msgstr "Réponses existantes pour «%s»"
 
-#: views/poll_reply.py:203
+#: views/poll_reply.py:202
 msgid "Link to the replies"
 msgstr "Lier aux réponses"
 
-#: views/poll_reply.py:223
+#: views/poll_reply.py:240
 msgid "Reminder of the previous answered question :"
 msgstr "Rappel de la Question/Réponse précédente :"
 
-#: views/poll_reply.py:230
+#: views/poll_reply.py:247
 msgid "Edit"
 msgstr ""
 
-#: views/poll_reply.py:290 views/poll_reply.py:344
+#: views/poll_reply.py:306 views/poll_reply.py:360
 #, python-format
 msgid "Answers of the form : %s"
 msgstr "Réponses à un formulaire : %s"
 
-#: views/poll_reply.py:307
+#: views/poll_reply.py:323
 msgid "All questions have been answered."
 msgstr "Les questions ont déjà toute une réponse."
 
-#: views/poll_reply.py:415
+#: views/poll_reply.py:432
 msgid "Answer edition"
 msgstr "Modification de réponse"
 
-#: views/poll_reply.py:417
+#: views/poll_reply.py:434
 msgid "Save the modification"
 msgstr "Enregistrer la modification"
 
-#: views/portal.py:33
-msgid "Number of forms"
-msgstr "Nombre de formulaires"
+#~ msgid "Portal of polls"
+#~ msgstr "Portail des sondages"
+
+#~ msgid "All forms"
+#~ msgstr "Lister les formulaires"
+
+#~ msgid "All replies"
+#~ msgstr "Lister les réponses"
+
+#~ msgid "All campaigns"
+#~ msgstr "Lister les campagnes"
+
+#~ msgid "Polls portal"
+#~ msgstr "Portail des sondages"
+
+#~ msgid "List of forms"
+#~ msgstr "Liste des formulaires"
+
+#~ msgid "Number of forms"
+#~ msgstr "Nombre de formulaires"
 
 #~ msgid "%s Filled form reply"
 #~ msgstr "%s Réponse à un formulaire remplie "

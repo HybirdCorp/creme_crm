@@ -1,25 +1,25 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from unittest import skipIf
+    # from unittest import skipIf
     from xml.etree import ElementTree
 
     import html5lib
 
-    from django.conf import settings
+    # from django.conf import settings
     from django.test.client import RequestFactory
 
     from ..base import CremeTestCase
     from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation, FakeDocument, FakeActivity
 
-    if not settings.OLD_MENU:
-        from creme.creme_core.gui.menu import (ViewableItem, URLItem, LabelItem,
-               ItemGroup, ContainerItem, CreationFormsItem, Menu)  # OnClickItem
+    # if not settings.OLD_MENU:
+    from creme.creme_core.gui.menu import (ViewableItem, URLItem, LabelItem,
+           ItemGroup, ContainerItem, CreationFormsItem, Menu)  # OnClickItem
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-@skipIf(settings.OLD_MENU, 'Old menu is used, so we do not test the new one.')
+# @skipIf(settings.OLD_MENU, 'Old menu is used, so we do not test the new one.')
 class MenuTestCase(CremeTestCase):
     theme = 'icecream'
 

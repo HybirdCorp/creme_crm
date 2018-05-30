@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Events 1.8\n"
+"Project-Id-Version: Creme Events 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-01 11:54+0100\n"
+"POT-Creation-Date: 2018-05-29 12:26+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,17 +16,9 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: apps.py:28 templates/events/portal.html:4
+#: apps.py:28
 msgid "Events"
 msgstr "Évènements"
-
-#: apps.py:60
-msgid "Portal of events"
-msgstr "Portail des évènements"
-
-#: apps.py:61
-msgid "All events"
-msgstr "Lister les évènements"
 
 #: apps.py:67
 msgid "Tools"
@@ -120,12 +112,12 @@ msgctxt "events"
 msgid "Save the event"
 msgstr "Enregistrer l'évènement"
 
-#: models/event.py:72
+#: models/event.py:73
 msgctxt "events"
 msgid "Event"
 msgstr "Évènement"
 
-#: models/event.py:73
+#: models/event.py:74
 msgctxt "events"
 msgid "Events"
 msgstr "Évènements"
@@ -182,19 +174,19 @@ msgstr "(évènement) a généré l'opportunité"
 msgid "Event view"
 msgstr "Vue d'évènement"
 
-#: populate.py:94
+#: populate.py:97
 msgid "Show"
 msgstr "Salon"
 
-#: populate.py:94
+#: populate.py:97
 msgid "Conference"
 msgstr "Conférence"
 
-#: populate.py:94
+#: populate.py:97
 msgid "Breakfast"
 msgstr "Petit déjeuner"
 
-#: populate.py:94
+#: populate.py:97
 msgid "Brunch"
 msgstr "Brunch"
 
@@ -235,68 +227,71 @@ msgstr ""
 msgid "Link contacts"
 msgstr "Lier des contacts"
 
-#: templates/events/portal.html:5
-msgid "Events portal"
-msgstr "Portail des évènements"
-
-#: templates/events/portal.html:7
-msgid "List of events"
-msgstr "Liste des évènements"
-
-#: views/event.py:94
+#: views/event.py:96
 msgid "Not invited"
 msgstr "Pas invité"
 
-#: views/event.py:95
+#: views/event.py:97
 msgid "Did not answer"
 msgstr "N'a pas répondu"
 
-#: views/event.py:96
+#: views/event.py:98
 msgid "Accepted the invitation"
 msgstr "a accepté l'invitation"
 
-#: views/event.py:97
+#: views/event.py:99
 msgid "Refused the invitation"
 msgstr "a refusé l'invitation"
 
-#: views/event.py:101
+#: views/event.py:103
 msgid "N/A"
 msgstr "NC"
 
-#: views/event.py:102
+#: views/event.py:104
 msgctxt "events-presence_status"
 msgid "Come"
 msgstr "Venu"
 
-#: views/event.py:103
+#: views/event.py:105
 msgctxt "events-presence_status"
 msgid "Not come"
 msgstr "Pas venu"
 
-#: views/event.py:110
+#: views/event.py:112
 msgid "See"
 msgstr "Voir"
 
-#: views/event.py:117
+#: views/event.py:119
 msgid "Create an opportunity"
 msgstr "Créer une opportunité"
 
-#: views/event.py:148
+#: views/event.py:150
 msgid "Invitation"
 msgstr "Invitation"
 
-#: views/event.py:149
+#: views/event.py:151
 msgid "Presence"
 msgstr "Présence"
 
-#: views/event.py:233
+#: views/event.py:256
 #, python-format
 msgid "List of contacts related to «%s»"
 msgstr "Liste des contacts liés à «%s»"
 
-#: views/portal.py:32
-msgid "Number of events"
-msgstr "Nombre d'évènements"
+#~ msgid "Portal of events"
+#~ msgstr "Portail des évènements"
+
+#~ msgid "All events"
+#~ msgstr "Lister les évènements"
+
+#~ msgid "Events portal"
+#~ msgstr "Portail des évènements"
+
+#~ msgid "List of events"
+#~ msgstr "Liste des évènements"
+
+#~ msgid "Number of events"
+#~ msgstr "Nombre d'évènements"
 
 #~ msgid "Information"
 #~ msgstr "Informations"

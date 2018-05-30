@@ -104,53 +104,53 @@ class EmailsConfig(CremeAppConfig):
 
     def register_menu(self, creme_menu):
         from django.apps import apps
-        from django.conf import settings
+        # from django.conf import settings
         from django.urls import reverse_lazy as reverse
 
         ECampaign = self.EmailCampaign
         MList     = self.MailingList
         ETemplate = self.EmailTemplate
 
-        if settings.OLD_MENU:
-            from creme.creme_core.auth import build_creation_perm as cperm
+        # if settings.OLD_MENU:
+        #     from creme.creme_core.auth import build_creation_perm as cperm
+        #
+        #     reg_item = creme_menu.register_app('emails', '/emails/').register_item
+        #     reg_item(reverse('emails__portal'),          _(u'Portal of emails'),    'emails')
+        #     reg_item(reverse('emails__list_campaigns'),  _(u'All campaigns'),       'emails')
+        #     reg_item(reverse('emails__create_campaign'), ECampaign.creation_label,  cperm(ECampaign))
+        #     reg_item(reverse('emails__list_mlists'),     _(u'All mailing lists'),   'emails')
+        #     reg_item(reverse('emails__create_mlist'),    MList.creation_label,      cperm(MList))
+        #     reg_item(reverse('emails__list_templates'),  _(u'All email templates'), 'emails')
+        #     reg_item(reverse('emails__create_template'), ETemplate.creation_label,  cperm(ETemplate))
+        #     reg_item(reverse('emails__list_emails'),     _(u'All emails'),          'emails')
+        #
+        #     if apps.is_installed('creme.crudity'):
+        #         reg_item(reverse('emails__crudity_sync'), _(u'Synchronization of incoming emails'), 'emails')
+        # else:
+        group = creme_menu.get('features') \
+                          .get_or_create(creme_menu.ContainerItem, 'marketing', priority=200,
+                                         defaults={'label': _(u'Marketing')},
+                                        ) \
+                          .get_or_create(creme_menu.ItemGroup, 'emails', priority=10)
+        LvURLItem = creme_menu.URLItem.list_view
 
-            reg_item = creme_menu.register_app('emails', '/emails/').register_item
-            reg_item(reverse('emails__portal'),          _(u'Portal of emails'),    'emails')
-            reg_item(reverse('emails__list_campaigns'),  _(u'All campaigns'),       'emails')
-            reg_item(reverse('emails__create_campaign'), ECampaign.creation_label,  cperm(ECampaign))
-            reg_item(reverse('emails__list_mlists'),     _(u'All mailing lists'),   'emails')
-            reg_item(reverse('emails__create_mlist'),    MList.creation_label,      cperm(MList))
-            reg_item(reverse('emails__list_templates'),  _(u'All email templates'), 'emails')
-            reg_item(reverse('emails__create_template'), ETemplate.creation_label,  cperm(ETemplate))
-            reg_item(reverse('emails__list_emails'),     _(u'All emails'),          'emails')
+        group.add(LvURLItem('emails-campaigns', model=ECampaign),        priority=10) \
+             .add(LvURLItem('emails-mlists',    model=MList),            priority=15) \
+             .add(LvURLItem('emails-templates', model=ETemplate),        priority=20) \
+             .add(LvURLItem('emails-emails',    model=self.EntityEmail), priority=25)
+        creme_menu.get('creation', 'any_forms') \
+                  .get_or_create_group('marketing', _(u'Marketing'), priority=200) \
+                  .add_link('emails-create_campaign', ECampaign, priority=10) \
+                  .add_link('emails-create_mlist',    MList, priority=15) \
+                  .add_link('emails-create_template', ETemplate, priority=20)
 
-            if apps.is_installed('creme.crudity'):
-                reg_item(reverse('emails__crudity_sync'), _(u'Synchronization of incoming emails'), 'emails')
-        else:
-            group = creme_menu.get('features') \
-                              .get_or_create(creme_menu.ContainerItem, 'marketing', priority=200,
-                                             defaults={'label': _(u'Marketing')},
-                                            ) \
-                              .get_or_create(creme_menu.ItemGroup, 'emails', priority=10)
-            LvURLItem = creme_menu.URLItem.list_view
-
-            group.add(LvURLItem('emails-campaigns', model=ECampaign),        priority=10) \
-                 .add(LvURLItem('emails-mlists',    model=MList),            priority=15) \
-                 .add(LvURLItem('emails-templates', model=ETemplate),        priority=20) \
-                 .add(LvURLItem('emails-emails',    model=self.EntityEmail), priority=25)
-            creme_menu.get('creation', 'any_forms') \
-                      .get_or_create_group('marketing', _(u'Marketing'), priority=200) \
-                      .add_link('emails-create_campaign', ECampaign, priority=10) \
-                      .add_link('emails-create_mlist',    MList, priority=15) \
-                      .add_link('emails-create_template', ETemplate, priority=20)
-
-            if apps.is_installed('creme.crudity'):
-                group.add(creme_menu.URLItem('emails-sync', url=reverse('emails__crudity_sync'),
-                                             label=_(u'Synchronization of incoming emails'),
-                                             perm='emails',
-                                            ),
-                          priority=100,
-                         )
+        if apps.is_installed('creme.crudity'):
+            group.add(creme_menu.URLItem('emails-sync', url=reverse('emails__crudity_sync'),
+                                         label=_(u'Synchronization of incoming emails'),
+                                         perm='emails',
+                                        ),
+                      priority=100,
+                     )
 
     def register_setting_keys(self, setting_key_registry):
         from . import setting_keys

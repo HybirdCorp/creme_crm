@@ -18,29 +18,29 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.conf import settings
-from django.db.models import Model, CharField, PositiveIntegerField, ForeignKey, CASCADE
-from django.utils.translation import ugettext_lazy as _, ugettext
-
-
-class PreferedMenuItem(Model):
-    user  = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'User'), null=True, on_delete=CASCADE)
-    label = CharField(_(u'Label'), max_length=100, blank=True)
-    url   = CharField(_(u'Url'), max_length=100,  blank=True)
-    order = PositiveIntegerField(_(u'Order'))
-
-    class Meta:
-        app_label = 'creme_core'
-
-    @property
-    def translated_label(self):
-        from ..gui.menu import creme_menu
-
-        url = self.url
-        for app_item in creme_menu:
-            for item in app_item.items:
-                if item.url == url:
-                    return unicode(item.name)
-
-        # Fallback
-        return ugettext(self.label)
+# from django.conf import settings
+# from django.db.models import Model, CharField, PositiveIntegerField, ForeignKey, CASCADE
+# from django.utils.translation import ugettext_lazy as _, ugettext
+#
+#
+# class PreferedMenuItem(Model):
+#     user  = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'User'), null=True, on_delete=CASCADE)
+#     label = CharField(_(u'Label'), max_length=100, blank=True)
+#     url   = CharField(_(u'Url'), max_length=100,  blank=True)
+#     order = PositiveIntegerField(_(u'Order'))
+#
+#     class Meta:
+#         app_label = 'creme_core'
+#
+#     @property
+#     def translated_label(self):
+#         from ..gui.menu import creme_menu
+#
+#         url = self.url
+#         for app_item in creme_menu:
+#             for item in app_item.items:
+#                 if item.url == url:
+#                     return unicode(item.name)
+#
+#         # Fallback
+#         return ugettext(self.label)

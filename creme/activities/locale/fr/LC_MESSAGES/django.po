@@ -6,81 +6,48 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Activities 1.8\n"
+"Project-Id-Version: Creme Activities 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-01 11:37+0100\n"
+"POT-Creation-Date: 2018-05-29 11:47+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps.py:30 apps.py:115 apps.py:140 models/activity.py:76
-#: templates/activities/portal.html:4
+#: apps.py:30 apps.py:115 apps.py:140 models/activity.py:77
 msgid "Activities"
 msgstr "Activités"
 
-#: apps.py:101
-msgid "Portal of activities"
-msgstr "Portail des activités"
-
-#: apps.py:102 apps.py:119 forms/calendar.py:68 models/calendar.py:44
+#: apps.py:119 forms/calendar.py:68 models/calendar.py:44
 msgid "Calendar"
 msgstr "Calendrier"
 
-#: apps.py:104 constants.py:24
-msgid "Create a meeting"
-msgstr "Créer un rendez-vous"
-
-#: apps.py:105 constants.py:25
-msgid "Create a phone call"
-msgstr "Créer un appel téléphonique"
-
-#: apps.py:106 constants.py:23
-msgid "Create a task"
-msgstr "Créer une tâche"
-
-#: apps.py:107 constants.py:29
-msgid "Create an unavailability"
-msgstr "Créer une indisponibilité"
-
-#: apps.py:108
-msgid "All activities"
-msgstr "Lister les activités"
-
-#: apps.py:109
-msgid "All phone calls"
-msgstr "Lister les appels téléphoniques"
-
-#: apps.py:110
-msgid "All meetings"
-msgstr "Lister les rendez-vous"
-
-#: apps.py:128 populate.py:119
+#: apps.py:128 populate.py:146
 msgid "Phone calls"
 msgstr "Appels téléphoniques"
 
-#: apps.py:134 populate.py:118
+#: apps.py:134 populate.py:145
 msgid "Meetings"
 msgstr "Rendez-vous"
 
-#: apps.py:141 constants.py:33 populate.py:86
+#: apps.py:141 constants.py:33 populate.py:103
 msgid "Phone call"
 msgstr "Appel téléphonique"
 
-#: apps.py:142 constants.py:32 populate.py:84 populate.py:92
+#: apps.py:142 constants.py:32 populate.py:101 populate.py:115
 msgid "Meeting"
 msgstr "Rendez-vous"
 
-#: apps.py:143 models/activity.py:75
+#: apps.py:143 models/activity.py:76
 msgid "Activity"
 msgstr "Activité"
 
-#: apps.py:144 constants.py:34 populate.py:82
+#: apps.py:144 constants.py:34 populate.py:99
 msgid "Task"
 msgstr "Tâche"
 
-#: apps.py:145 populate.py:90
+#: apps.py:145 populate.py:107
 msgid "Unavailability"
 msgstr "Indisponibilité"
 
@@ -104,27 +71,27 @@ msgctxt "activities-stats"
 msgid "%s in all"
 msgstr "%s en tout"
 
-#: bricks.py:51 forms/activity.py:267 forms/activity.py:484 forms/bricks.py:50
-#: forms/mass_import.py:580 templates/activities/bricks/participants.html:7
+#: bricks.py:52 forms/activity.py:267 forms/activity.py:484 forms/bricks.py:50
+#: forms/mass_import.py:562 templates/activities/bricks/participants.html:7
 msgid "Participants"
 msgstr "Participants"
 
-#: bricks.py:89 forms/activity.py:258 forms/bricks.py:150
+#: bricks.py:94 forms/activity.py:258 forms/bricks.py:150
 #: templates/activities/bricks/subjects.html:7
 msgid "Subjects"
 msgstr "Sujets"
 
-#: bricks.py:113 templates/activities/bricks/future-activities.html:8
+#: bricks.py:119 templates/activities/bricks/future-activities.html:8
 #: templates/activities/bricks/future-activities.html:10
 msgid "Future activities"
 msgstr "Activités futures"
 
-#: bricks.py:181 templates/activities/bricks/past-activities.html:8
+#: bricks.py:192 templates/activities/bricks/past-activities.html:8
 #: templates/activities/bricks/past-activities.html:10
 msgid "Past activities"
 msgstr "Activités passées"
 
-#: bricks.py:218
+#: bricks.py:232
 msgid "On my calendars"
 msgstr "Sur mes calendriers"
 
@@ -144,6 +111,18 @@ msgstr "Créer un appel téléphonique lié"
 msgid "Create a related task"
 msgstr "Créer une tâche liée"
 
+#: constants.py:23
+msgid "Create a task"
+msgstr "Créer une tâche"
+
+#: constants.py:24
+msgid "Create a meeting"
+msgstr "Créer un rendez-vous"
+
+#: constants.py:25
+msgid "Create a phone call"
+msgstr "Créer un appel téléphonique"
+
 #: constants.py:26
 msgid "Create a gathering"
 msgstr "Créer une assemblée"
@@ -156,7 +135,11 @@ msgstr "Créer un salon"
 msgid "Create a demo"
 msgstr "Créer une démo"
 
-#: forms/activity.py:52 forms/activity_type.py:184 forms/mass_import.py:570
+#: constants.py:29
+msgid "Create an unavailability"
+msgstr "Créer une indisponibilité"
+
+#: forms/activity.py:52 forms/activity_type.py:184 forms/mass_import.py:552
 msgid "Type"
 msgstr "Type"
 
@@ -178,7 +161,7 @@ msgstr ""
 msgid "You can't set the end of your activity without setting its start"
 msgstr "Vous en pouvez préciser la fin de l'activité sans préciser son début"
 
-#: forms/activity.py:62 forms/mass_import.py:622
+#: forms/activity.py:62 forms/mass_import.py:602
 msgid "End time is before start time"
 msgstr "L'heure de fin est avant le début"
 
@@ -194,11 +177,11 @@ msgstr "Seulement informative et pas utilisée pour calculer l'heure de fin."
 msgid "When"
 msgstr "Quand"
 
-#: forms/activity.py:222 forms/bricks.py:46 forms/mass_import.py:576
+#: forms/activity.py:222 forms/bricks.py:46 forms/mass_import.py:558
 msgid "Other participating users"
 msgstr "Autres utilisateurs participants"
 
-#: forms/activity.py:255 forms/bricks.py:45 forms/mass_import.py:574
+#: forms/activity.py:255 forms/bricks.py:45 forms/mass_import.py:556
 msgid "Do I participate to this activity?"
 msgstr "Est-ce que je participe à cette activité ?"
 
@@ -330,109 +313,67 @@ msgstr "Utilisateur"
 msgid "Appears on the calendar:"
 msgstr "Apparaît sur le calendrier :"
 
-#: forms/mass_import.py:99
+#: forms/mass_import.py:98
 #, python-format
 msgid "Too many contacts were found for the search «%s»"
 msgstr "Trop de contacts ont été trouvés pour la recherche «%s»"
 
-#: forms/mass_import.py:103
+#: forms/mass_import.py:102
 #, python-format
 msgid "Several contacts were found for the search «%s»"
 msgstr "Plusieurs contacts ont été trouvés pour la recherche «%s»"
 
-#: forms/mass_import.py:108
+#: forms/mass_import.py:107
 #, python-format
 msgid "No linkable contact found for the search «%s»"
 msgstr "Aucun contact reliable n'a été trouvé pour la recherche «%s»"
 
-#: forms/mass_import.py:123
+#: forms/mass_import.py:122
 #, python-format
 msgid "The participant «%s» is unfoundable"
 msgstr "Le participant «%s» est introuvable"
 
-#: forms/mass_import.py:141
+#: forms/mass_import.py:140
 msgid "Civility FirstName LastName"
 msgstr "Civilité Prénom Nom"
 
-#: forms/mass_import.py:156
+#: forms/mass_import.py:155
 msgid "Civility LastName FirstName"
 msgstr "Civilité Nom Prénom"
 
-#: forms/mass_import.py:177
+#: forms/mass_import.py:176
 msgid "FirstName LastName"
 msgstr "Prénom Nom"
 
-#: forms/mass_import.py:186
+#: forms/mass_import.py:185
 msgid "LastName FirstName"
 msgstr "Nom Prénom"
 
-#: forms/mass_import.py:288
-msgid "Create the Contacts who are not found?"
-msgstr "Créer les Contacts qui ne sont pas trouvés ?"
-
-#: forms/mass_import.py:295
-msgid ""
-"Method #1: first name & last name are in separated cells (first name is "
-"optional)"
-msgstr ""
-"Méthode n°1: prénom et nom sont dans des cellules séparées (le prénom est "
-"facultatif)"
-
-# Already in 'persons'
-#: forms/mass_import.py:298
-msgid "First name"
-msgstr ""
-
-# Already in 'persons'
-#: forms/mass_import.py:302
-msgid "Last name"
-msgstr ""
-
-#: forms/mass_import.py:306
-msgid ""
-"Method #2: several contacts in one cell (in all patterns the last name is "
-"the only required element)"
-msgstr ""
-"Méthode n°2: plusieurs contacts dans une cellule (dans tous les motifs le "
-"nom est le seul élément obligatoire)"
-
-#: forms/mass_import.py:309 forms/mass_import.py:503
-msgid "Separator"
-msgstr "Séparateur"
-
-#: forms/mass_import.py:315
-msgid "Contact pattern"
-msgstr "Motif de contact"
-
-#: forms/mass_import.py:455
+#: forms/mass_import.py:427
 #, python-format
 msgid "Too many «%(type)s» were found for the search «%(search)s»"
 msgstr "Trop de «%(type)s» ont été trouvés pour la recherche «%(search)s»"
 
-#: forms/mass_import.py:462
+#: forms/mass_import.py:434
 #, python-format
 msgid "Several «%(type)s» were found for the search «%(search)s»"
 msgstr "Plusieurs «%(type)s» ont été trouvés pour la recherche «%(search)s»"
 
-#: forms/mass_import.py:478
+#: forms/mass_import.py:450
 #, python-format
 msgid "No linkable entity found for the search «%s»"
 msgstr "Aucune fiche reliable touvée pour la recherche «%s»"
 
-#: forms/mass_import.py:480
+#: forms/mass_import.py:452
 #, python-format
 msgid "The subject «%s» is unfoundable"
 msgstr "Le sujet «%s» est introuvable"
 
-#: forms/mass_import.py:510
-msgid "Create the Organisations which are not found?"
-msgstr "Créer les Sociétés qui ne sont pas trouvées ?"
-
-#: forms/mass_import.py:582
+#: forms/mass_import.py:564
 msgid "Subjects (organisations only)"
 msgstr "Sujets (sociétés seulement)"
 
-#: forms/mass_import.py:588
+#: forms/mass_import.py:570
 msgid "Participants & subjects"
 msgstr "Participants et sujets"
 
@@ -523,11 +464,11 @@ msgstr "Propriétaire du calendrier"
 msgid "Color"
 msgstr "Couleur"
 
-#: models/calendar.py:40 views/calendar.py:277
+#: models/calendar.py:40 views/calendar.py:279
 msgid "Create a calendar"
 msgstr "Créer un calendrier"
 
-#: models/calendar.py:73
+#: models/calendar.py:74
 #, python-format
 msgid "%s's calendar"
 msgstr "Calendrier de %s"
@@ -605,85 +546,85 @@ msgstr "participe à l'activité"
 msgid "(activity) has as participant"
 msgstr "(activité) a comme participant"
 
-#: populate.py:75
+#: populate.py:81
 msgctxt "activities-status"
 msgid "Planned"
 msgstr "Prévue"
 
-#: populate.py:76
+#: populate.py:82
 msgctxt "activities-status"
 msgid "In progress"
 msgstr "En cours"
 
-#: populate.py:77
+#: populate.py:83
 msgctxt "activities-status"
 msgid "Done"
 msgstr "Finie"
 
-#: populate.py:78
+#: populate.py:84
 msgctxt "activities-status"
 msgid "Delayed"
 msgstr "En retard"
 
-#: populate.py:79
+#: populate.py:85
 msgctxt "activities-status"
 msgid "Cancelled"
 msgstr "Annulée"
 
-#: populate.py:87
+#: populate.py:104
 msgid "Gathering"
 msgstr "Réunion"
 
-#: populate.py:88
+#: populate.py:105
 msgid "Show"
 msgstr "Salon"
 
-#: populate.py:89
+#: populate.py:106
 msgid "Demonstration"
 msgstr "Démonstration"
 
-#: populate.py:93
+#: populate.py:116
 msgid "Qualification"
 msgstr "Qualification"
 
-#: populate.py:94
+#: populate.py:117
 msgid "Revival"
 msgstr "Relance"
 
-#: populate.py:95
+#: populate.py:118
 msgid "Network"
 msgstr "Réseau"
 
-#: populate.py:96
+#: populate.py:119
 msgctxt "activities-meeting"
 msgid "Other"
 msgstr "Autre"
 
-#: populate.py:98
+#: populate.py:125
 msgid "Incoming"
 msgstr "Entrant"
 
-#: populate.py:99
+#: populate.py:126
 msgid "Outgoing"
 msgstr "Sortant"
 
-#: populate.py:100
+#: populate.py:127
 msgid "Conference"
 msgstr "Conférence"
 
-#: populate.py:101
+#: populate.py:128
 msgid "Outgoing - Failed"
 msgstr "Sortant - Échoué"
 
-#: populate.py:104
+#: populate.py:131
 msgid "Activity view"
 msgstr "Vue d'Activité"
 
-#: populate.py:120
+#: populate.py:147
 msgid "Tasks"
 msgstr "Tâches"
 
-#: populate.py:131
+#: populate.py:158
 msgid "In which I participate"
 msgstr "Auxquelles je participe"
 
@@ -902,6 +843,49 @@ msgstr "Calendriers des collaborateurs"
 msgid "FILTER CALENDARS OR COLLABORATORS"
 msgstr "FILTRER LES CALENDRIERS OU LES COLLABORATEURS"
 
+#: templates/activities/forms/widgets/mass-import/participants-extractor.html:6
+msgid "Create the Contacts who are not found?"
+msgstr "Créer les Contacts qui ne sont pas trouvés ?"
+
+#: templates/activities/forms/widgets/mass-import/participants-extractor.html:13
+msgid ""
+"Method #1: first name & last name are in separated cells (first name is "
+"optional)"
+msgstr ""
+"Méthode n°1: prénom et nom sont dans des cellules séparées (le prénom est "
+"facultatif)"
+
+# Already in 'persons'
+#: templates/activities/forms/widgets/mass-import/participants-extractor.html:15
+msgid "First name"
+msgstr ""
+
+# Already in 'persons'
+#: templates/activities/forms/widgets/mass-import/participants-extractor.html:18
+msgid "Last name"
+msgstr ""
+
+#: templates/activities/forms/widgets/mass-import/participants-extractor.html:26
+msgid ""
+"Method #2: several contacts in one cell (in all patterns the last name is "
+"the only required element)"
+msgstr ""
+"Méthode n°2: plusieurs contacts dans une cellule (dans tous les motifs le "
+"nom est le seul élément obligatoire)"
+
+#: templates/activities/forms/widgets/mass-import/participants-extractor.html:31
+#: templates/activities/forms/widgets/mass-import/subjects-extractor.html:6
+msgid "Separator"
+msgstr "Séparateur"
+
+#: templates/activities/forms/widgets/mass-import/participants-extractor.html:34
+msgid "Contact pattern"
+msgstr "Motif de contact"
+
+#: templates/activities/forms/widgets/mass-import/subjects-extractor.html:12
+msgid "Create the Organisations which are not found?"
+msgstr "Créer les Sociétés qui ne sont pas trouvées ?"
+
 #: templates/activities/frags/ical_list_view_button.html:3
 msgid "iCalendar file"
 msgstr "Fichier iCalendar"
@@ -910,11 +894,7 @@ msgstr "Fichier iCalendar"
 msgid "Download in iCalendar format"
 msgstr "Télécharger au format iCalendar"
 
-#: templates/activities/portal.html:5
-msgid "Activities portal"
-msgstr "Portail Activités"
-
-#: templates/activities/portal.html:9 templates/activities/view_activity.html:6
+#: templates/activities/view_activity.html:6
 msgid "Go to the calendar"
 msgstr "Aller au calendrier"
 
@@ -957,34 +937,45 @@ msgstr "Ajouter les sujets"
 msgid "One entity does not exist any more."
 msgstr "Une fiche n'existe plus."
 
-#: views/calendar.py:279
+#: views/calendar.py:281
 msgid "Save the calendar"
 msgstr "Enregistrer le calendrier"
 
-#: views/calendar.py:302
+#: views/calendar.py:304
 msgid "You are not allowed to delete this calendar."
 msgstr "Vous n'êtes pas autorisé à effacer ce calendrier."
 
-#: views/calendar.py:317
+#: views/calendar.py:319
 #, python-format
 msgid "Change calendar of «%s»"
 msgstr "Changer le calendrier de «%s»"
 
-#: views/portal.py:33
-msgid "Activities count"
-msgstr "Nombre d'activité(s)"
+#~ msgid "Portal of activities"
+#~ msgstr "Portail des activités"
 
-#: views/portal.py:34
-msgid "Meetings count"
-msgstr "Nombre de rendez-vous"
+#~ msgid "All activities"
+#~ msgstr "Lister les activités"
 
-#: views/portal.py:35
-msgid "Phone calls count"
-msgstr "Nombre d'appels téléphoniques"
+#~ msgid "All phone calls"
+#~ msgstr "Lister les appels téléphoniques"
 
-#: views/portal.py:36
-msgid "Tasks count"
-msgstr "Nombre de tâches"
+#~ msgid "All meetings"
+#~ msgstr "Lister les rendez-vous"
+
+#~ msgid "Activities portal"
+#~ msgstr "Portail Activités"
+
+#~ msgid "Activities count"
+#~ msgstr "Nombre d'activité(s)"
+
+#~ msgid "Meetings count"
+#~ msgstr "Nombre de rendez-vous"
+
+#~ msgid "Phone calls count"
+#~ msgstr "Nombre d'appels téléphoniques"
+
+#~ msgid "Tasks count"
+#~ msgstr "Nombre de tâches"
 
 #~ msgid ""
 #~ "Begin %(start_date)s at %(start_hour)s<br>\n"

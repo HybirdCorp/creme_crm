@@ -37,7 +37,7 @@ from creme.creme_core.gui.bricks import Brick
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.models import (CremeEntity, RelationType, CremePropertyType,
          EntityFilter, HistoryLine, SettingValue, Job,
-         PreferedMenuItem, ButtonMenuItem,
+         ButtonMenuItem,  # PreferedMenuItem
          BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
          RelationBlockItem, InstanceBlockConfigItem, BlockState)
 from creme.creme_core.utils import split_filter
@@ -129,10 +129,10 @@ def _uninstall_blocks(sender, **kwargs):
     BlockPortalLocation.objects.filter(app_name=app_label).delete()
 
 
-@receiver(pre_uninstall_flush)
-@uninstall_handler('Deleting preferred menu entries...')
-def _uninstall_preferred_menu(sender, **kwargs):
-    PreferedMenuItem.objects.filter(url__startswith='/{}/'.format(sender.label)).delete()
+# @receiver(pre_uninstall_flush)
+# @uninstall_handler('Deleting preferred menu entries...')
+# def _uninstall_preferred_menu(sender, **kwargs):
+#     PreferedMenuItem.objects.filter(url__startswith='/{}/'.format(sender.label)).delete()
 
 
 @receiver(pre_uninstall_flush)
