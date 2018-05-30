@@ -58,6 +58,7 @@ class _Email(CremeModel):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'emails'
 
     def __unicode__(self):
@@ -89,6 +90,7 @@ class AbstractEntityEmail(_Email, CremeEntity):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'emails'
         verbose_name = _(u'Email')
         verbose_name_plural = _(u'Emails')

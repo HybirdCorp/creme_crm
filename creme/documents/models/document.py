@@ -53,6 +53,7 @@ class AbstractDocument(CremeEntity):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'documents'
         verbose_name = _(u'Document')
         verbose_name_plural = _(u'Documents')

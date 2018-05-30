@@ -39,6 +39,7 @@ class AbstractMailingList(CremeEntity):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'emails'
         verbose_name = _(u'Mailing list')
         verbose_name_plural = _(u'Mailing lists')

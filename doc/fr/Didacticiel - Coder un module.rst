@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 14-05-2018 pour la version 1.8 de Creme
+:Version: 17-05-2018 pour la version 2.0 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -136,6 +136,7 @@ Puis créons dedans un fichier nommé ``beaver.py`` (notez le singulier) à l'ai
 
         class Meta:
             app_label = 'beavers'
+            manager_inheritance_from_future = True  # Pour éviter des messages d'erreur de Django
             verbose_name = _(u'Beaver')
             verbose_name_plural = _(u'Beavers')
             ordering = ('name',)

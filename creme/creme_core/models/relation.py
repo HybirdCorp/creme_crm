@@ -30,9 +30,10 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..signals import pre_merge_related
 
-from .base import CremeModel, CremeAbstractEntity
+from .base import CremeModel  # CremeAbstractEntity
 from .creme_property import CremePropertyType
 from .entity import CremeEntity
+from .fields import CreationDateTimeField, CremeUserForeignKey
 
 
 logger = logging.getLogger(__name__)
@@ -198,8 +199,11 @@ class RelationType(CremeModel):
             raise Http404(ugettext(u"You can't add/delete the relationships with this type (internal type)"))
 
 
-# TODO: remove CremeAbstractEntity inheritance (user/modified not useful any more ??) ??
-class Relation(CremeAbstractEntity):
+# class Relation(CremeAbstractEntity):
+class Relation(CremeModel):
+    created = CreationDateTimeField(_(u'Creation date'), editable=False).set_tags(clonable=False)
+    user    = CremeUserForeignKey(verbose_name=_(u'Owner user'))
+
     type               = ForeignKey(RelationType, blank=True, null=True, on_delete=CASCADE)  # TODO: nullable=False
     symmetric_relation = ForeignKey('self', blank=True, null=True, on_delete=CASCADE)
     subject_entity     = ForeignKey(CremeEntity, related_name='relations', on_delete=PROTECT)
@@ -249,8 +253,8 @@ class Relation(CremeAbstractEntity):
             self.symmetric_relation = sym_relation
             super(Relation, self).save(using=using, force_insert=False)
 
-    def get_real_entity(self):
-        return self._get_real_entity(Relation)
+    # def get_real_entity(self):
+    #     return self._get_real_entity(Relation)
 
     @staticmethod
     def populate_real_object_entities(relations):

@@ -51,6 +51,7 @@ class AbstractReport(CremeEntity):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'reports'
         verbose_name = _(u'Report')
         verbose_name_plural = _(u'Reports')

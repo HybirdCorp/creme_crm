@@ -44,6 +44,7 @@ class Resource(CremeEntity):
 
     class Meta:
         app_label = 'projects'
+        manager_inheritance_from_future = True
         verbose_name = _(u'Resource of project')
         verbose_name_plural = _(u'Resources of project')
         # TODO: unique_together (linked_contact, task)

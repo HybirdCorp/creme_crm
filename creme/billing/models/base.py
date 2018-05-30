@@ -99,6 +99,7 @@ class Base(CremeEntity):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'billing'
         ordering = ('name',)
 

@@ -4,7 +4,8 @@ from .auth import CremeUser, EntityCredentials, UserRole, SetCredentials, Sandbo
 
 from file_ref import FileRef  # NOQA
 
-from .base import CremeModel, CremeAbstractEntity  # NOQA
+# from .base import CremeAbstractEntity
+from .base import CremeModel # NOQA
 from .entity import CremeEntity  # NOQA
 
 from .setting_value import SettingValue  # NOQA

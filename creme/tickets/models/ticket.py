@@ -86,6 +86,7 @@ class AbstractTicket(TicketMixin):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'tickets'
         verbose_name = _(u'Ticket')
         verbose_name_plural = _(u'Tickets')
@@ -157,6 +158,7 @@ class AbstractTicketTemplate(TicketMixin):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'tickets'
         verbose_name = _(u'Ticket template')
         verbose_name_plural = _(u'Ticket templates')

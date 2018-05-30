@@ -56,6 +56,7 @@ class AbstractPollReply(CremeEntity):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'polls'
         verbose_name = _(u'Form reply')
         verbose_name_plural = _(u'Form replies')

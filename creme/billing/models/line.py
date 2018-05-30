@@ -63,6 +63,7 @@ class Line(CremeEntity):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'billing'
         verbose_name = _(u'Line')
         verbose_name_plural = _(u'Lines')

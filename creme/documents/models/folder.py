@@ -60,6 +60,7 @@ class AbstractFolder(CremeEntity):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'documents'
         unique_together = ('title', 'parent_folder', 'category')
         verbose_name = _(u'Folder')

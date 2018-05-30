@@ -17,6 +17,7 @@ else:
 
         class Meta:
             app_label = 'creme_config'
+            manager_inheritance_from_future = True
             verbose_name = u'Test ConfigEntity'
             verbose_name_plural = u'Test ConfigEntities'
             ordering = ('name',)

@@ -71,6 +71,7 @@ class AbstractActivity(CremeEntity):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'activities'
         verbose_name = _(u'Activity')
         verbose_name_plural = _(u'Activities')

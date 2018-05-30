@@ -56,6 +56,7 @@ class AbstractProject(CremeEntity):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'projects'
         verbose_name = _(u'Project')
         verbose_name_plural = _(u'Projects')

@@ -114,6 +114,7 @@ def delete_related_credit_note(request, credit_note_id, base_id):
     has_perm(subject)
     has_perm(relation.object_entity)
 
-    relation.get_real_entity().delete()
+    # relation.get_real_entity().delete()
+    relation.delete()
 
     return redirect(subject.get_real_entity())
