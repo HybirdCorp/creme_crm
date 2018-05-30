@@ -641,13 +641,14 @@ class GuiTestCase(CremeTestCase):
         self.assertIsNone(get(Button.generate_id('creme_core', 'test_button_registry_invalid')))
 
         c = FakeContact(first_name='Casca', last_name='Mylove')
-        buttons = registry.get_buttons([TestButton3.id_,
-                                        TestButton2.id_,  # No because ok_4_display() returns False
-                                        'test_button_registry_invalid',
-                                        TestButton1.id_,
-                                       ],
-                                       entity=c
-                                      )
+        buttons = list(registry.get_buttons([TestButton3.id_,
+                                             TestButton2.id_,  # No because ok_4_display() returns False
+                                             'test_button_registry_invalid',
+                                             TestButton1.id_,
+                                            ],
+                                            entity=c,
+                                           )
+                      )
         self.assertIsInstance(buttons, list)
         self.assertEqual(2, len(buttons))
         self.assertIsInstance(buttons[0], TestButton3)
