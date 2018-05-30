@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2017  Hybird
+#    Copyright (C) 2016-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -58,7 +58,7 @@ class _MassImportType(JobType):
         form = form_class(user=job.user, data=POST)
 
         if not form.is_valid():
-            raise self.Error(ugettext(u'Invalid data [%s]' % form.errors.as_text()))  # TODO: unit test
+            raise self.Error(ugettext(u'Invalid data [%s]') % form.errors.as_text())  # TODO: unit test
 
         form.process(job)
 
