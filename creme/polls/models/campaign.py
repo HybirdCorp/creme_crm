@@ -43,6 +43,7 @@ class AbstractPollCampaign(CremeEntity):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'polls'
         verbose_name = _(u'Campaign of polls')
         verbose_name_plural = _(u'Campaigns of polls')

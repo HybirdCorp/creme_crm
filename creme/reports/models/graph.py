@@ -50,6 +50,7 @@ class AbstractReportGraph(CremeEntity):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'reports'
         verbose_name = _(u"Report's graph")
         verbose_name_plural = _(u"Reports' graphs")

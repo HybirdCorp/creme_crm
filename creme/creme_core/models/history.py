@@ -414,7 +414,8 @@ class _HLTRelation(_HistoryLineType):
     def create_lines(cls, relation, created):
         if not created:
             cls._create_lines(relation if '-subject_' in relation.type_id else relation.symmetric_relation,
-                              _HLTSymRelation, relation.modified,
+                              # _HLTSymRelation, relation.modified,
+                              _HLTSymRelation, relation.created,
                              )
 
     def verbose_modifications(self, modifications, entity_ctype, user):

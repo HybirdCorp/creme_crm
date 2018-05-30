@@ -140,6 +140,7 @@ class AbstractOpportunity(CremeEntity):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'opportunities'
         verbose_name = _(u'Opportunity')
         verbose_name_plural = _(u'Opportunities')

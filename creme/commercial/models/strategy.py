@@ -57,6 +57,7 @@ class AbstractStrategy(CremeEntity):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'commercial'
         verbose_name = _(u'Commercial strategy')
         verbose_name_plural = _(u'Commercial strategies')

@@ -72,7 +72,7 @@ def _clean_fields_values_args(data, allowed_fields):
     getters = [_clean_getters_arg(field, allowed_fields) for field in data.getlist('fields')]
 
     if not getters:
-        raise ValueError('No such field')
+        raise ValueError(u'No such field (data={})'.format(data))
 
     sort_getter = get('sort')
     if sort_getter is not None:
@@ -81,11 +81,12 @@ def _clean_fields_values_args(data, allowed_fields):
     return getters, range, sort_getter
 
 
-JSON_ENTITY_FIELDS = {'unicode':     lambda e, user: e.allowed_unicode(user),
-                      'id':          lambda e, user: e.id,
-                      'entity_type': lambda e, user: e.entity_type_id,
-                      'summary':     lambda e, user: e.get_real_entity().get_entity_summary(user),
-                     }
+JSON_ENTITY_FIELDS = {
+    'unicode':     lambda e, user: e.allowed_unicode(user),
+    'id':          lambda e, user: e.id,
+    'entity_type': lambda e, user: e.entity_type_id,
+    'summary':     lambda e, user: e.get_real_entity().get_entity_summary(user),
+}
 
 
 # TODO: move to entity.py (rename ?) & change also url
@@ -104,9 +105,10 @@ def json_entity_get(request, entity_id):
     return _fields_values(instances, getters, (0, 1), sort, user)
 
 
-JSON_PREDICATE_FIELDS = {'unicode': lambda e, user: unicode(e),
-                         'id':      lambda e, user: e.id,
-                        }
+JSON_PREDICATE_FIELDS = {
+    'unicode': lambda e, user: unicode(e),
+    'id':      lambda e, user: e.id,
+}
 
 
 @login_required
@@ -128,9 +130,10 @@ def json_entity_rtypes(request, entity_id):  # TODO: seems unused
     return _fields_values(rtypes, *_clean_fields_values_args(request.GET, JSON_PREDICATE_FIELDS))
 
 
-JSON_CONTENT_TYPE_FIELDS = {'unicode': lambda e, user: unicode(e),
-                            'id':      lambda e, user: e.id
-                           }
+JSON_CONTENT_TYPE_FIELDS = {
+    'unicode': lambda e, user: unicode(e),
+    'id':      lambda e, user: e.id
+}
 
 
 @login_required
@@ -257,7 +260,8 @@ def delete(request):
     has_perm(relation.object_entity)
     relation.type.is_not_internal_or_die()
 
-    relation.get_real_entity().delete()
+    # relation.get_real_entity().delete()
+    relation.delete()
 
     if request.is_ajax():
         # return HttpResponse(content_type='text/javascript')
@@ -285,7 +289,8 @@ def delete_similar(request):
     rtype.is_not_internal_or_die()
 
     for relation in Relation.objects.filter(subject_entity=subject.id, type=rtype, object_entity=object_id):
-        relation.get_real_entity().delete()
+        # relation.get_real_entity().delete()
+        relation.delete()
 
     if request.is_ajax():
         # return HttpResponse(content_type='text/javascript')
@@ -304,7 +309,7 @@ def delete_all(request):  # TODO: deprecate ?
     errors = defaultdict(list)
 
     for relation in Relation.objects.filter(type__is_internal=False, subject_entity=subject_id):
-        relation = relation.get_real_entity()
+        # relation = relation.get_real_entity()
         if user.has_perm_to_unlink(relation.object_entity):
             relation.delete()
         else:

@@ -45,6 +45,7 @@ class AbstractRecurrentGenerator(CremeEntity):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'recurrents'
         verbose_name = _(u'Recurrent generator')
         verbose_name_plural = _(u'Recurrent generators')

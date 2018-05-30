@@ -43,6 +43,7 @@ class AbstractGraph(CremeEntity):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'graphs'
         verbose_name = pgettext_lazy('graphs', u'Graph')
         verbose_name_plural = pgettext_lazy('graphs', u'Graphs')

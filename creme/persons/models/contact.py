@@ -100,6 +100,7 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'persons'
         ordering = ('last_name', 'first_name')
         verbose_name = _(u'Contact')

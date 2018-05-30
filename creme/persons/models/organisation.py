@@ -89,6 +89,7 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'persons'
         ordering = ('name',)
         verbose_name = _(u'Organisation')

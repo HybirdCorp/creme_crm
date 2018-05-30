@@ -35,6 +35,7 @@ class AbstractMessageTemplate(CremeEntity):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'sms'
         verbose_name = _(u'SMS Message template')
         verbose_name_plural = _(u'SMS Messages templates')

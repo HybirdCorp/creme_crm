@@ -42,6 +42,7 @@ class AbstractEmailTemplate(CremeEntity):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'emails'
         verbose_name = _(u'Email template')
         verbose_name_plural = _(u'Email templates')

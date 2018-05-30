@@ -37,6 +37,7 @@ class AbstractEmailCampaign(CremeEntity):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'emails'
         verbose_name = _(u'Emailing campaign')
         verbose_name_plural = _(u'Emailing campaigns')

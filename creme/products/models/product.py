@@ -54,6 +54,7 @@ class AbstractProduct(CremeEntity):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'products'
         verbose_name = _(u'Product')
         verbose_name_plural = _(u'Products')

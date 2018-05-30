@@ -70,6 +70,7 @@ class AbstractAct(CremeEntity):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'commercial'
         verbose_name = _(u'Commercial action')
         verbose_name_plural = _(u'Commercial actions')
@@ -211,6 +212,7 @@ class AbstractActObjectivePattern(CremeEntity):
 
     class Meta:
         abstract = True
+        manager_inheritance_from_future = True
         app_label = 'commercial'
         verbose_name = _(u'Objective pattern')
         verbose_name_plural = _(u'Objective patterns')

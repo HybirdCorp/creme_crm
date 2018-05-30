@@ -46,7 +46,7 @@ class CrmButton(Button):
         self.__managed_orga = Organisation.get_all_managed_by_creme()
         already_linked_pk = Relation.objects.filter(type=self.relation_type_id,
                                                     subject_entity=entity,
-                                                    is_deleted=False,
+                                                    # is_deleted=False,
                                                    ) \
                                             .values_list('object_entity_id', flat=True)
         self.__managed_orga = self.__managed_orga.exclude(pk__in=already_linked_pk)

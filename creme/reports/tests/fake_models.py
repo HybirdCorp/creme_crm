@@ -26,6 +26,7 @@ else:
 
         class Meta:
             app_label = 'reports'
+            manager_inheritance_from_future = True
             verbose_name = u'Test (reports) Folder'
             verbose_name_plural = u'Test (reports) Folders'
             ordering = ('title',)
@@ -45,6 +46,7 @@ else:
 
         class Meta:
             app_label = 'reports'
+            manager_inheritance_from_future = True
             verbose_name = u'Test (reports) Document'
             verbose_name_plural = u'Test (reports) Documents'
             ordering = ('title',)
@@ -69,6 +71,7 @@ else:
 
         class Meta:
             app_label = 'reports'
+            manager_inheritance_from_future = True
             verbose_name = u'Book'
             verbose_name_plural = u'Books'
             ordering = ('name',)

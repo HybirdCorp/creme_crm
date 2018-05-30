@@ -23,7 +23,8 @@ import logging
 import uuid
 import warnings
 
-from django.db.models import Q, UUIDField, ForeignKey, PROTECT
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q, UUIDField, CharField, BooleanField, ForeignKey, PROTECT
 from django.db.transaction import atomic
 from django.forms.utils import flatatt
 from django.urls import reverse
@@ -31,13 +32,17 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from ..core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
+from ..core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList, FunctionFieldsManager
 
 from .auth import Sandbox
-from .base import CremeAbstractEntity, _SEARCH_FIELD_MAX_LENGTH
+from .base import CremeModel  # CremeAbstractEntity, _SEARCH_FIELD_MAX_LENGTH
+from .fields import (CreationDateTimeField, ModificationDateTimeField,
+         CremeUserForeignKey, CTypeForeignKey)
+from .manager import LowNullsQuerySet
 
 
 logger = logging.getLogger(__name__)
+_SEARCH_FIELD_MAX_LENGTH = 200
 
 
 class EntityAction(object):
@@ -71,11 +76,25 @@ class _PrettyPropertiesField(FunctionField):
         CremeEntity.populate_properties(entities)
 
 
-class CremeEntity(CremeAbstractEntity):
+# class CremeEntity(CremeAbstractEntity):
+class CremeEntity(CremeModel):
+    created  = CreationDateTimeField(_(u'Creation date'), editable=False).set_tags(clonable=False)
+    modified = ModificationDateTimeField(_(u'Last modification'), editable=False).set_tags(clonable=False)
+
+    entity_type = CTypeForeignKey(editable=False).set_tags(viewable=False)
+    header_filter_search_field = CharField(max_length=_SEARCH_FIELD_MAX_LENGTH, editable=False).set_tags(viewable=False)
+
+    is_deleted = BooleanField(default=False, editable=False).set_tags(viewable=False)
+    user       = CremeUserForeignKey(verbose_name=_(u'Owner user'))
+
     uuid    = UUIDField(unique=True, editable=False, default=uuid.uuid4).set_tags(viewable=False)
     sandbox = ForeignKey(Sandbox, null=True, editable=False, on_delete=PROTECT).set_tags(viewable=False)
 
-    function_fields = CremeAbstractEntity.function_fields.new(_PrettyPropertiesField())
+    objects = LowNullsQuerySet.as_manager()
+
+    _real_entity = None
+
+    function_fields = FunctionFieldsManager(_PrettyPropertiesField())
 
     # Currently used in reports (can be used elsewhere ?) to allow reporting on those related fields
     # TODO: use tag instead.
@@ -95,11 +114,17 @@ class CremeEntity(CremeAbstractEntity):
         # ordering = ('id',) # order by id on a FK can cause a crashes
         ordering = ('header_filter_search_field',)
         index_together = [
-            ['entity_type', 'is_deleted'],  # Optimise the basic COUNT in listviews
+            ['entity_type', 'is_deleted'],  # Optimise the basic COUNT in list-views
         ]
 
     def __init__(self, *args, **kwargs):
         super(CremeEntity, self).__init__(*args, **kwargs)
+
+        if self.pk is None:
+            has_arg = kwargs.has_key
+            if not has_arg('entity_type') and not has_arg('entity_type_id'):
+                self.entity_type = ContentType.objects.get_for_model(self)
+
         self._relations_map = {}
         self._properties = None
         self._cvalues_map = {}
@@ -134,7 +159,23 @@ class CremeEntity(CremeAbstractEntity):
                ugettext(u'Entity #%s (not viewable)') % self.id
 
     def get_real_entity(self):
-        return self._get_real_entity(CremeEntity)
+        # return self._get_real_entity(CremeEntity)
+        entity = self._real_entity
+
+        if entity is True:
+            return self
+
+        if entity is None:
+            ct = self.entity_type
+            get_ct = ContentType.objects.get_for_model
+
+            if ct == get_ct(CremeEntity) or ct == get_ct(self.__class__):
+                self._real_entity = True  # Avoid reference to 'self' (cyclic reference)
+                entity = self
+            else:
+                entity = self._real_entity = ct.get_object_for_this_type(id=self.id)
+
+        return entity
 
     def get_absolute_url(self):
         real_entity = self.get_real_entity()
@@ -208,6 +249,27 @@ class CremeEntity(CremeAbstractEntity):
             logger.debug('CremeEntity.get_relations(): Cache HIT for id=%s type=%s', self.id, relation_type_id)
 
         return relations
+
+    @staticmethod
+    def populate_real_entities(entities):
+        """Faster than calling get_real_entity() of each CremeEntity object,
+        because it groups queries by ContentType.
+        @param entities: Iterable containing CremeEntity instances.
+               Beware it can be iterated twice (ie: can't be a generator).
+        """
+        entities_by_ct = defaultdict(list)
+
+        for entity in entities:
+            entities_by_ct[entity.entity_type_id].append(entity.id)
+
+        entities_map = {}
+        get_ct = ContentType.objects.get_for_id
+
+        for ct_id, entity_ids in entities_by_ct.iteritems():
+            entities_map.update(get_ct(ct_id).model_class().objects.in_bulk(entity_ids))
+
+        for entity in entities:
+            entity._real_entity = entities_map[entity.id]
 
     @staticmethod
     def populate_relations(entities, relation_type_ids):
