@@ -70,7 +70,7 @@ class WaitingActionTestCase(CrudityTestCase):
 
         self.assertTrue(self.User.objects.filter(is_superuser=True, is_staff=False))
 
-        #Sandbox will be by user
+        # Sandbox will be by user
         self._set_sandbox_by_user()
         self.assertFalse(WaitingAction.objects.filter(user=None))
 
@@ -93,13 +93,15 @@ class WaitingActionTestCase(CrudityTestCase):
         self.assertEqual(superuser, self.refresh(action).user)
 
     def test_data_property01(self):
-        action = WaitingAction(ct=self.ct_contact)
+        # action = WaitingAction(ct=self.ct_contact)
+        # expected_data = {'first_name': 'Mario', 'last_name': 'Bros'}
+        # action.set_data(expected_data)
+        # action.save()
         expected_data = {'first_name': 'Mario', 'last_name': 'Bros'}
-        # action.data = action.set_data(expected_data)
-        action.set_data(expected_data)
-        action.save()
+        action = WaitingAction.objects.create(ct=self.ct_contact, data=expected_data)
 
-        self.assertEqual(expected_data, self.refresh(action).get_data())
+        # self.assertEqual(expected_data, self.refresh(action).get_data())
+        self.assertEqual(expected_data, self.refresh(action).data)
 
     def test_data_property02(self):
         action = WaitingAction(ct=self.ct_contact)
@@ -110,8 +112,9 @@ class WaitingActionTestCase(CrudityTestCase):
                          'enemies': {'Bowser': 1, 'Koopa': 50},
                          'epoch': now(),
                         }
-        # action.data = action.set_data(expected_data)
-        action.set_data(expected_data)
+        # action.set_data(expected_data)
+        action.data = expected_data
         action.save()
 
-        self.assertEqual(expected_data, self.refresh(action).get_data())
+        # self.assertEqual(expected_data, self.refresh(action).get_data())
+        self.assertEqual(expected_data, self.refresh(action).data)

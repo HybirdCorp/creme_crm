@@ -119,20 +119,28 @@ class Command(BaseCommand):
                         factory = _get_model_n_factory(locale)[1]
 
                         for i in xrange(number):
-                            action = WaitingAction(
-                                action=method,
-                                source='{} - {}'.format(fetcher_name, input.name),
-                                ct=ContentType.objects.get_for_model(backend.model),
-                                subject=backend.subject,
-                                # user=owner,  TODO ?
-                            )
-                            # action.data = action.set_data(_entity_2_dict(factory.build()))
-                            action.set_data(_entity_2_dict(factory.build()))
+                            # action = WaitingAction(
+                            #     action=method,
+                            #     source='{} - {}'.format(fetcher_name, input.name),
+                            #     ct=ContentType.objects.get_for_model(backend.model),
+                            #     subject=backend.subject,
+                            #     # user=owner,  TODO ?
+                            # )
+                            # action.set_data(_entity_2_dict(factory.build()))
 
                             try:
-                                action.save()
+                                # action.save()
+                                WaitingAction.objects.create(
+                                        action=method,
+                                        source='{} - {}'.format(fetcher_name, input.name),
+                                        ct=ContentType.objects.get_for_model(backend.model),
+                                        subject=backend.subject,
+                                        # user=owner,  TODO ?
+                                        data=_entity_2_dict(factory.build()),
+                                )
                             except Exception as e:
-                                self.stderr.write('A error occurred when saving "{}" ({}).'.format(action, e))
+                                # self.stderr.write('A error occurred when saving "{}" ({}).'.format(action, e))
+                                self.stderr.write('A error occurred when saving action: {}.'.format(e))
                             else:
                                 action_count += 1
 

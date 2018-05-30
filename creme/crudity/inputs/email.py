@@ -136,15 +136,23 @@ class CreateEmailInput(EmailInput):
         self._pre_process_data(backend, data)
 
         if backend.in_sandbox:
-            action = WaitingAction(
+            # action = WaitingAction(
+            #     action='create',
+            #     source='email - {}'.format(self.name),
+            #     ct=ContentType.objects.get_for_model(backend.model),
+            #     subject=backend.subject,
+            #     user=owner,
+            # )
+            # action.set_data(data)
+            # action.save()
+            WaitingAction.objects.create(
                 action='create',
                 source='email - {}'.format(self.name),
                 ct=ContentType.objects.get_for_model(backend.model),
                 subject=backend.subject,
                 user=owner,
+                data=data,
             )
-            action.set_data(data) # TODO: 'data' property + WaitingAction.object.create()
-            action.save()
         else:
             self._pre_create(backend, data)
             is_created, instance = backend._create_instance_n_history(data, user=owner, source='email - %s' % self.name)

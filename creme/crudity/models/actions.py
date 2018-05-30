@@ -43,7 +43,9 @@ class WaitingAction(CremeModel):
         verbose_name = _(u'Waiting action')
         verbose_name_plural = _(u'Waiting actions')
 
-    def get_data(self):
+    # def get_data(self):
+    @property
+    def data(self):
         data = loads(self.raw_data.encode('utf-8'))
 
         if isinstance(data, dict):
@@ -54,7 +56,9 @@ class WaitingAction(CremeModel):
 
         return data
 
-    def set_data(self, data):
+    # def set_data(self, data):
+    @data.setter
+    def data(self, data):
         self.raw_data = dumps(data)
 
     def can_validate_or_delete(self, user):

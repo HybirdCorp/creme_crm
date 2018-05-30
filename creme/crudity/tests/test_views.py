@@ -144,14 +144,14 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
         subject = CrudityBackend.normalize_subject('test_create_contact')
         wa = WaitingAction()
         wa.ct = ContentType.objects.get_for_model(FakeContact)
-        # wa.data = wa.set_data({'first_name': first_name,
-        #                        'last_name':  last_name,
-        #                        'user_id':    self.user.id,
-        #                       })
-        wa.set_data({'first_name': first_name,
-                     'last_name':  last_name,
-                     'user_id':    self.user.id,
-                    })
+        # wa.set_data({'first_name': first_name,
+        #              'last_name':  last_name,
+        #              'user_id':    self.user.id,
+        #             })
+        wa.data = {'first_name': first_name,
+                   'last_name':  last_name,
+                   'user_id':    self.user.id,
+                  }
         wa.subject = subject
         wa.source = 'test_f - test_i'
         wa.save()
