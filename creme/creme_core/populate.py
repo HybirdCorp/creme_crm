@@ -108,10 +108,12 @@ class Populator(BasePopulator):
             create_bdl(brick_id=bricks.RelationsBrick.id_,    order=500, zone=LEFT)
             create_bdl(brick_id=bricks.HistoryBrick.id_,      order=8,   zone=BlockDetailviewLocation.RIGHT)
 
-            BlockPortalLocation.create_or_update(brick_id=bricks.HistoryBrick.id_, order=8)
+            # BlockPortalLocation.create_or_update(brick_id=bricks.HistoryBrick.id_, order=8)
 
-            BlockPortalLocation.create_or_update(brick_id=bricks.StatisticsBrick.id_, order=8,  app_name='creme_core')
-            BlockPortalLocation.create_or_update(brick_id=bricks.HistoryBrick.id_,    order=10, app_name='creme_core')
+            # BlockPortalLocation.create_or_update(brick_id=bricks.StatisticsBrick.id_, order=8,  app_name='creme_core')
+            # BlockPortalLocation.create_or_update(brick_id=bricks.HistoryBrick.id_,    order=10, app_name='creme_core')
+            BlockPortalLocation.objects.create(brick_id=bricks.StatisticsBrick.id_, order=8)
+            BlockPortalLocation.objects.create(brick_id=bricks.HistoryBrick.id_,    order=10)
 
             # BlockMypageLocation.create(block_id=bricks.HistoryBrick.id_, order=8)
             # BlockMypageLocation.create(block_id=bricks.HistoryBrick.id_, order=8, user=root)

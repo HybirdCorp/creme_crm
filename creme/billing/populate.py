@@ -422,7 +422,8 @@ class Populator(BasePopulator):
                     )
         ibci = rgraph1.create_instance_block_config_item()
 
-        BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=ibci.brick_id, order=11)
+        # BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=ibci.brick_id, order=11)
+        BlockPortalLocation.objects.create(brick_id=ibci.brick_id, order=11)
 
         # Create current year and unpaid invoices report -----------------------
         invoices_report2 = create_report(name=_(u'Invoices unpaid of the current year'),
@@ -438,4 +439,5 @@ class Populator(BasePopulator):
                              )
         ibci = rgraph.create_instance_block_config_item()
 
-        BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=ibci.brick_id, order=12)
+        # BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=ibci.brick_id, order=12)
+        BlockPortalLocation.objects.create(brick_id=ibci.brick_id, order=12)

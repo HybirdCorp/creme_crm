@@ -326,13 +326,15 @@ class BrickHomeLocationsForm(_BrickLocationsForm):
 
     def __init__(self, *args, **kwargs):
         super(BrickHomeLocationsForm, self).__init__(*args, **kwargs)
-        self.locations = locations = BlockPortalLocation.objects.filter(app_name='creme_core')
+        # self.locations = locations = BlockPortalLocation.objects.filter(app_name='creme_core')
+        self.locations = locations = BlockPortalLocation.objects.all()
 
         self._build_home_locations_field(field_name='bricks', brick_locations=locations)
 
     def save(self, *args, **kwargs):
         self._save_locations(location_model=BlockPortalLocation,
-                             location_builder=lambda: BlockPortalLocation(app_name='creme_core'),
+                             # location_builder=lambda: BlockPortalLocation(app_name='creme_core'),
+                             location_builder=lambda: BlockPortalLocation(),
                              bricks_partitions={1: self.cleaned_data['bricks']},  # 1 is a "nameless" zone
                              old_locations=self.locations,
                             )

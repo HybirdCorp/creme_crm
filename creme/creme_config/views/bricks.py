@@ -442,7 +442,7 @@ def delete_detailview(request):
 def delete_home(request):
     get_object_or_404(BlockPortalLocation,
                       pk=get_from_POST_or_404(request.POST, 'id'),
-                      app_name='creme_core',
+                      # app_name='creme_core',
                      ).delete()
 
     return HttpResponse()

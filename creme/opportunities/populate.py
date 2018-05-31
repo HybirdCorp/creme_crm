@@ -203,8 +203,8 @@ class Populator(BasePopulator):
 
                 create_bdl(brick_id=act_bricks.FutureActivitiesBrick.id_, order=20, zone=RIGHT, model=Opportunity)
                 create_bdl(brick_id=act_bricks.PastActivitiesBrick.id_,   order=21, zone=RIGHT, model=Opportunity)
-                BlockPortalLocation.create_or_update(app_name='opportunities', brick_id=act_bricks.FutureActivitiesBrick.id_, order=20)
-                BlockPortalLocation.create_or_update(app_name='opportunities', brick_id=act_bricks.PastActivitiesBrick.id_,   order=21)
+                # BlockPortalLocation.create_or_update(app_name='opportunities', brick_id=act_bricks.FutureActivitiesBrick.id_, order=20)
+                # BlockPortalLocation.create_or_update(app_name='opportunities', brick_id=act_bricks.PastActivitiesBrick.id_,   order=21)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail views and portal')
@@ -216,9 +216,9 @@ class Populator(BasePopulator):
                 create_bdl(brick_id=assistants_bricks.AlertsBrick.id_,       order=300, zone=RIGHT, model=Opportunity)
                 create_bdl(brick_id=assistants_bricks.UserMessagesBrick.id_, order=500, zone=RIGHT, model=Opportunity)
 
-                BlockPortalLocation.create_or_update(app_name='opportunities', brick_id=assistants_bricks.MemosBrick.id_,        order=100)
-                BlockPortalLocation.create_or_update(app_name='opportunities', brick_id=assistants_bricks.AlertsBrick.id_,       order=200)
-                BlockPortalLocation.create_or_update(app_name='opportunities', brick_id=assistants_bricks.UserMessagesBrick.id_, order=400)
+                # BlockPortalLocation.create_or_update(app_name='opportunities', brick_id=assistants_bricks.MemosBrick.id_,        order=100)
+                # BlockPortalLocation.create_or_update(app_name='opportunities', brick_id=assistants_bricks.AlertsBrick.id_,       order=200)
+                # BlockPortalLocation.create_or_update(app_name='opportunities', brick_id=assistants_bricks.UserMessagesBrick.id_, order=400)
 
             if apps.is_installed('creme.documents'):
                 # logger.info('Documents app is installed => we use the documents block on detail view')
@@ -299,7 +299,10 @@ class Populator(BasePopulator):
 
         BlockDetailviewLocation.create_if_needed(brick_id=brick_id1, order=4, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
         BlockDetailviewLocation.create_if_needed(brick_id=brick_id2, order=6, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
-        BlockPortalLocation.create_or_update(app_name='opportunities', brick_id=brick_id1, order=1)
-        BlockPortalLocation.create_or_update(app_name='opportunities', brick_id=brick_id2, order=2)
-        BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=brick_id1, order=5)
-        BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=brick_id2, order=6)
+        # BlockPortalLocation.create_or_update(app_name='opportunities', brick_id=brick_id1, order=1)
+        # BlockPortalLocation.create_or_update(app_name='opportunities', brick_id=brick_id2, order=2)
+
+        # BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=brick_id1, order=5)
+        # BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=brick_id2, order=6)
+        BlockPortalLocation.objects.create(brick_id=brick_id1, order=5)
+        BlockPortalLocation.objects.create(brick_id=brick_id2, order=6)
