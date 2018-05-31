@@ -18,25 +18,33 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
+# import logging
 
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 
 class QuickFormsRegistry(object):
+    class RegistrationError(Exception):
+        pass
+
     def __init__(self):
         self._forms = {}
 
     def register(self, model, form):
         forms = self._forms
 
-        # if forms.has_key(model):
         if model in forms:
-            # TODO: exception instead ?
-            logger.warning("A Quick Form is already registered for the model : %s", model)
+            # logger.warning("A Quick Form is already registered for the model : %s", model)
+            raise self.RegistrationError('A Quick Form is already registered for the model : {}'.format(model))
 
         forms[model] = form
+
+    def unregister(self, model):
+        try:
+            self._forms.pop(model)
+        except KeyError:
+            raise self.RegistrationError('No Quick Form is registered for the model : {}'.format(model))
 
     def iter_models(self):
         return self._forms.iterkeys()

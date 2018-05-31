@@ -16,6 +16,7 @@ try:
 
     from ..base import CremeTestCase
     from ..fake_constants import FAKE_PERCENT_UNIT, FAKE_DISCOUNT_UNIT
+    from ..fake_forms import FakeContactQuickForm, FakeOrganisationQuickForm
     from ..fake_models import (FakeContact, FakeOrganisation, FakePosition,
             FakeImage, FakeImageCategory, FakeEmailCampaign, FakeMailingList,
             FakeInvoice, FakeInvoiceLine)
@@ -23,12 +24,14 @@ try:
     from creme.creme_core.gui.button_menu import Button, ButtonsRegistry
     from creme.creme_core.gui.field_printers import (_FieldPrintersRegistry,
             FKPrinter, simple_print_html)
+    from creme.creme_core.forms import CremeModelWithUserForm
     from creme.creme_core.gui.icons import Icon, IconRegistry
     from creme.creme_core.gui.last_viewed import LastViewedItem
+    from creme.creme_core.gui.quick_forms import QuickFormsRegistry
     from creme.creme_core.gui.statistics import _StatisticsRegistry
     from creme.creme_core.models import CremeEntity, SetCredentials, Language
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class GuiTestCase(CremeTestCase):
@@ -660,3 +663,40 @@ class GuiTestCase(CremeTestCase):
         button_item = all_button_items[0]
         self.assertIsInstance(button_item[1], Button)
         self.assertEqual(button_item[0], button_item[1].id_)
+
+    def test_quickforms_registry01(self):
+        "Registration"
+        registry = QuickFormsRegistry()
+
+        self.assertFalse(list(registry.iter_models()))
+        self.assertIsNone(registry.get_form(FakeContact))
+
+        registry.register(FakeContact,      FakeContactQuickForm)
+        registry.register(FakeOrganisation, FakeOrganisationQuickForm)
+        self.assertIs(FakeContactQuickForm,      registry.get_form(FakeContact))
+        self.assertIs(FakeOrganisationQuickForm, registry.get_form(FakeOrganisation))
+        self.assertEqual({FakeContact, FakeOrganisation},
+                         set(registry.iter_models())
+                        )
+
+        # ---
+        class OtherContactQuickForm(CremeModelWithUserForm):
+            class Meta:
+                model = FakeContact
+                fields = ('user', 'last_name', 'first_name')
+
+        with self.assertRaises(registry.RegistrationError):
+            registry.register(FakeContact, OtherContactQuickForm)
+
+    def test_quickforms_registry02(self):
+        "Un-registration"
+        registry = QuickFormsRegistry()
+
+        with self.assertRaises(registry.RegistrationError):
+            registry.unregister(FakeContact)
+
+        registry.register(FakeContact, FakeContactQuickForm)
+        with self.assertNoException():
+            registry.unregister(FakeContact)
+
+        self.assertIsNone(registry.get_form(FakeContact))
