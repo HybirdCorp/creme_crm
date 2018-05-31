@@ -1320,7 +1320,8 @@ class BricksConfigTestCase(CremeTestCase):
         response = self.assertGET200(url)
 
         with self.assertNoException():
-            bricks_field = response.context['form'].fields['blocks']
+            # bricks_field = response.context['form'].fields['blocks']
+            bricks_field = response.context['form'].fields['bricks']
 
         choices = bricks_field.choices
         self.assertGreaterEqual(len(choices), 2)
@@ -1335,13 +1336,20 @@ class BricksConfigTestCase(CremeTestCase):
         index2 = self._find_field_index(bricks_field, brick_id2)
 
         response = self.client.post(url,
-                                    data={'blocks_check_%s' % index1: 'on',
-                                          'blocks_value_%s' % index1: brick_id1,
-                                          'blocks_order_%s' % index1: 1,
+                                    data={
+                                          # 'blocks_check_%s' % index1: 'on',
+                                          # 'blocks_value_%s' % index1: brick_id1,
+                                          # 'blocks_order_%s' % index1: 1,
+                                          'bricks_check_{}'.format(index1): 'on',
+                                          'bricks_value_{}'.format(index1): brick_id1,
+                                          'bricks_order_{}'.format(index1): 1,
 
-                                          'blocks_check_%s' % index2: 'on',
-                                          'blocks_value_%s' % index2: brick_id2,
-                                          'blocks_order_%s' % index2: 2,
+                                          # 'blocks_check_%s' % index2: 'on',
+                                          # 'blocks_value_%s' % index2: brick_id2,
+                                          # 'blocks_order_%s' % index2: 2,
+                                          'bricks_check_{}'.format(index2): 'on',
+                                          'bricks_value_{}'.format(index2): brick_id2,
+                                          'bricks_order_{}'.format(index2): 2,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -1357,28 +1365,29 @@ class BricksConfigTestCase(CremeTestCase):
         response = self.assertGET200(url)
 
         with self.assertNoException():
-            blocks_field = response.context['form'].fields['blocks']
+            # blocks_field = response.context['form'].fields['blocks']
+            bricks_field = response.context['form'].fields['bricks']
 
-        choices = blocks_field.choices
+        choices = bricks_field.choices
         self.assertGreaterEqual(len(choices), 2)
         self.assertEqual(list(BrickMypageLocation.objects.filter(user=None).values_list('brick_id', flat=True)),
-                         blocks_field.initial
-                         )
+                         bricks_field.initial
+                        )
 
         brick_id1 = choices[0][0]
         brick_id2 = choices[1][0]
 
-        index1 = self._find_field_index(blocks_field, brick_id1)
-        index2 = self._find_field_index(blocks_field, brick_id2)
+        index1 = self._find_field_index(bricks_field, brick_id1)
+        index2 = self._find_field_index(bricks_field, brick_id2)
 
         response = self.client.post(url,
-                                    data={'blocks_check_%s' % index1: 'on',
-                                          'blocks_value_%s' % index1: brick_id1,
-                                          'blocks_order_%s' % index1: 1,
+                                    data={'bricks_check_{}'.format(index1): 'on',
+                                          'bricks_value_{}'.format(index1): brick_id1,
+                                          'bricks_order_{}'.format(index1): 1,
 
-                                          'blocks_check_%s' % index2: 'on',
-                                          'blocks_value_%s' % index2: brick_id2,
-                                          'blocks_order_%s' % index2: 2,
+                                          'bricks_check_{}'.format(index2): 'on',
+                                          'bricks_value_{}'.format(index2): brick_id2,
+                                          'bricks_order_{}'.format(index2): 2,
                                          }
                                    )
         self.assertNoFormError(response)
