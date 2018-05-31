@@ -481,6 +481,7 @@ class _ModelSmartColumnsRegistry(object):
                 rtype = RelationType.objects.get(pk=rtype_id)
             except RelationType.DoesNotExist:
                 rtype = False  # Means: does not exist
+
             self._relationtype = rtype
 
         return rtype

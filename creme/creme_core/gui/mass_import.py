@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,7 +39,7 @@ class FormRegistry(object):
         try:
             return self._form_factories[ct.model_class()]
         except KeyError:
-            raise self.UnregisteredCTypeException('Unregistered ContentType: %s' % ct)
+            raise self.UnregisteredCTypeException('Unregistered ContentType: {}'.format(ct))
 
     def is_registered(self, ct):
         return ct.model_class() in self._form_factories  # TODO: accept model directly ??

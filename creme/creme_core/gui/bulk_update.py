@@ -108,7 +108,7 @@ class _BulkUpdateRegistry(object):
                 return {}
 
             model = self._model
-            custom_fields = {'customfield-%d' % field.pk: field
+            custom_fields = {'customfield-{}'.format(field.pk): field
                                 for field in CustomField.objects.filter(
                                                     content_type=ContentType.objects
                                                                             .get_for_model(model)
@@ -127,13 +127,13 @@ class _BulkUpdateRegistry(object):
                 field = self.regular_fields.get(name)
 
                 if field and not self.is_updatable(field):
-                    raise FieldNotAllowed(u"The field %s.%s is not editable" % (
+                    raise FieldNotAllowed(u'The field {}.{} is not editable'.format(
                                                 self._model._meta.verbose_name, name
                                             )
                                          )
 
             if field is None:
-                raise FieldDoesNotExist(u"The field %s.%s doesn't exist" % (
+                raise FieldDoesNotExist(u"The field {}.{} doesn't exist".format(
                                                 self._model._meta.verbose_name, name
                                             )
                                        )
@@ -144,13 +144,13 @@ class _BulkUpdateRegistry(object):
             field = self.regular_fields.get(name)
 
             if field is None:
-                raise FieldDoesNotExist(u"The field %s.%s doesn't exist" % (
+                raise FieldDoesNotExist(u"The field {}.{} doesn't exist".format(
                                                 self._model._meta.verbose_name, name
                                             )
                                        )
 
             if not self.is_expandable(field):
-                raise FieldNotAllowed(u"The field %s.%s is not expandable" % (
+                raise FieldNotAllowed(u'The field {}.{} is not expandable'.format(
                                             self._model._meta.verbose_name, name
                                         )
                                      )
@@ -179,16 +179,16 @@ class _BulkUpdateRegistry(object):
 
     def register(self, model, exclude=None, expandables=None, innerforms=None):
         """Register a CremeEntity class.
-        @param exclude A sequence of field names (ie: strings) indicating
-                       fields should not be inner-editable.
-        @param expandables A sequence of field names corresponding to ForeignKeys
-                           with inner-editable sub-fields (the FK must have the
-                           tag 'enumerable' too). It is only useful for
-                           FK related to models which are not inheriting CremeModel.
-        @param innerforms A dict with items (field_name, form_class) which provides
-                          some specific forms to use. The form_class should inherit
-                          from creme.creme_core.forms.bulk.BulkForm
-                          (generally BulkDefaultEditForm is a good choice).
+        @param exclude: A sequence of field names (ie: strings) indicating
+               fields should not be inner-editable.
+        @param expandables: A sequence of field names corresponding to ForeignKeys
+               with inner-editable sub-fields (the FK must have the
+               tag 'enumerable' too). It is only useful for
+               FK related to models which are not inheriting CremeModel.
+        @param innerforms: A dict with items (field_name, form_class) which provides
+               some specific forms to use. The form_class should inherit
+               from creme.creme_core.forms.bulk.BulkForm
+               (generally BulkDefaultEditForm is a good choice).
         """
         bulk_status = self._get_or_create_status(model)
 
@@ -335,7 +335,7 @@ class _BulkUpdateRegistry(object):
                 uri = reverse('creme_core__inner_edition', args=(ct.id, instance.id, field_name))
         elif isinstance(cell, EntityCellCustomField):
             uri = reverse('creme_core__inner_edition',
-                          args=(instance.entity_type_id, instance.id, 'customfield-%s' % cell.value),
+                          args=(instance.entity_type_id, instance.id, 'customfield-{}'.format(cell.value)),
                          )
 
         return uri
