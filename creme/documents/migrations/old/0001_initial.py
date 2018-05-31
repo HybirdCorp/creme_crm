@@ -11,8 +11,17 @@ from django.db.models.deletion import SET_NULL, PROTECT, CASCADE
 class Migration(migrations.Migration):
     # replaces = [
     #     (b'documents', '0001_initial'),
-    #     (b'documents', '0014_v1_8__linked_folder_field_1'),
-    #     (b'documents', '0015_v1_8__linked_folder_field_2'),
+    #     (b'documents', '0003_v1_7__textfields_not_null_1'),
+    #     (b'documents', '0004_v1_7__textfields_not_null_2'),
+    #     (b'documents', '0005_v1_7__doc_categories'),
+    #     (b'documents', '0006_v1_7__image_to_doc_1'),
+    #     (b'documents', '0007_v1_7__image_to_doc_2'),
+    #     (b'documents', '0008_v1_7__image_to_doc_3'),
+    #     (b'documents', '0009_v1_7__image_to_doc_4'),
+    #     (b'documents', '0010_v1_7__mime_type_1'),
+    #     (b'documents', '0011_v1_7__mime_type_2'),
+    #     (b'documents', '0012_v1_7__doc_categories_uniqueness'),
+    #     (b'documents', '0013_v1_7__folders_uuids'),
     # ]
 
     initial = True
@@ -102,8 +111,7 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(max_length=100, verbose_name='Name')),
                 ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('filedata', models.FileField(upload_to=b'upload/documents', max_length=500, verbose_name='File')),
-                # ('folder', models.ForeignKey(to=settings.DOCUMENTS_FOLDER_MODEL, on_delete=PROTECT, verbose_name='Folder')),
-                ('linked_folder', models.ForeignKey(to=settings.DOCUMENTS_FOLDER_MODEL, on_delete=PROTECT, verbose_name='Folder')),
+                ('folder', models.ForeignKey(to=settings.DOCUMENTS_FOLDER_MODEL, on_delete=PROTECT, verbose_name='Folder')),
                 ('categories', models.ManyToManyField(to='documents.DocumentCategory', verbose_name='Categories', blank=True)),
                 ('mime_type', models.ForeignKey(to='documents.MimeType', null=True, on_delete=PROTECT,
                                                 editable=False, verbose_name='MIME type',

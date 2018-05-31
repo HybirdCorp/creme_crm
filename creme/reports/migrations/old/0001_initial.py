@@ -11,8 +11,7 @@ from creme.creme_core.models import fields as creme_fields
 class Migration(migrations.Migration):
     # replaces = [
     #     (b'reports', '0001_initial'),
-    #     (b'reports', '0004_v1_8__linked_report_field'),
-    #     (b'reports', '0005_v1_8__document_linked_folder'),
+    #     (b'reports', '0003_v1_7__image_to_doc'),
     # ]
 
     initial = True
@@ -81,8 +80,7 @@ class Migration(migrations.Migration):
                 ('days', models.PositiveIntegerField(null=True, verbose_name='Days', blank=True)),
                 ('is_count', models.BooleanField(default=False, verbose_name='Make a count instead of aggregate?')),
                 ('chart', models.CharField(max_length=100, null=True, verbose_name='Chart type')),
-                # ('report', models.ForeignKey(editable=False, to=settings.REPORTS_REPORT_MODEL, on_delete=CASCADE)),
-                ('linked_report', models.ForeignKey(editable=False, to=settings.REPORTS_REPORT_MODEL, on_delete=CASCADE)),
+                ('report', models.ForeignKey(editable=False, to=settings.REPORTS_REPORT_MODEL, on_delete=CASCADE)),
             ],
             options={
                 'swappable': 'REPORTS_GRAPH_MODEL',
