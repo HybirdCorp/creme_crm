@@ -190,11 +190,13 @@ class Populator(BasePopulator):
             create_bdl(brick_id=future_id, order=20, zone=RIGHT, model=Organisation)
             create_bdl(brick_id=past_id,   order=21, zone=RIGHT, model=Organisation)
 
-            BlockPortalLocation.create_or_update(app_name='persons',    brick_id=future_id, order=20)
-            BlockPortalLocation.create_or_update(app_name='persons',    brick_id=past_id,   order=21)
+            # BlockPortalLocation.create_or_update(app_name='persons',    brick_id=future_id, order=20)
+            # BlockPortalLocation.create_or_update(app_name='persons',    brick_id=past_id,   order=21)
 
-            BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=future_id, order=20)
-            BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=past_id,   order=21)
+            # BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=future_id, order=20)
+            # BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=past_id,   order=21)
+            BlockPortalLocation.objects.create(brick_id=future_id, order=20)
+            BlockPortalLocation.objects.create(brick_id=past_id,   order=21)
 
             # ---------------------------
             create_button = ButtonMenuItem.create_if_needed

@@ -152,7 +152,7 @@ class BlockDetailviewLocation(CremeModel):
 
 
 class BlockPortalLocation(CremeModel):
-    app_name = CharField(max_length=40)
+    # app_name = CharField(max_length=40)
     brick_id = CharField(max_length=100)
     order    = PositiveIntegerField()
 
@@ -161,8 +161,11 @@ class BlockPortalLocation(CremeModel):
         ordering = ('order',)
 
     def __repr__(self):
-        return 'BlockPortalLocation(id={id}, app_name={app}, brick_id={brick_id}, order={order})'.format(
-                id=self.id, app=self.app_name, brick_id=self.brick_id, order=self.order,
+        # return 'BlockPortalLocation(id={id}, app_name={app}, brick_id={brick_id}, order={order})'.format(
+        #         id=self.id, app=self.app_name, brick_id=self.brick_id, order=self.order,
+        #     )
+        return 'BlockPortalLocation(id={id}, brick_id={brick_id}, order={order})'.format(
+                id=self.id, brick_id=self.brick_id, order=self.order,
             )
 
     # @staticmethod
@@ -173,17 +176,17 @@ class BlockPortalLocation(CremeModel):
     #                  )
     #     return BlockPortalLocation.create_or_update(brick_id=block_id, order=order, app_name=app_name)
 
-    @staticmethod
-    def create_or_update(brick_id, order, app_name=''):
-        try:
-            loc = BlockPortalLocation.objects.get(app_name=app_name, brick_id=brick_id)
-        except Exception:
-            loc = BlockPortalLocation.objects.create(app_name=app_name, brick_id=brick_id, order=order)
-        else:
-            loc.order = order
-            loc.save()
-
-        return loc
+    # @staticmethod
+    # def create_or_update(brick_id, order, app_name=''):
+    #     try:
+    #         loc = BlockPortalLocation.objects.get(app_name=app_name, brick_id=brick_id)
+    #     except Exception:
+    #         loc = BlockPortalLocation.objects.create(app_name=app_name, brick_id=brick_id, order=order)
+    #     else:
+    #         loc.order = order
+    #         loc.save()
+    #
+    #     return loc
 
     # @staticmethod
     # def create_empty_config(app_name=''):

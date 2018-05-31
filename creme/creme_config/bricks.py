@@ -430,7 +430,8 @@ class BlockHomeLocationsBrick(_ConfigAdminBrick):
     def detailview_display(self, context):
         return self._render(self.get_template_context(
                     context,
-                    BlockPortalLocation.objects.filter(app_name='creme_core'),
+                    # BlockPortalLocation.objects.filter(app_name='creme_core'),
+                    BlockPortalLocation.objects.all(),
         ))
 
 

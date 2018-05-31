@@ -1243,9 +1243,10 @@ class BricksConfigTestCase(CremeTestCase):
     #     self.assertIn(app_name, [e[0] for e in response.context['form'].fields['app_name'].choices])
 
     def test_edit_home(self):
-        app_name = 'creme_core'
+        # app_name = 'creme_core'
 
-        BlockPortalLocation.create_or_update(brick_id=HistoryBrick.id_, order=8, app_name=app_name)
+        # BlockPortalLocation.create_or_update(brick_id=HistoryBrick.id_, order=8, app_name=app_name)
+        BlockPortalLocation.objects.create(brick_id=HistoryBrick.id_, order=8)
 
         naru = FakeContact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
         instance_brick_id = InstanceBlockConfigItem.generate_id(HomeInstanceBrick, naru, '')
@@ -1284,7 +1285,8 @@ class BricksConfigTestCase(CremeTestCase):
                                     )
         self.assertNoFormError(response)
 
-        b_locs = list(BlockPortalLocation.objects.filter(app_name=app_name))
+        # b_locs = list(BlockPortalLocation.objects.filter(app_name=app_name))
+        b_locs = list(BlockPortalLocation.objects.all())
         self.assertEqual(2, len(b_locs))
         self.assertEqual(1, self._find_location(brick_id1, b_locs).order)
         self.assertEqual(2, self._find_location(brick_id2, b_locs).order)
@@ -1302,13 +1304,14 @@ class BricksConfigTestCase(CremeTestCase):
     #     self.assertPOST404(reverse('creme_config__delete_portal_bricks'), data={'id': app_name})
 
     def test_delete_home_location_item(self):
-        app_name = 'creme_core'
+        # app_name = 'creme_core'
         bricks = [block for brick_id, block in self.brick_registry
                             if hasattr(block, 'home_display')
                  ]
         self.assertGreaterEqual(len(bricks), 1)
 
-        bpl = BlockPortalLocation.objects.create(app_name=app_name, brick_id=bricks[0].id_, order=1)
+        # bpl = BlockPortalLocation.objects.create(app_name=app_name, brick_id=bricks[0].id_, order=1)
+        bpl = BlockPortalLocation.objects.create(brick_id=bricks[0].id_, order=1)
         self.assertPOST200(reverse('creme_config__delete_home_brick'), data={'id': bpl.id})
         self.assertDoesNotExist(bpl)
 

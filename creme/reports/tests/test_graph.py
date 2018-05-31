@@ -1918,7 +1918,8 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         # ---------------------------------------------------------------------
         # Display on home
         BlockPortalLocation.objects.all().delete()
-        BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=item.brick_id, order=1)
+        # BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=item.brick_id, order=1)
+        BlockPortalLocation.objects.create(brick_id=item.brick_id, order=1)
         response = self.assertGET200('/')
         self.assertTemplateUsed(response, 'reports/bricks/graph.html')
         self.get_brick_node(self.get_html_tree(response.content), item.brick_id)

@@ -24,7 +24,8 @@ class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         BlockDetailviewLocation.create_if_needed(brick_id=ImprintsBrick.id_, order=1,
                                                  zone=BlockDetailviewLocation.LEFT,
                                                 )
-        BlockPortalLocation.create_or_update(brick_id=ImprintsBrick.id_, order=1, app_name='creme_core')
+        # BlockPortalLocation.create_or_update(brick_id=ImprintsBrick.id_, order=1, app_name='creme_core')
+        BlockPortalLocation.objects.create(brick_id=ImprintsBrick.id_, order=1)
 
     def test_detailview(self):
         user = self.login()

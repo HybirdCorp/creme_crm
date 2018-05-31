@@ -38,7 +38,7 @@ def _render_home(request, template_name, brick_ids):
 def home(request):
     return _render_home(request, 'creme_core/home.html',
                         brick_ids=BlockPortalLocation.objects
-                                                     .filter(app_name='creme_core')
+                                                     # .filter(app_name='creme_core')
                                                      .order_by('order')
                                                      .values_list('brick_id', flat=True),
                        )

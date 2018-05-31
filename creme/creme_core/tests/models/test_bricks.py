@@ -61,8 +61,9 @@ class BrickTestCase(CremeTestCase):
                              {loc.brick_id for loc in self._bdl_backup}
                             )
         brick_id = HistoryBrick.id_
-        self.assertIn(brick_id, {bpl.brick_id for bpl in self._bpl_backup if bpl.app_name == ''})
-        self.assertIn(brick_id, {bpl.brick_id for bpl in self._bpl_backup if bpl.app_name == 'creme_core'})
+        # self.assertIn(brick_id, {bpl.brick_id for bpl in self._bpl_backup if bpl.app_name == ''})
+        # self.assertIn(brick_id, {bpl.brick_id for bpl in self._bpl_backup if bpl.app_name == 'creme_core'})
+        self.assertIn(brick_id, {bpl.brick_id for bpl in self._bpl_backup})
         self.assertIn(brick_id, {bml.brick_id for bml in self._bml_backup if bml.user is None})
 
     # def test_create_detailview01(self):
@@ -289,36 +290,36 @@ class BrickTestCase(CremeTestCase):
     #     # self.assertEqual(_('History'), unicode(loc.block_verbose_name))
     #     self.assertEqual(_('History'), unicode(loc.brick_verbose_name))
 
-    def test_create_or_update_portal01(self):
-        app_name = 'persons'
-        order = 25
-        brick_id = HistoryBrick.id_
-        loc = BlockPortalLocation.create_or_update(app_name=app_name, brick_id=brick_id, order=order)
-        self.get_object_or_fail(BlockPortalLocation, pk=loc.pk, app_name=app_name,
-                                brick_id=brick_id, order=order,
-                               )
-
-        self.assertEqual(_('History'), unicode(loc.brick_verbose_name))
-
-    def test_create_or_update_portal02(self):
-        order = 10
-        brick_id = HistoryBrick.id_
-        loc = BlockPortalLocation.create_or_update(brick_id=brick_id, order=order)
-        self.get_object_or_fail(BlockPortalLocation, pk=loc.pk, app_name='',
-                                brick_id=brick_id, order=order,
-                               )
-
-    def test_create_or_update_portal03(self):
-        app_name = 'billing'
-        brick_id = HistoryBrick.id_
-        BlockPortalLocation.create_or_update(brick_id=brick_id, order=3, app_name=app_name)
-
-        order = 10
-        BlockPortalLocation.create_or_update(brick_id=brick_id, order=order, app_name=app_name)
-
-        locs = BlockPortalLocation.objects.filter(app_name=app_name, brick_id=brick_id)
-        self.assertEqual(1, len(locs))
-        self.assertEqual(order, locs[0].order)
+    # def test_create_or_update_portal01(self):
+    #     app_name = 'persons'
+    #     order = 25
+    #     brick_id = HistoryBrick.id_
+    #     loc = BlockPortalLocation.create_or_update(app_name=app_name, brick_id=brick_id, order=order)
+    #     self.get_object_or_fail(BlockPortalLocation, pk=loc.pk, app_name=app_name,
+    #                             brick_id=brick_id, order=order,
+    #                            )
+    #
+    #     self.assertEqual(_('History'), unicode(loc.brick_verbose_name))
+    #
+    # def test_create_or_update_portal02(self):
+    #     order = 10
+    #     brick_id = HistoryBrick.id_
+    #     loc = BlockPortalLocation.create_or_update(brick_id=brick_id, order=order)
+    #     self.get_object_or_fail(BlockPortalLocation, pk=loc.pk, app_name='',
+    #                             brick_id=brick_id, order=order,
+    #                            )
+    #
+    # def test_create_or_update_portal03(self):
+    #     app_name = 'billing'
+    #     brick_id = HistoryBrick.id_
+    #     BlockPortalLocation.create_or_update(brick_id=brick_id, order=3, app_name=app_name)
+    #
+    #     order = 10
+    #     BlockPortalLocation.create_or_update(brick_id=brick_id, order=order, app_name=app_name)
+    #
+    #     locs = BlockPortalLocation.objects.filter(app_name=app_name, brick_id=brick_id)
+    #     self.assertEqual(1, len(locs))
+    #     self.assertEqual(order, locs[0].order)
 
     # def test_create_empty_portal_config01(self):
     #     app_name = 'creme_core'
