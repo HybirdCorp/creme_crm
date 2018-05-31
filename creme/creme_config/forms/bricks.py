@@ -342,22 +342,22 @@ class BrickHomeLocationsForm(_BrickLocationsForm):
 
 
 class BrickMypageLocationsForm(_BrickLocationsForm):
-    blocks = BrickLocationsField(label=_(u'Blocks to display on the "My Page" of the users'))
+    # blocks = BrickLocationsField(label=_(u'Blocks to display on the "My Page" of the users'))
+    bricks = BrickLocationsField(label=_(u'Blocks to display on the «My Page» of the users'))
 
     def __init__(self, owner, *args, **kwargs):
         super(BrickMypageLocationsForm, self).__init__(*args, **kwargs)
         self.owner = owner
         self.locations = locations = BrickMypageLocation.objects.filter(user=owner)
 
-        # self._build_portal_locations_field(app_name='creme_core', field_name='blocks',
-        #                                    block_locations=locations,
-        #                                   )
-        self._build_home_locations_field(field_name='blocks', brick_locations=locations)
+        # self._build_home_locations_field(field_name='blocks', brick_locations=locations)
+        self._build_home_locations_field(field_name='bricks', brick_locations=locations)
 
     def save(self, *args, **kwargs):
         self._save_locations(BrickMypageLocation,
                              lambda: BrickMypageLocation(user=self.owner),
-                             {1: self.cleaned_data['blocks']},  # 1 is a "nameless" zone
+                             # {1: self.cleaned_data['blocks']},  # 1 is a "nameless" zone
+                             {1: self.cleaned_data['bricks']},  # 1 is a "nameless" zone
                              self.locations,
                             )
 
