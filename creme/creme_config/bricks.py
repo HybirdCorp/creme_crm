@@ -35,8 +35,8 @@ from creme.creme_core.gui.bricks import Brick, PaginatedBrick, QuerysetBrick, br
 from creme.creme_core.models import (CremeModel, CremeEntity, UserRole, SettingValue,
         CremePropertyType, RelationType, SemiFixedRelationType, FieldsConfig,
         CustomField, CustomFieldEnumValue,
-        BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
-        RelationBlockItem, InstanceBlockConfigItem, CustomBlockConfigItem,
+        BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
+        RelationBrickItem, InstanceBrickConfigItem, CustomBrickConfigItem,
         ButtonMenuItem, SearchConfigItem, HistoryConfigItem)  # PreferedMenuItem
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils import creme_entity_content_types
@@ -200,7 +200,7 @@ class FieldsConfigsBrick(PaginatedBrick):
     page_size     = _PAGE_SIZE
     verbose_name  = u'Fields configuration'
     template_name = 'creme_config/bricks/fields-configs.html'
-    permission    = None  # NB: used by the view creme_core.views.blocks.reload_basic()
+    permission    = None  # NB: used by the view creme_core.views.bricks.reload_basic()
     configurable  = False
 
     def detailview_display(self, context):
@@ -315,9 +315,10 @@ class TeamsBrick(_ConfigAdminBrick):
         ))
 
 
-class BlockDetailviewLocationsBrick(PaginatedBrick):
+# class BlockDetailviewLocationsBrick(PaginatedBrick):
+class BrickDetailviewLocationsBrick(PaginatedBrick):
     id_           = PaginatedBrick.generate_id('creme_config', 'blocks_dv_locations')
-    dependencies  = (BlockDetailviewLocation,)
+    dependencies  = (BrickDetailviewLocation,)
     page_size     = _PAGE_SIZE - 1  # '-1' because there is always the line for default config on each page
     verbose_name  = u'Blocks locations on detailviews'
     template_name = 'creme_config/bricks/bricklocations-detailviews.html'
@@ -359,9 +360,9 @@ class BlockDetailviewLocationsBrick(PaginatedBrick):
         block_counts = defaultdict(lambda: defaultdict(int)) # block_counts[content_type.id][(role_id, superuser)] -> count
         role_ids = set()
 
-        for bdl in BlockDetailviewLocation.objects \
+        for bdl in BrickDetailviewLocation.objects \
                                           .filter(content_type__in=[ctw.ctype for ctw in ctypes_wrappers])\
-                                          .exclude(zone=BlockDetailviewLocation.HAT):
+                                          .exclude(zone=BrickDetailviewLocation.HAT):
             if bdl.brick_id:  # Do not count the 'place-holder' (empty block IDs which mean "no-block for this zone")
                 role_id = bdl.role_id
                 block_counts[bdl.content_type_id][(role_id, bdl.superuser)] += 1
@@ -387,9 +388,9 @@ class BlockDetailviewLocationsBrick(PaginatedBrick):
 
             locations_info.sort(key=lambda t: sort_key(t[1]))  # Sort by role label
 
-        btc['default_count'] = BlockDetailviewLocation.objects.filter(content_type=None,
+        btc['default_count'] = BrickDetailviewLocation.objects.filter(content_type=None,
                                                                       role=None, superuser=False,
-                                                                     ).count()
+                                                                      ).count()
 
         return self._render(btc)
 
@@ -421,9 +422,10 @@ class BlockDetailviewLocationsBrick(PaginatedBrick):
 #         return self._render(self.get_template_context(context, app_configs))
 
 
-class BlockHomeLocationsBrick(_ConfigAdminBrick):
+# class BlockHomeLocationsBrick(_ConfigAdminBrick):
+class BrickHomeLocationsBrick(_ConfigAdminBrick):
     id_           = _ConfigAdminBrick.generate_id('creme_config', 'blocks_home_locations')
-    dependencies  = (BlockPortalLocation,)
+    dependencies  = (BrickHomeLocation,)
     verbose_name  = u'Locations of blocks on the home page.'
     template_name = 'creme_config/bricks/bricklocations-home.html'
 
@@ -431,66 +433,71 @@ class BlockHomeLocationsBrick(_ConfigAdminBrick):
         return self._render(self.get_template_context(
                     context,
                     # BlockPortalLocation.objects.filter(app_name='creme_core'),
-                    BlockPortalLocation.objects.all(),
+                    BrickHomeLocation.objects.all(),
         ))
 
 
-class BlockDefaultMypageLocationsBrick(_ConfigAdminBrick):
+# class BlockDefaultMypageLocationsBrick(_ConfigAdminBrick):
+class BrickDefaultMypageLocationsBrick(_ConfigAdminBrick):
     id_           = _ConfigAdminBrick.generate_id('creme_config', 'blocks_default_mypage_locations')
-    dependencies  = (BlockMypageLocation,)
+    dependencies  = (BrickMypageLocation,)
     verbose_name  = u'Default blocks locations on "My page"'
     template_name = 'creme_config/bricks/bricklocations-mypage-default.html'
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
                     context,
-                    BlockMypageLocation.objects.filter(user=None),
+                    BrickMypageLocation.objects.filter(user=None),
         ))
 
 
-class BlockMypageLocationsBrick(_ConfigAdminBrick):
+# class BlockMypageLocationsBrick(_ConfigAdminBrick):
+class BrickMypageLocationsBrick(_ConfigAdminBrick):
     id_           = _ConfigAdminBrick.generate_id('creme_config', 'blocks_mypage_locations')
-    dependencies  = (BlockMypageLocation,)
+    dependencies  = (BrickMypageLocation,)
     verbose_name  = u'Blocks locations on "My page"'
     template_name = 'creme_config/bricks/bricklocations-mypage-user.html'
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
                     context,
-                    BlockMypageLocation.objects.filter(user=context['user']),
+                    BrickMypageLocation.objects.filter(user=context['user']),
         ))
 
 
-class RelationBlocksConfigBrick(_ConfigAdminBrick):
+# class RelationBlocksConfigBrick(_ConfigAdminBrick):
+class RelationBricksConfigBrick(_ConfigAdminBrick):
     id_           = _ConfigAdminBrick.generate_id('creme_config', 'relation_blocks_config')
     # BlockDetailviewLocation because they can be deleted if we delete a RelationBlockItem
-    dependencies  = (RelationBlockItem, BlockDetailviewLocation)
+    dependencies  = (RelationBrickItem, BrickDetailviewLocation)
     verbose_name  = u'Relation blocks configuration'
     template_name = 'creme_config/bricks/relationbricks-configs.html'
     order_by = 'relation_type__predicate'
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
-                    context, RelationBlockItem.objects.all(),
+                    context, RelationBrickItem.objects.all(),
         ))
 
 
-class InstanceBlocksConfigBrick(_ConfigAdminBrick):
+# class InstanceBlocksConfigBrick(_ConfigAdminBrick):
+class InstanceBricksConfigBrick(_ConfigAdminBrick):
     id_           = _ConfigAdminBrick.generate_id('creme_config', 'instance_blocks_config')
     # BlockDetailviewLocation because they can be deleted if we delete a InstanceBlockConfigItem
-    dependencies  = (InstanceBlockConfigItem, BlockDetailviewLocation)
+    dependencies  = (InstanceBrickConfigItem, BrickDetailviewLocation)
     verbose_name  = u'Instance blocks configuration'
     template_name = 'creme_config/bricks/instancebricks-configs.html'
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
-                    context, InstanceBlockConfigItem.objects.all(),
+                    context, InstanceBrickConfigItem.objects.all(),
         ))
 
 
-class CustomBlocksConfigBrick(PaginatedBrick):
+# class CustomBlocksConfigBrick(PaginatedBrick):
+class CustomBricksConfigBrick(PaginatedBrick):
     id_           = _ConfigAdminBrick.generate_id('creme_config', 'custom_blocks_config')
-    dependencies  = (CustomBlockConfigItem,)
+    dependencies  = (CustomBrickConfigItem,)
     verbose_name  = u'Custom blocks configuration'
     template_name = 'creme_config/bricks/custombricks-configs.html'
     page_size    = _PAGE_SIZE
@@ -510,7 +517,7 @@ class CustomBlocksConfigBrick(PaginatedBrick):
 
         cbi_per_ctid = defaultdict(list)
 
-        for cb_item in CustomBlockConfigItem.objects.order_by('name'):
+        for cb_item in CustomBrickConfigItem.objects.order_by('name'):
             cbi_per_ctid[cb_item.content_type_id].append(cb_item)
 
         get_ct = ContentType.objects.get_for_id

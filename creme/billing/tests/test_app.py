@@ -4,12 +4,12 @@ try:
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
-    from django.urls import reverse
+    # from django.urls import reverse
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
     from creme.creme_core.models import (RelationType, Vat,
-            SettingValue, BlockDetailviewLocation)
+            SettingValue, BrickDetailviewLocation)
 
     from creme.persons.tests.base import skipIfCustomOrganisation
 
@@ -291,8 +291,8 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         orga = Organisation.objects.create(user=self.user, name='NERV')
         brick_id = bricks.PersonsStatisticsBrick.id_
 
-        BlockDetailviewLocation.create_if_needed(brick_id=brick_id, order=1000,
-                                                 zone=BlockDetailviewLocation.LEFT,
+        BrickDetailviewLocation.create_if_needed(brick_id=brick_id, order=1000,
+                                                 zone=BrickDetailviewLocation.LEFT,
                                                  model=Organisation,
                                                 )
 

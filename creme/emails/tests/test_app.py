@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from django.urls import reverse
+    # from django.urls import reverse
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import SettingValue, FieldsConfig

@@ -10,7 +10,7 @@ try:
     from django.utils.translation import ugettext as _, pgettext
 
     from creme.creme_core.models import (RelationType, Relation,
-            InstanceBlockConfigItem, BlockDetailviewLocation, BlockPortalLocation,
+            InstanceBrickConfigItem, BrickDetailviewLocation, BrickHomeLocation,
             EntityFilter, EntityFilterCondition, FieldsConfig,
             CustomField, CustomFieldEnumValue, CustomFieldEnum, CustomFieldInteger)
     from creme.creme_core.tests import fake_constants
@@ -28,7 +28,7 @@ try:
             RGT_YEAR, RGT_RANGE, RGT_FK, RFT_FIELD, RFT_RELATION)
     from ..core.graph import ListViewURLBuilder
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 @skipIfCustomReport
@@ -1888,13 +1888,13 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
     def test_add_graph_instance_brick01(self):
         rgraph = self._create_invoice_report_n_graph()
-        self.assertFalse(InstanceBlockConfigItem.objects.filter(entity=rgraph.id).exists())
+        self.assertFalse(InstanceBrickConfigItem.objects.filter(entity=rgraph.id).exists())
 
         url = self._build_add_brick_url(rgraph)
         self.assertGET200(url)
         self.assertNoFormError(self.client.post(url))
 
-        items = InstanceBlockConfigItem.objects.filter(entity=rgraph.id)
+        items = InstanceBrickConfigItem.objects.filter(entity=rgraph.id)
         self.assertEqual(1, len(items))
 
         item = items[0]
@@ -1917,9 +1917,9 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                             )
         # ---------------------------------------------------------------------
         # Display on home
-        BlockPortalLocation.objects.all().delete()
+        BrickHomeLocation.objects.all().delete()
         # BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=item.brick_id, order=1)
-        BlockPortalLocation.objects.create(brick_id=item.brick_id, order=1)
+        BrickHomeLocation.objects.create(brick_id=item.brick_id, order=1)
         response = self.assertGET200('/')
         self.assertTemplateUsed(response, 'reports/bricks/graph.html')
         self.get_brick_node(self.get_html_tree(response.content), item.brick_id)
@@ -1927,9 +1927,9 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         # ---------------------------------------------------------------------
         # Display on detailview
         ct = self.ct_invoice
-        BlockDetailviewLocation.objects.filter(content_type=ct).delete()
-        BlockDetailviewLocation.create_if_needed(brick_id=item.brick_id, order=1,
-                                                 zone=BlockDetailviewLocation.RIGHT, model=FakeInvoice,
+        BrickDetailviewLocation.objects.filter(content_type=ct).delete()
+        BrickDetailviewLocation.create_if_needed(brick_id=item.brick_id, order=1,
+                                                 zone=BrickDetailviewLocation.RIGHT, model=FakeInvoice,
                                                 )
 
         create_orga = partial(FakeOrganisation.objects.create, user=self.user)
@@ -2008,7 +2008,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         self.assertNoFormError(self.client.post(url, data={'volatile_column': folder_choice}))
 
-        items = InstanceBlockConfigItem.objects.filter(entity=rgraph.id)
+        items = InstanceBrickConfigItem.objects.filter(entity=rgraph.id)
         self.assertEqual(1, len(items))
 
         item = items[0]
@@ -2032,9 +2032,9 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         create_doc(title='Doc#2',   linked_folder=folder2)
 
         ct = folder1.entity_type
-        BlockDetailviewLocation.objects.filter(content_type=ct).delete()
-        BlockDetailviewLocation.create_if_needed(brick_id=item.brick_id, order=1,
-                                                 zone=BlockDetailviewLocation.RIGHT, model=FakeReportsFolder,
+        BrickDetailviewLocation.objects.filter(content_type=ct).delete()
+        BrickDetailviewLocation.create_if_needed(brick_id=item.brick_id, order=1,
+                                                 zone=BrickDetailviewLocation.RIGHT, model=FakeReportsFolder,
                                                 )
 
         response = self.assertGET200(folder1.get_absolute_url())
@@ -2056,7 +2056,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         # We create voluntarily an invalid item
         # TODO: factorise
         fname = 'invalid'
-        ibci = InstanceBlockConfigItem.objects.create(
+        ibci = InstanceBrickConfigItem.objects.create(
                     entity=rgraph,
                     brick_id='instanceblock_reports-graph|%s-%s|%s' % (rgraph.id, fname, RFT_FIELD),
                     data='%s|%s' % (fname, RFT_FIELD),
@@ -2080,7 +2080,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         # We create voluntarily an invalid item
         fname = 'description'
-        ibci = InstanceBlockConfigItem.objects.create(
+        ibci = InstanceBrickConfigItem.objects.create(
                     entity=rgraph,
                     brick_id='instanceblock_reports-graph|%s-%s|%s' % (rgraph.id, fname, RFT_FIELD),
                     data='%s|%s' % (fname, RFT_FIELD),
@@ -2141,7 +2141,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         self.assertNoFormError(self.client.post(url, data={'volatile_column': choice_id}))
 
-        items = InstanceBlockConfigItem.objects.filter(entity=rgraph.id)
+        items = InstanceBrickConfigItem.objects.filter(entity=rgraph.id)
         self.assertEqual(1, len(items))
 
         item = items[0]
@@ -2190,7 +2190,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         # We create voluntarily an invalid item
         rtype_id = 'invalid'
-        ibci = InstanceBlockConfigItem.objects.create(
+        ibci = InstanceBrickConfigItem.objects.create(
                     entity=rgraph,
                     brick_id='instanceblock_reports-graph|%s-%s|%s' % (rgraph.id, rtype_id, RFT_RELATION),
                     data='%s|%s' % (rtype_id, RFT_RELATION),

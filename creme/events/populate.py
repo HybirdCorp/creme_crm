@@ -27,7 +27,7 @@ from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (SearchConfigItem, RelationType, HeaderFilter,
-        BlockDetailviewLocation)
+        BrickDetailviewLocation)
 from creme.creme_core.utils import create_if_needed
 
 from creme.persons import get_contact_model
@@ -94,11 +94,11 @@ class Populator(BasePopulator):
             for i, name in enumerate([_(u'Show'), _(u'Conference'), _(u'Breakfast'), _(u'Brunch')], start=1):
                 create_if_needed(EventType, {'pk': i}, name=name)
 
-            create_bdl = BlockDetailviewLocation.create_if_needed
-            LEFT  = BlockDetailviewLocation.LEFT
-            RIGHT = BlockDetailviewLocation.RIGHT
+            create_bdl = BrickDetailviewLocation.create_if_needed
+            LEFT  = BrickDetailviewLocation.LEFT
+            RIGHT = BrickDetailviewLocation.RIGHT
 
-            BlockDetailviewLocation.create_4_model_brick(order=5,             zone=LEFT,  model=Event)
+            BrickDetailviewLocation.create_4_model_brick(          order=5,   zone=LEFT,  model=Event)
             create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=Event)
             create_bdl(brick_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=Event)
             create_bdl(brick_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=Event)

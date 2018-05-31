@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from django.conf import settings
+# from django.conf import settings
 from django.conf.urls import url, include
 
 from .views import (bricks, button_menu, creme_property_type, custom_fields,
-        fields_config, generics_views, history, portal, prefered_menu,
+        fields_config, generics_views, history, portal, # prefered_menu,
         relation_type, search, setting, user, user_role, user_settings,
 )
 

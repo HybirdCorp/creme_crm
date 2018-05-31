@@ -26,7 +26,7 @@ from django.utils.translation import ugettext as _
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import HeaderFilter, BlockDetailviewLocation, SearchConfigItem
+from creme.creme_core.models import HeaderFilter, BrickDetailviewLocation, SearchConfigItem
 from creme.creme_core.utils import create_if_needed
 
 from creme import persons
@@ -83,14 +83,14 @@ class Populator(BasePopulator):
             create_if_needed(PollType, {'pk': 3}, name=_(u'Assessment'))
 
         # ---------------------------
-        if not BlockDetailviewLocation.config_exists(PollForm): # NB: no straightforward way to test that this populate script has not been already run
-            TOP   = BlockDetailviewLocation.TOP
-            LEFT  = BlockDetailviewLocation.LEFT
-            RIGHT = BlockDetailviewLocation.RIGHT
+        if not BrickDetailviewLocation.config_exists(PollForm): # NB: no straightforward way to test that this populate script has not been already run
+            TOP   = BrickDetailviewLocation.TOP
+            LEFT  = BrickDetailviewLocation.LEFT
+            RIGHT = BrickDetailviewLocation.RIGHT
 
-            create_bdl = BlockDetailviewLocation.create_if_needed
+            create_bdl = BrickDetailviewLocation.create_if_needed
             create_bdl(brick_id=bricks.PollFormLinesBrick.id_,     order=5,   zone=TOP,   model=PollForm)
-            BlockDetailviewLocation.create_4_model_brick(order=5,             zone=LEFT,  model=PollForm)
+            BrickDetailviewLocation.create_4_model_brick(          order=5,   zone=LEFT,  model=PollForm)
             create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=PollForm)
             create_bdl(brick_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=PollForm)
             create_bdl(brick_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=PollForm)
@@ -99,13 +99,13 @@ class Populator(BasePopulator):
 
             # TODO: factorise
             create_bdl(brick_id=bricks.PollReplyLinesBrick.id_,    order=5,   zone=TOP,   model=PollReply)
-            BlockDetailviewLocation.create_4_model_brick(order=5,             zone=LEFT,  model=PollReply)
+            BrickDetailviewLocation.create_4_model_brick(          order=5,   zone=LEFT,  model=PollReply)
             create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=PollReply)
             create_bdl(brick_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=PollReply)
             create_bdl(brick_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=PollReply)
             create_bdl(brick_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=PollReply)
 
-            BlockDetailviewLocation.create_4_model_brick(order=5,               zone=LEFT,  model=PollCampaign)
+            BrickDetailviewLocation.create_4_model_brick(            order=5,   zone=LEFT,  model=PollCampaign)
             create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_,   order=40,  zone=LEFT,  model=PollCampaign)
             create_bdl(brick_id=core_bricks.PropertiesBrick.id_,     order=450, zone=LEFT,  model=PollCampaign)
             create_bdl(brick_id=core_bricks.RelationsBrick.id_,      order=500, zone=LEFT,  model=PollCampaign)

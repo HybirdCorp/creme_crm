@@ -31,8 +31,8 @@ from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..core.entity_cell import EntityCellRegularField
-from ..models import (Relation, RelationBlockItem, CremeEntity,
-        InstanceBlockConfigItem, CustomBlockConfigItem, BlockState)
+from ..models import (Relation, RelationBrickItem, CremeEntity,
+        InstanceBrickConfigItem, CustomBrickConfigItem, BrickState)
 
 
 logger = logging.getLogger(__name__)
@@ -600,11 +600,11 @@ class BricksManager(object):
         "Get the state for a brick and fill a cache to avoid multiple SQL requests"
         _state_cache = self._state_cache
         if not _state_cache:
-            _state_cache = self._state_cache = BlockState.get_for_brick_ids([brick.id_ for brick in self._bricks], user)
+            _state_cache = self._state_cache = BrickState.get_for_brick_ids([brick.id_ for brick in self._bricks], user)
 
         state = _state_cache.get(brick_id)
         if state is None:
-            state = self._state_cache[brick_id] = BlockState.get_for_brick_id(brick_id, user)
+            state = self._state_cache[brick_id] = BrickState.get_for_brick_id(brick_id, user)
             logger.warn("State not set in cache for '%s'" % brick_id)
 
         return state
@@ -722,7 +722,7 @@ class _BrickRegistry(object):
         @return Brick instance.
         """
         brick_id = ibi.brick_id
-        brick_class = self._instance_brick_classes.get(InstanceBlockConfigItem.get_base_id(brick_id))
+        brick_class = self._instance_brick_classes.get(InstanceBrickConfigItem.get_base_id(brick_id))
 
         if brick_class is None:
             logger.warning('Brick class seems deprecated: %s', brick_id)
@@ -752,17 +752,17 @@ class _BrickRegistry(object):
                        it should be given.
         """
         specific_ids = list(filter(SpecificRelationsBrick.id_is_specific, brick_ids))
-        instance_ids = list(filter(InstanceBlockConfigItem.id_is_specific, brick_ids))
-        custom_ids   = list(filter(None, map(CustomBlockConfigItem.id_from_brick_id, brick_ids)))
+        instance_ids = list(filter(InstanceBrickConfigItem.id_is_specific, brick_ids))
+        custom_ids   = list(filter(None, map(CustomBrickConfigItem.id_from_brick_id, brick_ids)))
 
         relation_bricks_items = {rbi.brick_id: rbi
-                                     for rbi in RelationBlockItem.objects.filter(brick_id__in=specific_ids)
+                                     for rbi in RelationBrickItem.objects.filter(brick_id__in=specific_ids)
                                 } if specific_ids else {}
         instance_bricks_items = {ibi.brick_id: ibi
-                                     for ibi in InstanceBlockConfigItem.objects.filter(brick_id__in=instance_ids)
+                                     for ibi in InstanceBrickConfigItem.objects.filter(brick_id__in=instance_ids)
                                 } if instance_ids else {}
         custom_bricks_items = {cbci.generate_id(): cbci
-                                   for cbci in CustomBlockConfigItem.objects.filter(id__in=custom_ids)
+                                   for cbci in CustomBrickConfigItem.objects.filter(id__in=custom_ids)
                               } if custom_ids else {}
 
         for id_ in brick_ids:
@@ -873,10 +873,10 @@ class _BrickRegistry(object):
         # TODO: filter compatible relation types
         #       (problem the constraints can change after we config bricks...
         #        => keep only if constraint are broken by existing relationships ?)
-        for rbi in RelationBlockItem.objects.all():  # TODO: select_related('relation_type') ??
+        for rbi in RelationBrickItem.objects.all():  # TODO: select_related('relation_type') ??
             yield SpecificRelationsBrick(rbi)
 
-        for ibi in InstanceBlockConfigItem.objects.all():
+        for ibi in InstanceBrickConfigItem.objects.all():
             brick = self.get_brick_4_instance(ibi)
 
             if hasattr(brick, 'detailview_display') \
@@ -886,7 +886,7 @@ class _BrickRegistry(object):
         if model:
             yield self.get_brick_4_object(model)
 
-            for cbci in CustomBlockConfigItem.objects.filter(content_type=ContentType.objects.get_for_model(model)):
+            for cbci in CustomBrickConfigItem.objects.filter(content_type=ContentType.objects.get_for_model(model)):
                 yield CustomBrick(cbci.generate_id(), cbci)
 
     def get_compatible_hat_bricks(self, model):
@@ -908,7 +908,7 @@ class _BrickRegistry(object):
                     and (not brick.target_apps or app_name in brick.target_apps):
                 yield brick
 
-        for ibi in InstanceBlockConfigItem.objects.all():
+        for ibi in InstanceBrickConfigItem.objects.all():
             block = self.get_brick_4_instance(ibi)
 
             if hasattr(block, method_name) and \
@@ -924,7 +924,7 @@ class _BrickRegistry(object):
             if brick.configurable and hasattr(brick, method_name):
                 yield brick
 
-        for ibi in InstanceBlockConfigItem.objects.all():
+        for ibi in InstanceBrickConfigItem.objects.all():
             block = self.get_brick_4_instance(ibi)
 
             if hasattr(block, method_name):

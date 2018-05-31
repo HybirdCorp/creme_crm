@@ -23,7 +23,7 @@ from django.urls import reverse
 
 from ..auth.decorators import login_required
 from ..gui.bricks import brick_registry
-from ..models import BlockPortalLocation, BlockMypageLocation
+from ..models import BrickHomeLocation, BrickMypageLocation
 
 
 def _render_home(request, template_name, brick_ids):
@@ -37,17 +37,17 @@ def _render_home(request, template_name, brick_ids):
 @login_required
 def home(request):
     return _render_home(request, 'creme_core/home.html',
-                        brick_ids=BlockPortalLocation.objects
-                                                     # .filter(app_name='creme_core')
-                                                     .order_by('order')
-                                                     .values_list('brick_id', flat=True),
+                        brick_ids=BrickHomeLocation.objects
+                                                   # .filter(app_name='creme_core')
+                                                   .order_by('order')
+                                                   .values_list('brick_id', flat=True),
                        )
 
 
 @login_required
 def my_page(request):
     return _render_home(request, 'creme_core/my_page.html',
-                        brick_ids=BlockMypageLocation.objects
+                        brick_ids=BrickMypageLocation.objects
                                                      .filter(user=request.user)
                                                      .order_by('order')
                                                      .values_list('brick_id', flat=True),

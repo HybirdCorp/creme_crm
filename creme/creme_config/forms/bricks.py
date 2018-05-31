@@ -34,8 +34,8 @@ from creme.creme_core.forms.header_filter import EntityCellsField
 from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget, DynamicSelect, CremeRadioSelect
 from creme.creme_core.gui import bricks as gui_bricks
 from creme.creme_core.models import (RelationType, CremeEntity, UserRole,
-        BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
-        RelationBlockItem, CustomBlockConfigItem)
+        BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
+        RelationBrickItem, CustomBrickConfigItem)
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
 from creme.creme_core.utils.unicode_collation import collator
@@ -128,10 +128,10 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
         'empty_config':     _(u'Your configuration is empty !'),
     }
 
-    _ZONES = (('top',    BlockDetailviewLocation.TOP),
-              ('left',   BlockDetailviewLocation.LEFT),
-              ('right',  BlockDetailviewLocation.RIGHT),
-              ('bottom', BlockDetailviewLocation.BOTTOM)
+    _ZONES = (('top',    BrickDetailviewLocation.TOP),
+              ('left',   BrickDetailviewLocation.LEFT),
+              ('right',  BrickDetailviewLocation.RIGHT),
+              ('bottom', BrickDetailviewLocation.BOTTOM)
              )
 
     def __init__(self, *args, **kwargs):
@@ -195,14 +195,14 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
         cdata = self.cleaned_data
         hat_brick_id = cdata.get('hat')
 
-        self._save_locations(BlockDetailviewLocation,
-                             lambda: BlockDetailviewLocation(content_type=self.ct),
+        self._save_locations(BrickDetailviewLocation,
+                             lambda: BrickDetailviewLocation(content_type=self.ct),
                              bricks_partitions={
-                                 BlockDetailviewLocation.HAT:    [hat_brick_id] if hat_brick_id else [],
-                                 BlockDetailviewLocation.TOP:    cdata['top'],
-                                 BlockDetailviewLocation.LEFT:   cdata['left'],
-                                 BlockDetailviewLocation.RIGHT:  cdata['right'],
-                                 BlockDetailviewLocation.BOTTOM: cdata['bottom'],
+                                 BrickDetailviewLocation.HAT:    [hat_brick_id] if hat_brick_id else [],
+                                 BrickDetailviewLocation.TOP:    cdata['top'],
+                                 BrickDetailviewLocation.LEFT:   cdata['left'],
+                                 BrickDetailviewLocation.RIGHT:  cdata['right'],
+                                 BrickDetailviewLocation.BOTTOM: cdata['bottom'],
                              },
                              old_locations=self.locations,
                              role=self.role, superuser=self.superuser,
@@ -222,7 +222,8 @@ class BrickDetailviewLocationsAddForm(_BrickDetailviewLocationsForm):
         fields = self.fields
 
         role_f = fields['role']
-        used_role_ids = set(BlockDetailviewLocation.objects.filter(content_type=self.ct)
+        used_role_ids = set(BrickDetailviewLocation.objects
+                                                   .filter(content_type=self.ct)
                                                    .exclude(role__isnull=True, superuser=False)
                                                    .values_list('role', flat=True)
                            )
@@ -252,7 +253,7 @@ class BrickDetailviewLocationsEditForm(_BrickDetailviewLocationsForm):
         self.superuser = superuser = initial['superuser']
 
         self.locations = locations = \
-            BlockDetailviewLocation.objects.filter(content_type=self.ct,
+            BrickDetailviewLocation.objects.filter(content_type=self.ct,
                                                    role=role, superuser=superuser,
                                                   ) \
                                            .order_by('order')
@@ -264,7 +265,7 @@ class BrickDetailviewLocationsEditForm(_BrickDetailviewLocationsForm):
 
         hat_f = fields.get('hat')
         if hat_f:
-            HEADER = BlockDetailviewLocation.HAT
+            HEADER = BrickDetailviewLocation.HAT
             selected = [bl.brick_id for bl in locations if bl.zone == HEADER]
             hat_f.initial = selected[0] if selected else hat_f.choices[0][0]
 
@@ -327,14 +328,14 @@ class BrickHomeLocationsForm(_BrickLocationsForm):
     def __init__(self, *args, **kwargs):
         super(BrickHomeLocationsForm, self).__init__(*args, **kwargs)
         # self.locations = locations = BlockPortalLocation.objects.filter(app_name='creme_core')
-        self.locations = locations = BlockPortalLocation.objects.all()
+        self.locations = locations = BrickHomeLocation.objects.all()
 
         self._build_home_locations_field(field_name='bricks', brick_locations=locations)
 
     def save(self, *args, **kwargs):
-        self._save_locations(location_model=BlockPortalLocation,
+        self._save_locations(location_model=BrickHomeLocation,
                              # location_builder=lambda: BlockPortalLocation(app_name='creme_core'),
-                             location_builder=lambda: BlockPortalLocation(),
+                             location_builder=lambda: BrickHomeLocation(),
                              bricks_partitions={1: self.cleaned_data['bricks']},  # 1 is a "nameless" zone
                              old_locations=self.locations,
                             )
@@ -346,7 +347,7 @@ class BrickMypageLocationsForm(_BrickLocationsForm):
     def __init__(self, owner, *args, **kwargs):
         super(BrickMypageLocationsForm, self).__init__(*args, **kwargs)
         self.owner = owner
-        self.locations = locations = BlockMypageLocation.objects.filter(user=owner)
+        self.locations = locations = BrickMypageLocation.objects.filter(user=owner)
 
         # self._build_portal_locations_field(app_name='creme_core', field_name='blocks',
         #                                    block_locations=locations,
@@ -354,8 +355,8 @@ class BrickMypageLocationsForm(_BrickLocationsForm):
         self._build_home_locations_field(field_name='blocks', brick_locations=locations)
 
     def save(self, *args, **kwargs):
-        self._save_locations(BlockMypageLocation,
-                             lambda: BlockMypageLocation(user=self.owner),
+        self._save_locations(BrickMypageLocation,
+                             lambda: BrickMypageLocation(user=self.owner),
                              {1: self.cleaned_data['blocks']},  # 1 is a "nameless" zone
                              self.locations,
                             )
@@ -367,12 +368,12 @@ class RTypeBrickAddForm(CremeModelForm):
                                     )
 
     class Meta(CremeModelForm.Meta):
-        model = RelationBlockItem
+        model = RelationBrickItem
 
     def __init__(self, *args, **kwargs):
         super(RTypeBrickAddForm, self).__init__(*args, **kwargs)
 
-        existing_type_ids = RelationBlockItem.objects.values_list('relation_type_id', flat=True)
+        existing_type_ids = RelationBrickItem.objects.values_list('relation_type_id', flat=True)
 
         relation_type = self.fields['relation_type']
         relation_type.queryset = RelationType.objects.exclude(pk__in=existing_type_ids)
@@ -391,7 +392,7 @@ class RTypeBrickItemAddCtypeForm(CremeModelForm):
                                   )
 
     class Meta:
-        model = RelationBlockItem
+        model = RelationBrickItem
         exclude = ('relation_type',)
 
     def __init__(self, *args, **kwargs):
@@ -416,7 +417,7 @@ class RTypeBrickItemEditCtypeForm(CremeModelForm):
     cells = EntityCellsField(label=_(u'Columns'))
 
     class Meta:
-        model = RelationBlockItem
+        model = RelationBrickItem
         exclude = ('relation_type',)
 
     error_messages = {
@@ -467,7 +468,7 @@ class CustomBrickConfigItemCreateForm(CremeModelForm):
                                   )
 
     class Meta(CremeModelForm.Meta):
-        model = CustomBlockConfigItem
+        model = CustomBrickConfigItem
 
     def __init__(self, *args, **kwargs):
         super(CustomBrickConfigItemCreateForm, self).__init__(*args, **kwargs)
@@ -485,7 +486,7 @@ class CustomBrickConfigItemCreateForm(CremeModelForm):
         instance.content_type = ct
 
         super(CustomBrickConfigItemCreateForm, self).save(commit=False)
-        generate_string_id_and_save(CustomBlockConfigItem, [instance],
+        generate_string_id_and_save(CustomBrickConfigItem, [instance],
                                     'creme_core-user_customblock_%s-%s' % (ct.app_label, ct.model)
                                    )
 
@@ -498,7 +499,7 @@ class CustomBrickConfigItemEditForm(CremeModelForm):
     blocks = CremeModelForm.blocks.new(('cells', 'Columns', ['cells']))
 
     class Meta(CremeModelForm.Meta):
-        model = CustomBlockConfigItem
+        model = CustomBrickConfigItem
 
     def __init__(self, *args, **kwargs):
         super(CustomBrickConfigItemEditForm, self).__init__(*args, **kwargs)

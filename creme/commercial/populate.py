@@ -28,7 +28,7 @@ from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (RelationType, CremePropertyType, SettingValue,
-        Job, BlockDetailviewLocation, SearchConfigItem, ButtonMenuItem, HeaderFilter)
+        Job, BrickDetailviewLocation, SearchConfigItem, ButtonMenuItem, HeaderFilter)
 from creme.creme_core.utils import create_if_needed
 from creme.creme_core.utils.date_period import date_period_registry
 
@@ -114,16 +114,16 @@ class Populator(BasePopulator):
                                             model=None, button=buttons.CompleteGoalButton, order=60,
                                            )
 
-            create_bdl = BlockDetailviewLocation.create_if_needed
-            TOP = BlockDetailviewLocation.TOP
-            RIGHT = BlockDetailviewLocation.RIGHT
-            LEFT = BlockDetailviewLocation.LEFT
+            create_bdl = BrickDetailviewLocation.create_if_needed
+            TOP = BrickDetailviewLocation.TOP
+            RIGHT = BrickDetailviewLocation.RIGHT
+            LEFT = BrickDetailviewLocation.LEFT
 
             create_bdl(brick_id=bricks.ApproachesBrick.id_, order=10, zone=RIGHT)
             create_bdl(brick_id=bricks.ApproachesBrick.id_, order=10, zone=RIGHT, model=Contact)
             create_bdl(brick_id=bricks.ApproachesBrick.id_, order=10, zone=RIGHT, model=Organisation)
 
-            BlockDetailviewLocation.create_4_model_brick(order=5,                zone=LEFT,  model=Act)
+            BrickDetailviewLocation.create_4_model_brick(             order=5,   zone=LEFT,  model=Act)
             create_bdl(brick_id=bricks.ActObjectivesBrick.id_,        order=10,  zone=LEFT,  model=Act)
             create_bdl(brick_id=bricks.RelatedOpportunitiesBrick.id_, order=20,  zone=LEFT,  model=Act)
             create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_,    order=40,  zone=LEFT,  model=Act)
@@ -132,14 +132,14 @@ class Populator(BasePopulator):
             create_bdl(brick_id=core_bricks.HistoryBrick.id_,         order=20,  zone=RIGHT, model=Act)
 
             create_bdl(brick_id=bricks.PatternComponentsBrick.id_, order=10,  zone=TOP,   model=ActObjectivePattern)
-            BlockDetailviewLocation.create_4_model_brick(order=5,             zone=LEFT,  model=ActObjectivePattern)
+            BrickDetailviewLocation.create_4_model_brick(          order=5,   zone=LEFT,  model=ActObjectivePattern)
             create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=ActObjectivePattern)
             create_bdl(brick_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=ActObjectivePattern)
             create_bdl(brick_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=ActObjectivePattern)
             create_bdl(brick_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=ActObjectivePattern)
 
             create_bdl(brick_id=bricks.SegmentDescriptionsBrick.id_, order=10,  zone=TOP,   model=Strategy)
-            BlockDetailviewLocation.create_4_model_brick(order=5,               zone=LEFT,  model=Strategy)
+            BrickDetailviewLocation.create_4_model_brick(            order=5,   zone=LEFT,  model=Strategy)
             create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_,   order=40,  zone=LEFT,  model=Strategy)
             create_bdl(brick_id=bricks.EvaluatedOrgasBrick.id_,      order=50,  zone=LEFT,  model=Strategy)
             create_bdl(brick_id=bricks.AssetsBrick.id_,              order=60,  zone=LEFT,  model=Strategy)

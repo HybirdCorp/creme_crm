@@ -27,7 +27,7 @@ from django.utils.translation import ugettext as _
 from creme.creme_core import utils
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views import generic
-from creme.creme_core.models import CremeEntity, InstanceBlockConfigItem, RelationType, CustomField
+from creme.creme_core.models import CremeEntity, InstanceBrickConfigItem, RelationType, CustomField
 
 from .. import get_rgraph_model
 from ..constants import (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE,
@@ -160,7 +160,7 @@ def fetch_graph(request, graph_id):
 # @permission_required('reports') ??
 def fetch_graph_from_instanceblock(request, instance_block_id, entity_id):
     order = utils.get_from_GET_or_404(request.GET, 'order', cast=cast_order, default='ASC')
-    instance_brick = get_object_or_404(InstanceBlockConfigItem, pk=instance_block_id)
+    instance_brick = get_object_or_404(InstanceBrickConfigItem, pk=instance_block_id)
     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
     x, y = ReportGraph.get_fetcher_from_instance_block(instance_brick).fetch_4_entity(entity, order)
 

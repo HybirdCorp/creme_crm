@@ -23,7 +23,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.bricks import Brick, SimpleBrick, QuerysetBrick
-from creme.creme_core.models import InstanceBlockConfigItem
+from creme.creme_core.models import InstanceBrickConfigItem
 
 from creme import reports
 from .models import Field
@@ -76,7 +76,7 @@ class ReportGraphsBrick(QuerysetBrick):
 
 
 class ReportGraphBrick(Brick):
-    id_           = InstanceBlockConfigItem.generate_base_id('reports', 'graph')
+    id_           = InstanceBrickConfigItem.generate_base_id('reports', 'graph')
     dependencies  = (ReportGraph,)
     verbose_name  = "Report's graph"  # Overloaded by __init__()
     template_name = 'reports/bricks/graph.html'

@@ -36,10 +36,10 @@ from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.gui.bricks import Brick
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.models import (CremeEntity, RelationType, CremePropertyType,
-         EntityFilter, HistoryLine, SettingValue, Job,
-         ButtonMenuItem,  # PreferedMenuItem
-         BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
-         RelationBlockItem, InstanceBlockConfigItem, BlockState)
+        EntityFilter, HistoryLine, SettingValue, Job,
+        ButtonMenuItem,  # PreferedMenuItem
+        BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
+        RelationBrickItem, InstanceBrickConfigItem, BrickState)
 from creme.creme_core.utils import split_filter
 from creme.creme_core.utils.collections import LimitedList
 from creme.creme_core.signals import pre_uninstall_flush, post_uninstall_flush
@@ -84,17 +84,17 @@ def _uninstall_blocks(sender, **kwargs):
     brick_ids = set()
 
     # RelationBlockItem --------------------------------------------------------
-    rbi_brick_ids = RelationBlockItem.objects \
+    rbi_brick_ids = RelationBrickItem.objects \
                                      .filter(relation_type__id__startswith=app_label + '-') \
                                      .values_list('brick_id', flat=True)
 
     brick_ids.update(rbi_brick_ids)
-    BlockDetailviewLocation.objects.filter(brick_id__in=rbi_brick_ids).delete()
+    BrickDetailviewLocation.objects.filter(brick_id__in=rbi_brick_ids).delete()
     # NB: concerned RelationBlockItems should be removed when RelationType are removed.
 
     # InstanceBlockConfigItem --------------------------------------------------
-    ibc_items = InstanceBlockConfigItem.objects\
-                                       .filter(brick_id__startswith=InstanceBlockConfigItem.
+    ibc_items = InstanceBrickConfigItem.objects\
+                                       .filter(brick_id__startswith=InstanceBrickConfigItem.
                                                                         generate_base_id(app_name=app_label,
                                                                                          name='',
                                                                                         )
@@ -102,31 +102,31 @@ def _uninstall_blocks(sender, **kwargs):
 
     ibci_brick_ids = [item.brick_id for item in ibc_items]
     brick_ids.update(ibci_brick_ids)
-    BlockDetailviewLocation.objects.filter(brick_id__in=ibci_brick_ids).delete()
-    BlockPortalLocation.objects.filter(brick_id__in=ibci_brick_ids).delete()
-    BlockMypageLocation.objects.filter(brick_id__in=ibci_brick_ids).delete()
+    BrickDetailviewLocation.objects.filter(brick_id__in=ibci_brick_ids).delete()
+    BrickHomeLocation.objects.filter(brick_id__in=ibci_brick_ids).delete()
+    BrickMypageLocation.objects.filter(brick_id__in=ibci_brick_ids).delete()
     ibc_items.delete()
 
     # Regular blocks -----------------------------------------------------------
     id_prefix = Brick.generate_id(app_name=app_label, name='')
 
-    bdl = BlockDetailviewLocation.objects.filter(brick_id__startswith=id_prefix)
+    bdl = BrickDetailviewLocation.objects.filter(brick_id__startswith=id_prefix)
     brick_ids.update(bdl.values_list('brick_id', flat=True))
     bdl.delete()
 
-    bpl = BlockPortalLocation.objects.filter(brick_id__startswith=id_prefix)
+    bpl = BrickHomeLocation.objects.filter(brick_id__startswith=id_prefix)
     brick_ids.update(bpl.values_list('brick_id', flat=True))
     bpl.delete()
 
-    bmpl = BlockMypageLocation.objects.filter(brick_id__startswith=id_prefix)
+    bmpl = BrickMypageLocation.objects.filter(brick_id__startswith=id_prefix)
     brick_ids.update(bmpl.values_list('brick_id', flat=True))
     bmpl.delete()
 
-    BlockState.objects.filter(brick_id__in=brick_ids)
+    BrickState.objects.filter(brick_id__in=brick_ids)
 
     # Blocks on the app's portal (not related to ContentTypes,
     # so they won't be removed automatically)
-    BlockPortalLocation.objects.filter(app_name=app_label).delete()
+    BrickHomeLocation.objects.filter(app_name=app_label).delete()
 
 
 # @receiver(pre_uninstall_flush)

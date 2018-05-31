@@ -26,7 +26,7 @@ from django.utils.translation import ugettext as _
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import SearchConfigItem, HeaderFilter, BlockDetailviewLocation
+from creme.creme_core.models import SearchConfigItem, HeaderFilter, BrickDetailviewLocation
 
 from creme import sms
 from . import bricks, constants
@@ -67,13 +67,13 @@ class Populator(BasePopulator):
         create_searchconf(MessageTemplate, ['name', 'subject', 'body'])
 
         # ---------------------------
-        if not BlockDetailviewLocation.config_exists(SMSCampaign): # NB: no straightforward way to test that this populate script has not been already run
-            create_bdl = BlockDetailviewLocation.create_if_needed
-            TOP   = BlockDetailviewLocation.TOP
-            LEFT  = BlockDetailviewLocation.LEFT
-            RIGHT = BlockDetailviewLocation.RIGHT
+        if not BrickDetailviewLocation.config_exists(SMSCampaign): # NB: no straightforward way to test that this populate script has not been already run
+            create_bdl = BrickDetailviewLocation.create_if_needed
+            TOP   = BrickDetailviewLocation.TOP
+            LEFT  = BrickDetailviewLocation.LEFT
+            RIGHT = BrickDetailviewLocation.RIGHT
 
-            BlockDetailviewLocation.create_4_model_brick(order=5,             zone=LEFT,  model=SMSCampaign)
+            BrickDetailviewLocation.create_4_model_brick(          order=5,   zone=LEFT,  model=SMSCampaign)
             create_bdl(brick_id=bricks.SendingsBrick.id_,          order=2,   zone=TOP,   model=SMSCampaign)
             create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=SMSCampaign)
             create_bdl(brick_id=bricks.MessagingListsBlock.id_,    order=50,  zone=LEFT,  model=SMSCampaign)
@@ -81,7 +81,7 @@ class Populator(BasePopulator):
             create_bdl(brick_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=SMSCampaign)
             create_bdl(brick_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=SMSCampaign)
 
-            BlockDetailviewLocation.create_4_model_brick(order=5,             zone=LEFT,  model=MessagingList)
+            BrickDetailviewLocation.create_4_model_brick(          order=5,   zone=LEFT,  model=MessagingList)
             create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=MessagingList)
             create_bdl(brick_id=bricks.RecipientsBrick.id_,        order=50,  zone=LEFT,  model=MessagingList)
             create_bdl(brick_id=bricks.ContactsBrick.id_,          order=55,  zone=LEFT,  model=MessagingList)

@@ -31,7 +31,7 @@ from django.urls import reverse
 from creme.creme_core.core.imprint import imprint_manager
 from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.gui.last_viewed import LastViewedItem
-from creme.creme_core.models import BlockDetailviewLocation
+from creme.creme_core.models import BrickDetailviewLocation
 
 
 logger = logging.getLogger(__name__)
@@ -42,7 +42,7 @@ def detailview_bricks(user, entity):
     role = user.role
 
     role_q = Q(role=None, superuser=True) if is_superuser else Q(role=role, superuser=False)
-    locs = BlockDetailviewLocation.objects.filter(Q(content_type=None) |
+    locs = BrickDetailviewLocation.objects.filter(Q(content_type=None) |
                                                   Q(content_type=entity.entity_type)
                                                  ) \
                                           .filter(role_q | Q(role=None, superuser=False)) \
@@ -60,7 +60,7 @@ def detailview_bricks(user, entity):
         brick_id = loc.brick_id
 
         if brick_id:  # Populate scripts can leave void brick ids
-            if BlockDetailviewLocation.id_is_4_model(brick_id):
+            if BrickDetailviewLocation.id_is_4_model(brick_id):
                 brick_id = brick_registry.get_brick_4_object(entity).id_
 
             loc_map[loc.zone].append(brick_id)
@@ -77,7 +77,7 @@ def detailview_bricks(user, entity):
         else:
             bricks[brick.id_] = brick
 
-    hat_bricks = loc_map[BlockDetailviewLocation.HAT]
+    hat_bricks = loc_map[BrickDetailviewLocation.HAT]
     if not hat_bricks:
         hat_brick = brick_registry.get_generic_hat_brick(model)
 
@@ -85,8 +85,8 @@ def detailview_bricks(user, entity):
         bricks[hat_brick.id_] = hat_brick
 
     return {zone_name: list(filter(None, (bricks.get(brick_id) for brick_id in loc_map[zone])))
-                for zone, zone_name in BlockDetailviewLocation.ZONE_NAMES.iteritems()
-    }
+                for zone, zone_name in BrickDetailviewLocation.ZONE_NAMES.iteritems()
+           }
 
 
 def view_entity(request, object_id, model, # path='',

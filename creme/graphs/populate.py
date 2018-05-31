@@ -25,7 +25,7 @@ from django.utils.translation import ugettext as _
 
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
-from creme.creme_core.models import SearchConfigItem, HeaderFilter, BlockDetailviewLocation
+from creme.creme_core.models import SearchConfigItem, HeaderFilter, BrickDetailviewLocation
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 
 from . import get_graph_model, bricks
@@ -47,12 +47,12 @@ class Populator(BasePopulator):
 
         SearchConfigItem.create_if_needed(Graph, ['name'])
 
-        if not BlockDetailviewLocation.config_exists(Graph):  # NB: no straightforward way to test that this populate script has not been already run
-            create_bdl = BlockDetailviewLocation.create_if_needed
-            LEFT  = BlockDetailviewLocation.LEFT
-            RIGHT = BlockDetailviewLocation.RIGHT
+        if not BrickDetailviewLocation.config_exists(Graph):  # NB: no straightforward way to test that this populate script has not been already run
+            create_bdl = BrickDetailviewLocation.create_if_needed
+            LEFT  = BrickDetailviewLocation.LEFT
+            RIGHT = BrickDetailviewLocation.RIGHT
 
-            BlockDetailviewLocation.create_4_model_brick(order=5,                zone=LEFT,  model=Graph)
+            BrickDetailviewLocation.create_4_model_brick(             order=5,   zone=LEFT,  model=Graph)
             create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_,    order=40,  zone=LEFT,  model=Graph)
             create_bdl(brick_id=bricks.RootNodesBrick.id_,            order=60,  zone=LEFT,  model=Graph)
             create_bdl(brick_id=bricks.OrbitalRelationTypesBrick.id_, order=65,  zone=LEFT,  model=Graph)

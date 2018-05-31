@@ -28,8 +28,8 @@ from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import (EntityCellRegularField,
         EntityCellRelation, EntityCellFunctionField)
 from creme.creme_core.models import (RelationType, SettingValue, SearchConfigItem,
-        ButtonMenuItem, HeaderFilter, EntityFilter, EntityFilterCondition,
-        BlockDetailviewLocation, BlockPortalLocation, CustomBlockConfigItem)
+                                     ButtonMenuItem, HeaderFilter, EntityFilter, EntityFilterCondition,
+                                     BrickDetailviewLocation, BrickHomeLocation, CustomBrickConfigItem)
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.utils import create_if_needed
 
@@ -260,7 +260,7 @@ class Populator(BasePopulator):
 
             # ---------------------------
             get_ct = ContentType.objects.get_for_model
-            create_cbci = CustomBlockConfigItem.objects.create
+            create_cbci = CustomBrickConfigItem.objects.create
             build_cell = EntityCellRegularField.build
 
             def build_cells(model, *extra_cells):
@@ -321,10 +321,10 @@ class Populator(BasePopulator):
                                (SalesOrder,   cbci_s_order, True),
                                (TemplateBase, cbci_tbase,   False),
                               ]
-            create_bdl = BlockDetailviewLocation.create_if_needed
-            TOP   = BlockDetailviewLocation.TOP
-            LEFT  = BlockDetailviewLocation.LEFT
-            RIGHT = BlockDetailviewLocation.RIGHT
+            create_bdl = BrickDetailviewLocation.create_if_needed
+            TOP   = BrickDetailviewLocation.TOP
+            LEFT  = BrickDetailviewLocation.LEFT
+            RIGHT = BrickDetailviewLocation.RIGHT
 
             for model, cbci, has_credit_notes in models_4_blocks:
                 create_bdl(brick_id=bricks.ProductLinesBrick.id_, order=10, zone=TOP, model=model)
@@ -423,7 +423,7 @@ class Populator(BasePopulator):
         ibci = rgraph1.create_instance_block_config_item()
 
         # BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=ibci.brick_id, order=11)
-        BlockPortalLocation.objects.create(brick_id=ibci.brick_id, order=11)
+        BrickHomeLocation.objects.create(brick_id=ibci.brick_id, order=11)
 
         # Create current year and unpaid invoices report -----------------------
         invoices_report2 = create_report(name=_(u'Invoices unpaid of the current year'),
@@ -440,4 +440,4 @@ class Populator(BasePopulator):
         ibci = rgraph.create_instance_block_config_item()
 
         # BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=ibci.brick_id, order=12)
-        BlockPortalLocation.objects.create(brick_id=ibci.brick_id, order=12)
+        BrickHomeLocation.objects.create(brick_id=ibci.brick_id, order=12)
