@@ -18,7 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging  # warnings
+import logging
+import warnings
 
 from django.db.models import FieldDoesNotExist, DateField, DateTimeField, ForeignKey
 from django.shortcuts import get_object_or_404
@@ -155,14 +156,23 @@ def fetch_graph(request, graph_id):
     return {'x': x, 'y': y, 'graph_id': graph_id}  # TODO: graph_id useful ??
 
 
-# TODO: rename fetch_graph_from_instancebrick + instance_brick_id
+def fetch_graph_from_instanceblock(request, instance_block_id, entity_id):
+    warnings.warn('reports.views.graph.fetch_graph_from_instanceblock() is deprecated ; '
+                  'use fetch_graph_from_instancebrick() instead.',
+                  DeprecationWarning
+                 )
+
+    return fetch_graph_from_instancebrick(request, instance_brick_id=instance_block_id, entity_id=entity_id)
+
+
 @utils.jsonify
 # @permission_required('reports') ??
-def fetch_graph_from_instanceblock(request, instance_block_id, entity_id):
+def fetch_graph_from_instancebrick(request, instance_brick_id, entity_id):
     order = utils.get_from_GET_or_404(request.GET, 'order', cast=cast_order, default='ASC')
-    instance_brick = get_object_or_404(InstanceBrickConfigItem, pk=instance_block_id)
+    instance_brick = get_object_or_404(InstanceBrickConfigItem, pk=instance_brick_id)
     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
-    x, y = ReportGraph.get_fetcher_from_instance_block(instance_brick).fetch_4_entity(entity, order)
+    # x, y = ReportGraph.get_fetcher_from_instance_block(instance_brick).fetch_4_entity(entity, order)
+    x, y = ReportGraph.get_fetcher_from_instance_brick(instance_brick).fetch_4_entity(entity, order)
 
     # TODO: send error too ?
     return {'x': x, 'y': y}

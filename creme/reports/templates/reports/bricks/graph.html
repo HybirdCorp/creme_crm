@@ -67,10 +67,10 @@
         </div>
         {% endif %}
     </div>
-    <div class="brick-graph-container graph_global_container_{{instance_block_id}}">
+    <div class="brick-graph-container graph_global_container_{{instance_brick_id}}">
         <div class="ui-widget-content ui-creme-widget ui-creme-plotselector" widget="ui-creme-plotselector"
              {% if object %}
-             plot-data-url="{% url 'reports__fetch_graph_from_brick' instance_block_id object.id %}?order=${sort}"
+             plot-data-url="{% url 'reports__fetch_graph_from_brick' instance_brick_id object.id %}?order=${sort}"
              {% else %}
              plot-data-url="{% url 'reports__fetch_graph' graph.id %}?order=${sort}"
              {% endif %}
