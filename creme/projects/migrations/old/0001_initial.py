@@ -11,8 +11,10 @@ from creme.creme_core.models import fields as creme_fields
 class Migration(migrations.Migration):
     # replaces = [
     #     (b'projects', '0001_initial'),
-    #     (b'projects', '0014_v1_8__linked_project_field_1'),
-    #     (b'projects', '0015_v1_8__linked_project_field_2'),
+    #     (b'projects', '0010_v1_7__charfields_not_null_1'),
+    #     (b'projects', '0011_v1_7__charfields_not_null_2'),
+    #     (b'projects', '0012_v1_7__colorfields'),
+    #     (b'projects', '0013_v1_7__currency'),
     # ]
 
     initial = True
@@ -28,6 +30,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
+                # ('color_code', models.CharField(default='', max_length=100, verbose_name='Color', blank=True)),
                 ('color_code', creme_fields.ColorField(max_length=6, verbose_name='Color', blank=True)),
                 ('description', models.TextField(verbose_name='Description')),
                 ('order', creme_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
@@ -70,6 +73,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
+                # ('color_code', models.CharField(default='', max_length=100, verbose_name='Color', blank=True)),
                 ('color_code', creme_fields.ColorField(max_length=6, verbose_name='Color', blank=True)),
                 ('description', models.TextField(verbose_name='Description')),
                 ('is_custom', models.BooleanField(default=True)),
@@ -90,15 +94,10 @@ class Migration(migrations.Migration):
                                                         )
                 ),
                 ('title', models.CharField(max_length=100, verbose_name='Title')),
-                # ('project', models.ForeignKey(related_name='tasks_set', editable=False, to=settings.PROJECTS_PROJECT_MODEL,
-                #                               verbose_name='Project', on_delete=CASCADE,
-                #                              )
-                # ),
-                ('linked_project', models.ForeignKey(related_name='tasks_set', editable=False,
-                                                     to=settings.PROJECTS_PROJECT_MODEL,
-                                                     verbose_name='Project', on_delete=CASCADE,
-                                                    )
-                 ),
+                ('project', models.ForeignKey(related_name='tasks_set', editable=False, to=settings.PROJECTS_PROJECT_MODEL,
+                                              verbose_name='Project', on_delete=CASCADE,
+                                             )
+                ),
                 ('order', models.PositiveIntegerField(verbose_name='Order', null=True, editable=False, blank=True)),
                 ('parent_tasks', models.ManyToManyField(related_name='children_set', editable=False, to=settings.PROJECTS_TASK_MODEL)),
                 ('start', models.DateTimeField(null=True, verbose_name='Start', blank=True)),
