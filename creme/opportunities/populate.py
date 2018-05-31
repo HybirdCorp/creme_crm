@@ -27,7 +27,7 @@ from django.utils.translation import ugettext as _, pgettext
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
 from creme.creme_core.models import (RelationType, SearchConfigItem, SettingValue,
-        BlockDetailviewLocation, BlockPortalLocation, ButtonMenuItem,
+        BrickDetailviewLocation, BrickHomeLocation, ButtonMenuItem,
         HeaderFilter, EntityFilterCondition, EntityFilter)
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 
@@ -180,11 +180,11 @@ class Populator(BasePopulator):
             create_button(pk='opportunities-linked_opp_button_contact', model=Contact,      button=LinkedOpportunityButton, order=30)
 
             # ---------------------------
-            create_bdl = BlockDetailviewLocation.create_if_needed
-            LEFT = BlockDetailviewLocation.LEFT
-            RIGHT = BlockDetailviewLocation.RIGHT
+            create_bdl = BrickDetailviewLocation.create_if_needed
+            LEFT = BrickDetailviewLocation.LEFT
+            RIGHT = BrickDetailviewLocation.RIGHT
 
-            create_bdl(brick_id=bricks.OpportunityCardHatBrick.id_, order=1,   zone=BlockDetailviewLocation.HAT, model=Opportunity)
+            create_bdl(brick_id=bricks.OpportunityCardHatBrick.id_, order=1, zone=BrickDetailviewLocation.HAT, model=Opportunity)
             create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_,  order=40,  zone=LEFT,  model=Opportunity)
             create_bdl(brick_id=bricks.BusinessManagersBrick.id_,   order=60,  zone=LEFT,  model=Opportunity)
             create_bdl(brick_id=bricks.LinkedContactsBrick.id_,     order=62,  zone=LEFT,  model=Opportunity)
@@ -297,12 +297,12 @@ class Populator(BasePopulator):
         brick_id1 = rgraph1.create_instance_block_config_item().brick_id
         brick_id2 = rgraph2.create_instance_block_config_item().brick_id
 
-        BlockDetailviewLocation.create_if_needed(brick_id=brick_id1, order=4, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
-        BlockDetailviewLocation.create_if_needed(brick_id=brick_id2, order=6, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+        BrickDetailviewLocation.create_if_needed(brick_id=brick_id1, order=4, zone=BrickDetailviewLocation.RIGHT, model=Opportunity)
+        BrickDetailviewLocation.create_if_needed(brick_id=brick_id2, order=6, zone=BrickDetailviewLocation.RIGHT, model=Opportunity)
         # BlockPortalLocation.create_or_update(app_name='opportunities', brick_id=brick_id1, order=1)
         # BlockPortalLocation.create_or_update(app_name='opportunities', brick_id=brick_id2, order=2)
 
         # BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=brick_id1, order=5)
         # BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=brick_id2, order=6)
-        BlockPortalLocation.objects.create(brick_id=brick_id1, order=5)
-        BlockPortalLocation.objects.create(brick_id=brick_id2, order=6)
+        BrickHomeLocation.objects.create(brick_id=brick_id1, order=5)
+        BrickHomeLocation.objects.create(brick_id=brick_id2, order=6)

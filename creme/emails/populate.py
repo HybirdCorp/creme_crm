@@ -29,7 +29,7 @@ from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (RelationType, SearchConfigItem, SettingValue,
-        BlockDetailviewLocation, CustomBlockConfigItem,
+        BrickDetailviewLocation, CustomBrickConfigItem,
         ButtonMenuItem, HeaderFilter, Job)  # BlockPortalLocation
 
 from creme import persons
@@ -119,7 +119,7 @@ class Populator(BasePopulator):
         # ---------------------------
         if not already_populated:
             get_ct = ContentType.objects.get_for_model
-            create_cbci = CustomBlockConfigItem.objects.create
+            create_cbci = CustomBrickConfigItem.objects.create
             build_cell = EntityCellRegularField.build
 
             cbci_email = create_cbci(id='emails-entityemail_info',
@@ -151,10 +151,10 @@ class Populator(BasePopulator):
                                         ],
                                        )
 
-            create_bdl = BlockDetailviewLocation.create_if_needed
-            TOP   = BlockDetailviewLocation.TOP
-            LEFT  = BlockDetailviewLocation.LEFT
-            RIGHT = BlockDetailviewLocation.RIGHT
+            create_bdl = BrickDetailviewLocation.create_if_needed
+            TOP   = BrickDetailviewLocation.TOP
+            LEFT  = BrickDetailviewLocation.LEFT
+            RIGHT = BrickDetailviewLocation.RIGHT
 
             create_bdl(brick_id=cbci_email.generate_id(),          order=5,   zone=LEFT,  model=EntityEmail)
             create_bdl(brick_id=bricks.EmailHTMLBodyBrick.id_,     order=20,  zone=LEFT,  model=EntityEmail)
@@ -163,7 +163,7 @@ class Populator(BasePopulator):
             create_bdl(brick_id=core_bricks.RelationsBrick.id_,    order=500, zone=LEFT,  model=EntityEmail)
             create_bdl(brick_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=EntityEmail)
 
-            BlockDetailviewLocation.create_4_model_brick(          order=5,   zone=LEFT,  model=MailingList)
+            BrickDetailviewLocation.create_4_model_brick(          order=5,   zone=LEFT,  model=MailingList)
             create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=MailingList)
             create_bdl(brick_id=bricks.EmailRecipientsBrick.id_,   order=80,  zone=LEFT,  model=MailingList)
             create_bdl(brick_id=bricks.ContactsBrick.id_,          order=90,  zone=LEFT,  model=MailingList)
@@ -175,7 +175,7 @@ class Populator(BasePopulator):
             create_bdl(brick_id=core_bricks.HistoryBrick.id_,      order=20,  zone=RIGHT, model=MailingList)
 
             create_bdl(brick_id=bricks.SendingsBrick.id_,          order=2,   zone=TOP,   model=EmailCampaign)
-            BlockDetailviewLocation.create_4_model_brick(          order=5,   zone=LEFT,  model=EmailCampaign)
+            BrickDetailviewLocation.create_4_model_brick(          order=5,   zone=LEFT,  model=EmailCampaign)
             create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=EmailCampaign)
             create_bdl(brick_id=bricks.MailingListsBrick.id_,      order=120, zone=LEFT,  model=EmailCampaign)
             create_bdl(brick_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=EmailCampaign)

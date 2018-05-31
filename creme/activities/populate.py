@@ -28,7 +28,7 @@ from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (RelationType, ButtonMenuItem, SearchConfigItem,
-        BlockDetailviewLocation, BlockPortalLocation, SettingValue,
+        BrickDetailviewLocation, BrickHomeLocation, SettingValue,
         HeaderFilter, EntityFilter, EntityFilterCondition)
 from creme.creme_core.utils import create_if_needed
 
@@ -152,12 +152,12 @@ class Populator(BasePopulator):
 
         # ---------------------------
         if not already_populated:
-            LEFT = BlockDetailviewLocation.LEFT
-            RIGHT = BlockDetailviewLocation.RIGHT
+            LEFT = BrickDetailviewLocation.LEFT
+            RIGHT = BrickDetailviewLocation.RIGHT
 
-            BlockDetailviewLocation.create_4_model_brick(order=5, zone=BlockDetailviewLocation.LEFT, model=Activity)
+            BrickDetailviewLocation.create_4_model_brick(order=5, zone=BrickDetailviewLocation.LEFT, model=Activity)
 
-            create_bdl = BlockDetailviewLocation.create_if_needed
+            create_bdl = BrickDetailviewLocation.create_if_needed
             create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=Activity)
             create_bdl(brick_id=bricks.RelatedCalendarBrick.id_,   order=90,  zone=LEFT,  model=Activity)
             create_bdl(brick_id=bricks.ParticipantsBrick.id_,      order=100, zone=LEFT,  model=Activity)
@@ -195,8 +195,8 @@ class Populator(BasePopulator):
 
             # BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=future_id, order=20)
             # BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=past_id,   order=21)
-            BlockPortalLocation.objects.create(brick_id=future_id, order=20)
-            BlockPortalLocation.objects.create(brick_id=past_id,   order=21)
+            BrickHomeLocation.objects.create(brick_id=future_id, order=20)
+            BrickHomeLocation.objects.create(brick_id=past_id, order=21)
 
             # ---------------------------
             create_button = ButtonMenuItem.create_if_needed

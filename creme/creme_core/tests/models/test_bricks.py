@@ -13,10 +13,10 @@ try:
     from creme.creme_core.bricks import RelationsBrick, PropertiesBrick, CustomFieldsBrick, HistoryBrick
     from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellFunctionField
     from creme.creme_core.gui.bricks import Brick
-    from creme.creme_core.models import (BlockDetailviewLocation, UserRole,
-            BlockPortalLocation, BlockMypageLocation,
-            CremeEntity, InstanceBlockConfigItem,
-            RelationBlockItem, RelationType, CustomBlockConfigItem)
+    from creme.creme_core.models import (BrickDetailviewLocation, UserRole,
+            BrickHomeLocation, BrickMypageLocation,
+            CremeEntity, InstanceBrickConfigItem,
+            RelationBrickItem, RelationType, CustomBrickConfigItem)
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -28,26 +28,26 @@ class BrickTestCase(CremeTestCase):
         # super(BlockTestCase, cls).setUpClass()
         super(BrickTestCase, cls).setUpClass()
 
-        cls._bdl_backup = list(BlockDetailviewLocation.objects.all())
-        cls._bpl_backup = list(BlockPortalLocation.objects.all())
-        cls._bml_backup = list(BlockMypageLocation.objects.all())
+        cls._bdl_backup = list(BrickDetailviewLocation.objects.all())
+        cls._bpl_backup = list(BrickHomeLocation.objects.all())
+        cls._bml_backup = list(BrickMypageLocation.objects.all())
 
-        BlockDetailviewLocation.objects.all().delete()
-        BlockPortalLocation.objects.all().delete()
-        BlockMypageLocation.objects.all().delete()
+        BrickDetailviewLocation.objects.all().delete()
+        BrickHomeLocation.objects.all().delete()
+        BrickMypageLocation.objects.all().delete()
 
     @classmethod
     def tearDownClass(cls):
         # super(BlockTestCase, cls).tearDownClass()
         super(BrickTestCase, cls).tearDownClass()
 
-        BlockDetailviewLocation.objects.all().delete()
-        BlockPortalLocation.objects.all().delete()
-        BlockMypageLocation.objects.all().delete()
+        BrickDetailviewLocation.objects.all().delete()
+        BrickHomeLocation.objects.all().delete()
+        BrickMypageLocation.objects.all().delete()
 
-        for model, backup in [(BlockDetailviewLocation, cls._bdl_backup),
-                              (BlockPortalLocation,     cls._bpl_backup),
-                              (BlockMypageLocation,     cls._bml_backup),
+        for model, backup in [(BrickDetailviewLocation, cls._bdl_backup),
+                              (BrickHomeLocation, cls._bpl_backup),
+                              (BrickMypageLocation, cls._bml_backup),
                              ]:
             try:
                 model.objects.bulk_create(backup)
@@ -80,31 +80,31 @@ class BrickTestCase(CremeTestCase):
 
     def test_create_detailview02(self):
         "For a ContentType"
-        self.assertFalse(BlockDetailviewLocation.config_exists(FakeContact))
+        self.assertFalse(BrickDetailviewLocation.config_exists(FakeContact))
 
         order = 4
-        zone = BlockDetailviewLocation.LEFT
+        zone = BrickDetailviewLocation.LEFT
         brick_id = PropertiesBrick.id_
-        loc = BlockDetailviewLocation.create_if_needed(brick_id=brick_id, order=order, zone=zone, model=FakeContact)
-        loc = self.get_object_or_fail(BlockDetailviewLocation, pk=loc.pk)
+        loc = BrickDetailviewLocation.create_if_needed(brick_id=brick_id, order=order, zone=zone, model=FakeContact)
+        loc = self.get_object_or_fail(BrickDetailviewLocation, pk=loc.pk)
         self.assertEqual(FakeContact, loc.content_type.model_class())
         self.assertEqual(brick_id, loc.brick_id)
         self.assertEqual(order,    loc.order)
         self.assertEqual(zone,     loc.zone)
 
-        self.assertTrue(BlockDetailviewLocation.config_exists(FakeContact))
+        self.assertTrue(BrickDetailviewLocation.config_exists(FakeContact))
 
     def test_create_detailview03(self):
         "Do not create if already exists (in any zone/order)"
         brick_id = PropertiesBrick.id_
         order = 5
-        zone = BlockDetailviewLocation.RIGHT
+        zone = BrickDetailviewLocation.RIGHT
 
-        create_bdl = partial(BlockDetailviewLocation.create_if_needed, brick_id=brick_id, model=FakeContact)
+        create_bdl = partial(BrickDetailviewLocation.create_if_needed, brick_id=brick_id, model=FakeContact)
         create_bdl(order=order, zone=zone)
-        create_bdl(order=4,     zone=BlockDetailviewLocation.LEFT)
+        create_bdl(order=4, zone=BrickDetailviewLocation.LEFT)
 
-        locs = BlockDetailviewLocation.objects.filter(
+        locs = BrickDetailviewLocation.objects.filter(
                 brick_id=brick_id,
                 content_type=ContentType.objects.get_for_model(FakeContact),
         )
@@ -120,15 +120,15 @@ class BrickTestCase(CremeTestCase):
 
         brick_id = PropertiesBrick.id_
         order = 5
-        zone = BlockDetailviewLocation.RIGHT
+        zone = BrickDetailviewLocation.RIGHT
 
-        create_bdl = partial(BlockDetailviewLocation.create_if_needed, brick_id=brick_id,
+        create_bdl = partial(BrickDetailviewLocation.create_if_needed, brick_id=brick_id,
                              model=FakeContact, role=role,
-                            )
+                             )
         create_bdl(order=order, zone=zone)
-        create_bdl(order=4,     zone=BlockDetailviewLocation.LEFT)
+        create_bdl(order=4, zone=BrickDetailviewLocation.LEFT)
 
-        locs = BlockDetailviewLocation.objects.filter(
+        locs = BrickDetailviewLocation.objects.filter(
                 brick_id=brick_id,
                 content_type=ContentType.objects.get_for_model(FakeContact),
                 role=role, superuser=False,
@@ -140,10 +140,10 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(zone,  loc.zone)
 
         # Do not avoid default configuration creation
-        count = BlockDetailviewLocation.objects.count()
-        zone = BlockDetailviewLocation.BOTTOM
+        count = BrickDetailviewLocation.objects.count()
+        zone = BrickDetailviewLocation.BOTTOM
         loc = create_bdl(order=order, zone=zone, role=None)
-        self.assertEqual(count + 1, BlockDetailviewLocation.objects.count())
+        self.assertEqual(count + 1, BrickDetailviewLocation.objects.count())
         self.assertEqual(zone,  loc.zone)
         self.assertIsNone(loc.role)
         self.assertFalse(loc.superuser)
@@ -152,15 +152,15 @@ class BrickTestCase(CremeTestCase):
         "For super-users"
         brick_id = PropertiesBrick.id_
         order = 5
-        zone = BlockDetailviewLocation.RIGHT
+        zone = BrickDetailviewLocation.RIGHT
 
-        create_bdl = partial(BlockDetailviewLocation.create_if_needed, brick_id=brick_id,
+        create_bdl = partial(BrickDetailviewLocation.create_if_needed, brick_id=brick_id,
                              model=FakeContact, role='superuser',
                             )
         create_bdl(order=order, zone=zone)
-        create_bdl(order=4,     zone=BlockDetailviewLocation.LEFT)
+        create_bdl(order=4, zone=BrickDetailviewLocation.LEFT)
 
-        locs = BlockDetailviewLocation.objects.filter(
+        locs = BrickDetailviewLocation.objects.filter(
                 brick_id=brick_id,
                 content_type=ContentType.objects.get_for_model(FakeContact),
                 role=None, superuser=True,
@@ -172,10 +172,10 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(zone,  loc.zone)
 
         # Do not avoid default configuration creation
-        count = BlockDetailviewLocation.objects.count()
-        zone = BlockDetailviewLocation.BOTTOM
+        count = BrickDetailviewLocation.objects.count()
+        zone = BrickDetailviewLocation.BOTTOM
         loc = create_bdl(order=order, zone=zone, role=None)
-        self.assertEqual(count + 1, BlockDetailviewLocation.objects.count())
+        self.assertEqual(count + 1, BrickDetailviewLocation.objects.count())
         self.assertEqual(zone,  loc.zone)
         self.assertIsNone(loc.role)
         self.assertFalse(loc.superuser)
@@ -183,9 +183,9 @@ class BrickTestCase(CremeTestCase):
     def test_create_detailview06(self):
         "Default configuration cannot have a related role"
         with self.assertRaises(ValueError):
-            BlockDetailviewLocation.create_if_needed(
+            BrickDetailviewLocation.create_if_needed(
                     brick_id=PropertiesBrick.id_,
-                    order=5, zone=BlockDetailviewLocation.RIGHT,
+                    order=5, zone=BrickDetailviewLocation.RIGHT,
                     model=None, role='superuser', # <==
             )
 
@@ -205,13 +205,13 @@ class BrickTestCase(CremeTestCase):
 
     def test_create_4_model_brick01(self):
         order = 5
-        zone = BlockDetailviewLocation.RIGHT
+        zone = BrickDetailviewLocation.RIGHT
         model = FakeContact
-        loc = BlockDetailviewLocation.create_4_model_brick(order=order, zone=zone, model=model)
+        loc = BrickDetailviewLocation.create_4_model_brick(order=order, zone=zone, model=model)
 
-        self.assertEqual(1, BlockDetailviewLocation.objects.count())
+        self.assertEqual(1, BrickDetailviewLocation.objects.count())
 
-        loc = self.get_object_or_fail(BlockDetailviewLocation, pk=loc.id)
+        loc = self.get_object_or_fail(BrickDetailviewLocation, pk=loc.id)
         self.assertEqual('modelblock', loc.brick_id)
         self.assertEqual(model,        loc.content_type.model_class())
         self.assertEqual(order,        loc.order)
@@ -219,21 +219,21 @@ class BrickTestCase(CremeTestCase):
 
     def test_create_4_model_brick02(self):
         "model = None"
-        loc = BlockDetailviewLocation.create_4_model_brick(
-                order=8, zone=BlockDetailviewLocation.BOTTOM, model=None,
+        loc = BrickDetailviewLocation.create_4_model_brick(
+                order=8, zone=BrickDetailviewLocation.BOTTOM, model=None,
         )
-        self.assertEqual(1, BlockDetailviewLocation.objects.count())
+        self.assertEqual(1, BrickDetailviewLocation.objects.count())
         self.assertEqual('modelblock', loc.brick_id)
         self.assertIsNone(loc.content_type)
 
     def test_create_4_model_brick03(self):
         "With a Role"
         role = UserRole.objects.create(name='Viewer')
-        loc = BlockDetailviewLocation.create_4_model_brick(
+        loc = BrickDetailviewLocation.create_4_model_brick(
                 model=FakeContact, role=role,
-                order=8, zone=BlockDetailviewLocation.BOTTOM,
+                order=8, zone=BrickDetailviewLocation.BOTTOM,
         )
-        self.assertEqual(1, BlockDetailviewLocation.objects.count())
+        self.assertEqual(1, BrickDetailviewLocation.objects.count())
         self.assertEqual('modelblock', loc.brick_id)
         self.assertEqual(role,         loc.role)
 
@@ -381,19 +381,19 @@ class BrickTestCase(CremeTestCase):
     def test_mypage_new_user(self):
         brick_id = HistoryBrick.id_
         order = 3
-        BlockMypageLocation.objects.create(brick_id=brick_id, order=order)
+        BrickMypageLocation.objects.create(brick_id=brick_id, order=order)
 
         user = get_user_model().objects.create(username='Kirika')
         user.set_password('password')
         user.save()
-        self.get_object_or_fail(BlockMypageLocation, user=user, brick_id=brick_id, order=order)
+        self.get_object_or_fail(BrickMypageLocation, user=user, brick_id=brick_id, order=order)
 
     def test_relation_block01(self):
         rtype = RelationType.create(('test-subject_loves', 'loves'),
                                     ('test-object_loved',  'is loved by')
                                    )[0]
 
-        rbi = RelationBlockItem.create(rtype.id)
+        rbi = RelationBrickItem.create(rtype.id)
 
         get_ct = ContentType.objects.get_for_model
         ct_contact = get_ct(FakeContact)
@@ -437,7 +437,7 @@ class BrickTestCase(CremeTestCase):
                                     ('test-object_rented',  'rents', [FakeContact, FakeOrganisation]),
                                    )[0]
 
-        rbi = RelationBlockItem.create(rtype.id)
+        rbi = RelationBrickItem.create(rtype.id)
         get_ct = ContentType.objects.get_for_model
 
         rbi.set_cells(get_ct(FakeContact), [EntityCellRegularField.build(FakeContact, 'last_name')])
@@ -453,7 +453,7 @@ class BrickTestCase(CremeTestCase):
                                     ('test-object_rented',  'rents'),
                                    )[0]
         ct_contact = ContentType.objects.get_for_model(FakeContact)
-        rbi = RelationBlockItem.create(rtype.id)
+        rbi = RelationBrickItem.create(rtype.id)
 
         build = partial(EntityCellRegularField.build, model=FakeContact)
         rbi.set_cells(ct_contact,
@@ -462,7 +462,7 @@ class BrickTestCase(CremeTestCase):
         rbi.save()
 
         # Inject error by bypassing checkings
-        RelationBlockItem.objects.filter(id=rbi.id) \
+        RelationBrickItem.objects.filter(id=rbi.id) \
             .update(json_cells_map=rbi.json_cells_map.replace('description', 'invalid'))
 
         rbi = self.refresh(rbi)
@@ -478,7 +478,7 @@ class BrickTestCase(CremeTestCase):
                         )
 
     def test_custom_block(self):
-        cbci = CustomBlockConfigItem.objects.create(
+        cbci = CustomBrickConfigItem.objects.create(
                 id='tests-organisations01', name='General',
                 content_type=ContentType.objects.get_for_model(FakeOrganisation),
                 cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
@@ -492,7 +492,7 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual('name', cell.value)
 
     def test_custom_block_errors01(self):
-        cbci = CustomBlockConfigItem.objects.create(
+        cbci = CustomBrickConfigItem.objects.create(
                 id='tests-organisations01', name='General',
                 content_type=ContentType.objects.get_for_model(FakeOrganisation),
                 cells=[EntityCellRegularField.build(FakeOrganisation, 'name'),
@@ -501,7 +501,7 @@ class BrickTestCase(CremeTestCase):
         )
 
         # Inject error by bypassing checkings
-        CustomBlockConfigItem.objects.filter(id=cbci.id) \
+        CustomBrickConfigItem.objects.filter(id=cbci.id) \
             .update(json_cells=cbci.json_cells.replace('description', 'invalid'))
 
         cbci = self.refresh(cbci)
@@ -515,7 +515,7 @@ class BrickTestCase(CremeTestCase):
                         )
 
     def test_custom_block_errors02(self):
-        cbci = CustomBlockConfigItem.objects.create(
+        cbci = CustomBrickConfigItem.objects.create(
                 id='tests-organisations01', name='General',
                 content_type=ContentType.objects.get_for_model(FakeOrganisation),
                 cells=[EntityCellRegularField.build(FakeOrganisation, 'name'),
@@ -531,19 +531,19 @@ class BrickTestCase(CremeTestCase):
         self.login()
 
         class TestInstanceBlock(Brick):
-            id_ = InstanceBlockConfigItem.generate_base_id('creme_core', 'invalid_id')
+            id_ = InstanceBrickConfigItem.generate_base_id('creme_core', 'invalid_id')
 
         brick_entity = CremeEntity.objects.create(user=self.user)
 
-        generate_id = InstanceBlockConfigItem.generate_id
+        generate_id = InstanceBrickConfigItem.generate_id
         self.assertRaises(ValueError, generate_id, TestInstanceBlock, brick_entity, 'foo#bar')
 
-        ibi = InstanceBlockConfigItem(
+        ibi = InstanceBrickConfigItem(
                 brick_id=generate_id(TestInstanceBlock, brick_entity, ''),
                 entity=brick_entity,
         )
 
-        id_is_specific = InstanceBlockConfigItem.id_is_specific
+        id_is_specific = InstanceBrickConfigItem.id_is_specific
         self.assertFalse(id_is_specific(Brick.generate_id('creme_core', 'foobar')))
         self.assertTrue(id_is_specific(ibi.brick_id))
 

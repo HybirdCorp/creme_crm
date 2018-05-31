@@ -430,7 +430,7 @@ class Migration(migrations.Migration):
             name='InstanceBlockConfigItem',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('block_id', models.CharField(verbose_name='Brick ID', max_length=300, editable=False)),
+                ('block_id', models.CharField(verbose_name='Block ID', max_length=300, editable=False)),
                 ('data', models.TextField(null=True, blank=True)),
                 ('verbose', models.CharField(max_length=200, null=True, verbose_name='Verbose', blank=True)),
                 ('entity', models.ForeignKey(verbose_name='Block related entity', to='creme_core.CremeEntity', on_delete=deletion.CASCADE)),

@@ -198,11 +198,11 @@ class Populator(BasePopulator):
             create_bmi(pk='persons-linked_contact_button', model=Organisation, button=buttons.AddLinkedContactButton, order=25)
 
             # Populate bricks ------------------
-            rbi_1 = core_models.RelationBlockItem.create(constants.REL_SUB_CUSTOMER_SUPPLIER)
-            rbi_2 = core_models.RelationBlockItem.create(constants.REL_OBJ_CUSTOMER_SUPPLIER)
+            rbi_1 = core_models.RelationBrickItem.create(constants.REL_SUB_CUSTOMER_SUPPLIER)
+            rbi_2 = core_models.RelationBrickItem.create(constants.REL_OBJ_CUSTOMER_SUPPLIER)
 
             get_ct = ContentType.objects.get_for_model
-            create_cbci = core_models.CustomBlockConfigItem.objects.create
+            create_cbci = core_models.CustomBrickConfigItem.objects.create
             build_cell = EntityCellRegularField.build
 
             # cbci_orga_1 =
@@ -269,11 +269,11 @@ class Populator(BasePopulator):
                                           ],
                                          )
 
-            HAT   = core_models.BlockDetailviewLocation.HAT
-            LEFT  = core_models.BlockDetailviewLocation.LEFT
-            RIGHT = core_models.BlockDetailviewLocation.RIGHT
+            HAT   = core_models.BrickDetailviewLocation.HAT
+            LEFT  = core_models.BrickDetailviewLocation.LEFT
+            RIGHT = core_models.BrickDetailviewLocation.RIGHT
 
-            create_bdl = core_models.BlockDetailviewLocation.create_if_needed
+            create_bdl = core_models.BrickDetailviewLocation.create_if_needed
             create_bdl(brick_id=bricks.OrganisationCardHatBrick.id_,  order=1,   zone=HAT,   model=Organisation)
             create_bdl(brick_id=cbci_orga_extra.generate_id(),        order=5,   zone=LEFT,  model=Organisation)
             create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_,    order=40,  zone=LEFT,  model=Organisation)
@@ -380,4 +380,4 @@ class Populator(BasePopulator):
                 # create_bpl(app_name='persons',    brick_id=bricks.NeglectedOrganisationsBrick.id_, order=10)
 
                 # create_bpl(app_name='creme_core', brick_id=bricks.NeglectedOrganisationsBrick.id_, order=15)
-                core_models.BlockPortalLocation.objects.create(brick_id=bricks.NeglectedOrganisationsBrick.id_, order=15)
+                core_models.BrickHomeLocation.objects.create(brick_id=bricks.NeglectedOrganisationsBrick.id_, order=15)

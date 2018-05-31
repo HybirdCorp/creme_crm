@@ -10,14 +10,14 @@ try:
     from django.urls import reverse
     from django.utils.timezone import now
 
-    from creme.creme_core.models import (BlockDetailviewLocation,
-             FakeContact, FakeOrganisation, FakeMailingList)
+    from creme.creme_core.models import (BrickDetailviewLocation,
+            FakeContact, FakeOrganisation, FakeMailingList)
 
     from ..bricks import ActionsOnTimeBrick, ActionsNotOnTimeBrick
     from ..models import Action
     from .base import AssistantsTestCase
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class ActionTestCase(AssistantsTestCase):
@@ -69,8 +69,8 @@ class ActionTestCase(AssistantsTestCase):
 
         self.assertEqual(title, unicode(action))
 
-        create_bdi = partial(BlockDetailviewLocation.create_if_needed, model=FakeContact,
-                             zone=BlockDetailviewLocation.RIGHT,
+        create_bdi = partial(BrickDetailviewLocation.create_if_needed, model=FakeContact,
+                             zone=BrickDetailviewLocation.RIGHT,
                             )
         create_bdi(brick_id=ActionsOnTimeBrick.id_,    order=500)
         create_bdi(brick_id=ActionsNotOnTimeBrick.id_, order=501)

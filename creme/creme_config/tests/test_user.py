@@ -22,7 +22,7 @@ try:
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
     from creme.persons.models import Contact, Organisation
 
-    from ..bricks import UsersBrick, TeamsBrick, BlockMypageLocationsBrick  # UserPreferredMenusBrick
+    from ..bricks import UsersBrick, TeamsBrick, BrickMypageLocationsBrick  # UserPreferredMenusBrick
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -918,7 +918,7 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
         # if settings.OLD_MENU:
         #     self.get_brick_node(doc, UserPreferredMenusBrick.id_)
 
-        self.get_brick_node(doc, BlockMypageLocationsBrick.id_)
+        self.get_brick_node(doc, BrickMypageLocationsBrick.id_)
 
     @override_settings(THEMES=[('icecream',  'Ice cream'),
                                ('chantilly', 'Chantilly'),

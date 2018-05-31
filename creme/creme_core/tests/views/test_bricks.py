@@ -11,9 +11,9 @@ try:
     from creme.creme_core.bricks import RelationsBrick
     from creme.creme_core.core.entity_cell import EntityCellRegularField
     from creme.creme_core.gui.bricks import (brick_registry, Brick,
-            InstanceBlockConfigItem, _BrickRegistry, BricksManager)
+            InstanceBrickConfigItem, _BrickRegistry, BricksManager)
     from creme.creme_core.models import (SetCredentials, RelationType, Relation, FieldsConfig,
-            BlockState, BlockDetailviewLocation, CustomBlockConfigItem, RelationBlockItem)
+            BrickState, BrickDetailviewLocation, CustomBrickConfigItem, RelationBrickItem)
 
     from ..base import CremeTestCase
     from ..fake_models import FakeContact, FakeOrganisation, FakeAddress
@@ -44,12 +44,12 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_set_state01(self):
         user = self.login()
-        self.assertEqual(0, BlockState.objects.count())
+        self.assertEqual(0, BrickState.objects.count())
 
         brick_id = RelationsBrick.id_
         self.assertPOST200(self.SET_STATE_URL, data={'id': brick_id, 'is_open': 1})
 
-        bstates = BlockState.objects.all()
+        bstates = BrickState.objects.all()
         self.assertEqual(1, len(bstates))
 
         bstate = bstates[0]
@@ -58,15 +58,15 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTrue(bstate.is_open)
 
         self.assertPOST200(self.SET_STATE_URL, data={'id': brick_id, 'is_open': 0})
-        self.assertEqual(1, BlockState.objects.count())
+        self.assertEqual(1, BrickState.objects.count())
 
-        bstate = self.get_object_or_fail(BlockState, user=user, brick_id=brick_id)
+        bstate = self.get_object_or_fail(BrickState, user=user, brick_id=brick_id)
         self.assertFalse(bstate.is_open)
 
         self.assertPOST200(self.SET_STATE_URL, data={'id': brick_id, })  # No data
-        self.assertEqual(1, BlockState.objects.count())
+        self.assertEqual(1, BrickState.objects.count())
 
-        bstate = self.get_object_or_fail(BlockState, user=user, brick_id=brick_id)
+        bstate = self.get_object_or_fail(BrickState, user=user, brick_id=brick_id)
         self.assertFalse(bstate.is_open)
 
     def test_set_state02(self):
@@ -74,7 +74,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         brick_id = RelationsBrick.id_
         self.assertPOST200(self.SET_STATE_URL, data={'id': brick_id, 'is_open': 1, 'show_empty_fields': 1})
 
-        bstate = self.get_object_or_fail(BlockState, user=user, brick_id=brick_id)
+        bstate = self.get_object_or_fail(BrickState, user=user, brick_id=brick_id)
         self.assertTrue(bstate.is_open)
         self.assertTrue(bstate.show_empty_fields)
 
@@ -90,7 +90,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                          data={'id': brick_id, 'is_open': 0, 'show_empty_fields': 0}
                         )
 
-        blocks_states = BlockState.objects.filter(brick_id=brick_id)
+        blocks_states = BrickState.objects.filter(brick_id=brick_id)
 
         block_state_user = blocks_states.get(user=user)
         block_state_other_user = blocks_states.get(user=self.other_user)
@@ -107,7 +107,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         casca = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
 
         class ContactBrick(Brick):
-            id_ = InstanceBlockConfigItem.generate_base_id('creme_core', 'base_block')
+            id_ = InstanceBrickConfigItem.generate_base_id('creme_core', 'base_block')
             dependencies = (FakeOrganisation,)
             template_name = 'persons/bricks/itdoesnotexist.html'
 
@@ -116,15 +116,15 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                 self.ibci = instance_block_config_item
 
             def detailview_display(self, context):
-                return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (
+                return '<table id="{}"><thead><tr>{}</tr></thead></table>'.format(
                             self.id_, self.ibci.entity
                         )  # Useless :)
 
-        self.assertTrue(InstanceBlockConfigItem.id_is_specific(ContactBrick.id_))
+        self.assertTrue(InstanceBrickConfigItem.id_is_specific(ContactBrick.id_))
 
-        ibci = InstanceBlockConfigItem.objects \
+        ibci = InstanceBrickConfigItem.objects \
                                       .create(entity=casca,
-                                              brick_id=InstanceBlockConfigItem.generate_id(ContactBrick, casca, ''),
+                                              brick_id=InstanceBrickConfigItem.generate_id(ContactBrick, casca, ''),
                                               verbose=u'I am an awesome brick',
                                               data='',
                                              )
@@ -547,11 +547,11 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         rtype2 = RelationType.create(('test-subject_brother', 'is the brother of'),
                                      ('test-object_sister',   'is the sister of')
                                     )[0]
-        rbi = RelationBlockItem.create(rtype1.id)
+        rbi = RelationBrickItem.create(rtype1.id)
 
-        BlockDetailviewLocation.create_4_model_brick(order=1, zone=BlockDetailviewLocation.LEFT, model=FakeContact)
+        BrickDetailviewLocation.create_4_model_brick(order=1, zone=BrickDetailviewLocation.LEFT, model=FakeContact)
 
-        create_bdl = partial(BlockDetailviewLocation.create_if_needed, zone=BlockDetailviewLocation.RIGHT, model=FakeContact)
+        create_bdl = partial(BrickDetailviewLocation.create_if_needed, zone=BrickDetailviewLocation.RIGHT, model=FakeContact)
         create_bdl(brick_id=rbi.brick_id, order=2)
         create_bdl(brick_id=rbrick_id,    order=3)
 
@@ -613,11 +613,11 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         rtype2 = RelationType.create(('test-subject_brother', 'is the brother of'),
                                      ('test-object_sister',   'is the sister of')
                                     )[0]
-        rbi = RelationBlockItem.create(rtype1.id)
+        rbi = RelationBrickItem.create(rtype1.id)
 
-        BlockDetailviewLocation.create_4_model_brick(order=1, zone=BlockDetailviewLocation.LEFT, model=FakeContact)
+        BrickDetailviewLocation.create_4_model_brick(order=1, zone=BrickDetailviewLocation.LEFT, model=FakeContact)
 
-        create_bdl = partial(BlockDetailviewLocation.create_if_needed, zone=BlockDetailviewLocation.RIGHT, model=FakeContact)
+        create_bdl = partial(BrickDetailviewLocation.create_if_needed, zone=BrickDetailviewLocation.RIGHT, model=FakeContact)
         create_bdl(brick_id=rbi.brick_id, order=2)
         create_bdl(brick_id=rbrick_id,    order=3)
 
@@ -719,18 +719,18 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         fname1 = 'last_name'
         fname2 = 'phone'
         build_cell = EntityCellRegularField.build
-        cbc_item = CustomBlockConfigItem.objects.create(
+        cbc_item = CustomBrickConfigItem.objects.create(
                         id='tests-contacts1', name='Contact info',
                         content_type=ContentType.objects.get_for_model(FakeContact),
                         cells=[build_cell(FakeContact, fname1),
                                build_cell(FakeContact, fname2),
                               ],
                     )
-        bdl = BlockDetailviewLocation.create_if_needed(brick_id=cbc_item.generate_id(),
+        bdl = BrickDetailviewLocation.create_if_needed(brick_id=cbc_item.generate_id(),
                                                        order=1000,
                                                        model=FakeContact,
-                                                       zone=BlockDetailviewLocation.BOTTOM,
-                                                      )
+                                                       zone=BrickDetailviewLocation.BOTTOM,
+                                                       )
         naru = FakeContact.objects.create(user=user, last_name='Narusegawa',
                                           first_name='Naru', phone='1122334455',
                                          )
@@ -746,19 +746,19 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         hidden_fname = 'phone'
         FieldsConfig.create(FakeContact,
                             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
-                            )
+                           )
         build_cell = EntityCellRegularField.build
-        cbc_item = CustomBlockConfigItem.objects.create(
+        cbc_item = CustomBrickConfigItem.objects.create(
                         id='tests-contacts1', name='Contact info',
                         content_type=ContentType.objects.get_for_model(FakeContact),
                         cells=[build_cell(FakeContact, 'last_name'),
                                build_cell(FakeContact, hidden_fname),
                               ],
                     )
-        bdl = BlockDetailviewLocation.create_if_needed(brick_id=cbc_item.generate_id(),
+        bdl = BrickDetailviewLocation.create_if_needed(brick_id=cbc_item.generate_id(),
                                                        order=1000,
                                                        model=FakeContact,
-                                                       zone=BlockDetailviewLocation.BOTTOM,
+                                                       zone=BrickDetailviewLocation.BOTTOM,
                                                       )
         naru = FakeContact.objects.create(user=user, last_name='Narusegawa',
                                           first_name='Naru', phone='1122334455',
@@ -777,7 +777,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
                            )
         build_cell = EntityCellRegularField.build
-        cbc_item = CustomBlockConfigItem.objects.create(
+        cbc_item = CustomBrickConfigItem.objects.create(
                         id='tests-contacts1', name='Contact info',
                         content_type=ContentType.objects.get_for_model(FakeContact),
                         cells=[build_cell(FakeContact, 'last_name'),
@@ -785,11 +785,11 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                build_cell(FakeContact, 'address__city'),
                               ],
                     )
-        bdl = BlockDetailviewLocation.create_if_needed(brick_id=cbc_item.generate_id(),
+        bdl = BrickDetailviewLocation.create_if_needed(brick_id=cbc_item.generate_id(),
                                                        order=1000,  # Should be the last block
                                                        model=FakeContact,
-                                                       zone=BlockDetailviewLocation.BOTTOM,
-                                                      )
+                                                       zone=BrickDetailviewLocation.BOTTOM,
+                                                       )
         naru = FakeContact.objects.create(user=user, last_name='Narusegawa',
                                           first_name='Naru', phone='1122334455',
                                          )

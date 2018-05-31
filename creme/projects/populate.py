@@ -27,7 +27,7 @@ from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (RelationType, SearchConfigItem,
-        HeaderFilter, BlockDetailviewLocation)
+        HeaderFilter, BrickDetailviewLocation)
 from creme.creme_core.utils import create_if_needed
 
 from creme.persons import get_contact_model
@@ -117,13 +117,13 @@ class Populator(BasePopulator):
             create_if_needed(ProjectStatus, {'pk': 7}, name=_(u'Finished'),              order=7, description=_(u'The project is finished'))
 
             # ---------------------------
-            create_bdl = BlockDetailviewLocation.create_if_needed
-            TOP   = BlockDetailviewLocation.TOP
-            LEFT  = BlockDetailviewLocation.LEFT
-            RIGHT = BlockDetailviewLocation.RIGHT
+            create_bdl = BrickDetailviewLocation.create_if_needed
+            TOP   = BrickDetailviewLocation.TOP
+            LEFT  = BrickDetailviewLocation.LEFT
+            RIGHT = BrickDetailviewLocation.RIGHT
 
             create_bdl(brick_id=bricks.ProjectTasksBrick.id_,      order=2,   zone=TOP,   model=Project)
-            BlockDetailviewLocation.create_4_model_brick(order=5,             zone=LEFT,  model=Project)
+            BrickDetailviewLocation.create_4_model_brick(          order=5,   zone=LEFT,  model=Project)
             create_bdl(brick_id=bricks.ProjectExtraInfoBrick.id_,  order=30,  zone=LEFT,  model=Project)
             create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=Project)
             create_bdl(brick_id=core_bricks.PropertiesBrick.id_,   order=450, zone=LEFT,  model=Project)
@@ -132,7 +132,7 @@ class Populator(BasePopulator):
 
             create_bdl(brick_id=bricks.TaskResourcesBrick.id_,     order=2,   zone=TOP,   model=ProjectTask)
             create_bdl(brick_id=bricks.TaskActivitiesBrick.id_,    order=4,   zone=TOP,   model=ProjectTask)
-            BlockDetailviewLocation.create_4_model_brick(order=5,             zone=LEFT,  model=ProjectTask)
+            BrickDetailviewLocation.create_4_model_brick(          order=5,   zone=LEFT,  model=ProjectTask)
             create_bdl(brick_id=bricks.TaskExtraInfoBrick.id_,     order=30,  zone=LEFT,  model=ProjectTask)
             create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=ProjectTask)
             create_bdl(brick_id=bricks.ParentTasksBrick.id_,       order=50,  zone=LEFT,  model=ProjectTask)

@@ -10,8 +10,8 @@ try:
     from creme.creme_core.tests.views.base import ViewsTestCase, BrickTestCaseMixin
     from creme.creme_core.bricks import ImprintsBrick
     from creme.creme_core.core.imprint import imprint_manager
-    from creme.creme_core.models import (Imprint, BlockDetailviewLocation, BlockPortalLocation,
-        FakeOrganisation)
+    from creme.creme_core.models import (Imprint, BrickDetailviewLocation, BrickHomeLocation,
+            FakeOrganisation)
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -21,11 +21,11 @@ class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     def setUpClass(cls):
         super(ImprintViewsTestCase, cls).setUpClass()
 
-        BlockDetailviewLocation.create_if_needed(brick_id=ImprintsBrick.id_, order=1,
-                                                 zone=BlockDetailviewLocation.LEFT,
+        BrickDetailviewLocation.create_if_needed(brick_id=ImprintsBrick.id_, order=1,
+                                                 zone=BrickDetailviewLocation.LEFT,
                                                 )
         # BlockPortalLocation.create_or_update(brick_id=ImprintsBrick.id_, order=1, app_name='creme_core')
-        BlockPortalLocation.objects.create(brick_id=ImprintsBrick.id_, order=1)
+        BrickHomeLocation.objects.create(brick_id=ImprintsBrick.id_, order=1)
 
     def test_detailview(self):
         user = self.login()

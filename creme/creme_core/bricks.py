@@ -212,22 +212,22 @@ class HistoryBrick(QuerysetBrick):
 
         return self._render(btc)
 
-    def portal_display(self, context, ct_ids):
-        warnings.warn('creme_core.bricks.HistoryBrick.portal_display() is deprecated.', DeprecationWarning)
-
-        btc = self.get_template_context(
-                    context,
-                    HistoryLine.objects.filter(entity_ctype__in=ct_ids),
-                    HIDDEN_VALUE=settings.HIDDEN_VALUE,
-                   )
-        hlines = btc['page'].object_list
-        user = context['user']
-
-        self._populate_related_real_entities(hlines, user)
-        HistoryLine.populate_users(hlines, user)
-        self._populate_perms(hlines, user)
-
-        return self._render(btc)
+    # def portal_display(self, context, ct_ids):
+    #     warnings.warn('creme_core.bricks.HistoryBrick.portal_display() is deprecated.', DeprecationWarning)
+    #
+    #     btc = self.get_template_context(
+    #                 context,
+    #                 HistoryLine.objects.filter(entity_ctype__in=ct_ids),
+    #                 HIDDEN_VALUE=settings.HIDDEN_VALUE,
+    #                )
+    #     hlines = btc['page'].object_list
+    #     user = context['user']
+    #
+    #     self._populate_related_real_entities(hlines, user)
+    #     HistoryLine.populate_users(hlines, user)
+    #     self._populate_perms(hlines, user)
+    #
+    #     return self._render(btc)
 
     def home_display(self, context):
         btc = self.get_template_context(
@@ -259,10 +259,10 @@ class ImprintsBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(context, qs))
 
-    def portal_display(self, context, ct_ids):
-        warnings.warn('creme_core.bricks.ImprintsBrick.portal_display() is deprecated.', DeprecationWarning)
-
-        return self.home_display(context)  # Avoid crashes
+    # def portal_display(self, context, ct_ids):
+    #     warnings.warn('creme_core.bricks.ImprintsBrick.portal_display() is deprecated.', DeprecationWarning)
+    #
+    #     return self.home_display(context)  # Avoid crashes
 
     def home_display(self, context):
         can_view = context['user'].is_superuser

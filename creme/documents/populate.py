@@ -27,7 +27,7 @@ from django.utils.translation import ugettext as _
 from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import (RelationType, BlockDetailviewLocation,
+from creme.creme_core.models import (RelationType, BrickDetailviewLocation,
         SearchConfigItem, HeaderFilter, EntityFilter, EntityFilterCondition)
 from creme.creme_core.utils import create_if_needed
 
@@ -133,11 +133,11 @@ class Populator(BasePopulator):
 
         # ---------------------------
         if not already_populated:
-            LEFT = BlockDetailviewLocation.LEFT
-            RIGHT = BlockDetailviewLocation.RIGHT
-            create_bdl = BlockDetailviewLocation.create_if_needed
+            LEFT = BrickDetailviewLocation.LEFT
+            RIGHT = BrickDetailviewLocation.RIGHT
+            create_bdl = BrickDetailviewLocation.create_if_needed
 
-            BlockDetailviewLocation.create_4_model_brick(order=5,             zone=LEFT,  model=Folder)
+            BrickDetailviewLocation.create_4_model_brick(order=5, zone=LEFT, model=Folder)
             create_bdl(brick_id=core_bricks.CustomFieldsBrick.id_, order=40,  zone=LEFT,  model=Folder)
             create_bdl(brick_id=bricks.ChildFoldersBrick.id_,      order=50,  zone=LEFT,  model=Folder)
             create_bdl(brick_id=bricks.FolderDocsBrick.id_,        order=60,  zone=LEFT,  model=Folder)

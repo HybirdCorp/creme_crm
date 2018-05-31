@@ -15,7 +15,7 @@ try:
     from creme.creme_core.tests.fake_models import FakeOrganisation
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
     from creme.creme_core.models import (CremeEntity, Relation,
-            BlockPortalLocation, SettingValue, Job, JobResult)
+            BrickHomeLocation, SettingValue, Job, JobResult)
     from creme.creme_core.models.history import HistoryLine, TYPE_DELETION
 
     from creme.persons.constants import (REL_SUB_CUSTOMER_SUPPLIER,
@@ -311,7 +311,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_brick02(self):
         "Home"
         # BlockPortalLocation.create_or_update(app_name='creme_core', brick_id=ApproachesBrick.id_, order=100)
-        BlockPortalLocation.objects.create(brick_id=ApproachesBrick.id_, order=100)
+        BrickHomeLocation.objects.create(brick_id=ApproachesBrick.id_, order=100)
 
         response = self.assertGET200('/')
         self._get_commap_brick_node(response)

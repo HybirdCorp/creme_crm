@@ -25,7 +25,7 @@ from django.db.models import PositiveIntegerField, CharField, BooleanField, Fore
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy, ugettext
 
-from creme.creme_core.models import CremeEntity, InstanceBlockConfigItem
+from creme.creme_core.models import CremeEntity, InstanceBrickConfigItem
 
 from ..constants import RFT_RELATION, RFT_FIELD, GROUP_TYPES
 
@@ -149,14 +149,14 @@ class AbstractReportGraph(CremeEntity):
         else:
             key = ''
 
-        brick_id = InstanceBlockConfigItem.generate_id(ReportGraphBrick, self, key)
+        brick_id = InstanceBrickConfigItem.generate_id(ReportGraphBrick, self, key)
 
-        if InstanceBlockConfigItem.objects.filter(brick_id=brick_id).exists():
+        if InstanceBrickConfigItem.objects.filter(brick_id=brick_id).exists():
             raise self.InstanceBlockConfigItemError(
                         ugettext(u'The instance block for "%s" with these parameters already exists!') % self
                     )
 
-        ibci = InstanceBlockConfigItem(entity=self, brick_id=brick_id, data=key)
+        ibci = InstanceBrickConfigItem(entity=self, brick_id=brick_id, data=key)
 
         if save:
             ibci.save()

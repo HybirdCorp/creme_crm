@@ -32,8 +32,8 @@ from django.template.engine import Engine
 
 from ..auth.decorators import login_required
 from ..gui.bricks import brick_registry, BricksManager
-from ..models import CremeEntity, BlockState
-from ..utils import jsonify, get_from_POST_or_404, get_ct_or_404
+from ..models import CremeEntity, BrickState
+from ..utils import jsonify, get_from_POST_or_404  # get_ct_or_404
 
 
 logger = logging.getLogger(__name__)
@@ -239,7 +239,7 @@ def set_state(request):
     state_changed = False
 
     # TODO: Avoid the query if there is no post param?
-    bs = BlockState.objects.get_or_create(brick_id=brick_id, user=request.user)[0]
+    bs = BrickState.objects.get_or_create(brick_id=brick_id, user=request.user)[0]
 
     if is_open is not None:
         bs.is_open = bool(int(is_open))

@@ -29,7 +29,7 @@ from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.gui.bricks import brick_registry
-from creme.creme_core.models import BlockPortalLocation
+from creme.creme_core.models import BrickHomeLocation
 
 
 @login_required
@@ -48,8 +48,8 @@ def app_portal(request, app_name, template, models, stats, config_url=None, extr
     except TypeError:  # 'models' is a not a sequence -> CremeEntity
         ct_ids = [get_ct(models).id]
 
-    locs = BlockPortalLocation.objects.filter(Q(app_name='') | Q(app_name=app_name)) \
-                                      .order_by('order')
+    locs = BrickHomeLocation.objects.filter(Q(app_name='') | Q(app_name=app_name)) \
+                                    .order_by('order')
 
     # We fallback to the default config is there is no config for this app.
     brick_ids = [loc.brick_id for loc in locs if loc.app_name] or [loc.brick_id for loc in locs]

@@ -31,8 +31,8 @@ from formtools.wizard.views import SessionWizardView
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.models import (CremeEntity, UserRole,
-    BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
-    RelationBlockItem, InstanceBlockConfigItem, CustomBlockConfigItem)
+        BrickDetailviewLocation, BrickHomeLocation, BrickMypageLocation,
+        RelationBrickItem, InstanceBrickConfigItem, CustomBrickConfigItem)
 from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
@@ -145,7 +145,7 @@ class CustomBrickWizard(PopupWizardMixin, SessionWizardView):
     def get_form_instance(self, step):
         if step == '1':
             cleaned_data = self.get_cleaned_data_for_step('0')
-            return CustomBlockConfigItem(name=cleaned_data['name'],
+            return CustomBrickConfigItem(name=cleaned_data['name'],
                                          content_type=cleaned_data['ctype'],
                                         )
 
@@ -325,7 +325,7 @@ class RelationCTypeBrickWizard(PopupWizardMixin, SessionWizardView):
         return context
 
     def get_form_instance(self, step):
-        return get_object_or_404(RelationBlockItem, id=self.kwargs['rbi_id'])
+        return get_object_or_404(RelationBrickItem, id=self.kwargs['rbi_id'])
 
     def get_form_kwargs(self, step):
         kwargs = super(RelationCTypeBrickWizard, self).get_form_kwargs(step)
@@ -340,7 +340,7 @@ class RelationCTypeBrickWizard(PopupWizardMixin, SessionWizardView):
 @permission_required('creme_core.can_admin')
 def edit_cells_of_rtype_brick(request, rbi_id, ct_id):
     ctype = get_ct_or_404(ct_id)
-    rbi = get_object_or_404(RelationBlockItem, id=rbi_id)
+    rbi = get_object_or_404(RelationBrickItem, id=rbi_id)
 
     if rbi.get_cells(ctype) is None:
         raise Http404('This ContentType is not set in the RelationBlockItem')
@@ -372,7 +372,7 @@ def edit_cells_of_rtype_brick(request, rbi_id, ct_id):
 @permission_required('creme_core.can_admin')
 def delete_cells_of_rtype_brick(request, rbi_id):
     ctype = get_ct_or_404(get_from_POST_or_404(request.POST, 'id'))
-    rbi = get_object_or_404(RelationBlockItem, id=rbi_id)
+    rbi = get_object_or_404(RelationBrickItem, id=rbi_id)
 
     try:
         rbi.delete_cells(ctype)
@@ -387,7 +387,7 @@ def delete_cells_of_rtype_brick(request, rbi_id):
 @login_required
 @permission_required('creme_core.can_admin')
 def edit_custom_brick(request, cbci_id):
-    return edit_model_with_popup(request, {'id': cbci_id}, CustomBlockConfigItem,
+    return edit_model_with_popup(request, {'id': cbci_id}, CustomBrickConfigItem,
                                  bricks.CustomBrickConfigItemEditForm,
                                  ugettext(u'Edit the block «%s»'),
                                 )
@@ -415,7 +415,7 @@ def delete_detailview(request):
             except ValueError:
                 raise Http404('"role" argument must be "superuser" or an integer')
 
-    BlockDetailviewLocation.objects.filter(content_type=ct_id,
+    BrickDetailviewLocation.objects.filter(content_type=ct_id,
                                            role=role_id, superuser=superuser,
                                           ).delete()
 
@@ -440,7 +440,7 @@ def delete_detailview(request):
 @login_required
 @permission_required('creme_core.can_admin')
 def delete_home(request):
-    get_object_or_404(BlockPortalLocation,
+    get_object_or_404(BrickHomeLocation,
                       pk=get_from_POST_or_404(request.POST, 'id'),
                       # app_name='creme_core',
                      ).delete()
@@ -451,7 +451,7 @@ def delete_home(request):
 @login_required
 @permission_required('creme_core.can_admin')
 def delete_default_mypage(request):
-    get_object_or_404(BlockMypageLocation,
+    get_object_or_404(BrickMypageLocation,
                       pk=get_from_POST_or_404(request.POST, 'id'),
                       user=None,
                      ).delete()
@@ -461,7 +461,7 @@ def delete_default_mypage(request):
 
 @login_required
 def delete_mypage(request):
-    get_object_or_404(BlockMypageLocation,
+    get_object_or_404(BrickMypageLocation,
                       pk=get_from_POST_or_404(request.POST, 'id'),
                       user=request.user,
                      ).delete()
@@ -472,7 +472,7 @@ def delete_mypage(request):
 @login_required
 @permission_required('creme_core.can_admin')
 def delete_rtype_brick(request):
-    get_object_or_404(RelationBlockItem,
+    get_object_or_404(RelationBrickItem,
                       pk=get_from_POST_or_404(request.POST, 'id'),
                      ).delete()
 
@@ -483,7 +483,7 @@ def delete_rtype_brick(request):
 @login_required
 @permission_required('creme_core.can_admin')
 def delete_instance_brick(request):
-    get_object_or_404(InstanceBlockConfigItem,
+    get_object_or_404(InstanceBrickConfigItem,
                       pk=get_from_POST_or_404(request.POST, 'id'),
                      ).delete()
 
@@ -494,6 +494,6 @@ def delete_instance_brick(request):
 @permission_required('creme_core.can_admin')
 def delete_custom_brick(request):
     cbci_id = get_from_POST_or_404(request.POST, 'id')
-    get_object_or_404(CustomBlockConfigItem, pk=cbci_id).delete()
+    get_object_or_404(CustomBrickConfigItem, pk=cbci_id).delete()
 
     return HttpResponse()
