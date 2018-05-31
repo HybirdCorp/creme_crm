@@ -81,21 +81,22 @@ class ReportGraphBrick(Brick):
     verbose_name  = "Report's graph"  # Overloaded by __init__()
     template_name = 'reports/bricks/graph.html'
 
-    def __init__(self, instance_block_config):
+    # def __init__(self, instance_block_config):
+    def __init__(self, instance_brick_config):
         super(ReportGraphBrick, self).__init__()
         # self.verbose = instance_block_config.verbose #TODO: delete 'verbose' field ?
-        self.instance_block_id = instance_block_config.id
-        self.fetcher = fetcher = ReportGraph.get_fetcher_from_instance_block(instance_block_config)
+        # self.instance_block_id = instance_block_config.id
+        self.instance_brick_id = instance_brick_config.id
+        # self.fetcher = fetcher = ReportGraph.get_fetcher_from_instance_block(instance_block_config)
+        self.fetcher = fetcher = ReportGraph.get_fetcher_from_instance_brick(instance_brick_config)
         self.verbose_name = fetcher.verbose_name
 
         # Used by InstanceBlockConfigItem.errors, to display errors in creme_config
         error = fetcher.error
         self.errors = [error] if error else None
 
-    def detailview_display(self, context):
-        entity = context['object']
+    def _auxiliary_display(self, context, x, y):
         fetcher = self.fetcher
-        x, y = fetcher.fetch_4_entity(entity)
 
         return self._render(self.get_template_context(
                     context,
@@ -103,9 +104,15 @@ class ReportGraphBrick(Brick):
                     x=x, y=y,
                     error=fetcher.error,
                     volatile_column=fetcher.verbose_volatile_column,
-                    instance_block_id=self.instance_block_id,  # TODO: rename instance_brick_id
+                    instance_block_id=self.instance_brick_id,  # DEPRECATED
+                    instance_brick_id=self.instance_brick_id,
                     report_charts=report_chart_registry,
         ))
+
+    def detailview_display(self, context):
+        x, y = self.fetcher.fetch_4_entity(context['object'])
+
+        return self._auxiliary_display(context=context, x=x, y=y)
 
     # def portal_display(self, context, ct_ids):
     #     warnings.warn('reports.bricks.ReportGraphBrick.portal_display() is deprecated.', DeprecationWarning)
@@ -113,18 +120,7 @@ class ReportGraphBrick(Brick):
     #     # No specific things on portals so we use home display
     #     return self.home_display(context)
 
-    def home_display(self, context):  # TODO: factorise detailview_display()
-        fetcher = self.fetcher
-        x, y = fetcher.fetch()
+    def home_display(self, context):
+        x, y = self.fetcher.fetch()
 
-        # TODO: update_url ??
-        return self._render(self.get_template_context(
-                                context,
-                                graph=fetcher.graph,
-                                x=x, y=y,
-                                error=fetcher.error,
-                                volatile_column=fetcher.verbose_volatile_column,
-                                instance_block_id=self.instance_block_id,
-                                report_charts=report_chart_registry,
-                               )
-                           )
+        return self._auxiliary_display(context=context, x=x, y=y)

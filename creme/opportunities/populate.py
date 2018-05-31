@@ -294,8 +294,10 @@ class Populator(BasePopulator):
                               )
 
         # Create 2 instance block items for the 2 graphs ----------------------
-        brick_id1 = rgraph1.create_instance_block_config_item().brick_id
-        brick_id2 = rgraph2.create_instance_block_config_item().brick_id
+        # brick_id1 = rgraph1.create_instance_block_config_item().brick_id
+        # brick_id2 = rgraph2.create_instance_block_config_item().brick_id
+        brick_id1 = rgraph1.create_instance_brick_config_item().brick_id
+        brick_id2 = rgraph2.create_instance_brick_config_item().brick_id
 
         BrickDetailviewLocation.create_if_needed(brick_id=brick_id1, order=4, zone=BrickDetailviewLocation.RIGHT, model=Opportunity)
         BrickDetailviewLocation.create_if_needed(brick_id=brick_id2, order=6, zone=BrickDetailviewLocation.RIGHT, model=Opportunity)

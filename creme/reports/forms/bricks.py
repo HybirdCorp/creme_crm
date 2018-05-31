@@ -30,7 +30,8 @@ from creme.creme_core.utils.meta import ModelFieldEnumerator
 from .. import get_rgraph_model
 
 
-InstanceBlockConfigItemError = get_rgraph_model().InstanceBlockConfigItemError
+# InstanceBlockConfigItemError = get_rgraph_model().InstanceBlockConfigItemError
+InstanceBrickConfigItemError = get_rgraph_model().InstanceBrickConfigItemError
 
 
 class GraphInstanceBrickForm(CremeForm):
@@ -95,8 +96,10 @@ class GraphInstanceBrickForm(CremeForm):
                 kwargs['volatile_rtype'] = self._rtypes[link_val]
 
         try:
-            self.ibci = self.graph.create_instance_block_config_item(save=False, **kwargs)
-        except InstanceBlockConfigItemError as e:
+            # self.ibci = self.graph.create_instance_block_config_item(save=False, **kwargs)
+            self.ibci = self.graph.create_instance_brick_config_item(save=False, **kwargs)
+        # except InstanceBlockConfigItemError as e:
+        except InstanceBrickConfigItemError as e:
             raise ValidationError(unicode(e))
 
         return cleaned_data

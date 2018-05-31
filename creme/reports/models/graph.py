@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+import warnings
 
 from django.conf import settings
 from django.db.models import PositiveIntegerField, CharField, BooleanField, ForeignKey, CASCADE
@@ -79,16 +80,26 @@ class AbstractReportGraph(CremeEntity):
 
         return self.hand.fetch(entities, order)
 
+    @classmethod
+    def get_fetcher_from_instance_block(cls, instance_block_config):
+        warnings.warn('AbstractReportGraph.get_fetcher_from_instance_block() is deprecated ; '
+                      'use get_fetcher_from_instance_brick() instead.',
+                      DeprecationWarning
+                     )
+
+        return cls.get_fetcher_from_instance_brick(instance_block_config)
+
     @staticmethod
-    def get_fetcher_from_instance_block(instance_block_config):
+    def get_fetcher_from_instance_brick(instance_brick_config):
         """Build a GraphFetcher related to this ReportGraph & an InstanceBlockConfigItem.
-        @param instance_block_config: An instance of InstanceBlockConfigItem.
+        @param instance_brick_config: An instance of InstanceBrickConfigItem.
         @return A GraphFetcher instance.
         """
         from ..core.graph import (GraphFetcher, RegularFieldLinkedGraphFetcher,
                     RelationLinkedGraphFetcher)
 
-        data = instance_block_config.data
+        # data = instance_block_config.data
+        data = instance_brick_config.data
         volatile_column = rfield_type = None
 
         if data:
@@ -97,10 +108,12 @@ class AbstractReportGraph(CremeEntity):
                 rfield_type = int(rfield_type)
             except ValueError as e:
                 logger.warn('Instance block: invalid link type "%s" in block "%s" [%s].',
-                            data, instance_block_config, e,
+                            # data, instance_block_config, e,
+                            data, instance_brick_config, e,
                            )
 
-        graph = instance_block_config.entity.get_real_entity()
+        # graph = instance_block_config.entity.get_real_entity()
+        graph = instance_brick_config.entity.get_real_entity()
 
         # TODO: use a map/registry of GraphFetcher classes
         if rfield_type == RFT_FIELD:
@@ -123,12 +136,30 @@ class AbstractReportGraph(CremeEntity):
 
         return hand
 
-    # TODO: rename InstanceBrickConfigItemError
-    class InstanceBlockConfigItemError(Exception):
+    class InstanceBrickConfigItemError(Exception):
         pass
 
-    # TODO: rename create_instance_block_config_item() (wait for new fields names ?)
-    def create_instance_block_config_item(self, volatile_field=None, volatile_rtype=None, save=True):
+    class InstanceBlockConfigItemError(Exception):
+        def __init__(self, *args, **kwarg):
+            warnings.warn('AbstractReportGraph.InstanceBlockConfigItemError is deprecated ; '
+                          'use InstanceBrickConfigItemError instead.',
+                          DeprecationWarning
+                         )
+
+            super(AbstractReportGraph.InstanceBlockConfigItemError, self).__init__(*args, **kwarg)
+
+    def create_instance_block_config_item(self, *args, **kwargs):
+        warnings.warn('AbstractReportGraph.create_instance_block_config_item() is deprecated ; '
+                      'use create_instance_block_config_item() instead.',
+                      DeprecationWarning
+                     )
+
+        try:
+            return self.create_instance_brick_config_item(*args, **kwargs)
+        except self.InstanceBrickConfigItemError as e:
+            raise self.InstanceBlockConfigItemError(e.args[0])
+
+    def create_instance_brick_config_item(self, volatile_field=None, volatile_rtype=None, save=True):
         from ..bricks import ReportGraphBrick
         from ..core.graph import RegularFieldLinkedGraphFetcher
 
@@ -137,22 +168,22 @@ class AbstractReportGraph(CremeEntity):
             error = RegularFieldLinkedGraphFetcher.validate_fieldname(self, volatile_field)
 
             if error:
-                logger.info('ReportGraph.create_instance_block_config_item(): '
-                            '%s -> InstanceBlockConfigItem not built.', error
+                logger.info('ReportGraph.create_instance_brick_config_item(): '
+                            '%s -> InstanceBrickConfigItem not built.', error
                            )
 
                 return None
 
-            key = '%s|%s' % (volatile_field, RFT_FIELD)
+            key = '{}|{}'.format(volatile_field, RFT_FIELD)
         elif volatile_rtype:
-            key = '%s|%s' % (volatile_rtype.id, RFT_RELATION)
+            key = '{}|{}'.format(volatile_rtype.id, RFT_RELATION)
         else:
             key = ''
 
         brick_id = InstanceBrickConfigItem.generate_id(ReportGraphBrick, self, key)
 
         if InstanceBrickConfigItem.objects.filter(brick_id=brick_id).exists():
-            raise self.InstanceBlockConfigItemError(
+            raise self.InstanceBrickConfigItemError(
                         ugettext(u'The instance block for "%s" with these parameters already exists!') % self
                     )
 
