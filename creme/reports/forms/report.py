@@ -349,7 +349,7 @@ class ReportExportPreviewFilterForm(CremeForm):
 
     def _backend_choices(self):
         return [(backend.id, backend.verbose_name)
-                    for backend in export_backend_registry.iterbackends()
+                    for backend in export_backend_registry.backends
                ]
 
     def clean(self):

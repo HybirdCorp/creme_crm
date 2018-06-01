@@ -526,14 +526,14 @@ class MediaNode(TemplateNode):
 @register.simple_tag
 def get_export_backends():
     return json_dump([[backend.id, unicode(backend.verbose_name)]
-                        for backend in export_backend_registry.iterbackends()
+                        for backend in export_backend_registry.backends
                      ]
                     )
 
 
 @register.simple_tag
 def get_import_backends():
-    return json_dump([[backend.id] for backend in import_backend_registry.iterbackends()])
+    return json_dump([[backend.id] for backend in import_backend_registry.backends])
 
 
 @register.simple_tag(name='hg_info')
