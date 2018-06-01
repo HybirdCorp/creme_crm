@@ -129,7 +129,7 @@ def download_errors(request, job_id):
 
     get_export_backend = export_backend_registry.get_backend
     export_backend = get_export_backend(import_backend.id) or \
-                     get_export_backend(next(export_backend_registry.iterbackends()).id)
+                     get_export_backend(next(export_backend_registry.backends).id)
 
     if not export_backend:
         return ConflictError(_(u'Unknown file type ; please contact your administrator.'))

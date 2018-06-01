@@ -41,7 +41,7 @@ try:
     from creme.creme_core.backends import export_backend_registry
     from creme.creme_core.utils.xlrd_utils import XlrdReader
 
-    XlsImport = not 'xls' in export_backend_registry.iterkeys()
+    XlsImport = not 'xls' in export_backend_registry.extensions
 except Exception as e:
     XlsImport = True
 

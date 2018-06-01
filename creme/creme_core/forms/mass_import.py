@@ -108,7 +108,7 @@ class UploadForm(CremeForm):
         document_f.help_text = format_html(
             u'<ul class="help-texts">{}</ul>',
             format_html_join(u'', u'<li>{}: {}</li>',
-                             ((be.verbose_name, be.help_text) for be in import_backend_registry.iterbackends())
+                             ((be.verbose_name, be.help_text) for be in import_backend_registry.backends)
                             )
         )
 

@@ -16,13 +16,13 @@ try:
 
     from creme.documents.models import Document, Folder, FolderCategory
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 try:
     from creme.creme_core.utils.xlwt_utils import XlwtWriter
     from creme.creme_core.backends import import_backend_registry
 
-    no_XLS_lib = 'xls' not in import_backend_registry.iterkeys()
+    no_XLS_lib = 'xls' not in import_backend_registry.extensions
 except:
     no_XLS_lib = True
 

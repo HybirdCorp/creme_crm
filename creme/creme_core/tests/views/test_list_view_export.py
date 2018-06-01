@@ -37,7 +37,7 @@ try:
     from creme.creme_core.backends import export_backend_registry
     from creme.creme_core.utils.xlrd_utils import XlrdReader
 
-    XlsMissing = 'xls' not in export_backend_registry.iterkeys()
+    XlsMissing = 'xls' not in export_backend_registry.extensions
 except Exception:
     XlsMissing = True
 

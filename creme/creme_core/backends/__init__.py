@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2016  Hybird
+#    Copyright (C) 2013-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,9 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+# TODO: move to 'core/' ??
+import warnings
 
 from django.conf import settings
 
@@ -46,12 +49,13 @@ class _BackendRegistry(object):
                 backend_id = getattr(BackendClass, 'id', None)
                 if backend_id is None:
                     # raise Exception('Backend: %s has invalid id.' % BackendClass)
-                    raise self.InvalidId('Backend: %s has invalid id.' % BackendClass)
+                    raise self.InvalidId('Backend: {} has invalid id.'.format(BackendClass))
 
                 if backend_id in backends:
                     # raise Exception('Id: %s already used for %s. Please specify another id for %s' %
-                    raise self.DuplicatedId('Id: %s already used for %s. Please specify another id for %s' %
-                                    (backend_id, backends[backend_id], BackendClass))
+                    raise self.DuplicatedId('Id: {} already used for {}. Please specify another id for {}'.format(
+                                    backend_id, backends[backend_id], BackendClass
+                    ))
 
                 backends[backend_id] = BackendClass
 
@@ -59,11 +63,29 @@ class _BackendRegistry(object):
 
         return self._backends
 
-    def iterbackends(self):
+    @property
+    def backends(self):
         return self._get_backends().itervalues()
 
-    def iterkeys(self):
+    def iterbackends(self):
+        warnings.warn('_BackendRegistry.iterbackends() is deprecated ; '
+                      'use _BackendRegistry.backends instead.',
+                      DeprecationWarning
+                     )
+
+        return self.backends
+
+    @property
+    def extensions(self):
         return self._get_backends().iterkeys()
+
+    def iterkeys(self):
+        warnings.warn('_BackendRegistry.iterkeys() is deprecated ; '
+                      'use _BackendRegistry.extensions instead.',
+                      DeprecationWarning
+                     )
+
+        return self.extensions
 
     def get_backend(self, backend_id):
         return self._get_backends().get(backend_id)
