@@ -73,7 +73,7 @@ class ReportGraphForm(CremeEntityForm):
                                        )  # TODO: coerce to int
     aggregate         = ChoiceField(label=_(u'Aggregate'), required=False,
                                    choices=[(agg.name, agg.title)
-                                                for agg in field_aggregation_registry.itervalues()
+                                                for agg in field_aggregation_registry.aggregations
                                            ],
                                   )
     aggregate_field   = ChoiceField(label=_(u'Field'), choices=(), required=False)

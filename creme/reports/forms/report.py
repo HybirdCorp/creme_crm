@@ -241,7 +241,7 @@ class ReportHandsField(EntityCellsField):
             authorized_fields       = field_aggregation_registry.authorized_fields
             authorized_customfields = field_aggregation_registry.authorized_customfields
 
-            for aggregate in field_aggregation_registry.itervalues():
+            for aggregate in field_aggregation_registry.aggregations:
                 pattern = aggregate.pattern
                 title   = aggregate.title
 
