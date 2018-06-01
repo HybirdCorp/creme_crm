@@ -29,7 +29,8 @@ class FunctionFieldResult(object):
     def __init__(self, str_data):
         self._data = str_data
 
-    def __unicode__(self, str_data):
+    # def __unicode__(self, str_data):
+    def __unicode__(self):
         return self.for_html()
 
     def for_html(self):
