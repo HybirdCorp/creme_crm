@@ -227,16 +227,17 @@ class CSVExportViewsTestCase(ViewsTestCase):
         # TODO: sort the relations/properties by they verbose_name ??
         result = response.content.splitlines()
         it = (force_unicode(line) for line in result)
-        self.assertEqual(it.next(), u','.join(u'"%s"' % hfi.title for hfi in hf.cells))
-        self.assertEqual(it.next(), u'"","Black","Jet","Bebop",""')
-        self.assertIn(it.next(), (u'"","Spiegel","Spike","Bebop/Swordfish",""',
-                                  u'"","Spiegel","Spike","Swordfish/Bebop",""')
+        self.assertEqual(next(it), u','.join(u'"%s"' % hfi.title for hfi in hf.cells))
+        self.assertEqual(next(it), u'"","Black","Jet","Bebop",""')
+        self.assertIn(next(it), (u'"","Spiegel","Spike","Bebop/Swordfish",""',
+                                 u'"","Spiegel","Spike","Swordfish/Bebop",""')
                      )
-        self.assertIn(it.next(), (u'"","Valentine","Faye","","is a girl/is beautiful"',
-                                  u'"","Valentine","Faye","","is beautiful/is a girl"')
+        self.assertIn(next(it), (u'"","Valentine","Faye","","is a girl/is beautiful"',
+                                 u'"","Valentine","Faye","","is beautiful/is a girl"')
                      )
-        self.assertEqual(it.next(), u'"","Wong","Edward","","is a girl"')
-        self.assertRaises(StopIteration, it.next)
+        self.assertEqual(next(it), u'"","Wong","Edward","","is a girl"')
+        with self.assertRaises(StopIteration):
+            next(it)
 
         # # Legacy
         # response = self.assertGET200(self._build_dl_url(self.ct.id, use_GET=False), data={'list_url': lv_url})
@@ -275,16 +276,17 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         # TODO: sort the relations/properties by they verbose_name ??
         it = (force_unicode(line) for line in response.content.splitlines())
-        self.assertEqual(it.next(), u';'.join(u'"%s"' % hfi.title for hfi in cells))
-        self.assertEqual(it.next(), u'"";"Black";"Jet";"Bebop";""')
-        self.assertIn(it.next(), (u'"";"Spiegel";"Spike";"Bebop/Swordfish";""',
-                                  u'"";"Spiegel";"Spike";"Swordfish/Bebop";""')
+        self.assertEqual(next(it), u';'.join(u'"%s"' % hfi.title for hfi in cells))
+        self.assertEqual(next(it), u'"";"Black";"Jet";"Bebop";""')
+        self.assertIn(next(it), (u'"";"Spiegel";"Spike";"Bebop/Swordfish";""',
+                                 u'"";"Spiegel";"Spike";"Swordfish/Bebop";""')
                      )
-        self.assertIn(it.next(), (u'"";"Valentine";"Faye";"";"is a girl/is beautiful"',
-                                  u'"";"Valentine";"Faye";"";"is beautiful/is a girl"')
+        self.assertIn(next(it), (u'"";"Valentine";"Faye";"";"is a girl/is beautiful"',
+                                 u'"";"Valentine";"Faye";"";"is beautiful/is a girl"')
                      )
-        self.assertEqual(it.next(), u'"";"Wong";"Edward";"";"is a girl"')
-        self.assertRaises(StopIteration, it.next)
+        self.assertEqual(next(it), u'"";"Wong";"Edward";"";"is a girl"')
+        with self.assertRaises(StopIteration):
+            next(it)
 
     def test_list_view_export03(self):
         "'export' credential"
@@ -372,13 +374,13 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                 )
 
         response = self.assertGET200(self._build_contact_dl_url(hfilter_id=hf.id))
-        it = (force_unicode(line) for line in response.content.splitlines()); it.next()
+        it = (force_unicode(line) for line in response.content.splitlines()); next(it)
 
-        self.assertEqual(it.next(), '"Black","Jet face","Jet\'s selfie"')
+        self.assertEqual(next(it), '"Black","Jet face","Jet\'s selfie"')
 
         HIDDEN_VALUE = settings.HIDDEN_VALUE
-        self.assertEqual(it.next(), '"Spiegel","%s","%s"' % (HIDDEN_VALUE, HIDDEN_VALUE))
-        self.assertEqual(it.next(), '"Valentine","",""')
+        self.assertEqual(next(it), '"Spiegel","%s","%s"' % (HIDDEN_VALUE, HIDDEN_VALUE))
+        self.assertEqual(next(it), '"Valentine","",""')
 
     def test_list_view_export07(self):
         "M2M field on CremeEntities"
@@ -425,7 +427,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         response = self.assertGET200(self._build_contact_dl_url())
 
         it = (force_unicode(line) for line in response.content.splitlines())
-        self.assertEqual(it.next(),
+        self.assertEqual(next(it),
                          u','.join(u'"%s"' % u for u in [_(u'Civility'),
                                                          _(u'Last name'),
                                                          'pilots',
@@ -433,7 +435,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                                         ]
                                   )
                         )
-        self.assertEqual(it.next(), u'"","Black","Bebop",""')
+        self.assertEqual(next(it), u'"","Black","Bebop",""')
 
     def test_extra_filter(self):
         self.login()
@@ -500,14 +502,15 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                     )
 
         it = iter(XlrdReader(None, file_contents=response.content))
-        self.assertEqual(it.next(), [hfi.title for hfi in cells])
-        self.assertEqual(it.next(), ["", "Black", "Jet", "Bebop", ""])
-        self.assertIn(it.next(), (["", "Spiegel", "Spike", "Bebop/Swordfish", ""],
+        self.assertEqual(next(it), [hfi.title for hfi in cells])
+        self.assertEqual(next(it), ["", "Black", "Jet", "Bebop", ""])
+        self.assertIn(next(it), (["", "Spiegel", "Spike", "Bebop/Swordfish", ""],
                                   ["", "Spiegel", "Spike", "Swordfish/Bebop", ""]))
-        self.assertIn(it.next(), (["", "Valentine", "Faye", "", "is a girl/is beautiful"],
+        self.assertIn(next(it), (["", "Valentine", "Faye", "", "is a girl/is beautiful"],
                                   ["", "Valentine", "Faye", "", "is beautiful/is a girl"]))
-        self.assertEqual(it.next(), ["", "Wong", "Edward", "", "is a girl"])
-        self.assertRaises(StopIteration, it.next)
+        self.assertEqual(next(it), ["", "Wong", "Edward", "", "is a girl"])
+        with self.assertRaises(StopIteration):
+            next(it)
 
         # FileRef
         filerefs = FileRef.objects.exclude(id__in=existing_fileref_ids)
@@ -550,10 +553,11 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                     )
 
         it = iter(XlrdReader(None, file_contents=response.content))
-        self.assertEqual(it.next(), [hfi.title for hfi in cells])
-        self.assertEqual(it.next(), [orga01.name, _(u'Yes'), ''])
-        self.assertEqual(it.next(), [orga02.name, _(u'No'),  date_format(orga02.creation_date, 'DATE_FORMAT')])
-        self.assertRaises(StopIteration, it.next)
+        self.assertEqual(next(it), [hfi.title for hfi in cells])
+        self.assertEqual(next(it), [orga01.name, _(u'Yes'), ''])
+        self.assertEqual(next(it), [orga02.name, _(u'No'),  date_format(orga02.creation_date, 'DATE_FORMAT')])
+        with self.assertRaises(StopIteration):
+            next(it)
 
     def test_print_integer01(self):
         "No choices"
@@ -673,12 +677,12 @@ class CSVExportViewsTestCase(ViewsTestCase):
         response = self.assertGET200(self._build_contact_dl_url(hfilter_id=hf.id))
 
         it = (force_unicode(line) for line in response.content.splitlines())
-        it.next()  # Header
-        self.assertEqual(it.next(), u'"123455","Black","Jet"')
-        self.assertEqual(it.next(), u'"123233","Spiegel","Spike"')
+        next(it)  # Header
+        self.assertEqual(next(it), u'"123455","Black","Jet"')
+        self.assertEqual(next(it), u'"123233","Spiegel","Spike"')
 
         with self.assertRaises(StopIteration):
-            it.next()
+            next(it)
 
     def test_distinct(self):
         user = self.login()

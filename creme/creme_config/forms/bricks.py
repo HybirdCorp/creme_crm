@@ -106,7 +106,8 @@ class _BrickLocationsForm(CremeForm):
                 brick_ids = ('',)
 
             for order, brick_id in enumerate(brick_ids, start=1):
-                location = store_it.next()
+                # location = store_it.next()
+                location = next(store_it)
                 location.brick_id = brick_id
                 location.order = order
                 location.zone  = zone  # NB: BlockPortalLocation has not 'zone' attr, but we do not care ! :)

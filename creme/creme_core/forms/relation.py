@@ -138,7 +138,8 @@ class _RelationsCreateForm(CremeForm):
                         raise ValidationError(
                                     self.error_messages['missing_property_single'],
                                     params={'subject':    subject,
-                                            'property':   needed_properties.itervalues().next(),
+                                            # 'property':   needed_properties.itervalues().next(),
+                                            'property':   next(needed_properties.itervalues()),
                                             'predicate':  rtype.predicate,
                                            },
                                     code='missing_property_single',

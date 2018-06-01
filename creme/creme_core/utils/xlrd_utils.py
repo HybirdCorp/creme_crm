@@ -88,4 +88,5 @@ class XlrdReader(object):
         return self
 
     def next(self):
-        return self._calc.next()
+        # return self._calc.next()
+        return next(self._calc)

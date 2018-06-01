@@ -203,46 +203,54 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(8, len(conditions))
         iter_conds = iter(conditions)
 
-        condition = iter_conds.next()
+        # condition = iter_conds.next()
+        condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_FIELD,                       condition.type)
         self.assertEqual(field_name,                                            condition.name)
         self.assertEqual({'operator': field_operator, 'values': [field_value]}, condition.decoded_value)
 
-        condition = iter_conds.next()
+        # condition = iter_conds.next()
+        condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
         self.assertEqual(date_field_name,                     condition.name)
         self.assertEqual({'name': daterange_type},            condition.decoded_value)
 
-        condition = iter_conds.next()
+        # condition = iter_conds.next()
+        condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
         self.assertEqual(str(custom_field.id),                  condition.name)
         self.assertEqual({'operator': cfield_operator, 'rname': 'customfieldinteger', 'value': [unicode(cfield_value)]},
                          condition.decoded_value
                         )
 
-        condition = iter_conds.next()
+        # condition = iter_conds.next()
+        condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_DATECUSTOMFIELD, condition.type)
         self.assertEqual(str(datecfield.id),                        condition.name)
         self.assertEqual({'rname': 'customfielddatetime', 'name': datecfield_rtype},
                          condition.decoded_value
                         )
 
-        condition = iter_conds.next()
+        # condition = iter_conds.next()
+        condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_RELATION, condition.type)
         self.assertEqual(rtype.id,                           condition.name)
         self.assertEqual({'has': True},                      condition.decoded_value)
 
-        condition = iter_conds.next()
+        # condition = iter_conds.next()
+        condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_RELATION_SUBFILTER, condition.type)
         self.assertEqual(srtype.id,                                    condition.name)
         self.assertEqual({'has': False, 'filter_id': relsubfilfer.id}, condition.decoded_value)
 
-        condition = iter_conds.next()
+        # condition = iter_conds.next()
+        condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_PROPERTY, condition.type)
         self.assertEqual(ptype.id,                           condition.name)
         self.assertIs(condition.decoded_value, True)
 
-        condition = iter_conds.next()
+        # condition = iter_conds.next()
+        condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_SUBFILTER, condition.type)
         self.assertEqual(subfilter.id,                        condition.name)
 
@@ -470,7 +478,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(1, len(conditions))
         iter_conds = iter(conditions)
 
-        condition = iter_conds.next()
+        # condition = iter_conds.next()
+        condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
         self.assertEqual('user',                          condition.name)
         self.assertEqual({'operator': EntityFilterCondition.EQUALS,
@@ -843,12 +852,12 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(8, len(conditions))
         iter_conds = iter(conditions)
 
-        condition = iter_conds.next()
+        condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_FIELD,                       condition.type)
         self.assertEqual(field_name,                                            condition.name)
         self.assertEqual({'operator': field_operator, 'values': [field_value]}, condition.decoded_value)
 
-        condition = iter_conds.next()
+        condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
         self.assertEqual(date_field_name,                     condition.name)
         self.assertEqual({'start': {'year': 2011, 'month': 5, 'day': 23},
@@ -857,7 +866,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                          condition.decoded_value
                         )
 
-        condition = iter_conds.next()
+        condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
         self.assertEqual(str(custom_field.id),                  condition.name)
         self.assertEqual({'operator': cfield_operator,
@@ -867,29 +876,29 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                          condition.decoded_value
                         )
 
-        condition = iter_conds.next()
+        condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_DATECUSTOMFIELD, condition.type)
         self.assertEqual(str(datecfield.id),                        condition.name)
         self.assertEqual({'rname': 'customfielddatetime', 'name': datecfield_rtype},
                          condition.decoded_value
                         )
 
-        condition = iter_conds.next()
+        condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_RELATION, condition.type)
         self.assertEqual(rtype.id,                           condition.name)
         self.assertEqual({'has': True},                      condition.decoded_value)
 
-        condition = iter_conds.next()
+        condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_RELATION_SUBFILTER, condition.type)
         self.assertEqual(srtype.id,                                    condition.name)
         self.assertEqual({'has': False, 'filter_id': relsubfilfer.id}, condition.decoded_value)
 
-        condition = iter_conds.next()
+        condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_PROPERTY, condition.type)
         self.assertEqual(ptype.id,                           condition.name)
         self.assertIs(condition.decoded_value, False)
 
-        condition = iter_conds.next()
+        condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_SUBFILTER, condition.type)
         self.assertEqual(subfilter.id,                        condition.name)
 
