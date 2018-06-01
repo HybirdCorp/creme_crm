@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-# import warnings
+import warnings
 
 from django.conf import settings
 from django.core.mail import EmailMessage, get_connection
@@ -126,6 +126,9 @@ class Reminder(object):
 
 
 class ReminderRegistry(object):
+    class RegistrationError(Exception):
+        pass
+
     def __init__(self):
         self._reminders = {}
 
@@ -145,21 +148,26 @@ class ReminderRegistry(object):
         reminder_id = reminder.id
 
         if reminder_id in reminders:
-            # TODO: exception instead ?
-            logger.warning("Duplicate reminder's id or reminder registered twice : %s", reminder_id)
+            # logger.warning("Duplicate reminder's id or reminder registered twice : %s", reminder_id)
+            raise self.RegistrationError("Duplicated reminder's id or reminder registered twice: {}".format(reminder_id))
 
         # reminders[reminder_id] = reminder
         reminders[reminder_id] = reminder()
 
     def unregister(self, reminder):
-        self._reminders.pop(reminder.id, None)
+        # self._reminders.pop(reminder.id, None)
+        if self._reminders.pop(reminder.id, None) is None:
+            raise self.RegistrationError('No reminder is registered with this ID : {}'.format(reminder.id))
 
-    # TODO: returns Reminder instances & not tuples
     def __iter__(self):
-        return self._reminders.iteritems()
+        # return self._reminders.iteritems()
+        return self._reminders.itervalues()
 
-    # TODO: deprecate when __iter__ returns Reminder instances
     def itervalues(self):
+        warnings.warn('ReminderRegistry.itervalues() is deprecated; use __iter__() instead.',
+                      DeprecationWarning
+                     )
+
         return self._reminders.itervalues()
 
 

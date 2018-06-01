@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -72,15 +72,15 @@ class _SettingKey(object):
         self._castor = self._CASTORS[type]
 
     def __unicode__(self):
-        return u'%(cls)s(id="%(id)s", description="%(description)s", ' \
-               u'app_label="%(app_label)s", type=%(type)s, hidden=%(hidden)s)' % {
-                'cls': self.__class__.__name__,
-                'id': self.id,
-                'description': self.description,
-                'app_label': self.app_label,
-                'type': self.type,
-                'hidden': self.hidden,
-            }
+        return u'{cls}(id="{id}", description="{description}", ' \
+               u'app_label="{app_label}", type={type}, hidden={hidden})'.format(
+                cls=self.__class__.__name__,
+                id=self.id,
+                description=self.description,
+                app_label=self.app_label,
+                type=self.type,
+                hidden=self.hidden,
+        )
 
     def cast(self, value_str):
         return self._castor(value_str)
@@ -128,10 +128,10 @@ class _SettingKeyRegistry(object):
 
         for skey in skeys:
             if not isinstance(skey, key_class):
-                raise _SettingKeyRegistry.RegistrationError("Bad class for key %s (need %s)" % (skey, key_class))
+                raise _SettingKeyRegistry.RegistrationError("Bad class for key {} (need {})".format(skey, key_class))
 
             if setdefault(skey.id, skey) is not skey:
-                raise _SettingKeyRegistry.RegistrationError("Duplicated setting key's id: %s" % skey.id)
+                raise _SettingKeyRegistry.RegistrationError("Duplicated setting key's id: {}".format(skey.id))
 
     def unregister(self, *skeys):
         pop = self._skeys.pop

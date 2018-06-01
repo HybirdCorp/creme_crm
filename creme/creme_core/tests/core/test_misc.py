@@ -620,11 +620,13 @@ class ReminderTestCase(CremeTestCase):
         registry.register(TestReminder1)
         registry.register(TestReminder2)
 
-        items = dict(registry)
-        self.assertEqual(2, len(items))
-        self.assertIsInstance(items[TestReminder1.id], TestReminder1)
-        self.assertIsInstance(items[TestReminder2.id], TestReminder2)
-
+        # items = dict(registry)
+        # self.assertEqual(2, len(items))
+        # self.assertIsInstance(items[TestReminder1.id], TestReminder1)
+        # self.assertIsInstance(items[TestReminder2.id], TestReminder2)
+        self.assertEqual({TestReminder1, TestReminder2},
+                         {r.__class__ for r in registry}
+                        )
         self.assertEqual({TestReminder1, TestReminder2},
                          {r.__class__ for r in registry.itervalues()}
                         )
@@ -632,11 +634,27 @@ class ReminderTestCase(CremeTestCase):
         # --
         registry.unregister(TestReminder1)
         self.assertEqual([TestReminder2],
-                         [r.__class__ for r in registry.itervalues()]
+                         # [r.__class__ for r in registry.itervalues()]
+                         [r.__class__ for r in registry]
                         )
 
-        with self.assertNoException():
+        # with self.assertNoException():
+        with self.assertRaises(registry.RegistrationError):
             registry.unregister(TestReminder1)
+
+    def test_register_error(self):
+        registry = ReminderRegistry()
+
+        class TestReminder1(Reminder):
+            id = Reminder.generate_id('creme_core', 'ReminderTestCase_test_register_error')
+
+        class TestReminder2(Reminder):
+            id = TestReminder1.id  # < ===
+
+        registry.register(TestReminder1)
+
+        with self.assertRaises(registry.RegistrationError):
+            registry.register(TestReminder2)
 
 
 class JobManagerTestCase(CremeTestCase):
