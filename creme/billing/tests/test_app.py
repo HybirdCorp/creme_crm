@@ -14,8 +14,11 @@ try:
     from creme.persons.tests.base import skipIfCustomOrganisation
 
     from .. import bricks, constants
+    from ..algos import SimpleAlgo
     from ..models import (InvoiceStatus, SalesOrderStatus, CreditNoteStatus,
             ConfigBillingAlgo, SimpleBillingAlgo)
+    from ..registry import AlgoRegistry
+
     from .base import (_BillingTestCase,
             Organisation, Contact, Product, Service,
             CreditNote, Invoice, Quote, SalesOrder, TemplateBase,
@@ -55,6 +58,19 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
     # def test_portal(self):
     #     self.login()
     #     self.assertGET200(reverse('billing__portal'))
+
+    def test_registry(self):
+        registry = AlgoRegistry()
+        registry.register((SimpleBillingAlgo.ALGO_NAME, SimpleAlgo))
+
+        self.assertEqual(SimpleAlgo, registry.get_algo(SimpleBillingAlgo.ALGO_NAME))
+        self.assertIsNone(registry.get_algo('billing-unknown'))
+
+        self.assertEqual([(SimpleBillingAlgo.ALGO_NAME, SimpleAlgo)],
+                         list(registry)
+                        )
+        self.assertEqual([SimpleAlgo], list(registry.itervalues()))
+        self.assertEqual([SimpleAlgo], list(registry.algorithms))
 
     @skipIfCustomOrganisation
     def test_algoconfig(self):

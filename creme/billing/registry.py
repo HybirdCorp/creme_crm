@@ -20,7 +20,7 @@
 
 from collections import defaultdict
 import logging
-# import warnings
+import warnings
 
 from django.utils.datastructures import OrderedSet
 
@@ -42,7 +42,7 @@ class AlgoRegistry(object):
 
         for name, algo in to_register:
             if name in algos:
-                logger.warning("Duplicate algorithm's id or algo registered twice : %s", name)  # exception instead ???
+                logger.warning("Duplicate algorithm's id or algorithm registered twice : %s", name)  # exception instead ???
 
             algos[name] = algo
 
@@ -52,8 +52,17 @@ class AlgoRegistry(object):
     def __iter__(self):
         return self._algos.iteritems()
 
+    @property
+    def algorithms(self):
+        return self._algos.itervalues()
+
     def itervalues(self):
-        return self._algos.itervalues() 
+        warnings.warn('AlgoRegistry.itervalues() is deprecated ; '
+                      'use AlgoRegistry.algorithms instead.',
+                      DeprecationWarning
+                     )
+
+        return self.algorithms
 
 
 algo_registry = AlgoRegistry()
