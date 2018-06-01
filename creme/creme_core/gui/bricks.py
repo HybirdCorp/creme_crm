@@ -896,24 +896,24 @@ class _BrickRegistry(object):
             if brick_id:  # Only generic hat brick's ID is empty
                 yield brick_cls()
 
-    def get_compatible_portal_blocks(self, app_name):
-        warnings.warn('_BrickRegistry.get_compatible_portal_blocks() is deprecated.', DeprecationWarning)
-
-        method_name = 'home_display' if app_name == 'creme_core' else 'portal_display'
-
-        for brick_cls in self._brick_classes.itervalues():
-            brick = brick_cls()
-
-            if brick.configurable and hasattr(brick, method_name) \
-                    and (not brick.target_apps or app_name in brick.target_apps):
-                yield brick
-
-        for ibi in InstanceBrickConfigItem.objects.all():
-            block = self.get_brick_4_instance(ibi)
-
-            if hasattr(block, method_name) and \
-                    (not block.target_apps or app_name in block.target_apps):
-                yield block
+    # def get_compatible_portal_blocks(self, app_name):
+    #     warnings.warn('_BrickRegistry.get_compatible_portal_blocks() is deprecated.', DeprecationWarning)
+    #
+    #     method_name = 'home_display' if app_name == 'creme_core' else 'portal_display'
+    #
+    #     for brick_cls in self._brick_classes.itervalues():
+    #         brick = brick_cls()
+    #
+    #         if brick.configurable and hasattr(brick, method_name) \
+    #                 and (not brick.target_apps or app_name in brick.target_apps):
+    #             yield brick
+    #
+    #     for ibi in InstanceBrickConfigItem.objects.all():
+    #         block = self.get_brick_4_instance(ibi)
+    #
+    #         if hasattr(block, method_name) and \
+    #                 (not block.target_apps or app_name in block.target_apps):
+    #             yield block
 
     def get_compatible_home_bricks(self):
         method_name = 'home_display'
