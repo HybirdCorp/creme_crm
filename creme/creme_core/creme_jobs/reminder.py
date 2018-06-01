@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016  Hybird
+#    Copyright (C) 2016-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,7 +32,7 @@ class _ReminderType(JobType):
     periodic     = JobType.PSEUDO_PERIODIC
 
     def _execute(self, job):
-        for reminder in reminder_registry.itervalues():
+        for reminder in reminder_registry:
             reminder.execute(job)
 
     def get_description(self, job):
@@ -41,7 +41,7 @@ class _ReminderType(JobType):
     def next_wakeup(self, job, now_value):  # We have to implement it because it is a PSEUDO_PERIODIC JobType
         total_wakeup = None
 
-        for reminder in reminder_registry.itervalues():
+        for reminder in reminder_registry:
             wakeup = reminder.next_wakeup(now_value)
 
             if isinstance(wakeup, datetime):
