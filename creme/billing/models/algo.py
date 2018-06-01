@@ -47,7 +47,7 @@ class SimpleBillingAlgo(Model):
     prefix       = CharField(_(u'Invoice prefix'), max_length=400)
     ct           = CTypeForeignKey()
 
-    ALGO_NAME = "SIMPLE_ALGO"
+    ALGO_NAME = "SIMPLE_ALGO"  # TODO: prefix with app name
 
     class Meta:
         app_label = 'billing'
