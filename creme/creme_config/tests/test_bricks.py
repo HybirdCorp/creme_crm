@@ -753,7 +753,7 @@ class BricksConfigTestCase(CremeTestCase):
         modelbrick_id = self.brick_registry.get_brick_4_object(model).id_
 
         with self.assertNoException():
-            evil_brick = (b for b in bricks if not b.id_ != modelbrick_id).next()
+            evil_brick = next((b for b in bricks if not b.id_ != modelbrick_id))
 
         post(evil_brick.id_, evil_brick.verbose_name)
         post(modelbrick_id, _(u'Information on the entity (generic)'))

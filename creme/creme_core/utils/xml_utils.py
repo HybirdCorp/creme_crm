@@ -100,11 +100,13 @@ def xml_diff(xml1, xml2):
         while True:
             # Length comparison ------------------------------------------------
             try:
-                deep_change1, node1 = iter1.next()
+                # deep_change1, node1 = iter1.next()
+                deep_change1, node1 = next(iter1)
             except StopIteration:
                 try:
                     # deep_change2, node2 =
-                    iter2.next()
+                    # iter2.next()
+                    next(iter2)
                 except StopIteration:
                     raise
                 else:
@@ -113,7 +115,8 @@ def xml_diff(xml1, xml2):
                                   )
 
             try:
-                deep_change2, node2 = iter2.next()
+                # deep_change2, node2 = iter2.next()
+                deep_change2, node2 = next(iter2)
             except StopIteration:
                 return XMLDiff(u'Does not exist in second document', node1, tree1)
 

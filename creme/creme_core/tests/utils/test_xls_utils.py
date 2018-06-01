@@ -70,7 +70,8 @@ class XLSUtilsTestCase(CremeTestCase):
         for filename in self.files:
             rd = XlrdReader(filedata=self.get_file_path(filename))
             for element in self.data:
-                self.assertEqual(element, rd.next())
+                # self.assertEqual(element, rd.next())
+                self.assertEqual(element, next(rd))
 
     @skipIf(XlrdMissing, "Skip tests, couldn't find xlrd libs")
     def test_as_list(self):

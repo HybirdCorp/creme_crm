@@ -123,7 +123,8 @@ class PollFormLineCreateForm(_PollFormLineForm):
         node_it = reversed(nodes)
         try:
             while True:
-                node = node_it.next()
+                # node = node_it.next()
+                node = next(node_it)
 
                 if not node.is_section:
                     if node.section_id == section_id:

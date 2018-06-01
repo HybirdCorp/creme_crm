@@ -19,7 +19,8 @@ class UTF8Recoder(object):
         return self
 
     def next(self):
-        return self.reader.next().encode("utf-8")
+        # return self.reader.next().encode("utf-8")
+        return next(self.reader).encode('utf-8')
 
 
 class UnicodeReader(object):
@@ -40,7 +41,8 @@ class UnicodeReader(object):
         return self
 
     def next(self):
-        return [unicode(s, "utf-8") for s in self.reader.next()]
+        # return [unicode(s, "utf-8") for s in self.reader.next()]
+        return [unicode(s, "utf-8") for s in next(self.reader)]
 
 
 class UnicodeWriter(object):

@@ -152,7 +152,8 @@ class CSVPopulator(object):
         else:
             reader = iter(source)
 
-        mapper = self._mapper(reader.next())
+        # mapper = self._mapper(reader.next())
+        mapper = self._mapper(next(reader))
         context = self.Context(self.defaults)
 
         for rows in iter_as_chunk(reader, self.chunksize):

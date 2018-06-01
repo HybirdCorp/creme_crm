@@ -33,7 +33,8 @@ def stringToTextValues(s, listSeparator=',', charList=None, strict=False):
 
     while True:
         try:
-            charIndex, char = charIterator.next()
+            # charIndex, char = charIterator.next()
+            charIndex, char = next(charIterator)
         except:
             char = "eof"
 

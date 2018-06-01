@@ -79,7 +79,7 @@ def get_header(filedata, has_header):
     if has_header:
         try:
             filedata.open()
-            header = backend(filedata).next()
+            header = next(backend(filedata))
         except Exception as e:
             raise ValidationError(ugettext(u'Error reading document: {error}.').format(error=e))
         finally:
@@ -1042,11 +1042,13 @@ class ImportForm(CremeModelForm):
 
         lines = backend(filedata)
         if get_cleaned('has_header'):
-            lines.next()
+            # lines.next()
+            next(lines)
 
         # Resuming
         for i in xrange(MassImportJobResult.objects.filter(job=job).count()):
-            lines.next()
+            # lines.next()
+            next(lines)
 
         append_error = self.append_error
         key_fields = frozenset(get_cleaned('key_fields'))

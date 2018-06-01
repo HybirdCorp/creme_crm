@@ -1024,7 +1024,7 @@ BEGIN:VEVENT
 SUMMARY;blah=hi!:Bastille Day Party
 END:VEVENT
 END:VCALENDAR''')
-    >>> cal=readComponents(f).next()
+    >>> cal = next(readComponents(f))
     >>> cal
     <VCALENDAR| [<VEVENT| [<SUMMARY{u'BLAH': [u'hi!']}Bastille Day Party>]>]>
     >>> cal.vevent.summary
@@ -1113,10 +1113,14 @@ END:VCALENDAR''')
 def readOne(stream, validate=False, transform=True, findBegin=True,
             ignoreUnreadable=False, allowQP=False):
     """Return the first component from stream."""
-    return readComponents(stream, validate, transform, findBegin,
-                          ignoreUnreadable, allowQP).next()
+    # return readComponents(stream, validate, transform, findBegin,
+    #                       ignoreUnreadable, allowQP).next()
+    return next(readComponents(stream, validate, transform, findBegin,
+                               ignoreUnreadable, allowQP,
+                              )
+               )
 
-#--------------------------- version registry ----------------------------------
+# -------------------------- version registry ----------------------------------
 
 class BehaviorRegistry(object):
     def __init__(self):

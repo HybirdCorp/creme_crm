@@ -264,7 +264,7 @@ class SearchConfigTestCase(CremeTestCase):
         create(FakeContact, ['description'], role='superuser')
 
         self.assertEqual(sc_item,
-                         SearchConfigItem.get_4_models([FakeContact], self.other_user).next()
+                         next(SearchConfigItem.get_4_models([FakeContact], self.other_user))
                         )
 
     def test_get_4_models06(self):
@@ -282,7 +282,7 @@ class SearchConfigTestCase(CremeTestCase):
         create(FakeContact, ['first_name', 'description'], role=role3)
 
         self.assertEqual(sc_item,
-                         SearchConfigItem.get_4_models([FakeContact], user).next()
+                         next(SearchConfigItem.get_4_models([FakeContact], user))
                         )
 
     def test_get_4_models07(self):
@@ -294,7 +294,7 @@ class SearchConfigTestCase(CremeTestCase):
         create(FakeContact, ['first_name', 'last_name'])
 
         self.assertEqual(sc_item,
-                         SearchConfigItem.get_4_models([FakeContact], user).next()
+                         next(SearchConfigItem.get_4_models([FakeContact], user))
                         )
 
     def test_get_4_models08(self):

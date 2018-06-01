@@ -870,14 +870,20 @@ class ReportTestCase(BaseReportsTestCase):
                                       _(u'Last name'), _(u'Owner user'), _(u'owns'), _(u'Properties')
                                     )
                                   ),
-                         content.next()
+                         # content.next()
+                         next(content)
                         )
 
         user_str = unicode(self.user)
-        self.assertEqual('"Ayanami","%s","","Kawaii"' % user_str,  content.next())  # Alphabetical ordering ??
-        self.assertEqual('"Katsuragi","%s","Nerv",""' % user_str,  content.next())
-        self.assertEqual('"Langley","%s","",""' % user_str,        content.next())
-        self.assertRaises(StopIteration, content.next)
+        # self.assertEqual('"Ayanami","%s","","Kawaii"' % user_str,  content.next())  # Alphabetical ordering ??
+        # self.assertEqual('"Katsuragi","%s","Nerv",""' % user_str,  content.next())
+        # self.assertEqual('"Langley","%s","",""' % user_str,        content.next())
+        # self.assertRaises(StopIteration, content.next)
+        self.assertEqual('"Ayanami","%s","","Kawaii"' % user_str,  next(content))  # Alphabetical ordering ??
+        self.assertEqual('"Katsuragi","%s","Nerv",""' % user_str,  next(content))
+        self.assertEqual('"Langley","%s","",""' % user_str,        next(content))
+        with self.assertRaises(StopIteration):
+            next(content)
 
     def test_report_csv03(self):
         "With date filter"
@@ -966,10 +972,13 @@ class ReportTestCase(BaseReportsTestCase):
         response = self.assertGET200(self._build_export_url(report), data={'doc_type': 'csv'})
 
         content = (s for s in response.content.split('\r\n') if s)
-        self.assertEqual(smart_str(u'"%s"' % _(u'Last name')), content.next())
+        # self.assertEqual(smart_str(u'"%s"' % _(u'Last name')), content.next())
+        self.assertEqual(smart_str(u'"%s"' % _(u'Last name')), next(content))
 
-        self.assertEqual('"Ayanami"',   content.next())
-        self.assertEqual('"Katsuragi"', content.next())
+        # self.assertEqual('"Ayanami"',   content.next())
+        # self.assertEqual('"Katsuragi"', content.next())
+        self.assertEqual('"Ayanami"',   next(content))
+        self.assertEqual('"Katsuragi"', next(content))
 
     def test_report_csv07(self):
         "With FieldsConfig on sub-field"
@@ -988,10 +997,13 @@ class ReportTestCase(BaseReportsTestCase):
         response = self.assertGET200(self._build_export_url(report), data={'doc_type': 'csv'})
 
         content = (s for s in response.content.split('\r\n') if s)
-        self.assertEqual(smart_str(u'"%s"' % _(u'Last name')), content.next())
+        # self.assertEqual(smart_str(u'"%s"' % _(u'Last name')), content.next())
+        self.assertEqual(smart_str(u'"%s"' % _(u'Last name')), next(content))
 
-        self.assertEqual('"Ayanami"',   content.next())
-        self.assertEqual('"Katsuragi"', content.next())
+        # self.assertEqual('"Ayanami"',   content.next())
+        # self.assertEqual('"Katsuragi"', content.next())
+        self.assertEqual('"Ayanami"',   next(content))
+        self.assertEqual('"Katsuragi"', next(content))
 
     @skipIf(XlsImport, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_report_xls(self):
