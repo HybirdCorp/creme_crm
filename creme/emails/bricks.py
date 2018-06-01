@@ -199,6 +199,7 @@ class SendingsBrick(QuerysetBrick):
 class MailsBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('emails', 'mails')
     dependencies  = (LightWeightEmail,)
+    order_by      = 'id'
     page_size     = 12
     verbose_name  = u'Emails of a sending'
     template_name = 'emails/bricks/lw-mails.html'
