@@ -560,7 +560,7 @@ class EntityCellTestCase(CremeTestCase):
 
 
 class SettingKeyTestCase(CremeTestCase):
-    def test_01(self):
+    def test_register(self):
         sk1 = SettingKey('creme_core-test_sk_string',
                          description=u'Page title',
                          app_label='creme_core',
@@ -611,8 +611,28 @@ class SettingKeyTestCase(CremeTestCase):
         self.assertNotIn(sk1.id, all_key_ids)
         self.assertNotIn(sk3.id, all_key_ids)
 
-        with self.assertNoException():
+        # with self.assertNoException():
+        with self.assertRaises(registry.RegistrationError):
             registry.unregister(sk3)
+
+    def test_duplicate(self):
+        sk1 = SettingKey('creme_core-test_sk_string',
+                         description=u'Page title',
+                         app_label='creme_core',
+                         type=SettingKey.STRING,
+                         blank=True,
+                        )
+        sk2 = SettingKey(sk1.id,  # <===
+                         description=u'Page size',
+                         app_label='creme_core',
+                         type=SettingKey.INT, hidden=False,
+                        )
+
+        registry = _SettingKeyRegistry()
+        registry.register(sk1)
+
+        with self.assertRaises(registry.RegistrationError):
+            registry.register(sk2)
 
 
 class ReminderTestCase(CremeTestCase):
