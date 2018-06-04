@@ -128,17 +128,20 @@ class _SettingKeyRegistry(object):
 
         for skey in skeys:
             if not isinstance(skey, key_class):
-                raise _SettingKeyRegistry.RegistrationError("Bad class for key {} (need {})".format(skey, key_class))
+                raise self.RegistrationError("Bad class for key {} (need {})".format(skey, key_class))
 
             if setdefault(skey.id, skey) is not skey:
-                raise _SettingKeyRegistry.RegistrationError("Duplicated setting key's id: {}".format(skey.id))
+                raise self.RegistrationError("Duplicated setting key's id: {}".format(skey.id))
 
     def unregister(self, *skeys):
         pop = self._skeys.pop
 
         for skey in skeys:
             if pop(skey.id, None) is None:
-                logger.warn('This Setting is not registered (already un-registered ?): %s', skey.id)
+                # logger.warn('This Setting is not registered (already un-registered ?): %s', skey.id)
+                raise self.RegistrationError('This Setting is not registered '
+                                             '(already un-registered ?): {}'.format(skey.id)
+                                            )
 
 
 setting_key_registry = _SettingKeyRegistry(SettingKey)
