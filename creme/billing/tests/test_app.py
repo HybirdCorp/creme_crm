@@ -72,6 +72,10 @@ class AppTestCase(_BillingTestCase, CremeTestCase, BrickTestCaseMixin):
         self.assertEqual([SimpleAlgo], list(registry.itervalues()))
         self.assertEqual([SimpleAlgo], list(registry.algorithms))
 
+        # ---
+        with self.assertRaises(registry.RegistrationError):
+            registry.register((SimpleBillingAlgo.ALGO_NAME, SimpleAlgo))
+
     @skipIfCustomOrganisation
     def test_algoconfig(self):
         user = self.login()

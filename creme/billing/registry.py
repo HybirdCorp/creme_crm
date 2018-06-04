@@ -19,13 +19,13 @@
 ################################################################################
 
 from collections import defaultdict
-import logging
+# import logging
 import warnings
 
 from django.utils.datastructures import OrderedSet
 
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 
 class Algo(object):
@@ -34,6 +34,9 @@ class Algo(object):
 
 
 class AlgoRegistry(object):
+    class RegistrationError(Exception):
+        pass
+
     def __init__(self):
         self._algos = {}
 
@@ -42,7 +45,10 @@ class AlgoRegistry(object):
 
         for name, algo in to_register:
             if name in algos:
-                logger.warning("Duplicate algorithm's id or algorithm registered twice : %s", name)  # exception instead ???
+                # logger.warning("Duplicate algorithm's id or algorithm registered twice : %s", name)
+                raise self.RegistrationError("Duplicated algorithm's id or "
+                                             "algorithm registered twice : {}".format(name)
+                                            )
 
             algos[name] = algo
 
