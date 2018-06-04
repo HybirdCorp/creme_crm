@@ -840,7 +840,7 @@ class EntityFilterCondition(Model):
     @staticmethod
     def build_4_customfield(custom_field, operator, value, user=None):
         if not EntityFilterCondition._OPERATOR_MAP.get(operator):
-            raise EntityFilterCondition.ValueError('build_4_customfield(): unknown operator: %s', operator)
+            raise EntityFilterCondition.ValueError('build_4_customfield(): unknown operator: {}'.format(operator))
 
         if custom_field.field_type == CustomField.DATETIME:
             raise EntityFilterCondition.ValueError('build_4_customfield(): does not manage DATE CustomFields')
