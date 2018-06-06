@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Mobile 1.8\n"
+"Project-Id-Version: Creme Mobile 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-01 11:58+0100\n"
+"POT-Creation-Date: 2018-06-05 12:06+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -20,7 +20,7 @@ msgstr ""
 msgid "Mobile"
 msgstr "Mobile"
 
-#: bricks.py:39
+#: bricks.py:38
 msgid "Favorite Contacts & Organisations (for mobile)"
 msgstr "Contacts & Sociétés favoris (pour mobile)"
 
@@ -35,69 +35,69 @@ msgid "Is favorite"
 msgstr "Est favorite"
 
 # Already in activities
-#: templates/mobile/activities.html:10 templates/mobile/activities.html:31
+#: templates/mobile/activities.html:10 templates/mobile/activities.html:29
 #: templates/mobile/add_contact.html:34 templates/mobile/add_orga.html:34
-#: templates/mobile/directory.html:34 templates/mobile/error.html:31
-#: templates/mobile/index.html:53 templates/mobile/search.html:34
+#: templates/mobile/directory.html:34 templates/mobile/error.html:28
+#: templates/mobile/index.html:52 templates/mobile/search.html:34
 msgid "Activities"
 msgstr ""
 
-#: templates/mobile/activities.html:29 templates/mobile/add_contact.html:32
+#: templates/mobile/activities.html:27 templates/mobile/add_contact.html:32
 #: templates/mobile/add_orga.html:32 templates/mobile/directory.html:32
-#: templates/mobile/error.html:29 templates/mobile/index.html:10
-#: templates/mobile/index.html.py:51 templates/mobile/search.html:32
+#: templates/mobile/error.html:26 templates/mobile/index.html:10
+#: templates/mobile/index.html:50 templates/mobile/search.html:32
 msgid "Home"
 msgstr "Accueil"
 
-#: templates/mobile/activities.html:30 templates/mobile/add_contact.html:33
+#: templates/mobile/activities.html:28 templates/mobile/add_contact.html:33
 #: templates/mobile/add_orga.html:33 templates/mobile/directory.html:10
-#: templates/mobile/directory.html.py:33 templates/mobile/error.html:10
-#: templates/mobile/error.html.py:30 templates/mobile/index.html:52
+#: templates/mobile/directory.html:33 templates/mobile/error.html:10
+#: templates/mobile/error.html:27 templates/mobile/index.html:51
 #: templates/mobile/search.html:33
 msgid "Directory"
 msgstr "Annuaire"
 
-#: templates/mobile/activities.html:39
+#: templates/mobile/activities.html:37
 #, python-format
 msgid "%(counter)s delayed phone call"
 msgid_plural "%(counter)s last delayed phone calls"
 msgstr[0] "%(counter)s appel en retard"
 msgstr[1] "%(counter)s derniers appels en retard"
 
-#: templates/mobile/activities.html:53
+#: templates/mobile/activities.html:51
 msgid "No delayed phone calls"
 msgstr "Pas d'appel en retard"
 
-#: templates/mobile/activities.html:63
+#: templates/mobile/activities.html:61
 #, python-format
 msgid "%(counter)s activity without date"
 msgid_plural "%(counter)s activities without date"
 msgstr[0] "%(counter)s activité sans date"
 msgstr[1] "%(counter)s activités sans date"
 
-#: templates/mobile/activities.html:65
+#: templates/mobile/activities.html:63
 #, python-format
 msgid "%(counter)s activity without date (on %(total)s)"
 msgid_plural "%(counter)s activities without date (on %(total)s)"
 msgstr[0] "%(counter)s activité sans date (sur %(total)s)"
 msgstr[1] "%(counter)s activités sans date (sur %(total)s)"
 
-#: templates/mobile/activities.html:81
+#: templates/mobile/activities.html:79
 msgid "No activity without date"
 msgstr "Pas d'activité sans date"
 
-#: templates/mobile/activities.html:89 templates/mobile/activities.html:104
+#: templates/mobile/activities.html:87 templates/mobile/activities.html:102
 msgid "l j F"
 msgstr "l j F"
 
-#: templates/mobile/activities.html:89
+#: templates/mobile/activities.html:87
 #, python-format
 msgid "%(counter)s activity planned tomorrow, %(tomorrow_date)s"
 msgid_plural "%(counter)s activities planned tomorrow, %(tomorrow_date)s"
 msgstr[0] "%(counter)s activité prévue demain, %(tomorrow_date)s"
 msgstr[1] "%(counter)s activités prévues demain, %(tomorrow_date)s"
 
-#: templates/mobile/activities.html:104
+#: templates/mobile/activities.html:102
 #, python-format
 msgid "No activity planned tomorrow, %(tomorrow_date)s"
 msgstr "Pas d'activité prévue demain, %(tomorrow_date)s"
@@ -259,12 +259,12 @@ msgstr[1] "%(counter)s sociétés favorites"
 msgid "No favorite organisation"
 msgstr "Aucune société favorite"
 
-#: templates/mobile/error.html:34
+#: templates/mobile/error.html:31
 #, python-format
 msgid "Error ! (%(status)s)"
 msgstr "Erreur ! (%(status)s)"
 
-#: templates/mobile/error.html:37
+#: templates/mobile/error.html:34
 msgid "Detail:"
 msgstr "Détail :"
 
@@ -316,36 +316,36 @@ msgstr "fonction"
 msgid "organisation"
 msgstr "société"
 
-#: templates/mobile/frags/phonecall_script.html:102
-#: templates/mobile/frags/phonecall_script.html:146
+#: templates/mobile/frags/phonecall_script.html:101
+#: templates/mobile/frags/phonecall_script.html:145
 msgid "Error"
 msgstr "Erreur"
 
-#: templates/mobile/frags/search_div.html:5
+#: templates/mobile/frags/search_div.html:4
 msgid "Search in the directory"
 msgstr "Recherche dans l'annuaire"
 
-#: templates/mobile/index.html:58
+#: templates/mobile/index.html:57
 #, python-format
 msgid "%(hour)sh"
 msgstr "%(hour)sh"
 
-#: templates/mobile/index.html:62
+#: templates/mobile/index.html:61
 #, python-format
 msgid "Welcome on Creme Mobile, %(user)s"
 msgstr "Bienvenue sur Crème Mobile, %(user)s"
 
-#: templates/mobile/index.html:70 templates/mobile/index.html.py:72
-#: templates/mobile/templatetags/activity_card.html:15
+#: templates/mobile/index.html:69 templates/mobile/index.html:71
+#: templates/mobile/templatetags/activity_card.html:14
 msgid "H:i"
 msgstr "H\\hi"
 
-#: templates/mobile/index.html:70 templates/mobile/index.html.py:72
-#: templates/mobile/index.html:86 templates/mobile/index.html.py:88
+#: templates/mobile/index.html:69 templates/mobile/index.html:71
+#: templates/mobile/index.html:85 templates/mobile/index.html:87
 msgid "j F"
 msgstr "j F"
 
-#: templates/mobile/index.html:70
+#: templates/mobile/index.html:69
 #, python-format
 msgid "%(counter)s activity in progress at %(start_time)s this %(today_date)s"
 msgid_plural ""
@@ -353,25 +353,25 @@ msgid_plural ""
 msgstr[0] "%(counter)s activité en cours à %(start_time)s ce %(today_date)s"
 msgstr[1] "%(counter)s activités en cours à %(start_time)s ce %(today_date)s"
 
-#: templates/mobile/index.html:72
+#: templates/mobile/index.html:71
 #, python-format
 msgid "No activity in progress at %(start_time)s this %(today_date)s"
 msgstr "Aucune activité en cours à %(start_time)s ce %(today_date)s"
 
-#: templates/mobile/index.html:86
+#: templates/mobile/index.html:85
 #, python-format
 msgid "%(counter)s activity planned this %(today_date)s"
 msgid_plural "%(counter)s activities planned this %(today_date)s"
 msgstr[0] "%(counter)s activité prévue ce %(today_date)s"
 msgstr[1] "%(counter)s activités prévues ce %(today_date)s"
 
-#: templates/mobile/index.html:88
+#: templates/mobile/index.html:87
 #, python-format
 msgid "No activity planned this %(today_date)s"
 msgstr "Aucune activité prévue ce %(today_date)s"
 
 # Already in creme/locale
-#: templates/mobile/login.html:10 templates/mobile/login.html.py:32
+#: templates/mobile/login.html:10 templates/mobile/login.html:32
 msgid "Connection"
 msgstr ""
 
@@ -417,20 +417,20 @@ msgid_plural "Search of organisations &ndash; %(counter)s results"
 msgstr[0] "Recherche de sociétés &ndash; %(counter)s résultat"
 msgstr[1] "Recherche de sociétés &ndash; %(counter)s résultats"
 
-#: templates/mobile/templatetags/activity_card.html:11
-#: templates/mobile/templatetags/activity_card.html:13
+#: templates/mobile/templatetags/activity_card.html:10
+#: templates/mobile/templatetags/activity_card.html:12
 msgid "d/m/Y"
 msgstr "d/m/Y"
 
-#: templates/mobile/templatetags/activity_card.html:11
+#: templates/mobile/templatetags/activity_card.html:10
 msgid "All day"
 msgstr "Toute la journée"
 
-#: templates/mobile/templatetags/activity_card.html:13
+#: templates/mobile/templatetags/activity_card.html:12
 msgid "In day"
 msgstr "Dans la journée"
 
-#: templates/mobile/templatetags/activity_card.html:15
+#: templates/mobile/templatetags/activity_card.html:14
 #: templates/mobile/workflow_panel.html:6
 msgid "d/m/Y H:i"
 msgstr "d/m/Y H\\hi"
@@ -502,45 +502,44 @@ msgid "Do not save"
 msgstr "Ne pas sauvegarder"
 
 # Already in creme_core
-#: views.py:82
+#: views.py:83
 msgid "You do not have access to this page, please contact your administrator."
 msgstr ""
 
 # Already in creme/locale
-#: views.py:85
+#: views.py:86
 msgid "The page you have requested is not found."
 msgstr ""
 
 # Already in creme/locale
-#: views.py:88
+#: views.py:89
 msgid "You can not perform this action because of business constraints."
 msgstr ""
 
-#: views.py:248
+#: views.py:250
 msgid "Your search is too short."
 msgstr "Votre recherche est trop courte."
 
-#: views.py:479
+#: views.py:481
 msgid "You cannot create a call to youself."
 msgstr "Vous ne pouvez pas créer un appel vers vous-même."
 
-#: views.py:538 views.py:575
-#, python-format
-msgid "%(status)s call to %(person)s from Creme Mobile"
-msgstr "Appel %(status)s vers %(person)s depuis Creme Mobile"
+#: views.py:540 views.py:577
+#, python-brace-format
+msgid "{status} call to {person} from Creme Mobile"
+msgstr "Appel {status} vers {person} depuis Creme Mobile"
 
-#: views.py:539
+#: views.py:541
 msgid "Successful"
 msgstr "réussi"
 
-#: views.py:576
+#: views.py:578
 msgid "Failed"
 msgstr "échoué"
 
-#: views.py:633
-#, python-format
-msgid "Call to %s from Creme Mobile"
-msgstr "Appel vers %s depuis Creme Mobile"
+#: views.py:635
+msgid "Call to {} from Creme Mobile"
+msgstr "Appel vers {} depuis Creme Mobile"
 
 #~ msgid "This contact is a favorite for %s user"
 #~ msgstr "Ce contact est un favori pour %s utilisateur"

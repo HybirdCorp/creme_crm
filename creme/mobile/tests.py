@@ -33,7 +33,7 @@ try:
 
     from creme.mobile.models import MobileFavorite
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 Contact = get_contact_model()
@@ -476,8 +476,7 @@ class MobileTestCase(CremeTestCase):
         self.assertEqual(meeting.type.as_timedelta(), meeting.end - meeting.start)
         self.assertEqual(STATUS_IN_PROGRESS, meeting.status_id)
 
-        # self.assertRedirects(response, '/mobile/#activity_%s' % meeting.id)
-        self.assertRedirects(response, reverse('mobile__portal') + '#activity_%s' % meeting.id)
+        self.assertRedirects(response, reverse('mobile__portal') + '#activity_{}'.format(meeting.id))
 
     @skipIfCustomActivity
     def test_start_activity02(self):
@@ -863,10 +862,10 @@ class MobileTestCase(CremeTestCase):
         self.assertEqual(start, pcall.start)
         self.assertEqual(start, pcall.end)
 
-        self.assertEqual(_('%(status)s call to %(person)s from Creme Mobile') % {
-                                'status': _('Failed'),
-                                'person': other_contact,
-                            },
+        self.assertEqual(_('{status} call to {person} from Creme Mobile').format(
+                                status=_('Failed'),
+                                person=other_contact,
+                            ),
                          pcall.title
                         )
 
@@ -986,10 +985,10 @@ class MobileTestCase(CremeTestCase):
                             for r in failed_pcall.get_participant_relations()
                          }
                         )
-        self.assertEqual(_('%(status)s call to %(person)s from Creme Mobile') % {
-                                'status': _('Failed'),
-                                'person':  other_part,
-                            },
+        self.assertEqual(_('{status} call to {person} from Creme Mobile').format(
+                                status=_('Failed'),
+                                person=other_part,
+                            ),
                          failed_pcall.title
                         )
 
@@ -1021,7 +1020,7 @@ class MobileTestCase(CremeTestCase):
         self.assertEqual(59, end.minute)
         self.assertEqual(tomorrow, end.day)
 
-        self.assertEqual(_('Call to %s from Creme Mobile') % other_part,
+        self.assertEqual(_('Call to {} from Creme Mobile').format(other_part),
                          pp_pcall.title
                         )
 
@@ -1092,10 +1091,10 @@ class MobileTestCase(CremeTestCase):
         self.assertEqual(create_dt(minute=17, second=28), pcall.start)
         self.assertEqual(create_dt(minute=22, second=28), pcall.end)
 
-        self.assertEqual(_('%(status)s call to %(person)s from Creme Mobile') % {
-                                'status': _('Successful'),
-                                'person':  other_contact,
-                            },
+        self.assertEqual(_('{status} call to {person} from Creme Mobile').format(
+                                status=_('Successful'),
+                                person=other_contact,
+                            ),
                          pcall.title
                         )
 
@@ -1187,10 +1186,10 @@ class MobileTestCase(CremeTestCase):
         self.assertDatetimesAlmostEqual(start, pcall.start)
         self.assertDatetimesAlmostEqual(now(), pcall.end)
 
-        self.assertEqual(_('%(status)s call to %(person)s from Creme Mobile') % {
-                                'status': _('Successful'),
-                                'person': other_contact,
-                            },
+        self.assertEqual(_('{status} call to {person} from Creme Mobile').format(
+                                status=_('Successful'),
+                                person=other_contact,
+                            ),
                          pcall.title
                         )
 
@@ -1223,7 +1222,6 @@ class MobileTestCase(CremeTestCase):
         user = self.login()
         may = Contact.objects.create(user=user, first_name='May', last_name='Shiranui')
 
-        # url = '/mobile/mark_as_favorite/%s' % may.id
         url = reverse('mobile__mark_as_favorite', args=(may.id,))
         self.assertGET404(url)
 
