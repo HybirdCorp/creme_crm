@@ -51,7 +51,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
             try:
                 status = Status.objects.get(pk=pk)
             except Status.DoesNotExist:
-                self.fail("Bad populate: status with pk=%s (%s) doesn't exist" % (pk, name))
+                self.fail("Bad populate: status with pk={} ({}) doesn't exist".format(pk, name))
             else:
                 self.assertEqual(name, status.name)
                 self.assertFalse(status.is_custom)
@@ -103,7 +103,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(title,       retr_ticket.title)
         self.assertEqual(description, retr_ticket.description)
 
-        self.assertEqual(u'#%s - %s' % (ticket.number, title),
+        self.assertEqual(u'#{} - {}'.format(ticket.number, title),
                          unicode(retr_ticket)
                         )
 
@@ -628,6 +628,6 @@ class TicketTemplateTestCase(CremeTestCase):
         template01 = self.create_template('Title01')
         template02 = self.create_template('Title02')
         self.assertPOST404(reverse('creme_core__delete_entities'),
-                           data={'ids': '%s,%s,' % (template01.id, template02.id)}
+                           data={'ids': '{},{},'.format(template01.id, template02.id)}
                           )
         self.assertEqual(2, TicketTemplate.objects.filter(pk__in=[template01.id, template02.id]).count())
