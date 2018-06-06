@@ -72,7 +72,7 @@ class _TempFilesCleanerType(JobType):
                 try:
                     temp_file.delete()
                 except ProtectedError as e:
-                    logger.warn('The TempFile(id=%s) cannot be deleted because of its dependencies: %s',
+                    logger.warn('The FileRef(id=%s) cannot be deleted because of its dependencies: %s',
                                 temp_file.id, e.args[1],
                                )
                     JobResult.objects.create(job=job,
@@ -82,7 +82,7 @@ class _TempFilesCleanerType(JobType):
                                                       ],
                                             )
                 except Exception as e:
-                    logger.exception('Error when trying to delete the TempFile(id=%s)')
+                    logger.exception('Error when trying to delete the FileRef(id=%s)', temp_file.id)
                     JobResult.objects.create(job=job,
                                              messages=[_(u'The temporary file with id={} cannot be '
                                                          u'deleted because of an unexpected error.'
