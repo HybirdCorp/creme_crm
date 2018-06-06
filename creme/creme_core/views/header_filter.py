@@ -56,7 +56,7 @@ def add(request, content_type_id, extra_template_dict=None):
     model = ct_entity.model_class()
 
     if not issubclass(model, CremeEntity):
-        raise ConflictError(u'This model is not a entity model: %s' % model)
+        raise ConflictError(u'This model is not a entity model: {}'.format(model))
 
     callback_url = request.POST.get('cancel_url')
 

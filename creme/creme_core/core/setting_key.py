@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 # TODO: move to utils ?
 def print_hour(value):
-    return _('%sh') % value
+    return _('{hour}h').format(hour=value)
 
 
 class _SettingKey(object):

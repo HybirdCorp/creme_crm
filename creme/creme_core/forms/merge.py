@@ -175,7 +175,8 @@ class MergeEntitiesBaseForm(CremeForm):
 
         for i, (cfield, cvalue1, cvalue2) in enumerate(customs):
             formfield1 = cfield.get_formfield(cvalue1)
-            fields[_CUSTOM_NAME % i] = merge_field = MergeField(formfield1,
+            # fields[_CUSTOM_NAME % i] = merge_field = MergeField(formfield1,
+            fields[_CUSTOM_NAME.format(i)] = merge_field = MergeField(formfield1,
                                                                 model_field=None,
                                                                 label=cfield.name,
                                                                 user=user,
@@ -192,7 +193,8 @@ class MergeEntitiesBaseForm(CremeForm):
 
     def _post_entity1_update(self, entity1, entity2, cleaned_data):
         for i, (custom_field, cvalue1, cvalue2) in enumerate(self._customs):
-            value = cleaned_data[_CUSTOM_NAME % i]  # TODO: factorize with __init__() ?
+            # value = cleaned_data[_CUSTOM_NAME % i]
+            value = cleaned_data[_CUSTOM_NAME.format(i)]  # TODO: factorize with __init__() ?
             CustomFieldValue.save_values_for_entities(custom_field, [entity1], value)
 
             if cvalue2 is not None:

@@ -47,17 +47,20 @@ def json_list_enumerable(request, ct_id):
 
         return sorted([{'value': filter.pk,
                         'label': filter.name,
-                        'help':  unicode(filter.entity_type) + (' (%s)' % unicode(filter.user) if filter.is_private else ''),
+                        'help':  u'{} ({})'.format(filter.entity_type, filter.user)
+                                 if filter.is_private else
+                                 unicode(filter.entity_type),
                         'group': unicode(filter.entity_type),
                        } for filter in EntityFilter.objects.all()
                       ],
-                      key=key)
+                      key=key,
+                     )
 
     if not issubclass(model, get_user_model()):
         app_name = ct.app_label
 
         if not request.user.has_perm(app_name):
-            raise Http404(u"You are not allowed to access to the app '%s'" % app_name)
+            raise Http404(u"You are not allowed to access to the app '{}'".format(app_name))
 
         try:
             config_registry.get_app(app_name).get_model_conf(model=model)

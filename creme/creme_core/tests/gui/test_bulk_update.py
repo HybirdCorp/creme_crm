@@ -23,7 +23,7 @@ try:
     from creme.creme_core.models import CustomField, Language
     from creme.creme_core.utils.unicode_collation import collator
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 # TODO: test register(..., expandables=[..])
@@ -607,6 +607,8 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         instance = model.objects.create(user=user, first_name='Guybrush', last_name='Threepwood')
         cell = entity_cell.EntityCellCustomField.build(model=model, customfield_id=cfield.id)
-        self.assertEqual(reverse('creme_core__inner_edition', args=(ct.id, instance.id, 'customfield-%s' % cfield.id)),
+        self.assertEqual(reverse('creme_core__inner_edition',
+                                 args=(ct.id, instance.id, 'customfield-{}'.format(cfield.id))
+                                ),
                          self.bulk_update_registry.inner_uri(cell=cell, instance=instance, user=user)
                         )

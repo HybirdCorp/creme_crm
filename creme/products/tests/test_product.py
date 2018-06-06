@@ -127,7 +127,7 @@ class ProductTestCase(_ProductsTestCase):
         response = post(img_1, img_3)
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'images',
-                             _(u'Some entities are not linkable: %s') % img_3,
+                             _(u'Some entities are not linkable: {}').format(img_3),
                             )
 
         response = post(img_1, img_2)
@@ -482,7 +482,7 @@ class ProductTestCase(_ProductsTestCase):
         response = post(img_1, img_4)
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'images',
-                             _(u'Some entities are not linkable: %s') % img_4,
+                             _(u'Some entities are not linkable: {}').format(img_4),
                             )
 
         response = post(img_1, img_2)

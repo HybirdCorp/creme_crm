@@ -12,7 +12,7 @@ try:
     from django.core.exceptions import ValidationError
     from django.db.models import Max
     from django.urls import reverse
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import ugettext as _, ungettext
 
     from .base import ViewsTestCase, BrickTestCaseMixin
 
@@ -108,7 +108,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual('application/json', response['Content-Type'])
 
         self.assertEqual([{'id':   entity.id,
-                           'text': 'Creme entity: %s' % entity.id,
+                           'text': 'Creme entity: {}'.format(entity.id),
                           }
                          ],
                          response.json()
@@ -132,11 +132,11 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertFalse(CremeEntity.objects.filter(id=unknown_id))
 
         response = self.assertGET200(reverse('creme_core__entities_summaries',
-                                             args=('%s,%s,%s,%s,%s' % (mari.id, rei.id, nerv.id, unknown_id, asuka.id),)
+                                             args=('{},{},{},{},{}'.format(mari.id, rei.id, nerv.id, unknown_id, asuka.id),)
                                             )
                                     )
 
-        self.assertEqual([{'id': mari.id,  'text': _(u'Entity #%s (not viewable)') % mari.id},
+        self.assertEqual([{'id': mari.id,  'text': _(u'Entity #{id} (not viewable)').format(id=mari.id)},
                           {'id': rei.id,   'text': unicode(rei)},
                           {'id': nerv.id,  'text': unicode(nerv)},
                           {'id': asuka.id, 'text': unicode(asuka)},
@@ -294,7 +294,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         entity03, entity04 = (create_entity(is_deleted=True) for i in xrange(2))
 
         response = self.assertPOST200(self.DEL_ENTITIES_URL,
-                                      data={'ids': '%s,%s,%s' % (entity01.id, entity02.id, entity03.id)},
+                                      data={'ids': '{},{},{}'.format(entity01.id, entity02.id, entity03.id)},
                                      )
 
         self.assertEqual(safe_unicode(response.content), _(u'Operation successfully completed'))
@@ -316,11 +316,14 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         entity01, entity02 = (create_entity() for i in xrange(2))
 
         response = self.assertPOST404(self.DEL_ENTITIES_URL,
-                                      data={'ids': '%s,%s,' % (entity01.id, entity02.id + 1)},
+                                      data={'ids': '{},{},'.format(entity01.id, entity02.id + 1)},
                                      )
 
         self.assertDictEqual({'count': 2,
-                              'errors': [_(u"%s entities doesn't exist / doesn't exist any more") % 1]
+                              'errors': [ungettext(u"{count} entity doesn't exist or has been removed.",
+                                                   u"{count} entities don't exist or have been removed.",
+                                                   1
+                                                  ).format(count=1)]
                              },
                              response.json()
                             )
@@ -337,10 +340,13 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         forbidden = CremeEntity.objects.create(user=self.other_user)
         allowed   = CremeEntity.objects.create(user=user)
 
-        response = self.assertPOST403(self.DEL_ENTITIES_URL, data={'ids': '%s,%s,' % (forbidden.id, allowed.id)})
+        response = self.assertPOST403(self.DEL_ENTITIES_URL, data={'ids': '{},{},'.format(forbidden.id, allowed.id)})
 
         self.assertDictEqual({'count': 2,
-                              'errors': [_(u'%s : <b>Permission denied</b>') % forbidden.allowed_unicode(user)],
+                              'errors': [_(u'{entity} : <b>Permission denied</b>').format(
+                                                entity=forbidden.allowed_unicode(user),
+                                            ),
+                                        ],
                              },
                              response.json()
                             )
@@ -512,7 +518,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         json_dict = dict(json_data)
         self.assertEqual(_(u'First name'), json_dict['first_name'])
-        self.assertEqual(_(u'%s [CREATION]') % _(u'Last name'),
+        self.assertEqual(_(u'{field} [CREATION]').format(field=_(u'Last name')),
                          json_dict['last_name']
                         )
 
@@ -530,7 +536,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         json_dict = dict(json_data)
         self.assertEqual(_(u'Description'), json_dict['description'])
-        self.assertEqual(_(u'%s [CREATION]') % _(u'Name'), 
+        self.assertEqual(_(u'{field} [CREATION]').format(field=_(u'Name')),
                          json_dict['name']
                         )
 
@@ -1327,11 +1333,13 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         build_url = self._build_update_url
 
         response = self.assertGET(400, build_url('unknown'))
-        msg = _(u'The field «%s» does not exist or cannot be edited')
-        self.assertContains(response, msg % 'unknown', status_code=400)
+        msg = _(u'The field «{}» does not exist or cannot be edited').format
+        self.assertContains(response, msg('unknown'), status_code=400)
 
-        response = self.assertGET(400, build_url(_CUSTOMFIELD_FORMAT % 44500124))
-        self.assertContains(response, msg % (_CUSTOMFIELD_FORMAT % 44500124), status_code=400)
+        # cfield_name = _CUSTOMFIELD_FORMAT % 44500124
+        cfield_name = _CUSTOMFIELD_FORMAT.format(44500124)
+        response = self.assertGET(400, build_url(cfield_name))
+        self.assertContains(response, msg(cfield_name), status_code=400)
 
     def test_regular_field_error02(self):
         "Not entities"
@@ -1502,8 +1510,8 @@ class BulkUpdateTestCase(_BulkEditTestCase):
                                                 }
                                      )
         self.assertFormError(response, 'form', 'field_value',
-                             _(u'You are not allowed to link this entity: %s') % (
-                                    _(u'Entity #%s (not viewable)') % forbidden.id,
+                             _(u'You are not allowed to link this entity: {}').format(
+                                    _(u'Entity #{id} (not viewable)').format(id=forbidden.id),
                                 )
                             )
 
@@ -1605,7 +1613,8 @@ class BulkUpdateTestCase(_BulkEditTestCase):
                                             content_type=self.contact_ct,
                                             field_type=CustomField.INT,
                                            )
-        mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_int.id)
+        # mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_int.id)
+        mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT.format(cf_int.id))
 
         # Int
         response = self.client.post(url, data={'field_value': 10,
@@ -1632,7 +1641,8 @@ class BulkUpdateTestCase(_BulkEditTestCase):
                                               content_type=self.contact_ct,
                                               field_type=CustomField.FLOAT,
                                              )
-        mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_float.id)
+        # mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_float.id)
+        mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT.format(cf_float.id))
 
         # Float
         response = self.client.post(url, data={'field_value': '10.2',
@@ -1659,7 +1669,8 @@ class BulkUpdateTestCase(_BulkEditTestCase):
                                              content_type=self.contact_ct,
                                              field_type=CustomField.BOOL,
                                             )
-        mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_bool.id)
+        # mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_bool.id)
+        mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT.format(cf_bool.id))
 
         # Bool
         response = self.client.post(url, data={'field_value': True,
@@ -1695,7 +1706,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
                                             content_type=self.contact_ct,
                                             field_type=CustomField.STR,
                                            )
-        mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_str.id)
+        mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT.format(cf_str.id))
 
         # Str
         response = self.client.post(url, data={'field_value': 'str',
@@ -1723,7 +1734,8 @@ class BulkUpdateTestCase(_BulkEditTestCase):
                                              content_type=self.contact_ct,
                                              field_type=CustomField.DATETIME,
                                             )
-        mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_date.id)
+        # mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_date.id)
+        mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT.format(cf_date.id))
 
         # This weird format have few chances to be present in settings  " TODO: use @override_settings
         settings.DATETIME_INPUT_FORMATS += ("-%dT%mU%Y-",)
@@ -1761,7 +1773,8 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         enum1 = create_evalue(value=u'Enum1')
         create_evalue(value=u'Enum2')
 
-        mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_enum.id)
+        # mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_enum.id)
+        mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT.format(cf_enum.id))
 
         # Enum
         response = self.client.post(url, data={'field_value': enum1.id,
@@ -1795,7 +1808,8 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         create_cfvalue(value='MEnum2')
         m_enum3 = create_cfvalue(value='MEnum3')
 
-        mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_multi_enum.id)
+        # mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT % cf_multi_enum.id)
+        mario, luigi, url = self.create_2_contacts_n_url(field=_CUSTOMFIELD_FORMAT.format(cf_multi_enum.id))
         self.assertGET200(url)
 
         # Multi-Enum
@@ -2008,7 +2022,8 @@ class InnerEditTestCase(_BulkEditTestCase):
         cfield = CustomField.objects.create(name='custom 1', content_type=mario.entity_type,
                                             field_type=CustomField.STR,
                                            )
-        url = self.build_inneredit_url(mario, _CUSTOMFIELD_FORMAT % cfield.id)
+        # url = self.build_inneredit_url(mario, _CUSTOMFIELD_FORMAT % cfield.id)
+        url = self.build_inneredit_url(mario, _CUSTOMFIELD_FORMAT.format(cfield.id))
         self.assertGET200(url)
 
         value = 'hihi'
@@ -2026,7 +2041,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         city = 'Marseille'
         response = self.client.post(url, data={'field_value': city})
         self.assertFormError(response, 'form', None,
-                             _(u'The field %s is empty') % _('Billing address')
+                             _(u'The field «{}» is empty').format(_('Billing address'))
                             )
 
     def test_related_subfield(self):

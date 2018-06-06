@@ -88,10 +88,10 @@ class Command(BaseCommand):
                             entry.file_path = path
                             entries_per_id[entry.msgid].append(entry)
             elif verbosity >= 1:
-                self.stdout.write('No locale file for "%s" (%s)' % (app_config.label, language))
+                self.stdout.write('No locale file for "{}" ({})'.format(app_config.label, language))
 
         if verbosity >= 1:
-            self.stdout.write('Number of entries: %s' % entry_count)
+            self.stdout.write('Number of entries: {}'.format(entry_count))
 
         problems_count = 0
 
@@ -109,7 +109,7 @@ class Command(BaseCommand):
                     if not_diverging:
                         # msg_entries = entries_per_msg.itervalues().next()
                         msg_entries = next(entries_per_msg.itervalues())
-                        self.stdout.write('\n[duplicates] {%s} in %s' % (
+                        self.stdout.write('\n[duplicates] ({}) in {}'.format(
                                                 msgid,
                                                 [entry.file_path for entry in msg_entries],
                                             )
@@ -138,12 +138,12 @@ class Command(BaseCommand):
                                           )
 
                     if cxt_conflict:
-                        self.stdout.write('\n[diverging]\n {%s} in :' % msgid)
+                        self.stdout.write('\n[diverging]\n ({}) in :'.format(msgid))
 
                         for msgstr, msg_entries in entries_per_msg.iteritems():
-                            self.stdout.write('    {%s} in: %s' % (
+                            self.stdout.write('    ({}) in: {}'.format(
                                                     msgstr,
-                                                    ', '.join('(file=%s, cxt=%s)' % (
+                                                    ', '.join('(file={}, cxt={})'.format(
                                                                     entry.file_path,
                                                                     entry.msgctxt,
                                                                 ) for entry in msg_entries
@@ -154,4 +154,4 @@ class Command(BaseCommand):
                         problems_count += 1
 
         if verbosity >= 1:
-            self.stdout.write('\nNumber of problems: %s' % problems_count)
+            self.stdout.write('\nNumber of problems: {}'.format(problems_count))

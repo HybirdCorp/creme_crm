@@ -104,7 +104,7 @@ class CremeListViewTagsTestCase(CremeTestCase):
         user = self.login()
 
         for i in xrange(1, 20):
-            FakeOrganisation.objects.create(user=user, name='A%d' % i)
+            FakeOrganisation.objects.create(user=user, name='A{}'.format(i))
 
         paginator = Paginator(FakeOrganisation.objects.all(), 5)
 
@@ -122,7 +122,7 @@ class CremeListViewTagsTestCase(CremeTestCase):
                           rendered)
 
         self.assertInHTML(u'<a class="pager-link pager-link-next" href="" title="{help}" data-page="2">{label}</a>'.format(
-                              help=_(u'To page %s') % 2,
+                              help=_(u'To page {}').format(2),
                               label=_(u'Next page')
                           ), rendered)
 
@@ -130,7 +130,7 @@ class CremeListViewTagsTestCase(CremeTestCase):
         user = self.login()
 
         for i in xrange(1, 20):
-            FakeOrganisation.objects.create(user=user, name='A%d' % i)
+            FakeOrganisation.objects.create(user=user, name='A{}'.format(i))
 
         paginator = FlowPaginator(queryset=FakeOrganisation.objects.all(),
                                   key='name', per_page=5, count=20)

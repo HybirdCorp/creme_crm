@@ -2059,7 +2059,7 @@ class ListViewTestCase(ViewsTestCase):
 
         create_orga = partial(FakeOrganisation.objects.create, user=self.user)
         for i in xrange(expected_count - count):
-            create_orga(name='Mafia #%02i' % i)
+            create_orga(name='Mafia #{:02}'.format(i))
 
         organisations = list(FakeOrganisation.objects.all())
         self.assertEqual(expected_count, len(organisations))
@@ -2211,7 +2211,7 @@ class ListViewTestCase(ViewsTestCase):
 
         create_contact = partial(FakeContact.objects.create, user=user)
         for i in xrange(expected_count - count):
-            create_contact(first_name='Gally', last_name='Tuned%02i' % i)
+            create_contact(first_name='Gally', last_name='Tuned{:02}'.format(i))
 
         contacts = list(FakeContact.objects.all())
         self.assertEqual(expected_count, len(contacts))
@@ -2277,7 +2277,7 @@ class ListViewTestCase(ViewsTestCase):
         create_contact = partial(FakeContact.objects.create, user=user)
         for i, id_ in enumerate(ids):
             # NB: we want the ordering by 'first_name' to be different from the 'last_name' one
-            create_contact(first_name='Gally%02i' % id_, last_name='Tuned%02i' % i)
+            create_contact(first_name='Gally{:02}'.format(id_), last_name='Tuned{:02}'.format(i))
 
         ordering_fname = 'first_name'
         contacts = list(FakeContact.objects.order_by(ordering_fname))
@@ -2378,7 +2378,7 @@ class ListViewTestCase(ViewsTestCase):
 
         create_contact = partial(FakeContact.objects.create, user=user)
         for i in xrange(expected_count - count):
-            create_contact(first_name='Gally', last_name='Tuned#%02i' % i)
+            create_contact(first_name='Gally', last_name='Tuned#{:02}'.format(i))
 
         hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=FakeContact,
                                  cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),

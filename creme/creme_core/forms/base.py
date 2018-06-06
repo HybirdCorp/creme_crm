@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,7 +34,8 @@ __all__ = ('FieldBlockManager', 'CremeForm', 'CremeModelForm',
           )
 
 logger = logging.getLogger(__name__)
-_CUSTOM_NAME = 'custom_field_%s'
+# _CUSTOM_NAME = 'custom_field_%s'
+_CUSTOM_NAME = 'custom_field_{}'
 
 
 class _FieldBlock(object):
@@ -49,7 +50,7 @@ class _FieldBlock(object):
         self.field_names = list(field_names) if field_names != '*' else field_names
 
     def __unicode__(self):  # For debugging
-        return u'<_FieldBlock: %s %s>' % (self.name, self.field_names)
+        return u'<_FieldBlock: {} {}>'.format(self.name, self.field_names)
 
 
 class FieldBlocksGroup(object):
@@ -67,7 +68,7 @@ class FieldBlocksGroup(object):
 
             if field_names == '*': # Wildcard
                 blocks_data[cat] = block.name
-                assert wildcard_cat is None, 'Only one wildcard is allowed: %s' % str(form)
+                assert wildcard_cat is None, 'Only one wildcard is allowed: {}'.format(form)
                 wildcard_cat = cat
             else:
                 field_set |= set(field_names)
@@ -296,14 +297,16 @@ class CremeEntityForm(CremeModelWithUserForm):
 
         # TODO: why not use cfield.id as 'i' ??
         for i, (cfield, cvalue) in enumerate(self._customs):
-            fields[_CUSTOM_NAME % i] = cfield.get_formfield(cvalue)
+            # fields[_CUSTOM_NAME % i] = cfield.get_formfield(cvalue)
+            fields[_CUSTOM_NAME.format(i)] = cfield.get_formfield(cvalue)
 
     def save(self, *args, **kwargs):
         instance = super(CremeEntityForm, self).save(*args, **kwargs)
         cleaned_data = self.cleaned_data
 
         for i, (custom_field, custom_value) in enumerate(self._customs):
-            value = cleaned_data[_CUSTOM_NAME % i]  # TODO: factorize with _build_customfields() ?
+            # value = cleaned_data[_CUSTOM_NAME % i]
+            value = cleaned_data[_CUSTOM_NAME.format(i)]  # TODO: factorize with _build_customfields() ?
             CustomFieldValue.save_values_for_entities(custom_field, [instance], value)
 
         return instance

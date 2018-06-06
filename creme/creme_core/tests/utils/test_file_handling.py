@@ -189,7 +189,7 @@ class FileHandlingTestCase(CremeTestCase):
 
         fcreator.create()
         self.assertEqual({name,
-                          'fo_%s.txt' % date.today().strftime('%d%m%Y')
+                          'fo_{}.txt'.format(date.today().strftime('%d%m%Y'))
                          },
                          set(listdir(dir_path))
                         )

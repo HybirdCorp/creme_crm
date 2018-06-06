@@ -132,11 +132,11 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         # Properties
         self.assertIs(batch_process_type, job.type)
         self.assertIs(False, job.is_finished)
-        self.assertEqual([_(u'Entity type: %s') % 'Test Organisation',
-                          _(u'%(field)s ➔ %(operator)s') % {
-                                'field':    _(u'Name'),
-                                'operator': _(u'To upper case'),
-                            }
+        self.assertEqual([_(u'Entity type: {}').format('Test Organisation'),
+                          _(u'{field} ➔ {operator}').format(
+                                field=_(u'Name'),
+                                operator=_(u'To upper case'),
+                            )
                          ],
                          job.description
                         )
@@ -517,7 +517,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertEqual(first_name, contact01.first_name)  # TODO: make the changes that are possible (u'KANAKO') ??
 
         jresult = self.get_object_or_fail(EntityJobResult, job=job, entity=contact01)
-        self.assertEqual([u'%s => %s' % (_('Last name'), _(u'This field cannot be blank.'))],
+        self.assertEqual([u'{} => {}'.format(_('Last name'), _(u'This field cannot be blank.'))],
                          jresult.messages
                         )
 

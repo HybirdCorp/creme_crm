@@ -127,7 +127,7 @@ def bricks_render_info(request, bricks, context=None,
                 logger.error('You should set "permission" on the brick: %s (id=%s)', brick.__class__, brick.id_)
             else:
                 if permission is not None and not has_perm(permission):
-                    raise PermissionDenied('Error: you are not allowed to view this brick: %s' % brick.id_)
+                    raise PermissionDenied('Error: you are not allowed to view this brick: {}'.format(brick.id_))
 
     all_reloading_info = {}
     all_reloading_info_json = request.GET.get('extra_data')

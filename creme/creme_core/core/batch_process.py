@@ -157,15 +157,15 @@ class BatchAction(object):
             raise BatchAction.InvalidOperator()
 
         if operator.need_arg and not value:
-            raise BatchAction.ValueError(ugettext(u"The operator '%s' need a value.") % operator)
+            raise BatchAction.ValueError(ugettext(u"The operator '{}' needs a value.").format(operator))
 
         try:
             self._value = operator.cast(value)
         except CastError as e:
-            raise BatchAction.ValueError(ugettext(u'%(operator)s : %(message)s.') % {
-                                                'operator': operator,
-                                                'message':  e,
-                                            }
+            raise BatchAction.ValueError(ugettext(u'{operator} : {message}.').format(
+                                                operator=operator,
+                                                message=e,
+                                            )
                                         )
 
     def __call__(self, entity):
@@ -190,5 +190,5 @@ class BatchAction(object):
         op = self._operator
         field = self._model._meta.get_field(self._field_name).verbose_name
 
-        return ugettext(u'%(field)s ➔ %(operator)s') % {'field': field, 'operator': op} if not op.need_arg else \
-               ugettext(u'%(field)s ➔ %(operator)s: «%(value)s»') % {'field': field, 'operator': op, 'value': self._value}
+        return ugettext(u'{field} ➔ {operator}').format(field=field, operator=op) if not op.need_arg else \
+               ugettext(u'{field} ➔ {operator}: «{value}»').format(field=field, operator=op, value=self._value)

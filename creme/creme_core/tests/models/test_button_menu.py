@@ -6,7 +6,7 @@ try:
     from creme.creme_core.models import ButtonMenuItem
     from creme.creme_core.gui.button_menu import Button
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class ButtonMenuItemTestCase(CremeTestCase):

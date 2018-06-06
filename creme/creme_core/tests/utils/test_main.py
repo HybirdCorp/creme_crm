@@ -26,7 +26,7 @@ try:
     from creme.creme_core.utils.dependence_sort import dependence_sort, DependenciesLoopError
     from creme.creme_core.utils.url import TemplateURLBuilder
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class MiscTestCase(CremeTestCase):

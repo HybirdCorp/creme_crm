@@ -11,7 +11,7 @@ try:
     from creme.creme_core.models.history import HistoryLine, TYPE_CREATION, TYPE_EDITION
     from creme.creme_core.templatetags import creme_history
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class CremeHistoryTagsTestCase(CremeTestCase):

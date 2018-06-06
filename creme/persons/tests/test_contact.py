@@ -502,8 +502,9 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                            }
                                      )
         self.assertFormError(response, 'form', 'user',
-                             _(u'You are not allowed to link with the «%s» of this user.') % 
-                                _(u'Contacts')
+                             _(u'You are not allowed to link with the «{models}» of this user.').format(
+                                    models=_(u'Contacts'),
+                                )
                             )
 
     @skipIfCustomOrganisation
@@ -911,8 +912,9 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                }
         response = self.client.post(url, data=dict(data, **{'form-0-organisation': 'Bebop'}))
         self.assertFormsetError(response, 'formset', 0, None,
-                                [_(u'You are not allowed to link with the «%s» of this user.') %
-                                    _(u'Contacts')
+                                [_(u'You are not allowed to link with the «{models}» of this user.').format(
+                                        models=_(u'Contacts'),
+                                    )
                                 ]
                                )
 
@@ -1028,8 +1030,9 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                          }
                                    )
         self.assertFormsetError(response, 'formset', 0, None,
-                                _(u'You are not allowed to link with the «%s» of this user.') %
-                                    _(u'Organisations')
+                                _(u'You are not allowed to link with the «{models}» of this user.').format(
+                                        models=_(u'Organisations'),
+                                    )
                                )
 
     @skipIfCustomOrganisation

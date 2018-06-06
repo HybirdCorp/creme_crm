@@ -19,7 +19,7 @@ try:
         UnorderedMultipleChoiceWidget)
     from creme.creme_core.utils.url import TemplateURLBuilder
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class DynamicSelectTestCase(FieldTestCase):
@@ -757,15 +757,15 @@ class EntitySelectorTestCase(FieldTestCase):
 
         widget = EntitySelector(content_type=12)
         html = u'''<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
-                        labelURL="%(text_url)s" label="%(label)s"
-                        popupURL="%(url)s" popupSelection="single">
+                        labelURL="{text_url}" label="{label}"
+                        popupURL="{url}" popupSelection="single">
     <input name="field" type="hidden" class="ui-creme-input ui-creme-entityselector" value="1"/>
-    <button type="button">%(label)s</button>
-</span>''' % {
-            'label': _(u'Select…'),
-            'text_url': text_url,
-            'url': url,
-        }
+    <button type="button">{label}</button>
+</span>'''.format(
+            label=_(u'Select…'),
+            text_url=text_url,
+            url=url,
+        )
         self.assertHTMLEqual(html, widget.render('field', '1'))
 
     def test_render_qfilter(self):
@@ -774,17 +774,17 @@ class EntitySelectorTestCase(FieldTestCase):
 
         widget = EntitySelector(content_type=12)
         html = u'''<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
-                        labelURL="%(text_url)s" label="%(label)s"
-                        popupURL="%(url)s" popupSelection="single"
-                        qfilter="%(q_filter)s">
+                        labelURL="{text_url}" label="{label}"
+                        popupURL="{url}" popupSelection="single"
+                        qfilter="{q_filter}">
     <input name="field" type="hidden" class="ui-creme-input ui-creme-entityselector" value="1"/>
-    <button type="button">%(label)s</button>
-</span>''' % {
-            'label': _(u'Select…'),
-            'text_url': text_url,
-            'url': url,
-            'q_filter': escape(json_dump({'pk__in': 12})),
-        }
+    <button type="button">{label}</button>
+</span>'''.format(
+            label=_(u'Select…'),
+            text_url=text_url,
+            url=url,
+            q_filter=escape(json_dump({'pk__in': 12})),
+        )
         self.assertHTMLEqual(html, widget.render('field', '1', attrs={'qfilter': {'pk__in': 12}}))
 
     def test_render_popup_options(self):
@@ -793,15 +793,15 @@ class EntitySelectorTestCase(FieldTestCase):
 
         widget = EntitySelector(content_type=12)
         html = u'''<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
-                        labelURL="%(text_url)s" label="%(label)s"
-                        popupURL="%(url)s" popupSelection="multiple" popupAuto>
+                        labelURL="{text_url}" label="{label}"
+                        popupURL="{url}" popupSelection="multiple" popupAuto>
     <input name="field" type="hidden" class="ui-creme-input ui-creme-entityselector" value="1"/>
-    <button type="button">%(label)s</button>
-</span>''' % {
-            'label': _(u'Select…'),
-            'text_url': text_url,
-            'url': url,
-        }
+    <button type="button">{label}</button>
+</span>'''.format(
+            label=_(u'Select…'),
+            text_url=text_url,
+            url=url,
+        )
         self.assertHTMLEqual(html, widget.render('field', '1', attrs={'multiple': True, 'autoselect': True}))
 
 
@@ -892,32 +892,32 @@ class EntityCreatorWidgetTestCase(FieldTestCase):
         html = u'''<ul class="hbox ui-creme-widget ui-layout widget-auto ui-creme-actionbuttonlist" widget="ui-creme-actionbuttonlist">
     <li class="delegate">
         <span class="ui-creme-widget ui-creme-entityselector" widget="ui-creme-entityselector"
-              labelURL="%(select_label_url)s" label="%(select_label)s"
-              popupURL="%(select_url)s" popupSelection="single">
+              labelURL="{select_label_url}" label="{select_label}"
+              popupURL="{select_url}" popupSelection="single">
             <input name="field" type="hidden" class="ui-creme-input ui-creme-entityselector"/>
-            <button type="button">%(select_label)s</button>
+            <button type="button">{select_label}</button>
         </span>
     </li>
     <li>
-        <button class="ui-creme-actionbutton" action="reset" name="reset" title="%(reset_title)s" type="button" value="">
-            %(reset_label)s
+        <button class="ui-creme-actionbutton" action="reset" name="reset" title="{reset_title}" type="button" value="">
+            {reset_label}
         </button>
     </li>
     <li>
-        <button class="ui-creme-actionbutton" name="create" title="%(create_title)s" type="button" disabled popupUrl="%(create_url)s">
-            %(create_label)s
+        <button class="ui-creme-actionbutton" name="create" title="{create_title}" type="button" disabled popupUrl="{create_url}">
+            {create_label}
         </button>
     </li>
-</ul>''' % {
-            'select_label': _(u'Select…'),
-            'select_label_url': EntitySelector(content_type=ct_id).text_url,
-            'select_url': EntitySelector(content_type=ct_id).url,
+</ul>'''.format(
+            select_label=_(u'Select…'),
+            select_label_url=EntitySelector(content_type=ct_id).text_url,
+            select_url=EntitySelector(content_type=ct_id).url,
             # 'select_q_filter': '',  # qfilter="%(select_q_filter)s">
-            'reset_title': _(u'Clear'),
-            'reset_label': _(u'Clear'),
-            'create_title': _(u"Can't create"),
-            'create_label': FakeContact.creation_label,
-            'create_url': creation_url,
-        }
+            reset_title=_(u'Clear'),
+            reset_label=_(u'Clear'),
+            create_title=_(u"Can't create"),
+            create_label=FakeContact.creation_label,
+            create_url=creation_url,
+        )
         self.assertHTMLEqual(html, widget.render('field', ''))
 

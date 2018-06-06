@@ -57,11 +57,11 @@ class XMLDiff(object):
         self._node = node
         self._root = root
 
-        node.text = ' -================= HERE : %s ==========%s' % (msg, node.text or '')
+        node.text = ' -================= HERE : {} =========={}'.format(msg, node.text or '')
 
     @property
     def short_msg(self):
-        return '<%s> ===> %s' % (self._node.tag, self._msg)
+        return '<{}> ===> {}'.format(self._node.tag, self._msg)
 
     @property
     def long_msg(self):
@@ -85,12 +85,12 @@ def xml_diff(xml1, xml2):
     try:
         tree1 = XML(xml1)
     except Exception as e:
-        raise XMLDiffError('First document contains errors (base exception: %s)' % e)
+        raise XMLDiffError('First document contains errors (base exception: {})'.format(e))
 
     try:
         tree2 = XML(xml2)
     except Exception as e:
-        raise XMLDiffError('Second document contains errors (base exception: %s)' % e)
+        raise XMLDiffError('Second document contains errors (base exception: {})'.format(e))
 
     iter1 = _element_iterator(tree1)
     iter2 = _element_iterator(tree2)
@@ -131,7 +131,7 @@ def xml_diff(xml1, xml2):
 
             # Tag comparison ---------------------------------------------------
             if node1.tag != node2.tag:
-                return XMLDiff(u'Tag "%s" != "%s"' % (node1.tag, node2.tag), node1, tree1)
+                return XMLDiff(u'Tag "{}" != "{}"'.format(node1.tag, node2.tag), node1, tree1)
 
             # Attributes comparison --------------------------------------------
             attrs1 = dict(node1.items())
@@ -140,17 +140,17 @@ def xml_diff(xml1, xml2):
                 attr_value1 = attrs1.pop(attr_name2, None)
 
                 if attr_value1 is None:
-                    return XMLDiff(u'Attribute "%s" is missing in the first document' % attr_name2,
+                    return XMLDiff(u'Attribute "{}" is missing in the first document'.format(attr_name2),
                                    node1, tree1
                                   )
 
                 if attr_value1 != attr_value2:
-                    return XMLDiff(u'Attribute "%s": "%s" != "%s"' % (
+                    return XMLDiff(u'Attribute "{}": "{}" != "{}"'.format(
                                         attr_name2, attr_value1, attr_value2),
                                    node1, tree1
                                   )
             if attrs1:
-                return XMLDiff(u'Attribute "%s" is missing in the second document' % attrs1.keys()[0],
+                return XMLDiff(u'Attribute "{}" is missing in the second document'.format(attrs1.keys()[0]),
                                 node1, tree1
                               )
 
@@ -159,14 +159,14 @@ def xml_diff(xml1, xml2):
             text2 = node2.text or ''; text2 = text2.strip()
 
             if text1 != text2:
-                return XMLDiff(u'Text "%s" != "%s"' % (text1, text2), node1, tree1)
+                return XMLDiff(u'Text "{}" != "{}"'.format(text1, text2), node1, tree1)
 
             # Tail comparison --------------------------------------------------
             tail1 = node1.tail or ''; tail1 = tail1.strip()
             tail2 = node2.tail or ''; tail2 = tail2.strip()
 
             if tail1 != tail2:
-                return XMLDiff(u'Tail "%s" != "%s"' % (tail1, tail2), node1, tree1)
+                return XMLDiff(u'Tail "{}" != "{}"'.format(tail1, tail2), node1, tree1)
 
             previous_node1 = node1
     except StopIteration:

@@ -16,7 +16,7 @@ try:
 
     from ..bricks import GenericModelBrick, PropertyTypesBrick, SettingsBrick
 except Exception as e:
-    print('Error in <{}>: {}'.fromat(__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):

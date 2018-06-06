@@ -34,18 +34,18 @@ def _add_tags_to_fields():
         for tag_name in ('clonable', 'viewable', 'enumerable', 'optional'):
             value = kwargs.pop(tag_name, None)
             if value is not None:
-                setattr(self, '_cremetag_%s' % tag_name, value)
+                setattr(self, '_cremetag_{}'.format(tag_name), value)
 
         if kwargs:
-            raise InvalidFieldTag('Unknown tag(s) : %s' % kwargs.keys())
+            raise InvalidFieldTag('Unknown tag(s) : {}'.format(kwargs.keys()))
 
         return self
 
     def _get_tag(self, tag_name):
         try:
-            return getattr(self, '_cremetag_%s' % tag_name)
+            return getattr(self, '_cremetag_{}'.format(tag_name))
         except AttributeError:
-            raise InvalidFieldTag('Unknown tag : %s' % tag_name)
+            raise InvalidFieldTag('Unknown tag : {}'.format(tag_name))
 
     Field.set_tags = _set_tags
     Field.get_tag  = _get_tag

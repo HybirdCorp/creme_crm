@@ -38,10 +38,10 @@ class EmailsTestCase(_EmailsTestCase):
         fconf.descriptions = [('email', {FieldsConfig.HIDDEN: True})]
         fconf.save()
         fconf = self.refresh(fconf)
-        self.assertEqual([_(u'Warning: the app «%(app)s» need the field «%(field)s».') % {
-                                'app':   _(u'Emails'),
-                                'field': _(u'Email address'),
-                            }
+        self.assertEqual([_(u'Warning: the app «{app}» need the field «{field}».').format(
+                                app=_(u'Emails'),
+                                field=_(u'Email address'),
+                            ),
                          ],
                          fconf.errors_on_hidden
                         )

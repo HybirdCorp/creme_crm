@@ -14,7 +14,7 @@ try:
     from creme.creme_core.models import RelationType, Relation, HeaderFilter, CremeEntity
     from creme.creme_core.models.header_filter import HeaderFilterList
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class HeaderFiltersTestCase(CremeTestCase):
@@ -463,8 +463,8 @@ class HeaderFiltersTestCase(CremeTestCase):
         cells = [EntityCellRegularField.build(model=FakeOrganisation, name='name')]
 
         def create_hf(id, **kwargs):
-            return HeaderFilter.create(pk='test-hf_orga%s' % id,
-                                       name='Orga view #%s' % id,
+            return HeaderFilter.create(pk='test-hf_orga{}'.format(id),
+                                       name='Orga view #{}'.format(id),
                                        model=FakeOrganisation, cells_desc=cells,
                                        **kwargs
                                       )
@@ -500,8 +500,8 @@ class HeaderFiltersTestCase(CremeTestCase):
         cells = [EntityCellRegularField.build(model=FakeOrganisation, name='name')]
 
         def create_hf(id, **kwargs):
-            return HeaderFilter.create(pk='test-hf_orga%s' % id,
-                                       name='Orga view #%s' % id,
+            return HeaderFilter.create(pk='test-hf_orga{}'.format(id),
+                                       name='Orga view #{}'.format(id),
                                        model=FakeOrganisation, cells_desc=cells,
                                        **kwargs
                                       )

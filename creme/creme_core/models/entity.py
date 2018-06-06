@@ -150,13 +150,13 @@ class CremeEntity(CremeModel):
         real_entity = self.get_real_entity()
 
         if self is real_entity:
-            return u"Creme entity: %s" % self.id
+            return u"Creme entity: {}".format(self.id)
 
         return unicode(real_entity)
 
     def allowed_unicode(self, user):
         return unicode(self) if user.has_perm_to_view(self) else \
-               ugettext(u'Entity #%s (not viewable)') % self.id
+               ugettext(u'Entity #{id} (not viewable)').format(id=self.id)
 
     def get_real_entity(self):
         # return self._get_real_entity(CremeEntity)
@@ -325,7 +325,7 @@ class CremeEntity(CremeModel):
         if not user.has_perm_to_view(self):
             return self.allowed_unicode(user)
 
-        return '<a target="_blank" href="%s">%s</a>' % (self.get_absolute_url(), escape(unicode(self)))
+        return '<a target="_blank" href="{}">{}</a>'.format(self.get_absolute_url(), escape(unicode(self)))
 
     def get_actions(self, user):  # TODO: improve icon/css class management....
         actions = []

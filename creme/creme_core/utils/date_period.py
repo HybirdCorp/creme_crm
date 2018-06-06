@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2015  Hybird
+#    Copyright (C) 2014-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -75,7 +75,8 @@ class SimpleValueDatePeriod(DatePeriod):
 
     def __unicode__(self):
         value = self._value
-        return self._ungettext(self._value) % value
+        # return self._ungettext(self._value) % value
+        return self._ungettext(self._value).format(number=value)
 
     def _ungettext(self, value):
         raise NotImplementedError
@@ -96,7 +97,7 @@ class MinutesPeriod(SimpleValueDatePeriod):
     frequency = MINUTELY
 
     def _ungettext(self, value):
-        return ungettext('%s minute', '%s minutes', value)
+        return ungettext('{number} minute', '{number} minutes', value)
 
 
 class HoursPeriod(SimpleValueDatePeriod):
@@ -105,7 +106,7 @@ class HoursPeriod(SimpleValueDatePeriod):
     frequency = HOURLY
 
     def _ungettext(self, value):
-        return ungettext('%s hour', '%s hours', value)
+        return ungettext('{number} hour', '{number} hours', value)
 
 
 class DaysPeriod(SimpleValueDatePeriod):
@@ -114,7 +115,7 @@ class DaysPeriod(SimpleValueDatePeriod):
     frequency = DAILY
 
     def _ungettext(self, value):
-        return ungettext('%s day', '%s days', value)
+        return ungettext('{number} day', '{number} days', value)
 
 
 class WeeksPeriod(SimpleValueDatePeriod):
@@ -123,7 +124,7 @@ class WeeksPeriod(SimpleValueDatePeriod):
     frequency = WEEKLY
 
     def _ungettext(self, value):
-        return ungettext('%s week', '%s weeks', value)
+        return ungettext('{number} week', '{number} weeks', value)
 
 
 class MonthsPeriod(SimpleValueDatePeriod):
@@ -132,7 +133,7 @@ class MonthsPeriod(SimpleValueDatePeriod):
     frequency = MONTHLY
 
     def _ungettext(self, value):
-        return ungettext('%s month', '%s months', value)
+        return ungettext('{number} month', '{number} months', value)
 
 
 class YearsPeriod(SimpleValueDatePeriod):
@@ -141,7 +142,7 @@ class YearsPeriod(SimpleValueDatePeriod):
     frequency = YEARLY
 
     def _ungettext(self, value):
-        return ungettext('%s year', '%s years', value)
+        return ungettext('{number} year', '{number} years', value)
 
 
 class DatePeriodRegistry(object):

@@ -928,7 +928,7 @@ class TinyMCEEditor(widgets.Textarea):
         final_attrs['plugin'] = 'tinymce'
         final_attrs['plugin_options'] = json_dump({
             'mode':                            'textareas',
-            'script_url':                      '%stiny_mce/tiny_mce.js' % settings.MEDIA_URL,
+            'script_url':                      '{}tiny_mce/tiny_mce.js'.format(settings.MEDIA_URL),
             'convert_urls':                    False,
             'theme':                           'advanced',
             'height':                          300,
@@ -1075,9 +1075,9 @@ class OrderedMultipleChoiceWidget(widgets.SelectMultiple):
         return context
 
     def value_from_datadict(self, data, files, name):
-        prefix_check = '%s_check_' % name
-        prefix_order = '%s_order_' % name
-        prefix_value = '%s_value_' % name
+        prefix_check = '{}_check_'.format(name)
+        prefix_order = '{}_order_'.format(name)
+        prefix_value = '{}_value_'.format(name)
 
         selected = []
         for key, value in data.iteritems():
@@ -1136,12 +1136,13 @@ class ListEditionWidget(widgets.Widget):
         return context
 
     def value_from_datadict(self, data, files, name):
-        prefix_check = name + '_check_%i'
-        prefix_value = name + '_value_%i'
-        get     = data.get
-        has_key = data.has_key
+        prefix_check_fmt = (name + '_check_{}').format
+        prefix_value_fmt = (name + '_value_{}').format
+        get = data.get
+        # has_key = data.has_key
 
-        return [get(prefix_value % i) if has_key(prefix_check % i) else None
+        # return [get(prefix_value_fmt(i)) if has_key(prefix_check_fmt(i)) else None
+        return [get(prefix_value_fmt(i)) if (prefix_check_fmt(i) in data) else None
                     for i in xrange(len(self.content))
                ]
 
@@ -1177,10 +1178,10 @@ class DatePeriodWidget(widgets.MultiWidget):
 
         # TODO: do we need a system for localized settings (like python in locale/ ) ?
         try:
-            localized_order = _(u'%(dateperiod_value)s%(dateperiod_type)s') % {
-                'dateperiod_type':  '0',
-                'dateperiod_value': '1',
-            }
+            localized_order = _(u'{dateperiod_value}{dateperiod_type}').format(
+                dateperiod_type='0',
+                dateperiod_value='1',
+            )
             inverted = localized_order.index('1') < localized_order.index('0')
         except:
             logger.exception('DatePeriodWidget.get_context()')

@@ -1004,8 +1004,8 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
-        self.assertEqual([_(u'Import «{type}» from {doc}').format(
-                                type=_(u'Organisation'),
+        self.assertEqual([_(u'Import «{model}» from {doc}').format(
+                                model=_(u'Organisation'),
                                 doc=doc,
                             )
                          ],
@@ -1027,10 +1027,10 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(_(u'Shipping address'), shipping_address.name)
         self.assertEqual(city2,                 shipping_address.city)
 
-        self.assertEqual([ungettext(u'{counter} «{type}» has been created.',
-                                    u'{counter} «{type}» have been created.',
+        self.assertEqual([ungettext(u'{count} «{type}» has been created.',
+                                    u'{count} «{type}» have been created.',
                                     lines_count
-                                   ).format(counter=lines_count,
+                                   ).format(count=lines_count,
                                             type=_(u'Organisations'),
                                            ),
                           ungettext(u'{count} line in the file.',

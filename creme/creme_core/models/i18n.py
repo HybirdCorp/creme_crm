@@ -29,7 +29,7 @@ class Language(CremeModel):
     code = CharField(_(u'Code'), max_length=5)
 
     def __unicode__(self):
-        return u'%s - %s' % (self.name, self.code)
+        return u'{} - {}'.format(self.name, self.code)
 
     class Meta:
         app_label = 'creme_core'

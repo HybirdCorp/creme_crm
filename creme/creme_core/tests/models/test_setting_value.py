@@ -12,7 +12,7 @@ try:
     from creme.creme_core.models import SettingValue
     from creme.creme_core.utils import bool_as_html
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class SettingValueTestCase(CremeTestCase):
@@ -83,14 +83,14 @@ class SettingValueTestCase(CremeTestCase):
 
         sv = self.refresh(sv)
         self.assertIs(sv.value, True)
-        self.assertEqual('<input type="checkbox" checked disabled/>%s' % _('Yes'), sv.as_html)
+        self.assertEqual('<input type="checkbox" checked disabled/>{}'.format(_('Yes')), sv.as_html)
 
         sv.value = False
         sv.save()
 
         sv = self.refresh(sv)
         self.assertIs(sv.value, False)
-        self.assertEqual('<input type="checkbox" disabled/>%s' % _('No'), sv.as_html)
+        self.assertEqual('<input type="checkbox" disabled/>{}'.format(_('No')), sv.as_html)
 
     def test_type_hour(self):
         self.login()
@@ -108,7 +108,7 @@ class SettingValueTestCase(CremeTestCase):
 
         sv = self.refresh(sv)
         self.assertEqual(hour, sv.value)
-        self.assertEqual(_('%sh') % hour, sv.as_html)
+        self.assertEqual(_('{hour}h').format(hour=hour), sv.as_html)
 
     def test_type_email(self):
         self.login()

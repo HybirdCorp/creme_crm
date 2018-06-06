@@ -50,7 +50,7 @@ def validate_viewable_entities(entities, user, code='viewnotallowed'):
     unviewable = entities2unicode((e for e in entities if not has_perm(e)), user)
 
     if unviewable:
-        raise ValidationError(_(u'Some entities are not viewable: %s') % unviewable, code=code)
+        raise ValidationError(_(u'Some entities are not viewable: {}').format(unviewable), code=code)
 
     return entities
 
@@ -74,7 +74,7 @@ def validate_editable_entities(entities, user, code='changenotallowed'):
     uneditable = entities2unicode((e for e in entities if not has_perm(e)), user)
 
     if uneditable:
-        raise ValidationError(_(u'Some entities are not editable: %s') % uneditable, code=code)
+        raise ValidationError(_(u'Some entities are not editable: {}').format(uneditable), code=code)
 
     return entities
 
@@ -98,7 +98,7 @@ def validate_linkable_entities(entities, user, code='linknotallowed'):
     unlinkable = entities2unicode((e for e in entities if not has_perm(e)), user)
 
     if unlinkable:
-        raise ValidationError(_(u'Some entities are not linkable: %s') % unlinkable, code=code)
+        raise ValidationError(_(u'Some entities are not linkable: {}').format(unlinkable), code=code)
 
     return entities
 
@@ -109,8 +109,9 @@ def validate_linkable_model(model, user, owner, code='linknotallowed'):
                                 model=model._meta.verbose_name_plural)
 
     if not user.has_perm_to_link(model, owner=owner):
-        raise ValidationError(_(u'You are not allowed to link with the «%s» of this user.') %
-                                    model._meta.verbose_name_plural,
+        raise ValidationError(_(u'You are not allowed to link with the «{models}» of this user.').format(
+                                        models=model._meta.verbose_name_plural,
+                                    ),
                               code=code,
                              )
 

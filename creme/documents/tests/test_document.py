@@ -315,7 +315,9 @@ class DocumentTestCase(_DocumentsTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'user',
-                             _(u'You are not allowed to link with the «%s» of this user.') % _(u'Documents')
+                             _(u'You are not allowed to link with the «{models}» of this user.').format(
+                                     models=_(u'Documents'),
+                                )
                             )
 
     def test_add_related_document04(self):

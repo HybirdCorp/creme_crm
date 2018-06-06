@@ -226,22 +226,22 @@ def get_icon_by_name(name, theme, size_px, label='', css_class=''):
 
     def _get_image_url():
         try:
-            return get_creme_media_url(theme, 'images/%s_%s.png' % (name, size_px))
+            return get_creme_media_url(theme, 'images/{}_{}.png'.format(name, size_px))
         except KeyError:
             pass
 
         try:
-            return get_creme_media_url(theme, 'images/%s.png' % name)
+            return get_creme_media_url(theme, 'images/{}.png'.format(name))
         except KeyError:
             pass
 
         try:
-            return get_creme_media_url(theme, 'images/%s_%s.gif' % (name, size_px))
+            return get_creme_media_url(theme, 'images/{}_{}.gif'.format(name, size_px))
         except KeyError:
             pass
 
         try:
-            return get_creme_media_url(theme, 'images/%s.gif' % name)
+            return get_creme_media_url(theme, 'images/{}.gif'.format(name))
         except KeyError:
             pass
 
@@ -300,7 +300,7 @@ class IconRegistry(object):
             if info:
                 # TODO: improve (with the future creme 1.8 asset managers) in order
                 #       to manage other formats (see SVGIcon etc...)
-                path_fmt = 'images/' + info[0] + '_%(size)s.png'
+                path_fmt = 'images/{}_%(size)s.png'.format(info[0])
                 label = info[1]
 
         if not path_fmt:

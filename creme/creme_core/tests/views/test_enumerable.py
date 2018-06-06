@@ -13,7 +13,7 @@ try:
             EntityFilter, EntityFilterCondition)
     from creme.creme_core.utils.unicode_collation import collator
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class EnumerableViewsTestCase(ViewsTestCase):
@@ -61,10 +61,8 @@ class EnumerableViewsTestCase(ViewsTestCase):
         self.assertEqual([[c.id, unicode(c)] for c in User.objects.all()], json.loads(response.content))
 
     def test_model_entityfilter(self):
+        self.maxDiff = None
         user = self.login()
-
-        sort_key = collator.sort_key
-        key = lambda e: sort_key(e['group'] + e['label'])
 
         # Create at least one filter
         create_filter = EntityFilter.create
@@ -80,18 +78,19 @@ class EnumerableViewsTestCase(ViewsTestCase):
                                        )
         efilter_private.set_conditions([EntityFilterCondition.build_4_field(model=FakeContact,
                                                                             operator=EntityFilterCondition.EQUALS,
-                                                                            name='first_name', values=['Misato']
+                                                                            name='first_name', values=['Misato'],
                                                                            ),
                                        ])
 
         response = self.assertGET200(self._build_enum_url(EntityFilter))
+        sort_key = collator.sort_key
         self.assertEqual(sorted([{'value': f.id,
                                   'label': f.name,
                                   'group': unicode(f.entity_type),
-                                  'help':  unicode(f.entity_type) + (' (%s)' % unicode(f.user) if f.is_private else ''),
+                                  'help':  unicode(f.entity_type) + (u' ({})'.format(f.user) if f.is_private else ''),
                                  } for f in EntityFilter.objects.all()
                                 ],
-                                key=key
+                                key=lambda e: sort_key(e['group'] + e['label'])
                                ),
                          json.loads(response.content)
                         )

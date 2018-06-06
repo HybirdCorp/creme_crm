@@ -675,7 +675,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
                                       data={'replies': '[%s]' % preply.id}
                                      )
         self.assertFormError(response, 'form', 'replies', 
-                             _(u'Some entities are not editable: %s') % preply
+                             _(u'Some entities are not editable: {}').format(preply)
                             )
 
     @skipIfCustomActivity
@@ -827,8 +827,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         response = post(claudette)
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'related_person',
-                             _(u'You are not allowed to link this entity: %s') % (
-                                     _(u'Entity #%s (not viewable)') % claudette.id
+                             _(u'You are not allowed to link this entity: {}').format(
+                                     _(u'Entity #{id} (not viewable)').format(id=claudette.id)
                                 )
                             )
 
@@ -948,7 +948,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
                                               },
                                    )
         self.assertFormError(response, 'form', 'field_value',
-                             _(u'You are not allowed to link this entity: %s') % leina
+                             _(u'You are not allowed to link this entity: {}').format(leina)
                             )
 
         # ----

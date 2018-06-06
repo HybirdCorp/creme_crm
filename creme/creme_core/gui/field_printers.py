@@ -102,7 +102,7 @@ def print_image_html(entity, fval, user, field):
 
 def print_integer(entity, fval, user, field):
     if field.choices:  # TODO: manage 'choices' for other types...
-        fval = getattr(entity, 'get_%s_display' % field.name)()
+        fval = getattr(entity, 'get_{}_display'.format(field.name))()
 
     return fval if fval is not None else ''
 
@@ -245,14 +245,14 @@ def print_duration(entity, fval, user, field):
     m = int(m)
     s = int(s)
 
-    return '%(hour)s %(hour_label)s %(minute)s %(minute_label)s %(second)s %(second_label)s' % {
-        'hour': h,
-        'hour_label': ungettext('hour', 'hours', h),
-        'minute': m,
-        'minute_label': ungettext('minute', 'minutes', m),
-        'second': s,
-        'second_label': ungettext('second', 'seconds', s)
-    }
+    return '{hour} {hour_label} {minute} {minute_label} {second} {second_label}'.format(
+        hour=h,
+        hour_label=ungettext('hour', 'hours', h),
+        minute=m,
+        minute_label=ungettext('minute', 'minutes', m),
+        second=s,
+        second_label=ungettext('second', 'seconds', s)
+    )
 
 
 def print_email_html(entity, fval, user, field):

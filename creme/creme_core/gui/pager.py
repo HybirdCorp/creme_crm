@@ -34,7 +34,7 @@ class PagerLink(object):
         self.is_current = is_current
 
         if help is None:
-            self.help = _(u'To page %s') % page if page else ''
+            self.help = _(u'To page {}').format(page) if page else ''
         else:
             self.help = help
 
@@ -46,7 +46,7 @@ class PagerLink(object):
             css.append('is-disabled')
 
         if self.group:
-            css.append('pager-link-%s' % self.group)
+            css.append('pager-link-{}'.format(self.group))
 
         if self.is_current:
             css.append('pager-link-current')

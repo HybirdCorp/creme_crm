@@ -55,7 +55,7 @@ class _JobTypeRegistry(object):
         job_type = self.get(job.type_id)
 
         if job_type is None:
-            raise _JobTypeRegistry.Error('Invalid job type ID: %s' % job.type_id)
+            raise _JobTypeRegistry.Error('Invalid job type ID: {}'.format(job.type_id))
 
         # Configure environment
         activate(job.language)
@@ -75,7 +75,7 @@ class _JobTypeRegistry(object):
 
     def register(self, job_type):
         if self._job_types.setdefault(job_type.id, job_type) is not job_type:
-            raise _JobTypeRegistry.Error("Duplicated job type id: %s" % job_type.id)
+            raise _JobTypeRegistry.Error("Duplicated job type id: {}".format(job_type.id))
 
     def autodiscover(self):
         register = self.register
@@ -112,10 +112,10 @@ class _BaseJobManagerQueue(object):
     def _queue_error(cls, msg):
         return ugettext(u'There is a connection error with the job manager.\n'
                         u'Please contact your administrator.\n'
-                        u'[Original error from «%(queue)s»:\n%(message)s]') % {
-                            'queue':   cls.verbose_name,
-                            'message': msg,
-        }
+                        u'[Original error from «{queue}»:\n{message}]').format(
+                            queue=cls.verbose_name,
+                            message=msg,
+        )
 
     def clear(self):
         raise NotImplementedError
@@ -323,7 +323,7 @@ else:
                     if pong_result is not None:
                         break
             except RedisError as e:
-                return self._queue_error(u'%s.%s: %s' % (
+                return self._queue_error(u'{}.{}: {}'.format(
                     e.__module__, e.__class__, e
                 ))
 

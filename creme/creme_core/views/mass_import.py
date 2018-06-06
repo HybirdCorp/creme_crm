@@ -146,6 +146,6 @@ def download_errors(request, job_id):
                  [smart_str('/'.join(job_result.messages))]
                 )
 
-    writer.save(u'%s-errors' % splitext(doc.title)[0])
+    writer.save(u'{}-errors'.format(splitext(doc.title)[0]))
 
     return writer.response

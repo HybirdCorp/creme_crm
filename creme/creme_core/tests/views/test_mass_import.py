@@ -27,7 +27,7 @@ try:
     from creme.documents.models import Document
     from creme.documents.tests.base import skipIfCustomDocument, skipIfCustomFolder
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 try:
     from creme.creme_core.utils.xlrd_utils import XlrdReader
@@ -142,8 +142,8 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
 
         # Properties
         self.assertIs(mass_import_type, job.type)
-        self.assertEqual([_(u'Import «{type}» from {doc}').format(
-                                type='Test Contact',
+        self.assertEqual([_(u'Import «{model}» from {doc}').format(
+                                model='Test Contact',
                                 doc=doc,
                             )
                          ],
@@ -179,11 +179,11 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         self._assertNoResultError(results)
         self.assertIs(results[0].updated, False)
 
-        self.assertEqual([ungettext(u'{counter} «{type}» has been created.',
-                                    u'{counter} «{type}» have been created.',
+        self.assertEqual([ungettext(u'{count} «{model}» has been created.',
+                                    u'{count} «{model}» have been created.',
                                     lines_count
-                                   ).format(counter=lines_count,
-                                            type='Test Contacts',
+                                   ).format(count=lines_count,
+                                            model='Test Contacts',
                                            ),
                           ungettext(u'{count} line in the file.',
                                     u'{count} lines in the file.',
@@ -334,10 +334,10 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
 
         results = self._get_job_results(job)
         self.assertEqual(lines_count, len(results))
-        self.assertEqual([ungettext(u'{counter} «{type}» has been created.',
-                                    u'{counter} «{type}» have been created.',
+        self.assertEqual([ungettext(u'{count} «{model}» has been created.',
+                                    u'{count} «{model}» have been created.',
                                     lines_count
-                                  ).format(counter=lines_count, type='Test Contacts'),
+                                  ).format(count=lines_count, model='Test Contacts'),
                           ungettext(u'{count} line in the file.',
                                     u'{count} lines in the file.',
                                     lines_count,
@@ -503,9 +503,9 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                                               has_header=True,
                                               user=user.id,
                                               key_fields=['first_name', 'last_name'],
-                                              **{'custom_field_%s_colselect' % cf_int.id: 3,
-                                                 'custom_field_%s_colselect' % cf_str.id: 0,
-                                                 'custom_field_%s_colselect' % cf_dec.id: 4,
+                                              **{'custom_field_{}_colselect'.format(cf_int.id): 3,
+                                                 'custom_field_{}_colselect'.format(cf_str.id): 0,
+                                                 'custom_field_{}_colselect'.format(cf_dec.id): 4,
                                                 }
                                              ),
                                    )
@@ -581,9 +581,9 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                                     data=dict(self.lv_import_data, document=doc.id,
                                               has_header=True,
                                               user=user.id,
-                                              **{'custom_field_%s_colselect' % cf_enum.id:  3,
-                                                 'custom_field_%s_colselect' % cf_enum2.id: 0,
-                                                 'custom_field_%s_colselect' % cf_menum.id: 4,
+                                              **{'custom_field_{}_colselect'.format(cf_enum.id):  3,
+                                                 'custom_field_{}_colselect'.format(cf_enum2.id): 0,
+                                                 'custom_field_{}_colselect'.format(cf_menum.id): 4,
                                                 }
                                              ),
                                     )
@@ -651,11 +651,11 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                                     data=dict(self.lv_import_data, document=doc.id,
                                               has_header=True,
                                               user=user.id,
-                                              **{'custom_field_%s_colselect' % cf_enum.id: 3,
-                                                 'custom_field_%s_create' % cf_enum.id:    True,
+                                              **{'custom_field_{}_colselect'.format(cf_enum.id): 3,
+                                                 'custom_field_{}_create'.format(cf_enum.id):    True,
 
-                                                 'custom_field_%s_colselect' % cf_menum.id: 4,
-                                                 'custom_field_%s_create' % cf_menum.id:    True,
+                                                 'custom_field_{}_colselect'.format(cf_menum.id): 4,
+                                                 'custom_field_{}_create'.format(cf_menum.id):    True,
                                                 }
                                              ),
                                    )
@@ -715,20 +715,20 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                                     data=dict(self.lv_import_data, document=doc.id,
                                               has_header=True,
                                               user=self.user.id,
-                                              **{'custom_field_%s_colselect' % cf_enum.id: 3,
-                                                 'custom_field_%s_create' % cf_enum.id: True,
+                                              **{'custom_field_{}_colselect'.format(cf_enum.id): 3,
+                                                 'custom_field_{}_create'.format(cf_enum.id):    True,
 
-                                                 'custom_field_%s_colselect' % cf_menum.id: 4,
-                                                 'custom_field_%s_create' % cf_menum.id:    True,
+                                                 'custom_field_{}_colselect'.format(cf_menum.id): 4,
+                                                 'custom_field_{}_create'.format(cf_menum.id):    True,
                                                 }
                                              ),
                                    )
 
         response = post()
-        self.assertFormError(response, 'form', 'custom_field_%s' % cf_enum.id,
+        self.assertFormError(response, 'form', 'custom_field_{}'.format(cf_enum.id),
                              'You can not create choices',
                             )
-        self.assertFormError(response, 'form', 'custom_field_%s' % cf_menum.id,
+        self.assertFormError(response, 'form', 'custom_field_{}'.format(cf_menum.id),
                              'You can not create choices',
                             )
 
@@ -774,20 +774,20 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                                               has_header=True,
                                               user=user.id,
                                               key_fields=['first_name', 'last_name'],
-                                              **{'custom_field_%s_colselect' % cf_int.id: 3,
-                                                 'custom_field_%s_defval'    % cf_int.id: defint,
+                                              **{'custom_field_{}_colselect'.format(cf_int.id): 3,
+                                                 'custom_field_{}_defval'.format(cf_int.id):    defint,
 
-                                                 'custom_field_%s_colselect' % cf_enum.id: 4,
-                                                 'custom_field_%s_defval'    % cf_enum.id: str(punch.id),
+                                                 'custom_field_{}_colselect'.format(cf_enum.id): 4,
+                                                 'custom_field_{}_defval'.format(cf_enum.id):    str(punch.id),
 
-                                                 'custom_field_%s_colselect' % cf_menum.id: 5,
-                                                 'custom_field_%s_defval'    % cf_menum.id: str(sword.id),
+                                                 'custom_field_{}_colselect'.format(cf_menum.id): 5,
+                                                 'custom_field_{}_defval'.format(cf_menum.id):    str(sword.id),
                                                 }
                                              ),
                                    )
 
         response = post('notint')
-        self.assertFormError(response, 'form', 'custom_field_%s' % cf_int.id, 
+        self.assertFormError(response, 'form', 'custom_field_{}'.format(cf_int.id),
                              _(u'Enter a whole number.')
                             )
 
@@ -1015,14 +1015,14 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         jresult = self.get_object_or_fail(MassImportJobResult, job=job, entity=rei)
         self.assertTrue(jresult.updated)
 
-        self.assertEqual([ungettext(u'{counter} «{type}» has been created.',
-                                    u'{counter} «{type}» have been created.',
+        self.assertEqual([ungettext(u'{count} «{model}» has been created.',
+                                    u'{count} «{model}» have been created.',
                                     1
-                                   ).format(counter=1, type='Test Contact'),
-                          ungettext(u'{counter} «{type}» has been updated.',
-                                    u'{counter} «{type}» have been updated.',
+                                   ).format(count=1, model='Test Contact'),
+                          ungettext(u'{count} «{model}» has been updated.',
+                                    u'{count} «{model}» have been updated.',
                                     1
-                                   ).format(counter=1, type='Test Contact'),
+                                   ).format(count=1, model='Test Contact'),
                           ungettext(u'{count} line in the file.',
                                     u'{count} lines in the file.',
                                     2
@@ -1224,10 +1224,10 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         response = self.assertGET200(self._build_dl_errors_url(job), follow=True)
 
         cdisp = response['Content-Disposition']
-        self.assertTrue(cdisp.startswith('attachment; filename=%s-errors' % slugify(doc.title)),
-                        'Content-Disposition: not expected: %s' % cdisp
+        self.assertTrue(cdisp.startswith('attachment; filename={}-errors'.format(slugify(doc.title))),
+                        'Content-Disposition: not expected: {}'.format(cdisp)
                        )
-        self.assertTrue(cdisp.endswith('.%s' % ext))
+        self.assertTrue(cdisp.endswith('.' + ext))
 
         result_lines = [['First name',   'Last name', 'Birthday', _(u'Errors')]] if header else []
         result_lines.append([first_name, last_name,   birthday,   _(u'Enter a valid date.')])

@@ -8,7 +8,7 @@ try:
 
     from ..base import CremeTestCase
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class CremeDateTagsTestCase(CremeTestCase):
@@ -67,12 +67,12 @@ class CremeDateTagsTestCase(CremeTestCase):
                                   datetime(year=2017, month=9, day=8,  hour=17, minute=6,  second=20),
                         }))
 
-        self.assertEqual(u'%s#%s#%s#%s#%s' % (
-                                ungettext(u'%s day',    u'%s days',     3) % 3,
-                                ungettext(u'%s hour',   u'%s hours',    4) % 4,
-                                ungettext(u'%s minute', u'%s minutes', 19) % 19,
-                                ungettext(u'%s second', u'%s seconds',  2) % 2,
-                                ungettext(u'%s second', u'%s seconds',  1) % 1,
+        self.assertEqual(u'{}#{}#{}#{}#{}'.format(
+                                ungettext(u'{number} day',    u'{number} days',     3).format(number=3),
+                                ungettext(u'{number} hour',   u'{number} hours',    4).format(number=4),
+                                ungettext(u'{number} minute', u'{number} minutes', 19).format(number=19),
+                                ungettext(u'{number} second', u'{number} seconds',  2).format(number=2),
+                                ungettext(u'{number} second', u'{number} seconds',  1).format(number=1),
                             ),
                          render.strip()
                         )

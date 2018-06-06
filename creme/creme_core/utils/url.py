@@ -67,21 +67,21 @@ class TemplateURLBuilder(object):
             raise NotImplementedError
 
     class Word(PlaceHolder):
-        _patterns = ['__placeholder%d__', '__PLACEHOLDER%d__',
-                     '__place_holder%d__', '__PLACE_HOLDER%d__',
-                     '__XXXXXX%d__',
+        _patterns = ['__placeholder{}__', '__PLACEHOLDER{}__',
+                     '__place_holder{}__', '__PLACE_HOLDER{}__',
+                     '__XXXXXX{}__',
                     ]
 
         def tmp_name(self, index, trial):
             patterns = self._patterns
-            return patterns[trial % len(patterns)] % index
+            return patterns[trial % len(patterns)].format(index)
 
     class Int(PlaceHolder):
-        _patterns = ['123456789%d', '987654321%d', '88888888888888%d', '112233445566%d']
+        _patterns = ['123456789{}', '987654321{}', '88888888888888{}', '112233445566{}']
 
         def tmp_name(self, index, trial):
             patterns = self._patterns
-            return patterns[trial % len(patterns)] % index
+            return patterns[trial % len(patterns)].format(index)
 
     def __init__(self, **place_holders):
         """Constructor.
@@ -129,5 +129,5 @@ class TemplateURLBuilder(object):
                 return url
 
         raise TemplateURLBuilderError('Cannot generate a URL because of a collision '
-                                      '(we tried these URLs -- with place holders --: %s)' % ' '.join(tried_urls)
+                                      '(we tried these URLs -- with place holders --: {})'.format(' '.join(tried_urls))
                                      )

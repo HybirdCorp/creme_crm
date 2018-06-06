@@ -276,14 +276,14 @@ class ActivityTestCase(_ActivitiesTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'my_participation',
-                             _(u'You are not allowed to link this entity: %s') % mireille
+                             _(u'You are not allowed to link this entity: {}').format(mireille)
                             )
 
-        msg = _(u'Some entities are not linkable: %s')
-        self.assertFormError(response, 'form', 'participating_users', msg % other_user.linked_contact)
-        self.assertFormError(response, 'form', 'other_participants',  msg % genma)
-        self.assertFormError(response, 'form', 'subjects',            msg % akane)
-        self.assertFormError(response, 'form', 'linked_entities',     msg % dojo)
+        fmt = _(u'Some entities are not linkable: {}').format
+        self.assertFormError(response, 'form', 'participating_users', fmt(other_user.linked_contact))
+        self.assertFormError(response, 'form', 'other_participants',  fmt(genma))
+        self.assertFormError(response, 'form', 'subjects',            fmt(akane))
+        self.assertFormError(response, 'form', 'linked_entities',     fmt(dojo))
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -1809,7 +1809,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         response = self.assertPOST200(uri, data={'participants': '[%d]' % contact.id})
         self.assertFormError(response, 'form', 'participants',
-                             _(u'Some entities are not linkable: %s') % contact
+                             _(u'Some entities are not linkable: {}').format(contact)
                             )
         self.assertFalse(Relation.objects.filter(subject_entity=activity.id,
                                                  type=constants.REL_OBJ_PART_2_ACTIVITY,
@@ -2002,7 +2002,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         response = self.assertPOST200(uri, data={'subjects': self._relation_field_value(orga)})
         self.assertFormError(response, 'form', 'subjects',
-                             _(u'Some entities are not linkable: %s') % orga
+                             _(u'Some entities are not linkable: {}').format(orga)
                             )
         self.assertFalse(Relation.objects.filter(subject_entity=activity.id,
                                                  type=constants.REL_OBJ_ACTIVITY_SUBJECT,

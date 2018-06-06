@@ -10,7 +10,7 @@ try:
     from ..fake_models import FakeContact
     from creme.creme_core.gui.bricks import brick_registry, Brick
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
@@ -42,9 +42,9 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
         brick_registry.register(FooBrick)
 
         with self.assertNoException():
-            template = Template("{%% load creme_bricks %%}"
-                                "{%% brick_import app='creme_core' name='%(name)s' as my_brick %%}"
-                                "{%% brick_display my_brick %%}" % {'name': name}
+            template = Template("{{% load creme_bricks %}}"
+                                "{{% brick_import app='creme_core' name='{name}' as my_brick %}}"
+                                "{{% brick_display my_brick %}}".format(name=name)
                                )
             render = template.render(RequestContext(self._build_request()))
 

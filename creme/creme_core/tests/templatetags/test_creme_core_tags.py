@@ -225,12 +225,12 @@ class CremeCoreTagsTestCase(CremeTestCase):
         url = reverse('creme_core__inner_edition', args=(entity.entity_type_id, entity.id, field_name))
 
         if block:
-            expected = """<a onclick="creme.blocks.form('%s', {blockReloadUrl:""" % url
+            expected = """<a onclick="creme.blocks.form('{}', {blockReloadUrl:""".format(url)
         else:
-            expected = """<a onclick="creme.blocks.form('%s', {reloadOnSuccess:""" % url
+            expected = """<a onclick="creme.blocks.form('{}', {reloadOnSuccess:""".format(url)
 
         self.assertTrue(render.strip().startswith(expected),
-                        "%s\n doesn't start with\n %s" % (render.strip(), expected)
+                        "{}\n doesn't start with\n {}".format(render.strip(), expected)
                        )
 
     # def test_get_field_editor01(self):

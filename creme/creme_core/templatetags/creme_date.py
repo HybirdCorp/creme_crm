@@ -41,16 +41,16 @@ def timedelta_pprint(timedelta_):
     days = timedelta_.days
 
     if days > 0:
-        return ungettext(u'%s day', u'%s days', days) % days
+        return ungettext(u'{number} day', u'{number} days', days).format(number=days)
 
     hours, hour_remain = divmod(timedelta_.seconds, 3600)
 
     if hours > 0:
-        return ungettext(u'%s hour', u'%s hours', hours) % hours
+        return ungettext(u'{number} hour', u'{number} hours', hours).format(number=hours)
 
     minutes, seconds = divmod(hour_remain, 60)
 
     if minutes > 0:
-        return ungettext(u'%s minute', u'%s minutes', minutes) % minutes
+        return ungettext(u'{number} minute', u'{number} minutes', minutes).format(number=minutes)
 
-    return ungettext(u'%s second', u'%s seconds', seconds) % seconds
+    return ungettext(u'{number} second', u'{number} seconds', seconds).format(number=seconds)

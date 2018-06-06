@@ -15,7 +15,7 @@ try:
     from creme.creme_core.bricks import PropertiesBrick
     from creme.creme_core.models import CremePropertyType, CremeProperty, CremeEntity
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
@@ -284,10 +284,10 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             label = response.context['form'].fields['bad_entities_lbl']
 
-        format_str = _(u'Entity #%s (not viewable)')
-        self.assertEqual(u'%s, %s' % (format_str % entity01.id,
-                                      format_str % entity02.id
-                                     ),
+        msg_fmt = _(u'Entity #{id} (not viewable)').format
+        self.assertEqual(u'{}, {}'.format(msg_fmt(id=entity01.id),
+                                          msg_fmt(id=entity02.id),
+                                         ),
                          label.initial
                         )
 

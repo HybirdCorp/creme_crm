@@ -44,7 +44,7 @@ class Searcher(object):
         result_q = Q()
 
         for f in fields:
-            result_q |= Q(**{'%s__icontains' % f.name: research})
+            result_q |= Q(**{'{}__icontains'.format(f.name): research})
 
         return result_q
 

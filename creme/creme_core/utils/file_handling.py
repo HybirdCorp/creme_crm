@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2016 Hybird
+# Copyright (c) 2016-2018 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -46,7 +46,7 @@ class IncrFileNameSuffixGenerator(FileNameSuffixGenerator):
         i = 1
 
         while True:
-            yield '_%i' % i
+            yield '_{}'.format(i)
             i += 1
 
 
@@ -55,21 +55,21 @@ class RandomFileNameSuffixGenerator(FileNameSuffixGenerator):
         max_v = 16**8
 
         while True:
-            yield '_%08x' % randint(0, max_v)
+            yield '_{:08x}'.format(randint(0, max_v))
 
 
 class DateFileNameSuffixGenerator(FileNameSuffixGenerator):
     format = '%d%m%Y'
 
     def __iter__(self):
-        yield '_%s' % date.today().strftime(self.format)
+        yield '_{}'.format(date.today().strftime(self.format))
 
 
 class DatetimeFileNameSuffixGenerator(FileNameSuffixGenerator):
     format = '%d%m%Y_%H%M%S'
 
     def __iter__(self):
-        yield '_%s' % datetime.now().strftime(self.format)
+        yield '_{}'.format(datetime.now().strftime(self.format))
 
 
 # TODO: i18n for error messages ?
@@ -120,7 +120,7 @@ class FileCreator(object):
                 if not exists(dir_path):
                     logger.warn('Cannot create directory %s (%s)', dir_path, e)
 
-                    raise self.Error('The directory %s cannot be created.' % dir_path)
+                    raise self.Error('The directory {} cannot be created.'.format(dir_path))
 
         name = secure_filename(self.name)
         name_root, name_ext = splitext(name)

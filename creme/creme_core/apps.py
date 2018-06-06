@@ -118,7 +118,7 @@ class CremeAppConfig(AppConfig):
         # because we get an error from django [AttributeError: 'instancemethod' object has no attribute 'tags']
         @checks.register(Tags.settings)
         def check_deps(**kwargs):
-            return [checks.Error("depends on the app '%s' which is not installed." % dep,
+            return [checks.Error("depends on the app '{}' which is not installed.".format(dep),
                                  hint='Check the INSTALLED_CREME_APPS setting in your'
                                       ' local_settings.py/project_settings.py',
                                  obj=self.name,
@@ -135,7 +135,7 @@ class CremeAppConfig(AppConfig):
 
             if app_name is not None:
                 if not apps.is_installed(app_name):
-                    errors.append(checks.Error("extends the app '%s' which is not installed." % app_name,
+                    errors.append(checks.Error("extends the app '{}' which is not installed.".format(app_name),
                                                hint='Check the INSTALLED_CREME_APPS setting in your'
                                                     ' local_settings.py/project_settings.py',
                                                obj=self.name,
@@ -144,8 +144,8 @@ class CremeAppConfig(AppConfig):
                                  )
 
                 if self.credentials != self.CRED_NONE:
-                    errors.append(checks.Error("The app '%s' is an extending app & "
-                                               "so it cannot have its own credentials." % self.name,
+                    errors.append(checks.Error("The app '{}' is an extending app & "
+                                               "so it cannot have its own credentials.".format(self.name),
                                                hint='Set "credentials = CremeAppConfig.CRED_NONE" in the AppConfig.',
                                                obj=self.name,
                                                id='creme.E007',

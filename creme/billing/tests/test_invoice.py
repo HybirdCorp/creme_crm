@@ -150,13 +150,13 @@ class InvoiceTestCase(_BillingTestCase):
                                             'target':          self.genericfield_format_entity(target),
                                            }
                                      )
-        link_error = _(u'You are not allowed to link this entity: %s')
-        not_viewable_error = _(u'Entity #%s (not viewable)')
+        link_error = _(u'You are not allowed to link this entity: {}')
+        not_viewable_error = _(u'Entity #{id} (not viewable)').format
         self.assertFormError(response, 'form', 'source',
-                             link_error % (not_viewable_error % source.id)
+                             link_error.format(not_viewable_error(id=source.id))
                             )
         self.assertFormError(response, 'form', 'target',
-                             link_error % (not_viewable_error % target.id)
+                             link_error.format(not_viewable_error(id=target.id))
                             )
 
     def test_create_related(self):

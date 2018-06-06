@@ -58,7 +58,7 @@ class _MassImportType(JobType):
         form = form_class(user=job.user, data=POST)
 
         if not form.is_valid():
-            raise self.Error(ugettext(u'Invalid data [%s]') % form.errors.as_text())  # TODO: unit test
+            raise self.Error(ugettext(u'Invalid data [{}]').format(form.errors.as_text()))  # TODO: unit test
 
         form.process(job)
 
@@ -79,8 +79,8 @@ class _MassImportType(JobType):
     def get_description(self, job):
         try:
             job_data = job.data
-            desc = [ugettext(u'Import «{type}» from {doc}').format(
-                        type=self._get_ctype(job_data).model_class()._meta.verbose_name,
+            desc = [ugettext(u'Import «{model}» from {doc}').format(
+                        model=self._get_ctype(job_data).model_class()._meta.verbose_name,
                         doc=self._get_document(self._build_POST(job_data)),
                     )
                    ]
@@ -103,26 +103,26 @@ class _MassImportType(JobType):
         model = self._get_ctype(job.data).model_class()
 
         if created_count:
-            stats.append(ungettext(u'{counter} «{type}» has been created.',
-                                   u'{counter} «{type}» have been created.',
+            stats.append(ungettext(u'{count} «{model}» has been created.',
+                                   u'{count} «{model}» have been created.',
                                    created_count
-                                  ).format(counter=created_count,
-                                           type=get_model_verbose_name(model, created_count),
+                                  ).format(count=created_count,
+                                           model=get_model_verbose_name(model, created_count),
                                           )
                         )
         elif updated_count != lines_count:
-            stats.append(ugettext(u'No «{type}» has been created.').format(type=model._meta.verbose_name))
+            stats.append(ugettext(u'No «{model}» has been created.').format(model=model._meta.verbose_name))
 
         if updated_count:
-            stats.append(ungettext(u'{counter} «{type}» has been updated.',
-                                   u'{counter} «{type}» have been updated.',
+            stats.append(ungettext(u'{count} «{model}» has been updated.',
+                                   u'{count} «{model}» have been updated.',
                                    updated_count
-                                  ).format(counter=updated_count,
-                                           type=get_model_verbose_name(model, updated_count),
+                                  ).format(count=updated_count,
+                                           model=get_model_verbose_name(model, updated_count),
                                           )
                         )
         elif created_count != lines_count:
-            stats.append(ugettext(u'No «{type}» has been updated.').format(type=model._meta.verbose_name))
+            stats.append(ugettext(u'No «{model}» has been updated.').format(model=model._meta.verbose_name))
 
         stats.append(ungettext(u'{count} line in the file.',
                                u'{count} lines in the file.',

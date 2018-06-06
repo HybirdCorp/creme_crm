@@ -89,10 +89,10 @@ class CredentialsTestCase(CremeTestCase):
     def test_attributes01(self):
         user = self.user
 
-        full_name = _(u'%(first_name)s %(last_name)s.') % {
-            'first_name': user.first_name,
-            'last_name': user.last_name[0],
-        }
+        full_name = _(u'{first_name} {last_name}.').format(
+            first_name=user.first_name,
+            last_name=user.last_name[0],
+        )
         self.assertEqual(full_name, user.get_full_name())
         self.assertEqual(full_name, unicode(user))
 
@@ -108,7 +108,7 @@ class CredentialsTestCase(CremeTestCase):
         username1 = 'Teamee'
         team1 = CremeUser.objects.create(username=username1, is_team=True)
 
-        self.assertEqual(_('%s (team)') % username1, unicode(team1))
+        self.assertEqual(_('{user} (team)').format(user=username1), unicode(team1))
         self.assertEqual(username1, team1.get_short_name())
 
         # TODO: error if team ??
@@ -122,7 +122,7 @@ class CredentialsTestCase(CremeTestCase):
                                          first_name='NC', last_name=username2,
                                         )
 
-        self.assertEqual(_('%s (team)') % username2, unicode(team2))
+        self.assertEqual(_('{user} (team)').format(user=username2), unicode(team2))
 
     @override_settings(THEMES=[('this_theme_is_cool', 'Cool one'),
                                ('yet_another_theme',  'I am cool too, bro'),
@@ -739,8 +739,8 @@ class CredentialsTestCase(CremeTestCase):
         with self.assertRaises(PermissionDenied) as cm:
             user.has_perm_to_admin_or_die('creme_core')
 
-        fmt = _('You are not allowed to configure this app: %s')
-        self.assertEqual(fmt % _('Core'), unicode(cm.exception))
+        fmt = _('You are not allowed to configure this app: {}').format
+        self.assertEqual(fmt(_('Core')), unicode(cm.exception))
 
         role.admin_4_apps = ['creme_core', 'documents']
         role.save()
@@ -770,7 +770,7 @@ class CredentialsTestCase(CremeTestCase):
             user.has_perm_to_admin_or_die(invalid_app)
 
         # self.assertEqual(fmt % (_('Invalid app "%s"') % invalid_app),
-        self.assertEqual(fmt % apps.get_app_config('persons').verbose_name,
+        self.assertEqual(fmt(apps.get_app_config('persons').verbose_name),
                          unicode(cm.exception)
                         )
 

@@ -24,13 +24,13 @@ try:
             TYPE_RELATION, TYPE_SYM_RELATION, TYPE_RELATION_DEL, TYPE_SYM_REL_DEL)
     from creme.creme_core.utils.dates import dt_to_ISO8601
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class HistoryTestCase(CremeTestCase):
-    FSTRING_1_VALUE  = _(u'Set field “%(field)s”')
-    FSTRING_2_VALUES = _(u'Set field “%(field)s” to “%(value)s”')
-    FSTRING_3_VALUES = _(u'Set field “%(field)s” from “%(oldvalue)s” to “%(value)s”')
+    FMT_1_VALUE  = _(u'Set field “{field}”').format
+    FMT_2_VALUES = _(u'Set field “{field}” to “{value}”').format
+    FMT_3_VALUES = _(u'Set field “{field}” from “{oldvalue}” to “{value}”').format
 
     @classmethod
     def setUpClass(cls):
@@ -70,7 +70,7 @@ class HistoryTestCase(CremeTestCase):
         hdate = hline.date
         old_time = self.old_time
         self.assertTrue(old_time <= hdate <= now_value,
-                        'old_time=%s ; hline.date=%s ; now=%s' % (old_time, hdate, now_value)
+                        'old_time={} ; hline.date={} ; now={}'.format(old_time, hdate, now_value)
                        )
 
     def _get_hlines(self):
@@ -118,10 +118,10 @@ class HistoryTestCase(CremeTestCase):
         self.assertEqual([ContentType.objects.get_for_model(address).id, address.id, unicode(address)],
                          hline.modifications
                         )
-        self.assertEqual([_(u'Add <%(type)s>: “%(value)s”') % {
-                                'type':  'Test address',
-                                'value': address,
-                               }
+        self.assertEqual([_(u'Add <{type}>: “{value}”').format(
+                                type='Test address',
+                                value=address,
+                            )
                          ],
                          hline.get_verbose_modifications(self.user),
                         )
@@ -209,38 +209,38 @@ about this fantastic animation studio."""
         vmodifs = hline.get_verbose_modifications(self.user)
         self.assertEqual(7, len(vmodifs))
 
-        self.assertIn(self.FSTRING_3_VALUES % {'field':    _(u'Phone number'),
-                                               'oldvalue': old_phone,
-                                               'value':    phone,
-                                              },
+        self.assertIn(self.FMT_3_VALUES(field=_(u'Phone number'),
+                                        oldvalue=old_phone,
+                                        value=phone,
+                                       ),
                       vmodifs
                      )
-        self.assertIn(self.FSTRING_2_VALUES % {'field': _(u'Email address'),
-                                               'value': email,
-                                              },
+        self.assertIn(self.FMT_2_VALUES(field=_(u'Email address'),
+                                        value=email,
+                                       ),
                       vmodifs
                      )
-        self.assertIn(self.FSTRING_1_VALUE % {'field': _(u'Description')}, vmodifs)
-        self.assertIn(self.FSTRING_3_VALUES % {'field':    _(u'Sector'),
-                                               'oldvalue': sector01,
-                                               'value':    sector02,
-                                              },
+        self.assertIn(self.FMT_1_VALUE(field=_(u'Description')), vmodifs)
+        self.assertIn(self.FMT_3_VALUES(field=_(u'Sector'),
+                                        oldvalue=sector01,
+                                        value=sector02,
+                                       ),
                       vmodifs
                      )
-        self.assertIn(self.FSTRING_2_VALUES % {'field': _(u'Date of creation'),
-                                               'value': date_format(creation_date, 'DATE_FORMAT'),
-                                              },
+        self.assertIn(self.FMT_2_VALUES(field=_(u'Date of creation'),
+                                        value=date_format(creation_date, 'DATE_FORMAT'),
+                                       ),
                       vmodifs
                      )
-        self.assertIn(self.FSTRING_2_VALUES % {'field': _(u'Subject to VAT'),
-                                               'value': _('Yes'),
-                                              },
+        self.assertIn(self.FMT_2_VALUES(field=_(u'Subject to VAT'),
+                                        value=_('Yes'),
+                                       ),
                       vmodifs
                      )
-        self.assertIn(self.FSTRING_3_VALUES % {'field':    _(u'Legal form'),
-                                               'oldvalue': lform,
-                                               'value':    '',
-                                              },
+        self.assertIn(self.FMT_3_VALUES(field=_(u'Legal form'),
+                                        oldvalue=lform,
+                                        value='',
+                                       ),
                       vmodifs
                      )
 
@@ -308,9 +308,9 @@ about this fantastic animation studio."""
 
         vmodifs = hline.get_verbose_modifications(user)
         self.assertEqual(1, len(vmodifs))
-        self.assertIn(self.FSTRING_2_VALUES % {'field': _(u'Photograph'),
-                                               'value': img,
-                                              },
+        self.assertIn(self.FMT_2_VALUES(field=_(u'Photograph'),
+                                        value=img,
+                                       ),
                       vmodifs[0]
                      )
 
@@ -344,17 +344,17 @@ about this fantastic animation studio."""
         vmodifs = hline.get_verbose_modifications(self.user)
         self.assertEqual(2, len(vmodifs))
 
-        fmt = self.FSTRING_3_VALUES
-        self.assertEqual(fmt % {'field':    _(u'Capital'),
-                                'oldvalue': old_capital,
-                                'value':    '',  # <== not None
-                               },
+        fmt = self.FMT_3_VALUES
+        self.assertEqual(fmt(field=_(u'Capital'),
+                             oldvalue=old_capital,
+                             value='',  # <== not None
+                            ),
                          vmodifs[0]
                         )
-        self.assertEqual(fmt % {'field':    _(u'Date of creation'),
-                                'oldvalue': date_format(old_date, 'DATE_FORMAT'),
-                                'value':    '',  # <== not None
-                               },
+        self.assertEqual(fmt(field=_(u'Date of creation'),
+                             oldvalue=date_format(old_date, 'DATE_FORMAT'),
+                             value='',  # <== not None
+                            ),
                          vmodifs[1]
                         )
 
@@ -387,10 +387,10 @@ about this fantastic animation studio."""
 
         vmodifs = hline.get_verbose_modifications(self.user)
         self.assertEqual(2, len(vmodifs))
-        self.assertEqual(self.FSTRING_3_VALUES % {'field':    _(u'Start'),
-                                                  'oldvalue': date_format(old_start, 'DATETIME_FORMAT'),
-                                                  'value':    date_format(start, 'DATETIME_FORMAT'),
-                                                 },
+        self.assertEqual(self.FMT_3_VALUES(field=_(u'Start'),
+                                           oldvalue=date_format(old_start, 'DATETIME_FORMAT'),
+                                           value=date_format(start, 'DATETIME_FORMAT'),
+                                          ),
                          vmodifs[0]
                         )
 
@@ -400,10 +400,10 @@ about this fantastic animation studio."""
 
         hlines = self._get_hlines()
         self.assertEqual(old_count + 2, len(hlines))
-        self.assertEqual(self.FSTRING_3_VALUES % {'field':    _(u'End'),
-                                                  'oldvalue': date_format(end, 'DATETIME_FORMAT'),
-                                                  'value':    '',
-                                                 },
+        self.assertEqual(self.FMT_3_VALUES(field=_(u'End'),
+                                           oldvalue=date_format(end, 'DATETIME_FORMAT'),
+                                           value='',
+                                          ),
                          hlines[-1].get_verbose_modifications(self.user)[0]
                         )
 
@@ -577,10 +577,10 @@ about this fantastic animation studio."""
         self.assertEqual(False,           hline.line_type.is_about_relation)
         self.assertGreater(hline.date, gainax.modified)
 
-        FSTRING = _(u'Add property “%s”')
-        self.assertEqual([FSTRING % ptype.text], hline.get_verbose_modifications(user))
+        msg = _(u'Add property “{}”').format
+        self.assertEqual([msg(ptype.text)], hline.get_verbose_modifications(user))
 
-        expected = [FSTRING % ptype.id]
+        expected = [msg(ptype.id)]
         prop.delete(); ptype.delete()
         self.assertEqual(expected, self.refresh(hline).get_verbose_modifications(user))
 
@@ -611,7 +611,7 @@ about this fantastic animation studio."""
 
         ptype.text = ptype.text.title()
         ptype.save()
-        self.assertEqual([_(u'Delete property “%s”') % ptype.text],
+        self.assertEqual([_(u'Delete property “{}”').format(ptype.text)],
                          hline.get_verbose_modifications(user)
                         )
 
@@ -653,14 +653,14 @@ about this fantastic animation studio."""
         self.assertEqual(hline_sym.id, hline.related_line.id)
         self.assertEqual(hline.id,     hline_sym.related_line.id)
 
-        FSTRING = _(u'Add a relationship “%s”')
-        self.assertEqual([FSTRING % rtype.predicate],  hline.get_verbose_modifications(user))
-        self.assertEqual([FSTRING % srtype.predicate], hline_sym.get_verbose_modifications(user))
+        msg = _(u'Add a relationship “{}”').format
+        self.assertEqual([msg(rtype.predicate)],  hline.get_verbose_modifications(user))
+        self.assertEqual([msg(srtype.predicate)], hline_sym.get_verbose_modifications(user))
 
         rtype_id = rtype.id
         relation.delete(); rtype.delete()
         self.assertDoesNotExist(rtype)
-        self.assertEqual([FSTRING % rtype_id], self.refresh(hline).get_verbose_modifications(user))
+        self.assertEqual([msg(rtype_id)], self.refresh(hline).get_verbose_modifications(user))
 
     def test_add_relation02(self):
         "Create the relation using the 'object' relation type"
@@ -726,7 +726,7 @@ about this fantastic animation studio."""
 
         rtype.predicate = rtype.predicate.title()
         rtype.save()
-        self.assertEqual([_(u'Delete a relationship “%s”') % rtype.predicate],
+        self.assertEqual([_(u'Delete a relationship “{}”').format(rtype.predicate)],
                          hline.get_verbose_modifications(user)
                         )
 
@@ -796,21 +796,21 @@ about this fantastic animation studio."""
         vmodifs = hline.get_verbose_modifications(self.user)
         self.assertEqual(3, len(vmodifs))
 
-        self.assertEqual(_(u'Edit <%(type)s>: “%(value)s”') % {
-                                'type':  'Test address',
-                                'value': address,
-                               },
+        self.assertEqual(_(u'Edit <{type}>: “{value}”').format(
+                                type='Test address',
+                                value=address,
+                             ),
                          vmodifs[0]
                         )
-        self.assertEqual(self.FSTRING_3_VALUES % {'field':    _(u'City'),
-                                                  'oldvalue': old_city,
-                                                  'value':    city,
-                                                 },
+        self.assertEqual(self.FMT_3_VALUES(field=_(u'City'),
+                                           oldvalue=old_city,
+                                           value=city,
+                                          ),
                          vmodifs[1]
                         )
-        self.assertEqual(self.FSTRING_2_VALUES % {'field': _(u'Department'),
-                                                  'value': department,
-                                                 },
+        self.assertEqual(self.FMT_2_VALUES(field=_(u'Department'),
+                                           value=department,
+                                          ),
                          vmodifs[2]
                         )
 
@@ -848,16 +848,16 @@ about this fantastic animation studio."""
 
         vmodifs = hline.get_verbose_modifications(user)
         self.assertEqual(3, len(vmodifs))
-        self.assertIn(self.FSTRING_3_VALUES % {'field':    _(u'Quantity'),
-                                               'oldvalue': '1',
-                                               'value':    '2',
-                                              },
+        self.assertIn(self.FMT_3_VALUES(field=_(u'Quantity'),
+                                        oldvalue='1',
+                                        value='2',
+                                       ),
                       vmodifs[1]
                      )
-        self.assertIn(self.FSTRING_3_VALUES % {'field':    _(u'Discount Unit'),
-                                               'oldvalue': _(u'Amount'),
-                                               'value':    _(u'Percent'),
-                                              },
+        self.assertIn(self.FMT_3_VALUES(field=_(u'Discount Unit'),
+                                        oldvalue=_(u'Amount'),
+                                        value=_(u'Percent'),
+                                       ),
                       vmodifs[2]
                      )
 
@@ -879,10 +879,10 @@ about this fantastic animation studio."""
         vmodifs = hline.get_verbose_modifications(user)
         self.assertEqual(1, len(vmodifs))
 
-        self.assertEqual(_(u'Delete <%(type)s>: “%(value)s”') % {
-                            'type':  u'Test address',
-                            'value': address,
-                           },
+        self.assertEqual(_(u'Delete <{type}>: “{value}”').format(
+                                type=u'Test address',
+                                value=address,
+                            ),
                          vmodifs[0]
                         )
 
@@ -950,10 +950,10 @@ about this fantastic animation studio."""
         self.assertEqual(TYPE_EDITION, hline.type)
         self.assertIn('["NERV", ["name", "Nerv", "NERV"]]', hline.value)
 
-        self.assertEqual([self.FSTRING_3_VALUES % {'field':    _('Name'),
-                                                   'oldvalue': 'Nerv',
-                                                   'value':    'NERV',
-                                                  },
+        self.assertEqual([self.FMT_3_VALUES(field=_('Name'),
+                                            oldvalue='Nerv',
+                                            value='NERV',
+                                           ),
                          ],
                          hline.get_verbose_modifications(user)
                         )
@@ -966,7 +966,7 @@ about this fantastic animation studio."""
         with self.assertNoException():
             vmodifs = hline.get_verbose_modifications(user)
 
-        self.assertEqual([self.FSTRING_1_VALUE % {'field': fname}], vmodifs)
+        self.assertEqual([self.FMT_1_VALUE(field=fname)], vmodifs)
 
     def test_disable01(self):
         "CremeEntity creation, edition & deletion"

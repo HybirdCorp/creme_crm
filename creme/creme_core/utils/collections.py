@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2017 Hybird
+# Copyright (c) 2009-2018 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -129,9 +129,10 @@ class ClassKeyedMap(object):
         return bool(self._data)
 
     def __repr__(self):
-        return 'ClassKeyedMap(%s, default=%s)' % (repr(list(self.items())),
-                                                  repr(self.default),
-                                                 )
+        return 'ClassKeyedMap({}, default={})'.format(
+                    repr(list(self.items())),
+                    repr(self.default),
+        )
 
     @property
     def default(self):
@@ -148,7 +149,7 @@ class ClassKeyedMap(object):
 
 
 ################################################################################
-#    Copyright (C) 2009-2012 Raymond Hettinger
+#    Copyright (C) 2009-2018 Raymond Hettinger
 #
 #    Permission is hereby granted, free of charge, to any person obtaining a 
 #    copy of this software and associated documentation files (the "Software"),
@@ -221,14 +222,17 @@ class OrderedSet(collections.MutableSet):
             raise KeyError('set is empty')
         key = self.end[1][0] if last else self.end[2][0]
         self.discard(key)
+
         return key
 
     def __repr__(self):
         if not self:
-            return '%s()' % (self.__class__.__name__,)
-        return '%s(%r)' % (self.__class__.__name__, list(self))
+            return '{}()'.format(self.__class__.__name__,)
+
+        return '{}({!r})'.format(self.__class__.__name__, list(self))
 
     def __eq__(self, other):
         if isinstance(other, OrderedSet):
             return len(self) == len(other) and list(self) == list(other)
+
         return set(self) == set(other)

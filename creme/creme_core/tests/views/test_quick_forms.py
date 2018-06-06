@@ -11,26 +11,26 @@ try:
 
     from ..fake_models import FakeContact, FakeOrganisation, FakeCivility
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class QuickFormTestCase(CremeTestCase):
     def quickform_data(self, count):
         return {'form-INITIAL_FORMS':  '0',
                 'form-MAX_NUM_FORMS':  '',
-                'form-TOTAL_FORMS':    '%s' % count,
+                'form-TOTAL_FORMS':    str(count),
                 'csrfmiddlewaretoken': '08b8b225c536b4fd25d16f5ed8be3839',
                 'whoami':              '1335517612234535305',
                }
 
     def quickform_data_append_contact(self, data, id, first_name='', last_name='', email='', organisation='', phone=''):
         return data.update({
-                 'form-%d-email' % id:        email,
-                 'form-%d-last_name' % id:    last_name,
-                 'form-%d-first_name' % id:   first_name,
-                 'form-%d-organisation' % id: organisation,
-                 'form-%d-phone' % id:        phone,
-                 'form-%d-user' % id:         self.user.id,
+                 'form-{}-email'.format(id):        email,
+                 'form-{}-last_name'.format(id):    last_name,
+                 'form-{}-first_name'.format(id):   first_name,
+                 'form-{}-organisation'.format(id): organisation,
+                 'form-{}-phone'.format(id):        phone,
+                 'form-{}-user'.format(id):         self.user.id,
                })
 
     def _build_quickform_url(self, model, count=1):

@@ -159,9 +159,9 @@ class QuoteTestCase(_BillingTestCase):
 
         response = post(unlinkable_source, unlinkable_target)
         self.assertEqual(200, response.status_code)
-        msg_fmt = _(u'You are not allowed to link this entity: %s')
-        self.assertFormError(response, 'form', 'source', msg_fmt % unlinkable_source)
-        self.assertFormError(response, 'form', 'target', msg_fmt % unlinkable_target)
+        msg_fmt = _(u'You are not allowed to link this entity: {}').format
+        self.assertFormError(response, 'form', 'source', msg_fmt(unlinkable_source))
+        self.assertFormError(response, 'form', 'target', msg_fmt(unlinkable_target))
 
         # ----
         source2, target2 = self.create_orgas(user=user)

@@ -43,7 +43,7 @@ class Reminder(object):
 
     @staticmethod
     def generate_id(app_name, name):
-        return u'reminder_%s-%s' % (app_name, name)
+        return u'reminder_{}-{}'.format(app_name, name)
 
     def get_emails(self, object):
         # return [getattr(settings, 'DEFAULT_USER_EMAIL', None)]
@@ -85,9 +85,10 @@ class Reminder(object):
         except Exception as e:
             logger.critical('Error while sending reminder emails (%s)', e)
             JobResult.objects.create(job=job,
-                                     messages=[_(u'An error occurred while sending emails related to «%s»')
-                                                    % self.model._meta.verbose_name,
-                                               _(u'Original error: %s') % e,
+                                     messages=[_(u'An error occurred while sending emails related to «{model}»').format(
+                                                        model=self.model._meta.verbose_name,
+                                                    ),
+                                               _(u'Original error: {}').format(e),
                                               ],
                                     )
 

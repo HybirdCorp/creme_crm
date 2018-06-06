@@ -188,7 +188,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(self._build_contact_dl_url(header=True))
 
-        self.assertEqual([u','.join(u'"%s"' % hfi.title for hfi in cells)],
+        self.assertEqual([u','.join(u'"{}"'.format(hfi.title) for hfi in cells)],
                          [force_unicode(line) for line in response.content.splitlines()]
                         )
         self.assertFalse(HistoryLine.objects.exclude(id__in=existing_hline_ids))
@@ -227,7 +227,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         # TODO: sort the relations/properties by they verbose_name ??
         result = response.content.splitlines()
         it = (force_unicode(line) for line in result)
-        self.assertEqual(next(it), u','.join(u'"%s"' % hfi.title for hfi in hf.cells))
+        self.assertEqual(next(it), u','.join(u'"{}"'.format(hfi.title) for hfi in hf.cells))
         self.assertEqual(next(it), u'"","Black","Jet","Bebop",""')
         self.assertIn(next(it), (u'"","Spiegel","Spike","Bebop/Swordfish",""',
                                  u'"","Spiegel","Spike","Swordfish/Bebop",""')
@@ -256,9 +256,9 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertEqual([count, hf.name],
                          hline.modifications
                         )
-        self.assertEqual([_(u'Export of {counter} «{type}» (view «{view}» & filter «{filter}»)').format(
-                                    counter=count,
-                                    type='Test Contacts',
+        self.assertEqual([_(u'Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
+                                    count=count,
+                                    model='Test Contacts',
                                     view=hf.name,
                                     filter=_(u'All'),
                                 ),
@@ -276,7 +276,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         # TODO: sort the relations/properties by they verbose_name ??
         it = (force_unicode(line) for line in response.content.splitlines())
-        self.assertEqual(next(it), u';'.join(u'"%s"' % hfi.title for hfi in cells))
+        self.assertEqual(next(it), u';'.join(u'"{}"'.format(hfi.title) for hfi in cells))
         self.assertEqual(next(it), u'"";"Black";"Jet";"Bebop";""')
         self.assertIn(next(it), (u'"";"Spiegel";"Spike";"Bebop/Swordfish";""',
                                  u'"";"Spiegel";"Spike";"Swordfish/Bebop";""')
@@ -379,7 +379,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertEqual(next(it), '"Black","Jet face","Jet\'s selfie"')
 
         HIDDEN_VALUE = settings.HIDDEN_VALUE
-        self.assertEqual(next(it), '"Spiegel","%s","%s"' % (HIDDEN_VALUE, HIDDEN_VALUE))
+        self.assertEqual(next(it), '"Spiegel","{hidden}","{hidden}"'.format(hidden=HIDDEN_VALUE))
         self.assertEqual(next(it), '"Valentine","",""')
 
     def test_list_view_export07(self):
@@ -428,11 +428,8 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         it = (force_unicode(line) for line in response.content.splitlines())
         self.assertEqual(next(it),
-                         u','.join(u'"%s"' % u for u in [_(u'Civility'),
-                                                         _(u'Last name'),
-                                                         'pilots',
-                                                         _(u'Properties'),
-                                                        ]
+                         u','.join(u'"{}"'.format(u)
+                                    for u in [_(u'Civility'), _(u'Last name'), 'pilots', _(u'Properties')]
                                   )
                         )
         self.assertEqual(next(it), u'"","Black","Bebop",""')
@@ -480,9 +477,9 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertEqual([1, hf.name, efilter.name],
                          hline.modifications
                         )
-        self.assertEqual([_(u'Export of {counter} «{type}» (view «{view}» & filter «{filter}»)').format(
-                                    counter=1,
-                                    type='Test Contact',
+        self.assertEqual([_(u'Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
+                                    count=1,
+                                    model='Test Contact',
                                     view=hf.name,
                                     filter=efilter.name,
                                 ),
@@ -614,8 +611,8 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                     )
 
         lines = {force_unicode(line) for line in response.content.splitlines()}
-        self.assertIn(u'"Bebop","%s"' % _(u'Percent'), lines)
-        self.assertIn(u'"Swordfish","%s"' % _(u'Amount'), lines)
+        self.assertIn(u'"Bebop","{}"'.format(_(u'Percent')),    lines)
+        self.assertIn(u'"Swordfish","{}"'.format(_(u'Amount')), lines)
 
     # TODO: factorise with ListViewTestCase
     def _get_lv_content(self, response):

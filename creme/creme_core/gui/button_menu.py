@@ -36,7 +36,7 @@ class Button(object):
 
     @staticmethod
     def generate_id(app_name, name):
-        return u'button_%s-%s' % (app_name, name)
+        return u'button_{}-{}'.format(app_name, name)
 
     def get_ctypes(self):
         """

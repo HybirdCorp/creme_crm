@@ -82,30 +82,30 @@ class FieldConditionWidget(ChainedInput):  # TODO: rename FieldConditionSelector
     def _build_valueinput(self, field_attrs):
         pinput = PolymorphicInput(key='${field.type}.${operator.id}', attrs={'auto': False})
 
-        EQUALS_OPS = (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT)
+        EQUALS_OPS = '{}|{}'.format(EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT)
         add_input = pinput.add_input
-        add_input('^enum(__null)?.(%d|%d)$' % EQUALS_OPS,
+        add_input('^enum(__null)?.({})$'.format(EQUALS_OPS),
                   widget=DynamicSelectMultiple, attrs=field_attrs,
                   # TODO: use a GET arg instead of using a TemplateURLBuilder ?
                   url=TemplateURLBuilder(ct_id=(TemplateURLBuilder.Int, '${field.ctype}'))
                                         .resolve('creme_core__list_enumerable'),
                  )
 
-        pinput.add_dselect('^user(__null)?.(%d|%d)$' % EQUALS_OPS,
+        pinput.add_dselect('^user(__null)?.({})$'.format(EQUALS_OPS),
                            reverse('creme_core__efilter_user_choices'),
                            attrs=field_attrs,
                           )
-        add_input('^fk(__null)?.(%d|%d)$' % EQUALS_OPS,
+        add_input('^fk(__null)?.({})$'.format(EQUALS_OPS),
                   widget=EntitySelector, attrs={'auto': False},
                   content_type='${field.ctype}',
                  )
-        add_input('^date(__null)?.%d$' % EntityFilterCondition.RANGE,
+        add_input('^date(__null)?.{}$'.format(EntityFilterCondition.RANGE),
                   widget=DateRangeSelect, attrs={'auto': False},
                  )
         add_input('^boolean(__null)?.*', widget=DynamicSelect,
                   options=_BOOL_OPTIONS, attrs=field_attrs,
                  )
-        add_input('(string|.*__null).(%d)$' % EntityFilterCondition.ISEMPTY,
+        add_input('(string|.*__null).({})$'.format(EntityFilterCondition.ISEMPTY),
                   widget=DynamicSelect, options=_BOOL_OPTIONS, attrs=field_attrs,
                  )
         pinput.set_default_input(widget=DynamicInput, attrs={'auto': False})
@@ -125,7 +125,7 @@ class FieldConditionWidget(ChainedInput):  # TODO: rename FieldConditionSelector
         if subfield is not None:
             category = field.verbose_name
             choice_type = FieldConditionWidget.field_choicetype(subfield)
-            choice_label = u'[%s] - %s' % (category, subfield.verbose_name)
+            choice_label = u'[{}] - {}'.format(category, subfield.verbose_name)
             choice_value = {'name': name, 'type': choice_type}
 
             if choice_type in EntityFilterCondition._FIELDTYPES_RELATED:
@@ -224,7 +224,7 @@ class DateFieldsConditionsWidget(SelectorList):
 
         if subfield is not None:
             category = field.verbose_name
-            choice_label = u'[%s] - %s' % (category, subfield.verbose_name)  # TODO: factorise
+            choice_label = u'[{}] - {}'.format(category, subfield.verbose_name)  # TODO: factorise
             is_null = subfield.null
         else:
             category = ''
@@ -281,20 +281,22 @@ class CustomFieldConditionSelector(FieldConditionWidget):
 
     def _build_valueinput(self, field_attrs):
         pinput = PolymorphicInput(key='${field.type}.${operator.id}', attrs={'auto': False})
-        pinput.add_input('^enum(__null)?.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
+        pinput.add_input('^enum(__null)?.({}|{})$'.format(EntityFilterCondition.EQUALS,
+                                                          EntityFilterCondition.EQUALS_NOT,
+                                                         ),
                          widget=DynamicSelectMultiple,
                          # TODO: use a GET arg instead of using a TemplateURLBuilder ?
                          url=TemplateURLBuilder(cf_id=(TemplateURLBuilder.Int, '${field.id}'))
                                                .resolve('creme_core__cfield_enums'),
                          attrs=field_attrs,
                         )
-        pinput.add_input('^date(__null)?.%d$' % EntityFilterCondition.RANGE,
+        pinput.add_input('^date(__null)?.{}$'.format(EntityFilterCondition.RANGE),
                          NullableDateRangeSelect, attrs={'auto': False},
                         )
         pinput.add_input('^boolean(__null)?.*',
                          DynamicSelect, options=((TRUE, _(u'True')), (FALSE, _(u'False'))), attrs=field_attrs,
                         )
-        pinput.add_input('(string|.*__null)?.(%d)$' % EntityFilterCondition.ISEMPTY,
+        pinput.add_input('(string|.*__null)?.({})$'.format(EntityFilterCondition.ISEMPTY),
                          DynamicSelect, options=((TRUE, _(u'True')), (FALSE, _(u'False'))), attrs=field_attrs,
                         )
         pinput.set_default_input(widget=DynamicInput, attrs={'auto': False})
@@ -498,7 +500,7 @@ class RegularFieldsConditionsField(_ConditionsField):
         for subfield in related_model._meta.fields:
             if subfield.get_tag('viewable') and not is_date_field(subfield) \
                and not isinstance(subfield, excluded):
-                full_name = '%s__%s' % (fname, subfield.name)
+                full_name = '{}__{}'.format(fname, subfield.name)
 
                 if not (field_hidden or is_sfield_hidden(subfield)) or \
                    full_name in non_hiddable_fnames:
@@ -649,7 +651,7 @@ class DateFieldsConditionsField(_ConditionsField):
 
         for subfield in related_model._meta.fields:
             if subfield.get_tag('viewable') and is_date_field(subfield):
-                full_name = '%s__%s' % (fname, subfield.name)
+                full_name = '{}__{}'.format(fname, subfield.name)
 
                 if not (field_hidden or is_sfield_hidden(subfield)) or \
                    full_name in non_hiddable_fnames:
@@ -1319,7 +1321,7 @@ class EntityFilterCreateForm(_EntityFilterForm):
 
         super(EntityFilterCreateForm, self).save(commit=False, *args, **kwargs)
         generate_string_id_and_save(EntityFilter, [instance],
-                                    'creme_core-userfilter_%s-%s' % (ct.app_label, ct.model),
+                                    'creme_core-userfilter_{}-{}'.format(ct.app_label, ct.model),
                                    )
 
         instance.set_conditions(self.get_cleaned_conditions(),

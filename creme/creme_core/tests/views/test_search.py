@@ -22,8 +22,8 @@ except Exception as e:
 class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
     LIGHT_URL = reverse('creme_core__light_search')
 
-    CONTACT_BLOCKID = 'block_creme_core-found-creme_core-fakecontact'
-    ORGA_BLOCKID    = 'block_creme_core-found-creme_core-fakeorganisation-'
+    CONTACT_BRICKID = 'block_creme_core-found-creme_core-fakecontact'
+    ORGA_BRICKID    = 'block_creme_core-found-creme_core-fakeorganisation-'
 
     @classmethod
     def setUpClass(cls):
@@ -100,7 +100,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         block = bricks[0]
         self.assertIsInstance(block, QuerysetBrick)
-        self.assertIn(self.CONTACT_BLOCKID, block.id_)
+        self.assertIn(self.CONTACT_BRICKID, block.id_)
         self.assertEqual('creme_core/bricks/found-entities.html',
                          block.template_name
                         )
@@ -130,12 +130,12 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         self.assertGreaterEqual(len(context['bricks']), 2)
 
-        self.assertContains(response, ' id="{}'.format(self.CONTACT_BLOCKID))
+        self.assertContains(response, ' id="{}'.format(self.CONTACT_BRICKID))
         self.assertContains(response, self.alan.get_absolute_url())
         self.assertNotContains(response, self.linus.get_absolute_url())
         self.assertNotContains(response, self.linus2.get_absolute_url())
 
-        self.assertContains(response, ' id="{}'.format(self.ORGA_BLOCKID))
+        self.assertContains(response, ' id="{}'.format(self.ORGA_BRICKID))
         self.assertContains(response, self.coxco.get_absolute_url())
         self.assertNotContains(response, self.linusfo.get_absolute_url())
 
@@ -150,7 +150,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self._setup_contacts()
         self._setup_orgas()
 
-        self.assertEqual(_(u'Please enter at least %s characters') % 3,
+        self.assertEqual(_(u'Please enter at least {count} characters').format(count=3),
                          self._search('ox').context['error_message']
                         )
         self.assertEqual(404, self._search('linus', 1024).status_code)  # ct_id=1024 DOES NOT EXIST
@@ -204,11 +204,11 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self._search('cox')
         context = response.context
 
-        self.assertContains(response, ' id="%s' % self.ORGA_BLOCKID)
+        self.assertContains(response, ' id="{}'.format(self.ORGA_BRICKID))
         self.assertContains(response, self.coxco.get_absolute_url())
         self.assertNotContains(response, self.linusfo.get_absolute_url())
 
-        self.assertNotContains(response, ' id="%s' % self.CONTACT_BLOCKID)
+        self.assertNotContains(response, ' id="{}'.format(self.CONTACT_BRICKID))
         self.assertNotContains(response, self.alan.get_absolute_url())
 
         vnames = {unicode(vname) for vname in context['models']}
@@ -315,7 +315,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self._setup_contacts()
 
         url = reverse('creme_core__reload_search_brick')
-        brick_id = self.CONTACT_BLOCKID + '-32132154'
+        brick_id = self.CONTACT_BRICKID + '-32132154'
         self.assertGET404(url, data={'brick_id': brick_id, 'search': 'da'})
 
         response = self.assertGET200(url, data={'brick_id': brick_id, 'search': 'linu'})
@@ -447,7 +447,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
              #           'limit': 5,
              #           'ctype': None,
              #          },
-             'error': _(u'Please enter at least %s characters') % 3,
+             'error': _(u'Please enter at least {count} characters').format(count=3),
             },
             response.json()
         )

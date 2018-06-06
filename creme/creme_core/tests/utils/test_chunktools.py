@@ -4,7 +4,7 @@ try:
     from creme.creme_core.utils import chunktools
     from ..base import CremeTestCase
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class ChunkToolsTestCase(CremeTestCase):
@@ -62,7 +62,7 @@ s556"""
         self.assertEqual(16, len(chunks))
 
         for i, chunk in enumerate(chunks):
-            self.assertEqual(5, len(chunk), 'Bad size for chunk %i : %s' % (i, chunk))
+            self.assertEqual(5, len(chunk), 'Bad size for chunk {}: {}'.format(i, chunk))
 
         self.assertEqual(self.DATA_UNIX, ''.join(chunks))
 
@@ -74,7 +74,7 @@ s556"""
         self.assertEqual(17, len(chunks))
 
         for i, chunk in enumerate(chunks[:-1]):
-            self.assertEqual(5, len(chunk), 'Bad size for chunk %i : %s' % (i, chunk))
+            self.assertEqual(5, len(chunk), 'Bad size for chunk {}: {}'.format(i, chunk))
 
         self.assertEqual('9', chunks[-1])
         self.assertEqual(data, ''.join(chunks))
@@ -91,7 +91,7 @@ s556"""
         self.assertEqual(16, len(chunks))
 
         for i, chunk in enumerate(chunks):
-            self.assertEqual(5, len(chunk), 'Bad size for chunk %i : %s' % (i, chunk))
+            self.assertEqual(5, len(chunk), 'Bad size for chunk {}: {}'.format(i, chunk))
             self.assertIsInstance(chunk, list)
 
         self.assertEqual(self.DATA_UNIX, ''.join(''.join(chunk) for chunk in chunks))
@@ -104,7 +104,7 @@ s556"""
         self.assertEqual(17, len(chunks))
 
         for i, chunk in enumerate(chunks[:-1]):
-            self.assertEqual(5, len(chunk), 'Bad size for chunk %i : %s' % (i, chunk))
+            self.assertEqual(5, len(chunk), 'Bad size for chunk {}: {}'.format(i, chunk))
 
         self.assertEqual(['9'], chunks[-1])
         self.assertEqual(data, ''.join(''.join(chunk) for chunk in chunks))

@@ -25,7 +25,7 @@ try:
             RelationType, CremeEntity, EntityFilter, SetCredentials)
     from creme.creme_core.utils import creme_entity_content_types
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class _JSONFieldBaseTestCase(FieldTestCase):
@@ -363,8 +363,8 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         exception = cm.exception
         self.assertEqual('linknotallowed', exception.code)
-        self.assertEqual(_(u'You are not allowed to link this entity: %s') % (
-                                _(u'Entity #%s (not viewable)') % contact.id
+        self.assertEqual(_(u'You are not allowed to link this entity: {}').format(
+                                _(u'Entity #{id} (not viewable)').format(id=contact.id)
                             ),
                          exception.message
                         )
@@ -392,8 +392,8 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         exception = cm.exception
         self.assertEqual('viewnotallowed', exception.code)
-        self.assertEqual(_(u'You are not allowed to view this entity: %s') % (
-                                _(u'Entity #%s (not viewable)') % orga.id
+        self.assertEqual(_(u'You are not allowed to view this entity: {}').format(
+                                _(u'Entity #{id} (not viewable)').format(id=orga.id)
                             ),
                          exception.message
                         )
@@ -421,8 +421,8 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         exception = cm.exception
         self.assertEqual('changenotallowed', exception.code)
-        self.assertEqual(_(u'You are not allowed to edit this entity: %s') % (
-                                _(u'Entity #%s (not viewable)') % orga.id
+        self.assertEqual(_(u'You are not allowed to edit this entity: {}').format(
+                                _(u'Entity #{id} (not viewable)').format(id=orga.id)
                             ),
                          exception.message
                         )
@@ -461,12 +461,21 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         return reverse('creme_core__quick_form', args=(ct_id,))
 
     def build_field_entry_data(self, ctype_id, entity_id):
-        return '{"ctype": {"create": "%(url)s", "id": %(ct_id)s, "create_label": "%(label)s"}, "entity": %(entity_id)s}' % {
-            'url': reverse('creme_core__quick_form', args=(ctype_id,)),
-            'ct_id': ctype_id,
-            'label': ContentType.objects.get_for_id(ctype_id).model_class().creation_label,
-            'entity_id': entity_id,
-        }
+        # return '{"ctype": {"create": "%(url)s", "id": %(ct_id)s, "create_label": "%(label)s"}, "entity": %(entity_id)s}' % {
+        #     'url': reverse('creme_core__quick_form', args=(ctype_id,)),
+        #     'ct_id': ctype_id,
+        #     'label': ContentType.objects.get_for_id(ctype_id).model_class().creation_label,
+        #     'entity_id': entity_id,
+        # }
+        return json_dump({
+                'ctype': {
+                        'create': reverse('creme_core__quick_form', args=(ctype_id,)),
+                        'id': ctype_id,
+                        'create_label': unicode(ContentType.objects.get_for_id(ctype_id).model_class().creation_label),
+                    },
+                'entity': entity_id,
+            }
+        )
 
     def test_models_ctypes(self):
         get_ct = ContentType.objects.get_for_model
@@ -725,9 +734,9 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         build_entry = self.build_field_entry_data
         self.assertEqual([contact, orga],
-                         field.clean('[%s,%s]' % (build_entry(contact.entity_type_id, contact.pk),
-                                                  build_entry(orga.entity_type_id,    orga.pk),
-                                                 )
+                         field.clean('[{},{}]'.format(build_entry(contact.entity_type_id, contact.pk),
+                                                      build_entry(orga.entity_type_id,    orga.pk),
+                                                     )
                                     )
                         )
 
@@ -740,15 +749,15 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         build_entry = self.build_field_entry_data
 
         with self.assertRaises(ValidationError) as cm:
-            field.clean('[%s,%s]' % (build_entry(contact.entity_type_id, contact.pk),
-                                     build_entry(orga.entity_type_id,    orga.pk),
-                                    )
+            field.clean('[{},{}]'.format(build_entry(contact.entity_type_id, contact.pk),
+                                         build_entry(orga.entity_type_id,    orga.pk),
+                                        )
                        )
 
         exception = cm.exception
         self.assertEqual('linknotallowed', exception.code)
-        self.assertEqual(_(u'Some entities are not linkable: %s') % (
-                                _(u'Entity #%s (not viewable)') % orga.id
+        self.assertEqual(_(u'Some entities are not linkable: {}').format(
+                                _(u'Entity #{id} (not viewable)').format(id=orga.id)
                             ),
                          exception.message
                         )
@@ -772,11 +781,11 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         build_entry = self.build_field_entry_data
         self.assertEqual([orga2],
-                         field.clean('[%s]' % build_entry(orga2.entity_type_id, orga2.pk))
+                         field.clean('[{}]'.format(build_entry(orga2.entity_type_id, orga2.pk)))
                         )
 
         with self.assertRaises(ValidationError) as cm:
-            field.clean('[%s]' % build_entry(orga1.entity_type_id, orga1.pk))
+            field.clean('[{}]'.format(build_entry(orga1.entity_type_id, orga1.pk)))
         self.assertEqual('viewnotallowed', cm.exception.code)
 
         with self.assertRaises(ValidationError) as cm:
@@ -1471,8 +1480,8 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         exception = cm.exception
         self.assertEqual('linknotallowed', exception.code)
-        self.assertEqual(_(u'Some entities are not linkable: %s') % (
-                                _(u'Entity #%s (not viewable)') % orga.id
+        self.assertEqual(_(u'Some entities are not linkable: {}').format(
+                                _(u'Entity #{id} (not viewable)').format(id=orga.id)
                             ),
                          exception.message
                         )
@@ -1546,7 +1555,7 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         contact = self.create_contact()
         qfilter = {'~pk': contact.pk}
         # action_url = '/persons/quickforms/from_widget/%s/1' % contact.entity_type_id
-        action_url = '/persons/quickforms/from_widget/%s/' % contact.entity_type_id
+        action_url = '/persons/quickforms/from_widget/{}/'.format(contact.entity_type_id)
 
         field = CreatorEntityField(FakeContact)
         self.assertIsNone(field.q_filter)
@@ -1585,8 +1594,8 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
             field.from_python(contact.pk)
 
         self.assertIn(str(error.exception),
-                      ("No such entity with id %d." % contact.pk,
-                       "No such entity with id %dL." % contact.pk,
+                      ('No such entity with id={}.'.format(contact.id),
+                       'No such entity with id={}L.'.format(contact.id),
                       )
                      )
 
@@ -1604,8 +1613,8 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
             field.from_python(contact.pk)
 
         self.assertIn(str(error.exception),
-                      ("No such entity with id %d." % contact.pk,
-                       "No such entity with id %dL." % contact.pk,
+                      ('No such entity with id={}.'.format(contact.id),
+                       'No such entity with id={}L.'.format(contact.id),
                       )
                      )
 
@@ -1623,8 +1632,8 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
             field.from_python(orga.pk)
 
         self.assertIn(str(error.exception),
-                      ("No such entity with id %d." % orga.pk,
-                       "No such entity with id %dL." % orga.pk,
+                      ('No such entity with id={}.'.format(orga.id),
+                       'No such entity with id={}L.'.format(orga.id),
                       )
                      )
 
@@ -1632,12 +1641,12 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.login()
         contact = self.create_contact()
         # action_url = '/persons/quickforms/from_widget/%s/1' % contact.entity_type_id
-        action_url = '/persons/quickforms/from_widget/%s/' % contact.entity_type_id
+        action_url = '/persons/quickforms/from_widget/{}/'.format(contact.entity_type_id)
 
         field = CreatorEntityField(FakeContact)
-        qfilter_errors = ("Invalid q_filter ['~pk', %d]" % contact.pk,
-                          "Invalid q_filter ['~pk', %dL]" % contact.pk,  # Do this hack for MySql database that
-                                                                         # uses longs and alter JSON format result
+        qfilter_errors = ("Invalid q_filter ['~pk', {}]".format(contact.id),
+                          "Invalid q_filter ['~pk', {}L]".format(contact.id),  # Do this hack for MySql database that
+                                                                               # uses longs and alter JSON format result
                          )
 
         # Set qfilter property
@@ -1907,7 +1916,7 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         contact = self.create_contact()
         qfilter = {'~pk': contact.pk}
         # action_url = '/persons/quickforms/from_widget/%s/1' % contact.entity_type_id
-        action_url = '/persons/quickforms/from_widget/%s/' % contact.entity_type_id
+        action_url = '/persons/quickforms/from_widget/{}/'.format(contact.entity_type_id)
 
         field = MultiCreatorEntityField(FakeContact)
         self.assertIsNone(field.q_filter)
@@ -1926,12 +1935,12 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         contact2 = self.create_contact()
         contact3 = self.create_contact()
 
-        field = MultiCreatorEntityField(FakeContact, q_filter={'~pk': contact.pk})
+        field = MultiCreatorEntityField(FakeContact, q_filter={'~pk': contact.id})
 
-        jsonified = '[%d, %d, %d]' % (contact.pk, contact2.pk, contact3.pk)
+        jsonified = '[{}, {}, {}]'.format(contact.id, contact2.id, contact3.id)
         self.assertEqual(jsonified, field.from_python(jsonified))
         self.assertEqual(jsonified, field.from_python([contact, contact2, contact3]))
-        self.assertEqual('[%d, %d]' % (contact2.pk, contact3.pk),
+        self.assertEqual('[{}, {}]'.format(contact2.id, contact3.id),
                          field.from_python([contact2.pk, contact3.pk])
                         )
 
@@ -1940,8 +1949,8 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         ids = [str(e.id) for e in (contact, contact2, contact3)]
         self.assertIn(str(error.exception),
-                      ("One or more entities with ids [%s] doesn't exists." % ', '.join(ids),
-                       "One or more entities with ids [%s] doesn't exists." % 'L, '.join(ids),
+                      ("The entities with ids [{}] don't exist.".format(', '.join(ids)),
+                       "The entities with ids [{}] don't exist.".format('L, '.join(ids)),
                       )
                      )
 
@@ -1954,7 +1963,7 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         field = MultiCreatorEntityField(FakeContact)
 
-        jsonified = '[%d, %d, %d]' % (orga.pk, contact.pk, contact2.pk)
+        jsonified = '[{}, {}, {}]'.format(orga.pk, contact.pk, contact2.pk)
 
         self.assertEqual(jsonified, field.from_python(jsonified))
         self.assertEqual(jsonified, field.from_python([orga, contact, contact2]))
@@ -1964,20 +1973,20 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         ids = [str(e.id) for e in [orga, contact, contact2]]
         self.assertIn(str(error.exception),
-                      ("One or more entities with ids [%s] doesn't exists." % ', '.join(ids),
-                       "One or more entities with ids [%s] doesn't exists." % 'L, '.join(ids),
+                      ("The entities with ids [{}] don't exist.".format(', '.join(ids)),
+                       "The entities with ids [{}] don't exist.".format('L, '.join(ids)),
                       )
                      )
 
     def test_invalid_qfilter(self):
         self.login()
         contact = self.create_contact()
-        action_url = '/persons/quickforms/from_widget/%s/' % contact.entity_type_id
+        action_url = '/persons/quickforms/from_widget/{}/'.format(contact.entity_type_id)
 
         field = MultiCreatorEntityField(FakeContact)
-        qfilter_errors = ("Invalid q_filter ['~pk', %d]" % contact.pk,
-                          "Invalid q_filter ['~pk', %dL]" % contact.pk,  # Do this hack for MySql database that
-                                                                         # uses longs and alter json format result
+        qfilter_errors = ("Invalid q_filter ['~pk', {}]".format(contact.id),
+                          "Invalid q_filter ['~pk', {}L]".format(contact.id),  # Do this hack for MySql database that
+                                                                               # uses longs and alter json format result
                          )
 
         field.q_filter = ['~pk', contact.pk]
@@ -2042,18 +2051,18 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         self.assertFieldValidationError(MultiCreatorEntityField, 'doesnotexist',
                                         MultiCreatorEntityField(model=FakeContact).clean,
-                                        '[%d]' % orga.pk
+                                        '[{}]'.format(orga.id)
                                        )
         self.assertFieldValidationError(MultiCreatorEntityField, 'doesnotexist',
                                         MultiCreatorEntityField(model=FakeOrganisation).clean,
-                                        '[%d]' % contact.pk
+                                        '[{}]'.format(contact.id)
                                        )
 
     def test_clean_deleted_entity(self):
         self.login()
         self.assertFieldValidationError(MultiCreatorEntityField, 'doesnotexist',
                                         MultiCreatorEntityField(model=FakeContact).clean,
-                                        '[%d]' % self.create_contact(is_deleted=True).pk
+                                        '[{}]'.format(self.create_contact(is_deleted=True).id)
                                        )
 
     def test_clean_entities(self):
@@ -2064,7 +2073,7 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         field = MultiCreatorEntityField(FakeContact)
         field.user = user
         self.assertEqual([contact, contact2],
-                         field.clean('[%d, %d]' % (contact.pk, contact2.pk))
+                         field.clean('[{}, {}]'.format(contact.id, contact2.id))
                         )
 
     def test_clean_filtered_entities(self):
@@ -2076,10 +2085,12 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
             field.q_filter = {'~pk': contact.pk}
 
         field.user = user
-        self.assertFieldValidationError(MultiCreatorEntityField, 'doesnotexist', field.clean, '[%d]' % contact.pk)
+        self.assertFieldValidationError(MultiCreatorEntityField, 'doesnotexist',
+                                        field.clean, '[{}]'.format(contact.id),
+                                       )
 
         field.q_filter = {'pk': contact.pk}
-        self.assertEqual([contact], field.clean('[%d]' % contact.pk))
+        self.assertEqual([contact], field.clean('[{}]'.format(contact.id)))
 
     def test_clean_with_permission01(self):
         "Perm checking OK"
@@ -2090,7 +2101,7 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         field = MultiCreatorEntityField(model=FakeOrganisation)
         field.user = user
-        self.assertEqual([orga1, orga2], field.clean('[%d, %d]' % (orga1.pk, orga2.pk)))
+        self.assertEqual([orga1, orga2], field.clean('[{}, {}]'.format(orga1.id, orga2.id)))
 
     def test_clean_with_permission02(self):
         "Perm checking KO"
@@ -2102,7 +2113,7 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         field = MultiCreatorEntityField(model=FakeOrganisation, user=user)
 
         with self.assertRaises(ValidationError) as cm:
-            field.clean('[%d, %d]' % (orga1.pk, orga2.pk))
+            field.clean('[{}, {}]'.format(orga1.id, orga2.id))
         self.assertEqual('linknotallowed', cm.exception.code)
 
     def test_hook(self):

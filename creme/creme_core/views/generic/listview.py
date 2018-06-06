@@ -211,7 +211,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
     @param post_process: Function that takes the template context and the
                          request as parameters (so you can modify the context).
     """
-    assert issubclass(model, CremeEntity), '%s is not a subclass of CremeEntity' % model
+    assert issubclass(model, CremeEntity), '{} is not a subclass of CremeEntity'.format(model)
 
     PAGE_SIZES = settings.PAGE_SIZES
 
@@ -261,7 +261,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
 
     template_dict = {
         'model':              model,
-        'list_title':         _(u'List of %s') % unicode(model._meta.verbose_name_plural),
+        'list_title':         _(u'List of {models}').format(models=model._meta.verbose_name_plural),
         'sub_title':          '',
         'header_filters':     header_filters,
         'entity_filters':     entity_filters,
