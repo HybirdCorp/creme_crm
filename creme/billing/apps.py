@@ -201,7 +201,7 @@ class BillingConfig(CremeAppConfig):
 
         def won_quotes():
             count = Quote.objects.filter(status__won=True).count()
-            return npgettext('billing-quote_stats', '%s won', '%s won', count) % count
+            return npgettext('billing-quote_stats', '{count} won', '{count} won', count).format(count=count)
 
         statistics_registry.register(id='billing-invoices', label=Invoice._meta.verbose_name_plural,
                                      func=lambda: [Invoice.objects.count()],
@@ -209,7 +209,7 @@ class BillingConfig(CremeAppConfig):
                                     ) \
                            .register(id='billing-quotes', label=Quote._meta.verbose_name_plural,
                                      func=lambda: [won_quotes(),
-                                                   pgettext('billing-quote_stats', u'%s in all') % Quote.objects.count(),
+                                                   pgettext('billing-quote_stats', u'{count} in all').format(count=Quote.objects.count()),
                                                   ],
                                      perm='billing', priority=22,
                                     ) \

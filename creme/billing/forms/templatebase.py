@@ -36,7 +36,7 @@ class _TemplateBaseForm(BaseEditForm):
         meta = billing_ct.model_class()._meta
         status_field = self.fields['status']
 
-        status_field.label   = ugettext(u'Status of %s') % meta.verbose_name
+        status_field.label   = ugettext(u'Status of {}').format(meta.verbose_name)
         status_field.choices = [(status.id, unicode(status))
                                     # for status in meta.get_field('status').rel.to.objects.all()
                                     for status in meta.get_field('status').remote_field.model.objects.all()

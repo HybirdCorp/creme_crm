@@ -13,7 +13,7 @@ try:
     from ..models import PaymentInformation
     from .base import _BillingTestCase, skipIfCustomInvoice, Invoice, Organisation
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 @skipIfCustomOrganisation
@@ -33,7 +33,7 @@ class PaymentInformationTestCase(_BillingTestCase):
         self.assertGET200(url)
 
         self.assertNoFormError(self.client.post(url, data={'user': self.user.pk,
-                                                           'name': "RIB of %s" % organisation,
+                                                           'name': 'RIB of {}'.format(organisation),
                                                           }
                                                )
                               )
@@ -53,7 +53,7 @@ class PaymentInformationTestCase(_BillingTestCase):
         self.assertGET200(url)
 
         response = self.client.post(url, data={'user':       self.user.pk,
-                                               'name':       "RIB of %s" % organisation,
+                                               'name':       'RIB of {}'.format(organisation),
                                                'is_default': True,
                                               }
                                    )
@@ -79,9 +79,9 @@ class PaymentInformationTestCase(_BillingTestCase):
         url = reverse('billing__edit_payment_info', args=(pi.id,))
         self.assertGET200(url)
 
-        rib_key = "00"
-        name    = "RIB of %s" % organisation
-        bic     = "pen ?"
+        rib_key = '00'
+        name    = 'RIB of {}'.format(organisation)
+        bic     = 'pen ?'
         response = self.client.post(url, data={'user':    self.user.pk,
                                                'name':    name,
                                                'rib_key': rib_key,
@@ -102,18 +102,18 @@ class PaymentInformationTestCase(_BillingTestCase):
         orga2 = create_orga(name='Sega')
 
         create_pi = PaymentInformation.objects.create
-        pi_21 = create_pi(organisation=orga2, name="RIB 1", is_default=True)  # First if no filter by organisation
-        pi_11 = create_pi(organisation=orga1, name="RIB 1", is_default=True)
-        pi_12 = create_pi(organisation=orga1, name="RIB 2", is_default=False)
+        pi_21 = create_pi(organisation=orga2, name='RIB 1', is_default=True)  # First if no filter by organisation
+        pi_11 = create_pi(organisation=orga1, name='RIB 1', is_default=True)
+        pi_12 = create_pi(organisation=orga1, name='RIB 2', is_default=False)
 
         self.assertTrue(self.refresh(pi_11).is_default)
 
         url = reverse('billing__edit_payment_info', args=(pi_12.id,))
         self.assertGET200(url)
 
-        rib_key = "00"
-        name    = "RIB of %s" % orga1
-        bic     = "pen ?"
+        rib_key = '00'
+        name    = 'RIB of {}'.format(orga1)
+        bic     = 'pen ?'
         self.assertNoFormError(self.client.post(url, data={'user':       self.user.pk,
                                                            'name':       name,
                                                            'rib_key':    rib_key,

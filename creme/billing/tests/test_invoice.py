@@ -866,4 +866,4 @@ class BillingDeleteTestCase(_BillingTestCaseMixin, CremeTransactionTestCase):
             ServiceLine.objects.get(pk=service_line.pk)
             Relation.objects.get(pk=rel1.id)
         except Exception as e:
-            self.fail("Exception: (%s). Maybe the db doesn't support transaction ?" % e)
+            self.fail("Exception: ({}). Maybe the db doesn't support transaction ?".format(e))

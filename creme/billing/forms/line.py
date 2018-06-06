@@ -131,8 +131,8 @@ class LineEditForm(core_forms.CremeModelWithUserForm):
 
         currency_str = related_document.currency.local_symbol
         discount_units = [(DISCOUNT_PERCENT,     '%'),
-                          (DISCOUNT_LINE_AMOUNT, _(u'%s per line') % currency_str),
-                          (DISCOUNT_ITEM_AMOUNT, _(u'%s per unit') % currency_str),
+                          (DISCOUNT_LINE_AMOUNT, _(u'{currency} per line').format(currency=currency_str)),
+                          (DISCOUNT_ITEM_AMOUNT, _(u'{currency} per unit').format(currency=currency_str)),
                          ]
 
         line = self.instance

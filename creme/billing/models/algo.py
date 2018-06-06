@@ -36,7 +36,7 @@ class ConfigBillingAlgo(CremeModel):
         # TODO unique_together = ("organisation", "name_algo", "ct") ??
 
     def __unicode__(self):
-        return u'ConfigBillingAlgo(organisation="%s", name_algo="%s", ct="%s")' % (
+        return u'ConfigBillingAlgo(organisation="{}", name_algo="{}", ct="{}")'.format(
             self.organisation, self.name_algo, self.ct,
         )
 
@@ -54,4 +54,4 @@ class SimpleBillingAlgo(Model):
         unique_together = ("organisation", "last_number", "ct")
 
     def __unicode__(self):
-        return u'SimpleBillingAlgo(organisation="%s", ct="%s")' % (self.organisation, self.ct)
+        return u'SimpleBillingAlgo(organisation="{}", ct="{}")'.format(self.organisation, self.ct)

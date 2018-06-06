@@ -69,7 +69,7 @@ class _AddBillingDocumentButton(Button):
 
         meta = self.model_to_create._meta
         context['model_vname'] = meta.verbose_name
-        context['model_id'] = '%s.%s' % (meta.app_label, meta.model_name)
+        context['model_id'] = '{}.{}'.format(meta.app_label, meta.model_name)
 
         context['rtype_id'] = REL_OBJ_BILL_RECEIVED
 

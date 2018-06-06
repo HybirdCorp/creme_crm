@@ -19,7 +19,7 @@ try:
     from .base import (_BillingTestCase, skipIfCustomQuote, skipIfCustomServiceLine,
            Organisation, Address, Quote, ServiceLine)
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 @skipIfCustomOrganisation

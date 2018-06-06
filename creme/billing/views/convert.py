@@ -67,7 +67,7 @@ def convert(request, document_id):
     dest_class_id = get_from_POST_or_404(request.POST, 'type')
     if dest_class_id not in allowed_dests:
         raise ConflictError('Invalid destination type '
-                            '[allowed destinations for this type: %s]' % allowed_dests
+                            '[allowed destinations for this type: {}]'.format(allowed_dests)
                            )
 
     dest_class = _CLASS_MAP[dest_class_id]
@@ -76,10 +76,10 @@ def convert(request, document_id):
     with atomic():
         dest = dest_class()
         dest.build(src)
-        dest.name = _(u'%(src)s (converted into %(dest)s)') % {
-                            'src':  src.name,
-                            'dest': dest._meta.verbose_name,
-                        }
+        dest.name = _(u'{src} (converted into {dest})').format(
+                            src=src.name,
+                            dest=dest._meta.verbose_name,
+                        )
         dest.generate_number()
         dest.save()
 
