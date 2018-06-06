@@ -171,9 +171,10 @@ class ReportGraphForm(CremeEntityForm):
             money_fields = [field for field in aggfields if isinstance(field, MoneyField)]
             if money_fields:
                 # TODO: lazy lazily-translated-string interpolation
-                aggregate_field_f.help_text = ugettext('If you use a field related to money, the entities should use the same '
-                                                       'currency or the result will be wrong. Concerned fields are : %s'
-                                                      ) % ', '.join(unicode(field.verbose_name) for field in money_fields)
+                aggregate_field_f.help_text = ugettext(
+                        'If you use a field related to money, the entities should use the same '
+                        'currency or the result will be wrong. Concerned fields are : {}'
+                    ).format(', '.join(unicode(field.verbose_name) for field in money_fields))
 
 
             if aggcustom_choices and aggfield_choices:
@@ -256,13 +257,14 @@ class ReportGraphForm(CremeEntityForm):
             field = model._meta.get_field(name)
         except FieldDoesNotExist:
             self.add_error(formfield_name,
-                           u'If you choose to group "%s" you have to choose a field.' %
+                           u'If you choose to group "{}" you have to choose a field.'.format(
                                 self.verbose_graph_type
+                            )
                           )
         else:
             if not isinstance(field, field_types):
                 self.add_error(formfield_name,
-                               u'"%s" groups are only compatible with {%s}' % (
+                               u'"{}" groups are only compatible with [{}]'.format(
                                     self.verbose_graph_type,
                                     ', '.join(ftype.__name__ for ftype in field_types),
                                 )
@@ -278,7 +280,7 @@ class ReportGraphForm(CremeEntityForm):
 
             if cfield.field_type not in cfield_types:
                 self.add_error(formfield_name,
-                               u'"%s" groups are only compatible with {%s}' % (
+                               u'"{}" groups are only compatible with [{}]'.format(
                                     self.verbose_graph_type,
                                     ', '.join(map(str, cfield_types)),  # TODO: verbose type
                                 )
@@ -342,6 +344,6 @@ class ReportGraphForm(CremeEntityForm):
         graph.type = get_data('abscissa_group_by')
 
         agg_fields = get_data('aggregate_field')
-        graph.ordinate = '%s__%s' % (agg_fields, get_data('aggregate')) if agg_fields else u""
+        graph.ordinate = '{}__{}'.format(agg_fields, get_data('aggregate')) if agg_fields else u""
 
         return super(ReportGraphForm, self).save(*args, **kwargs)

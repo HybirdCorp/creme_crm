@@ -63,14 +63,14 @@ def preview(request, report_id):
             ct = report.ct
 
             if not EntityCredentials.filter(user, ct.model_class().objects.all()).exists():
-                empty_message = _(u'You can see no «%s»') % ct
+                empty_message = _(u'You can see no «{model}»').format(model=ct)
             elif report.filter and not report.fetch_all_lines(limit_to=1, user=user):
-                empty_message = _(u'No «%(ctype)s» matches the filter «%(filter)s»') % {
-                                        'ctype':  ct,
-                                        'filter': report.filter,
-                                    }
+                empty_message = _(u'No «{model}» matches the filter «{filter}»').format(
+                                        model=ct,
+                                        filter=report.filter,
+                                    )
             else:
-                empty_message = _(u'No «%s» matches your date filter') % ct
+                empty_message = _(u'No «{model}» matches your date filter').format(model=ct)
     else:
         empty_message = _(u'Fix your date filter')
 
@@ -98,15 +98,15 @@ def filter(request, report_id):
     if request.method == 'POST':
         form = ReportExportFilterForm(report=report, user=user, data=request.POST)
         if form.is_valid():
-            callback_url = '%s?%s' % (reverse('reports__export_report', args=(report_id,)),
-                                      form.export_url_data(),
-                                     )
+            callback_url = '{}?{}'.format(reverse('reports__export_report', args=(report_id,)),
+                                          form.export_url_data(),
+                                         )
     else:
         form = ReportExportFilterForm(report=report, user=user)
 
     return inner_popup(request, 'reports/frags/report_export_filter.html',
                        {'form':         form,
-                        'title':        _(u'Export «%s»' % report),
+                        'title':        _(u'Export «{report}»'.format(report=report)),
                         'inner_popup':  True,
                         'report_id':    report_id,
                         'submit_label': _('Export'),

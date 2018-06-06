@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-29 12:50+0200\n"
+"POT-Creation-Date: 2018-06-05 14:54+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -95,7 +95,7 @@ msgstr "ce champ devrait être caché"
 msgid "the relationship type does not exist any more."
 msgstr "le type de relation n'existe plus."
 
-#: core/graph.py:776 forms/bricks.py:80
+#: core/graph.py:776 forms/bricks.py:81
 msgctxt "reports-volatile_choice"
 msgid "None"
 msgstr "Aucune"
@@ -140,12 +140,12 @@ msgstr "Valeur agrégée (champ personnalisé)"
 msgid "Related field"
 msgstr "Champ relatif"
 
-#: forms/bricks.py:37 templates/reports/bricks/graph.html:65
+#: forms/bricks.py:38 templates/reports/bricks/graph.html:65
 #: templates/reports/bricks/graphs.html:110
 msgid "Volatile column"
 msgstr "Colonne volatile"
 
-#: forms/bricks.py:39
+#: forms/bricks.py:40
 msgid ""
 "When the graph is displayed on the detailview of an entity, only the "
 "entities linked to this entity by the following link are used to compute the "
@@ -155,15 +155,15 @@ msgstr ""
 "les fiches reliées à cette fiche par le lien ci-dessous sont utilisées pour "
 "calculer le graphique."
 
-#: forms/bricks.py:72 forms/graph.py:127 forms/graph.py:180
+#: forms/bricks.py:73 forms/graph.py:127 forms/graph.py:180
 msgid "Fields"
 msgstr "Champs"
 
-#: forms/bricks.py:75 forms/graph.py:128
+#: forms/bricks.py:76 forms/graph.py:128
 msgid "Relationships"
 msgstr "Relations"
 
-#: forms/bricks.py:78
+#: forms/bricks.py:79
 msgid "No available choice"
 msgstr "Aucun choix disponible"
 
@@ -198,7 +198,7 @@ msgstr ""
 "Le champ filtre ne peut être modifié que pour des rapport ciblant le même "
 "type de fiche (ex: seulement les contacts)."
 
-#: forms/graph.py:67 models/graph.py:44
+#: forms/graph.py:67 models/graph.py:45
 msgid "Chart type"
 msgstr "Type de graphique"
 
@@ -206,7 +206,7 @@ msgstr "Type de graphique"
 msgid "Field"
 msgstr "Champ"
 
-#: forms/graph.py:71 models/graph.py:41
+#: forms/graph.py:71 models/graph.py:42
 msgid "Grouping"
 msgstr "Groupage"
 
@@ -222,11 +222,11 @@ msgstr "Comptage de fiches"
 msgid "Make a count instead of aggregate ?"
 msgstr "Effectuer un comptage à la place des valeurs calculées ?"
 
-#: forms/graph.py:86 models/graph.py:39
+#: forms/graph.py:86 models/graph.py:40
 msgid "X axis"
 msgstr "Axe X"
 
-#: forms/graph.py:87 models/graph.py:40
+#: forms/graph.py:87 models/graph.py:41
 msgid "Y axis"
 msgstr "Axe Y"
 
@@ -326,37 +326,37 @@ msgctxt "reports-date_filter"
 msgid "None"
 msgstr "Aucun"
 
-#: models/graph.py:37
+#: models/graph.py:38
 msgctxt "reports-graphs"
 msgid "Name of the graph"
 msgstr "Nom du graphique"
 
-#: models/graph.py:42
+#: models/graph.py:43
 msgid "Days"
 msgstr "Jours"
 
-#: models/graph.py:43
+#: models/graph.py:44
 msgid "Make a count instead of aggregate?"
 msgstr "Effectuer un comptage à la place des valeurs calculées ?"
 
-#: models/graph.py:46
+#: models/graph.py:47
 msgid "Create a report's graph"
 msgstr "Créer un graphique de rapport"
 
-#: models/graph.py:47
+#: models/graph.py:48
 msgctxt "reports-graphs"
 msgid "Save the graph"
 msgstr "Enregistrer le graphique"
 
-#: models/graph.py:55
+#: models/graph.py:56
 msgid "Report's graph"
 msgstr "Graphique de rapport"
 
-#: models/graph.py:56
+#: models/graph.py:57
 msgid "Reports' graphs"
 msgstr "Graphiques de rapport"
 
-#: models/graph.py:156
+#: models/graph.py:187
 #, python-format
 msgid "The instance block for \"%s\" with these parameters already exists!"
 msgstr "Le bloc d'instance pour \"%s\" avec ces paramètres existe déjà !"
@@ -401,19 +401,19 @@ msgstr "Colonnes de rapport"
 msgid "Report view"
 msgstr "Vue de Rapport"
 
-#: report_aggregation_registry.py:60
+#: report_aggregation_registry.py:71
 msgid "Average"
 msgstr "Moyenne"
 
-#: report_aggregation_registry.py:61
+#: report_aggregation_registry.py:72
 msgid "Minimum"
 msgstr "Minimum"
 
-#: report_aggregation_registry.py:62
+#: report_aggregation_registry.py:73
 msgid "Maximum"
 msgstr "Maximum"
 
-#: report_aggregation_registry.py:63
+#: report_aggregation_registry.py:74
 msgid "Sum"
 msgstr "Somme"
 
@@ -694,14 +694,14 @@ msgid "You can see no «%s»"
 msgstr "Vous ne pouvez voir aucun(e) «%s»"
 
 #: views/export.py:68
-#, python-format
-msgid "No «%(ctype)s» matches the filter «%(filter)s»"
-msgstr "Aucun(e) «%(ctype)s» ne correspond au filtre «%(filter)s»"
+#, python-brace-format
+msgid "No «{model}» matches the filter «{filter}»"
+msgstr "Aucun(e) «{model}» ne correspond au filtre «{filter}»"
 
 #: views/export.py:73
-#, python-format
-msgid "No «%s» matches your date filter"
-msgstr "Aucun(e) «%s» ne correspond à votre filtre temporel"
+#, python-brace-format
+msgid "No «{model}» matches your date filter"
+msgstr "Aucun(e) «{model}» ne correspond à votre filtre temporel"
 
 #: views/export.py:75
 msgid "Fix your date filter"
@@ -716,17 +716,17 @@ msgstr "Exporter «%s»"
 msgid "Export"
 msgstr "Exporter"
 
-#: views/graph.py:45
+#: views/graph.py:46
 #, python-format
 msgid "Create a graph for «%s»"
 msgstr "Créer un graphique pour «%s»"
 
-#: views/graph.py:52
+#: views/graph.py:53
 #, python-format
 msgid "Edit a graph for «%s»"
 msgstr "Modifier un graphique pour «%s»"
 
-#: views/graph.py:131
+#: views/graph.py:132
 msgid "Choose an abscissa field"
 msgstr "Choisir un champ d'abscisse"
 

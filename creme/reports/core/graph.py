@@ -40,7 +40,7 @@ logger = logging.getLogger(__name__)
 
 def _physical_field_name(table_name, field_name):
     quote_name = connection.ops.quote_name
-    return '%s.%s' % (quote_name(table_name), quote_name(field_name))
+    return '{}.{}'.format(quote_name(table_name), quote_name(field_name))
 
 
 def _db_grouping_format():
@@ -56,7 +56,7 @@ class ListViewURLBuilder(object):
         fmt = getattr(model, 'get_lv_absolute_url', None)
 
         if fmt:
-            fmt = model.get_lv_absolute_url() + '?q_filter=%s'
+            fmt = model.get_lv_absolute_url() + r'?q_filter={}'
 
             if filter:
                 fmt += '&filter=' + filter.id
@@ -66,7 +66,7 @@ class ListViewURLBuilder(object):
     def __call__(self, q_filter=None):
         fmt = self._fmt
 
-        return fmt % (json_encode(q_filter) if q_filter is not None else '') if fmt else None
+        return fmt.format(json_encode(q_filter) if q_filter is not None else '') if fmt else None
 
 
 class ReportGraphHandRegistry(object):
@@ -159,7 +159,7 @@ class RGYCAggregation(ReportGraphYCalculator):
 
     @property
     def verbose_name(self):
-        return u'%s - %s' % (self._name(), self._aggregation.title)
+        return u'{} - {}'.format(self._name(), self._aggregation.title)
 
 
 class RGYCField(RGYCAggregation):
@@ -175,7 +175,7 @@ class RGYCCustomField(RGYCAggregation):
     def __init__(self, cfield, aggregation):
         super(RGYCCustomField, self).__init__(
             aggregation,
-            aggregation.func('%s__value' % cfield.get_value_class().get_related_name()),
+            aggregation.func('{}__value'.format(cfield.get_value_class().get_related_name())),
            )
         self._cfield = cfield
 
@@ -285,7 +285,7 @@ class _RGHRegularField(ReportGraphHand):
 #            yield date.strftime(date_format), [y_value_func(entities_filter(**qdict)), build_url(qdict)]
 
     def _aggregate_dates_by_key(self, entities, abscissa, key, order):
-        x_value_filter = {'%s__isnull' % abscissa: True}
+        x_value_filter = {'{}__isnull'.format(abscissa): True}
         aggregates = self._aggregate_by_key(entities, key, order).exclude(**x_value_filter)
         return aggregates
 
@@ -324,33 +324,33 @@ class RGHDay(_RGHRegularField):
 
     def _fetch(self, entities, order):
         abscissa = self._graph.abscissa
-        year_key  = '%s__year' % abscissa
-        month_key = '%s__month' % abscissa
-        day_key   ='%s__day' % abscissa
+        year_key  = '{}__year'.format(abscissa)
+        month_key = '{}__month'.format(abscissa)
+        day_key   = '{}__day'.format(abscissa)
 
         return self._get_dates_values(entities, abscissa, 'day',
                                       qdict_builder=lambda date: {year_key:  date.year,
                                                                   month_key: date.month,
                                                                   day_key:   date.day,
                                                                  },
-                                      date_format="%d/%m/%Y", order=order,
+                                      date_format='%d/%m/%Y', order=order,
                                      )
 
 
 @RGRAPH_HANDS_MAP(RGT_MONTH)
 class RGHMonth(_RGHRegularField):
-    verbose_name = _(u"By months")
+    verbose_name = _(u'By months')
 
     def _fetch(self, entities, order):
         abscissa = self._graph.abscissa
-        year_key  = '%s__year' % abscissa
-        month_key = '%s__month' % abscissa
+        year_key  = '{}__year'.format(abscissa)
+        month_key = '{}__month'.format(abscissa)
 
         return self._get_dates_values(entities, abscissa, 'month',
                                       qdict_builder=lambda date: {year_key:  date.year,
                                                                   month_key: date.month,
                                                                  },
-                                      date_format="%m/%Y", order=order,
+                                      date_format='%m/%Y', order=order,
                                      )
 
 
@@ -362,8 +362,8 @@ class RGHYear(_RGHRegularField):
         abscissa = self._graph.abscissa
 
         return self._get_dates_values(entities, abscissa, 'year',
-                                      qdict_builder=lambda date: {'%s__year' % abscissa: date.year},
-                                      date_format="%Y", order=order,
+                                      qdict_builder=lambda date: {'{}__year'.format(abscissa): date.year},
+                                      date_format='%Y', order=order,
                                      )
 
 
@@ -429,7 +429,7 @@ class RGHRange(_RGHRegularField):
 
         if min_date is not None and max_date is not None:
             build_url = self._listview_url_builder()
-            query_cmd = '%s__range' % abscissa
+            query_cmd = '{}__range'.format(abscissa)
             days = graph.days or 1
 
             field_name = _physical_field_name(self._field.model._meta.db_table, abscissa)
@@ -446,10 +446,11 @@ class RGHRange(_RGHRegularField):
 
             # Fill missing aggregate values and zip them with the date intervals
             for interval, value in sparsezip(intervals, aggregates, 0):
-                range_label = '%s-%s' % (interval.begin.strftime("%d/%m/%Y"), # TODO: use format from settings ??
-                                         interval.end.strftime("%d/%m/%Y"))
-                url = build_url({query_cmd: [interval.before.strftime("%Y-%m-%d"),
-                                             interval.after.strftime("%Y-%m-%d")]})
+                range_label = '{}-{}'.format(interval.begin.strftime('%d/%m/%Y'),  # TODO: use format from settings ??
+                                             interval.end.strftime('%d/%m/%Y')
+                                            )
+                url = build_url({query_cmd: [interval.before.strftime('%Y-%m-%d'),
+                                             interval.after.strftime('%Y-%m-%d')]})
 
                 yield range_label, [value, url]
 
@@ -466,7 +467,7 @@ class RGHRange(_RGHRegularField):
 
         if min_date is not None and max_date is not None:
             build_url = self._listview_url_builder()
-            query_cmd = '%s__range' % abscissa
+            query_cmd = '{}__range'.format(abscissa)
             entities_filter = entities.filter
             y_value_func = self._y_calculator
 
@@ -475,12 +476,12 @@ class RGHRange(_RGHRegularField):
                 after  = interval.after
                 sub_entities = entities_filter(**{query_cmd: (before, after)})
 
-                yield ('%s-%s' % (interval.begin.strftime("%d/%m/%Y"),  # TODO: use format from settings ??
-                                  interval.end.strftime("%d/%m/%Y"),
-                                 ),
+                yield ('{}-{}'.format(interval.begin.strftime('%d/%m/%Y'),  # TODO: use format from settings ??
+                                      interval.end.strftime('%d/%m/%Y'),
+                                     ),
                        [y_value_func(sub_entities),
-                        build_url({query_cmd: [before.strftime("%Y-%m-%d"),
-                                               after.strftime("%Y-%m-%d"),
+                        build_url({query_cmd: [before.strftime('%Y-%m-%d'),
+                                               after.strftime('%Y-%m-%d'),
                                               ]
                                   }
                                )
@@ -700,9 +701,10 @@ class RGHCustomRange(_RGHCustomField):
             aggregates = self._aggregate_by_key(entities, x_value_key, 'ASC')
 
             for interval, value in sparsezip(intervals, aggregates, 0):
-                range_label = '%s-%s' % (interval.begin.strftime("%d/%m/%Y"),  # TODO: use format from settings ??
-                                         interval.end.strftime("%d/%m/%Y"))
-                value_range = [interval.before.strftime("%Y-%m-%d"), interval.after.strftime("%Y-%m-%d")]
+                range_label = '{}-{}'.format(interval.begin.strftime('%d/%m/%Y'),  # TODO: use format from settings ??
+                                             interval.end.strftime('%d/%m/%Y')
+                                            )
+                value_range = [interval.before.strftime('%Y-%m-%d'), interval.after.strftime('%Y-%m-%d')]
                 url = build_url({'customfielddatetime__custom_field': cfield.id,
                                  'customfielddatetime__value__range': value_range})
 
@@ -729,13 +731,13 @@ class RGHCustomRange(_RGHCustomField):
                                                customfielddatetime__value__range=(before, after),
                                               )
 
-                yield ('%s-%s' % (interval.begin.strftime("%d/%m/%Y"),  # TODO: use format from settings ??
-                                  interval.end.strftime("%d/%m/%Y"),
-                                 ),
+                yield ('{}-{}'.format(interval.begin.strftime('%d/%m/%Y'),  # TODO: use format from settings ??
+                                      interval.end.strftime('%d/%m/%Y'),
+                                     ),
                        [y_value_func(sub_entities),
                         build_url({'customfielddatetime__custom_field': cfield.id,
-                                   'customfielddatetime__value__range': [before.strftime("%Y-%m-%d"),
-                                                                         after.strftime("%Y-%m-%d"),
+                                   'customfielddatetime__value__range': [before.strftime('%Y-%m-%d'),
+                                                                         after.strftime('%Y-%m-%d'),
                                                                         ],
                                   }
                                  )
@@ -745,7 +747,7 @@ class RGHCustomRange(_RGHCustomField):
 
 @RGRAPH_HANDS_MAP(RGT_CUSTOM_FK)
 class RGHCustomFK(_RGHCustomField):
-    verbose_name = _(u"By values (of custom choices)")
+    verbose_name = _(u'By values (of custom choices)')
 
     def _fetch(self, entities, order):
         entities_filter = entities.filter
@@ -787,7 +789,7 @@ class GraphFetcher(object):
 
     @property
     def verbose_name(self):
-        return u"%s - %s" % (self.graph, self.verbose_volatile_column)
+        return u'{} - {}'.format(self.graph, self.verbose_volatile_column)
 
 
 class RegularFieldLinkedGraphFetcher(GraphFetcher):
@@ -825,16 +827,16 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
         try:
             field_info = FieldInfo(graph.model, field_name)
         except FieldDoesNotExist:
-            return 'invalid field "%s"' % field_name
+            return 'invalid field "{}"'.format(field_name)
 
         if len(field_info) > 1:
-            return 'field "%s" with deep > 1' % field_name
+            return 'field "{}" with deep > 1'.format(field_name)
 
         field = field_info[0]
 
         # if not (isinstance(field, ForeignKey) and issubclass(field.rel.to, CremeEntity)):
         if not (isinstance(field, ForeignKey) and issubclass(field.remote_field.model, CremeEntity)):
-            return 'field "%s" is not a ForeignKey to CremeEntity' % field_name
+            return 'field "{}" is not a ForeignKey to CremeEntity'.format(field_name)
 
 
 class RelationLinkedGraphFetcher(GraphFetcher):

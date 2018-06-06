@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,7 +46,7 @@ def add_graph_instance_brick(request, graph_id):
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup.html',
                        {'form':   graph_form,
-                        'title': _(u'Create an instance block for «%s»') % graph,
+                        'title': _(u'Create an instance block for «{graph}»').format(graph=graph),
                         'submit_label': _(u'Save the block'),
                        },
                        is_valid=graph_form.is_valid(),

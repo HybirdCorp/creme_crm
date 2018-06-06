@@ -50,21 +50,22 @@ class ReportFilterBulkForm(BulkDefaultEditForm):
                 length = len(uneditable_ids)
 
                 if length == len(entities):
-                    self.fields['field_value'] = CharField(label=filter_field.label,
-                                                           required=False, widget=Label,
-                                                           initial=ungettext('The filter cannot be changed because it is private.',
-                                                                             'The filters cannot be changed because they are private.',
-                                                                             length
-                                                                            ),
-                                                          )
+                    self.fields['field_value'] = CharField(
+                        label=filter_field.label,
+                        required=False, widget=Label,
+                        initial=ungettext('The filter cannot be changed because it is private.',
+                                          'The filters cannot be changed because they are private.',
+                                          length
+                                         ),
+                    )
                 else:
                     self.fields['beware'] = CharField(label=_('Beware !'),
-                                                      required=False, widget=Label,
-                                                      initial=ungettext('The filter of %s report cannot be changed because it is private.',
-                                                                        'The filters of %s reports cannot be changed because they are private.',
-                                                                        length
-                                                                       ) % length,
-                                                     )
+                        required=False, widget=Label,
+                        initial=ungettext('The filter of {count} report cannot be changed because it is private.',
+                                          'The filters of {count} reports cannot be changed because they are private.',
+                                          length
+                                         ).format(count=length),
+                    )
         else:
             filter_field.help_text = _(u"Filter field can only be updated when "
                                        u"reports target the same type of entities (e.g: only contacts)."

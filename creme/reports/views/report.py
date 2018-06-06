@@ -138,7 +138,7 @@ def link_report(request, field_id):
     return generic.inner_popup(request,
                                'creme_core/generics/blockform/link_popup.html',
                                {'form': link_form,
-                                'title': ugettext(u'Link of the column «%s»') % rfield,
+                                'title': ugettext(u'Link of the column «{}»').format(rfield),
                                 'submit_label': _(u'Link'),
                                },
                                is_valid=link_form.is_valid(),
