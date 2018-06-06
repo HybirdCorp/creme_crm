@@ -24,7 +24,7 @@ try:
     from .base import skipIfCustomGenerator, RecurrentGenerator
     from ..creme_jobs import recurrents_gendocs_type
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 Ticket = get_ticket_model()
@@ -292,7 +292,7 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         self.assertEqual(1, len(new_tickets))
 
         ticket = new_tickets[0]
-        self.assertEqual(u'%s %s' % (tpl.title, date_format(now_value.date(), 'DATE_FORMAT')),
+        self.assertEqual(u'{} {}'.format(tpl.title, date_format(now_value.date(), 'DATE_FORMAT')),
                          ticket.title
                         )
 
