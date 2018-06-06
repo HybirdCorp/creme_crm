@@ -47,8 +47,8 @@ def add(request, task_id):
 
     if not task.is_alive():
         raise ConflictError(ugettext(u"You can't add a resources or a working "
-                                     u"period to a task which has status «%s»"
-                                    ) % task.tstatus.name
+                                     u"period to a task which has status «{}»"
+                                    ).format(task.tstatus.name)
                            )
 
     if request.method == 'POST':

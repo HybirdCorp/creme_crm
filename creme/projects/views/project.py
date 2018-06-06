@@ -87,7 +87,7 @@ def close(request, project_id):
     request.user.has_perm_to_change_or_die(project)
 
     if not project.close():
-        raise Http404('Project is already closed: %s' % project)
+        raise Http404('Project is already closed: {}'.format(project))
 
     project.save()
 

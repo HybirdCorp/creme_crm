@@ -233,7 +233,12 @@ class RelatedActivityCreateForm(RelatedActivityEditForm):
                                         # 9 is the length of ' -  - XYZ' (ie: the 'empty' format string)
                                         Activity._meta.get_field('title').max_length - 9
                                        )
-        instance.title = u'%s - %s - %003d' % (p_name, t_name, len(task.related_activities) + 1)
+        # instance.title = u'%s - %s - %003d' % (p_name, t_name, len(task.related_activities) + 1)
+        instance.title = u'{project} - {task} - {count:03}'.format(
+            project=p_name,
+            task=t_name,
+            count=len(task.related_activities) + 1,
+        )
 
         super(RelatedActivityCreateForm, self).save(*args, **kwargs)
 

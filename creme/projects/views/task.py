@@ -177,7 +177,7 @@ def delete_activity(request):
         msg = ugettext(u'Can not be deleted because of its dependencies.')
     except Exception as e:
         status = 400
-        msg = ugettext(u'The deletion caused an unexpected error [%s].') % e
+        msg = ugettext(u'The deletion caused an unexpected error [{}].').format(e)
     else:
         msg = ugettext('Operation successfully completed')
         status = 200
