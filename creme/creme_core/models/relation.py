@@ -77,7 +77,7 @@ class RelationType(CremeModel):
     def __unicode__(self):
         sym_type = self.symmetric_type
         symmetric_pred = ugettext(u'No relationship') if sym_type is None else sym_type.predicate
-        return u'%s — %s' % (self.predicate, symmetric_pred)  # NB: — == "\xE2\x80\x94" == &mdash;
+        return u'{} — {}'.format(self.predicate, symmetric_pred)  # NB: — == "\xE2\x80\x94" == &mdash;
 
     def add_subject_ctypes(self, *models):
         get_ct = ContentType.objects.get_for_model
@@ -215,7 +215,7 @@ class Relation(CremeModel):
         verbose_name_plural = _(u'Relationships')
 
     def __unicode__(self):
-        return u'«%s» %s «%s»' % (self.subject_entity, self.type, self.object_entity)
+        return u'«{}» {} «{}»'.format(self.subject_entity, self.type, self.object_entity)
 
     def _build_symmetric_relation(self, update):
         """Overload me in child classes.

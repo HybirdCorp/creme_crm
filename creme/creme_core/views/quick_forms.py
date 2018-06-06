@@ -50,12 +50,12 @@ def add(request, ct_id, count):
 
     if not user.has_perm_to_create(model):
         # TODO: manage/display error on js side (for now it just does nothing)
-        raise PermissionDenied('You are not allowed to create entity with type "%s"' % model_name)
+        raise PermissionDenied('You are not allowed to create entity with type "{}"'.format(model_name))
 
     base_form_class = quickforms_registry.get_form(model)
 
     if base_form_class is None:
-        raise Http404('No form registered for model: %s' % model)
+        raise Http404('No form registered for model: {}'.format(model))
 
     # We had the mandatory 'user' argument
     class _QuickForm(base_form_class):
@@ -79,7 +79,7 @@ def add(request, ct_id, count):
 
     return inner_popup(request, 'creme_core/generics/blockformset/add_popup.html',
                        {'formset': qformset,
-                        'title':   _(u'Quick creation of «%s»') % model_name,
+                        'title':   _(u'Quick creation of «{model}»').format(model=model_name),
                        },
                        is_valid=qformset.is_valid(),
                        reload=False,
@@ -95,12 +95,12 @@ def add_from_widget(request, ct_id):
 
     if not user.has_perm_to_create(model):
         # TODO: manage/display error on JS side (for now it just does nothing)
-        raise PermissionDenied(u'You are not allowed to create entity with type "%s"' % model_name)
+        raise PermissionDenied(u'You are not allowed to create entity with type "{}"'.format(model_name))
 
     form_class = quickforms_registry.get_form(model)
 
     if form_class is None:
-        raise Http404('No form registered for model: %s' % model)
+        raise Http404('No form registered for model: {}'.format(model))
 
     if request.method == 'POST':
         form = form_class(user=user, data=request.POST, files=request.FILES or None, initial=None)

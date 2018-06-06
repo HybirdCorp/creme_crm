@@ -117,7 +117,7 @@ def search(request):
     #         t_ctx['error_message'] = _(u'Empty search…')
     # elif len(research) < MIN_RESEARCH_LENGTH:
     if len(research) < MIN_RESEARCH_LENGTH:
-        t_ctx['error_message'] = _(u'Please enter at least %s characters') % MIN_RESEARCH_LENGTH
+        t_ctx['error_message'] = _(u'Please enter at least {count} characters').format(count=MIN_RESEARCH_LENGTH)
     else:
         if not ct_id:
             models.extend(creme_registry.iter_entity_models())
@@ -157,7 +157,7 @@ def reload_brick(request):
     search = GET.get('search', '')
 
     if len(search) < MIN_RESEARCH_LENGTH:
-        raise Http404(u'Please enter at least %s characters' % MIN_RESEARCH_LENGTH)
+        raise Http404(u'Please enter at least {count} characters'.format(count=MIN_RESEARCH_LENGTH))
 
     user = request.user
     model = ctype.model_class()
@@ -185,7 +185,7 @@ def light_search(request):
     if not sought:
         data['error'] = _(u'Empty search…')
     elif len(sought) < MIN_RESEARCH_LENGTH:
-        data['error'] = _(u'Please enter at least %s characters') % MIN_RESEARCH_LENGTH
+        data['error'] = _(u'Please enter at least {count} characters').format(count=MIN_RESEARCH_LENGTH)
     else:
         models = []
         results = []

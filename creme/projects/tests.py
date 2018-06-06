@@ -217,8 +217,8 @@ class ProjectsTestCase(CremeTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'responsibles',
-                             _(u"Some entities are not linkable: %s") % (
-                                    _(u'Entity #%s (not viewable)') % manager.id
+                             _(u'Some entities are not linkable: {}').format(
+                                    _(u'Entity #{id} (not viewable)').format(id=manager.id)
                                 )
                             )
 

@@ -58,7 +58,7 @@ def detailview(request, job_id):
 
     jtype = job.type
     if jtype is None:
-        raise Http404(_(u'Unknown job type (%s). Please contact your administrator.') % job_id)
+        raise Http404(_(u'Unknown job type ({}). Please contact your administrator.').format(job_id))
 
     job.check_owner_or_die(request.user)
 
@@ -95,7 +95,7 @@ def edit(request, job_id):
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':  edit_form,
-                        'title': _(u'Edit the job «%s»') % job.type,
+                        'title': _(u'Edit the job «{}»').format(job.type),
                        },
                        is_valid=edit_form.is_valid(),
                        reload=False,

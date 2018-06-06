@@ -12,7 +12,7 @@ try:
     from creme.creme_core.global_info import set_global_info
     from creme.creme_core.models import CremeEntity, FieldsConfig
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class FieldsConfigTestCase(CremeTestCase):

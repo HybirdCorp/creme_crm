@@ -68,11 +68,11 @@ class DateRange(object):
 
         if start:
             if end:
-                return {'%s__range' % field: (start, end)}
+                return {'{}__range'.format(field): (start, end)}
 
-            return {'%s__gte' % field: start}
+            return {'{}__gte'.format(field): start}
 
-        return {'%s__lte' % field: end}
+        return {'{}__lte'.format(field): end}
 
 
 class CustomRange(DateRange):
@@ -278,7 +278,7 @@ class EmptyRange(DateRange):
     verbose_name = _(u'Is empty')
 
     def get_q_dict(self, field, now):
-        return {'%s__isnull' % field: True}
+        return {'{}__isnull'.format(field): True}
 
 
 class NotEmptyRange(DateRange):
@@ -286,7 +286,7 @@ class NotEmptyRange(DateRange):
     verbose_name = _(u'Is not empty')
 
     def get_q_dict(self, field, now):
-        return {'%s__isnull' % field: False}
+        return {'{}__isnull'.format(field): False}
 
 
 class DateRangeRegistry(object):

@@ -61,11 +61,11 @@ def dependence_sort(l, get_key, get_dependencies):
         if not changed:
             if nosortedl:
                 raise DependenciesLoopError('Loop dependencies between:\n'
-                                            ' - %s\n'
+                                            ' - {}\n'
                                             'No problem with:\n'
-                                            ' - %s\n' % ('\n - '.join(map(str, nosortedl)),
-                                                         '\n - '.join(map(str, sortedl)),
-                                                        )
+                                            ' - {}\n'.format('\n - '.join(map(str, nosortedl)),
+                                                             '\n - '.join(map(str, sortedl)),
+                                                            )
                                            )
 
             break

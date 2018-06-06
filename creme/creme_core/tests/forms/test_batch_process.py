@@ -7,7 +7,7 @@ try:
     from ..fake_models import FakeContact
     from creme.creme_core.forms.batch_process import BatchActionsField
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class BatchActionsFieldTestCase(FieldTestCase):
@@ -86,7 +86,7 @@ class BatchActionsFieldTestCase(FieldTestCase):
                                                            'operator': 'suffix',
                                                            'value':    '',
                                                           },
-                                        message_args={'error': _(u"The operator '%s' need a value.") % _('Suffix')},
+                                        message_args={'error': _(u"The operator '{}' needs a value.").format(_('Suffix'))},
                                        )
 
     def test_value_typeerror(self):
@@ -96,10 +96,10 @@ class BatchActionsFieldTestCase(FieldTestCase):
                                                            'operator': 'rm_start',
                                                            'value':    'notanint',  # <===
                                                           },
-                                        message_args={'error': _('%(operator)s : %(message)s.') % {
-                                                                    'operator': _('Remove the start (N characters)'),
-                                                                    'message':  _('enter a whole number'),
-                                                                }
+                                        message_args={'error': _('{operator} : {message}.').format(
+                                                                    operator=_('Remove the start (N characters)'),
+                                                                    message=_('enter a whole number'),
+                                                                  )
                                                      },
                                        )
 

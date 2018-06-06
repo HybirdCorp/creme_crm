@@ -16,7 +16,7 @@ try:
     from creme.creme_core.gui.menu import (ViewableItem, URLItem, LabelItem,
            ItemGroup, ContainerItem, CreationFormsItem, Menu)  # OnClickItem
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 # @skipIf(settings.OLD_MENU, 'Old menu is used, so we do not test the new one.')
@@ -830,8 +830,8 @@ class MenuTestCase(CremeTestCase):
         item = LabelItem(item_id, label=label)
 
         self.assertHTMLEqual('<span class="ui-creme-navigation-text-entry">'
-                                '%s'
-                             '</span>' % label,
+                                '{label}'
+                             '</span>'.format(label=label),
                              item.render(self.build_context())
                             )
 

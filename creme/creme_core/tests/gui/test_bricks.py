@@ -72,7 +72,7 @@ class BrickRegistryTestCase(CremeTestCase):
             id_ = InstanceBrickConfigItem.generate_base_id('creme_core', 'foobar_instance_brick_1')
 
             def detailview_display(self, context):
-                return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (self.id_, self.ibci.entity)
+                return '<table id="{}"><thead><tr>{}</tr></thead></table>'.format(self.id_, self.ibci.entity)
 
         class FoobarInstanceBrick2(_FoobarInstanceBrick):
             id_ = InstanceBrickConfigItem.generate_base_id('creme_core', 'foobar_instance_brick_2')
@@ -606,7 +606,7 @@ class BrickRegistryTestCase(CremeTestCase):
         self.assertEqual((FakeOrganisation,), brick.dependencies)
 
         # ----------------------------------------------------------------------
-        bad_brick_id = InstanceBrickConfigItem.generate_base_id('creme_core', 'does_not_exist') + '#%s_' % casca.id
+        bad_brick_id = InstanceBrickConfigItem.generate_base_id('creme_core', 'does_not_exist') + '#{}_'.format(casca.id)
         InstanceBrickConfigItem.objects.create(entity=casca,
                                                brick_id=bad_brick_id,
                                                verbose=u'I am bad',
@@ -627,7 +627,7 @@ class BrickRegistryTestCase(CremeTestCase):
                 self.ibci = instance_block_config_item
 
             def detailview_display(self, context):
-                return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (self.id_, self.ibci.entity)  # Useless :)
+                return '<table id="{}"><thead><tr>{}</tr></thead></table>'.format(self.id_, self.ibci.entity)  # Useless :)
 
         class ContactBrick(BaseBrick): pass
         class OrgaBrick(BaseBrick): pass
@@ -797,29 +797,29 @@ class BricksManagerTestCase(CremeTestCase):
 
     def test_wildcard01(self):
         "Wildcard dependencies, read-only"
-        id_fmt = 'BricksManagerTestCase__wildcard01_%s'
+        id_fmt = 'BricksManagerTestCase__wildcard01_{}'.format
 
         class FoobarBrick1(SimpleBrick):
-            id_ = SimpleBrick.generate_id('creme_core', id_fmt % 1)
+            id_ = SimpleBrick.generate_id('creme_core', id_fmt(1))
 
         class FoobarBrick2(SimpleBrick):
-            id_ = SimpleBrick.generate_id('creme_core', id_fmt % 2)
+            id_ = SimpleBrick.generate_id('creme_core', id_fmt(2))
             dependencies = (FakeContact,)
 
         class FoobarBrick3(SimpleBrick):
-            id_ = SimpleBrick.generate_id('creme_core', id_fmt % 3)
+            id_ = SimpleBrick.generate_id('creme_core', id_fmt(3))
             dependencies = (FakeOrganisation,)
 
         class FoobarBrick4(SimpleBrick):
-            id_ = SimpleBrick.generate_id('creme_core', id_fmt % 4)
+            id_ = SimpleBrick.generate_id('creme_core', id_fmt(4))
             dependencies = '*'
 
         class FoobarBrick5(SimpleBrick):
-            id_ = SimpleBrick.generate_id('creme_core', id_fmt % 5)
+            id_ = SimpleBrick.generate_id('creme_core', id_fmt(5))
             dependencies = '*'
 
         class FoobarBrick6(SimpleBrick):
-            id_ = SimpleBrick.generate_id('creme_core', id_fmt % 6)
+            id_ = SimpleBrick.generate_id('creme_core', id_fmt(6))
             dependencies = (Relation,)
 
         brick1 = FoobarBrick1(); brick2 = FoobarBrick2()

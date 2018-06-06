@@ -170,11 +170,11 @@ class ViewableItem(Item):
     #     return '<Item: id=%s>' % self.id
 
     def __unicode__(self):
-        return u'<%s: id="%s" priority=%s label="%s">' % (
-                        self.__class__.__name__,
-                        self.id,
-                        self._priority,
-                        self.label,
+        return u'<{name}: id="{id}" priority={priority} label="{label}">'.format(
+                        name=self.__class__.__name__,
+                        id=self.id,
+                        priority=self._priority,
+                        label=self.label,
         )
 
     def render(self, context, level=0):
@@ -227,16 +227,16 @@ class ItemList(object):
 
         for item in items:
             if item._priority is not None:
-                raise ValueError(u'This item already belongs to a container: %s' % item)  # TODO: better exception ?
+                raise ValueError(u'This item already belongs to a container: {}'.format(item))  # TODO: better exception ?
 
             if item.id in ids:
-                raise ValueError('Duplicated id "%s"' % item.id)
+                raise ValueError('Duplicated id "{}"'.format(item.id))
 
         current_items = self._items
         priority = kwargs.pop('priority', None)
 
         if kwargs:
-            raise ValueError('Unknown argument(s): %s' % kwargs.keys())
+            raise ValueError('Unknown argument(s): {}'.format(kwargs.keys()))
 
         if priority is None:
             priority = current_items[-1]._priority if current_items else 1
@@ -323,7 +323,7 @@ class ItemList(object):
             self.add(item, priority=priority)
         else:
             if not isinstance(item, cls):
-                raise ValueError('The item id="%s" already exists but its type is %s' % (item_id, item.__class__))
+                raise ValueError('The item id="{}" already exists but its type is {}'.format(item_id, item.__class__))
 
         return item
 
@@ -343,7 +343,7 @@ class ItemList(object):
                 item._priority = None
                 return item
 
-        raise KeyError('Item with ID=%s not found' % item_id)
+        raise KeyError('Item with ID={} not found'.format(item_id))
 
     def remove(self, *item_ids):
         """Remove several Item at once.
@@ -386,7 +386,7 @@ class ItemSeparator(Item):
         return '--'
 
     def render(self, context, level=0):
-        return mark_safe(u'<hr class="ui-creme-navigation-separator ui-creme-navigation-separator-id_%s"/>' % self.id)
+        return format_html(u'<hr class="ui-creme-navigation-separator ui-creme-navigation-separator-id_{}"/>', self.id)
 
 
 class ContainerItem(ViewableItem, ItemList):
@@ -403,14 +403,14 @@ class ContainerItem(ViewableItem, ItemList):
 
         for item in self:
             if isinstance(item, ItemGroup):
-                res += u'      --Group(id="%s", priority=%s)\n' % (item.id, item._priority)
+                res += u'      --Group(id="{}", priority={})\n'.format(item.id, item._priority)
 
                 for sub_item in item:
-                    res += u'        %s\n' % sub_item
+                    res += u'        {}\n'.format(sub_item)
 
                 res += '      --'
             else:
-                res += u'      %s' % item
+                res += u'      {}'.format(item)
 
             res += '\n'
 
@@ -430,13 +430,13 @@ class ContainerItem(ViewableItem, ItemList):
                 g_id = item.id
 
                 if not first and not previous_is_group:
-                    yield ItemSeparator(id='%s-begin' % g_id)
+                    yield ItemSeparator(id='{}-begin'.format(g_id))
 
                 for sub_item in item:
                     yield sub_item
 
                 if i != last_idx:
-                    yield ItemSeparator(id='%s-end' % g_id)
+                    yield ItemSeparator(id='{}-end'.format(g_id))
 
                 previous_is_group = True
             else:
@@ -600,7 +600,7 @@ class TrashItem(URLItem):
             u'</a>',
                 url=self.url,
                 label=_(u'Trash'),
-                count=ungettext(u'%s entity', u'%s entities', count) % count,
+                count=ungettext(u'{count} entity', u'{count} entities', count).format(count=count),
         )
 
 class QuickCreationItemGroup(ItemGroup):  # TODO: 'is_group' + do not inherit ItemGroup ?
@@ -641,9 +641,9 @@ class QuickCreationItemGroup(ItemGroup):  # TODO: 'is_group' + do not inherit It
             for vname, model in content_types:
                 ct_id = get_ct(model).id
 
-                yield self._QuickCreationItem(id='%s-%s' % (g_id, ct_id), ct_id=ct_id, model=model, label=vname)
+                yield self._QuickCreationItem(id='{}-{}'.format(g_id, ct_id), ct_id=ct_id, model=model, label=vname)
         else:
-            yield LabelItem(id='%s-empty' % g_id, label=_(u'No type available'))
+            yield LabelItem(id='{}-empty'.format(g_id), label=_(u'No type available'))
 
 
 class CreationFormsItem(ViewableItem):
@@ -677,7 +677,7 @@ class CreationFormsItem(ViewableItem):
                     self._url  = kwargs['url']
                     self.perm  = kwargs['perm']
                 except KeyError as e:
-                    raise TypeError('Link: missing parameter %s' % e)
+                    raise TypeError('Link: missing parameter {}'.format(e))
 
         def __unicode__(self):
             return u'<Link: id="{}" label="{}" priority={}>'.format(
@@ -724,8 +724,8 @@ class CreationFormsItem(ViewableItem):
             return iter(self._links)
 
         def __unicode__(self):
-            return u'<LinkGroup: id="%s" label="%s" priority=%s>' % (
-                            self.id, self.label, self._priority
+            return u'<LinkGroup: id="{id}" label="{label}" priority={priority}>'.format(
+                            id=self.id, label=self.label, priority=self._priority
                     )
 
         def change_priority(self, priority, *link_ids):
@@ -825,10 +825,10 @@ class CreationFormsItem(ViewableItem):
         res = unicode(self) + '\n'
 
         for group in self._groups:
-            res += u'  %s\n' % group
+            res += u'  {}\n'.format(group)
 
             for link in group:
-                res += u'     %s\n' % link
+                res += u'     {}\n'.format(link)
 
         return res
 
@@ -878,10 +878,10 @@ class Menu(ItemList):
 
         for item in self:
             if isinstance(item, ItemGroup):
-                res += '---\nGroup(id="%s", priority=%s)\n' % (item.id, item._priority)
+                res += '---\nGroup(id="{}", priority={})\n'.format(item.id, item._priority)
 
                 for sub_item in item:
-                    res += u'   %s\n' % sub_item
+                    res += u'   {}\n'.format(sub_item)
 
                 res += '---'
             else:

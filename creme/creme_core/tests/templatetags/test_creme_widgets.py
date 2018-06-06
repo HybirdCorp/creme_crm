@@ -8,7 +8,7 @@ try:
     from ..base import CremeTestCase
     from ..fake_models import FakeOrganisation, FakeSector
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class CremeWidgetsTagsTestCase(CremeTestCase):
@@ -45,7 +45,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render = tpl.render(Context({'user': user, 'my_entity': orga}))
 
         self.assertEqual(render,
-                         u'<a href="/tests/organisation/%s">%s</a>' % (
+                         u'<a href="/tests/organisation/{}">{}</a>'.format(
                                 orga.id, name + '&lt;br/&gt;'
                             )
                         )
@@ -73,7 +73,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render = tpl.render(Context({'user': user, 'my_entity': orga}))
 
         self.assertEqual(render, 
-                         u'<a href="/tests/organisation/%s" class="is_deleted">%s</a>' % (
+                         u'<a href="/tests/organisation/{}" class="is_deleted">{}</a>'.format(
                                 orga.id, unicode(orga)
                             )
                         )

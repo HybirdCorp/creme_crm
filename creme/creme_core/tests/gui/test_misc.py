@@ -147,12 +147,12 @@ class GuiTestCase(CremeTestCase):
         # FK: with & without customised null_label
         self.assertEqual('', get_html_val(judo, 'position', user))
         self.assertEqual('', get_csv_val(judo,  'position', user))
-        self.assertEqual(u'<em>%s</em>' % pgettext('persons-is_user', 'None'),
+        self.assertEqual(u'<em>{}</em>'.format(pgettext('persons-is_user', 'None')),
                          get_html_val(casca, 'is_user', user)
                         )
         self.assertEqual('', get_csv_val(casca, 'is_user', user))  # Null_label not used in CSV backend
 
-        self.assertEqual(u'<a href="%s">%s</a>' % (img.get_absolute_url(), escape(img)),
+        self.assertEqual(u'<a href="{}">{}</a>'.format(img.get_absolute_url(), escape(img)),
                          get_html_val(casca, 'image', user)
                         )
         self.assertEqual(unicode(casca.image), get_csv_val(casca, 'image', user))
@@ -168,10 +168,10 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual(date_str, get_html_val(casca, 'created', user))
         self.assertEqual(date_str, get_csv_val(casca,  'created', user))
 
-        self.assertEqual('<ul><li>%s</li><li>%s</li></ul>' % (cat1.name, cat2.name),
+        self.assertEqual('<ul><li>{}</li><li>{}</li></ul>'.format(cat1.name, cat2.name),
                          get_html_val(casca, 'image__categories', user)
                         )
-        self.assertEqual('%s/%s' % (cat1.name, cat2.name),
+        self.assertEqual('{}/{}'.format(cat1.name, cat2.name),
                          get_csv_val(casca, 'image__categories', user)
                         )
         # TODO: test ImageField
@@ -198,19 +198,19 @@ class GuiTestCase(CremeTestCase):
         goku.languages.set([lang1, lang2])
 
         get_html_val = field_printers_registry.get_html_field_value
-        result_fmt = '<ul><li>%s</li><li>%s</li></ul>'
-        self.assertEqual(result_fmt % (lang1, lang2),
+        result_fmt = '<ul><li>{}</li><li>{}</li></ul>'.format
+        self.assertEqual(result_fmt(lang1, lang2),
                          get_html_val(goku, 'languages', user)
                         )
-        self.assertEqual(result_fmt % (lang1.name, lang2.name),
+        self.assertEqual(result_fmt(lang1.name, lang2.name),
                          get_html_val(goku,  'languages__name', user)
                         )
 
         get_csv_val = field_printers_registry.get_csv_field_value
-        self.assertEqual('%s/%s' % (lang1, lang2),
+        self.assertEqual('{}/{}'.format(lang1, lang2),
                          get_csv_val(goku, 'languages', user)
                         )
-        self.assertEqual('%s/%s' % (lang1.name, lang2.name),
+        self.assertEqual('{}/{}'.format(lang1.name, lang2.name),
                          get_csv_val(goku, 'languages__name', user)
                         )
 
@@ -247,30 +247,30 @@ class GuiTestCase(CremeTestCase):
         get_html_val = field_printers_registry.get_html_field_value
         get_csv_val  = field_printers_registry.get_csv_field_value
         self.assertEqual('<ul>'
-                            '<li><a target="_blank" href="%s">%s</a></li>'
-                            '<li><a target="_blank" href="%s">%s</a></li>'
-                         '</ul>' % (
+                            '<li><a target="_blank" href="{}">{}</a></li>'
+                            '<li><a target="_blank" href="{}">{}</a></li>'
+                         '</ul>'.format(
                                 ml1.get_absolute_url(), ml1,
                                 ml2.get_absolute_url(), ml2,
                             ),
                          get_html_val(camp1, 'mailing_lists', user)
                         )
         self.assertEqual('<ul>'
-                            '<li>%s</li>'
-                            '<li>%s</li>'
-                         '</ul>' % (
+                            '<li>{}</li>'
+                            '<li>{}</li>'
+                         '</ul>'.format(
                                 ml1.name,
                                 ml2.name,
                             ),
                          get_html_val(camp1, 'mailing_lists__name', user)
                         )
 
-        csv_value = u'%s/%s' % (ml1, ml2)
+        csv_value = u'{}/{}'.format(ml1, ml2)
         self.assertEqual(csv_value, get_csv_val(camp1, 'mailing_lists', user))
         self.assertEqual(csv_value, get_csv_val(camp1, 'mailing_lists__name', user))
 
         HIDDEN_VALUE = settings.HIDDEN_VALUE
-        html_value = '<ul><li>%s</li></ul>' % HIDDEN_VALUE #_(u'Entity #%s (not viewable)') % ml3.id,
+        html_value = '<ul><li>{}</li></ul>'.format(HIDDEN_VALUE)  #_(u'Entity #%s (not viewable)') % ml3.id,
         self.assertEqual(html_value, get_html_val(camp2, 'mailing_lists', user))
         self.assertEqual(html_value, get_html_val(camp2, 'mailing_lists__name', user))
 
@@ -304,7 +304,7 @@ class GuiTestCase(CremeTestCase):
         judo  = create_contact(first_name='Judo',  last_name='Doe',    image=judo_face)
 
         get_html_val = field_printers_registry.get_html_field_value
-        self.assertEqual(u'<a href="%s">%s</a>' % (judo_face.get_absolute_url(), judo_face),
+        self.assertEqual(u'<a href="{}">{}</a>'.format(judo_face.get_absolute_url(), judo_face),
                          get_html_val(judo, 'image', user)
                         )
         self.assertEqual('<p>Judo&#39;s selfie</p>',
@@ -412,8 +412,8 @@ class GuiTestCase(CremeTestCase):
 
         s_id = 'persons-contacts'
         label = 'Contacts'
-        fmt = 'There are %s Contacts'
-        registry.register(s_id, label, lambda: [fmt % FakeContact.objects.count()])
+        fmt = 'There are {} Contacts'.format
+        registry.register(s_id, label, lambda: [fmt(FakeContact.objects.count())])
 
         stats = list(registry)
         self.assertEqual(1, len(stats))
@@ -421,11 +421,11 @@ class GuiTestCase(CremeTestCase):
         stat = stats[0]
         self.assertEqual(s_id,  stat.id)
         self.assertEqual(label, stat.label)
-        self.assertEqual([fmt % FakeContact.objects.count()], stat.retrieve())
+        self.assertEqual([fmt(FakeContact.objects.count())], stat.retrieve())
         self.assertEqual('', stat.perm)
 
         FakeContact.objects.create(user=user, first_name='Koyomi', last_name='Araragi')
-        self.assertEqual([fmt % FakeContact.objects.count()], stat.retrieve())
+        self.assertEqual([fmt(FakeContact.objects.count())], stat.retrieve())
 
     def test_statistics02(self):
         "Priority"

@@ -90,13 +90,13 @@ class MockManyToMany(object):
 class Dummy(object):
     def __init__(self, id, user):
         self.user = user
-        self.name = u'Dummy (%d)' % id
+        self.name = u'Dummy ({})'.format(id)
         self.image = MockImage(media_url(TEST_IMAGE_URLS[randint(0, len(TEST_IMAGE_URLS) - 1)]), randint(16, 64)).html(self)
         # self.url = mark_safe(print_urlfield(self, media_url('images/add_16.png'), self.user, None))
         self.url = mark_safe(print_url_html(self, media_url('images/add_16.png'), self.user, None))
         self.datetime = mark_safe(print_datetime(self, now(), user, None))
         self.date = mark_safe(print_date(self, date.today(), user, None))
-        self.duration = mark_safe(print_duration(self, '%d:%d:%d' % (randint(0, 23), randint(0, 59), randint(0, 59)), user, None))
+        self.duration = mark_safe(print_duration(self, '{}:{}:{}'.format(randint(0, 23), randint(0, 59), randint(0, 59)), user, None))
         # self.foreignkey = mark_safe(print_foreignkey(self, CremeProperty.objects.all()[0], user, None))
         property = CremeProperty.objects.first()
         self.foreignkey = mark_safe(print_foreignkey_html(self, property, user, None)) if property is not None else None
@@ -209,12 +209,12 @@ def test_http_response(request):
         raise Exception('Tests: server internal error')
 
     if request.is_ajax():
-        return HttpResponse('XML Http Response %d' % status,
+        return HttpResponse('XML Http Response {}'.format(status),
                             # content_type='text/javascript',
                             status=status,
                            )
 
-    return HttpResponse('<p>Http Response %d</p>' % status,
+    return HttpResponse('<p>Http Response {}</p>'.format(status),
                         # content_type='text/html',
                         status=status,
                        )
@@ -248,7 +248,7 @@ def test_widget(request, widget):
 
     # try:
     if widget:
-        return render(request, 'creme_core/tests/test_%s.html' % widget, context)
+        return render(request, 'creme_core/tests/test_{}.html'.format(widget), context)
 
     return render(request, 'creme_core/tests/test.html', context)
     # finally:

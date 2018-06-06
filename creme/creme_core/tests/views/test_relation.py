@@ -182,7 +182,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                          }
                                    )
         self.assertFormError(response, 'form', 'relations',
-                             _(u'Some entities are not linkable: %s') % unlinkable
+                             _(u'Some entities are not linkable: {}').format(unlinkable)
                             )
         self.assertEqual(0, self.subject01.relations.count())
 
@@ -663,7 +663,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'relations',
-                             _(u'Some entities are not linkable: %s') % unlinkable
+                             _(u'Some entities are not linkable: {}').format(unlinkable)
                             )
 
     def test_add_relations_bulk05(self):

@@ -28,7 +28,7 @@ from ..global_info import get_global_info
 
 
 def get_creme_media_url(theme, url):
-    return media_url("%s/%s" % (theme, url))
+    return media_url('{}/{}'.format(theme, url))
 
 
 def creme_media_themed_url(url):

@@ -190,14 +190,14 @@ class EntityFiltersTestCase(CremeTestCase):
         other_team.teammates = [other_user]
 
         def create_subfilter(idx, owner):
-            return EntityFilter.create('creme_core-subfilter%s' % idx, 'Misato', model=FakeContact,
+            return EntityFilter.create('creme_core-subfilter{}'.format(idx), 'Misato', model=FakeContact,
                                        user=owner, is_private=True, is_custom=True,
                                        conditions=[EntityFilterCondition.build_4_field(
                                                         model=FakeContact,
                                                         operator=EntityFilterCondition.EQUALS,
                                                         name='first_name', values=['Misato'],
                                                     ),
-                                                   ],
+                                                  ],
                                        )
         subfilter1 = create_subfilter(1, other_user)
         subfilter2 = create_subfilter(2, user)
@@ -484,8 +484,8 @@ class EntityFiltersTestCase(CremeTestCase):
 
         # --------------------------
         efilter2 = create_filter(use_or=True)
-        self.assertEqual('%s[%s]' % (pk, __version__), efilter2.pk)
-        self.assertEqual('Nerv member [%s]' % __version__, efilter2.name)
+        self.assertEqual('{}[{}]'.format(pk, __version__), efilter2.pk)
+        self.assertEqual('Nerv member [{}]'.format(__version__), efilter2.name)
         self.assertEqual(2, qs.count())
 
         # --------------------------
@@ -495,14 +495,14 @@ class EntityFiltersTestCase(CremeTestCase):
         # --------------------------
         efilter3 = create_filter(use_or=True, value='Katsuragu')
         self.assertEqual(3, qs.count())
-        self.assertEqual('%s[%s]2' % (pk, __version__), efilter3.pk)
-        self.assertEqual('Nerv member [%s](2)' % __version__, efilter3.name)
+        self.assertEqual('{}[{}]2'.format(pk, __version__), efilter3.pk)
+        self.assertEqual('Nerv member [{}](2)'.format(__version__), efilter3.name)
 
         # --------------------------
         efilter4 = create_filter(use_or=True, value='Katsuragi')
         self.assertEqual(4, qs.count())
-        self.assertEqual('%s[%s]3' % (pk, __version__), efilter4.pk)
-        self.assertEqual('Nerv member [%s](3)' % __version__, efilter4.name)
+        self.assertEqual('{}[{}]3'.format(pk, __version__), efilter4.pk)
+        self.assertEqual('Nerv member [{}](3)'.format(__version__), efilter4.name)
 
     def test_create_errors(self):
         "Invalid chars in PK"
@@ -2681,8 +2681,8 @@ class EntityFiltersTestCase(CremeTestCase):
                      ]
 
         def create_ef(id, **kwargs):
-            return EntityFilter.create(pk='test-ef_contact%s' % id,
-                                       name='Filter #%s' % id,
+            return EntityFilter.create(pk='test-ef_contact{}'.format(id),
+                                       name='Filter #{}'.format(id),
                                        model=FakeContact, conditions=conditions,
                                        **kwargs
                                       )
@@ -2729,8 +2729,8 @@ class EntityFiltersTestCase(CremeTestCase):
                      ]
 
         def create_ef(id, **kwargs):
-            return EntityFilter.create(pk='test-ef_contact%s' % id,
-                                       name='Filter #%s' % id,
+            return EntityFilter.create(pk='test-ef_contact{}'.format(id),
+                                       name='Filter #{}'.format(id),
                                        model=FakeContact, conditions=conditions,
                                        **kwargs
                                       )

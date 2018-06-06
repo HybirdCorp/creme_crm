@@ -76,7 +76,8 @@ def currency(val, currency_or_id=None):
     # Check for illegal values
     digits = conv[not is_local_symbol and 'int_frac_digits' or 'frac_digits']
 
-    s = locale.format('%%.%if' % digits, abs(val), True, monetary=True)
+    # s = locale.format('%%.%if' % digits, abs(val), True, monetary=True)
+    s = locale.format('%.{}f'.format(digits), abs(val), True, monetary=True)
     s = s.decode(locale.getlocale(LC_MONETARY)[1])
 
     # '<' and '>' are markers if the sign must be inserted between symbol and value

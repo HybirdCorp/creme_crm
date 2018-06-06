@@ -21,7 +21,7 @@ class FieldTestCase(CremeTestCase):
             return e, _format_stack()
 
         exception_name = getattr(exception, '__name__', None) or str(exception)
-        self.fail("%s not raised" % exception_name)
+        self.fail('{} not raised'.format(exception_name))
 
     def assertFieldValidationError(self, field, key, func, *args, **kwargs):
         message_args = kwargs.pop('message_args', {})   # Pop error message args from kwargs
@@ -29,7 +29,7 @@ class FieldTestCase(CremeTestCase):
         message = unicode(field().error_messages[key] % message_args)
 
         if not hasattr(err, 'messages'):
-            self.fail('unexpected empty message instead of "%s"\nerror : %s' % (message, stack))
+            self.fail('unexpected empty message instead of "{}"\nerror : {}'.format(message, stack))
 
         if message != err.messages[0]:
-            self.fail('unexpected message "%s" instead of "%s"\nerror : %s' % (err.messages[0], message, stack))
+            self.fail('unexpected message "{}" instead of "{}"\nerror : {}'.format(err.messages[0], message, stack))

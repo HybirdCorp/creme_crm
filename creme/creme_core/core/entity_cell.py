@@ -69,7 +69,7 @@ class EntityCellsRegistry(object):
 
     def __call__(self, cls):
         if self._cell_classes.setdefault(cls.type_id, cls) is not cls:
-            raise self.RegistrationError("Duplicated Cell id: %s" % cls.id)
+            raise self.RegistrationError("Duplicated Cell id: {}".format(cls.id))
 
         return cls
 
@@ -128,7 +128,7 @@ class EntityCell(object):
         self.filter_string = filter_string # TODO: remove from public interface when quick search has been refactored
 
     def __repr__(self):
-        return u"<EntityCell(type=%s, value='%s')>" % (self.type_id, self.value)
+        return u"<EntityCell(type={}, value='{}')>".format(self.type_id, self.value)
 
     def __unicode__(self):
         return self.title  # Used by CustomBlockConfigItem block (creme_config)
@@ -142,7 +142,7 @@ class EntityCell(object):
         listview_css_class = getattr(self, attr_name)
 
         if listview_css_class is None:
-            registry_getter = getattr(field_printers_registry, 'get%s_for_field' % attr_name)
+            registry_getter = getattr(field_printers_registry, 'get{}_for_field'.format(attr_name))
             listview_css_class = registry_getter(self._get_field_class())
             setattr(self, attr_name, listview_css_class)
 
@@ -159,7 +159,7 @@ class EntityCell(object):
     @property
     def key(self):
         "Return an ID that should be unique in a EntityCell set"
-        return '%s-%s' % (self.type_id, self.value)
+        return '{}-{}'.format(self.type_id, self.value)
 
     @property
     def listview_css_class(self):
@@ -215,15 +215,15 @@ class EntityCellRegularField(EntityCell):
         field = field_info[0]
         has_a_filter = True
         sortable = True
-        pattern = '%s__icontains'
+        pattern = '{}__icontains'
 
         if len(field_info) > 1:
             field = field_info[-1]  # The sub-field is considered as the main field
 
         if isinstance(field, DateField):
-            pattern = '%s__range'  # TODO: quick search overload this, to use gte/lte when it is needed
+            pattern = '{}__range'  # TODO: quick search overload this, to use gte/lte when it is needed
         elif isinstance(field, BooleanField):
-            pattern = '%s__creme-boolean'
+            pattern = '{}__creme-boolean'
         elif isinstance(field, DatePeriodField):
             has_a_filter = False
             sortable = False
@@ -232,9 +232,8 @@ class EntityCellRegularField(EntityCell):
                 has_a_filter = False
                 sortable = False
             else:
-                pattern = '%s__header_filter_search_field__icontains' \
-                          if issubclass(field.remote_field.model, CremeEntity) else '%s'  # TODO '%s__exact' ?
-                          # if issubclass(field.rel.to, CremeEntity) else '%s'  # TODO '%s__exact' ?
+                pattern = '{}__header_filter_search_field__icontains' \
+                          if issubclass(field.remote_field.model, CremeEntity) else '{}'  # TODO '%s__exact' ?
 
         if any(f.many_to_many or f.one_to_many for f in field_info):
             sortable = False
@@ -246,7 +245,7 @@ class EntityCellRegularField(EntityCell):
                                                      editable=True,
                                                      sortable=sortable,
                                                      is_hidden=is_hidden,
-                                                     filter_string=pattern % name if has_a_filter else '',
+                                                     filter_string=pattern.format(name) if has_a_filter else '',
                                                     )
 
     @staticmethod
@@ -317,10 +316,10 @@ class EntityCellCustomField(EntityCell):
     type_id = 'custom_field'
 
     _CF_PATTERNS = {
-            CustomField.BOOL:       '%s__value__creme-boolean',
-            CustomField.DATETIME:   '%s__value__range',  # TODO: quick search overload this, to use gte/lte when it is needed
-            CustomField.ENUM:       '%s__value__exact',
-            CustomField.MULTI_ENUM: '%s__value__exact',
+            CustomField.BOOL:       '{}__value__creme-boolean',
+            CustomField.DATETIME:   '{}__value__range',  # TODO: quick search overload this, to use gte/lte when it is needed
+            CustomField.ENUM:       '{}__value__exact',
+            CustomField.MULTI_ENUM: '{}__value__exact',
         }
     _CF_CSS = {
             CustomField.DATETIME:   models.DateTimeField,
@@ -333,7 +332,7 @@ class EntityCellCustomField(EntityCell):
 
     def __init__(self, customfield):
         self._customfield = customfield
-        pattern = self._CF_PATTERNS.get(customfield.field_type, '%s__value__icontains')
+        pattern = self._CF_PATTERNS.get(customfield.field_type, '{}__value__icontains')
 
         super(EntityCellCustomField, self).__init__(model=customfield.content_type.model_class(),
                                                     value=unicode(customfield.id),
@@ -342,8 +341,9 @@ class EntityCellCustomField(EntityCell):
                                                     editable=False,  # TODO: make it editable
                                                     sortable=False,  # TODO: make it sortable ?
                                                     is_hidden=False,
-                                                    filter_string=pattern % customfield.get_value_class()
-                                                                                       .get_related_name(),
+                                                    filter_string=pattern.format(customfield.get_value_class()
+                                                                                            .get_related_name()
+                                                                                ),
                                                    )
 
     @staticmethod

@@ -187,7 +187,7 @@ class ServiceTestCase(_ProductsTestCase):
 
         response = post(img_1, img_4)
         self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'images', _(u'Some entities are not linkable: %s') % img_4)
+        self.assertFormError(response, 'form', 'images', _(u'Some entities are not linkable: {}').format(img_4))
 
         response = post(img_1, img_2)
         self.assertNoFormError(response)

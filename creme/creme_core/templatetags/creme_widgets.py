@@ -144,7 +144,7 @@ def do_icon(parser, token):
     """
     bits = token.split_contents()
     if len(bits) < 2:
-        raise TemplateSyntaxError("'%s' takes at least one argument (name/ctype/instance=...)" % bits[0])
+        raise TemplateSyntaxError('"{}" takes at least one argument (name/ctype/instance=...)'.format(bits[0]))
 
     match = KWARG_RE.match(bits[1])
     if not match:
@@ -155,7 +155,7 @@ def do_icon(parser, token):
     try:
         arg_name, icon_node_cls = _WIDGET_ICON_NODES[fa_name]
     except KeyError:
-        raise TemplateSyntaxError('Invalid 1rst argument to "widget_icon" tag ; it must be in %s' % _WIDGET_ICON_NODES.keys())
+        raise TemplateSyntaxError('Invalid 1rst argument to "widget_icon" tag ; it must be in {}'.format(_WIDGET_ICON_NODES.keys()))
 
     kwargs = {arg_name: parser.compile_filter(fa_value)}
 
@@ -167,13 +167,13 @@ def do_icon(parser, token):
     for bit in bits:
         match = KWARG_RE.match(bit)
         if not match:
-            raise TemplateSyntaxError('Malformed arguments to "widget_icon" tag: %s' % bit)
+            raise TemplateSyntaxError('Malformed arguments to "widget_icon" tag: {}'.format(bit))
 
         name, value = match.groups()
 
         arg_name = __ICON_ARGS_MAP.get(name)
         if arg_name is None:
-            raise TemplateSyntaxError('Invalid argument name to "widget_icon" tag: %s' % name)
+            raise TemplateSyntaxError('Invalid argument name to "widget_icon" tag: {}'.format(name))
 
         kwargs[arg_name] = parser.compile_filter(value)
 
@@ -280,7 +280,7 @@ def do_join(parser, token):
 
     if len(tokens) > 1:
         # We are sure there are at least one token (the tag itself).
-        raise TemplateSyntaxError('"%r" tag takes no argument' % tokens[0])
+        raise TemplateSyntaxError('"{!r}" tag takes no argument'.format(tokens[0]))
 
     nodelist = parser.parse(('end_widget_join',))
     parser.delete_first_token()

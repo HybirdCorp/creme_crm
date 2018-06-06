@@ -38,7 +38,8 @@ from .base import CremeForm
 
 
 _CUSTOMFIELD_PATTERN = re.compile('^customfield-(?P<id>[0-9]+)')
-_CUSTOMFIELD_FORMAT = 'customfield-%d'
+# _CUSTOMFIELD_FORMAT = 'customfield-%d'
+_CUSTOMFIELD_FORMAT = 'customfield-{}'  # TODO: remove & use base._CUSTOM_NAME instead
 
 
 class BulkFieldSelectWidget(Select):
@@ -55,7 +56,8 @@ class BulkForm(CremeForm):
         self.is_subfield = parent_field is not None
         self.is_custom = is_custom = isinstance(field, custom_field.CustomField)
 
-        self.field_name = field.name if not is_custom else _CUSTOMFIELD_FORMAT % field.pk
+        # self.field_name = field.name if not is_custom else _CUSTOMFIELD_FORMAT % field.pk
+        self.field_name = field.name if not is_custom else _CUSTOMFIELD_FORMAT.format(field.pk)
         self.model = model
         self.model_field = field
         self.model_parent_field = parent_field
@@ -119,7 +121,8 @@ class BulkForm(CremeForm):
 
         if custom_fields:
             choices.append((ugettext(u'Custom fields'),
-                            [(build_url(fieldname=_CUSTOMFIELD_FORMAT % field.id), field.name)
+                            # [(build_url(fieldname=_CUSTOMFIELD_FORMAT % field.id), field.name)
+                            [(build_url(fieldname=_CUSTOMFIELD_FORMAT.format(field.id)), field.name)
                                 for field in custom_fields
                             ]
                            )
@@ -177,7 +180,7 @@ class BulkForm(CremeForm):
 
         if instance is None:
             # TODO: code + _bulk_error_messages + params
-            raise ValidationError(ugettext(u'The field %s is empty') % self.model_parent_field.verbose_name)
+            raise ValidationError(ugettext(u'The field «{}» is empty').format(self.model_parent_field.verbose_name))
 
         return self._bulk_clean_entity(instance, values)
 
@@ -207,7 +210,7 @@ class BulkForm(CremeForm):
         for key, value in error.message_dict.iteritems():
             field = fields.get(key)
             message = ''.join(value) if isinstance(value, (list, tuple)) else value
-            messages.append(u'%s : %s' % (ugettext(field.verbose_name), message)
+            messages.append(u'{} : {}'.format(ugettext(field.verbose_name), message)
                             if field is not None else
                             message
                            )

@@ -481,7 +481,7 @@ def brick_table_column_for_field(context, ctype, field, title='', status='', **a
     cell = EntityCellRegularField.build(ctype.model_class(), field)
 
     if cell is None:
-        raise ValueError('Invalid field (ctype=%s, field="%s")' % (ctype, field))
+        raise ValueError('Invalid field (ctype={}, field="{}")'.format(ctype, field))
 
     return brick_table_column_for_cell(context, cell=cell, title=title, status=status, **attrs)
 
@@ -535,9 +535,9 @@ def brick_table_data_status(parser, token):
     tokens = token.split_contents()  # Splitting by None == splitting by spaces.
 
     if len(tokens) < 2:
-        raise TemplateSyntaxError('"%r" tag requires at least one argument.' % tokens[0])
+        raise TemplateSyntaxError('"{!r}" tag requires at least one argument.'.format(tokens[0]))
 
-    return TextNode(' '.join('data-table-%s-column' % t for t in tokens[1:]))
+    return TextNode(' '.join('data-table-{}-column'.format(t) for t in tokens[1:]))
 
 
 @register.simple_tag
@@ -820,7 +820,7 @@ def brick_display(context, *bricks, **kwargs):
         try:
             BricksManager.get(context).pop_group(brick_id)
         except KeyError:
-            raise ValueError('{%% brick_display %%}: it seems that this brick has not been declared/imported: %s' % brick_id)
+            raise ValueError('{{% brick_display %}}: it seems that this brick has not been declared/imported: {}'.format(brick_id))
 
     for brick_or_seq in bricks:
         if brick_or_seq == '':

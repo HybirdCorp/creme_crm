@@ -260,25 +260,25 @@ class _HistoryLineType(object):
             try:
                 field = get_field(field_name)
             except FieldDoesNotExist:
-                vmodif = ugettext(u'Set field “%(field)s”') % {'field': field_name}
+                vmodif = ugettext(u'Set field “{field}”').format(field=field_name)
             else:
                 field_vname = field.verbose_name
                 length = len(modif)
 
                 if length == 1:
-                    vmodif = ugettext(u'Set field “%(field)s”') % {'field': field_vname}
+                    vmodif = ugettext(u'Set field “{field}”').format(field=field_vname)
                 elif length == 2:
-                    vmodif = ugettext(u'Set field “%(field)s” to “%(value)s”') % {
-                                        'field': field_vname,
-                                        'value': self._get_printer(field)(field, modif[1], user),
-                                       }
+                    vmodif = ugettext(u'Set field “{field}” to “{value}”').format(
+                                        field=field_vname,
+                                        value=self._get_printer(field)(field, modif[1], user),
+                    )
                 else:  # length == 3
                     printer = self._get_printer(field)
-                    vmodif = ugettext(u'Set field “%(field)s” from “%(oldvalue)s” to “%(value)s”') % {
-                                            'field':    field_vname,
-                                            'oldvalue': printer(field, modif[1], user),
-                                            'value':    printer(field, modif[2], user),
-                                        }
+                    vmodif = ugettext(u'Set field “{field}” from “{oldvalue}” to “{value}”').format(
+                                        field=field_vname,
+                                        oldvalue=printer(field, modif[1], user),
+                                        value=printer(field, modif[2], user),
+                    )
 
             yield vmodif
 
@@ -359,7 +359,7 @@ class _HLTRelatedEntity(_HistoryLineType):
 @TYPES_MAP(TYPE_PROP_ADD)
 class _HLTPropertyCreation(_HistoryLineType):
     verbose_name = _(u'Property creation')
-    _fmt = _(u'Add property “%s”')
+    _fmt = _(u'Add property “{}”')
 
     @classmethod
     def create_line(cls, prop):
@@ -375,13 +375,13 @@ class _HLTPropertyCreation(_HistoryLineType):
         except CremePropertyType.DoesNotExist:
             ptype_text = ptype_id
 
-        yield self._fmt % ptype_text
+        yield self._fmt.format(ptype_text)
 
 
 @TYPES_MAP(TYPE_PROP_DEL)
 class _HLTPropertyDeletion(_HLTPropertyCreation):
     verbose_name = _(u'Property deletion')
-    _fmt = _(u'Delete property “%s”')
+    _fmt = _(u'Delete property “{}”')
 
     @classmethod
     def create_line(cls, prop):
@@ -395,7 +395,7 @@ class _HLTRelation(_HistoryLineType):
     verbose_name      = _(u'Relationship')
     has_related_line  = True
     is_about_relation = True
-    _fmt = _(u'Add a relationship “%s”')
+    _fmt = _(u'Add a relationship “{}”')
 
     @classmethod
     def _create_lines(cls, relation, sym_cls, date=None):
@@ -426,7 +426,7 @@ class _HLTRelation(_HistoryLineType):
         except RelationType.DoesNotExist:
             predicate = rtype_id
 
-        yield self._fmt % predicate
+        yield self._fmt.format(predicate)
 
 
 @TYPES_MAP(TYPE_SYM_RELATION)
@@ -437,7 +437,7 @@ class _HLTSymRelation(_HLTRelation):
 @TYPES_MAP(TYPE_RELATION_DEL)
 class _HLTRelationDeletion(_HLTRelation):
     verbose_name = _(u'Relationship deletion')
-    _fmt = _(u'Delete a relationship “%s”')
+    _fmt = _(u'Delete a relationship “{}”')
 
     @classmethod
     def create_lines(cls, relation):
@@ -473,10 +473,10 @@ class _HLTAuxCreation(_HistoryLineType):
     def verbose_modifications(self, modifications, entity_ctype, user):
         ct_id, aux_id, str_obj = modifications  # TODO: use aux_id to display an up-to-date value ??
 
-        yield ugettext(u'Add <%(type)s>: “%(value)s”') % {
-                        'type':  self._model_info(ct_id)[1],
-                        'value': str_obj,
-                    }
+        yield ugettext(u'Add <{type}>: “{value}”').format(
+                        type=self._model_info(ct_id)[1],
+                        value=str_obj,
+        )
 
 
 @TYPES_MAP(TYPE_AUX_EDITION)
@@ -501,10 +501,10 @@ class _HLTAuxEdition(_HLTAuxCreation):
         ct_id, aux_id, str_obj = modifications[0]  # TODO: idem (see _HLTAuxCreation)
         model_class, verbose_name = self._model_info(ct_id)
 
-        yield ugettext(u'Edit <%(type)s>: “%(value)s”') % {
-                        'type':  verbose_name,
-                        'value': str_obj,
-                    }
+        yield ugettext(u'Edit <{type}>: “{value}”').format(
+                        type=verbose_name,
+                        value=str_obj,
+        )
 
         for m in self._verbose_modifications_4_fields(model_class, modifications[1:], user):
             yield m
@@ -521,10 +521,10 @@ class _HLTAuxDeletion(_HLTAuxCreation):
     def verbose_modifications(self, modifications, entity_ctype, user):
         ct_id, str_obj = modifications
 
-        yield ugettext(u'Delete <%(type)s>: “%(value)s”') % {
-                        'type':  self._model_info(ct_id)[1],
-                        'value': str_obj,
-                    }
+        yield ugettext(u'Delete <{type}>: “{value}”').format(
+                        type=self._model_info(ct_id)[1],
+                        value=str_obj,
+        )
 
 
 @TYPES_MAP(TYPE_EXPORT)
@@ -555,9 +555,9 @@ class _HLTEntityExport(_HistoryLineType):
     def verbose_modifications(self, modifications, entity_ctype, user):
         count = modifications[0]
 
-        yield ugettext(u'Export of {counter} «{type}» (view «{view}» & filter «{filter}»)').format(
-                counter=count,
-                type=get_model_verbose_name(entity_ctype.model_class(), count),
+        yield ugettext(u'Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
+                count=count,
+                model=get_model_verbose_name(entity_ctype.model_class(), count),
                 view=modifications[1],
                 filter=modifications[2] if len(modifications) >= 3 else ugettext(u'All'),
         )

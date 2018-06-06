@@ -865,7 +865,7 @@ class CreatorEntityField(EntityCredsJSONField):
     def _value_to_jsonifiable(self, value):
         if isinstance(value, (int, long)):
             if not self._entity_queryset(self.model, self.q_filter_query).filter(pk=value).exists():
-                raise ValueError('No such entity with id %d.' % value)
+                raise ValueError('No such entity with id={}.'.format(value))
 
             return value
 
@@ -896,8 +896,9 @@ class MultiCreatorEntityField(CreatorEntityField):
 
         if value and isinstance(value[0], (int, long)):
             if self._entity_queryset(self.model, self.q_filter_query).filter(pk__in=value).count() < len(value):
-                raise ValueError("One or more entities with ids [%s] doesn't exists." %
-                                    ', '.join(str(v) for v in value)
+                raise ValueError("The entities with ids [{}] don't exist.".format(
+                                        ', '.join(str(v) for v in value)
+                                    )
                                 )
 
             return value

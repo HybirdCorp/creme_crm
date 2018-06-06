@@ -82,8 +82,8 @@ class FieldInfo(object):
             remote_field = getattr(field, 'remote_field', None)
 
             if remote_field is None:
-                raise FieldDoesNotExist('"%s" is not a ForeignKey/ManyToManyField,'
-                                        ' so it can have a sub-field' % subfield_name
+                raise FieldDoesNotExist('"{}" is not a ForeignKey/ManyToManyField,'
+                                        ' so it can have a sub-field'.format(subfield_name)
                                        )
 
             model = remote_field.model
@@ -122,7 +122,7 @@ class FieldInfo(object):
         return iter(self.__fields)
 
     def __repr__(self):
-        return 'FieldInfo(model=%s, field_name="%s")' % (
+        return 'FieldInfo(model={}, field_name="{}")'.format(
                     self._model.__name__,
                     '__'.join(f.name for f in self.__fields),
                 )
@@ -138,7 +138,7 @@ class FieldInfo(object):
     # TODO: probably does not work with several ManyToManyFields in the fields chain
     def value_from(self, instance):
         if not isinstance(instance, self._model):
-            raise ValueError('"%s" is not an instance of %s' % (instance, self._model))
+            raise ValueError('"{}" is not an instance of {}'.format(instance, self._model))
 
         result = instance
 
@@ -274,7 +274,7 @@ class ModelFieldEnumerator(object):
                        )
             # A classical django choice. Eg: ('user__email', '[Owner user] - Email address')
             choice = ('__'.join(field.name for field in fields_info),
-                      u' - '.join(chain((u'[%s]' % vname for vname in fk_vnames),
+                      u' - '.join(chain((u'[{}]'.format(vname) for vname in fk_vnames),
                                         [terminal_vname]
                                        )
                                  )

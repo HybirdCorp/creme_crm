@@ -12,7 +12,7 @@ try:
            FakeOrganisation, FakePosition, FakeActivity, FakeActivityType)
     from creme.creme_core.utils.queries import QSerializer
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class QueriesTestCase(CremeTestCase):

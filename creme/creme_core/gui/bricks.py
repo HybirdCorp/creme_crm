@@ -148,11 +148,11 @@ class Brick(object):
 
     @staticmethod
     def generate_id(app_name, name):  # TODO: rename _generate_id ?
-        return u'block_%s-%s' % (app_name, name)
+        return u'block_{}-{}'.format(app_name, name)
 
     @classmethod
     def _generate_hat_id(cls, app_name, name):
-        return u'%s-%s-%s' % (cls.GENERIC_HAT_BRICK_ID, app_name, name)
+        return u'{}-{}-{}'.format(cls.GENERIC_HAT_BRICK_ID, app_name, name)
 
     def _render(self, template_context):
         return get_template(self.template_name).render(template_context)
@@ -169,7 +169,7 @@ class Brick(object):
                         yield 'creme_core.relation.' + rtype_id
                 else:
                     meta = dep._meta
-                    yield '%s.%s' % (meta.app_label, meta.model_name)
+                    yield '{}.{}'.format(meta.app_label, meta.model_name)
             else:
                 yield unicode(dep)
 
@@ -229,7 +229,7 @@ class _PaginatedBrickContext(_BrickContext):
         self.page = 1
 
     def __repr__(self):
-        return '<PaginatedBrickContext: page=%s>' % self.page
+        return '<PaginatedBrickContext: page={}>'.format(self.page)
 
     def as_dict(self):
         return {'page': self.page}
@@ -257,7 +257,7 @@ class PaginatedBrick(Brick):
         request = context['request']
         objects = extra_kwargs.pop('objects')
 
-        page_index = request.GET.get('%s_page' % brick_id)
+        page_index = request.GET.get('{}_page'.format(brick_id))
         if page_index is not None:
             try:
                 page_index = int(page_index)
@@ -292,7 +292,7 @@ class _QuerysetBrickContext(_PaginatedBrickContext):
         self._order_by = ''
 
     def __repr__(self):
-        return '<QuerysetBrickContext: page=%s order_by=%s>' % (self.page, self._order_by)
+        return '<QuerysetBrickContext: page={} order_by={}>'.format(self.page, self._order_by)
 
     def as_dict(self):
         d = super(_QuerysetBrickContext, self).as_dict()
@@ -352,7 +352,7 @@ class QuerysetBrick(PaginatedBrick):
         objects = extra_kwargs['objects']
 
         if self.order_by:
-            req_order_by = request.GET.get('%s_order' % brick_id)
+            req_order_by = request.GET.get('{}_order'.format(brick_id))
             raw_order_by = brick_context.get_order_by(self.order_by) if req_order_by is None else req_order_by
 
             if self._is_order_valid(model=objects.model, order=raw_order_by):
@@ -420,11 +420,11 @@ class SpecificRelationsBrick(QuerysetBrick):
 
         rtype = relationblock_item.relation_type
         self.relation_type_deps = (rtype.id,)
-        self.verbose_name = ugettext(u'Relationship block: «%s»') % rtype.predicate
+        self.verbose_name = ugettext(u'Relationship block: «{predicate}»').format(predicate=rtype.predicate)
 
     @staticmethod
     def generate_id(app_name, name):
-        return u'specificblock_%s-%s' % (app_name, name)
+        return u'specificblock_{}-{}'.format(app_name, name)
 
     @staticmethod
     def id_is_specific(id_):
@@ -527,7 +527,7 @@ class BricksManager(object):
 
         group = self._bricks_groups[group_name]
         if group:
-            raise BricksManager.Error("This brick's group name already exists: %s" % group_name)
+            raise BricksManager.Error("This brick's group name already exists: {}".format(group_name))
 
         self._bricks.extend(bricks)
         group.extend(bricks)

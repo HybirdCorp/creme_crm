@@ -208,8 +208,8 @@ class EntityFilter(Model):  # CremeModel ???
             if not parent_filter.is_private:
                 raise EntityFilter.PrivacyError(
                             ugettext(u'This filter cannot be private because '
-                                     u'it is a sub-filter for the public filter "%s"'
-                                    ) % parent_filter.name
+                                     u'it is a sub-filter for the public filter "{}"'
+                                    ).format(parent_filter.name)
                         )
 
             if owner.is_team:
@@ -217,20 +217,20 @@ class EntityFilter(Model):  # CremeModel ???
                     if parent_filter.user != owner:
                         raise EntityFilter.PrivacyError(
                                     ugettext(u'This filter cannot be private and belong to this team '
-                                             u'because it is a sub-filter for the filter "%(filter)s" '
-                                             u'which belongs to the team "%(team)s".'
-                                            ) % {'filter': parent_filter.name,
-                                                 'team':   parent_filter.user,
-                                                }
+                                             u'because it is a sub-filter for the filter "{filter}" '
+                                             u'which belongs to the team "{team}".'
+                                            ).format(filter=parent_filter.name,
+                                                     team=parent_filter.user,
+                                                    )
                                 )
                 elif parent_filter.user.id not in owner.teammates:
                     raise EntityFilter.PrivacyError(
                                 ugettext(u'This filter cannot be private and belong to this team '
-                                         u'because it is a sub-filter for the filter "%(filter)s" '
-                                         u'which belongs to the user "%(user)s" (who is not a member of this team).'
-                                        ) % {'filter': parent_filter.name,
-                                             'user':   parent_filter.user,
-                                            }
+                                         u'because it is a sub-filter for the filter "{filter}" '
+                                         u'which belongs to the user "{user}" (who is not a member of this team).'
+                                        ).format(filter=parent_filter.name,
+                                                 user=parent_filter.user,
+                                                )
                             )
             else:
                 if not parent_filter.can_view(owner)[0]:
@@ -243,8 +243,8 @@ class EntityFilter(Model):  # CremeModel ???
                 if parent_filter.user.is_team:
                     raise EntityFilter.PrivacyError(
                                 ugettext(u'This filter cannot be private and belong to a user '
-                                         u'because it is a sub-filter for the filter "%s" which belongs to a team.'
-                                        ) % parent_filter.name
+                                         u'because it is a sub-filter for the filter "{}" which belongs to a team.'
+                                        ).format(parent_filter.name)
                             )
 
     def _check_privacy_sub_filters(self, conditions, is_private, owner):
@@ -265,12 +265,14 @@ class EntityFilter(Model):  # CremeModel ???
 
                 if invalid_filter_names:
                     raise EntityFilter.PrivacyError(
-                                ungettext(u'A private filter which belongs to a team can only use public sub-filters & private sub-filters which belong to this team.'
-                                         u' So this private sub-filter cannot be chosen: %s',
-                                         u'A private filter which belongs to a team can only use public sub-filters & private sub-filters which belong to this team.'
-                                         u' So these private sub-filters cannot be chosen: %s',
-                                         len(invalid_filter_names)
-                                        ) % u', '.join(invalid_filter_names)
+                                ungettext(u'A private filter which belongs to a team can only use public sub-filters & '
+                                          u'private sub-filters which belong to this team.'
+                                          u' So this private sub-filter cannot be chosen: {}',
+                                          u'A private filter which belongs to a team can only use public sub-filters & '
+                                          u'private sub-filters which belong to this team.'
+                                          u' So these private sub-filters cannot be chosen: {}',
+                                          len(invalid_filter_names)
+                                         ).format(u', '.join(invalid_filter_names))
                             )
             else:
                 invalid_filter_names = EntityFilter.objects \
@@ -280,12 +282,14 @@ class EntityFilter(Model):  # CremeModel ???
 
                 if invalid_filter_names:
                     raise EntityFilter.PrivacyError(
-                                ungettext(u'A private filter can only use public sub-filters, & private sub-filters which belong to the same user and his teams.'
-                                          u' So this private sub-filter cannot be chosen: %s',
-                                          u'A private filter can only use public sub-filters, & private sub-filters which belong to the same user and his teams.'
-                                          u' So these private sub-filters cannot be chosen: %s',
+                                ungettext(u'A private filter can only use public sub-filters, & private sub-filters '
+                                          u'which belong to the same user and his teams.'
+                                          u' So this private sub-filter cannot be chosen: {}',
+                                          u'A private filter can only use public sub-filters, & private sub-filters '
+                                          u'which belong to the same user and his teams.'
+                                          u' So these private sub-filters cannot be chosen: {}',
                                           len(invalid_filter_names)
-                                         ) % u', '.join(invalid_filter_names)
+                                         ).format(u', '.join(invalid_filter_names))
                             )
         else:
             invalid_filter_names = EntityFilter.objects \
@@ -296,10 +300,10 @@ class EntityFilter(Model):  # CremeModel ???
                 # All user can see this filter, so all user should have the permission
                 # to see the sub-filters too ; so they have to be public (is_private=False)
                 raise EntityFilter.PrivacyError(
-                            ungettext(u'Your filter must be private in order to use this private sub-filter: %s',
-                                      u'Your filter must be private in order to use these private sub-filters: %s',
+                            ungettext(u'Your filter must be private in order to use this private sub-filter: {}',
+                                      u'Your filter must be private in order to use these private sub-filters: {}',
                                       len(invalid_filter_names)
-                                     ) % u', '.join(invalid_filter_names)
+                                     ).format(u', '.join(invalid_filter_names))
                         )
 
     def check_privacy(self, conditions, is_private, owner):
@@ -318,7 +322,7 @@ class EntityFilter(Model):  # CremeModel ???
         forbidden = {'[', ']', '#', '?'} #'&'
 
         if any((c in forbidden) for c in pk):
-            raise ValueError('EntityFilter.create(): invalid character in "pk" (forbidden: %s)' % forbidden)
+            raise ValueError('EntityFilter.create(): invalid character in "pk" (forbidden: {})'.format(forbidden))
 
         if is_private:
             if not user:
@@ -380,8 +384,8 @@ class EntityFilter(Model):  # CremeModel ???
                    not EntityFilterCondition.conditions_equal(conditions, ef.get_conditions()):
                     from creme import __version__
 
-                    new_pk = '%s[%s]' % (pk, __version__)
-                    new_name = u'%s [%s]' % (name, __version__)
+                    new_pk = '{}[{}]'.format(pk, __version__)
+                    new_name = u'{} [{}]'.format(name, __version__)
 
                     latest_pk = ef.pk
 
@@ -398,7 +402,7 @@ class EntityFilter(Model):  # CremeModel ???
                                 raise ValueError('Malformed EntityFilter PK/version: {}'.format(latest_pk))
 
                             new_pk += str(copy_num)
-                            new_name += '(%i)' % copy_num
+                            new_name += '({})'.format(copy_num)
 
                     ef = EntityFilter.objects.create(pk=new_pk, name=new_name,
                                                      is_custom=is_custom,
@@ -418,8 +422,8 @@ class EntityFilter(Model):  # CremeModel ???
             if parents:
                 raise EntityFilter.DependenciesError(
                         ugettext(u'You can not delete this filter, '
-                                 u'because it is used as sub-filter by : %s'
-                                ) % u', '.join(parents)
+                                 u'because it is used as sub-filter by: {}'
+                                ).format(u', '.join(parents))
                 )
 
         super(EntityFilter, self).delete(*args, **kwargs)
@@ -572,7 +576,7 @@ class EntityFilter(Model):  # CremeModel ???
         efilters = list(EntityFilter.objects.filter(Q(pk=base_pk) | Q(pk__startswith=base_pk + '[')))
 
         if not efilters:
-            raise EntityFilter.DoesNotExist('No EntityFilter with pk="%s"' % base_pk)
+            raise EntityFilter.DoesNotExist('No EntityFilter with pk="{}"'.format(base_pk))
 
         VERSION_RE = compile_re(r'([\w,-]+)(\[(?P<version_num>\d[\d\.]+)( (?P<version_mod>alpha|beta|rc)(?P<version_modnum>\d+)?)?\](?P<copy_num>\d+)?)?$')
 
@@ -655,7 +659,8 @@ class _ConditionOperator(object):
         return unicode(self.name)
 
     def get_q(self, efcondition, values):
-        key = self.key_pattern % efcondition.name
+        # key = self.key_pattern % efcondition.name
+        key = self.key_pattern.format(efcondition.name)
         query = Q()
 
         for value in values:
@@ -687,14 +692,14 @@ class _ConditionOperator(object):
 class _ConditionBooleanOperator(_ConditionOperator):
     def validate_field_values(self, field, values, user=None):
         if len(values) != 1 or not isinstance(values[0], bool):
-            raise ValueError(u'A list with one bool is expected for condition %s' % self.name)
+            raise ValueError(u'A list with one bool is expected for condition {}'.format(self.name))
 
         return values
 
 
 class _IsEmptyOperator(_ConditionBooleanOperator):
     def __init__(self, name, exclude=False, **kwargs):
-        super(_IsEmptyOperator, self).__init__(name, key_pattern='%s__isnull',
+        super(_IsEmptyOperator, self).__init__(name, key_pattern='{}__isnull',
                                                exclude=exclude, accept_subpart=False,
                                                **kwargs
                                               )
@@ -703,7 +708,8 @@ class _IsEmptyOperator(_ConditionBooleanOperator):
         field_name = efcondition.name
 
         # As default, set isnull operator (always true, negate is done later)
-        query = Q(**{self.key_pattern % field_name: True})
+        # query = Q(**{self.key_pattern % field_name: True})
+        query = Q(**{self.key_pattern.format(field_name): True})
 
         # Add filter for text fields, "isEmpty" should mean null or empty string
         finfo = FieldInfo(efcondition.filter.entity_type.model_class(), field_name)
@@ -719,11 +725,11 @@ class _IsEmptyOperator(_ConditionBooleanOperator):
 
 class _RangeOperator(_ConditionOperator):
     def __init__(self, name):
-        super(_RangeOperator, self).__init__(name, '%s__range', allowed_fieldtypes=('number', 'date'))
+        super(_RangeOperator, self).__init__(name, '{}__range', allowed_fieldtypes=('number', 'date'))
 
     def validate_field_values(self, field, values, user=None):
         if len(values) != 2:
-            raise ValueError(u'A list with 2 elements is expected for condition %s' % self.name)
+            raise ValueError(u'A list with 2 elements is expected for condition {}'.format(self.name))
 
         return [super(_RangeOperator, self).validate_field_values(field, values)]
 
@@ -793,32 +799,32 @@ class EntityFilterCondition(Model):
                            }
 
     _OPERATOR_MAP = {
-            EQUALS:          _ConditionOperator(_(u'Equals'),                                 '%s__exact',
+            EQUALS:          _ConditionOperator(_(u'Equals'),                                 '{}__exact',
                                                 accept_subpart=False, allowed_fieldtypes=_FIELDTYPES_ALL),
-            IEQUALS:         _ConditionOperator(_(u'Equals (case insensitive)'),              '%s__iexact',
+            IEQUALS:         _ConditionOperator(_(u'Equals (case insensitive)'),              '{}__iexact',
                                                 accept_subpart=False, allowed_fieldtypes=('string',)),
-            EQUALS_NOT:      _ConditionOperator(_(u"Does not equal"),                         '%s__exact',
+            EQUALS_NOT:      _ConditionOperator(_(u'Does not equal'),                         '{}__exact',
                                                 exclude=True, accept_subpart=False, allowed_fieldtypes=_FIELDTYPES_ALL),
-            IEQUALS_NOT:     _ConditionOperator(_(u"Does not equal (case insensitive)"),      '%s__iexact',
+            IEQUALS_NOT:     _ConditionOperator(_(u'Does not equal (case insensitive)'),      '{}__iexact',
                                                 exclude=True, accept_subpart=False, allowed_fieldtypes=('string',)),
-            CONTAINS:        _ConditionOperator(_(u"Contains"),                               '%s__contains', allowed_fieldtypes=('string',)),
-            ICONTAINS:       _ConditionOperator(_(u"Contains (case insensitive)"),            '%s__icontains', allowed_fieldtypes=('string',)),
-            CONTAINS_NOT:    _ConditionOperator(_(u"Does not contain"),                       '%s__contains', exclude=True, allowed_fieldtypes=('string',)),
-            ICONTAINS_NOT:   _ConditionOperator(_(u"Does not contain (case insensitive)"),    '%s__icontains', exclude=True, allowed_fieldtypes=('string',)),
-            GT:              _ConditionOperator(_(u">"),                                      '%s__gt', allowed_fieldtypes=_FIELDTYPES_ORDERABLE),
-            GTE:             _ConditionOperator(_(u">="),                                     '%s__gte', allowed_fieldtypes=_FIELDTYPES_ORDERABLE),
-            LT:              _ConditionOperator(_(u"<"),                                      '%s__lt', allowed_fieldtypes=_FIELDTYPES_ORDERABLE),
-            LTE:             _ConditionOperator(_(u"<="),                                     '%s__lte', allowed_fieldtypes=_FIELDTYPES_ORDERABLE),
-            STARTSWITH:      _ConditionOperator(_(u"Starts with"),                            '%s__startswith', allowed_fieldtypes=('string',)),
-            ISTARTSWITH:     _ConditionOperator(_(u"Starts with (case insensitive)"),         '%s__istartswith', allowed_fieldtypes=('string',)),
-            STARTSWITH_NOT:  _ConditionOperator(_(u"Does not start with"),                    '%s__startswith', exclude=True, allowed_fieldtypes=('string',)),
-            ISTARTSWITH_NOT: _ConditionOperator(_(u"Does not start with (case insensitive)"), '%s__istartswith', exclude=True, allowed_fieldtypes=('string',)),
-            ENDSWITH:        _ConditionOperator(_(u"Ends with"),                              '%s__endswith', allowed_fieldtypes=('string',)),
-            IENDSWITH:       _ConditionOperator(_(u"Ends with (case insensitive)"),           '%s__iendswith', allowed_fieldtypes=('string',)),
-            ENDSWITH_NOT:    _ConditionOperator(_(u"Does not end with"),                      '%s__endswith', exclude=True, allowed_fieldtypes=('string',)),
-            IENDSWITH_NOT:   _ConditionOperator(_(u"Does not end with (case insensitive)"),   '%s__iendswith', exclude=True, allowed_fieldtypes=('string',)),
-            ISEMPTY:         _IsEmptyOperator(_(u"Is empty"), allowed_fieldtypes=_FIELDTYPES_NULLABLE),
-            RANGE:           _RangeOperator(_(u"Range")),
+            CONTAINS:        _ConditionOperator(_(u'Contains'),                               '{}__contains', allowed_fieldtypes=('string',)),
+            ICONTAINS:       _ConditionOperator(_(u'Contains (case insensitive)'),            '{}__icontains', allowed_fieldtypes=('string',)),
+            CONTAINS_NOT:    _ConditionOperator(_(u'Does not contain'),                       '{}__contains', exclude=True, allowed_fieldtypes=('string',)),
+            ICONTAINS_NOT:   _ConditionOperator(_(u'Does not contain (case insensitive)'),    '{}__icontains', exclude=True, allowed_fieldtypes=('string',)),
+            GT:              _ConditionOperator(_(u'>'),                                      '{}__gt', allowed_fieldtypes=_FIELDTYPES_ORDERABLE),
+            GTE:             _ConditionOperator(_(u'>='),                                     '{}__gte', allowed_fieldtypes=_FIELDTYPES_ORDERABLE),
+            LT:              _ConditionOperator(_(u'<'),                                      '{}__lt', allowed_fieldtypes=_FIELDTYPES_ORDERABLE),
+            LTE:             _ConditionOperator(_(u'<='),                                     '{}__lte', allowed_fieldtypes=_FIELDTYPES_ORDERABLE),
+            STARTSWITH:      _ConditionOperator(_(u'Starts with'),                            '{}__startswith', allowed_fieldtypes=('string',)),
+            ISTARTSWITH:     _ConditionOperator(_(u'Starts with (case insensitive)'),         '{}__istartswith', allowed_fieldtypes=('string',)),
+            STARTSWITH_NOT:  _ConditionOperator(_(u'Does not start with'),                    '{}__startswith', exclude=True, allowed_fieldtypes=('string',)),
+            ISTARTSWITH_NOT: _ConditionOperator(_(u'Does not start with (case insensitive)'), '{}__istartswith', exclude=True, allowed_fieldtypes=('string',)),
+            ENDSWITH:        _ConditionOperator(_(u'Ends with'),                              '{}__endswith', allowed_fieldtypes=('string',)),
+            IENDSWITH:       _ConditionOperator(_(u'Ends with (case insensitive)'),           '{}__iendswith', allowed_fieldtypes=('string',)),
+            ENDSWITH_NOT:    _ConditionOperator(_(u'Does not end with'),                      '{}__endswith', exclude=True, allowed_fieldtypes=('string',)),
+            IENDSWITH_NOT:   _ConditionOperator(_(u'Does not end with (case insensitive)'),   '{}__iendswith', exclude=True, allowed_fieldtypes=('string',)),
+            ISEMPTY:         _IsEmptyOperator(_(u'Is empty'), allowed_fieldtypes=_FIELDTYPES_NULLABLE),
+            RANGE:           _RangeOperator(_(u'Range')),
         }
 
     _subfilter_cache = None  # 'None' means not retrieved ; 'False' means invalid filter
@@ -830,12 +836,12 @@ class EntityFilterCondition(Model):
         pass
 
     def __repr__(self):
-        return u'EntityFilterCondition(filter_id=%(filter)s, type=%(type)s, name=%(name)s, value=%(value)s)' % {
-                    'filter': self.filter_id,
-                    'type':   self.type,
-                    'name':   self.name or 'None',
-                    'value':  self.value,
-                }
+        return u'EntityFilterCondition(filter_id={filter}, type={type}, name={name}, value={value})'.format(
+                    filter=self.filter_id,
+                    type=self.type,
+                    name=self.name or 'None',
+                    value=self.value,
+        )
 
     @staticmethod
     def build_4_customfield(custom_field, operator, value, user=None):
@@ -941,7 +947,7 @@ class EntityFilterCondition(Model):
         """
         operator_obj = EntityFilterCondition._OPERATOR_MAP.get(operator)
         if not operator_obj:
-            raise EntityFilterCondition.ValueError('Unknown operator: %s' % operator)
+            raise EntityFilterCondition.ValueError('Unknown operator: {}'.format(operator))
 
         try:
             finfo = FieldInfo(model, name)
@@ -1066,12 +1072,12 @@ class EntityFilterCondition(Model):
                 return str(e)
 
             if not is_date_field(finfo[-1]):
-                return '%s is not a date field' % self.name  # TODO: test
+                return '{} is not a date field'.format(self.name)  # TODO: test
         elif etype in (EntityFilterCondition.EFC_SUBFILTER,
                        EntityFilterCondition.EFC_RELATION_SUBFILTER,
                       ):
             if self._get_subfilter() is False:
-                return '%s is not a valid filter ID' % self._get_subfilter_id()
+                return '{} is not a valid filter ID'.format(self._get_subfilter_id())
 
     def _get_q_customfield(self, user):
         # NB: Sadly we retrieve the ids of the entity that match with this condition
@@ -1080,7 +1086,7 @@ class EntityFilterCondition(Model):
         search_info = self.decoded_value
         operator = EntityFilterCondition._OPERATOR_MAP[search_info['operator']]
         related_name = search_info['rname']
-        fname = '%s__value' % related_name
+        fname = '{}__value'.format(related_name)
         resolve = EntityFilter.resolve_variable
         values = search_info['value']
 
@@ -1096,10 +1102,11 @@ class EntityFilterCondition(Model):
             values = [clean_bool(v) for v in values]
 
         if isinstance(operator, _IsEmptyOperator):
-            query = Q(**{'%s__isnull' % related_name: values[0]})
+            query = Q(**{'{}__isnull'.format(related_name): values[0]})
         else:
-            query = Q(**{'%s__custom_field' % related_name: int(self.name)})
-            key = operator.key_pattern % fname
+            query = Q(**{'{}__custom_field'.format(related_name): int(self.name)})
+            # key = operator.key_pattern % fname
+            key = operator.key_pattern.format(fname)
             filter = Q()
 
             for value in values:
@@ -1131,10 +1138,10 @@ class EntityFilterCondition(Model):
         # NB: see _get_q_customfield() remark
         search_info = self.decoded_value
         related_name = search_info['rname']
-        fname = '%s__value' % related_name
+        fname = '{}__value'.format(related_name)
 
         q_dict = self._load_daterange(search_info).get_q_dict(field=fname, now=now())
-        q_dict['%s__custom_field' % related_name] = int(self.name)
+        q_dict['{}__custom_field'.format(related_name)] = int(self.name)
 
         return Q(pk__in=self.filter.entity_type.model_class()
                                                .objects

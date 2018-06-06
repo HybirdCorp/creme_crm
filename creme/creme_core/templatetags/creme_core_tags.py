@@ -350,17 +350,17 @@ def do_templatize(parser, token):
         # Splitting by None == splitting by spaces.
         tag_name, arg = token.contents.split(None, 1)
     except ValueError:
-        raise TemplateSyntaxError, '%r tag requires arguments' % token.contents.split()[0]
+        raise TemplateSyntaxError, '{!r} tag requires arguments'.format(token.contents.split()[0])
 
     match = _templatize_re.search(arg)
     if not match:
-        raise TemplateSyntaxError, '%r tag had invalid arguments: %r' % (tag_name, arg)
+        raise TemplateSyntaxError, '{!r} tag had invalid arguments: {!r}'.format(tag_name, arg)
 
     template_string, var_name = match.groups()
 
     first_char = template_string[0]
     if not (first_char == template_string[-1] and first_char in ('"', "'")):
-        raise TemplateSyntaxError, "%r tag's argument should be in quotes" % tag_name
+        raise TemplateSyntaxError, "{!r} tag's argument should be in quotes".format(tag_name)
 
     return TemplatizeNode(template_string[1:-1], var_name)
 
@@ -389,11 +389,11 @@ def do_print_field(parser, token):
         # Splitting by None == splitting by spaces.
         tag_name, arg = token.contents.split(None, 1)
     except ValueError:
-        raise TemplateSyntaxError("%r tag requires arguments" % token.contents.split()[0])
+        raise TemplateSyntaxError("{!r} tag requires arguments".format(token.contents.split()[0]))
 
     match = _PRINT_FIELD_RE.search(arg)
     if not match:
-        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+        raise TemplateSyntaxError("{!r} tag had invalid arguments".format(tag_name))
 
     obj_str, field_str = match.groups()
     compile_filter = parser.compile_filter
@@ -423,13 +423,13 @@ _haspermto_re = compile_re(r'(\w+) (.*?) as (\w+)')
 
 def _can_create(model_or_ct, user):
     ct = model_or_ct if isinstance(model_or_ct, ContentType) else ContentType.objects.get_for_model(model_or_ct)
-    return user.has_perm('%s.add_%s' % (ct.app_label, ct.model))
+    return user.has_perm('{}.add_{}'.format(ct.app_label, ct.model))
     # return user.has_perm_to_create(ct) #TODO + had the possibility to pass CT directly
 
 
 def _can_export(model_or_ct, user):
     ct = model_or_ct if isinstance(model_or_ct, ContentType) else ContentType.objects.get_for_model(model_or_ct)
-    return user.has_perm('%s.export_%s' % (ct.app_label, ct.model))
+    return user.has_perm('{}.export_{}'.format(ct.app_label, ct.model))
     # return user.has_perm_to_export(ct) #TODO ?
 
 _PERMS_FUNCS = {
@@ -460,17 +460,17 @@ def do_has_perm_to(parser, token):
         # Splitting by None == splitting by spaces.
         tag_name, arg = token.contents.split(None, 1)
     except ValueError:
-        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+        raise TemplateSyntaxError('{!r} tag requires arguments'.format(token.contents.split()[0]))
 
     match = _haspermto_re.search(arg)
     if not match:
-        raise TemplateSyntaxError, "%r tag had invalid arguments: %r" % (tag_name, arg)
+        raise TemplateSyntaxError('{!r} tag had invalid arguments: {!r}'.format(tag_name, arg))
 
     perm_type, entity_path, var_name = match.groups()
 
     perm_func = _PERMS_FUNCS.get(perm_type)
     if not perm_func:
-        raise TemplateSyntaxError, "%r invalid permission tag: %r" % (tag_name, perm_type)
+        raise TemplateSyntaxError("{!r} invalid permission tag: {!r}".format(tag_name, perm_type))
 
     entity_var = TemplateLiteral(parser.compile_filter(entity_path), entity_path)
 
@@ -507,7 +507,7 @@ def do_include_creme_media(parser, token):
         # Splitting by None == splitting by spaces.
         tag_name, arg = token.contents.split(None, 1)
     except ValueError:
-        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+        raise TemplateSyntaxError('{!r} tag requires arguments'.format(token.contents.split()[0]))
 
     return MediaNode(TemplateLiteral(parser.compile_filter(arg), arg))
 

@@ -67,7 +67,7 @@ def build_columns_key(columns):
         build_keyed_columns(('last_name', 'first_name'))
             => '#last_name##first_name#'
     """
-    return ''.join('#%s#' % column for column in columns)
+    return ''.join('#{}#'.format(column) for column in columns)
 
 
 # NB: 'maxsize=None' => avoid locking (number of models is small)
@@ -130,7 +130,7 @@ def get_indexed_ordering(model, fields_pattern):
             wildcard_count += 1
 
             if previous_was_wildcard:
-                raise ValueError('Successive wildcards are forbidden: %s' % fields_pattern)
+                raise ValueError('Successive wildcards are forbidden: {}'.format(fields_pattern))
 
             previous_was_wildcard = True
         else:
@@ -151,14 +151,14 @@ def get_indexed_ordering(model, fields_pattern):
     if asc_fnames[-1] == '*':
         asc_fnames.pop()
 
-    pattern = ''.join('#%s#*' % name if name != '*' else name
+    pattern = ''.join('#{}#*'.format(name) if name != '*' else name
                         for name in asc_fnames
                      )
 
     for index_key, ordering in indexes:
         if fnmatch(index_key, pattern):
             if reversed_count:
-                ordering = tuple('-%s' % i for i in ordering)
+                ordering = tuple('-{}'.format(i) for i in ordering)
 
             return ordering
 

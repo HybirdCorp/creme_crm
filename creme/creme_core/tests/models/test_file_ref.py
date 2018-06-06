@@ -13,7 +13,7 @@ try:
     from creme.creme_core.utils.date_period import date_period_registry
     from creme.creme_core.utils.file_handling import FileCreator
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 def _create_file(name):

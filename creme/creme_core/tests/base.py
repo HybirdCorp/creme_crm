@@ -23,7 +23,7 @@ from ..utils.xml_utils import xml_diff, XMLDiffError
 
 def skipIfNotInstalled(app_name):
     return skipIf(not apps.is_installed(app_name),
-                  "Skip this test which is related to the uninstalled app '%s'" % app_name
+                  "Skip this test which is related to the uninstalled app '{}'".format(app_name)
                  )
 
 
@@ -39,7 +39,7 @@ class _AssertNoExceptionContext(object):
         if exc_type:
             print_traceback()
 
-            raise self.exception('An exception <%s> occurred: %s' % (exc_type.__name__, exc_value))
+            raise self.exception('An exception <{}> occurred: {}'.format(exc_type.__name__, exc_value))
 
         return True
 
@@ -98,19 +98,19 @@ class _CremeTestCase(object):
         occ_count = container.count(member)
 
         if occ_count != count:
-            std_msg = '%(member)s found %(occ)s time(s) in %(container)s (%(exp)s expected)' % {
-                            'member':    safe_repr(member),
-                            'container': safe_repr(container),
-                            'occ': occ_count,
-                            'exp': count,
-            }
+            std_msg = '{member} found {occ} time(s) in {container} ({exp} expected)'.format(
+                            member=safe_repr(member),
+                            container=safe_repr(container),
+                            occ=occ_count,
+                            exp=count,
+            )
             self.fail(self._formatMessage(msg, std_msg))
 
     def assertDatetimesAlmostEqual(self, dt1, dt2, seconds=10):
         delta = max(dt1, dt2) - min(dt1, dt2)
 
         if delta > timedelta(seconds=seconds):
-            self.fail('<%s> & <%s> are not almost equal: delta is <%s>' % (
+            self.fail('<{}> & <{}> are not almost equal: delta is <{}>'.format(
                             dt1, dt2, delta
                         )
                      )
@@ -176,10 +176,10 @@ class _CremeTestCase(object):
         idx = string.find(x)
 
         if idx == -1:
-            std_msg = '%(sub)s not found in %(string)s' % {
-                            'sub':    safe_repr(x),
-                            'string': safe_repr(string),
-            }
+            std_msg = '{sub} not found in {string}'.format(
+                            sub=safe_repr(x),
+                            string=safe_repr(string),
+            )
             self.fail(self._formatMessage(msg, std_msg))
 
         return idx
@@ -208,14 +208,15 @@ class _CremeTestCase(object):
         except Exception as e:
             print_traceback()
 
-            raise self.failureException('An exception <%s> occurred: %s' % (e.__class__.__name__, e))
+            raise self.failureException('An exception <{}> occurred: {}'.format(e.__class__.__name__, e))
 
     # TODO: add an argument 'field' like assertNoFormsetError()
     def assertNoFormError(self, response, status=200, form='form'):
         status_code = response.status_code
 
         if status_code != status:
-            self.fail('Response status={status} (expected: {expected}) [redirections={redirect}; content={content}]'.format(
+            self.fail('Response status={status} (expected: {expected}) '
+                      '[redirections={redirect}; content={content}]'.format(
                             status=status_code,
                             expected=status,
                             redirect=response.redirect_chain,
@@ -238,7 +239,7 @@ class _CremeTestCase(object):
         status_code = response.status_code
 
         if status_code != status:
-            self.fail('Response status=%s (expected: %s)' % (status_code, status))
+            self.fail('Response status={} (expected: {})'.format(status_code, status))
 
         try:
             formset_obj = response.context[formset]
@@ -258,7 +259,7 @@ class _CremeTestCase(object):
 
             if field is None:
                 if errors:
-                    self.fail("The formset '%s' number %d contains errors: %s" % (
+                    self.fail("The formset '{}' number {} contains errors: {}".format(
                                     formset, form_index, errors
                                 )
                              )
@@ -268,7 +269,7 @@ class _CremeTestCase(object):
                 except KeyError:
                     pass
                 else:
-                    self.fail("The field '%s' on formset '%s' number %d contains errors: %s" % (
+                    self.fail("The field '{}' on formset '{}' number {} contains errors: {}".format(
                                     field, formset, form_index, field_errors
                                 )
                              )
@@ -292,10 +293,14 @@ class _CremeTestCase(object):
             try:
                 index = actual.index(elt)
             except ValueError:
-                self.fail(self._formatMessage(msg, u'Element not found in the superset : "%s"' % elt))
+                self.fail(self._formatMessage(msg, u'Element not found in the superset : "{}"'.format(elt)))
 
             if index <= old_index:
-                self.fail(self._formatMessage(msg, u'Order is different in the superset (problem with element : "%s")' % elt))
+                self.fail(self._formatMessage(msg,
+                                              u'Order is different in the superset '
+                                              u'(problem with element : "{}")'.format(elt)
+                                             )
+                         )
 
             old_index = index
 
@@ -351,18 +356,18 @@ class _CremeTestCase(object):
         try:
             diff = xml_diff(expected, actual)
         except XMLDiffError as e:
-            raise self.failureException('Bad XML document [%s]' % e)
+            raise self.failureException('Bad XML document [{}]'.format(e))
 
         if diff is not None:
             msg = diff.long_msg
 
             if self.maxDiff is not None and len(msg) > self.maxDiff:
-                msg = '%s\n[maxDiff too small for larger message]' % diff.short_msg
+                msg = '{}\n[maxDiff too small for larger message]'.format(diff.short_msg)
 
-            raise self.failureException('XML are not equal\n%s' % msg)
+            raise self.failureException('XML are not equal\n{}'.format(msg))
 
     def build_merge_url(self, entity1, entity2):
-        return reverse('creme_core__merge_entities') + '?id1=%s&id2=%s' % (entity1.id, entity2.id)
+        return reverse('creme_core__merge_entities') + '?id1={}&id2={}'.format(entity1.id, entity2.id)
 
     def create_datetime(self, *args, **kwargs):
         tz = utc if kwargs.pop('utc', False) else get_current_timezone()
@@ -373,13 +378,13 @@ class _CremeTestCase(object):
             obj = model.objects.get(**kwargs)
         except model.DoesNotExist as e:
             self.fail('Your object does not exist.\n'
-                      ' Query model: %(model)s\n'
-                      ' Query args %(args)s\n'
-                      ' [original exception: %(exception)s]' % {
-                            'model':     model,
-                            'args':      kwargs,
-                            'exception': e,
-                         }
+                      ' Query model: {model}\n'
+                      ' Query args {args}\n'
+                      ' [original exception: {exception}]'.format(
+                            model=model,
+                            args=kwargs,
+                            exception=e,
+                        )
                      )
         except Exception as e:
             self.fail(str(e))
@@ -390,7 +395,7 @@ class _CremeTestCase(object):
         try:
             rt = RelationType.objects.get(pk=pk)
         except RelationType.DoesNotExist:
-            self.fail('Bad populate: unfoundable RelationType with pk=%s' % pk)
+            self.fail('Bad populate: unfoundable RelationType with pk={}'.format(pk))
 
         get_ct = ContentType.objects.get_for_model
         self.assertListEqual(sorted((get_ct(model) for model in sub_models), key=lambda ct: ct.id),
@@ -411,7 +416,7 @@ class _CremeTestCase(object):
         try:
             pt = CremePropertyType.objects.get(pk=pk)
         except CremePropertyType.DoesNotExist:
-            self.fail('Bad populate: unfoundable CremePropertyType with pk=%s' % pk)
+            self.fail('Bad populate: unfoundable CremePropertyType with pk={}'.format(pk))
 
         get_ct = ContentType.objects.get_for_model
         self.assertEqual({get_ct(model).id for model in models},

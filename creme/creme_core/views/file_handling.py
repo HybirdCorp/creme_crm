@@ -44,10 +44,10 @@ def handle_uploaded_file(f, path=None, name=None, max_length=None):
         elif hasattr(file, '_name'):
             name = file._name
         else:
-            name = 'file_%08x' % randint(0, MAXINT)
+            name = 'file_{:08x}'.format(randint(0, MAXINT))
 
         if name.rpartition('.')[2] not in settings.ALLOWED_EXTENSIONS:
-            name = '%s.txt' % name
+            name = '{}.txt'.format(name)
 
         return name
 
@@ -120,7 +120,7 @@ def download_file(request, location):
         raise Http404(_('Invalid file'))
 
     response = HttpResponse(data, content_type=ftype)
-    response['Content-Disposition'] = "attachment; filename=%s" % (name.replace(' ', '_'))
+    response['Content-Disposition'] = "attachment; filename={}".format(name.replace(' ', '_'))
 
     return response
 

@@ -71,7 +71,7 @@ def get_creme_entities_repr(request, entities_ids):
     return [{'id': e_id,
              'text': entity.get_real_entity().get_entity_summary(user)
                      if has_perm(entity) else
-                     _(u'Entity #%s (not viewable)') % e_id
+                     _(u'Entity #{id} (not viewable)').format(id=e_id)
             } for e_id, entity in ((e_id, entities.get(e_id)) for e_id in e_ids)
                 if entity is not None
            ]
@@ -110,7 +110,7 @@ def get_info_fields(request, ct_id):
     model = ct.model_class()
 
     if not issubclass(model, CremeEntity):
-        raise Http404('No a CremeEntity subclass: %s' % model)
+        raise Http404('No a CremeEntity subclass: {}'.format(model))
 
     # TODO: use django.forms.models.fields_for_model ?
     form = modelform_factory(model, CremeEntityForm)(user=request.user)
@@ -123,7 +123,7 @@ def get_info_fields(request, ct_id):
         required_field = required_fields[0]
         kwargs['printer'] = lambda field: unicode(field.verbose_name) \
                                           if field.name != required_field else \
-                                          _(u'%s [CREATION]') % field.verbose_name
+                                          _(u'{field} [CREATION]').format(field=field.verbose_name)
 
     is_hidden = FieldsConfig.get_4_model(model).is_field_hidden
 
@@ -168,7 +168,7 @@ def search_and_view(request):
         try:
             ct = ContentType.objects.get_by_natural_key(*model_id.split('-'))
         except (ContentType.DoesNotExist, TypeError):
-            raise Http404(u'This model does not exist: %s' % model_id)
+            raise Http404(u'This model does not exist: {}'.format(model_id))
 
         if not has_perm(ct.app_label):
             raise PermissionDenied(_(u'You are not allowed to access to this app'))
@@ -232,11 +232,11 @@ def inner_edit_field(request, ct_id, id, field_name):
         else:
             form = form_class(entities=[instance], user=user)
     except (FieldDoesNotExist, FieldNotAllowed):
-        return HttpResponseBadRequest(_(u'The field «%s» does not exist or cannot be edited') % field_name)
+        return HttpResponseBadRequest(_(u'The field «{}» does not exist or cannot be edited').format(field_name))
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':  form,
-                        'title': _(u'Edit «%s»') % unicode(instance),
+                        'title': _(u'Edit «{object}»').format(object=instance),
                        },
                        is_valid=form.is_valid(),
                        reload=False, delegate_reload=True,
@@ -257,7 +257,7 @@ def bulk_update_field(request, ct_id, field_name=None):
     try:
         form_class = bulk_update_registry.get_form(model, field_name, BulkDefaultEditForm)
     except (FieldDoesNotExist, FieldNotAllowed):
-        return HttpResponseBadRequest(_(u'The field «%s» does not exist or cannot be edited') % field_name)
+        return HttpResponseBadRequest(_(u'The field «{}» does not exist or cannot be edited').format(field_name))
 
     meta = model._meta
 
@@ -287,32 +287,32 @@ def bulk_update_field(request, ct_id, field_name=None):
 
             # TODO: modification_label/bulk_label/... in model instead (fr: masculin/féminin)
             if initial_count == success_count:
-                summary = ungettext(u'%(success)s «%(model)s» has been successfully modified.',
-                                    u'%(success)s «%(model)s» have been successfully modified.',
+                summary = ungettext(u'{success} «{model}» has been successfully modified.',
+                                    u'{success} «{model}» have been successfully modified.',
                                     success_count
                                    )
             else:
-                summary = ungettext(u'%(success)s of %(initial)s «%(model)s» has been successfully modified.',
-                                    u'%(success)s of %(initial)s «%(model)s» have been successfully modified.',
+                summary = ungettext(u'{success} of {initial} «{model}» has been successfully modified.',
+                                    u'{success} of {initial} «{model}» have been successfully modified.',
                                     success_count
                                    )
 
                 if forbidden_count:
-                    summary += u' ' + ungettext(u'%(forbidden)s was not editable.',
-                                                u'%(forbidden)s were not editable.',
+                    summary += u' ' + ungettext(u'{forbidden} was not editable.',
+                                                u'{forbidden} were not editable.',
                                                 forbidden_count
                                                )
 
                 if invalid_count: 
-                    summary += u' ' + ungettext(u'%(invalid)s has returned an error.',
-                                                u'%(invalid)s have returned an error.',
+                    summary += u' ' + ungettext(u'{invalid} has returned an error.',
+                                                u'{invalid} have returned an error.',
                                                 invalid_count
                                                )
 
             return render(request, 'creme_core/frags/bulk_process_report.html',
                           {'form':  form,
                            'title': _(u'Multiple update'),
-                           'summary': summary % context,
+                           'summary': summary.format(**context),
                           },
                          )
     else:
@@ -325,8 +325,8 @@ def bulk_update_field(request, ct_id, field_name=None):
     #                 )
     help_message = format_html(
         u'<span class="bulk-selection-summary" data-msg="{msg}" data-msg-plural="{plural}"></span>',
-        msg=_(u'%%s «%s» has been selected.') % meta.verbose_name,
-        plural=_(u'%%s «%s» have been selected.') % meta.verbose_name_plural,
+        msg=_(u'%s «{model}» has been selected.').format(model=meta.verbose_name),
+        plural=_(u'%s «{model}» have been selected.').format(model=meta.verbose_name_plural),
     )
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
@@ -414,10 +414,10 @@ def merge(request):
     return render(request,
                   'creme_core/forms/merge.html',
                   {'form':   merge_form,
-                   'title': _(u'Merge «%(entity1)s» with «%(entity2)s»') % {
-                                   'entity1': entity1,
-                                   'entity2': entity2,
-                                },
+                   'title': _(u'Merge «{entity1}» with «{entity2}»').format(
+                                   entity1=entity1,
+                                   entity2=entity2,
+                                ),
                    'help_message': _(u'You are going to merge two entities into a new one.\n'
                                       'Choose which information you want the old entities '
                                       'give to the new entity.\n'
@@ -471,15 +471,16 @@ def empty_trash(request):
                 try:
                     entity.delete()
                 except ProtectedError:
-                    errors.append(_(u'"%s" can not be deleted because of its dependencies.') %
-                                    entity.allowed_unicode(user)
+                    errors.append(_(u'«{entity}» can not be deleted because of its dependencies.').format(
+                                        entity=entity.allowed_unicode(user)
+                                    )
                                  )
                 except Exception as e:
                     logger.exception('Error when trying to empty the trash')
-                    errors.append(_(u'"%(entity)s" deletion caused an unexpected error [%(error)s].') % {
-                                        'entity': entity.allowed_unicode(user),
-                                        'error':  e,
-                                    }
+                    errors.append(_(u'«{entity}» deletion caused an unexpected error [{error}].').format(
+                                        entity=entity.allowed_unicode(user),
+                                        error=e,
+                                    )
                                  )
                 else:
                     progress = True
@@ -529,22 +530,26 @@ def restore_entity(request, entity_id):
 
 def _delete_entity(user, entity):
     if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
-        return 404, _(u'%s does not use the generic deletion view.') % entity.allowed_unicode(user)
+        return (404,
+                _(u'«{entity}» does not use the generic deletion view.').format(
+                        entity=entity.allowed_unicode(user),
+                    )
+               )
 
     if hasattr(entity, 'get_related_entity'):
         related = entity.get_related_entity()
 
         if related is None:
             logger.critical('delete_entity(): an auxiliary entity seems orphan (id=%s)', entity.id)
-            return 403, _(u'You are not allowed to delete this entity: %s') % entity.allowed_unicode(user)
+            return 403, _(u'You are not allowed to delete this entity: {}').format(entity.allowed_unicode(user))
 
         if not user.has_perm_to_change(related):
-            return 403, _(u'%s : <b>Permission denied</b>') % entity.allowed_unicode(user)
+            return 403, _(u'{entity} : <b>Permission denied</b>').format(entity=entity.allowed_unicode(user))
 
         trash = False
     else:
         if not user.has_perm_to_delete(entity):
-            return 403, _(u'%s : <b>Permission denied</b>') % entity.allowed_unicode(user)
+            return 403, _(u'{entity} : <b>Permission denied</b>').format(entity=entity.allowed_unicode(user))
 
         trash = not entity.is_deleted
 
@@ -555,24 +560,25 @@ def _delete_entity(user, entity):
             entity.delete()
     except SpecificProtectedError as e:
         return (400,
-                u'%s %s' % (
-                    _(u'"%s" can not be deleted.') % entity.allowed_unicode(user),
+                u'{} {}'.format(
+                    _(u'«{entity}» can not be deleted.').format(entity=entity.allowed_unicode(user)),
                     e.args[0],
                   ),
                )
     except ProtectedError as e:
         return (400,
-                _(u'"%s" can not be deleted because of its dependencies.') %
-                    entity.allowed_unicode(user),
+                _(u'«{entity}» can not be deleted because of its dependencies.').format(
+                        entity=entity.allowed_unicode(user),
+                    ),
                 {'protected_objects': e.args[1]},
                )
     except Exception as e:
         logger.exception('Error when trying to empty the trash')
         return (400,
-                _(u'"%(entity)s" deletion caused an unexpected error [%(error)s].') % {
-                        'entity': entity.allowed_unicode(user),
-                        'error':  e,
-                    }
+                _(u'«{entity}» deletion caused an unexpected error [{error}].').format(
+                        entity=entity.allowed_unicode(user),
+                        error=e,
+                    )
                )
 
 
@@ -582,11 +588,9 @@ def delete_entities(request):
     try:
         entity_ids = [int(e_id) for e_id in get_from_POST_or_404(request.POST, 'ids').split(',') if e_id]
     except ValueError:
-        # return HttpResponse('Bad POST argument', content_type='text/javascript', status=400)
         return HttpResponse('Bad POST argument', status=400)
 
     if not entity_ids:
-        # return HttpResponse(_(u'No selected entities'), content_type='text/javascript', status=400)
         return HttpResponse(_(u'No selected entities'), status=400)
 
     logger.debug('delete_entities() -> ids: %s ', entity_ids)
@@ -597,7 +601,11 @@ def delete_entities(request):
 
     len_diff = len(entity_ids) - len(entities)
     if len_diff:
-        errors[404].append(_(u"%s entities doesn't exist / doesn't exist any more") % len_diff)
+        errors[404].append(ungettext(u"{count} entity doesn't exist or has been removed.",
+                                     u"{count} entities don't exist or have been removed.",
+                                     len_diff
+                                    ).format(count=len_diff)
+                          )
 
     CremeEntity.populate_real_entities(entities)
 

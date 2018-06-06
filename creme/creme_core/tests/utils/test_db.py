@@ -15,7 +15,7 @@ try:
     from creme.creme_core.utils.db import (get_indexes_columns, get_indexed_ordering,
            build_columns_key, populate_related, reorder_instances)
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class DBTestCase(CremeTestCase):
@@ -38,7 +38,7 @@ class DBTestCase(CremeTestCase):
             sql = 'CREATE INDEX "DBTestCase_index" ' \
                   'ON creme_core_fakecontact (birthday ASC, cremeentity_ptr_id ASC);'
         else:
-            raise Exception('This DBMS is not managed: %s' % vendor)
+            raise Exception('This DBMS is not managed: {}'.format(vendor))
 
         connection.cursor().execute(sql)
 

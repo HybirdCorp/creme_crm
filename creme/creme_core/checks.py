@@ -96,7 +96,7 @@ def check_entity_ordering(**kwargs):
         ordering = model._meta.ordering
 
         if not ordering or (len(ordering) == 1 and 'id' in ordering[0]):
-            errors.append(Error('"%s" should have a Meta.ordering different from "id" like all CremeEntities' % model,
+            errors.append(Error('"{}" should have a Meta.ordering different from "id" like all CremeEntities'.format(model),
                                 hint='Change the "ordering" attribute in the Meta class of your model.',
                                 obj='creme.creme_core',
                                 id='creme.E005',

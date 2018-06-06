@@ -453,9 +453,10 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertEqual(1, len(jresults))
 
         jresult = jresults[0]
-        self.assertEqual([_(u'An error occurred while sending emails related to «%s»')
-                            % ToDo._meta.verbose_name,
-                          _(u'Original error: %s') % err_msg,
+        self.assertEqual([_(u'An error occurred while sending emails related to «{model}»').format(
+                                    model=ToDo._meta.verbose_name,
+                                ),
+                          _(u'Original error: {}').format(err_msg),
                          ],
                          jresult.messages
                         )
@@ -617,13 +618,13 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         vmodifs = hline.get_verbose_modifications(user)
         self.assertEqual(2, len(vmodifs))
 
-        self.assertEqual(_(u'Edit <%(type)s>: “%(value)s”') % {
-                                'type':  _(u'Todo'),
-                                'value': todo,
-                               },
+        self.assertEqual(_(u'Edit <{type}>: “{value}”').format(
+                                type=_(u'Todo'),
+                                value=todo,
+                            ),
                          vmodifs[0]
                         )
-        self.assertEqual(_(u'Set field “%(field)s”') % {'field': _(u'Description')},
+        self.assertEqual(_(u'Set field “{field}”').format(field=_(u'Description')),
                          vmodifs[1]
                         )
 
@@ -645,10 +646,10 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         vmodifs = hline.get_verbose_modifications(user)
         self.assertEqual(1, len(vmodifs))
 
-        self.assertEqual(_(u'Delete <%(type)s>: “%(value)s”') % {
-                                'type':  _(u'Todo'),
-                                'value': todo,
-                               },
+        self.assertEqual(_(u'Delete <{type}>: “{value}”').format(
+                                type=_(u'Todo'),
+                                value=todo,
+                            ),
                          vmodifs[0]
                         )
 

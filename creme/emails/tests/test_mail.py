@@ -316,10 +316,10 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertEqual(200, response.status_code)
 
         self.assertFormError(response, 'form', 'c_recipients',
-                             _(u"Some entities are not linkable: %s") % contact01
+                             _(u'Some entities are not linkable: {}').format(contact01)
                             )
         self.assertFormError(response, 'form', 'o_recipients',
-                             _(u"Some entities are not linkable: %s") % orga01
+                             _(u'Some entities are not linkable: {}').format(orga01)
                             )
 
     def test_createview07(self):

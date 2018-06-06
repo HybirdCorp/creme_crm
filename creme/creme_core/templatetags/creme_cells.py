@@ -94,7 +94,7 @@ def do_cell_4_regularfield(parser, token):
     """
     bits = token.split_contents()
     if len(bits) != 5:
-        raise TemplateSyntaxError("'%s' takes 2 arguments (ctype/instance=... & field=...), then 'as my_var'." % bits[0])
+        raise TemplateSyntaxError('"{}" takes 2 arguments (ctype/instance=... & field=...), then "as my_var".'.format(bits[0]))
 
     if bits[3] != 'as':
         raise TemplateSyntaxError('Keyword "as" of "cell_4_regularfield" tag is missing.')
@@ -109,7 +109,7 @@ def do_cell_4_regularfield(parser, token):
         first_arg_name, rf_cell_node_cls = _RFIELD_CELL_NODES[fa_name]
     except KeyError:
         raise TemplateSyntaxError('Invalid 1rst argument of "cell_4_regularfield" tag ; '
-                                  'it must be in %s.' % _RFIELD_CELL_NODES.keys()
+                                  'it must be in {}.'.format(_RFIELD_CELL_NODES.keys())
                                  )
 
     # Second argument -------------
@@ -158,7 +158,7 @@ def do_render(parser, token):
     """
     bits = token.split_contents()
     if len(bits) < 4:
-        raise TemplateSyntaxError("'%s' takes at least 3 arguments (cell, instance, user)" % bits[0])
+        raise TemplateSyntaxError('"{}" takes at least 3 arguments (cell, instance, user)'.format(bits[0]))
 
     kwargs = {}
 
@@ -170,13 +170,13 @@ def do_render(parser, token):
     for bit in bits:
         match = KWARG_RE.match(bit)
         if not match:
-            raise TemplateSyntaxError('Malformed arguments for "cell_render" tag: %s' % bit)
+            raise TemplateSyntaxError('Malformed arguments for "cell_render" tag: {}'.format(bit))
 
         name, value = match.groups()
 
         arg_name = __RENDER_ARGS_MAP.get(name)
         if arg_name is None:
-            raise TemplateSyntaxError('Invalid argument name for "cell_render" tag: %s' % name)
+            raise TemplateSyntaxError('Invalid argument name for "cell_render" tag: {}'.format(name))
 
         kwargs[arg_name] = parser.compile_filter(value)
 
@@ -208,7 +208,7 @@ class CellRenderNode(TemplateNode):
 
         method_name = self.RENDER_METHODS.get(output)
         if method_name is None:
-            raise ValueError('{%% cell_render %%}: invalid output "%s" (must be in ["html", "csv"])' % output)
+            raise ValueError('{{% cell_render %}}: invalid output "{}" (must be in ["html", "csv"])'.format(output))
 
         try:
             render = getattr(cell, method_name)(entity=self.instance_var.resolve(context),

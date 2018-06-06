@@ -16,7 +16,7 @@ try:
     from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
             EntityFilterVariable, CustomField, RelationType, CremePropertyType)
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class EntityFilterViewsTestCase(ViewsTestCase):
@@ -46,7 +46,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
     #     return reverse('creme_core__efilters', args=(ct.id,)) if not use_GET else \
     #            reverse('creme_core__efilters') + '?ct_id=%s' % ct.id
     def _build_get_filter_url(self, ct, all_filter=False):
-        return reverse('creme_core__efilters') + '?ct_id=%s' % ct.id
+        return reverse('creme_core__efilters') + '?ct_id={}'.format(ct.id)
 
     def test_create01(self):
         "Check app credentials"
@@ -383,11 +383,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertFormError(response, 'form', None,
                              ungettext(
                                  u'A private filter can only use public sub-filters, & private sub-filters which belong to the same user and his teams.'
-                                 u' So this private sub-filter cannot be chosen: %s',
+                                 u' So this private sub-filter cannot be chosen: {}',
                                  u'A private filter can only use public sub-filters, & private sub-filters which belong to the same user and his teams.'
-                                 u' So these private sub-filters cannot be chosen: %s',
+                                 u' So these private sub-filters cannot be chosen: {}',
                                  1
-                                ) % subfilter.name
+                                ).format(subfilter.name)
                             )
 
         response = self.client.post(self._build_add_url(ct=self.ct_contact), follow=True, data=data)
@@ -611,10 +611,10 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         response = post('')
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', None,
-                             ungettext(u'Your filter must be private in order to use this private sub-filter: %s',
-                                       u'Your filter must be private in order to use these private sub-filters: %s',
+                             ungettext(u'Your filter must be private in order to use this private sub-filter: {}',
+                                       u'Your filter must be private in order to use these private sub-filters: {}',
                                        2
-                                      ) % ('%s, %s' % (subfilter2.name, subfilter1.name))
+                                      ).format('{}, {}'.format(subfilter2.name, subfilter1.name))
                             )
 
         response = post('on')
@@ -642,8 +642,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                          )
 
         def create_subfilter(idx, owner):
-            return EntityFilter.create('creme_core-subfilter%s' % idx,
-                                       'Misato #%s' % idx, model=FakeContact,
+            return EntityFilter.create('creme_core-subfilter{}'.format(idx),
+                                       'Misato #{}'.format(idx), model=FakeContact,
                                        user=owner, is_private=True, is_custom=True,
                                        conditions=[EntityFilterCondition.build_4_field(
                                                     model=FakeContact,
@@ -678,11 +678,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', None,
                              ungettext(u'A private filter which belongs to a team can only use public sub-filters & private sub-filters which belong to this team.'
-                                       u' So this private sub-filter cannot be chosen: %s',
+                                       u' So this private sub-filter cannot be chosen: {}',
                                        u'A private filter which belongs to a team can only use public sub-filters & private sub-filters which belong to this team.'
-                                       u' So these private sub-filters cannot be chosen: %s',
+                                       u' So these private sub-filters cannot be chosen: {}',
                                        1
-                                      ) % subfilter3.name
+                                      ).format(subfilter3.name)
                             )
 
         response = post(subfilter1, subfilter2)
@@ -932,7 +932,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                           'fields_conditions':  self.FIELDS_CONDS_FMT % {
                                                                        'operator': field_operator,
                                                                        'name':     field_name,
-                                                                       'value':    '"%s"' % field_value,
+                                                                       'value':    '"{}"'.format(field_value),
                                                                    },
                                           'cancel_url': callback_url,
                                          }
@@ -1134,8 +1134,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         response = self._aux_edit_subfilter(efilter1, is_private='on')
         msg = _(u'This filter cannot be private because it is a sub-filter for '
-                u'the public filter "%s"'
-               ) % efilter2.name
+                u'the public filter "{}"'
+               ).format(efilter2.name)
         self.assertFormError(response, 'form', None, msg)
 
         # ----
@@ -1198,8 +1198,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         response = self._aux_edit_subfilter(efilter1, is_private='on')
         self.assertFormError(response, 'form', None,
                              _(u'This filter cannot be private and belong to a user '
-                               u'because it is a sub-filter for the filter "%s" which belongs to a team.'
-                              ) % efilter2.name
+                               u'because it is a sub-filter for the filter "{}" which belongs to a team.'
+                              ).format(efilter2.name)
                             )
 
         other_team = User.objects.create(username='TeamTitan', is_team=True)
@@ -1208,11 +1208,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         response = self._aux_edit_subfilter(efilter1, is_private='on', user=other_team)
         self.assertFormError(response, 'form', None,
                              _(u'This filter cannot be private and belong to this team '
-                               u'because it is a sub-filter for the filter "%(filter)s" '
-                               u'which belongs to the team "%(team)s".'
-                              ) % {'filter': efilter2.name,
-                                   'team':   team,
-                                  }
+                               u'because it is a sub-filter for the filter "{filter}" '
+                               u'which belongs to the team "{team}".'
+                              ).format(filter=efilter2.name,
+                                       team=team,
+                                      )
                             )
 
         response = self._aux_edit_subfilter(efilter1, is_private='on', user=team)
@@ -1237,11 +1237,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         response = self._aux_edit_subfilter(efilter1, is_private='on', user=team)
         self.assertFormError(response, 'form', None,
                              _(u'This filter cannot be private and belong to this team '
-                               u'because it is a sub-filter for the filter "%(filter)s" '
-                               u'which belongs to the user "%(user)s" (who is not a member of this team).'
-                              ) % {'filter': efilter2.name,
-                                   'user':   self.other_user,
-                                  }
+                               u'because it is a sub-filter for the filter "{filter}" '
+                               u'which belongs to the user "{user}" (who is not a member of this team).'
+                              ).format(filter=efilter2.name,
+                                       user=self.other_user,
+                                      )
                             )
 
         team.teammates = [user, self.other_user]
@@ -1403,9 +1403,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         name2 = 'Filter 02'
         name3 = 'Filter 03'
 
-        pk_fmt = 'test-contact_filter%s'
-        efilter01 = EntityFilter.create(pk_fmt % 1, name1, FakeContact, is_custom=True)
-        efilter02 = EntityFilter.create(pk_fmt % 2, name2, FakeContact, is_custom=False,
+        pk_fmt = 'test-contact_filter{}'.format
+        efilter01 = EntityFilter.create(pk_fmt(1), name1, FakeContact, is_custom=True)
+        efilter02 = EntityFilter.create(pk_fmt(2), name2, FakeContact, is_custom=False,
                                         conditions=[EntityFilterCondition.build_4_field(
                                                             model=FakeContact,
                                                             operator=EntityFilterCondition.EQUALS,
@@ -1414,12 +1414,12 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                    ]
                                         )
         EntityFilter.create('test-orga_filter', 'Orga Filter', FakeOrganisation, is_custom=True)
-        efilter03 = EntityFilter.create(pk_fmt % 3, name3, FakeContact, is_custom=True,
+        efilter03 = EntityFilter.create(pk_fmt(3), name3, FakeContact, is_custom=True,
                                         is_private=True, user=user,
-                                        )
-        EntityFilter.create(pk_fmt % 4, 'Private', FakeContact, is_custom=True,
+                                       )
+        EntityFilter.create(pk_fmt(4), 'Private', FakeContact, is_custom=True,
                             is_private=True, user=self.other_user,
-                            )
+                           )
         exepcted = [[efilter01.id, name1], [efilter02.id, name2], [efilter03.id, name3]]
 
         response = self.assertGET200(self._build_get_filter_url(self.ct_contact))

@@ -455,10 +455,10 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual([ContentType.objects.get_for_model(address).id, address.id, unicode(address)],
                          hline.modifications
                         )
-        self.assertEqual([_(u'Add <%(type)s>: “%(value)s”') % {
-                                'type':  _(u'Address'),
-                                'value': address,
-                               }
+        self.assertEqual([_(u'Add <{type}>: “{value}”').format(
+                                    type=_(u'Address'),
+                                    value=address,
+                                ),
                          ],
                          hline.get_verbose_modifications(self.user)
                         )

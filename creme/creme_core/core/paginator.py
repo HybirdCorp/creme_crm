@@ -131,8 +131,8 @@ class FlowPaginator(object):
             subfield_ordering = subfield_model._meta.ordering
 
             if not subfield_ordering:
-                raise ValueError('Invalid key: related field model "%s" should '
-                                 'have Meta.ordering' % subfield_model
+                raise ValueError('Invalid key: related field model "{}" should '
+                                 'have Meta.ordering'.format(subfield_model)
                                 )
 
             attr_name += '__' + subfield_ordering[0]
@@ -200,7 +200,7 @@ class FlowPaginator(object):
         try:
             qs = self.queryset.filter(q)
         except (ValueError, ValidationError) as e:
-            raise InvalidPage('Invalid "value" [%s].' % e)
+            raise InvalidPage('Invalid "value" [{}].'.format(e))
 
         return qs
 
@@ -323,7 +323,7 @@ class FlowPage(collections.Sequence):
         self._first_page = bool(first_page)
 
     def __repr__(self):
-        return '<Page key=%s offset=%s items[0]=%s>' % (
+        return '<Page key={} offset={} items[0]={}>'.format(
             self._key, self._offset, self[0]
         )
 

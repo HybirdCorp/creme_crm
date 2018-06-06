@@ -329,10 +329,10 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                            }
                                      )
 
-        fmt1 = _(u'You are not allowed to link this entity: %s')
-        fmt2 = _(u'Entity #%s (not viewable)')
-        self.assertFormError(response, 'form', 'target',  fmt1 % (fmt2 % target.id))
-        self.assertFormError(response, 'form', 'emitter', fmt1 % (fmt2 % emitter.id))
+        fmt1 = _(u'You are not allowed to link this entity: {}').format
+        fmt2 = _(u'Entity #{id} (not viewable)').format
+        self.assertFormError(response, 'form', 'target',  fmt1(fmt2(id=target.id)))
+        self.assertFormError(response, 'form', 'emitter', fmt1(fmt2(id=emitter.id)))
 
     @skipIfCustomOrganisation
     def test_createview05(self):

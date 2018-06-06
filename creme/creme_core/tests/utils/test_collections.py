@@ -4,7 +4,7 @@ try:
     from ..base import CremeTestCase
     from creme.creme_core.utils.collections import LimitedList, ClassKeyedMap, OrderedSet
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class LimitedListTestCase(CremeTestCase):

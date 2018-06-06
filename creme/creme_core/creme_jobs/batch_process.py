@@ -67,7 +67,7 @@ class _BatchProcessType(JobType):
         try:
             # TODO: NON_FIELD_ERRORS need to be unit tested...
             humanized = [unicode(errors) if field == NON_FIELD_ERRORS else
-                         u'%s => %s' % (get_field(field).verbose_name, u', '.join(errors))
+                         u'{} => {}'.format(get_field(field).verbose_name, u', '.join(errors))
                             for field, errors in ve.message_dict.iteritems()
                         ]
         except Exception as e:
@@ -139,11 +139,11 @@ class _BatchProcessType(JobType):
         try:
             job_data = job.data
             model = self._get_model(job_data)
-            desc = [ugettext('Entity type: %s') % model._meta.verbose_name]
+            desc = [ugettext('Entity type: {}').format(model._meta.verbose_name)]
 
             efilter = self._get_efilter(job_data, raise_exception=False)
             if efilter is not None:
-                desc.append(ugettext('Filter: %s') % efilter)
+                desc.append(ugettext('Filter: {}').format(efilter))
 
             desc.extend(unicode(ba) for ba in self._get_actions(model, job_data))
         except Exception:  # TODO: unit test

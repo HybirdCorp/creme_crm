@@ -29,15 +29,15 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
     class TestBrick(Brick):
         verbose_name = u'Testing purpose'
 
-        string_format_detail = '<div id=%s>DETAIL</div>'
-        string_format_home   = '<div id=%s>HOME</div>'
+        string_format_detail = '<div id={}>DETAIL</div>'.format
+        string_format_home   = '<div id={}>HOME</div>'.format
         # string_format_portal = '<div id=%s>PORTAL</div>'
 
         def detailview_display(self, context):
-            return self.string_format_detail % self.id_
+            return self.string_format_detail(self.id_)
 
         def home_display(self, context):
-            return self.string_format_home % self.id_
+            return self.string_format_home(self.id_)
 
         # def portal_display(self, context, ct_ids):
         #     return self.string_format_portal % self.id_
@@ -155,8 +155,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                     )
         # self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual('application/json', response['Content-Type'])
-        self.assertEqual([[FoobarBrick1.id_, self.TestBrick.string_format_detail % FoobarBrick1.id_],
-                          [FoobarBrick2.id_, self.TestBrick.string_format_detail % FoobarBrick2.id_],
+        self.assertEqual([[FoobarBrick1.id_, self.TestBrick.string_format_detail(FoobarBrick1.id_)],
+                          [FoobarBrick2.id_, self.TestBrick.string_format_detail(FoobarBrick2.id_)],
                          ],
                          # load_json(response.content)
                          response.json()
@@ -186,7 +186,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         brick_registry.register(FoobarBrick1)
 
         response = self.assertGET200(reverse('creme_core__reload_bricks'), data={'brick_id': FoobarBrick1.id_})
-        self.assertEqual([[FoobarBrick1.id_, self.TestBrick.string_format_detail % FoobarBrick1.id_]],
+        self.assertEqual([[FoobarBrick1.id_, self.TestBrick.string_format_detail(FoobarBrick1.id_)]],
                          # load_json(response.content)
                          response.json()
                         )
@@ -213,7 +213,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                            'extra_data': json_dump({FoobarBrick.id_: extra_data}),
                                           },
                                     )
-        self.assertEqual([[FoobarBrick.id_, self.TestBrick.string_format_detail % FoobarBrick.id_]],
+        self.assertEqual([[FoobarBrick.id_, self.TestBrick.string_format_detail(FoobarBrick.id_)]],
                          # load_json(response.content)
                          response.json()
                         )
@@ -270,7 +270,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                     )
         # self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual('application/json', response['Content-Type'])
-        self.assertEqual([[FoobarBrick.id_, self.TestBrick.string_format_detail % FoobarBrick.id_]],
+        self.assertEqual([[FoobarBrick.id_, self.TestBrick.string_format_detail(FoobarBrick.id_)]],
                          # load_json(response.content)
                          response.json()
                         )
@@ -312,9 +312,9 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                     )
 
         fmt = self.TestBrick.string_format_detail
-        self.assertEqual([[FoobarBrick1.id_, fmt % FoobarBrick1.id_],
-                          [FoobarBrick2.id_, fmt % FoobarBrick2.id_],
-                          [FoobarBrick3.id_, fmt % FoobarBrick3.id_],
+        self.assertEqual([[FoobarBrick1.id_, fmt(FoobarBrick1.id_)],
+                          [FoobarBrick2.id_, fmt(FoobarBrick2.id_)],
+                          [FoobarBrick3.id_, fmt(FoobarBrick3.id_)],
                          ],
                          # load_json(response.content)
                          response.json()
@@ -354,7 +354,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.assertGET200(reverse('creme_core__reload_detailview_bricks', args=(atom.id,)),
                                      data={'brick_id': FoobarBrick.id_},
                                     )
-        self.assertEqual([[FoobarBrick.id_, self.TestBrick.string_format_detail % FoobarBrick.id_]],
+        self.assertEqual([[FoobarBrick.id_, self.TestBrick.string_format_detail(FoobarBrick.id_)]],
                          # load_json(response.content)
                          response.json()
                         )
@@ -395,7 +395,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                            'extra_data': json_dump({FoobarBrick.id_: extra_data}),
                                           },
                                     )
-        self.assertEqual([[FoobarBrick.id_, self.TestBrick.string_format_detail % FoobarBrick.id_]],
+        self.assertEqual([[FoobarBrick.id_, self.TestBrick.string_format_detail(FoobarBrick.id_)]],
                          # load_json(response.content)
                          response.json()
                         )
@@ -422,8 +422,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                     )
         # self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual('application/json', response['Content-Type'])
-        self.assertEqual([[FoobarBrick1.id_, self.TestBrick.string_format_home % FoobarBrick1.id_],
-                          [FoobarBrick2.id_, self.TestBrick.string_format_home % FoobarBrick2.id_],
+        self.assertEqual([[FoobarBrick1.id_, self.TestBrick.string_format_home(FoobarBrick1.id_)],
+                          [FoobarBrick2.id_, self.TestBrick.string_format_home(FoobarBrick2.id_)],
                          ],
                          # load_json(response.content)
                          response.json()
@@ -686,7 +686,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         return content_node
 
     def _assertNoBrickTile(self, content_node, key):
-        self.assertIsNone(content_node.find('.//div[@data-key="%s"]' % key))
+        self.assertIsNone(content_node.find('.//div[@data-key="{}"]'.format(key)))
 
     def test_display_objectbrick01(self):
         user = self.login()

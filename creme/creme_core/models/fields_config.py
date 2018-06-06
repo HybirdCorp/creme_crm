@@ -100,7 +100,7 @@ class FieldsConfig(CremeModel):
             return False
 
     def __unicode__(self):
-        return ugettext('Configuration of %s') % self.content_type
+        return ugettext('Configuration of {model}').format(model=self.content_type)
 
     @staticmethod
     def _check_descriptions(model, descriptions):
@@ -124,10 +124,10 @@ class FieldsConfig(CremeModel):
 
             for name, value in field_conf.iteritems():
                 if name != HIDDEN:
-                    raise FieldsConfig.InvalidAttribute('Invalid attribute name: "%s"' % name)
+                    raise FieldsConfig.InvalidAttribute('Invalid attribute name: "{}"'.format(name))
 
                 if not isinstance(value, bool):
-                    raise FieldsConfig.InvalidAttribute('Invalid attribute value: "%s"' % value)
+                    raise FieldsConfig.InvalidAttribute('Invalid attribute value: "{}"'.format(value))
 
             safe_descriptions.append((field_name, field_conf))
 
@@ -181,9 +181,9 @@ class FieldsConfig(CremeModel):
                            model=self.content_type.model_class(),
                           )
         # TODO: cached_lazy_ugettext
-        msg = ugettext(u'Warning: the app «%(app)s» need the field «%(field)s».')
+        fmt = ugettext(u'Warning: the app «{app}» need the field «{field}».').format
 
-        return [msg % {'app': app.verbose_name, 'field': field.verbose_name}
+        return [fmt(app=app.verbose_name, field=field.verbose_name)
                     for field in self.hidden_fields
                         for app in get_apps(field_name=field.name)
                ]
@@ -228,7 +228,7 @@ class FieldsConfig(CremeModel):
     def get_4_models(cls, models):
         result = {}
         get_ct = ContentType.objects.get_for_model
-        cache_key_fmt = 'creme_core-fields_config-%s'
+        cache_key_fmt = 'creme_core-fields_config-{}'
         not_cached_ctypes = []
 
         cache = get_per_request_cache()
@@ -236,7 +236,7 @@ class FieldsConfig(CremeModel):
         # Step 1: fill 'result' with cached configs
         for model in models:
             ct = get_ct(model)
-            fc = cache.get(cache_key_fmt % ct.id)
+            fc = cache.get(cache_key_fmt.format(ct.id))
 
             if fc is None:
                 # if fields_config_registry.is_model_valid(model):  # Avoid useless queries
@@ -248,13 +248,13 @@ class FieldsConfig(CremeModel):
         # Step 2: fill 'result' with configs in DB
         for fc in FieldsConfig.objects.filter(content_type__in=not_cached_ctypes):
             ct = fc.content_type
-            result[ct.model_class()] = cache[cache_key_fmt % ct.id] = fc
+            result[ct.model_class()] = cache[cache_key_fmt.format(ct.id)] = fc
 
         # Step 3: fill 'result' with empty configs for remaining models
         for model in models:
             if model not in result:
                 ct = get_ct(model)
-                result[model] = cache[cache_key_fmt % ct.id] = \
+                result[model] = cache[cache_key_fmt.format(ct.id)] = \
                     FieldsConfig(content_type=ct, descriptions=())
 
         return result

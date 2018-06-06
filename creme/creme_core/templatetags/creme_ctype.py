@@ -82,10 +82,10 @@ def ctype_counted_instances_label(ctype, count):
         {% ctype_counted_instances_label  ctype=contact_ctype count=12 as my_label %}
         <h1>{{my_label}}</h1>
     """
-    return _(u'%(count)s %(model)s') % {
-        'count': count,
-        'model': get_model_verbose_name(model=ctype.model_class(), count=count),
-    }
+    return _(u'{count} {model}').format(
+        count=count,
+        model=get_model_verbose_name(model=ctype.model_class(), count=count),
+    )
 
 
 @register.filter

@@ -210,7 +210,7 @@ class TaggedEntitiesBrick(QuerysetBrick):
         super(TaggedEntitiesBrick, self).__init__()
         self.ptype = ptype
         self.ctype = ctype
-        self.id_ = self.generate_id('creme_core', 'tagged-%s-%s' % (ctype.app_label, ctype.model))
+        self.id_ = self.generate_id('creme_core', 'tagged-{}-{}'.format(ctype.app_label, ctype.model))
         self.dependencies = (ctype.model_class(),)
 
     @staticmethod
@@ -305,7 +305,7 @@ def reload_bricks(request, ptype_id):
         else:
             ctype = TaggedEntitiesBrick.parse_brick_id(b_id)
             if ctype is None:
-                raise Http404('Invalid brick id "%s"' % b_id)
+                raise Http404('Invalid brick id "{}"'.format(b_id))
 
             brick = TaggedEntitiesBrick(ptype, ctype)
 

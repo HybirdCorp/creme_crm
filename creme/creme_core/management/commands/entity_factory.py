@@ -219,7 +219,7 @@ class OptimizeMySQLContext(BaseOptimizeContext):
                 sql_cmd = 'SET GLOBAL innodb_flush_log_at_trx_commit=0'
 
                 if self.verbosity:
-                    self.stdout.write('Temporary optimization : %s' % sql_cmd)
+                    self.stdout.write('Temporary optimization : {}'.format(sql_cmd))
 
                 cursor.execute(sql_cmd)
         else:
@@ -257,7 +257,7 @@ class OptimizePGSQLContext(BaseOptimizeContext):
         match = re.match(r'^(?P<value>\d+)(?P<unit>(ms|s)+)$', delay)
 
         if match is None:
-            print('DEBUG: invalid delay "%s" ?!' % delay)
+            print('DEBUG: invalid delay "{}" ?!'.format(delay))
         else:
             data = match.groupdict()
             value = int(data['value'])

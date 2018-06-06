@@ -58,7 +58,7 @@ def add(request, ct_id):
     model = ct.model_class()
 
     if not issubclass(model, CremeEntity):
-        raise ConflictError(u'This model is not a entity model: %s' % model)
+        raise ConflictError(u'This model is not a entity model: {}'.format(model))
 
     callback_url = request.POST.get('cancel_url')
 
@@ -125,7 +125,7 @@ def delete(request):
         except EntityFilter.DependenciesError as e:
             return_msg = unicode(e)
         except ProtectedError as e:
-            return_msg = _(u'"%s" can not be deleted because of its dependencies.') % efilter
+            return_msg = _(u'«{}» can not be deleted because of its dependencies.').format(efilter)
             return_msg += render_to_string('creme_core/templatetags/widgets/list_instances.html',
                                            {'objects': e.args[1][:25], 'user': request.user},
                                            request=request,

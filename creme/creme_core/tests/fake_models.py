@@ -83,7 +83,7 @@ else:
             ordering = ('title',)
 
         def __unicode__(self):
-            return u'%s - %s' % (self.linked_folder, self.title)
+            return u'{} - {}'.format(self.linked_folder, self.title)
 
 #        def get_absolute_url(self):
 #           return "/documents/document/%s" % self.id
@@ -292,7 +292,7 @@ else:
             index_together = ('last_name', 'first_name', 'cremeentity_ptr')
 
         def __unicode__(self):
-            return u'%s %s' % (self.first_name, self.last_name)
+            return u'{} {}'.format(self.first_name, self.last_name)
 
         def clean(self):
             if self.is_user_id and not self.first_name:
@@ -334,7 +334,7 @@ else:
         result_type  = FunctionFieldResultsList
 
         def __call__(self, entity, user):
-            return FunctionFieldResultsList(FunctionFieldResult('Todo %s #%s' % (entity, i))
+            return FunctionFieldResultsList(FunctionFieldResult('Todo {} #{}'.format(entity, i))
                                                 for i in xrange(1, 3)
                                            )
 

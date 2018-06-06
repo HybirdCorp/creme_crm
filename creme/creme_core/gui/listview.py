@@ -221,7 +221,7 @@ class ListViewState(object):
                     condition = self._build_date_range_dict(cell.value, value)
                 # TODO: hasattr(field, 'rel') ?
                 elif isinstance(field, (ForeignKey, ManyToManyField)) and value[0] == NULL_FK:
-                    condition = {'%s__isnull' % cell.value: True}
+                    condition = {'{}__isnull'.format(cell.value): True}
                 else:
                     condition = self._build_condition(cell.filter_string, value)
 
@@ -261,18 +261,18 @@ class ListViewState(object):
                 related_name = cf.get_value_class().get_related_name()
 
                 if field_type == CustomField.DATETIME:
-                    condition = self._build_date_range_dict('%s__value' % related_name, value)
+                    condition = self._build_date_range_dict('{}__value'.format(related_name), value)
                 else:
                     if field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
                         value = value[0]
 
                         if value == NULL_FK:
-                            query &= Q(**{'%s__isnull' % related_name: True})
+                            query &= Q(**{'{}__isnull'.format(related_name): True})
                             continue
 
                     condition = self._build_condition(pattern, value)
 
-                condition.update({'%s__custom_field' % related_name: cf})
+                condition.update({'{}__custom_field'.format(related_name): cf})
 
                 query &= Q(**condition)
             else:  # TODO; factorise...
@@ -332,7 +332,7 @@ class ListViewState(object):
 
                 return cell.value + '_id'
 
-            return '%s__%s' % (cell.value, subfield_ordering[0])
+            return '{}__{}'.format(cell.value, subfield_ordering[0])
 
         return cell.value
 

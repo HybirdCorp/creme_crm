@@ -7,7 +7,7 @@ try:
     from ..base import CremeTestCase
     from ..fake_models import FakeContact, FakeOrganisation
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class SearchConfigTestCase(CremeTestCase):
@@ -51,7 +51,7 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertEqual(_(u'Last name'), ln_field.verbose_name)
         self.assertEqual(_(u'Last name'), unicode(ln_field))
 
-        self.assertEqual(_(u'Default search configuration for «%s»') % 'Test Contact',
+        self.assertEqual(_(u'Default search configuration for «{model}»').format(model='Test Contact'),
                          unicode(sc_item)
                         )
 
@@ -72,10 +72,10 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertEqual(role,         sc_item.role)
         self.assertFalse(sc_item.superuser)
 
-        self.assertEqual(_(u'Search configuration of «%(role)s» for «%(type)s»') % {
-                                'role': role,
-                                'type': 'Test Organisation',
-                            },
+        self.assertEqual(_(u'Search configuration of «{role}» for «{model}»').format(
+                                role=role,
+                                model='Test Organisation',
+                            ),
                          unicode(sc_item)
                         )
 
@@ -89,8 +89,7 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertIsNone(sc_item.role)
         self.assertTrue(sc_item.superuser)
 
-        self.assertEqual(_(u'Search configuration of super-users for «%s»') %
-                                'Test Organisation',
+        self.assertEqual(_(u'Search configuration of super-users for «{model}»').format(model='Test Organisation'),
                          unicode(sc_item)
                         )
 

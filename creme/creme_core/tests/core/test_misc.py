@@ -291,29 +291,29 @@ class BatchActionTestCase(CremeTestCase):
         with self.assertRaises(BatchAction.ValueError) as cm:
             BatchAction(FakeContact, 'last_name', 'rm_start', value='three')  # Not int
 
-        self.assertEqual(_(u'%(operator)s : %(message)s.') % {
-                                'operator': _(u'Remove the start (N characters)'),
-                                'message':  _(u'enter a whole number'),
-                            },
+        self.assertEqual(_(u'{operator} : {message}.').format(
+                                operator=_(u'Remove the start (N characters)'),
+                                message=_(u'enter a whole number'),
+                            ),
                          unicode(cm.exception)
                         )
 
         with self.assertRaises(BatchAction.ValueError) as cm:
             BatchAction(FakeContact, 'last_name', 'rm_end', value='-3')  # Not positive
 
-        self.assertEqual(_(u'%(operator)s : %(message)s.') % {
-                                'operator': _(u'Remove the end (N characters)'),
-                                'message':  _(u'enter a positive number'),
-                            },
+        self.assertEqual(_(u'{operator} : {message}.').format(
+                                operator=_(u'Remove the end (N characters)'),
+                                message=_(u'enter a positive number'),
+                            ),
                          unicode(cm.exception)
                         )
 
     def test_unicode01(self):
         baction = BatchAction(FakeContact, 'first_name', 'upper', value='')
-        self.assertEqual(_(u'%(field)s ➔ %(operator)s') % {
-                                'field':    _(u'First name'),
-                                'operator': _(u'To upper case'),
-                            },
+        self.assertEqual(_(u'{field} ➔ {operator}').format(
+                                field=_(u'First name'),
+                                operator=_(u'To upper case'),
+                            ),
                          unicode(baction)
                         )
 
@@ -321,11 +321,11 @@ class BatchActionTestCase(CremeTestCase):
         "With argument"
         value = 'Foobarbaz'
         baction = BatchAction(FakeContact, 'last_name', 'rm_substr', value=value)
-        self.assertEqual(_(u'%(field)s ➔ %(operator)s: «%(value)s»') % {
-                                'field':    _(u'Last name'),
-                                'operator': _(u'Remove a sub-string'),
-                                'value':    value,
-                            },
+        self.assertEqual(_(u'{field} ➔ {operator}: «{value}»').format(
+                                field=_(u'Last name'),
+                                operator=_(u'Remove a sub-string'),
+                                value=value,
+                            ),
                          unicode(baction)
                         )
 
@@ -385,7 +385,7 @@ class EntityCellTestCase(CremeTestCase):
     def test_build_4_field06(self):
         "Date ForeignKey subfield"
         cell = EntityCellRegularField.build(model=FakeContact, name='image__created')
-        self.assertEqual(u'%s - %s' % (_('Photograph'), _('Creation date')), cell.title)
+        self.assertEqual(u'{} - {}'.format(_('Photograph'), _('Creation date')), cell.title)
         self.assertEqual('image__created__range', cell.filter_string)
 
     def test_build_4_field07(self):

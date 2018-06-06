@@ -10,7 +10,7 @@ try:
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.models import RelationType, CustomField
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class EntityCellsFieldTestCase(FieldTestCase):
@@ -66,11 +66,11 @@ class EntityCellsFieldTestCase(FieldTestCase):
         funcfield = FakeContact.function_fields.get('get_pretty_properties')
 
         field = EntityCellsField(content_type=self.ct_contact)
-        cells = field.clean('relation-%s,'
+        cells = field.clean('relation-{},'
                             'regular_field-last_name,'
-                            'function_field-%s,'
-                            'custom_field-%s,'
-                            'regular_field-first_name' % (
+                            'function_field-{},'
+                            'custom_field-{},'
+                            'regular_field-first_name'.format(
                                     loves.id, funcfield.name, customfield.id,
                                 )
                            )

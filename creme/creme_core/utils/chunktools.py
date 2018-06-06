@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2017 Hybird
+# Copyright (c) 2009-2018 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -44,7 +44,7 @@ def iter_splitchunks(chunks, sep, parser=None, limit=None):
         overflow = lines[-1]
 
         if limit is not None and len(lines[0]) > limit:
-            raise ValueError('line length is over %d characters' % limit)
+            raise ValueError('line length is over {} characters'.format(limit))
 
         entries = map(parser, lines[:-1]) if parser is not None else lines[:-1]
 
@@ -67,7 +67,7 @@ def iter_splitlinechunks(chunks, parser=None, limit=None):
         overflow = lines[-1]
 
         if limit is not None and len(lines[0].rstrip(endline)) > limit:
-            raise ValueError('line length is over %d characters' % limit)
+            raise ValueError('line length is over {} characters'.format(limit))
 
         entries = [l.rstrip(endline) for l in lines[:-1]]
         entries = map(parser, entries) if parser is not None else entries

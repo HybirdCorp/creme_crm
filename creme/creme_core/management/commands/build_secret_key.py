@@ -70,7 +70,7 @@ class Command(BaseCommand):
 
             random.seed(
                 sha256((
-                   u'%s%s%s' % (random.getstate(), time(), force_unicode(kb_seed))).encode('utf-8')
+                   u'{}{}{}'.format(random.getstate(), time(), force_unicode(kb_seed))).encode('utf-8')
                 ).digest()
             )
 

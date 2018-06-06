@@ -7,7 +7,7 @@ try:
     from creme.creme_core.tests.fake_models import FakeAddress
     from creme.creme_core.utils import truncate_str
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class ModelUtilsTestCase(CremeTestCase):

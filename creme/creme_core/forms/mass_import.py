@@ -959,7 +959,7 @@ class ImportForm(CremeModelForm):
         'forbidden_read': _(u"You have not the credentials to read this document."),
     }
 
-    choices = [(0, 'Not in the file')] + [(i, 'Column %s' % i) for i in xrange(1, 21)]  # Overloaded by factory
+    choices = [(0, 'Not in the file')] + [(i, 'Column {}'.format(i)) for i in xrange(1, 21)]  # Overloaded by factory
     header_dict = {}  # Idem
 
     blocks = FieldBlockManager(
@@ -1183,7 +1183,8 @@ class ImportForm4CremeEntity(ImportForm):
         self.cfields = cfields = CustomField.objects.filter(content_type=ct)
         get_col = self.header_dict.get
         for cfield in cfields:
-            fields[_CUSTOM_NAME % cfield.id] = CustomfieldExtractorField(
+            # fields[_CUSTOM_NAME % cfield.id] = CustomfieldExtractorField(
+            fields[_CUSTOM_NAME.format(cfield.id)] = CustomfieldExtractorField(
                                                     self.choices, cfield, user=user,
                                                     initial={'selected_column': get_col(slugify(cfield.name), 0)},
                                                 )
@@ -1208,7 +1209,8 @@ class ImportForm4CremeEntity(ImportForm):
         # Custom Fields -------
         for cfield in self.cfields:
             try:
-                value, err_msg = cdata[_CUSTOM_NAME % cfield.id].extract_value(line)
+                # value, err_msg = cdata[_CUSTOM_NAME % cfield.id].extract_value(line)
+                value, err_msg = cdata[_CUSTOM_NAME.format(cfield.id)].extract_value(line)
             except ValidationError as e:
                 self.append_error(e.messages[0])
             else:

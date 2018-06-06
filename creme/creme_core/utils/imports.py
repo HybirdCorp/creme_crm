@@ -60,7 +60,7 @@ def import_apps_sub_modules(module_name):
 
     for app_config in apps.get_app_configs():
         try:
-            mod = import_module('%s.%s' % (app_config.name, module_name))
+            mod = import_module('{}.{}'.format(app_config.name, module_name))
         except ImportError:
             continue
         else:
@@ -80,7 +80,7 @@ def import_object(objectpath):
     try:
         result = getattr(mod, attr)
     except AttributeError:
-        raise AttributeError('Module "%s" does not define a "%s" object' % (module, attr))
+        raise AttributeError('Module "{}" does not define a "{}" object'.format(module, attr))
 
     return result
 

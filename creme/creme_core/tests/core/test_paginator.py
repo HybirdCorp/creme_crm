@@ -17,7 +17,7 @@ try:
             FakeInvoiceLine, FakeInvoice, FakeDocument, FakeFolder, FakeFolderCategory)
     from creme.creme_core.utils.profiling import CaptureQueriesContext
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class FlowPaginatorTestCase(CremeTestCase):
@@ -80,7 +80,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         create_contact = partial(FakeContact.objects.create, user=self.user)
 
         for c_id, first_name, last_name in self.CONTACTS_DATA:
-            for _i in xrange(counts.get('c%i' % c_id, 1)):
+            for _i in xrange(counts.get('c{}'.format(c_id), 1)):
                 create_contact(first_name=first_name, last_name=last_name)
 
     def test_all(self):
@@ -263,7 +263,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         create_orga = partial(FakeOrganisation.objects.create, user=self.user)
 
         for i in xrange(1, 4):
-            create_orga(name='High school#%i' % i)
+            create_orga(name='High school#{}'.format(i))
 
         orgas = FakeOrganisation.objects.all()
         paginator = FlowPaginator(orgas, key='capital', per_page=2, count=len(orgas))
@@ -705,7 +705,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         last_name = 'Ichido'
         create_contact = partial(FakeContact.objects.create, user=self.user, last_name=last_name)
         for i in xrange(1, 8):
-            create_contact(first_name='Rei #%i' % i)
+            create_contact(first_name='Rei #{}'.format(i))
 
         key = 'last_name'
         qs = FakeContact.objects.order_by(key, 'id')
@@ -1101,7 +1101,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         create_line = partial(FakeInvoiceLine.objects.create, user=user, linked_invoice=invoice)
 
         for i in xrange(5):
-            create_line(item='Bento %i' % i,  unit_price='1%i.6' % i)
+            create_line(item='Bento {}'.format(i),  unit_price='1{}.6'.format(i))
 
         key = 'unit_price'
         qs = FakeInvoiceLine.objects.order_by(key)

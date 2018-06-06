@@ -13,7 +13,7 @@ try:
     from creme.creme_core.models import CremeUser
     from creme.creme_core.utils.db import get_indexed_ordering
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class ListViewStateTestCase(CremeTestCase):

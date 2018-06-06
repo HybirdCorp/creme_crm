@@ -20,12 +20,12 @@ try:
             HistoryLine, history,
             CustomField, CustomFieldEnumValue, Language)
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class MergeViewsTestCase(ViewsTestCase):
     def _build_select_url(self, e1):
-        return reverse('creme_core__select_entity_for_merge') + '?id1=%s' % e1.id
+        return reverse('creme_core__select_entity_for_merge') + '?id1={}'.format(e1.id)
 
     def _oldify(self, entity, hours_delta=1):
         mdate = entity.modified - timedelta(hours=hours_delta)

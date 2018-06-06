@@ -126,15 +126,15 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                     data={'name': name,
                                           'user': user.id,
                                           'is_private': 'on',
-                                          'cells': 'relation-%(rtype)s,'
-                                                   'regular_field-%(rfield)s,'
-                                                   'function_field-%(ffield)s,'
-                                                   'custom_field-%(cfield)s' % {
-                                                        'rfield': field_name,
-                                                        'cfield': customfield.id,
-                                                        'rtype':  loves.id,
-                                                        'ffield': funcfield.name,
-                                                    }
+                                          'cells': 'relation-{rtype},'
+                                                   'regular_field-{rfield},'
+                                                   'function_field-{ffield},'
+                                                   'custom_field-{cfield}'.format(
+                                                        rfield=field_name,
+                                                        cfield=customfield.id,
+                                                        rtype=loves.id,
+                                                        ffield=funcfield.name,
+                                                    )
                                          }
                                    )
         self.assertNoFormError(response)

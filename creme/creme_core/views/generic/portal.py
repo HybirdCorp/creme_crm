@@ -39,7 +39,7 @@ def app_portal(request, app_name, template, models, stats, config_url=None, extr
     has_perm = request.user.has_perm
 
     if not has_perm(app_name):
-        raise PermissionDenied(_(u'You are not allowed to access to the app: %s') % app_name)
+        raise PermissionDenied(_(u'You are not allowed to access to the app: {}').format(app_name))
 
     get_ct = ContentType.objects.get_for_model
 
@@ -58,7 +58,7 @@ def app_portal(request, app_name, template, models, stats, config_url=None, extr
                      'ct_ids':            ct_ids,
                      'stats':             stats,
                      'config_url':        config_url,
-                     'can_admin':         has_perm('%s.can_admin' % app_name),
+                     'can_admin':         has_perm('{}.can_admin'.format(app_name)),
                      'bricks':            list(brick_registry.get_bricks([id_ for id_ in brick_ids if id_])),
                      'bricks_reload_url': reverse('creme_core__reload_portal_bricks') + '?' +
                                           '&'.join('ct_id=%d' % ct_id for ct_id in ct_ids),

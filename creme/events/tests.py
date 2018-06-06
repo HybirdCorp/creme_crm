@@ -635,7 +635,7 @@ class EventsTestCase(CremeTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'related_contacts',
-                             [_(u"Some entities are not linkable: %s") % casca]
+                             [_(u'Some entities are not linkable: {}').format(casca)]
                             )
 
     def test_delete_type(self):
