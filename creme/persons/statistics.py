@@ -35,7 +35,7 @@ class CustomersStatistics(object):
                               .values('name', 'customers_count')
 
         if data:
-            msg = _(u'For %(name)s: %(customers_count)s')
-            return [msg % ctxt for ctxt in data]
+            msg = _(u'For {name}: {customers_count}')
+            return [msg.format(ctxt) for ctxt in data]
 
         return []

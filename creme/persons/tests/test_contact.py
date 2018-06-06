@@ -23,7 +23,7 @@ try:
     from ..models import Position, Civility, Sector
     from ..constants import REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY, UUID_FIRST_CONTACT
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 @skipIfCustomContact
@@ -90,28 +90,28 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         build_contact = partial(Contact, last_name=last_name)
         self.assertEqual(last_name, unicode(build_contact()))
         self.assertEqual(last_name, unicode(build_contact(first_name='')))
-        self.assertEqual(_(u'%(first_name)s %(last_name)s') % {
-                                'first_name': first_name,
-                                'last_name':  last_name,
-                            },
+        self.assertEqual(_(u'{first_name} {last_name}').format(
+                                first_name=first_name,
+                                last_name=last_name,
+                            ),
                          unicode(build_contact(first_name=first_name))
                         )
 
         captain = Civility.objects.create(title='Captain')  # No shortcut
-        self.assertEqual(_(u'%(first_name)s %(last_name)s') % {
-                                'first_name': first_name,
-                                'last_name':  last_name,
-                            },
+        self.assertEqual(_(u'{first_name} {last_name}').format(
+                                first_name=first_name,
+                                last_name=last_name,
+                            ),
                          unicode(build_contact(first_name=first_name, civility=captain))
                         )
 
         captain.shortcut = shortcut = 'Cpt'
         captain.save()
-        self.assertEqual(_(u'%(civility)s %(first_name)s %(last_name)s') % {
-                            'civility':   shortcut,
-                            'first_name': first_name,
-                            'last_name':  last_name,
-                            },
+        self.assertEqual(_(u'{civility} {first_name} {last_name}').format(
+                                civility=shortcut,
+                                first_name=first_name,
+                                last_name=last_name,
+                            ),
                          unicode(build_contact(first_name=first_name, civility=captain))
                         )
 
@@ -273,7 +273,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         first_name = contact.first_name.lower(); self.assertNotEqual(first_name, user.first_name)
         last_name  = contact.last_name.upper();  self.assertNotEqual(last_name,  user.last_name)
-        email      = '%s.%s@noir.org' % (user.first_name, user.last_name)
+        email      = '{}.{}@noir.org'.format(user.first_name, user.last_name)
         self.assertNotEqual(email, user.email)
 
         response = self.client.post(url, follow=True,
@@ -586,7 +586,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         naruto.save()
 
         for i in xrange(5):
-            create_address(name='Secret Cave #%s' % i, address='Cave #%s' % i, po_box='XXX')
+            create_address(name='Secret Cave #{}'.format(i), address='Cave #{}'.format(i), po_box='XXX')
 
         kage_bunshin = naruto.clone()
 
@@ -1682,10 +1682,10 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         kirika = user.linked_contact
 
         get_html_val = field_printers_registry.get_html_field_value
-        self.assertEqual(u'<a href="%s">%s</a>' % (kirika.get_absolute_url(), kirika),
+        self.assertEqual(u'<a href="{}">{}</a>'.format(kirika.get_absolute_url(), kirika),
                          get_html_val(deunan, 'user', user)
                         )
-        self.assertEqual(u'<em>%s</em>' % pgettext('persons-is_user', 'None'),
+        self.assertEqual(u'<em>{}</em>'.format(pgettext('persons-is_user', 'None')),
                          get_html_val(deunan, 'is_user', user)
                         )
 

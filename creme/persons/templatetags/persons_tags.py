@@ -75,17 +75,17 @@ def persons_pretty_contact(contact):
     last_name = contact.last_name.upper()
 
     if civ and civ.shortcut:
-        return _(u'%(civility)s %(first_name)s %(last_name)s') % {
-            'civility':   civ.shortcut,
-            'first_name': contact.first_name,
-            'last_name':  last_name,
-        }
+        return _(u'{civility} {first_name} {last_name}').format(
+            civility=civ.shortcut,
+            first_name=contact.first_name,
+            last_name=last_name,
+        )
 
     if contact.first_name:
-        return _(u'%(first_name)s %(last_name)s') % {
-            'first_name': contact.first_name,
-            'last_name':  last_name,
-        }
+        return _(u'{first_name} {last_name}').format(
+            first_name=contact.first_name,
+            last_name=last_name,
+        )
 
     return last_name or ''
 

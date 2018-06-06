@@ -43,7 +43,7 @@ class _PersonMassImportForm(ImportForm4CremeEntity):  # TODO: rename 'PersonCSVI
     _shipping_address_hidden = False
 
     def _save_address(self, attr_name, prefix, person, data, line, name):
-        if getattr(self, '_%s_hidden' % attr_name):
+        if getattr(self, '_{}_hidden'.format(attr_name)):
             return False
 
         address_dict = {}
@@ -108,7 +108,7 @@ def get_massimport_form_builder(header_dict, choices, model, base_form=_PersonMa
                 attrs[form_fieldname] = extractorfield_factory(field, header_dict, choices)
                 fnames.append(form_fieldname)
 
-        attrs['_%s_hidden' % attr_name] = hidden
+        attrs['_{}_hidden'.format(attr_name)] = hidden
 
         return fnames
 
