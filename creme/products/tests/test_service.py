@@ -13,7 +13,7 @@ try:
     from .. import get_service_model
     from ..models import Category, SubCategory
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 Document = get_document_model()
@@ -182,7 +182,7 @@ class ServiceTestCase(_ProductsTestCase):
 
         def post(*images):
             return self.client.post(url, follow=True,
-                                    data={'images': '[%s]' % ','.join(str(img.id) for img in images)}
+                                    data={'images': '[{}]'.format(','.join(str(img.id) for img in images))}
                                    )
 
         response = post(img_1, img_4)

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Products 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-29 12:33+0200\n"
+"POT-Creation-Date: 2018-06-05 13:07+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -62,21 +62,18 @@ msgid "This sub-category causes constraint error."
 msgstr "Cette sous-catégorie cause une erreur de contrainte."
 
 #: forms/mass_import.py:66
-#, python-format
-msgid "The category «%s» does not exist"
-msgstr "La catégorie «%s»  n'existe pas."
+msgid "The category «{}» does not exist"
+msgstr "La catégorie «{}»  n'existe pas."
 
 #: forms/mass_import.py:84
-#, python-format
-msgid "The sub-category «%s» does not exist"
-msgstr "La sous-catégorie «%s» n'existe pas."
+msgid "The sub-category «{}» does not exist"
+msgstr "La sous-catégorie «{}» n'existe pas."
 
 #: forms/mass_import.py:88
-#, python-format
-msgid ""
-"The category «%(cat)s» and the sub-category «%(sub_cat)s» are not matching."
+#, python-brace-format
+msgid "The category «{cat}» and the sub-category «{sub_cat}» are not matching."
 msgstr ""
-"La catégorie «%(cat)s» et la ssous-catégorie «%(sub_cat)s» ne correspondent "
+"La catégorie «{cat}» et la ssous-catégorie «{sub_cat}» ne correspondent "
 "pas."
 
 #: forms/mass_import.py:198
