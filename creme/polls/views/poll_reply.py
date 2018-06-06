@@ -263,9 +263,9 @@ def edit_line_wizard(request, preply_id, line_id):
     try:
         line_node = tree.find_line(int(line_id))
     except KeyError:
-        msg = 'PollReplyLine with this id %s does not exist for PollReply %s' % (
+        msg = 'PollReplyLine with this id {} does not exist for PollReply {}'.format(
                     line_id,
-                    preply
+                    preply,
                 )
         logger.error(msg)
         raise Http404(msg)
@@ -303,7 +303,7 @@ def edit_line_wizard(request, preply_id, line_id):
         form = PollReplyFillForm(line_node=line_node, user=user)
 
     return render(request, 'creme_core/generics/blockform/edit.html',
-                  {'title':        ugettext(u'Answers of the form : %s') % preply,
+                  {'title':        ugettext(u'Answers of the form : {}').format(preply),
                    'form':         form,
                    'help_message': previous_answer,
                    'cancel_url':   preply.get_absolute_url(),
@@ -326,7 +326,7 @@ def fill(request, preply_id):
     line_node = tree.next_question_to_answer
 
     if line_node is None:
-        msg = 'No empty PollReplyLine found in PollReply %s' % preply
+        msg = 'No empty PollReplyLine found in PollReply {}'.format(preply)
         logger.error(msg)
         raise Http404(msg)
 
@@ -357,7 +357,7 @@ def fill(request, preply_id):
         form = PollReplyFillForm(line_node=line_node, user=user)
 
     return render(request, 'creme_core/generics/blockform/edit.html',
-                  {'title':        ugettext(u'Answers of the form : %s') % preply,
+                  {'title':        ugettext(u'Answers of the form : {}').format(preply),
                    'form':         form,
                    'help_message': previous_answer,
                    'cancel_url':   preply.get_absolute_url(),

@@ -166,7 +166,7 @@ class PollFormSection(CremeModel):
 
     def __repr__(self):
         from django.utils.encoding import smart_str
-        return smart_str(u'PollFormSection(id=%s, name=%s, parent=%s)' % (
+        return smart_str(u'PollFormSection(id={}, name={}, parent={})'.format(
                                 self.id, self.name, self.parent_id,
                             )
                         )
@@ -216,7 +216,7 @@ class PollFormLine(CremeModel, _PollLine):
 
     def __repr__(self):
         from django.utils.encoding import smart_str
-        return smart_str(u'PollFormLine(section=%s, question="%s")' % (
+        return smart_str(u'PollFormLine(section={}, question="{}")'.format(
                                 self.section_id, self.question
                             )
                         )
@@ -300,7 +300,7 @@ class PollFormLineCondition(CremeModel):
         app_label = 'polls'
 
     def __repr__(self):
-        return u'PollFormLineCondition(source=%s, raw_answer="%s")' % (
+        return u'PollFormLineCondition(source={}, raw_answer="{}")'.format(
                         self.source_id, self.raw_answer
                     )
 

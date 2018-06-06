@@ -115,7 +115,7 @@ class PollRepliesCreateForm(CremeForm):
         name = cleaned_data['name']
 
         if total_number != 1:
-            name += "#%s" % index
+            name += '#{}'.format(index)
 
         return PollReply(user=cleaned_data['user'], pform=self.pform,
                          type=self.pform.type, name=name,
@@ -196,7 +196,7 @@ class PollReplyFillForm(CremeForm):
 
         if number:
             # TODO: use NodeStyle ??
-            question.initial = u'%s - %s' % (number, line_node.question)
+            question.initial = u'{} - {}'.format(number, line_node.question)
             fields['not_applicable'] = BooleanField(label=ugettext(u'Not applicable'),
                                                     required=False,
                                                     initial=not line_node.applicable,

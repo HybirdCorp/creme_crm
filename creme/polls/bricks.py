@@ -56,8 +56,8 @@ class PollFormLinesBrick(Brick):
             else:
                 question_count += 1
 
-        question_label = lambda: ungettext(u'%s Question', u'%s Questions', question_count) % question_count
-        section_label  = lambda: ungettext(u'%s Section', u'%s Sections', section_count) % section_count
+        question_label = lambda: ungettext(u'{count} Question', u'{count} Questions', question_count).format(count=question_count)
+        section_label  = lambda: ungettext(u'{count} Section', u'{count} Sections', section_count).format(section_count)
 
         if section_count and question_count:
             return ugettext(u'{questions} and {sections}').format(questions=question_label(), sections=section_label())

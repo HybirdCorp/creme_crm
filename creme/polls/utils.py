@@ -55,7 +55,7 @@ class NodeStyle(object):  # TODO: configurable style stored in DB
         get = self.ELEMENTS[type].get
 
         if node.is_section:
-            element = get('SECTION_%s' % node.deep) or get('SECTION', default)
+            element = get('SECTION_{}'.format(node.deep)) or get('SECTION', default)
         else:
             element = get('LINE', default)
 
@@ -67,7 +67,7 @@ class NodeStyle(object):  # TODO: configurable style stored in DB
     def css(self, node):
         color = self._get_element('COLOR', node, '')
 
-        return ('background-color: #%s;' % color) if color else ''
+        return ('background-color: #{};'.format(color)) if color else ''
 
 
 class SectionTree(object):

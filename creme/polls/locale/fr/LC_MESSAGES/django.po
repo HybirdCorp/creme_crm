@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Polls 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-29 12:32+0200\n"
+"POT-Creation-Date: 2018-06-05 12:32+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -29,18 +29,18 @@ msgid "Form lines"
 msgstr "Lignes de formulaire"
 
 #: bricks.py:59
-#, python-format
-msgid "%s Question"
-msgid_plural "%s Questions"
-msgstr[0] "%s Question"
-msgstr[1] "%s Questions"
+#, python-brace-format
+msgid "{count} Question"
+msgid_plural "{count} Questions"
+msgstr[0] "{count} Question"
+msgstr[1] "{count} Questions"
 
 #: bricks.py:60
-#, python-format
-msgid "%s Section"
-msgid_plural "%s Sections"
-msgstr[0] "%s Section"
-msgstr[1] "%s Sections"
+#, python-brace-format
+msgid "{count} Section"
+msgid_plural "{count} Sections"
+msgstr[0] "{count} Section"
+msgstr[1] "{count} Sections"
 
 #: bricks.py:63
 #, python-brace-format
@@ -72,19 +72,19 @@ msgid "The upper bound must be greater than the lower bound."
 msgstr "La borne supérieure doit être plus grande que la borne inférieure."
 
 #: core.py:177
-#, python-format
-msgid "Integer lesser than %(max_value)s"
-msgstr "Nombre entier plus petit que %(max_value)s"
+#, python-brace-format
+msgid "Integer lesser than {max_value}"
+msgstr "Nombre entier plus petit que {max_value}"
 
 #: core.py:180
-#, python-format
-msgid "Integer greater than %(min_value)s"
-msgstr "Nombre entier plus grand que %(min_value)s"
+#, python-brace-format
+msgid "Integer greater than {min_value}"
+msgstr "Nombre entier plus grand que {min_value}"
 
 #: core.py:182
-#, python-format
-msgid "Integer between %(min_value)s and %(max_value)s"
-msgstr "Nombre entier entre  %(min_value)s et %(max_value)s"
+#, python-brace-format
+msgid "Integer between {min_value} and {max_value}"
+msgstr "Nombre entier entre  {min_value} et {max_value}"
 
 #: core.py:196
 msgid "Boolean (Yes/No)"
@@ -119,14 +119,13 @@ msgid "Choice list"
 msgstr "Liste de choix"
 
 #: core.py:263
-#, python-format
-msgid "Choice list (%s)"
-msgstr "Liste de choix (%s)"
+msgid "Choice list ({})"
+msgstr "Liste de choix ({})"
 
 #: core.py:264
-#, python-format
-msgid "Choice list (%(choices)s) (deleted: %(del_choices)s)"
-msgstr "Liste de choix (%(choices)s) (supprimé: %(del_choices)s)"
+#, python-brace-format
+msgid "Choice list ({choices}) (deleted: {del_choices})"
+msgstr "Liste de choix ({choices}) (supprimé: {del_choices})"
 
 #: core.py:271
 msgid "Give 2 choices at least."
@@ -137,29 +136,27 @@ msgid "Multiple choice list"
 msgstr "Liste de choix multiples"
 
 #: core.py:324
-#, python-format
-msgid "Multiple choice list (%s)"
-msgstr "Liste de choix multiples (%s)"
+msgid "Multiple choice list ({})"
+msgstr "Liste de choix multiples ({})"
 
 #: core.py:325
-#, python-format
-msgid "Multiple choice list (%(choices)s) (deleted: %(del_choices)s)"
-msgstr "Liste de choix multiples (%(choices)s) (supprimé: %(del_choices)s)"
+#, python-brace-format
+msgid "Multiple choice list ({choices}) (deleted: {del_choices})"
+msgstr "Liste de choix multiples ({choices}) (supprimé(s) : {del_choices})"
 
 #: core.py:351
 msgid "Choice list with free choice"
 msgstr "Liste de choix avec choix libre"
 
 #: core.py:352
-#, python-format
-msgid "Choice list with free choice (%s)"
-msgstr "Liste de choix avec choix libre (%s)"
+msgid "Choice list with free choice ({})"
+msgstr "Liste de choix avec choix libre ({})"
 
 #: core.py:353
-#, python-format
-msgid "Choice list with free choice (%(choices)s) (deleted: %(del_choices)s)"
+#, python-brace-format
+msgid "Choice list with free choice ({choices}) (deleted: {del_choices})"
 msgstr ""
-"Liste de choix avec choix libre (%(choices)s) (supprimé: %(del_choices)s)"
+"Liste de choix avec choix libre ({choices}) (supprimé(s) : {del_choices})"
 
 #: core.py:369 core.py:380 core.py:406
 msgid "Other"
@@ -206,28 +203,28 @@ msgstr ""
 "Mettez les choix possibles (un par ligne) si vous avez choisi le type  "
 "\"Liste de choix\"."
 
-#: forms/poll_form.py:146
+#: forms/poll_form.py:147
 msgid "Start of section"
 msgstr "Début de section"
 
-#: forms/poll_form.py:147
-#, python-format
-msgid "Before: «%(question)s» (#%(number)s)"
-msgstr "Avant: «%(question)s» (n°%(number)s)"
+#: forms/poll_form.py:148
+#, python-brace-format
+msgid "Before: «{question}» (#{number})"
+msgstr "Avant : «{question}» (n°{number})"
 
-#: forms/poll_form.py:152
+#: forms/poll_form.py:153
 msgid "End of section"
 msgstr "Fin de section"
 
-#: forms/poll_form.py:154
+#: forms/poll_form.py:155
 msgid "Order"
 msgstr "Ordre"
 
-#: forms/poll_form.py:210
+#: forms/poll_form.py:211
 msgid "Choices can not be empty."
 msgstr "Les choix ne peuvent pas être vides."
 
-#: forms/poll_form.py:211
+#: forms/poll_form.py:212
 #, python-format
 msgid ""
 "You can not delete the choice \"%(choice)s\" because it is used in a "
@@ -236,35 +233,35 @@ msgstr ""
 "vous ne pouvez pas supprimer le choix \"%(choice)s\" car il est utilisé dans "
 "une condition par la question \"%(question)s\"."
 
-#: forms/poll_form.py:229
+#: forms/poll_form.py:230
 msgid "Existing choices"
 msgstr "Choix existants"
 
-#: forms/poll_form.py:230
+#: forms/poll_form.py:231
 msgid "Uncheck the choices you want to delete."
 msgstr "Décochez les choix que vous voulez supprimer."
 
-#: forms/poll_form.py:233
+#: forms/poll_form.py:234
 msgid "New choices of the list"
 msgstr "Nouveaux choix de la liste"
 
-#: forms/poll_form.py:234
+#: forms/poll_form.py:235
 msgid "Give the new possible choices (one per line)."
 msgstr "Rentrez les nouveaux choix possibles (un par ligne)."
 
-#: forms/poll_form.py:307 models/poll_form.py:204 models/poll_reply.py:118
+#: forms/poll_form.py:308 models/poll_form.py:204 models/poll_reply.py:118
 msgid "Use OR or AND between conditions"
 msgstr "Utiliser OU ou ET entre les conditions"
 
-#: forms/poll_form.py:308 models/poll_form.py:264
+#: forms/poll_form.py:309 models/poll_form.py:264
 msgid "AND"
 msgstr "ET"
 
-#: forms/poll_form.py:308 models/poll_form.py:264
+#: forms/poll_form.py:309 models/poll_form.py:264
 msgid "OR"
 msgstr "OU"
 
-#: forms/poll_form.py:312 templates/polls/bricks/pform-lines.html:70
+#: forms/poll_form.py:313 templates/polls/bricks/pform-lines.html:70
 msgid "Conditions"
 msgstr "Conditions"
 
@@ -484,15 +481,15 @@ msgstr "Vue de Réponse"
 msgid "Campaign view"
 msgstr "Vue de Campagne"
 
-#: populate.py:85
+#: populate.py:81
 msgid "Survey"
 msgstr "Enquête"
 
-#: populate.py:86
+#: populate.py:82
 msgid "Monitoring"
 msgstr "Suivi"
 
-#: populate.py:87
+#: populate.py:83
 msgid "Assessment"
 msgstr "Contrôle des connaissances"
 
@@ -619,14 +616,14 @@ msgid "Poll statistics"
 msgstr "Statistiques de sondage"
 
 #: templatetags/polls_tags.py:47
-#, python-format
-msgid "The answer to the question #%(number)s contains «%(answer)s»."
-msgstr "La réponse à la question n°%(number)s contient «%(answer)s»."
+#, python-brace-format
+msgid "The answer to the question #{number} contains «{answer}»."
+msgstr "La réponse à la question n°{number} contient «{answer}»."
 
 #: templatetags/polls_tags.py:50
-#, python-format
-msgid "The answer to the question #%(number)s is «%(answer)s»."
-msgstr "La réponse à la question n°%(number)s est «%(answer)s»."
+#, python-brace-format
+msgid "The answer to the question #{number} is «{answer}»."
+msgstr "La réponse à la question n°{number} est «{answer}»."
 
 #: templatetags/polls_tags.py:90
 msgid "[An error occurred]"
@@ -680,9 +677,8 @@ msgid "Edit"
 msgstr ""
 
 #: views/poll_reply.py:306 views/poll_reply.py:360
-#, python-format
-msgid "Answers of the form : %s"
-msgstr "Réponses à un formulaire : %s"
+msgid "Answers of the form : {}"
+msgstr "Réponses à un formulaire : {}"
 
 #: views/poll_reply.py:323
 msgid "All questions have been answered."
@@ -695,6 +691,11 @@ msgstr "Modification de réponse"
 #: views/poll_reply.py:434
 msgid "Save the modification"
 msgstr "Enregistrer la modification"
+
+#~ msgid "%s Section"
+#~ msgid_plural "%s Sections"
+#~ msgstr[0] "%s Section"
+#~ msgstr[1] "%s Sections"
 
 #~ msgid "Portal of polls"
 #~ msgstr "Portail des sondages"

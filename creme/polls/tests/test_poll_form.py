@@ -20,7 +20,7 @@ try:
     from ..templatetags.polls_tags import poll_node_number, poll_node_css, poll_line_condition
     from ..utils import SectionTree, NodeStyle
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 get_ct = ContentType.objects.get_for_model
@@ -450,7 +450,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         line = pform.lines.all()[0]
         self.assertEqual('{"lower_bound": %s}' % lower_bound, line.type_args)
-        self.assertEqual(_(u'Integer greater than %(min_value)s') % {'min_value': lower_bound},
+        self.assertEqual(_(u'Integer greater than {min_value}').format(min_value=lower_bound),
                          unicode(line.poll_line_type.description)
                         )
 
@@ -469,7 +469,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         line = pform.lines.all()[0]
         self.assertEqual('{"upper_bound": %s}' % upper_bound, line.type_args)
-        self.assertEqual(_(u'Integer lesser than %(max_value)s') % {'max_value': upper_bound},
+        self.assertEqual(_(u'Integer lesser than {max_value}').format(max_value=upper_bound),
                          unicode(line.poll_line_type.description)
                         )
 
@@ -493,10 +493,10 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                             lower_bound, upper_bound),
                         line.type_args
                        )
-        self.assertEqual(_(u'Integer between %(min_value)s and %(max_value)s') % {
-                                'min_value': lower_bound,
-                                'max_value': upper_bound,
-                            },
+        self.assertEqual(_(u'Integer between {min_value} and {max_value}').format(
+                                min_value=lower_bound,
+                                max_value=upper_bound,
+                            ),
                          unicode(line.poll_line_type.description)
                         )
 
@@ -604,7 +604,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertEqual(choices, plt.get_choices())
         self.assertEqual(choices, plt.get_editable_choices())
         self.assertEqual(_(u'Choice list'), plt.verbose_name)
-        self.assertEqual(_(u'Choice list (%s)') % 'White / Black / Green',
+        self.assertEqual(_(u'Choice list ({})').format('White / Black / Green'),
                          plt.description
                         )
 
@@ -633,7 +633,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertEqual(choices, plt.get_choices())
         self.assertEqual(choices, plt.get_editable_choices())
         self.assertEqual(_(u'Multiple choice list'), plt.verbose_name)
-        self.assertEqual(_(u'Multiple choice list (%s)') % 'White / Black / Green / Purple',
+        self.assertEqual(_(u'Multiple choice list ({})').format('White / Black / Green / Purple'),
                          plt.description
                         )
 
@@ -664,7 +664,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         self.assertFalse(plt.get_deleted_choices())
         self.assertEqual(_(u'Choice list with free choice'), plt.verbose_name)
-        self.assertEqual(_(u'Choice list with free choice (%s)') % 'White / Black / Green / Orange',
+        self.assertEqual(_(u'Choice list with free choice ({})').format('White / Black / Green / Orange'),
                          plt.description
                         )
 
@@ -842,10 +842,10 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             order_field = response.context['form'].fields['index']
 
-        msg_fmt = _(u'Before: «%(question)s» (#%(number)s)')
+        msg_fmt = _(u'Before: «{question}» (#{number})')
         self.assertEqual([(0, _(u'Start of section')),
-                          (1,  msg_fmt % {'question': line2.question, 'number': 2}),
-                          (2,  msg_fmt % {'question': line3.question, 'number': 3}),
+                          (1,  msg_fmt.format(question=line2.question, number=2)),
+                          (2,  msg_fmt.format(question=line3.question, number=3)),
                           (3, _(u'End of section')),
                          ],
                          order_field.choices
@@ -972,10 +972,10 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                          },
                          plt._args
                         )
-        self.assertEqual(_(u'Choice list (%(choices)s) (deleted: %(del_choices)s)') % {
-                                'choices':     'Yellow / Cyan',
-                                'del_choices': 'White / Red',
-                            },
+        self.assertEqual(_(u'Choice list ({choices}) (deleted: {del_choices})').format(
+                                choices='Yellow / Cyan',
+                                del_choices='White / Red',
+                            ),
                          plt.description
                         )
 
@@ -1053,10 +1053,10 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                       del_choices=[[1, 'White'], [4, 'Blue']],
                                       qtype=PollLineType.MULTI_ENUM
                                      )
-        self.assertEqual(_(u'Multiple choice list (%(choices)s) (deleted: %(del_choices)s)') % {
-                                'choices':     'Black / Red',
-                                'del_choices': 'White / Blue',
-                            },
+        self.assertEqual(_(u'Multiple choice list ({choices}) (deleted: {del_choices})').format(
+                                choices='Black / Red',
+                                del_choices='White / Blue',
+                            ),
                          line.poll_line_type.description
                         )
 
@@ -1066,10 +1066,10 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                       del_choices=[[1, 'Grey'], [4, 'Blue']],
                                       qtype=PollLineType.ENUM_OR_STRING
                                      )
-        self.assertEqual(_(u'Choice list with free choice (%(choices)s) (deleted: %(del_choices)s)') % {
-                                'choices':     'Brown / Red',
-                                'del_choices': 'Grey / Blue',
-                            },
+        self.assertEqual(_(u'Choice list with free choice ({choices}) (deleted: {del_choices})').format(
+                                choices='Brown / Red',
+                                del_choices='Grey / Blue',
+                            ),
                          line.poll_line_type.description
                         )
 
@@ -1125,11 +1125,11 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                            }
                                      )
         self.assertFormError(response, 'form', 'old_choices',
-                             _('You can not delete the choice "%(choice)s" because it '
-                               'is used in a condition by the question "%(question)s".'
-                              ) % {'choice':   'A little bit',
+                             _(u'You can not delete the choice "%(choice)s" because it '
+                               u'is used in a condition by the question "%(question)s".'
+                              ) % {'choice': 'A little bit',
                                    'question': line3.question,
-                               }
+                                  }
                             )
 
     def test_delete_type(self):
@@ -1828,22 +1828,18 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         cond4 = create_cond(line=line_with_conds, source=line3, raw_answer=dumps([1]))
 
         nodes = SectionTree(pform)
-        msg_fmt1 = _(u'The answer to the question #%(number)s is «%(answer)s».')
-        msg_fmt2 = _(u'The answer to the question #%(number)s contains «%(answer)s».')
-        self.assertEqual(msg_fmt1 % {'number': 1, 'answer': 'A lot'},
-                         # print_line_condition(nodes, cond1)
+        msg_fmt1 = _(u'The answer to the question #{number} is «{answer}».')
+        msg_fmt2 = _(u'The answer to the question #{number} contains «{answer}».')
+        self.assertEqual(msg_fmt1.format(number=1, answer='A lot'),
                          poll_line_condition(nodes, cond1)
                         )
-        self.assertEqual(msg_fmt1 % {'number': 2, 'answer': 'A little bit'},
-                         # print_line_condition(nodes, cond2)
+        self.assertEqual(msg_fmt1.format(number=2, answer='A little bit'),
                          poll_line_condition(nodes, cond2)
                         )
-        self.assertEqual(msg_fmt1 % {'number': 2, 'answer': _('Other')},
-                         # print_line_condition(nodes, cond3)
+        self.assertEqual(msg_fmt1.format(number=2, answer=_('Other')),
                          poll_line_condition(nodes, cond3)
                         )
-        self.assertEqual(msg_fmt2 % {'number': 3, 'answer': 'Coco nuts'},
-                         # print_line_condition(nodes, cond4)
+        self.assertEqual(msg_fmt2.format(number=3, answer='Coco nuts'),
                          poll_line_condition(nodes, cond4)
                         )
 
