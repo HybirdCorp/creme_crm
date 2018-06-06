@@ -19,7 +19,7 @@ try:
             MarketSegment, MarketSegmentCategory, MarketSegmentDescription)
     from .base import CommercialBaseTestCase, skipIfCustomStrategy, Organisation, Strategy
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 @skipIfCustomStrategy
@@ -162,16 +162,14 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
 
         name = 'Industry'
-        pname = _(u'is in the segment "%s"') % name
+        pname = _(u'is in the segment «{}»').format(name)
         CremePropertyType.create('commercial-test_segment_create02', pname)
 
         response = self.assertPOST200(self._build_add_segmentdesc_url(strategy),
                                       data={'name': name},
                                      )
         self.assertFormError(response, 'form', 'name',
-                             _(u'A property with the name «%(name)s» already exists') % {
-                                 'name': pname,
-                             }
+                             _(u'A property with the name «%(name)s» already exists') % {'name': pname}
                             )
 
     def test_segment_link(self):
@@ -394,7 +392,7 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
                            )
 
         response = self.assertGET200(reverse('commercial__orga_synthesis', args=(strategy.id, orga.id)))
-        self.assertContains(response, '<li data-segment="%s"' % segment_desc.id)
+        self.assertContains(response, '<li data-segment="{}"'.format(segment_desc.id))
 
     @skipIfCustomOrganisation
     def test_delete_evaluated_orga(self):

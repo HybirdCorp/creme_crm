@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-29 11:53+0200\n"
+"POT-Creation-Date: 2018-06-05 10:03+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
@@ -93,18 +93,17 @@ msgid "Send emails for commercials approaches"
 msgstr "Envoyer les e-mails pour les approches commerciales"
 
 #: creme_jobs.py:101
-#, python-format
-msgid "[CremeCRM] The organisation «%s» seems neglected"
-msgstr "[CremeCRM] La société «%s» semble délaissée"
+msgid "[CremeCRM] The organisation «{}» seems neglected"
+msgstr "[CremeCRM] La société «{}» semble délaissée"
 
 #: creme_jobs.py:102
-#, python-format
+#, python-brace-format
 msgid ""
 "It seems you haven't created a commercial approach for the organisation "
-"«%(orga)s» since %(delay)s days."
+"«{orga}» since {delay} days."
 msgstr ""
 "Il semblerait que vous n'ayez pas crée d'approche commerciale pour la "
-"société «%(orga)s» depuis %(delay)s jours"
+"société «{orga}» depuis {delay} jours"
 
 #: creme_jobs.py:118
 msgid "An error has occurred while sending emails"
@@ -112,20 +111,18 @@ msgstr "Une erreur s'est produite pendant l'envoi des e-mails"
 
 # Already in creme_core
 #: creme_jobs.py:119
-#, python-format
-msgid "Original error: %s"
+msgid "Original error: {}"
 msgstr ""
 
 #: creme_jobs.py:124
-#, python-format
 msgid ""
 "For each customer organisation, an email is sent to its owner (ie: a Creme "
-"user), if there is no commercial approach since %s days linked to: the "
+"user), if there is no commercial approach since {} days linked to: the "
 "organisation, one of its managers/employees, or an Opportunity which targets "
 "this organisation."
 msgstr ""
 "Pour chaque société cliente, un e-mail est envoyé à son propriété (c-a-d un "
-"utilisateur Creme), si il n'y a aucune approche commercial depuis %s jour "
+"utilisateur Creme), si il n'y a aucune approche commercial depuis {} jour "
 "liée à : la société, un de ses salariés/responsables, ou une Opportunité qui "
 "cible cette société."
 
@@ -338,9 +335,8 @@ msgid "Market segments"
 msgstr "Segments de marché"
 
 #: models/market_segment.py:53
-#, python-format
-msgid "is in the segment \"%s\""
-msgstr "est du segment \"%s\""
+msgid "is in the segment «{}»"
+msgstr "est du segment «{}»"
 
 #: models/strategy.py:51
 msgid "Evaluated organisation(s)"
@@ -427,27 +423,27 @@ msgstr "est un commercial"
 msgid "All the organisations"
 msgstr "Toutes les sociétés"
 
-#: populate.py:72
+#: populate.py:71
 msgid "Phone calls"
 msgstr "Appels téléphoniques"
 
-#: populate.py:72
+#: populate.py:71
 msgid "Show"
 msgstr "Salon"
 
-#: populate.py:72
+#: populate.py:71
 msgid "Demo"
 msgstr "Démo"
 
-#: populate.py:79
+#: populate.py:77
 msgid "Com Action view"
 msgstr "Vue d'Action Com"
 
-#: populate.py:86
+#: populate.py:84
 msgid "Strategy view"
 msgstr "Vue de stratégie"
 
-#: populate.py:90
+#: populate.py:88
 msgid "Objective pattern view"
 msgstr "Vue de Modèle d'objectif"
 
@@ -882,9 +878,8 @@ msgid "You can't delete the last segment."
 msgstr "Vous ne pouvez pas supprimer le dernier segment."
 
 #: views/market_segment.py:77
-#, python-format
-msgid "Delete and replace «%s»"
-msgstr "Supprimer et remplacer «%s»"
+msgid "Delete and replace «{}»"
+msgstr "Supprimer et remplacer «{}»"
 
 #: views/market_segment.py:79
 msgid "Replace"
@@ -946,13 +941,13 @@ msgid "Charm for «%s»"
 msgstr "Attrait pour «%s»"
 
 #: views/strategy.py:199
-#, python-format
+#, python-brace-format
 msgid ""
-"This organisation «%(orga)s» is not (no more ?) evaluated by the strategy "
-"%(strategy)s"
+"This organisation «{orga}» is not (no more ?) evaluated by the strategy "
+"«{strategy}»"
 msgstr ""
-"Cette société «%(orga)s» n'est pas (n'est plus ?) évaluée par le plan "
-"commercial %(strategy)s"
+"Cette société «{orga}» n'est pas (n'est plus ?) évaluée par le plan "
+"commercial {strategy}"
 
 #~ msgid "Portal of commercial strategy"
 #~ msgstr "Portail de la stratégie commerciale"

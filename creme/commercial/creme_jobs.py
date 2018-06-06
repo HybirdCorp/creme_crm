@@ -98,12 +98,12 @@ class _ComApproachesEmailsSendType(JobType):
                                   ).exists():
                     continue
 
-                emails.append(EmailMessage(ugettext(u"[CremeCRM] The organisation «%s» seems neglected") % orga,
+                emails.append(EmailMessage(ugettext(u"[CremeCRM] The organisation «{}» seems neglected").format(orga),
                                            ugettext(u"It seems you haven't created a commercial approach for "
-                                                    u"the organisation «%(orga)s» since %(delay)s days.") % {
-                                               'orga':  orga,
-                                               'delay': delay,
-                                           },
+                                                    u"the organisation «{orga}» since {delay} days.").format(
+                                               orga=orga,
+                                               delay=delay,
+                                           ),
                                            EMAIL_SENDER, [orga.user.email],
                                           )
                              )
@@ -116,16 +116,16 @@ class _ComApproachesEmailsSendType(JobType):
             except Exception as e:
                 JobResult.objects.create(job=job,
                                          messages=[ugettext(u'An error has occurred while sending emails'),
-                                                   ugettext(u'Original error: %s') % e,
+                                                   ugettext(u'Original error: {}').format(e),
                                                   ],
                                         )
 
     def get_description(self, job):
         return [ugettext(u"For each customer organisation, an email is sent to its owner (ie: a Creme user), "
-                         u"if there is no commercial approach since %s days linked to: "
+                         u"if there is no commercial approach since {} days linked to: "
                          u"the organisation, one of its managers/employees, "
                          u"or an Opportunity which targets this organisation."
-                        ) % self.list_target_orga[0][1],
+                        ).format(self.list_target_orga[0][1]),
                ]
 
 

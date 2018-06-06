@@ -74,7 +74,7 @@ def delete(request, segment_id):
 
     try:
         return generic.add_model_with_popup(request, segment_forms.SegmentReplacementForm,
-                                            _(u'Delete and replace «%s»') % segment,
+                                            _(u'Delete and replace «{}»').format(segment),
                                             initial={'segment_to_delete': segment},
                                             submit_label=_(u'Replace'),
                                            )
