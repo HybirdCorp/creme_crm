@@ -250,15 +250,17 @@ class ReportHandsField(EntityCellsField):
                                                     viewable=True,
                                                    ) \
                                             .choices():
-                    agg_id = _REGULAR_AGG_PREFIX + pattern % f_name
-                    reg_agg_choices.append((agg_id, u'%s - %s' % (title, f_vname)))
+                    # agg_id = _REGULAR_AGG_PREFIX + pattern % f_name
+                    agg_id = _REGULAR_AGG_PREFIX + pattern.format(f_name)
+                    reg_agg_choices.append((agg_id, u'{} - {}'.format(title, f_vname)))
 
                     builders[agg_id] = ReportHandsField._build_4_regular_aggregate
 
                 for cf in self._custom_fields:
                     if cf.field_type in authorized_customfields:
-                        agg_id = _CUSTOM_AGG_PREFIX + pattern % cf.id
-                        cust_agg_choices.append((agg_id, u'%s - %s' % (title, cf.name)))
+                        # agg_id = _CUSTOM_AGG_PREFIX + pattern % cf.id
+                        agg_id = _CUSTOM_AGG_PREFIX + pattern.format(cf.id)
+                        cust_agg_choices.append((agg_id, u'{} - {}'.format(title, cf.name)))
                         builders[agg_id] = ReportHandsField._build_4_custom_aggregate
 
 
@@ -396,7 +398,7 @@ class ReportExportPreviewFilterForm(CremeForm):
                          ('date_filter_2', end.strftime('%d-%m-%Y') if end else ''),
                         ])
 
-        return '&'.join('%s=%s' % (key, value) for key, value in data)
+        return '&'.join('{}={}'.format(key, value) for key, value in data)
 
 
 class ReportExportFilterForm(ReportExportPreviewFilterForm):

@@ -605,7 +605,7 @@ class ReportTestCase(BaseReportsTestCase):
         response = self.assertGET200(self._build_preview_url(report))
         self.assertTemplateUsed(response, 'reports/preview_report.html')
         self.assertContains(response,
-                            _(u'You can see no «%s»') % 'Test Contact'
+                            _(u'You can see no «{model}»').format(model='Test Contact')
                            )
 
     def test_preview03(self):
@@ -617,7 +617,7 @@ class ReportTestCase(BaseReportsTestCase):
         report = self._create_report('My report')
         response = self.assertGET200(self._build_preview_url(report))
         self.assertContains(response,
-                            _(u'You can see no «%s»') % 'Test Contact'
+                            _(u'You can see no «{model}»').format(model='Test Contact')
                            )
 
     def test_preview04(self):
@@ -638,10 +638,10 @@ class ReportTestCase(BaseReportsTestCase):
         response = self.assertGET200(self._build_preview_url(report))
         self.assertNotContains(response, tomo.last_name)
         self.assertContains(response,
-                            _(u'No «%(ctype)s» matches the filter «%(filter)s»') % {
-                                    'ctype': 'Test Contact',
-                                    'filter': report.filter,
-                                }
+                            _(u'No «{model}» matches the filter «{filter}»').format(
+                                    model='Test Contact',
+                                    filter=report.filter,
+                                )
                            )
 
     def test_preview05(self):
@@ -662,7 +662,7 @@ class ReportTestCase(BaseReportsTestCase):
                                           }
                                     )
         self.assertContains(response,
-                            _(u'No «%s» matches your date filter') % 'Test Contact'
+                            _(u'No «{model}» matches your date filter').format(model='Test Contact')
                            )
 
     # def test_report_change_field_order01(self):
@@ -743,12 +743,14 @@ class ReportTestCase(BaseReportsTestCase):
         with self.assertNoException():
             callback_url = response.context['callback_url']
 
-        self.assertEqual(reverse('reports__export_report', args=(report.id,)) +
-                         '?doc_type=csv'
-                          '&date_field=%s'
-                          '&date_filter_0='
-                          '&date_filter_1=01-01-1990'
-                          '&date_filter_2=31-12-1990' % date_field,
+        self.assertEqual('{url}?doc_type=csv'
+                         '&date_field={date}'
+                         '&date_filter_0='
+                         '&date_filter_1=01-01-1990'
+                         '&date_filter_2=31-12-1990'.format(
+                                url=reverse('reports__export_report', args=(report.id,)),
+                                date=date_field,
+                            ),
                          callback_url
                         )
 
@@ -826,7 +828,10 @@ class ReportTestCase(BaseReportsTestCase):
         with self.assertNoException():
             callback_url = response.context['callback_url']
 
-        self.assertEqual(reverse('reports__export_report', args=(report.id,)) + '?doc_type=%s&date_field=' % doc_type,
+        self.assertEqual('{url}?doc_type={type}&date_field='.format(
+                                url=reverse('reports__export_report', args=(report.id,)),
+                                type=doc_type,
+                            ),
                          callback_url
                         )
 
@@ -849,7 +854,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         response = self.assertGET200(self._build_export_url(report), data={'doc_type': 'csv'})
         self.assertEqual('doc_type=csv', response.request['QUERY_STRING'])
-        self.assertEqual(smart_str('"%s","%s","%s","%s"\r\n' % (
+        self.assertEqual(smart_str(u'"{}","{}","{}","{}"\r\n'.format(
                                       _(u'Name'), _(u'Owner user'), rt.predicate, _(u'Properties')
                                     )
                                   ),
@@ -866,7 +871,7 @@ class ReportTestCase(BaseReportsTestCase):
         response = self.assertGET200(self._build_export_url(report), data={'doc_type': 'csv'})
 
         content = (s for s in response.content.split('\r\n') if s)
-        self.assertEqual(smart_str('"%s","%s","%s","%s"' % (
+        self.assertEqual(smart_str(u'"{}","{}","{}","{}"'.format(
                                       _(u'Last name'), _(u'Owner user'), _(u'owns'), _(u'Properties')
                                     )
                                   ),
@@ -1078,15 +1083,15 @@ class ReportTestCase(BaseReportsTestCase):
         cf_id = str(cf.id)
         aggr_id = '%s__max' % cf_id
         response = self.client.post(self._build_editfields_url(report),
-                                    data={'columns': 'regular_field-%(rfield)s,'
-                                                     'custom_field-%(cfield)s,'
-                                                     'custom_aggregate-%(agg)s,'
-                                                     'regular_field-%(fkfield)s' % {
-                                                            'rfield':  f_name,
-                                                            'cfield':  cf_id,
-                                                            'agg':     aggr_id,
-                                                            'fkfield': fk_name
-                                                        },
+                                    data={'columns': 'regular_field-{rfield},'
+                                                     'custom_field-{cfield},'
+                                                     'custom_aggregate-{agg},'
+                                                     'regular_field-{fkfield}'.format(
+                                                            rfield=f_name,
+                                                            cfield=cf_id,
+                                                            agg=aggr_id,
+                                                            fkfield=fk_name
+                                                        ),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -1132,13 +1137,13 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertIsNotNone(funcfield)
 
         response = self.client.post(self._build_editfields_url(report),
-                                    data={'columns': 'relation-%(rtype)s,'
-                                                     'regular_field-%(rfield)s,'
-                                                     'function_field-%(ffield)s' % {
-                                                            'rfield': f_name,
-                                                            'rtype':  rtype_id,
-                                                            'ffield': funcfield.name,
-                                                        },
+                                    data={'columns': 'relation-{rtype},'
+                                                     'regular_field-{rfield},'
+                                                     'function_field-{ffield}'.format(
+                                                            rfield=f_name,
+                                                            rtype=rtype_id,
+                                                            ffield=funcfield.name,
+                                                        ),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -1175,10 +1180,10 @@ class ReportTestCase(BaseReportsTestCase):
         f_name = 'name'
         aggr_id = 'capital__min'
         response = self.client.post(self._build_editfields_url(report),
-                                    data={'columns': 'regular_field-%(rfield)s,regular_aggregate-%(agg)s' % {
-                                                            'rfield': f_name,
-                                                            'agg':    aggr_id,
-                                                        }
+                                    data={'columns': 'regular_field-{rfield},regular_aggregate-{agg}'.format(
+                                                            rfield=f_name,
+                                                            agg=aggr_id,
+                                                        ),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -1205,11 +1210,11 @@ class ReportTestCase(BaseReportsTestCase):
         f_name = 'title'
         rel_name = 'fakereportsdocument'
         response = self.client.post(self._build_editfields_url(report),
-                                    data={'columns': 'regular_field-%(rfield)s,'
-                                                     'related-%(related)s' % {
-                                                            'rfield':  f_name,
-                                                            'related': rel_name,
-                                                        },
+                                    data={'columns': 'regular_field-{rfield},'
+                                                     'related-{related}'.format(
+                                                            rfield=f_name,
+                                                            related=rel_name,
+                                                        ),
                                               }
                                    )
         self.assertNoFormError(response)
@@ -1243,15 +1248,15 @@ class ReportTestCase(BaseReportsTestCase):
         create_field(name='image',             type=RFT_FIELD,    order=3, selected=False, sub_report=report_img)
 
         response = self.client.post(self._build_editfields_url(report_orga),
-                                    data={'columns': 'regular_field-%(rfield1)s,'
-                                                     'relation-%(rtype)s,'
-                                                     'regular_field-%(rfield2)s,'
-                                                     'regular_field-%(rfield3)s' % {
-                                                            'rfield1': 'name',
-                                                            'rtype': FAKE_REL_OBJ_EMPLOYED_BY,
-                                                            'rfield2': 'description',
-                                                            'rfield3': 'image',  # TODO: and with image__name ???
-                                                        }
+                                    data={'columns': 'regular_field-{rfield1},'
+                                                     'relation-{rtype},'
+                                                     'regular_field-{rfield2},'
+                                                     'regular_field-{rfield3}'.format(
+                                                            rfield1='name',
+                                                            rtype=FAKE_REL_OBJ_EMPLOYED_BY,
+                                                            rfield2='description',
+                                                            rfield3='image',  # TODO: and with image__name ???
+                                                        ),
                                               }
                                    )
         self.assertNoFormError(response)
@@ -1330,10 +1335,10 @@ class ReportTestCase(BaseReportsTestCase):
         # fname = 'folder__category'
         fname = 'linked_folder__category'
         response = self.client.post(self._build_editfields_url(report),
-                                    data={'columns': 'regular_field-%(rfield1)s,regular_field-%(rfield2)s' % {
-                                                            'rfield1': 'title',
-                                                            'rfield2': fname,
-                                                        }
+                                    data={'columns': 'regular_field-{rfield1},regular_field-{rfield2}'.format(
+                                                            rfield1='title',
+                                                            rfield2=fname,
+                                                        ),
                                               }
                                    )
         self.assertNoFormError(response)
@@ -1355,10 +1360,10 @@ class ReportTestCase(BaseReportsTestCase):
 
         fname = 'image__categories'
         response = self.client.post(self._build_editfields_url(report),
-                                    data={'columns': 'regular_field-%(rfield1)s,regular_field-%(rfield2)s' % {
-                                                            'rfield1': 'last_name',
-                                                            'rfield2': fname,
-                                                        }
+                                    data={'columns': 'regular_field-{rfield1},regular_field-{rfield2}'.format(
+                                                            rfield1='last_name',
+                                                            rfield2=fname,
+                                                        ),
                                               }
                                    )
         self.assertNoFormError(response)

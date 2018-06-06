@@ -63,14 +63,14 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
     #     return reverse('reports__fetch_graph', args=(rgraph.id,)) + '?order=%s' % order if use_GET else \
     #            reverse('reports__fetch_graph', args=(rgraph.id, order))
     def _builf_fetch_url(self, rgraph, order='ASC'):
-        return reverse('reports__fetch_graph', args=(rgraph.id,)) + '?order=%s' % order
+        return '{}?order={}'.format(reverse('reports__fetch_graph', args=(rgraph.id,)), order)
 
     # def _build_fetchfrombrick_url(self, ibi, entity, order='ASC', use_GET=False):
     #     return reverse('reports__fetch_graph_from_brick', args=(ibi.id, entity.id)) + '?order=%s' % order \
     #            if use_GET else \
     #            reverse('reports__fetch_graph_from_brick', args=(ibi.id, entity.id, order))
     def _build_fetchfrombrick_url(self, ibi, entity, order='ASC'):
-        return reverse('reports__fetch_graph_from_brick', args=(ibi.id, entity.id)) + '?order=%s' % order
+        return '{}?order={}'.format(reverse('reports__fetch_graph_from_brick', args=(ibi.id, entity.id)), order)
 
     def _build_graph_types_url(self, ct):
         return reverse('reports__graph_types', args=(ct.id,))
@@ -245,7 +245,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         response = post(abscissa_field='legal_form', aggregate_field=ordinate)
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'abscissa_field',
-                             '"%s" groups are only compatible with {DateField, DateTimeField}' % _('By days')
+                             '"{}" groups are only compatible with [DateField, DateTimeField]'.format(_('By days'))
                             )
         self.assertFormError(response, 'form', 'aggregate',
                              _(u'This field is required if you choose a field to aggregate.')
@@ -260,15 +260,15 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                               )
 
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
-        self.assertEqual(self.user,                        rgraph.user)
-        self.assertEqual(abscissa,                         rgraph.abscissa)
-        self.assertEqual('%s__%s' % (ordinate, aggregate), rgraph.ordinate)
-        self.assertEqual(gtype,                            rgraph.type)
+        self.assertEqual(self.user, rgraph.user)
+        self.assertEqual(abscissa,  rgraph.abscissa)
+        self.assertEqual('{}__{}'.format(ordinate, aggregate), rgraph.ordinate)
+        self.assertEqual(gtype, rgraph.type)
         self.assertIsNone(rgraph.days)
         self.assertFalse(rgraph.is_count)
 
         self.assertEqual(_('Creation date'), rgraph.hand.verbose_abscissa)
-        self.assertEqual(u'%s - %s' % (_('Capital'), _('Maximum')),
+        self.assertEqual(u'{} - {}'.format(_('Capital'), _('Maximum')),
                          rgraph.hand.verbose_ordinate
                         )
 
@@ -365,7 +365,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         response = post(abscissa_field='legal_form')
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'abscissa_field',
-                             '"%s" groups are only compatible with {DateField, DateTimeField}' % gtype_vname
+                             u'"{}" groups are only compatible with [DateField, DateTimeField]'.format(gtype_vname)
                             )
 
         aggregate = 'min'
@@ -373,10 +373,10 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertNoFormError(post(abscissa_field=abscissa, aggregate=aggregate))
 
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
-        self.assertEqual(self.user,                        rgraph.user)
-        self.assertEqual(abscissa,                         rgraph.abscissa)
-        self.assertEqual('%s__%s' % (ordinate, aggregate), rgraph.ordinate)
-        self.assertEqual(gtype,                            rgraph.type)
+        self.assertEqual(self.user, rgraph.user)
+        self.assertEqual(abscissa,  rgraph.abscissa)
+        self.assertEqual('{}__{}'.format(ordinate, aggregate), rgraph.ordinate)
+        self.assertEqual(gtype, rgraph.type)
         self.assertIsNone(rgraph.days)
         self.assertFalse(rgraph.is_count)
 
@@ -411,7 +411,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         response = post(abscissa_field='legal_form')
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'abscissa_field',
-                             '"%s" groups are only compatible with {DateField, DateTimeField}' % _('By X days')
+                             u'"{}" groups are only compatible with [DateField, DateTimeField]'.format(_('By X days'))
                             )
         self.assertFormError(response, 'form', 'days',
                              _("You have to specify a day range if you use 'by X days'")
@@ -675,8 +675,8 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
             aggregate_field_f = response.context['form'].fields['aggregate_field']
 
         self.assertEqual(_('If you use a field related to money, the entities should use the same '
-                           'currency or the result will be wrong. Concerned fields are : %s'
-                          ) % ('%s, %s' % (_('Total with VAT'), _(u'Total without VAT'))),
+                           'currency or the result will be wrong. Concerned fields are : {}'
+                          ).format('{}, {}'.format(_('Total with VAT'), _(u'Total without VAT'))),
                          aggregate_field_f.help_text
                         )
 
@@ -995,7 +995,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         def create_graph(days):
             return ReportGraph.objects.create(user=self.user, linked_report=report,
-                                              name=u"Number of organisation created / %s day(s)" % days,
+                                              name=u'Number of organisation created / {} day(s)'.format(days),
                                               abscissa='creation_date',
                                               type=RGT_RANGE, days=days,
                                               is_count=True,
@@ -1048,7 +1048,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         days = 10
         rgraph = ReportGraph.objects.create(user=self.user, linked_report=report,
-                                            name=u"Minimum of capital by creation date (period of %s days)" % days,
+                                            name=u'Minimum of capital by creation date (period of {} days)'.format(days),
                                             abscissa='creation_date',
                                             type=RGT_RANGE, days=days,
                                             ordinate='capital__sum',
@@ -1086,7 +1086,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         def create_graph(days):
             return ReportGraph.objects.create(user=self.user, linked_report=report,
-                                              name=u"Number of organisation created / %s day(s)" % days,
+                                              name=u'Number of organisation created / {} day(s)'.format(days),
                                               abscissa='creation_date',
                                               type=RGT_RANGE, days=days,
                                               is_count=True,
@@ -1172,7 +1172,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         days = 15
         rgraph = ReportGraph.objects.create(user=self.user,
                                             linked_report=self._create_simple_organisations_report(),
-                                            name='First victory / %s day(s)' % days,
+                                            name='First victory / {} day(s)'.format(days),
                                             abscissa=cf.id,
                                             type=RGT_CUSTOM_RANGE, days=days,
                                             ordinate='', is_count=True,
@@ -1440,10 +1440,10 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         report = self._create_simple_organisations_report()
         rgraph = ReportGraph.objects.create(user=user, linked_report=report,
-                                            name=u"Sum of vine by creation date (period of 1 year)",
+                                            name=u'Sum of vine by creation date (period of 1 year)',
                                             abscissa='creation_date',
                                             type=RGT_YEAR,
-                                            ordinate='%s__sum' % cf.id,
+                                            ordinate='{}__sum'.format(cf.id),
                                             is_count=False,
                                            )
 
@@ -1652,7 +1652,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         rgraph = ReportGraph.objects.create(user=user, linked_report=report,
                                             name='Contacts HP by house',
                                             abscissa=rtype_id, type=RGT_RELATION,
-                                            ordinate='%s__sum' % cf.id,
+                                            ordinate='{}__sum'.format(cf.id),
                                             is_count=False,
                                            )
 
@@ -1813,18 +1813,18 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         rgraph = self._create_documents_rgraph()
 
         ibci = rgraph.create_instance_block_config_item()
-        self.assertEqual(u'instanceblock_reports-graph|%s-' % rgraph.id, ibci.brick_id)
+        self.assertEqual(u'instanceblock_reports-graph|{}-'.format(rgraph.id), ibci.brick_id)
         self.assertEqual('', ibci.data)
 
         volatile = pgettext('reports-volatile_choice', u'None')
-        self.assertEqual(u'%s - %s' % (rgraph.name, volatile),
+        self.assertEqual(u'{} - {}'.format(rgraph.name, volatile),
                          ReportGraphBrick(ibci).verbose_name
                         )
 
         # Block verbose name should be dynamically computed
         rgraph.name = rgraph.name.upper()
         rgraph.save()
-        self.assertEqual(u'%s - %s' % (rgraph.name, volatile),
+        self.assertEqual(u'{} - {}'.format(rgraph.name, volatile),
                          ReportGraphBrick(ibci).verbose_name
                         )
 
@@ -1916,11 +1916,11 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual(1, len(items))
 
         item = items[0]
-        self.assertEqual(u'instanceblock_reports-graph|%s-' % rgraph.id, item.brick_id)
+        self.assertEqual(u'instanceblock_reports-graph|{}-'.format(rgraph.id), item.brick_id)
         self.assertEqual('', item.data)
         self.assertIsNone(item.errors)
 
-        title = u'%s - %s' % (rgraph.name, pgettext('reports-volatile_choice', u'None'))
+        title = u'{} - {}'.format(rgraph.name, pgettext('reports-volatile_choice', u'None'))
         self.assertEqual(title, ReportGraphBrick(item).verbose_name)
 
         brick = item.brick
@@ -1931,7 +1931,9 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         # ---------------------------------------------------------------------
         response = self.assertPOST200(url)
         self.assertFormError(response, 'form', None,
-                             _(u'The instance block for "%s" with these parameters already exists!') % rgraph.name
+                             _(u'The instance block for "{graph}" with these parameters already exists!').format(
+                                     graph=rgraph.name,
+                                )
                             )
         # ---------------------------------------------------------------------
         # Display on home

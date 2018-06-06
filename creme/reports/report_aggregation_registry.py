@@ -68,7 +68,7 @@ class FieldAggregationRegistry(object):
 
 
 field_aggregation_registry = FieldAggregationRegistry()
-field_aggregation_registry.register('avg', FieldAggregation('avg', models.Avg, '%s__avg', _(u'Average')))
-field_aggregation_registry.register('min', FieldAggregation('min', models.Min, '%s__min', _(u'Minimum')))
-field_aggregation_registry.register('max', FieldAggregation('max', models.Max, '%s__max', _(u'Maximum')))
-field_aggregation_registry.register('sum', FieldAggregation('sum', models.Sum, '%s__sum', _(u'Sum')))
+field_aggregation_registry.register('avg', FieldAggregation('avg', models.Avg, '{}__avg', _(u'Average')))
+field_aggregation_registry.register('min', FieldAggregation('min', models.Min, '{}__min', _(u'Minimum')))
+field_aggregation_registry.register('max', FieldAggregation('max', models.Max, '{}__max', _(u'Maximum')))
+field_aggregation_registry.register('sum', FieldAggregation('sum', models.Sum, '{}__sum', _(u'Sum')))

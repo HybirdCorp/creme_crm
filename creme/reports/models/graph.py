@@ -184,7 +184,7 @@ class AbstractReportGraph(CremeEntity):
 
         if InstanceBrickConfigItem.objects.filter(brick_id=brick_id).exists():
             raise self.InstanceBrickConfigItemError(
-                        ugettext(u'The instance block for "%s" with these parameters already exists!') % self
+                        ugettext(u'The instance block for "{graph}" with these parameters already exists!').format(graph=self)
                     )
 
         ibci = InstanceBrickConfigItem(entity=self, brick_id=brick_id, data=key)
