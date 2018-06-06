@@ -243,7 +243,7 @@ class CrudityBackend(object):
                 history.action = 'create'
                 history.source = source
                 history.user = user
-                history.description = _(u'Creation of %(entity)s') % {'entity': instance}
+                history.description = _(u'Creation of {entity}').format(entity=instance)
                 history.save()
         except IntegrityError as e:
             logger.error('_create_instance_n_history() : error when try to create instance [%s]', e)
@@ -254,4 +254,4 @@ class CrudityBackend(object):
     def get_id(self):
         subject = self.subject
         return self.fetcher_name if subject == '*' else \
-               '%s|%s|%s' % (self.fetcher_name, self.input_name, self.subject)
+               '{}|{}|{}'.format(self.fetcher_name, self.input_name, self.subject)

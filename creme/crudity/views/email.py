@@ -53,6 +53,8 @@ def download_email_template(request, subject):
                             content_type="application/vnd.sealed.eml",
                            )
     # TODO: use secure_filename() ?
-    response['Content-Disposition'] = 'attachment; filename=%s.eml' % \
-                                        normalize('NFKD', unicode(CrudityBackend.normalize_subject(backend.subject))).encode('ascii', 'ignore')
+    response['Content-Disposition'] = 'attachment; filename={}.eml'.format(
+        normalize('NFKD', unicode(CrudityBackend.normalize_subject(backend.subject))).encode('ascii', 'ignore')
+    )
+
     return response

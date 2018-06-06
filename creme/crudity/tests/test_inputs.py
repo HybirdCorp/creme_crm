@@ -705,7 +705,7 @@ description3=[[<br>]]
                                             model=Activity,
                                            )
 
-        body = ['password=creme', 'title=%s' % title,
+        body = ['password=creme', 'title={}'.format(title),
                 'start=2013-06-15 12:00:00+03:00',
                 'end=2013-06-15 12:28:45',
                ]
@@ -1141,7 +1141,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         wa = WaitingAction.objects.all()[0]
         img_content = "x0lGQRQAAAABAAAAAAAAAHwCAAAGAAAAYgAuAHAAbgBnAAAAiVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABuwAAAbsBOuzj4gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAH5SURBVDiNpZM9a1RBFIbfd87M3N3szW6iYoIYlYBgY6FNwMafIOJPsLCwEm3UQoKFYhk7/4lYGqxtRPAr6kIS3KjZTbIfc+/MsfAjyV5FwYFTnAPnmfc9Z4aqiv85drzQeJQ9YENOmpaZEsPm7OEZdtvb7dWL6xf+CuAtnjp6eebaKAVLA5SD1Hu9/LYJYvZPCsy+LCErY1QKYK2AgHACgEf6NwsZGmKo4j2gChKCBoAhRO7zOhRFAp7oTX35S7Wqor5UP39oYfohatoyM2aOJMtQoAgFhl+Hq0URi9AtyI4eSz08j1f1zD4FNPGcn3eni1GAs4KYdjdjGnLEJ4KK9uhDAAWxMoOiG9eNIXzdQ2xlMfC1DMYI2ATwOwAccpc5ZJmvNnuPeq0GI3QI30sVgCpf9VcG7wadsAYF8MOBEQPnLayxSIU67WMT23izF8C9L5G3efbElbmnqOlEMQhIUbXz7PNHBmXc0sdpA/f0rq5ULexmXVWNACBOYBKC7qTj0alPm7gx3rwPQJKObkKHSUFArACKEgIYwRCrGFQGtNcCQU4uTh7s2/4l15IFmZZ5Nak1Wgvvbc8vWbFfKIwkyxhir4/+J72jJcd/Ixdpc+QHoo1OS3XipIkIjt8cGXv5Vr5RAVQkLtLnyKcUan4GLGhKU+y82Ol8A49h31zz9A1IAAAAAElFTkSuQmCC"
         filename, blob = decode_b64binary(img_content)
-        expected_data = {"user_id": "%s"  % (user.id,), "created": "2003-02-01", "last_name": "Bros",
+        expected_data = {"user_id": str(user.id), "created": "2003-02-01", "last_name": "Bros",
                          "first_name": "Mario", "email": "mario@bros.com", "url_site": "http://mario.com",
                          # "is_actived": True,
                          "birthday": "02/08/1987", "description": "A plumber",
@@ -1174,7 +1174,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
             create = Language.objects.create
 
             for i in xrange(1, 4 - length):
-                create(code=u'c%s' % i, name=u'Langues #%s' % i)
+                create(code=u'c{}'.format(i), name=u'Langues #{}'.format(i))
 
         return languages
 

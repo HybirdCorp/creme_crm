@@ -113,7 +113,7 @@ def strip_html(text):
 
 
 def generate_guid_for_field(urn, model, field_name):
-    return "{%s}" % str(uuid.uuid5(uuid.NAMESPACE_X500, str('%s.%s.%s' % (urn, model._meta.object_name, field_name)) )).upper()
+    return "{%s}" % str(uuid.uuid5(uuid.NAMESPACE_X500, '{}.{}.{}'.format(urn, model._meta.object_name, field_name))).upper()
 
 
 def decode_b64binary(blob_b64):
@@ -124,13 +124,14 @@ def decode_b64binary(blob_b64):
     blob_str = base64.decodestring(blob_b64)
     blob_str_len = len(blob_str)
 
-    header, filesize, filename_len, rest = struct.unpack('16sII%ss' % (blob_str_len - 16 - 2 * 4), blob_str)
+    header, filesize, filename_len, rest = struct.unpack('16sII{}s'.format(blob_str_len - 16 - 2 * 4), blob_str)
     filename_len *= 2
 
-    header, filesize, filename_len, filename, blob = struct.unpack('16sII%ss%ss' % (filename_len, (blob_str_len - 16 - 2 * 4 - filename_len)), blob_str)
+    header, filesize, filename_len, filename, blob = struct.unpack('16sII{}s{}s'.format(filename_len, (blob_str_len - 16 - 2 * 4 - filename_len)), blob_str)
 
-    filename = "".join(unichr(i) for i in struct.unpack('%sh' % (len(filename)/2), filename) if i > 0)
+    filename = ''.join(unichr(i) for i in struct.unpack('{}h'.format(len(filename) / 2), filename) if i > 0)
     filename = str(filename.encode('utf8'))
+
     return filename, blob
 
 

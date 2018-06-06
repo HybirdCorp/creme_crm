@@ -93,7 +93,7 @@ class Command(BaseCommand):
         get_opt = options.get
 
         if get_opt('list_types'):
-            self.stdout.write('\n'.join(' - %s' % m for m in types_map.iterkeys()))
+            self.stdout.write('\n'.join(' - {}'.format(m) for m in types_map.iterkeys()))
             return
 
         number = get_opt('number')

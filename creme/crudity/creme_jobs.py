@@ -50,10 +50,10 @@ class _CruditySynchronizeType(JobType):
 
         count = len(registry.crudity_registry.fetch(user))
         JobResult.objects.create(job=job,
-                                 messages=[ungettext(u'There is %s change',
-                                                     u'There are %s changes',
+                                 messages=[ungettext(u'There is {count} change',
+                                                     u'There are {count} changes',
                                                      count
-                                                    ) % count,
+                                                    ).format(count=count),
                                           ]
                                 )
 

@@ -25,7 +25,7 @@ try:
     from .base import CrudityTestCase, FakeFetcher, FakeInput
     from .fake_crudity_register import Swallow
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 FAKE_CRUDITY_BACKENDS = [{'fetcher':     'swallow',
@@ -246,7 +246,7 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
                                  )
 
         response = self.assertGET200(reverse('crudity__dl_fs_ini_template', args=(subject,)))
-        self.assertEqual('attachment; filename=%s.ini' % subject,
+        self.assertEqual('attachment; filename={}.ini'.format(subject),
                          response['Content-Disposition']
                         )
         self.assertEqual('text/plain', response['Content-Type'])
@@ -329,7 +329,7 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
 
     def test_history_reload01(self):
         ct = ContentType.objects.get_for_model(FakeContact)
-        brick_id = 'block_crudity-%s' % ct.id
+        brick_id = 'block_crudity-{}'.format(ct.id)
         response = self.assertGET200(reverse('crudity__reload_history_bricks'), data={'brick_id': brick_id})
 
         # with self.assertNoException():
@@ -345,7 +345,7 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
     def test_history_reload02(self):
         ct = ContentType.objects.get_for_model(FakeImage)
         self.assertGET200(reverse('crudity__reload_history_bricks'),
-                          data={'brick_id': 'block_crudity-%s' % ct.id},
+                          data={'brick_id': 'block_crudity-{}'.format(ct.id)},
                          )
 
     @override_settings(CRUDITY_BACKENDS=[{'fetcher': 'email',
@@ -489,7 +489,7 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
 
         jresults = JobResult.objects.filter(job=job)
         self.assertEqual(1, len(jresults))
-        self.assertEqual([ungettext('There is %s change', 'There are %s changes', 1) % 1],
+        self.assertEqual([ungettext('There is {count} change', 'There are {count} changes', 1).format(count=1)],
                          jresults[0].messages
                         )
 
@@ -546,7 +546,7 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
 
         jresults = JobResult.objects.filter(job=job)
         self.assertEqual(1, len(jresults))
-        self.assertEqual([ungettext('There is %s change', 'There are %s changes', 1) % 1],
+        self.assertEqual([ungettext('There is {count} change', 'There are {count} changes', 1).format(count=1)],
                          jresults[0].messages
                         )
 
