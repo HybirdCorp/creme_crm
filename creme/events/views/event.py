@@ -253,7 +253,7 @@ def list_contacts(request, event_id):
     request.user.has_perm_to_view_or_die(event)
 
     return list_view(request, Contact,
-                     extra_dict={'list_title': _(u'List of contacts related to «%s»') % event,
+                     extra_dict={'list_title': _(u'List of contacts related to «{}»').format(event),
                                  'add_url':    '',
                                  'event_entity': event,  # For ID & to check perm (see 'lv_button_link_contacts.html')
                                  'extra_bt_templates': ('events/lv_button_link_contacts.html',),
@@ -275,10 +275,10 @@ def _get_status(request, valid_status):
     try:
         status = int(status_str)
     except Exception:
-        raise Http404('Status is not an integer: %s' % status_str)
+        raise Http404('Status is not an integer: {}'.format(status_str))
 
     if not status in valid_status:
-        raise Http404('Unknown status: %s' % status)
+        raise Http404('Unknown status: {}'.format(status))
 
     return status
 
