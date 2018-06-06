@@ -112,7 +112,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         try:
             cls.ADD_URL = reverse('opportunities__create_opportunity')
         except Exception as e:
-            print('Error in OpportunitiesTestCase.setUpClass(): %s' % e)
+            print('Error in OpportunitiesTestCase.setUpClass(): {}'.format(e))
 
     def _build_addrelated_url(self, entity):
         return reverse('opportunities__create_related_opportunity', args=(entity.id,))
@@ -362,7 +362,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertGET200(url)
 
         salesphase = SalesPhase.objects.all()[0]
-        name = 'Opportunity linked to %s' % target
+        name = 'Opportunity linked to {}'.format(target)
         response = self.client.post(url, data={'user':         user.pk,
                                                'name':         name,
                                                'sales_phase':  salesphase.id,
@@ -383,7 +383,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         response = self.client.post(url, follow=True,
                                     data={'user':         user.pk,
-                                          'name':         'Opportunity Two linked to %s' % target,
+                                          'name':         'Opportunity Two linked to {}'.format(target),
                                           'sales_phase':  salesphase.id,
                                           'closing_date': '2011-03-12',
                                           'target':       self._genericfield_format_entity(target),
@@ -403,7 +403,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertGET200(url)
 
         salesphase = SalesPhase.objects.all()[0]
-        name = 'Opportunity linked to %s' % target
+        name = 'Opportunity linked to {}'.format(target)
         response = self.client.post(url, data={'user':         user.pk,
                                                'name':         name,
                                                'sales_phase':  salesphase.id,
@@ -445,7 +445,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertGET200(url)
 
         salesphase = SalesPhase.objects.all()[0]
-        name = 'Opportunity linked to %s' % target
+        name = 'Opportunity linked to {}'.format(target)
         response = self.client.post(url, follow=True,
                                     data={'user':         user.pk,
                                           'name':         name,
@@ -467,7 +467,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         response = self.client.post(url, follow=True,
                                     data={'user':         user.pk,
-                                          'name':         'Opportunity 2 linked to %s' % target,
+                                          'name':         'Opportunity 2 linked to {}'.format(target),
                                           'sales_phase':  salesphase.id,
                                           'closing_date': '2011-03-12',
                                           'target':       self._genericfield_format_entity(target),
@@ -488,7 +488,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertGET200(url)
 
         salesphase = SalesPhase.objects.all()[0]
-        name = 'Opportunity linked to %s' % target
+        name = 'Opportunity linked to {}'.format(target)
         response = self.client.post(url, data={'user':         user.pk,
                                                'name':         name,
                                                'sales_phase':  salesphase.id,
@@ -1218,9 +1218,9 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         # 2 errors: retrieving of SalesPhase failed, creation of Opportunity failed
         self.assertEqual(2, len(result.messages))
 
-        vname= _(u'Opportunity')
-        self.assertEqual([_(u'No «{type}» has been created.').format(type=vname),
-                          _(u'No «{type}» has been updated.').format(type=vname),
+        vname = _(u'Opportunity')
+        self.assertEqual([_(u'No «{model}» has been created.').format(model=vname),
+                          _(u'No «{model}» has been updated.').format(model=vname),
                           ungettext(u'{count} line in the file.',
                                     u'{count} lines in the file.',
                                     1
