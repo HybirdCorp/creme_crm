@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Assistants 1.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-01 11:38+0100\n"
+"POT-Creation-Date: 2018-06-04 22:44+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -18,30 +18,30 @@ msgstr ""
 msgid "Assistants (Todos, Memo, ...)"
 msgstr "Assistants (Todos, Mémo, ...)"
 
-#: bricks.py:101 models/todo.py:53 models/todo.py:88
+#: bricks.py:105 models/todo.py:53 models/todo.py:88
 #: templates/assistants/bricks/todos.html:7
 msgid "Todos"
 msgstr "Todos"
 
-#: bricks.py:118 models/memo.py:49 models/memo.py:78
+#: bricks.py:125 models/memo.py:49 models/memo.py:78
 #: templates/assistants/bricks/memos.html:7
 msgid "Memos"
 msgstr "Mémos"
 
-#: bricks.py:135 models/alert.py:53 models/alert.py:84
+#: bricks.py:145 models/alert.py:53 models/alert.py:84
 #: templates/assistants/bricks/alerts.html:7
 msgid "Alerts"
 msgstr "Alertes"
 
-#: bricks.py:152
+#: bricks.py:165
 msgid "Actions in time"
 msgstr "Actions dans les délais"
 
-#: bricks.py:169
+#: bricks.py:185
 msgid "Reactions not in time"
 msgstr "Réactions hors délais"
 
-#: bricks.py:186 models/user_message.py:77
+#: bricks.py:205 models/user_message.py:77
 msgid "User messages"
 msgstr "Messages utilisateur"
 
@@ -213,18 +213,17 @@ msgid "User message"
 msgstr "Message utilisateur"
 
 #: models/user_message.py:132
-#, python-format
-msgid "User message from Creme: %s"
-msgstr "Message utilisateur de Creme: %s"
+msgid "User message from Creme: {}"
+msgstr "Message utilisateur de Creme: {}"
 
 #: models/user_message.py:133
-#, python-format
+#, python-brace-format
 msgid ""
-"%(user)s send you the following message:\n"
-"%(body)s"
+"{user} sent you the following message:\n"
+"{body}"
 msgstr ""
-"%(user)s vous a envoyé le message suivant:\n"
-"%(body)s"
+"{user} vous a envoyé le message suivant:\n"
+"{body}"
 
 #: models/user_message.py:149
 msgid "An error occurred while sending emails"
@@ -232,53 +231,52 @@ msgstr "Une erreur s'est produite pendant l'envoi des e-mails"
 
 # Already in creme_core
 #: models/user_message.py:150
-#, python-format
-msgid "Original error: %s"
-msgstr "Erreur originale : %s"
+msgid "Original error: {}"
+msgstr ""
 
 #: reminders.py:53
-#, python-format
-msgid "Reminder concerning a Creme CRM alert related to %s"
-msgstr "Rappel concernant une alerte Crème CRM à propos de %s"
+#, python-brace-format
+msgid "Reminder concerning a Creme CRM alert related to {entity}"
+msgstr "Rappel concernant une alerte Crème CRM à propos de {entity}"
 
 #: reminders.py:56
-#, python-format
+#, python-brace-format
 msgid ""
 "This mail is automatically sent by Crème CRM to remind you that an alert "
-"concerning %(entity)s will expire.\n"
-"            Alert : %(title)s.\n"
-"            which description is : %(description)s.\n"
+"concerning {entity} will expire.\n"
+"            Alert : {title}.\n"
+"            which description is : {description}.\n"
 "\n"
-"            which is related to the entity : %(entity)s"
+"            which is related to the entity : {entity}"
 msgstr ""
 "Ce mail est envoyé automatiquement par Crème CRM pour vous rappeler qu'une "
-"alerte concernant %(entity)s va arriver à échéance.\n"
-"            Alerte : %(title)s.\n"
-"            dont la description est : %(description)s.\n"
+"alerte concernant {entity} va arriver à échéance.\n"
+"            Alerte : {title}.\n"
+"            dont la description est : {description}.\n"
 "\n"
-"            qui est rattachée à la fiche : %(entity)s"
+"            qui est rattachée à la fiche : {entity}"
 
 #: reminders.py:88
-#, python-format
-msgid "Reminder concerning a Creme CRM todo related to %s"
-msgstr "Rappel concernant une todo Crème CRM à propos de %s"
+#, python-brace-format
+msgid "Reminder concerning a Creme CRM todo related to {entity}"
+msgstr "Rappel concernant une todo Crème CRM à propos de {entity}"
 
 #: reminders.py:91
-#, python-format
+#, python-brace-format
 msgid ""
 "This mail is automatically sent by Crème CRM to remind you that a todo "
-"concerning %(entity)s will expire.\n"
-"            Todo : %(title)s.\n"
-"            which description is : %(description)s.\n"
+"concerning {entity} will expire.\n"
+"            Todo : {title}.\n"
+"            which description is : {description}.\n"
 "\n"
-"             which is related to the entity : %(entity)s"
+"             which is related to the entity : {entity}"
 msgstr ""
 "Ce mail est envoyé automatiquement par Crème CRM pour vous rappeler qu'une "
-"todo concernant %(entity)s va arriver à échéance.\n"
-"            Todo : %(title)s. \n"
-"            dont la description est : %(description)s.\n"
+"todo concernant {entity} va arriver à échéance.\n"
+"            Todo : {title}. \n"
+"            dont la description est : {description}.\n"
 "\n"
-"            qui est rattachée à la fiche : %(entity)s"
+"            qui est rattachée à la fiche : {entity}"
 
 #: setting_keys.py:11
 msgid "Minimum hour to send the mails related to Todos"
@@ -571,19 +569,18 @@ msgstr "Enregistrer le Todo"
 msgid "Todo for «%s»"
 msgstr "Todo pour «%s»"
 
-#: views/user_message.py:47 views/user_message.py:58
+#: views/user_message.py:47 views/user_message.py:59
 msgid "Save the message"
 msgstr "Enregister le message"
 
-#: views/user_message.py:57
+#: views/user_message.py:58
 #, python-format
 msgid "New message about «%s»"
 msgstr "Nouveau message à propos de «%s»"
 
-#: views/user_message.py:66
-#, python-format
-msgid "You are not allowed to delete this message: %s"
-msgstr "Vous n'êtes pas autorisé à supprimer ce message: %s"
+#: views/user_message.py:68
+msgid "You are not allowed to delete this message: {}"
+msgstr "Vous n'êtes pas autorisé à supprimer ce message: {}"
 
 #~ msgid "%s Action in time"
 #~ msgstr "%s Action dans les délais"

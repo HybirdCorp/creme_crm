@@ -30,7 +30,7 @@ try:
     from ..models import ToDo, Alert
     from .base import AssistantsTestCase
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
@@ -193,7 +193,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
     def test_brick_reload01(self):
         "Detailview"
         for i in xrange(1, 4):
-            self._create_todo('Todo%s' % i, 'Description %s' % i)
+            self._create_todo('Todo{}'.format(i), 'Description {}'.format(i))
 
         todos = ToDo.get_todos(self.entity)
         self.assertEqual(3, len(todos))
@@ -379,7 +379,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         message = messages[0]
         self.assertEqual([user.email], message.to)
-        self.assertEqual(_(u'Reminder concerning a Creme CRM todo related to %s') % self.entity,
+        self.assertEqual(_(u'Reminder concerning a Creme CRM todo related to {entity}').format(entity=self.entity),
                          message.subject
                         )
         self.assertIn(todo1.title, message.body)

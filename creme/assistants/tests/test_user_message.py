@@ -16,7 +16,7 @@ try:
     from ..models import UserMessage, UserMessagePriority
     from .base import AssistantsTestCase
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 User = get_user_model()  # TODO: self.User
@@ -127,11 +127,11 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertEqual(len(messages), 2)
 
         message = messages[0]
-        self.assertEqual(_(u'User message from Creme: %s') % title, message.subject)
-        self.assertEqual(_(u'%(user)s send you the following message:\n%(body)s') % {
-                                'user': self.user,
-                                'body': body,
-                            },
+        self.assertEqual(_(u'User message from Creme: {}').format(title), message.subject)
+        self.assertEqual(_(u'{user} sent you the following message:\n{body}').format(
+                                user=self.user,
+                                body=body,
+                            ),
                         message.body
                        )
         self.assertEqual(settings.EMAIL_SENDER, message.from_email)
@@ -163,8 +163,8 @@ class UserMessageTestCase(AssistantsTestCase):
     def test_create04(self):
         "One team"
         create_user = User.objects.create_user
-        users       = [create_user('User%s' % i, email='user%s@foobar.com' % i,
-                                   first_name='User%s' % i, last_name='Foobar',
+        users       = [create_user('User{}'.format(i), email='user{}@foobar.com'.format(i),
+                                   first_name='User{}'.format(i), last_name='Foobar',
                                   ) for i in xrange(1, 3)
                       ]
 
@@ -180,8 +180,8 @@ class UserMessageTestCase(AssistantsTestCase):
     def test_create05(self):
         "Teams and isolated usres with non void intersections"
         create_user = User.objects.create_user
-        users = [create_user('User%s' % i, email='user%s@foobar.com' % i,
-                             first_name='User%s' % i, last_name='Foobar',
+        users = [create_user('User{}'.format(i), email='user{}@foobar.com'.format(i),
+                             first_name='User{}'.format(i), last_name='Foobar',
                             ) for i in xrange(1, 5)
                 ]
 
@@ -296,7 +296,7 @@ class UserMessageTestCase(AssistantsTestCase):
 
         jresult = jresults[0]
         self.assertEqual([_(u'An error occurred while sending emails'),
-                          _(u'Original error: %s') % err_msg,
+                          _(u'Original error: {}').format(err_msg),
                          ],
                          jresult.messages
                         )

@@ -129,12 +129,12 @@ class UserMessage(CremeModel):
         if not usermessages:
             return
 
-        subject_format = ugettext(u'User message from Creme: %s')
-        body_format    = ugettext(u'%(user)s send you the following message:\n%(body)s')
+        subject_format = ugettext(u'User message from Creme: {}')
+        body_format    = ugettext(u'{user} sent you the following message:\n{body}')
         EMAIL_SENDER   = settings.EMAIL_SENDER
 
-        messages = [EmailMessage(subject_format % msg.title,
-                                 body_format % {'user': msg.sender, 'body': msg.body},
+        messages = [EmailMessage(subject_format.format(msg.title),
+                                 body_format.format(user=msg.sender, body=msg.body),
                                  EMAIL_SENDER, [msg.recipient.email]
                                 )
                         for msg in usermessages if msg.recipient.email
@@ -147,7 +147,7 @@ class UserMessage(CremeModel):
             logger.critical('Error while sending user-messages emails (%s)', e)
             JobResult.objects.create(job=job,
                                      messages=[ugettext(u'An error occurred while sending emails'),
-                                               ugettext(u'Original error: %s') % e,
+                                               ugettext(u'Original error: {}').format(e),
                                               ],
                                     )
 

@@ -15,7 +15,7 @@ try:
     from ..models import Memo
     from .base import AssistantsTestCase
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class MemoTestCase(AssistantsTestCase):

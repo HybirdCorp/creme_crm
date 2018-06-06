@@ -19,7 +19,7 @@ try:
     from ..models import Alert
     from .base import AssistantsTestCase
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class AlertTestCase(AssistantsTestCase):
@@ -76,7 +76,7 @@ class AlertTestCase(AssistantsTestCase):
             with self.assertNoException():
                 form = response.context['form']
 
-            self.assertFalse(form.is_valid(), 'Creation should fail with data=%s' % post_data)
+            self.assertFalse(form.is_valid(), 'Creation should fail with data={}'.format(post_data))
 
         user_pk = self.user.pk
         _fail_creation(user=user_pk, title='',      description='description', trigger_date='2010-9-29')
@@ -231,7 +231,7 @@ class AlertTestCase(AssistantsTestCase):
 
         message = messages[0]
         self.assertEqual([user.email], message.to)
-        self.assertEqual(_(u'Reminder concerning a Creme CRM alert related to %s') % self.entity,
+        self.assertEqual(_(u'Reminder concerning a Creme CRM alert related to {entity}').format(entity=self.entity),
                          message.subject
                         )
         self.assertIn(alert1.title, message.body)

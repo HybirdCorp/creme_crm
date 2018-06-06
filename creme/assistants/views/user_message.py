@@ -65,7 +65,7 @@ def delete(request):
     msg = get_object_or_404(UserMessage, pk=get_from_POST_or_404(request.POST, 'id'))
 
     if request.user.id != msg.recipient_id:
-        raise PermissionDenied(ugettext('You are not allowed to delete this message: %s') % msg)
+        raise PermissionDenied(ugettext('You are not allowed to delete this message: {}').format(msg))
 
     msg.delete()
 
