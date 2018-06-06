@@ -93,7 +93,7 @@ def abstract_list_folders(request, **extra_kwargs):
     def post_process(template_dict, request):
         if folder is not None:
             parents = folder.get_parents()
-            template_dict['list_title'] = _(u'List sub-folders of «%s»') % folder
+            template_dict['list_title'] = _(u'List sub-folders of «{}»').format(folder)
 
             if parents:
                 parents.reverse()

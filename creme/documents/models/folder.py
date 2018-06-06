@@ -91,9 +91,9 @@ class AbstractFolder(CremeEntity):
     def _pre_save_clone(self, source):
         max_length = self._meta.get_field('title').max_length
         self.title = truncate_str(source.title, max_length,
-                                  suffix=u' (%s %08x)' % (ugettext(u'Copy'),
-                                                          randint(0, MAXINT),
-                                                         )
+                                  suffix=u' ({} {:08x})'.format(ugettext(u'Copy'),
+                                                                randint(0, MAXINT),
+                                                               ),
                                  )
 
         # TODO: atomic
@@ -103,7 +103,7 @@ class AbstractFolder(CremeEntity):
     def get_actions(self, user):
         actions = super(AbstractFolder, self).get_actions(user)
 
-        actions['others'].append(EntityAction('%s?parent_id=%s' % (self.get_lv_absolute_url(), self.id),
+        actions['others'].append(EntityAction('{}?parent_id={}'.format(self.get_lv_absolute_url(), self.id),
                                               ugettext(u'Explore'),
                                               user.has_perm_to_view(self),
                                               icon='view',
