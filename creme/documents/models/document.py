@@ -60,7 +60,7 @@ class AbstractDocument(CremeEntity):
         ordering = ('title',)
 
     def __unicode__(self):
-        return u'%s - %s' % (self.linked_folder, self.title)
+        return u'{} - {}'.format(self.linked_folder, self.title)
 
     def get_absolute_url(self):
         return reverse('documents__view_document', args=(self.id,))

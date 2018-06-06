@@ -101,14 +101,14 @@ class RelatedDocumentCreateForm(_DocumentBaseForm):
         if not self._errors:
             self.folder_category = cat = FolderCategory.objects.filter(pk=constants.DOCUMENTS_FROM_ENTITIES).first()
             if cat is None:
-                raise ValidationError('Populate script has not been run (unknown folder category pk=%s) ; '
-                                      'please contact your administrator' % constants.DOCUMENTS_FROM_ENTITIES
+                raise ValidationError('Populate script has not been run (unknown folder category pk={}) ; '
+                                      'please contact your administrator'.format(constants.DOCUMENTS_FROM_ENTITIES)
                                      )
 
             self.root_folder = folder = Folder.objects.filter(uuid=constants.UUID_FOLDER_RELATED2ENTITIES).first()
             if folder is None:
-                raise ValidationError('Populate script has not been run (unknown folder uuid=%s) ; '
-                                      'please contact your administrator' % constants.UUID_FOLDER_RELATED2ENTITIES
+                raise ValidationError('Populate script has not been run (unknown folder uuid={}) ; '
+                                      'please contact your administrator'.format(constants.UUID_FOLDER_RELATED2ENTITIES)
                                      )
 
         return cleaned_data
@@ -129,7 +129,7 @@ class RelatedDocumentCreateForm(_DocumentBaseForm):
         )[0]
         # instance.folder = get_or_create_folder(
         instance.linked_folder = get_or_create_folder(
-                            title=ellipsis(u'%s_%s' % (entity.id, unicode(entity)), _TITLE_MAX_LEN),  # Meh
+                            title=ellipsis(u'{}_{}'.format(entity.id, entity), _TITLE_MAX_LEN),  # Meh
                             parent_folder=model_folder,
                             category=category,
                             defaults={'user': user},

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Documents 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-29 12:03+0200\n"
+"POT-Creation-Date: 2018-06-05 11:27+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -180,31 +180,31 @@ msgstr "concerne le document"
 msgid "document related to"
 msgstr "document concerné par"
 
-#: populate.py:65
+#: populate.py:62
 msgid "Product image"
 msgstr "Image de produit"
 
-#: populate.py:70
+#: populate.py:67
 msgid "Organisation logo"
 msgstr "Logo de société"
 
-#: populate.py:75
+#: populate.py:72
 msgid "Contact photograph"
 msgstr "Photo de contact"
 
-#: populate.py:93
+#: populate.py:90
 msgid "Folder containing all the documents related to entities"
 msgstr "Classeur contenant tous les documents créés à partir des fiches"
 
-#: populate.py:99 populate.py:121
+#: populate.py:96 populate.py:118
 msgid "Images"
 msgstr "Images"
 
-#: populate.py:105
+#: populate.py:102
 msgid "Document view"
 msgstr "Vue de Document"
 
-#: populate.py:113
+#: populate.py:110
 msgid "Folder view"
 msgstr "Vue de Classeur"
 
@@ -316,9 +316,8 @@ msgid "New child folder for «%s»"
 msgstr "Nouveau classeur enfant pour «%s»"
 
 #: views/folder.py:96
-#, python-format
-msgid "List sub-folders of «%s»"
-msgstr "Liste des sous-dossiers de «%s»"
+msgid "List sub-folders of «{}»"
+msgstr "Liste des sous-dossiers de «{}»"
 
 #: views/quick_forms.py:79
 msgid "Save the image"

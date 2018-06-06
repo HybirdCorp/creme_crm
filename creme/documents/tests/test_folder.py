@@ -13,7 +13,7 @@ try:
     from creme.documents import constants
     from creme.documents.models import FolderCategory
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}' % (__name__, e))
 
 
 @skipIfCustomDocument
@@ -361,8 +361,8 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         self.assertNotIn(folder3, folders)
         self.assertNotIn(parent2, folders)
 
-        self.assertEqual(_(u'List sub-folders of «%s»') % parent, title)
-        self.assertEqual('%s > %s' % (grand_parent.title, parent.title),
+        self.assertEqual(_(u'List sub-folders of «{}»').format(parent), title)
+        self.assertEqual('{} > {}'.format(grand_parent.title, parent.title),
                          sub_title
                         )
 
