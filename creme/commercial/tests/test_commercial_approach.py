@@ -356,14 +356,14 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(1, len(messages))
 
         message = messages[0]
-        self.assertEqual(_(u"[CremeCRM] The organisation «%s» seems neglected") % customer,
+        self.assertEqual(_(u"[CremeCRM] The organisation «{}» seems neglected").format(customer),
                          message.subject
                         )
         self.assertEqual(_(u"It seems you haven't created a commercial approach "
-                           u"for the organisation «%(orga)s» since %(delay)s days.") % {
-                                'orga':  customer,
-                                'delay': 30,
-                            },
+                           u"for the organisation «{orga}» since {delay} days.").format(
+                                orga=customer,
+                                delay=30,
+                            ),
                          message.body
                         )
         self.assertEqual(settings.EMAIL_SENDER, message.from_email)
@@ -494,7 +494,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
         jresult = jresults[0]
         self.assertEqual([_(u'An error has occurred while sending emails'),
-                          _(u'Original error: %s') % err_msg,
+                          _(u'Original error: {}').format(err_msg),
                          ],
                          jresult.messages
                         )

@@ -13,7 +13,7 @@ try:
     from ..models import MarketSegment
     from .base import CommercialBaseTestCase, Organisation, Strategy
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class MarketSegmentTestCase(CommercialBaseTestCase):
@@ -33,7 +33,7 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         name = 'Industry'
         segment = self._create_segment(name)
 
-        self.assertEqual(_(u'is in the segment "%s"') % name,
+        self.assertEqual(_(u'is in the segment «{}»').format(name),
                          segment.property_type.text
                         )
 
@@ -51,14 +51,12 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
     def test_create03(self):
         "A property with the same name already exists"
         name = 'Industry'
-        pname = _(u'is in the segment "%s"') % name
+        pname = _(u'is in the segment «{}»').format(name)
         CremePropertyType.create('commercial-marketsegmenttestcase01', pname)
 
         response = self.assertPOST200(self.ADD_SEGMENT_URL, data={'name': name})
         self.assertFormError(response, 'form', 'name',
-                             _(u'A property with the name «%(name)s» already exists') % {
-                                    'name': pname,
-                                 }
+                             _(u'A property with the name «%(name)s» already exists') % {'name': pname}
                             )
 
     def test_listview(self):
@@ -79,7 +77,7 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         self.assertEqual(name, segment.name)
         self.assertEqual(ptype_count, CremePropertyType.objects.count())
 
-        self.assertEqual(_(u'is in the segment "%s"') % name,
+        self.assertEqual(_(u'is in the segment «{}»').format(name),
                          segment.property_type.text
                         )
 
@@ -99,14 +97,12 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         segment = self._create_segment('in-dus-try')
 
         name = 'Industry'
-        pname = _(u'is in the segment "%s"') % name
+        pname = _(u'is in the segment «{}»').format(name)
         CremePropertyType.create('commercial-marketsegmenttestcase01', pname)
 
         response = self.assertPOST200(segment.get_edit_absolute_url(), data={'name': name})
         self.assertFormError(response, 'form', 'name',
-                             _(u'A property with the name «%(name)s» already exists') % {
-                                 'name': pname,
-                             }
+                             _(u'A property with the name «%(name)s» already exists') % {'name': pname}
                             )
 
     def test_edit04(self):
@@ -124,7 +120,7 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         self.assertEqual(name, segment.name)
         self.assertEqual(ptype_count, CremePropertyType.objects.count())
 
-        self.assertEqual(_(u'is in the segment "%s"') % name,
+        self.assertEqual(_(u'is in the segment «{}»').format(name),
                          segment.property_type.text
                         )
 

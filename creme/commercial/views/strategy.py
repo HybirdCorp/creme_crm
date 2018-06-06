@@ -196,8 +196,8 @@ def _orga_view(request, strategy_id, orga_id, template):
     strategy, orga = _get_strategy_n_orga(request, strategy_id, orga_id)
 
     if not strategy.evaluated_orgas.filter(pk=orga_id).exists():
-        raise Http404(ugettext(u'This organisation «%(orga)s» is not (no more ?) evaluated by the strategy %(strategy)s') % {
-                            'orga': orga, 'strategy': strategy}
+        raise Http404(ugettext(u'This organisation «{orga}» is not (no more ?) evaluated by the strategy «{strategy}»').format(
+                            orga=orga, strategy=strategy)
                      )
 
     return render(request, template,

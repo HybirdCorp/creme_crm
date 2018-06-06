@@ -23,7 +23,7 @@ try:
     ActObjectivePattern = commercial.get_pattern_model()
     Strategy = commercial.get_strategy_model()
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 Contact = persons.get_contact_model()

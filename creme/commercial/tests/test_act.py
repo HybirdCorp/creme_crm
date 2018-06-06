@@ -26,7 +26,7 @@ try:
             Contact, Organisation, Opportunity, Activity,
             Act, ActObjectivePattern)
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 @skipIfCustomAct
@@ -122,7 +122,7 @@ class ActTestCase(CommercialBaseTestCase):
                                   goal='GOAL', start=date(2010, 11, 25),
                                   due_date=date(2011, 12, 26),
                                   act_type=ActType.objects.create(title='Show'),
-                                  segment=self._create_segment('Segment - %s' % name),
+                                  segment=self._create_segment('Segment - {}'.format(name)),
                                  )
 
     def test_edit(self):
@@ -188,7 +188,7 @@ class ActTestCase(CommercialBaseTestCase):
                              act_type=ActType.objects.create(title='Show'),
                              segment=self._create_segment(),
                             )
-        acts = [create_act(name='NAME_%s' % i) for i in xrange(1, 3)]
+        acts = [create_act(name='NAME_{}'.format(i)) for i in xrange(1, 3)]
 
         response = self.assertGET200(Act.get_lv_absolute_url())
 

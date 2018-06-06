@@ -222,7 +222,7 @@ class AbstractStrategy(CremeEntity):
                 if other_segment.id == sid:
                     return category
 
-        raise KeyError('Strategy.get_segment_category() for segment: %s' % segment)
+        raise KeyError('Strategy.get_segment_category() for segment: {}'.format(segment))
 
     def _get_segments_categories(self, orga):
         """@return A dictionary with key= Category (int, between 1 & 4) and value=list of MarketSegmentDescription.
@@ -277,7 +277,7 @@ class AbstractStrategy(CremeEntity):
 
     def _set_score(self, model_id, segment_desc_id, orga_id, score, get_object):
         if not 1 <= score <= 4:
-            raise ValueError('Problem with "score" arg: not 1 <= %s <= 4' % score)
+            raise ValueError('Problem with "score" arg: not 1 <= {} <= 4'.format(score))
 
         orga = self.evaluated_orgas.get(pk=orga_id)  # Raise exception if invalid orga
 
@@ -295,7 +295,7 @@ class AbstractStrategy(CremeEntity):
 
     def set_segment_category(self, segment_desc_id, orga_id, category):
         if not 1 <= category <= 4:
-            raise ValueError('Problem with "category" arg: not 1 <= %s <= 4' % category)
+            raise ValueError('Problem with "category" arg: not 1 <= {} <= 4'.format(category))
 
         orga    = self.evaluated_orgas.get(pk=orga_id)  # Raise exception if invalid orga
         seg_desc = self.segment_info.get(pk=segment_desc_id)  # Raise exception if invalid segment
@@ -337,8 +337,8 @@ class MarketSegmentDescription(CremeModel):
         verbose_name_plural = _(u'Market segment descriptions')
 
     def __repr__(self):
-        return u'MarketSegmentDescription(strategy_id=%s, segment_id=%s, ' \
-               u'product=%s, place=%s, price=%s, promotion=%s)' % (
+        return u'MarketSegmentDescription(strategy_id={}, segment_id={}, ' \
+               u'product={}, place={}, price={}, promotion={})'.format(
                 self.strategy_id, self.segment_id, self.product,
                 self.place, self.price, self.promotion,
             )
@@ -395,7 +395,7 @@ class CommercialAssetScore(CremeModel):
         app_label = 'commercial'
 
     def __unicode__(self):  # Debugging
-        return u'<AssetScore: orga=%s score=%s segment=%s asset=%s>' % (
+        return u'<AssetScore: orga={} score={} segment={} asset={}>'.format(
                     self.organisation, self.score, self.segment, self.asset)
 
 
@@ -433,7 +433,7 @@ class MarketSegmentCharmScore(CremeModel):
         app_label = 'commercial'
 
     def __unicode__(self):  # Debugging
-        return u'<CharmScore: orga=%s score=%s segment=%s charm=%s>' % (
+        return u'<CharmScore: orga={} score={} segment={} charm={}>'.format(
                     self.organisation, self.score, self.segment, self.charm)
 
 
@@ -447,5 +447,5 @@ class MarketSegmentCategory(CremeModel):
         app_label = 'commercial'
 
     def __unicode__(self):  # Debugging
-        return u'<MarketSegmentCategory: orga=%s cat=%s segment=%s>' % (
+        return u'<MarketSegmentCategory: orga={} cat={} segment={}>'.format(
                     self.organisation, self.category, self.segment)
