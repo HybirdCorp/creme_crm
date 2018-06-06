@@ -17,7 +17,7 @@ try:
 
     from creme.vcfs.buttons import GenerateVcfButton
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 Address = get_address_model()
@@ -49,12 +49,12 @@ class VcfExportTestCase(CremeTestCase):
         return Contact.objects.create(**fields)
 
     def create_address(self, contact, prefix):
-        return Address.objects.create(address='%s_address' % prefix,
-                                      city='%s_city' % prefix,
-                                      po_box='%s_po_box' % prefix,
-                                      country='%s_country' % prefix,
-                                      zipcode='%s_zipcode' % prefix,
-                                      department='%s_department' % prefix,
+        return Address.objects.create(address='{}_address'.format(prefix),
+                                      city='{}_city'.format(prefix),
+                                      po_box='{}_po_box'.format(prefix),
+                                      country='{}_country'.format(prefix),
+                                      zipcode='{}_zipcode'.format(prefix),
+                                      department='{}_department'.format(prefix),
                                       content_type_id=ContentType.objects.get_for_model(Contact).id,
                                       object_id=contact.id,
                                      )

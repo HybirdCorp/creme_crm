@@ -5,7 +5,7 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class VcfsTestCase(CremeTestCase):

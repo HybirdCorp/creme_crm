@@ -1,23 +1,16 @@
 """vobject module for reading vCard and vCalendar files."""
 
-#import copy
-import re
-import sys
-import logging
-import StringIO, cStringIO
 import codecs
 from collections import defaultdict
+import logging
+import re
+import StringIO, cStringIO
+import sys
 
-#------------------------------------ Logging ----------------------------------
+# ----------------------------------- Logging ----------------------------------
 logger = logging.getLogger(__name__)
-#if not logging.getLogger().handlers:
-    #handler = logging.StreamHandler()
-    #formatter = logging.Formatter('%(name)s %(levelname)s %(message)s')
-    #handler.setFormatter(formatter)
-    #logger.addHandler(handler)
-#logger.setLevel(logging.ERROR) # Log errors
-#DEBUG = False # Don't waste time on debug calls
-#----------------------------------- Constants ---------------------------------
+
+# ---------------------------------- Constants ---------------------------------
 CR     = '\r'
 LF     = '\n'
 CRLF   = CR + LF
@@ -25,7 +18,8 @@ SPACE  = ' '
 TAB    = '\t'
 SPACEORTAB = SPACE + TAB
 
-#--------------------------------- Main classes --------------------------------
+
+# -------------------------------- Main classes --------------------------------
 class VBase(object):
     """Base class for ContentLine and Component.
     
@@ -46,12 +40,6 @@ class VBase(object):
         self.behavior   = None
         self.parentBehavior = None
         self.isNative = False
-
-    #def copy(self, copyit):
-        #self.group = copyit.group
-        #self.behavior = copyit.behavior
-        #self.parentBehavior = copyit.parentBehavior
-        #self.isNative = copyit.isNative
 
     def validate(self, *args, **kwds):
         """Call the behavior's validate method, or return True."""
@@ -78,15 +66,17 @@ class VBase(object):
         parentBehavior = self.parentBehavior
         if parentBehavior is not None:
             knownChildTup = parentBehavior.knownChildren.get(self.name, None)
+
             if knownChildTup is not None:
-                #behavior = getBehavior(self.name, knownChildTup[2])
                 behavior = behavior_registry.get(self.name, knownChildTup[2])
+
                 if behavior is not None:
                     self.setBehavior(behavior, cascade)
                     if isinstance(self, ContentLine) and self.encoded:
                         self.behavior.decode(self)
             elif isinstance(self, ContentLine):
                 self.behavior = parentBehavior.defaultBehavior   
+
                 if self.encoded and self.behavior:
                     self.behavior.decode(self)
 
@@ -113,15 +103,20 @@ class VBase(object):
             except Exception as e:
                 # wrap errors in transformation in a ParseError
                 lineNumber = getattr(self, 'lineNumber', None)
+
                 if isinstance(e, ParseError):
                     if lineNumber is not None:
                         e.lineNumber = lineNumber
                     raise
                 else:
-                    msg = "In transformToNative, unhandled exception: %s: %s"
-                    msg = msg % (sys.exc_info()[0], sys.exc_info()[1])
-                    new_error = ParseError(msg, lineNumber)
-                    raise ParseError(new_error, sys.exc_info()[2])
+                    e_info = sys.exc_info()
+                    new_error = ParseError('In transformToNative, unhandled exception: {}: {}'.format(
+                                                e_info[0], e_info[1]
+                                            ),
+                                           lineNumber
+                                          )
+
+                    raise ParseError(new_error, e_info[2])
 
     def transformFromNative(self):
         """Return self transformed into a ContentLine or Component if needed.
@@ -141,16 +136,22 @@ class VBase(object):
             except Exception as e:
                 # wrap errors in transformation in a NativeError
                 lineNumber = getattr(self, 'lineNumber', None)
+
                 if isinstance(e, NativeError):
                     if lineNumber is not None:
                         e.lineNumber = lineNumber
                     raise
                 else:
-                    msg = "In transformFromNative, unhandled exception: %s: %s"
-                    msg = msg % (sys.exc_info()[0], sys.exc_info()[1])
-                    new_error = NativeError(msg, lineNumber)
-                    raise NativeError(new_error, sys.exc_info()[2])
-        else: return self
+                    e_info = sys.exc_info()
+                    new_error = NativeError('In transformFromNative, unhandled exception: {}: {}'.format(
+                                                e_info[0], e_info[1]
+                                             ),
+                                            lineNumber
+                                           )
+
+                    raise NativeError(new_error, e_info[2])
+        else:
+            return self
 
     def transformChildrenToNative(self):
         """Recursively replace children with their native representation."""
@@ -169,17 +170,12 @@ class VBase(object):
             behavior = self.behavior
 
         if behavior:
-            #if DEBUG:
-            logger.debug("serializing %s with behavior" % self.name)
+            logger.debug('serializing %s with behavior', self.name)
             return behavior.serialize(self, buf, lineLength, validate)
         else:
-            #if DEBUG:
-            logger.debug("serializing %s without behavior" % self.name)
+            logger.debug('serializing %s without behavior', self.name)
             return defaultSerialize(self, buf, lineLength)
 
-#def ascii(s):
-    #"""Turn s into a printable string.  Won't work for 8-bit ASCII."""
-    #return unicode(s).encode('ascii', 'replace')
 
 def toVName(name, stripNum = 0, upper = False):
     """
@@ -188,9 +184,12 @@ def toVName(name, stripNum = 0, upper = False):
     """
     if upper:
         name = name.upper()
+
     if stripNum != 0:
         name = name[:-stripNum]
+
     return name.replace('_', '-')
+
 
 class ContentLine(VBase):
     """Holds one content line for formats like vCard and vCalendar.
@@ -236,7 +235,7 @@ class ContentLine(VBase):
             else:
                 paramlist = self.params.setdefault(x[0].upper(), [])
                 paramlist.extend(x[1:])
-        #map(updateTable, params)
+
         for param in params:
             updateTable(param)
 
@@ -246,7 +245,7 @@ class ContentLine(VBase):
             if 'QUOTED-PRINTABLE' in self.params['ENCODING']:
                 qp = True
                 self.params['ENCODING'].remove('QUOTED-PRINTABLE')
-                if 0==len(self.params['ENCODING']):
+                if 0 == len(self.params['ENCODING']):
                     del self.params['ENCODING']
 
         if 'QUOTED-PRINTABLE' in self.singletonparams:
@@ -265,41 +264,8 @@ class ContentLine(VBase):
                 charsets = self.params.pop('CHARSET')
                 if charsets:
                     charset = charsets[0]
+
             self.value = unicode(self.value, charset)
-
-    #@classmethod
-    #def duplicate(clz, copyit):
-        #newcopy = clz('', {}, '')
-        #newcopy.copy(copyit)
-        #return newcopy
-
-    #def copy(self, copyit):
-        #super(ContentLine, self).copy(copyit)
-        #self.name = copyit.name
-        #self.value = copy.copy(copyit.value)
-        #self.encoded = self.encoded
-        #self.params = copy.copy(copyit.params)
-        #self.singletonparams = copy.copy(copyit.singletonparams)
-        #self.lineNumber = copyit.lineNumber
-
-    #def __eq__(self, other):
-        #try:
-            #return (self.name == other.name) and (self.params == other.params) and (self.value == other.value)
-        #except:
-            #return False
-
-    #def _getAttributeNames(self):
-        #"""Return a list of attributes of the object.
-
-           #Python 2.6 will add __dir__ to customize what attributes are returned
-           #by dir, for now copy PyCrust so that IPython can accurately do
-           #completion.
-
-        #"""
-        #keys = self.params.keys()
-        #params = [param + '_param' for param in keys]
-        #params.extend(param + '_paramlist' for param in keys)
-        #return params
 
     def __getattr__(self, name):
         """Make params accessible via self.foo_param or self.foo_paramlist.
@@ -341,39 +307,6 @@ class ContentLine(VBase):
             else:
                 object.__setattr__(self, name, value)
 
-    #def __delattr__(self, name):
-        #try:
-            #if name.endswith('_param'):
-                #del self.params[toVName(name, 6, True)]
-            #elif name.endswith('_paramlist'):
-                #del self.params[toVName(name, 10, True)]
-            #else:
-                #object.__delattr__(self, name)
-        #except KeyError:
-            #raise AttributeError(name)
-
-    #def valueRepr( self ):
-        #"""transform the representation of the value according to the behavior,
-        #if any"""
-        #v = self.value
-        #if self.behavior:
-            #v = self.behavior.valueRepr( self )
-        #return ascii( v )
-
-    #def __str__(self):
-        #return "<"+ascii(self.name)+ascii(self.params)+self.valueRepr()+">"
-
-    #def __repr__(self):
-        #return self.__str__().replace('\n', '\\n')
-
-    #def prettyPrint(self, level = 0, tabwidth=3):
-        #pre = ' ' * level * tabwidth
-        #print pre, self.name + ":", self.valueRepr()
-        #if self.params:
-            #lineKeys= self.params.keys()
-            #print pre, "params for ", self.name +':'
-            #for aKey in lineKeys:
-                #print pre + ' ' * tabwidth, aKey, ascii(self.params[aKey])
 
 class Component(VBase):
     """A complex property that can contain multiple ContentLines.
@@ -404,47 +337,6 @@ class Component(VBase):
 
         self.autoBehavior()
 
-    #@classmethod
-    #def duplicate(clz, copyit):
-        #newcopy = clz()
-        #newcopy.copy(copyit)
-        #return newcopy
-
-    #def copy(self, copyit):
-        #super(Component, self).copy(copyit)
-
-        ## deep copy of contents
-        #self.contents = {}
-        #for key, lvalue in copyit.contents.items():
-            #newvalue = []
-            #for value in lvalue:
-                #newitem = value.duplicate(value)
-                #newvalue.append(newitem)
-            #self.contents[key] = newvalue
-
-        #self.name = copyit.name
-        #self.useBegin = copyit.useBegin
-
-    #def setProfile(self, name):
-        #"""Assign a PROFILE to this unnamed component.
-        #Used by vCard, not by vCalendar.
-        #"""
-        #if self.name or self.useBegin:
-            #if self.name == name: return
-            #raise VObjectError("This component already has a PROFILE or uses BEGIN.")
-        #self.name = name.upper()
-
-    #def _getAttributeNames(self):
-        #"""Return a list of attributes of the object.
-
-           #Python 2.6 will add __dir__ to customize what attributes are returned
-           #by dir, for now copy PyCrust so that IPython can accurately do
-           #completion.
-        #"""
-        #names = self.contents.keys()
-        #names.extend(name + '_list' for name in self.contents.keys())
-        #return names
-
     def __getattr__(self, name):
         """For convenience, make self.contents directly accessible.
 
@@ -471,7 +363,6 @@ class Component(VBase):
         which are legal in IANA tokens.
         """
         if name not in self._normal_attributes and name.lower() == name:
-            #if type(value) == list:
             if isinstance(value, list):
                 if name.endswith('_list'):
                     name = name[:-5]
@@ -487,25 +378,12 @@ class Component(VBase):
             else:
                 object.__setattr__(self, name, value)
 
-    #def __delattr__(self, name):
-        #try:
-            #if name not in self.normal_attributes and name.lower()==name:
-                #if name.endswith('_list'):
-                    #del self.contents[toVName(name, 5)]
-                #else:
-                    #del self.contents[toVName(name)]
-            #else:
-                #object.__delattr__(self, name)
-        #except KeyError:
-            #raise AttributeError(name)
-
     def getChildValue(self, childName, default=None, childNumber=0):
         """Return a child's value (the first, by default), or None."""
         child = self.contents.get(toVName(childName))
-        if child is None:
-            return default
-        else:
-            return child[childNumber].value
+
+        return default if child is None else \
+               child[childNumber].value
 
     def add(self, objOrName, group = None):
         """Add objOrName to contents, set behavior if it can be inferred.
@@ -524,13 +402,11 @@ class Component(VBase):
         else:
             name = objOrName.upper()
             try:
-                id = self.behavior.knownChildren[name][2]
-                #behavior = getBehavior(name, id)
-                behavior = behavior_registry.get(name, id)
-                if behavior.isComponent:
-                    obj = Component(name)
-                else:
-                    obj = ContentLine(name, [], '', group)
+                c_id = self.behavior.knownChildren[name][2]
+                behavior = behavior_registry.get(name, c_id)
+
+                obj = Component(name) if behavior.isComponent else \
+                      ContentLine(name, [], '', group)
                 obj.parentBehavior = self.behavior
                 obj.behavior = behavior
                 obj = obj.transformToNative()
@@ -582,14 +458,13 @@ class Component(VBase):
 
     def setBehaviorFromVersionLine(self, versionLine):
         """Set behavior if one matches name, versionLine.value."""
-        #v = getBehavior(self.name, versionLine.value)
         v = behavior_registry.get(self.name, versionLine.value)
         if v:
             self.setBehavior(v)
 
     def transformChildrenToNative(self):
         """Recursively replace children with their native representation."""
-        #sort to get dependency order right, like vtimezone before vevent
+        # sort to get dependency order right, like vtimezone before vevent
         for childArray in (self.contents[k] for k in self.sortChildKeys()):
             for i in xrange(len(childArray)):
                 childArray[i] = childArray[i].transformToNative()
@@ -607,21 +482,10 @@ class Component(VBase):
                     childArray[i].parentBehavior = None
 
     def __str__(self):
-        if self.name:
-            return "<" + self.name + "| " + str(self.getSortedChildren()) + ">"
-        else:
-            return '<' + '*unnamed*' + '| ' + str(self.getSortedChildren()) + '>'
+        return '<{}| {}>'.format(self.name or '*unnamed*', self.getSortedChildren())
 
     def __repr__(self):
         return self.__str__()
-
-    #def prettyPrint(self, level = 0, tabwidth=3):
-        #pre = ' ' * level * tabwidth
-        #print pre, self.name
-        #if isinstance(self, Component):
-            #for line in self.getChildren():
-                #line.prettyPrint(level + 1, tabwidth)
-        #print
 
 
 class VObjectError(Exception):
@@ -632,20 +496,24 @@ class VObjectError(Exception):
 
     def __str__(self):
         if hasattr(self, 'lineNumber'):
-            return "At line %s: %s" % (self.lineNumber, self.message)
+            return 'At line {}: {}'.format(self.lineNumber, self.message)
         else:
             return repr(self.message)
+
 
 class ParseError(VObjectError):
     pass
 
+
 class ValidateError(VObjectError):
     pass
+
 
 class NativeError(VObjectError):
     pass
 
-#-------------------------- Parsing functions ----------------------------------
+
+# ------------------------- Parsing functions ----------------------------------
 
 # parseLine regular expressions
 
@@ -753,7 +621,8 @@ def parseLine(line, lineNumber = None):
     """
     match = line_re.match(line)
     if match is None:
-        raise ParseError("Failed to parse line: %s" % line, lineNumber)
+        raise ParseError('Failed to parse line: {}'.format(line), lineNumber)
+
     # Underscores are replaced with dash to work around Lotus Notes
     return (match.group('name').replace('_','-'),
             parseParams(match.group('params')),
@@ -796,9 +665,9 @@ def getLogicalLines(fp, allowQP=True, findBegin=False):
     Quoted-printable data will be decoded in the Behavior decoding phase.
 
     >>> import StringIO
-    >>> f=StringIO.StringIO(testLines)
+    >>> f = StringIO.StringIO(testLines)
     >>> for n, l in enumerate(getLogicalLines(f)):
-    ...     print "Line %s: %s" % (n, l[0])
+    ...     print('Line {}: {}'.format(n, l[0]))
     ...
     Line 0: Line 0 text, Line 0 continued.
     Line 1: Line 1;encoding=quoted-printable:this is an evil=
@@ -887,8 +756,10 @@ def getLogicalLines(fp, allowQP=True, findBegin=False):
         if logicalLine.pos > 0:
             yield logicalLine.getvalue(), lineStartNumber
 
+
 def textLineToContentLine(text, n=None):
     return ContentLine(*parseLine(text, n), encoded=True, lineNumber=n)
+
 
 def dquoteEscape(param):
     """Return param, or "param" if ',' or ';' or ':' is in param."""
@@ -897,9 +768,10 @@ def dquoteEscape(param):
 
     for char in ',;:':
         if param.find(char) >= 0:
-            return '"'+ param + '"'
+            return '"{}"'.format(param)
 
     return param
+
 
 def foldOneLine(outbuf, input, lineLength = 75):
     # Folding line procedure that ensures multi-byte utf-8 sequences are not broken
@@ -932,6 +804,7 @@ def foldOneLine(outbuf, input, lineLength = 75):
                 start = offset
     outbuf.write("\r\n")
 
+
 def defaultSerialize(obj, buf, lineLength):
     """Encode and fold obj and its children, write to buf or return a string."""
     outbuf = buf or cStringIO.StringIO()
@@ -946,7 +819,7 @@ def defaultSerialize(obj, buf, lineLength):
             foldOneLine(outbuf, str(groupString + u"BEGIN:" + obj.name), lineLength)
 
         for child in obj.getSortedChildren():
-            #validate is recursive, we only need to validate once
+            # validate is recursive, we only need to validate once
             child.serialize(outbuf, lineLength, validate=False)
 
         if obj.useBegin:
@@ -957,7 +830,7 @@ def defaultSerialize(obj, buf, lineLength):
         if obj.behavior and not startedEncoded:
             obj.behavior.encode(obj)
 
-        s = codecs.getwriter('utf-8')(cStringIO.StringIO()) #unfolded buffer
+        s = codecs.getwriter('utf-8')(cStringIO.StringIO())  # unfolded buffer
 
         if obj.group is not None:
             s.write(obj.group + '.')
@@ -1030,10 +903,9 @@ END:VCALENDAR''')
     >>> cal.vevent.summary
     <SUMMARY{u'BLAH': [u'hi!']}Bastille Day Party>
     """
-    if isinstance(streamOrString, basestring):
-        stream = StringIO.StringIO(streamOrString)
-    else:
-        stream = streamOrString
+
+    stream = StringIO.StringIO(streamOrString) if isinstance(streamOrString, basestring) else \
+             streamOrString
 
     try:
         stack = Stack()
@@ -1044,14 +916,11 @@ END:VCALENDAR''')
                 try:
                     vline = textLineToContentLine(line, n)
                 except VObjectError as e:
-                    if e.lineNumber is not None:
-                        msg = "Skipped line %(lineNumber)s, message: %(msg)s"
-                    else:
-                        msg = "Skipped a line, message: %(msg)s"
-                    logger.error(msg % {'lineNumber': e.lineNumber,
-                                        'msg':        e.message,
-                                       }
-                                )
+                    msg = "Skipped line %(lineNumber)s, message: %(msg)s" \
+                          if e.lineNumber is not None else \
+                          "Skipped a line, message: %(msg)s"
+
+                    logger.error(msg, lineNumber=e.lineNumber, msg=e.message)
                     continue
             else:
                 vline = textLineToContentLine(line, n)
@@ -1067,19 +936,18 @@ END:VCALENDAR''')
                 stack.top().setProfile(vline.value)
             elif vline.name == "END":
                 if len(stack) == 0:
-                    raise ParseError('Attempted to end the %s component, '
-                                     'but it was never opened' % vline.value,
+                    raise ParseError('Attempted to end the {} component, '
+                                     'but it was never opened'.format(vline.value),
                                      n
                                     )
 
-                if vline.value.upper() == stack.topName(): #START matches END
+                if vline.value.upper() == stack.topName():  # START matches END
                     if len(stack) == 1:
                         component = stack.pop()
 
                         if versionLine is not None:
                             component.setBehaviorFromVersionLine(versionLine)
                         else:
-                            #behavior = getBehavior(component.name)
                             behavior = behavior_registry.get(component.name)
                             if behavior:
                                 component.setBehavior(behavior)
@@ -1090,21 +958,20 @@ END:VCALENDAR''')
                         if transform: 
                             component.transformChildrenToNative()
 
-                        yield component #EXIT POINT
+                        yield component  # EXIT POINT
                     else: stack.modifyTop(stack.pop())
                 else:
-                    raise ParseError("%s component wasn't closed"  % stack.topName(), n)
+                    raise ParseError("{} component wasn't closed".format(stack.topName()), n)
             else: 
-                stack.modifyTop(vline) #not a START or END line
+                stack.modifyTop(vline)  # not a START or END line
 
         if stack.top():
             if stack.topName() is None:
-                logger.warning("Top level component was never named")
+                logger.warning('Top level component was never named')
             elif stack.top().useBegin:
-                raise ParseError("Component %s was never closed" % (stack.topName()), n)
+                raise ParseError('Component {} was never closed'.format(stack.topName()), n)
 
             yield stack.pop()
-
     except ParseError as e:
         e.input = streamOrString
         raise
@@ -1168,12 +1035,9 @@ class BehaviorRegistry(object):
         behavior = self.get(name, id)
 
         if behavior is None:
-            raise VObjectError("No behavior found named %s" % name)
+            raise VObjectError('No behavior found named {}'.format(name))
 
-        if behavior.isComponent:
-            obj = Component(name)
-        else:
-            obj = ContentLine(name, [], '')
+        obj = Component(name) if behavior.isComponent else ContentLine(name, [], '')
 
         obj.behavior = behavior
         obj.isNative = False
@@ -1184,7 +1048,7 @@ class BehaviorRegistry(object):
 behavior_registry = BehaviorRegistry()
 
 
-#--------------------------- Helper function -----------------------------------
+# -------------------------- Helper function -----------------------------------
 def backslashEscape(s):
     return s.replace("\\", "\\\\").replace(";", "\;").replace(",", "\,") \
             .replace("\r\n", "\\n").replace("\n", "\\n").replace("\r", "\\n")
