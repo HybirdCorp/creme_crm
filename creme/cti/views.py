@@ -24,6 +24,7 @@ from functools import partial
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.timezone import now
 from django.utils.translation import ugettext as _
 
@@ -68,15 +69,16 @@ def abstract_create_phonecall_as_caller(request, pcall_creator=_create_phonecall
     pcall = _build_related_phonecall(request.user,
                                      get_from_POST_or_404(request.POST, 'entity_id'),
                                      act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
-                                     _(u'Call to %s'),
+                                     # _(u'Call to %s'),
+                                     _(u'Call to {entity}'),
                                      pcall_creator=pcall_creator,
                                     )
 
-    return u'%s<br/><a href="%s">%s</a>' % (
-                    _(u'Phone call successfully created.'),
-                    pcall.get_absolute_url(),
-                    unicode(pcall),
-                )
+    return format_html(u'{msg}<br/><a href="{url}">{pcall}</a>',
+                       msg=_(u'Phone call successfully created.'),
+                       url=pcall.get_absolute_url(),
+                       pcall=pcall,
+                      )
 
 
 def abstract_add_contact(request, number, form=ContactForm,
@@ -98,7 +100,8 @@ def abstract_add_organisation(request, number, form=OrganisationForm,
 def abstract_add_phonecall(request, entity_id, pcall_creator=_create_phonecall):
     pcall = _build_related_phonecall(request.user, entity_id,
                                      act_constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
-                                     _(u'Call from %s'),
+                                     # _(u'Call from %s'),
+                                     _(u'Call from {entity}'),
                                      pcall_creator=pcall_creator,
                                     )
 
@@ -112,7 +115,8 @@ def _build_related_phonecall(user, entity_id, calltype_id, title_format, pcall_c
     user.has_perm_to_create_or_die(Activity)
 
     entity = entity.get_real_entity()
-    pcall = pcall_creator(user, title=title_format % entity, calltype_id=calltype_id)
+    # pcall = pcall_creator(user, title=title_format % entity, calltype_id=calltype_id)
+    pcall = pcall_creator(user, title=title_format.format(entity=entity), calltype_id=calltype_id)
 
     pcall.calendars.add(Calendar.get_user_default_calendar(user))
 

@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'CTI' APP
-# Copyright (C) 2017 Hybird
+# Copyright (C) 2018 Hybird
 # This file is distributed under the same license as the PACKAGE package.
 #
 # > django-admin.py makemessages -l fr
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme CTI 1.7\n"
+"Project-Id-Version: Creme CTI 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-01 11:50+0100\n"
+"POT-Creation-Date: 2018-06-05 10:34+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -57,27 +57,27 @@ msgstr "Créer un appel téléphonique"
 msgid "No contact/organisation corresponds to this number : %(number)s"
 msgstr "Aucun contact/société ne correspond à ce numéro : %(number)s"
 
-#: utils.py:41
+#: utils.py:53
 msgid "Call"
 msgstr "Appeler"
 
-#: views.py:58
+#: views.py:59
 msgid "Automatically created by CTI"
 msgstr "Créé automatiquement par CTI"
 
-#: views.py:71
-#, python-format
-msgid "Call to %s"
-msgstr "Appel à %s"
+#: views.py:73
+#, python-brace-format
+msgid "Call to {entity}"
+msgstr "Appel à {entity}"
 
-#: views.py:76
+#: views.py:78
 msgid "Phone call successfully created."
 msgstr "Appel téléphonique créé avec succès."
 
-#: views.py:101
-#, python-format
-msgid "Call from %s"
-msgstr "Appel de %s"
+#: views.py:104
+#, python-brace-format
+msgid "Call from {entity}"
+msgstr "Appel de {entity}"
 
 #~ msgid "Caller"
 #~ msgstr "Appelant"
