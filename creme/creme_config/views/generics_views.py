@@ -66,7 +66,7 @@ def _popup_title(model_conf):
     model = model_conf.model
     title = getattr(model, 'creation_label', None)
 
-    return title if title is not None else _(u'New value: %s') % model._meta.verbose_name
+    return title if title is not None else _(u'New value: {model}').format(model=model._meta.verbose_name)
 
 
 @login_required
@@ -150,7 +150,7 @@ def delete_model(request, app_name, model_name):
     try:
         instance.delete()
     except ProtectedError:
-        msg = _(u'%s can not be deleted because of its dependencies.') % instance
+        msg = _(u'{} can not be deleted because of its dependencies.').format(instance)
 
         # TODO: factorise ??
         if request.is_ajax():
@@ -236,7 +236,7 @@ def reload_app_bricks(request, app_name):
                     brick = registered_brick
                     break
             else:
-                raise Http404('Invalid brick id "%s"' % b_id)
+                raise Http404('Invalid brick id "{}"'.format(b_id))
 
         bricks.append(brick)
 

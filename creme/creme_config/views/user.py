@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -30,6 +32,9 @@ from creme.creme_core.views.decorators import POST_only
 
 from ..forms import user as user_forms
 from .portal import _config_portal
+
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -102,11 +107,15 @@ def delete(request, user_id):
 
     try:
         return generic.add_model_with_popup(request, user_forms.UserAssignationForm,
-                                            _(u'Delete «%s» and assign his files to user') % user_to_delete,
+                                            _(u'Delete «{user}» and assign his entities to user').format(
+                                                    user=user_to_delete,
+                                                ),
                                             initial={'user_to_delete': user_to_delete},
                                             submit_label=_(u'Delete the user'),
                                            )
     except Exception:
+        logger.exception('delete(): an error occured')
+
         return HttpResponse(_(u"You can't delete this user."), status=400)
 
 

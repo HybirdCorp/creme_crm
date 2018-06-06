@@ -64,7 +64,7 @@ def edit(request, property_type_id):
     return generic.inner_popup(request,
                        'creme_core/generics/blockform/edit_popup.html',
                        {'form':  property_type_form,
-                        'title': _(u'Edit the type «%s»') % property_type,
+                        'title': _(u'Edit the type «{property}»').format(property=property_type),
                         'submit_label': _(u'Save the modifications'),
                        },
                        is_valid=property_type_form.is_valid(),

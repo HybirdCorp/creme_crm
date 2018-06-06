@@ -127,7 +127,7 @@ class UserEditForm(CremeModelForm):
         super(UserEditForm, self).__init__(*args, **kwargs)
 
         # NB: browser can ignore <em> tag in <option>...
-        self.fields['role'].empty_label = u'*%s*' % ugettext(u'Superuser')
+        self.fields['role'].empty_label = u'*{}*'.format(ugettext(u'Superuser'))
 
     def save(self, *args, **kwargs):
         instance = self.instance

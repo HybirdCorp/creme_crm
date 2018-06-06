@@ -22,7 +22,7 @@ class TimezoneItem(ViewableItem):
         return format_html(u'<a href="{url}">{icon}{label}</a>',
                            url=reverse('creme_config__user_settings'),
                            icon=self.render_icon(context),
-                           label=_(u'Time zone: %s') % context['TIME_ZONE'],
+                           label=_(u'Time zone: {}').format(context['TIME_ZONE']),
                           )
 
 

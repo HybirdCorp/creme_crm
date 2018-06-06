@@ -12,7 +12,7 @@ try:
     from ..forms.fields import CreatorModelChoiceField, CreatorModelMultipleChoiceField
     from ..forms.widgets import CreatorModelChoiceWidget
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class CreatorModelChoiceFieldTestCase(CremeTestCase):

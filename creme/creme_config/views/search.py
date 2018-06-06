@@ -43,7 +43,7 @@ def add(request, ct_id):
     ctype = get_ct_or_404(ct_id)
 
     return add_model_with_popup(request, SearchAddForm,
-                                title=_(u'New search configuration for «%s»') % ctype,
+                                title=_(u'New search configuration for «{model}»').format(model=ctype),
                                 initial={'content_type': ctype},
                                )
 

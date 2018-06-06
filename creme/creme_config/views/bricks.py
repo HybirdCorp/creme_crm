@@ -66,7 +66,7 @@ def add_detailview(request, ct_id):
     ctype = _get_configurable_ctype(ct_id)
 
     return add_model_with_popup(request, bricks.BrickDetailviewLocationsAddForm,
-                                title=ugettext(u'New block configuration for «%s»') % ctype,
+                                title=ugettext(u'New block configuration for «{model}»').format(model=ctype),
                                 submit_label=_(u'Save the configuration'),
                                 initial={'content_type': ctype},
                                )
@@ -174,14 +174,14 @@ def edit_detailview(request, ct_id, role):
         ct = _get_configurable_ctype(ct_id)
 
         if superuser:
-            title = ugettext(u'Edit configuration of super-users for «%s»') % ct
+            title = ugettext(u'Edit configuration of super-users for «{model}»').format(model=ct)
         elif role_obj:
-            title = ugettext(u'Edit configuration of «%(role)s» for «%(type)s»') % {
-                            'role': role_obj,
-                            'type': ct,
-                        }
+            title = ugettext(u'Edit configuration of «{role}» for «{model}»').format(
+                            role=role_obj,
+                            model=ct,
+            )
         else:
-            title = ugettext(u'Edit default configuration for «%s»') % ct
+            title = ugettext(u'Edit default configuration for «{model}»').format(model=ct)
     else:  # ct_id == 0
         if role != 'default':
             raise Http404('You can only edit "default" role with default config')
@@ -320,7 +320,7 @@ class RelationCTypeBrickWizard(PopupWizardMixin, SessionWizardView):
 
     def get_context_data(self, form, **kwargs):
         context = super(RelationCTypeBrickWizard, self).get_context_data(form, **kwargs)
-        context['title'] = ugettext(u'New customised type for «%s»') % form.instance
+        context['title'] = ugettext(u'New customised type for «{predicate}»').format(predicate=form.instance)
 
         return context
 
@@ -358,7 +358,7 @@ def edit_cells_of_rtype_brick(request, rbi_id, ct_id):
     return inner_popup(request,
                        'creme_core/generics/blockform/edit_popup.html',
                        {'form':  form,
-                        'title': ugettext(u'Edit «%s» configuration') % ctype,
+                        'title': ugettext(u'Edit «{model}» configuration').format(model=ctype),
                         'submit_label': _(u'Save the modifications'),
                        },
                        is_valid=form.is_valid(),
