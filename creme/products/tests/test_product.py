@@ -120,7 +120,7 @@ class ProductTestCase(_ProductsTestCase):
                                           'unit_price':   '1.23',
                                           'unit':         "anything",
                                           'sub_category': self._cat_field(sub_cat.category, sub_cat),
-                                          'images':       '[%s]' % ','.join(str(img.id) for img in images),
+                                          'images':       '[{}]'.format(','.join(str(img.id) for img in images)),
                                         }
                                     )
 
@@ -476,7 +476,7 @@ class ProductTestCase(_ProductsTestCase):
 
         def post(*images):
             return self.client.post(url, follow=True,
-                                    data={'images': '[%s]' % ','.join(str(img.id) for img in images)}
+                                    data={'images': '[{}]'.format(','.join(str(img.id) for img in images))}
                                    )
 
         response = post(img_1, img_4)
@@ -704,10 +704,10 @@ class ProductTestCase(_ProductsTestCase):
         self.assertEqual(3, len(jr_errors))
 
         jr_error1 = jr_errors[0]
-        self.assertEqual([_(u'The category «%(cat)s» and the sub-category «%(sub_cat)s» are not matching.') % {
-                                'cat':     cat2,
-                                'sub_cat': sub_cat11,
-                            },
+        self.assertEqual([_(u'The category «{cat}» and the sub-category «{sub_cat}» are not matching.').format(
+                                cat=cat2,
+                                sub_cat=sub_cat11,
+                            ),
                           _(u'This field cannot be null.'),  # TODO: the message should indicate the name of the field.
                           _(u'This field cannot be null.'),
                          ],
@@ -715,14 +715,14 @@ class ProductTestCase(_ProductsTestCase):
                         )
         self.assertIsNone(jr_error1.entity)
 
-        self.assertEqual([_(u'The category «%s» does not exist') % 'invalid',
+        self.assertEqual([_(u'The category «{}» does not exist').format('invalid'),
                           _(u'This field cannot be null.'),
                           _(u'This field cannot be null.'),
                          ],
                          jr_errors[1].messages
                         )
 
-        self.assertEqual([_(u'The sub-category «%s» does not exist') % 'invalid',
+        self.assertEqual([_(u'The sub-category «{}» does not exist').format('invalid'),
                           _(u'This field cannot be null.'),
                           _(u'This field cannot be null.'),
                          ],

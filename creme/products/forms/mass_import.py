@@ -63,7 +63,7 @@ class CategoriesExtractor(object):
                             category = Category.objects.create(name=cat_name)
                             cat_created = True
                         else:
-                            raise self._FatalError(ugettext(u'The category «%s» does not exist') % cat_name)
+                            raise self._FatalError(ugettext(u'The category «{}» does not exist').format(cat_name))
 
             # Sub-category
             subcat_index = self._subcat_index
@@ -81,14 +81,14 @@ class CategoriesExtractor(object):
                         if self._create:
                             sub_category = SubCategory.objects.create(name=subcat_name, category=category)
                         else:
-                            raise self._FatalError(ugettext(u'The sub-category «%s» does not exist') % subcat_name)
+                            raise self._FatalError(ugettext(u'The sub-category «{}» does not exist').format(subcat_name))
 
             # Error checking
             if sub_category.category_id != category.id:
-                error_msg = ugettext(u'The category «%(cat)s» and the sub-category «%(sub_cat)s» are not matching.') % {
-                    'cat':     category,
-                    'sub_cat': sub_category,
-                }
+                error_msg = ugettext(u'The category «{cat}» and the sub-category «{sub_cat}» are not matching.').format(
+                    cat=category,
+                    sub_cat=sub_category,
+                )
         except self._FatalError as e:
             category = sub_category = None
             error_msg = e.args[0]
@@ -230,7 +230,7 @@ class CategoriesExtractorField(Field):
         try:
             index = int(value[key])
         except TypeError:
-            raise ValidationError('Invalid value for index "%s"' % key)
+            raise ValidationError('Invalid value for index "{}"'.format(key))
 
         if index not in self._allowed_indexes:
             raise ValidationError('Invalid index')
