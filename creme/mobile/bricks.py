@@ -19,7 +19,6 @@
 ################################################################################
 
 from django.contrib.auth import get_user_model
-# from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.bricks import QuerysetBrick
@@ -37,7 +36,6 @@ class FavoritePersonsBrick(QuerysetBrick):
     id_           = QuerysetBrick.generate_id('mobile', 'favorite_persons')
     dependencies  = (MobileFavorite,)
     verbose_name  = _(u'Favorite Contacts & Organisations (for mobile)')
-    # template_name = 'mobile/templatetags/block_favorite.html'
     template_name = 'mobile/bricks/favorite.html'
     target_ctypes = (Contact, Organisation)
 
@@ -46,8 +44,6 @@ class FavoritePersonsBrick(QuerysetBrick):
         btc = self.get_template_context(
                                 context,
                                 get_user_model().objects.filter(mobile_favorite__entity=person.id),
-                                # # update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.id),
-                                # update_url=reverse('creme_core__reload_detailview_blocks', args=(self.id_, person.id)),
                                 is_contact=isinstance(person, Contact),
                                 is_orga=isinstance(person, Organisation),
                                )

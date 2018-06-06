@@ -303,7 +303,7 @@ def start_activity(request, activity_id):
     activity.status_id = act_constants.STATUS_IN_PROGRESS
     activity.save()
 
-    return HttpResponseRedirect('%s#activity_%s' % (_get_page_url(request), activity_id))
+    return HttpResponseRedirect('{}#activity_{}'.format(_get_page_url(request), activity_id))
 
 
 @lw_exceptions
@@ -509,7 +509,7 @@ def _improve_minutes(pcall, minutes):
     if minutes:
         old_minutes = pcall.minutes
         pcall.minutes = minutes if not old_minutes else \
-                        u'%s\n%s' % (old_minutes, minutes)
+                        u'{}\n{}'.format(old_minutes, minutes)
 
 
 @mobile_login_required
@@ -537,10 +537,10 @@ def _phonecall_workflow_set_end(request, end_function):
 
         with atomic():
             pcall = done_activity_creator(user=user,
-                                          title=_('%(status)s call to %(person)s from Creme Mobile') % {
-                                                  'status': _('Successful'),
-                                                  'person': person,
-                                              },
+                                          title=_('{status} call to {person} from Creme Mobile').format(
+                                                  status=_('Successful'),
+                                                  person=person,
+                                            ),
                                           type_id=act_constants.ACTIVITYTYPE_PHONECALL,
                                           sub_type_id=act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
                                           status_id=act_constants.STATUS_DONE,
@@ -574,10 +574,10 @@ def _create_failed_pcall(request):
 
     with atomic():
         pcall = failed_activity_creator(user=user,
-                                        title=_('%(status)s call to %(person)s from Creme Mobile') % {
-                                                'status': _('Failed'),
-                                                'person':  person,
-                                            },
+                                        title=_('{status} call to {person} from Creme Mobile').format(
+                                                status=_('Failed'),
+                                                person=person,
+                                            ),
                                         type_id=act_constants.ACTIVITYTYPE_PHONECALL,
                                         sub_type_id=act_constants.ACTIVITYSUBTYPE_PHONECALL_FAILED,
                                         status_id=act_constants.STATUS_DONE,
@@ -632,7 +632,7 @@ def phonecall_workflow_postponed(request):
         pcall, me, person = _create_failed_pcall(request)
 
         postponed = copy(pcall)  # NB: idem
-        postponed.title = _('Call to %s from Creme Mobile') % person
+        postponed.title = _('Call to {} from Creme Mobile').format(person)
         postponed.sub_type_id = act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING
         postponed.status = None
 
