@@ -31,7 +31,7 @@ try:
             PollReplySection, PollReplyLine, PollReplyLineCondition)
     from ..utils import SectionTree, StatsTree
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 Contact = get_contact_model()
 Organisation = get_organisation_model()
@@ -45,11 +45,11 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         try:
             question_f = response.context['form'].fields['question']
         except KeyError as e:
-            self.fail('It seems that the form is already complete (<%s> occured: %s)' % (
+            self.fail('It seems that the form is already complete (<{}> occured: {})'.format(
                             e.__class__.__name__, e)
                      )
 
-        self.assertEqual(u'%s - %s' % (line_number or fline.order, fline.question),
+        self.assertEqual(u'{} - {}'.format(line_number or fline.order, fline.question),
                          question_f.initial
                         )
 
@@ -68,7 +68,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
                         )
 
     def _build_linkto_url(self, entity):
-        # return '/polls/poll_reply/link_to_person/%s' % entity.id
         return reverse('polls__link_reply_to_person', args=(entity.id,))
 
     def _build_preply_from_person_url(self, person):
@@ -476,7 +475,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertNoFormError(response)
 
         for i in xrange(1, reply_number + 1):
-            preply = self.get_object_or_fail(PollReply, name="%s#%s" % (name, i))
+            preply = self.get_object_or_fail(PollReply, name='{}#{}'.format(name, i))
             self.assertFalse(preply.is_complete)
             self.assertEqual([1, 2, 3], list(preply.lines.values_list('order', flat=True)))
 
@@ -523,7 +522,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertEqual(count + 4, PollReply.objects.count())
 
         for i, entity in enumerate([leina, claudette, gaimos, amara], start=1):
-            preply = self.get_object_or_fail(PollReply, name="%s#%s" % (name, i))
+            preply = self.get_object_or_fail(PollReply, name='{}#{}'.format(name, i))
             self.assertEqual(entity, preply.person.get_real_entity())
 
     def test_create_from_pollform01(self):
@@ -619,7 +618,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertNoFormError(response)
 
         for i in xrange(1, reply_number + 1):
-            preply = self.get_object_or_fail(PollReply, name="%s#%s" % (name, i))
+            preply = self.get_object_or_fail(PollReply, name='{}#{}'.format(name, i))
             self.assertEqual(pform, preply.pform)
             self.assertEqual(2,     preply.lines.count())
 
@@ -636,7 +635,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertGET200(url)
 
         self.assertNoFormError(self.client.post(url, follow=True,
-                                                data={'replies': '[%s,%s]' % (preply1.id, preply2.id)}
+                                                data={'replies': '[{},{}]'.format(preply1.id, preply2.id)}
                                                )
                               )
 
@@ -672,7 +671,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         leina = Contact.objects.create(user=user, first_name='Leina', last_name='Vance')
         response = self.assertPOST200(self._build_linkto_url(leina),
-                                      data={'replies': '[%s]' % preply.id}
+                                      data={'replies': '[{}]'.format(preply.id)}
                                      )
         self.assertFormError(response, 'form', 'replies', 
                              _(u'Some entities are not editable: {}').format(preply)
@@ -1060,7 +1059,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             question_f = response.context['form'].fields['question']
 
-        self.assertEqual('1 - %s' % fline.question,  question_f.initial)
+        self.assertEqual('1 - {}'.format(fline.question),  question_f.initial)
 
         answer = 'The 2 legs are equal, almost the right one.'
         self.assertNoFormError(self.client.post(url, follow=True, data={'answer': answer}))
@@ -1335,8 +1334,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             question_f = response.context['form'].fields['question']
 
-        self.assertEqual('2 - %s' % rline2.question, question_f.initial)
-        self.assertContains(response, '1 - %s' % rline1.question)
+        self.assertEqual('2 - {}'.format(rline2.question), question_f.initial)
+        self.assertContains(response, '1 - {}'.format(rline1.question))
 
         answer = 'Betty'
         response = self._fill(preply, answer)
@@ -1481,7 +1480,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertFalse(self.refresh(rline1).applicable)
 
         self.assertContains(self.client.get(self._build_fill_url(preply)),
-                            '1 - %s' % rline1.question
+                            '1 - {}'.format(rline1.question)
                            )
 
         answer = 'Betty'
@@ -1539,7 +1538,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             fields = response.context['form'].fields
 
         self.assertIn('question', fields)
-        self.assertEqual('1 - %s' % question, fields['question'].initial)
+        self.assertEqual('1 - {}'.format(question), fields['question'].initial)
         self.assertIn('answer', fields)
         self.assertEqual(old_answer, fields['answer'].initial)
 

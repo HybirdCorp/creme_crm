@@ -126,7 +126,7 @@ class PollReplyLine(CremeModel, _PollLine):
 
     def __repr__(self):
         from django.utils.encoding import smart_str
-        return smart_str(u'PollReplyLine(section=%s, question="%s", answer="%s")' % (
+        return smart_str(u'PollReplyLine(section=%s, question="{}", answer="{}")'.format(
                             self.section_id, self.question, self.answer
                         ))
 

@@ -145,9 +145,9 @@ class PollFormLineCreateForm(_PollFormLineForm):
             section_lines.reverse()
 
             choices = [(0, ugettext(u'Start of section'))]
-            msg_fmt = ugettext(u'Before: «%(question)s» (#%(number)s)') #TODO: cached_ugettext ??
+            msg_fmt = ugettext(u'Before: «{question}» (#{number})') #TODO: cached_ugettext ??
 
-            choices.extend((i, msg_fmt % {'question': node.question, 'number': node.number})
+            choices.extend((i, msg_fmt.format(question=node.question, number=node.number))
                                 for i, node in enumerate(section_lines[1:], start=1)
                           )
             choices.append((len(section_lines), ugettext(u'End of section')))

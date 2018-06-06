@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2015  Hybird
+#    Copyright (C) 2012-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -174,15 +174,15 @@ class IntPollLineType(PollLineType):
             if max_value is None:
                 return self.verbose_name
 
-            return ugettext(u'Integer lesser than %(max_value)s') % {'max_value': max_value}
+            return ugettext(u'Integer lesser than {max_value}').format(max_value=max_value)
 
         if max_value is None:
-            return ugettext(u'Integer greater than %(min_value)s') % {'min_value': min_value}
+            return ugettext(u'Integer greater than {min_value}').format(min_value=min_value)
 
-        return ugettext(u'Integer between %(min_value)s and %(max_value)s') % {
-                            'min_value': min_value,
-                            'max_value': max_value,
-                        }
+        return ugettext(u'Integer between {min_value} and {max_value}').format(
+                            min_value=min_value,
+                            max_value=max_value,
+        )
 
     def _formfield(self, initial):
         get_arg = self._args.get
@@ -260,8 +260,8 @@ class HourPollLineType(PollLineType):
 
 class EnumPollLineType(PollLineType):
     verbose_name     = _(u'Choice list')
-    _description     = _(u'Choice list (%s)')
-    _description_del = _(u'Choice list (%(choices)s) (deleted: %(del_choices)s)')
+    _description     = _(u'Choice list ({})')
+    _description_del = _(u'Choice list ({choices}) (deleted: {del_choices})')
 
     def __init__(self, **kwargs):
         super(EnumPollLineType, self).__init__(**kwargs)
@@ -277,7 +277,7 @@ class EnumPollLineType(PollLineType):
             self._args['del_choices'] = del_choices
 
     def _cast_answer_4_decoding(self, answer):
-        for k, v in self._args['choices']: #TODO: build a dict a keep in cache ?
+        for k, v in self._args['choices']:  # TODO: build a dict a keep in cache ?
             if answer == k:
                 return v
 
@@ -291,11 +291,11 @@ class EnumPollLineType(PollLineType):
         del_choices = self.get_deleted_choices()
 
         if del_choices:
-            return self._description_del % {'choices':     choices,
-                                            'del_choices': join(del_choices),
-                                           }
+            return self._description_del.format(choices=choices,
+                                                del_choices=join(del_choices),
+                                               )
 
-        return self._description % choices
+        return self._description.format(choices)
 
     def _formfield(self, initial):
         return TypedChoiceField(choices=self._args['choices'], coerce=int,
@@ -321,8 +321,8 @@ class EnumPollLineType(PollLineType):
 
 class MultiEnumPollLineType(EnumPollLineType):
     verbose_name     = _(u'Multiple choice list')
-    _description     = _(u'Multiple choice list (%s)')
-    _description_del = _(u'Multiple choice list (%(choices)s) (deleted: %(del_choices)s)')
+    _description     = _(u'Multiple choice list ({})')
+    _description_del = _(u'Multiple choice list ({choices}) (deleted: {del_choices})')
 
     def _cast_answer_4_decoding(self, answer):
         indices = set(answer)
@@ -349,8 +349,8 @@ class MultiEnumPollLineType(EnumPollLineType):
 
 class EnumOrStringPollLineType(EnumPollLineType):
     verbose_name     = _(u'Choice list with free choice')
-    _description     = _(u'Choice list with free choice (%s)')
-    _description_del = _(u'Choice list with free choice (%(choices)s) (deleted: %(del_choices)s)')
+    _description     = _(u'Choice list with free choice ({})')
+    _description_del = _(u'Choice list with free choice ({choices}) (deleted: {del_choices})')
 
     def _cast_answer_4_decoding(self, answer):
         if len(answer) == 1:

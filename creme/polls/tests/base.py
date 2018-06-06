@@ -25,7 +25,7 @@ try:
     PollForm     = get_pollform_model()
     PollReply    = get_pollreply_model()
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 def skipIfCustomPollCampaign(test_func):
