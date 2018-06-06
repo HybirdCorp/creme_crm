@@ -15,7 +15,7 @@ try:
 
     SMSCampaign = sms.get_smscampaign_model()
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 def skipIfCustomSMSCampaign(test_func):

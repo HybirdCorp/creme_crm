@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme SMS 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-29 12:52+0200\n"
+"POT-Creation-Date: 2018-06-05 14:58+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -93,17 +93,16 @@ msgstr ""
 "Exemples: '00 56 87 56 45' => '0056875645'; 'abc56def' => '56'"
 
 #: forms/template.py:31
-#, python-format
 msgid ""
 "Message with a maximum of 160 characters.\n"
 " Beware, the header matters (+ 3 characters) and the following characters "
-"count double: %s"
+"count double: {}"
 msgstr ""
 "Message de 160 caractères maximum.\n"
 " Attention, l'en-tête compte (+ 3 caractères) et les caractères suivant "
-"comptent double: %s"
+"comptent double: {}"
 
-#: forms/template.py:37 models/message.py:102
+#: forms/template.py:37 models/message.py:106
 msgid "Message"
 msgstr "Message"
 
@@ -226,7 +225,7 @@ msgctxt "sms"
 msgid "Save the sending"
 msgstr "Enregistrer l'envoi"
 
-#: models/message.py:64 models/message.py:92
+#: models/message.py:64 models/message.py:96
 msgid "Sending"
 msgstr "Envoi"
 
@@ -236,25 +235,25 @@ msgctxt "sms"
 msgid "Sending of «{campaign}» on {date}"
 msgstr "Envoi de «{campaign}» du {date}"
 
-#: models/message.py:93 models/recipient.py:31
+#: models/message.py:97 models/recipient.py:31
 #: templates/sms/bricks/contacts.html:19 templates/sms/bricks/messages.html:34
 #: templates/sms/bricks/recipients.html:18
 msgid "Number"
 msgstr "Numéro"
 
-#: models/message.py:94
+#: models/message.py:98
 msgid "State"
 msgstr "État"
 
-#: models/message.py:95
+#: models/message.py:99
 msgid "Full state"
 msgstr "État détaillé"
 
-#: models/message.py:103 templates/sms/bricks/messages.html:7
+#: models/message.py:107 templates/sms/bricks/messages.html:7
 msgid "Messages"
 msgstr "Messages"
 
-#: models/message.py:111
+#: models/message.py:115
 msgid "Unknown"
 msgstr "Inconnu"
 
