@@ -280,16 +280,16 @@ class Populator(BasePopulator):
                                is_count=False, ordinate='estimated_sales__sum',
                               )
         esales_vname = FieldInfo(Opportunity, 'estimated_sales').verbose_name
-        rgraph1 = create_graph(name=_(u'Sum %(estimated_sales)s / %(sales_phase)s') % {
-                                    'estimated_sales': esales_vname,
-                                    'sales_phase':     FieldInfo(Opportunity, 'sales_phase').verbose_name,
-                                },
+        rgraph1 = create_graph(name=_(u'Sum {estimated_sales} / {sales_phase}').format(
+                                    estimated_sales=esales_vname,
+                                    sales_phase=FieldInfo(Opportunity, 'sales_phase').verbose_name,
+                                ),
                                abscissa='sales_phase', type=rep_constants.RGT_FK,
                               )
-        rgraph2 = create_graph(name=_(u'Sum %(estimated_sales)s / Quarter (90 days on %(closing_date)s)') % {
-                                    'estimated_sales': esales_vname,
-                                    'closing_date':    FieldInfo(Opportunity, 'closing_date').verbose_name,
-                                },
+        rgraph2 = create_graph(name=_(u'Sum {estimated_sales} / Quarter (90 days on {closing_date})').format(
+                                    estimated_sales=esales_vname,
+                                    closing_date=FieldInfo(Opportunity, 'closing_date').verbose_name,
+                                ),
                                abscissa='closing_date', type=rep_constants.RGT_RANGE, days=90,
                               )
 

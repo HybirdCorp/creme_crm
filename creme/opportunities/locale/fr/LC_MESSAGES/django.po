@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Opportunities 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-29 12:28+0200\n"
+"POT-Creation-Date: 2018-06-05 12:15+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -26,18 +26,18 @@ msgid "Commercial"
 msgstr "Commercial"
 
 #: apps.py:134
-#, python-format
+#, python-brace-format
 msgctxt "opportunities-stats"
-msgid "%s won"
-msgid_plural "%s won"
-msgstr[0] "%s gagnée"
-msgstr[1] "%s gagnées"
+msgid "{count} won"
+msgid_plural "{count} won"
+msgstr[0] ""
+msgstr[1] ""
 
 #: apps.py:139
-#, python-format
+#, python-brace-format
 msgctxt "opportunities-stats"
-msgid "%s in all"
-msgstr "%s en tout"
+msgid "{count} in all"
+msgstr "{count} en tout"
 
 #: bricks.py:49
 msgid "Card header block"
@@ -387,14 +387,14 @@ msgid "Other"
 msgstr "Autre"
 
 #: populate.py:283
-#, python-format
-msgid "Sum %(estimated_sales)s / %(sales_phase)s"
-msgstr "Somme %(estimated_sales)s / %(sales_phase)s"
+#, ython-brace-format
+msgid "Sum {estimated_sales} / {sales_phase}"
+msgstr "Somme {estimated_sales} / {sales_phase}"
 
 #: populate.py:289
-#, python-format
-msgid "Sum %(estimated_sales)s / Quarter (90 days on %(closing_date)s)"
-msgstr "Somme %(estimated_sales)s / Trimestre (90 jours sur %(closing_date)s)"
+#, python-brace-format
+msgid "Sum {estimated_sales} / Quarter (90 days on {closing_date})"
+msgstr "Somme {estimated_sales} / Trimestre (90 jours sur {closing_date})"
 
 #: setting_keys.py:11
 msgid ""
@@ -748,6 +748,16 @@ msgstr "{number} ({opportunity})"
 #, python-format
 msgid "New opportunity related to «%s»"
 msgstr "Nouvelle opportunité liée à «%s»"
+
+#~ msgctxt "opportunities-stats"
+#~ msgid "%s won"
+#~ msgid_plural "%s won"
+#~ msgstr[0] "%s gagnée"
+#~ msgstr[1] "%s gagnées"
+
+#~ msgctxt "opportunities-stats"
+#~ msgid "%s in all"
+#~ msgstr "%s en tout"
 
 #~ msgid "Portal of opportunities"
 #~ msgstr "Portail des opportunités"
