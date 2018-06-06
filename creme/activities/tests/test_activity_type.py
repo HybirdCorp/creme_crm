@@ -6,7 +6,7 @@ try:
     from .base import _ActivitiesTestCase
     from ..models import ActivityType, ActivitySubType
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 __all__ = ('ActivityTypeTestCase',)

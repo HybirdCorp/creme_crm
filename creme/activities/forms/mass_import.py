@@ -72,7 +72,7 @@ class RelatedExtractor(object):
         return (), ()
 
     def _searched_contact(self, first_name, last_name):
-        return Contact(first_name=first_name, last_name=last_name),
+        return Contact(first_name=first_name, last_name=last_name)
 
     def _search_n_create_contacts(self, user, civility, first_name, last_name):
         extracted = ()
@@ -95,17 +95,17 @@ class RelatedExtractor(object):
                 length = len(contacts)
 
                 if length > MAX_RELATIONSHIPS:
-                    err_msg = _(u'Too many contacts were found for the search «%s»') % \
-                                self._searched_contact(first_name, last_name)
+                    err_msg = _(u'Too many contacts were found for the search «{}»').format(
+                                self._searched_contact(first_name, last_name))
                 else:
                     if length > 1:
-                        err_msg = _(u'Several contacts were found for the search «%s»') % \
-                                    self._searched_contact(first_name, last_name)
+                        err_msg = _(u'Several contacts were found for the search «{}»').format(
+                                    self._searched_contact(first_name, last_name))
 
                     extracted = contacts
             else:
-                err_msg = _(u'No linkable contact found for the search «%s»') % \
-                            self._searched_contact(first_name, last_name)
+                err_msg = _(u'No linkable contact found for the search «{}»').format(
+                            self._searched_contact(first_name, last_name))
         elif self._create:
             extracted = [Contact.objects.create(user=user,
                                                 first_name=first_name,
@@ -119,8 +119,8 @@ class RelatedExtractor(object):
                                                )
                         ]
         else:
-            err_msg = _(u'The participant «%s» is unfoundable') % \
-                        self._searched_contact(first_name, last_name)
+            err_msg = _(u'The participant «{}» is unfoundable').format(
+                        self._searched_contact(first_name, last_name))
 
         return extracted, (err_msg,) if err_msg else ()
 
@@ -331,7 +331,7 @@ class ParticipantsExtractorField(Field):
         try:
             index = int(value[key])
         except TypeError:
-            raise ValidationError('Invalid value for index "%s"' % key)
+            raise ValidationError('Invalid value for index "{}"'.format(key))
 
         if index not in self._allowed_indexes:
             raise ValidationError('Invalid index')
@@ -424,17 +424,17 @@ class SubjectsExtractor(RelatedExtractor):
                     length = len(linkable_extracted)
 
                     if length > MAX_RELATIONSHIPS:
-                        err_msg.append(_(u'Too many «%(type)s» were found for the search «%(search)s»') % {
-                                            'type':   model._meta.verbose_name_plural,
-                                            'search': search,
-                                        }
+                        err_msg.append(_(u'Too many «{models}» were found for the search «{search}»').format(
+                                            models=model._meta.verbose_name_plural,
+                                            search=search,
+                                        )
                                       )
                     else:
                         if length > 1:
-                            err_msg.append(_(u'Several «%(type)s» were found for the search «%(search)s»') % {
-                                                'type':   model._meta.verbose_name_plural,
-                                                'search': search,
-                                            }
+                            err_msg.append(_(u'Several «{models}» were found for the search «{search}»').format(
+                                                models=model._meta.verbose_name_plural,
+                                                search=search,
+                                            )
                                           )
 
                         extracted.extend(linkable_extracted)
@@ -447,9 +447,9 @@ class SubjectsExtractor(RelatedExtractor):
                 if self._create:
                     extracted.append(Organisation.objects.create(user=user, name=search))
                 elif unlinkable_found:
-                    err_msg.append(_(u'No linkable entity found for the search «%s»') % search)
+                    err_msg.append(_(u'No linkable entity found for the search «{}»').format(search))
                 else:
-                    err_msg.append(_(u'The subject «%s» is unfoundable') % search)
+                    err_msg.append(_(u'The subject «{}» is unfoundable').format(search))
 
         return extracted, err_msg
 
@@ -525,7 +525,7 @@ class SubjectsExtractorField(Field):
         try:
             index = int(value[key])
         except TypeError:
-            raise ValidationError('Invalid value for index "%s"' % key)
+            raise ValidationError('Invalid value for index "{}"'.format(key))
 
         if index not in self._allowed_indexes:
             raise ValidationError('Invalid index')

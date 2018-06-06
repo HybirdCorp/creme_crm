@@ -51,7 +51,7 @@ class ActivityTestCase(_ActivitiesTestCase):
     def _build_add_related_uri(self, related, act_type_id=None):
         url = reverse('activities__create_related_activity', args=(related.id,))
 
-        return url if not act_type_id else (url + '?activity_type=%s' % act_type_id)
+        return url if not act_type_id else (url + '?activity_type={}'.format(act_type_id))
 
     def _buid_add_subjects_url(self, activity):
         return reverse('activities__add_subjects', args=(activity.id,))
@@ -92,9 +92,9 @@ class ActivityTestCase(_ActivitiesTestCase):
                                       )
 
     def _relation_field_value(self, *entities):
-        return '[%s]' % ','.join('{"ctype": {"id": "%s"}, "entity":"%s"}' % (entity.entity_type_id, entity.id)
+        return '[{}]'.format(','.join('{"ctype": {"id": "%s"}, "entity":"%s"}' % (entity.entity_type_id, entity.id)
                                     for entity in entities
-                                )
+                                ))
 
     def test_populate(self):
         rtypes_pks = [constants.REL_SUB_LINKED_2_ACTIVITY,
@@ -270,7 +270,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                             'my_participation_0':  True,
                                             'my_participation_1':  my_calendar.pk,
                                             'participating_users': [other_user.pk],
-                                            'other_participants':  '[%d]' % genma.id,
+                                            'other_participants':  '[{}]'.format(genma.id),
                                             'subjects':            self._relation_field_value(akane),
                                             'linked_entities':     self._relation_field_value(dojo),
                                            }
@@ -329,7 +329,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'start_time':         '12:10:00',
                                           'my_participation_0': True,
                                           'my_participation_1': my_calendar.pk,
-                                          'other_participants': '[%d, %s]' % (genma.id, akane.id),
+                                          'other_participants': '[{}, {}]'.format(genma.id, akane.id),
                                           'subjects':           self._relation_field_value(ranma, rest),
                                           'linked_entities':    self._relation_field_value(dojo_s),
                                           'type_selector':      self._acttype_field_value(type_id),
@@ -629,7 +629,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         alert1 = alerts[0]
         self.assertEqual(_('Alert of activity'), alert1.title)
-        self.assertEqual(_(u'Alert related to %s') % act, alert1.description)
+        self.assertEqual(_(u'Alert related to {activity}').format(activity=act), alert1.description)
         self.assertEqual(create_dt(2010, 2, 10, 10, 05), alert1.trigger_date)
 
         self.assertEqual(create_dt(2010, 1, 8, 0, 0), alerts[1].trigger_date)
@@ -1157,12 +1157,12 @@ class ActivityTestCase(_ActivitiesTestCase):
                      }
             )
         self.assertFormError(response, 'form', None,
-                             _(u"%(participant)s already participates to the activity «%(activity)s» between %(start)s and %(end)s.") % {
-                                    'participant': contact,
-                                    'activity':    task02,
-                                    'start':       '14:30:00',
-                                    'end':         '15:00:00',
-                                }
+                             _(u"{participant} already participates to the activity «{activity}» between {start} and {end}.").format(
+                                    participant=contact,
+                                    activity=task02,
+                                    start='14:30:00',
+                                    end='15:00:00',
+                                )
                             )
 
     def test_editview04(self):
@@ -2384,9 +2384,9 @@ class ActivityTestCase(_ActivitiesTestCase):
                       u'DTSTART:20130402T090000Z\n'
                       u'DTEND:20130402T100000Z\n'
                       u'LOCATION:\n'
-                      u'CATEGORIES:%s\n'
+                      u'CATEGORIES:{}\n'
                       u'STATUS:\n'
-                      u'END:VEVENT\n' %  act2.type.name,
+                      u'END:VEVENT\n'.format(act2.type.name),
                       content
                      )
         self.assertIn(u'SUMMARY:Act#1\n', content)

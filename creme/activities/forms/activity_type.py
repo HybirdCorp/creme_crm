@@ -197,10 +197,10 @@ class BulkEditTypeForm(BulkDefaultEditForm):
                 self.fields['beware'] = CharField(
                         label=_('Beware !'),
                         required=False, widget=Label,
-                        initial=ungettext(u'The type of %s activity cannot be changed because it is an indisponibility.',
-                                          u'The type of %s activities cannot be changed because they are indisponibilities.',
+                        initial=ungettext(u'The type of {count} activity cannot be changed because it is an indisponibility.',
+                                          u'The type of {count} activities cannot be changed because they are indisponibilities.',
                                           indispo_count
-                                         ) % indispo_count,
+                                         ).format(count=indispo_count),
                     )
 
         if not is_bulk:

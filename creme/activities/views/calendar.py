@@ -146,9 +146,11 @@ def user_calendar(request):
 
     for calendar in calendars:
         cal_user = calendar.user
-        filter_key = "%s %s %s" % (cal_user.username,
-                                   cal_user.first_name,
-                                   cal_user.last_name)
+        filter_key = '{} {} {}'.format(
+                            cal_user.username,
+                            cal_user.first_name,
+                            cal_user.last_name,
+                        )
         cal_user.filter_key = filter_key
         others_calendars[cal_user].append(calendar)
         creme_calendars_by_user[filter_key].append({'name': calendar.name,

@@ -85,22 +85,22 @@ class AbstractActivity(CremeEntity):
         from ..utils import get_ical_date
         return u"""BEGIN:VEVENT
 UID:http://cremecrm.com
-DTSTAMP:%(dtstamp)s
-SUMMARY:%(summary)s
-DTSTART:%(dtstart)s
-DTEND:%(dtend)s
-LOCATION:%(location)s
-CATEGORIES:%(categories)s
-STATUS:%(status)s
+DTSTAMP:{dtstamp}
+SUMMARY:{summary}
+DTSTART:{dtstart}
+DTEND:{dtend}
+LOCATION:{location}
+CATEGORIES:{categories}
+STATUS:{status}
 END:VEVENT
-""" % {'dtstamp':    get_ical_date(now()),
-       'summary':    self.title,
-       'dtstart':    get_ical_date(self.start),
-       'dtend':      get_ical_date(self.end),
-       'location':   '',
-       'categories': self.type.name,
-       'status':     '',
-       }
+""".format(dtstamp=get_ical_date(now()),
+           summary=self.title,
+           dtstart=get_ical_date(self.start),
+           dtend=get_ical_date(self.end),
+           location='',
+           categories=self.type.name,
+           status='',
+          )
 
     def get_title_for_calendar(self):
         return self.title
