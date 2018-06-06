@@ -85,7 +85,7 @@ class CSVPopulator(object):
                 self.info('Downloading database...')
                 input = urllib2.urlopen(url)
             else:
-                raise self.ProtocolError('Unable to open CSV data from %s : unsupported protocol.' % url)
+                raise self.ProtocolError('Unable to open CSV data from {} : unsupported protocol.'.format(url))
 
             if url_info.path.endswith('.zip'):
                 archive = ZipFile(StringIO(input.read()))
@@ -95,7 +95,7 @@ class CSVPopulator(object):
         except CSVPopulatorError as e:
             raise e
         except Exception as e:
-            raise self.ReadError('Unable to open CSV data from %s : %s' % (url, e))
+            raise self.ReadError('Unable to open CSV data from {} : {}'.format(url, e))
 
     def _mapper(self, header):
         columns = self.columns
@@ -116,7 +116,7 @@ class CSVPopulator(object):
                     missings.append(key)
 
         if missings:
-            raise self.ParseError("Following columns are missing and haven't got any default value : %s" % missings)
+            raise self.ParseError("Following columns are missing and haven't got any default value : {}".format(missings))
 
         def _aux(row):
             data = {key: row[index] or defaults.get(key) for key, index in indices}

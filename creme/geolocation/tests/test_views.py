@@ -17,7 +17,7 @@ try:
     from ..utils import address_as_dict
     from .base import GeoLocationBaseTestCase, Organisation, Contact
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 create_town = Town.objects.create

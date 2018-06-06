@@ -57,7 +57,7 @@ class _MapBrick(Brick):
             if efilters:
                 title = unicode(ct.model_class()._meta.verbose_name_plural)
                 choices.append((title,
-                                [(ef.id, u'%s - %s' % (title, ef.name)) for ef in efilters]
+                                [(ef.id, u'{} - {}'.format(title, ef.name)) for ef in efilters]
                                )
                               )
 
