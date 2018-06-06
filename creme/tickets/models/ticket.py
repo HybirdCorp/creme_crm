@@ -53,7 +53,7 @@ class TicketNumber(Model):
         app_label = 'tickets'
 
     def __repr__(self):
-        return 'TicketNumber(id=%s)' % self.id
+        return 'TicketNumber(id={})'.format(self.id)
 
 
 class TicketMixin(CremeEntity):
@@ -97,7 +97,7 @@ class AbstractTicket(TicketMixin):
         self.old_status_id = self.status_id
 
     def __unicode__(self):
-        return u'#%s - %s' % (self.number, self.title)
+        return u'#{} - {}'.format(self.number, self.title)
 
     def get_absolute_url(self):
         return reverse('tickets__view_ticket', args=(self.id,))
@@ -191,7 +191,7 @@ class AbstractTicketTemplate(TicketMixin):
 
         return get_ticket_model().objects\
                                  .create(user=self.user,
-                                         title=u'%s %s' % (
+                                         title=u'{} {}'.format(
                                                     self.title,
                                                     date_format(now_value.date(), 'DATE_FORMAT'),
                                                 ),  # TODO: use localtime() ?
