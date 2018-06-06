@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,4 +41,4 @@ def round_to_2(decimal_instance):
 def print_discount(entity, fval, user, field):
     # TODO: print 'None' only on detail views => we need this info in printers
 #    return _(u'%s %%') % fval if fval else pgettext('billing-discount', u'None')
-    return _(u'%s %%') % number_format(fval, use_l10n=True)
+    return _(u'{} %').format(number_format(fval, use_l10n=True))

@@ -23,7 +23,7 @@ try:
             skipIfCustomProductLine, skipIfCustomServiceLine,
             Invoice, ProductLine, ServiceLine)
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 @skipIfCustomOrganisation
@@ -317,7 +317,7 @@ class LineTestCase(_BillingTestCase):
         self.assertEqual(expected_total, invoice.total_vat)
 
         self.assertPOST200(reverse('creme_core__delete_entities'), follow=True,
-                           data={'ids': '%s,%s' % ids}
+                           data={'ids': '{},{}'.format(*ids)}
                           )
         self.assertFalse(ProductLine.objects.filter(pk__in=ids))
 
@@ -353,7 +353,7 @@ class LineTestCase(_BillingTestCase):
                    )
 
         self.assertPOST403(reverse('creme_core__delete_entities'), follow=True,
-                           data={'ids': '%s,%s' % ids}
+                           data={'ids': '{},{}'.format(*ids)}
                           )
         self.assertEqual(2, ProductLine.objects.filter(pk__in=ids).count())
 

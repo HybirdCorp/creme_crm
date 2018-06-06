@@ -36,10 +36,10 @@ class AbstractServiceLine(Line):
 
     def __unicode__(self):
         if self.on_the_fly_item:
-            return ugettext(u'On the fly service «%s»') % self.on_the_fly_item
+            return ugettext(u'On the fly service «{}»').format(self.on_the_fly_item)
 
         if self.id:
-            return ugettext(u'Related to service «%s»') % self.related_item
+            return ugettext(u'Related to service «{}»').format(self.related_item)
 
         return u'Unsaved service line'
 

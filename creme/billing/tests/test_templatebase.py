@@ -18,7 +18,7 @@ try:
             skipIfCustomInvoice, skipIfCustomQuote, skipIfCustomSalesOrder,
             Organisation, TemplateBase, Invoice, Quote, SalesOrder)
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 @skipIfCustomOrganisation

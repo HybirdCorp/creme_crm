@@ -84,8 +84,8 @@ class RelationTypeConverterRegistry(object):
         self._registry = defaultdict(dict)
 
     def generate_key(self, source, target):
-        return "%s__%s" % (getattr(source, '__name__', source.__class__.__name__),
-                           getattr(target, '__name__', target.__class__.__name__))
+        return '{}__{}'.format(getattr(source, '__name__', source.__class__.__name__),
+                               getattr(target, '__name__', target.__class__.__name__))
 
     def register(self, source_class, initial_relationtype, target_class, final_relationtype):
         key = self.generate_key(source_class, target_class)

@@ -36,10 +36,10 @@ class AbstractProductLine(Line):
 
     def __unicode__(self):
         if self.on_the_fly_item:
-            return ugettext(u'On the fly product «%s»') % self.on_the_fly_item
+            return ugettext(u'On the fly product «{}»').format(self.on_the_fly_item)
 
         if self.id:
-            return ugettext(u'Related to product «%s»') % self.related_item
+            return ugettext(u'Related to product «{}»').format(self.related_item)
 
         return u'Unsaved product line'
 
