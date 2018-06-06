@@ -64,7 +64,7 @@ get_none = lambda x: None
 
 
 def get_element_template(element_type, template_name):
-    return "crudity/infopath/create_template/frags/%s/element/%s" % (element_type, template_name)
+    return 'crudity/infopath/create_template/frags/{}/element/{}'.format(element_type, template_name)
 
 # TODO: use functools.partial
 # TODO: use ClassKeyedMap
@@ -106,7 +106,8 @@ _ELEMENT_TEMPLATE = {
     doc_fields.ImageEntityManyToManyField: lambda element_type: get_element_template(element_type, "m2m_field.xml"),
 }
 
-XSL_VIEW_FIELDS_TEMPLATES_PATH = "crudity/infopath/create_template/frags/xsl/view/%s.xml"
+# XSL_VIEW_FIELDS_TEMPLATES_PATH = "crudity/infopath/create_template/frags/xsl/view/%s.xml"
+XSL_VIEW_FIELDS_TEMPLATES_PATH = 'crudity/infopath/create_template/frags/xsl/view/{}.xml'
 _TEMPLATE_NILLABLE_TYPES = (  # Types which could be nil="true" in template.xml
     models.DecimalField,
     models.IntegerField,
@@ -203,7 +204,8 @@ class InfopathFormField(object):
         return render_to_string(template_name, tpl_dict, request=self.request) if template_name is not None else None
 
     def get_view_element(self):
-        template_name = XSL_VIEW_FIELDS_TEMPLATES_PATH % self.model_field.get_internal_type()
+        # template_name = XSL_VIEW_FIELDS_TEMPLATES_PATH % self.model_field.get_internal_type()
+        template_name = XSL_VIEW_FIELDS_TEMPLATES_PATH.format(self.model_field.get_internal_type())
         try:
             return render_to_string(template_name,
                                     {'field': self,
@@ -212,7 +214,7 @@ class InfopathFormField(object):
                                     request=self.request,
                                    )
         except TemplateDoesNotExist:
-            return ""
+            return ''
 
     def _get_choices(self):
         choices = []
@@ -248,7 +250,7 @@ class InfopathFormField(object):
         return isinstance(self.model_field, models.BooleanField)
 
     def get_m2m_xsl_choices_str(self):
-        return " and ".join('.!="%s"' % c[0] for c in self._get_choices())
+        return ' and '.join('.!="{}"'.format(c[0]) for c in self._get_choices())
 
 
 class InfopathFormBuilder(object):
@@ -262,11 +264,11 @@ class InfopathFormBuilder(object):
         self._fields   = None
 
     def get_namespace(self):
-        return "http://schemas.microsoft.com/office/infopath/2003/myXSD/%s" % self.now.strftime('%Y-%m-%dT%H:%M:%S')
+        return 'http://schemas.microsoft.com/office/infopath/2003/myXSD/{}'.format(self.now.strftime('%Y-%m-%dT%H:%M:%S'))
 
     def get_urn(self):
-        # TODO:Change 'create' ? Make a constant ?
-        return 'urn:schemas-microsoft-com:office:infopath:%s-%s:-myXSD-%s' % (
+        # TODO: change 'create' ? Make a constant ?
+        return 'urn:schemas-microsoft-com:office:infopath:{}-{}:-myXSD-{}'.format(
                     'create',
                     self.backend.subject.lower(),
                     self.now.strftime('%Y-%m-%dT%H:%M:%S'),
@@ -329,11 +331,11 @@ class InfopathFormBuilder(object):
                     f.write(content.encode('utf8'))
 
             final_files_paths = (path_join(backend_path, cab_file) for cab_file in chain(cab_files.iterkeys(), media_files))
-            infopath_form_filepath = path_join(backend_path, "%s.xsn" % self.backend.subject)
+            infopath_form_filepath = path_join(backend_path, '{}.xsn'.format(self.backend.subject))
 
             if sys.platform.startswith('win'):
-                ddf_file_content = render_to_string("crudity/infopath/create_template/create_cab.ddf",
-                                                    {'file_name': "%s.xsn" % self.backend.subject,
+                ddf_file_content = render_to_string('crudity/infopath/create_template/create_cab.ddf',
+                                                    {'file_name': '{}.xsn'.format(self.backend.subject),
                                                      'backend_path':backend_path,
                                                     },
                                                     request=request,
@@ -368,12 +370,13 @@ class InfopathFormBuilder(object):
                 shutil.rmtree(backend_path)
 
     def render(self):
-        response =  HttpResponse(self._render(), content_type="application/vnd.ms-infopath")
+        response = HttpResponse(self._render(), content_type="application/vnd.ms-infopath")
         # TODO: use secure_filename() ?
-        response['Content-Disposition'] = 'attachment; filename=%s.xsn' % \
+        response['Content-Disposition'] = 'attachment; filename={}.xsn'.format(
             normalize('NFKD',
                       unicode(CrudityBackend.normalize_subject(self.backend.subject))
                      ).encode('ascii', 'ignore')
+        )
 
         return response
 
@@ -421,7 +424,7 @@ class InfopathFormBuilder(object):
         return render_to_string("crudity/infopath/create_template/view1.xsl",
                                 {'creme_namespace': self.namespace,
                                  'fields':          self.fields,
-                                 'form_title':      u"%s %s" % (_(u"Create"), backend.model._meta.verbose_name),
+                                 'form_title':      u'{} {}'.format(_(u'Create'), backend.model._meta.verbose_name),
                                 },
                                 request=request,
                                )

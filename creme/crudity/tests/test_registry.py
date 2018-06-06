@@ -8,7 +8,7 @@ try:
     from .fake_crudity_register import (FakeContact, FakeOrganisation, FakeDocument,
             FakeContactBackend, FakeOrganisationBackend, FakeDocumentBackend)
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class CrudityRegistryTestCase(CrudityTestCase):

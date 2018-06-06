@@ -155,7 +155,9 @@ class CreateEmailInput(EmailInput):
             )
         else:
             self._pre_create(backend, data)
-            is_created, instance = backend._create_instance_n_history(data, user=owner, source='email - %s' % self.name)
+            is_created, instance = backend._create_instance_n_history(data, user=owner,
+                                                                      source='email - {}'.format(self.name),
+                                                                     )
             self._post_create(backend, data, instance)
 
         return backend

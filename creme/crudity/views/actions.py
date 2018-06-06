@@ -116,7 +116,7 @@ def validate(request):
             else:
                 raise ValueError('Malformed source')
         except (KeyError, ValueError) as e:
-            raise Http404('Invalid backend for WaitingAction(id=%s, source=%s): %s' % (
+            raise Http404('Invalid backend for WaitingAction(id={}, source={}): {}'.format(
                                 action.id, action.source, e,
                             )
                          )

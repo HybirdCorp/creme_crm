@@ -64,6 +64,6 @@ class WaitingAction(CremeModel):
     def can_validate_or_delete(self, user):
         """self.user not None means that sandbox is by user"""
         if self.user is not None and self.user != user and not user.is_superuser:
-            return False, ugettext(u'You are not allowed to validate/delete the waiting action <%s>') % self.id
+            return False, ugettext(u'You are not allowed to validate/delete the waiting action <{}>').format(self.id)
 
         return True, ugettext(u'OK')

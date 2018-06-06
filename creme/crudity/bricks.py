@@ -35,7 +35,7 @@ class CrudityQuerysetBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         if not context['user'].has_perm('crudity'):
-            raise PermissionDenied(ugettext(u'Error: you are not allowed to view this block: %s' % self.id_))
+            raise PermissionDenied(ugettext(u'Error: you are not allowed to view this block: {}'.format(self.id_)))
 
     # TODO: staticmethod
     @property
@@ -99,7 +99,7 @@ class CrudityHistoryBrick(CrudityQuerysetBrick):
         self.id_ = self.generate_id()
 
     def generate_id(self):
-        return 'block_crudity-%s' % self.ct.id
+        return 'block_crudity-{}'.format(self.ct.id)
 
     def detailview_display(self, context):
         # Credentials are OK: block is not registered in block registry,

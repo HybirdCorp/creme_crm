@@ -19,8 +19,8 @@ class SwallowFetcher(CrudityFetcher):
 
     def fetch(self, *args, **kwargs):
         return [Swallow('create contact',
-                        'user_id=%s\n'
-                        'last_name=%s' % (
+                        'user_id={}\n'
+                        'last_name={}'.format(
                                 self.user_id,
                                 self.last_name,
                             )

@@ -33,6 +33,6 @@ def truncate(word, truncate_at):
     truncated = word[:truncate_at]
 
     if len(words.split()) == 1 and not len(truncated) == len(word):
-        words = u"%s..." % truncated
+        words = u'{}...'.format(truncated)
 
     return words
