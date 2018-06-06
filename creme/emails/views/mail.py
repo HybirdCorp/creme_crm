@@ -139,10 +139,10 @@ def abstract_create_from_template_n_send(request, entity_id,
 
     return generic.inner_popup(request, template,
                                {'form':   form,
-                                'title':  ugettext(u'Sending an email to «%(entity)s» (step %(step)s/2)') % {
-                                                'entity': entity,
-                                                'step':   step,
-                                            },
+                                'title':  ugettext(u'Sending an email to «{entity}» (step {step}/2)').format(
+                                                entity=entity,
+                                                step=step,
+                                            ),
                                 'submit_label': submit_label,
                                },
                                is_valid=form.is_valid(),

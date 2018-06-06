@@ -33,7 +33,7 @@ try:
     MailingList   = get_mailinglist_model()
     EmailTemplate = get_emailtemplate_model()
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 Folder   = get_folder_model()

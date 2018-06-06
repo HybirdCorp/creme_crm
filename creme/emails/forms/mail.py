@@ -80,15 +80,15 @@ class EntityEmailForm(CremeEntityForm):
         self.entity = entity
 
         if isinstance(entity, (Contact, Organisation)):
-            fn, msg = ('c_recipients', _(u'Beware: the contact «%s» has no email address!')) \
+            fn, msg = ('c_recipients', _(u'Beware: the contact «{}» has no email address!')) \
                       if isinstance(entity, Contact) else \
-                      ('o_recipients', _(u'Beware: the organisation «%s» has no email address!'))
+                      ('o_recipients', _(u'Beware: the organisation «{}» has no email address!'))
             field = self.fields[fn]
 
             if entity.email:
                 field.initial = [entity.pk]
             else:
-                field.help_text = msg % entity
+                field.help_text = msg.format(entity)
 
         self.user_contact = contact = self.user.linked_contact
 
@@ -122,11 +122,11 @@ class EntityEmailForm(CremeEntityForm):
                 bad_entities.append(entity)
 
         if bad_entities:
-            msg_format = ugettext(u'The email address for %s is invalid')
+            msg_format = ugettext(u'The email address for {} is invalid')
             user = self.user
 
             for entity in bad_entities:
-                self.add_error(field_name, msg_format % entity.allowed_unicode(user))
+                self.add_error(field_name, msg_format.format(entity.allowed_unicode(user)))
 
         return recipients
 
