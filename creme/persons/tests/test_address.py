@@ -15,7 +15,7 @@ try:
             Address, Organisation, Contact)
     from ..bricks import PrettyOtherAddressesBrick
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 @skipIfCustomAddress

@@ -111,17 +111,17 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
         civ = self.civility
 
         if civ and civ.shortcut:
-            return ugettext(u'%(civility)s %(first_name)s %(last_name)s') % {
-                        'civility':   civ.shortcut,
-                        'first_name': self.first_name,
-                        'last_name':  self.last_name,
-                    }
+            return ugettext(u'{civility} {first_name} {last_name}').format(
+                        civility=civ.shortcut,
+                        first_name=self.first_name,
+                        last_name=self.last_name,
+            )
 
         if self.first_name:
-            return ugettext(u'%(first_name)s %(last_name)s') % {
-                            'first_name': self.first_name,
-                            'last_name':  self.last_name,
-                        }
+            return ugettext(u'{first_name} {last_name}').format(
+                            first_name=self.first_name,
+                            last_name=self.last_name,
+            )
 
         return self.last_name or ''
 

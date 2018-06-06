@@ -883,10 +883,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         contacts, err_msg = ext.extract_value([first_name, last_name], user)
         self.assertEqual((), contacts)
         self.assertEqual(tuple([_(u'The participant «{}» is unfoundable').format(
-                                        _('%(first_name)s %(last_name)s') % {
-                                            'first_name': first_name,
-                                            'last_name':  last_name,
-                                        },
+                                        _('{first_name} {last_name}').format(
+                                            first_name=first_name,
+                                            last_name=last_name,
+                                        ),
                                     ),
                          ]),
                          err_msg

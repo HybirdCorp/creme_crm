@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-29 12:31+0200\n"
+"POT-Creation-Date: 2018-06-05 12:21+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -126,7 +126,7 @@ msgstr "Adresse de facturation"
 msgid "Shipping address"
 msgstr "Adresse de livraison"
 
-#: forms/contact.py:40 populate.py:339
+#: forms/contact.py:40 populate.py:312
 msgid "Contact details"
 msgstr "Coordonnées du contact"
 
@@ -312,14 +312,14 @@ msgid "Contacts"
 msgstr "Contacts"
 
 #: models/contact.py:114 templatetags/persons_tags.py:78
-#, python-format
-msgid "%(civility)s %(first_name)s %(last_name)s"
-msgstr "%(civility)s %(first_name)s %(last_name)s"
+#, python-brace-format
+msgid "{civility} {first_name} {last_name}"
+msgstr "{civility} {first_name} {last_name}"
 
 #: models/contact.py:121 templatetags/persons_tags.py:85
-#, python-format
-msgid "%(first_name)s %(last_name)s"
-msgstr "%(first_name)s %(last_name)s"
+#, python-brace-format
+msgid "{first_name} {last_name}"
+msgstr "{first_name} {last_name}"
 
 #: models/contact.py:130
 msgid "A user is associated with this contact."
@@ -333,7 +333,7 @@ msgstr "Ce Contact est lié à un utilisateur et doit avoir un prénom."
 msgid "This Contact is related to a user and must have an e-mail address."
 msgstr "Ce Contact est lié à un utilisateur et doit avoir une adresse e-mail."
 
-#: models/contact.py:190 populate.py:154
+#: models/contact.py:190 populate.py:149
 msgid "N/A"
 msgstr "NC"
 
@@ -589,90 +589,90 @@ msgstr "Vue de Société"
 msgid "Prospect/Suspect view"
 msgstr "Vue Prospect/Suspect"
 
-#: populate.py:151
+#: populate.py:146
 msgid "Madam"
 msgstr "Madame"
 
-#: populate.py:151
+#: populate.py:146
 msgid "Mrs."
 msgstr "Mme"
 
-#: populate.py:152
+#: populate.py:147
 msgid "Miss"
 msgstr "Mademoiselle"
 
-#: populate.py:152
+#: populate.py:147
 msgid "Ms."
 msgstr "Mlle"
 
-#: populate.py:153
+#: populate.py:148
 msgid "Mister"
 msgstr "Monsieur"
 
-#: populate.py:153
+#: populate.py:148
 msgid "Mr."
 msgstr "Mr"
 
-#: populate.py:160
+#: populate.py:155
 msgid "ReplaceByYourSociety"
 msgstr "RemplacezParVotreSociété"
 
-#: populate.py:169
+#: populate.py:160
 msgid "CEO"
 msgstr "PDG"
 
-#: populate.py:170
+#: populate.py:161
 msgid "Secretary"
 msgstr "Secrétaire"
 
-#: populate.py:171
+#: populate.py:162
 msgid "Technician"
 msgstr "Technicien"
 
-#: populate.py:180
+#: populate.py:165
 msgid "Food Industry"
 msgstr "Agro-Alimentaire"
 
-#: populate.py:181
+#: populate.py:166
 msgid "Industry"
 msgstr "Industrie"
 
-#: populate.py:182
+#: populate.py:167
 msgid "Software"
 msgstr "Logiciel"
 
-#: populate.py:183
+#: populate.py:168
 msgid "Telecom"
 msgstr "Télécom"
 
-#: populate.py:184
+#: populate.py:169
 msgid "Restoration"
 msgstr "Restauration"
 
-#: populate.py:237
+#: populate.py:210
 msgid "Organisation information"
 msgstr "Informations sur la société"
 
-#: populate.py:265
+#: populate.py:238
 msgid "Organisation details"
 msgstr "Coordonnées de la société"
 
-#: populate.py:275
+#: populate.py:248
 msgid "Organisation complementary information"
 msgstr "Informations complémentaires sur la société"
 
-#: populate.py:318
+#: populate.py:291
 msgid "Contact information"
 msgstr "Informations sur le contact"
 
-#: populate.py:351
+#: populate.py:324
 msgid "Contact complementary information"
 msgstr "Informations complémentaires sur le contact"
 
 #: statistics.py:38
-#, python-format
-msgid "For %(name)s: %(customers_count)s"
-msgstr "Pour %(name)s : %(customers_count)s"
+#, python-brace-format
+msgid "For {name}: {customers_count}"
+msgstr "Pour {name} : {customers_count}"
 
 #: templates/persons/bricks/base/addresses.html:13
 msgid "Create a billing address"

@@ -1027,11 +1027,11 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(_(u'Shipping address'), shipping_address.name)
         self.assertEqual(city2,                 shipping_address.city)
 
-        self.assertEqual([ungettext(u'{count} «{type}» has been created.',
-                                    u'{count} «{type}» have been created.',
+        self.assertEqual([ungettext(u'{count} «{model}» has been created.',
+                                    u'{count} «{model}» have been created.',
                                     lines_count
                                    ).format(count=lines_count,
-                                            type=_(u'Organisations'),
+                                            model=_(u'Organisations'),
                                            ),
                           ungettext(u'{count} line in the file.',
                                     u'{count} lines in the file.',
@@ -1164,7 +1164,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         url = reverse('persons__orga_set_managed')
         self.assertGET200(url)
 
-        response = self.client.post(url, data={'organisations': '[%s,%s]' % (orga1.id, orga2.id)})
+        response = self.client.post(url, data={'organisations': '[{},{}]'.format(orga1.id, orga2.id)})
         self.assertNoFormError(response)
 
         self.assertTrue(self.refresh(orga1).is_managed)
@@ -1172,7 +1172,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertFalse(self.refresh(orga3).is_managed)
 
         # Managed Organisations are excluded
-        response = self.assertPOST200(url, data={'organisations': '[%s]' % orga1.id})
+        response = self.assertPOST200(url, data={'organisations': '[{}]'.format(orga1.id)})
         self.assertFormError(response, 'form', 'organisations', _(u'This entity does not exist.'))
 
     def test_set_orga_as_not_managed(self):
