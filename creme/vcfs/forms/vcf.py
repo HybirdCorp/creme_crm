@@ -367,7 +367,7 @@ class VcfImportForm(CremeModelWithUserForm):
         if not help_text:
             field.help_text = self.type_help_text + value
         else:
-            field.help_text = '%s | %s' % (help_text, value)
+            field.help_text = '{} | {}'.format(help_text, value)
 
     def _clean_orga_field(self, field_name):
         cleaned_data = self.cleaned_data
@@ -458,8 +458,7 @@ class VcfImportForm(CremeModelWithUserForm):
         image_encoded = cleaned_data['image_encoded']
 
         if image_encoded:
-            img_name = secure_filename(u'%s_%s_%s' % (contact.last_name, contact.first_name, contact.id))
-            # img_path = ''
+            img_name = secure_filename(u'{}_{}_{}'.format(contact.last_name, contact.first_name, contact.id))
             img_path = None
 
             if image_encoded.startswith(URL_START):
@@ -480,27 +479,18 @@ class VcfImportForm(CremeModelWithUserForm):
                     img_data = base64.decodestring(image_encoded)
                     img_path = handle_uploaded_file(ContentFile(img_data),
                                                     path=IMG_UPLOAD_PATH.split('/'),
-                                                    name='%s.%s' % (img_name,
-                                                                    get_image_format(img_data),
-                                                                   ),
+                                                    name='{}.{}'.format(img_name,
+                                                                        get_image_format(img_data),
+                                                                       ),
                                                    )
                 except Exception:
                     logger.exception('VcfImportForm.save()')
-                    # img_path = ''
 
             if img_path:
-                user = cleaned_data['user']
                 return Document.objects.create(
-                    user=user,
-                    title=ugettext(u'Image of %s') % contact,
+                    user=cleaned_data['user'],
+                    title=ugettext(u'Image of {contact}').format(contact=contact),
                     filedata=img_path,
-                    # folder=Folder.objects.get_or_create(title=ugettext('Images'),
-                    #                                    parent_folder=None,
-                    #                                    defaults={
-                    #                                        'user': user,
-                    #                                    },
-                    #                                   )[0],
-                    # folder=Folder.objects.get(uuid=UUID_FOLDER_IMAGES),
                     linked_folder=Folder.objects.get(uuid=UUID_FOLDER_IMAGES),
                     description=ugettext(u'Imported by VCFs'),
                 )

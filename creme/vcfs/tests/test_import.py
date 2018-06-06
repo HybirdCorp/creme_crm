@@ -24,7 +24,7 @@ try:
     from ..vcf_lib import readOne as read_vcf
     from ..vcf_lib.base import ContentLine
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 # TODO: factorise ?
@@ -111,33 +111,33 @@ class VcfImportTestCase(CremeTestCase):
         region = 'Kanto'
         code = '42'
         country = 'Japan'
-        content  = u"""BEGIN:VCARD
-N:%(last_name)s;%(first_name)s;;%(civility)s;
-TITLE:%(position)s
+        content = u"""BEGIN:VCARD
+N:{last_name};{first_name};;{civility};
+TITLE:{position}
 BDAY;value=date:02-10
-ADR;TYPE=HOME:%(box)s;;%(street)s;%(city)s;%(region)s;%(code)s;%(country)s
-TEL;TYPE=HOME:%(phone)s
-TEL;TYPE=CELL:%(mobile)s
-TEL;TYPE=FAX:%(fax)s
-EMAIL;TYPE=HOME:%(email)s
-URL;TYPE=HOME:%(site)s
-END:VCARD""" % {'last_name':  last_name,
-                'first_name': first_name,
-                'civility':   civility,
-                'position':   position,
-                'phone':      phone,
-                'mobile':     mobile,
-                'fax':        fax,
-                'email':      email,
-                'site':       site,
+ADR;TYPE=HOME:{box};;{street};{city};{region};{code};{country}
+TEL;TYPE=HOME:{phone}
+TEL;TYPE=CELL:{mobile}
+TEL;TYPE=FAX:{fax}
+EMAIL;TYPE=HOME:{email}
+URL;TYPE=HOME:{site}
+END:VCARD""".format(last_name=last_name,
+                    first_name=first_name,
+                    civility=civility,
+                    position=position,
+                    phone=phone,
+                    mobile=mobile,
+                    fax=fax,
+                    email=email,
+                    site=site,
 
-                'box':     box,
-                'street':  street,
-                'city':    city,
-                'region':  region,
-                'code':    code,
-                'country': country,
-               }
+                    box=box,
+                    street=street,
+                    city=city,
+                    region=region,
+                    code=code,
+                    country=country,
+                   )
         response = self._post_step0(content)
 
         with self.assertNoException():
@@ -182,7 +182,7 @@ END:VCARD""" % {'last_name':  last_name,
 
         self.assertEqual(street, adr_value.street)
         self.assertEqual(box,    adr_value.box)
-        self.assertEqual(fields['homeaddr_address'].initial, '%s %s' %(box, street))
+        self.assertEqual(fields['homeaddr_address'].initial, '{} {}'.format(box, street))
 
         self.assertEqual(city, adr_value.city)
         self.assertEqual(city, fields['homeaddr_city'].initial)
@@ -211,23 +211,23 @@ END:VCARD""" % {'last_name':  last_name,
         country = 'Zipangu'
         content = u"""BEGIN:VCARD
 FN:Evangéline McDowell
-ORG:%(name)s
-ADR;TYPE=WORK:%(box)s;;%(street)s;%(city)s;%(region)s;%(code)s;%(country)s
-TEL;TYPE=WORK:%(phone)s
-EMAIL;TYPE=WORK:%(email)s
-URL;TYPE=WORK:%(site)s
-END:VCARD""" % {'name':  name,
-                'phone': phone,
-                'email': email,
-                'site':  site,
+ORG:{name}
+ADR;TYPE=WORK:{box};;{street};{city};{region};{code};{country}
+TEL;TYPE=WORK:{phone}
+EMAIL;TYPE=WORK:{email}
+URL;TYPE=WORK:{site}
+END:VCARD""".format(name=name,
+                    phone=phone,
+                    email=email,
+                    site=site,
 
-                'box':     box,
-                'street':  street,
-                'city':    city,
-                'region':  region,
-                'code':    code,
-                'country': country,
-               }
+                    box=box,
+                    street=street,
+                    city=city,
+                    region=region,
+                    code=code,
+                    country=country,
+                   )
         response = self._post_step0(content)
 
         with self.assertNoException():
@@ -252,7 +252,7 @@ END:VCARD""" % {'name':  name,
         adr = vobj.adr.value
         self.assertEqual(box,    adr.box)
         self.assertEqual(street, adr.street)
-        self.assertEqual(fields['workaddr_address'].initial,  '%s %s' % (box, street))
+        self.assertEqual(fields['workaddr_address'].initial,  '{} {}'.format(box, street))
 
         self.assertEqual(city, adr.city)
         self.assertEqual(city, fields['workaddr_city'].initial)
@@ -278,19 +278,19 @@ END:VCARD""" % {'name':  name,
         country = 'Japan'
         content = u"""begin:vcard
 fn:Misora Kasoga
-adr:%(box)s;;%(street)s;%(city)s;%(region)s;%(code)s;%(country)s
+adr:{box};;{street};{city};{region};{code};{country}
 tel:00 00 00 00 00
 email:email@email.com
 x-mozilla-html:FALSE
 url:www.url.com
 version:2.1
-end:vcard""" % {'box':     box,
-                'street':  street,
-                'city':    city,
-                'region':  region,
-                'code':    code,
-                'country': country
-               }
+end:vcard""".format(box=box,
+                    street=street,
+                    city=city,
+                    region=region,
+                    code=code,
+                    country=country,
+                   )
         response = self._post_step0(content)
 
         with self.assertNoException():
@@ -325,12 +325,12 @@ end:vcard""" % {'box':     box,
         orga = Organisation.objects.create(user=user, name=name)
         content = u"""BEGIN:VCARD
 N:Konoe Konoka
-ORG:%(name)s
+ORG:{name}
 ADR;TYPE=WORK:56;;Second street;Kyoto;Kyoto region;7777;Japan
 TEL;TYPE=WORK:11 11 11 11 11
 EMAIL;TYPE=WORK:email@email.com
 URL;TYPE=WORK:www.web-site.com
-END:VCARD""" % {'name': name}
+END:VCARD""".format(name=name)
         response = self._post_step0(content)
 
         with self.assertNoException():
@@ -344,19 +344,19 @@ END:VCARD""" % {'name': name}
 
         first_name = u'Fûka'
         last_name = 'Naritaki'
-        content  = r"""BEGIN:VCARD
+        content = ur"""BEGIN:VCARD
 VERSION:3.0
-FN:%(long_name)s
-N:%(last_name)s;%(first_name)s
+FN:{long_name}
+N:{last_name};{first_name}
 NICKNAME:The twins
 ACCOUNT;type=HOME:123-145789-10
 ADR;type=HOME:;;Main Street 256\;\n1rst floor\, Pink door;Mahora;;598;Japan
 ORG:University of Mahora\, Department of
   Robotics
-END:VCARD""" % {'first_name': first_name,
-                'last_name':  last_name,
-                'long_name':  first_name + last_name + ' (& Fumika)',
-               }
+END:VCARD""".format(first_name=first_name,
+                    last_name=last_name,
+                    long_name=first_name + last_name + ' (& Fumika)',
+                   )
         self._post_step0(content)
 
         vobj = read_vcf(content)
@@ -599,8 +599,8 @@ EMAIL;TYPE=HOME:email@email.com
 EMAIL;TYPE=WORK:work@work2.com
 URL;TYPE=HOME:www.url2.com
 URL;TYPE=WORK:www.work2.com
-ORG:%s
-END:VCARD""" % orga.name
+ORG:{}
+END:VCARD""".format(orga.name)
         fields = self._post_step0(content).context['form'].fields
         first_name = fields['first_name'].initial
         last_name  = fields['last_name'].initial
@@ -802,20 +802,22 @@ END:VCARD"""
                                            email='corp@corp.com', url_site='www.corp.com',
                                           )
 
-        orga_info = {
-            'name':     'New amazing name',
-            'phone':    '11 11 11 11',
-            'email':    'work@work.com',
-            'url_site': 'www.work.com',
-        }
+        name     = 'New amazing name'
+        phone    = '11 11 11 11'
+        email    = 'work@work.com'
+        url_site = 'www.work.com'
         content = """BEGIN:VCARD
 FN:Setsuna Sakurazaki
 ADR;TYPE=WORK:99;;Tree place;Mahora;Kanto;42;Japan
-TEL;TYPE=WORK:%(phone)s
-EMAIL;TYPE=WORK:%(email)s
-URL;TYPE=WORK:%(url_site)s
-ORG:%(name)s
-END:VCARD""" % orga_info
+TEL;TYPE=WORK:{phone}
+EMAIL;TYPE=WORK:{email}
+URL;TYPE=WORK:{url_site}
+ORG:{name}
+END:VCARD""".format(name=name,
+                    phone=phone,
+                    email=email,
+                    url_site=url_site,
+                   )
 
         fields = self._post_step0(content).context['form'].fields
         data = {'user':       fields['user'].initial,
@@ -863,10 +865,10 @@ END:VCARD""" % orga_info
 
         self._post_step1(data=data)
         orga = self.refresh(orga)
-        self.assertEqual(orga_info['name'],  orga.name)
-        self.assertEqual(orga_info['phone'], orga.phone)
-        self.assertEqual(orga_info['email'], orga.email)
-        self.assertEqual('http://' + orga_info['url_site'], orga.url_site)
+        self.assertEqual(name,                 orga.name)
+        self.assertEqual(phone,                orga.phone)
+        self.assertEqual(email,                orga.email)
+        self.assertEqual('http://' + url_site, orga.url_site)
 
     @skipIfCustomContact
     def test_add_contact_vcf08(self):
@@ -931,8 +933,8 @@ END:VCARD"""
                                    )
         content = u"""BEGIN:VCARD
 FN:Akira Ookôchi
-ORG:%s
-END:VCARD""" % name
+ORG:{name}
+END:VCARD""".format(name=name)
         fields = self._post_step0(content).context['form'].fields
         response = self._post_step1(errors=True,
                                     data={'user':       fields['user'].initial,
@@ -987,8 +989,8 @@ ADR;TYPE=WORK:99;;Tree place;Mahora;Kanto;42;Japan
 TEL;TYPE=WORK:11 11 11 11 11
 EMAIL;TYPE=WORK:work@work.com
 URL;TYPE=WORK:www.work.com
-ORG:%s
-END:VCARD""" % name
+ORG:{name}
+END:VCARD""".format(name=name)
         fields = self._post_step0(content).context['form'].fields
         self._post_step1(data={'user':       fields['user'].initial,
                                'first_name': fields['first_name'].initial,
@@ -1054,11 +1056,11 @@ END:VCARD""" % name
         orga_count    = Organisation.objects.count()
         address_count = Address.objects.count()
 
-        content  = """BEGIN:VCARD
+        content = """BEGIN:VCARD
 FN:Chizuru NABA
 ADR;TYPE=WORK:99;;Tree place;Mahora;Kanto;42;Japan
-ORG:%s
-END:VCARD""" % name
+ORG:{name}
+END:VCARD""".format(name=name)
         fields = self._post_step0(content).context['form'].fields
         orga_id       = fields['organisation'].initial
         work_adr_name = fields['workaddr_name'].initial
@@ -1166,7 +1168,6 @@ PHOTO:""" \
                         )
 
         self.assertEqual(contact_count + 1, Contact.objects.count())
-        # self.assertEqual(image_count,       Image.objects.count())
         self.assertEqual(image_count,       Document.objects.count())
         self.assertEqual(orga_count,        Organisation.objects.count())
         self.assertEqual(address_count,     Address.objects.count())
@@ -1182,12 +1183,12 @@ PHOTO:""" \
         contact_count = Contact.objects.count()
         first_name = 'Negi'
         last_name  = 'Springfield'
-        content = 'BEGIN:VCARD\nN;ENCODING=8BIT:%(last_name)s;%(first_name)s;;%(civility)s;\nTITLE:%(position)s\nEND:VCARD' % {
-                            'first_name': first_name,
-                            'last_name':  last_name,
-                            'civility':   _('Mr.'),
-                            'position':   _('CEO'),
-                        }
+        content = 'BEGIN:VCARD\nN;ENCODING=8BIT:{last_name};{first_name};;{civility};\nTITLE:{position}\nEND:VCARD'.format(
+                      first_name=first_name,
+                      last_name=last_name,
+                      civility=_('Mr.'),
+                      position=_('CEO'),
+                    )
         response = self._post_step0(content)
 
         with self.assertNoException():
@@ -1271,7 +1272,7 @@ PHOTO;TYPE=JPEG:""" \
 
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertTrue(contact.image)
-        self.assertEqual(_(u'Image of %s') % contact, contact.image.title)
+        self.assertEqual(_(u'Image of {contact}').format(contact=contact), contact.image.title)
         # contact.image.filedata.delete()
 
     @skipIfCustomContact
@@ -1289,8 +1290,8 @@ PHOTO;TYPE=JPEG:""" \
 
         content  = """BEGIN:VCARD
 FN:Ayaka YUKIHIRO
-PHOTO;VALUE=URL:%s
-END:VCARD""" % path
+PHOTO;VALUE=URL:{path}
+END:VCARD""".format(path=path)
         fields = self._post_step0(content).context['form'].fields
         first_name = fields['first_name'].initial
         last_name  = fields['last_name'].initial
@@ -1310,8 +1311,7 @@ END:VCARD""" % path
 
         image = images[0]
         self.assertEqual(image, contact.image)
-        self.assertEqual(_(u'Image of %s') % contact, image.title)
-        # image.delete()
+        self.assertEqual(_(u'Image of {contact}').format(contact=contact), image.title)
 
     @skipIfCustomContact
     def test_add_contact_vcf16(self):
@@ -1350,8 +1350,8 @@ END:VCARD"""
         image_count   = Document.objects.count()
         content = """BEGIN:VCARD
 FN:Satomi HAKASE
-PHOTO;VALUE=URL:file:///%s
-END:VCARD""" % os_path.normpath(img_path)
+PHOTO;VALUE=URL:file:///{path}
+END:VCARD""".format(path=os_path.normpath(img_path))
         fields = self._post_step0(content).context['form'].fields
         self._post_step1(data={'user':          fields['user'].initial,
                                'first_name':    fields['first_name'].initial,

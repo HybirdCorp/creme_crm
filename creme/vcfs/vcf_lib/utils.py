@@ -24,7 +24,7 @@ def stringToTextValues(s, listSeparator=',', charList=None, strict=False):
             logger.error(msg)
             #print msg
 
-    #vars which control state machine
+    # vars which control state machine
     charIterator = enumerate(s)
     state        = "read normal"
 
@@ -75,4 +75,4 @@ def stringToTextValues(s, listSeparator=',', charList=None, strict=False):
 
         else:
             state = "error"
-            error("error: unknown state: '%s' reached in %s" % (state, s))
+            error("error: unknown state: '{}' reached in {}".format(state, s))

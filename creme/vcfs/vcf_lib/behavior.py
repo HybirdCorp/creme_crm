@@ -4,6 +4,7 @@
 
 from .base import ContentLine, Component, defaultSerialize, VObjectError, ValidateError, NativeError
 
+
 class Behavior(object):
     """Abstract class to describe vobject options, requirements and encodings.
 
@@ -89,17 +90,19 @@ class Behavior(object):
             for key, val in cls.knownChildren.iteritems():
                 if count.get(key, 0) < val[0]: 
                     if raiseException:
-                        m = "%s components must contain at least %i %s"
-                        raise ValidateError(m % (cls.name, val[0], key))
+                        raise ValidateError('{} components must contain at least {} {}'.format(
+                                                    cls.name, val[0], key
+                                                )
+                                           )
 
                     return False
 
                 if val[1] and count.get(key, 0) > val[1]:
                     if raiseException:
-                        raise ValidateError("%s components cannot contain more than %i %s" % (
-                                                        cls.name, val[1], key
-                                                    )
+                        raise ValidateError('{} components cannot contain more than {} {}'.format(
+                                                    cls.name, val[1], key
                                                 )
+                                           )
 
                     return False
 
@@ -165,8 +168,3 @@ class Behavior(object):
             obj.transformToNative()
 
         return out
-
-    #@classmethod
-    #def valueRepr(cls, line):
-        #"""return the representation of the given content line value"""
-        #return line.value

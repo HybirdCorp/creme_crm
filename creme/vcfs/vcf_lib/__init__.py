@@ -76,8 +76,8 @@ VObject Overview
     
 """
 
-#import base, utils, vcard
 from .base import readComponents, readOne, behavior_registry
+
 
 def vCard():
     return behavior_registry.new_from_behavior('vcard', '3.0')

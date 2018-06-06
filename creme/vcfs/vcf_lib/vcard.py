@@ -1,6 +1,6 @@
 """Definitions and behavior for vCard 3.0"""
 
-from .base import behavior_registry, backslashEscape, ContentLine # ascii
+from .base import behavior_registry, backslashEscape, ContentLine
 from .behavior import Behavior
 from .utils import stringToTextValues
 
@@ -15,31 +15,9 @@ class Name(object):
         self.prefix     = prefix
         self.suffix     = suffix
 
-    #@staticmethod
-    #def toString(val):
-        #"""Turn a string or array value into a string."""
-        #if type(val) in (list, tuple): #todo: isinstance()...
-            #return ' '.join(val)
-
-        #return val
-
-    #def __str__(self):
-        #eng_order = ('prefix', 'given', 'additional', 'family', 'suffix')
-        #out = ' '.join(self.toString(getattr(self, val)) for val in eng_order)
-        #return ascii(out)
-
     def __repr__(self):
-        return "<Name: %s>" % self.__str__()
+        return '<Name: {}>'.format(self)
 
-    #def __eq__(self, other):
-        #try:
-            #return (self.family == other.family and
-                    #self.given == other.given and
-                    #self.additional == other.additional and
-                    #self.prefix == other.prefix and
-                    #self.suffix == other.suffix)
-        #except:
-            #return False
 
 class Address(object):
     def __init__(self, street='', city='', region='', code='',
@@ -53,38 +31,9 @@ class Address(object):
         self.code     = code
         self.country  = country
 
-    #@staticmethod
-    #def toString(val, join_char='\n'):
-        #"""Turn a string or array value into a string."""
-        #if type(val) in (list, tuple):
-            #return join_char.join(val)
-        #return val
-
-    #lines = ('box', 'extended', 'street')
-    #one_line = ('city', 'region', 'code')
-
-    #def __str__(self):
-        #lines = '\n'.join(self.toString(getattr(self, val)) for val in self.lines if getattr(self, val))
-        #one_line = tuple(self.toString(getattr(self, val), ' ') for val in self.one_line)
-        #lines += "\n%s, %s %s" % one_line
-        #if self.country:
-            #lines += '\n' + self.toString(self.country)
-        #return ascii(lines)
-
     def __repr__(self):
-        return "<Address: %s>" % repr(str(self))[1:-1]
+        return '<Address: {}>'.format(repr(str(self))[1:-1])
 
-    #def __eq__(self, other):
-        #try:
-            #return (self.box == other.box and
-                    #self.extended == other.extended and
-                    #self.street == other.street and
-                    #self.city == other.city and
-                    #self.region == other.region and
-                    #self.code == other.code and
-                    #self.country == other.country)
-        #except:
-            #return False
 
 # ------------------------ Registered Behavior subclasses ----------------------
 
@@ -187,6 +136,7 @@ class Label(VCardTextBehavior):
 wacky_apple_photo_serialize = True
 REALLY_LARGE = 1E50
 
+
 @behavior_registry.register
 class Photo(VCardTextBehavior):
     name = "Photo"
@@ -194,7 +144,7 @@ class Photo(VCardTextBehavior):
 
     @classmethod
     def valueRepr( cls, line ):
-        return " (BINARY PHOTO DATA at 0x%s) " % id(line.value)
+        return " (BINARY PHOTO DATA at 0x{}) ".format(id(line.value))
 
     @classmethod
     def serialize(cls, obj, buf, lineLength, validate):
