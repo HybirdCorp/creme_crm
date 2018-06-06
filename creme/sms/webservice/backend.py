@@ -80,9 +80,9 @@ class WSBackEnd(object):
             self.connected = True
             self.url = url
         except HTTPError as e:
-            raise WSException('Connection error to %s' % url, e)
+            raise WSException('Connection error to {}'.format(url), e)
         except URLError as e:
-            raise WSException('Connection error to %s' % url, e)
+            raise WSException('Connection error to {}'.format(url), e)
 
         return self
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,7 @@ from ..encoding import gsm_encoded_content, SMS_MAX_LENGTH
 
 _FORBIDDEN = u"^ { } \\ [ ~ ] | €"  # TODO: given by the backend ??
 _HELP = _(u"""Message with a maximum of 160 characters.
- Beware, the header matters (+ 3 characters) and the following characters count double: %s""") % _FORBIDDEN
+ Beware, the header matters (+ 3 characters) and the following characters count double: {}""").format(_FORBIDDEN)
 MessageTemplate = get_messagetemplate_model()
 
 
@@ -47,7 +47,7 @@ class TemplateCreateForm(CremeEntityForm):
         cleaned_data = super(TemplateCreateForm, self).clean()
         subject = cleaned_data.get('subject', '')
         body = cleaned_data.get('body', '')
-        content = subject + ' : ' + body if subject else body
+        content = '{} : {}'.format(subject, body) if subject else body
 
         encoded_length = len(gsm_encoded_content(content))
 
