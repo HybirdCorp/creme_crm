@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-29 11:47+0200\n"
+"POT-Creation-Date: 2018-06-04 22:34+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -23,19 +23,19 @@ msgstr "Activités"
 msgid "Calendar"
 msgstr "Calendrier"
 
-#: apps.py:128 populate.py:146
+#: apps.py:128 populate.py:119
 msgid "Phone calls"
 msgstr "Appels téléphoniques"
 
-#: apps.py:134 populate.py:145
+#: apps.py:134 populate.py:118
 msgid "Meetings"
 msgstr "Rendez-vous"
 
-#: apps.py:141 constants.py:33 populate.py:103
+#: apps.py:141 constants.py:33 populate.py:86
 msgid "Phone call"
 msgstr "Appel téléphonique"
 
-#: apps.py:142 constants.py:32 populate.py:101 populate.py:115
+#: apps.py:142 constants.py:32 populate.py:84 populate.py:92
 msgid "Meeting"
 msgstr "Rendez-vous"
 
@@ -43,33 +43,33 @@ msgstr "Rendez-vous"
 msgid "Activity"
 msgstr "Activité"
 
-#: apps.py:144 constants.py:34 populate.py:99
+#: apps.py:144 constants.py:34 populate.py:82
 msgid "Task"
 msgstr "Tâche"
 
-#: apps.py:145 populate.py:107
+#: apps.py:145 populate.py:90
 msgid "Unavailability"
 msgstr "Indisponibilité"
 
 #: apps.py:168
-#, python-format
-msgid "%s meeting"
-msgid_plural "%s meetings"
-msgstr[0] "%s rendez-vous"
-msgstr[1] "%s rendez-vous"
+#, python-brace-format
+msgid "{count} meeting"
+msgid_plural "{count} meetings"
+msgstr[0] "{count} rendez-vous"
+msgstr[1] "{count} rendez-vous"
 
 #: apps.py:172
-#, python-format
-msgid "%s phone call"
-msgid_plural "%s phone calls"
-msgstr[0] "%s appel téléphonique"
-msgstr[1] "%s appels téléphoniques"
+#, python-brace-format
+msgid "{count} phone call"
+msgid_plural "{count} phone calls"
+msgstr[0] "{count} appel téléphonique"
+msgstr[1] "{count} appels téléphoniques"
 
 #: apps.py:176
-#, python-format
+#, python-brace-format
 msgctxt "activities-stats"
-msgid "%s in all"
-msgstr "%s en tout"
+msgid "{count} in all"
+msgstr "{count} en tout"
 
 #: bricks.py:52 forms/activity.py:267 forms/activity.py:484 forms/bricks.py:50
 #: forms/mass_import.py:562 templates/activities/bricks/participants.html:7
@@ -226,31 +226,31 @@ msgid "Alert of activity"
 msgstr "Alerte d'activité"
 
 #: forms/activity.py:393
-#, python-format
-msgid "Alert related to %s"
-msgstr "Alerte en rapport avec %s"
+#, python-brace-format
+msgid "Alert related to {activity}"
+msgstr "Alerte en rapport avec {activity}"
 
 #: forms/activity.py:417
-#, python-format
-msgid "[Creme] Activity created: %s"
-msgstr "[Creme] Activité créée : %s"
+#, python-brace-format
+msgid "[Creme] Activity created: {activity}"
+msgstr "[Creme] Activité créée : {activity}"
 
 #: forms/activity.py:418
-#, python-format
+#, python-brace-format
 msgid ""
-"A new activity has been created: %(activity)s.\n"
-"    Description: %(description)s.\n"
-"    Start: %(start)s.\n"
-"    End: %(end)s.\n"
-"    Subjects: %(subjects)s.\n"
-"    Participants: %(participants)s."
+"A new activity has been created: {activity}.\n"
+"    Description: {description}.\n"
+"    Start: {start}.\n"
+"    End: {end}.\n"
+"    Subjects: {subjects}.\n"
+"    Participants: {participants}."
 msgstr ""
-"Une nouvelle activité a été créée : %(activity)s.\n"
-"    Description : %(description)s.\n"
-"    Début : %(start)s.\n"
-"    Fin : %(end)s.\n"
-"    Sujets : %(subjects)s.\n"
-"    Participants : %(participants)s."
+"Une nouvelle activité a été créée : {activity}.\n"
+"    Description : {description}.\n"
+"    Début : {start}.\n"
+"    Fin : {end}.\n"
+"    Sujets : {subjects}.\n"
+"    Participants : {participants}."
 
 #: forms/activity.py:426 forms/activity.py:427
 msgid "not specified"
@@ -285,17 +285,18 @@ msgid "Beware !"
 msgstr "Attention !"
 
 #: forms/activity_type.py:200
-#, python-format
+#, python-brace-format
 msgid ""
-"The type of %s activity cannot be changed because it is an indisponibility."
+"The type of {count} activity cannot be changed because it is an "
+"indisponibility."
 msgid_plural ""
-"The type of %s activities cannot be changed because they are "
+"The type of {count} activities cannot be changed because they are "
 "indisponibilities."
 msgstr[0] ""
-"Le type de %s activité ne peut pas être modifié parce que c'est une "
+"Le type de {count} activité ne peut pas être modifié parce que c'est une "
 "indisponibilité."
 msgstr[1] ""
-"Le type de %s activités ne peut pas être modifié parce que ce sont des "
+"Le type de {count} activités ne peut pas être modifié parce que ce sont des "
 "indisponibilités."
 
 #: forms/bricks.py:171
@@ -314,24 +315,20 @@ msgid "Appears on the calendar:"
 msgstr "Apparaît sur le calendrier :"
 
 #: forms/mass_import.py:98
-#, python-format
-msgid "Too many contacts were found for the search «%s»"
-msgstr "Trop de contacts ont été trouvés pour la recherche «%s»"
+msgid "Too many contacts were found for the search «{}»"
+msgstr "Trop de contacts ont été trouvés pour la recherche «{}»"
 
 #: forms/mass_import.py:102
-#, python-format
-msgid "Several contacts were found for the search «%s»"
-msgstr "Plusieurs contacts ont été trouvés pour la recherche «%s»"
+msgid "Several contacts were found for the search «{}»"
+msgstr "Plusieurs contacts ont été trouvés pour la recherche «{}»"
 
 #: forms/mass_import.py:107
-#, python-format
-msgid "No linkable contact found for the search «%s»"
-msgstr "Aucun contact reliable n'a été trouvé pour la recherche «%s»"
+msgid "No linkable contact found for the search «{}»"
+msgstr "Aucun contact reliable n'a été trouvé pour la recherche «{}»"
 
 #: forms/mass_import.py:122
-#, python-format
-msgid "The participant «%s» is unfoundable"
-msgstr "Le participant «%s» est introuvable"
+msgid "The participant «{}» is unfoundable"
+msgstr "Le participant «{}» est introuvable"
 
 #: forms/mass_import.py:140
 msgid "Civility FirstName LastName"
@@ -350,24 +347,22 @@ msgid "LastName FirstName"
 msgstr "Nom Prénom"
 
 #: forms/mass_import.py:427
-#, python-format
-msgid "Too many «%(type)s» were found for the search «%(search)s»"
-msgstr "Trop de «%(type)s» ont été trouvés pour la recherche «%(search)s»"
+#, python-brace-format
+msgid "Too many «{models}» were found for the search «{search}»"
+msgstr "Trop de «{models}» ont été trouvés pour la recherche «{search}»"
 
 #: forms/mass_import.py:434
-#, python-format
-msgid "Several «%(type)s» were found for the search «%(search)s»"
-msgstr "Plusieurs «%(type)s» ont été trouvés pour la recherche «%(search)s»"
+#, python-brace-format
+msgid "Several «{models}» were found for the search «{search}»"
+msgstr "Plusieurs «{models}» ont été trouvés pour la recherche «{search}»"
 
 #: forms/mass_import.py:450
-#, python-format
-msgid "No linkable entity found for the search «%s»"
-msgstr "Aucune fiche reliable touvée pour la recherche «%s»"
+msgid "No linkable entity found for the search «{}»"
+msgstr "Aucune fiche reliable touvée pour la recherche «{}»"
 
 #: forms/mass_import.py:452
-#, python-format
-msgid "The subject «%s» is unfoundable"
-msgstr "Le sujet «%s» est introuvable"
+msgid "The subject «{}» is unfoundable"
+msgstr "Le sujet «{}» est introuvable"
 
 #: forms/mass_import.py:564
 msgid "Subjects (organisations only)"
@@ -464,14 +459,14 @@ msgstr "Propriétaire du calendrier"
 msgid "Color"
 msgstr "Couleur"
 
-#: models/calendar.py:40 views/calendar.py:279
+#: models/calendar.py:40 views/calendar.py:281
 msgid "Create a calendar"
 msgstr "Créer un calendrier"
 
 #: models/calendar.py:74
-#, python-format
-msgid "%s's calendar"
-msgstr "Calendrier de %s"
+#, python-brace-format
+msgid "{user}'s calendar"
+msgstr "Calendrier de {user}"
 
 #: models/other_models.py:35
 msgid "Default day duration"
@@ -546,85 +541,85 @@ msgstr "participe à l'activité"
 msgid "(activity) has as participant"
 msgstr "(activité) a comme participant"
 
-#: populate.py:81
+#: populate.py:75
 msgctxt "activities-status"
 msgid "Planned"
 msgstr "Prévue"
 
-#: populate.py:82
+#: populate.py:76
 msgctxt "activities-status"
 msgid "In progress"
 msgstr "En cours"
 
-#: populate.py:83
+#: populate.py:77
 msgctxt "activities-status"
 msgid "Done"
 msgstr "Finie"
 
-#: populate.py:84
+#: populate.py:78
 msgctxt "activities-status"
 msgid "Delayed"
 msgstr "En retard"
 
-#: populate.py:85
+#: populate.py:79
 msgctxt "activities-status"
 msgid "Cancelled"
 msgstr "Annulée"
 
-#: populate.py:104
+#: populate.py:87
 msgid "Gathering"
 msgstr "Réunion"
 
-#: populate.py:105
+#: populate.py:88
 msgid "Show"
 msgstr "Salon"
 
-#: populate.py:106
+#: populate.py:89
 msgid "Demonstration"
 msgstr "Démonstration"
 
-#: populate.py:116
+#: populate.py:93
 msgid "Qualification"
 msgstr "Qualification"
 
-#: populate.py:117
+#: populate.py:94
 msgid "Revival"
 msgstr "Relance"
 
-#: populate.py:118
+#: populate.py:95
 msgid "Network"
 msgstr "Réseau"
 
-#: populate.py:119
+#: populate.py:96
 msgctxt "activities-meeting"
 msgid "Other"
 msgstr "Autre"
 
-#: populate.py:125
+#: populate.py:98
 msgid "Incoming"
 msgstr "Entrant"
 
-#: populate.py:126
+#: populate.py:99
 msgid "Outgoing"
 msgstr "Sortant"
 
-#: populate.py:127
+#: populate.py:100
 msgid "Conference"
 msgstr "Conférence"
 
-#: populate.py:128
+#: populate.py:101
 msgid "Outgoing - Failed"
 msgstr "Sortant - Échoué"
 
-#: populate.py:131
+#: populate.py:104
 msgid "Activity view"
 msgstr "Vue d'Activité"
 
-#: populate.py:147
+#: populate.py:120
 msgid "Tasks"
 msgstr "Tâches"
 
-#: populate.py:158
+#: populate.py:131
 msgid "In which I participate"
 msgstr "Auxquelles je participe"
 
@@ -903,13 +898,13 @@ msgid "Full detailview"
 msgstr "Fiche complète"
 
 #: utils.py:79
-#, python-format
+#, python-brace-format
 msgid ""
-"%(participant)s already participates to the activity «%(activity)s» between "
-"%(start)s and %(end)s."
+"{participant} already participates to the activity «{activity}» between "
+"{start} and {end}."
 msgstr ""
-"%(participant)s participe déjà à l'activité «%(activity)s» entre %(start)s "
-"et %(end)s."
+"{participant} participe déjà à l'activité «{activity}» entre {start} et "
+"{end}."
 
 #: views/activity.py:133
 msgid "New activity"
@@ -937,18 +932,30 @@ msgstr "Ajouter les sujets"
 msgid "One entity does not exist any more."
 msgstr "Une fiche n'existe plus."
 
-#: views/calendar.py:281
+#: views/calendar.py:283
 msgid "Save the calendar"
 msgstr "Enregistrer le calendrier"
 
-#: views/calendar.py:304
+#: views/calendar.py:306
 msgid "You are not allowed to delete this calendar."
 msgstr "Vous n'êtes pas autorisé à effacer ce calendrier."
 
-#: views/calendar.py:319
+#: views/calendar.py:321
 #, python-format
 msgid "Change calendar of «%s»"
 msgstr "Changer le calendrier de «%s»"
+
+#~ msgid "%s meeting"
+#~ msgid_plural "%s meetings"
+#~ msgstr[0] "%s rendez-vous"
+#~ msgstr[1] "%s rendez-vous"
+
+#~ msgctxt "activities-stats"
+#~ msgid "%s in all"
+#~ msgstr "%s en tout"
+
+#~ msgid "Alert related to %s"
+#~ msgstr "Alerte en rapport avec %s"
 
 #~ msgid "Portal of activities"
 #~ msgstr "Portail des activités"

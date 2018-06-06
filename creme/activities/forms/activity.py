@@ -390,7 +390,7 @@ class ActivityCreateForm(_ActivityCreateForm):
                              trigger_date=trigger_date,
                              creme_entity=activity,
                              title=ugettext('Alert of activity'),
-                             description=ugettext(u'Alert related to %s') % activity,
+                             description=ugettext(u'Alert related to {activity}').format(activity=activity),
                             )
 
     def _generate_alerts(self):
@@ -414,20 +414,20 @@ class ActivityCreateForm(_ActivityCreateForm):
             from creme.assistants.constants import PRIO_NOT_IMP_PK
 
             activity = self.instance
-            title = ugettext(u'[Creme] Activity created: %s') % activity
-            body = ugettext(u"""A new activity has been created: %(activity)s.
-    Description: %(description)s.
-    Start: %(start)s.
-    End: %(end)s.
-    Subjects: %(subjects)s.
-    Participants: %(participants)s.""") % {
-                    'activity':     activity,
-                    'description':  activity.description,
-                    'start':        activity.start or ugettext('not specified'),
-                    'end':          activity.end or ugettext('not specified'),
-                    'subjects':     u' / '.join(unicode(e) for e in cdata['subjects']),
-                    'participants': u' / '.join(unicode(c) for c in self.participants),
-                }
+            title = ugettext(u'[Creme] Activity created: {activity}').format(activity=activity)
+            body = ugettext(u"""A new activity has been created: {activity}.
+    Description: {description}.
+    Start: {start}.
+    End: {end}.
+    Subjects: {subjects}.
+    Participants: {participants}.""").format(
+                    activity=activity,
+                    description=activity.description,
+                    start=activity.start or ugettext('not specified'),
+                    end=activity.end or ugettext('not specified'),
+                    subjects=u' / '.join(unicode(e) for e in cdata['subjects']),
+                    participants=u' / '.join(unicode(c) for c in self.participants),
+            )
 
             # TODO: sender = the real user that created the activity ???
             UserMessage.create_messages(raw_users, title, body, PRIO_NOT_IMP_PK, activity.user, activity)

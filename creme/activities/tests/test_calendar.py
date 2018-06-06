@@ -21,7 +21,7 @@ try:
     from ..constants import *
     from ..utils import get_last_day_of_a_month
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 Activity = get_activity_model()
@@ -62,7 +62,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         with self.assertNumQueries(3):
             def_cal = Calendar.get_user_default_calendar(user)
 
-        self.assertEqual(_(u"%s's calendar") % user,
+        self.assertEqual(_(u"{user}'s calendar").format(user=user),
                          def_cal.name,
                         )
 
@@ -215,9 +215,10 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual(reverse('activities__calendars_activities'), event_url)
         self.assertEqual({other_user: [cal2]}, others_calendars)
         self.assertEqual(1, n_others_calendars)
-        filter_key = "%s %s %s" % (other_user.username,
-                                   other_user.first_name,
-                                   other_user.last_name)
+        filter_key = '{} {} {}'.format(other_user.username,
+                                       other_user.first_name,
+                                       other_user.last_name,
+                                      )
         self.assertEqual(jsondumps({filter_key: [{'name': cal2.name, 'id': cal2.id}]}),
                          creme_calendars_by_user
                         )
@@ -497,7 +498,7 @@ class CalendarTestCase(_ActivitiesTestCase):
                           'end':            formatted_dt(act3.end),
                           'allDay':         True,
                           'calendar':       cal.id,
-                          'calendar_color': '#%s' % cal.color,
+                          'calendar_color': '#{}'.format(cal.color),
                           'url':            build_popup_url(act3),
                           'editable':       True,
                           'type':           _('Meeting'),
@@ -510,7 +511,7 @@ class CalendarTestCase(_ActivitiesTestCase):
                           'end':            formatted_dt(act1.end),
                           'allDay':         False,
                           'calendar':       cal.id,
-                          'calendar_color': '#%s' % cal.color,
+                          'calendar_color': '#{}'.format(cal.color),
                           'url':            build_popup_url(act1),
                           'editable':       True,
                           'type':           _(u'Task'),
@@ -523,7 +524,7 @@ class CalendarTestCase(_ActivitiesTestCase):
                           'end':            formatted_dt(act0.end + timedelta(seconds=1)),
                           'allDay':         False,
                           'calendar':       cal.id,
-                          'calendar_color': '#%s' % cal.color,
+                          'calendar_color': '#{}'.format(cal.color),
                           'url':            build_popup_url(act0),
                           'editable':       True,
                           'type':           _(u'Task'),
@@ -585,9 +586,9 @@ class CalendarTestCase(_ActivitiesTestCase):
         expected_ids  = {act.id for act in expected}
         retrieved_ids = {d['id'] for d in data}
         self.assertEqual(expected_ids, retrieved_ids,
-                         '%s != %s (id map: %s)' % (expected_ids, retrieved_ids,
-                                                    ['%s -> %s' % (act.id, act.title) for act in expected]
-                                                   )
+                         '{} != {} (id map: {})'.format(expected_ids, retrieved_ids,
+                                                        ['{} -> {}'.format(act.id, act.title) for act in expected]
+                                                       )
                         )
 
     # @skipIfCustomActivity

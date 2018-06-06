@@ -165,15 +165,15 @@ class ActivitiesConfig(CremeAppConfig):
 
         def meetings_count():
             count = act_filter(type=constants.ACTIVITYTYPE_MEETING).count()
-            return ungettext(u'%s meeting', u'%s meetings', count) % count
+            return ungettext(u'{count} meeting', u'{count} meetings', count).format(count=count)
 
         def phone_calls_count():
             count = act_filter(type=constants.ACTIVITYTYPE_PHONECALL).count()
-            return ungettext(u'%s phone call', u'%s phone calls', count) % count
+            return ungettext(u'{count} phone call', u'{count} phone calls', count).format(count=count)
 
         statistics_registry.register(
             id='activities', label=Activity._meta.verbose_name_plural,
-            func=lambda: [pgettext('activities-stats', u'%s in all') % Activity.objects.count(),
+            func=lambda: [pgettext('activities-stats', u'{count} in all').format(count=Activity.objects.count()),
                           meetings_count(),
                           phone_calls_count(),
                          ],

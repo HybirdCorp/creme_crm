@@ -89,7 +89,7 @@ def abstract_add_activity(request, act_type=None, form=act_forms.ActivityCreateF
         type_id = _TYPES_MAP.get(act_type)
 
         if not type_id:
-            raise Http404('No activity type matches with: %s' % act_type)
+            raise Http404('No activity type matches with: {}'.format(act_type))
 
     return _add_activity(request, form, type_id=type_id)
 

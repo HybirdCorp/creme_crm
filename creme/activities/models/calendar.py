@@ -71,7 +71,7 @@ class Calendar(CremeModel):
 
     @staticmethod
     def _create_default_calendar(user):
-        cal = Calendar(name=ugettext(u"%s's calendar") % user,
+        cal = Calendar(name=ugettext(u"{user}'s calendar").format(user=user),
                        user=user, is_default=True, is_custom=False,
                        color=Calendar.new_color(),
                       )

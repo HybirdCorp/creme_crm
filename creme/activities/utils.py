@@ -76,14 +76,14 @@ def check_activity_collisions(activity_start, activity_end, participants, busy=T
             collision_start = max(activity_start.time(), localtime(colliding_activity.start).time())
             collision_end   = min(activity_end.time(),   localtime(colliding_activity.end).time())
 
-            collisions.append(_(u"%(participant)s already participates to the activity "
-                                u"«%(activity)s» between %(start)s and %(end)s."
-                               ) % {
-                        'participant': participant,
-                        'activity':    colliding_activity,
-                        'start':       collision_start,
-                        'end':         collision_end,
-                    })
+            collisions.append(_(u"{participant} already participates to the activity "
+                                u"«{activity}» between {start} and {end}."
+                               ).format(
+                        participant=participant,
+                        activity=colliding_activity,
+                        start=collision_start,
+                        end=collision_end,
+            ))
 
     return collisions
 
@@ -91,14 +91,14 @@ def check_activity_collisions(activity_start, activity_end, participants, busy=T
 def get_ical_date(date_time):
     date_time = localtime(date_time)
 
-    return "%(year)s%(month)02d%(day)02dT%(hour)02d%(minute)02d%(second)02dZ" % {
-        'year':   date_time.year,
-        'month':  date_time.month,
-        'day':    date_time.day,
-        'hour':   date_time.hour,
-        'minute': date_time.minute,
-        'second': date_time.second,
-    }
+    return '{year}{month:02}{day:02}T{hour:02}{minute:02}{second:02}Z'.format(
+        year=date_time.year,
+        month=date_time.month,
+        day=date_time.day,
+        hour=date_time.hour,
+        minute=date_time.minute,
+        second=date_time.second,
+    )
 
 
 def get_ical(activities):
@@ -106,8 +106,8 @@ def get_ical(activities):
     /!\ Each parameter has to be separated by \n ONLY no spaces allowed!
     Example : BEGIN:VCALENDAR\nVERSION:2.0
     """
-    return """BEGIN:VCALENDAR
+    return u"""BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//CremeCRM//CremeCRM//EN
-%s
-END:VCALENDAR""" % ''.join(a.as_ical_event() for a in activities)
+{}
+END:VCALENDAR""".format(''.join(a.as_ical_event() for a in activities))

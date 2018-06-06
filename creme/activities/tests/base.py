@@ -15,7 +15,7 @@ try:
     skip_activities_tests = activity_model_is_custom()
     Activity = get_activity_model()
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 Contact = get_contact_model()
