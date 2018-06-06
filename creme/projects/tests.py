@@ -239,10 +239,10 @@ class ProjectsTestCase(CremeTestCase):
 
         create_dt = self.create_datetime
         self.assertFormError(response, 'form', None,
-                             _(u'Start (%(start)s) must be before end (%(end)s).') % {
-                                    'start': date_format(create_dt(2012, 2, 16), 'DATE_FORMAT'),
-                                    'end':   date_format(create_dt(2012, 2, 15), 'DATE_FORMAT'),
-                                }
+                             _(u'Start ({start}) must be before end ({end}).').format(
+                                    start=date_format(create_dt(2012, 2, 16), 'DATE_FORMAT'),
+                                    end=date_format(create_dt(2012, 2, 15), 'DATE_FORMAT'),
+                                )
                             )
 
     def test_project_lisview(self):
@@ -281,10 +281,10 @@ class ProjectsTestCase(CremeTestCase):
 
         create_dt = self.create_datetime
         self.assertFormError(response, 'form', None,
-                             _(u'Start (%(start)s) must be before end (%(end)s).') % {
-                                    'start': date_format(create_dt(2012, 3, 27), 'DATE_FORMAT'),
-                                    'end':   date_format(create_dt(2012, 3, 25), 'DATE_FORMAT'),
-                                }
+                             _(u'Start ({start}) must be before end ({end}).').format(
+                                    start=date_format(create_dt(2012, 3, 27), 'DATE_FORMAT'),
+                                    end=date_format(create_dt(2012, 3, 25), 'DATE_FORMAT'),
+                                )
                             )
         self.assertEqual(create_dt(year=2012, month=2, day=20),
                          self.refresh(project).start_date
@@ -691,14 +691,13 @@ class ProjectsTestCase(CremeTestCase):
                                         busy='on', errors=True,
                                        )
         self.assertEqual(1, len(self.refresh(task).related_activities))
-
         self.assertFormError(response, 'form', None,
-            _(u'%(participant)s already participates to the activity «%(activity)s» between %(start)s and %(end)s.') % {
-                    'participant': worker,
-                    'activity':    act1,
-                    'start':       '16:59:00',
-                    'end':         '17:00:00',
-                }
+            _(u'{participant} already participates to the activity «{activity}» between {start} and {end}.').format(
+                    participant=worker,
+                    activity=act1,
+                    start='16:59:00',
+                    end='17:00:00',
+                )
         )
 
     @skipIfCustomActivity

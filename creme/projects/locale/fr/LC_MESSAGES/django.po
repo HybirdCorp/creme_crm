@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Projects 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-29 12:34+0200\n"
+"POT-Creation-Date: 2018-06-05 14:43+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -164,9 +164,9 @@ msgid "Project"
 msgstr "Projet"
 
 #: models/project.py:97
-#, python-format
-msgid "Start (%(start)s) must be before end (%(end)s)."
-msgstr "La date de début (%(start)s) doit être avant la date de fin (%(end)s)."
+#, python-brace-format
+msgid "Start ({start}) must be before end ({end})."
+msgstr "La date de début ({start}) doit être avant la date de fin ({end})."
 
 #: models/projectstatus.py:29 models/taskstatus.py:29
 #: templates/projects/bricks/parent-tasks.html:16
@@ -301,72 +301,72 @@ msgstr "est une ressource de"
 msgid "has as a resource"
 msgstr "a en tant que ressource"
 
-#: populate.py:88
+#: populate.py:79
 msgid "Project view"
 msgstr "Vue de Projet"
 
-#: populate.py:98
+#: populate.py:89
 msgid "Task view"
 msgstr "Vue de Tâche"
 
-#: populate.py:105
+#: populate.py:96
 msgid "Resource view"
 msgstr "Vue de Ressource"
 
-#: populate.py:128
+#: populate.py:111
 msgid "Invitation to tender"
 msgstr "Appel d'offre"
 
-#: populate.py:128
+#: populate.py:111
 msgid "Response to an invitation to tender"
 msgstr "Un appel d'offre a été lancé"
 
-#: populate.py:129
+#: populate.py:112
 msgid "Initialization"
 msgstr "Initialisation"
 
-#: populate.py:129
+#: populate.py:112
 msgid "The project is starting"
 msgstr "Le projet démarre"
 
-#: populate.py:130
+#: populate.py:113
 msgid "Preliminary phase"
 msgstr "Avant-phase"
 
-#: populate.py:130
+#: populate.py:113
 msgid "The project is in the process of analysis and design"
 msgstr "Le projet est en phase d'analyse et de conception"
 
-#: populate.py:131
+#: populate.py:114
 msgid "Achievement"
 msgstr "Réalisation"
 
-#: populate.py:131
+#: populate.py:114
 msgid "The project is being implemented"
 msgstr "Le projet est en phase de réalisation"
 
-#: populate.py:132
+#: populate.py:115
 msgid "Tests"
 msgstr "Tests"
 
-#: populate.py:132
+#: populate.py:115
 msgid "The project is in the testing process (unit / integration / functional)"
 msgstr ""
 "Le projet est en phase de tests (unitaires / intégration / fonctionnels)"
 
-#: populate.py:133
+#: populate.py:116
 msgid "User acceptance tests"
 msgstr "Recette"
 
-#: populate.py:133
+#: populate.py:116
 msgid "The project is in the user acceptance testing process"
 msgstr "Le projet est en recette"
 
-#: populate.py:134
+#: populate.py:117
 msgid "Finished"
 msgstr "Terminé"
 
-#: populate.py:134
+#: populate.py:117
 msgid "The project is finished"
 msgstr "Le projet est terminé"
 
@@ -601,12 +601,11 @@ msgid "Back to the project"
 msgstr "Retour au projet"
 
 #: views/resource.py:49
-#, python-format
 msgid ""
-"You can't add a resources or a working period to a task which has status «%s»"
+"You can't add a resources or a working period to a task which has status «{}»"
 msgstr ""
 "Vous ne pouvez pas ajouter de ressources ou de périodes travaillées à une "
-"tâche en statut «%s»"
+"tâche en statut «{}»"
 
 #: views/resource.py:64
 msgid "Allocation of a new resource"
@@ -638,9 +637,8 @@ msgid "Can not be deleted because of its dependencies."
 msgstr "Ne peut pas être supprimé à cause des ses dépendances."
 
 #: views/task.py:180
-#, python-format
-msgid "The deletion caused an unexpected error [%s]."
-msgstr "La suppression a provoqué une erreur inattendue [%s]."
+msgid "The deletion caused an unexpected error [{}]."
+msgstr "La suppression a provoqué une erreur inattendue [{}]."
 
 # Already in creme_core
 #: views/task.py:182
