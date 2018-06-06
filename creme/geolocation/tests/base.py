@@ -8,7 +8,7 @@ try:
 
     from ..models import GeoAddress, Town
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 Address = get_address_model()
@@ -28,9 +28,12 @@ class GeoLocationBaseTestCase(CremeTestCase):
         for key, expected in kwargs.iteritems():
             value = getattr(instance, key)
             self.assertEqual(safe_unicode(value), safe_unicode(expected),
-                             u'unexpected %s.%s value : %s != %s' % (klass.__name__, key,
-                                                                     safe_unicode(value),
-                                                                     safe_unicode(expected)))
+                             u'unexpected {}.{} value : {} != {}'.format(
+                                     klass.__name__, key,
+                                     safe_unicode(value),
+                                     safe_unicode(expected)
+                                )
+                            )
 
     def assertGeoAddress(self, instance, **kwargs):
         self.assertModelInstance(instance, GeoAddress, **kwargs)

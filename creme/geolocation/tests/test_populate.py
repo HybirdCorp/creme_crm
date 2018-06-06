@@ -11,7 +11,7 @@ try:
     from ..management.commands.geolocation import CSVPopulator, Command as GeolocationCommand
     from .base import GeoLocationBaseTestCase, Address, Organisation
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class MockCSVPopulator(CSVPopulator):
@@ -71,7 +71,7 @@ class CSVPopulatorTestCase(CremeTestCase):
             populator._mapper(['name', 'other'])
 
         self.assertEqual(str(error.exception),
-                         "Following columns are missing and haven't got any default value : %s" % str(['code', 'value'])
+                         "Following columns are missing and haven't got any default value : {}".format(['code', 'value'])
                         )
 
     def test_chunk_error(self):
@@ -134,11 +134,12 @@ class CSVPopulatorTestCase(CremeTestCase):
 
     def test_populate_from_missing_file(self):
         populator = MockCSVPopulator(['name', 'code'])
+        name = 'unknown'
 
         with self.assertRaises(CSVPopulator.ReadError) as error:
-            populator._open('unknown')
+            populator._open(name)
 
-        self.assertIn('Unable to open CSV data from %s' % 'unknown', str(error.exception))
+        self.assertIn('Unable to open CSV data from {}'.format(name), str(error.exception))
 
     def test_populate_from_invalid_file(self):
         populator = MockCSVPopulator(['name', 'code'])
@@ -147,7 +148,7 @@ class CSVPopulatorTestCase(CremeTestCase):
             populator.populate('creme/geolocation/populate.py')
 
         self.assertEqual(str(error.exception),
-                         "Following columns are missing and haven't got any default value : %s" % str(['code', 'name'])
+                         "Following columns are missing and haven't got any default value : {}".format(['code', 'name'])
                         )
 
     def test_populate_from_invalid_protocol(self):
@@ -158,7 +159,7 @@ class CSVPopulatorTestCase(CremeTestCase):
             populator.populate(url)
 
         self.assertEqual(str(error.exception),
-                         'Unable to open CSV data from %s : unsupported protocol.' % url
+                         'Unable to open CSV data from {} : unsupported protocol.'.format(url)
                         )
 
     def test_populate_from_file(self):
@@ -179,7 +180,7 @@ class CSVPopulatorTestCase(CremeTestCase):
             populator.populate(url)
 
         self.assertEqual(str(error.exception),
-                         'Unable to open CSV data from %s : %s' % (url, 'File is not a zip file')
+                         'Unable to open CSV data from {} : {}'.format(url, 'File is not a zip file')
                         )
 
     def test_populate_from_zip_file(self):

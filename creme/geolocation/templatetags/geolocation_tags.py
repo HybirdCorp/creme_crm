@@ -28,7 +28,7 @@ register = Library()
 # def format_distance(value):
 def geolocation_distance(value):
     if value < 1000:
-        return ungettext('%(distance)d meter', '%(distance)d meters', value) % {'distance': value}
+        return ungettext('{distance} meter', '{distance} meters', value).format(distance=value)
 
     value = value / 1000.0
-    return ungettext('%(distance).1f Km', '%(distance).1f Km', value) % {'distance': value}
+    return ungettext('{distance:.1f} Km', '{distance:.1f} Km', value).format(distance=value)

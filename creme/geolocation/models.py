@@ -161,7 +161,7 @@ class GeoAddress(Model):
                                          longitude__range=(upper_left[1], lower_right[1]))
 
     def __unicode__(self):
-        return u'GeoAddress(lat=%s, lon=%s, status=%s)' % (self.latitude, self.longitude, self.status)
+        return u'GeoAddress(lat={}, lon={}, status={})'.format(self.latitude, self.longitude, self.status)
 
 
 class Town(Model):
@@ -181,7 +181,7 @@ class Town(Model):
         ordering = ('name',)
 
     def __unicode__(self):
-        return u"%s %s %s" % (self.zipcode, self.name, self.country)
+        return u'{} {} {}'.format(self.zipcode, self.name, self.country)
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)

@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Geolocation 1.8\n"
+"Project-Id-Version: Creme Geolocation 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-01 11:55+0100\n"
+"POT-Creation-Date: 2018-06-05 12:01+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -20,15 +20,15 @@ msgstr ""
 msgid "Geolocation"
 msgstr "Géolocalisation"
 
-#: bricks.py:74
+#: bricks.py:81
 msgid "Addresses on Google Maps ®"
 msgstr "Adresses sur Google Maps ®"
 
-#: bricks.py:91
+#: bricks.py:98
 msgid "Filtered addresses on Google Maps ®"
 msgstr "Adresses filtrées sur Google Maps ®"
 
-#: bricks.py:107
+#: bricks.py:114
 msgid "Neighbours on Google Maps ®"
 msgstr "Voisins sur Google Maps ®"
 
@@ -48,67 +48,67 @@ msgstr "Localisation incomplète"
 msgid "Address"
 msgstr "Adresse"
 
-#: models.py:52 models.py:169
+#: models.py:54 models.py:172
 msgid "Latitude"
 msgstr "Latitude"
 
-#: models.py:53 models.py:170
+#: models.py:55 models.py:173
 msgid "Longitude"
 msgstr "Longitude"
 
-#: models.py:54
+#: models.py:56
 msgid "Is this marker draggable in maps ?"
 msgstr "Ce curseur peut-il être déplacé ?"
 
-#: models.py:55
+#: models.py:57
 msgid "Geocoded from address ?"
 msgstr "Géolocalisé à partir de l'adresse ?"
 
-#: models.py:56
+#: models.py:58
 msgctxt "geolocation"
 msgid "Status"
 msgstr "Statut"
 
-#: models.py:60
+#: models.py:62
 msgctxt "geolocation-address"
 msgid "Create an address"
 msgstr "Créer une adresse"
 
-#: models.py:64
+#: models.py:66
 msgctxt "geolocation-address"
 msgid "Address"
 msgstr "Adresse"
 
-#: models.py:65
+#: models.py:67
 msgctxt "geolocation-address"
 msgid "Addresses"
 msgstr "Adresses"
 
-#: models.py:165
+#: models.py:168
 msgid "Name of the town"
 msgstr "Nom de la ville"
 
-#: models.py:166
+#: models.py:169
 msgid "Slugified name of the town"
 msgstr "Nom normalisé de la ville"
 
-#: models.py:167
+#: models.py:170
 msgid "Zip code"
 msgstr "Code postal"
 
-#: models.py:168
+#: models.py:171
 msgid "Country"
 msgstr "Pays"
 
-#: models.py:172
+#: models.py:175
 msgid "Create a town"
 msgstr "Créer une ville"
 
-#: models.py:176
+#: models.py:179
 msgid "Town"
 msgstr "Ville"
 
-#: models.py:177
+#: models.py:180
 msgid "Towns"
 msgstr "Villes"
 
@@ -120,22 +120,22 @@ msgstr "Distance maximale pour trouver des voisins en mètres"
 msgid "Google Maps ® API key (optional)"
 msgstr "Clé API Google Maps ® (optionnelle)"
 
-#: templates/geolocation/bricks/google/detail-map.html:19
+#: templates/geolocation/bricks/google/detail-map.html:20
 msgid "Map"
 msgstr "Carte"
 
-#: templates/geolocation/bricks/google/detail-map.html:24
-#: templates/geolocation/bricks/google/neighbours-map.html:29
+#: templates/geolocation/bricks/google/detail-map.html:25
+#: templates/geolocation/bricks/google/neighbours-map.html:30
 msgid "No address defined for now"
 msgstr "Aucune adresse enregistrée pour le moment"
 
-#: templates/geolocation/bricks/google/detail-map.html:41
+#: templates/geolocation/bricks/google/detail-map.html:47
 msgid "Retrieve location"
 msgstr "Localiser"
 
-#: templates/geolocation/bricks/google/detail-map.html:57
-#: templates/geolocation/bricks/google/filtered-map.html:38
-#: templates/geolocation/bricks/google/neighbours-map.html:57
+#: templates/geolocation/bricks/google/detail-map.html:63
+#: templates/geolocation/bricks/google/filtered-map.html:42
+#: templates/geolocation/bricks/google/neighbours-map.html:62
 msgid ""
 "Google API key may be missing or invalid. Please try to configure it or "
 "contact your administrator."
@@ -143,52 +143,52 @@ msgstr ""
 "La clé de l'API Google semble être manquante ou invalide. Essayez de la "
 "configurer ou contactez votre administrateur."
 
-#: templates/geolocation/bricks/google/filtered-map.html:19
+#: templates/geolocation/bricks/google/filtered-map.html:20
 msgid "Maps By Filter"
 msgstr "Cartes par filtre"
 
-#: templates/geolocation/bricks/google/filtered-map.html:25
+#: templates/geolocation/bricks/google/filtered-map.html:27
 msgid "No address from"
 msgstr "Aucune adresse de"
 
-#: templates/geolocation/bricks/google/neighbours-map.html:24
+#: templates/geolocation/bricks/google/neighbours-map.html:25
 msgid "Around this place"
 msgstr "Autour de ce lieu"
 
-#: templates/geolocation/bricks/google/neighbours-map.html:33
+#: templates/geolocation/bricks/google/neighbours-map.html:35
 msgid "None of"
 msgstr "Aucune adresse de"
 
-#: templates/geolocation/bricks/google/neighbours-map.html:35
+#: templates/geolocation/bricks/google/neighbours-map.html:38
 msgid "All the contacts and organisations"
 msgstr "Tous les contacts et sociétés"
 
-#: templates/geolocation/bricks/google/neighbours-map.html:44
+#: templates/geolocation/bricks/google/neighbours-map.html:47
 msgid "around"
 msgstr "autour de"
 
-#: templates/geolocation/bricks/google/neighbours-map.html:49
+#: templates/geolocation/bricks/google/neighbours-map.html:53
 msgid "No geolocated address for now"
 msgstr "Aucune adresse géolocalisée pour le moment"
 
-#: templates/geolocation/bricks/google/neighbours-map.html:53
+#: templates/geolocation/bricks/google/neighbours-map.html:57
 #, python-format
 msgid "within a radius of %(radius_distance)s."
 msgstr "dans un rayon de %(radius_distance)s."
 
 #: templatetags/geolocation_tags.py:31
-#, python-format
-msgid "%(distance)d meter"
-msgid_plural "%(distance)d meters"
-msgstr[0] "%(distance)d mètre"
-msgstr[1] "%(distance)d mètres"
+#, python-brace-format
+msgid "{distance} meter"
+msgid_plural "{distance} meters"
+msgstr[0] "{distance} mètre"
+msgstr[1] "{distance} mètres"
 
 #: templatetags/geolocation_tags.py:34
-#, python-format
-msgid "%(distance).1f Km"
-msgid_plural "%(distance).1f Km"
-msgstr[0] "%(distance).1f Km"
-msgstr[1] "%(distance).1f Km"
+#, python-brace-format
+msgid "{distance:.1f} Km"
+msgid_plural "{distance:.1f} Km"
+msgstr[0] "{distance:.1f} Km"
+msgstr[1] "{distance:.1f} Km"
 
 #: utils.py:78
 msgid "Billing address"
