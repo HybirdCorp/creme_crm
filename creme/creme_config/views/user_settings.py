@@ -96,7 +96,7 @@ def edit_setting_value(request, skey_id):
     return inner_popup(request,
                        'creme_core/generics/blockform/edit_popup.html',
                        {'form':  form,
-                        'title': _(u'Edit «%s»') % skey.description,
+                        'title': _(u'Edit «{}»').format(skey.description),
                        },
                        is_valid=form.is_valid(),
                        reload=False,

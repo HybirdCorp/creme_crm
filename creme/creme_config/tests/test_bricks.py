@@ -227,7 +227,7 @@ class BricksConfigTestCase(CremeTestCase):
             try:
                 model.objects.bulk_create(backup)
             except Exception:
-                print('CremeBlockTagsTestCase: test-data backup problem with model=%s' % model)
+                print('CremeBlockTagsTestCase: test-data backup problem with model={}'.format(model))
 
         gui_bricks.brick_registry = cls._original_block_registry
 
@@ -264,7 +264,7 @@ class BricksConfigTestCase(CremeTestCase):
             if fname == name:
                 return i
 
-        self.fail('No "%s" field' % name)
+        self.fail('No "{}" field'.format(name))
 
     def _assertNotInChoices(self, formfield, id_, error_msg):
         for fid, fvname in formfield.choices:
@@ -284,17 +284,17 @@ class BricksConfigTestCase(CremeTestCase):
     def test_portal(self):
         response = self.assertGET200(reverse('creme_config__bricks'))
 
-        fmt = 'id="%s"'
-        self.assertContains(response, fmt % bricks.BrickDetailviewLocationsBrick.id_)
+        fmt = 'id="{}"'.format
+        self.assertContains(response, fmt(bricks.BrickDetailviewLocationsBrick.id_))
         # if settings.OLD_MENU:
         #     self.assertContains(response, fmt % bricks.BlockPortalLocationsBrick.id_)
         # else:
         #     self.assertContains(response, fmt % bricks.BlockHomeLocationsBrick.id_)
-        self.assertContains(response, fmt % bricks.BrickHomeLocationsBrick.id_)
-        self.assertContains(response, fmt % bricks.BrickDefaultMypageLocationsBrick.id_)
-        self.assertContains(response, fmt % bricks.RelationBricksConfigBrick.id_)
-        self.assertContains(response, fmt % bricks.InstanceBricksConfigBrick.id_)
-        self.assertContains(response, fmt % bricks.CustomBricksConfigBrick.id_)
+        self.assertContains(response, fmt(bricks.BrickHomeLocationsBrick.id_))
+        self.assertContains(response, fmt(bricks.BrickDefaultMypageLocationsBrick.id_))
+        self.assertContains(response, fmt(bricks.RelationBricksConfigBrick.id_))
+        self.assertContains(response, fmt(bricks.InstanceBricksConfigBrick.id_))
+        self.assertContains(response, fmt(bricks.CustomBricksConfigBrick.id_))
 
     def _aux_test_add_detailview(self, role=None, superuser=False):
         model = FakeContact
@@ -333,29 +333,29 @@ class BricksConfigTestCase(CremeTestCase):
         response = self.client.post(url,
                                     data={'role': role.id if role else '',
 
-                                          'top_check_%s' % brick_top_index1: 'on',
-                                          'top_value_%s' % brick_top_index1: brick_top_id1,
-                                          'top_order_%s' % brick_top_index1: 1,
+                                          'top_check_{}'.format(brick_top_index1): 'on',
+                                          'top_value_{}'.format(brick_top_index1): brick_top_id1,
+                                          'top_order_{}'.format(brick_top_index1): 1,
 
-                                          'top_check_%s' % brick_top_index2: 'on',
-                                          'top_value_%s' % brick_top_index2: brick_top_id2,
-                                          'top_order_%s' % brick_top_index2: 2,
+                                          'top_check_{}'.format(brick_top_index2): 'on',
+                                          'top_value_{}'.format(brick_top_index2): brick_top_id2,
+                                          'top_order_{}'.format(brick_top_index2): 2,
 
-                                          'left_check_%s' % brick_left_index1: 'on',
-                                          'left_value_%s' % brick_left_index1: brick_left_id1,
-                                          'left_order_%s' % brick_left_index1: 1,
+                                          'left_check_{}'.format(brick_left_index1): 'on',
+                                          'left_value_{}'.format(brick_left_index1): brick_left_id1,
+                                          'left_order_{}'.format(brick_left_index1): 1,
 
-                                          'left_check_%s' % brick_left_index2: 'on',
-                                          'left_value_%s' % brick_left_index2: brick_left_id2,
-                                          'left_order_%s' % brick_left_index2: 2,
+                                          'left_check_{}'.format(brick_left_index2): 'on',
+                                          'left_value_{}'.format(brick_left_index2): brick_left_id2,
+                                          'left_order_{}'.format(brick_left_index2): 2,
 
-                                          'right_check_%s' % brick_right_index: 'on',
-                                          'right_value_%s' % brick_right_index: brick_right_id,
-                                          'right_order_%s' % brick_right_index: 1,
+                                          'right_check_{}'.format(brick_right_index): 'on',
+                                          'right_value_{}'.format(brick_right_index): brick_right_id,
+                                          'right_order_{}'.format(brick_right_index): 1,
 
-                                          'bottom_check_%s' % brick_bottom_index: 'on',
-                                          'bottom_value_%s' % brick_bottom_index: brick_bottom_id,
-                                          'bottom_order_%s' % brick_bottom_index: 1,
+                                          'bottom_check_{}'.format(brick_bottom_index): 'on',
+                                          'bottom_value_{}'.format(brick_bottom_index): brick_bottom_id,
+                                          'bottom_order_{}'.format(brick_bottom_index): 1,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -405,7 +405,7 @@ class BricksConfigTestCase(CremeTestCase):
                 return list(response.context['form'].fields['role'].choices)
 
         choices = get_choices()
-        self.assertIn(('', u'*%s*' % _(u'Superuser')), choices)
+        self.assertIn(('', u'*{}*'.format(_(u'Superuser'))), choices)
         self.assertIn((role1.id, role1.name), choices)
         self.assertIn((role2.id, role2.name), choices)
 
@@ -420,7 +420,7 @@ class BricksConfigTestCase(CremeTestCase):
         create_loc(role=role1, brick_id=bricks[3].id_, zone=BrickDetailviewLocation.BOTTOM)
 
         choices = get_choices()
-        self.assertIn(('', u'*%s*' % _(u'Superuser')), choices)
+        self.assertIn(('', u'*{}*'.format(_(u'Superuser'))), choices)
         self.assertIn((role2.id, role2.name), choices)
         self.assertNotIn((role1.id, role1.name), choices)
 
@@ -433,7 +433,7 @@ class BricksConfigTestCase(CremeTestCase):
         choices = get_choices()
         self.assertIn((role2.id, role2.name), choices)
         self.assertNotIn((role1.id, role1.name), choices)
-        self.assertNotIn(('', u'*%s*' % _(u'Superuser')), choices)
+        self.assertNotIn(('', u'*{}*'.format(_(u'Superuser'))), choices)
 
     def test_add_detailview04(self):
         "Un-configurable models"
@@ -476,9 +476,9 @@ class BricksConfigTestCase(CremeTestCase):
         response = self.client.post(url,
                                     data={'hat':                            FakeContactHatBrick.id_,
 
-                                          'top_check_%s' % brick_top_index: 'on',
-                                          'top_value_%s' % brick_top_index: brick_top_id,
-                                          'top_order_%s' % brick_top_index: 1,
+                                          'top_check_{}'.format(brick_top_index): 'on',
+                                          'top_value_{}'.format(brick_top_index): brick_top_id,
+                                          'top_order_{}'.format(brick_top_index): 1,
                                          },
                                    )
         self.assertNoFormError(response)
@@ -534,29 +534,29 @@ class BricksConfigTestCase(CremeTestCase):
         brick_bottom_index = self._find_field_index(bottom_field, brick_bottom_id)
 
         response = self.client.post(url,
-                                    data={'top_check_%s' % brick_top_index1: 'on',
-                                          'top_value_%s' % brick_top_index1: brick_top_id1,
-                                          'top_order_%s' % brick_top_index1: 1,
+                                    data={'top_check_{}'.format(brick_top_index1): 'on',
+                                          'top_value_{}'.format(brick_top_index1): brick_top_id1,
+                                          'top_order_{}'.format(brick_top_index1): 1,
 
-                                          'top_check_%s' % brick_top_index2: 'on',
-                                          'top_value_%s' % brick_top_index2: brick_top_id2,
-                                          'top_order_%s' % brick_top_index2: 2,
+                                          'top_check_{}'.format(brick_top_index2): 'on',
+                                          'top_value_{}'.format(brick_top_index2): brick_top_id2,
+                                          'top_order_{}'.format(brick_top_index2): 2,
 
-                                          'left_check_%s' % brick_left_index1: 'on',
-                                          'left_value_%s' % brick_left_index1: brick_left_id1,
-                                          'left_order_%s' % brick_left_index1: 1,
+                                          'left_check_{}'.format(brick_left_index1): 'on',
+                                          'left_value_{}'.format(brick_left_index1): brick_left_id1,
+                                          'left_order_{}'.format(brick_left_index1): 1,
 
-                                          'left_check_%s' % brick_left_index2: 'on',
-                                          'left_value_%s' % brick_left_index2: brick_left_id2,
-                                          'left_order_%s' % brick_left_index2: 2,
+                                          'left_check_{}'.format(brick_left_index2): 'on',
+                                          'left_value_{}'.format(brick_left_index2): brick_left_id2,
+                                          'left_order_{}'.format(brick_left_index2): 2,
 
-                                          'right_check_%s' % brick_right_index: 'on',
-                                          'right_value_%s' % brick_right_index: brick_right_id,
-                                          'right_order_%s' % brick_right_index: 1,
+                                          'right_check_{}'.format(brick_right_index): 'on',
+                                          'right_value_{}'.format(brick_right_index): brick_right_id,
+                                          'right_order_{}'.format(brick_right_index): 1,
 
-                                          'bottom_check_%s' % brick_bottom_index: 'on',
-                                          'bottom_value_%s' % brick_bottom_index: brick_bottom_id,
-                                          'bottom_order_%s' % brick_bottom_index: 1,
+                                          'bottom_check_{}'.format(brick_bottom_index): 'on',
+                                          'bottom_value_{}'.format(brick_bottom_index): brick_bottom_id,
+                                          'bottom_order_{}'.format(brick_bottom_index): 1,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -654,13 +654,13 @@ class BricksConfigTestCase(CremeTestCase):
         brick_top_index2 = self._find_field_index(top_field, brick_top_id2)
 
         response = self.client.post(url,
-                                    data={'top_check_%s' % brick_top_index1: 'on',
-                                          'top_value_%s' % brick_top_index1: brick_top_id1,
-                                          'top_order_%s' % brick_top_index1: 1,
+                                    data={'top_check_{}'.format(brick_top_index1): 'on',
+                                          'top_value_{}'.format(brick_top_index1): brick_top_id1,
+                                          'top_order_{}'.format(brick_top_index1): 1,
 
-                                          'top_check_%s' % brick_top_index2: 'on',
-                                          'top_value_%s' % brick_top_index2: brick_top_id2,
-                                          'top_order_%s' % brick_top_index2: 2,
+                                          'top_check_{}'.format(brick_top_index2): 'on',
+                                          'top_value_{}'.format(brick_top_index2): brick_top_id2,
+                                          'top_order_{}'.format(brick_top_index2): 2,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -698,9 +698,9 @@ class BricksConfigTestCase(CremeTestCase):
 
         index = self._find_field_index(top_field, brick_id)
         response = self.client.post(url,
-                                    data={'top_check_%s' % index: 'on',
-                                          'top_value_%s' % index: brick_id,
-                                          'top_order_%s' % index: 1,
+                                    data={'top_check_{}'.format(index): 'on',
+                                          'top_value_{}'.format(index): brick_id,
+                                          'top_order_{}'.format(index): 1,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -735,13 +735,13 @@ class BricksConfigTestCase(CremeTestCase):
             brick_right_index = self._find_field_index(right_field, block_right_id)
 
             response = self.client.post(url,
-                                        data={'right_check_%s' % brick_right_index: 'on',
-                                              'right_value_%s' % brick_right_index: block_right_id,
-                                              'right_order_%s' % brick_right_index: 1,
+                                        data={'right_check_{}'.format(brick_right_index): 'on',
+                                              'right_value_{}'.format(brick_right_index): block_right_id,
+                                              'right_order_{}'.format(brick_right_index): 1,
 
-                                              'left_check_%s' % brick_left_index: 'on',
-                                              'left_value_%s' % brick_left_index: brick_left_id,
-                                              'left_order_%s' % brick_left_index: 1,
+                                              'left_check_{}'.format(brick_left_index): 'on',
+                                              'left_value_{}'.format(brick_left_index): brick_left_id,
+                                              'left_order_{}'.format(brick_left_index): 1,
                                              }
                                        )
             self.assertFormError(response, 'form', field=None,
@@ -819,9 +819,9 @@ class BricksConfigTestCase(CremeTestCase):
         response = self.client.post(url,
                                     data={'hat': FakeContactHatBrick.id_,
 
-                                          'top_check_%s' % brick_top_index: 'on',
-                                          'top_value_%s' % brick_top_index: brick_top_id,
-                                          'top_order_%s' % brick_top_index: 1,
+                                          'top_check_{}'.format(brick_top_index): 'on',
+                                          'top_value_{}'.format(brick_top_index): brick_top_id,
+                                          'top_order_{}'.format(brick_top_index): 1,
                                          },
                                    )
         self.assertNoFormError(response)
@@ -1564,11 +1564,11 @@ class BricksConfigTestCase(CremeTestCase):
         response = self.client.post(
                 url,
                 data={'relation_c_type_brick_wizard-current_step': '1',
-                      '1-cells': 'regular_field-%(rfield1)s,regular_field-%(rfield2)s,function_field-%(ffield)s' % {
-                                         'rfield1': field_fname,
-                                         'rfield2': field_lname,
-                                         'ffield':  funcfield.name,
-                                    },
+                      '1-cells': 'regular_field-{rfield1},regular_field-{rfield2},function_field-{ffield}'.format(
+                                         rfield1=field_fname,
+                                         rfield2=field_lname,
+                                         ffield=funcfield.name,
+                                    ),
                      },
             )
         self.assertNoFormError(response)
@@ -1685,11 +1685,11 @@ class BricksConfigTestCase(CremeTestCase):
         field_lname = 'last_name'
         self.assertNoFormError(self.client.post(
             url,
-            data={'cells': 'regular_field-%(rfield1)s,regular_field-%(rfield2)s,function_field-%(ffield)s' % {
-                                'rfield1': field_fname,
-                                'rfield2': field_lname,
-                                'ffield':  funcfield.name,
-                            },
+            data={'cells': 'regular_field-{rfield1},regular_field-{rfield2},function_field-{ffield}'.format(
+                                rfield1=field_fname,
+                                rfield2=field_lname,
+                                ffield=funcfield.name,
+                            ),
                  }
            )
         )
@@ -1725,10 +1725,10 @@ class BricksConfigTestCase(CremeTestCase):
         def post(field_name, error=True):
             response = self.assertPOST200(
                 url,
-                data={'cells': 'regular_field-%(rfield1)s,regular_field-%(rfield2)s' % {
-                                    'rfield1': field_name,
-                                    'rfield2': 'last_name',
-                                },
+                data={'cells': 'regular_field-{rfield1},regular_field-{rfield2}'.format(
+                                    rfield1=field_name,
+                                    rfield2='last_name',
+                                ),
                      }
             )
             if error:
@@ -1761,10 +1761,10 @@ class BricksConfigTestCase(CremeTestCase):
         def post(field_name):
             response = self.assertPOST200(
                 url,
-                data={'cells': 'regular_field-%(rfield1)s,regular_field-%(rfield2)s' % {
-                                    'rfield1': field_name,
-                                    'rfield2': 'name',
-                                },
+                data={'cells': 'regular_field-{rfield1},regular_field-{rfield2}'.format(
+                                    rfield1=field_name,
+                                    rfield2='name',
+                                ),
                      }
             )
             self.assertFormError(response, 'form', 'cells',
@@ -1789,10 +1789,10 @@ class BricksConfigTestCase(CremeTestCase):
 
         response = self.assertPOST200(
             self._build_rbrick_editctype_url(rb_item, FakeOrganisation),
-            data={'cells': 'relation-%(rtype)s,regular_field-%(rfield)s' % {
-                                'rtype':  rt2.id,
-                                'rfield': 'name',
-                            },
+            data={'cells': 'relation-{rtype},regular_field-{rfield}'.format(
+                                rtype=rt2.id,
+                                rfield='name',
+                            ),
                  }
         )
         self.assertFormError(response, 'form', 'cells',
@@ -1827,21 +1827,21 @@ class BricksConfigTestCase(CremeTestCase):
         url = self._build_rbrick_editctype_url(rb_item, FakeContact)
         response = self.assertPOST200(
                         url,
-                        data={'cells': 'regular_field-%(rfield1)s,regular_field-%(rfield2)s,regular_field-%(rfield3)s' % {
-                                            'rfield1': valid_fname,
-                                            'rfield2': hidden_fname1,
-                                            'rfield3': hidden_fname2,
-                                        },
+                        data={'cells': 'regular_field-{rfield1},regular_field-{rfield2},regular_field-{rfield3}'.format(
+                                            rfield1=valid_fname,
+                                            rfield2=hidden_fname1,
+                                            rfield3=hidden_fname2,
+                                        ),
                              }
                     )
         self.assertFormError(response, 'form', 'cells', _(u'Enter a valid value.'))
 
         self.assertNoFormError(self.client.post(
             url,
-            data={'cells': 'regular_field-%(rfield1)s,regular_field-%(rfield2)s' % {
-                                'rfield1': valid_fname,
-                                'rfield2': hidden_fname1,
-                            },
+            data={'cells': 'regular_field-{rfield1},regular_field-{rfield2}'.format(
+                                rfield1=valid_fname,
+                                rfield2=hidden_fname1,
+                            ),
                  }
            ))
 
@@ -1961,13 +1961,14 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertNoFormError(self.client.post(
             url, follow=True,
             data={'name':  name,
-                  'cells': 'regular_field-%(rfield1)s,regular_field-%(rfield2)s,relation-%(rtype)s,function_field-%(ffield)s,custom_field-%(cfield)s' % {
-                                'rfield1': field_lname,
-                                'rfield2': field_subname,
-                                'cfield':  customfield.id,
-                                'rtype':   loves.id,
-                                'ffield':  funcfield.name,
-                            },
+                  'cells': 'regular_field-{rfield1},regular_field-{rfield2},relation-{rtype},'
+                           'function_field-{ffield},custom_field-{cfield}'.format(
+                                rfield1=field_lname,
+                                rfield2=field_subname,
+                                cfield=customfield.id,
+                                rtype=loves.id,
+                                ffield=funcfield.name,
+                            ),
                  }
            )
         )
@@ -2033,10 +2034,10 @@ class BricksConfigTestCase(CremeTestCase):
         response = self.assertPOST200(
                         url, follow=True,
                         data={'name':  cbc_item.name,
-                              'cells': 'regular_field-%(rfield1)s,regular_field-%(rfield2)s' % {
-                                            'rfield1': valid_fname,
-                                            'rfield2': hidden_fname,
-                                        },
+                              'cells': 'regular_field-{rfield1},regular_field-{rfield2}'.format(
+                                            rfield1=valid_fname,
+                                            rfield2=hidden_fname,
+                                        ),
                              },
                     )
         self.assertFormError(response, 'form', 'cells', _('Enter a valid value.'))
@@ -2052,10 +2053,10 @@ class BricksConfigTestCase(CremeTestCase):
         response = self.assertPOST200(
                         url, follow=True,
                         data={'name':  cbc_item.name,
-                              'cells': 'regular_field-%(rfield1)s,regular_field-%(rfield2)s' % {
-                                            'rfield1': valid_fname,
-                                            'rfield2': prefix + hidden_subfname,
-                                        },
+                              'cells': 'regular_field-{rfield1},regular_field-{rfield2}'.format(
+                                            rfield1=valid_fname,
+                                            rfield2=prefix + hidden_subfname,
+                                        ),
                              },
                     )
         self.assertFormError(response, 'form', 'cells', _('Enter a valid value.'))
@@ -2171,7 +2172,7 @@ class BricksConfigTestCase(CremeTestCase):
         customfield_ids = [e[0] for e in cells_widget.custom_fields]
         regularfield_ids = [e[0] for e in cells_widget.model_fields]
 
-        self.assertIn('custom_field-%s' % contact_customfield.id, customfield_ids)
+        self.assertIn('custom_field-{}'.format(contact_customfield.id), customfield_ids)
         self.assertIn('regular_field-first_name', regularfield_ids)
         self.assertIn('regular_field-birthday', regularfield_ids)
 
@@ -2220,15 +2221,15 @@ class BricksConfigTestCase(CremeTestCase):
         customfield_ids = [e[0] for e in cells_widget.custom_fields]
         regularfield_ids = [e[0] for e in cells_widget.model_fields]
 
-        self.assertIn('custom_field-%s' % contact_customfield.id, customfield_ids)
+        self.assertIn('custom_field-{}'.format(contact_customfield.id), customfield_ids)
         self.assertIn('regular_field-first_name', regularfield_ids)
         self.assertIn('regular_field-birthday', regularfield_ids)
 
         response = self.assertPOST200(self.CUSTOM_WIZARD_URL,
                                       {'custom_brick_wizard-current_step': '1',
-                                       '1-cells': '%s,%s' % ('regular_field-first_name',
-                                                             'custom_field-%s' % contact_customfield.id,
-                                                            ),
+                                       '1-cells': '{},{}'.format('regular_field-first_name',
+                                                                 'custom_field-{}'.format(contact_customfield.id),
+                                                                ),
                                       }
                                      )
         self.assertNoFormError(response)
@@ -2238,7 +2239,7 @@ class BricksConfigTestCase(CremeTestCase):
 
         self.assertListEqual([(EntityCellRegularField, 'regular_field-first_name', 'first_name'),
                               (EntityCellCustomField,
-                               'custom_field-%s' % contact_customfield.id,
+                               'custom_field-{}'.format(contact_customfield.id),
                                unicode(contact_customfield.id)
                               ),
                              ], cells
@@ -2266,7 +2267,7 @@ class BricksConfigTestCase(CremeTestCase):
         customfield_ids = [e[0] for e in cells_widget.custom_fields]
         regularfield_ids = [e[0] for e in cells_widget.model_fields]
 
-        self.assertIn('custom_field-%s' % contact_customfield.id, customfield_ids)
+        self.assertIn('custom_field-{}'.format(contact_customfield.id), customfield_ids)
         self.assertIn('regular_field-first_name', regularfield_ids)
         self.assertIn('regular_field-birthday', regularfield_ids)
 

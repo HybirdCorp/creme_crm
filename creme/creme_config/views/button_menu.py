@@ -89,7 +89,7 @@ def edit(request, ct_id):
         buttons_form = ButtonMenuEditForm(bmi, ct_id, user=request.user)
 
     # TODO: lazy interpolation ??
-    title = ugettext(u'Edit configuration for «%s»') % ContentType.objects.get_for_id(ct_id) \
+    title = ugettext(u'Edit configuration for «{model}»').format(model=ContentType.objects.get_for_id(ct_id)) \
             if ct_id else \
             _(u'Edit default configuration')
 

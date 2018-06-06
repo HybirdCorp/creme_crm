@@ -232,7 +232,7 @@ class BrickDetailviewLocationsAddForm(_BrickDetailviewLocationsForm):
         try:
             used_role_ids.remove(None)
         except KeyError:
-            role_f.empty_label = u'*%s*' % ugettext(u'Superuser')  # NB: browser can ignore <em> tag in <option>...
+            role_f.empty_label = u'*{}*'.format(ugettext(u'Superuser'))  # NB: browser can ignore <em> tag in <option>...
 
         role_f.queryset = UserRole.objects.exclude(pk__in=used_role_ids)
 
@@ -488,7 +488,7 @@ class CustomBrickConfigItemCreateForm(CremeModelForm):
 
         super(CustomBrickConfigItemCreateForm, self).save(commit=False)
         generate_string_id_and_save(CustomBrickConfigItem, [instance],
-                                    'creme_core-user_customblock_%s-%s' % (ct.app_label, ct.model)
+                                    'creme_core-user_customblock_{}-{}'.format(ct.app_label, ct.model)
                                    )
 
         return instance

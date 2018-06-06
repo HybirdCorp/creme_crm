@@ -70,7 +70,7 @@ def edit(request, relation_type_id):
     return inner_popup(request,
                        'creme_core/generics/blockform/edit_popup.html',
                        {'form':  form,
-                        'title': ugettext(u'Edit the type «%s»') % relation_type, # TODO: lazy interpolation
+                        'title': ugettext(u'Edit the type «{predicate}»').format(predicate=relation_type), # TODO: lazy interpolation
                         'submit_label': _(u'Save the modifications'),
                        },
                        is_valid=form.is_valid(),

@@ -52,7 +52,7 @@ def edit(request, svalue_id):
     return inner_popup(request,
                        'creme_core/generics/blockform/edit_popup.html',
                        {'form':  form,
-                        'title': _(u'Edit «%s»') % svalue.key.description,
+                        'title': _(u'Edit «{}»').format(svalue.key.description),
                        },
                        is_valid=form.is_valid(),
                        reload=False,

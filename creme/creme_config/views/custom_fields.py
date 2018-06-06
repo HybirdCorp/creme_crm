@@ -45,7 +45,7 @@ def add(request, ct_id):
     ct = get_ct_or_404(ct_id)
 
     return add_model_with_popup(request, CustomFieldsAddForm,
-                                _(u'New custom field for «%s»') % ct,
+                                _(u'New custom field for «{model}»').format(model=ct),
                                 initial={'ct': ct},
                                )
 

@@ -62,7 +62,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             if f_button_id == button_id:
                 return i
 
-        self.fail('No "%s" in field' % button_id)
+        self.fail('No "{}" in button IDs'.format(button_id))
 
     def test_wizard(self):
         class TestButton(Button):
@@ -96,10 +96,10 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
         response = self.client.post(url,
                                     {'button_menu_wizard-current_step': '1',
-                                     '1-button_ids_check_%s' % button_index: 'on',
+                                     '1-button_ids_check_{}'.format(button_index): 'on',
                                      # '1-button_ids_value_%s' % button_index: button.id_,
-                                     '1-button_ids_value_%s' % button_index: TestButton.id_,
-                                     '1-button_ids_order_%s' % button_index: 1,
+                                     '1-button_ids_value_{}'.format(button_index): TestButton.id_,
+                                     '1-button_ids_order_{}'.format(button_index): 1,
                                     }
                                    )
         self.assertNoFormError(response)
@@ -132,10 +132,10 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         button_index = self._find_field_index(button_ids, TestButton.id_)
 
         response = self.client.post(url,
-                                    data={'button_ids_check_%s' % button_index: 'on',
+                                    data={'button_ids_check_{}'.format(button_index): 'on',
                                           # 'button_ids_value_%s' % button_index: button.id_,
-                                          'button_ids_value_%s' % button_index: TestButton.id_,
-                                          'button_ids_order_%s' % button_index: 1,
+                                          'button_ids_value_{}'.format(button_index): TestButton.id_,
+                                          'button_ids_order_{}'.format(button_index): 1,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -195,15 +195,15 @@ class ButtonMenuConfigTestCase(CremeTestCase):
                 self.fail('Button03 is incompatible with Contact')
 
         response = self.client.post(url,
-                                    data={'button_ids_check_%s' % button01_index: 'on',
+                                    data={'button_ids_check_{}'.format(button01_index): 'on',
                                           # 'button_ids_value_%s' % button01_index: button01.id_,
-                                          'button_ids_value_%s' % button01_index: TestButton01.id_,
-                                          'button_ids_order_%s' % button01_index: 1,
+                                          'button_ids_value_{}'.format(button01_index): TestButton01.id_,
+                                          'button_ids_order_{}'.format(button01_index): 1,
 
-                                          'button_ids_check_%s' % button02_index: 'on',
+                                          'button_ids_check_{}'.format(button02_index): 'on',
                                           # 'button_ids_value_%s' % button02_index: button02.id_,
-                                          'button_ids_value_%s' % button02_index: TestButton02.id_,
-                                          'button_ids_order_%s' % button02_index: 2,
+                                          'button_ids_value_{}'.format(button02_index): TestButton02.id_,
+                                          'button_ids_order_{}'.format(button02_index): 2,
                                          }
                                    )
         self.assertNoFormError(response)

@@ -65,7 +65,7 @@ class SearchAddForm(_SearchForm):
         try:
             used_role_ids.remove(None)
         except KeyError:
-            role_f.empty_label = u'*%s*' % ugettext(u'Superuser')  # NB: browser can ignore <em> tag in <option>...
+            role_f.empty_label = u'*{}*'.format(ugettext(u'Superuser'))  # NB: browser can ignore <em> tag in <option>...
 
         role_f.queryset = UserRole.objects.exclude(pk__in=used_role_ids)
 

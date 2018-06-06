@@ -8,7 +8,7 @@ try:
     from creme.creme_core.core.setting_key import SettingKey, setting_key_registry
     from creme.creme_core.models import SettingValue
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 # TODO: clean registry in teardDown...

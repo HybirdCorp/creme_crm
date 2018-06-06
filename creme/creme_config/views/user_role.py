@@ -118,7 +118,7 @@ class UserRoleEditionWizard(PopupWizardMixin, SessionWizardView):
         _check_superuser(self.request.user)  # TODO: set public ?
 
         self.role = role = get_object_or_404(UserRole, pk=kwargs['role_id'])
-        self.wizard_title = ugettext(u'Edit «%s»') % role
+        self.wizard_title = ugettext(u'Edit «{}»').format(role)
 
         return super(UserRoleEditionWizard, self).dispatch(*args, **kwargs)
 
@@ -160,7 +160,7 @@ def add_credentials(request, role_id):
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':  add_form,
-                        'title': _(u'Add credentials to «%s»') % role,
+                        'title': _(u'Add credentials to «{role}»').format(role=role),
                         'submit_label': _(u'Add the credentials'),
                        },
                        is_valid=add_form.is_valid(),
@@ -185,7 +185,7 @@ def edit_credentials(request, cred_id):
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':  edit_form,
-                        'title': _(u'Edit credentials for «%s»') % creds.role,
+                        'title': _(u'Edit credentials for «{role}»').format(role=creds.role),
                         'submit_label': _(u'Save the modifications'),
                        },
                        is_valid=edit_form.is_valid(),
@@ -208,7 +208,7 @@ def delete(request, role_id):
     role = get_object_or_404(UserRole, pk=role_id)
 
     return add_model_with_popup(request, UserRoleDeleteForm,
-                                _(u'Delete role «%s»') % role,
+                                _(u'Delete role «{}»').format(role),
                                 initial={'role_to_delete': role},
                                 submit_label=_(u'Delete the role'),
                                )

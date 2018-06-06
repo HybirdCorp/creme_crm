@@ -101,7 +101,7 @@ class AppConfigRegistry(object):
         model_conf = self._models.get(model)
 
         if model_conf is None:
-            raise NotRegisteredInConfig('Model %s is not registered' % model)
+            raise NotRegisteredInConfig('Model {} is not registered'.format(model))
 
         return model_conf
 
@@ -177,9 +177,11 @@ class _ConfigRegistry(object):
         app_registries = self._apps
 
         for app_label, brick_cls in bricks_to_register:
-            assert hasattr(brick_cls, 'detailview_display'), 'brick with id="%s" has no detailview_display() method' % brick_cls.id_
+            assert hasattr(brick_cls, 'detailview_display'), \
+                  'brick with id="{}" has no detailview_display() method'.format(brick_cls.id_)
             # TODO: need a method is_registered() ?
-            assert brick_cls.id_ in self._brick_registry._brick_classes, 'brick with id="%s" is not registered' % brick_cls.id_
+            assert brick_cls.id_ in self._brick_registry._brick_classes, \
+                   'brick with id="{}" is not registered'.format(brick_cls.id_)
 
             app_name = self._get_app_name(app_label)
             app_conf = app_registries.get(app_name)
@@ -191,15 +193,19 @@ class _ConfigRegistry(object):
 
     def register_portal_bricks(self, *bricks_to_register):
         for brick_cls in bricks_to_register:
-            assert hasattr(brick_cls, 'detailview_display'), 'brick with id="%s" has no detailview_display() method' % brick_cls.id_
-            assert brick_cls.id_ in self._brick_registry._brick_classes, 'brick with id="%s" is not registered' % brick_cls.id_
+            assert hasattr(brick_cls, 'detailview_display'), \
+                   'brick with id="{}" has no detailview_display() method'.format(brick_cls.id_)
+            assert brick_cls.id_ in self._brick_registry._brick_classes, \
+                   'brick with id="{}" is not registered'.format(brick_cls.id_)
 
         self._portal_brick_classes.extend(bricks_to_register)
 
     def register_user_bricks(self, *bricks_to_register):
         for brick_cls in bricks_to_register:
-            assert hasattr(brick_cls, 'detailview_display'), 'brick with id="%s" has no detailview_display() method' % brick_cls.id_
-            assert brick_cls.id_ in self._brick_registry._brick_classes, 'brick with id="%s" is not registered' % brick_cls.id_
+            assert hasattr(brick_cls, 'detailview_display'), \
+                   'brick with id="{}" has no detailview_display() method'.format(brick_cls.id_)
+            assert brick_cls.id_ in self._brick_registry._brick_classes, \
+                   'brick with id="{}" is not registered'.format(brick_cls.id_)
 
             self._user_brick_classes.append(brick_cls)
 

@@ -14,7 +14,7 @@ try:
 
     from ..bricks import SearchConfigBrick
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
@@ -49,12 +49,12 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
             if f_field_name == field_name:
                 return i
 
-        self.fail('No "%s" in field' % field_name)
+        self.fail('No "{}" in field'.format(field_name))
 
     def _assertNotInChoices(self, formfield, field_name):
         for f_field_name, f_field_vname in formfield.choices:
             if f_field_name == field_name:
-                self.fail('"%s" found in choices' % field_name)
+                self.fail('"{}" found in choices'.format(field_name))
 
     def _get_first_entity_ctype(self):
         ctypes = list(creme_entity_content_types())
@@ -116,9 +116,9 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertNoFormError(self.client.post(url,
                                                 data={'role': role.id,
 
-                                                      'fields_check_%s' % index: 'on',
-                                                      'fields_value_%s' % index: fname,
-                                                      'fields_order_%s' % index: 1,
+                                                      'fields_check_{}'.format(index): 'on',
+                                                      'fields_value_{}'.format(index): fname,
+                                                      'fields_order_{}'.format(index): 1,
                                                      },
                                                )
                               )
@@ -160,7 +160,7 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
             role_f = response.context['form'].fields['role']
             choices = role_f.choices
 
-        self.assertEqual(u'*%s*' % _(u'Superuser'), role_f.empty_label)
+        self.assertEqual(u'*{}*'.format(_(u'Superuser')), role_f.empty_label)
 
         role_ids = {c[0] for c in choices}
         self.assertIn(role2.id, role_ids)
@@ -185,9 +185,9 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         names = []
 
         for order, (name, index) in enumerate(names_indexes, start=1):
-            data['fields_check_%s' % index] = 'on'
-            data['fields_value_%s' % index] = name
-            data['fields_order_%s' % index] = order
+            data['fields_check_{}'.format(index)] = 'on'
+            data['fields_value_{}'.format(index)] = name
+            data['fields_order_{}'.format(index)] = order
 
             names.append(name)
 
