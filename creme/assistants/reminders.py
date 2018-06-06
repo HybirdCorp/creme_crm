@@ -50,18 +50,18 @@ class ReminderAlert(AssistantReminder):
         return timedelta(minutes=getattr(settings, 'DEFAULT_TIME_ALERT_REMIND', 30))
 
     def generate_email_subject(self, object):
-        return _(u'Reminder concerning a Creme CRM alert related to %s') % object.creme_entity
+        return _(u'Reminder concerning a Creme CRM alert related to {entity}').format(entity=object.creme_entity)
 
     def generate_email_body(self, object):
-        return _(u"""This mail is automatically sent by Crème CRM to remind you that an alert concerning %(entity)s will expire.
-            Alert : %(title)s.
-            which description is : %(description)s.
+        return _(u"""This mail is automatically sent by Crème CRM to remind you that an alert concerning {entity} will expire.
+            Alert : {title}.
+            which description is : {description}.
 
-            which is related to the entity : %(entity)s""") % {
-                    'entity':      object.creme_entity,
-                    'title':       object.title,
-                    'description': object.description,
-                }
+            which is related to the entity : {entity}""").format(
+                    entity=object.creme_entity,
+                    title=object.title,
+                    description=object.description,
+            )
 
     def get_Q_filter(self):
         return Q(trigger_date__lte=now() + self._get_delta(), is_validated=False)
@@ -85,18 +85,18 @@ class ReminderTodo(AssistantReminder):
         return SettingValue.objects.get(key_id=MIN_HOUR_4_TODO_REMINDER).value
 
     def generate_email_subject(self, object):
-        return _(u'Reminder concerning a Creme CRM todo related to %s') % object.creme_entity
+        return _(u'Reminder concerning a Creme CRM todo related to {entity}').format(entity=object.creme_entity)
 
     def generate_email_body(self, object):
-        return _(u"""This mail is automatically sent by Crème CRM to remind you that a todo concerning %(entity)s will expire.
-            Todo : %(title)s.
-            which description is : %(description)s.
+        return _(u"""This mail is automatically sent by Crème CRM to remind you that a todo concerning {entity} will expire.
+            Todo : {title}.
+            which description is : {description}.
 
-             which is related to the entity : %(entity)s""") % {
-                    'entity':      object.creme_entity,
-                    'title':       object.title,
-                    'description': object.description,
-                }
+             which is related to the entity : {entity}""").format(
+                    entity=object.creme_entity,
+                    title=object.title,
+                    description=object.description,
+                )
 
     def get_Q_filter(self):
         # TODO: exclude Todos related to deleted entities ??
