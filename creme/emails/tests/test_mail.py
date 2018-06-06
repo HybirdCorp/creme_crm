@@ -29,7 +29,7 @@ try:
     from ..creme_jobs import entity_emails_send_type
     from ..models import EmailSignature
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 @skipIfCustomEntityEmail
@@ -175,7 +175,7 @@ class EntityEmailTestCase(_EmailsTestCase):
                                                'body':         'I want to be freezed !',
                                                'body_html':    '<p>I want to be freezed !</p>',
                                                'signature':    signature.id,
-                                               'attachments':  '[%s,%s]' % (doc1.id, doc2.id),
+                                               'attachments':  '[{},{}]'.format(doc1.id, doc2.id),
                                                'send_me':      True,
                                               }
                                    )
@@ -228,10 +228,10 @@ class EntityEmailTestCase(_EmailsTestCase):
                                            }
                                       )
         self.assertFormError(response, 'form', 'c_recipients',
-                             _(u"The email address for %s is invalid") % contact01
+                             _(u'The email address for {} is invalid').format(contact01)
                             )
         self.assertFormError(response, 'form', 'o_recipients',
-                             _(u"The email address for %s is invalid") % orga01
+                             _(u'The email address for {} is invalid').format(orga01)
                             )
 
     @skipIfCustomContact
@@ -246,7 +246,9 @@ class EntityEmailTestCase(_EmailsTestCase):
             c_recipients = response.context['form'].fields['c_recipients']
 
         self.assertIsNone(c_recipients.initial)
-        self.assertEqual(_(u'Beware: the contact «%s» has no email address!') % contact, c_recipients.help_text)
+        self.assertEqual(_(u'Beware: the contact «{}» has no email address!').format(contact),
+                         c_recipients.help_text
+                        )
 
     @skipIfCustomOrganisation
     def test_createview05(self):
@@ -260,7 +262,9 @@ class EntityEmailTestCase(_EmailsTestCase):
             o_recipients = response.context['form'].fields['o_recipients']
 
         self.assertIsNone(o_recipients.initial)
-        self.assertEqual(_(u'Beware: the organisation «%s» has no email address!') % orga, o_recipients.help_text)
+        self.assertEqual(_(u'Beware: the organisation «{}» has no email address!').format(orga),
+                         o_recipients.help_text
+                        )
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -483,15 +487,15 @@ class EntityEmailTestCase(_EmailsTestCase):
     def test_create_from_template01(self):
         user = self.login()
 
-        body_format      = 'Hi %s %s, nice to meet you !'
-        body_html_format = 'Hi <strong>%s %s</strong>, nice to meet you !'
+        body_format      = 'Hi {} {}, nice to meet you !'.format
+        body_html_format = 'Hi <strong>{} {}</strong>, nice to meet you !'.format
 
         subject   = 'I am da subject'
         signature = EmailSignature.objects.create(user=user, name="Re-l's signature", body='I love you... not')
         template = EmailTemplate.objects.create(user=user, name='My template',
                                                 subject=subject,
-                                                body=body_format % ('{{first_name}}', '{{last_name}}'),
-                                                body_html=body_html_format % ('{{first_name}}', '{{last_name}}'),
+                                                body=body_format('{{first_name}}', '{{last_name}}'),
+                                                body_html=body_html_format('{{first_name}}', '{{last_name}}'),
                                                 signature=signature,
                                                )
 
@@ -522,8 +526,8 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         ini_get = form.initial.get
         self.assertEqual(subject, ini_get('subject'))
-        self.assertEqual(body_format % (contact.first_name, contact.last_name),      ini_get('body'))
-        self.assertEqual(body_html_format % (contact.first_name, contact.last_name), ini_get('body_html'))
+        self.assertEqual(body_format(contact.first_name, contact.last_name),      ini_get('body'))
+        self.assertEqual(body_html_format(contact.first_name, contact.last_name), ini_get('body_html'))
         self.assertEqual(signature.id, ini_get('signature'))
         # self.assertEqual(attachments,  ini_get('attachments')) #TODO
 
@@ -575,21 +579,21 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.login()
         email = self._create_email(body_html='<p>hi</p>'
                                              '<img alt="Totoro" src="http://external/images/totoro.jpg" />'
-                                             '<img alt="Nekobus" src="%snekobus.jpg" />' % settings.MEDIA_URL
+                                             '<img alt="Nekobus" src="{}nekobus.jpg" />'.format(settings.MEDIA_URL)
                                   )
 
         url = reverse('creme_core__sanitized_html_field', args=(email.id, 'body_html'))
         response = self.assertGET200(url)
         self.assertEqual('<p>hi</p>'
                          '<img alt="Totoro">'
-                         '<img alt="Nekobus" src="%snekobus.jpg">' % settings.MEDIA_URL,
+                         '<img alt="Nekobus" src="{}nekobus.jpg">'.format(settings.MEDIA_URL),
                          response.content
                         )
 
         response = self.assertGET200(url + '?external_img=on')
         self.assertEqual('<p>hi</p>'
                          '<img alt="Totoro" src="http://external/images/totoro.jpg">'
-                         '<img alt="Nekobus" src="%snekobus.jpg">' % settings.MEDIA_URL,
+                         '<img alt="Nekobus" src="{}nekobus.jpg">'.format(settings.MEDIA_URL),
                          response.content
                         )
         # TODO: improve sanitization test (other tags, css...)

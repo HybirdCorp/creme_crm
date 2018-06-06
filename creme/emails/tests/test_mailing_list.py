@@ -16,7 +16,7 @@ try:
             Contact, Organisation, MailingList, EmailCampaign)
     from creme.emails.models import EmailRecipient
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 @skipIfCustomMailingList
@@ -86,7 +86,7 @@ class MailingListsTestCase(_EmailsTestCase):
         def post(*mlists):
             return self.client.post(url, follow=True,
                                     # See MultiCreatorEntityField
-                                    data={'mailing_lists': '[%s]' % ','.join(str(ml.id) for ml in mlists)}
+                                    data={'mailing_lists': '[{}]'.format(','.join(str(ml.id) for ml in mlists))}
                                    )
 
         response = post(mlist01, mlist02)
@@ -204,7 +204,7 @@ class MailingListsTestCase(_EmailsTestCase):
                      ]
 
         # see MultiCreatorEntityField
-        response = self.client.post(url, data={'recipients': '[%s]' % ','.join(str(c.id) for c in recipients)})
+        response = self.client.post(url, data={'recipients': '[{}]'.format(','.join(str(c.id) for c in recipients))})
         self.assertNoFormError(response)
         self.assertEqual({c.id for c in recipients}, {c.id for c in mlist.contacts.all()})
 
@@ -303,7 +303,7 @@ class MailingListsTestCase(_EmailsTestCase):
         recipients = [create(name='NERV',  email='contact@nerv.jp'),
                       create(name='Seele', email='contact@seele.jp'),
                      ]
-        response = self.client.post(url, data={'recipients': '[%s]' % ','.join(str(c.id) for c in recipients)})
+        response = self.client.post(url, data={'recipients': '[{}]'.format(','.join(str(c.id) for c in recipients))})
         self.assertNoFormError(response)
         self.assertEqual({c.id for c in recipients}, {c.id for c in mlist.organisations.all()})
 

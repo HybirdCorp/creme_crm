@@ -27,7 +27,7 @@ try:
     from ..models.sending import (SENDING_TYPE_IMMEDIATE, SENDING_TYPE_DEFERRED,
             SENDING_STATE_DONE, SENDING_STATE_PLANNED)
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 @skipIfCustomEmailCampaign
@@ -298,9 +298,9 @@ class SendingsTestCase(_EmailsTestCase):
         with self.assertNoException():
             mail = sending.mails_set.all()[0]
 
-        self.assertEqual('Your first name is: %s !' % first_name, mail.rendered_body)
+        self.assertEqual('Your first name is: {} !'.format(first_name), mail.rendered_body)
 
-        html = '<p>Your last name is: %s !</p>' % last_name
+        html = '<p>Your last name is: {} !</p>'.format(last_name)
         self.assertEqual(html, mail.rendered_body_html)
         self.assertEqual(html, self.client.get(reverse('emails__lw_mail_body', args=(mail.id,))).content)
 

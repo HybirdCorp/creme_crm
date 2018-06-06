@@ -62,7 +62,7 @@ class _Email(CremeModel):
         app_label = 'emails'
 
     def __unicode__(self):
-        return u"Mail<from: %s> <to: %s> <sent: %s> <id: %s>" % (
+        return u'Mail<from: {}> <to: {}> <sent: {}> <id: {}>'.format(
                     self.sender, self.recipient, self.sending_date, self.id,
                 )
 
@@ -110,11 +110,11 @@ class AbstractEntityEmail(_Email, CremeEntity):
                 return
 
     def __unicode__(self):
-        return ugettext(u'EMail <from: %(from)s> <to: %(to)s> <status: %(status)s>') % {
-                                'from':   self.sender,
-                                'to':     self.recipient,
-                                'status': self.get_status_display(),
-                            }
+        return ugettext(u'EMail <from: {sender}> <to: {to}> <status: {status}>').format(
+                                sender=self.sender,
+                                to=self.recipient,
+                                status=self.get_status_display(),
+                            )
 
     def get_absolute_url(self):
         return reverse('emails__view_email', args=(self.pk,))

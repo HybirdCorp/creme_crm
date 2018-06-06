@@ -62,9 +62,9 @@ class EntityEmailBackend(CrudityBackend):
         current_user_id = current_user.id
 
         # TODO: only if at least one attachment
-        folder = Folder.objects.get_or_create(title=_(u"%(username)s's files received by email") % {
-                                                            'username': current_user.username,
-                                                        },
+        folder = Folder.objects.get_or_create(title=_(u"{username}'s files received by email").format(
+                                                            username=current_user.username,
+                                                        ),
                                               category=FolderCategory.objects.get(pk=DOCUMENTS_FROM_EMAILS),
                                               parent_folder=None,
                                               defaults={'user': current_user},
@@ -89,13 +89,13 @@ class EntityEmailBackend(CrudityBackend):
                                  )
         create_doc = partial(Document.objects.create,
                              user_id=current_user_id, folder=folder,
-                             description=_(u'Received with the mail %s') % mail,
+                             description=_(u'Received with the mail {}').format(mail),
                             )
 
         for attachment in email.attachments:
             filename, file_ = attachment
             path = handle_uploaded_file(file_, path=attachment_path, name=filename)
-            doc = create_doc(title=u'%s (mail %s)' % (basename(path), mail.id),
+            doc = create_doc(title=u'{} (mail {})'.format(basename(path), mail.id),
                              filedata=path,
                             )
 
@@ -104,7 +104,7 @@ class EntityEmailBackend(CrudityBackend):
         History.objects.create(entity=mail,
                                action='create',
                                source='email - raw',
-                               description=_(u'Creation of %(entity)s') % {'entity': mail},
+                               description=_(u'Creation of {entity}').format(entity=mail),
                                user=current_user,
                               )
 

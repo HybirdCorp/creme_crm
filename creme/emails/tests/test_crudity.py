@@ -20,7 +20,7 @@ try:
              MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED)
     from .base import _EmailsTestCase, skipIfCustomEntityEmail, EntityEmail
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 @skipIfNotInstalled('creme.crudity')
@@ -130,7 +130,7 @@ class EmailsCrudityTestCase(_EmailsTestCase):
         self.assertEqual('create',      history.action)
         self.assertEqual('email - raw', history.source)
         self.assertEqual(user,          history.user)
-        self.assertEqual(_('Creation of %(entity)s') % {'entity': e_email},
+        self.assertEqual(_('Creation of {entity}').format(entity=e_email),
                          history.description
                         )
 

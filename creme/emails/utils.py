@@ -46,7 +46,7 @@ _IMG_PATTERN = re_compile(r'<img.*src[\s]*[=]{1,1}["\']{1,1}(?P<img_src>[\d\w:/?
 
 class ImageFromHTMLError(Exception):
     def __init__(self, filename, *args, **kwargs):
-        super(Exception, self).__init__('Can not use the image : %s' % filename)
+        super(Exception, self).__init__('Can not use the image : {}'.format(filename))
         self._filename = filename
 
     @property
@@ -66,7 +66,7 @@ def get_mime_image(image_entity):
             image_file = image_entity.filedata.file
             image_file.open() # NB: 'with' seems not working
             mime_image = MIMEImage(image_file.read())
-            mime_image.add_header('Content-ID','<img_%s>' % image_entity.id)
+            mime_image.add_header('Content-ID','<img_{}>'.format(image_entity.id))
             mime_image.add_header('Content-Disposition', 'inline', filename=basename(image_file.name))
             image_file.close()
         except IOError as e:
@@ -96,7 +96,7 @@ class EMailSender(object):
                     logger.error('Error during reading attached image in signature: %s', image_entity)
                 else:
                     mime_images.append(mime_image)
-                    body_html += '<img src="cid:img_%s" /><br/>' % image_entity.id
+                    body_html += '<img src="cid:img_{}" /><br/>'.format(image_entity.id)
 
         self._body      = body
         self._body_html = body_html
