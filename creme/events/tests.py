@@ -6,7 +6,6 @@ try:
     from functools import partial
     from unittest import skipIf
 
-    from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
@@ -49,13 +48,6 @@ def skipIfCustomEvent(test_func):
 
 @skipIfCustomEvent
 class EventsTestCase(CremeTestCase):
-    format_str    = '[{"rtype": "%s", "ctype": "%s", "entity": "%s"}]'
-    format_str_5x = '[{"rtype": "%s", "ctype": "%s", "entity": "%s"},' \
-                    ' {"rtype": "%s", "ctype": "%s", "entity": "%s"},' \
-                    ' {"rtype": "%s", "ctype": "%s", "entity": "%s"},' \
-                    ' {"rtype": "%s", "ctype": "%s", "entity": "%s"},' \
-                    ' {"rtype": "%s", "ctype": "%s", "entity": "%s"}]'
-
     @classmethod
     def setUpClass(cls):
         super(EventsTestCase, cls).setUpClass()
@@ -85,7 +77,7 @@ class EventsTestCase(CremeTestCase):
     def _create_event(self, name, etype=None, start_date='2010-11-3', **extra_data):
         etype = etype or EventType.objects.all()[0]
 
-        data = {'user':       self.user.pk,
+        data = {'user':       self.user.id,
                 'name':       name,
                 'type':       etype.pk,
                 'start_date': start_date,
@@ -527,10 +519,8 @@ class EventsTestCase(CremeTestCase):
         self.assertGET200(url)
 
         response = self.client.post(url, follow=True,
-                                    data={'related_contacts': self.format_str % (
-                                                                  REL_OBJ_CAME_EVENT,
-                                                                  casca.entity_type_id,
-                                                                  casca.id
+                                    data={'related_contacts': self.formfield_value_multi_relation_entity(
+                                                                    (REL_OBJ_CAME_EVENT, casca)
                                                                 ),
                                          }
                                    )
@@ -548,15 +538,14 @@ class EventsTestCase(CremeTestCase):
         rickert  = create_contact(first_name='Rickert',  last_name='Miura')
         carcus   = create_contact(first_name='Carcus',   last_name='Miura')
 
-        ct_id = ContentType.objects.get_for_model(Contact).id
         response = self.client.post(self._build_link_contacts_url(event), follow=True,
-                                    data= {"related_contacts": self.format_str_5x % (
-                                                                    REL_OBJ_IS_INVITED_TO,  ct_id, casca.id,
-                                                                    REL_OBJ_CAME_EVENT,     ct_id, judo.id,
-                                                                    REL_OBJ_NOT_CAME_EVENT, ct_id, griffith.id,
-                                                                    REL_OBJ_IS_INVITED_TO,  ct_id, rickert.id,
-                                                                    REL_OBJ_CAME_EVENT,     ct_id, carcus.id,
-                                                                ),
+                                    data={'related_contacts': self.formfield_value_multi_relation_entity(
+                                                (REL_OBJ_IS_INVITED_TO,  casca),
+                                                (REL_OBJ_CAME_EVENT,     judo),
+                                                (REL_OBJ_NOT_CAME_EVENT, griffith),
+                                                (REL_OBJ_IS_INVITED_TO,  rickert),
+                                                (REL_OBJ_CAME_EVENT,     carcus),
+                                            ),
                                           }
                                    )
         self.assertNoFormError(response)
@@ -568,13 +557,13 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual([REL_SUB_CAME_EVENT],     self.relations_types(carcus, event))
 
         response = self.client.post(self._build_link_contacts_url(event), follow=True,
-                                    data= {"related_contacts": self.format_str_5x % (
-                                                                    REL_OBJ_IS_INVITED_TO,  ct_id, casca.id,
-                                                                    REL_OBJ_NOT_CAME_EVENT, ct_id, judo.id,
-                                                                    REL_OBJ_CAME_EVENT,     ct_id, griffith.id,
-                                                                    REL_OBJ_CAME_EVENT,     ct_id, rickert.id,
-                                                                    REL_OBJ_CAME_EVENT,     ct_id, carcus.id,
-                                                                ),
+                                    data={'related_contacts': self.formfield_value_multi_relation_entity(
+                                                (REL_OBJ_IS_INVITED_TO,  casca),
+                                                (REL_OBJ_NOT_CAME_EVENT, judo),
+                                                (REL_OBJ_CAME_EVENT,     griffith),
+                                                (REL_OBJ_CAME_EVENT,     rickert),
+                                                (REL_OBJ_CAME_EVENT,     carcus),
+                                            ),
                                           }
                                    )
         self.assertNoFormError(response)
@@ -592,14 +581,12 @@ class EventsTestCase(CremeTestCase):
 
         event = self._create_event('Eclipse')
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
-        ct_id = ContentType.objects.get_for_model(Contact).id
 
         response = self.assertPOST200(self._build_link_contacts_url(event), follow=True,
-                                      data={'related_contacts': '[{"rtype":"%s","ctype": "%s","entity":"%s"},'
-                                                                ' {"rtype":"%s","ctype": "%s","entity":"%s"}]' % (
-                                                                        REL_OBJ_IS_INVITED_TO, ct_id, casca.id,
-                                                                        REL_OBJ_CAME_EVENT,    ct_id, casca.id,
-                                                                    ),
+                                      data={'related_contacts': self.formfield_value_multi_relation_entity(
+                                                    (REL_OBJ_IS_INVITED_TO, casca),
+                                                    (REL_OBJ_CAME_EVENT,    casca),
+                                                ),
                                            }
                                      )
         self.assertFormError(response, 'form', 'related_contacts',
@@ -627,10 +614,8 @@ class EventsTestCase(CremeTestCase):
         self.assertGET200(url)
 
         response = self.assertPOST200(url, follow=True,
-                                      data={'related_contacts': self.format_str % (
-                                                                        REL_OBJ_IS_INVITED_TO,
-                                                                        casca.entity_type_id,
-                                                                        casca.id,
+                                      data={'related_contacts': self.formfield_value_multi_relation_entity(
+                                                                        (REL_OBJ_IS_INVITED_TO, casca),
                                                                     ),
                                            }
                                      )
@@ -677,12 +662,10 @@ class EventsTestCase(CremeTestCase):
 
         phase = SalesPhase.objects.all()[0]
         response = self.client.post(url, follow=True,
-                                    data={'user':        user.pk,
+                                    data={'user':        user.id,
                                           'name':        name,
                                           'sales_phase': phase.id,
-                                          'target':      '{"ctype": {"id": "%s"}, "entity":"%s"}' % (
-                                                                casca.entity_type_id, casca.id
-                                                            ),
+                                          'target':      self.formfield_value_generic_entity(casca),
                                           'emitter':     emitter.id,
                                           'currency':    DEFAULT_CURRENCY_PK,
                                          }
@@ -762,12 +745,10 @@ class EventsTestCase(CremeTestCase):
 
         name = 'Opp01'
         response = self.client.post(self._build_related_opp_url(event, casca), follow=True,
-                                    data={'user':        user.pk,
+                                    data={'user':        user.id,
                                           'name':        name,
                                           'sales_phase': SalesPhase.objects.first().id,
-                                          'target':      '{"ctype": {"id": "%s"}, "entity":"%s"}' % (
-                                                                casca.entity_type_id, casca.id
-                                                            ),
+                                          'target':      self.formfield_value_generic_entity(casca),
                                           'emitter':     emitter.id,
                                           'currency':    DEFAULT_CURRENCY_PK,
                                          }

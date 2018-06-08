@@ -2178,7 +2178,7 @@ class ReportTestCase(BaseReportsTestCase):
         # img1.categories = [cat1, cat2]
         img1.categories.set([cat1, cat2])
 
-        cats_str = u'%s, %s' % (cat1.name, cat2.name)
+        cats_str = u'{}, {}'.format(cat1.name, cat2.name)
         self.assertEqual([[img1.name, img1.description, cats_str, cats_str],
                           [img2.name, '',               '',       ''],
                         ],
@@ -2221,7 +2221,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         self.assertEqual([[guild2.name, leader.title],
                           [guild3.name, ''],
-                          [guild1.name, '%s, %s, ' % (leader.title, side_kick.title)],
+                          [guild1.name, '{}, {}, '.format(leader.title, side_kick.title)],
                          ],
                          report.fetch_all_lines()
                         )
@@ -2398,7 +2398,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         fetch = self.report_orga.fetch_all_lines
         lines = [[self.lannisters.name, unicode(self.tyrion)],
-                 [self.starks.name,     u'%s, %s' % (ned, self.robb)],
+                 [self.starks.name,     u'{}, {}'.format(ned, self.robb)],
                 ]
         self.assertEqual(lines, fetch())
 

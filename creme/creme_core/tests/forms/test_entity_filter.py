@@ -2,7 +2,7 @@
 try:
     from datetime import date
     from functools import partial
-    from json import loads as json_loads, dumps as json_encode
+    from json import loads as json_load, dumps as json_dump
 
     from django.contrib.contenttypes.models import ContentType
     from django.core.exceptions import ValidationError
@@ -26,15 +26,20 @@ except Exception as e:
 
 
 class RegularFieldsConditionsFieldTestCase(FieldTestCase):
-    CONDITION_FIELD_JSON_FMT    = '[{"field": {"name": "%(name)s"}, "operator": {"id": "%(operator)s"}, "value": %(value)s}]'
-    CONDITION_2X_FIELD_JSON_FMT = '[{"field": {"name": "%(name1)s"}, "operator": {"id": "%(operator1)s"}, "value": %(value1)s}, ' \
-                                   '{"field": {"name": "%(name2)s"}, "operator": {"id": "%(operator2)s"}, "value": %(value2)s}]'
+    @staticmethod
+    def build_data(*conditions):
+        return json_dump([
+            {'field':    {'name': condition['name']},
+             'operator': {'id': str(condition['operator'])},
+             'value':    condition['value'],
+            } for condition in conditions
+        ])
 
     def test_clean_empty_required(self):
         clean = RegularFieldsConditionsField(required=True).clean
         self.assertFieldValidationError(RegularFieldsConditionsField, 'required', clean, None)
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'required', clean, "")
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'required', clean, "[]")
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'required', clean, '')
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'required', clean, '[]')
 
     def test_clean_empty_not_required(self):
         field = RegularFieldsConditionsField(required=False)
@@ -53,9 +58,10 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_data(self):
         clean = RegularFieldsConditionsField(model=FakeContact).clean
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidformat', clean,
-                                        '[{"operator": {"id": "notanumber"}, "field": {"name":"first_name"}, "value": "Rei"}]'
-                                       )
+        self.assertFieldValidationError(
+                RegularFieldsConditionsField, 'invalidformat', clean,
+                '[{"operator": {"id": "notanumber"}, "field": {"name":"first_name"}, "value": "Rei"}]'
+        )
 
     def test_clean_incomplete_data_required(self):
         clean = RegularFieldsConditionsField(model=FakeContact).clean
@@ -66,72 +72,72 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_field(self):
         clean = RegularFieldsConditionsField(model=FakeContact).clean
-        format_str = self.CONDITION_FIELD_JSON_FMT
 
+        build_data = self.build_data
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
-                                        format_str % {'operator':  EntityFilterCondition.EQUALS,
-                                                      'name':  '   boobies_size',  # <---
-                                                      'value':     90,
-                                                     }
-                                        )
+                                        build_data({'operator': EntityFilterCondition.EQUALS,
+                                                    'name':     '  boobies_size',  # <---
+                                                    'value':    90,
+                                                   },
+                                       ))
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
-                                        format_str % {'operator': EntityFilterCondition.IEQUALS,
-                                                      'name':     'is_deleted',
-                                                      'value':    '"Faye"',
-                                                     }
-                                        )
+                                        build_data({'operator': EntityFilterCondition.IEQUALS,
+                                                    'name':     'is_deleted',
+                                                    'value':    '"Faye"',
+                                                   },
+                                       ))
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
-                                        format_str % {'operator': EntityFilterCondition.IEQUALS,
-                                                      'name':     'created',
-                                                      'value':    '"2011-5-12"',
-                                                     }
-                                        )
+                                        build_data({'operator': EntityFilterCondition.IEQUALS,
+                                                    'name':     'created',
+                                                    'value':    '"2011-5-12"',
+                                                   },
+                                       ))
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
-                                        format_str % {'operator': EntityFilterCondition.IEQUALS,
-                                                      'name':     'civility__id',
-                                                      'value':    5,
-                                                     }
-                                        )
+                                        build_data({'operator': EntityFilterCondition.IEQUALS,
+                                                    'name':     'civility__id',
+                                                    'value':    5,
+                                                   },
+                                       ))
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
-                                        format_str % {'operator': EntityFilterCondition.IEQUALS,
-                                                      'name':     'image__id',
-                                                      'value':    5,
-                                                     }
-                                       )
+                                        build_data({'operator': EntityFilterCondition.IEQUALS,
+                                                    'name':     'image__id',
+                                                    'value':    5,
+                                                   },
+                                       ))
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
-                                        format_str % {'operator': EntityFilterCondition.IEQUALS,
-                                                      'name':     'image__is_deleted',
-                                                      'value':    5,
-                                                     }
-                                       )
+                                        build_data({'operator': EntityFilterCondition.IEQUALS,
+                                                    'name':     'image__is_deleted',
+                                                    'value':    5,
+                                                   },
+                                       ))
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
-                                        format_str % {'operator': EntityFilterCondition.IEQUALS,
-                                                      'name':     'image__modified',
-                                                      'value':    '"2011-5-12"',
-                                                     }
-                                       )
+                                        build_data({'operator': EntityFilterCondition.IEQUALS,
+                                                    'name':     'image__modified',
+                                                    'value':    "2011-5-12",
+                                                   },
+                                       ))
         # TODO: M2M
 
     def test_clean_invalid_operator(self):
         clean = RegularFieldsConditionsField(model=FakeContact).clean
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidoperator', clean,
-                                        self.CONDITION_FIELD_JSON_FMT % {
+                                        self.build_data({
                                                 'operator': EntityFilterCondition.EQUALS + 1000,  # <--
                                                 'name':     'first_name',
-                                                'value':    '"Nana"',
-                                            }
-                                       )
+                                                'value':    'Nana',
+                                            },
+                                       ))
 
     def test_clean_invalid_fk_id(self):
         """FK field with invalid id"""
         clean = RegularFieldsConditionsField(model=FakeContact).clean
         err = self.assertFieldRaises(ValidationError, clean,
-                                     self.CONDITION_FIELD_JSON_FMT % {
+                                     self.build_data({
                                              'operator': EntityFilterCondition.EQUALS,
                                              'name':     'civility',
-                                             'value':    '"unknown"',
-                                         }
-                                     )[0]
+                                             'value':    'unknown',
+                                         },
+                                     ))[0]
         self.assertEqual(err.messages[0],
                          unicode([_(u'Select a valid choice. That choice is not one of the available choices.')])
                         )
@@ -139,12 +145,12 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
     def test_clean_invalid_many2many_id(self):
         clean = RegularFieldsConditionsField(model=FakeContact).clean
         err = self.assertFieldRaises(ValidationError, clean,
-                                     self.CONDITION_FIELD_JSON_FMT % {
+                                     self.build_data({
                                              'operator': EntityFilterCondition.EQUALS,
                                              'name':     'languages',
-                                             'value':    '"12445"',
+                                             'value':    '12445',
                                          }
-                                     )[0]
+                                     ))[0]
         self.assertEqual(err.messages[0],
                          unicode([_('Select a valid choice. %(value)s is not one of the available choices.') % {'value': 12445}])
                         )
@@ -156,12 +162,12 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = EntityFilterCondition.IEQUALS
         name = 'first_name'
         value = 'Faye'
-        conditions = field.clean(self.CONDITION_FIELD_JSON_FMT % {
+        conditions = field.clean(self.build_data({
                                        'operator': operator,
                                        'name':     name,
-                                       'value':    '"' + value + '"',
-                                   }
-                                )
+                                       'value':    value,
+                                   },
+                                ))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -176,12 +182,12 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = EntityFilterCondition.IEQUALS
         name = 'first_name'
         value = 'Faye'
-        conditions = field.clean(self.CONDITION_FIELD_JSON_FMT % {
+        conditions = field.clean(self.build_data({
                                        'operator': operator,
                                        'name':     name,
-                                       'value':    '"' + value + '"',
-                                   }
-                                )
+                                       'value':    value,
+                                   },
+                                ))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -195,12 +201,12 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         name = 'first_name'
         faye_name = 'Faye'
         ed_name = 'Ed'
-        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+        conditions = clean(self.build_data({
                                  'operator': operator,
                                  'name':     name,
-                                 'value':    '"' + faye_name + ',' + ed_name + '"',
-                             }
-                          )
+                                 'value':    '{},{}'.format(faye_name, ed_name),
+                             },
+                          ))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -216,12 +222,12 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         name = 'first_name'
         faye_name = 'Faye'
         ed_name = 'Ed'
-        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+        conditions = clean(self.build_data({
                                  'operator': operator,
                                  'name':     name,
-                                 'value':    json_encode([faye_name, ed_name]),
-                             }
-                          )
+                                 'value':    [faye_name, ed_name],
+                             },
+                          ))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -236,12 +242,12 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         clean = RegularFieldsConditionsField(model=FakeContact).clean
         operator = EntityFilterCondition.ISEMPTY
         name = 'description'
-        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+        conditions = clean(self.build_data({
                                  'operator': operator,
                                  'name':     name,
-                                 'value':    'true',
-                             }
-                          )
+                                 'value':    True,
+                             },
+                          ))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -254,12 +260,12 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         clean = RegularFieldsConditionsField(model=FakeContact).clean
         operator = EntityFilterCondition.ISEMPTY
         name = 'description'
-        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+        conditions = clean(self.build_data({
                                  'operator': operator,
                                  'name':     name,
-                                 'value':    'false',
-                             }
-                          )
+                                 'value':    False,
+                             },
+                          ))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -271,12 +277,12 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         clean = RegularFieldsConditionsField(model=FakeOrganisation).clean
         operator = EntityFilterCondition.EQUALS
         name = 'subject_to_vat'
-        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+        conditions = clean(self.build_data({
                                  'operator': operator,
                                  'name':     name,
-                                 'value':    'true',
-                             }
-                          )
+                                 'value':    True,
+                             },
+                          ))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -290,12 +296,12 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = EntityFilterCondition.ISTARTSWITH
         name = 'civility__title'
         value = 'Miss'
-        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+        conditions = clean(self.build_data({
                                  'operator': operator,
                                  'name':     name,
-                                 'value':    '"' + value + '"',
-                             }
-                          )
+                                 'value':    value,
+                             },
+                          ))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -309,12 +315,12 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = EntityFilterCondition.EQUALS
         name = 'civility'
         value = FakeCivility.objects.all()[0].pk
-        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+        conditions = clean(self.build_data({
                                  'operator': operator,
                                  'name':     name,
                                  'value':    value,
-                             }
-                          )
+                             },
+                          ))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -329,12 +335,12 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = EntityFilterCondition.EQUALS
         name = 'civility'
         values = [c.pk for c in FakeCivility.objects.all()]
-        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+        conditions = clean(self.build_data({
                                  'operator': operator,
                                  'name':     name,
-                                 'value':    '"' + ','.join(str(v) for v in values) + '"',
-                             }
-                          )
+                                 'value':    ','.join(str(v) for v in values),
+                             },
+                          ))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -351,12 +357,12 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = EntityFilterCondition.EQUALS
         name = 'civility'
         values = [str(c.pk) for c in FakeCivility.objects.all()]
-        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+        conditions = clean(self.build_data({
                                  'operator': operator,
                                  'name':     name,
-                                 'value':    json_encode(values),
-                             }
-                          )
+                                 'value':    values,
+                             },
+                          ))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -374,12 +380,12 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = EntityFilterCondition.EQUALS
         name = 'languages'
         value = Language.objects.all()[0].pk
-        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+        conditions = clean(self.build_data({
                                  'operator': operator,
                                  'name':     name,
                                  'value':    value,
-                             }
-                          )
+                             },
+                          ))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -394,20 +400,21 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         clean = RegularFieldsConditionsField(model=FakeContact).clean
         operator = EntityFilterCondition.EQUALS
         name = 'languages'
-        values = Language.objects.all().values_list('pk', flat=True)
-        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+        values = [str(v) for v in Language.objects.all().values_list('pk', flat=True)]
+        conditions = clean(self.build_data({
                                  'operator': operator,
                                  'name':     name,
-                                 'value':    json_encode([str(v) for v in values]),
-                             }
-                          )
+                                 'value':    values,
+                             },
+                          ))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
         self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
         self.assertEqual(name,                            condition.name)
         self.assertEqual({'operator': operator,
-                          'values': [str(v) for v in values]},
+                          'values':   values,
+                         },
                          condition.decoded_value
                         )
 
@@ -417,12 +424,12 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = EntityFilterCondition.EQUALS
         name = 'languages'
         values = Language.objects.all().values_list('pk', flat=True)
-        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+        conditions = clean(self.build_data({
                                  'operator': operator,
                                  'name':     name,
-                                 'value':    '"' + ','.join(str(v) for v in values) + '"',
-                             }
-                          )
+                                 'value':    ','.join(str(v) for v in values),
+                             },
+                          ))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -466,12 +473,12 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = EntityFilterCondition.IENDSWITH
         name = 'last_name'
         values = ['nagi', 'sume']
-        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+        conditions = clean(self.build_data({
                                  'operator': operator,
                                  'name':     name,
-                                 'value':    '"' + ','.join(values) + ',' + '"',
-                             }
-                          )
+                                 'value':    ','.join(values),
+                             },
+                          ))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -490,16 +497,16 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator2 = EntityFilterCondition.EQUALS
         value2    = 'Faye'
 
-        conditions = clean(self.CONDITION_2X_FIELD_JSON_FMT % {
-                                 'name1':     name1,
-                                 'operator1': operator1,
-                                 'value1':    '"' + value1 + '"',
-
-                                 'name2':     name2,
-                                 'operator2': operator2,
-                                 'value2':    '"' + value2 + '"',
-                             }
-                          )
+        conditions = clean(self.build_data({
+                                 'name':     name1,
+                                 'operator': operator1,
+                                 'value':    value1,
+                             }, {
+                                 'name':     name2,
+                                 'operator': operator2,
+                                 'value':    value2,
+                             },
+                          ))
         self.assertEqual(2, len(conditions))
 
         EFC_FIELD = EntityFilterCondition.EFC_FIELD
@@ -523,12 +530,12 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = EntityFilterCondition.IEQUALS
         name = 'languages__name'
         value = 'French'
-        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+        conditions = clean(self.build_data({
                                  'operator': operator,
                                  'name':     name,
-                                 'value':    '"' + value + '"',
-                             }
-                          )
+                                 'value':    value,
+                             },
+                          ))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -541,22 +548,22 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
         create_fc = FieldsConfig.create
         create_fc(FakeContact, descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})])
-        create_fc(FakeImage, descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})])
+        create_fc(FakeImage,   descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})])
 
         clean = RegularFieldsConditionsField(model=FakeContact).clean
 
         EQUALS = EntityFilterCondition.EQUALS
-        data = {'name1':     'last_name',
-                'operator1': EQUALS,
-                'value1':    '"Faye"',
+        data = [{'name':     'last_name',
+                 'operator': EQUALS,
+                 'value':    'Faye',
+                }, {
+                 'name':     'image__name',
+                 'operator': EQUALS,
+                 'value':    'selfie',
+                },
+        ]
 
-                'name2':     'image__name',
-                'operator2': EQUALS,
-                'value2':    '"selfie"',
-               }
-
-        FMT = self.CONDITION_2X_FIELD_JSON_FMT
-        conditions = clean(FMT % data)
+        conditions = clean(self.build_data(*data))
         self.assertEqual(2, len(conditions))
 
         EFC_FIELD = EntityFilterCondition.EFC_FIELD
@@ -564,13 +571,13 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(EFC_FIELD, conditions[1].type)
 
         # ------
-        data['name2'] = hidden_fname
-        err = self.assertFieldRaises(ValidationError, clean, FMT % data)[0]
+        data[1]['name'] = hidden_fname
+        err = self.assertFieldRaises(ValidationError, clean, self.build_data(*data))[0]
         self.assertEqual(_(u'This field is invalid with this model.'), err.messages[0])
 
         # ------
-        data['name2'] = 'image__' + hidden_fname
-        err = self.assertFieldRaises(ValidationError, clean, FMT % data)[0]
+        data[1]['name'] = 'image__' + hidden_fname
+        err = self.assertFieldRaises(ValidationError, clean, self.build_data(*data))[0]
         self.assertEqual(_(u'This field is invalid with this model.'), err.messages[0])
 
     def test_fields_config02(self):
@@ -579,12 +586,12 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
         err = self.assertFieldRaises(ValidationError,
                                      RegularFieldsConditionsField(model=FakeContact).clean,
-                                     self.CONDITION_FIELD_JSON_FMT % {
+                                     self.build_data({
                                         'name':     'image__name',
                                         'operator': EntityFilterCondition.EQUALS,
-                                        'value':    '"selfie"',
-                                     }
-                                    )[0]
+                                        'value':    'selfie',
+                                     },
+                                    ))[0]
         self.assertEqual(_(u'This field is invalid with this model.'), err.messages[0])
 
     def test_fields_config03(self):
@@ -604,12 +611,12 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                                     ],
                         )
 
-        conditions = field.clean(self.CONDITION_FIELD_JSON_FMT % {
+        conditions = field.clean(self.build_data({
                                       'operator': EntityFilterCondition.EQUALS,
                                       'name':     hidden_fname,
-                                      'value':    '"Faye"',
-                                  }
-                                )
+                                      'value':    'Faye',
+                                  },
+                                ))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -634,12 +641,12 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                         )
 
         with self.assertNoException():
-            conditions = field.clean(self.CONDITION_FIELD_JSON_FMT % {
+            conditions = field.clean(self.build_data({
                                           'name':     hidden_sfname,
                                           'operator': EntityFilterCondition.EQUALS,
-                                          'value':    '"Faye"',
-                                      }
-                                    )
+                                          'value':    'Faye',
+                                      },
+                                    ))
 
         self.assertEqual(1, len(conditions))
 
@@ -665,12 +672,12 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                         )
 
         with self.assertNoException():
-            conditions = field.clean(self.CONDITION_FIELD_JSON_FMT % {
+            conditions = field.clean(self.build_data({
                                           'name':     hidden_sfname,
                                           'operator': EntityFilterCondition.EQUALS,
-                                          'value':    '"Faye"',
-                                      }
-                                    )
+                                          'value':    'Faye',
+                                      },
+                                    ))
 
         self.assertEqual(1, len(conditions))
 
@@ -697,12 +704,12 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                         )
 
         with self.assertNoException():
-            conditions = field.clean(self.CONDITION_FIELD_JSON_FMT % {
+            conditions = field.clean(self.build_data({
                                           'operator': EntityFilterCondition.EQUALS,
                                           'name':     hidden_fname,
                                           'value':    str(position.id),
-                                      }
-                                    )
+                                      },
+                                    ))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -760,14 +767,10 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         name01 = 'created'
         type02 = 'next_quarter'
         name02 = 'birthday'
-        conditions = field.clean('[{"field": {"name": "%(name01)s", "type": "date"}, "range": {"type": "%(type01)s"}},'
-                                 ' {"field": {"name": "%(name02)s", "type": "date__null"}, "range": {"type": "%(type02)s"}}]' % {
-                                        'type01': type01,
-                                        'name01': name01,
-                                        'type02': type02,
-                                        'name02': name02,
-                                    }
-                                )
+        conditions = field.clean(json_dump([
+            {'field': {'name': name01, 'type': 'date'},       'range': {'type': type01}},
+            {'field': {'name': name02, 'type': 'date__null'}, 'range': {'type': type02}},
+        ]))
         self.assertEqual(2, len(conditions))
 
         EFC_DATEFIELD = EntityFilterCondition.EFC_DATEFIELD
@@ -786,13 +789,10 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         field = DateFieldsConditionsField(model=FakeContact)
         name01 = 'created'
         name02 = 'birthday'
-        conditions = field.clean(
-                '[{"field": {"name": "%(name01)s", "type": "date"}, "range": {"type": "", "start": "2011-5-12"}},'
-                ' {"field": {"name": "%(name02)s", "type": "date__null"}, "range": {"type": "", "end": "2012-6-13"}}]' % {
-                        'name01': name01,
-                        'name02': name02,
-                    }
-            )
+        conditions = field.clean(json_dump([
+            {'field': {'name': name01, 'type': 'date'},       'range': {'type': '', 'start': '2011-5-12'}},
+            {'field': {'name': name02, 'type': 'date__null'}, 'range': {'type': '', 'end': '2012-6-13'}},
+        ]))
         self.assertEqual(2, len(conditions))
 
         EFC_DATEFIELD = EntityFilterCondition.EFC_DATEFIELD
@@ -814,10 +814,11 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         "Start + end"
         clean = DateFieldsConditionsField(model=FakeContact).clean
         name = 'modified'
-        conditions = clean('[{"field": {"name": "%s", "type": "date"}, '
-                              '"range": {"type": "", "start": "2010-3-24", "end": "2011-7-25"}}]' %
-                                name
-                          )
+        conditions = clean(json_dump([
+            {'field': {'name': name, 'type': 'date'},
+             'range': {'type': '', 'start': '2010-3-24', 'end': '2011-7-25'},
+            },
+        ]))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -831,8 +832,10 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
 
     def test_empty(self):
         clean = DateFieldsConditionsField(model=FakeContact).clean
-        conditions = clean('[{"field": {"name": "birthday", "type": "date__null"}, "range": {"type": "empty", "start": "", "end": ""}},'
-                           ' {"field": {"name": "modified", "type": "date__null"}, "range": {"type": "not_empty", "start": "", "end": ""}}]')
+        conditions = clean(json_dump([
+            {'field': {'name': 'birthday', 'type': 'date__null'}, 'range': {'type': 'empty',     'start': '', 'end': ''}},
+            {'field': {'name': 'modified', 'type': 'date__null'}, 'range': {'type': 'not_empty', 'start': '', 'end': ''}},
+        ]))
         self.assertEqual(2, len(conditions))
 
         condition = conditions[0]
@@ -855,9 +858,14 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         field = DateFieldsConditionsField()
         field.initialize(ctype=ContentType.objects.get_for_model(FakeInvoice))
 
-        FMT = '[{"field": {"name": "%s", "type": "date__null"}, ' \
-                '"range": {"type": "", "start": "2015-3-24", "end": "2015-7-25"}}]'
-        conditions = field.clean(FMT % valid_fname)
+        def build_data(fname):
+            return json_dump([
+                {'field': {'name': fname, 'type': 'date__null'},
+                 'range': {'type': '', 'start': '2015-3-24', 'end': '2015-7-25'},
+                }
+            ])
+
+        conditions = field.clean(build_data(valid_fname))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -865,7 +873,7 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(valid_fname,                         condition.name)
 
         # --------------
-        err = self.assertFieldRaises(ValidationError, field.clean, FMT % hidden_fname)[0]
+        err = self.assertFieldRaises(ValidationError, field.clean, build_data(hidden_fname))[0]
         self.assertEqual(_(u'This field is not a date field for this model.'),
                          err.messages[0]
                         )
@@ -878,10 +886,16 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
                            )
 
         valid_fname = 'linked_invoice__issuing_date'
-        FMT = '[{"field": {"name": "%s", "type": "date__null"}, ' \
-                '"range": {"type": "", "start": "2015-3-24", "end": "2015-7-25"}}]'
+
+        def build_data(fname):
+            return json_dump([
+                {'field': {'name': fname, 'type': 'date__null'},
+                 'range': {'type': '', 'start': '2015-3-24', 'end': '2015-7-25'},
+                }
+            ])
+
         clean = DateFieldsConditionsField(model=FakeInvoiceLine).clean
-        conditions = clean(FMT % valid_fname)
+        conditions = clean(build_data(valid_fname))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -890,7 +904,7 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
 
         # --------------
         err = self.assertFieldRaises(ValidationError, clean,
-                                     FMT % ('linked_invoice__' + hidden_fname)
+                                     build_data('linked_invoice__' + hidden_fname)
                                     )[0]
         self.assertEqual(_(u'This field is not a date field for this model.'),
                          err.messages[0]
@@ -903,12 +917,13 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
                             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
                            )
         err = self.assertFieldRaises(
-                    ValidationError,
-                    DateFieldsConditionsField(model=FakeContact).clean,
-                    '[{"field": {"name": "%s", "type": "date__null"}, '
-                      '"range": {"type": "", "start": "2015-3-24", "end": "2015-7-25"}}]' %
-                        ('image__' + hidden_fname)
-                )[0]
+            ValidationError,
+            DateFieldsConditionsField(model=FakeContact).clean,
+            json_dump([{'field': {'name': 'image__' + hidden_fname, 'type': 'date__null'},
+                        'range': {'type': '', 'start': '2015-3-24', 'end': '2015-7-25'}
+                       },
+                      ]),
+        )[0]
         self.assertEqual(_(u'This field is not a date field for this model.'),
                          err.messages[0]
                         )
@@ -930,10 +945,11 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
                         )
 
         with self.assertNoException():
-            conditions = field.clean('[{"field": {"name": "%s", "type": "date__null"}, '
-                                       '"range": {"type": "", "start": "2000-1-1"}}]' %
-                                        hidden_fname
-                                    )
+            conditions = field.clean(json_dump([
+                {'field': {'name': hidden_fname, 'type': 'date__null'},
+                 'range': {'type': '', 'start': '2000-1-1'},
+                },
+            ]))
 
         self.assertEqual(1, len(conditions))
 
@@ -958,10 +974,11 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
                         )
 
         with self.assertNoException():
-            conditions = field.clean('[{"field": {"name": "%s", "type": "date__null"}, '
-                                       '"range": {"type": "", "start": "2000-1-1"}}]' %
-                                        hidden_sfname
-                                    )
+            conditions = field.clean(json_dump([
+                {'field': {'name': hidden_sfname, 'type': 'date__null'},
+                 'range': {'type': '', 'start': '2000-1-1'},
+                },
+            ]))
 
         self.assertEqual(1, len(conditions))
 
@@ -986,10 +1003,11 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
                         )
 
         with self.assertNoException():
-            conditions = field.clean('[{"field": {"name": "%s", "type": "date__null"}, '
-                                       '"range": {"type": "", "start": "2000-1-1"}}]' %
-                                        hidden_sfname
-                                    )
+            conditions = field.clean(json_dump([
+                {'field': {'name': hidden_sfname, 'type': 'date__null'},
+                 'range': {'type': '', 'start': '2000-1-1'},
+                },
+            ]))
 
         self.assertEqual(1, len(conditions))
 
@@ -999,7 +1017,11 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
 
 
 class CustomFieldsConditionsFieldTestCase(FieldTestCase):
-    CONDITION_FIELD_JSON_FMT = '[{"field": {"id": "%(field)s"}, "operator": {"id": "%(operator)s"}, "value": %(value)s}]'
+    @staticmethod
+    def build_data(field, operator, value):
+        return json_dump(
+            [{'field': {'id': str(field)}, 'operator': {'id': str(operator)}, 'value': value}]
+        )
 
     def setUp(self):
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -1039,8 +1061,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
                            'operator': {'id': EQUALS,
                                         'types': self._get_allowed_types(EQUALS),
                                        },
-                            'value': '150',
-                           }
+                           'value': '150',
+                          }
                          ], data)
 
     def test_frompython_custom_string(self):
@@ -1050,10 +1072,10 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         data = field._value_to_jsonifiable([condition])
 
         self.assertEqual([{'field': {'id': self.cfield_str.id, 'type': 'string'},
-                            'operator': {'id': EQUALS,
-                                         'types': self._get_allowed_types(EQUALS),
-                                        },
-                            'value': 'abc',
+                           'operator': {'id': EQUALS,
+                                        'types': self._get_allowed_types(EQUALS),
+                                       },
+                           'value': 'abc',
                           }
                          ], data)
 
@@ -1064,10 +1086,10 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         data = field._value_to_jsonifiable([condition])
 
         self.assertEqual([{'field': {'id': self.cfield_bool.id, 'type': 'boolean__null'},
-                            'operator': {'id': EQUALS,
+                           'operator': {'id': EQUALS,
                                          'types': self._get_allowed_types(EQUALS),
-                                        },
-                            'value': u'false',
+                                       },
+                           'value': u'false',
                           }
                          ], data)
 
@@ -1076,10 +1098,10 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         data = field._value_to_jsonifiable([condition])
 
         self.assertEqual([{'field': {'id': self.cfield_bool.id, 'type': 'boolean__null'},
-                            'operator': {'id': EQUALS,
-                                         'types': self._get_allowed_types(EQUALS),
-                                        },
-                            'value': u'false',
+                           'operator': {'id': EQUALS,
+                                        'types': self._get_allowed_types(EQUALS),
+                                       },
+                           'value': u'false',
                           }
                          ], data)
 
@@ -1090,63 +1112,58 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         data = field._value_to_jsonifiable([condition])
 
         self.assertEqual([{'field': {'id': self.cfield_enum.id, 'type': 'enum__null'},
-                            'operator': {'id': EQUALS,
-                                         'types': self._get_allowed_types(EQUALS),
-                                        },
-                            'value': unicode(self.cfield_enum_A.id),
+                           'operator': {'id': EQUALS,
+                                        'types': self._get_allowed_types(EQUALS),
+                                       },
+                           'value': unicode(self.cfield_enum_A.id),
                           }
                          ], data)
 
     def test_clean_invalid_data_format(self):
         field = CustomFieldsConditionsField(model=FakeContact)
         self.assertFieldValidationError(CustomFieldsConditionsField, 'invalidformat', field.clean,
-                                        self.CONDITION_FIELD_JSON_FMT % {
-                                            'field':    "notanumber",
-                                            'operator': EntityFilterCondition.EQUALS,
-                                            'value':    170,
-                                        },
+                                        self.build_data(field='notanumber',
+                                                        operator=EntityFilterCondition.EQUALS,
+                                                        value=170,
+                                        ),
                                        )
 
     def test_clean_invalid_field(self):
         field = CustomFieldsConditionsField(model=FakeContact)
         self.assertFieldValidationError(CustomFieldsConditionsField, 'invalidcustomfield', field.clean,
-                                        self.CONDITION_FIELD_JSON_FMT % {
-                                            'field':    2054,
-                                            'operator': EntityFilterCondition.EQUALS,
-                                            'value':    170,
-                                        }
+                                        self.build_data(field=2054,
+                                                        operator=EntityFilterCondition.EQUALS,
+                                                        value=170,
+                                        ),
                                        )
 
         self.assertFieldValidationError(CustomFieldsConditionsField, 'invalidcustomfield', field.clean,
-                                        '[{"operator": {"id": "%(operator)s"}, "value": [%(value)s]}]' % {
-                                            'operator': EntityFilterCondition.EQUALS,
-                                            'value': 170
-                                        }
+                                        json_dump([{'operator': {'id': str(EntityFilterCondition.EQUALS)},
+                                                    'value': [170],
+                                                   },
+                                           ])
                                        )
 
     def test_clean_invalid_operator(self):
         field = CustomFieldsConditionsField(model=FakeContact)
         self.assertFieldValidationError(CustomFieldsConditionsField, 'invalidoperator', field.clean,
-                                        self.CONDITION_FIELD_JSON_FMT % {
-                                            'field': self.cfield_int.id,
-                                            'operator': 121266,
-                                            'value': 170,
-                                        }
+                                        self.build_data(field=self.cfield_int.id,
+                                                        operator=121266,
+                                                        value=170,
+                                        )
                                        )
         self.assertFieldValidationError(CustomFieldsConditionsField, 'invalidoperator', field.clean,
-                                        '[{"field": {"id": "%(field)s"}, "value": %(value)s}]' % {
-                                            'field': self.cfield_int.id,
-                                            'value': 170,
-                                        }
+                                        json_dump([{'field': {'id': str(self.cfield_int.id)}, 'value': 170}])
                                        )
 
     def test_clean_missing_value(self):
         field = CustomFieldsConditionsField(model=FakeContact)
         self.assertFieldValidationError(CustomFieldsConditionsField, 'invalidvalue', field.clean,
-                                        '[{"field": {"id": "%(field)s"}, "operator": {"id": "%(operator)s"}}]' % {
-                                             'field': self.cfield_int.id,
-                                             'operator': EntityFilterCondition.EQUALS,
-                                        }
+                                        json_dump([
+                                            {'field':    {'id': str(self.cfield_int.id)},
+                                             'operator': {'id': str(EntityFilterCondition.EQUALS)},
+                                            }
+                                        ])
                                        )
 
     def test_clean_integer01(self):
@@ -1155,11 +1172,10 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
 
         operator = EntityFilterCondition.EQUALS
         value = 180
-        conditions = field.clean(self.CONDITION_FIELD_JSON_FMT % {
-                                      'field':    self.cfield_int.id,
-                                      'operator': operator,
-                                      'value':    value,
-                                  }
+        conditions = field.clean(self.build_data(field=self.cfield_int.id,
+                                                 operator=operator,
+                                                 value=value,
+                                                )
                                 )
         self.assertEqual(1, len(conditions))
 
@@ -1181,11 +1197,10 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
 
         operator = EntityFilterCondition.EQUALS
         value = 180
-        conditions = field.clean(self.CONDITION_FIELD_JSON_FMT % {
-                                      'field':    self.cfield_int.id,
-                                      'operator': operator,
-                                      'value':    value,
-                                  }
+        conditions = field.clean(self.build_data(field=self.cfield_int.id,
+                                                 operator=operator,
+                                                 value=value,
+                                                ),
                                 )
         self.assertEqual(1, len(conditions))
 
@@ -1203,11 +1218,10 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         clean = CustomFieldsConditionsField(model=FakeContact).clean
         operator = EntityFilterCondition.EQUALS
         value = str(self.cfield_enum_A.pk)
-        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
-                                'field':    self.cfield_enum.id,
-                                'operator': operator,
-                                'value':    value,
-                            }
+        conditions = clean(self.build_data(field=self.cfield_enum.id,
+                                           operator=operator,
+                                           value=value,
+                                          )
                           )
         self.assertEqual(1, len(conditions))
 
@@ -1224,13 +1238,13 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
     def test_clean_enum_as_string(self):
         clean = CustomFieldsConditionsField(model=FakeContact).clean
         operator = EntityFilterCondition.EQUALS
-        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
-                                'field':    self.cfield_enum.id,
-                                'operator': operator,
-                                'value':    '"' + ','.join([str(self.cfield_enum_A.pk),
-                                                            str(self.cfield_enum_B.pk)
-                                                           ]) + '"',
-                            }
+        conditions = clean(self.build_data(
+                                field=self.cfield_enum.id,
+                                operator=operator,
+                                value='{},{}'.format(self.cfield_enum_A.pk,
+                                                     self.cfield_enum_B.pk,
+                                                    ),
+                            )
                           )
         self.assertEqual(1, len(conditions))
 
@@ -1249,13 +1263,11 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
     def test_clean_enum_as_list(self):
         clean = CustomFieldsConditionsField(model=FakeContact).clean
         operator = EntityFilterCondition.EQUALS
-        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
-                                'field':    self.cfield_enum.id,
-                                'operator': operator,
-                                'value':    '[' + ','.join([str(self.cfield_enum_A.pk),
-                                                            str(self.cfield_enum_B.pk)
-                                                           ]) + ']',
-                            }
+        conditions = clean(self.build_data(
+                                field=self.cfield_enum.id,
+                                operator=operator,
+                                value=[self.cfield_enum_A.pk, self.cfield_enum_B.pk],
+                            )
                           )
         self.assertEqual(1, len(conditions))
 
@@ -1265,7 +1277,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual({'operator': operator,
                           'rname': 'customfieldenum',
                           'value': [str(self.cfield_enum_A.pk),
-                                    str(self.cfield_enum_B.pk)],
+                                    str(self.cfield_enum_B.pk),
+                                   ],
                          },
                          condition.decoded_value
                         )
@@ -1274,11 +1287,10 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         clean = CustomFieldsConditionsField(model=FakeContact).clean
         operator = EntityFilterCondition.EQUALS
         value = str(self.cfield_multienum_F.pk)
-        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
-                                'field':    self.cfield_multienum.id,
-                                'operator': operator,
-                                'value':    value,
-                            }
+        conditions = clean(self.build_data(field=self.cfield_multienum.id,
+                                           operator=operator,
+                                           value=value,
+                                          )
                           )
         self.assertEqual(1, len(conditions))
 
@@ -1295,13 +1307,13 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
     def test_clean_multienum_as_string(self):
         clean = CustomFieldsConditionsField(model=FakeContact).clean
         operator = EntityFilterCondition.EQUALS
-        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
-                                'field':    self.cfield_multienum.id,
-                                'operator': operator,
-                                'value':    '"' + ','.join([str(self.cfield_multienum_F.pk),
-                                                            str(self.cfield_multienum_H.pk)
-                                                           ]) + '"',
-                            }
+        conditions = clean(self.build_data(
+                                field=self.cfield_multienum.id,
+                                operator=operator,
+                                value='{},{}'.format(self.cfield_multienum_F.pk,
+                                                     self.cfield_multienum_H.pk,
+                                                    ),
+                            )
                           )
         self.assertEqual(1, len(conditions))
 
@@ -1320,13 +1332,13 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
     def test_clean_multienum_as_list(self):
         clean = CustomFieldsConditionsField(model=FakeContact).clean
         operator = EntityFilterCondition.EQUALS
-        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
-                                'field':    self.cfield_multienum.id,
-                                'operator': operator,
-                                'value':    '[' + ','.join([str(self.cfield_multienum_F.pk),
-                                                            str(self.cfield_multienum_H.pk)
-                                                           ]) + ']',
-                            }
+        conditions = clean(self.build_data(
+                                field=self.cfield_multienum.id,
+                                operator=operator,
+                                value=[self.cfield_multienum_F.pk,
+                                       self.cfield_multienum_H.pk,
+                                      ],
+                            )
                           )
         self.assertEqual(1, len(conditions))
 
@@ -1345,11 +1357,10 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
     def test_clean_empty_string(self):
         clean = CustomFieldsConditionsField(model=FakeContact).clean
         operator = EntityFilterCondition.EQUALS
-        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
-                                'field':   self.cfield_str.id,
-                                'operator': operator,
-                                'value':    '""',
-                            }
+        conditions = clean(self.build_data(field=self.cfield_str.id,
+                                           operator=operator,
+                                           value='',
+                                          )
                           )
         self.assertEqual(1, len(conditions))
 
@@ -1363,11 +1374,10 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
     def test_equals_boolean_condition(self):
         clean = CustomFieldsConditionsField(model=FakeContact).clean
         operator = EntityFilterCondition.EQUALS
-        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
-                                'field':   self.cfield_bool.id,
-                                'operator': operator,
-                                'value':    'false',
-                            }
+        conditions = clean(self.build_data(field=self.cfield_bool.id,
+                                           operator=operator,
+                                           value=False,
+                                          )
                           )
         self.assertEqual(1, len(conditions))
 
@@ -1405,45 +1415,47 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
                                         '[{"field": "2054", "range": {"type": "current_year"}}]'
                                        )
         self.assertFieldValidationError(DateCustomFieldsConditionsField, 'invalidformat', clean,
-                                        '[{"field": "%s", "range": "not a dict"}]' % self.cfield01.id
+                                        json_dump([{'field': str(self.cfield01.id), 'range': 'not a dict'}])
                                        )
         self.assertFieldValidationError(DateCustomFieldsConditionsField, 'invaliddaterange', clean,
-                                       '[{"field": "%s", "range": {"type":"unknow_range"}}]' % self.cfield01.id
+                                        json_dump([{'field': str(self.cfield01.id), 'range': {'type': 'unknow_range'}}])
                                        )
         self.assertFieldValidationError(DateCustomFieldsConditionsField, 'emptydates', clean,
-                                       '[{"field": "%s", "range": {"type":""}}]' % self.cfield01.id
+                                        json_dump([{'field': str(self.cfield01.id), 'range': {'type': ''}}])
                                        )
         self.assertFieldValidationError(DateCustomFieldsConditionsField, 'emptydates', clean,
-                                       '[{"field": "%s", "range": {"type":"", "start": "", "end": ""}}]' % self.cfield01.id
+                                        json_dump([{'field': str(self.cfield01.id),
+                                                    'range': {'type':'', 'start': '', 'end': ''},
+                                                   },
+                                        ])
                                        )
 
     def test_ok01(self):
         with self.assertNumQueries(0):
             field = DateCustomFieldsConditionsField(model=FakeContact)
 
-        rtype  = 'current_year'
-        conditions = field.clean('[{"field": "%(cfield01)s", "range": {"type": "%(type)s"}},'
-                                 ' {"field": "%(cfield02)s", "range": {"type": "", "start": "2011-5-12"}},'
-                                 ' {"field": "%(cfield01)s", "range": {"type": "", "end": "2012-6-13"}},'
-                                 ' {"field": "%(cfield02)s", "range": {"type": "", "start": "2011-5-12", "end": "2012-6-13"}}]' % {
-                                        'type':     rtype,
-                                        'cfield01': self.cfield01.id,
-                                        'cfield02': self.cfield02.id,
-                                    }
-                                )
+        rtype = 'current_year'
+        cfield01 = self.cfield01
+        cfield02 = self.cfield02
+        conditions = field.clean(json_dump([
+            {'field': str(cfield01.id), 'range': {'type': rtype}},
+            {'field': str(cfield02.id), 'range': {'type': '', 'start': '2011-5-12'}},
+            {'field': str(cfield01.id), 'range': {'type': '', 'end': '2012-6-13'}},
+            {'field': str(cfield02.id), 'range': {'type': '', 'start': '2011-5-12', 'end': '2012-6-13'}},
+        ]))
         self.assertEqual(4, len(conditions))
 
         EFC_DATECUSTOMFIELD = EntityFilterCondition.EFC_DATECUSTOMFIELD
         condition = conditions[0]
         self.assertEqual(EFC_DATECUSTOMFIELD,   condition.type)
-        self.assertEqual(str(self.cfield01.id), condition.name)
+        self.assertEqual(str(cfield01.id), condition.name)
         self.assertEqual({'rname': 'customfielddatetime', 'name': rtype},
                          condition.decoded_value,
                         )
 
         condition = conditions[1]
         self.assertEqual(EFC_DATECUSTOMFIELD,   condition.type)
-        self.assertEqual(str(self.cfield02.id), condition.name)
+        self.assertEqual(str(cfield02.id), condition.name)
         self.assertEqual({'rname': 'customfielddatetime',
                           'start': {'year': 2011, 'month': 5, 'day': 12},
                          },
@@ -1452,7 +1464,7 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
 
         condition = conditions[2]
         self.assertEqual(EFC_DATECUSTOMFIELD,   condition.type)
-        self.assertEqual(str(self.cfield01.id), condition.name)
+        self.assertEqual(str(cfield01.id), condition.name)
         self.assertEqual({'rname': 'customfielddatetime',
                           'end': {'year': 2012, 'month': 6, 'day': 13},
                          },
@@ -1461,7 +1473,7 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
 
         condition = conditions[3]
         self.assertEqual(EFC_DATECUSTOMFIELD,   condition.type)
-        self.assertEqual(str(self.cfield02.id), condition.name)
+        self.assertEqual(str(cfield02.id), condition.name)
         self.assertEqual({'rname': 'customfielddatetime',
                           'start': {'year': 2011, 'month': 5, 'day': 12},
                           'end':   {'year': 2012, 'month': 6, 'day': 13},
@@ -1474,12 +1486,10 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
             field = DateCustomFieldsConditionsField()
             field.model = FakeContact
 
-        conditions = field.clean('[{"field": "%(cfield01)s", "range": {"type": "empty"}},'
-                                 ' {"field": "%(cfield02)s", "range": {"type": "not_empty"}}]' % {
-                                        'cfield01': self.cfield01.id,
-                                        'cfield02': self.cfield02.id,
-                                    }
-                                )
+        conditions = field.clean(json_dump([
+            {'field': str(self.cfield01.id), 'range': {'type': 'empty'}},
+            {'field': str(self.cfield02.id), 'range': {'type': 'not_empty'}},
+        ]))
         self.assertEqual(2, len(conditions))
 
         EFC_DATECUSTOMFIELD = EntityFilterCondition.EFC_DATECUSTOMFIELD
@@ -1511,8 +1521,8 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
 
         clean = field.clean
         self.assertFieldValidationError(PropertiesConditionsField, 'required', clean, None)
-        self.assertFieldValidationError(PropertiesConditionsField, 'required', clean, "")
-        self.assertFieldValidationError(PropertiesConditionsField, 'required', clean, "[]")
+        self.assertFieldValidationError(PropertiesConditionsField, 'required', clean, '')
+        self.assertFieldValidationError(PropertiesConditionsField, 'required', clean, '[]')
 
     def test_clean_empty_not_required(self):
         with self.assertNoException():
@@ -1532,16 +1542,17 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
     def test_unknown_ptype(self):
         self.assertFieldValidationError(PropertiesConditionsField, 'invalidptype',
                                         PropertiesConditionsField(model=FakeContact).clean,
-                                        '[{"ptype": "%s", "has": true}]' % self.ptype03.id
+                                        json_dump([{'ptype': self.ptype03.id, 'has': True}])
                                        )
 
     def test_ok01(self):
         with self.assertNumQueries(0):
             field = PropertiesConditionsField(model=FakeContact)
 
-        conditions = field.clean('[{"ptype": "%s", "has": true}, {"ptype": "%s", "has": false}]' % (
-                                        self.ptype01.id, self.ptype02.id,
-                                    )
+        conditions = field.clean(json_dump([{'ptype': self.ptype01.id, 'has': True},
+                                            {'ptype': self.ptype02.id, 'has': False},
+                                           ]
+                                          )
                                 )
         self.assertEqual(2, len(conditions))
 
@@ -1563,7 +1574,7 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
             field = PropertiesConditionsField()
             field.model = FakeContact
 
-        conditions = field.clean('[{"ptype": "%s", "has": true}]' % ptype.id)
+        conditions = field.clean(json_dump([{'ptype': ptype.id, 'has': True}]))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -1606,35 +1617,35 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         ct = ContentType.objects.get_for_model(FakeContact)
         rt_id = self.rtype01.id
         self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean,
-                                        '[{"rtype": "%s", "has": true, "ctype": "not an int"}]' % rt_id
+                                        json_dump([{'rtype': rt_id, 'has': True, 'ctype': 'not an int'}])
                                        )
         self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean,
-                                        '[{"rtype": "%s", "has": true, "ctype": %d, "entity": "not an int"}]' % (rt_id, ct.id)
+                                        json_dump([{'rtype': rt_id, 'has': True, 'ctype': ct.id, 'entity': 'not an int'}])
                                        )
 
     def test_clean_incomplete_data_required(self):
         clean = RelationsConditionsField(model=FakeContact).clean
         rt_id = self.rtype01.id
         self.assertFieldValidationError(RelationsConditionsField, 'required', clean,
-                                        '[{"rtype": "%s"}]' % rt_id
+                                        json_dump([{'rtype': rt_id}])
                                        )
         self.assertFieldValidationError(RelationsConditionsField, 'required', clean,
-                                        '[{"has": true}]'
+                                        json_dump([{'has': True}])
                                        )
         self.assertFieldValidationError(RelationsConditionsField, 'required', clean,
-                                        '[{"rtype": "%s", "has": "not a boolean"}]' % rt_id
+                                        json_dump([{'rtype': rt_id, 'has': 'not a boolean'}])
                                        )
 
     def test_unknown_ct(self):
         clean = RelationsConditionsField(model=FakeContact).clean
         self.assertFieldValidationError(RelationsConditionsField, 'invalidct', clean,
-                                        '[{"rtype": "%s", "has": true, "ctype": 2121545}]' % self.rtype01.id
+                                        json_dump([{'rtype': self.rtype01.id, 'has': True, 'ctype': 2121545}])
                                        )
 
     def test_unknown_entity(self):
         clean = RelationsConditionsField(model=FakeContact).clean
         self.assertFieldValidationError(RelationsConditionsField, 'invalidentity', clean,
-                                        '[{"rtype": "%s", "has": true, "ctype": 1, "entity": 2121545}]' % self.rtype01.id
+                                        json_dump([{'rtype': self.rtype01.id, 'has': True, 'ctype': 1, 'entity': 2121545}])
                                        )
 
     def test_ok01(self):
@@ -1642,10 +1653,10 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         with self.assertNumQueries(0):
             field = RelationsConditionsField(model=FakeContact)
 
-        conditions = field.clean('[{"rtype": "%s", "has": true,  "ctype": 0, "entity": null},'
-                                 ' {"rtype": "%s", "has": false, "ctype": 0, "entity": null}]' % (
-                                    self.rtype01.id, self.rtype02.id)
-                                )
+        conditions = field.clean(json_dump([
+            {'rtype': self.rtype01.id, 'has': True,  'ctype': 0, 'entity': None},
+            {'rtype': self.rtype02.id, 'has': False, 'ctype': 0, 'entity': None},
+        ]))
         self.assertEqual(2, len(conditions))
 
         EFC_RELATION = EntityFilterCondition.EFC_RELATION
@@ -1663,13 +1674,10 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         "Wanted ct"
         field = RelationsConditionsField(model=FakeContact)
         ct = ContentType.objects.get_for_model(FakeContact)
-        conditions = field.clean('[{"rtype": "%(rtype01)s", "has": true,  "ctype": %(ct)s, "entity": null},'
-                                 ' {"rtype": "%(rtype02)s", "has": false, "ctype": %(ct)s}]' % {
-                                        'rtype01': self.rtype01.id,
-                                        'rtype02': self.rtype02.id,
-                                        'ct':      ct.id,
-                                    }
-                                )
+        conditions = field.clean(json_dump([
+            {'rtype': self.rtype01.id, 'has': True,  'ctype': ct.id, 'entity': None},
+            {'rtype': self.rtype02.id, 'has': False, 'ctype': ct.id}
+        ]))
         self.assertEqual(2, len(conditions))
 
         EFC_RELATION = EntityFilterCondition.EFC_RELATION
@@ -1690,12 +1698,9 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         naru = FakeContact.objects.create(user=user, first_name='Naru', last_name='Narusegawa')
         field = RelationsConditionsField(model=FakeContact)
         ct = ContentType.objects.get_for_model(FakeContact)
-        conditions = field.clean('[{"rtype":"%(rtype)s", "has": true, "ctype": %(ct)s, "entity":"%(entity)s"}]' % {
-                                        'rtype':  self.rtype01.id,
-                                        'ct':     ct.id,
-                                        'entity': naru.id,
-                                    }
-                                )
+        conditions = field.clean(json_dump(
+                [{'rtype': self.rtype01.id, 'has': True, 'ctype': ct.id, 'entity': str(naru.id)}]
+        ))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -1707,24 +1712,20 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         "Wanted ct + wanted entity"
         user = self.login()
 
-        ct = ContentType.objects.get_for_model(FakeContact)
+        ct_id = ContentType.objects.get_for_model(FakeContact).id
         naru = FakeContact.objects.create(user=user, first_name='Naru', last_name='Narusegawa')
         field = RelationsConditionsField(model=FakeContact)
-        conditions = field.clean('[{"rtype": "%(rtype01)s", "has": true,  "ctype": %(ct)s, "entity": null},'
-                                 ' {"rtype": "%(rtype02)s", "has": false, "ctype": %(ct)s, "entity": "%(entity)s"}]' % {
-                                        'rtype01': self.rtype01.id,
-                                        'rtype02': self.rtype02.id,
-                                        'ct':      ct.id,
-                                        'entity':  naru.id,
-                                    }
-                                )
+        conditions = field.clean(json_dump([
+            {'rtype': self.rtype01.id, 'has': True,  'ctype': ct_id, 'entity': None},
+            {'rtype': self.rtype02.id, 'has': False, 'ctype': ct_id, 'entity': str(naru.id)},
+        ]))
         self.assertEqual(2, len(conditions))
 
         EFC_RELATION = EntityFilterCondition.EFC_RELATION
         condition = conditions[0]
         self.assertEqual(EFC_RELATION,                  condition.type)
         self.assertEqual(self.rtype01.id,               condition.name)
-        self.assertEqual({'has': True, 'ct_id': ct.id}, condition.decoded_value)
+        self.assertEqual({'has': True, 'ct_id': ct_id}, condition.decoded_value)
 
         condition = conditions[1]
         self.assertEqual(EFC_RELATION,                         condition.type)
@@ -1750,16 +1751,16 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
                     'ctype':  naru.entity_type_id,
                     'rtype':  self.rtype01.id,
                    }
-        self.assertEqual([jsondict], json_loads(field.from_python(list(efilter.conditions.all()))))
+        self.assertEqual([jsondict], json_load(field.from_python(list(efilter.conditions.all()))))
 
         try:
             naru.delete()
         except Exception as e:
-            self.fail('Problem with entity deletion: %s' % e)
+            self.fail('Problem with entity deletion: {}'.format(e))
 
-        jsondict["entity"] = None
-        jsondict["ctype"] = 0
-        self.assertEqual([jsondict], json_loads(field.from_python(list(efilter.conditions.all()))))
+        jsondict['entity'] = None
+        jsondict['ctype'] = 0
+        self.assertEqual([jsondict], json_load(field.from_python(list(efilter.conditions.all()))))
 
     def test_ok06(self):
         "'model' property"
@@ -1768,9 +1769,7 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
             field.model = FakeContact
 
         rt_id = self.rtype01.id
-        conditions = field.clean('[{"rtype": "%s", "has": true,  "ctype": 0, "entity": null}]' %
-                                    rt_id
-                                )
+        conditions = field.clean(json_dump([{'rtype': rt_id, 'has': True,  'ctype': 0, 'entity': None}]))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -1795,24 +1794,25 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
     def test_clean_empty_required(self):
         clean = RelationSubfiltersConditionsField(required=True).clean
         self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, None)
-        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, "")
-        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, "[]")
+        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, '')
+        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, '[]')
 
     def test_clean_incomplete_data_required(self):
         clean = RelationSubfiltersConditionsField(model=FakeContact).clean
-        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, '[{"rtype": "%s"}]' % self.rtype01.id)
-        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, '[{"has": true}]')
+        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, json_dump([{'rtype': self.rtype01.id}]))
+        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, json_dump([{'has': True}]))
 
     def test_unknown_filter(self):
         user = self.login()
         field = RelationSubfiltersConditionsField(model=FakeContact)
         field.user = user
         self.assertFieldValidationError(RelationSubfiltersConditionsField, 'invalidfilter', field.clean,
-                                        '[{"rtype": "%(rtype)s", "has": false, "ctype": %(ct)s, "filter": "%(filter)s"}]' % {
-                                                'rtype':  self.rtype01.id,
-                                                'ct':     ContentType.objects.get_for_model(FakeContact).id,
-                                                'filter': 3213213543,
+                                        json_dump([
+                                            {'rtype': self.rtype01.id, 'has': False,
+                                             'ctype': ContentType.objects.get_for_model(FakeContact).id,
+                                             'filter': '3213213543',  # <==
                                             }
+                                        ])
                                        )
 
     def test_ok(self):
@@ -1823,29 +1823,25 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
             field.user = user
 
         get_ct = ContentType.objects.get_for_model
-        conditions = field.clean('[{"rtype": "%(rtype01)s", "has": true,  "ctype": %(ct_contact)s, "filter":"%(filter01)s"},'
-                                 ' {"rtype": "%(rtype02)s", "has": false, "ctype": %(ct_orga)s,    "filter":"%(filter02)s"}]' % {
-                                        'rtype01':    self.rtype01.id,
-                                        'rtype02':    self.rtype02.id,
-                                        'ct_contact': get_ct(FakeContact).id,
-                                        'ct_orga':    get_ct(FakeOrganisation).id,
-                                        'filter01':   self.sub_efilter01.id,
-                                        'filter02':   self.sub_efilter02.id,
-                                    }
-                                )
+        filter_id1 = self.sub_efilter01.id
+        filter_id2 = self.sub_efilter02.id
+        conditions = field.clean(json_dump([
+            {'rtype': self.rtype01.id, 'has': True,  'ctype': get_ct(FakeContact).id,      'filter': filter_id1},
+            {'rtype': self.rtype02.id, 'has': False, 'ctype': get_ct(FakeOrganisation).id, 'filter': filter_id2}
+        ]))
         self.assertEqual(2, len(conditions))
 
         EFC_RELATION_SUBFILTER = EntityFilterCondition.EFC_RELATION_SUBFILTER
         condition = conditions[0]
         self.assertEqual(EFC_RELATION_SUBFILTER, condition.type)
         self.assertEqual(self.rtype01.id,        condition.name)
-        self.assertEqual({'has': True, 'filter_id': self.sub_efilter01.id},
+        self.assertEqual({'has': True, 'filter_id': filter_id1},
                          condition.decoded_value
                         )
 
         condition = conditions[1]
         self.assertEqual(EFC_RELATION_SUBFILTER, condition.type)
         self.assertEqual(self.rtype02.id,        condition.name)
-        self.assertEqual({'has': False, 'filter_id': self.sub_efilter02.id},
+        self.assertEqual({'has': False, 'filter_id': filter_id2},
                          condition.decoded_value
                         )

@@ -506,15 +506,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
                                           'name':    name,
                                           'pform':   pform.id,
                                           'number':  3,  # Should be ignored
-                                          'persons': '[{"ctype": {"id": %s}, "entity": %s},'
-                                                     ' {"ctype": {"id": %s}, "entity": %s},'
-                                                     ' {"ctype": {"id": %s}, "entity": %s},'
-                                                     ' {"ctype": {"id": %s}, "entity": %s}]' % (
-                                                        leina.entity_type_id,     leina.id,
-                                                        claudette.entity_type_id, claudette.id,
-                                                        gaimos.entity_type_id,    gaimos.id,
-                                                        amara.entity_type_id,     amara.id,
-                                                     )
+                                          'persons': self.formfield_value_multi_generic_entity(
+                                                        leina, claudette, gaimos, amara,
+                                                     ),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -782,9 +776,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
                                     data={'user':     user.id,
                                           'name':     preply.name,
                                           'campaign': camp.id,
-                                          'related_person': '{"ctype": {"id": %s}, "entity": %s}' % (
-                                                                leina.entity_type_id, leina.id,
-                                                            )
+                                          'related_person': self.formfield_value_generic_entity(leina),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -818,9 +810,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             return self.client.post(preply.get_edit_absolute_url(), follow=True,
                                     data={'user':           user.id,
                                           'name':           preply.name,
-                                          'related_person': '{"ctype": {"id": %s}, "entity": %s}' % (
-                                                                    contact.entity_type_id, contact.id,
-                                                                )
+                                          'related_person': self.formfield_value_generic_entity(contact),
                                          }
                                    )
         response = post(claudette)
@@ -856,9 +846,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         response = self.client.post(preply.get_edit_absolute_url(), follow=True,
                                     data={'user':           user.id,
                                           'name':           name,
-                                          'related_person': '{"ctype": {"id": %s}, "entity": %s}' % (
-                                                                    leina.entity_type_id, leina.id,
-                                                                )
+                                          'related_person': self.formfield_value_generic_entity(leina),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -913,9 +901,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         leina = Contact.objects.create(user=user, first_name='Leina', last_name='Vance')
         response = self.client.post(url, data={'entities_lbl': [unicode(preply)],
-                                               'field_value':  '{"ctype": {"id": %s}, "entity": %s}' % (
-                                                                    leina.entity_type_id, leina.id,
-                                                                ),
+                                               'field_value':  self.formfield_value_generic_entity(leina),
                                               },
                                    )
         self.assertNoFormError(response)
@@ -941,9 +927,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         create_contact = Contact.objects.create
         leina = create_contact(user=self.other_user, first_name='Leina', last_name='Vance')
         response = self.client.post(url, data={'entities_lbl': [unicode(preply)],
-                                               'field_value':  '{"ctype": {"id": %s}, "entity": %s}' % (
-                                                                    leina.entity_type_id, leina.id,
-                                                                ),
+                                               'field_value':  self.formfield_value_generic_entity(leina),
                                               },
                                    )
         self.assertFormError(response, 'form', 'field_value',
@@ -953,9 +937,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         # ----
         claudette = create_contact(user=user, first_name='Claudette', last_name='Vance')
         response = self.client.post(url, data={'entities_lbl': [unicode(preply)],
-                                               'field_value':  '{"ctype": {"id": %s}, "entity": %s}' % (
-                                                                    claudette.entity_type_id, claudette.id,
-                                                                ),
+                                               'field_value':  self.formfield_value_generic_entity(claudette),
                                               },
                                    )
         self.assertNoFormError(response)
@@ -1506,7 +1488,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self._fill(preply, '', not_applicable=True)
         self.assertTrue(self.refresh(preply).is_complete)
 
-        # self.assertPOST200('/polls/poll_reply/clean', follow=True, data={'id': preply.id})
         self.assertPOST200(reverse('polls__clean_reply'), follow=True, data={'id': preply.id})
         self.assertFalse(self.refresh(preply).is_complete)
 

@@ -37,7 +37,7 @@ class CreditNoteTestCase(_BillingTestCase):
         status = status or CreditNoteStatus.objects.all()[0]
         currency = currency or Currency.objects.all()[0]
         response = self.client.post(reverse('billing__create_cnote'), follow=True,
-                                    data={'user':            user.pk,
+                                    data={'user':            user.id,
                                           'name':            name,
                                           'issuing_date':    '2010-9-7',
                                           'expiration_date': '2010-10-13',
@@ -45,7 +45,7 @@ class CreditNoteTestCase(_BillingTestCase):
                                           'currency':        currency.id,
                                           'discount':        discount,
                                           'source':          source.id,
-                                          'target':          self.genericfield_format_entity(target),
+                                          'target':          self.formfield_value_generic_entity(target),
                                          }
                                    )
         self.assertNoFormError(response)

@@ -2021,7 +2021,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         # fk_name = 'folder'
         fk_name = 'linked_folder'
-        folder_choice = 'fk-%s' % fk_name
+        folder_choice = 'fk-{}'.format(fk_name)
         self.assertEqual((_('Fields'), [(folder_choice, _('Folder'))]),
                          choices[1]
                         )
@@ -2032,12 +2032,12 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual(1, len(items))
 
         item = items[0]
-        self.assertEqual('instanceblock_reports-graph|%s-%s|%s' % (rgraph.id, fk_name, RFT_FIELD),
+        self.assertEqual('instanceblock_reports-graph|{}-{}|{}'.format(rgraph.id, fk_name, RFT_FIELD),
                          item.brick_id
                         )
-        self.assertEqual('%s|%s' % (fk_name, RFT_FIELD), item.data)
+        self.assertEqual('{}|{}'.format(fk_name, RFT_FIELD), item.data)
 
-        title = u'%s - %s' % (rgraph.name, _(u'Folder'))
+        title = u'{} - {}'.format(rgraph.name, _(u'Folder'))
         self.assertEqual(title, ReportGraphBrick(item).verbose_name)
         self.assertEqual(title, unicode(item))
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    # from json import loads as json_load
+    from json import dumps as json_dump  #loads as json_load
 
     # from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
@@ -43,6 +43,8 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         cls.queue = queue = JobManagerQueue.get_main_queue()
         cls._original_queue_ping = queue.ping
 
+        cls.ct_orga_id = ContentType.objects.get_for_model(FakeOrganisation).id
+
     def tearDown(self):
         self.queue.ping = self._original_queue_ping
 
@@ -64,7 +66,10 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                                   type_id=batch_process_type.id,
                                   language='en',
                                   status=status,
-                                  raw_data='{"ctype": %s, "actions": []}' % ContentType.objects.get_for_model(FakeOrganisation).id,
+                                  raw_data=json_dump({'ctype': self.ct_orga_id,
+                                                      'actions': [],
+                                                     }
+                                                    ),
                                  )
 
     def _create_invalid_job(self, user=None, status=Job.STATUS_WAIT):

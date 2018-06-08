@@ -3,7 +3,7 @@
 try:
     from decimal import Decimal
     from functools import partial
-    import json
+    from json import loads as json_load, dumps as json_dump
     from unittest import skipIf
 
     from django.contrib.contenttypes.models import ContentType
@@ -86,13 +86,13 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         return reverse('creme_core__dl_mass_import_errors', args=(job.id,))
 
     def _dyn_relations_value(self, rtype, model, column, subfield):
-        return '[{"rtype":"%(rtype)s","ctype":"%(ctype)s",' \
-                 '"column":"%(column)s","searchfield":"%(search)s"}]' % {
-                        'rtype':  rtype.id,
-                        'ctype':  ContentType.objects.get_for_model(model).id,
-                        'column': column,
-                        'search': subfield,
-                    }
+        return json_dump([
+            {'rtype':       rtype.id,
+             'ctype':       str(ContentType.objects.get_for_model(model).id),
+             'column':      str(column),
+             'searchfield': subfield,
+            }
+        ])
 
     def _test_import01(self, builder):
         user = self.login()
@@ -208,7 +208,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                                      data={'brick_id': brick_id},
                                     )
         with self.assertNoException():
-            result = json.loads(response.content)
+            result = json_load(response.content)
 
         self.assertIsInstance(result, list)
         self.assertEqual(1, len(result))
@@ -289,8 +289,8 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                                     # sector_create=False,
 
                                     property_types=[ptype.id],
-                                    fixed_relations='[{"rtype":"%s","ctype":"%s","entity":"%s"}]' % (
-                                                            loves.id, shinji.entity_type_id, shinji.id
+                                    fixed_relations=self.formfield_value_multi_relation_entity(
+                                                            [loves.id, shinji]
                                                         ),
                                     dyn_relations=self._dyn_relations_value(employed, FakeOrganisation, 6, 'name'),
 
@@ -981,11 +981,10 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                                               phone_colselect=3,
                                               email_colselect=4,
                                               property_types=[ptype1.id, ptype2.id],
-                                              fixed_relations='[{"rtype":"%s","ctype":"%s","entity":"%s"},'
-                                                              ' {"rtype":"%s","ctype":"%s","entity":"%s"}]'% (
-                                                            loves.id, shinji.entity_type_id, shinji.id,
-                                                            loves.id, gendo.entity_type_id,  gendo.id,
-                                                        ),
+                                              fixed_relations=self.formfield_value_multi_relation_entity(
+                                                                  (loves.id, shinji),
+                                                                  (loves.id, gendo),
+                                                                ),
                                              ),
                                    )
         self.assertNoFormError(response)

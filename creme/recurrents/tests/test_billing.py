@@ -100,10 +100,7 @@ class RecurrentsBillingTestCase(CremeTestCase):
                                           '1-discount': discount,
                                           '1-status':   status.id,
                                           '1-source':   source.id,
-                                          '1-target':   '{"ctype":{"id":"%s"}, "entity":"%s"}' % (
-                                                             target.entity_type_id,
-                                                             target.id,
-                                                         ),
+                                          '1-target':   self.formfield_value_generic_entity(target),
                                          },
                                    )
         self.assertNoWizardFormError(response)

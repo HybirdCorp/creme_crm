@@ -393,7 +393,7 @@ class LineTestCase(_BillingTestCase):
         return reverse('billing__add_to_catalog', args=(line.id,))
 
     def _build_dict_cat_subcat(self, cat, subcat):
-        return {'sub_category': '{"category": %s, "subcategory": %s}' % (cat.id, subcat.id)}
+        return {'sub_category': json_dump({'category': cat.id, 'subcategory': subcat.id})}
 
     @skipIfCustomProductLine
     def test_convert_on_the_fly_line_to_real_item01(self):

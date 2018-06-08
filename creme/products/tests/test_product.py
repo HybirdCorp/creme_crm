@@ -120,7 +120,7 @@ class ProductTestCase(_ProductsTestCase):
                                           'unit_price':   '1.23',
                                           'unit':         "anything",
                                           'sub_category': self._cat_field(sub_cat.category, sub_cat),
-                                          'images':       '[{}]'.format(','.join(str(img.id) for img in images)),
+                                          'images':       self.formfield_value_multi_creator_entity(*images),
                                         }
                                     )
 
@@ -261,10 +261,10 @@ class ProductTestCase(_ProductsTestCase):
 
         next_sub_cat = SubCategory.objects.order_by('category')[1]
         response = self.client.post(url,
-                                    data={'sub_category': '{"category":%d,"subcategory":%d}' % (
-                                                                next_sub_cat.category.pk,
-                                                                next_sub_cat.pk,
-                                                            )
+                                    data={'sub_category': self._cat_field(
+                                                category=next_sub_cat.category,
+                                                sub_category=next_sub_cat,
+                                            ),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -288,10 +288,10 @@ class ProductTestCase(_ProductsTestCase):
 
         next_sub_cat = SubCategory.objects.exclude(category=sub_cat.category)[0]
         response = self.client.post(url,
-                                    data={'sub_category': '{"category":%d,"subcategory":%d}' % (
-                                                                sub_cat.category_id,
-                                                                next_sub_cat.pk,
-                                                            )
+                                    data={'sub_category': self._cat_field(
+                                                category=sub_cat.category,
+                                                sub_category=next_sub_cat,
+                                            ),
                                          }
                                    )
         self.assertFormError(response, 'form', 'sub_category',
@@ -321,10 +321,10 @@ class ProductTestCase(_ProductsTestCase):
         next_sub_cat = SubCategory.objects.order_by('category')[1]
         response = self.client.post(url,
                                     {'_bulk_fieldname': url,
-                                     'sub_category': '{"category":%d, "subcategory":%d}' % (
-                                                            next_sub_cat.category.pk,
-                                                            next_sub_cat.pk,
-                                                        ),
+                                     'sub_category': self._cat_field(
+                                                 category=sub_cat.category,
+                                                 sub_category=next_sub_cat,
+                                         ),
                                      'entities': [product.pk, product2.pk],
                                     }
                                    )
@@ -357,10 +357,10 @@ class ProductTestCase(_ProductsTestCase):
         next_sub_cat = SubCategory.objects.exclude(category=sub_cat.category)[0]
         response = self.client.post(url,
                                     {'_bulk_fieldname': url,
-                                     'sub_category': '{"category":%d, "subcategory":%d}' % (
-                                                            sub_cat.category_id,
-                                                            next_sub_cat.pk,
-                                                        ),
+                                     'sub_category': self._cat_field(
+                                             category=sub_cat.category,
+                                             sub_category=next_sub_cat,
+                                     ),
                                      'entities': [product.id, product2.id],
                                     }
                                    )
@@ -395,10 +395,10 @@ class ProductTestCase(_ProductsTestCase):
         next_sub_cat = SubCategory.objects.order_by('category')[1]
         response = self.client.post(url,
                                     {'_bulk_fieldname': url,
-                                     'sub_category': '{"category":%d, "subcategory":%d}' % (
-                                                            next_sub_cat.category.pk,
-                                                            next_sub_cat.pk,
-                                                        ),
+                                     'sub_category': self._cat_field(
+                                             category=next_sub_cat.category,
+                                             sub_category=next_sub_cat,
+                                     ),
                                      'entities': [product1.pk, product2.pk]
                                     }
                                    )
@@ -431,15 +431,15 @@ class ProductTestCase(_ProductsTestCase):
         next_sub_cat = SubCategory.objects.exclude(category=sub_cat.category)[0]
         response = self.client.post(url,
                                     {'_bulk_fieldname': url,
-                                     'sub_category': '{"category":%d, "subcategory":%d}' % (
-                                                            sub_cat.category_id,
-                                                            next_sub_cat.pk,
-                                                        ),
+                                     'sub_category': self._cat_field(
+                                             category=sub_cat.category,
+                                             sub_category=next_sub_cat,
+                                     ),
                                      'entities': [product1.pk, product2.pk]
                                     }
                                    )
         self.assertFormError(response, 'form', 'sub_category',
-                             _(u"This sub-category causes constraint error.")
+                             _(u'This sub-category causes constraint error.')
                             )
 
         product1 = self.refresh(product1)

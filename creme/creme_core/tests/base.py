@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime, timedelta
+from json import dumps as json_dump
 from unittest import skipIf
 from unittest.util import safe_repr
 import warnings
@@ -444,6 +445,46 @@ class _CremeTestCase(object):
             args.append(fieldname)
 
         return reverse('creme_core__bulk_update', args=args)
+
+    @staticmethod
+    def formfield_value_generic_entity(entity):
+        return json_dump({'ctype': {'id': str(entity.entity_type_id)},
+                          'entity': str(entity.id),
+                         })
+
+    @staticmethod
+    def formfield_value_multi_generic_entity(*entities):
+        return json_dump([
+            {'ctype': {'id': str(entity.entity_type_id)},
+             'entity': str(entity.id),
+            } for entity in entities
+        ])
+
+    @staticmethod
+    def formfield_value_multi_creator_entity(*entities):
+        return json_dump([entity.id for entity in entities])
+
+    @staticmethod
+    def formfield_value_relation_entity(rtype_id, entity):
+        return json_dump({'rtype':  rtype_id,
+                          'ctype':  str(entity.entity_type_id),
+                          'entity': str(entity.id),
+                         })
+
+    @staticmethod
+    def formfield_value_multi_relation_entity(*relations):
+        return json_dump([
+            {'rtype':  rtype_id,
+             'ctype':  str(entity.entity_type_id),
+             'entity': str(entity.id),
+            } for rtype_id, entity in relations
+        ])
+
+    @staticmethod
+    def formfield_value_filtered_entity_type(ctype=None, efilter=None):
+        return json_dump({'ctype': str(ctype.id if ctype else 0),
+                          'efilter': efilter.id if efilter else '',
+                         })
 
 
 class CremeTestCase(TestCase, _CremeTestCase):

@@ -21,7 +21,7 @@
 from future_builtins import filter, map
 from collections import defaultdict
 import logging
-import warnings
+# import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType

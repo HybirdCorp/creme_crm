@@ -157,19 +157,17 @@ class GraphsTestCase(CremeTestCase):
         url = reverse('graphs__add_roots', args=(graph.id,))
         self.assertGET200(url)
 
-        response = self.client.post(url, data={'entities': '[{"ctype":{"id":"%s"},"entity":"%s"}, '
-                                                            '{"ctype":{"id":"%s"},"entity":"%s"}]' % (
-                                                                contact.entity_type_id, contact.pk,
-                                                                orga.entity_type_id,    orga.pk
+        response = self.client.post(url, data={'entities': self.formfield_value_multi_generic_entity(
+                                                                contact, orga,
                                                             ),
-                                               'relation_types': [rtype.pk],
+                                               'relation_types': [rtype.id],
                                               }
                                    )
         self.assertNoFormError(response)
 
         url = reverse('graphs__add_rtypes', args=(graph.id,))
         self.assertGET200(url)
-        self.assertNoFormError(self.client.post(url, data={'relation_types': [rtype.pk]}))
+        self.assertNoFormError(self.client.post(url, data={'relation_types': [rtype.id]}))
 
         existing_fileref_ids = list(FileRef.objects.values_list('id', flat=True))
 
@@ -212,12 +210,10 @@ class GraphsTestCase(CremeTestCase):
         url = reverse('graphs__add_roots', args=(graph.id,))
         self.assertGET200(url)
 
-        response = self.client.post(url, data={'entities': '[{"ctype":{"id":"%s"},"entity":"%s"}, '
-                                                           '{"ctype":{"id":"%s"},"entity":"%s"}]' % (
-                                                                contact.entity_type_id, contact.pk,
-                                                                orga.entity_type_id,    orga.pk
+        response = self.client.post(url, data={'entities': self.formfield_value_multi_generic_entity(
+                                                                contact, orga,
                                                             ),
-                                               'relation_types': [rtype01.pk, rtype02.pk],
+                                               'relation_types': [rtype01.id, rtype02.id],
                                               }
                                    )
         self.assertNoFormError(response)
@@ -261,5 +257,5 @@ class GraphsTestCase(CremeTestCase):
         url = rnode.get_edit_absolute_url()
         self.assertGET200(url)
 
-        self.assertNoFormError(self.client.post(url, data={'relation_types': [rtype01.pk, rtype02.pk]}))
+        self.assertNoFormError(self.client.post(url, data={'relation_types': [rtype01.id, rtype02.id]}))
         self.assertEqual({rtype01, rtype02}, set(rnode.relation_types.all()))

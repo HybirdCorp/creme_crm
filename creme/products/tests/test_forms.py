@@ -16,7 +16,9 @@ except Exception as e:
 
 
 class CategoryFieldTestCase(FieldTestCase):
-    format_str = '{"category": %s, "subcategory": %s}'
+    @staticmethod
+    def _build_value(cat_id, subcat_id):
+        return json_dump({'category': cat_id, 'subcategory': subcat_id})
 
     @classmethod
     def setUpClass(cls):
@@ -31,7 +33,7 @@ class CategoryFieldTestCase(FieldTestCase):
         with self.assertNumQueries(0):
             field = CategoryField()
 
-        self.assertEqual(cat11, field.clean(self.format_str % (cat1.id, cat11.id)))
+        self.assertEqual(cat11, field.clean(self._build_value(cat1.id, cat11.id)))
 
     def test_no_user(self):
         field = CategoryField()
@@ -89,10 +91,9 @@ class CategoryFieldTestCase(FieldTestCase):
         cat12 = create_subcat(name='sub12', description='description')
 
         from_python = CategoryField(categories=[cat1.id]).from_python
-        format_str = self.format_str
-        self.assertEqual(format_str % (cat1.id, cat11.id), from_python((cat1.id, cat11.id)))
-        self.assertEqual(format_str % (cat1.id, cat11.id), from_python(cat11))
-        self.assertEqual(format_str % (cat1.id, cat12.id), from_python(cat12))
+        self.assertEqual(self._build_value(cat1.id, cat11.id), from_python((cat1.id, cat11.id)))
+        self.assertEqual(self._build_value(cat1.id, cat11.id), from_python(cat11))
+        self.assertEqual(self._build_value(cat1.id, cat12.id), from_python(cat12))
 
     def test_clean_empty_required(self):
         clean = CategoryField(required=True).clean
@@ -143,7 +144,7 @@ class CategoryFieldTestCase(FieldTestCase):
         with self.assertNumQueries(0):
             field = CategoryField(categories=[cat1.id])
 
-        value = self.format_str % (cat2.id, cat21.id)
+        value = self._build_value(cat2.id, cat21.id)
         self.assertFieldValidationError(CategoryField, 'categorynotallowed', field.clean, value)
 
     def test_clean_unknown_category(self):
@@ -154,7 +155,7 @@ class CategoryFieldTestCase(FieldTestCase):
         clean = CategoryField(categories=[cat1.id, 0]).clean
         # Same error than 'forbidden', cause unknown category cannot be in list
         self.assertFieldValidationError(CategoryField, 'categorynotallowed', clean,
-                                        self.format_str % (0, cat11.id)
+                                        self._build_value(0, cat11.id)
                                        )
 
     def test_clean_unknown_subcategory(self):
@@ -162,7 +163,7 @@ class CategoryFieldTestCase(FieldTestCase):
         cat1 = Category.objects.create(name='cat1', description='description')
 
         field = CategoryField(categories=[cat1.id])
-        value = self.format_str % (cat1.id, 0)
+        value = self._build_value(cat1.id, 0)
         self.assertTrue(field.required)
         self.assertFieldValidationError(CategoryField, 'doesnotexist', field.clean, value)
 
@@ -178,7 +179,7 @@ class CategoryFieldTestCase(FieldTestCase):
 
         clean = CategoryField(categories=[cat1.id, cat2.id]).clean
         self.assertFieldValidationError(CategoryField, 'subcategorynotallowed', clean,
-                                        self.format_str % (cat1.id, cat21.id)
+                                        self._build_value(cat1.id, cat21.id)
                                        )
 
     def test_clean01(self):
@@ -186,7 +187,7 @@ class CategoryFieldTestCase(FieldTestCase):
         cat11 = SubCategory.objects.create(name='sub11', description='description', category=cat1)
 
         field = CategoryField(categories=[cat1.id])
-        self.assertEqual(cat11, field.clean(self.format_str % (cat1.id, cat11.id)))
+        self.assertEqual(cat11, field.clean(self._build_value(cat1.id, cat11.id)))
 
     def test_clean02(self):
         "Use 'categories' setter"
@@ -195,7 +196,7 @@ class CategoryFieldTestCase(FieldTestCase):
 
         field = CategoryField()
         field.categories = [cat1.id]
-        self.assertEqual(cat11, field.clean(self.format_str % (cat1.id, cat11.id)))
+        self.assertEqual(cat11, field.clean(self._build_value(cat1.id, cat11.id)))
 
 
 class CreateCategoryTestCase(CremeTestCase):
