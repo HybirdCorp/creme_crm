@@ -113,8 +113,9 @@ class BulkForm(CremeForm):
                 choices.append((build_url(fieldname=field.name), unicode(field.verbose_name)))
             else:
                 sub_choices.append((unicode(field.verbose_name),
-                                    [(build_url(fieldname=field.name + '__' + subfield.name), unicode(subfield.verbose_name))
-                                        for subfield in subfields
+                                    [(build_url(fieldname='{}__{}'.format(field.name, subfield.name)),
+                                      unicode(subfield.verbose_name),
+                                     ) for subfield in subfields
                                     ],
                                    )
                                   )

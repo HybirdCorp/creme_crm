@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -162,8 +162,8 @@ class CompressedTimedRotatingFileHandler(TimedRotatingFileHandler):
 
     def _next_filename(self, count, extension):
         for i in range(self.backupCount - 1, 0, -1):
-            sfn = "%s.%d.gz" % (self.baseFilename, i)
-            dfn = "%s.%d.gz" % (self.baseFilename, i + 1)
+            sfn = '{}.{}.gz'.format(self.baseFilename, i)
+            dfn = '{}.{}.gz'.format(self.baseFilename, i + 1)
 
             if exists(sfn):
                 if exists(dfn):
@@ -171,7 +171,7 @@ class CompressedTimedRotatingFileHandler(TimedRotatingFileHandler):
 
                 rename_file(sfn, dfn)
 
-            dfn = self.baseFilename + ".1.gz"
+            dfn = self.baseFilename + '.1.gz'
 
     def _now(self):
         return time.time()
@@ -241,8 +241,9 @@ class CompressedTimedRotatingFileHandler(TimedRotatingFileHandler):
         rollover_timestamp = self.rolloverAt - self.interval
         rollover_timetuple = time.gmtime(rollover_timestamp) if self.utc else time.localtime(rollover_timestamp)
 
-        rollover_filename = '%s-%s.log' % (splitext(self.baseFilename)[0],
-                                           time.strftime(self.suffix, rollover_timetuple))
+        rollover_filename = '{}-{}.log'.format(splitext(self.baseFilename)[0],
+                                               time.strftime(self.suffix, rollover_timetuple),
+                                              )
 
         if exists(self.baseFilename):
             # backup current log file

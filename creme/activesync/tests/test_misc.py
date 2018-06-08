@@ -5,7 +5,7 @@ try:
 
     from ..utils import decode_AS_timezone
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class MiscTestCase(CremeTestCase):

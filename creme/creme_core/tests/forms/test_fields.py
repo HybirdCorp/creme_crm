@@ -19,7 +19,7 @@ try:
             DatePeriodRegistry, date_period_registry)
     from creme.creme_core.utils.date_range import DateRange, CustomRange, CurrentYearRange
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class DatePeriodFieldTestCase(FieldTestCase):

@@ -18,7 +18,7 @@ try:
     from creme.creme_core.models import (HeaderFilter, FieldsConfig,
             RelationType, CustomField)
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class HeaderFilterViewsTestCase(ViewsTestCase):

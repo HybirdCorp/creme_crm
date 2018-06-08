@@ -1661,8 +1661,8 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         index = x_asc.index
         fmt = '/tests/contacts?q_filter={"pk__in": [%s]}'
-        self.assertEqual([600, fmt % ', '.join([str(jaime.pk), str(tyrion.pk)])], y_asc[index(unicode(lannisters))])
-        self.assertEqual([800, fmt % ', '.join([str(ned.pk), str(robb.pk)])],     y_asc[index(unicode(starks))])
+        self.assertEqual([600, fmt % ('{}, {}'.format(jaime.id, tyrion.id))], y_asc[index(unicode(lannisters))])
+        self.assertEqual([800, fmt % ('{}, {}'.format(ned.id, robb.id))],     y_asc[index(unicode(starks))])
 
     def test_fetch_by_relation04(self):
         "Invalid RelationType"

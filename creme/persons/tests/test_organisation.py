@@ -16,7 +16,7 @@ try:
     from .. import constants
     from ..models import StaffSize, Sector, LegalForm
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 @skipIfCustomOrganisation
@@ -298,7 +298,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         bebop.save()
 
         for i in xrange(3, 5):
-            create_address(name='Hideout #%s' % i)
+            create_address(name='Hideout #{}'.format(i))
 
         cloned = bebop.clone()
 

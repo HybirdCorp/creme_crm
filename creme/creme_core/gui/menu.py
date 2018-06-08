@@ -822,7 +822,7 @@ class CreationFormsItem(ViewableItem):
     @property
     def verbose_unicode(self):
         """Returns a detailed description of groups/links ; useful to get priorities/IDs."""
-        res = unicode(self) + '\n'
+        res = u'{}\n'.format(self)
 
         for group in self._groups:
             res += u'  {}\n'.format(group)

@@ -17,7 +17,7 @@ try:
     from ..creme_jobs import activesync_type
     from ..models import UserSynchronizationHistory, CremeExchangeMapping
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 Contact = get_contact_model()

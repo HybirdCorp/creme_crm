@@ -15,7 +15,7 @@ try:
     from creme.creme_core.models import (RelationType, SemiFixedRelationType,
             Relation, CremeEntity, CremePropertyType, CremeProperty)
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class RelationViewsTestCase(ViewsTestCase):
