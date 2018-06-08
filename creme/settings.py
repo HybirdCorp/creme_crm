@@ -378,16 +378,20 @@ LOGGING_CONSOLE_HANDLER = {
     'formatter': 'simple',
 }
 
-# In order to enable logging into a file use the following configuration
-# LOGGING_PATH = '~/creme.log' # create a log file in user home directory
-#
-# LOGGING_FILE_HANDLER = { # compress log file each day in order to save some space
+# In order to enable logging into a file you can use the following configuration ;
+# it's a improvement of TimedRotatingFileHandler because
+#   - it compresses log file each day in order to save some space
+#   - the "filename" create the directories in path if they do not exist,
+#     & expand the user directory
+# See the documentation of the options :
+#     https://docs.python.org/release/2.7/library/logging.html#timedrotatingfilehandler
+# LOGGING_FILE_HANDLER = {
 #     'level': 'INFO',
 #     '()': 'creme.utils.loggers.CompressedTimedRotatingFileHandler',
 #     'formatter': 'verbose',
-#     'filename': LOGGING_PATH,
+#     'filename': '~/creme.log', # create a log file in user home directory
 #     'interval': 1,
-#     'when': 'D'
+#     'when': 'D',
 # }
 LOGGING_FILE_HANDLER = {
     'class': 'logging.NullHandler',

@@ -128,37 +128,51 @@ class RegexFilter(Filter):
 #
 #    Copyright 2001-2007 by Vinay Sajip. All Rights Reserved.
 #
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This file is released under the Python License (http://www.opensource.org/licenses/Python-2.0)
 ################################################################################
 
 class CompressedTimedRotatingFileHandler(TimedRotatingFileHandler):
     def __init__(self, *args, **kwargs):
-        filenames = kwargs.pop('filename', None)
+        # filenames = kwargs.pop('filename', None)
+        filename = kwargs.pop('filename', None)
 
-        if isinstance(filenames, (list, tuple,)):
-            self.filenames = (expanduser(p) for p in filenames[:1])
-        else:
-            self.filenames = (expanduser(filenames),)
+        if filename is None:
+            raise ValueError('{} configuration is invalid (no "filename").'.format(
+                                self.__class__.__name__,
+            ))
 
-        kwargs.update({'filename': self.filenames[0]})
-        TimedRotatingFileHandler.__init__(self, *args, **kwargs)
+        # if isinstance(filenames, (list, tuple,)):
+        #     self.filenames = (expanduser(p) for p in filenames[:1])
+        # else:
+        #     self.filenames = (expanduser(filenames),)
 
+        # kwargs.update({'filename': self.filenames[0]})
+        kwargs['filename'] = expanduser(filename)
+        super(CompressedTimedRotatingFileHandler, self).__init__(*args, **kwargs)
+
+    # def _open(self):
+    #     for filename in self.filenames:
+    #         log_dir = dirname(filename)
+    #         self.baseFilename = filename
+    #
+    #         try:
+    #             if not exists(log_dir):
+    #                 makedirs(log_dir)
+    #
+    #             return TimedRotatingFileHandler._open(self)
+    #         except:
+    #             continue
+    #
+    #     raise
     def _open(self):
-        for filename in self.filenames:
-            log_dir = dirname(filename)
-            self.baseFilename = filename
+        log_dir = dirname(self.baseFilename)
 
-            try:
-                if not exists(log_dir):
-                    makedirs(log_dir)
+        if not exists(log_dir):
+            makedirs(log_dir)
 
-                return TimedRotatingFileHandler._open(self)
-            except:
-                continue
-
-        raise
+        return super(CompressedTimedRotatingFileHandler, self)._open()
 
     def _next_filename(self, count, extension):
         for i in range(self.backupCount - 1, 0, -1):
@@ -184,7 +198,7 @@ class CompressedTimedRotatingFileHandler(TimedRotatingFileHandler):
         while newRolloverAt <= currentTime:
             newRolloverAt = newRolloverAt + self.interval
 
-        #If DST changes and midnight or weekly rollover, adjust for this.
+        # If DST changes and midnight or weekly rollover, adjust for this.
         if (self.when == 'MIDNIGHT' or self.when.startswith('W')) and not self.utc:
             dstNow = time.localtime(currentTime)[-1]
             dstAtRollover = time.localtime(newRolloverAt)[-1]
@@ -217,7 +231,7 @@ class CompressedTimedRotatingFileHandler(TimedRotatingFileHandler):
             if bzip_file:
                 bzip_file.close()
 
-            # clean up oldest files
+            # Clean up oldest files
             self._cleanup_oldest()
 
     def _deferred_save_archive(self, rollover_filename):
@@ -225,7 +239,7 @@ class CompressedTimedRotatingFileHandler(TimedRotatingFileHandler):
             thread = Thread(target=self._save_archive, args=(rollover_filename,))
             thread.start()
         finally:
-            # clean up oldest files
+            # Clean up oldest files
             self._cleanup_oldest()
 
     def _cleanup_oldest(self):
@@ -237,7 +251,7 @@ class CompressedTimedRotatingFileHandler(TimedRotatingFileHandler):
         if self.stream and not self.stream.closed:
             self.stream.close()
 
-        # get the time that this sequence started at and make it a TimeTuple
+        # Get the time that this sequence started at and make it a TimeTuple
         rollover_timestamp = self.rolloverAt - self.interval
         rollover_timetuple = time.gmtime(rollover_timestamp) if self.utc else time.localtime(rollover_timestamp)
 
@@ -246,13 +260,13 @@ class CompressedTimedRotatingFileHandler(TimedRotatingFileHandler):
                                               )
 
         if exists(self.baseFilename):
-            # backup current log file
+            # Backup current log file
             rename_file(self.baseFilename, rollover_filename + '.bak')
 
             # gzip backup log file
             self._deferred_save_archive(rollover_filename)
 
-        #print "%s -> %s" % (self.baseFilename, dfn)
+        # print "%s -> %s" % (self.baseFilename, dfn)
         self.mode = 'w'
         self.stream = self._open()
         self._compute_next_rollover()
