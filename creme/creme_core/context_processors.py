@@ -39,7 +39,7 @@ def get_css_theme(request):
 
     return {
         'THEME_NAME':         theme_info[0],
-        'DEFAULT_THEME':      settings.THEMES[0][0],  # TODO: seems not used...
+        # 'DEFAULT_THEME':      settings.THEMES[0][0],
         'THEME_VERBOSE_NAME': theme_info[1],
     }
 
