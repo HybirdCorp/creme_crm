@@ -51,9 +51,10 @@ STATUS_DONE        = 3
 STATUS_DELAYED     = 4
 STATUS_CANCELLED   = 5
 
-DISPLAY_REVIEW_ACTIVITIES_BLOCKS = 'activities-display_review_activities_blocks'
-SETTING_AUTO_ORGA_SUBJECTS       = 'activities-auto_orga_subjects'
-SETTING_FORM_USERS_MSG           = 'activities-form_user_messages'
+SETTING_DISPLAY_REVIEW     = 'activities-display_review_activities_blocks'
+SETTING_AUTO_ORGA_SUBJECTS = 'activities-auto_orga_subjects'
+SETTING_FORM_USERS_MSG     = 'activities-form_user_messages'
+DISPLAY_REVIEW_ACTIVITIES_BLOCKS = SETTING_DISPLAY_REVIEW  # DEPRECATED
 
 # Floating styles
 NARROW        = 1

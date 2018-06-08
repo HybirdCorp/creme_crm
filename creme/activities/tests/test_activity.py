@@ -149,7 +149,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         efilter = self.get_object_or_fail(EntityFilter, pk=constants.EFILTER_TASKS)
         check_content(efilter, 'Task01', 'Task02')
 
-        sv = self.get_object_or_fail(SettingValue, key_id=constants.DISPLAY_REVIEW_ACTIVITIES_BLOCKS)
+        sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_DISPLAY_REVIEW)
         # self.assertIsNone(sv.user)
         self.assertIs(sv.value, True)
 

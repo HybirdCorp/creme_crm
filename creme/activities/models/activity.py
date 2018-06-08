@@ -28,7 +28,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, SettingValue
 
-from ..constants import (NARROW, CREATION_LABELS, SETTING_AUTO_ORGA_SUBJECTS, DISPLAY_REVIEW_ACTIVITIES_BLOCKS,
+from ..constants import (NARROW, CREATION_LABELS, SETTING_AUTO_ORGA_SUBJECTS, SETTING_DISPLAY_REVIEW,
         REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
 from .calendar import Calendar
 from .other_models import ActivityType, ActivitySubType, Status
@@ -231,7 +231,7 @@ END:VEVENT
 
     @staticmethod
     def display_review():
-        return SettingValue.objects.get(key_id=DISPLAY_REVIEW_ACTIVITIES_BLOCKS).value
+        return SettingValue.objects.get(key_id=SETTING_DISPLAY_REVIEW).value
 
     def _copy_relations(self, source):
         super(AbstractActivity, self)._copy_relations(source, allowed_internal=[REL_OBJ_PART_2_ACTIVITY])
