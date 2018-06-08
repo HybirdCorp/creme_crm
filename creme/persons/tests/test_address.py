@@ -321,21 +321,21 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
                           state=state,
                           country=country,
                          )
-        self.assertEqual(u'%s %s %s %s' % (address_value, zipcode, city, department),
+        self.assertEqual(u'{} {} {} {}'.format(address_value, zipcode, city, department),
                          unicode(address)
                         )
 
         address.zipcode = None
-        self.assertEqual(u'%s %s %s' % (address_value, city, department), unicode(address))
+        self.assertEqual(u'{} {} {}'.format(address_value, city, department), unicode(address))
 
         address.department = None
-        self.assertEqual(u'%s %s' % (address_value, city), unicode(address))
+        self.assertEqual(u'{} {}'.format(address_value, city), unicode(address))
 
         self.assertEqual(po_box, unicode(Address(po_box=po_box)))
         self.assertEqual(state, unicode(Address(state=state)))
         self.assertEqual(country, unicode(Address(country=country)))
 
-        self.assertEqual('%s %s %s' % (po_box, state, country),
+        self.assertEqual(u'{} {} {}'.format(po_box, state, country),
                          unicode(Address(po_box=po_box, state=state, country=country))
                         )
 
@@ -360,7 +360,7 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
                           state=state,
                           country='wtf',
                          )
-        self.assertEqual(u'%s %s' % (address_value, city), unicode(address))
+        self.assertEqual(u'{} {}'.format(address_value, city), unicode(address))
 
         self.assertEqual(po_box, unicode(Address(po_box=po_box, state=state)))
 

@@ -93,7 +93,7 @@ class _RelationsCreateForm(CremeForm):
         duplicates = []
 
         for rtype, entity in relations:
-            r_id = '%s#%s' % (rtype.id, entity.id)
+            r_id = '{}#{}'.format(rtype.id, entity.id)
 
             if r_id in future_relations:
                 duplicates.append((rtype, entity))
@@ -103,7 +103,7 @@ class _RelationsCreateForm(CremeForm):
         if duplicates:
             raise ValidationError(self.error_messages['duplicates'],
                                   params={'duplicates': 
-                                              u', '.join(u'(%s, %s)' % (rtype, e.allowed_unicode(user))
+                                              u', '.join(u'({}, {})'.format(rtype, e.allowed_unicode(user))
                                                             for rtype, e in duplicates
                                                         ),
                                          },
@@ -202,7 +202,7 @@ class _RelationsCreateForm(CremeForm):
 
     @staticmethod
     def _hash_relation(subject_id, rtype_id, object_id):
-        return '%s#%s#%s' % (subject_id, rtype_id, object_id)
+        return '{}#{}#{}'.format(subject_id, rtype_id, object_id)
 
     def save(self):
         user = self.user

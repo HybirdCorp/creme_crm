@@ -6,7 +6,7 @@ try:
     from creme.activesync.commands.settings import Settings
     from .base import BaseASTestCase
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class SettingsASTestCase(BaseASTestCase):

@@ -38,7 +38,7 @@ try:
     Report = get_report_model()
     ReportGraph = get_rgraph_model()
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 def skipIfCustomReport(test_func):

@@ -908,9 +908,8 @@ class ReportTestCase(BaseReportsTestCase):
         content = [s for s in response.content.split('\r\n') if s]
         self.assertEqual(3, len(content))
 
-        user_str = unicode(user)
-        self.assertEqual('"Ayanami","%s","","Kawaii"' % user_str, content[1])
-        self.assertEqual('"Langley","%s","",""' % user_str,       content[2])
+        self.assertEqual(u'"Ayanami","{}","","Kawaii"'.format(user), content[1])
+        self.assertEqual(u'"Langley","{}","",""'.format(user),       content[2])
 
     def test_report_csv04(self):
         "With date filter and registered range"
@@ -2262,7 +2261,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         doc11 = self.doc11; doc12 = self.doc12
         fetch = report.fetch_all_lines
-        lines = [[self.folder1.title, unicode(doc11) + ', ' + unicode(doc12)],
+        lines = [[self.folder1.title, '{}, {}'.format(doc11, doc12)],
                  [self.folder2.title, unicode(self.doc21)],
                 ]
         self.assertEqual(lines, fetch())

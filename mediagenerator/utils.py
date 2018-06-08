@@ -62,25 +62,28 @@ def prepare_patterns(patterns, setting_name):
     """Helper function for patter-matching settings."""
     if isinstance(patterns, basestring):
         patterns = (patterns,)
+
     if not patterns:
         return _MatchNothing()
+
     # First validate each pattern individually
     for pattern in patterns:
         try:
             re.compile(pattern, re.U)
         except re.error:
-            raise ValueError("""Pattern "%s" can't be compiled """
-                             "in %s" % (pattern, setting_name))
+            raise ValueError('Pattern "{}" cannot be compiled in {}'.format(pattern, setting_name))
+
     # Now return a combined pattern
     return re.compile('^(' + ')$|^('.join(patterns) + ')$', re.U)
 
 
 def get_production_mapping():
     if NAMES is None:
-        raise ImportError('Could not import %s. This '
-                          'file is needed for production mode. Please '
-                          'run manage.py generatemedia to create it.'
-                          % GENERATED_MEDIA_NAMES_MODULE)
+        raise ImportError(
+            'Could not import {}. This file is needed for production mode. Please '
+            'run manage.py generatemedia to create it.'.format(
+                        GENERATED_MEDIA_NAMES_MODULE
+        ))
 
     return NAMES
 
@@ -170,18 +173,21 @@ def read_text_file(path):
 
 def load_backend(backend):
     if backend not in _backends_cache:
-        module_name, func_name = backend.rsplit('.', 1)
+        module_name, func_name = backend.rsplit('.', 1)  # TODO: useful ?
         _backends_cache[backend] = _load_backend(backend)
+
     return _backends_cache[backend]
 
 
 def _load_backend(path):
     module_name, attr_name = path.rsplit('.', 1)
+
     try:
         mod = import_module(module_name)
     except (ImportError, ValueError) as e:
-        raise ImproperlyConfigured('Error importing backend module %s: "%s"' % (module_name, e))
+        raise ImproperlyConfigured('Error importing backend module {}: "{}"'.format(module_name, e))
+
     try:
         return getattr(mod, attr_name)
     except AttributeError:
-        raise ImproperlyConfigured('Module "%s" does not define a "%s" backend' % (module_name, attr_name))
+        raise ImproperlyConfigured('Module "{}" does not define a "{}" backend'.format(module_name, attr_name))

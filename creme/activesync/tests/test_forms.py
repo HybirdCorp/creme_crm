@@ -13,7 +13,7 @@ try:
     from .. import setting_keys, constants, bricks
     from ..utils import is_user_sync_calendars, is_user_sync_contacts
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class GlobalSettingsTestCase(CremeTestCase, BrickTestCaseMixin):

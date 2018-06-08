@@ -22,7 +22,7 @@ try:
     Contact = persons.get_contact_model()
     Organisation = persons.get_organisation_model()
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 def skipIfCustomAddress(test_func):

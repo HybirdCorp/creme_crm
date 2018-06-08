@@ -14,7 +14,7 @@ try:
     from creme.creme_core.views.testjs import js_testview_or_404
     from .base import ViewsTestCase
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class MiscViewsTestCase(ViewsTestCase):

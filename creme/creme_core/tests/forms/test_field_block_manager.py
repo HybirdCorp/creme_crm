@@ -6,7 +6,7 @@ try:
     from ..fake_forms import FakeContactForm
     from ..base import CremeTestCase
 except Exception as e:
-    print('Error in <%s>: %s' % (__name__, e))
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 class FieldBlockManagerTestCase(CremeTestCase):
