@@ -6,10 +6,9 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import (RelationType, CremePropertyType,
-            SemiFixedRelationType)
+            SemiFixedRelationType, FakeContact, FakeOrganisation)
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation
-except Exception, e:
+except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
 
@@ -184,7 +183,6 @@ class RelationTypeTestCase(CremeTestCase):
 
 class SemiFixedRelationTypeTestCase(CremeTestCase):
     ADD_URL = reverse('creme_config__create_semifixed_rtype')
-    format_str = '{"rtype": "%s", "ctype": %s,"entity": %s}'
 
     def setUp(self):
         self.login()
@@ -201,10 +199,8 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
 
         predicate = 'Is loving Iori'
         response = self.client.post(url, data={'predicate':     predicate,
-                                               'semi_relation': self.format_str % (
-                                                                    self.loves.id,
-                                                                    self.iori.entity_type_id,
-                                                                    self.iori.id,
+                                               'semi_relation': self.formfield_value_relation_entity(
+                                                                    self.loves.id, self.iori,
                                                                    ),
                                               }
                                    )
@@ -229,10 +225,8 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
         itsuki = FakeContact.objects.create(user=self.user, first_name='Itsuki', last_name='Akiba')
         response = self.assertPOST200(self.ADD_URL,
                                       data={'predicate':     predicate,
-                                            'semi_relation': self.format_str % (
-                                                                    self.loves.id,
-                                                                    itsuki.entity_type_id,
-                                                                    itsuki.id,
+                                            'semi_relation': self.formfield_value_relation_entity(
+                                                                    self.loves.id, itsuki,
                                                                 ),
                                             }
                                      )
@@ -254,13 +248,11 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
         url = self.ADD_URL
         predicate += ' (other)'
         response = self.assertPOST200(url, data={'predicate': predicate})
-        self.assertFormError(response, 'form', 'semi_relation', [_(u"This field is required.")])
+        self.assertFormError(response, 'form', 'semi_relation', [_(u'This field is required.')])
 
         response = self.assertPOST200(url, data={'predicate':     predicate,
-                                                 'semi_relation': self.format_str % (
-                                                                        self.loves.id,
-                                                                        self.iori.entity_type_id,
-                                                                        self.iori.id,
+                                                 'semi_relation': self.formfield_value_relation_entity(
+                                                                        self.loves.id, self.iori,
                                                                     ),
                                               }
                                      )

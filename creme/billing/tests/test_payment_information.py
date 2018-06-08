@@ -206,7 +206,7 @@ class PaymentInformationTestCase(_BillingTestCase):
                                           'currency':        currency.pk,
                                           'discount':        Decimal(),
                                           'source':          sega.id,
-                                          'target':          self.genericfield_format_entity(nintendo_target),
+                                          'target':          self.formfield_value_generic_entity(nintendo_target),
                                          }
                                    )
         self.assertNoFormError(response)

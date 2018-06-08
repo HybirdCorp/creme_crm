@@ -117,8 +117,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
     def _build_addrelated_url(self, entity):
         return reverse('opportunities__create_related_opportunity', args=(entity.id,))
 
-    def _genericfield_format_entity(self, entity):
-        return '{"ctype": {"id": "%s"}, "entity":"%s"}' % (entity.entity_type_id, entity.id)
+    # def _genericfield_format_entity(self, entity):
+    #     return '{"ctype": {"id": "%s"}, "entity":"%s"}' % (entity.entity_type_id, entity.id)
 
     def _create_target_n_emitter(self, managed=True, contact=False):
         user = self.user
@@ -215,7 +215,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                           'sales_phase':           phase.id,
                                           'expected_closing_date': '2010-9-20',
                                           'closing_date':          '2010-10-11',
-                                          'target':                self._genericfield_format_entity(target),
+                                          'target':                self.formfield_value_generic_entity(target),
                                           'emitter':               emitter.id,
                                           'first_action_date':     '2010-7-13',
                                           'currency':              DEFAULT_CURRENCY_PK,
@@ -250,7 +250,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                           'sales_phase':           phase.id,
                                           'expected_closing_date': '2010-9-20',
                                           'closing_date':          '2010-10-11',
-                                          'target':                self._genericfield_format_entity(target),
+                                          'target':                self.formfield_value_generic_entity(target),
                                           'emitter':               emitter.id,
                                           'first_action_date':     '2010-7-13',
                                           'currency':              DEFAULT_CURRENCY_PK,
@@ -294,7 +294,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                           'sales_phase':           phase.id,
                                           'expected_closing_date': '2010-9-20',
                                           'closing_date':          '2010-10-11',
-                                          'target':                self._genericfield_format_entity(target),
+                                          'target':                self.formfield_value_generic_entity(target),
                                           'emitter':               emitter.id,
                                           'first_action_date':     '2010-7-13',
                                           'currency':              DEFAULT_CURRENCY_PK,
@@ -323,7 +323,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                             'name':         'My opportunity',
                                             'sales_phase':  SalesPhase.objects.all()[0].id,
                                             'closing_date': '2011-03-14',
-                                            'target':       self._genericfield_format_entity(target),
+                                            'target':       self.formfield_value_generic_entity(target),
                                             'emitter':      emitter.id,
                                             'currency':     DEFAULT_CURRENCY_PK,
                                            }
@@ -345,7 +345,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                             'name':         'My opportunity',
                                             'sales_phase':  SalesPhase.objects.all()[0].id,
                                             'closing_date': '2011-03-14',
-                                            'target':       self._genericfield_format_entity(target),
+                                            'target':       self.formfield_value_generic_entity(target),
                                             'emitter':      emitter.id,
                                             }
                                      )
@@ -367,7 +367,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                                'name':         name,
                                                'sales_phase':  salesphase.id,
                                                'closing_date': '2011-03-12',
-                                               'target':       self._genericfield_format_entity(target),
+                                               'target':       self.formfield_value_generic_entity(target),
                                                'emitter':      emitter.id,
                                                'currency':     DEFAULT_CURRENCY_PK,
                                               }
@@ -386,7 +386,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                           'name':         'Opportunity Two linked to {}'.format(target),
                                           'sales_phase':  salesphase.id,
                                           'closing_date': '2011-03-12',
-                                          'target':       self._genericfield_format_entity(target),
+                                          'target':       self.formfield_value_generic_entity(target),
                                           'emitter':      emitter.id,
                                           'currency':     DEFAULT_CURRENCY_PK,
                                          }
@@ -408,7 +408,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                                'name':         name,
                                                'sales_phase':  salesphase.id,
                                                'closing_date': '2011-03-12',
-                                               'target':       self._genericfield_format_entity(target),
+                                               'target':       self.formfield_value_generic_entity(target),
                                                'emitter':      emitter.id,
                                                'currency':     DEFAULT_CURRENCY_PK,
                                               }
@@ -451,7 +451,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                           'name':         name,
                                           'sales_phase':  salesphase.id,
                                           'closing_date': '2011-03-12',
-                                          'target':       self._genericfield_format_entity(target),
+                                          'target':       self.formfield_value_generic_entity(target),
                                           'emitter':      emitter.id,
                                           'currency':     DEFAULT_CURRENCY_PK,
                                          }
@@ -470,7 +470,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                           'name':         'Opportunity 2 linked to {}'.format(target),
                                           'sales_phase':  salesphase.id,
                                           'closing_date': '2011-03-12',
-                                          'target':       self._genericfield_format_entity(target),
+                                          'target':       self.formfield_value_generic_entity(target),
                                           'emitter':      emitter.id,
                                           'currency':     DEFAULT_CURRENCY_PK,
                                          }
@@ -493,7 +493,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                                'name':         name,
                                                'sales_phase':  salesphase.id,
                                                'closing_date': '2011-03-12',
-                                               'target':       self._genericfield_format_entity(target),
+                                               'target':       self.formfield_value_generic_entity(target),
                                                'emitter':      emitter.id,
                                                'currency':     DEFAULT_CURRENCY_PK,
                                               }
@@ -538,7 +538,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                                'name':         'Opp #1',
                                                'sales_phase':  SalesPhase.objects.all()[0].id,
                                                'closing_date': '2011-03-12',
-                                               'target':       self._genericfield_format_entity(target),
+                                               'target':       self.formfield_value_generic_entity(target),
                                                'emitter':      emitter.id,
                                               }
                                    )
@@ -573,7 +573,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                           'closing_date':          '2011-5-15',
                                           'first_action_date':     '2011-5-1',
                                           'currency':              currency.id,
-                                          'target':                self._genericfield_format_entity(target),
+                                          'target':                self.formfield_value_generic_entity(target),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -612,7 +612,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                           'closing_date':          '2013-5-15',
                                           'first_action_date':     '2013-5-1',
                                           'currency':              opp.currency_id,
-                                          'target':                self._genericfield_format_entity(target2),
+                                          'target':                self.formfield_value_generic_entity(target2),
                                          }
                                    )
         self.assertNoFormError(response)

@@ -101,8 +101,8 @@ class _BillingTestCaseMixin(object):
         for f in ('name', 'address', 'po_box', 'zipcode', 'city', 'department', 'state', 'country'):
             self.assertEqual(getattr(address1, f), getattr(address2, f))
 
-    def genericfield_format_entity(self, entity):
-        return '{"ctype": {"id": "%s"}, "entity":"%s"}' % (entity.entity_type_id, entity.id)
+    # def genericfield_format_entity(self, entity):
+    #     return '{"ctype": {"id": "%s"}, "entity":"%s"}' % (entity.entity_type_id, entity.id)
 
     def create_invoice(self, name, source, target, currency=None, discount=Decimal(), user=None):
         user = user or self.user
@@ -116,7 +116,7 @@ class _BillingTestCaseMixin(object):
                                           'currency':        currency.id,
                                           'discount':        discount,
                                           'source':          source.id,
-                                          'target':          self.genericfield_format_entity(target),
+                                          'target':          self.formfield_value_generic_entity(target),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -149,7 +149,7 @@ class _BillingTestCaseMixin(object):
                                           'currency':        currency.id,
                                           'discount':        Decimal(),
                                           'source':          source.id,
-                                          'target':          self.genericfield_format_entity(target),
+                                          'target':          self.formfield_value_generic_entity(target),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -197,7 +197,7 @@ class _BillingTestCaseMixin(object):
                                           'currency':        currency.id,
                                           'discount':        Decimal(),
                                           'source':          source.id,
-                                          'target':          self.genericfield_format_entity(target),
+                                          'target':          self.formfield_value_generic_entity(target),
                                          }
                                    )
         self.assertNoFormError(response)

@@ -23,13 +23,6 @@ class RelationViewsTestCase(ViewsTestCase):
     ADD_FROM_PRED_URL = reverse('creme_core__save_relations')
     SELECTION_URL     = reverse('creme_core__select_entities_to_link')
 
-    format_str    = '[{"rtype": "%s", "ctype": "%s", "entity": "%s"}]'
-    format_str_2x = '[{"rtype": "%s", "ctype": "%s", "entity": "%s"},' \
-                    ' {"rtype": "%s", "ctype": "%s", "entity": "%s"}]'
-    format_str_3x = '[{"rtype": "%s", "ctype": "%s", "entity": "%s"},' \
-                    ' {"rtype": "%s", "ctype": "%s", "entity": "%s"},' \
-                    ' {"rtype": "%s", "ctype": "%s", "entity": "%s"}]'
-
     def _build_get_ctypes_url(self, rtype_id):
         return reverse('creme_core__ctypes_compatible_with_rtype', args=(rtype_id,))
 
@@ -146,10 +139,9 @@ class RelationViewsTestCase(ViewsTestCase):
         url = self._build_add_url(subject)
         self.assertGET200(url)
 
-        ct_id = self.ct_id
-        response = self.client.post(url, data={'relations': self.format_str_2x % (
-                                                                self.rtype01.id, ct_id, self.object01.id,
-                                                                self.rtype02.id, ct_id, self.object02.id,
+        response = self.client.post(url, data={'relations': self.formfield_value_multi_relation_entity(
+                                                                (self.rtype01.id, self.object01),
+                                                                (self.rtype02.id, self.object02),
                                                               ),
                                               }
                                    )
@@ -173,11 +165,10 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertTrue(self.user.has_perm_to_view(unlinkable))
         self.assertFalse(self.user.has_perm_to_link(unlinkable))
 
-        ct_id = self.ct_id
         response = self.client.post(self._build_add_url(self.subject01),
-                                    data={'relations': self.format_str_2x % (
-                                                                self.rtype01.id, ct_id, self.object01.id,
-                                                                self.rtype02.id, ct_id, unlinkable.id,
+                                    data={'relations': self.formfield_value_multi_relation_entity(
+                                                                (self.rtype01.id, self.object01),
+                                                                (self.rtype02.id, unlinkable),
                                                             ),
                                          }
                                    )
@@ -190,18 +181,17 @@ class RelationViewsTestCase(ViewsTestCase):
         "Duplicates -> error"
         self._aux_test_add_relations()
 
-        ct_id = self.ct_id
         response = self.client.post(self._build_add_url(self.subject01),
-                                    data={'relations': self.format_str_3x % (
-                                                            self.rtype01.id, ct_id, self.object01.id,
-                                                            self.rtype02.id, ct_id, self.object02.id,
-                                                            self.rtype01.id, ct_id, self.object01.id,
+                                    data={'relations': self.formfield_value_multi_relation_entity(
+                                                            (self.rtype01.id, self.object01),
+                                                            (self.rtype02.id, self.object02),
+                                                            (self.rtype01.id, self.object01),
                                                         ),
                                          }
                                    )
         self.assertFormError(response, 'form', 'relations',
                              _(u'There are duplicates: %(duplicates)s') % {
-                                 'duplicates': u'(%s, %s)' % (self.rtype01, self.object01),
+                                     'duplicates': u'({}, {})'.format(self.rtype01, self.object01),
                                  }
                             )
 
@@ -214,11 +204,10 @@ class RelationViewsTestCase(ViewsTestCase):
                                 type=self.rtype02,
                                 object_entity=self.object02,
                                )
-        ct_id = self.ct_id
         response = self.client.post(self._build_add_url(self.subject01),
-                                    data={'relations': self.format_str_2x % (
-                                                            self.rtype01.id, ct_id, self.object01.id,
-                                                            self.rtype02.id, ct_id, self.object02.id,
+                                    data={'relations': self.formfield_value_multi_relation_entity(
+                                                            (self.rtype01.id, self.object01),
+                                                            (self.rtype02.id, self.object02),
                                                         ),
                                           }
                                    )
@@ -231,8 +220,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
         subject = self.subject01
         response = self.client.post(self._build_add_url(subject),
-                                    data={'relations': self.format_str % (
-                                                            self.rtype01.id, self.ct_id, subject.id
+                                    data={'relations': self.formfield_value_multi_relation_entity(
+                                                            [self.rtype01.id, subject]
                                                         ),
                                          }
                                    )
@@ -266,8 +255,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
         url = self._build_add_url(subject)
         response = self.assertPOST200(url,
-                                      data={'relations': self.format_str % (
-                                                            rtype03.id, self.ct_id, self.object01.id
+                                      data={'relations': self.formfield_value_multi_relation_entity(
+                                                            [rtype03.id, self.object01]
                                                         ),
                                          }
                                      )
@@ -275,14 +264,14 @@ class RelationViewsTestCase(ViewsTestCase):
                              _(u'«%(subject)s» must have a property in «%(properties)s» '
                                u'in order to use the relationship «%(predicate)s»') % {
                                     'subject':    subject,
-                                    'properties': '%s/%s' % (ptype01, ptype03),
+                                    'properties': '{}/{}'.format(ptype01, ptype03),
                                     'predicate':  rtype03.predicate,
                                 }
                             )
 
         response = self.client.post(url,
-                                    data={'relations': self.format_str % (
-                                                           rtype04.id, self.ct_id, self.object01.id
+                                    data={'relations': self.formfield_value_multi_relation_entity(
+                                                           [rtype04.id, self.object01]
                                                         ),
                                          }
                                    )
@@ -375,10 +364,8 @@ class RelationViewsTestCase(ViewsTestCase):
                          {pk for pk, sfrt in field_sfrt.choices}
                         )
 
-        response = self.client.post(url, data={'relations': self.format_str % (
-                                                                self.rtype01.id,
-                                                                self.ct_id,
-                                                                self.object01.id,
+        response = self.client.post(url, data={'relations': self.formfield_value_multi_relation_entity(
+                                                                [self.rtype01.id, self.object01],
                                                              ),
                                                'semifixed_rtypes': [sfrt2.id],
                                               }
@@ -412,15 +399,15 @@ class RelationViewsTestCase(ViewsTestCase):
                            )
 
         response = self.client.post(self._build_add_url(subject),
-                                    data={'relations': self.format_str % (
-                                                            self.rtype01.id, self.ct_id, self.object01.id,
+                                    data={'relations': self.formfield_value_multi_relation_entity(
+                                                            [self.rtype01.id, self.object01]
                                                         ),
                                           'semifixed_rtypes': [sfrt1.id, sfrt2.id],
                                          }
                                    )
         self.assertFormError(response, 'form', None,
                              _(u'There are duplicates: %(duplicates)s') % {
-                                    'duplicates': u'(%s, %s)' % (self.rtype01, self.object01),
+                                    'duplicates': u'({}, {})'.format(self.rtype01, self.object01),
                                  }
                             )
 
@@ -501,10 +488,9 @@ class RelationViewsTestCase(ViewsTestCase):
         url = self._build_narrowed_add_url(subject, rtype)
         self.assertGET200(url)
 
-        ct_id = self.ct_id
-        response = self.client.post(url, data={'relations': self.format_str_2x % (
-                                                                rtype.id, ct_id, self.object01.id,
-                                                                rtype.id, ct_id, self.object02.id,
+        response = self.client.post(url, data={'relations': self.formfield_value_multi_relation_entity(
+                                                                (rtype.id, self.object01),
+                                                                (rtype.id, self.object02),
                                                              ),
                                               }
                                    )
@@ -517,12 +503,11 @@ class RelationViewsTestCase(ViewsTestCase):
         "Validation error"
         self._aux_test_add_relations()
 
-        ct_id = self.ct_id
         response = self.client.post(self._build_narrowed_add_url(self.subject01, self.rtype01),
-                                    data={'relations': self.format_str_2x % (
-                                                                self.rtype01.id, ct_id, self.object01.id,
+                                    data={'relations': self.formfield_value_multi_relation_entity(
+                                                                (self.rtype01.id, self.object01),
                                                                 # RelationType not allowed:
-                                                                self.rtype02.id, ct_id, self.object02.id,
+                                                                (self.rtype02.id, self.object02),
                                                             ),
                                          }
                                    )
@@ -551,8 +536,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
         self.assertEqual([(sfrt1.id, sfrt1.predicate)], list(sfrt_field.choices))
 
-        response = self.client.post(url, data={'relations': self.format_str % (
-                                                                allowed_rtype.id, self.ct_id, self.object02.id,
+        response = self.client.post(url, data={'relations': self.formfield_value_multi_relation_entity(
+                                                                [allowed_rtype.id, self.object02],
                                                               ),
                                                'semifixed_rtypes': [sfrt1.id],
                                               }
@@ -584,9 +569,9 @@ class RelationViewsTestCase(ViewsTestCase):
 
         response = self.client.post(self._build_bulk_add_url(ct_id),
                                     data={'entities_lbl': 'wtf',
-                                          'relations':    self.format_str_2x % (
-                                                              self.rtype01.id, ct_id, self.object01.id,
-                                                              self.rtype02.id, ct_id, self.object02.id,
+                                          'relations':    self.formfield_value_multi_relation_entity(
+                                                                (self.rtype01.id, self.object01),
+                                                                (self.rtype02.id, self.object02),
                                                             ),
                                           'ids': [self.subject01.id, self.subject02.id],
                                          }
@@ -615,12 +600,12 @@ class RelationViewsTestCase(ViewsTestCase):
 
         self.assertTrue(label.initial)
 
-        response = self.client.post(self._build_bulk_add_url(self.ct_id),
+        response = self.client.post(self._build_bulk_add_url(ct_id),
                                     data={'entities_lbl':     'do not care',
                                           'bad_entities_lbl': 'do not care',
-                                          'relations':        self.format_str_2x % (
-                                                                   self.rtype01.id, ct_id, self.object01.id,
-                                                                   self.rtype02.id, ct_id, self.object02.id,
+                                          'relations':        self.formfield_value_multi_relation_entity(
+                                                                    (self.rtype01.id, self.object01),
+                                                                    (self.rtype02.id, self.object02),
                                                                ),
                                           'ids': [self.subject01.id, unviewable.id]
                                          }
@@ -654,11 +639,9 @@ class RelationViewsTestCase(ViewsTestCase):
 
         response = self.assertPOST200(self._build_bulk_add_url(self.ct_id),
                                       data={'entities_lbl': 'wtf',
-                                            'relations':    self.format_str % (
-                                                               self.rtype01.id,
-                                                               self.ct_id,
-                                                               unlinkable.id
-                                                             ),
+                                            'relations': self.formfield_value_multi_relation_entity(
+                                                           [self.rtype01.id, unlinkable]
+                                                         ),
                                             'ids': [self.subject01.id],
                                            }
                                      )
@@ -675,16 +658,16 @@ class RelationViewsTestCase(ViewsTestCase):
         subject02 = self.subject02
         response = self.client.post(self._build_bulk_add_url(ct_id),
                                     data={'entities_lbl': 'wtf',
-                                          'relations':    self.format_str_2x % (
-                                                                self.rtype01.id, ct_id, subject01.id,
-                                                                self.rtype02.id, ct_id, subject02.id,
+                                          'relations': self.formfield_value_multi_relation_entity(
+                                                                (self.rtype01.id, subject01),
+                                                                (self.rtype02.id, subject02),
                                                             ),
                                           'ids': [subject01.id, subject02.id],
                                          }
                                    )
         self.assertFormError(response, 'form', 'relations',
                              _(u'An entity can not be linked to itself : %(entities)s') % {
-                                    'entities': '%s, %s' % (subject01, subject02),
+                                    'entities': u'{}, {}'.format(subject01, subject02),
                                   }
                             )
 
@@ -705,10 +688,10 @@ class RelationViewsTestCase(ViewsTestCase):
                                                    )
 
         response = self.client.post(self._build_bulk_add_url(self.ct_id),
-                                    data={'entities_lbl':     'wtf',
-                                          'relations':        self.format_str % (
-                                                                  self.rtype02.id, self.ct_id, self.object02.id,
-                                                                ),
+                                    data={'entities_lbl': 'wtf',
+                                          'relations': self.formfield_value_multi_relation_entity(
+                                                            [self.rtype02.id, self.object02],
+                                                        ),
                                           'semifixed_rtypes': [sfrt.id],
                                           'ids': [self.subject01.id, self.subject02.id],
                                          }
@@ -746,10 +729,10 @@ class RelationViewsTestCase(ViewsTestCase):
 
         response = self.client.post(self._build_bulk_add_url(ct_id),
                                     data={'entities_lbl': 'wtf',
-                                          'relations':    self.format_str_2x % (
-                                                               self.rtype01.id, ct_id, self.object01.id,
-                                                               self.rtype02.id, ct_id, self.object02.id,
-                                                              ),
+                                          'relations': self.formfield_value_multi_relation_entity(
+                                                            (self.rtype01.id, self.object01),
+                                                            (self.rtype02.id, self.object02),
+                                                          ),
                                           'ids': [self.subject01.id, self.subject02.id]
                                          }
                                    )

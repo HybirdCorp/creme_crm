@@ -3,7 +3,7 @@
 try:
     from datetime import date
     from functools import partial
-    # from json import loads as load_json
+    from json import dumps as json_dump  #loads as load_json
 
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
@@ -20,14 +20,6 @@ except Exception as e:
 
 
 class EntityFilterViewsTestCase(ViewsTestCase):
-    FIELDS_CONDS_FMT       = '[{"field": {"name": "%(name)s"}, "operator": {"id": "%(operator)s"}, "value": %(value)s}]'
-    DATE_FIELDS_CONDS_FMT  = '[{"field": {"name": "%(name)s", "type": "date"}, "range": {"type": "%(type)s", "start": "%(start)s", "end": "%(end)s"}}]'
-    CFIELDS_CONDS_FMT      = '[{"field": {"id": "%(cfield)s"}, "operator": {"id": "%(operator)s"}, "value": %(value)s}]'
-    DATE_CFIELDS_CONDS_FMT = '[{"field": "%(cfield)s", "range": {"type": "%(type)s"}}]'
-    RELATIONS_CONDS_FMT    = '[{"has": true, "rtype": "%s", "ctype": 0, "entity": null}]'
-    RELSUBFILTER_CONDS_FMT = '[{"rtype": "%(rtype)s", "has": false, "ctype": %(ct)s, "filter": "%(filter)s"}]'
-    PROP_CONDS_FMT         = '[{"has": %(has)s, "ptype": "%(ptype)s"}]'
-
     @classmethod
     def setUpClass(cls):
         super(EntityFilterViewsTestCase, cls).setUpClass()
@@ -47,6 +39,41 @@ class EntityFilterViewsTestCase(ViewsTestCase):
     #            reverse('creme_core__efilters') + '?ct_id=%s' % ct.id
     def _build_get_filter_url(self, ct, all_filter=False):
         return reverse('creme_core__efilters') + '?ct_id={}'.format(ct.id)
+
+    def _build_rfields_data(self, name, operator, value):
+        return json_dump([
+            {'field':    {'name': name},
+             'operator': {'id': str(operator)},
+             'value':    value,
+            },
+        ])
+
+    def _build_rdatefields_data(self, name, type, start, end):
+        return json_dump([
+            {'field': {'name': name, 'type': 'date'},
+             'range': {'type': type, 'start': start, 'end': end},
+            },
+        ])
+
+    def _build_cfields_data(self, cfield_id, operator, value):
+        return json_dump([
+            {'field':    {'id': str(cfield_id)},
+             'operator': {'id': str(operator)},
+             'value':    value,
+            }
+        ])
+
+    def _build_cdatefields_data(self, cfield_id, type):
+        return json_dump([{'field': str(cfield_id), 'range': {'type': type}}])
+
+    def _build_relations_data(self, rtype_id):
+        return json_dump([{'has': True, 'rtype': rtype_id, 'ctype': 0, 'entity': None}])
+
+    def _build_properties_data(self, has, ptype_id):
+        return json_dump([{'has': has, 'ptype': ptype_id}])
+
+    def _build_subfilters_data(self, rtype_id, ct_id, efilter_id):
+        return json_dump([{'rtype': rtype_id, 'has': False, 'ctype': ct_id, 'filter': efilter_id}])
 
     def test_create01(self):
         "Check app credentials"
@@ -79,13 +106,13 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         field_name = 'last_name'
         value = 'Ikari'
         response = self.client.post(uri, follow=True,
-                                    data={'name':              name,
-                                          'use_or':            'False',
-                                          'fields_conditions': self.FIELDS_CONDS_FMT % {
-                                                                      'operator': operator,
-                                                                      'name':     field_name,
-                                                                      'value':    '"' + value + '"',
-                                                                  },
+                                    data={'name': name,
+                                          'use_or': 'False',
+                                          'fields_conditions': self._build_rfields_data(
+                                                                      operator=operator,
+                                                                      name=field_name,
+                                                                      value=value,
+                                                                ),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -121,7 +148,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         subfilter.set_conditions([EntityFilterCondition.build_4_field(model=FakeOrganisation,
                                                                       operator=EntityFilterCondition.GT,
                                                                       name='capital', values=[10000]
-                                                                      )
+                                                                     )
                                  ])
 
         rtype, srtype = RelationType.create(('test-subject_love', u'Is loving'),
@@ -159,36 +186,35 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                           'is_private': 'on',
                                           'use_or':     'True',
 
-                                          'fields_conditions':           self.FIELDS_CONDS_FMT % {
-                                                                                'operator': field_operator,
-                                                                                'name':     field_name,
-                                                                                'value':    '"' + field_value + '"',
-                                                                            },
-                                          'datefields_conditions':       self.DATE_FIELDS_CONDS_FMT % {
-                                                                                'type': daterange_type,
-                                                                                'start': '',
-                                                                                'end': '',
-                                                                                'name': date_field_name,
-                                                                            },
-                                          'customfields_conditions':     self.CFIELDS_CONDS_FMT % {
-                                                                                'cfield':   custom_field.id,
-                                                                                'operator': cfield_operator,
-                                                                                'value':    cfield_value,
-                                                                            },
-                                          'datecustomfields_conditions': self.DATE_CFIELDS_CONDS_FMT % {
-                                                                                'cfield': datecfield.id,
-                                                                                'type':   datecfield_rtype,
-                                                                            },
-                                          'relations_conditions':        self.RELATIONS_CONDS_FMT % rtype.id,
-                                          'relsubfilfers_conditions':    self.RELSUBFILTER_CONDS_FMT % {
-                                                                                'rtype':  srtype.id,
-                                                                                'ct':     self.ct_contact.id,
-                                                                                'filter': relsubfilfer.id,
-                                                                            },
-                                          'properties_conditions':       self.PROP_CONDS_FMT % {
-                                                                                'has':   'true',
-                                                                                'ptype': ptype.id,
-                                                                            },
+                                          'fields_conditions':           self._build_rfields_data(
+                                                                                operator=field_operator,
+                                                                                name=field_name,
+                                                                                value=field_value,
+                                                                            ),
+                                          'datefields_conditions':       self._build_rdatefields_data(
+                                                                                type=daterange_type,
+                                                                                start='', end='',
+                                                                                name=date_field_name,
+                                                                            ),
+                                          'customfields_conditions':     self._build_cfields_data(
+                                                                                cfield_id=custom_field.id,
+                                                                                operator=cfield_operator,
+                                                                                value=cfield_value,
+                                                                            ),
+                                          'datecustomfields_conditions': self._build_cdatefields_data(
+                                                                                cfield_id=datecfield.id,
+                                                                                type=datecfield_rtype,
+                                                                            ),
+                                          'relations_conditions':        self._build_relations_data(rtype.id),
+                                          'relsubfilfers_conditions':    self._build_subfilters_data(
+                                                                                rtype_id=srtype.id,
+                                                                                ct_id=self.ct_contact.id,
+                                                                                efilter_id=relsubfilfer.id,
+                                                                            ),
+                                          'properties_conditions':       self._build_properties_data(
+                                                                                has=True,
+                                                                                ptype_id=ptype.id,
+                                                                            ),
                                           'subfilters_conditions':       [subfilter.id],
                                          }
                                    )
@@ -264,14 +290,13 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         daterange_type = 'previous_year'
         callback_url = FakeOrganisation.get_lv_absolute_url()
         response = self.client.post(self._build_add_url(ct), follow=True,
-                                    data={'name':                  name,
-                                          'use_or':                'False',
-                                          'datefields_conditions': self.DATE_FIELDS_CONDS_FMT % {
-                                                                        'type': daterange_type,
-                                                                        'name': field_name,
-                                                                        'start': '',
-                                                                        'end': '',
-                                                                    },
+                                    data={'name': name,
+                                          'use_or': 'False',
+                                          'datefields_conditions': self._build_rdatefields_data(
+                                                                        type=daterange_type,
+                                                                        name=field_name,
+                                                                        start='', end='',
+                                                                    ),
                                           'cancel_url': callback_url,
                                          }
                                    )
@@ -323,11 +348,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                             'use_or':     'False',
                                             'is_private': 'on',
 
-                                            'fields_conditions': self.FIELDS_CONDS_FMT % {
-                                                                       'operator': EntityFilterCondition.EQUALS,
-                                                                       'name':     'last_name',
-                                                                       'value':    '"Katsuragi"',
-                                                                   },
+                                            'fields_conditions': self._build_rfields_data(
+                                                                       operator=EntityFilterCondition.EQUALS,
+                                                                       name='last_name',
+                                                                       value='Katsuragi',
+                                                                    ),
                                            }
                                      )
 
@@ -367,11 +392,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                 'use_or':     'False',
                 'is_private': 'on',
 
-                'fields_conditions': self.FIELDS_CONDS_FMT % {
-                                           'operator': EntityFilterCondition.EQUALS,
-                                           'name':     'last_name',
-                                           'value':    '"Katsuragi"',
-                                       },
+                'fields_conditions': self._build_rfields_data(
+                                           operator=EntityFilterCondition.EQUALS,
+                                           name='last_name',
+                                           value='Katsuragi',
+                                        ),
                }
 
         url = self._build_add_url(ct=self.ct_contact)
@@ -380,15 +405,16 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                 subfilters_conditions=[subfilter.id],
                                                ),
                                      )
-        self.assertFormError(response, 'form', None,
-                             ungettext(
-                                 u'A private filter can only use public sub-filters, & private sub-filters which belong to the same user and his teams.'
-                                 u' So this private sub-filter cannot be chosen: {}',
-                                 u'A private filter can only use public sub-filters, & private sub-filters which belong to the same user and his teams.'
-                                 u' So these private sub-filters cannot be chosen: {}',
-                                 1
-                                ).format(subfilter.name)
-                            )
+        self.assertFormError(
+            response, 'form', None,
+            ungettext(
+                u'A private filter can only use public sub-filters, & private sub-filters which belong to the same user and his teams.'
+                u' So this private sub-filter cannot be chosen: {}',
+                u'A private filter can only use public sub-filters, & private sub-filters which belong to the same user and his teams.'
+                u' So these private sub-filters cannot be chosen: {}',
+                1
+            ).format(subfilter.name)
+        )
 
         response = self.client.post(self._build_add_url(ct=self.ct_contact), follow=True, data=data)
         self.assertNoFormError(response)
@@ -410,11 +436,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                     data={'name':   'Filter 01',
                                           'user':   user.id,
                                           'use_or': 'False',
-                                          'fields_conditions': self.FIELDS_CONDS_FMT % {
-                                                                   'operator': EntityFilterCondition.EQUALS,
-                                                                   'name':     'name',
-                                                                   'value':    '"Product"',
-                                                               },
+                                          'fields_conditions': self._build_rfields_data(
+                                                                   operator=EntityFilterCondition.EQUALS,
+                                                                   name='name',
+                                                                   value='Product',
+                                                                ),
                                          }
                                    )
 
@@ -429,11 +455,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                     data={'name':   'Filter 01',
                                           'user':   user.id,
                                           'use_or': 'True',
-                                          'fields_conditions': self.FIELDS_CONDS_FMT % {
-                                                                   'operator': EntityFilterCondition.EQUALS,
-                                                                   'name':     'linked_folder',
-                                                                   'value':    '{}'.format(folder.id),
-                                                               },
+                                          'fields_conditions': self._build_rfields_data(
+                                                                   operator=EntityFilterCondition.EQUALS,
+                                                                   name='linked_folder',
+                                                                   value=str(folder.id),
+                                                                ),
                                          }
                                    )
 
@@ -461,11 +487,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                     data={'name':   'Filter 01',
                                           'user':   user.id,
                                           'use_or': 'True',
-                                          'fields_conditions': self.FIELDS_CONDS_FMT % {
-                                                                   'operator': EntityFilterCondition.EQUALS,
-                                                                   'name':     'user',
-                                                                   'value':    '"' + CURRENT_USER + '"',
-                                                               },
+                                          'fields_conditions': self._build_rfields_data(
+                                                                   operator=EntityFilterCondition.EQUALS,
+                                                                   name='user',
+                                                                   value=CURRENT_USER,
+                                                                ),
                                          }
                                    )
         self.assertNoFormError(response, status=302)
@@ -527,11 +553,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                 'use_or':     'False',
                 'is_private': 'on',
 
-                'fields_conditions': self.FIELDS_CONDS_FMT % {
-                                            'operator': EntityFilterCondition.EQUALS,
-                                            'name':     'last_name',
-                                            'value':    '"Katsuragi"',
-                                        },
+                'fields_conditions': self._build_rfields_data(
+                                            operator=EntityFilterCondition.EQUALS,
+                                            name='last_name',
+                                            value='Katsuragi',
+                                        ),
                }
 
         def post(post_data):
@@ -550,11 +576,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                     ('test-object_love',  u'Is loved by')
                                    )[0]
         response = post(dict(data,
-                             relsubfilfers_conditions=self.RELSUBFILTER_CONDS_FMT % {
-                                                            'rtype':  rtype.id,
-                                                            'ct':     self.ct_contact.id,
-                                                            'filter': subfilter.id,
-                                                        },
+                             relsubfilfers_conditions=self._build_subfilters_data(
+                                                            rtype_id=rtype.id,
+                                                            ct_id=self.ct_contact.id,
+                                                            efilter_id=subfilter.id,
+                                                        ),
                             )
                        )
         self.assertFormError(response, 'form', 'relsubfilfers_conditions',
@@ -599,11 +625,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                           'use_or':     'False',
                                           'is_private': is_private,
 
-                                          'fields_conditions': self.FIELDS_CONDS_FMT % {
-                                                                    'operator': EntityFilterCondition.EQUALS,
-                                                                    'name':     'last_name',
-                                                                    'value':    '"Katsuragi"',
-                                                                },
+                                          'fields_conditions': self._build_rfields_data(
+                                                                    operator=EntityFilterCondition.EQUALS,
+                                                                    name='last_name',
+                                                                    value='Katsuragi',
+                                                                ),
                                           'subfilters_conditions': [subfilter1.id, subfilter2.id],
                                          }
                                    )
@@ -665,25 +691,27 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                           'use_or':     'False',
                                           'is_private': 'on',
 
-                                          'fields_conditions': self.FIELDS_CONDS_FMT % {
-                                                                    'operator': EntityFilterCondition.EQUALS,
-                                                                    'name':     'last_name',
-                                                                    'value':    '"Katsuragi"',
-                                                                },
+                                          'fields_conditions': self._build_rfields_data(
+                                                                    operator=EntityFilterCondition.EQUALS,
+                                                                    name='last_name',
+                                                                    value='Katsuragi',
+                                                                ),
                                           'subfilters_conditions': [sf.id for sf in subfilters],
                                          }
                                    )
 
         response = post(subfilter3)
         self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', None,
-                             ungettext(u'A private filter which belongs to a team can only use public sub-filters & private sub-filters which belong to this team.'
-                                       u' So this private sub-filter cannot be chosen: {}',
-                                       u'A private filter which belongs to a team can only use public sub-filters & private sub-filters which belong to this team.'
-                                       u' So these private sub-filters cannot be chosen: {}',
-                                       1
-                                      ).format(subfilter3.name)
-                            )
+        self.assertFormError(
+            response, 'form', None,
+            ungettext(
+                u'A private filter which belongs to a team can only use public sub-filters & private sub-filters which belong to this team.'
+                u' So this private sub-filter cannot be chosen: {}',
+                u'A private filter which belongs to a team can only use public sub-filters & private sub-filters which belong to this team.'
+                u' So these private sub-filters cannot be chosen: {}',
+                1
+            ).format(subfilter3.name)
+        )
 
         response = post(subfilter1, subfilter2)
         self.assertNoFormError(response)
@@ -699,17 +727,17 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         ct = ContentType.objects.get_for_model(FakeDocument)
         response = self.assertPOST200(self._build_add_url(ct),
                                       follow=True,
-                                      data={'name':              'Filter 01',
-                                            'use_or':            'False',
-                                            'fields_conditions': self.FIELDS_CONDS_FMT % {
-                                                                        'operator': EntityFilterCondition.IEQUALS,
-                                                                        'name':     'filedata',
-                                                                        'value':    '"foobar"',
-                                                                    },
+                                      data={'name': 'Filter 01',
+                                            'use_or': 'False',
+                                            'fields_conditions': self._build_rfields_data(
+                                                    operator=EntityFilterCondition.IEQUALS,
+                                                    name='filedata',
+                                                    value='foobar',
+                                                ),
                                             }
                                     )
         self.assertFormError(response, 'form', 'fields_conditions',
-                             _(u"This field is invalid with this model.")
+                             _(u'This field is invalid with this model.')
                             )
 
     def test_non_filterable_fields02(self):
@@ -721,17 +749,17 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         response = self.assertPOST200(self._build_add_url(self.ct_contact),
                                       follow=True,
-                                      data={'name':              'Filter 01',
-                                            'use_or':            'False',
-                                            'fields_conditions': self.FIELDS_CONDS_FMT % {
-                                                                        'operator': EntityFilterCondition.IEQUALS,
-                                                                        'name':     'image__filedata',
-                                                                        'value':    '"foobar"',
-                                                                    },
+                                      data={'name': 'Filter 01',
+                                            'use_or': 'False',
+                                            'fields_conditions': self._build_rfields_data(
+                                                    operator=EntityFilterCondition.IEQUALS,
+                                                    name='image__filedata',
+                                                    value='foobar',
+                                                ),
                                             }
                                     )
         self.assertFormError(response, 'form', 'fields_conditions',
-                             _(u"This field is invalid with this model.")
+                             _(u'This field is invalid with this model.')
                             )
 
     def test_edit01(self):
@@ -808,36 +836,36 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         response = self.client.post(url, follow=True,
                                     data={'name':                        name,
                                           'use_or':                      'True',
-                                          'fields_conditions':           self.FIELDS_CONDS_FMT % {
-                                                                                'operator': field_operator,
-                                                                                'name':     field_name,
-                                                                                'value':    '"' + field_value + '"',
-                                                                            },
-                                          'datefields_conditions':       self.DATE_FIELDS_CONDS_FMT % {
-                                                                                'type':  '',
-                                                                                'start': '2011-5-23',
-                                                                                'end':   '2012-6-27',
-                                                                                'name':   date_field_name,
-                                                                            },
-                                          'customfields_conditions':     self.CFIELDS_CONDS_FMT % {
-                                                                                'cfield':   custom_field.id,
-                                                                                'operator': cfield_operator,
-                                                                                'value':    '"' + cfield_value + '"',
-                                                                            },
-                                          'datecustomfields_conditions': self.DATE_CFIELDS_CONDS_FMT % {
-                                                                                'cfield': datecfield.id,
-                                                                                'type':   datecfield_rtype,
-                                                                            },
-                                          'relations_conditions':        self.RELATIONS_CONDS_FMT % rtype.id,
-                                          'relsubfilfers_conditions':    self.RELSUBFILTER_CONDS_FMT % {
-                                                                                'rtype':  srtype.id,
-                                                                                'ct':     self.ct_orga.id,
-                                                                                'filter': relsubfilfer.id,
-                                                                            },
-                                          'properties_conditions':       self.PROP_CONDS_FMT % {
-                                                                                'has':   'false',
-                                                                                'ptype': ptype.id,
-                                                                            },
+                                          'fields_conditions':           self._build_rfields_data(
+                                                                                operator=field_operator,
+                                                                                name=field_name,
+                                                                                value=field_value,
+                                                                            ),
+                                          'datefields_conditions':       self._build_rdatefields_data(
+                                                                                type='',
+                                                                                start='2011-5-23',
+                                                                                end='2012-6-27',
+                                                                                name=date_field_name,
+                                                                            ),
+                                          'customfields_conditions':     self._build_cfields_data(
+                                                                                cfield_id=custom_field.id,
+                                                                                operator=cfield_operator,
+                                                                                value=cfield_value,
+                                                                            ),
+                                          'datecustomfields_conditions': self._build_cdatefields_data(
+                                                                                cfield_id=datecfield.id,
+                                                                                type=datecfield_rtype,
+                                                                            ),
+                                          'relations_conditions':        self._build_relations_data(rtype.id),
+                                          'relsubfilfers_conditions':    self._build_subfilters_data(
+                                                                                rtype_id=srtype.id,
+                                                                                ct_id=self.ct_orga.id,
+                                                                                efilter_id=relsubfilfer.id,
+                                                                            ),
+                                          'properties_conditions':       self._build_properties_data(
+                                                                                has=False,
+                                                                                ptype_id=ptype.id,
+                                                                            ),
                                           'subfilters_conditions':       [subfilter.id],
                                          }
                                    )
@@ -929,11 +957,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                     data={'name':               'Filter01 edited',  # Should not be used
                                           'user':               user.id,
                                           'use_or':             'True',
-                                          'fields_conditions':  self.FIELDS_CONDS_FMT % {
-                                                                       'operator': field_operator,
-                                                                       'name':     field_name,
-                                                                       'value':    '"{}"'.format(field_value),
-                                                                   },
+                                          'fields_conditions':  self._build_rfields_data(
+                                                                       operator=field_operator,
+                                                                       name=field_name,
+                                                                       value=field_value,
+                                                                    ),
                                           'cancel_url': callback_url,
                                          }
                                    )
@@ -988,14 +1016,14 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         parent_filter.set_conditions([EntityFilterCondition.build_4_subfilter(efilter)])
 
         response = self.client.post(efilter.get_edit_absolute_url(), follow=True,
-                                    data={'name':                     efilter.name,
-                                          'use_or':                   'False',
-                                          'relsubfilfers_conditions': self.RELSUBFILTER_CONDS_FMT % {
-                                                                            'rtype':  rtype.id,
-                                                                            'ct':     self.ct_contact.id,
+                                    data={'name': efilter.name,
+                                          'use_or': 'False',
+                                          'relsubfilfers_conditions': self._build_subfilters_data(
+                                                                            rtype_id=rtype.id,
+                                                                            ct_id=self.ct_contact.id,
                                                                             # PROBLEM IS HERE !!!
-                                                                            'filter': parent_filter.id,
-                                                                        },
+                                                                            efilter_id=parent_filter.id,
+                                                                        ),
                                          }
                                    )
         self.assertFormError(response, 'form', field=None, errors=_(u'There is a cycle with a sub-filter.'))
@@ -1027,11 +1055,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                     data={'name':              efilter.name,
                                           'is_private':        'on',
                                           'use_or':            'False',
-                                          'fields_conditions': self.FIELDS_CONDS_FMT % {
-                                                                    'operator': EntityFilterCondition.IEQUALS,
-                                                                    'name':     'last_name',
-                                                                    'value':    '"Ikari"',
-                                                                },
+                                          'fields_conditions': self._build_rfields_data(
+                                                                    operator=EntityFilterCondition.IEQUALS,
+                                                                    name='last_name',
+                                                                    value='Ikari',
+                                                                ),
                                          }
                                    )
         self.assertFormError(response, 'form', None,
@@ -1068,11 +1096,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                           'user':              user.id,
                                           'is_private':        'on',  # Should not be used
                                           'use_or':            'False',
-                                          'fields_conditions': self.FIELDS_CONDS_FMT % {
-                                                                    'operator': EntityFilterCondition.IEQUALS,
-                                                                    'name':     'last_name',
-                                                                    'value':    '"Ikari"',
-                                                                },
+                                          'fields_conditions': self._build_rfields_data(
+                                                                    operator=EntityFilterCondition.IEQUALS,
+                                                                    name='last_name',
+                                                                    value='Ikari',
+                                                                ),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -1086,11 +1114,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                       'user':              user.id,
                                       'is_private':        is_private,
                                       'use_or':            'False',
-                                      'fields_conditions': self.FIELDS_CONDS_FMT % {
-                                                                'operator': EntityFilterCondition.IEQUALS,
-                                                                'name':     'last_name',
-                                                                'value':    '"Ikari"',
-                                                            },
+                                      'fields_conditions': self._build_rfields_data(
+                                                                operator=EntityFilterCondition.IEQUALS,
+                                                                name='last_name',
+                                                                value='Ikari',
+                                                            ),
                                      }
                                    )
 
@@ -1273,7 +1301,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                                         name='last_name', values=['Ikari'],
                                                     ),
                                                  ],
-                                      )
+                                     )
         self._delete(efilter)
         self.assertEqual(1, EntityFilter.objects.filter(pk=efilter.id).count())
 
@@ -1283,7 +1311,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         efilter = EntityFilter.create('test-filter01', 'Filter01', FakeContact,
                                       is_custom=True, user=self.other_user,
-                                      )
+                                     )
         self._delete(efilter)
         self.assertEqual(1, EntityFilter.objects.filter(pk=efilter.id).count())
 
@@ -1362,7 +1390,6 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(self._build_get_ct_url(rtype))
 
-        # content = load_json(response.content)
         content = response.json()
         self.assertIsInstance(content, list)
         self.assertGreater(len(content), 1)
@@ -1381,7 +1408,6 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         ct = self.ct_contact
         self.assertEqual([[0, _(u'All')], [ct.id, unicode(ct)]],
-                         # load_json(response.content)
                          response.json()
                         )
 
@@ -1391,7 +1417,6 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         # response = self.assertGET200(self._build_get_filter_url(self.ct_contact, use_GET=True))
         response = self.assertGET200(self._build_get_filter_url(self.ct_contact))
 
-        # content = load_json(response.content)
         content = response.json()
         self.assertIsInstance(content, list)
         self.assertFalse(content)
@@ -1423,21 +1448,17 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         exepcted = [[efilter01.id, name1], [efilter02.id, name2], [efilter03.id, name3]]
 
         response = self.assertGET200(self._build_get_filter_url(self.ct_contact))
-        # self.assertEqual(exepcted, load_json(response.content))
         self.assertEqual(exepcted, response.json())
 
         # url = self._build_get_filter_url(self.ct_contact, use_GET=True)
         url = self._build_get_filter_url(self.ct_contact)
         response = self.assertGET200(url)
-        # self.assertEqual(exepcted, load_json(response.content))
         self.assertEqual(exepcted, response.json())
 
         response = self.assertGET200(url + '&all=0')
-        # self.assertEqual(exepcted, load_json(response.content))
         self.assertEqual(exepcted, response.json())
 
         response = self.assertGET200(url + '&all=false')
-        # self.assertEqual(exepcted, load_json(response.content))
         self.assertEqual(exepcted, response.json())
 
         self.assertGET404(url + '&all=invalid')

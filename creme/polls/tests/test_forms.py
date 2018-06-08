@@ -2,6 +2,7 @@
 
 try:
     from functools import partial
+    from json import dumps as json_dump
 
     from creme.creme_core.tests.forms.base import FieldTestCase
 
@@ -14,9 +15,9 @@ except Exception as e:
 
 
 class PollFormLineConditionsFieldTestCase(FieldTestCase):
-    FORMAT_STR   = '[{"source": "%(source)s", "choice": "%(choice)s"}]'
-    FORMAT_STR2X = '[{"source": "%(source1)s", "choice": "%(choice1)s"},' \
-                   ' {"source": "%(source2)s", "choice": "%(choice2)s"}]'
+    @staticmethod
+    def build_data(*info):
+        return json_dump([{'source': str(t['source']), 'choice': str(t['choice'])} for t in info])
 
     def test_clean_empty_required(self):
         clean = PollFormLineConditionsField().clean
@@ -61,9 +62,7 @@ class PollFormLineConditionsFieldTestCase(FieldTestCase):
         line1, line2 = self._create_lines()
         self.assertFieldValidationError(PollFormLineConditionsField, 'invalidsource',
                                         PollFormLineConditionsField(sources=[line1]).clean,
-                                        self.FORMAT_STR % {'source': line2.id,
-                                                           'choice': 1,
-                                                          }
+                                        self.build_data({'source': line2.id, 'choice': 1}),
                                        )
 
     @skipIfCustomPollForm
@@ -76,9 +75,7 @@ class PollFormLineConditionsFieldTestCase(FieldTestCase):
                                            )
         self.assertFieldValidationError(PollFormLineConditionsField, 'invalidsource',
                                         PollFormLineConditionsField(sources=[line1, line2, line3]).clean,
-                                        self.FORMAT_STR % {'source': line3.id,
-                                                           'choice': 1,
-                                                          }
+                                        self.build_data({'source': line3.id, 'choice': 1}),
                                        )
 
     @skipIfCustomPollForm
@@ -86,9 +83,7 @@ class PollFormLineConditionsFieldTestCase(FieldTestCase):
         line1, line2 = self._create_lines()
         self.assertFieldValidationError(PollFormLineConditionsField, 'invalidchoice',
                                         PollFormLineConditionsField(sources=[line1]).clean,
-                                        self.FORMAT_STR % {'source': line1.id,
-                                                           'choice': 3,
-                                                          }
+                                        self.build_data({'source': line1.id, 'choice': 3}),
                                        )
 
     @skipIfCustomPollForm
@@ -98,10 +93,7 @@ class PollFormLineConditionsFieldTestCase(FieldTestCase):
         with self.assertNumQueries(0):
             field = PollFormLineConditionsField(sources=[line1, line2])
 
-        conditions = field.clean(self.FORMAT_STR % {'source': line1.id,
-                                                    'choice': 1,
-                                                   }
-                                )
+        conditions = field.clean(self.build_data({'source': line1.id, 'choice': 1}))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -120,11 +112,10 @@ class PollFormLineConditionsFieldTestCase(FieldTestCase):
             field = PollFormLineConditionsField()
 
         field.sources = [line1, line2]
-        conditions = field.clean(self.FORMAT_STR2X % {
-                                        'source1': line1.id, 'choice1': 1,
-                                        'source2': line2.id, 'choice2': 2,
-                                    }
-                                )
+        conditions = field.clean(self.build_data(
+                                    {'source': line1.id, 'choice': 1},
+                                    {'source': line2.id, 'choice': 2},
+                                ))
         self.assertEqual(2, len(conditions))
 
         condition = conditions[0]

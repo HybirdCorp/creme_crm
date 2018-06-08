@@ -6,6 +6,7 @@ skip_service_tests = False
 try:
     from unittest import skipIf
     from functools import partial
+    from json import dumps as json_dump
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import SetCredentials
@@ -32,7 +33,7 @@ def skipIfCustomService(test_func):
 
 class _ProductsTestCase(_DocumentsTestCase, CSVImportBaseTestCaseMixin):
     def _cat_field(self, category, sub_category):
-        return '{"category": %s, "subcategory": %s}' % (category.id, sub_category.id)
+        return json_dump({'category': category.id, 'subcategory': sub_category.id})
 
     def login_as_basic_user(self, creatable_model):
         user = self.login(is_superuser=False, allowed_apps=['products', 'documents'],

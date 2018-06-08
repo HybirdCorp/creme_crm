@@ -68,7 +68,7 @@ class QuoteTestCase(_BillingTestCase):
                                           'currency':        currency.id,
                                           'discount':        Decimal(),
                                           'source':          source.id,
-                                          'target':          self.genericfield_format_entity(target),
+                                          'target':          self.formfield_value_generic_entity(target),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -106,7 +106,7 @@ class QuoteTestCase(_BillingTestCase):
                                           'currency':        currency.id,
                                           'discount':        Decimal(),
                                           'source':          source.id,
-                                          'target':          self.genericfield_format_entity(target),
+                                          'target':          self.formfield_value_generic_entity(target),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -153,7 +153,7 @@ class QuoteTestCase(_BillingTestCase):
                                           'currency':   quote.currency_id,
                                           'discount':   quote.discount,
                                           'source':     source.id,
-                                          'target':     self.genericfield_format_entity(target),
+                                          'target':     self.formfield_value_generic_entity(target),
                                          }
                                    )
 
@@ -205,7 +205,7 @@ class QuoteTestCase(_BillingTestCase):
                                           'currency': quote.currency_id,
                                           'discount': quote.discount,
                                           'source':   source.id,
-                                          'target':   self.genericfield_format_entity(target),
+                                          'target':   self.formfield_value_generic_entity(target),
                                          }
                                    )
         self.assertNoFormError(response)

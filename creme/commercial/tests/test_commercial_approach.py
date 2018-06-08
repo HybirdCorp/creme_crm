@@ -3,6 +3,7 @@
 try:
     from datetime import timedelta
     from functools import partial
+    from json import dumps as json_dump
 
     from django.conf import settings
     from django.core import mail
@@ -52,8 +53,8 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         super(CommercialApproachTestCase, self).tearDown()
         EmailBackend.send_messages = self.original_send_messages
 
-    def _build_entity_field(self, entity):
-        return '[{"ctype": {"id": "%s"}, "entity":"%s"}]' % (entity.entity_type_id, entity.id)
+    # def _build_entity_field(self, entity):
+    #     return '[{"ctype": {"id": "%s"}, "entity":"%s"}]' % (entity.entity_type_id, entity.id)
 
     def _get_commap_brick_node(self, response):
         tree = self.get_html_tree(response.content)
@@ -151,13 +152,13 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
                                           'status': Status.objects.all()[0].pk,
                                           'start':  '2011-5-18',
 
-                                          'type_selector': '{"type": "%s", "sub_type": "%s"}' % (
-                                                                 ACTIVITYTYPE_MEETING,
-                                                                 ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
-                                                             ),
+                                          'type_selector': json_dump({
+                                                'type': ACTIVITYTYPE_MEETING,
+                                                'sub_type': ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+                                          }),
 
                                           'my_participation_0': True,
-                                          'my_participation_1': my_calendar.pk,
+                                          'my_participation_1': my_calendar.id,
 
                                           'is_comapp': True,
                                          }
@@ -184,20 +185,20 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.client.post(reverse('activities__create_activity'), follow=True,
                                     data={'user':             user.pk,
                                           'title':            title,
-                                          'type_selector':    '{"type": "%s", "sub_type": "%s"}' % (
-                                                                    ACTIVITYTYPE_MEETING,
-                                                                    ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
-                                                                ),
+                                          'type_selector':    json_dump({
+                                                'type': ACTIVITYTYPE_MEETING,
+                                                'sub_type': ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+                                          }),
                                           'description':      description,
                                           'status':           Status.objects.all()[0].pk,
                                           'start':            '2011-5-18',
 
                                           'my_participation_0': True,
-                                          'my_participation_1': my_calendar.pk,
+                                          'my_participation_1': my_calendar.id,
 
-                                          'other_participants': '[%d]' % genma.id,
-                                          'subjects':           self._build_entity_field(ranma),
-                                          'linked_entities':    self._build_entity_field(dojo),
+                                          'other_participants': self.formfield_value_multi_creator_entity(genma),
+                                          'subjects':           self.formfield_value_multi_generic_entity(ranma),
+                                          'linked_entities':    self.formfield_value_multi_generic_entity(dojo),
 
                                           'is_comapp': True,
                                          }

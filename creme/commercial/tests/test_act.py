@@ -225,10 +225,7 @@ class ActTestCase(CommercialBaseTestCase):
                                     data={'user':        user.id,
                                           'name':        name,
                                           'sales_phase': phase.id,
-                                          'target':      '{"ctype": {"id": "%s"}, "entity":"%s"}' % (
-                                                                target.entity_type_id,
-                                                                target.id
-                                                            ),
+                                          'target':      self.formfield_value_generic_entity(target),
                                           'emitter':     emitter.id,
                                           'currency':    DEFAULT_CURRENCY_PK,
                                          }
@@ -252,7 +249,7 @@ class ActTestCase(CommercialBaseTestCase):
         counter_goal = 20
         response = self.client.post(url, data={'name':            name,
                                                'counter_goal':    counter_goal,
-                                               'entity_counting': self._build_ctypefilter_field(),
+                                               'entity_counting': self.formfield_value_filtered_entity_type(),
                                               }
                                    )
         self.assertNoFormError(response)
@@ -286,7 +283,7 @@ class ActTestCase(CommercialBaseTestCase):
         ct = ContentType.objects.get_for_model(Organisation)
         response = self.client.post(self._build_addobjective_url(act),
                                     data={'name':            name,
-                                          'entity_counting': self._build_ctypefilter_field(ct),
+                                          'entity_counting': self.formfield_value_filtered_entity_type(ct),
                                           'counter_goal':    counter_goal,
                                          }
                                    )
@@ -317,7 +314,7 @@ class ActTestCase(CommercialBaseTestCase):
         def post(efilter):
             return self.client.post(self._build_addobjective_url(act),
                                     data={'name':            name,
-                                          'entity_counting': self._build_ctypefilter_field(ct, efilter),
+                                          'entity_counting': self.formfield_value_filtered_entity_type(ct, efilter),
                                           'counter_goal':    counter_goal,
                                          }
                                    )
@@ -433,7 +430,7 @@ class ActTestCase(CommercialBaseTestCase):
         counter_goal = 3
         response = self.client.post(url,
                                     data={'name':            name,
-                                          'entity_counting': self._build_ctypefilter_field(ct, efilter),
+                                          'entity_counting': self.formfield_value_filtered_entity_type(ct, efilter),
                                           'counter_goal':    counter_goal,
                                          }
                                    )
@@ -462,9 +459,10 @@ class ActTestCase(CommercialBaseTestCase):
         response = self.client.post(objective.get_edit_absolute_url(),
                                     data={'name':            name,
                                           # Should not be used
-                                          'entity_counting': self._build_ctypefilter_field(pub_efilter.entity_type,
-                                                                                           pub_efilter,
-                                                                                          ),
+                                          'entity_counting': self.formfield_value_filtered_entity_type(
+                                                                pub_efilter.entity_type,
+                                                                pub_efilter,
+                                                              ),
                                           'counter_goal':    counter_goal,
                                          }
                                    )

@@ -147,7 +147,7 @@ class InvoiceTestCase(_BillingTestCase):
                                             'expiration_date': '2011-10-13',
                                             'status':          1,
                                             'source':          source.id,
-                                            'target':          self.genericfield_format_entity(target),
+                                            'target':          self.formfield_value_generic_entity(target),
                                            }
                                      )
         link_error = _(u'You are not allowed to link this entity: {}')
@@ -186,7 +186,7 @@ class InvoiceTestCase(_BillingTestCase):
                                           'currency':        currency.id,
                                           'discount':        Decimal(),
                                           'source':          source.id,
-                                          'target':          self.genericfield_format_entity(target),
+                                          'target':          self.formfield_value_generic_entity(target),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -254,7 +254,7 @@ class InvoiceTestCase(_BillingTestCase):
                                           'discount':        Decimal(),
                                           # 'discount_unit':   1,
                                           'source':          source.id,
-                                          'target':          self.genericfield_format_entity(target),
+                                          'target':          self.formfield_value_generic_entity(target),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -300,7 +300,7 @@ class InvoiceTestCase(_BillingTestCase):
                                           'currency':        invoice.currency.id,
                                           'discount':        invoice.discount,
                                           'source':          source.id,
-                                          'target':          self.genericfield_format_entity(target),
+                                          'target':          self.formfield_value_generic_entity(target),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -322,14 +322,14 @@ class InvoiceTestCase(_BillingTestCase):
 
         def post(discount):
             return self.assertPOST200(url, follow=True,
-                                      data={'user':              user.id,
-                                              'name':            invoice.name,
-                                              'status':          invoice.status_id,
-                                              'currency':        invoice.currency.pk,
-                                              'discount':        discount,
-                                              'source':          source.id,
-                                              'target':          self.genericfield_format_entity(target),
-                                              }
+                                      data={'user':     user.id,
+                                            'name':     invoice.name,
+                                            'status':   invoice.status_id,
+                                            'currency': invoice.currency.pk,
+                                            'discount': discount,
+                                            'source':   source.id,
+                                            'target':   self.formfield_value_generic_entity(target),
+                                           }
                                      )
 
         msg = _(u'Enter a number between 0 and 100 (it is a percentage).')

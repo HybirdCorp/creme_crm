@@ -108,7 +108,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         name = 'Signed opportunities'
         response = self.client.post(url, data={'name':            name,
                                                'success_rate':    10,
-                                               'entity_counting': self._build_ctypefilter_field(),
+                                               'entity_counting': self.formfield_value_filtered_entity_type(),
                                               }
                                    )
         self.assertNoFormError(response)
@@ -128,7 +128,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         ct = ContentType.objects.get_for_model(FakeContact)
         response = self.client.post(self._build_addcomp_url(pattern),
                                     data={'name':            name,
-                                          'entity_counting': self._build_ctypefilter_field(ct),
+                                          'entity_counting': self.formfield_value_filtered_entity_type(ct),
                                           'success_rate':    15,
                                          }
                                    )
@@ -150,7 +150,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         efilter = EntityFilter.create('test-filter01', 'Ninja', FakeContact, is_custom=True)
         response = self.client.post(self._build_addcomp_url(pattern),
                                     data={'name':            name,
-                                          'entity_counting': self._build_ctypefilter_field(ct, efilter),
+                                          'entity_counting': self.formfield_value_filtered_entity_type(ct, efilter),
                                           'success_rate':    15,
                                          }
                                    )
@@ -175,7 +175,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         name = 'Spread Vcards'
         self.assertNoFormError(self.client.post(url, data={'name':            name,
                                                            'success_rate':    20,
-                                                           'entity_counting': self._build_ctypefilter_field(),
+                                                           'entity_counting': self.formfield_value_filtered_entity_type(),
                                                           }
                                                )
                               )
@@ -191,7 +191,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         name = 'Called contacts'
         ct   = ContentType.objects.get_for_model(FakeContact)
         response = self.client.post(url, data={'name':            name,
-                                               'entity_counting': self._build_ctypefilter_field(ct),
+                                               'entity_counting': self.formfield_value_filtered_entity_type(ct),
                                                'success_rate':    60,
                                               }
                                    )
@@ -217,7 +217,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         success_rate = 50
         self.assertNoFormError(self.client.post(url, data={'name':           name,
                                                           'success_rate':    success_rate,
-                                                          'entity_counting': self._build_ctypefilter_field(),
+                                                          'entity_counting': self.formfield_value_filtered_entity_type(),
                                                           }
                                                )
                               )
@@ -246,7 +246,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         ct   = ContentType.objects.get_for_model(FakeContact)
         response = self.client.post(self._build_parent_url(comp02),
                                     data={'name':            name,
-                                          'entity_counting': self._build_ctypefilter_field(ct),
+                                          'entity_counting': self.formfield_value_filtered_entity_type(ct),
                                           'success_rate':    20,
                                          }
                                    )

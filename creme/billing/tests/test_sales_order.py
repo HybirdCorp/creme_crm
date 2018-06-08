@@ -63,7 +63,7 @@ class SalesOrderTestCase(_BillingTestCase):
                                           'currency':        currency.id,
                                           'discount':        Decimal(),
                                           'source':          source.id,
-                                          'target':          self.genericfield_format_entity(target),
+                                          'target':          self.formfield_value_generic_entity(target),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -98,7 +98,7 @@ class SalesOrderTestCase(_BillingTestCase):
                                           'currency':        currency.id,
                                           'discount':        Decimal(),
                                           'source':          source.id,
-                                          'target':          self.genericfield_format_entity(target),
+                                          'target':          self.formfield_value_generic_entity(target),
                                          }
                                    )
         self.assertNoFormError(response)

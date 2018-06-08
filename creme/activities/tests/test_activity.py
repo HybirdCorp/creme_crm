@@ -91,10 +91,10 @@ class ActivityTestCase(_ActivitiesTestCase):
                                        end=create_dt(year=2013,   month=4, day=day, hour=18, minute=0),
                                       )
 
-    def _relation_field_value(self, *entities):
-        return '[{}]'.format(','.join('{"ctype": {"id": "%s"}, "entity":"%s"}' % (entity.entity_type_id, entity.id)
-                                    for entity in entities
-                                ))
+    # def _relation_field_value(self, *entities):
+    #     return '[{}]'.format(','.join('{"ctype": {"id": "%s"}, "entity":"%s"}' % (entity.entity_type_id, entity.id)
+    #                                 for entity in entities
+    #                             ))
 
     def test_populate(self):
         rtypes_pks = [constants.REL_SUB_LINKED_2_ACTIVITY,
@@ -209,8 +209,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'my_participation_0': True,
                                           'my_participation_1': my_calendar.pk,
                                           'other_participants': '[%d]' % genma.id,
-                                          'subjects':           self._relation_field_value(ranma),
-                                          'linked_entities':    self._relation_field_value(dojo),
+                                          'subjects':           self.formfield_value_multi_generic_entity(ranma),
+                                          'linked_entities':    self.formfield_value_multi_generic_entity(dojo),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -271,8 +271,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                                             'my_participation_1':  my_calendar.pk,
                                             'participating_users': [other_user.pk],
                                             'other_participants':  '[{}]'.format(genma.id),
-                                            'subjects':            self._relation_field_value(akane),
-                                            'linked_entities':     self._relation_field_value(dojo),
+                                            'subjects':            self.formfield_value_multi_generic_entity(akane),
+                                            'linked_entities':     self.formfield_value_multi_generic_entity(dojo),
                                            }
                                      )
         self.assertFormError(response, 'form', 'my_participation',
@@ -330,8 +330,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'my_participation_0': True,
                                           'my_participation_1': my_calendar.pk,
                                           'other_participants': '[{}, {}]'.format(genma.id, akane.id),
-                                          'subjects':           self._relation_field_value(ranma, rest),
-                                          'linked_entities':    self._relation_field_value(dojo_s),
+                                          'subjects':           self.formfield_value_multi_generic_entity(ranma, rest),
+                                          'linked_entities':    self.formfield_value_multi_generic_entity(dojo_s),
                                           'type_selector':      self._acttype_field_value(type_id),
                                          }
                                    )
@@ -565,7 +565,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                             'type_selector':      self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
                                             'my_participation_0': True,
                                             'my_participation_1': Calendar.get_user_default_calendar(user).pk,
-                                            'subjects':           self._relation_field_value(bad_subject),
+                                            'subjects':           self.formfield_value_multi_generic_entity(bad_subject),
                                            },
                                      )
         self.assertFormError(response, 'form', 'subjects',
@@ -580,13 +580,15 @@ class ActivityTestCase(_ActivitiesTestCase):
         ranma = Contact.objects.create(user=user, first_name='Ranma', last_name='Saotome')
 
         response = self.assertPOST200(self.ADD_URL, follow=True,
-                                      data={'user':               user.pk,
+                                      data={'user':               user.id,
                                             'title':              'My task',
                                             'type_selector':      self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
                                             'my_participation_0': True,
                                             'my_participation_1': Calendar.get_user_default_calendar(user).pk,
-                                            'subjects':           self._relation_field_value(ranma),
-                                            'other_participants': '[%d]' % self.other_user.linked_contact.id,
+                                            'subjects':           self.formfield_value_multi_generic_entity(ranma),
+                                            'other_participants': self.formfield_value_multi_creator_entity(
+                                                                        self.other_user.linked_contact,
+                                                                    ),
                                         }
                                      )
         self.assertFormError(response, 'form', 'other_participants',
@@ -600,11 +602,12 @@ class ActivityTestCase(_ActivitiesTestCase):
         title = 'Meeting01'
         my_calendar = Calendar.get_user_default_calendar(user)
         response = self.client.post(self.ADD_URL, follow=True,
-                                    data={'user':          user.pk,
+                                    data={'user':          user.id,
                                           'title':         title,
-                                          'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
-                                                                                     constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
-                                                                                    ),
+                                          'type_selector': self._acttype_field_value(
+                                                  constants.ACTIVITYTYPE_MEETING,
+                                                  constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+                                            ),
                                           'start': '2010-1-10',
 
                                           'my_participation_0': True,
@@ -644,9 +647,10 @@ class ActivityTestCase(_ActivitiesTestCase):
         response = self.client.post(self.ADD_URL, follow=True,
                                     data={'user':          user.pk,
                                           'title':         title,
-                                          'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
-                                                                                     constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
-                                                                                    ),
+                                          'type_selector': self._acttype_field_value(
+                                                  constants.ACTIVITYTYPE_MEETING,
+                                                  constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+                                            ),
 
                                           'start':      '2013-3-28',
                                           'start_time': '17:30:00',
@@ -690,23 +694,23 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertIn('informed_users', fields)
 
         title = 'Meeting dojo'
-        field_format = '[{"ctype": {"id": "%s"}, "entity": "%s"}]'
         my_calendar = Calendar.get_user_default_calendar(user)
         response = self.client.post(url, follow=True,
-                                    data={'user':          user.pk,
+                                    data={'user':          user.id,
                                           'title':         title,
-                                          'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
-                                                                                     constants.ACTIVITYSUBTYPE_MEETING_NETWORK
-                                                                                    ),
+                                          'type_selector': self._acttype_field_value(
+                                                  constants.ACTIVITYTYPE_MEETING,
+                                                  constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                                              ),
                                           'start': '2010-1-10',
 
                                           'my_participation_0':  True,
-                                          'my_participation_1':  my_calendar.pk,
+                                          'my_participation_1':  my_calendar.id,
 
                                           'participating_users': other_user.pk,
                                           'informed_users':      [user.id, other_user.id],
-                                          'other_participants':  '[%d]' % genma.id,
-                                          'subjects':            field_format % (akane.entity_type_id, akane.id),
+                                          'other_participants':  self.formfield_value_multi_creator_entity(genma),
+                                          'subjects':            self.formfield_value_multi_generic_entity(akane),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -790,9 +794,9 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'start_time':         '10:00:00',
                                           'my_participation_0': True,
                                           'my_participation_1': my_calendar.pk,
-                                          'other_participants': '[%d]' % genma.id,
-                                          'subjects':           self._relation_field_value(ranma),
-                                          'linked_entities':    self._relation_field_value(dojo),
+                                          'other_participants': self.formfield_value_multi_creator_entity(genma),
+                                          'subjects':           self.formfield_value_multi_generic_entity(ranma),
+                                          'linked_entities':    self.formfield_value_multi_generic_entity(dojo),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -848,9 +852,10 @@ class ActivityTestCase(_ActivitiesTestCase):
                                       follow=True,
                                       data={'user':          user.pk,
                                             'title':         'My meeting',
-                                            'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
-                                                                                       constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                                                                                      ),
+                                            'type_selector': self._acttype_field_value(
+                                                    constants.ACTIVITYTYPE_MEETING,
+                                                    constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                                                ),
                                             'start':         '2013-4-12',
                                             'start_time':    '10:00:00',
                                            }
@@ -899,13 +904,17 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         title = 'My meeting'
         response = self.client.post(uri, follow=True,
-                                    data={'user':                user.pk,
-                                          'title':               title,
-                                          'type_selector':       self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
-                                                                                           constants.ACTIVITYSUBTYPE_MEETING_REVIVAL,
-                                                                                          ),
-                                          'start':               '2010-1-10',
-                                          'start_time':          '17:30:00',
+                                    data={'user':  user.id,
+                                          'title': title,
+
+                                          'type_selector': self._acttype_field_value(
+                                                  constants.ACTIVITYTYPE_MEETING,
+                                                  constants.ACTIVITYSUBTYPE_MEETING_REVIVAL,
+                                              ),
+
+                                          'start':      '2010-1-10',
+                                          'start_time': '17:30:00',
+
                                           'participating_users': [other_user.pk],
                                          }
                                     )
@@ -979,9 +988,10 @@ class ActivityTestCase(_ActivitiesTestCase):
         response = self.client.post(uri, follow=True,
                                     data={'user':          user.pk,
                                           'title':         title,
-                                          'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_MEETING,
-                                                                                     constants.ACTIVITYSUBTYPE_MEETING_REVIVAL,
-                                                                                    ),
+                                          'type_selector': self._acttype_field_value(
+                                                  constants.ACTIVITYTYPE_MEETING,
+                                                  constants.ACTIVITYSUBTYPE_MEETING_REVIVAL,
+                                              ),
 
                                           'start':      '2013-5-21',
                                           'start_time': '9:30:00',
@@ -1156,14 +1166,15 @@ class ActivityTestCase(_ActivitiesTestCase):
                                                                 ),
                      }
             )
-        self.assertFormError(response, 'form', None,
-                             _(u"{participant} already participates to the activity «{activity}» between {start} and {end}.").format(
-                                    participant=contact,
-                                    activity=task02,
-                                    start='14:30:00',
-                                    end='15:00:00',
-                                )
-                            )
+        self.assertFormError(
+            response, 'form', None,
+            _(u"{participant} already participates to the activity «{activity}» between {start} and {end}.").format(
+                participant=contact,
+                activity=task02,
+                start='14:30:00',
+                end='15:00:00',
+            )
+        )
 
     def test_editview04(self):
         "Edit FLOATING_TIME activity"
@@ -1763,17 +1774,18 @@ class ActivityTestCase(_ActivitiesTestCase):
         activity = self._create_meeting()
 
         create_contact = partial(Contact.objects.create, user=user)
-        ids = (create_contact(first_name='Musashi', last_name='Miyamoto').id,
-               create_contact(first_name='Kojiro',  last_name='Sasaki').id,
-              )
+        c1 = create_contact(first_name='Musashi', last_name='Miyamoto')
+        c2 = create_contact(first_name='Kojiro',  last_name='Sasaki')
 
         uri = self._buid_add_participants_url(activity)
         self.assertGET200(uri)
-        self.assertNoFormError(self.client.post(uri, data={'participants': '[%d,%d]' % ids}))
+        self.assertNoFormError(
+            self.client.post(uri, data={'participants': self.formfield_value_multi_creator_entity(c1, c2)})
+        )
 
         relations = Relation.objects.filter(subject_entity=activity.id, type=constants.REL_OBJ_PART_2_ACTIVITY)
         self.assertEqual(2, len(relations))
-        self.assertEqual(set(ids), {r.object_entity_id for r in relations})
+        self.assertEqual({c1.id, c2.id}, {r.object_entity_id for r in relations})
 
     def test_participants02(self):
         "Credentials error with the activity"
@@ -1807,7 +1819,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         uri = self._buid_add_participants_url(activity)
         self.assertGET200(uri)
 
-        response = self.assertPOST200(uri, data={'participants': '[%d]' % contact.id})
+        response = self.assertPOST200(uri, data={'participants': self.formfield_value_multi_creator_entity(contact)})
         self.assertFormError(response, 'form', 'participants',
                              _(u'Some entities are not linkable: {}').format(contact)
                             )
@@ -1834,7 +1846,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                            data={'my_participation_0':  True,
                                  'my_participation_1':  Calendar.get_user_default_calendar(logged.is_user).pk,
                                  'participating_users': [other.is_user_id],
-                                 'participants':        '[%d]' % contact3.pk,
+                                 'participants':        self.formfield_value_multi_creator_entity(contact3),
                                 }
                           )
 
@@ -1866,9 +1878,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         activity = self._create_activity_by_view()
 
         create_contact = partial(Contact.objects.create, user=self.user)
-        ids = (create_contact(first_name='Musashi', last_name='Miyamoto').id,
-               create_contact(first_name='Kojiro',  last_name='Sasaki').id,
-              )
+        c1 = create_contact(first_name='Musashi', last_name='Miyamoto')
+        c2 = create_contact(first_name='Kojiro',  last_name='Sasaki')
 
         uri = self._buid_add_participants_url(activity)
         response = self.assertGET200(uri)
@@ -1879,11 +1890,13 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertNotIn('my_participation', fields)
         self.assertNotIn('my_calendar',      fields)
 
-        self.assertNoFormError(self.client.post(uri, data={'participants': '[%d,%d]' % ids}))
+        self.assertNoFormError(
+            self.client.post(uri, data={'participants': self.formfield_value_multi_creator_entity(c1, c2)})
+        )
 
         relations = Relation.objects.filter(subject_entity=activity.id, type=constants.REL_OBJ_PART_2_ACTIVITY)
         self.assertEqual(3, len(relations))
-        self.assertEqual(set(ids + (self.user.related_contact.all()[0].id,)),
+        self.assertEqual({c1.id, c2.id, self.user.linked_contact.id},
                          {r.object_entity_id for r in relations}
                         )
 
@@ -1896,17 +1909,18 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(constants.FLOATING, activity.floating_type)
 
         create_contact = partial(Contact.objects.create, user=self.user)
-        ids = (create_contact(first_name='Musashi', last_name='Miyamoto').id,
-               create_contact(first_name='Kojiro',  last_name='Sasaki').id,
-              )
+        c1 = create_contact(first_name='Musashi', last_name='Miyamoto')
+        c2 = create_contact(first_name='Kojiro',  last_name='Sasaki')
 
         uri = self._buid_add_participants_url(activity)
         self.assertGET200(uri)
-        self.assertNoFormError(self.client.post(uri, data={'participants': '[%d,%d]' % ids}))
+        self.assertNoFormError(
+                self.client.post(uri, data={'participants': self.formfield_value_multi_creator_entity(c1, c2)})
+        )
 
         relations = Relation.objects.filter(subject_entity=activity.id, type=constants.REL_OBJ_PART_2_ACTIVITY)
         self.assertEqual(3, len(relations))
-        self.assertEqual(set(ids + (self.user.related_contact.all()[0].id,)),
+        self.assertEqual({c1.id, c2.id, self.user.linked_contact.id},
                          {r.object_entity_id for r in relations}
                         )
 
@@ -1950,7 +1964,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         uri = self._buid_add_subjects_url(activity)
         self.assertGET200(uri)
 
-        data = {'subjects': self._relation_field_value(orga)}
+        data = {'subjects': self.formfield_value_multi_generic_entity(orga)}
         self.assertNoFormError(self.client.post(uri, data=data))
 
         relations = Relation.objects.filter(subject_entity=activity.id,
@@ -2000,7 +2014,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         uri = self._buid_add_subjects_url(activity)
         self.assertGET200(uri)
 
-        response = self.assertPOST200(uri, data={'subjects': self._relation_field_value(orga)})
+        response = self.assertPOST200(uri, data={'subjects': self.formfield_value_multi_generic_entity(orga)})
         self.assertFormError(response, 'form', 'subjects',
                              _(u'Some entities are not linkable: {}').format(orga)
                             )
@@ -2018,7 +2032,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         bad_subject = create_meeting(title="I'm bad heeheeeee")
 
         response = self.assertPOST200(self._buid_add_subjects_url(activity),
-                                      data={'subjects': self._relation_field_value(bad_subject)}
+                                      data={'subjects': self.formfield_value_multi_generic_entity(bad_subject)}
                                      )
         self.assertFormError(response, 'form', 'subjects',
                              _(u"This content type is not allowed.")
@@ -2034,14 +2048,17 @@ class ActivityTestCase(_ActivitiesTestCase):
         status = Status.objects.all()[0]
         my_calendar = Calendar.get_user_default_calendar(user)
         response = self.assertPOST200(url, follow=True,
-                                      data={'user':               user.pk,
-                                            'title':              'Away',
-                                            'type_selector':      self._acttype_field_value(constants.ACTIVITYTYPE_INDISPO),
-                                            'status':             status.pk,
-                                            'start':              '2013-3-27',
-                                            'end':                '2010-3-27',
-                                            'start_time':         '09:00:00',
-                                            'end_time':           '11:00:00',
+                                      data={'user':  user.id,
+                                            'title': 'Away',
+
+                                            'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_INDISPO),
+                                            'status':        status.pk,
+
+                                            'start':      '2013-3-27',
+                                            'end':        '2010-3-27',
+                                            'start_time': '09:00:00',
+                                            'end_time':   '11:00:00',
+
                                             'my_participation_0': True,
                                             'my_participation_1': my_calendar.pk,
                                            }
