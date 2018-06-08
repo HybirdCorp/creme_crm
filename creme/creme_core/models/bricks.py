@@ -31,7 +31,7 @@ from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
 
 from ..constants import (SETTING_BRICK_DEFAULT_STATE_IS_OPEN,
-        SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS, MODELBLOCK_ID)
+        SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS, MODELBRICK_ID)
 from ..utils import creme_entity_content_types
 from .auth import UserRole
 from .base import CremeModel
@@ -127,11 +127,13 @@ class BrickDetailviewLocation(CremeModel):
 
     @staticmethod
     def create_4_model_brick(order, zone, model=None, role=None):
-        return BrickDetailviewLocation.create_if_needed(brick_id=MODELBLOCK_ID, order=order, zone=zone, model=model, role=role)
+        return BrickDetailviewLocation.create_if_needed(brick_id=MODELBRICK_ID, order=order,
+                                                        zone=zone, model=model, role=role,
+                                                       )
 
     @staticmethod
     def id_is_4_model(brick_id):
-        return brick_id == MODELBLOCK_ID
+        return brick_id == MODELBRICK_ID
 
     @staticmethod
     def config_exists(model):
