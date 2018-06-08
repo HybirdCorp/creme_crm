@@ -204,8 +204,9 @@ class Relation(CremeModel):
     created = CreationDateTimeField(_(u'Creation date'), editable=False).set_tags(clonable=False)
     user    = CremeUserForeignKey(verbose_name=_(u'Owner user'))
 
-    type               = ForeignKey(RelationType, blank=True, null=True, on_delete=CASCADE)  # TODO: nullable=False
-    symmetric_relation = ForeignKey('self', blank=True, null=True, on_delete=CASCADE)
+    # type               = ForeignKey(RelationType, blank=True, null=True, on_delete=CASCADE)
+    type               = ForeignKey(RelationType, on_delete=CASCADE)
+    symmetric_relation = ForeignKey('self', null=True, on_delete=CASCADE)  # blank=True
     subject_entity     = ForeignKey(CremeEntity, related_name='relations', on_delete=PROTECT)
     object_entity      = ForeignKey(CremeEntity, related_name='relations_where_is_object', on_delete=PROTECT)
 
