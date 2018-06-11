@@ -35,6 +35,8 @@ from django.shortcuts import render
 from django.utils.safestring import mark_safe
 from django.utils.timezone import now
 
+from mediagenerator.utils import media_url
+
 from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
 # from ..global_info import set_global_info
@@ -44,7 +46,7 @@ from ..gui.field_printers import (print_image_html, print_url_html, print_dateti
         print_date, print_duration, print_foreignkey_html, print_many2many_html)
 #       print_image print_urlfield print_foreignkey print_many2many
 # from ..utils import is_testenvironment
-from ..utils.media import creme_media_themed_url as media_url  # get_current_theme
+# from ..utils.media import creme_media_themed_url as media_url  # get_current_theme
 
 from ..models import CremeProperty
 
@@ -54,14 +56,13 @@ logger = logging.getLogger(__name__)
 
 TEST_TEMPLATE_PATH = join(settings.CREME_ROOT, 'creme_core', 'templates', 'creme_core', 'tests')
 TEST_TEMPLATE_BRICK_PATH = join(TEST_TEMPLATE_PATH, 'bricks')
-TEST_IMAGE_URLS = ('images/add_32.png',
-                   # 'images/404.png',
-                   # 'images/500.png',
-                   'images/creme_256.png',
-                   'images/creme_logo.png',
-                   'images/action_48.png',
-                   'images/action_not_in_time_48.png',
-                   'images/wait.gif',
+TEST_IMAGE_URLS = ('icecream/images/add_32.png',
+                   'common/images/404_200.png',
+                   'icecream/images/creme_256.png',
+                   'common/images/creme_logo.png',
+                   'chantilly/images/action_48.png',
+                   'icecream/images/action_not_in_time_48.png',
+                   'icecream/images/wait.gif',
                   )
 
 
@@ -93,7 +94,8 @@ class Dummy(object):
         self.name = u'Dummy ({})'.format(id)
         self.image = MockImage(media_url(TEST_IMAGE_URLS[randint(0, len(TEST_IMAGE_URLS) - 1)]), randint(16, 64)).html(self)
         # self.url = mark_safe(print_urlfield(self, media_url('images/add_16.png'), self.user, None))
-        self.url = mark_safe(print_url_html(self, media_url('images/add_16.png'), self.user, None))
+        # self.url = mark_safe(print_url_html(self, media_url('images/add_16.png'), self.user, None))
+        self.url = mark_safe(print_url_html(self, media_url('icecream/images/add_16.png'), self.user, None))
         self.datetime = mark_safe(print_datetime(self, now(), user, None))
         self.date = mark_safe(print_date(self, date.today(), user, None))
         self.duration = mark_safe(print_duration(self, '{}:{}:{}'.format(randint(0, 23), randint(0, 59), randint(0, 59)), user, None))
