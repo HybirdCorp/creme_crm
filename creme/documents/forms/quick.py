@@ -53,7 +53,7 @@ class DocumentQuickForm(CremeModelWithUserForm):
 
             if self.user.has_perm_to_view(folder):
                 # self.fields['folder'].initial = folder
-                self.fields['linked_folder'].initial = folder
+                self.fields['linked_folder'].initial = folder.id
 
     def save(self, *args, **kwargs):
         instance = self.instance
