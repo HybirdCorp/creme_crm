@@ -4,7 +4,7 @@ try:
     from json import dumps as json_dump
 
     from django.contrib.contenttypes.models import ContentType
-    from django.db.models.query import QuerySet
+    from django.db.models.query import QuerySet, Q
     from django.forms.widgets import Select
     from django.urls import reverse
     from django.utils.html import escape
@@ -739,12 +739,16 @@ class EntitySelectorTestCase(FieldTestCase):
 
     def test_listview_url(self):
         widget = EntitySelector()
-        url = '%s?ct_id=${ctype}&selection=${selection}&q_filter=${qfilter}' % reverse('creme_core__listview_popup')
-        self.assertEqual(url, widget.url)
+        self.assertEqual(
+            reverse('creme_core__listview_popup') + '?ct_id=${ctype}&selection=${selection}&q_filter=${qfilter}',
+            widget.url
+        )
 
         widget = EntitySelector(content_type=12)
-        url = '%s?ct_id=12&selection=${selection}&q_filter=${qfilter}' % reverse('creme_core__listview_popup')
-        self.assertEqual(url, widget.url)
+        self.assertEqual(
+            reverse('creme_core__listview_popup') + '?ct_id=12&selection=${selection}&q_filter=${qfilter}',
+            widget.url
+        )
 
     def test_text_url(self):
         widget = EntitySelector(content_type=12)
@@ -752,55 +756,84 @@ class EntitySelectorTestCase(FieldTestCase):
         self.assertEqual(url, widget.text_url)
 
     def test_render(self):
-        url = '%s?ct_id=12&selection=${selection}&q_filter=${qfilter}' % reverse('creme_core__listview_popup')
         text_url = TemplateURLBuilder(entity_id=(TemplateURLBuilder.Int, '${id}')).resolve('creme_core__entity_as_json')
 
         widget = EntitySelector(content_type=12)
-        html = u'''<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
-                        labelURL="{text_url}" label="{label}"
-                        popupURL="{url}" popupSelection="single">
-    <input name="field" type="hidden" class="ui-creme-input ui-creme-entityselector" value="1"/>
+        name = 'field-1'
+        value = '1'
+        html = \
+u'''<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
+          labelURL="{text_url}" label="{label}" popupURL="{url}" popupSelection="single">
+    <input name="{name}" type="hidden" class="ui-creme-input ui-creme-entityselector" value="{value}"/>
     <button type="button">{label}</button>
 </span>'''.format(
+            name=name,
+            value=value,
             label=_(u'Select…'),
             text_url=text_url,
-            url=url,
+            url=reverse('creme_core__listview_popup') + '?ct_id=12&selection=${selection}&q_filter=${qfilter}',
         )
-        self.assertHTMLEqual(html, widget.render('field', '1'))
+        self.assertHTMLEqual(html, widget.render(name, value))
 
-    def test_render_qfilter(self):
-        url = '%s?ct_id=12&selection=${selection}&q_filter=${qfilter}' % reverse('creme_core__listview_popup')
-        text_url = TemplateURLBuilder(entity_id=(TemplateURLBuilder.Int, '${id}')).resolve('creme_core__entity_as_json')
-
+    def test_render_qfilter01(self):
+        "Dictionary instance."
         widget = EntitySelector(content_type=12)
-        html = u'''<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
-                        labelURL="{text_url}" label="{label}"
-                        popupURL="{url}" popupSelection="single"
-                        qfilter="{q_filter}">
-    <input name="field" type="hidden" class="ui-creme-input ui-creme-entityselector" value="1"/>
+        name = 'field'
+        value = '1'
+        html = \
+u'''<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
+          labelURL="{text_url}" label="{label}" popupURL="{url}" popupSelection="single"
+          qfilter="{q_filter}">
+    <input name="{name}" type="hidden" class="ui-creme-input ui-creme-entityselector" value="{value}"/>
     <button type="button">{label}</button>
 </span>'''.format(
+            name=name,
+            value=value,
             label=_(u'Select…'),
-            text_url=text_url,
-            url=url,
-            q_filter=escape(json_dump({'pk__in': 12})),
+            text_url=TemplateURLBuilder(entity_id=(TemplateURLBuilder.Int, '${id}'))
+                                       .resolve('creme_core__entity_as_json'),
+            url=reverse('creme_core__listview_popup') + '?ct_id=12&selection=${selection}&q_filter=${qfilter}',
+            # q_filter=escape(json_dump({'pk__in': [12, 13]})),
+            q_filter=escape(json_dump({'val': [['pk__in', [12, 13]]], 'op': 'AND'})),
         )
-        self.assertHTMLEqual(html, widget.render('field', '1', attrs={'qfilter': {'pk__in': 12}}))
+        self.assertHTMLEqual(html, widget.render('field', '1', attrs={'qfilter': {'pk__in': [12, 13]}}))
+
+    def test_render_qfilter02(self):
+        "Q instance."
+        widget = EntitySelector(content_type=13)
+        name = 'my_field'
+        value = '2'
+        html = \
+u'''<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
+          labelURL="{text_url}" label="{label}" popupURL="{url}" popupSelection="single"
+          qfilter="{q_filter}">
+    <input name="{name}" type="hidden" class="ui-creme-input ui-creme-entityselector" value="{value}"/>
+    <button type="button">{label}</button>
+</span>'''.format(
+            name=name,
+            value=value,
+            label=_(u'Select…'),
+            text_url=TemplateURLBuilder(entity_id=(TemplateURLBuilder.Int, '${id}'))
+                .resolve('creme_core__entity_as_json'),
+            url=reverse(
+                'creme_core__listview_popup') + '?ct_id=13&selection=${selection}&q_filter=${qfilter}',
+            q_filter=escape(json_dump({'val': [['name', 'foobar']], 'op': 'AND'})),
+        )
+        self.assertHTMLEqual(html, widget.render(name, value, attrs={'qfilter': Q(name='foobar')}))
 
     def test_render_popup_options(self):
-        url = '%s?ct_id=12&selection=${selection}&q_filter=${qfilter}' % reverse('creme_core__listview_popup')
-        text_url = TemplateURLBuilder(entity_id=(TemplateURLBuilder.Int, '${id}')).resolve('creme_core__entity_as_json')
-
         widget = EntitySelector(content_type=12)
-        html = u'''<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
-                        labelURL="{text_url}" label="{label}"
-                        popupURL="{url}" popupSelection="multiple" popupAuto>
+        html = \
+u'''<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui-creme-entityselector"
+          labelURL="{text_url}" label="{label}"
+          popupURL="{url}" popupSelection="multiple" popupAuto>
     <input name="field" type="hidden" class="ui-creme-input ui-creme-entityselector" value="1"/>
     <button type="button">{label}</button>
 </span>'''.format(
             label=_(u'Select…'),
-            text_url=text_url,
-            url=url,
+            text_url=TemplateURLBuilder(entity_id=(TemplateURLBuilder.Int, '${id}'))
+                                       .resolve('creme_core__entity_as_json'),
+            url=reverse('creme_core__listview_popup') + '?ct_id=12&selection=${selection}&q_filter=${qfilter}',
         )
         self.assertHTMLEqual(html, widget.render('field', '1', attrs={'multiple': True, 'autoselect': True}))
 

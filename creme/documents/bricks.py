@@ -18,13 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from json import dumps as json_dump
+# from json import dumps as json_dump
 
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField
+from django.db.models.query_utils import Q
 from creme.creme_core.gui.bricks import SimpleBrick, QuerysetBrick, EntityBrick
 from creme.creme_core.models import Relation
+from creme.creme_core.utils.queries import QSerializer
 
 from creme import documents
 from .constants import REL_SUB_RELATED_2_DOC
@@ -67,7 +69,8 @@ class FolderDocsBrick(QuerysetBrick):
                     context,
                     Document.objects.filter(**q_dict),
                     # Document.objects.filter(is_deleted=False, **q_dict), TODO: problem deleted docs avoid folder deletion...
-                    q_filter=json_dump(q_dict),
+                    # q_filter=json_dump(q_dict),
+                    q_filter=QSerializer().dumps(Q(**q_dict)),
         ))
 
 

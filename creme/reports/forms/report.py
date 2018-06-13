@@ -160,10 +160,12 @@ class LinkFieldToReportForm(CremeForm):
         super(LinkFieldToReportForm, self).__init__(*args, **kwargs)
         self.rfield = field
         report = field.report
-        q_filter = {'~id__in': [r.id for r in chain(report.get_ascendants_reports(), [report])]}
+        # q_filter = {'~id__in': [r.id for r in chain(report.get_ascendants_reports(), [report])]}
+        q_filter = ~Q(id__in=[r.id for r in chain(report.get_ascendants_reports(), [report])])
 
         if ctypes:
-            q_filter['ct__in'] = [ct.id for ct in ctypes]
+            # q_filter['ct__in'] = [ct.id for ct in ctypes]
+            q_filter &= Q(ct__in=[ct.id for ct in ctypes])
 
         self.fields['report'].q_filter = q_filter
 

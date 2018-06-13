@@ -23,6 +23,7 @@ import logging
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.db.models.query_utils import Q
 from django.forms import ModelMultipleChoiceField
 from django.utils.translation import ugettext_lazy as _, ungettext
 
@@ -63,9 +64,11 @@ class ParticipantCreateForm(CremeForm):
                                          )
 
         participants_field = fields['participants']
-        participants_field.q_filter = {'~pk__in': [c.id for c in existing],
-                                       'is_user__isnull': True,
-                                      }
+        # participants_field.q_filter = {'~pk__in': [c.id for c in existing],
+        #                                'is_user__isnull': True,
+        #                               }
+        participants_field.q_filter = ~Q(pk__in=[c.id for c in existing]) & \
+                                       Q(is_user__isnull=True)
         participants_field.force_creation = True  # TODO: in constructor ?
 
         if entity.is_auto_orga_subject_enabled():

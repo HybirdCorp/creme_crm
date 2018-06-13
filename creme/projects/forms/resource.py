@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.models.query_utils import Q
 from django.forms.fields import BooleanField
 from django.utils.translation import ugettext_lazy as _
 
@@ -52,9 +53,13 @@ class ResourceCreateForm(CremeEntityForm):
             other_resources = other_resources.exclude(pk=instance.pk)
 
         contact_f = self.fields['contact']
-        contact_f.q_filter = {
-                '~pk__in': list(other_resources.values_list('linked_contact_id', flat=True)),
-            }
+        # contact_f.q_filter = {
+        #         '~pk__in': list(other_resources.values_list('linked_contact_id', flat=True)),
+        #     }
+        contact_f.q_filter = ~Q(
+            pk__in=list(other_resources.values_list('linked_contact_id', flat=True)),
+        )
+
         # The creation view cannot create a Contact already related to Resource (& so, excluded).
         contact_f.force_creation = True  # TODO: in constructor ?
 

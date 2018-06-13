@@ -27,14 +27,14 @@ from types import GeneratorType
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.db.models.query import Q
+# from django.db.models.query import Q
 from django.forms import widgets
 from django.urls import reverse
 from django.utils.translation import ugettext as _, ugettext_lazy, pgettext_lazy, pgettext
 
 from ..utils.date_range import date_range_registry
+from ..utils.queries import QSerializer, get_q_from_dict
 from ..utils.url import TemplateURLBuilder
-
 
 logger = logging.getLogger(__name__)
 
@@ -534,18 +534,21 @@ class EntitySelector(widgets.Widget):
         widget_cxt['autoselect'] = final_attrs.pop('autoselect', False)
         widget_cxt['disabled']   = final_attrs.pop('disabled', False)
 
-        # TODO: manage Q instance (not managed in field yet).
         qfilter = final_attrs.pop('qfilter', None)
+        # TODO: factorise (see CreatorEntityField.q_filter_query() )
         if callable(qfilter):
             qfilter = qfilter()
-        if isinstance(qfilter, Q):
-            raise TypeError('<{}>: "Q" instance for qfilter is not (yet) supported (notice that it '
-                            'can be generated from the "limit_choices_to" in a field related '
-                            'to CremeEntity of one of your models).\n'
-                            ' -> Use a dict (or a callable which returns a dict)'.format(self.__class__.__name__)
-                           )
-        widget_cxt['qfilter'] = qfilter
+        # if isinstance(qfilter, Q):
+        #     raise TypeError('<{}>: "Q" instance for qfilter is not (yet) supported (notice that it '
+        #                     'can be generated from the "limit_choices_to" in a field related '
+        #                     'to CremeEntity of one of your models).\n'
+        #                     ' -> Use a dict (or a callable which returns a dict)'.format(self.__class__.__name__)
+        #                    )
+        if isinstance(qfilter, dict):
+            qfilter = get_q_from_dict(qfilter)
 
+        # widget_cxt['qfilter'] = qfilter
+        widget_cxt['qfilter'] = QSerializer().serialize(qfilter) if qfilter else None
         widget_cxt['input'] = widgets.HiddenInput().get_context(name=name, value=value,
                                                                 attrs={'class': 'ui-creme-input ' + widget_type},
                                                                )['widget']

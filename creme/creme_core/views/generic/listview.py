@@ -20,11 +20,13 @@
 
 from json import loads as json_load, dumps as json_dump
 
-import logging  # warnings
+import logging
+import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
+from django.db.models.query_utils import Q
 from django.http import Http404
 from django.shortcuts import render
 from django.utils.translation import ugettext as _
@@ -63,6 +65,10 @@ def str_to_mode(value):
 
 
 def _clean_value(value, converter, default=None):
+    warnings.warn('creme_core.views.generic.listview._clean_value() is deprecated.',
+                  DeprecationWarning
+                 )
+
     try:
         return converter(value)
     except Exception as e:
@@ -163,19 +169,39 @@ def _build_entities_page(arguments, list_view_state, queryset, size, count, orde
     return entities_page
 
 
+# def _build_extrafilter(arguments, extra_filter=None):
+#     json_q_filter = arguments.get('q_filter')
+#     q_filter_as_dict = _clean_value(json_q_filter, json_load, {})
+#     q_filter = get_q_from_dict(q_filter_as_dict)
+#
+#     if extra_filter is not None:
+#         q_filter &= extra_filter
+#
+#     return json_dump(q_filter_as_dict, separators=(',', ':')), q_filter
 def _build_extrafilter(arguments, extra_filter=None):
     json_q_filter = arguments.get('q_filter')
-    q_filter_as_dict = _clean_value(json_q_filter, json_load, {})
+    q_filter = Q()
+    serializer = QSerializer()
 
     # TODO: better validation of q_filter ? (corresponding EntityCell allowed + searchable ?)
     #  - limit the max depth of sub-fields chain ?
     #  - do no allow all fields ?
-    q_filter = get_q_from_dict(q_filter_as_dict)
+    if json_q_filter:
+        try:
+            q_filter = serializer.loads(json_q_filter)
+        except:
+            try:
+                q_filter = get_q_from_dict(_clean_value(json_q_filter, json_load, {}))
+            except:
+                raise
+            else:
+                warnings.warn('Old format for "q_filter" is deprecated is used : {}'.format(json_q_filter),
+                              DeprecationWarning
+                             )
 
-    if extra_filter is not None:
-        q_filter &= extra_filter
-
-    return json_dump(q_filter_as_dict, separators=(',', ':')), q_filter
+    return (serializer.dumps(q_filter),
+            q_filter if extra_filter is None else q_filter & extra_filter
+           )
 
 
 def _select_entityfilter(arguments, entity_filters, default_filter):

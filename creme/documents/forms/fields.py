@@ -18,9 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.models.query_utils import Q
 from django.urls import reverse_lazy
 
 from creme.creme_core import forms
+from creme.creme_core.utils.queries import get_q_from_dict
 
 from .. import get_document_model
 from ..constants import MIMETYPE_PREFIX_IMG
@@ -32,12 +34,25 @@ class ImageFieldMixin(object):
         return reverse_lazy('documents__create_image_popup')
 
     def build_q_filter(self, q_filter):
-        basic_filter = {'mime_type__name__startswith': MIMETYPE_PREFIX_IMG}
+        # basic_filter = {'mime_type__name__startswith': MIMETYPE_PREFIX_IMG}
+        #
+        # q_filter = dict(q_filter) if q_filter else {}
+        # q_filter.update(basic_filter)
+        #
+        # return q_filter, q_filter != basic_filter
+        extra_filter = False
+        basic_q = Q(mime_type__name__startswith=MIMETYPE_PREFIX_IMG)
 
-        q_filter = dict(q_filter) if q_filter else {}
-        q_filter.update(basic_filter)
+        if q_filter is not None:
+            extra_filter = True
 
-        return q_filter, q_filter != basic_filter
+            if isinstance(q_filter, dict):
+                q_filter = get_q_from_dict(q_filter)
+            final_q = basic_q & q_filter
+        else:
+            final_q = basic_q
+
+        return final_q, extra_filter
 
     @property
     def force_creation(self):
@@ -58,7 +73,7 @@ class ImageFieldMixin(object):
 
     @q_filter.setter
     def q_filter(self, q_filter):
-        self._check_qfilter(q_filter)
+        # self._check_qfilter(q_filter)
 
         q_filter, is_extra_filter = self.build_q_filter(q_filter)
         self.widget.q_filter = self._q_filter = q_filter

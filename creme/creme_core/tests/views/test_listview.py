@@ -812,7 +812,8 @@ class ListViewTestCase(ViewsTestCase):
 
         self._assertNoDistinct(context.captured_sql)
 
-    def test_qfilter_GET(self):
+    def test_qfilter_GET_legacy(self):
+        "Old format"
         user = self.login()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -829,7 +830,35 @@ class ListViewTestCase(ViewsTestCase):
 
         lv_node = self._get_lv_node(response)
         inputs_content = self._get_lv_inputs_content(lv_node)
-        self.assertIn(('q_filter', '{"name":"Bebop"}'), inputs_content)
+        # self.assertIn(('q_filter', '{"name":"Bebop"}'), inputs_content)
+        self.assertIn(('q_filter', QSerializer().dumps(Q(name='Bebop'))), inputs_content)
+
+        content = self._get_lv_content(lv_node)
+        self.assertCountOccurrences(bebop.name, content, count=1)
+        self.assertNotIn(redtail.name, content)
+        self.assertNotIn(dragons.name, content)
+
+        self.assertEqual(1, response.context['entities'].paginator.count)
+
+    def test_qfilter_GET(self):
+        user = self.login()
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        bebop   = create_orga(name='Bebop')
+        redtail = create_orga(name='Redtail')
+        dragons = create_orga(name='Red Dragons')
+
+        self._build_hf()
+
+        context = CaptureQueriesContext()
+        qfilter_json = QSerializer().dumps(Q(name='Bebop'))
+
+        with context:
+            response = self.assertGET200(self.url, data={'q_filter': qfilter_json})
+
+        lv_node = self._get_lv_node(response)
+        inputs_content = self._get_lv_inputs_content(lv_node)
+        self.assertIn(('q_filter', qfilter_json), inputs_content)
 
         content = self._get_lv_content(lv_node)
         self.assertCountOccurrences(bebop.name, content, count=1)
@@ -841,7 +870,7 @@ class ListViewTestCase(ViewsTestCase):
         # TODO
         # self._assertNoDistinct(context.captured_sql)
 
-    def test_qfilter_POST(self):
+    def test_qfilter_POST_legacy(self):
         user = self.login()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -855,7 +884,32 @@ class ListViewTestCase(ViewsTestCase):
 
         lv_node = self._get_lv_node(response)
         inputs_content = self._get_lv_inputs_content(lv_node)
-        self.assertIn(('q_filter', '{"name":"Bebop"}'), inputs_content)
+        # self.assertIn(('q_filter', '{"name":"Bebop"}'), inputs_content)
+        self.assertIn(('q_filter', QSerializer().dumps(Q(name='Bebop'))), inputs_content)
+
+        content = self._get_lv_content(lv_node)
+        self.assertCountOccurrences(bebop.name, content, count=1)
+        self.assertNotIn(redtail.name, content)
+        self.assertNotIn(dragons.name, content)
+
+        self.assertEqual(1, response.context['entities'].paginator.count)
+
+    def test_qfilter_POST(self):
+        user = self.login()
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        bebop   = create_orga(name='Bebop')
+        redtail = create_orga(name='Redtail')
+        dragons = create_orga(name='Red Dragons')
+
+        self._build_hf()
+
+        qfilter_json = QSerializer().dumps(Q(name='Bebop'))
+        response = self.assertPOST200(self.url, data={'q_filter': qfilter_json})
+
+        lv_node = self._get_lv_node(response)
+        inputs_content = self._get_lv_inputs_content(lv_node)
+        self.assertIn(('q_filter', qfilter_json), inputs_content)
 
         content = self._get_lv_content(lv_node)
         self.assertCountOccurrences(bebop.name, content, count=1)
@@ -2508,7 +2562,7 @@ class ListViewTestCase(ViewsTestCase):
         page1_fast = post()
         self.assertTrue(hasattr(page1_fast, 'next_page_info'))  # Means fast mode
 
-    def test_listview_popup_GET(self):
+    def test_listview_popup_GET_legacy(self):
         user = self.login()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2523,12 +2577,74 @@ class ListViewTestCase(ViewsTestCase):
         with context:
             response = self.assertGET200(reverse('creme_core__listview_popup'), data={
                 'ct_id': self.ctype.id,
-                'q_filter': '{"name":  "Bebop" }'
+                'q_filter': '{"name":  "Bebop" }',
             })
 
         lv_node = self._get_lv_node(response)
         inputs_content = self._get_lv_inputs_content(lv_node)
-        self.assertIn(('q_filter', '{"name":"Bebop"}'), inputs_content)
+        # self.assertIn(('q_filter', '{"name":"Bebop"}'), inputs_content)
+        self.assertIn(('q_filter', QSerializer().dumps(Q(name='Bebop'))), inputs_content)
+
+        content = self._get_lv_content(lv_node)
+        self.assertCountOccurrences(bebop.name, content, count=1)
+        self.assertNotIn(redtail.name, content)
+        self.assertNotIn(dragons.name, content)
+
+        self.assertEqual(1, response.context['entities'].paginator.count)
+
+    def test_listview_popup_GET(self):
+        user = self.login()
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        bebop   = create_orga(name='Bebop')
+        redtail = create_orga(name='Redtail')
+        dragons = create_orga(name='Red Dragons')
+
+        self._build_hf()
+
+        context = CaptureQueriesContext()
+        qfilter_json = QSerializer().dumps(Q(name='Bebop'))
+
+        with context:
+            response = self.assertGET200(reverse('creme_core__listview_popup'),
+                                         data={'ct_id': self.ctype.id,
+                                               'q_filter': qfilter_json,
+                                              },
+                                        )
+
+        lv_node = self._get_lv_node(response)
+        inputs_content = self._get_lv_inputs_content(lv_node)
+        self.assertIn(('q_filter', qfilter_json), inputs_content)
+
+        content = self._get_lv_content(lv_node)
+        self.assertCountOccurrences(bebop.name, content, count=1)
+        self.assertNotIn(redtail.name, content)
+        self.assertNotIn(dragons.name, content)
+
+        self.assertEqual(1, response.context['entities'].paginator.count)
+
+    def test_listview_popup_POST_legacy(self):
+        user = self.login()
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        bebop   = create_orga(name='Bebop')
+        redtail = create_orga(name='Redtail')
+        dragons = create_orga(name='Red Dragons')
+
+        self._build_hf()
+
+        context = CaptureQueriesContext()
+
+        with context:
+            response = self.assertPOST200(reverse('creme_core__listview_popup'), data={
+                'ct_id': self.ctype.id,
+                'q_filter': '{"name":  "Bebop" }',
+            })
+
+        lv_node = self._get_lv_node(response)
+        inputs_content = self._get_lv_inputs_content(lv_node)
+        # self.assertIn(('q_filter', '{"name":"Bebop"}'), inputs_content)
+        self.assertIn(('q_filter', QSerializer().dumps(Q(name='Bebop'))), inputs_content)
 
         content = self._get_lv_content(lv_node)
         self.assertCountOccurrences(bebop.name, content, count=1)
@@ -2548,16 +2664,18 @@ class ListViewTestCase(ViewsTestCase):
         self._build_hf()
 
         context = CaptureQueriesContext()
+        qfilter_json = QSerializer().dumps(Q(name='Bebop'))
 
         with context:
-            response = self.assertPOST200(reverse('creme_core__listview_popup'), data={
-                'ct_id': self.ctype.id,
-                'q_filter': '{"name":  "Bebop" }'
-            })
+            response = self.assertPOST200(reverse('creme_core__listview_popup'),
+                                          data={'ct_id': self.ctype.id,
+                                                'q_filter': qfilter_json,
+                                               },
+                                         )
 
         lv_node = self._get_lv_node(response)
         inputs_content = self._get_lv_inputs_content(lv_node)
-        self.assertIn(('q_filter', '{"name":"Bebop"}'), inputs_content)
+        self.assertIn(('q_filter', qfilter_json), inputs_content)
 
         content = self._get_lv_content(lv_node)
         self.assertCountOccurrences(bebop.name, content, count=1)

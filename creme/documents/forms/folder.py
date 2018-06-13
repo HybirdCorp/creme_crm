@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.models.query_utils import Q
 from django.forms.utils import ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -55,7 +56,8 @@ class FolderForm(_FolderForm):
         pk = self.instance.id
         if pk:
             # TODO: remove direct children too ??
-            self.fields['parent_folder'].q_filter = {'~id__in': [pk]}
+            # self.fields['parent_folder'].q_filter = {'~id__in': [pk]}
+            self.fields['parent_folder'].q_filter = ~Q(id=pk)
 
     def clean_parent_folder(self):
         parent_folder = self.cleaned_data['parent_folder']
@@ -84,7 +86,8 @@ class ParentFolderBulkForm(BulkDefaultEditForm):
 
         if len(entities) == 1:
             # TODO: like above -> remove direct children too ??
-            self.fields['field_value'].q_filter = {'~id__in': [entities[0].pk]}
+            # self.fields['field_value'].q_filter = {'~id__in': [entities[0].pk]}
+            self.fields['field_value'].q_filter = ~Q(id__in=[entities[0].id])
 
     def _bulk_clean_entity(self, entity, values):
         parent_folder = values.get('parent_folder')
