@@ -3,6 +3,7 @@
 try:
     from json import dumps as json_dump
 
+    from django.db.models.query_utils import Q
     from django.urls import reverse
 
     from creme.creme_core.tests.forms.base import FieldTestCase
@@ -27,7 +28,8 @@ class ImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
         self.assertEqual(Document, field.model)
         self.assertEqual(Document, field.widget.model)
         self.assertTrue(field.force_creation)
-        self.assertEqual({'mime_type__name__startswith': 'image/'}, field.q_filter)
+        # self.assertEqual({'mime_type__name__startswith': 'image/'}, field.q_filter)
+        self.assertQEqual(Q(mime_type__name__startswith='image/'), field.q_filter)
 
         url = reverse('documents__create_image_popup')
         self.assertEqual(url, field.create_action_url)
@@ -60,18 +62,22 @@ class ImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
         doc = self._create_doc('foobar.txt')
         self.assertFieldValidationError(ImageEntityField, 'doesnotexist', field.clean, str(doc.id))
 
-    def test_qfilter_init(self):
+    def test_qfilter_init01(self):
+        "Dict"
         field = ImageEntityField(user=self.user, q_filter={'title__icontains': 'show'})
 
-        final_qfilter = {
-            'mime_type__name__startswith': 'image/',
-            'title__icontains':            'show',
-        }
-        self.assertEqual(final_qfilter, field.q_filter)
+        # final_qfilter = {
+        #     'mime_type__name__startswith': 'image/',
+        #     'title__icontains':            'show',
+        # }
+        final_qfilter = Q(mime_type__name__startswith='image/') & Q(title__icontains='show')
+        # self.assertEqual(final_qfilter, field.q_filter)
+        self.assertQEqual(final_qfilter, field.q_filter)
         self.assertFalse(field.force_creation)
 
         # Widget
-        self.assertEqual(final_qfilter, field.widget.q_filter)
+        # self.assertEqual(final_qfilter, field.widget.q_filter)
+        self.assertQEqual(final_qfilter, field.widget.q_filter)
         self.assertFalse(field.widget.creation_url)
         self.assertTrue(field.widget.creation_allowed)
 
@@ -82,19 +88,64 @@ class ImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
         img2 = self._create_image(title='Python Show 2018', ident=2)
         self.assertEqual(img2, field.clean(str(img2.id)))
 
-    def test_qfilter_property(self):
-        field = ImageEntityField(user=self.user)
-        field.q_filter = {'title__contains': 'show'}
+    def test_qfilter_init02(self):
+        "Q"
+        field = ImageEntityField(user=self.user, q_filter=Q(title__icontains='show'))
 
-        final_qfilter = {
-            'mime_type__name__startswith': 'image/',
-            'title__contains':             'show',
-        }
-        self.assertEqual(final_qfilter, field.q_filter)
+        final_qfilter = Q(mime_type__name__startswith='image/') & Q(title__icontains='show')
+        self.assertQEqual(final_qfilter, field.q_filter)
         self.assertFalse(field.force_creation)
 
         # Widget
-        self.assertEqual(final_qfilter, field.widget.q_filter)
+        self.assertQEqual(final_qfilter, field.widget.q_filter)
+        self.assertFalse(field.widget.creation_url)
+        self.assertTrue(field.widget.creation_allowed)
+
+        # Clean
+        img1 = self._create_image(title='Icon#1', ident=1)
+        self.assertFieldValidationError(ImageEntityField, 'doesnotexist', field.clean, str(img1.id))
+
+        img2 = self._create_image(title='Python Show 2018', ident=2)
+        self.assertEqual(img2, field.clean(str(img2.id)))
+
+    def test_qfilter_property01(self):
+        "Dict"
+        field = ImageEntityField(user=self.user)
+        field.q_filter = {'title__contains': 'show'}
+
+        # final_qfilter = {
+        #     'mime_type__name__startswith': 'image/',
+        #     'title__contains':             'show',
+        # }
+        final_qfilter = Q(mime_type__name__startswith='image/') & Q(title__contains='show')
+        # self.assertEqual(final_qfilter, field.q_filter)
+        self.assertQEqual(final_qfilter, field.q_filter)
+        self.assertFalse(field.force_creation)
+
+        # Widget
+        # self.assertEqual(final_qfilter, field.widget.q_filter)
+        self.assertQEqual(final_qfilter, field.widget.q_filter)
+        self.assertFalse(field.widget.creation_url)
+        self.assertTrue(field.widget.creation_allowed)
+
+        # Clean
+        img1 = self._create_image(title='Icon#1')
+        self.assertFieldValidationError(ImageEntityField, 'doesnotexist', field.clean, str(img1.id))
+
+        img2 = self._create_image(title='Python show 2018')
+        self.assertEqual(img2, field.clean(str(img2.id)))
+
+    def test_qfilter_property02(self):
+        "Q"
+        field = ImageEntityField(user=self.user)
+        field.q_filter = Q(title__contains='show')
+
+        final_qfilter = Q(mime_type__name__startswith='image/') & Q(title__contains='show')
+        self.assertQEqual(final_qfilter, field.q_filter)
+        self.assertFalse(field.force_creation)
+
+        # Widget
+        self.assertQEqual(final_qfilter, field.widget.q_filter)
         self.assertFalse(field.widget.creation_url)
         self.assertTrue(field.widget.creation_allowed)
 
@@ -162,7 +213,8 @@ class MultiImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
         self.assertEqual(Document, field.model)
         self.assertEqual(Document, field.widget.model)
         self.assertTrue(field.force_creation)
-        self.assertEqual({'mime_type__name__startswith': 'image/'}, field.q_filter)
+        # self.assertEqual({'mime_type__name__startswith': 'image/'}, field.q_filter)
+        self.assertQEqual(Q(mime_type__name__startswith='image/'), field.q_filter)
 
         url = reverse('documents__create_image_popup')
         self.assertEqual(url, field.create_action_url)
@@ -199,15 +251,18 @@ class MultiImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
     def test_qfilter_init(self):
         field = MultiImageEntityField(user=self.user, q_filter={'title__contains': 'show'})
 
-        final_qfilter = {
-            'mime_type__name__startswith': 'image/',
-            'title__contains':             'show',
-        }
-        self.assertEqual(final_qfilter, field.q_filter)
+        # final_qfilter = {
+        #     'mime_type__name__startswith': 'image/',
+        #     'title__contains':             'show',
+        # }
+        final_qfilter = Q(mime_type__name__startswith='image/') & Q(title__contains='show')
+        # self.assertEqual(final_qfilter, field.q_filter)
+        self.assertQEqual(final_qfilter, field.q_filter)
         self.assertFalse(field.force_creation)
 
         # Widget
-        self.assertEqual(final_qfilter, field.widget.q_filter)
+        # self.assertEqual(final_qfilter, field.widget.q_filter)
+        self.assertQEqual(final_qfilter, field.widget.q_filter)
         self.assertFalse(field.widget.creation_url)
         self.assertTrue(field.widget.creation_allowed)
 
@@ -219,19 +274,44 @@ class MultiImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
         img3 = self._create_image(title='Python show 2019')
         self.assertEqual([img2, img3], field.clean(self._build_value(img2, img3)))
 
-    def test_qfilter_property(self):
+    def test_qfilter_property01(self):
+        "Dict"
         field = MultiImageEntityField(user=self.user)
         field.q_filter = {'title__icontains': 'show'}
 
-        final_qfilter = {
-            'mime_type__name__startswith': 'image/',
-            'title__icontains':            'show',
-        }
-        self.assertEqual(final_qfilter, field.q_filter)
+        # final_qfilter = {
+        #     'mime_type__name__startswith': 'image/',
+        #     'title__icontains':            'show',
+        # }
+        final_qfilter = Q(mime_type__name__startswith='image/') & Q(title__icontains='show')
+        # self.assertEqual(final_qfilter, field.q_filter)
+        self.assertQEqual(final_qfilter, field.q_filter)
         self.assertFalse(field.force_creation)
 
         # Widget
-        self.assertEqual(final_qfilter, field.widget.q_filter)
+        # self.assertEqual(final_qfilter, field.widget.q_filter)
+        self.assertQEqual(final_qfilter, field.widget.q_filter)
+        self.assertFalse(field.widget.creation_url)
+        self.assertTrue(field.widget.creation_allowed)
+
+        # Clean
+        img1 = self._create_image(title='Icon#1')
+        self.assertFieldValidationError(ImageEntityField, 'doesnotexist', field.clean, self._build_value(img1))
+
+        img2 = self._create_image(title='Python Show 2018')
+        self.assertEqual([img2], field.clean(self._build_value(img2)))
+
+    def test_qfilter_property02(self):
+        "Q"
+        field = MultiImageEntityField(user=self.user)
+        field.q_filter = Q(title__icontains='show')
+
+        final_qfilter = Q(mime_type__name__startswith='image/') & Q(title__icontains='show')
+        self.assertQEqual(final_qfilter, field.q_filter)
+        self.assertFalse(field.force_creation)
+
+        # Widget
+        self.assertQEqual(final_qfilter, field.widget.q_filter)
         self.assertFalse(field.widget.creation_url)
         self.assertTrue(field.widget.creation_allowed)
 

@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeEntityForm, CremeForm
@@ -62,7 +63,8 @@ class AddImagesForm(CremeForm):
         self.entity = entity
 
         images_f = self.fields['images']
-        images_f.q_filter = {'~id__in': list(entity.images.values_list('id', flat=True))}
+        # images_f.q_filter = {'~id__in': list(entity.images.values_list('id', flat=True))}
+        images_f.q_filter = ~Q(id__in=list(entity.images.values_list('id', flat=True)))
         images_f.force_creation = True
 
     def save(self):

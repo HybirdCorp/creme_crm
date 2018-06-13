@@ -752,21 +752,21 @@ class CreatorEntityField(EntityCredsJSONField):
         widget = self.widget
         self._model = widget.model = model
 
-        self._check_qfilter(q_filter)
+        # self._check_qfilter(q_filter)
         self._q_filter = widget.q_filter = q_filter
 
         self._create_action_url = widget.creation_url = create_action_url
         self._force_creation = force_creation
         self.user = user
 
-    def _check_qfilter(self, q_filter):
-        if isinstance(q_filter, Q):
-            raise TypeError('<%s>: "Q" instance for q_filter is not (yet) supported (notice that it '
-                            'can be generated from the "limit_choices_to" in a field related '
-                            'to CremeEntity of one of your models).\n'
-                            ' -> Use a dict (or a callable which returns a dict)' %
-                                self.__class__.__name__
-                           )
+    # def _check_qfilter(self, q_filter):
+    #     if isinstance(q_filter, Q):
+    #         raise TypeError('<%s>: "Q" instance for q_filter is not (yet) supported (notice that it '
+    #                         'can be generated from the "limit_choices_to" in a field related '
+    #                         'to CremeEntity of one of your models).\n'
+    #                         ' -> Use a dict (or a callable which returns a dict)' %
+    #                             self.__class__.__name__
+    #                        )
 
     @property
     def force_creation(self):
@@ -794,10 +794,12 @@ class CreatorEntityField(EntityCredsJSONField):
     @q_filter.setter
     def q_filter(self, q_filter):
         """
-        @param q_filter: Allow to filter the selection ; it's a dictionary (eg: {'user__is_staff': False})
-                         or a callable which returns a dictionary. 'None' means not filtering.
+        @param q_filter: Allows to filter the selection. Same meaning than Model.limit_choices_to ;
+               so it can be dictionary (eg: {'user__is_staff': False}), a django.db.models.query.Q instance,
+               or a callable which returns dictionary/Q.
+               <None> means not filtering.
         """
-        self._check_qfilter(q_filter)
+        # self._check_qfilter(q_filter)
 
         self.widget.q_filter = self._q_filter = q_filter
         self._update_creation_info()
@@ -810,12 +812,21 @@ class CreatorEntityField(EntityCredsJSONField):
         if q_filter is not None:
             if callable(q_filter):
                 q_filter = q_filter()
-                self._check_qfilter(q_filter)
+                # self._check_qfilter(q_filter)
 
-            try:
-                q = get_q_from_dict(q_filter)
-            except:
-                raise ValueError('Invalid q_filter %s' % q_filter)
+            # try:
+            #     q = get_q_from_dict(q_filter)
+            # except:
+            #     raise ValueError('Invalid q_filter %s' % q_filter)
+            if isinstance(q_filter, dict):
+                try:
+                    q = get_q_from_dict(q_filter)
+                except:
+                    raise ValueError('Invalid q_filter: {}'.format(q_filter))
+            elif isinstance(q_filter, Q):
+                q = q_filter
+            else:
+                raise ValueError('Invalid type for q_filter (needs dict or Q): {}'.format(q_filter))
 
         return q
 

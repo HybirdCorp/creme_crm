@@ -20,6 +20,7 @@
 
 from functools import partial
 
+from django.db.models.query import Q
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import base
@@ -59,12 +60,18 @@ class CreditNoteRelatedForm(base.CremeForm):
 
         # TODO waiting for automated change of status when a credit note is out of date by looking to expiration date
         # TODO Add another filter today <= expiration_date ??
-        q_filter = {'~pk__in': [rel.object_entity_id for rel in existing],
-                    'currency': entity.currency.id,
-#                    'status': CreditNoteStatus.objects.get(pk=ISSUED_CREDIT_NOTE).id, # TODO workflow status
-                    'relations__type': constants.REL_SUB_BILL_RECEIVED,
-                    'relations__object_entity': entity.get_real_entity().get_target().id,
-                   }
+#         q_filter = {'~pk__in': [rel.object_entity_id for rel in existing],
+#                     'currency': entity.currency.id,
+# #                    'status': CreditNoteStatus.objects.get(pk=ISSUED_CREDIT_NOTE).id, # todo workflow status
+#                     'relations__type': constants.REL_SUB_BILL_RECEIVED,
+#                     'relations__object_entity': entity.get_real_entity().get_target().id,
+#                    }
+        q_filter = ~Q(pk__in=[rel.object_entity_id for rel in existing]) & \
+                    Q(currency=entity.currency.id,
+                      # status=CreditNoteStatus.objects.get(pk=ISSUED_CREDIT_NOTE).id, # TODO workflow status
+                      relations__type=constants.REL_SUB_BILL_RECEIVED,
+                      relations__object_entity=entity.get_real_entity().get_target().id,
+                     )
 
         self.fields['credit_notes'].q_filter = q_filter
 

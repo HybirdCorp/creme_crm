@@ -76,7 +76,9 @@ class BulkForm(CremeForm):
             model = self.model
             entities = self.entities
             # TODO: factorise
-            fieldname = self.parent_field.name + '__' + self.field_name if self.is_subfield else self.field_name
+            fieldname = '{}__{}'.format(self.parent_field.name, self.field_name) \
+                        if self.is_subfield else \
+                        self.field_name
 
             self.fields['_bulk_fieldname'] = ChoiceField(
                 choices=self._bulk_model_choices(model, entities),

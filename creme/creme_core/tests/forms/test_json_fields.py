@@ -1551,7 +1551,8 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual(FakeContact, field.model)
         self.assertEqual(FakeContact, field.widget.model)
 
-    def test_qfilter(self):
+    def test_qfilter01(self):
+        "Dict"
         self.login()
         contact = self.create_contact()
         qfilter = {'~pk': contact.pk}
@@ -1579,6 +1580,25 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual(field.q_filter, qfilter)
         self.assertIsNotNone(field.q_filter_query)
         self.assertEqual(field.create_action_url, action_url)
+
+    def test_qfilter02(self):
+        "Dict"
+        self.login()
+        orga = self.create_orga()
+        qfilter = ~Q(id=orga.id)
+
+        field = CreatorEntityField(FakeOrganisation)
+        self.assertIsNone(field.q_filter)
+        self.assertIsNone(field.q_filter_query)
+
+        # Set qfilter
+        field.q_filter = qfilter
+        self.assertEqual(field.q_filter, qfilter)
+        # self.assertIsNotNone(field.q_filter_query)  # TODO
+
+        # Set both qfilter in constructor
+        field = CreatorEntityField(FakeContact, q_filter=qfilter)
+        self.assertEqual(field.q_filter, qfilter)
 
     def test_format_object_with_qfilter01(self):
         "qfilter is a dict"
@@ -1618,6 +1638,25 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
                       )
                      )
 
+    def test_format_object_with_qfilter03(self):
+        "qfilter is Q"
+        self.login()
+        contact = self.create_contact()
+        field = CreatorEntityField(FakeContact, q_filter=~Q(pk=contact.id))
+
+        jsonified = str(contact.pk)
+        self.assertEqual(jsonified, field.from_python(jsonified))
+        self.assertEqual(jsonified, field.from_python(contact))
+
+        with self.assertRaises(ValueError) as error:
+            field.from_python(contact.id)
+
+        self.assertIn(str(error.exception),
+                      ('No such entity with id={}.'.format(contact.id),
+                       'No such entity with id={}L.'.format(contact.id),
+                      )
+                     )
+
     def test_format_object_from_other_model(self):
         self.login()
         contact = self.create_contact()
@@ -1643,10 +1682,11 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         action_url = '/persons/quickforms/from_widget/{}/'.format(contact.entity_type_id)
 
         field = CreatorEntityField(FakeContact)
-        qfilter_errors = ("Invalid q_filter ['~pk', {}]".format(contact.id),
-                          "Invalid q_filter ['~pk', {}L]".format(contact.id),  # Do this hack for MySql database that
-                                                                               # uses longs and alter JSON format result
-                         )
+        # Do this hack for MySql database that uses longs and alter JSON format result
+        qfilter_errors = {
+            "Invalid type for q_filter (needs dict or Q): ['~pk', {}]".format(contact.id),
+            "Invalid type for q_filter (needs dict or Q): ['~pk', {}L]".format(contact.id),
+        }
 
         # Set qfilter property
         field.q_filter = ['~pk', contact.pk]
@@ -1822,7 +1862,8 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
                                         str(self.create_contact(is_deleted=True).pk)
                                        )
 
-    def test_clean_filtered_entity(self):
+    def test_clean_filtered_entity01(self):
+        "qfilter is a dict"
         user = self.login()
         contact = self.create_contact()
 
@@ -1835,6 +1876,21 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         field.q_filter = {'pk': contact.pk}
         self.assertEqual(contact, field.clean(str(contact.pk)))
+
+    def test_clean_filtered_entity02(self):
+        "qfilter is a Q"
+        user = self.login()
+        orga = self.create_orga()
+
+        with self.assertNumQueries(0):
+            field = CreatorEntityField(FakeOrganisation)
+
+        field.user = user
+        field.q_filter = ~Q(name__startswith=orga.name)
+        self.assertFieldValidationError(CreatorEntityField, 'doesnotexist', field.clean, str(orga.pk))
+
+        field.q_filter = Q(name__startswith=orga.name)
+        self.assertEqual(orga, field.clean(str(orga.pk)))
 
     def test_hook(self):
         user = self.login()
@@ -1983,9 +2039,9 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         action_url = '/persons/quickforms/from_widget/{}/'.format(contact.entity_type_id)
 
         field = MultiCreatorEntityField(FakeContact)
-        qfilter_errors = ("Invalid q_filter ['~pk', {}]".format(contact.id),
-                          "Invalid q_filter ['~pk', {}L]".format(contact.id),  # Do this hack for MySql database that
-                                                                               # uses longs and alter json format result
+        # Do this hack for MySql database that uses longs and alter json format result
+        qfilter_errors = ("Invalid type for q_filter (needs dict or Q): ['~pk', {}]".format(contact.id),
+                          "Invalid type for q_filter (needs dict or Q): ['~pk', {}L]".format(contact.id),
                          )
 
         field.q_filter = ['~pk', contact.pk]

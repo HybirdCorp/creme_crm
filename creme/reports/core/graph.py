@@ -19,7 +19,7 @@
 ################################################################################
 
 from datetime import timedelta, datetime
-from json import dumps as json_encode
+# from json import dumps as json_encode
 import logging
 
 from django.db import connection
@@ -29,6 +29,7 @@ from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 from creme.creme_core.models import (CremeEntity, RelationType, Relation,
         CustomField, CustomFieldEnumValue)
 from creme.creme_core.utils.meta import FieldInfo
+from creme.creme_core.utils.queries import QSerializer
 
 from ..constants import *
 from ..report_aggregation_registry import field_aggregation_registry
@@ -66,7 +67,8 @@ class ListViewURLBuilder(object):
     def __call__(self, q_filter=None):
         fmt = self._fmt
 
-        return fmt.format(json_encode(q_filter) if q_filter is not None else '') if fmt else None
+        # return fmt.format(json_encode(q_filter) if q_filter is not None else '') if fmt else None
+        return fmt.format(QSerializer().dumps(Q(**q_filter)) if q_filter is not None else '') if fmt else None
 
 
 class ReportGraphHandRegistry(object):

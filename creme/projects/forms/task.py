@@ -20,6 +20,7 @@
 
 from functools import partial
 
+from django.db.models.query_utils import Q
 from django.forms import BooleanField, ValidationError
 from django.utils.translation import ugettext_lazy as _
 
@@ -104,12 +105,15 @@ class TaskAddParentForm(CremeForm):
     def __init__(self, instance, *args, **kwargs):
         super(TaskAddParentForm, self).__init__(*args, **kwargs)
         self.task = instance
-        self.fields['parents'].q_filter = {
-            # 'project':       instance.project_id,
-            'linked_project': instance.linked_project_id,
-            '~id__in':        [t.id for t in instance.get_subtasks()],
-            '~children_set':  instance.pk,
-        }
+        # self.fields['parents'].q_filter = {
+        #     # 'project':       instance.project_id,
+        #     'linked_project': instance.linked_project_id,
+        #     '~id__in':        [t.id for t in instance.get_subtasks()],
+        #     '~children_set':  instance.pk,
+        # }
+        self.fields['parents'].q_filter =  Q(linked_project=instance.linked_project_id) & \
+                                          ~Q(id__in=[t.id for t in instance.get_subtasks()]) & \
+                                          ~Q(children_set=instance.pk)
 
     def save(self, *args, **kwargs):
         add_parent = self.task.parent_tasks.add

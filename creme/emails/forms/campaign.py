@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.models.query import Q
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager, MultiCreatorEntityField
@@ -48,7 +49,8 @@ class CampaignAddMLForm(CremeForm):
     def __init__(self, entity, *args, **kwargs):
         super(CampaignAddMLForm, self).__init__(*args, **kwargs)
         self.campaign = entity
-        self.fields['mailing_lists'].q_filter = {'~id__in': list(entity.mailing_lists.values_list('id', flat=True))}
+        # self.fields['mailing_lists'].q_filter = {'~id__in': list(entity.mailing_lists.values_list('id', flat=True))}
+        self.fields['mailing_lists'].q_filter = ~Q(id__in=list(entity.mailing_lists.values_list('id', flat=True)))
 
     def save(self):
         add_ml = self.campaign.mailing_lists.add

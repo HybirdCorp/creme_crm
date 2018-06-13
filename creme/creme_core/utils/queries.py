@@ -20,6 +20,8 @@
 
 from datetime import datetime, date
 import json
+import logging
+import warnings
 
 from django.core.serializers.base import SerializationError
 from django.db.models import Q, Model
@@ -28,25 +30,38 @@ from django.db.models.query import QuerySet
 from .dates import DATE_ISO8601_FMT, DATETIME_ISO8601_FMT
 
 
-# TODO: deprecate ??
+logger = logging.getLogger(__name__)
+
+
+# TODO: deprecate when the '~' feature is removed.
 def get_q_from_dict(dict, is_or=False):
     """
-        @Returns: A Q instance from {'attr1':'val1', 'attr2':'val2',...}
-        If is_or returns Q(attr1=val1) | Q(attr2=val2)
-        else returns Q(attr1=val1) & Q(attr2=val2)
-        Tip : Add ~ in the attr negate the Q
+    @return: A Q instance from {'attr1': 'val1', 'attr2': 'val2',...}
+             If 'is_or' is True, it returns <Q(attr1=val1) | Q(attr2=val2)>
+             else it returns <Q(attr1=val1) & Q(attr2=val2)>
+
+     Note : Add ~ in the attr negate the Q (DEPRECATED).
             Example :
-                d = {'~attr1':'val1', 'attr2':'val2',...}
-                returns ~Q(attr1=val1) & Q(attr2=val2)
+                > d = {'~attr1':'val1', 'attr2':'val2',...}
+                ~Q(attr1=val1) & Q(attr2=val2)
     """
     q = Q()
-    for k, v in dict.items():
+
+    for k, v in dict.iteritems():
         k = str(k)
-        unused, is_not, req = k.rpartition("~")
-        if bool(is_not):
-            sub_q = ~Q(**{req:v})
+        # __, is_not, req = k.rpartition('~')
+        # if bool(is_not):
+        #     sub_q = ~Q(**{req: v})
+        # else:
+        #     sub_q = Q(**{req: v})
+        if k.startswith('~'):
+            warnings.warn('creme_core.utils.queries.get_q_from_dict(): the "~" feature is deprecated ; '
+                          'use a django.db.models.query.Q instead.',
+                          DeprecationWarning
+                         )
+            sub_q = ~Q(**{k[1:]: v})
         else:
-            sub_q = Q(**{req:v})
+            sub_q = Q(**{k: v})
 
         if is_or:
             q |= sub_q
@@ -61,7 +76,7 @@ def get_q_from_dict(dict, is_or=False):
 
 ################################################################################
 # Copyright (c)  2013  asfaltboy
-# Copyright (c)  2015  Hybird
+# Copyright (c)  2015-2018  Hybird
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -144,7 +159,15 @@ class QSerializer(object):
         return query
 
     def dumps(self, obj):
-        return json.dumps(self.serialize(obj))
+        try:
+            return json.dumps(self.serialize(obj), separators=(',', ':'))
+        except:
+            logger.exception('QSerializer.dumps(): error when serializing <%s>', obj)
+            raise
 
     def loads(self, string):
-        return self.deserialize(json.loads(string))
+        try:
+            return self.deserialize(json.loads(string))
+        except:
+            logger.exception('QSerializer.loads(): error when deserializing <%s>', string)
+            raise
