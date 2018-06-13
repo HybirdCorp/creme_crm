@@ -74,7 +74,12 @@ class ImageEntityField(ImageFieldMixin, forms.CreatorEntityField):
     def __init__(self, q_filter=None, create_action_url='', force_creation=False, *args, **kwargs):
         q_filter, is_extra_filter = self.build_q_filter(q_filter)
 
-        if not is_extra_filter or (force_creation and not create_action_url):
+        # if not is_extra_filter or (force_creation and not create_action_url):
+        #     force_creation = True
+        #     create_action_url = self._image_creation_url
+        if create_action_url:
+            force_creation = True
+        elif not is_extra_filter or force_creation:
             force_creation = True
             create_action_url = self._image_creation_url
 
@@ -91,7 +96,12 @@ class MultiImageEntityField(ImageFieldMixin, forms.MultiCreatorEntityField):
     def __init__(self, q_filter=None, create_action_url='', force_creation=False, *args, **kwargs):
         q_filter, is_extra_filter = self.build_q_filter(q_filter)
 
-        if not is_extra_filter or (force_creation and not create_action_url):
+        # if not is_extra_filter or (force_creation and not create_action_url):
+        #     force_creation = True
+        #     create_action_url = self._image_creation_url
+        if create_action_url:
+            force_creation = True
+        elif not is_extra_filter or force_creation:
             force_creation = True
             create_action_url = self._image_creation_url
 
