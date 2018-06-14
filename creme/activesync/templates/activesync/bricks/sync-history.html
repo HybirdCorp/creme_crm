@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_core_tags creme_bricks creme_widgets activesync_tags %}
+{% load i18n creme_core_tags creme_bricks creme_cells creme_widgets activesync_tags %}
 
 {% block brick_extra_class %}{{block.super}} activesync-history-brick{% endblock %}
 
@@ -41,7 +41,8 @@
         </td>
         <td>
             {% for k, v in history.changes.iteritems %}
-            <p>{% get_field_verbose_name contact_klass k %} : {% if v.get_absolute_url %}<a href="{{v.get_absolute_url}}">{{v}}</a>{% else %}{{v}}{% endif %}</p>
+{#            <p>{% get_field_verbose_name contact_klass k %} : {% if v.get_absolute_url %}<a href="{{v.get_absolute_url}}">{{v}}</a>{% else %}{{v}}{% endif %}</p> #}
+            <p>{% cell_4_regularfield model=contact_klass field=k %} : {% if v.get_absolute_url %}<a href="{{v.get_absolute_url}}">{{v}}</a>{% else %}{{v}}{% endif %}</p>
             {% empty %}
                 &nbsp;
             {% endfor %}

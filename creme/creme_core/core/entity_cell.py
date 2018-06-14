@@ -131,7 +131,7 @@ class EntityCell(object):
         return u"<EntityCell(type={}, value='{}')>".format(self.type_id, self.value)
 
     def __unicode__(self):
-        return self.title  # Used by CustomBlockConfigItem block (creme_config)
+        return self.title
 
     def _get_field_class(self):
         return Field
