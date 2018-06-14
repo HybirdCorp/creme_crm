@@ -794,7 +794,7 @@ u'''<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui
                                        .resolve('creme_core__entity_as_json'),
             url=reverse('creme_core__listview_popup') + '?ct_id=12&selection=${selection}&q_filter=${qfilter}',
             # q_filter=escape(json_dump({'pk__in': [12, 13]})),
-            q_filter=escape(json_dump({'val': [['pk__in', [12, 13]]], 'op': 'AND'})),
+            q_filter=escape(json_dump({'val': [['pk__in', [12, 13]]], 'op': 'AND'}, separators=(',', ':'))),
         )
         self.assertHTMLEqual(html, widget.render('field', '1', attrs={'qfilter': {'pk__in': [12, 13]}}))
 
@@ -817,7 +817,7 @@ u'''<span class="ui-creme-widget widget-auto ui-creme-entityselector" widget="ui
                 .resolve('creme_core__entity_as_json'),
             url=reverse(
                 'creme_core__listview_popup') + '?ct_id=13&selection=${selection}&q_filter=${qfilter}',
-            q_filter=escape(json_dump({'val': [['name', 'foobar']], 'op': 'AND'})),
+            q_filter=escape(json_dump({'val': [['name', 'foobar']], 'op': 'AND'}, separators=(',', ':'))),
         )
         self.assertHTMLEqual(html, widget.render(name, value, attrs={'qfilter': Q(name='foobar')}))
 
