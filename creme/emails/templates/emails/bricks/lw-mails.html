@@ -24,7 +24,7 @@
             {{mail.recipient}}
         {% endif %}
         </td>
-        <td class="lw-mail-status">{{sending.get_status_display}}</td>
+        <td class="lw-mail-status">{{mail.get_status_display}}</td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='delete' url=delete_mail_url __id=mail.id label=_('Delete this email') enabled=delete_perm %}
         </td>
