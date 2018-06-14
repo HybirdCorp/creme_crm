@@ -18,13 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
 from itertools import izip_longest
+import logging
 from json import dumps as json_dump
 from re import compile as compile_re
 from types import GeneratorType
 from urllib import urlencode
 from urlparse import urlsplit
+import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -100,10 +101,11 @@ def get_meta_value(obj, key, default=''):
     return default
 
 
-# TODO: still useful ??
 @register.filter(name='get_tag')
 def get_fieldtag(field, tag):
     """eg: {% if field|get_tag:'viewable' %}"""
+    warnings.warn('"my_field|get_tag:"my_tag" is deprecated.', DeprecationWarning)
+
     return field.get_tag(tag)
 
 
@@ -117,9 +119,10 @@ def get_field_verbose_name(model_or_entity, field_name):
         return 'INVALID FIELD'
 
 
-# TODO: deprecate ?
 @register.simple_tag(takes_context=True)
 def get_viewable_fields(context, instance):
+    warnings.warn('{% get_viewable_fields %} is deprecated.', DeprecationWarning)
+
     is_hidden = context['fields_configs'].get_4_model(instance.__class__).is_field_hidden
 
     return [field
