@@ -572,7 +572,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         rel_brick_node = self.get_brick_node(document, rbrick_id)
 
         reloading_info = {'include': [rtype1.id]}
-        self.assertEqual(json_dump(reloading_info),
+        self.assertEqual(json_dump(reloading_info, separators=(',', ':')),
                          rel_brick_node.attrib.get('data-brick-reloading-info')
                         )
         self.assertInstanceLink(rel_brick_node, tenma)
@@ -641,7 +641,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertNoInstanceLink(rel_brick_node, tenma)
 
         reloading_info = {'exclude': [rtype1.id]}
-        self.assertEqual(json_dump(reloading_info),
+        self.assertEqual(json_dump(reloading_info, separators=(',', ':')),
                          rel_brick_node.attrib.get('data-brick-reloading-info')
                         )
 

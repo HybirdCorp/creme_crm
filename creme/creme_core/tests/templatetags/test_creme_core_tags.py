@@ -338,12 +338,12 @@ class CremeCoreTagsTestCase(CremeTestCase):
         self._assertJsonifyFilter('""', '')
         self._assertJsonifyFilter('"test string"', 'test string')
     
-        self._assertJsonifyFilter('[1, 2, 3]', (1, 2, 3))
-        self._assertJsonifyFilter('[1, 2, 3]', [1, 2, 3])
-        self._assertJsonifyFilter('{"value": 1, "label": "a"}', {'value': 1, 'label':"a"})
+        self._assertJsonifyFilter('[1,2,3]', (1, 2, 3))
+        self._assertJsonifyFilter('[1,2,3]', [1, 2, 3])
+        self._assertJsonifyFilter('{"value":1,"label":"a"}', {'value': 1, 'label':"a"})
     
-        self._assertJsonifyFilter('[0, 1, 2]', (v for v in xrange(3)))
-        self._assertJsonifyFilter('[{"value": 0, "label": "a"}, {"value": 1, "label": "b"}, {"value": 2, "label": "c"}]',
+        self._assertJsonifyFilter('[0,1,2]', (v for v in xrange(3)))
+        self._assertJsonifyFilter('[{"value":0,"label":"a"},{"value":1,"label":"b"},{"value":2,"label":"c"}]',
                                   ({'value': value, 'label': label} for value, label in enumerate(['a', 'b', 'c']))
                                  )
 
@@ -359,9 +359,9 @@ class CremeCoreTagsTestCase(CremeTestCase):
             template = Template("{% load creme_core_tags %}{{data|optionize_model_iterable|jsonify|safe}}")
             render = template.render(Context({'data': orgas}))
 
-        self.assertEqual('[[%d, "%s"], [%d, "%s"]]' % (
-                                orga1.pk, unicode(orga1),
-                                orga2.pk, unicode(orga2)
+        self.assertEqual('[[{},"{}"],[{},"{}"]]'.format(
+                                orga1.id, orga1,
+                                orga2.id, orga2,
                             ),
                          render.strip()
                         )
@@ -370,9 +370,9 @@ class CremeCoreTagsTestCase(CremeTestCase):
             template = Template("{% load creme_core_tags %}{{data|optionize_model_iterable:'dict'|jsonify|safe}}")
             render = template.render(Context({'data': orgas}))
 
-        self.assertEqual("""[{"value": %d, "label": "%s"}, {"value": %d, "label": "%s"}]""" % (
-                                 orga1.pk, unicode(orga1),
-                                 orga2.pk, unicode(orga2)
+        self.assertEqual(u"""[{"value":%d,"label":"%s"},{"value":%d,"label":"%s"}]""" % (
+                                 orga1.pk, orga1,
+                                 orga2.pk, orga2,
                             ),
                          render.strip()
                         )

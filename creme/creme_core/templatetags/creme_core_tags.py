@@ -289,7 +289,9 @@ def optionize_model_iterable(iterable, type='tuple'):
 
 @register.filter
 def jsonify(value):
-    return json_dump(list(value) if isinstance(value, GeneratorType) else value)
+    return json_dump(list(value) if isinstance(value, GeneratorType) else value,
+                     separators=(',', ':')
+                    )
 
 
 # TODO: useless ?
