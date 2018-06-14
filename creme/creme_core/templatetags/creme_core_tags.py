@@ -29,7 +29,6 @@ import warnings
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import FieldDoesNotExist
 from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode
 from django.template.defaulttags import TemplateLiteral
 from django.utils.html import format_html_join
@@ -43,7 +42,6 @@ from ..models import CremeEntity, Relation
 from ..utils import safe_unicode, bool_as_html
 from ..utils.currency_format import currency
 from ..utils.media import get_creme_media_url
-from ..utils.meta import FieldInfo
 from ..utils.translation import plural
 from ..utils.unicode_collation import collator
 
@@ -109,9 +107,16 @@ def get_fieldtag(field, tag):
     return field.get_tag(tag)
 
 
-# TODO: deprecate in favor of {% cell_4_regularfield %} ??
 @register.simple_tag
 def get_field_verbose_name(model_or_entity, field_name):
+    warnings.warn('{% get_viewable_fields %} is deprecated ; '
+                  'use {% cell_4_regularfield %} from lib "creme_cells" instead.',
+                  DeprecationWarning
+                 )
+
+    from django.db.models import FieldDoesNotExist
+    from ..utils.meta import FieldInfo
+
     try:
         return FieldInfo(model_or_entity, field_name).verbose_name
     except FieldDoesNotExist as e:

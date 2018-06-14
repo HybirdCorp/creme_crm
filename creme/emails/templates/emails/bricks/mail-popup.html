@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/tiles.html' %}
-{% load i18n creme_core_tags creme_bricks creme_cells %}
+{% load i18n creme_bricks creme_cells %}{# creme_core_tags #}
 
 {% block brick_extra_class %}{{block.super}} brick-detailview-popup emails-email-brick{% endblock %}
 
@@ -28,7 +28,8 @@
 
     {% if object.body_html %}
     <div class="brick-tile brick-tile-multiline-value" data-type="html" data-key="regular_field-body_html">
-        <span class="brick-tile-name">{% get_field_verbose_name object 'body_html' %}</span>
+{#        <span class="brick-tile-name">{% get_field_verbose_name object 'body_html' %}</span> #}
+        <span class="brick-tile-name">{% cell_4_regularfield instance=object field='body_html' %}</span>
         {% if '<img ' in object.body_html %}
         <span class="emails-popup-brick-tile-body-html-action">
             {% brick_action id='email-toggle-images' label=_('View external images') __inlabel=_('View external images') __outlabel=_('Hide external images') display='text' %}

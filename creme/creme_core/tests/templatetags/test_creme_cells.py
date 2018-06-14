@@ -3,6 +3,7 @@
 try:
     from django.contrib.contenttypes.models import ContentType
     from django.template import Template, Context
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import Currency, FakeContact
     from creme.creme_core.core.entity_cell import EntityCellRegularField
@@ -14,6 +15,22 @@ except Exception as e:
 
 class CremeCellsTagsTestCase(CremeTestCase):
     def test_cell_4_regularfield01(self):
+        "By model"
+        with self.assertNoException():
+            template = Template(r'{% load creme_cells %}'
+                                r'{% cell_4_regularfield model=model1 field="name" as curr_cell %}'
+                                r"{% cell_4_regularfield model=model2 field='first_name' as contact_cell %}"
+                                r'{{curr_cell.key}}#{{contact_cell.key}}'
+                               )
+            render = template.render(Context({'model1': Currency,
+                                              'model2': FakeContact,
+                                             }))
+
+        self.assertEqual('regular_field-name#regular_field-first_name',
+                         render.strip()
+                        )
+
+    def test_cell_4_regularfield02(self):
         "By ContentType"
         get_ct = ContentType.objects.get_for_model
 
@@ -31,7 +48,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
                          render.strip()
                         )
 
-    def test_cell_4_regularfield02(self):
+    def test_cell_4_regularfield03(self):
         "By instance"
         user = self.login()
 
@@ -49,7 +66,21 @@ class CremeCellsTagsTestCase(CremeTestCase):
                          render.strip()
                         )
 
-    def test_cell_4_regularfield03(self):
+    def test_cell_4_regularfield04(self):
+        "No assignment"
+        user = self.login()
+
+        ripley = FakeContact(user=user, first_name='Helen', last_name='Ripley')
+
+        with self.assertNoException():
+            template = Template(r'{% load creme_cells %}'
+                                r'{% cell_4_regularfield instance=helen field="first_name" %}'
+                               )
+            render = template.render(Context({'helen': ripley}))
+
+        self.assertEqual(_(u'First name'), render.strip())
+
+    def test_cell_4_regularfield05(self):
         "Errors"
         # Invalid field
         with self.assertRaises(ValueError):

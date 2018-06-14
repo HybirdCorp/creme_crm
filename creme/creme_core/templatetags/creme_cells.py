@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017  Hybird
+#    Copyright (C) 2017-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,12 +46,26 @@ class RFieldCellNode(TemplateNode):
 
         if cell is None:
             # TODO: in EntityCellRegularField.build ??
-            raise ValueError("{{% cell_4_regularfield %}}: the field seems invalid "
-                             "(model={model}, field={field})".format(model=model, field=field_name)
+            raise ValueError('{{% cell_4_regularfield %}}: the field seems invalid '
+                             '(model={model}, field={field})'.format(model=model, field=field_name)
                             )
 
-        context[self.asvar_name] = cell
-        return ''
+        asvar_name = self.asvar_name
+
+        if asvar_name is not None:
+            context[asvar_name] = cell
+            return ''
+
+        return cell
+
+
+class ModelRFieldCellNode(RFieldCellNode):
+    def __init__(self, model_var, **kwargs):
+        super(ModelRFieldCellNode, self).__init__(**kwargs)
+        self.model_var = model_var
+
+    def _build_model(self, context):
+        return self.model_var.resolve(context)
 
 
 class CTypeRFieldCellNode(RFieldCellNode):
@@ -73,6 +87,7 @@ class InstanceRFieldCellNode(RFieldCellNode):
 
 
 _RFIELD_CELL_NODES = {
+    'model':    ('model_var',    ModelRFieldCellNode),
     'ctype':    ('ctype_var',    CTypeRFieldCellNode),
     'instance': ('instance_var', InstanceRFieldCellNode),
 }
@@ -83,21 +98,34 @@ def do_cell_4_regularfield(parser, token):
     """ Get an instance of EntityCellRegularField for a given model & a given field.
 
     The model can be pass as:
+     - a class (model=...).
      - an instance of ContentType (ctype=...).
      - an instance of this model (instance=...).
 
     The field is a string representing a 'chain' of fields; eg: 'book__author__name'.
 
     Examples:
+        {% cell_4_regularfield model=contact_cls field="phone" as phone_cell %}
         {% cell_4_regularfield ctype=my_ctype field='first_name' as fname_cell %}
         {% cell_4_regularfield instance=my_contact field="last_name" as lname_cell %}
-    """
-    bits = token.split_contents()
-    if len(bits) != 5:
-        raise TemplateSyntaxError('"{}" takes 2 arguments (ctype/instance=... & field=...), then "as my_var".'.format(bits[0]))
 
-    if bits[3] != 'as':
-        raise TemplateSyntaxError('Keyword "as" of "cell_4_regularfield" tag is missing.')
+    You are not obliged to assign a variable ; it's useful to print the verbose name of a field:
+        {% cell_4_regularfield instance=my_contact field='first_name' %}
+    """
+    asvar_name = None
+    bits = token.split_contents()
+    length = len(bits)
+
+    if length != 3:
+        if length != 5:
+            raise TemplateSyntaxError('"{}" takes 2 arguments (ctype/instance=... & field=...), '
+                                      '& then optionally "as my_var".'.format(bits[0])
+                                     )
+
+        if bits[3] != 'as':
+            raise TemplateSyntaxError('Keyword "as" of "cell_4_regularfield" tag is missing.')
+
+        asvar_name = bits[4]
 
     # First argument --------------
     match = KWARG_RE.match(bits[1])
@@ -122,7 +150,7 @@ def do_cell_4_regularfield(parser, token):
         raise TemplateSyntaxError('Invalid second argument of "cell_4_regularfield" tag ; it must be "field".')
 
     return rf_cell_node_cls(field_var=parser.compile_filter(sa_value),
-                            asvar_name=bits[4],
+                            asvar_name=asvar_name,
                             **{first_arg_name: parser.compile_filter(fa_value)}
                            )
 
