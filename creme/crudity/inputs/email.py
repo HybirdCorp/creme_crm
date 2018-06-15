@@ -259,7 +259,8 @@ class CreateInfopathInput(CreateEmailInput):
             except AttributeError:
                 continue
 
-            if data.has_key(tag):
+            # if data.has_key(tag):
+            if tag in data:
                 children = list(node)
 
                 if children:  # Multi-line

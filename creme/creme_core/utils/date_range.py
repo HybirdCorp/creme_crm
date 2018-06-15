@@ -307,7 +307,8 @@ class DateRangeRegistry(object):
         for drange in dranges:
             name = drange.name
 
-            if ranges_map.has_key(name):
+            # if ranges_map.has_key(name):
+            if name in ranges_map:
                 # TODO: exception instead ?
                 logger.warning("Duplicate date range's id or date range registered twice : %s", name)
 

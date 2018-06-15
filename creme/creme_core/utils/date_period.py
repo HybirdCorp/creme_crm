@@ -180,7 +180,8 @@ class DatePeriodRegistry(object):
         for period in periods:
             name = period.name
 
-            if periods_map.has_key(name):
+            # if periods_map.has_key(name):
+            if name in periods_map:
                 # TODO: exception instead ?
                 logger.warning("Duplicate date period's id or period registered twice : %s", name)
 
