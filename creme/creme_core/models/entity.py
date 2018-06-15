@@ -121,8 +121,9 @@ class CremeEntity(CremeModel):
         super(CremeEntity, self).__init__(*args, **kwargs)
 
         if self.pk is None:
-            has_arg = kwargs.has_key
-            if not has_arg('entity_type') and not has_arg('entity_type_id'):
+            # has_arg = kwargs.has_key
+            # if not has_arg('entity_type') and not has_arg('entity_type_id'):
+            if 'entity_type' not in kwargs and 'entity_type_id' not in kwargs:
                 self.entity_type = ContentType.objects.get_for_model(self)
 
         self._relations_map = {}

@@ -283,8 +283,10 @@ class UserSynchronizationHistory(CremeModel):
                                }
                 changes[k_change] = v_change
 
-            elif changes.has_key(k_change):
-                del changes[k_change]
+            # elif changes.has_key(k_change):
+            #     del changes[k_change]
+            else:
+                changes.pop(k_change, None)
 
         self.entity_changes = pickle.dumps(changes)
 
