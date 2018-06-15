@@ -8,7 +8,7 @@ class CleverCSS(Filter):
         super(CleverCSS, self).__init__(**kwargs)
         assert self.filetype == 'css', (
             'CleverCSS only supports compilation to css. '
-            'The parent filter expects "%s".' % self.filetype)
+            'The parent filter expects "{}".'.format(self.filetype))
         self.input_filetype = 'clevercss'
 
     def should_use_default_filter(self, ext):

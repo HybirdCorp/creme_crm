@@ -32,7 +32,7 @@ def generate_media():
             version = backend.generate_version(key, url, content)
             if version:
                 base, ext = os.path.splitext(url)
-                url = '%s-%s%s' % (base, version, ext)
+                url = '{}-{}{}'.format(base, version, ext)
 
             path = os.path.join(GENERATED_MEDIA_DIR, url)
 

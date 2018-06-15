@@ -58,7 +58,7 @@ class URLRewriter(object):
                             not IGNORE_PATTERN.match(rebased_url):
                         data = b64encode(open(path, 'rb').read())
                         mime = guess_type(path)[0] or 'application/octet-stream'
-                        return 'url(data:%s;base64,%s)' % (mime, data)
+                        return 'url(data:{};base64,{})'.format(mime, data)
 
                 url = media_url(rebased_url)
             # except:
@@ -75,7 +75,7 @@ class URLRewriter(object):
         else:
             url_query = '?' + url_query
 
-        return 'url(%s%s%s)' % (url, url_query, hashid)
+        return 'url({}{}{})'.format(url, url_query, hashid)
 
 
 class CSSURL(Filter):
@@ -84,7 +84,7 @@ class CSSURL(Filter):
         super(CSSURL, self).__init__(**kwargs)
         assert self.filetype == 'css', (
             'CSSURL only supports CSS output. '
-            'The parent filter expects "%s".' % self.filetype)
+            'The parent filter expects "{}".'.format(self.filetype))
 
     def get_output(self, variation):
         rewriter = URLRewriter()

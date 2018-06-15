@@ -27,7 +27,7 @@ class Filter(object):
             if not isinstance(self.input, (tuple, list)):
                 self.input = (self.input,)
         self._input_filters = None
-        assert not kwargs, 'Unknown parameters: %s' % ', '.join(kwargs.keys())
+        assert not kwargs, 'Unknown parameters: {}'.format(', '.join(kwargs.keys()))
 
     @classmethod
     def from_default(cls, name):
@@ -66,7 +66,7 @@ class Filter(object):
         # By default we simply return our input filters' file names
         for index, filter in enumerate(self.get_input_filters()):
             for name, hash in filter.get_dev_output_names(variation):
-                yield '%d/%s' % (index, name), hash
+                yield '{}/{}'.format(index, name), hash
 
     def get_input(self, variation):
         """Yields contents for each input item."""
@@ -77,17 +77,23 @@ class Filter(object):
     def get_input_filters(self):
         """Returns a Filter instance for each input item."""
         if not self.takes_input:
-            raise ValueError("The %s media filter doesn't take any input" %
-                             self.__class__.__name__)
+            raise ValueError("The {} media filter doesn't take any input".format(
+                                self.__class__.__name__,
+            ))
+
         if self._input_filters is not None:
             return self._input_filters
+
         self._input_filters = []
+
         for input in self.input:
             if isinstance(input, dict):
                 filter = self.get_filter(input)
             else:
                 filter = self.get_item(input)
+
             self._input_filters.append(filter)
+
         return self._input_filters
 
     def get_filter(self, config):
@@ -104,13 +110,15 @@ class Filter(object):
 
         config = backend_class.from_default(name)
         config.setdefault('filter',
-            '%s.%s' % (backend_class.__module__, backend_class.__name__))
+                          '{}.{}'.format(backend_class.__module__, backend_class.__name__)
+        )
         config.setdefault('filetype', self.input_filetype)
         config['bundle'] = self.bundle
         # This is added to make really sure we don't instantiate the same
         # filter in an endless loop. Normally, the child class should
         # take care of this in should_use_default_filter().
         config.setdefault('_from_default', ext)
+
         return backend_class(**config)
 
     def _get_variations_with_input(self):
@@ -123,8 +131,9 @@ class Filter(object):
             subvariations = filter._get_variations_with_input()
             for k, v in subvariations.items():
                 if k in variations and v != variations[k]:
-                    raise ValueError('Conflicting variations for "%s": %r != %r' % (
-                        k, v, variations[k]))
+                    raise ValueError('Conflicting variations for "{}": {!r} != {!r}'.format(
+                                        k, v, variations[k],
+                    ))
             variations.update(subvariations)
         return variations
 
@@ -151,8 +160,9 @@ class FileFilter(Filter):
 
     def get_dev_output(self, name, variation):
         assert name == self.name, (
-            '''File name "%s" doesn't match the one in GENERATE_MEDIA ("%s")'''
-            % (name, self.name))
+            '''File name "{}" doesn't match the one in GENERATE_MEDIA ("{}")'''.format(
+                name, self.name)
+        )
         return read_text_file(self._get_path())
 
     def get_dev_output_names(self, variation):
@@ -167,7 +177,7 @@ class FileFilter(Filter):
 
     def _get_path(self):
         path = find_file(self.name)
-        assert path, """File name "%s" doesn't exist.""" % self.name
+        assert path, """File name "{}" doesn't exist.""".format(self.name)
         return path
 
 
@@ -180,8 +190,7 @@ class RawFileFilter(FileFilter):
 
     def get_dev_output(self, name, variation):
         assert name == self.name, (
-            '''File name "%s" doesn't match the one in GENERATE_MEDIA ("%s")'''
-            % (name, self.name))
+            '''File name "{}" doesn't match the one in GENERATE_MEDIA ("{}")'''.format(name, self.name))
         return read_text_file(self.path)
 
     def get_dev_output_names(self, variation):
@@ -191,4 +200,5 @@ class RawFileFilter(FileFilter):
             hash = sha1(smart_str(output)).hexdigest()
         else:
             hash = self.hash
+
         yield self.name, hash

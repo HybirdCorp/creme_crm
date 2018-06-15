@@ -47,8 +47,7 @@ class MediaMiddleware(MiddlewareMixin):
         try:
             backend = _backend_mapping[filename]
         except KeyError:
-            raise Http404('The mediagenerator could not find the media file "%s"'
-                          % filename)
+            raise Http404('The mediagenerator could not find the media file "{}"'.format(filename))
 
         content, mimetype = backend.get_dev_output(filename)
         if not mimetype:

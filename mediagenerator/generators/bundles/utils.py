@@ -38,7 +38,7 @@ def _load_root_filter_uncached(bundle):
             input = items[1:]
             break
     else:
-        raise ValueError('Could not find media bundle "%s"' % bundle)
+        raise ValueError('Could not find media bundle "{}"'.format(bundle))
 
     filetype = os.path.splitext(bundle)[-1].lstrip('.')
     root_filters = _get_root_filters_list(filetype)
@@ -76,21 +76,24 @@ def _render_include_media(bundle, variation):
         variation_map = [(key, variation.pop(key)) for key in sorted(variations.keys())]
 
         if variation:
-            raise ValueError('Bundle %s does not support the following variation(s): %s'
-                             % (bundle, ', '.join(variation.keys())))
+            raise ValueError('Bundle {} does not support the following variation(s): {}'.format(
+                                bundle, ', '.join(variation.keys())
+            ))
     else:
         variation_map = tuple((key, variation[key]) for key in sorted(variation.keys()))
 
     urls = media_urls(_get_key(bundle, variation_map))
+    ctxt = {}
 
     if filetype == 'css':
         if media_types:
-            tag = u'<link rel="stylesheet" type="text/css" href="%%s" media="%s" />' % media_types
+            tag = u'<link rel="stylesheet" type="text/css" href="{url}" media="{media}" />'
+            ctxt['media'] = media_types
         else:
-            tag = u'<link rel="stylesheet" type="text/css" href="%s" />'
+            tag = u'<link rel="stylesheet" type="text/css" href="{url}" />'
     elif filetype == 'js':
-        tag = u'<script type="text/javascript" src="%s"></script>'
+        tag = u'<script type="text/javascript" src="{url}"></script>'
     else:
-        raise ValueError("""Don't know how to include file type "%s".""" % filetype)
+        raise ValueError("""Don't know how to include file type "{}".""".format(filetype))
 
-    return '\n'.join(tag % url for url in urls)
+    return '\n'.join(tag.format(url=url, **ctxt) for url in urls)
