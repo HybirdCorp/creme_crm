@@ -9,7 +9,7 @@ class YUICompressor(Filter):
         super(YUICompressor, self).__init__(**kwargs)
         assert self.filetype in ('css', 'js'), (
             'YUICompressor only supports compilation to css and js. '
-            'The parent filter expects "%s".' % self.filetype)
+            'The parent filter expects "{}".'.format(self.filetype))
 
     def get_output(self, variation):
         # We import this here, so App Engine Helper users don't get import errors.
@@ -24,7 +24,7 @@ class YUICompressor(Filter):
                             universal_newlines=True)
                 output, error = cmd.communicate(smart_str(input))
 
-                assert cmd.wait() == 0, 'Command returned bad result:\n%s' % error
+                assert cmd.wait() == 0, 'Command returned bad result:\n{}'.format(error)
 
                 yield output.decode('utf-8')
             except Exception as e:
@@ -33,5 +33,5 @@ class YUICompressor(Filter):
                     "Please make sure that you have installed Java "
                     "and that it's in your PATH and that you've configured "
                     "YUICOMPRESSOR_PATH in your settings correctly.\n"
-                    "Error was: %s" % e
+                    "Error was: {}".format(e)
                 )

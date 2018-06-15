@@ -22,7 +22,7 @@ class I18N(Filter):
         super(I18N, self).__init__(**kwargs)
         assert self.filetype == 'js', (
             'I18N only supports compilation to js. '
-            'The parent filter expects "%s".' % self.filetype)
+            'The parent filter expects "{}".'.format(self.filetype))
 
     def get_variations(self):
         return {'language': LANGUAGES}
@@ -67,7 +67,7 @@ class I18N(Filter):
         # request.GET['language'] = language
 
         # Add some JavaScript data
-        content = 'var LANGUAGE_CODE = "%s";\n' % language
+        content = 'var LANGUAGE_CODE = "{}";\n'.format(language)
         content += 'var LANGUAGE_BIDI = ' + \
             (language_bidi and 'true' or 'false') + ';\n'
 

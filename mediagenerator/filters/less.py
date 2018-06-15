@@ -73,9 +73,8 @@ class Less(Filter):
 
         assert self.filetype == 'css', (
             'Less only supports compilation to CSS. '
-            'The parent filter expects "%s".' % self.filetype)
-        assert self.main_module, \
-            'You must provide a main module'
+            'The parent filter expects "{}".'.format(self.filetype))
+        assert self.main_module, 'You must provide a main module'
 
         # lessc can't cope with nonexistent directories, so filter them
         media_dirs = [directory for directory in get_media_dirs()
@@ -123,7 +122,7 @@ class Less(Filter):
 
             module_name = modules.pop()
             path = self._find_file(module_name)
-            assert path, 'Could not find the Less module %s' % module_name
+            assert path, 'Could not find the Less module {}'.format(module_name)
             mtime = os.path.getmtime(path)
             self._dependencies[module_name] = mtime
 
@@ -138,8 +137,10 @@ class Less(Filter):
                     name = transformed
                 else:
                     path = self._find_file(name)
-                assert path, ('The Less module %s could not find the '
-                              'dependency %s' % (module_name, name))
+
+                assert path, 'The Less module {} could not find the dependency {}'.format(
+                                module_name, name)
+
                 if name not in self._dependencies:
                     modules.append(name)
 
@@ -155,7 +156,7 @@ class Less(Filter):
             shell = sys.platform == 'win32'
 
             cmd = Popen(['lessc',
-                         '--include-path=%s' % ':'.join(relative_paths),
+                         '--include-path={}'.format(':'.join(relative_paths)),
                          path],
                         stdin=PIPE, stdout=PIPE, stderr=PIPE,
                         shell=shell, universal_newlines=True,
@@ -163,8 +164,8 @@ class Less(Filter):
             output, error = cmd.communicate()
 
             # some lessc errors output to stdout, so we put both in the assertion message
-            assert cmd.wait() == 0, ('Less command returned bad '
-                                     'result:\n%s\n%s' % (error, output))
+            assert cmd.wait() == 0, 'Less command returned bad result:\n{}\n{}'.format(
+                                        error, output)
             return output.decode('utf-8')
         except Exception as e:
             raise ValueError(
@@ -172,7 +173,7 @@ class Less(Filter):
                 "file. Please confirm that the \"lessc\" application is "
                 "on your path and that you can run it from your own command "
                 "line.\n"
-                "Error was: %s" % e
+                "Error was: {}".format(e)
             )
 
     def _get_dependencies(self, source):

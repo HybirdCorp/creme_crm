@@ -27,9 +27,11 @@ class Manifest(Generator):
             config = {'cache': (config,)}
 
         cache_pattern = prepare_patterns(get_tuple(config, 'cache', '.*'),
-                                         'OFFLINE_MANIFEST[%s]' % name)
+                                         'OFFLINE_MANIFEST[{}]'.format(name),
+                                        )
         exclude = prepare_patterns(get_tuple(config, 'exclude'),
-                                   "OFFLINE_MANIFEST[%s]['exclude']" % name)
+                                   "OFFLINE_MANIFEST[{}]['exclude']".format(name),
+                                  )
         cache = set()
         for item in get_media_mapping().keys():
             if cache_pattern.match(item) and not exclude.match(item):
