@@ -290,6 +290,9 @@ class NotEmptyRange(DateRange):
 
 
 class DateRangeRegistry(object):
+    class RegistrationError(Exception):
+        pass
+
     def __init__(self, *dranges):
         self._ranges = OrderedDict()
         self.register(*dranges)
@@ -309,8 +312,8 @@ class DateRangeRegistry(object):
 
             # if ranges_map.has_key(name):
             if name in ranges_map:
-                # TODO: exception instead ?
-                logger.warning("Duplicate date range's id or date range registered twice : %s", name)
+                # logger.warning("Duplicate date range's id or date range registered twice : %s", name)
+                raise self.RegistrationError("Duplicate date range's id or date range registered twice : {}".format(name))
 
             ranges_map[name] = drange
 
