@@ -20,7 +20,7 @@
 
 from __future__ import absolute_import  # For collections...
 
-import logging
+# import logging
 from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
@@ -29,7 +29,7 @@ from dateutil.rrule import rrule, YEARLY, MONTHLY, WEEKLY, DAILY, HOURLY, MINUTE
 from django.utils.translation import ugettext_lazy as _, ungettext
 
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 
 class DatePeriod(object):
@@ -146,6 +146,9 @@ class YearsPeriod(SimpleValueDatePeriod):
 
 
 class DatePeriodRegistry(object):
+    class RegistrationError(Exception):
+        pass
+
     def __init__(self, *periods):
         self._periods = OrderedDict()
         self.register(*periods)
@@ -182,8 +185,8 @@ class DatePeriodRegistry(object):
 
             # if periods_map.has_key(name):
             if name in periods_map:
-                # TODO: exception instead ?
-                logger.warning("Duplicate date period's id or period registered twice : %s", name)
+                # logger.warning("Duplicate date period's id or period registered twice : %s", name)
+                raise self.RegistrationError("Duplicate date period's id or period registered twice : {}".format(name))
 
             periods_map[name] = period
 
