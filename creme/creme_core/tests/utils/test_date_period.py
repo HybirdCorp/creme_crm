@@ -6,13 +6,26 @@ try:
     from django.utils.translation import ugettext as _, ungettext
 
     from ..base import CremeTestCase
-    from creme.creme_core.utils.date_period import (date_period_registry, MonthsPeriod,
-                MinutesPeriod, HoursPeriod)
+    from creme.creme_core.utils.date_period import (DatePeriodRegistry, date_period_registry,
+        MinutesPeriod, HoursPeriod, DaysPeriod, WeeksPeriod, MonthsPeriod, YearsPeriod)
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
 
 class DatePeriodTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(DatePeriodTestCase, cls).setUpClass()
+
+        cls.registry = DatePeriodRegistry(
+                MinutesPeriod,
+                HoursPeriod,
+                DaysPeriod,
+                WeeksPeriod,
+                MonthsPeriod,
+                YearsPeriod,
+        )
+
     def _get_comparable_data(self, rrule):
         rrule__dict__ = rrule.__dict__
         rrule__dict__.pop('_bysecond')
@@ -25,8 +38,37 @@ class DatePeriodTestCase(CremeTestCase):
                          self._get_comparable_data(rrule2)
                         )
 
+    def test_registry01(self):
+        "Register in __init__"
+        registry = DatePeriodRegistry(MinutesPeriod, HoursPeriod)
+
+        period1 = registry.get_period(MinutesPeriod.name, 1)
+        self.assertIsInstance(period1, MinutesPeriod)
+
+        period2 = registry.get_period(HoursPeriod.name, 1)
+        self.assertIsInstance(period2, HoursPeriod)
+
+        self.assertIsNone(registry.get_period('invalid', 1))
+
+    def test_registry02(self):
+        "register() method"
+        registry = DatePeriodRegistry()
+        registry.register(DaysPeriod, WeeksPeriod)
+
+        period = registry.get_period(DaysPeriod.name, 1)
+        self.assertIsInstance(period, DaysPeriod)
+
+        self.assertIsNone(registry.get_period(MinutesPeriod.name, 1))
+
+    def test_registry03(self):
+        "Duplicates"
+        registry = DatePeriodRegistry()
+
+        with self.assertRaises(registry.RegistrationError):
+            registry.register(DaysPeriod, WeeksPeriod, DaysPeriod)
+
     def test_hours(self):
-        get = date_period_registry.get_period
+        get = self.registry.get_period
         every_hour = get('hours', 1)
         rrule_every_hour = rrule(HOURLY, interval=1)
         self.assertIsNotNone(every_hour)
@@ -55,7 +97,7 @@ class DatePeriodTestCase(CremeTestCase):
         self.assertRRuleEqual(rrule_every_3hours, every_3hours.as_rrule())
 
     def test_minutes(self):
-        get = date_period_registry.get_period
+        get = self.registry.get_period
         every_3minutes = get('minutes', 3)
         rrule_every_3minutes = rrule(MINUTELY, interval=3)
         self.assertIsNotNone(every_3minutes)
@@ -72,7 +114,7 @@ class DatePeriodTestCase(CremeTestCase):
         self.assertRRuleEqual(rrule_every_3minutes, every_3minutes.as_rrule())
 
     def test_days(self):
-        get = date_period_registry.get_period
+        get = self.registry.get_period
         every_day = get('days', 1)
         rrule_every_day = rrule(DAILY, interval=1)
         self.assertIsNotNone(every_day)
@@ -99,7 +141,7 @@ class DatePeriodTestCase(CremeTestCase):
         self.assertRRuleEqual(rrule_every_5days, every_5days.as_rrule())
 
     def test_years(self):
-        get = date_period_registry.get_period
+        get = self.registry.get_period
         every_year = get('years', 1)
         rrule_every_year = rrule(YEARLY, interval=1)
         self.assertIsNotNone(every_year)
@@ -132,7 +174,7 @@ class DatePeriodTestCase(CremeTestCase):
 
 
     def test_months(self):
-        get = date_period_registry.get_period
+        get = self.registry.get_period
         every_month = get('months', 1)
         rrule_every_month = rrule(MONTHLY, interval=1)
         self.assertIsNotNone(every_month)
@@ -155,7 +197,7 @@ class DatePeriodTestCase(CremeTestCase):
         #                 )
 
     def test_weeks(self):
-        get = date_period_registry.get_period
+        get = self.registry.get_period
         every_week = get('weeks', 1)
         rrule_every_week = rrule(WEEKLY, interval=1)
         self.assertIsNotNone(every_week)
@@ -172,7 +214,7 @@ class DatePeriodTestCase(CremeTestCase):
         self.assertRRuleEqual(rrule_every_week, every_week.as_rrule())
 
     def test_deserialize(self):
-        get = date_period_registry.deserialize
+        get = self.registry.deserialize
         period = get({'type': 'months', 'value': 2})
         self.assertIsInstance(period, MonthsPeriod)
 
@@ -186,10 +228,15 @@ class DatePeriodTestCase(CremeTestCase):
                          now_value + get({'type': 'days', 'value': 3}).as_timedelta()
                         )
 
-    def test_choices(self):
-        choices = list(date_period_registry.choices())
-        self.assertGreaterEqual(len(choices), 6)
+    def test_choices01(self):
+        choices = list(self.registry.choices())
+        self.assertEqual(len(choices), 6)
         self.assertEqual(('minutes', _('Minute(s)')), choices[0])
+
+    def test_choices02(self):
+        "Global registry"
+        choices = list(date_period_registry.choices())
+        self.assertEqual(len(choices), 6)
 
     def test_eq(self):
         self.assertNotEqual(MinutesPeriod(value=1), HoursPeriod(value=2))
