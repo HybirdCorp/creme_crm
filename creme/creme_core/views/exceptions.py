@@ -22,7 +22,7 @@
 
 from django.http import HttpResponseForbidden
 from django.template.loader import render_to_string
-from django.utils.encoding import smart_unicode
+from django.utils.encoding import smart_text
 from django.views.decorators.csrf import requires_csrf_token
 
 
@@ -43,13 +43,13 @@ def permission_denied(request, exception, template_name='creme_core/forbidden.ht
     args = exception.args
 
     if len(args) > 1:
-        msg = smart_unicode(args[0])
+        msg = smart_text(args[0])
         arg = args[1]
 
         if isinstance(arg, dict):
             protected_objects = arg.get('protected_objects')
     else:
-        msg = smart_unicode(exception)
+        msg = smart_text(exception)
 
     return HttpResponseForbidden(render_to_string(template_name,
                                                   {'error_message':     msg,

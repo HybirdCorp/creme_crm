@@ -27,7 +27,7 @@ from django.db.models.deletion import ProtectedError
 from django.db.utils import IntegrityError
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.utils.encoding import smart_unicode
+from django.utils.encoding import smart_text
 from django.utils.translation import ugettext_lazy as _ #TODO: ugettext instead ??
 
 from creme.creme_core.models.entity import CremeEntity
@@ -84,7 +84,7 @@ class AirSync(Base):
                             c_field = c_field(needs_attr=True)
 
                         if c_field and c_field.strip() != '':
-                            data[c_field] = smart_unicode(d.text)
+                            data[c_field] = smart_text(d.text)
         else:
             for ns, field_dict in mapping.iteritems():
                 for c_field, x_field in field_dict.iteritems():
@@ -308,7 +308,7 @@ class AirSync(Base):
                                     if callable(c_field):
                                         c_field = c_field(needs_attr=True)
 
-                                    update_data[c_field] = smart_unicode(node.text)
+                                    update_data[c_field] = smart_text(node.text)
                     else:
                         for ns, field_dict in mapping.iteritems():
                             for c_field, x_field in field_dict.iteritems():
