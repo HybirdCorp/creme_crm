@@ -115,7 +115,7 @@ class FileCreator(object):
         dir_path = self.dir_path
         if not exists(dir_path):
             try:
-                os.makedirs(dir_path, 0755)
+                os.makedirs(dir_path, 0o755)
             except os.error as e:
                 if not exists(dir_path):
                     logger.warn('Cannot create directory %s (%s)', dir_path, e)
