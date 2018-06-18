@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.forms import ModelMultipleChoiceField
-from django.utils.encoding import smart_unicode
+from django.utils.encoding import smart_text
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import RelationType
@@ -31,7 +31,7 @@ from ..models import RootNode
 
 class RelationTypeMultipleChoiceField(ModelMultipleChoiceField):
     def label_from_instance(self, obj):
-        return smart_unicode(obj.predicate)
+        return smart_text(obj.predicate)
 
 
 class AddRootNodesForm(CremeForm):

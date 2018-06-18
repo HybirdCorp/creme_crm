@@ -33,7 +33,7 @@ from django.core.validators import validate_email
 from django.db.models.query import QuerySet, Q
 from django.forms import fields, widgets, ValidationError, ModelChoiceField
 from django.urls import reverse
-from django.utils.encoding import smart_unicode
+from django.utils.encoding import smart_text
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from ..auth.entity_credentials import EntityCredentials
@@ -1140,7 +1140,7 @@ class AjaxChoiceField(fields.ChoiceField):
 
             value = u''
 
-        return smart_unicode(value)
+        return smart_text(value)
 
 
 class AjaxMultipleChoiceField(fields.MultipleChoiceField):
@@ -1162,7 +1162,7 @@ class AjaxMultipleChoiceField(fields.MultipleChoiceField):
                                   code='invalid_list',
                                  )
 
-        return [smart_unicode(val) for val in value]
+        return [smart_text(val) for val in value]
 
 
 class AjaxModelChoiceField(ModelChoiceField):

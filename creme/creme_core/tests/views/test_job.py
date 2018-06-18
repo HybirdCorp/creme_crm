@@ -8,7 +8,7 @@ try:
     from django.db.models import Max
     from django.test.utils import override_settings
     from django.urls import reverse
-    from django.utils.encoding import smart_unicode
+    from django.utils.encoding import smart_text
     from django.utils.formats import date_format
     from django.utils.timezone import localtime, now
     from django.utils.translation import ugettext as _, ungettext
@@ -50,7 +50,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     # TODO: move to base class ?
     def _assertCount(self, response, found, count):
-        self.assertEqual(count, smart_unicode(response.content).count(found))
+        self.assertEqual(count, smart_text(response.content).count(found))
 
     def _build_enable_url(self, job):
         return reverse('creme_core__enable_job', args=(job.id,))

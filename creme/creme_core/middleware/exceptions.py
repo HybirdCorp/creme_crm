@@ -25,7 +25,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, Http404
 from django.shortcuts import render
 from django.utils.deprecation import MiddlewareMixin
-from django.utils.encoding import smart_unicode
+from django.utils.encoding import smart_text
 
 from creme.creme_core.core.exceptions import ConflictError
 
@@ -77,7 +77,7 @@ class _AlternativeErrorMiddleware(MiddlewareMixin):
 
     def process_exception(self, request, exception):
         if self.error is None or isinstance(exception, self.error):
-            msg = smart_unicode(exception)
+            msg = smart_text(exception)
 
             if request.is_ajax():
                 if self.log_ajax:

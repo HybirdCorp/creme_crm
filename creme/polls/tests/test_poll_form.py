@@ -7,7 +7,7 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
-    from django.utils.encoding import smart_unicode
+    from django.utils.encoding import smart_text
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.views.base import BrickTestCaseMixin
@@ -344,7 +344,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertStillExists(sub_section2)
         self.assertStillExists(line)
         self.assertEqual(_(u'There is at least one question in this section.'),
-                         smart_unicode(response.content)
+                         smart_text(response.content)
                         )
 
     def test_add_line_string01(self):
@@ -1583,7 +1583,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertFalse(self.assertStillExists(line2).disabled)
         self.assertStillExists(cond)
         self.assertEqual(_(u'There is at least one other question which depends on this question.'),
-                         smart_unicode(response.content)
+                         smart_text(response.content)
                         )
 
     def test_delete_line01(self):
@@ -1659,7 +1659,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertStillExists(line2)
         self.assertStillExists(cond)
         self.assertEqual(_(u'There is at least one other question which depends on this question.'),
-                         smart_unicode(response.content)
+                         smart_text(response.content)
                         )
 
     def test_get_choices01(self):

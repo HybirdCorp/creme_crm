@@ -10,7 +10,7 @@ try:
     from django.template.defaultfilters import slugify
     from django.test.utils import override_settings
     from django.urls import reverse
-    from django.utils.encoding import smart_unicode
+    from django.utils.encoding import smart_text
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _, ungettext
 
@@ -1239,7 +1239,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         separator = u','
 
         return [[i[1:-1] for i in line.split(separator)]
-                    for line in smart_unicode(response.content).splitlines()
+                    for line in smart_text(response.content).splitlines()
                ]
 
     def test_dl_errors01(self):

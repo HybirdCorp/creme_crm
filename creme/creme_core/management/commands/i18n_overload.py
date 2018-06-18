@@ -33,7 +33,7 @@ import pytz
 from django.apps import apps
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
-from django.utils.encoding import smart_unicode
+from django.utils.encoding import smart_text
 
 
 APP_NAME = 'locale_overload'  # TODO: can configure it with command options ??
@@ -178,7 +178,7 @@ class Command(BaseCommand):
                                                     .localize(datetime.now()) \
                                                     .strftime('%Y-%m-%d %H:%M%z')
 
-        terms = [smart_unicode(arg) for arg in args]
+        terms = [smart_text(arg) for arg in args]
         entry_count = 0
 
         for app_pofile in self._iter_pofiles(language, polib, file_name):

@@ -21,7 +21,7 @@
 from django.core.validators import validate_email
 from django.forms import ValidationError, FileField
 from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import smart_unicode
+from django.utils.encoding import smart_text
 
 from creme.creme_core.forms import CremeForm, FieldBlockManager
 from creme.creme_core.forms.fields import MultiEmailField
@@ -92,7 +92,7 @@ class MailingListAddCSVForm(CremeForm):
     @staticmethod
     def filter_mail_chunk(value):
         # result = smart_unicode(value)
-        result = smart_unicode(value.strip())
+        result = smart_text(value.strip())
 
         try:
             validate_email(result)

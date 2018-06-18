@@ -29,7 +29,7 @@ from django.db.transaction import atomic
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
-from django.utils.encoding import smart_unicode
+from django.utils.encoding import smart_text
 from django.utils.timezone import now, localtime
 from django.utils.translation import ugettext as _
 
@@ -91,7 +91,7 @@ def lw_exceptions(view):
         return render(request, 'mobile/error.html',
                       {'status':    status,
                        'msg':       msg,
-                       'exception': smart_unicode(e),
+                       'exception': smart_text(e),
                       },
                       status=status,
                      )
