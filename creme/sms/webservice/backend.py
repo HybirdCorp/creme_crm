@@ -105,12 +105,12 @@ class WSBackEnd(object):
         try:
             # get from urllib2 ugly code ! (see urllib2.urlopen())
             return self.opener.open(request)
-        except HTTPError, err:
+        except HTTPError as err:
             if err.code is not code:
                 raise WSException('Request send error', err)
 
             return err.read()
-        except URLError, err:
+        except URLError as err:
             raise WSException('Request send error', err)
 
     def _encode(self, data):

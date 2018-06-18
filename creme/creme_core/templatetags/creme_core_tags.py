@@ -360,17 +360,17 @@ def do_templatize(parser, token):
         # Splitting by None == splitting by spaces.
         tag_name, arg = token.contents.split(None, 1)
     except ValueError:
-        raise TemplateSyntaxError, '{!r} tag requires arguments'.format(token.contents.split()[0])
+        raise TemplateSyntaxError('{!r} tag requires arguments'.format(token.contents.split()[0]))
 
     match = _templatize_re.search(arg)
     if not match:
-        raise TemplateSyntaxError, '{!r} tag had invalid arguments: {!r}'.format(tag_name, arg)
+        raise TemplateSyntaxError('{!r} tag had invalid arguments: {!r}'.format(tag_name, arg))
 
     template_string, var_name = match.groups()
 
     first_char = template_string[0]
     if not (first_char == template_string[-1] and first_char in ('"', "'")):
-        raise TemplateSyntaxError, "{!r} tag's argument should be in quotes".format(tag_name)
+        raise TemplateSyntaxError("{!r} tag's argument should be in quotes".format(tag_name))
 
     return TemplatizeNode(template_string[1:-1], var_name)
 
