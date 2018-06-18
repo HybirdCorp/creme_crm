@@ -633,7 +633,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         alert1 = alerts[0]
         self.assertEqual(_('Alert of activity'), alert1.title)
         self.assertEqual(_(u'Alert related to {activity}').format(activity=act), alert1.description)
-        self.assertEqual(create_dt(2010, 2, 10, 10, 05), alert1.trigger_date)
+        self.assertEqual(create_dt(2010, 2, 10, 10, 5), alert1.trigger_date)
 
         self.assertEqual(create_dt(2010, 1, 8, 0, 0), alerts[1].trigger_date)
 
