@@ -2,7 +2,7 @@ import os
 import sys
 
 from django.conf import settings
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 
 __main__ = sys.modules.get('__main__')
 
@@ -31,7 +31,7 @@ MEDIA_GENERATORS = getattr(settings, 'MEDIA_GENERATORS', (
 _global_media_dirs = getattr(settings, 'GLOBAL_MEDIA_DIRS',
                              getattr(settings, 'STATICFILES_DIRS', ()))
 GLOBAL_MEDIA_DIRS = [
-    os.path.normcase(os.path.normpath(force_unicode(path)))
+    os.path.normcase(os.path.normpath(force_text(path)))
                      for path in _global_media_dirs
 ]
 

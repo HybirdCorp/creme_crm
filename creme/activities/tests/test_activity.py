@@ -10,7 +10,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.forms.utils import ValidationError
     from django.urls import reverse
-    from django.utils.encoding import force_unicode
+    from django.utils.encoding import force_text
     from django.utils.formats import date_format
     # from django.utils.html import escape
     from django.utils.timezone import now
@@ -2391,7 +2391,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                          response['Content-Disposition']
                         )
 
-        content = force_unicode(response.content)
+        content = force_text(response.content)
         self.assertTrue(content.startswith('BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//CremeCRM//CremeCRM//EN\n'
                                            'BEGIN:VEVENT\n'
                                            'UID:http://cremecrm.com\n'

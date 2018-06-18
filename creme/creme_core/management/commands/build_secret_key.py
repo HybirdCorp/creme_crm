@@ -53,7 +53,7 @@ class Command(BaseCommand):
             from hashlib import sha256
             from time import time
 
-            from django.utils.encoding import force_unicode
+            from django.utils.encoding import force_text
 
             choice = random.choice
 
@@ -70,7 +70,7 @@ class Command(BaseCommand):
 
             random.seed(
                 sha256((
-                   u'{}{}{}'.format(random.getstate(), time(), force_unicode(kb_seed))).encode('utf-8')
+                   u'{}{}{}'.format(random.getstate(), time(), force_text(kb_seed))).encode('utf-8')
                 ).digest()
             )
 
