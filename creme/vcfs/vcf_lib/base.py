@@ -691,7 +691,7 @@ def getLogicalLines(fp, allowQP=True, findBegin=False):
                     except UnicodeDecodeError:
                         pass
                 else:
-                    raise ParseError, 'Could not find BEGIN when trying to determine encoding'
+                    raise ParseError('Could not find BEGIN when trying to determine encoding')
         else:
             val = bytes
 
