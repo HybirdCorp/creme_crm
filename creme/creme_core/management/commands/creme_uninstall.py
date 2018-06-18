@@ -30,7 +30,7 @@ from django.core.management.base import AppCommand, CommandError
 from django.db import connections, DEFAULT_DB_ALIAS
 from django.db.migrations.recorder import MigrationRecorder
 from django.dispatch import receiver
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 
 from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.gui.bricks import Brick
@@ -463,7 +463,7 @@ class Command(AppCommand):
                 self.stderr.write(u' [KO] Original error: {error}.\n'
                                   u'Remaining tables:\n'
                                   u'{models}\n'.format(
-                                        error=force_unicode(e),  # PostGreSQL returns localized errors...
+                                        error=force_text(e),  # PostGreSQL returns localized errors...
                                         models=u'\n'.join(model._meta.db_table for model in models),
                                     )
                                  )

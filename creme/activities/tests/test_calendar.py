@@ -7,7 +7,7 @@ try:
 
     from django.core.exceptions import ValidationError
     from django.urls import reverse
-    from django.utils.encoding import force_unicode
+    from django.utils.encoding import force_text
     from django.utils.html import escape
     from django.utils.timezone import make_naive, get_current_timezone
     from django.utils.translation import ugettext as _
@@ -305,7 +305,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         # self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual('application/json', response['Content-Type'])
         self.assertEqual(_('You are not allowed to delete this calendar.'),
-                         force_unicode(response.content)
+                         force_text(response.content)
                         )
 
         self.get_object_or_fail(Calendar, pk=cal.pk)

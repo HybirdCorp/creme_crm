@@ -14,7 +14,7 @@ try:
     from django.db.models import Q
     from django.test.utils import override_settings
     from django.urls import reverse
-    from django.utils.encoding import force_unicode
+    from django.utils.encoding import force_text
     from django.utils.formats import date_format
     from django.utils.timezone import localtime
     from django.utils.translation import ugettext as _
@@ -189,7 +189,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         response = self.assertGET200(self._build_contact_dl_url(header=True))
 
         self.assertEqual([u','.join(u'"{}"'.format(hfi.title) for hfi in cells)],
-                         [force_unicode(line) for line in response.content.splitlines()]
+                         [force_text(line) for line in response.content.splitlines()]
                         )
         self.assertFalse(HistoryLine.objects.exclude(id__in=existing_hline_ids))
 
@@ -226,7 +226,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         # TODO: sort the relations/properties by they verbose_name ??
         result = response.content.splitlines()
-        it = (force_unicode(line) for line in result)
+        it = (force_text(line) for line in result)
         self.assertEqual(next(it), u','.join(u'"{}"'.format(hfi.title) for hfi in hf.cells))
         self.assertEqual(next(it), u'"","Black","Jet","Bebop",""')
         self.assertIn(next(it), (u'"","Spiegel","Spike","Bebop/Swordfish",""',
@@ -275,7 +275,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         response = self.assertGET200(self._build_contact_dl_url(doc_type='scsv'))
 
         # TODO: sort the relations/properties by they verbose_name ??
-        it = (force_unicode(line) for line in response.content.splitlines())
+        it = (force_text(line) for line in response.content.splitlines())
         self.assertEqual(next(it), u';'.join(u'"{}"'.format(hfi.title) for hfi in cells))
         self.assertEqual(next(it), u'"";"Black";"Jet";"Bebop";""')
         self.assertIn(next(it), (u'"";"Spiegel";"Spike";"Bebop/Swordfish";""',
@@ -323,7 +323,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertTrue(user.has_perm_to_view(organisations['Swordfish']))
 
         response = self.assertGET200(self._build_contact_dl_url())
-        result = map(force_unicode, response.content.splitlines())
+        result = map(force_text, response.content.splitlines())
         self.assertEqual(result[1], '"","Black","Jet","",""')
         self.assertEqual(result[2], '"","Spiegel","Spike","Swordfish",""')
         self.assertEqual(result[3], u'"","Wong","Edward","","is a girl"')
@@ -342,7 +342,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(self._build_contact_dl_url(hfilter_id=hf.id))
 
-        result = [force_unicode(line) for line in response.content.splitlines()]
+        result = [force_text(line) for line in response.content.splitlines()]
         self.assertEqual(2, len(result))
         self.assertEqual(result[1],
                          u'"{}","{}"'.format(spike.last_name,
@@ -374,7 +374,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                 )
 
         response = self.assertGET200(self._build_contact_dl_url(hfilter_id=hf.id))
-        it = (force_unicode(line) for line in response.content.splitlines()); next(it)
+        it = (force_text(line) for line in response.content.splitlines()); next(it)
 
         self.assertEqual(next(it), '"Black","Jet face","Jet\'s selfie"')
 
@@ -408,7 +408,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                                         hfilter_id=hf.id,
                                                        ),
                                     )
-        result = [force_unicode(line) for line in response.content.splitlines()]
+        result = [force_text(line) for line in response.content.splitlines()]
         self.assertEqual(4, len(result))
 
         self.assertEqual(result[1], '"Camp#1","ML#1/ML#2"')
@@ -426,7 +426,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(self._build_contact_dl_url())
 
-        it = (force_unicode(line) for line in response.content.splitlines())
+        it = (force_text(line) for line in response.content.splitlines())
         self.assertEqual(next(it),
                          u','.join(u'"{}"'.format(u)
                                     for u in [_(u'Civility'), _(u'Last name'), 'pilots', _(u'Properties')]
@@ -440,7 +440,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(self._build_contact_dl_url(extra_q=QSerializer().dumps(Q(last_name='Wong'))))
 
-        result = [force_unicode(line) for line in response.content.splitlines()]
+        result = [force_text(line) for line in response.content.splitlines()]
         self.assertEqual(2, len(result))
         self.assertEqual(u'"","Wong","Edward","","is a girl"', result[1])
 
@@ -464,7 +464,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertPOST200(url, data={'filter': efilter.id})
 
         response = self.assertGET200(self._build_contact_dl_url(list_url=url))
-        result = [force_unicode(line) for line in response.content.splitlines()]
+        result = [force_text(line) for line in response.content.splitlines()]
         self.assertEqual(2, len(result))
 
         self.assertEqual(u'"","Wong","Edward","","is a girl"', result[1])
@@ -578,7 +578,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                      follow=True,
                                     )
 
-        lines = {force_unicode(line) for line in response.content.splitlines()}
+        lines = {force_text(line) for line in response.content.splitlines()}
         self.assertIn(u'"Bebop","1000"', lines)
         self.assertIn(u'"Swordfish","20000"', lines)
         self.assertIn(u'"Redtail",""', lines)
@@ -610,7 +610,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                      follow=True,
                                     )
 
-        lines = {force_unicode(line) for line in response.content.splitlines()}
+        lines = {force_text(line) for line in response.content.splitlines()}
         self.assertIn(u'"Bebop","{}"'.format(_(u'Percent')),    lines)
         self.assertIn(u'"Swordfish","{}"'.format(_(u'Amount')), lines)
 
@@ -673,7 +673,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         # ----------------------
         response = self.assertGET200(self._build_contact_dl_url(hfilter_id=hf.id))
 
-        it = (force_unicode(line) for line in response.content.splitlines())
+        it = (force_text(line) for line in response.content.splitlines())
         next(it)  # Header
         self.assertEqual(next(it), u'"123455","Black","Jet"')
         self.assertEqual(next(it), u'"123233","Spiegel","Spike"')
