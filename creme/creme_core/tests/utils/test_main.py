@@ -19,9 +19,10 @@ try:
     from creme.creme_core.utils import (find_first, truncate_str, split_filter,
         create_if_needed, update_model_instance, get_from_GET_or_404, get_from_POST_or_404,
         safe_unicode, safe_unicode_error, int_2_roman, ellipsis, ellipsis_multi, prefixed_truncate)
-    from creme.creme_core.utils.dates import (get_dt_from_str, dt_from_str, get_date_from_str, date_from_str,
-        get_dt_from_iso8601_str, get_dt_to_iso8601_str, date_from_ISO8601, date_to_ISO8601, date_2_dict,
-        get_dt_from_json_str, dt_from_ISO8601, dt_to_json_str, dt_to_ISO8601, round_hour, to_utc, make_aware_dt)
+    from creme.creme_core.utils.dates import (dt_from_str, date_from_str,
+        date_from_ISO8601, date_to_ISO8601, date_2_dict,
+        dt_from_ISO8601, dt_to_ISO8601, round_hour, to_utc, make_aware_dt)
+        # get_dt_to_iso8601_str get_dt_from_iso8601_str get_dt_from_json_str dt_to_json_str get_dt_from_str get_date_from_str
     from creme.creme_core.utils.log import log_exceptions
     from creme.creme_core.utils.dependence_sort import dependence_sort, DependenciesLoopError
     from creme.creme_core.utils.url import TemplateURLBuilder
@@ -370,27 +371,27 @@ class DependenceSortTestCase(CremeTestCase):  # TODO: SimpleTestCase
 
 
 class DatesTestCase(CremeTestCase):
-    def test_get_dt_from_iso8601_str_01(self):
-        dt = get_dt_from_iso8601_str('20110522T223000Z')
-        self.assertEqual(datetime(2011, 5, 22, 22, 30, 0), dt)
+    # def test_get_dt_from_iso8601_str_01(self):
+    #     dt = get_dt_from_iso8601_str('20110522T223000Z')
+    #     self.assertEqual(datetime(2011, 5, 22, 22, 30, 0), dt)
 
-    def test_get_dt_to_iso8601_str_01(self):
-        dt = datetime(2011, 5, 22, 22, 30, 0)
-        self.assertEqual('20110522T223000Z', get_dt_to_iso8601_str(dt))
+    # def test_get_dt_to_iso8601_str_01(self):
+    #     dt = datetime(2011, 5, 22, 22, 30, 0)
+    #     self.assertEqual('20110522T223000Z', get_dt_to_iso8601_str(dt))
 
-    def test_get_dt_from_json_str(self):
-        self.assertEqual(self.create_datetime(year=2014, month=3, day=17, hour=15,
-                                              minute=22, second=3, microsecond=357000,
-                                              utc=True,
-                                             ),
-                         get_dt_from_json_str('2014-03-17T15:22:03.357Z')
-                        )
-        self.assertEqual(self.create_datetime(year=2015, month=1, day=16, hour=15,
-                                              minute=22, second=3, microsecond=123456,
-                                              utc=True,
-                                             ),
-                         get_dt_from_json_str('2015-01-16T15:22:03.123456Z')
-                        )
+    # def test_get_dt_from_json_str(self):
+    #     self.assertEqual(self.create_datetime(year=2014, month=3, day=17, hour=15,
+    #                                           minute=22, second=3, microsecond=357000,
+    #                                           utc=True,
+    #                                          ),
+    #                      get_dt_from_json_str('2014-03-17T15:22:03.357Z')
+    #                     )
+    #     self.assertEqual(self.create_datetime(year=2015, month=1, day=16, hour=15,
+    #                                           minute=22, second=3, microsecond=123456,
+    #                                           utc=True,
+    #                                          ),
+    #                      get_dt_from_json_str('2015-01-16T15:22:03.123456Z')
+    #                     )
 
     def test_dt_from_ISO8601(self):
         self.assertEqual(self.create_datetime(year=2014, month=3, day=17, hour=15,
@@ -406,15 +407,15 @@ class DatesTestCase(CremeTestCase):
                          dt_from_ISO8601('2015-01-16T15:22:03.123456Z')
                         )
 
-    def test_dt_to_json_str(self):
-        self.assertEqual('2015-01-16T15:22:03.357000Z',
-                         dt_to_json_str(
-                             self.create_datetime(year=2015, month=1, day=16, hour=15,
-                                                  minute=22, second=3, microsecond=357000,
-                                                  utc=True,
-                                                 )
-                            )
-                        )
+    # def test_dt_to_json_str(self):
+    #     self.assertEqual('2015-01-16T15:22:03.357000Z',
+    #                      dt_to_json_str(
+    #                          self.create_datetime(year=2015, month=1, day=16, hour=15,
+    #                                               minute=22, second=3, microsecond=357000,
+    #                                               utc=True,
+    #                                              )
+    #                         )
+    #                     )
 
     def test_dt_to_ISO8601(self):
         self.assertEqual('2015-01-16T15:22:03.357000Z',
@@ -441,29 +442,29 @@ class DatesTestCase(CremeTestCase):
                                       )
                          )
 
-    def test_get_dt_from_str(self):
-        create_dt = self.create_datetime
-        self.assertEqual(create_dt(year=2013, month=7, day=25, hour=12, minute=28, second=45),
-                         get_dt_from_str('2013-07-25 12:28:45')
-                        )
-        self.assertEqual(create_dt(year=2013, month=7, day=25, hour=8, utc=True),
-                         get_dt_from_str('2013-07-25 11:00:00+03:00')
-                        )
-
-        DATETIME_INPUT_FORMATS = settings.DATETIME_INPUT_FORMATS
-
-        def check(fmt, dt_str, **kwargs):
-            if fmt in DATETIME_INPUT_FORMATS:
-                self.assertEqual(create_dt(**kwargs), get_dt_from_str(dt_str))
-            else:
-                print('DatesTestCase: skipped datetime format:', fmt)
-
-        check('%d-%m-%Y', '25/07/2013', year=2013, month=7, day=25)
-        check('%Y-%m-%d', '2014-08-26', year=2014, month=8, day=26)
-
-        check('%Y-%m-%dT%H:%M:%S.%fZ', '2013-07-25 12:28:45',
-              year=2013, month=7, day=25, hour=12, minute=28, second=45
-             )
+    # def test_get_dt_from_str(self):
+    #     create_dt = self.create_datetime
+    #     self.assertEqual(create_dt(year=2013, month=7, day=25, hour=12, minute=28, second=45),
+    #                      get_dt_from_str('2013-07-25 12:28:45')
+    #                     )
+    #     self.assertEqual(create_dt(year=2013, month=7, day=25, hour=8, utc=True),
+    #                      get_dt_from_str('2013-07-25 11:00:00+03:00')
+    #                     )
+    #
+    #     DATETIME_INPUT_FORMATS = settings.DATETIME_INPUT_FORMATS
+    #
+    #     def check(fmt, dt_str, **kwargs):
+    #         if fmt in DATETIME_INPUT_FORMATS:
+    #             self.assertEqual(create_dt(**kwargs), get_dt_from_str(dt_str))
+    #         else:
+    #             print('DatesTestCase: skipped datetime format:', fmt)
+    #
+    #     check('%d-%m-%Y', '25/07/2013', year=2013, month=7, day=25)
+    #     check('%Y-%m-%d', '2014-08-26', year=2014, month=8, day=26)
+    #
+    #     check('%Y-%m-%dT%H:%M:%S.%fZ', '2013-07-25 12:28:45',
+    #           year=2013, month=7, day=25, hour=12, minute=28, second=45
+    #          )
 
     def test_dt_from_str(self):
         create_dt = self.create_datetime
@@ -489,17 +490,17 @@ class DatesTestCase(CremeTestCase):
               year=2013, month=7, day=25, hour=12, minute=28, second=45
              )
 
-    def test_get_date_from_str(self):
-        DATE_INPUT_FORMATS = settings.DATE_INPUT_FORMATS
-
-        def check(fmt, date_str, **kwargs):
-            if fmt in DATE_INPUT_FORMATS:
-                self.assertEqual(date(**kwargs), get_date_from_str(date_str))
-            else:
-                print('DatesTestCase: skipped date format:', fmt)
-
-        check('%d-%m-%Y', '25/07/2013', year=2013, month=7, day=25)
-        check('%Y-%m-%d', '2014-08-26', year=2014, month=8, day=26)
+    # def test_get_date_from_str(self):
+    #     DATE_INPUT_FORMATS = settings.DATE_INPUT_FORMATS
+    # 
+    #     def check(fmt, date_str, **kwargs):
+    #         if fmt in DATE_INPUT_FORMATS:
+    #             self.assertEqual(date(**kwargs), get_date_from_str(date_str))
+    #         else:
+    #             print('DatesTestCase: skipped date format:', fmt)
+    #
+    #     check('%d-%m-%Y', '25/07/2013', year=2013, month=7, day=25)
+    #     check('%Y-%m-%d', '2014-08-26', year=2014, month=8, day=26)
 
     def test_date_from_str(self):
         DATE_INPUT_FORMATS = settings.DATE_INPUT_FORMATS

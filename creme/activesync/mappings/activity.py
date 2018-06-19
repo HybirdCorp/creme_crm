@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ from django.conf import settings
 from django.utils.timezone import now, make_aware, localtime, utc
 
 from creme.creme_core.models import Relation
-from creme.creme_core.utils.dates import get_dt_to_iso8601_str, get_dt_from_iso8601_str
+# from creme.creme_core.utils.dates import get_dt_to_iso8601_str, get_dt_from_iso8601_str
 
 from creme.activities import get_activity_model
 from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, ACTIVITYTYPE_MEETING
@@ -32,6 +32,7 @@ from creme.activities.models import Calendar
 
 from ..models import AS_Folder, EntityASData
 from ..utils import generate_guid, encode_AS_timezone
+from .utils import get_dt_to_iso8601_str, get_dt_from_iso8601_str
 
 
 # An item marked as an all day event is understood to begin on midnight of the current day

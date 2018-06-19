@@ -20,7 +20,7 @@
 
 from datetime import datetime, date, timedelta
 from time import strptime as time_strptime
-import warnings
+# import warnings
 
 from django.utils import formats
 from django.utils.dateparse import parse_datetime
@@ -35,36 +35,36 @@ def date_2_dict(d):
     return {'year': d.year, 'month': d.month, 'day': d.day}
 
 
-# XXX: it is not true ISO 8601 !!!!
-# XXX: only used by 'activesync'
-def get_dt_to_iso8601_str(dt):
-    """Converts the datetime into a string in iso8601 format without any separator.
-    >>> get_dt_to_iso8601_str(datetime.datetime(2011, 4, 27, 10, 9, 54))
-    '20110427T100954Z'
-    """
-    warnings.warn("get_dt_to_iso8601_str() method is deprecated.", DeprecationWarning)
-
-    return dt.strftime("%Y%m%dT%H%M%SZ")
-
-
-# XXX: rename, it is not true ISO 8601 !!!!
-# XXX: only used by 'activesync'
-def get_dt_from_iso8601_str(dt_str):
-    """Builds a datetime instance from a iso8601 (without any separators) formatted string.
-    @throws ValueError
-    >>> get_dt_from_iso8601_str("20110427T100954Z")
-    datetime.datetime(2011, 4, 27, 10, 9, 54)
-    """
-    warnings.warn("get_dt_from_iso8601_str() method is deprecated.", DeprecationWarning)
-
-    return datetime.strptime(dt_str, "%Y%m%dT%H%M%SZ")
+# # XXX: it is not true ISO 8601 !!!!
+# # XXX: only used by 'activesync'
+# def get_dt_to_iso8601_str(dt):
+#     """Converts the datetime into a string in iso8601 format without any separator.
+#     >>> get_dt_to_iso8601_str(datetime.datetime(2011, 4, 27, 10, 9, 54))
+#     '20110427T100954Z'
+#     """
+#     warnings.warn("get_dt_to_iso8601_str() method is deprecated.", DeprecationWarning)
+#
+#     return dt.strftime("%Y%m%dT%H%M%SZ")
 
 
-def get_dt_from_json_str(dt_str):
-    warnings.warn("get_dt_from_json_str() method is deprecated; use dt_from_ISO8601() instead.",
-                  DeprecationWarning
-                 )
-    return dt_from_ISO8601(dt_str)
+# # XXX: rename, it is not true ISO 8601 !!!!
+# # XXX: only used by 'activesync'
+# def get_dt_from_iso8601_str(dt_str):
+#     """Builds a datetime instance from a iso8601 (without any separators) formatted string.
+#     @throws ValueError
+#     >>> get_dt_from_iso8601_str("20110427T100954Z")
+#     datetime.datetime(2011, 4, 27, 10, 9, 54)
+#     """
+#     warnings.warn("get_dt_from_iso8601_str() method is deprecated.", DeprecationWarning)
+#
+#     return datetime.strptime(dt_str, "%Y%m%dT%H%M%SZ")
+
+
+# def get_dt_from_json_str(dt_str):
+#     warnings.warn("get_dt_from_json_str() method is deprecated; use dt_from_ISO8601() instead.",
+#                   DeprecationWarning
+#                  )
+#     return dt_from_ISO8601(dt_str)
 
 
 def dt_from_ISO8601(dt_str):
@@ -78,12 +78,12 @@ def dt_from_ISO8601(dt_str):
     return make_aware(datetime.strptime(dt_str, DATETIME_ISO8601_FMT), utc)
 
 
-def dt_to_json_str(dt):
-    warnings.warn("dt_to_json_str() method is deprecated; use dt_to_ISO8601() instead.",
-                  DeprecationWarning
-                 )
-
-    return dt.strftime(DATETIME_ISO8601_FMT)
+# def dt_to_json_str(dt):
+#     warnings.warn("dt_to_json_str() method is deprecated; use dt_to_ISO8601() instead.",
+#                   DeprecationWarning
+#                  )
+#
+#     return dt.strftime(DATETIME_ISO8601_FMT)
 
 
 def dt_to_ISO8601(dt):
@@ -110,11 +110,11 @@ def date_to_ISO8601(d):
     return d.strftime(DATE_ISO8601_FMT)
 
 
-def get_dt_from_str(dt_str):
-    warnings.warn("get_dt_from_str() method is deprecated; use dt_from_str() instead.",
-                  DeprecationWarning
-                 )
-    return dt_from_str(dt_str)
+# def get_dt_from_str(dt_str):
+#     warnings.warn("get_dt_from_str() method is deprecated; use dt_from_str() instead.",
+#                   DeprecationWarning
+#                  )
+#     return dt_from_str(dt_str)
 
 
 def dt_from_str(dt_str):
@@ -135,12 +135,12 @@ def dt_from_str(dt_str):
             break
 
 
-def get_date_from_str(d_str):
-    warnings.warn("get_date_from_str() method is deprecated; use date_from_str() instead.",
-                  DeprecationWarning
-                 )
-
-    return date_from_str(d_str)
+# def get_date_from_str(d_str):
+#     warnings.warn("get_date_from_str() method is deprecated; use date_from_str() instead.",
+#                   DeprecationWarning
+#                  )
+#
+#     return date_from_str(d_str)
 
 
 def date_from_str(d_str):
