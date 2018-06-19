@@ -3,9 +3,12 @@
 try:
     from datetime import datetime, date, timedelta
     from functools import partial
+    from os.path import join
     import string
 
     from pytz import timezone
+
+    from PIL.Image import open as open_img
 
     from django.conf import settings
     from django.http import Http404
@@ -23,8 +26,9 @@ try:
         date_from_ISO8601, date_to_ISO8601, date_2_dict,
         dt_from_ISO8601, dt_to_ISO8601, round_hour, to_utc, make_aware_dt)
         # get_dt_to_iso8601_str get_dt_from_iso8601_str get_dt_from_json_str dt_to_json_str get_dt_from_str get_date_from_str
-    from creme.creme_core.utils.log import log_exceptions
     from creme.creme_core.utils.dependence_sort import dependence_sort, DependenciesLoopError
+    from creme.creme_core.utils.log import log_exceptions
+    from creme.creme_core.utils.secure_filename import secure_filename
     from creme.creme_core.utils.url import TemplateURLBuilder
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
@@ -297,6 +301,25 @@ class MiscTestCase(CremeTestCase):
 
         self.assertEqual(1, len(my_logger.data))
         self.assertTrue(my_logger.data[0].startswith('An exception occurred in <error_paluzza>.\n'))
+
+    def test_secure_filename(self):
+        self.assertEqual('My_cool_movie.mov', secure_filename('My cool movie.mov'))
+        self.assertEqual('etc_passwd',        secure_filename('../../../etc/passwd'))
+        self.assertEqual('i_contain_cool_umlauts.txt',
+                         secure_filename(u'i contain cool \xfcml\xe4uts.txt')
+                        )
+        self.assertEqual('i_contain_weird_characters.txt',
+                         secure_filename(u'i contain weird châräctérs.txt')
+                        )
+
+        with self.assertNoException():
+            size = open_img(join(settings.CREME_ROOT, 'static', 'common', 'images',
+                                 secure_filename('500_200.png')
+                                )
+                           ).size
+        self.assertEqual((200, 200), size)
+
+    # TODO: add test for Windows
 
 
 class DependenceSortTestCase(CremeTestCase):  # TODO: SimpleTestCase

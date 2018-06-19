@@ -24,7 +24,7 @@ _filename_ascii_strip_re = re.compile(r'[^A-Za-z0-9_.-]')
 
 def secure_filename(filename):
     """Pass it a filename and it will return a secure version of it.
-    This filename can then savely be stored on a regular file system and passed
+    This filename can then safely be stored on a regular file system and passed
     to :func:`os.path.join`.
     The filename returned is an ASCII only string for maximum portability.
 
@@ -38,18 +38,20 @@ def secure_filename(filename):
     >>> secure_filename(u'i contain cool \xfcml\xe4uts.txt')
     'i_contain_cool_umlauts.txt'
 
-    .. versionadded:: 0.5
-
-    :param filename: the filename to secure
+    @param filename: the filename to secure (unicode or str).
+    @return: A new string.
     """
     if isinstance(filename, unicode):
         from unicodedata import normalize
         filename = normalize('NFKD', filename).encode('ascii', 'ignore')
+
     for sep in os.path.sep, os.path.altsep:
         if sep:
             filename = filename.replace(sep, ' ')
-    filename = str(_filename_ascii_strip_re.sub('', '_'.join(
-                   filename.split()))).strip('._')
+
+    filename = str(
+            _filename_ascii_strip_re.sub('', '_'.join(filename.split()))
+          ).strip('._')
 
     # On NT a couple of special files are present in each folder.
     #  We have to ensure that the target file is not such a filename.
