@@ -106,7 +106,7 @@ class MutexTestCase(CremeTransactionTestCase):
         with self.assertRaises(Exception) as context:
             self.invalid_locked_func(5)
 
-        self.assertEquals(u'invalid result {}'.format(5), safe_unicode_error(context.exception))
+        self.assertEqual(u'invalid result {}'.format(5), safe_unicode_error(context.exception))
 
         self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
 
@@ -150,5 +150,5 @@ class MutexTestCase(CremeTransactionTestCase):
                 self.assertEqual(1, Mutex.objects.filter(id='dummy_lock').count())
                 raise Exception('invalid result !')
 
-        self.assertEquals(u'invalid result !', safe_unicode_error(context.exception))
+        self.assertEqual(u'invalid result !', safe_unicode_error(context.exception))
         self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
