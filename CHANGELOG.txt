@@ -727,6 +727,13 @@
                 - imports.find_n_import() (use import_apps_sub_modules() instead).
                 - meta.get_instance_field_info() (use the new method FieldInfo.value_from() instead).
                 - media.get_current_theme_vb().
+                - In 'dates' :
+                    - get_dt_to_iso8601_str().
+                    - get_dt_from_iso8601_str().
+                    - get_dt_from_json_str() (use dt_from_ISO8601() instead).
+                    - dt_to_json_str() (use dt_to_ISO8601() instead).
+                    - get_dt_from_str() (use dt_from_str() instead).
+                    - get_date_from_str() (use date_from_str() instead).
             - The button 'creme_core.buttons.MergeEntitiesButton' (& the related template too).
             - JavaScript :
                 - creme.component.is() (use Object.isSubClass instead).
@@ -935,13 +942,6 @@
                 - lock.mutexify().
             - In 'creme_core.utils' :
                 - create_or_update().
-                - In 'dates' :
-                    - get_dt_to_iso8601_str().
-                    - get_dt_to_iso8601_str().
-                    - get_dt_from_json_str() (use dt_from_ISO8601() instead).
-                    - dt_to_json_str() (use dt_to_ISO8601() instead).
-                    - get_dt_from_str() (use dt_from_str() instead).
-                    - get_date_from_str() (use date_from_str() instead).
                 - meta.get_date_fields().
                 - queries.get_first_or_None().
             - In 'creme_core.views.generic.detailview' :
