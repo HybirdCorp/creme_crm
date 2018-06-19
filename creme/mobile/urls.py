@@ -25,13 +25,21 @@ urlpatterns = [
     url(r'^mark_as_favorite/(?P<entity_id>\d+)[/]?$', views.mark_as_favorite, name='mobile__mark_as_favorite'),
     url(r'^unmark_favorite/(?P<entity_id>\d+)[/]?$',  views.unmark_favorite,  name='mobile__unmark_favorite'),
 
-    url(r'^login[/]?$',  auth_views.login,
-        {'template_name':       'mobile/login.html',
-         'authentication_form': forms.MobileAuthenticationForm,
-         'extra_context':       {'REDIRECT_FIELD_NAME': REDIRECT_FIELD_NAME},
-        },
+    # url(r'^login[/]?$',  auth_views.login,
+    #     {'template_name':       'mobile/login.html',
+    #      'authentication_form': forms.MobileAuthenticationForm,
+    #      'extra_context':       {'REDIRECT_FIELD_NAME': REDIRECT_FIELD_NAME},
+    #     },
+    #     name='mobile__login',
+    #    ),
+    url(r'^login[/]?$',
+        auth_views.LoginView.as_view(
+             template_name='mobile/login.html',
+             authentication_form=forms.MobileAuthenticationForm,
+             extra_context={'REDIRECT_FIELD_NAME': REDIRECT_FIELD_NAME},
+        ),
         name='mobile__login',
-       ),
+   ),
 
     # NB: useful if mobile app is separated from the main domain (so not /mobile/* urls can be redirected)
     url(r'^logout[/]?$', auth_views.logout_then_login, name='mobile__logout'),
