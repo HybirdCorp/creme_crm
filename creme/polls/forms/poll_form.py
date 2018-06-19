@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from itertools import izip, chain
+from itertools import izip, chain, izip_longest
 
 from django.core.exceptions import ValidationError
 from django.forms.fields import IntegerField, CharField, TypedChoiceField
@@ -333,7 +333,8 @@ class PollFormLineConditionsForm(CremeForm):
         conds2del = []
 
         # TODO: select for update ??
-        for old_condition, condition in map(None, self.old_conditions, cdata['conditions']):
+        # for old_condition, condition in map(None, self.old_conditions, cdata['conditions']):
+        for old_condition, condition in izip_longest(self.old_conditions, cdata['conditions']):
             if not condition:  # Less new conditions that old conditions => delete conditions in excess
                 conds2del.append(old_condition.id)
             elif not old_condition:
