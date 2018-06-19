@@ -23,7 +23,7 @@ try:
             MultiColumnsParticipantsExtractor, SplitColumnParticipantsExtractor, SubjectsExtractor)
     from ..models import Calendar
 except Exception as e:
-    print 'Error in <{}>: {}'.format(__name__, e)
+    print('Error in <{}>: {}'.format(__name__, e))
 
 
 Document = get_document_model()

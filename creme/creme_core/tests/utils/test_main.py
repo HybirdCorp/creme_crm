@@ -456,7 +456,7 @@ class DatesTestCase(CremeTestCase):
             if fmt in DATETIME_INPUT_FORMATS:
                 self.assertEqual(create_dt(**kwargs), get_dt_from_str(dt_str))
             else:
-                print 'DatesTestCase: skipped datetime format:', fmt
+                print('DatesTestCase: skipped datetime format:', fmt)
 
         check('%d-%m-%Y', '25/07/2013', year=2013, month=7, day=25)
         check('%Y-%m-%d', '2014-08-26', year=2014, month=8, day=26)
@@ -480,7 +480,7 @@ class DatesTestCase(CremeTestCase):
             if fmt in DATETIME_INPUT_FORMATS:
                 self.assertEqual(create_dt(**kwargs), dt_from_str(dt_str))
             else:
-                print 'DatesTestCase: skipped datetime format:', fmt
+                print('DatesTestCase: skipped datetime format:', fmt)
 
         check('%d-%m-%Y', '25/07/2013', year=2013, month=7, day=25)
         check('%Y-%m-%d', '2014-08-26', year=2014, month=8, day=26)
@@ -496,7 +496,7 @@ class DatesTestCase(CremeTestCase):
             if fmt in DATE_INPUT_FORMATS:
                 self.assertEqual(date(**kwargs), get_date_from_str(date_str))
             else:
-                print 'DatesTestCase: skipped date format:', fmt
+                print('DatesTestCase: skipped date format:', fmt)
 
         check('%d-%m-%Y', '25/07/2013', year=2013, month=7, day=25)
         check('%Y-%m-%d', '2014-08-26', year=2014, month=8, day=26)
@@ -508,7 +508,7 @@ class DatesTestCase(CremeTestCase):
             if fmt in DATE_INPUT_FORMATS:
                 self.assertEqual(date(**kwargs), date_from_str(date_str))
             else:
-                print 'DatesTestCase: skipped date format:', fmt
+                print('DatesTestCase: skipped date format:', fmt)
 
         check('%d-%m-%Y', '25/07/2013', year=2013, month=7, day=25)
         check('%Y-%m-%d', '2014-08-26', year=2014, month=8, day=26)

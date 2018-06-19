@@ -65,11 +65,11 @@ class FolderSync(Base):
 
 #            if self.status != SYNC_NEED_CURRENT_POLICY:
             if self.status == SYNC_FOLDER_STATUS_SUCCESS:
-                print "[FolderSync] Doesn't need SYNC_NEED_CURRENT_POLICY"
+                print("[FolderSync] Doesn't need SYNC_NEED_CURRENT_POLICY")
 
                 self.synckey = xml.find('%sSyncKey' % ns).text
 
-                print "[FolderSync] self.synckey :", self.synckey
+                print("[FolderSync] self.synckey :", self.synckey)
 
                 self.add = []
                 add_append = self.add.append
@@ -86,5 +86,5 @@ class FolderSync(Base):
                     except (ValueError, TypeError):
                         continue
 
-        print "[FolderSync] (end) Status :", self.status
+        print("[FolderSync] (end) Status :", self.status)
 #        self.add_info_message("[FolderSync] (end) Status : %s" % self.status)

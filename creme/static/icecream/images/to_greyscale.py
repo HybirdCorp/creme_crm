@@ -34,4 +34,4 @@ for file_name in file_names:
         Image.open(file_name).convert('LA').save(file_name)
 
 if excluded:
-    print 'Some excluded files were not used :', ', '.join(excluded)
+    print('Some excluded files were not used :', ', '.join(excluded))
