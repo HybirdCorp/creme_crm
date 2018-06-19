@@ -2079,12 +2079,12 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         with self.assertNoException():
             value = MultiCreatorEntityField(FakeContact, required=False).clean(None)
 
-        self.assertEquals(value, [])
+        self.assertEqual(value, [])
 
         with self.assertNoException():
             value = MultiCreatorEntityField(FakeContact, required=False).clean("[]")
 
-        self.assertEquals(value, [])
+        self.assertEqual(value, [])
 
     def test_clean_invalid_json(self):
         field = MultiCreatorEntityField(FakeContact, required=False)

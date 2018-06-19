@@ -123,9 +123,9 @@ class EnumerableViewsTestCase(ViewsTestCase):
         eva02 = create_evalue(custom_field=custom_field, value='Eva-02')
 
         response = self.assertGET200(reverse('creme_core__cfield_enums', args=(custom_field.id,)))
-        self.assertEquals([[eva00.id, eva00.value],
-                           [eva01.id, eva01.value],
-                           [eva02.id, eva02.value]
-                          ],
-                          json.loads(response.content)
-                         )
+        self.assertEqual([[eva00.id, eva00.value],
+                          [eva01.id, eva01.value],
+                          [eva02.id, eva02.value]
+                         ],
+                         json.loads(response.content)
+                        )

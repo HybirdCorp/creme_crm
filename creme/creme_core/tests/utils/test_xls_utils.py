@@ -54,16 +54,16 @@ class XLSUtilsTestCase(CremeTestCase):
         with self.assertRaises(XLRDError) as error:
             XlrdReader(filedata=self.get_file_path('data-invalid.xls'))
 
-        self.assertEquals(str(error.exception),
-                          "Unsupported format, or corrupt file: Expected BOF record; found 'this is '"
-                         )
+        self.assertEqual(str(error.exception),
+                         "Unsupported format, or corrupt file: Expected BOF record; found 'this is '"
+                        )
 
     @skipIf(XlrdMissing, "Skip tests, couldn't find xlrd libs")
     def test_sheet(self):
         rd = XlrdReader(filedata=self.get_file_path(self.files[0]))
         self.assertIsNotNone(rd.book)
         self.assertIsNotNone(rd.sheet) 
-        self.assertEquals(rd.sheet.nrows, len(self.data))
+        self.assertEqual(rd.sheet.nrows, len(self.data))
 
     @skipIf(XlrdMissing, "Skip tests, couldn't find xlrd libs")
     def test_read_next(self):
