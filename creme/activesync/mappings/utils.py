@@ -24,7 +24,7 @@ import warnings
 
 from django.db import models
 
-from creme.creme_core.utils.dates import get_dt_to_iso8601_str
+# from creme.creme_core.utils.dates import get_dt_to_iso8601_str
 # from creme.creme_core.utils.meta import get_instance_field_info
 
 from ..models import EntityASData
@@ -57,6 +57,31 @@ def get_instance_field_info(obj, field_name):
         return field.__class__, field_value
     except (AttributeError, models.FieldDoesNotExist):
         return None, ''
+
+
+# NB: old creme_core.utils.dates.get_dt_to_iso8601_str()
+# XXX: it is not true ISO 8601 !!!!
+def get_dt_to_iso8601_str(dt):
+    """Converts the datetime into a string in iso8601 format without any separator.
+    >>> get_dt_to_iso8601_str(datetime.datetime(2011, 4, 27, 10, 9, 54))
+    '20110427T100954Z'
+    """
+    # warnings.warn("get_dt_to_iso8601_str() method is deprecated.", DeprecationWarning)
+
+    return dt.strftime('%Y%m%dT%H%M%SZ')
+
+
+# NB: old creme_core.utils.dates.get_dt_from_iso8601_str()
+# XXX: rename, it is not true ISO 8601 !!!!
+def get_dt_from_iso8601_str(dt_str):
+    """Builds a datetime instance from a iso8601 (without any separators) formatted string.
+    @throws ValueError
+    >>> get_dt_from_iso8601_str("20110427T100954Z")
+    datetime.datetime(2011, 4, 27, 10, 9, 54)
+    """
+    # warnings.warn("get_dt_from_iso8601_str() method is deprecated.", DeprecationWarning)
+
+    return datetime.strptime(dt_str, '%Y%m%dT%H%M%SZ')
 
 
 def _format_value_for_AS(field_class, field_value):
