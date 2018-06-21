@@ -208,7 +208,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'end_time':           '18:45:00',
                                           'my_participation_0': True,
                                           'my_participation_1': my_calendar.pk,
-                                          'other_participants': '[%d]' % genma.id,
+                                          'other_participants': self.formfield_value_multi_creator_entity(genma),
                                           'subjects':           self.formfield_value_multi_generic_entity(ranma),
                                           'linked_entities':    self.formfield_value_multi_generic_entity(dojo),
                                          }
@@ -270,7 +270,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                             'my_participation_0':  True,
                                             'my_participation_1':  my_calendar.pk,
                                             'participating_users': [other_user.pk],
-                                            'other_participants':  '[{}]'.format(genma.id),
+                                            'other_participants':  self.formfield_value_multi_creator_entity(genma),
                                             'subjects':            self.formfield_value_multi_generic_entity(akane),
                                             'linked_entities':     self.formfield_value_multi_generic_entity(dojo),
                                            }

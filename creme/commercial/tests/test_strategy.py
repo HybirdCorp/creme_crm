@@ -369,7 +369,7 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
 
         url = reverse('commercial__add_evaluated_orgas', args=(strategy.id,))
         self.assertGET200(url)
-        self.assertPOST200(url, data={'organisations': '[%d]' % orga.id})
+        self.assertPOST200(url, data={'organisations': self.formfield_value_multi_creator_entity(orga)})
         self.assertEqual([orga], list(strategy.evaluated_orgas.all()))
 
         response = self.assertGET200(reverse('commercial__orga_evaluation', args=(strategy.id, orga.id)))

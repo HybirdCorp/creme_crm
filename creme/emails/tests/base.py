@@ -81,15 +81,17 @@ class _EmailsTestCase(CremeTestCase):
         url = self._build_create_entitymail_url(contacts[0])
         self.assertGET200(url)
 
-        response = self.client.post(url, data={'user':         user.id,
-                                               'sender':       're-l.mayer@rpd.rmd',
-                                               'c_recipients': '[%d,%d]' % (contacts[0].id, contacts[1].id),
-                                               'o_recipients': '[%d,%d]' % (orgas[0].id, orgas[1].id),
-                                               'subject':      'Under arrest',
-                                               'body':         'Freeze',
-                                               'body_html':    '<p>Freeze !</p>',
-                                              }
-                                   )
+        response = self.client.post(
+            url,
+            data={'user':         user.id,
+                  'sender':       're-l.mayer@rpd.rmd',
+                  'c_recipients': self.formfield_value_multi_creator_entity(contacts[0], contacts[1]),
+                  'o_recipients': self.formfield_value_multi_creator_entity(orgas[0], orgas[1]),
+                  'subject':      'Under arrest',
+                  'body':         'Freeze',
+                  'body_html':    '<p>Freeze !</p>',
+                 }
+        )
         self.assertNoFormError(response)
 
         emails = EntityEmail.objects.all()

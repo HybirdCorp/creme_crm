@@ -370,7 +370,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
             template = Template("{% load creme_core_tags %}{{data|optionize_model_iterable:'dict'|jsonify|safe}}")
             render = template.render(Context({'data': orgas}))
 
-        self.assertEqual(u"""[{"value":%d,"label":"%s"},{"value":%d,"label":"%s"}]""" % (
+        self.assertEqual(u'[{"value":%d,"label":"%s"},{"value":%d,"label":"%s"}]' % (
                                  orga1.pk, orga1,
                                  orga2.pk, orga2,
                             ),
