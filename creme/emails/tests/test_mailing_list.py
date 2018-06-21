@@ -85,8 +85,7 @@ class MailingListsTestCase(_EmailsTestCase):
 
         def post(*mlists):
             return self.client.post(url, follow=True,
-                                    # See MultiCreatorEntityField
-                                    data={'mailing_lists': '[{}]'.format(','.join(str(ml.id) for ml in mlists))}
+                                    data={'mailing_lists': self.formfield_value_multi_creator_entity(*mlists)},
                                    )
 
         response = post(mlist01, mlist02)
@@ -303,7 +302,7 @@ class MailingListsTestCase(_EmailsTestCase):
         recipients = [create(name='NERV',  email='contact@nerv.jp'),
                       create(name='Seele', email='contact@seele.jp'),
                      ]
-        response = self.client.post(url, data={'recipients': '[{}]'.format(','.join(str(c.id) for c in recipients))})
+        response = self.client.post(url, data={'recipients': self.formfield_value_multi_creator_entity(*recipients)})
         self.assertNoFormError(response)
         self.assertEqual({c.id for c in recipients}, {c.id for c in mlist.organisations.all()})
 

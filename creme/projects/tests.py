@@ -147,7 +147,7 @@ class ProjectsTestCase(CremeTestCase):
                                           'currency':     currency.id,
                                           'start_date':   start_date,
                                           'end_date':     end_date,
-                                          'responsibles': '[%d]' % manager.id,
+                                          'responsibles': self.formfield_value_multi_creator_entity(manager),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -213,7 +213,7 @@ class ProjectsTestCase(CremeTestCase):
                                             'status':       ProjectStatus.objects.all()[0].id,
                                             'start_date':   '2011-10-11',
                                             'end_date':     '2011-12-31',
-                                            'responsibles': '[%d]' % manager.id,
+                                            'responsibles': self.formfield_value_multi_creator_entity(manager),
                                            }
                                      )
         self.assertFormError(response, 'form', 'responsibles',
@@ -233,7 +233,7 @@ class ProjectsTestCase(CremeTestCase):
                                             'status':       ProjectStatus.objects.all()[0].id,
                                             'start_date':   '2012-2-16',
                                             'end_date':     '2012-2-15',
-                                            'responsibles': '[%d]' % manager.id,
+                                            'responsibles': self.formfield_value_multi_creator_entity(manager),
                                            }
                                      )
 
@@ -337,7 +337,7 @@ class ProjectsTestCase(CremeTestCase):
                                           'end':          '2010-10-11 17:30',
                                           'duration':     duration_2,
                                           'tstatus':      TaskStatus.objects.all()[0].id,
-                                          'parent_tasks': '[%d]' % task1.id,
+                                          'parent_tasks': self.formfield_value_multi_creator_entity(task1),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -370,7 +370,7 @@ class ProjectsTestCase(CremeTestCase):
                                           'end':           '2010-10-30',
                                           'duration':      50,
                                           'tstatus':       TaskStatus.objects.all()[0].id,
-                                          'parent_tasks':  '[%d]' % task01.id,
+                                          'parent_tasks':  self.formfield_value_multi_creator_entity(task01),
                                          }
                                    )
         self.assertFormError(response, 'form', 'parent_tasks',
@@ -462,14 +462,14 @@ class ProjectsTestCase(CremeTestCase):
         url = self._build_add_parent_task_url(task03)
         self.assertGET200(url)
 
-        self.assertNoFormError(self.client.post(url, data={'parents': '[%d,%d]' % (task01.id, task02.id)}))
+        self.assertNoFormError(self.client.post(url, data={'parents': self.formfield_value_multi_creator_entity(task01, task02)}))
         self.assertEqual({task01, task02}, set(task03.parent_tasks.all()))
 
         self.assertPOST200(reverse('projects__remove_parent_task'), data={'id': task03.id, 'parent_id': task01.id})
         self.assertEqual([task02], list(task03.parent_tasks.all()))
 
         # Error: already parent
-        self.assertFormError(self.client.post(url, data={'parents': '[%d]' % task02.id}),
+        self.assertFormError(self.client.post(url, data={'parents': self.formfield_value_multi_creator_entity(task02)}),
                              'form', 'parents',
                              _(u'This entity does not exist.')
                             )
@@ -486,7 +486,7 @@ class ProjectsTestCase(CremeTestCase):
         task02 = self.create_task(project02, 'Task02')
 
         response = self.client.post(self._build_add_parent_task_url(task02),
-                                    data={'parents': '[%d]' % task01.id}
+                                    data={'parents': self.formfield_value_multi_creator_entity(task01)},
                                    )
         self.assertFormError(response, 'form', 'parents',
                              _(u'This entity does not exist.')
@@ -505,13 +505,21 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual([task01], list(task01.get_subtasks()))
 
         build_url = self._build_add_parent_task_url
-        self.assertNoFormError(self.client.post(build_url(task02), data={'parents': '[%d]' % task01.id}))
+        self.assertNoFormError(self.client.post(build_url(task02),
+                                                data={'parents': self.formfield_value_multi_creator_entity(task01)},
+                                               )
+                               )
         self.assertEqual({task01, task02}, set(task01.get_subtasks()))
 
-        self.assertNoFormError(self.client.post(build_url(task03), data={'parents': '[%d]' % task02.id}))
+        self.assertNoFormError(self.client.post(build_url(task03),
+                                                data={'parents': self.formfield_value_multi_creator_entity(task02)},
+                                               )
+                              )
         self.assertEqual({task01, task02, task03}, set(task01.get_subtasks()))
 
-        response = self.client.post(build_url(task01), data={'parents': '[%d]' % task03.id})
+        response = self.client.post(build_url(task01),
+                                    data={'parents': self.formfield_value_multi_creator_entity(task03)},
+                                   )
         self.assertFormError(response, 'form', 'parents',
                              _(u'This entity does not exist.')
                             )

@@ -228,7 +228,9 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
         self.assertInvoiceTotalToPay(invoice, 300)
 
-        response = self.client.post(url, follow=True, data={'credit_notes': '[{}]'.format(credit_note.id)})
+        response = self.client.post(url, follow=True,
+                                    data={'credit_notes': self.formfield_value_multi_creator_entity(credit_note)},
+                                   )
         self.assertNoFormError(response)
 
         self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
@@ -302,7 +304,9 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
         self.assertInvoiceTotalToPay(invoice, 250)
 
-        response = self.client.post(url, follow=True, data={'credit_notes': '[{}]'.format(credit_note.id)})
+        response = self.client.post(url, follow=True,
+                                    data={'credit_notes': self.formfield_value_multi_creator_entity(credit_note)},
+                                   )
         self.assertFormError(response, 'form', 'credit_notes', _(u'This entity does not exist.'))
 
         self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())

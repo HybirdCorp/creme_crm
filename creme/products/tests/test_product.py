@@ -476,7 +476,7 @@ class ProductTestCase(_ProductsTestCase):
 
         def post(*images):
             return self.client.post(url, follow=True,
-                                    data={'images': '[{}]'.format(','.join(str(img.id) for img in images))}
+                                    data={'images': self.formfield_value_multi_creator_entity(*images)},
                                    )
 
         response = post(img_1, img_4)

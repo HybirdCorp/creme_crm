@@ -50,7 +50,7 @@ class LineTestCase(_BillingTestCase):
         product2 = self.create_product()
         vat = Vat.objects.get_or_create(value=Decimal('5.5'))[0]
         quantity = 2
-        response = self.client.post(url, data={'items': '[%d,%d]' % (product1.id, product2.id),
+        response = self.client.post(url, data={'items': self.formfield_value_multi_creator_entity(product1, product2),
                                                'quantity':       quantity,
                                                'discount_value': Decimal('20'),
                                                'vat':            vat.id,
@@ -158,7 +158,7 @@ class LineTestCase(_BillingTestCase):
         service2 = self.create_service()
         vat = Vat.objects.get_or_create(value=Decimal('19.6'))[0]
         quantity = 2
-        response = self.client.post(url, data={'items': '[%d,%d]' % (service1.id, service2.id),
+        response = self.client.post(url, data={'items': self.formfield_value_multi_creator_entity(service1, service2),
                                                'quantity':       quantity,
                                                'discount_value': Decimal('10'),
                                                'vat':            vat.id,

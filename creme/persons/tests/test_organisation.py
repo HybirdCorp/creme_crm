@@ -1164,7 +1164,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         url = reverse('persons__orga_set_managed')
         self.assertGET200(url)
 
-        response = self.client.post(url, data={'organisations': '[{},{}]'.format(orga1.id, orga2.id)})
+        response = self.client.post(url, data={'organisations': self.formfield_value_multi_creator_entity(orga1, orga2)})
         self.assertNoFormError(response)
 
         self.assertTrue(self.refresh(orga1).is_managed)

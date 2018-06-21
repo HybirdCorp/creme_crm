@@ -629,7 +629,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertGET200(url)
 
         self.assertNoFormError(self.client.post(url, follow=True,
-                                                data={'replies': '[{},{}]'.format(preply1.id, preply2.id)}
+                                                data={'replies': self.formfield_value_multi_creator_entity(preply1, preply2)}
                                                )
                               )
 
