@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from future_builtins import map
+
     from datetime import date
     from functools import partial
     from os.path import dirname, exists, join
@@ -323,7 +325,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertTrue(user.has_perm_to_view(organisations['Swordfish']))
 
         response = self.assertGET200(self._build_contact_dl_url())
-        result = map(force_text, response.content.splitlines())
+        result = list(map(force_text, response.content.splitlines()))
         self.assertEqual(result[1], '"","Black","Jet","",""')
         self.assertEqual(result[2], '"","Spiegel","Spike","Swordfish",""')
         self.assertEqual(result[3], u'"","Wong","Edward","","is a girl"')
