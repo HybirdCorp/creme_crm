@@ -1536,7 +1536,7 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
 
     def test_clean_incomplete_data_required(self):
         clean = PropertiesConditionsField(model=FakeContact).clean
-        self.assertFieldValidationError(PropertiesConditionsField, 'required', clean, '[{"ptype": "%s"}]' % self.ptype01.id)
+        self.assertFieldValidationError(PropertiesConditionsField, 'required', clean, json_dump([{'ptype': self.ptype01.id}]))
         self.assertFieldValidationError(PropertiesConditionsField, 'required', clean, '[{"has": true}]')
 
     def test_unknown_ptype(self):
