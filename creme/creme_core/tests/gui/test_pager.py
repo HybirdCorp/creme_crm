@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from future_builtins import map
+
     from django.core.paginator import Paginator
     from django.utils.translation import ugettext as _
 
@@ -12,8 +14,9 @@ except Exception as e:
 
 class PagerContextTestCase(CremeTestCase):
     def assertPagerLinks(self, links, expected):
-        self.assertEqual(map(lambda e: e.__dict__, links),
-                         map(lambda e: e.__dict__, expected))
+        self.assertListEqual(list(map(lambda e: e.__dict__, links)),
+                             list(map(lambda e: e.__dict__, expected))
+                            )
 
     def test_empty_page(self):
         page = Paginator([], 10).page(1)
