@@ -2,7 +2,7 @@
 
 try:
     from functools import partial
-    import json
+    # import json
 
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
@@ -512,7 +512,8 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(url, data={'brick_id': brick_id})
 
         with self.assertNoException():
-            result = json.loads(response.content)
+            # result = json.loads(response.content)
+            result = response.json()
 
         self.assertIsInstance(result, list)
         self.assertEqual(1, len(result))
@@ -548,7 +549,8 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                                     )
 
         with self.assertNoException():
-            result = json.loads(response.content)
+            # result = json.loads(response.content)
+            result = response.json()
 
         self.assertEqual(2, len(result))
 
@@ -570,7 +572,8 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                                     )
 
         with self.assertNoException():
-            result = json.loads(response.content)
+            # result = json.loads(response.content)
+            result = response.json()
 
         self.assertEqual(1, len(result))
         doc = self.get_html_tree(result[0][1])

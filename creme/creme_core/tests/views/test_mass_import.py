@@ -3,7 +3,7 @@
 try:
     from decimal import Decimal
     from functools import partial
-    from json import loads as json_load, dumps as json_dump
+    from json import dumps as json_dump  # loads as json_load
     from unittest import skipIf
 
     from django.contrib.contenttypes.models import ContentType
@@ -208,7 +208,8 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                                      data={'brick_id': brick_id},
                                     )
         with self.assertNoException():
-            result = json_load(response.content)
+            # result = json_load(response.content)
+            result = response.json()
 
         self.assertIsInstance(result, list)
         self.assertEqual(1, len(result))

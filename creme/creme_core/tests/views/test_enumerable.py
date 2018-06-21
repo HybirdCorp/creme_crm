@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 try:
-    import json
+    # import json
 
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
@@ -50,7 +50,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
 
         url = self._build_enum_url(FakeCivility)
         response = self.assertGET200(url)
-        self.assertEqual([[c.id, unicode(c)] for c in FakeCivility.objects.all()], json.loads(response.content))
+        self.assertEqual([[c.id, unicode(c)] for c in FakeCivility.objects.all()], response.json())
 
     def test_model_user(self):
         self.login()
@@ -58,7 +58,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
         User = get_user_model()
         url = self._build_enum_url(User)
         response = self.assertGET200(url)
-        self.assertEqual([[c.id, unicode(c)] for c in User.objects.all()], json.loads(response.content))
+        self.assertEqual([[c.id, unicode(c)] for c in User.objects.all()], response.json())
 
     def test_model_entityfilter(self):
         self.maxDiff = None
@@ -92,7 +92,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
                                 ],
                                 key=lambda e: sort_key(e['group'] + e['label'])
                                ),
-                         json.loads(response.content)
+                         response.json()
                         )
 
     def test_userfilter_list(self):
@@ -101,7 +101,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
         response = self.assertGET200(reverse('creme_core__efilter_user_choices'))
         self.assertEqual([['__currentuser__', _(u'Current user')]] +
                          [[u.id, unicode(u)] for u in get_user_model().objects.all()],
-                         json.loads(response.content)
+                         response.json()
                         )
 
     def test_custom_enum_not_exists(self):
@@ -127,5 +127,5 @@ class EnumerableViewsTestCase(ViewsTestCase):
                           [eva01.id, eva01.value],
                           [eva02.id, eva02.value]
                          ],
-                         json.loads(response.content)
+                         response.json()
                         )

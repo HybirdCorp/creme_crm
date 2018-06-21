@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from json import dumps as json_dump  # loads as json_load
+    # from json import dumps as json_dump, loads as json_load
 
     from django.apps import apps
     # from django.contrib.contenttypes.models import ContentType
@@ -267,11 +267,16 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(count + 2, sector.order)  # order is set to max
 
     def assertWidgetResponse(self, response, instance):
-        self.assertEqual(json_dump({
-                            'added': [[instance.id, unicode(instance)]], 
-                            'value': instance.id
-                         }), 
-                         response.content
+        # self.assertEqual(json_dump({
+        #                     'added': [[instance.id, unicode(instance)]],
+        #                     'value': instance.id
+        #                  }),
+        #                  response.content
+        #                 )
+        self.assertEqual({'added': [[instance.id, unicode(instance)]],
+                          'value': instance.id
+                         },
+                         response.json()
                         )
 
     def test_add01_from_widget(self):
