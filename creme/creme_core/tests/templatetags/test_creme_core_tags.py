@@ -2,6 +2,7 @@
 
 try:
     from functools import partial
+    from json import loads as json_load
 
     from django.contrib.contenttypes.models import ContentType
     # from django.db.models.fields import FieldDoesNotExist
@@ -332,18 +333,33 @@ class CremeCoreTagsTestCase(CremeTestCase):
             template = Template("{% load creme_core_tags %}{{data|jsonify|safe}}")
             render = template.render(Context({'data': data}))
 
-        self.assertEqual(expected, render.strip())
+        # self.assertEqual(expected, render.strip())
+        with self.assertNoException():
+            deserialized = json_load(render.strip())
+
+        self.assertEqual(expected, deserialized)
 
     def test_jsonify_filter(self):
-        self._assertJsonifyFilter('""', '')
-        self._assertJsonifyFilter('"test string"', 'test string')
-    
-        self._assertJsonifyFilter('[1,2,3]', (1, 2, 3))
-        self._assertJsonifyFilter('[1,2,3]', [1, 2, 3])
-        self._assertJsonifyFilter('{"value":1,"label":"a"}', {'value': 1, 'label':"a"})
-    
-        self._assertJsonifyFilter('[0,1,2]', (v for v in xrange(3)))
-        self._assertJsonifyFilter('[{"value":0,"label":"a"},{"value":1,"label":"b"},{"value":2,"label":"c"}]',
+        # self._assertJsonifyFilter('""', '')
+        # self._assertJsonifyFilter('"test string"', 'test string')
+        #
+        # self._assertJsonifyFilter('[1,2,3]', (1, 2, 3))
+        # self._assertJsonifyFilter('[1,2,3]', [1, 2, 3])
+        # self._assertJsonifyFilter('{"value":1,"label":"a"}', {'value': 1, 'label':"a"})
+        #
+        # self._assertJsonifyFilter('[0,1,2]', (v for v in xrange(3)))
+        # self._assertJsonifyFilter('[{"value":0,"label":"a"},{"value":1,"label":"b"},{"value":2,"label":"c"}]',
+        #                           ({'value': value, 'label': label} for value, label in enumerate(['a', 'b', 'c']))
+        #                          )
+        self._assertJsonifyFilter('', '')
+        self._assertJsonifyFilter('test string', 'test string')
+
+        self._assertJsonifyFilter([1, 2, 3], (1, 2, 3))
+        self._assertJsonifyFilter([1, 2, 3], [1, 2, 3])
+        self._assertJsonifyFilter({'value': 1, 'label': 'a'}, {'value': 1, 'label': 'a'})
+
+        self._assertJsonifyFilter([0, 1, 2], (v for v in xrange(3)))
+        self._assertJsonifyFilter([{'value': 0, 'label': 'a'}, {'value': 1, 'label': 'b'}, {'value': 2, 'label': 'c'}],
                                   ({'value': value, 'label': label} for value, label in enumerate(['a', 'b', 'c']))
                                  )
 
@@ -359,22 +375,37 @@ class CremeCoreTagsTestCase(CremeTestCase):
             template = Template("{% load creme_core_tags %}{{data|optionize_model_iterable|jsonify|safe}}")
             render = template.render(Context({'data': orgas}))
 
-        self.assertEqual('[[{},"{}"],[{},"{}"]]'.format(
-                                orga1.id, orga1,
-                                orga2.id, orga2,
-                            ),
-                         render.strip()
+        # self.assertEqual('[[{},"{}"],[{},"{}"]]'.format(
+        #                         orga1.id, orga1,
+        #                         orga2.id, orga2,
+        #                     ),
+        #                  render.strip()
+        #                 )
+        with self.assertNoException():
+            deserialized = json_load(render.strip())
+
+        self.assertEqual([[orga1.id, str(orga1)], [orga2.id, str(orga2)]],
+                         deserialized
                         )
 
+        # ---
         with self.assertNoException():
             template = Template("{% load creme_core_tags %}{{data|optionize_model_iterable:'dict'|jsonify|safe}}")
             render = template.render(Context({'data': orgas}))
 
-        self.assertEqual(u'[{"value":%d,"label":"%s"},{"value":%d,"label":"%s"}]' % (
-                                 orga1.pk, orga1,
-                                 orga2.pk, orga2,
-                            ),
-                         render.strip()
+        # self.assertEqual(u'[{"value":%d,"label":"%s"},{"value":%d,"label":"%s"}]' % (
+        #                          orga1.pk, orga1,
+        #                          orga2.pk, orga2,
+        #                     ),
+        #                  render.strip()
+        #                 )
+        with self.assertNoException():
+            deserialized = json_load(render.strip())
+
+        self.assertEqual([{'value': orga1.id, 'label': str(orga1)},
+                          {'value': orga2.id, 'label': str(orga2)},
+                         ],
+                         deserialized
                         )
 
     def test_url_join1(self):
