@@ -205,8 +205,8 @@ class Town(Model):
         towns = list(towns.filter(query_filter))
 
         if len(towns) > 1 and slug:
-            # TODO: [:1] is useless (not a queryset) ; use next() with default arg instead
-            towns = filter(lambda c: c.slug == slug, towns)[:1]
+            # towns = filter(lambda c: c.slug == slug, towns)[:1]
+            return next((t for t in towns if t.slug == slug), None)
 
         return towns[0] if len(towns) == 1 else None
 
@@ -234,7 +234,11 @@ class Town(Model):
             elif slug:
                 towns = get_city(slug, [])
 
+            # if len(towns) > 1 and slug:
+            #     towns = filter(lambda c: c.slug == slug, towns)[:1]
+            #
+            # yield towns[0] if len(towns) == 1 else None
             if len(towns) > 1 and slug:
-                towns = filter(lambda c: c.slug == slug, towns)[:1]
-
-            yield towns[0] if len(towns) == 1 else None
+                yield next((t for t in towns if t.slug == slug), None)
+            else:
+                yield towns[0] if len(towns) == 1 else None
