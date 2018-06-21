@@ -90,11 +90,11 @@ class SearchEditForm(_SearchForm):
         not_hiddable_fnames = OrderedSet(fname.split('__', 1)[0] for fname in selected_fnames)
         is_hidden = FieldsConfig.get_4_model(instance.content_type.model_class()).is_fieldname_hidden
 
-        def keep_choice(fname):
-            return not is_hidden(c[0].split('__', 1)[0]) or fname in not_hiddable_fnames
+        def keep_field(name):
+            root_name = name.split('__', 1)[0]
+
+            return not is_hidden(root_name) or root_name in not_hiddable_fnames
 
         fields_f = self.fields['fields']
-        fields_f.choices = [c for c in self.instance.get_modelfields_choices()
-                                if keep_choice(c[0].split('__', 1)[0])
-                           ]
+        fields_f.choices = [c for c in self.instance.get_modelfields_choices() if keep_field(c[0])]
         fields_f.initial = selected_fnames
