@@ -30,7 +30,7 @@ class FileHandlingTestCase(CremeTestCase):
                              )
 
         if not exists(utils_dir_path):
-            makedirs(utils_dir_path, 0755)
+            makedirs(utils_dir_path, 0o755)
 
         cls.dir_path = dir_path = join(utils_dir_path, 'file_handling')
 
