@@ -2,7 +2,6 @@
 
 try:
     from functools import partial
-    from json import loads as load_json
 
     from django.contrib.contenttypes.models import ContentType
     from django.http import Http404
@@ -43,7 +42,7 @@ class RelationViewsTestCase(ViewsTestCase):
         # self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual('application/json', response['Content-Type'])
 
-        json_data = load_json(response.content)
+        json_data = response.json()
         get_ct = ContentType.objects.get_for_model
         self.assertIsInstance(json_data, list)
         self.assertEqual(2, len(json_data))
@@ -62,7 +61,7 @@ class RelationViewsTestCase(ViewsTestCase):
         # self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual('application/json', response['Content-Type'])
 
-        json_data = load_json(response.content)
+        json_data = response.json()
         get_ct = ContentType.objects.get_for_model
         self.assertIn([get_ct(FakeContact).id], json_data)
         self.assertIn([get_ct(FakeOrganisation).id], json_data)
@@ -90,7 +89,7 @@ class RelationViewsTestCase(ViewsTestCase):
         expected.insert(0 if i_vname < c_vname else 1,
                         [get_ct(FakeImage).id,  i_vname]
                        )
-        self.assertEqual(load_json(response.content), expected)
+        self.assertEqual(response.json(), expected)
 
     def _aux_test_add_relations(self, is_superuser=True):
         user = self.login(is_superuser)
@@ -1470,7 +1469,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertGET403(url, data={'fields': ['unknown']})
 
         response = self.assertGET200(url, data={'fields': ['id']})
-        json_data = load_json(response.content)
+        json_data = response.json()
         self.assertIsInstance(json_data, list)
         self.assertIn([rtype3.id], json_data)
         self.assertIn([rtype5.id], json_data)
@@ -1483,7 +1482,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                      data={'fields': ['id', 'unicode']}
                                     )
         self.assertIn([rtype3.id, unicode(rtype3)],
-                      load_json(response.content)
+                      response.json()
                      )
 
     def test_json_entity_rtypes02(self):
