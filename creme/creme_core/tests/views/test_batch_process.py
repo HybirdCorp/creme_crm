@@ -2,7 +2,7 @@
 
 try:
     from functools import partial
-    # from json import loads as load_json
+    from json import dumps as json_dump  # loads as load_json
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
@@ -23,9 +23,17 @@ except Exception as e:
 
 
 class BatchProcessViewsTestCase(ViewsTestCase):
-    format_str1 = '[{"name": "%(name)s", "operator": "%(operator)s", "value": "%(value)s"}]'
-    format_str2 = '[{"name": "%(name01)s", "operator": "%(operator01)s", "value": "%(value01)s"},' \
-                  ' {"name": "%(name02)s", "operator": "%(operator02)s", "value": "%(value02)s"}]'
+    # format_str1 = '[{"name": "%(name)s", "operator": "%(operator)s", "value": "%(value)s"}]'
+    # format_str2 = '[{"name": "%(name01)s", "operator": "%(operator01)s", "value": "%(value01)s"},' \
+    #               ' {"name": "%(name02)s", "operator": "%(operator02)s", "value": "%(value02)s"}]'
+
+    @classmethod
+    def build_formfield_entry(cls, name, operator, value):
+        return {'name': name, 'operator': operator, 'value': value}
+
+    @classmethod
+    def build_formfield_value(cls, name, operator, value):
+        return json_dump([cls.build_formfield_entry(name, operator, value)])
 
     @classmethod
     def setUpClass(cls):
@@ -107,11 +115,11 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         orga02 = create_orga(name='Manga club')
 
         response = self.client.post(url, follow=True,
-                                    data={'actions': self.format_str1 % {
-                                                            'operator': 'upper',
-                                                            'name':     'name',
-                                                            'value':    '',
-                                                        },
+                                    data={'actions': self.build_formfield_value(
+                                                            operator='upper',
+                                                            name='name',
+                                                            value='',
+                                                ),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -176,11 +184,11 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         contact02 = create_contact(first_name='Harunobu', last_name='Madarame')
 
         response = self.client.post(self._build_add_url(FakeContact), follow=True,
-                                    data={'actions': self.format_str1 % {
-                                                            'name':     'first_name',
-                                                            'operator': 'lower',
-                                                            'value':    '',
-                                                        },
+                                    data={'actions': self.build_formfield_value(
+                                                            name='first_name',
+                                                            operator='lower',
+                                                            value='',
+                                                        ),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -199,11 +207,11 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         contact02 = create_contact(first_name=u'Kanako', last_name=u'Ono')
 
         response = self.client.post(self._build_add_url(FakeContact), follow=True,
-                                    data={'actions': self.format_str1 % {
-                                                            'name':     'first_name',
-                                                            'operator': 'suffix',
-                                                            'value':    u'-adorée',
-                                                        },
+                                    data={'actions': self.build_formfield_value(
+                                                            name='first_name',
+                                                            operator='suffix',
+                                                            value=u'-adorée',
+                                                        ),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -218,11 +226,11 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.login()
 
         response = self.assertPOST200(self._build_add_url(FakeContact), follow=True,
-                                      data={'actions': self.format_str1 % {
-                                                            'name':     'unknown_field',  # <============= HERE
-                                                            'operator': 'lower',
-                                                            'value':    '',
-                                                        },
+                                      data={'actions': self.build_formfield_value(
+                                                            name='unknown_field',  # <============= HERE
+                                                            operator='lower',
+                                                            value='',
+                                                        ),
                                            }
                                      )
         self.assertFormError(response, 'form', 'actions',
@@ -281,10 +289,10 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         contact = FakeContact.objects.create(user=self.user, first_name='kanji', last_name='sasahara')
         response = self.client.post(self._build_add_url(FakeContact), follow=True,
-                                    data={'actions': self.format_str2 % {
-                                                        'name01': 'first_name', 'operator01': 'title', 'value01': '',
-                                                        'name02': 'last_name',  'operator02': 'upper', 'value02': '',
-                                                    },
+                                    data={'actions': json_dump([
+                                                self.build_formfield_entry(name='first_name', operator='title', value=''),
+                                                self.build_formfield_entry(name='last_name',  operator='upper', value=''),
+                                            ]),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -300,10 +308,10 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         name = 'first_name'
         response = self.assertPOST200(self._build_add_url(FakeContact), follow=True,
-                                      data={'actions': self.format_str2 % {
-                                                            'name01': name, 'operator01': 'title', 'value01': '',
-                                                            'name02': name, 'operator02': 'upper', 'value02': '',
-                                                        },
+                                      data={'actions': json_dump([
+                                                    self.build_formfield_entry(name=name, operator='title', value=''),
+                                                    self.build_formfield_entry(name=name, operator='upper', value=''),
+                                                ]),
                                            }
                                      )
         self.assertFormError(response, 'form', 'actions',
@@ -333,11 +341,11 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         response = self.client.post(self._build_add_url(FakeOrganisation), follow=True,
                                     data={'filter':  efilter.id,
-                                          'actions': self.format_str1 % {
-                                                            'name':     'name',
-                                                            'operator': 'lower',
-                                                            'value':    '',
-                                                        },
+                                          'actions': self.build_formfield_value(
+                                                            name='name',
+                                                            operator='lower',
+                                                            value='',
+                                                        ),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -385,11 +393,11 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         response = self.assertPOST200(self._build_add_url(FakeOrganisation), follow=True,
                                       data={'filter':  efilter.id,
-                                            'actions': self.format_str1 % {
-                                                            'name':     'name',
-                                                            'operator': 'lower',
-                                                            'value':    '',
-                                                        },
+                                            'actions': self.build_formfield_value(
+                                                            name='name',
+                                                            operator='lower',
+                                                            value='',
+                                                        ),
                                            }
                                      )
         self.assertFormError(response, 'form', 'filter',
@@ -418,11 +426,11 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         response = self.client.post(self._build_add_url(FakeOrganisation), follow=True,
                                     data={'filter':  efilter.id,
-                                          'actions': self.format_str1 % {
-                                                            'name':     'name',
-                                                            'operator': 'upper',
-                                                            'value':    '',
-                                                        },
+                                          'actions': self.build_formfield_value(
+                                                            name='name',
+                                                            operator='upper',
+                                                            value='',
+                                                        ),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -455,11 +463,11 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertTrue(self.user.has_perm_to_change(orga02))
 
         response = self.client.post(self._build_add_url(FakeOrganisation), follow=True,
-                                    data={'actions': self.format_str1 % {
-                                                            'name':     'name',
-                                                            'operator': 'lower',
-                                                            'value':    '',
-                                                        },
+                                    data={'actions': self.build_formfield_value(
+                                                            name='name',
+                                                            operator='lower',
+                                                            value='',
+                                                        ),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -502,10 +510,10 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         response = self.client.post(self._build_add_url(FakeContact), follow=True,
                                     data={'filter':  efilter.id,
-                                          'actions': self.format_str2 % {
-                                                            'name01': 'last_name',  'operator01': 'rm_start', 'value01': 6,
-                                                            'name02': 'first_name', 'operator02': 'upper',    'value02': '',
-                                                        },
+                                          'actions': json_dump([
+                                                self.build_formfield_entry(name='last_name',  operator='rm_start', value=6),
+                                                self.build_formfield_entry(name='first_name', operator='upper',    value=''),
+                                            ]),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -608,11 +616,11 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         response = self.client.post(self._build_add_url(FakeOrganisation), follow=True,
                                     data={'filter':  efilter.id,
-                                          'actions': self.format_str1 % {
-                                                            'name':     'name',
-                                                            'operator': 'rm_end',
-                                                            'value':    '5',
-                                                        },
+                                          'actions': self.build_formfield_value(
+                                                            name='name',
+                                                            operator='rm_end',
+                                                            value='5',
+                                                        ),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -635,11 +643,11 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.login()
 
         response = self.client.post(self._build_add_url(FakeOrganisation), follow=True,
-                                    data={'actions': self.format_str1 % {
-                                                            'name':     'name',
-                                                            'operator': 'upper',
-                                                            'value':    '',
-                                                        },
+                                    data={'actions': self.build_formfield_value(
+                                                            name='name',
+                                                            operator='upper',
+                                                            value='',
+                                                        ),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -655,11 +663,11 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                      )
         response = self.client.post(self._build_add_url(FakeOrganisation), follow=True,
                                     data={'filter':  efilter.id,
-                                          'actions': self.format_str1 % {
-                                                            'name':     'name',
-                                                            'operator': 'rm_end',
-                                                            'value':    '5',
-                                                        },
+                                          'actions': self.build_formfield_value(
+                                                            name='name',
+                                                            operator='rm_end',
+                                                            value='5',
+                                                        ),
                                          }
                                    )
         efilter.delete()
