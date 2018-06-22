@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2016 Hybird
+# Copyright (c) 2009-2018 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -64,8 +64,12 @@ class Command(BaseCommand):
                 help='Work with po file for javascript (ie: djangojs.po instead of django.po) '
                      '[default: %(default)s]',
                )
+        add_arg('args', metavar='terms', nargs='+',
+                help='The terms to find in existing messages.',
+               )
 
-    def handle(self, *args, **options):
+    # def handle(self, *args, **options):
+    def handle(self, *terms, **options):
         try:
             import polib
         except ImportError as e:
@@ -83,9 +87,11 @@ class Command(BaseCommand):
         file_name = 'djangojs.po'if get_opt('javascript') else 'django.po'
 
         if get_opt('comment_useless'):
-            self._comment_useless(language, verbosity, polib, file_name, *args)
+            # self._comment_useless(language, verbosity, polib, file_name, *args)
+            self._comment_useless(language, verbosity, polib, file_name, *terms)
         else:
-            self._overload_terms(language, verbosity, polib, file_name, *args)
+            # self._overload_terms(language, verbosity, polib, file_name, *args)
+            self._overload_terms(language, verbosity, polib, file_name, *terms)
 
     def _get_catalog_paths(self, language, file_name):
         catalog_dirpath = join(settings.CREME_ROOT, APP_NAME, 'locale', language, 'LC_MESSAGES')
