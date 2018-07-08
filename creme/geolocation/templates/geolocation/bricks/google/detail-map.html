@@ -6,10 +6,10 @@
 {% block brick_script %}
     <script type="text/javascript">
          $('.brick[id="{{brick_id}}"]').on('brick-ready', function(event, brick) {
-{#             new creme.geolocation.PersonsBlock(brick, { #}
              new creme.geolocation.PersonsBrick(brick, {
                  apiKey: '{{google_api_key}}',
-                 addresses: {{geoaddresses|safe}},
+{#                 addresses: {{geoaddresses|safe}}, #}
+                 addresses: {{geoaddresses|jsonify|safe}},
                  infoUrl: '{% url 'geolocation__set_address_info' %}'
              });
          });
@@ -26,43 +26,32 @@
     {% else %}
     <div class="geolocation-brick-items">
         {% for address in addresses %}
-{#        <div class="block-geoaddress-item{% if address.is_billing %} item-selected{% endif %}" data-addressid="{{address.id}}"> #}
         <div class="brick-geoaddress-item{% if address.is_billing %} item-selected{% endif %}" data-addressid="{{address.id}}">
             <input type="checkbox" value="{{address.id}}"{% if address.is_billing %} checked{% endif %} />
-{#            <div class="block-geoaddress-label"> #}
             <div class="brick-geoaddress-label">
             {% if address.content and address.title %}
-{#                <span class="block-geoaddress-title">{{address.title}}</span> #}
                 <span class="brick-geoaddress-title">{{address.title}}</span>
-{#                <span class="block-geoaddress-content">{{address.content}}</span> #}
                 <span class="brick-geoaddress-content">{{address.content}}</span>
             {% else %}
-{#                <span class="block-geoaddress-title">{% if address.title %}{{address.title}}{% else %}{{address.content}}{% endif %}</span> #}
                 <span class="brick-geoaddress-title">{% if address.title %}{{address.title}}{% else %}{{address.content}}{% endif %}</span>
             {% endif %}
             </div>
-{#            <div class="block-geoaddress-action{% if address.is_complete %} block-geoaddress-iscomplete{% endif %}"> #}
             <div class="brick-geoaddress-action{% if address.is_complete %} brick-geoaddress-iscomplete{% endif %}">
-{#                <a class="block-geoaddress-reset" data-addressid="{{address.id}}">{% trans 'Retrieve location' %}</a> #}
                 <a class="brick-geoaddress-reset" data-addressid="{{address.id}}">{% trans 'Retrieve location' %}</a>
-{#                <span class="block-geoaddress-position"> #}
                 <span class="brick-geoaddress-position">
                 {% if address.latitude %}
                     {{address.latitude|format:'%3.6f'}}, {{address.longitude|format:'%3.6f'}}
                 {% endif %}
                 </span>
-{#                <span class="block-geoaddress-status">{{address.status_label}}</span> #}
                 <span class="brick-geoaddress-status">{{address.status_label}}</span>
             </div>
         </div>
         {% endfor %}
     </div>
-{#    <div class="block-geoaddress-error"> #}
     <div class="brick-geoaddress-error">
         {% has_perm_to admin 'geolocation' as admin_perm %}{% url 'creme_config__app_portal' 'geolocation' as config_url %}
         {% brick_action id='redirect' display='text' url=config_url label=_('Google API key may be missing or invalid. Please try to configure it or contact your administrator.') enabled=admin_perm %}
     </div>
-{#    <div class="block-geoaddress-canvas"></div> #}
     <div class="brick-geoaddress-canvas"></div>
     {% endif %}
 {% endblock %}
