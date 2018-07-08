@@ -14,11 +14,11 @@ except Exception as e:
 
 @skipIfCustomContact
 @skipIfCustomOrganisation
-class _MapBlockTestCase(GeoLocationBaseTestCase):
+class MapBrickTestCase(GeoLocationBaseTestCase):
     def setUp(self):
-        super(_MapBlockTestCase, self).setUp()
+        super(MapBrickTestCase, self).setUp()
         self.login()
-        self.block = _MapBrick()
+        self.brick = _MapBrick()
 
         self.contacts_title      = unicode(Contact._meta.verbose_name_plural)
         self.organisations_title = unicode(Organisation._meta.verbose_name_plural)
@@ -37,7 +37,7 @@ class _MapBlockTestCase(GeoLocationBaseTestCase):
 
     def test_filter_choices01(self):
         user = self.user
-        self.assertEqual([], self.block.get_filter_choices(user))
+        self.assertEqual([], self.brick.get_filter_choices(user))
 
         get_efilter = EntityFilter.objects.get
         contact_me    = get_efilter(pk=FILTER_CONTACT_ME)
@@ -47,17 +47,17 @@ class _MapBlockTestCase(GeoLocationBaseTestCase):
                          [(contact_me.pk, u'{} - {}'.format(self.contacts_title, contact_me.name))]
                         )
         self.assertEqual([contact_group],
-                         self.block.get_filter_choices(user, Contact)
+                         self.brick.get_filter_choices(user, Contact)
                         )
 
         orga_group = (self.organisations_title,
                       [(managed_orgas.pk, u'{} - {}'.format(self.organisations_title, managed_orgas.name))]
                      )
         self.assertEqual([orga_group],
-                         self.block.get_filter_choices(user, Organisation)
+                         self.brick.get_filter_choices(user, Organisation)
                         )
         self.assertEqual([contact_group, orga_group],
-                         self.block.get_filter_choices(user, Contact, Organisation)
+                         self.brick.get_filter_choices(user, Contact, Organisation)
                         )
 
     def test_filter_choices02(self):
@@ -71,9 +71,9 @@ class _MapBlockTestCase(GeoLocationBaseTestCase):
         efilter1 = self.create_filter('filter-1', 'Contact filter', user, Contact,      'first_name', EQUALS, 'John')
         efilter2 = self.create_filter('filter-2', 'Orga filter',    user, Organisation, 'name',       EQUALS, 'Le spectre')
 
-        self.assertEqual([], self.block.get_filter_choices(user))
+        self.assertEqual([], self.brick.get_filter_choices(user))
 
-        contact_group = self.block.get_filter_choices(user, Contact)[0]
+        contact_group = self.brick.get_filter_choices(user, Contact)[0]
         self.assertEqual(self.contacts_title, contact_group[0])
 
         contact_opt = contact_group[1]
@@ -81,7 +81,7 @@ class _MapBlockTestCase(GeoLocationBaseTestCase):
         self.assertIn((efilter1.pk,   u'{} - {}'.format(self.contacts_title, efilter1.name)),   contact_opt)
 
         # -----
-        orga_group = self.block.get_filter_choices(user, Organisation)[0]
+        orga_group = self.brick.get_filter_choices(user, Organisation)[0]
         self.assertEqual(self.organisations_title, orga_group[0])
 
         orga_opt = orga_group[1]
@@ -90,7 +90,7 @@ class _MapBlockTestCase(GeoLocationBaseTestCase):
 
         # -----
         self.assertEqual([contact_group, orga_group],
-                         self.block.get_filter_choices(user, Contact, Organisation)
+                         self.brick.get_filter_choices(user, Contact, Organisation)
                         )
 
     def test_filter_choices_private(self):
@@ -107,10 +107,10 @@ class _MapBlockTestCase(GeoLocationBaseTestCase):
                            [(managed_orgas.pk, u'{} - {}'.format(title, managed_orgas.name))]
                           )
                          ],
-                         self.block.get_filter_choices(user, Organisation)
+                         self.brick.get_filter_choices(user, Organisation)
                         )
 
-        orga_group = self.block.get_filter_choices(other_user, Organisation)[0]
+        orga_group = self.brick.get_filter_choices(other_user, Organisation)[0]
         self.assertEqual(title, orga_group[0])
 
         orga_opt = orga_group[1]

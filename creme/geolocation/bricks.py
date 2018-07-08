@@ -19,7 +19,7 @@
 ################################################################################
 
 from collections import defaultdict
-from json import dumps as encode_json
+# from json import dumps as encode_json
 
 from django.contrib.contenttypes.models import ContentType
 from django.utils.html import escape
@@ -88,7 +88,8 @@ class GoogleDetailMapBrick(_MapBrick):
         return self._render(self.get_template_context(
                     context,
                     addresses=addresses,
-                    geoaddresses=encode_json(addresses),  # TODO: use '|jsonify'
+                    # geoaddresses=encode_json(addresses),
+                    geoaddresses=addresses,
                     google_api_key=get_google_api_key(),  # TODO: factorise
         ))
 
