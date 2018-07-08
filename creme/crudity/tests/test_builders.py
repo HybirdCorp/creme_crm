@@ -97,7 +97,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         backend = self._get_backend(ContactFakeBackend, subject='create_contact',
                                     model=Contact,
                                     body_map={'user_id':     1,
-                                              # 'is_actived':  True,
                                               'first_name':  '',
                                               'last_name':   '',
                                               'email':       'none@none.com',
@@ -175,7 +174,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                          builder.get_namespace()
                         )  # Can't be got with ElementTree, because it's a namespace
         xsf = '{http://schemas.microsoft.com/office/infopath/2003/solutionDefinition}'
-        xml= XML(content)
+        xml = XML(content)
 
         xmlToEdit_node = xml.find('{xsf}views/{xsf}view/{xsf}editing/{xsf}xmlToEdit'.format(xsf=xsf))
         self.assertIsNotNone(xmlToEdit_node)
@@ -211,7 +210,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
     def test_myschema_xsd01(self):
         body_map = {'user_id':     1,
-                    # 'is_actived':  True,
                     'first_name':  '',
                     'last_name':   '',
                     'email':       'none@none.com',
@@ -317,7 +315,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
     def test_myschema_xsd02(self):
         "With Document"
         body_map = {'user_id': 1, 'title': '',
-                    # 'description': '', 'folder': '', 'filedata': '',
                     'description': '', 'linked_folder': '', 'filedata': '',
                    }
         backend = self._get_backend(DocumentFakeBackend, subject='create_doc',
@@ -353,7 +350,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             #   </xsd:complexType>
             # </xsd:element>
             'description': {'name': 'description'},
-            # 'folder':      {'name': 'folder', 'type': 'xsd:integer'},
             'linked_folder': {'name': 'linked_folder', 'type': 'xsd:integer'},
             'filedata':    {'name': 'filedata', 'type': 'my:requiredBase64Binary'},
        }
@@ -373,7 +369,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         backend = self._get_backend(ContactFakeBackend, subject='create_contact',
                                     model=Contact,
                                     body_map={'user_id':     1,
-                                              # 'is_actived':  True,
                                               'first_name':  '',
                                               'last_name':   '',
                                               'email':       'none@none.com',
@@ -403,7 +398,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
     def test_upgrade_xsl01(self):
         body_map = {'user_id':     1,
-                    # 'is_actived':  True,
                     'first_name':  '',
                     'last_name':   '',
                     'email':       'none@none.com',
@@ -712,7 +706,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
     def test_render01(self):
         backend = self._get_backend(ContactFakeBackend, subject='create_contact',
                                     body_map={'user_id':     1,
-                                              # 'is_actived':  True,
                                               'first_name':  '',
                                               'last_name':   '',
                                               'email':       'none@none.com',
@@ -723,7 +716,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                                             },
                                    )
         builder = self._get_builder(backend)
-        content = str(builder.render().content)
+        content = builder.render().content
 
         self.assertIn('<my:first_name></my:first_name>',            content)
         self.assertIn('<my:last_name></my:last_name>',              content)
@@ -735,7 +728,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         self._get_backend(ContactFakeBackend, subject=subject,
                           body_map={}, model=Contact
                          )
-        # self.assertGET404('/crudity/infopath/create_form/%s' % subject)
         self.assertGET404(reverse('crudity__dl_infopath_form', args=(subject,)))
 
     def test_get_create_form_view02(self):
@@ -751,7 +743,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         input.add_backend(backend)
         crudity_registry.register_inputs('test', [input])
 
-        # self.assertGET200('/crudity/infopath/create_form/%s' % subject)
         self.assertGET200(reverse('crudity__dl_infopath_form', args=(subject,)))
 
 
@@ -802,7 +793,7 @@ class InfopathFormFieldTestCase(CrudityTestCase):
 
     def test_get_field01(self):
         request = self.request
-        body_map = {'user_id': 1, 'first_name': '', 'last_name': '',  # 'is_actived': True
+        body_map = {'user_id': 1, 'first_name': '', 'last_name': '',
                     'email': 'none@none.com', 'description': '', 'birthday': '',
                    }
 
