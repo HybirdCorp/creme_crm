@@ -332,8 +332,6 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
         brick_id = 'block_crudity-{}'.format(ct.id)
         response = self.assertGET200(reverse('crudity__reload_history_bricks'), data={'brick_id': brick_id})
 
-        # with self.assertNoException():
-        #     reload_data = load_json(response.content)
         reload_data = response.json()
 
         self.assertEqual(reload_data[0][0], brick_id)
@@ -391,8 +389,6 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
                                      data={'brick_id': brick_id},
                                     )
 
-        # with self.assertNoException():
-        #     reload_data = load_json(response.content)
         reload_data = response.json()
 
         self.assertEqual(reload_data[0][0], brick_id)
@@ -427,12 +423,9 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
         self.assertGET404(url)
 
         response = self.assertPOST200(url)
-
-        # with self.assertNoException():
-        #     ldata = load_json(response.content)
         ldata = response.json()
-
         self.assertEqual([], ldata)
+
         pop_instances = FakePOP3.instances
         self.assertEqual(1, len(pop_instances))
 

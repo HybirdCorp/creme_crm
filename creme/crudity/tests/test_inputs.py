@@ -558,7 +558,6 @@ description3=[[<br>]]
                                             subject='create_contact',
                                             body_map={'user_id':    user.id,
                                                       'created':    '',
-                                                      # 'is_actived': '',
                                                       'url_site':   '',
                                                      },
                                             model=Contact,
@@ -624,7 +623,6 @@ description3=[[<br>]]
         email_input = self._get_email_input(ContactFakeBackend, password='creme',
                                             subject='create_contact',  # TODO: factorise
                                             body_map={'user_id':     user.id,
-                                                      # 'is_actived':  True,
                                                       'first_name':  '',
                                                       'last_name':   '',
                                                       'email':       'none@none.com',
@@ -664,7 +662,6 @@ description3=[[<br>]]
                           'first_name':  'Mario',
                           'email':       'mario@bros.com',
                           'url_site':    'http://mario.com',
-                          # 'is_actived':  True,
                           'birthday':    '02/08/1987',
                           'description': 'A plumber',
                         },
@@ -695,7 +692,6 @@ description3=[[<br>]]
         email_input = self._get_email_input(ActivityFakeBackend, password='creme',
                                             subject=subject,
                                             body_map={'user_id':     user.id,
-                                                      # 'is_actived':  True,
                                                       'title':       '',
                                                       'type_id':     ACTIVITYTYPE_MEETING,
                                                       'sub_type_id': ACTIVITYSUBTYPE_MEETING_MEETING,
@@ -1116,7 +1112,6 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
         infopath_input = self._get_infopath_input(ContactFakeBackend, password='creme', subject="create_ce_infopath",
                                                   body_map={'user_id':     user.id,
-                                                            # 'is_actived':  True,
                                                             'first_name':  '',
                                                             'last_name':   '',
                                                             'email':       'none@none.com',
@@ -1133,19 +1128,27 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual(0, WaitingAction.objects.count())
         infopath_input.create(self._get_pop_email(body=u'password=creme', senders=('user@cremecrm.com',),
                                                   subject='create_ce_infopath',
-                                                  attachments=[self._build_attachment(content=xml_content)]
+                                                  attachments=[self._build_attachment(content=xml_content)],
                                                  )
                              )
         self.assertEqual(1, WaitingAction.objects.count())
 
         wa = WaitingAction.objects.all()[0]
-        img_content = "x0lGQRQAAAABAAAAAAAAAHwCAAAGAAAAYgAuAHAAbgBnAAAAiVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABuwAAAbsBOuzj4gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAH5SURBVDiNpZM9a1RBFIbfd87M3N3szW6iYoIYlYBgY6FNwMafIOJPsLCwEm3UQoKFYhk7/4lYGqxtRPAr6kIS3KjZTbIfc+/MsfAjyV5FwYFTnAPnmfc9Z4aqiv85drzQeJQ9YENOmpaZEsPm7OEZdtvb7dWL6xf+CuAtnjp6eebaKAVLA5SD1Hu9/LYJYvZPCsy+LCErY1QKYK2AgHACgEf6NwsZGmKo4j2gChKCBoAhRO7zOhRFAp7oTX35S7Wqor5UP39oYfohatoyM2aOJMtQoAgFhl+Hq0URi9AtyI4eSz08j1f1zD4FNPGcn3eni1GAs4KYdjdjGnLEJ4KK9uhDAAWxMoOiG9eNIXzdQ2xlMfC1DMYI2ATwOwAccpc5ZJmvNnuPeq0GI3QI30sVgCpf9VcG7wadsAYF8MOBEQPnLayxSIU67WMT23izF8C9L5G3efbElbmnqOlEMQhIUbXz7PNHBmXc0sdpA/f0rq5ULexmXVWNACBOYBKC7qTj0alPm7gx3rwPQJKObkKHSUFArACKEgIYwRCrGFQGtNcCQU4uTh7s2/4l15IFmZZ5Nak1Wgvvbc8vWbFfKIwkyxhir4/+J72jJcd/Ixdpc+QHoo1OS3XipIkIjt8cGXv5Vr5RAVQkLtLnyKcUan4GLGhKU+y82Ol8A49h31zz9A1IAAAAAElFTkSuQmCC"
+        img_content = 'x0lGQRQAAAABAAAAAAAAAHwCAAAGAAAAYgAuAHAAbgBnAAAAiVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hA' \
+                      'AAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABuwAAAbsBOuzj4gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5' \
+                      'vuPBoAAAH5SURBVDiNpZM9a1RBFIbfd87M3N3szW6iYoIYlYBgY6FNwMafIOJPsLCwEm3UQoKFYhk7/4lYGqxtRPAr6kI' \
+                      'S3KjZTbIfc+/MsfAjyV5FwYFTnAPnmfc9Z4aqiv85drzQeJQ9YENOmpaZEsPm7OEZdtvb7dWL6xf+CuAtnjp6eebaKAVL' \
+                      'A5SD1Hu9/LYJYvZPCsy+LCErY1QKYK2AgHACgEf6NwsZGmKo4j2gChKCBoAhRO7zOhRFAp7oTX35S7Wqor5UP39oYfoha' \
+                      'toyM2aOJMtQoAgFhl+Hq0URi9AtyI4eSz08j1f1zD4FNPGcn3eni1GAs4KYdjdjGnLEJ4KK9uhDAAWxMoOiG9eNIXzdQ2' \
+                      'xlMfC1DMYI2ATwOwAccpc5ZJmvNnuPeq0GI3QI30sVgCpf9VcG7wadsAYF8MOBEQPnLayxSIU67WMT23izF8C9L5G3efb' \
+                      'ElbmnqOlEMQhIUbXz7PNHBmXc0sdpA/f0rq5ULexmXVWNACBOYBKC7qTj0alPm7gx3rwPQJKObkKHSUFArACKEgIYwRCr' \
+                      'GFQGtNcCQU4uTh7s2/4l15IFmZZ5Nak1Wgvvbc8vWbFfKIwkyxhir4/+J72jJcd/Ixdpc+QHoo1OS3XipIkIjt8cGXv5V' \
+                      'r5RAVQkLtLnyKcUan4GLGhKU+y82Ol8A49h31zz9A1IAAAAAElFTkSuQmCC'
         filename, blob = decode_b64binary(img_content)
-        expected_data = {"user_id": str(user.id), "created": "2003-02-01", "last_name": "Bros",
-                         "first_name": "Mario", "email": "mario@bros.com", "url_site": "http://mario.com",
-                         # "is_actived": True,
-                         "birthday": "02/08/1987", "description": "A plumber",
-                         "image": (filename, blob),
+        expected_data = {'user_id': str(user.id), 'created': '2003-02-01', 'last_name': 'Bros',
+                         'first_name': 'Mario', 'email': 'mario@bros.com', 'url_site': 'http://mario.com',
+                         'birthday': '02/08/1987', 'description': 'A plumber',
+                         'image': (filename, blob),
                         }
         self.maxDiff = None
         # self.assertEqual(expected_data, wa.get_data())
@@ -1204,7 +1207,6 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
         infopath_input = self._get_infopath_input(ContactFakeBackend, password='creme', subject="create_ce_infopath",
                                                   body_map={'user_id':     user.id,
-                                                            # 'is_actived':  True,
                                                             'first_name':  '',
                                                             'last_name':   '',
                                                             'email':       'none@none.com',
@@ -1278,7 +1280,6 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         infopath_input = self._get_infopath_input(ContactFakeBackend, password='creme',
                                                   subject='create_ce_infopath',
                                                   body_map={'user_id':     user.id,
-                                                            # 'is_actived':  True,
                                                             'first_name':  '',
                                                             'last_name':   '',
                                                             'email':       'none@none.com',
@@ -1309,7 +1310,6 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual('Mario', contact.first_name)
         self.assertEqual('mario@bros.com', contact.email)
         self.assertEqual('http://mario.com', contact.url_site)
-        # self.assertIs(contact.is_actived, True)
         self.assertEqual(self.create_datetime(year=1987, month=8, day=2).date(), contact.birthday)
         self.assertEqual('A plumber', contact.description)
         self.assertEqual(set(languages[:2]), set(contact.language.all()))
@@ -1348,7 +1348,6 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
                                                             'filedata':    '',
                                                             'title':       '',
                                                             'description': '',
-                                                            # 'folder_id':   ''
                                                             'linked_folder_id':   ''
                                                            }
                                                  )
@@ -1381,7 +1380,6 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
         document = Document.objects.filter(q_document_existing_ids)[0]
         self.assertEqual(user, document.user)
-        # self.assertEqual(folder, document.folder)
         self.assertEqual(folder, document.linked_folder)
         self.assertEqual('My doc', document.title)
         self.assertEqual('A document', document.description)
