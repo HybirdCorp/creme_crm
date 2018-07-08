@@ -323,10 +323,10 @@ class ActivityCreateForm(_ActivityCreateForm):
         try:
             sv = SettingValue.objects.get(key_id=constants.SETTING_FORM_USERS_MSG)
         except SettingValue.DoesNotExist:
-                            logger.critical('SettingValue with key=%s cannot be found !'
-                                            ' ("creme_populate" command has not been run correctly)',
-                                            constants.SETTING_FORM_USERS_MSG
-                                           )
+            logger.critical('SettingValue with key=%s cannot be found !'
+                            ' ("creme_populate" command has not been run correctly)',
+                            constants.SETTING_FORM_USERS_MSG
+                           )
         else:
             if sv.value:
                 fields['informed_users'] = ModelMultipleChoiceField(queryset=get_user_model().objects.filter(is_staff=False),
