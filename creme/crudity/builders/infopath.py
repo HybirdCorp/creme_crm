@@ -137,11 +137,13 @@ class InfopathFormField(object):
         """
         try:
             return self.model._meta.get_field(self.name)
-        except FieldDoesNotExist, e:
+        except FieldDoesNotExist as e:
             name = self.name
+
             for field in self.model._meta.fields:
                 if field.get_attname() == name:
                     return field
+
             raise e
 
     def _get_element(self, element_type):
