@@ -215,17 +215,14 @@ class CreateCategoryTestCase(CremeTestCase):
 
         cat12 = self.get_object_or_fail(SubCategory, name='sub12')
 
-        self.assertEqual(json_dump({
-                            'added': [{
-                                 'category': [str(cat1.id), unicode(cat1)],
-                                 'subcategory': [str(cat12.id), unicode(cat12)],
-                             }],
-                            'value': {
-                                'category': str(cat1.id),
-                                'subcategory': str(cat12.id)
-                            }
-                         }),
-                         response.content
+        self.assertEqual({'added': [{'category': [str(cat1.id), unicode(cat1)],
+                                     'subcategory': [str(cat12.id), unicode(cat12)],
+                                    }],
+                          'value': {'category': str(cat1.id),
+                                    'subcategory': str(cat12.id),
+                                   },
+                         },
+                         response.json()
                         )
 
     def test_create_subcategory_from_widget__unknown_category(self):
@@ -249,9 +246,8 @@ class CreateCategoryTestCase(CremeTestCase):
         self.assertNoFormError(response)
         cat1 = self.get_object_or_fail(Category, name='cat1')
 
-        self.assertEqual(json_dump({
-                            'added': [[cat1.id, unicode(cat1)]],
-                            'value': cat1.id
-                         }),
-                         response.content
+        self.assertEqual({'added': [[cat1.id, unicode(cat1)]],
+                          'value': cat1.id
+                         },
+                         response.json()
                         )

@@ -3,7 +3,7 @@
 try:
     import filecmp
     from functools import partial
-    from json import dumps as json_dump
+    # from json import dumps as json_dump
     from os.path import join, exists
 
     from django.conf import settings
@@ -601,11 +601,10 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
         self.assertEqual('', doc.description)
         self.assertEqual(folder, doc.linked_folder)
 
-        self.assertEqual(json_dump({
-                                'added': [[doc.id, unicode(doc)]],
-                                'value': doc.id,
-                            }),
-                         response.content
+        self.assertEqual({'added': [[doc.id, unicode(doc)]],
+                          'value': doc.id,
+                         },
+                         response.json()
                         )
 
         filedata = doc.filedata
@@ -646,11 +645,10 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
 
         self.assertTrue(filecmp.cmp(path, doc.filedata.path))
 
-        self.assertEqual(json_dump({
-                                'added': [[doc.id, unicode(doc)]],
-                                'value': doc.id,
-                            }),
-                         response.content
+        self.assertEqual({'added': [[doc.id, unicode(doc)]],
+                          'value': doc.id,
+                         },
+                         response.json()
                         )
 
     @override_settings(ALLOWED_EXTENSIONS=('png', 'pdf'))
