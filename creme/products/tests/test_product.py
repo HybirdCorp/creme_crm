@@ -3,7 +3,7 @@
 try:
     from decimal import Decimal
     from functools import partial
-    import json
+    # import json
 
     from django.urls import reverse
     from django.utils.translation import ugettext as _
@@ -49,7 +49,7 @@ class ProductTestCase(_ProductsTestCase):
 
         response = self.assertGET200(reverse('products__subcategories', args=(cat.id,)))
         self.assertEqual([[subcat1.id, name1], [subcat2.id, name2]],
-                         json.loads(response.content)
+                         response.json()
                         )
 
     @skipIfCustomProduct
