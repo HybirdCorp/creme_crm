@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2015  Hybird
+#    Copyright (C) 2013-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from creme.creme_core.forms import CremeEntityForm
-from creme.creme_core.forms.widgets import CalendarWidget
+# from creme.creme_core.forms.widgets import CalendarWidget
 
 from .. import get_pollcampaign_model
 
@@ -28,9 +28,9 @@ class PollCampaignForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = get_pollcampaign_model()
 
-    def __init__(self, *args, **kwargs):
-        super(PollCampaignForm, self).__init__(*args, **kwargs)
-        fields = self.fields
-        # TODO: remove when CalendarWidget is always associated to DateField
-        fields['start'].widget = CalendarWidget()
-        fields['due_date'].widget = CalendarWidget()
+    # def __init__(self, *args, **kwargs):
+    #     super(PollCampaignForm, self).__init__(*args, **kwargs)
+    #     fields = self.fields
+    #     print('OLA')
+    #     fields['start'].widget = CalendarWidget()
+    #     fields['due_date'].widget = CalendarWidget()
