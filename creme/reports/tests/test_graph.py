@@ -8,6 +8,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.db.models.query_utils import Q
     from django.urls import reverse
+    from django.utils.six.moves.urllib.parse import urlparse, parse_qs
     from django.utils.translation import ugettext as _, pgettext
 
     from creme.creme_core.models import (RelationType, Relation,
@@ -45,14 +46,43 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
     def setUp(self):
         self.login()
 
-    def assertURL(self, url, prefix, json_arg):
-        self.assertTrue(url.startswith(prefix))
+    # def assertURL(self, url, prefix, json_arg):
+    #     self.assertTrue(url.startswith(prefix))
+    #
+    #     with self.assertNoException():
+    #         qfilter = json_load(url[len(prefix):])
+    #
+    #     self.assertEqual(json_arg, qfilter)
+    def assertURL(self, url, model, expected_q=None, expected_efilter_id=None):
+        parsed_url = urlparse(url)
+        self.assertTrue(model.get_lv_absolute_url(), parsed_url.path)
 
-        with self.assertNoException():
-            qfilter = json_load(url[len(prefix):])
+        GET_params = parse_qs(parsed_url.query)
 
-        # self.assertEqual(json_arg, qfilter)
-        self.assertEqual(json_load(json_arg), qfilter)
+        # '?q_filter=' ------
+        if expected_q is None:
+            self.assertNotIn('q_filter', GET_params)
+        else:
+            qfilters = GET_params.pop('q_filter', ())
+            self.assertEqual(1, len(qfilters))
+
+            with self.assertNoException():
+                qfilter = json_load(qfilters[0])
+
+            expected_qfilter = json_load(self.qfilter_serializer.dumps(expected_q))
+            self.assertIsInstance(qfilter, dict)
+            self.assertEqual(2, len(qfilter))
+            self.assertEqual(expected_qfilter['op'], qfilter['op'])
+            # TODO: improve for nested Q...
+            self.assertCountEqual(expected_qfilter['val'], qfilter['val'])
+
+        # '&filter=' ------
+        if expected_efilter_id is None:
+            self.assertNotIn('filter', GET_params)
+        else:
+            self.assertEqual([expected_efilter_id], GET_params.pop('filter', None))
+
+        self.assertFalse(GET_params)  # All valid parameters have been removed
 
     def _build_add_graph_url(self, report):
         return reverse('reports__create_graph', args=(report.id,))
@@ -100,10 +130,12 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
     def test_listview_URL_builder01(self):
         builder = ListViewURLBuilder(FakeContact)
-        url = FakeContact.get_lv_absolute_url()
-        self.assertEqual(builder(None),        url + '?q_filter=')
-        # self.assertEqual(builder({'id': '1'}), url + '?q_filter={"id": "1"}')
-        self.assertEqual(builder({'id': '1'}), url + '?q_filter={"val":[["id","1"]],"op":"AND"}')
+        # url = FakeContact.get_lv_absolute_url()
+        # self.assertEqual(builder(None),        url + '?q_filter=')
+        self.assertURL(builder(None), FakeContact)
+        # # self.assertEqual(builder({'id': '1'}), url + '?q_filter={"id": "1"}')
+        # self.assertEqual(builder({'id': '1'}), url + '?q_filter={"val":[["id","1"]],"op":"AND"}')
+        self.assertURL(builder({'id': 1}), FakeContact, expected_q=Q(id=1))
 
         efilter = EntityFilter.create('test-filter', 'Names', FakeContact, is_custom=True)
         efilter.set_conditions([EntityFilterCondition.build_4_field(model=FakeContact,
@@ -113,9 +145,11 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                                ])
 
         builder = ListViewURLBuilder(FakeContact, efilter)
-        self.assertEqual(builder(None),        url + '?q_filter=&filter=test-filter')
-        # self.assertEqual(builder({'id': '1'}), url + '?q_filter={"id": "1"}&filter=test-filter')
-        self.assertEqual(builder({'id': '1'}), url + '?q_filter={"val":[["id","1"]],"op":"AND"}&filter=test-filter')
+        # self.assertEqual(builder(None),        url + '?q_filter=&filter=test-filter')
+        self.assertURL(builder(None), FakeContact, expected_efilter_id='test-filter')
+        # # self.assertEqual(builder({'id': '1'}), url + '?q_filter={"id": "1"}&filter=test-filter')
+        # self.assertEqual(builder({'id': '1'}), url + '?q_filter={"val":[["id","1"]],"op":"AND"}&filter=test-filter')
+        self.assertURL(builder({'id': 1}), FakeContact, expected_q=Q(id=1), expected_efilter_id='test-filter')
 
     def test_listview_URL_builder02(self):
         "Model without list-view"
@@ -1241,21 +1275,23 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                          x_asc
                         )
 
-        base_url = '/tests/organisations?q_filter='
+        # base_url = '/tests/organisations?q_filter='
         # base_qdict = {'customfielddatetime__custom_field': cf.id}
         self.assertEqual(4, y_asc[0][0])
-        self.assertURL(y_asc[0][1], base_url,
-                       self._serialize_qfilter(customfielddatetime__custom_field=cf.id,
-                                               customfielddatetime__value__range=['2013-12-21', '2014-01-04'],
-                                              )
+        self.assertURL(y_asc[0][1], # base_url,
+                       FakeOrganisation,
+                       Q(customfielddatetime__custom_field=cf.id,
+                         customfielddatetime__value__range=['2013-12-21', '2014-01-04'],
+                        )
                       )
 
         self.assertEqual(2, y_asc[1][0])
-        self.assertURL(y_asc[1][1], base_url,
+        self.assertURL(y_asc[1][1], # base_url,
+                       FakeOrganisation,
                        # dict(base_qdict, customfielddatetime__value__range=['2014-01-05', '2014-01-19'])
-                       self._serialize_qfilter(customfielddatetime__custom_field=cf.id,
-                                               customfielddatetime__value__range=['2014-01-05', '2014-01-19'],
-                                              )
+                       Q(customfielddatetime__custom_field=cf.id,
+                         customfielddatetime__value__range=['2014-01-05', '2014-01-19'],
+                        )
                       )
 
         # DESC ----------------------------------------------------------------
@@ -1265,19 +1301,21 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                         )
 
         self.assertEqual(5, y_desc[0][0])
-        self.assertURL(y_desc[0][1], base_url,
+        self.assertURL(y_desc[0][1], # base_url,
+                       FakeOrganisation,
                        # dict(base_qdict, customfielddatetime__value__range=['2013-12-24', '2014-01-07'])
-                       self._serialize_qfilter(customfielddatetime__custom_field=cf.id,
-                                               customfielddatetime__value__range=['2013-12-24', '2014-01-07'],
-                                              )
+                       Q(customfielddatetime__custom_field=cf.id,
+                         customfielddatetime__value__range=['2013-12-24', '2014-01-07'],
+                        )
                       )
 
         self.assertEqual(1, y_desc[1][0])
-        self.assertURL(y_desc[1][1], base_url,
+        self.assertURL(y_desc[1][1], # base_url,
+                       FakeOrganisation,
                        # dict(base_qdict, customfielddatetime__value__range=['2013-12-09', '2013-12-23'])
-                       self._serialize_qfilter(customfielddatetime__custom_field=cf.id,
-                                               customfielddatetime__value__range=['2013-12-09', '2013-12-23'],
-                                              )
+                       Q(customfielddatetime__custom_field=cf.id,
+                         customfielddatetime__value__range=['2013-12-09', '2013-12-23'],
+                        )
                       )
 
     def test_fetch_with_custom_date_range02(self):
@@ -1315,15 +1353,17 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual(['22/06/2013', '05/07/2013'], x_asc)
 
         self.assertEqual(150, y_asc[0][0])
-        self.assertURL(y_asc[0][1], '/tests/organisations?q_filter=',
+        self.assertURL(y_asc[0][1],
+                       # '/tests/organisations?q_filter=',
+                       FakeOrganisation,
                        # {'creation_date__day':   22,
                        #  'creation_date__month': 6,
                        #  'creation_date__year':  2013,
                        # }
-                       self._serialize_qfilter(creation_date__day=22,
-                                               creation_date__month=6,
-                                               creation_date__year=2013,
-                                              )
+                       Q(creation_date__day=22,
+                         creation_date__month=6,
+                         creation_date__year=2013,
+                        )
                       )
 
         self.assertEqual(130, y_asc[1][0])
@@ -1370,24 +1410,24 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual(130, y_asc[1][0])
 
         url = y_asc[0][1]
-        self.assertURL(url, '/tests/organisations?q_filter=',
+        self.assertURL(url,
+                       # '/tests/organisations?q_filter=',
+                       FakeOrganisation,
                        # {'customfielddatetime__value__day':   22,
                        #  'customfielddatetime__value__month': 6,
                        #  'customfielddatetime__value__year':  2013,
                        #  'customfielddatetime__custom_field': cf.id,
                        # }
-                       self._serialize_qfilter(
-                            customfielddatetime__value__day=22,
-                            customfielddatetime__value__month=6,
-                            customfielddatetime__value__year=2013,
-                            customfielddatetime__custom_field=cf.id,
-                         )
+                       Q(customfielddatetime__value__day=22,
+                         customfielddatetime__value__month=6,
+                         customfielddatetime__value__year=2013,
+                         customfielddatetime__custom_field=cf.id,
+                        )
                       )
         # self.assertEqual(0, y_asc[0][0])
         # self.assertURL(y_asc[0][1], '/tests/organisations?q_filter=',
         #                self._serialize_qfilter(sector=sectors[0].id),
         #               )
-
 
         # DESC ----------------------------------------------------------------
         self.assertEqual(['05/07/2013', '22/06/2013'], rgraph.fetch(order='DESC')[0])
@@ -1433,13 +1473,13 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual(['06/2013', '08/2013'], x_asc)
 
         self.assertEqual(2, y_asc[0][0])
-        self.assertURL(y_asc[0][1], '/tests/organisations?q_filter=',
+        self.assertURL(y_asc[0][1],
+                       # '/tests/organisations?q_filter=',
+                       FakeOrganisation,
                        # {'creation_date__month': 6,
                        #  'creation_date__year':  2013,
                        # }
-                       self._serialize_qfilter(creation_date__month=6,
-                                               creation_date__year=2013,
-                                              )
+                       Q(creation_date__month=6, creation_date__year=2013)
                       )
 
         self.assertEqual(1, y_asc[1][0])
@@ -2097,11 +2137,13 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         y = result.get('y')
         self.assertEqual(0, y[0][0])
-        self.assertURL(y[0][1], '/tests/invoices?q_filter=',
+        self.assertURL(y[0][1],
+                       # '/tests/invoices?q_filter=',
+                       FakeInvoice,
                        # {'issuing_date__month': 10,
                        #  'issuing_date__year':  2014,
                        # }
-                       self._serialize_qfilter(issuing_date__month=10, issuing_date__year=2014),
+                       Q(issuing_date__month=10, issuing_date__year=2014),
                       )
 
         response = self.assertGET200(self._build_fetchfrombrick_url(item, invoice, 'ASC'))
@@ -2116,11 +2158,13 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         y = result.get('y')
         self.assertEqual(0, y[0][0])
-        self.assertURL(y[0][1], '/tests/invoices?q_filter=',
+        self.assertURL(y[0][1],
+                       # '/tests/invoices?q_filter=',
+                       FakeInvoice,
                        # {'issuing_date__month': 11,
                        #  'issuing_date__year':  2014,
                        # }
-                       self._serialize_qfilter(issuing_date__month=11, issuing_date__year=2014),
+                       Q(issuing_date__month=11, issuing_date__year=2014),
                       )
 
         # ---------------------------------------------------------------------
