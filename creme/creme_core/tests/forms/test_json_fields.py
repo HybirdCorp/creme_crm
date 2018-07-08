@@ -2,7 +2,7 @@
 
 try:
     from functools import partial
-    from json import dumps as json_dump
+    from json import dumps as json_dump, loads as json_load
 
     from django.core.exceptions import ValidationError
     from django.contrib.contenttypes.models import ContentType
@@ -225,25 +225,23 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         #                                      unicode(FakeContact.creation_label),
         #                                      contact.pk,
         #                                     ),
-        self.assertEqual(json_dump({'ctype': {
-                                        'id': ct_id,
-                                        'create': '',
-                                        'create_label': _(u'Create an entity'),
-                                      },
-                                    'entity': contact.id,
-                                   }),
-                         field.from_python(contact)
+        self.assertEqual({'ctype': {'id': ct_id,
+                                    'create': '',
+                                    'create_label': _(u'Create an entity'),
+                                   },
+                          'entity': contact.id,
+                         },
+                         json_load(field.from_python(contact))
                         )
 
         field.user = self.user
-        self.assertEqual(json_dump({'ctype': {
-                                        'id': ct_id,
-                                        'create': reverse('creme_core__quick_form', args=(ct_id,)),
-                                        'create_label': _(u'Create an entity'),
-                                      },
-                                    'entity': contact.id,
-                                   }),
-                         field.from_python(contact)
+        self.assertEqual({'ctype': {'id': ct_id,
+                                    'create': reverse('creme_core__quick_form', args=(ct_id,)),
+                                    'create_label': _(u'Create an entity'),
+                                   },
+                          'entity': contact.id,
+                         },
+                         json_load(field.from_python(contact))
                         )
 
     def test_clean_empty_required(self):
@@ -531,11 +529,10 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                    }
 
         field = MultiGenericEntityField(models=[FakeOrganisation, FakeContact, FakeImage])
-        self.assertEqual(json_dump([build_entry_v1(contact_ct_id, 1),
-                                    build_entry_v1(orga_ct_id, 5),
-                                   ]
-                                  ),
-                         field.from_python([
+        self.assertEqual([build_entry_v1(contact_ct_id, 1),
+                          build_entry_v1(orga_ct_id, 5),
+                         ],
+                         json_load(field.from_python([
                              {'ctype': {'id': contact_ct_id,
                                         'create': build_url(contact_ct_id) ,
                                         'create_label': unicode(contact_label)},
@@ -546,7 +543,7 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                                         'create_label': unicode(orga_label)},
                                         'entity': 5,
                                        },
-                         ])
+                         ]))
                         )
 
         # No user
@@ -557,11 +554,10 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                              },
                     'entity': entity_id,
                    }
-        self.assertEqual(json_dump([build_entry_v2(contact_ct_id, contact.id),
-                                    build_entry_v2(orga_ct_id,    orga.id),
-                                   ]
-                                  ),
-                         field.from_python([contact, orga])
+        self.assertEqual([build_entry_v2(contact_ct_id, contact.id),
+                          build_entry_v2(orga_ct_id,    orga.id),
+                         ],
+                         json_load(field.from_python([contact, orga]))
                         )
 
         # With user
@@ -574,11 +570,10 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                    }
 
         field.user = user
-        self.assertEqual(json_dump([build_entry_v3(contact_ct_id, contact.id),
-                                    build_entry_v3(orga_ct_id,    orga.id),
-                                   ]
-                                  ),
-                         field.from_python([contact, orga])
+        self.assertEqual([build_entry_v3(contact_ct_id, contact.id),
+                          build_entry_v3(orga_ct_id,    orga.id),
+                         ],
+                         json_load(field.from_python([contact, orga]))
                         )
 
     def test_clean_empty_required(self):
@@ -1301,7 +1296,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
                 MultiRelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id]).clean,
                 json_dump([self.build_entry(rtype1.id, contact.entity_type_id, orga.id),  # <=== bad ctype !
                            self.build_entry(rtype2.id, contact.entity_type_id, contact.id),
-                           ])
+                          ])
             )
 
     def test_clean_deleted_entity(self):
