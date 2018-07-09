@@ -63,13 +63,13 @@ class CSVPopulator(object):
             self.defaults = defaults
 
     def __init__(self, columns, defaults=None, chunksize=50):
-        """Constructor
-        @param header: Names of columns to extract from CSV file.
-                       Raises an error if a column is neither in file nor in defaults.
+        """Constructor.
+        @param columns: Names of columns to extract from CSV file.
+               Raises an error if a column is neither in file nor in defaults.
         @param defaults: dict of default values.
         @param chunksize: Number of lines in same transaction.
-                          By default sqlite supports 999 entries for each transaction,
-                          so use 999/fields as max chunksize value.
+               By default sqlite supports 999 entries for each transaction,
+               so use 999/fields as max chunksize value.
         """
         self.columns = columns
         self.defaults = defaults or {}
