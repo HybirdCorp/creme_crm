@@ -486,6 +486,14 @@ class _CremeTestCase(object):
                           'efilter': efilter.id if efilter else '',
                          })
 
+    @staticmethod
+    def http_file(file_path):
+        from creme.creme_core.utils.test import http_port
+        return 'http://localhost:{port}/{fp}'.format(
+                port=http_port(),
+                fp=file_path,
+        )
+
 
 class CremeTestCase(TestCase, _CremeTestCase):
     @classmethod
