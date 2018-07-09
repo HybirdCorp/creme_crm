@@ -35,6 +35,7 @@ from django.template.defaultfilters import slugify
 
 from creme.creme_core.utils import safe_unicode
 from creme.creme_core.utils.chunktools import iter_as_chunk
+from creme.creme_core.utils.collections import OrderedSet
 
 from creme.persons import get_address_model
 
@@ -101,7 +102,8 @@ class CSVPopulator(object):
         columns = self.columns
         defaults = self.defaults
 
-        column_keys = frozenset(h.lower() for h in columns)
+        # column_keys = frozenset(h.lower() for h in columns)
+        column_keys = OrderedSet(h.lower() for h in columns)  # TODO: OrderedFrozenSet
         row_keys = frozenset(k.lower() for k in header)
 
         missings = []
