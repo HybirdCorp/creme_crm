@@ -148,7 +148,7 @@ class CSVPopulatorTestCase(CremeTestCase):
             populator.populate('creme/geolocation/populate.py')
 
         self.assertEqual(str(error.exception),
-                         "Following columns are missing and haven't got any default value : {}".format(['code', 'name'])
+                         "Following columns are missing and haven't got any default value : {}".format(['name', 'code'])
                         )
 
     def test_populate_from_invalid_protocol(self):
