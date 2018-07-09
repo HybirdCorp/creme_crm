@@ -32,6 +32,11 @@ from django.core.management import call_command
 from django.test.runner import DiscoverRunner, ParallelTestSuite, _init_worker
 
 from ..management.commands.creme_populate import Command as PopulateCommand
+from ..utils.system import python_subprocess
+
+
+def http_port():
+    return getattr(settings, 'TEST_HTTP_SERVER_PORT', '8000')
 
 
 class CremeTestSuite(unittest.TestSuite):
@@ -80,8 +85,9 @@ class CremeTestLoader(unittest.TestLoader):
 
 
 class CremeDiscoverRunner(DiscoverRunner):
-    """This test runner overrides settings.MEDIA_ROOT with a temporary directory
-    (so files created by the tests can be easily removed).
+    """This test runner
+    - overrides settings.MEDIA_ROOT with a temporary directory ; so files created by the tests can be easily removed.
+    - launches an HTTP server which serves static files, in order to test code which retrieve HTTP resources.
     """
     test_suite = CremeTestSuite
     parallel_test_suite = CremeParallelTestSuite
@@ -91,10 +97,19 @@ class CremeDiscoverRunner(DiscoverRunner):
         super(CremeDiscoverRunner, self).__init__(*args, **kwargs)
         self._mock_media_path = None
         self._original_media_root = settings.MEDIA_ROOT
+        self._http_server = None
 
     def setup_test_environment(self, **kwargs):
         super(CremeDiscoverRunner, self).setup_test_environment(**kwargs)
         self._mock_media_path = settings.MEDIA_ROOT = mkdtemp(prefix='creme_test_media')
+        self._http_server = python_subprocess(
+            'import SimpleHTTPServer;'
+            'from SocketServer import TCPServer;'
+            'TCPServer.allow_reuse_address = True;'
+            'httpd = TCPServer(("localhost", {port}), SimpleHTTPServer.SimpleHTTPRequestHandler);'
+            'print("Test HTTP server: serving localhost at port {port}");'
+            'httpd.serve_forever()'.format(port=http_port())
+        )
 
     def teardown_test_environment(self, **kwargs):
         super(CremeDiscoverRunner, self).teardown_test_environment(**kwargs)
@@ -102,6 +117,9 @@ class CremeDiscoverRunner(DiscoverRunner):
 
         if self._mock_media_path:
             rmtree(self._mock_media_path)
+
+        if self._http_server is not None:
+            self._http_server.terminate()
 
     # def setup_databases(self, *args, **kwargs):
     #     res = super(CremeDiscoverRunner, self).setup_databases(*args, **kwargs)

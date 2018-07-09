@@ -166,7 +166,7 @@ class CSVPopulatorTestCase(CremeTestCase):
         populator = MockCSVPopulator(['name', 'code'])
         populator.populate('creme/geolocation/tests/data/valid.csv')
 
-        self.assertListEqual(populator.mock_saved, [{'name': 'A', 'code': '44555'},
+        self.assertListEqual(populator.mock_saved, [{'name': 'A', 'code': '44556'},
                                                     {'name': 'B', 'code': '54122'},
                                                     {'name': 'C', 'code': '75001'},
                                                    ]
@@ -192,6 +192,36 @@ class CSVPopulatorTestCase(CremeTestCase):
                                                     {'name': 'C', 'code': '75001'},
                                                    ]
                             )
+
+    def test_populate_from_http(self):
+        populator = MockCSVPopulator(['name', 'code'])
+
+        with self.assertNoException():
+            populator.populate(self.http_file('creme/geolocation/tests/data/valid.csv'))
+
+        self.assertListEqual(populator.mock_saved, [{'name': 'A', 'code': '44556'},
+                                                    {'name': 'B', 'code': '54122'},
+                                                    {'name': 'C', 'code': '75001'},
+                                                   ]
+                            )
+
+    def test_populate_from_http_zip(self):
+        populator = MockCSVPopulator(['name', 'code'])
+
+        with self.assertNoException():
+            populator.populate(self.http_file('creme/geolocation/tests/data/valid.csv.zip'))
+
+        self.assertListEqual(populator.mock_saved, [{'name': 'A', 'code': '44555'},
+                                                    {'name': 'B', 'code': '54122'},
+                                                    {'name': 'C', 'code': '75001'},
+                                                   ]
+                            )
+
+    def test_http_error(self):
+        populator = MockCSVPopulator(['name', 'code'])
+
+        with self.assertRaises(MockCSVPopulator.ReadError):
+            populator.populate(self.http_file('creme/geolocation/tests/data/doesnotexist.csv'))
 
 
 class TownPopulatorTestCase(GeoLocationBaseTestCase):
