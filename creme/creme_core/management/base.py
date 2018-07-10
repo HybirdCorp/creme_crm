@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,8 +28,14 @@ class CSVImportCommand(BaseCommand):
     Useful for CSV files that can not be easily managed by the generic visual
     CSV import system.
     """
-    help = "import data from a CSV file (base class)"
-    args = 'CSV filename'
+    help = "Import data from a CSV file (base class)."
+    # args = 'CSV filename'
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            'args', metavar='csv_file', nargs='+',
+            help='Path of the file to import',
+        )
 
     def _read(self, filename, callback, delimiter=','):
         with open(filename, 'rb') as csvfile:
@@ -48,8 +54,11 @@ class CSVImportCommand(BaseCommand):
         """Overload this method."""
         raise NotImplementedError
 
-    def handle(self, csv_filename, *app_labels, **options):
-        self._read(csv_filename, callback=self._manage_line, delimiter=";")
+    # def handle(self, csv_filename, *app_labels, **options):
+    #     self._read(csv_filename, callback=self._manage_line, delimiter=";")
+    def handle(self, *csv_filenames, **options):
+        for csv_filename in csv_filenames:
+            self._read(csv_filename, callback=self._manage_line, delimiter=';')
 
 
 # EXAMPLE
@@ -132,18 +141,20 @@ class CSVImportCommand(BaseCommand):
 #             self.stderr.write("An error occurred at line: %s" % line)
 #             self.stderr.write(e)
 #
-#     def handle(self, csv_filename, *app_labels, **options):
+#     def handle(self, *csv_filenames, **options):
 #         self.stdout.write('Importing organisation...')
 #
 #         try:
 #             self.user = get_user_model().objects.get(pk=1)
 #             self.rtype_manages = RelationType.objects.get(pk=REL_SUB_MANAGES)
-#         except Exception, e:
+#         except Exception as e:
 #             self.stderr.write('Error (%s): have you run the populates ???' % e)
 #             self.stderr.write('Importing organisation [KO]')
 #         else:
 #             self._read(csv_filename, self._manage_line, delimiter=";")
+#             for csv_filename in csv_filenames:
+#                 self._read(csv_filename, callback=self._manage_line, delimiter=';')
 #
 #             self.stdout.write('Importing organisation [OK]')
 #             self.stdout.write('    Organisations in database: %s' % Organisation.objects.count())
-#             self.stdout.write('    Contacts in database': %s' % Contact.objects.count())
+#             self.stdout.write('    Contacts in database: %s' % Contact.objects.count())
