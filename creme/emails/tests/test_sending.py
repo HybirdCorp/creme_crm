@@ -462,6 +462,41 @@ class SendingsTestCase(_EmailsTestCase):
 
         self.assertDatetimesAlmostEqual(sending_date, sending.sending_date, seconds=60)
 
+    def test_create06(self):
+        "Body with variables"
+        user = self.login()
+
+        camp     = EmailCampaign.objects.create(user=user, name='camp01')
+        template = EmailTemplate.objects.create(user=user, name='name', subject='subject',
+                                                body='Hello {{first_name}} {{last_name}} !',
+                                                body_html='<b>Hello</b> {{first_name}} {{last_name}} !',
+                                               )
+
+        mlist    = MailingList.objects.create(user=user, name='ml01')
+        contact  = Contact.objects.create(user=user, email='spike.spiegel@bebop.com',
+                                          first_name='Spike', last_name='Spiegel',
+                                         )
+        camp.mailing_lists.add(mlist)
+        mlist.contacts.add(contact)
+
+        self.assertNoFormError(self.client.post(
+                self._build_add_url(camp),
+                data={'sender':   'vicious@reddragons.mrs',
+                      'type':     SENDING_TYPE_IMMEDIATE,
+                      'template': template.id,
+                     },
+        ))
+
+        self._send_mails(self._get_job())
+        messages = django_mail.outbox
+        self.assertEqual(len(messages), 1)
+
+        message = messages[0]
+        self.assertEqual('Hello Spike Spiegel !', message.body)
+        self.assertEqual([('<b>Hello</b> Spike Spiegel !', 'text/html')],
+                         message.alternatives
+                        )
+
     def test_inneredit(self):
         user = self.login()
         camp = EmailCampaign.objects.create(user=user, name='camp01')
