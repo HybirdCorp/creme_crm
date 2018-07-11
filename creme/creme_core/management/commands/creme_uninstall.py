@@ -124,9 +124,9 @@ def _uninstall_blocks(sender, **kwargs):
 
     BrickState.objects.filter(brick_id__in=brick_ids)
 
-    # Blocks on the app's portal (not related to ContentTypes,
-    # so they won't be removed automatically)
-    BrickHomeLocation.objects.filter(app_name=app_label).delete()
+    # # Blocks on the app's portal (not related to ContentTypes,
+    # # so they won't be removed automatically)
+    # BrickHomeLocation.objects.filter(app_name=app_label).delete()
 
 
 # @receiver(pre_uninstall_flush)
