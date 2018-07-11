@@ -47,7 +47,8 @@ def _entity_2_dict(entity):
             if fvalue is None:
                 continue
 
-            if field.rel:
+            # if field.rel:
+            if field.remote_field:
                 # TODO: manage M2M
                 fname = field.attname
                 fvalue = fvalue.pk
