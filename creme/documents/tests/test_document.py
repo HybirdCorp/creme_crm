@@ -98,11 +98,13 @@ class DocumentTestCase(_DocumentsTestCase):
 
         # Download
         response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
-        self.assertEqual(ext, response['Content-Type'])
+        # self.assertEqual(ext, response['Content-Type'])
+        self.assertEqual('text/plain', response['Content-Type'])
         self.assertEqual('attachment; filename=' + file_name,
                          response['Content-Disposition']
                         )
 
+    @override_settings(ALLOWED_EXTENSIONS=('txt', 'png', 'py'))
     def test_createview02(self):
         "Forbidden extension"
         self.login()
@@ -119,11 +121,14 @@ class DocumentTestCase(_DocumentsTestCase):
 
         # Download
         response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
-        self.assertEqual(ext, response['Content-Type'])
-        self.assertEqual('attachment; filename=' + file_name,
+        # self.assertEqual(ext, response['Content-Type'])
+        self.assertEqual('text/plain', response['Content-Type'])
+        # self.assertEqual('attachment; filename=' + file_name,
+        self.assertEqual('attachment; filename={}.txt'.format(file_name),
                          response['Content-Disposition']
                         )
 
+    @override_settings(ALLOWED_EXTENSIONS=('txt', 'png', 'py'))
     def test_createview03(self):
         "Double extension (bugfix)"
         self.login()
@@ -140,8 +145,10 @@ class DocumentTestCase(_DocumentsTestCase):
 
         # Download
         response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
-        self.assertEqual(ext, response['Content-Type'])
-        self.assertEqual('attachment; filename=' + file_name,
+        # self.assertEqual(ext, response['Content-Type'])
+        self.assertEqual('text/plain', response['Content-Type'])
+        # self.assertEqual('attachment; filename=' + file_name,
+        self.assertEqual('attachment; filename={}.txt'.format(file_name),
                          response['Content-Disposition']
                         )
 
@@ -158,7 +165,8 @@ class DocumentTestCase(_DocumentsTestCase):
 
         # Download
         response = self.assertGET200(reverse('creme_core__dl_file', args=(doc.filedata,)))
-        self.assertEqual('txt', response['Content-Type']) # 'text/plain' ??
+        # self.assertEqual('txt', response['Content-Type'])
+        self.assertEqual('text/plain', response['Content-Type'])
         self.assertEqual('attachment; filename={}.txt'.format(file_name),
                          response['Content-Disposition']
                         )

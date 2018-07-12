@@ -172,7 +172,8 @@ class GraphsTestCase(CremeTestCase):
         existing_fileref_ids = list(FileRef.objects.values_list('id', flat=True))
 
         response = self.assertGET200(reverse('graphs__dl_image', args=(graph.id,)), follow=True)
-        self.assertEqual('png', response['Content-Type'])
+        # self.assertEqual('png', response['Content-Type'])
+        self.assertEqual('image/png', response['Content-Type'])
 
         filerefs = FileRef.objects.exclude(id__in=existing_fileref_ids)
         self.assertEqual(1, len(filerefs))

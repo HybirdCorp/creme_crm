@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from mimetypes import guess_type
 import os
 from os.path import basename, join
 from random import randint
@@ -73,7 +74,7 @@ def handle_uploaded_file(f, path=None, name=None, max_length=None):
 
     final_path = FileCreator(dir_path=dir_path, name=name, max_length=max_length).create()
 
-    with open(final_path, 'wb', 0755) as destination:
+    with open(final_path, 'wb', 0o755) as destination:
         for chunk in f.chunks():
             destination.write(chunk)
 
@@ -104,12 +105,13 @@ def download_file(request, location):
         ftype = 'text/plain'
         name = name_parts[0]
     else:
-        if len(name_parts) > 2 and name_parts[-1] == 'txt' and \
-                name_parts[-2] not in settings.ALLOWED_EXTENSIONS:
-            name_parts.pop()  # Drop the added '.txt'
+        # if len(name_parts) > 2 and name_parts[-1] == 'txt' and \
+        #         name_parts[-2] not in settings.ALLOWED_EXTENSIONS:
+        #     name_parts.pop()  # Drop the added '.txt'
 
         name = '.'.join(name_parts)
-        ftype = name_parts[-1]
+        # ftype = name_parts[-1]
+        ftype = guess_type(name)[0] or 'application/octet-stream'
 
     path = settings.MEDIA_ROOT + os.sep + location.replace('../', '').replace('..\\', '')
 
@@ -120,7 +122,7 @@ def download_file(request, location):
         raise Http404(_('Invalid file'))
 
     response = HttpResponse(data, content_type=ftype)
-    response['Content-Disposition'] = "attachment; filename={}".format(name.replace(' ', '_'))
+    response['Content-Disposition'] = 'attachment; filename={}'.format(name.replace(' ', '_'))
 
     return response
 
