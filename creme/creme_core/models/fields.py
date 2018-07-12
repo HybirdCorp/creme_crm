@@ -60,7 +60,8 @@ class ColorField(CharField):
         defaults = {'form_class': ColorFormField}
         defaults.update(kwargs)
 
-        return super(CharField, self).formfield(**defaults)
+        # return super(CharField, self).formfield(**defaults)
+        return super(ColorField, self).formfield(**defaults)
 
 
 class DatePeriodField(TextField):  # TODO: inherit from a JSONField
