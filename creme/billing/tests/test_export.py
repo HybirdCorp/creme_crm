@@ -42,7 +42,8 @@ class ExportTestCase(_BillingTestCase):
         existing_fileref_ids = list(FileRef.objects.values_list('id', flat=True))
 
         response = self.assertGET200(self._build_export_url(invoice), follow=True)
-        self.assertEqual('pdf', response['Content-Type'])
+        # self.assertEqual('pdf', response['Content-Type'])
+        self.assertEqual('application/pdf', response['Content-Type'])
 
         filerefs = FileRef.objects.exclude(id__in=existing_fileref_ids)
         self.assertEqual(1, len(filerefs))
@@ -79,7 +80,8 @@ class ExportTestCase(_BillingTestCase):
             create_line(on_the_fly_item='Fly ' + price, unit_price=Decimal(price))
 
         response = self.assertGET200(self._build_export_url(quote), follow=True)
-        self.assertEqual('pdf', response['Content-Type'])
+        # self.assertEqual('pdf', response['Content-Type'])
+        self.assertEqual('application/pdf', response['Content-Type'])
 
     def test_bad_ct(self):
         user = self.login()
