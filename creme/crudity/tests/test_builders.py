@@ -743,7 +743,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         input.add_backend(backend)
         crudity_registry.register_inputs('test', [input])
 
-        self.assertGET200(reverse('crudity__dl_infopath_form', args=(subject,)))
+        response = self.assertGET200(reverse('crudity__dl_infopath_form', args=(subject,)))
+        self.assertEqual('application/vnd.ms-infopath', response['Content-Type'])
 
 
 class InfopathFormFieldTestCase(CrudityTestCase):
