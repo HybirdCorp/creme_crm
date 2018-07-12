@@ -1390,6 +1390,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
 
 class FileSystemInputTestCase(CrudityTestCase):
+    tmp_dir_path = None
+
     @classmethod
     def setUpClass(cls):
         super(FileSystemInputTestCase, cls).setUpClass()
@@ -1400,7 +1402,8 @@ class FileSystemInputTestCase(CrudityTestCase):
     def tearDownClass(cls):
         super(FileSystemInputTestCase, cls).tearDownClass()
 
-        rmtree(cls.tmp_dir_path)
+        if cls.tmp_dir_path is not None:
+            rmtree(cls.tmp_dir_path)
 
     @classmethod
     def get_deletable_file_path(cls, name):
