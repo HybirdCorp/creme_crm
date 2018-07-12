@@ -1340,8 +1340,10 @@ class ColorField(fields.CharField):
         'invalid': _(u'Enter a valid value (eg: DF8177).'),
     }
 
-    def __init__(self, *args, **kwargs):
-        super(ColorField, self).__init__(max_length=6, min_length=6, *args, **kwargs)
+    # def __init__(self, *args, **kwargs):
+    def __init__(self, max_length=6, min_length=6, *args, **kwargs):
+        # super(ColorField, self).__init__(max_length=6, min_length=6, *args, **kwargs)
+        super(ColorField, self).__init__(max_length=max_length, min_length=min_length, *args, **kwargs)
 
     def clean(self, value):
         return super(ColorField, self).clean(value).upper()
