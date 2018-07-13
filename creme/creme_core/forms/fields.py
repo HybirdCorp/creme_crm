@@ -378,7 +378,9 @@ class GenericEntityField(EntityCredsJSONField):
             ctype_choice = clean_value(data, 'ctype', dict, required, 'ctyperequired')
             ctype_pk = clean_value(ctype_choice, 'id', int, required, 'ctyperequired')
         else:
-            warnings.warn('GenericEntityField: old format "ctype": id entry is deprecated.')
+            warnings.warn('GenericEntityField: old format "ctype": id entry is deprecated.',
+                          DeprecationWarning
+                         )
             ctype_pk = clean_value(data, 'ctype', int, required, 'ctyperequired')
 
         entity_pk = clean_value(data, 'entity', int, required, 'entityrequired')
@@ -453,7 +455,9 @@ class MultiGenericEntityField(GenericEntityField):
                 ctype_choice = clean_value(entry, 'ctype', dict, required=False)
                 ctype_pk = clean_value(ctype_choice, 'id', int, required=False)
             else:
-                warnings.warn('MultiGenericEntityField: old format "ctype": id entry is deprecated.')
+                warnings.warn('MultiGenericEntityField: old format "ctype": id entry is deprecated.',
+                              DeprecationWarning
+                             )
                 ctype_pk = clean_value(entry, 'ctype', int, required=False)
 
             if not ctype_pk:
