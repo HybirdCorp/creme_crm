@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 20-05-2018 pour la version 2.0 de Creme
+:Version: 13-07-2018 pour la version 2.0 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -2096,15 +2096,10 @@ dériver des modèles abstraits correspondants. Dans le cas contraire, les vues
 de base n'ont aucune garantie de fonctionner correctement. Utilisez donc ces
 variables avec précaution.
 
-**Comment swapper un modèle à posteriori ?** Si vous êtes dans un des 2 cas
-suivants :
-
-- Vous avez une installation de Creme 1.5 dans laquelle vous modifiez un modèle
-  de base grâce à la fonction ``contribute_to_model()``, et vous voulez passer
-  sur Creme 1.6 (dans laquelle ``contribute_to_model()`` n'existe plus).
-- Vous avez une installation de Creme 1.6 en production, et vous vous apercevez
-  que pour faire ce que vous voulez, vous devez *swapper* un modèle (et donc
-  c'est la version non *swappée* qui est utilisée dans votre code/base actuellement).
+**Comment swapper un modèle à posteriori ?** c'est-à-dire que vous avez une
+installation en production, et vous vous apercevez  que pour faire ce que vous
+voulez, vous devez *swapper* un modèle (et donc c'est la version non *swappée*
+qui est utilisée dans votre code/base actuellement).
 
 Attention ! Vous devriez évidemment tester les étapes suivantes sur un duplicata
 de votre base de données de production, et toujours avoir une sauvegarde de votre
@@ -2115,24 +2110,15 @@ sont assez sensibles).
 
 #. Vous devez écrire (dans votre propre app évidemment), un modèle *swappant*,
    qui **doit correspondre exactement** au modèle tel qu'il est actuellement en
-   base ; c'est-à-dire :
-
-   - si vous avez un code 1.6, c'est simple, il suffit que votre modèle se
-     content de dériver du modèle abstrait correspondant (ex: ``AbstractTicket``)
-     **sans ajouter** de nouveaux champs (pour le moment bien sûr).
-   - si vous étiez un utilisateur de ``contribute_to_model()`` uniquement pour
-     ajouter de nouveaux champs, alors dérivez de la classe abstraite, et
-     ajoutez lesdits champs dans votre propre modèle.
-   - si enleviez des champs grâce à ``contribute_to_model()``, alors le plus
-     simple est de recopier le modèle abstrait, puis de commenter les champs
-     enlevés ; vous devez aussi rajouter les champs que vous aviez ajoutés avec
-     ``contribute_to_model()`` comme dans le cas précédent.
+   base. Il suffit que votre modèle se content de dériver du modèle abstrait
+   correspondant (ex: ``AbstractTicket``) **sans ajouter** de nouveaux champs
+   (pour le moment bien sûr).
 
 #. Modifier le *setting* ``<APP>_<MODEL>_MODEL`` pour pointer vers votre modèle
    comme vu précédemment.
 
 #. Attention, c'est l'étape la plus subtile : renommez la table correspondant au
-   modèle de base (dans PHPMyAdmin ou pdAdmin par exemple), en lui donnant le
+   modèle de base (dans PHPMyAdmin ou pgAdmin par exemple), en lui donnant le
    nom que donnerait Django à la table de votre modèle. Comprenez par là qu'il
    est important de suivre la convention Django. Dans l'exemple des tickets
    traité au dessus, ça voudrait dire renommer la table "tickets_ticket" en
