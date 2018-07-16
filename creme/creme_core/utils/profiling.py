@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2016 Hybird
+# Copyright (c) 2016-2018 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@
 
 from __future__ import print_function
 
-from django.conf import settings
+# from django.conf import settings
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.test.utils import CaptureQueriesContext as DjangoCaptureQueriesContext
 from django.utils.decorators import ContextDecorator
@@ -41,17 +41,18 @@ class CaptureQueriesContext(DjangoCaptureQueriesContext):
     @property
     def captured_sql(self):
         if self._captured_sql is None:
-            db_engine = settings.DATABASES['default']['ENGINE']
-
-            if db_engine == 'django.db.backends.sqlite3':
-                prefix_len = len("QUERY = u'")
-                query_improver = lambda q: q[prefix_len:]
-            else:
-                query_improver = lambda q: q
-
-            self._captured_sql = [query_improver(query_info['sql'])
-                                    for query_info in self.captured_queries
-                                 ]
+            # db_engine = settings.DATABASES['default']['ENGINE']
+            #
+            # if db_engine == 'django.db.backends.sqlite3':
+            #     prefix_len = len("QUERY = u'")
+            #     query_improver = lambda q: q[prefix_len:]
+            # else:
+            #     query_improver = lambda q: q
+            #
+            # self._captured_sql = [query_improver(query_info['sql'])
+            #                         for query_info in self.captured_queries
+            #                      ]
+            self._captured_sql = [query_info['sql'] for query_info in self.captured_queries]
 
         return self._captured_sql
 

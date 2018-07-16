@@ -1041,36 +1041,59 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(dragons.name,   content)
         self.assertEqual(4, response.context['entities'].paginator.count)
 
-        optimized_count = 0
-
-        # TODO: use regex to reduce code ?
+        # optimized_count = 0
+        #
+        # todo: use regex to reduce code ?
+        # db_engine = settings.DATABASES['default']['ENGINE']
+        # if db_engine == 'django.db.backends.mysql':
+        #     fast_sql = 'SELECT COUNT(*) AS `__count` FROM `creme_core_cremeentity` WHERE ' \
+        #                '(`creme_core_cremeentity`.`is_deleted` = 0 AND ' \
+        #                '`creme_core_cremeentity`.`entity_type_id` = %s)' % self.ctype.id
+        #     slow_sql = 'SELECT COUNT(*) FROM (SELECT DISTINCT `creme_core_cremeentity`.`id`'
+        # elif db_engine == 'django.db.backends.sqlite3':
+        #     fast_sql = 'SELECT COUNT(*) AS "__count" FROM "creme_core_cremeentity" ' \
+        #                     'WHERE ("creme_core_cremeentity"."is_deleted" = %s AND ' \
+        #                     '"creme_core_cremeentity"."entity_type_id" = %s)'
+        #     slow_sql = 'SELECT COUNT(*) FROM (SELECT DISTINCT "creme_core_cremeentity"."id"'
+        # # elif db_engine == 'django.db.backends.postgresql_psycopg2':
+        # elif db_engine.startswith('django.db.backends.postgresql'):
+        #     fast_sql = 'SELECT COUNT(*) AS "__count" FROM "creme_core_cremeentity" WHERE ' \
+        #                '("creme_core_cremeentity"."is_deleted" = false AND ' \
+        #                '"creme_core_cremeentity"."entity_type_id" = %s)' % self.ctype.id
+        #     slow_sql = 'SELECT COUNT(*) FROM (SELECT DISTINCT "creme_core_cremeentity"."id"'
+        # else:
+        #     self.fail('This RDBMS is not managed by this test case.')
+        #
+        # for sql in context.captured_sql:
+        #     if fast_sql in sql:
+        #         optimized_count += 1
+        #
+        #     self.assertNotIn(slow_sql, sql)
+        #
+        # self.assertEqual(1, optimized_count, context.captured_queries)
         db_engine = settings.DATABASES['default']['ENGINE']
         if db_engine == 'django.db.backends.mysql':
-            fast_sql = 'SELECT COUNT(*) AS `__count` FROM `creme_core_cremeentity` WHERE ' \
-                       '(`creme_core_cremeentity`.`is_deleted` = 0 AND ' \
-                       '`creme_core_cremeentity`.`entity_type_id` = %s)' % self.ctype.id
-            slow_sql = 'SELECT COUNT(*) FROM (SELECT DISTINCT `creme_core_cremeentity`.`id`'
+            trash_sql = 'SELECT COUNT(*) AS `__count` FROM `creme_core_cremeentity` WHERE `creme_core_cremeentity`.`is_deleted` = 1'
         elif db_engine == 'django.db.backends.sqlite3':
-            fast_sql = 'SELECT COUNT(*) AS "__count" FROM "creme_core_cremeentity" ' \
-                            'WHERE ("creme_core_cremeentity"."is_deleted" = %s AND ' \
-                            '"creme_core_cremeentity"."entity_type_id" = %s)'
-            slow_sql = 'SELECT COUNT(*) FROM (SELECT DISTINCT "creme_core_cremeentity"."id"'
-        # elif db_engine == 'django.db.backends.postgresql_psycopg2':
+            trash_sql = 'SELECT COUNT(*) AS "__count" FROM "creme_core_cremeentity" WHERE "creme_core_cremeentity"."is_deleted" = 1'
         elif db_engine.startswith('django.db.backends.postgresql'):
-            fast_sql = 'SELECT COUNT(*) AS "__count" FROM "creme_core_cremeentity" WHERE ' \
-                       '("creme_core_cremeentity"."is_deleted" = false AND ' \
-                       '"creme_core_cremeentity"."entity_type_id" = %s)' % self.ctype.id
-            slow_sql = 'SELECT COUNT(*) FROM (SELECT DISTINCT "creme_core_cremeentity"."id"'
+            trash_sql = 'SELECT COUNT(*) AS "__count" FROM "creme_core_cremeentity" WHERE "creme_core_cremeentity"."is_deleted" = true'
         else:
             self.fail('This RDBMS is not managed by this test case.')
 
+        optimized_counts = []
         for sql in context.captured_sql:
-            if fast_sql in sql:
-                optimized_count += 1
+            if sql.startswith('SELECT COUNT(*)') and sql != trash_sql:
+                if 'INNER JOIN' in sql:
+                    self.fail('slow COUNT query found: {}'.format(sql))
 
-            self.assertNotIn(slow_sql, sql)
+                optimized_counts.append(sql)
 
-        self.assertEqual(1, optimized_count, context.captured_queries)
+        if len(optimized_counts) != 1:
+            self.fail('{} fast queries found in:\n{}'.format(
+                len(optimized_counts),
+                '\n'.join(' - {}'.format(sql) for sql in optimized_counts),
+            ))
 
     def test_search_regularfields02(self):
         user = self.login()
