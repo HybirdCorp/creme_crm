@@ -132,7 +132,8 @@ def _build_entity_queryset(user, model, list_view_state, extra_q, entity_filter,
 def _build_entities_page(arguments, list_view_state, queryset, size, count, ordering, fast_mode=False):
     if not fast_mode:
         paginator = Paginator(queryset, size)
-        paginator._count = count
+        # paginator._count = count
+        paginator.count = count
 
         try:
             page = int(arguments['page'])
