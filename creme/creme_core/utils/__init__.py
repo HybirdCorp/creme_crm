@@ -248,7 +248,7 @@ def entities2unicode(entities, user):
     """Return a unicode objects representing a sequence of CremeEntities,
     with care of permissions.
     """
-    return u', '.join(entity.allowed_unicode(user) for entity in entities)
+    return u', '.join(entity.allowed_str(user) for entity in entities)
 
 
 def related2unicode(entity, user):
@@ -256,7 +256,7 @@ def related2unicode(entity, user):
     with care of permissions of this owner.
     """
     # return u'%s - %s' % (entity.get_related_entity().allowed_unicode(user), unicode(entity))
-    return u'{} - {}'.format(entity.get_related_entity().allowed_unicode(user), entity)
+    return u'{} - {}'.format(entity.get_related_entity().allowed_str(user), entity)
 
 
 __BFS_MAP = {

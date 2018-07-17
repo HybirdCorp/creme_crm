@@ -287,7 +287,17 @@ def uca_sort(iterable):
 
 @register.filter
 def allowed_unicode(entity, user):
+    warnings.warn('The template filter "|allowed_unicode" is deprecated ; use "|allowed_str" instead.',
+                  DeprecationWarning
+                 )
+
     return entity.allowed_unicode(user)
+
+
+# NB: really useful ? {% widget_entity_hyperlink %} seems always used instead...
+@register.filter
+def allowed_str(entity, user):
+    return entity.allowed_str(user)
 
 
 @register.filter

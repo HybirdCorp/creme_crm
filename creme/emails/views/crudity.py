@@ -68,7 +68,7 @@ def set_emails_status(request, status):
     for email in EntityEmail.objects.filter(id__in=request.POST.getlist('ids')):
         if not has_perm(email):
             errors.append(_(u'You are not allowed to edit this entity: %s') %
-                            email.allowed_unicode(user)
+                            email.allowed_str(user)
                          )
         else:
             email.status = status

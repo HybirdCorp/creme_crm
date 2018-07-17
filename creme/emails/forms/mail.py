@@ -126,7 +126,7 @@ class EntityEmailForm(CremeEntityForm):
             user = self.user
 
             for entity in bad_entities:
-                self.add_error(field_name, msg_format.format(entity.allowed_unicode(user)))
+                self.add_error(field_name, msg_format.format(entity.allowed_str(user)))
 
         return recipients
 

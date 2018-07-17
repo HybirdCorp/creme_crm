@@ -82,7 +82,8 @@ def _clean_fields_values_args(data, allowed_fields):
 
 
 JSON_ENTITY_FIELDS = {
-    'unicode':     lambda e, user: e.allowed_unicode(user),
+    # 'unicode':     lambda e, user: e.allowed_unicode(user),
+    'unicode':     lambda e, user: e.allowed_str(user),
     'id':          lambda e, user: e.id,
     'entity_type': lambda e, user: e.entity_type_id,
     'summary':     lambda e, user: e.get_real_entity().get_entity_summary(user),

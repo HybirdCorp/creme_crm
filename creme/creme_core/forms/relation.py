@@ -103,7 +103,7 @@ class _RelationsCreateForm(CremeForm):
         if duplicates:
             raise ValidationError(self.error_messages['duplicates'],
                                   params={'duplicates': 
-                                              u', '.join(u'({}, {})'.format(rtype, e.allowed_unicode(user))
+                                              u', '.join(u'({}, {})'.format(rtype, e.allowed_str(user))
                                                             for rtype, e in duplicates
                                                         ),
                                          },

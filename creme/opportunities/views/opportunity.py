@@ -65,7 +65,7 @@ def abstract_add_related_opportunity(request, entity_id, form=OpportunityCreateF
 
     if inner_popup:
         response = add_model_with_popup(request, form,
-                                        title=title % entity.allowed_unicode(user),
+                                        title=title % entity.allowed_str(user),
                                         initial=initial,
                                         submit_label=submit_label,
                                        )

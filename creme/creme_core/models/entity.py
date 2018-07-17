@@ -156,6 +156,13 @@ class CremeEntity(CremeModel):
         return str(real_entity)
 
     def allowed_unicode(self, user):
+        warnings.warn('CremeEntity.allowed_unicode() is deprecated ; use allowed_str() instead.',
+                      DeprecationWarning
+                     )
+
+        return self.allowed_str(user)
+
+    def allowed_str(self, user):
         return str(self) if user.has_perm_to_view(self) else \
                ugettext(u'Entity #{id} (not viewable)').format(id=self.id)
 
@@ -315,7 +322,7 @@ class CremeEntity(CremeModel):
                 # logger.debug(u'Fill custom value cache entity_id=%s cfield_id=%s', entity_id, cf_id)
 
     def get_entity_summary(self, user):
-        return escape(self.allowed_unicode(user))
+        return escape(self.allowed_str(user))
 
     def get_entity_m2m_summary(self, user):
         """Return a string summary useful for list (ie: <ul><li>) representation."""
@@ -324,7 +331,7 @@ class CremeEntity(CremeModel):
                      )
 
         if not user.has_perm_to_view(self):
-            return self.allowed_unicode(user)
+            return self.allowed_str(user)
 
         return '<a target="_blank" href="{}">{}</a>'.format(self.get_absolute_url(), escape(str(self)))
 

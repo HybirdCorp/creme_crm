@@ -130,7 +130,7 @@ def abstract_add_activity(request, task_id, form=task_forms.RelatedActivityCreat
     user.has_perm_to_change_or_die(task)  # TODO: has_perm_to_link_or_die ??
 
     return generic.add_model_with_popup(request, form,
-                                        title=title % task.allowed_unicode(user),
+                                        title=title % task.allowed_str(user),
                                         initial={'task': task},
                                         submit_label=submit_label,
                                        )

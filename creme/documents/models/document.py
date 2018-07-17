@@ -87,7 +87,7 @@ class AbstractDocument(CremeEntity):
 
     def get_entity_summary(self, user):
         if not user.has_perm_to_view(self):
-            return self.allowed_unicode(user)
+            return self.allowed_str(user)
 
         if self.mime_type.is_image:
             return format_html(u'<img class="entity-summary" src="{url}" alt="{name}" title="{name}"/>',
