@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from future_builtins import filter
-
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import CharField, TextField, ForeignKey, PositiveIntegerField, CASCADE
@@ -59,7 +57,7 @@ class AbstractAddress(CremeModel):
         verbose_name_plural = _(u'Addresses')
         ordering = ('id',)
 
-    def __unicode__(self):
+    def __str__(self):
         s = u''
         join = self.STR_SEPARATOR.join
         allowed_fnames = set(self.info_field_names())
@@ -80,7 +78,7 @@ class AbstractAddress(CremeModel):
     def get_related_entity(self):  # For generic views
         return self.owner
 
-    def __nonzero__(self):  # Used by forms to detect empty addresses
+    def __bool__(self):  # Used by forms to detect empty addresses
         return any(fvalue for fname, fvalue in self.info_fields)
 
     def clone(self, entity):

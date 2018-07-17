@@ -188,7 +188,7 @@ class ActTestCase(CommercialBaseTestCase):
                              act_type=ActType.objects.create(title='Show'),
                              segment=self._create_segment(),
                             )
-        acts = [create_act(name='NAME_{}'.format(i)) for i in xrange(1, 3)]
+        acts = [create_act(name='NAME_{}'.format(i)) for i in range(1, 3)]
 
         response = self.assertGET200(Act.get_lv_absolute_url())
 

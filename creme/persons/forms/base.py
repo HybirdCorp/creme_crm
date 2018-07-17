@@ -37,7 +37,7 @@ _SHIPPING_ADDRESS_FIELD = 'shipping_address'
 def _get_address_field_names(addr_fieldname):
     # form = AddressForm(entity=None, user=None, prefix=addr_fieldname)
     form = _AuxiliaryAddressForm(prefix=addr_fieldname)
-    return [form.add_prefix(name) for name in form.base_fields.iterkeys()]
+    return [form.add_prefix(name) for name in form.base_fields]
 
 
 class _BasePersonForm(CremeEntityForm):
@@ -73,7 +73,7 @@ class _BasePersonForm(CremeEntityForm):
                                   )  # TODO factorise ??
         initial = {}
 
-        for name, field in address_form.fields.iteritems():
+        for name, field in address_form.fields.items():
             final_name = address_form.add_prefix(name)
             fields[final_name]  = field
             initial[final_name] = address_form.initial.get(name)
@@ -92,7 +92,7 @@ class _BasePersonForm(CremeEntityForm):
             if address is not None:
                 addr_form.save()
             elif addr_form.instance:  # Do not save empty address
-                addr_form.instance.name = unicode(verbose_name)
+                addr_form.instance.name = str(verbose_name)
                 setattr(instance, addr_fieldname, addr_form.save())
                 save_instance = True
         else:

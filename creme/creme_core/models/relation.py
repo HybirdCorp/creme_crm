@@ -74,7 +74,7 @@ class RelationType(CremeModel):
         verbose_name_plural = _(u'Types of relationship')
         ordering = ('predicate',)
 
-    def __unicode__(self):
+    def __str__(self):
         sym_type = self.symmetric_type
         symmetric_pred = ugettext(u'No relationship') if sym_type is None else sym_type.predicate
         return u'{} — {}'.format(self.predicate, symmetric_pred)  # NB: — == "\xE2\x80\x94" == &mdash;
@@ -215,7 +215,7 @@ class Relation(CremeModel):
         verbose_name = _(u'Relationship')
         verbose_name_plural = _(u'Relationships')
 
-    def __unicode__(self):
+    def __str__(self):
         return u'«{}» {} «{}»'.format(self.subject_entity, self.type, self.object_entity)
 
     def _build_symmetric_relation(self, update):
@@ -290,7 +290,7 @@ class SemiFixedRelationType(CremeModel):
         verbose_name_plural = _(u'Semi-fixed types of relationship')
         ordering = ('predicate',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.predicate
 
 
@@ -346,8 +346,8 @@ def _handle_merge(sender, other_entity, **kwargs):
         entities_per_rtype_ids[rtype_id][object_id].add(merged_id)
 
     duplicates_q = Q()
-    for rtype_id, entities_dict in entities_per_rtype_ids.iteritems():
-        for object_id, subject_ids in entities_dict.iteritems():
+    for rtype_id, entities_dict in entities_per_rtype_ids.items():
+        for object_id, subject_ids in entities_dict.items():
             if len(subject_ids) > 1:
                 duplicates_q |= Q(type=rtype_id, object_entity=object_id)
 

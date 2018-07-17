@@ -709,7 +709,9 @@ class BricksManagerTestCase(CremeTestCase):
         mngr = BricksManager()
         mngr.add_group('gname1', brick1, brick2, brick3)
         mngr.add_group('gname2', brick4)
-        self.assertEqual(['gname1', 'gname2'], mngr.get_remaining_groups())
+        remaining_groups = mngr.get_remaining_groups()
+        self.assertIsInstance(remaining_groups, list)
+        self.assertCountEqual(['gname1', 'gname2'], mngr.get_remaining_groups())
 
         # group =
         mngr.pop_group('gname1')

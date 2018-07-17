@@ -43,7 +43,7 @@ class EventType(CremeModel):
         verbose_name_plural = _(u'Types of event')
         ordering = ('name',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -74,7 +74,7 @@ class AbstractEvent(CremeEntity):
         verbose_name_plural = pgettext_lazy('events', u'Events')
         ordering = ('name',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def _pre_delete(self):

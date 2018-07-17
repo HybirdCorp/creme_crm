@@ -474,7 +474,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
                                    )
         self.assertNoFormError(response)
 
-        for i in xrange(1, reply_number + 1):
+        for i in range(1, reply_number + 1):
             preply = self.get_object_or_fail(PollReply, name='{}#{}'.format(name, i))
             self.assertFalse(preply.is_complete)
             self.assertEqual([1, 2, 3], list(preply.lines.values_list('order', flat=True)))
@@ -611,7 +611,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
                                    )
         self.assertNoFormError(response)
 
-        for i in xrange(1, reply_number + 1):
+        for i in range(1, reply_number + 1):
             preply = self.get_object_or_fail(PollReply, name='{}#{}'.format(name, i))
             self.assertEqual(pform, preply.pform)
             self.assertEqual(2,     preply.lines.count())
@@ -864,7 +864,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertGET200(url)
 
         name = preply.name + ' (edited)'
-        response = self.client.post(url, data={'entities_lbl': [unicode(preply)],
+        response = self.client.post(url, data={'entities_lbl': [str(preply)],
                                                'field_value':  name,
                                               }
                                    )
@@ -882,7 +882,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         preply = PollReply.objects.create(name='Reply#1', user=user, pform=pform1)
 
         self.assertPOST(400, self.build_inneredit_url(preply, 'pform'),
-                        data={'entities_lbl': [unicode(preply)],
+                        data={'entities_lbl': [str(preply)],
                               'field_value':  pform2.id,
                              }
                        )
@@ -900,7 +900,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertGET200(url)
 
         leina = Contact.objects.create(user=user, first_name='Leina', last_name='Vance')
-        response = self.client.post(url, data={'entities_lbl': [unicode(preply)],
+        response = self.client.post(url, data={'entities_lbl': [str(preply)],
                                                'field_value':  self.formfield_value_generic_entity(leina),
                                               },
                                    )
@@ -926,7 +926,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         create_contact = Contact.objects.create
         leina = create_contact(user=self.other_user, first_name='Leina', last_name='Vance')
-        response = self.client.post(url, data={'entities_lbl': [unicode(preply)],
+        response = self.client.post(url, data={'entities_lbl': [str(preply)],
                                                'field_value':  self.formfield_value_generic_entity(leina),
                                               },
                                    )
@@ -936,7 +936,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         # ----
         claudette = create_contact(user=user, first_name='Claudette', last_name='Vance')
-        response = self.client.post(url, data={'entities_lbl': [unicode(preply)],
+        response = self.client.post(url, data={'entities_lbl': [str(preply)],
                                                'field_value':  self.formfield_value_generic_entity(claudette),
                                               },
                                    )

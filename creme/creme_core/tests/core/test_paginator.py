@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from future_builtins import zip
-
 try:
     from collections import OrderedDict
     from datetime import date
@@ -45,7 +43,7 @@ class FlowPaginatorTestCase(CremeTestCase):
             names_orders_map[names] = order
 
         cls.CONTACTS_DATA = [(order, names[0], names[1])
-                                for names, order in names_orders_map.iteritems()
+                                for names, order in names_orders_map.items()
                             ]
 
     def setUp(self):
@@ -80,7 +78,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         create_contact = partial(FakeContact.objects.create, user=self.user)
 
         for c_id, first_name, last_name in self.CONTACTS_DATA:
-            for _i in xrange(counts.get('c{}'.format(c_id), 1)):
+            for _i in range(counts.get('c{}'.format(c_id), 1)):
                 create_contact(first_name=first_name, last_name=last_name)
 
     def test_all(self):
@@ -170,7 +168,8 @@ class FlowPaginatorTestCase(CremeTestCase):
         contacts = FakeContact.objects.all()
         count = len(contacts)
 
-        with self.assertRaises(ValueError):
+        # with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             FlowPaginator(contacts, key='last_name', per_page='notint', count=count)
 
         with self.assertRaises(ValueError):
@@ -262,7 +261,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         "Invalid integer value"
         create_orga = partial(FakeOrganisation.objects.create, user=self.user)
 
-        for i in xrange(1, 4):
+        for i in range(1, 4):
             create_orga(name='High school#{}'.format(i))
 
         orgas = FakeOrganisation.objects.all()
@@ -704,7 +703,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         "Duplicates at end + last_page => 0-__backward__-offset"
         last_name = 'Ichido'
         create_contact = partial(FakeContact.objects.create, user=self.user, last_name=last_name)
-        for i in xrange(1, 8):
+        for i in range(1, 8):
             create_contact(first_name='Rei #{}'.format(i))
 
         key = 'last_name'
@@ -1100,7 +1099,7 @@ class FlowPaginatorTestCase(CremeTestCase):
 
         create_line = partial(FakeInvoiceLine.objects.create, user=user, linked_invoice=invoice)
 
-        for i in xrange(5):
+        for i in range(5):
             create_line(item='Bento {}'.format(i),  unit_price='1{}.6'.format(i))
 
         key = 'unit_price'
@@ -1269,11 +1268,11 @@ class FlowPaginatorTestCase(CremeTestCase):
 
         key = 'sector'
         qs = FakeContact.objects.order_by(key, 'id')
-        self.assertRegexpMatches(self._get_sql(qs),
-                                 'ORDER BY '
-                                 '.creme_core_fakesector.\..order. ASC( NULLS FIRST)?\, '
-                                 '.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
-                                )
+        self.assertRegex(self._get_sql(qs),
+                         'ORDER BY '
+                         '.creme_core_fakesector.\..order. ASC( NULLS FIRST)?\, '
+                         '.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
+                        )
 
         contacts = list(qs)
         self.assertEqual(contacts, list(FakeContact.objects.order_by('sector__order', 'id')))

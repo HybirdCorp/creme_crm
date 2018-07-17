@@ -63,12 +63,12 @@ class RecurrentRegistry:
     def ctypes(self):
         get_ct = ContentType.objects.get_for_model
 
-        for app_registry in self._apps.itervalues():
+        for app_registry in self._apps.values():
             for template_entry in app_registry:
                 yield get_ct(template_entry.model)
 
     def get_form_of_template(self, ct_template):
-        for app_registry in self._apps.itervalues():
+        for app_registry in self._apps.values():
             for template_entry in app_registry:
                 if template_entry.model == ct_template.model_class():
                     return template_entry.template_form

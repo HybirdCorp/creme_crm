@@ -131,7 +131,7 @@ class _RelationsCreateForm(CremeForm):
         CremeEntity.populate_properties(subjects)
 
         for subject in subjects:
-            for rtype, needed_properties in ptypes_contraints.itervalues():
+            for rtype, needed_properties in ptypes_contraints.values():
                 if needed_properties and \
                    not any(p.type_id in needed_properties for p in subject.get_properties()):
                     if len(needed_properties) == 1:
@@ -139,7 +139,7 @@ class _RelationsCreateForm(CremeForm):
                                     self.error_messages['missing_property_single'],
                                     params={'subject':    subject,
                                             # 'property':   needed_properties.itervalues().next(),
-                                            'property':   next(needed_properties.itervalues()),
+                                            'property':   next(iter(needed_properties.values())),
                                             'predicate':  rtype.predicate,
                                            },
                                     code='missing_property_single',
@@ -148,9 +148,7 @@ class _RelationsCreateForm(CremeForm):
                         raise ValidationError(
                                     self.error_messages['missing_property_multi'],
                                     params={'subject':    subject,
-                                            'properties': u'/'.join(unicode(p)
-                                                                      for p in needed_properties.itervalues()
-                                                                   ),
+                                            'properties': '/'.join(sorted(map(str, needed_properties.values()))),
                                             'predicate':  rtype.predicate,
                                            },
                                     code='missing_property_multi',
@@ -158,7 +156,7 @@ class _RelationsCreateForm(CremeForm):
 
     def _check_loops(self, relations):
         subjects_ids = self.subjects_ids
-        bad_objects = [unicode(entity) for rtype, entity in relations if entity.id in subjects_ids]
+        bad_objects = [str(entity) for rtype, entity in relations if entity.id in subjects_ids]
 
         if bad_objects:
             raise ValidationError(self.error_messages['link_themselves'],

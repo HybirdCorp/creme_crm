@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 # TODO: move to persons ??
 def copy_or_create_address(address, owner, name):
     if address is None:
-        name = unicode(name)
+        name = str(name)
         return get_address_model().objects.create(name=name, owner=owner, address=name)
 
     return address.clone(owner)
@@ -47,7 +47,7 @@ def first_managed_orga_id():
     try:
         return get_organisation_model().get_all_managed_by_creme().values_list('id', flat=True)[0]
     except IndexError:
-        logger.warn('No managed organisation ?!')
+        logger.warning('No managed organisation ?!')
 
 
 class BaseEditForm(CremeEntityForm):

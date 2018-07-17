@@ -232,7 +232,7 @@ class _ActivityCreateForm(_ActivityForm):
             if not user.is_team:
                 users.add(user)
             else:
-                users.update(user.teammates.itervalues())
+                users.update(user.teammates.values())
 
         self.participants.update(validators.validate_linkable_entities(Contact.objects.filter(is_user__in=users),
                                                                        self.user,
@@ -425,8 +425,8 @@ class ActivityCreateForm(_ActivityCreateForm):
                     description=activity.description,
                     start=activity.start or ugettext('not specified'),
                     end=activity.end or ugettext('not specified'),
-                    subjects=u' / '.join(unicode(e) for e in cdata['subjects']),
-                    participants=u' / '.join(unicode(c) for c in self.participants),
+                    subjects=u' / '.join(str(e) for e in cdata['subjects']),
+                    participants=u' / '.join(str(c) for c in self.participants),
             )
 
             # TODO: sender = the real user that created the activity ???

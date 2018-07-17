@@ -87,7 +87,7 @@ class AbstractTemplateBase(Base):
             try:
                 vstatus = status_model.objects.get(id=self.status_id)
             except status_model.DoesNotExist as e:
-                logger.warn('Invalid status in TemplateBase(id=%s) [%s]', self.id, e)
+                logger.warning('Invalid status in TemplateBase(id=%s) [%s]', self.id, e)
                 vstatus = status_model(id=self.status_id, name='')
 
             self._verbose_status_cache = vstatus

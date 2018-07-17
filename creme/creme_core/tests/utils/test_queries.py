@@ -70,7 +70,7 @@ class QueriesTestCase(CremeTestCase):
         self._assertQIsOK(q1, [self.adrian, self.marianne])
 
         str_q = QSerializer().dumps(q1)
-        self.assertIsInstance(str_q, basestring)
+        self.assertIsInstance(str_q, str)
 
         q2 = QSerializer().loads(str_q)
         self.assertIsInstance(q2, Q)
@@ -90,7 +90,7 @@ class QueriesTestCase(CremeTestCase):
 
         str_q = QSerializer().dumps(q1)
         #print str_q
-        self.assertIsInstance(str_q, basestring)
+        self.assertIsInstance(str_q, str)
 
         q2 = QSerializer().loads(str_q)
         self.assertIsInstance(q2, Q)

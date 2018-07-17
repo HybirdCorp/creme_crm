@@ -39,7 +39,7 @@ class EmailSignature(CremeModel):
     creation_label = pgettext_lazy('emails', u'Create a signature')
     save_label     = pgettext_lazy('emails', u'Save the signature')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:

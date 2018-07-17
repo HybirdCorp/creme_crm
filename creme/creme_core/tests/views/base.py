@@ -60,7 +60,7 @@ class ViewsTestCase(CremeTestCase):
                                      )
 
 
-class BrickTestCaseMixin(object):
+class BrickTestCaseMixin:
     def get_html_tree(self, content):
         return html5lib.parse(content, namespaceHTMLElements=False)
 
@@ -82,7 +82,7 @@ class BrickTestCaseMixin(object):
     def assertInstanceLink(self, brick_node, entity):
         link_node = brick_node.find(".//a[@href='{}']".format(entity.get_absolute_url()))
         self.assertIsNotNone(link_node)
-        self.assertEqual(unicode(entity), link_node.text)
+        self.assertEqual(str(entity), link_node.text)
 
     def assertNoInstanceLink(self, brick_node, entity):
         self.assertIsNone(brick_node.find(".//a[@href='{}']".format(entity.get_absolute_url())))
@@ -104,7 +104,7 @@ class BrickTestCaseMixin(object):
 
 
 # TODO: rename (MassImportBaseTestCaseMixin)
-class CSVImportBaseTestCaseMixin(object):
+class CSVImportBaseTestCaseMixin:
     # clean_files_in_teardown = True  # See CremeTestCase
 
     def _assertNoResultError(self, results):
@@ -145,15 +145,18 @@ class CSVImportBaseTestCaseMixin(object):
         return doc
 
     def _build_csv_doc(self, lines, separator=',', extension='csv'):
-        content = u'\n'.join(separator.join(u'"%s"' % item for item in line) for line in lines)
-        content = str(content.encode('utf8'))
+        # content = u'\n'.join(separator.join(u'"%s"' % item for item in line) for line in lines)
+        # content = str(content.encode('utf8'))
+        content = '\n'.join(separator.join('"{}"'.format(item) for item in line) for line in lines)
 
-        tmpfile = self._build_file(content, extension)
+        # tmpfile = self._build_file(content, extension)
+        tmpfile = self._build_file(content.encode(), extension)
 
         return self._build_doc(tmpfile)
 
     def _build_xls_doc(self, lines, extension='xls'):
-        tmpfile = self._build_file('', extension)
+        # tmpfile = self._build_file('', extension)
+        tmpfile = self._build_file(b'', extension)
         wb = XlwtWriter()
         for line in lines:
             wb.writerow(line)

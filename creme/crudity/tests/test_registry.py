@@ -35,7 +35,8 @@ class CrudityRegistryTestCase(CrudityTestCase):
         self.assertIsInstance(ifetcher2, registry.FetcherInterface)
         self.assertEqual([f21, f22], ifetcher2.fetchers)
 
-        self.assertEqual([ifetcher1, ifetcher2], crudity_registry.get_fetchers())
+        # self.assertEqual([ifetcher1, ifetcher2], crudity_registry.get_fetchers())
+        self.assertEqual({ifetcher1, ifetcher2}, set(crudity_registry.get_fetchers()))
 
     def test_register_fetchers02(self):
         crudity_registry = self.crudity_registry

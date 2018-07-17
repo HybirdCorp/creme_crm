@@ -119,7 +119,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         with self.assertNoException():
             form = response.context['form']
 
-        self.assertIn('value="1"', unicode(form['step']))
+        self.assertIn('value="1"', str(form['step']))
 
         response = self.client.post(url, follow=True,
                                     data=dict(self.lv_import_data,
@@ -259,15 +259,16 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
 
         doc = builder(lines)
         url = self._build_import_url(FakeContact)
-        response = self.assertPOST200(url, data={'step':       0,
-                                                 'document':   doc.id,
-                                                 'has_header': True,
-                                                }
-                                     )
+        response = self.client.post(url, data={'step':       0,
+                                               'document':   doc.id,
+                                               'has_header': True,
+                                              }
+                                    )
+        self.assertNoFormError(response)
 
         form = response.context['form']
-        self.assertIn('value="1"',    unicode(form['step']))
-        self.assertIn('value="True"', unicode(form['has_header']))
+        self.assertIn('value="1"',    str(form['step']))
+        self.assertIn('value="True"', str(form['has_header']))
 
         default_descr = 'A cute pilot'
         response = self.client.post(
@@ -429,7 +430,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertIn('value="1"', unicode(response.context['form']['step']))
+        self.assertIn('value="1"', str(response.context['form']['step']))
 
         response = self.client.post(url, follow=True,
                                     data=dict(self.lv_import_data, document=doc.id,
@@ -812,7 +813,7 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
         "Form error: unknown extension"
         self.login()
 
-        doc = self._build_doc(self._build_file('Non Empty File...', 'doc'))
+        doc = self._build_doc(self._build_file(b'Non Empty File...', 'doc'))
         response = self.assertPOST200(self._build_import_url(FakeContact),
                                       data={'step': 0, 'document': doc.id}
                                      )

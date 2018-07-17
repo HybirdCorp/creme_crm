@@ -44,15 +44,15 @@ class SearchConfigTestCase(CremeTestCase):
         fn_field = sfields[0]
         self.assertEqual('first_name',     fn_field.name)
         self.assertEqual(_(u'First name'), fn_field.verbose_name)
-        self.assertEqual(_(u'First name'), unicode(fn_field))
+        self.assertEqual(_(u'First name'), str(fn_field))
 
         ln_field = sfields[1]
         self.assertEqual('last_name',     ln_field.name)
         self.assertEqual(_(u'Last name'), ln_field.verbose_name)
-        self.assertEqual(_(u'Last name'), unicode(ln_field))
+        self.assertEqual(_(u'Last name'), str(ln_field))
 
         self.assertEqual(_(u'Default search configuration for «{model}»').format(model='Test Contact'),
-                         unicode(sc_item)
+                         str(sc_item)
                         )
 
         SearchConfigItem.create_if_needed(FakeContact, ['first_name', 'last_name'])
@@ -76,7 +76,7 @@ class SearchConfigTestCase(CremeTestCase):
                                 role=role,
                                 model='Test Organisation',
                             ),
-                         unicode(sc_item)
+                         str(sc_item)
                         )
 
     def test_create_if_needed03(self):
@@ -90,7 +90,7 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertTrue(sc_item.superuser)
 
         self.assertEqual(_(u'Search configuration of super-users for «{model}»').format(model='Test Organisation'),
-                         unicode(sc_item)
+                         str(sc_item)
                         )
 
     def test_create_if_needed04(self):

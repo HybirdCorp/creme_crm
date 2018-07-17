@@ -27,7 +27,7 @@ LINK_PERM   = 'creme_core.link_entity'
 UNLINK_PERM = 'creme_core.unlink_entity'
 
 
-class EntityCredentials(object):
+class EntityCredentials:
     NONE   =  0
     # ADD    =  1 # 0b000001   # Useless...
     VIEW   =  2  # 0b000010
@@ -79,7 +79,7 @@ class EntityCredentials(object):
 
         self._value = value
 
-    def __unicode__(self):
+    def __str__(self):
         return u'EntityCredentials(value="{}")'.format(self._value)
 
     def can_change(self):

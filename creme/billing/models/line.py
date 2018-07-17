@@ -184,7 +184,7 @@ class Line(CremeEntity):
                                                         subject_entity=self.id,
                                                        ).object_entity.get_real_entity()
             except Relation.DoesNotExist:
-                logger.warn('Line.related_item(): relation does not exist !!')
+                logger.warning('Line.related_item(): relation does not exist !!')
 
         return self._related_item
 

@@ -64,10 +64,10 @@ def latex_escape(x):
     if not x:
         return x
 
-    x = unicode(x)
+    x = str(x)
 
     if _LATEX_ESCAPE_RE is None:
-        _LATEX_ESCAPE_RE = re.compile('|'.join(re.escape(unicode(key))
+        _LATEX_ESCAPE_RE = re.compile('|'.join(re.escape(str(key))
                                         for key in sorted(CONV.keys(), key=lambda item: - len(item)))
                                      )
 

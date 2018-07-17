@@ -854,11 +854,16 @@ class ReportTestCase(BaseReportsTestCase):
 
         response = self.assertGET200(self._build_export_url(report), data={'doc_type': 'csv'})
         self.assertEqual('doc_type=csv', response.request['QUERY_STRING'])
-        self.assertEqual(smart_str(u'"{}","{}","{}","{}"\r\n'.format(
-                                      _(u'Name'), _(u'Owner user'), rt.predicate, _(u'Properties')
-                                    )
-                                  ),
-                         response.content
+        # self.assertEqual(smart_str(u'"{}","{}","{}","{}"\r\n'.format(
+        #                               _(u'Name'), _(u'Owner user'), rt.predicate, _(u'Properties')
+        #                             )
+        #                           ),
+        #                  response.content
+        #                 )
+        self.assertEqual(u'"{}","{}","{}","{}"\r\n'.format(
+                              _(u'Name'), _(u'Owner user'), rt.predicate, _(u'Properties')
+                            ),
+                         response.content.decode()
                         )
 
     def test_report_csv02(self):
@@ -870,7 +875,8 @@ class ReportTestCase(BaseReportsTestCase):
         report   = self._create_report('trinita')
         response = self.assertGET200(self._build_export_url(report), data={'doc_type': 'csv'})
 
-        content = (s for s in response.content.split('\r\n') if s)
+        # content = (s for s in response.content.split('\r\n') if s)
+        content = (s for s in response.content.decode().split('\r\n') if s)
         self.assertEqual(smart_str(u'"{}","{}","{}","{}"'.format(
                                       _(u'Last name'), _(u'Owner user'), _(u'owns'), _(u'Properties')
                                     )
@@ -879,7 +885,7 @@ class ReportTestCase(BaseReportsTestCase):
                          next(content)
                         )
 
-        user_str = unicode(self.user)
+        user_str = str(self.user)
         # self.assertEqual('"Ayanami","%s","","Kawaii"' % user_str,  content.next())  # Alphabetical ordering ??
         # self.assertEqual('"Katsuragi","%s","Nerv",""' % user_str,  content.next())
         # self.assertEqual('"Langley","%s","",""' % user_str,        content.next())
@@ -905,7 +911,8 @@ class ReportTestCase(BaseReportsTestCase):
                                           }
                                     )
 
-        content = [s for s in response.content.split('\r\n') if s]
+        # content = [s for s in response.content.split('\r\n') if s]
+        content = [s for s in response.content.decode().split('\r\n') if s]
         self.assertEqual(3, len(content))
 
         self.assertEqual(u'"Ayanami","{}","","Kawaii"'.format(user), content[1])
@@ -927,7 +934,8 @@ class ReportTestCase(BaseReportsTestCase):
                                           }
                                     )
 
-        content = [s for s in response.content.split('\r\n') if s]
+        # content = [s for s in response.content.split('\r\n') if s]
+        content = [s for s in response.content.decode().split('\r\n') if s]
         self.assertEqual(2, len(content))
         self.assertEqual('"Baby","%s","",""' % user, content[1])
 
@@ -975,7 +983,8 @@ class ReportTestCase(BaseReportsTestCase):
 
         response = self.assertGET200(self._build_export_url(report), data={'doc_type': 'csv'})
 
-        content = (s for s in response.content.split('\r\n') if s)
+        # content = (s for s in response.content.split('\r\n') if s)
+        content = (s for s in response.content.decode().split('\r\n') if s)
         # self.assertEqual(smart_str(u'"%s"' % _(u'Last name')), content.next())
         self.assertEqual(smart_str(u'"%s"' % _(u'Last name')), next(content))
 
@@ -1000,7 +1009,8 @@ class ReportTestCase(BaseReportsTestCase):
 
         response = self.assertGET200(self._build_export_url(report), data={'doc_type': 'csv'})
 
-        content = (s for s in response.content.split('\r\n') if s)
+        # content = (s for s in response.content.split('\r\n') if s)
+        content = (s for s in response.content.decode().split('\r\n') if s)
         # self.assertEqual(smart_str(u'"%s"' % _(u'Last name')), content.next())
         self.assertEqual(smart_str(u'"%s"' % _(u'Last name')), next(content))
 
@@ -1029,7 +1039,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         self.assertEqual(3, len(result))
 
-        user_str = unicode(self.user)
+        user_str = str(self.user)
         self.assertEqual(['Ayanami', user_str, '', 'Kawaii'], result[1])
         self.assertEqual(['Langley', user_str, '', ''],       result[2])
 
@@ -1676,7 +1686,7 @@ class ReportTestCase(BaseReportsTestCase):
         user = self.login()
 
         create_contact = partial(FakeContact.objects.create, user=user)
-        for i in xrange(5):
+        for i in range(5):
             create_contact(last_name='Mister %s' % i)
 
         create_contact(last_name='Mister X', is_deleted=True)
@@ -1845,7 +1855,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(_('Legal form'), lf_field.title)
         self.assertEqual(_('Owner user'), user_field.title)
 
-        user_str = unicode(user)
+        user_str = str(user)
         self.assertEqual([[self.lannisters.name, '',          user_str],
                           [starks.name,          lform.title, user_str],
                          ],
@@ -2262,11 +2272,11 @@ class ReportTestCase(BaseReportsTestCase):
         doc11 = self.doc11; doc12 = self.doc12
         fetch = report.fetch_all_lines
         lines = [[self.folder1.title, '{}, {}'.format(doc11, doc12)],
-                 [self.folder2.title, unicode(self.doc21)],
+                 [self.folder2.title, str(self.doc21)],
                 ]
         self.assertEqual(lines, fetch())
 
-        lines[0][1] = unicode(doc11)
+        lines[0][1] = str(doc11)
         self.assertEqual(lines, fetch(user=self.user))
 
     def test_fetch_related_02(self):
@@ -2397,12 +2407,12 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(2, report.fields.count())
 
         fetch = self.report_orga.fetch_all_lines
-        lines = [[self.lannisters.name, unicode(self.tyrion)],
+        lines = [[self.lannisters.name, str(self.tyrion)],
                  [self.starks.name,     u'{}, {}'.format(ned, self.robb)],
                 ]
         self.assertEqual(lines, fetch())
 
-        lines[1][1] = unicode(self.robb)
+        lines[1][1] = str(self.robb)
         self.assertEqual(lines, fetch(user=self.user))
 
     def test_fetch_relation_02(self):

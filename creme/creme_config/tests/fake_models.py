@@ -22,5 +22,5 @@ else:
             verbose_name_plural = u'Test ConfigEntities'
             ordering = ('name',)
 
-        def __unicode__(self):
+        def __str__(self):
             return self.name

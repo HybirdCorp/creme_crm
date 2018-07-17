@@ -5,14 +5,14 @@ from mediagenerator.base import Generator
 from mediagenerator.utils import get_media_mapping, prepare_patterns
 
 OFFLINE_MANIFEST = getattr(settings, 'OFFLINE_MANIFEST', {})
-if isinstance(OFFLINE_MANIFEST, basestring):
+if isinstance(OFFLINE_MANIFEST, str):
     OFFLINE_MANIFEST = {OFFLINE_MANIFEST: '.*'}
 
 
 def get_tuple(data, name, default=()):
     result = data.get(name, default)
 
-    return (result,) if isinstance(result, basestring) else result
+    return (result,) if isinstance(result, str) else result
 
 
 class Manifest(Generator):
@@ -23,7 +23,7 @@ class Manifest(Generator):
         config = OFFLINE_MANIFEST[name]
         if isinstance(config, (tuple, list)):
             config = {'cache': config}
-        elif isinstance(config, basestring):
+        elif isinstance(config, str):
             config = {'cache': (config,)}
 
         cache_pattern = prepare_patterns(get_tuple(config, 'cache', '.*'),

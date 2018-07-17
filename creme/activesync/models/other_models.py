@@ -31,7 +31,7 @@ class EntityASData(CremeModel):
     field_name  = CharField(u'Field name', max_length=100)  # Exchange field name
     field_value = CharField(u'Field value', max_length=300)  # Exchange field value
 
-    def __unicode__(self):
+    def __str__(self):
         return u'<EntityASData entity<%s>, field_name<%s>, field_value<%s> >' % (
                         self.entity, self.field_name, self.field_value
                     )

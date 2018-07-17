@@ -24,10 +24,11 @@ import os
 import random
 from struct import unpack
 
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
+# try:
+#     from cStringIO import StringIO
+# except ImportError:
+#     from StringIO import StringIO
+from io import StringIO
 
 from PIL import Image
 
@@ -62,7 +63,7 @@ def get_default_server_setting_values():
         result['domain'] = svalues[MAPI_DOMAIN]
         result['ssl']    = svalues[MAPI_SERVER_SSL]
     except KeyError as e:
-        logger.warn('activesync.utils.get_default_server_setting_values: unfoundable SettingValue(key=%s) '
+        logger.warning('activesync.utils.get_default_server_setting_values: unfoundable SettingValue(key=%s) '
                     '- Populate has not been run ?! (if you are running unit tests you can '
                     'ignore this message' % e
                    )  # NB useful for creme_config tests
@@ -82,7 +83,7 @@ def generate_guid():
         d4.append(random.randint(0, 0xFF))
 
     guid = "%08X%04X%04X" % (d1, d2, d3)
-    for i in xrange(len(d4)):
+    for i in range(len(d4)):
         guid += "%02X" % d4[i]
 
     return guid
@@ -145,13 +146,13 @@ def get_b64encoded_img_of_max_weight(image_file_path, max_weight):
     # return content
     img_format = im.format
 
-    for _i in xrange(50):
+    for _i in range(50):
         content_size, content = b64_from_pil_image(im, reduce_by=0.5, out_format=img_format)
 
         if content_size <= max_weight:
             return content
 
-    logger.warn('get_b64encoded_img_of_max_weight(): '
+    logger.warning('get_b64encoded_img_of_max_weight(): '
                 'cannot not manage to reduce the size of the file <%s> enough (max_weight=%s)',
                 image_file_path, max_weight,
                )

@@ -31,7 +31,7 @@ class CastError(Exception):
 
 def cast_2_str(value):
     # return str(value)
-    return unicode(value)
+    return str(value)
 
 
 def cast_2_positive_int(value):
@@ -46,7 +46,7 @@ def cast_2_positive_int(value):
     return value
 
 
-class BatchOperator(object):
+class BatchOperator:
     __slots__ = ('id', '_name', '_function', '_cast_function', '_need_arg')
 
     def __init__(self, id_, name, function, cast_function=cast_2_str):
@@ -54,10 +54,11 @@ class BatchOperator(object):
         self._name = name
         self._function = function
         self._cast_function = cast_function
-        self._need_arg = (function.func_code.co_argcount > 1)
+        # self._need_arg = (function.func_code.co_argcount > 1)
+        self._need_arg = (function.__code__.co_argcount > 1)
 
-    def __unicode__(self):
-        return unicode(self._name)
+    def __str__(self):
+        return str(self._name)
 
     def __call__(self, x, *args):
         if self._need_arg:
@@ -73,7 +74,7 @@ class BatchOperator(object):
         return self._need_arg
 
 
-class BatchOperatorManager(object):
+class BatchOperatorManager:
     _CAT_STR = 'str'
     _CAT_INT = 'int'
 
@@ -104,7 +105,7 @@ class BatchOperatorManager(object):
         }
 
     def _get_category(self, model_field_type):
-        for field_cls, cat in self._OPERATOR_FIELD_MATRIX.iteritems():
+        for field_cls, cat in self._OPERATOR_FIELD_MATRIX.items():
             if issubclass(model_field_type, field_cls):
                 return cat
 
@@ -119,7 +120,7 @@ class BatchOperatorManager(object):
     @property
     def managed_fields(self):
         """@return Iterator on all classes of modelfield that have BatchOperator."""
-        return self._OPERATOR_FIELD_MATRIX.iterkeys()
+        return self._OPERATOR_FIELD_MATRIX.keys()
 
     def operators(self, model_field_type=None):
         """Iterator that yields (operator_name, operator_instance) tuples
@@ -130,15 +131,15 @@ class BatchOperatorManager(object):
             category = self._get_category(model_field_type)
             ops = self._OPERATOR_MAP[category] if category else {}
 
-            return ops.iteritems()
+            return ops.items()
 
-        return chain.from_iterable(ops.iteritems() for ops in self._OPERATOR_MAP.itervalues())
+        return chain.from_iterable(ops.items() for ops in self._OPERATOR_MAP.values())
 
 
 batch_operator_manager = BatchOperatorManager()
 
 
-class BatchAction(object):
+class BatchAction:
     __slots__ = ('_model', '_field_name', '_operator', '_value')
 
     class InvalidOperator(Exception):
@@ -186,7 +187,7 @@ class BatchAction(object):
 
         return False
 
-    def __unicode__(self):
+    def __str__(self):
         op = self._operator
         field = self._model._meta.get_field(self._field_name).verbose_name
 

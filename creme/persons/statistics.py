@@ -24,7 +24,7 @@ from django.utils.translation import ugettext as _
 from .constants import REL_OBJ_CUSTOMER_SUPPLIER
 
 
-class CustomersStatistics(object):
+class CustomersStatistics:
     def __init__(self, orga_model):
         self.orga_model = orga_model
 

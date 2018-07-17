@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from future_builtins import map
-
 from django.db.models import FieldDoesNotExist, DateTimeField, DateField, ForeignKey
 from django.forms.fields import ChoiceField, BooleanField
 from django.forms.utils import ValidationError  # ErrorList
@@ -120,7 +118,8 @@ class ReportGraphForm(CremeEntityForm):
         self.rtypes = rtypes = dict(RelationType.get_compatible_ones(report_ct, include_internals=True)
                                                 .values_list('id', 'predicate')
                                    )
-        abscissa_predicates = rtypes.items()
+        # abscissa_predicates = rtypes.items()
+        abscissa_predicates = list(rtypes.items())
         sort_key = collator.sort_key
         abscissa_predicates.sort(key=lambda k: sort_key(k[1]))
 
@@ -138,7 +137,7 @@ class ReportGraphForm(CremeEntityForm):
 
         if cfields:
             # TODO: sort ?
-            abscissa_choices.append((_('Custom fields'), [(cf.id, cf.name) for cf in cfields.itervalues()]))
+            abscissa_choices.append((_('Custom fields'), [(cf.id, cf.name) for cf in cfields.values()]))
 
         # TODO: we could build the complete map fields/allowed_types, instead of doing AJAX queries...
         abscissa_field_f.choices = abscissa_choices
@@ -174,7 +173,7 @@ class ReportGraphForm(CremeEntityForm):
                 aggregate_field_f.help_text = ugettext(
                         'If you use a field related to money, the entities should use the same '
                         'currency or the result will be wrong. Concerned fields are : {}'
-                    ).format(', '.join(unicode(field.verbose_name) for field in money_fields))
+                    ).format(', '.join(str(field.verbose_name) for field in money_fields))
 
 
             if aggcustom_choices and aggfield_choices:

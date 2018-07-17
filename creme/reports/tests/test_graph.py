@@ -4,11 +4,11 @@ try:
     from decimal import Decimal
     from functools import partial
     from json import loads as json_load
+    from urllib.parse import urlparse, parse_qs
 
     from django.contrib.contenttypes.models import ContentType
     from django.db.models.query_utils import Q
     from django.urls import reverse
-    from django.utils.six.moves.urllib.parse import urlparse, parse_qs
     from django.utils.translation import ugettext as _, pgettext
 
     from creme.creme_core.models import (RelationType, Relation,
@@ -1227,7 +1227,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual(y_one_day[17][0], 1)
 
         valid_days_indices = [0, 5, 10, 13, 15, 17]
-        invalid_days_indices = [index for index in xrange(len(y_one_day)) if index not in valid_days_indices]
+        invalid_days_indices = [index for index in range(len(y_one_day)) if index not in valid_days_indices]
         self.assertEqual([index for index, value in enumerate(y_one_day) if value[0] == 1], valid_days_indices)
         self.assertEqual([index for index, value in enumerate(y_one_day) if value[0] == 0], invalid_days_indices)
 
@@ -1689,8 +1689,8 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertEqual(2, len(x_asc))
 
         with self.assertNoException():
-            lannisters_idx = x_asc.index(unicode(lannisters))
-            starks_idx     = x_asc.index(unicode(starks))
+            lannisters_idx = x_asc.index(str(lannisters))
+            starks_idx     = x_asc.index(str(starks))
 
         # fmt = '/tests/contacts?q_filter={"pk__in": [%s]}&filter=test-filter'
         # self.assertEqual([1, fmt % tyrion.pk],                                            y_asc[lannisters_idx])
@@ -1738,10 +1738,10 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         x_asc, y_asc = rgraph.fetch()
         self.assertEqual(2, len(x_asc))
 
-        ned_index = x_asc.index(unicode(ned))
+        ned_index = x_asc.index(str(ned))
         self.assertNotEqual(-1,  ned_index)
 
-        tywin_index = x_asc.index(unicode(tywin))
+        tywin_index = x_asc.index(str(tywin))
         self.assertNotEqual(-1,  tywin_index)
 
         # fmt = '/tests/organisations?q_filter={"pk__in": [%s]}'
@@ -1803,15 +1803,15 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
                                            )
 
         x_asc, y_asc = rgraph.fetch()
-        self.assertEqual({unicode(lannisters), unicode(starks)}, set(x_asc))
+        self.assertEqual({str(lannisters), str(starks)}, set(x_asc))
 
         index = x_asc.index
         # fmt = '/tests/contacts?q_filter={"pk__in": [%s]}'
         # self.assertEqual([600, fmt % ('{}, {}'.format(jaime.id, tyrion.id))], y_asc[index(unicode(lannisters))])
         # self.assertEqual([800, fmt % ('{}, {}'.format(ned.id, robb.id))],     y_asc[index(unicode(starks))])
         fmt = '/tests/contacts?q_filter={}'.format
-        self.assertEqual([600, fmt(self._serialize_qfilter(pk__in=[jaime.id, tyrion.id]))], y_asc[index(unicode(lannisters))])
-        self.assertEqual([800, fmt(self._serialize_qfilter(pk__in=[ned.id, robb.id]))],     y_asc[index(unicode(starks))])
+        self.assertEqual([600, fmt(self._serialize_qfilter(pk__in=[jaime.id, tyrion.id]))], y_asc[index(str(lannisters))])
+        self.assertEqual([800, fmt(self._serialize_qfilter(pk__in=[ned.id, robb.id]))],     y_asc[index(str(starks))])
 
     def test_fetch_by_relation04(self):
         "Invalid RelationType"
@@ -2204,7 +2204,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
 
         title = u'{} - {}'.format(rgraph.name, _(u'Folder'))
         self.assertEqual(title, ReportGraphBrick(item).verbose_name)
-        self.assertEqual(title, unicode(item))
+        self.assertEqual(title, str(item))
 
         # Display on detailview
         create_folder = partial(FakeReportsFolder.objects.create, user=self.user)
@@ -2231,7 +2231,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         x, y = fetcher.fetch_4_entity(folder1)  # TODO: order
 
         year = doc1.created.year
-        self.assertEqual([unicode(year)], x)
+        self.assertEqual([str(year)], x)
         # self.assertEqual([[2, reverse('reports__list_fake_documents') + '?q_filter={"created__year": %s}' % year]], y)
         self.assertEqual([[2, reverse('reports__list_fake_documents') + '?q_filter={}'.format(self._serialize_qfilter(created__year=year))]], y)
 
@@ -2242,7 +2242,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         x, y = fetcher.fetch_4_entity(folder1)
 
         year = doc1.created.year
-        self.assertEqual([unicode(year)], x)
+        self.assertEqual([str(year)], x)
         # self.assertEqual([[2, reverse('reports__list_fake_documents') + '?q_filter={"created__year": %s}' % year]], y)
         self.assertEqual([[2, reverse('reports__list_fake_documents') + '?q_filter={}'.format(self._serialize_qfilter(created__year=year))]], y)
 
@@ -2329,10 +2329,10 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         rel_group = choices[2]
         self.assertEqual(_('Relationships'), rel_group[0])
 
-        rel_choices = frozenset((k, unicode(v)) for k, v in rel_group[1])
+        rel_choices = frozenset((k, str(v)) for k, v in rel_group[1])
         choice_id = 'rtype-{}'.format(rtype.id)
-        self.assertIn((choice_id, unicode(rtype)), rel_choices)
-        self.assertNotIn(('rtype-{}'.format(incompatible_rtype.id), unicode(incompatible_rtype)),
+        self.assertIn((choice_id, str(rtype)), rel_choices)
+        self.assertNotIn(('rtype-{}'.format(incompatible_rtype.id), str(incompatible_rtype)),
                          rel_choices
                         )
 
@@ -2369,7 +2369,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         x, y = fetcher.fetch_4_entity(nanyo)
 
         year = sonsaku.created.year
-        self.assertEqual([unicode(year)], x)
+        self.assertEqual([str(year)], x)
         # self.assertEqual([[2, '/tests/contacts?q_filter={"created__year": %s}' % year]], y)
         self.assertEqual([[2, '/tests/contacts?q_filter={}'.format(self._serialize_qfilter(created__year=year))]], y)
 
@@ -2477,9 +2477,9 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         interval_day_count = 300
         entities_per_day = 5
         create_orga = partial(FakeOrganisation.objects.create, user=self.user)
-        for i in xrange(1, interval_day_count + 1):
+        for i in range(1, interval_day_count + 1):
             creation = datetime.strptime('%s 2014' % i, '%j %Y').strftime("%Y-%m-%d")
-            for _j in xrange(entities_per_day):
+            for _j in range(entities_per_day):
                 create_orga(name='Target Orga', creation_date=creation)
 
         start = time.clock()
@@ -2512,9 +2512,9 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         interval_day_count = 300
         entities_per_day = 5
         create_orga = partial(FakeOrganisation.objects.create, user=self.user)
-        for i in xrange(1, interval_day_count + 1):
+        for i in range(1, interval_day_count + 1):
             creation = datetime.strptime('%s 2014' % i, '%j %Y').strftime("%Y-%m-%d")
-            for _j in xrange(entities_per_day):
+            for _j in range(entities_per_day):
                 create_orga(name='Target Orga', creation_date=creation, capital=100)
 
         start = time.clock()
@@ -2542,7 +2542,7 @@ class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
         self.assertGET200(url)
 
         name = rgraph.name.title()
-        response = self.client.post(url, data={'entities_lbl': [unicode(rgraph)],
+        response = self.client.post(url, data={'entities_lbl': [str(rgraph)],
                                                'field_value':  name,
                                               }
                                    )

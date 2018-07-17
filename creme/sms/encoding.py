@@ -73,7 +73,7 @@ def gsm_encoded_content(content):
     iso_encoded = unicode_encoded.encode('iso-8859-1')
     #gsm_encoded = iso_encoded.translate(SMS_ENCODING_GSM_03_38)
 
-    for special_key, special_value in SMS_EXTENDED_CHARS.iteritems():
+    for special_key, special_value in SMS_EXTENDED_CHARS.items():
         iso_encoded = iso_encoded.replace(special_key, special_value)
 
     return iso_encoded

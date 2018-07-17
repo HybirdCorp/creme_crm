@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from urllib import urlencode
-from urllib2 import (HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler,
+from urllib.parse import urlencode
+# from urllib2 import (HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler,
+#         build_opener, Request, URLError, HTTPError, HTTPRedirectHandler)
+from urllib.request import (HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler,
         build_opener, Request, URLError, HTTPError, HTTPRedirectHandler)
 
 
@@ -53,7 +55,7 @@ class WSRedirectHandler(HTTPRedirectHandler):
         return result
 
 
-class WSBackEnd(object):
+class WSBackEnd:
     def __init__(self):
         self.connected = False
         self.opener = None
@@ -114,7 +116,7 @@ class WSBackEnd(object):
             raise WSException('Request send error', err)
 
     def _encode(self, data):
-        return urlencode({key: value for key, value in data.iteritems() if value is not None}, True)
+        return urlencode({key: value for key, value in data.items() if value is not None}, True)
 
     def _new_request(self, url, get=None, post=None, method=None):
         url = self.url.rstrip('/') + '/' + url.lstrip('/') + (('?' + self._encode(get)) if get else '')

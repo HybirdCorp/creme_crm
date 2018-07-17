@@ -307,13 +307,13 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     def test_jobs_all01(self):
         self.login()
         job_count = 2
-        for i in xrange(job_count):
+        for i in range(job_count):
             self._create_batchprocess_job()
 
         response = self.assertGET200(self.LIST_URL)
         self.assertTemplateUsed(response, 'creme_core/job/list-all.html')
 
-        self._assertCount(response, unicode(batch_process_type.verbose_name), job_count)
+        self._assertCount(response, str(batch_process_type.verbose_name), job_count)
 
     def test_jobs_all02(self):
         "Not super-user: forbidden"
@@ -354,7 +354,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         "Max job message (several messages)"
         self.login()
 
-        for i in xrange(2):
+        for i in range(2):
             self._create_batchprocess_job(status=Job.STATUS_WAIT)
 
         response = self.assertGET200(self.LIST_URL)
@@ -372,24 +372,24 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.login()
 
         job_count = 2
-        for i in xrange(job_count):
+        for i in range(job_count):
             self._create_batchprocess_job()
 
         response = self.assertGET200(self.MINE_URL)
         self.assertTemplateUsed(response, 'creme_core/job/list-mine.html')
 
-        self._assertCount(response, unicode(batch_process_type.verbose_name), job_count)
+        self._assertCount(response, str(batch_process_type.verbose_name), job_count)
 
     def test_my_jobs02(self):
         "Credentials"
         self.login(is_superuser=False)
         self._create_batchprocess_job()
         response = self.assertGET200(self.MINE_URL)
-        self._assertCount(response, unicode(batch_process_type.verbose_name), 1)
+        self._assertCount(response, str(batch_process_type.verbose_name), 1)
 
         self._create_batchprocess_job(user=self.other_user)
         response = self.assertGET200(self.MINE_URL)
-        self._assertCount(response, unicode(batch_process_type.verbose_name), 1)  # Only job1
+        self._assertCount(response, str(batch_process_type.verbose_name), 1)  # Only job1
 
     @override_settings(MAX_JOBS_PER_USER=1)
     def test_my_jobs03(self):
@@ -417,7 +417,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         "Max job message (several messages)"
         self.login()
 
-        for i in xrange(2):
+        for i in range(2):
             self._create_batchprocess_job(status=Job.STATUS_WAIT)
 
         response = self.assertGET200(self.MINE_URL)

@@ -38,11 +38,11 @@ class ButtonMenuItem(CremeModel):
         verbose_name = _(u'Button to display')
         verbose_name_plural = _(u'Buttons to display')
 
-    def __unicode__(self):
+    def __str__(self):
         from creme.creme_core.gui.button_menu import button_registry
 
         button = button_registry.get_button(self.button_id)
-        return unicode(button.verbose_name) if button else ugettext('Deprecated button')
+        return str(button.verbose_name) if button else ugettext('Deprecated button')
 
     @staticmethod
     def create_if_needed(pk, model, button, order):  # TODO: rename 'button_class'

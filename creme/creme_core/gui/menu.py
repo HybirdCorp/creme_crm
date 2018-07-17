@@ -127,7 +127,8 @@ def _validate_id(id_):
 
     return id_
 
-class Item(object):
+
+class Item:
     def __init__(self, id):
         self.id = _validate_id(id)
         self._priority = None
@@ -169,7 +170,7 @@ class ViewableItem(Item):
     # def __repr__(self):
     #     return '<Item: id=%s>' % self.id
 
-    def __unicode__(self):
+    def __str__(self):
         return u'<{name}: id="{id}" priority={priority} label="{label}">'.format(
                         name=self.__class__.__name__,
                         id=self.id,
@@ -198,7 +199,8 @@ class ViewableItem(Item):
     def render_label(self, context):
         return self.label
 
-class ItemList(object):
+
+class ItemList:
     """List of items, ordered with a priority.
     Items must have a '_priority' attribute, reserved to the ItemList it belongs to.
     So an Item cannot be added to several ItemLists (it's checked by the method add()).
@@ -358,7 +360,7 @@ class ItemList(object):
             try:
                 pop(item_id)
             except KeyError as e:
-                logger.warn(e.args[0])
+                logger.warning(e.args[0])
 
 
 class ItemGroup(Item, ItemList):
@@ -382,7 +384,7 @@ class ItemGroup(Item, ItemList):
 
 
 class ItemSeparator(Item):
-    def __unicode__(self):
+    def __str__(self):
         return '--'
 
     def render(self, context, level=0):
@@ -398,8 +400,8 @@ class ContainerItem(ViewableItem, ItemList):
         ViewableItem.__init__(self, *args, **kwargs)
         ItemList.__init__(self)
 
-    def __unicode__(self):
-        res = ViewableItem.__unicode__(self) + '\n'
+    def __str__(self):
+        res = ViewableItem.__str__(self) + '\n'
 
         for item in self:
             if isinstance(item, ItemGroup):
@@ -478,7 +480,7 @@ class GroupLabelItem(LabelItem):
     def __init__(self, id,  label):
         super(GroupLabelItem, self).__init__(id=id, label=label, css_classes='ui-creme-navigation-title')
 
-    def __unicode__(self):
+    def __str__(self):
         return ''
 
 
@@ -630,7 +632,7 @@ class QuickCreationItemGroup(ItemGroup):  # TODO: 'is_group' + do not inherit It
         if label:
             yield GroupLabelItem(id=self.id, label=label)
 
-        content_types = [(unicode(model._meta.verbose_name), model) for model in self._registry.iter_models()]
+        content_types = [(str(model._meta.verbose_name), model) for model in self._registry.iter_models()]
         g_id = self.id
 
         if content_types:
@@ -679,7 +681,7 @@ class CreationFormsItem(ViewableItem):
                 except KeyError as e:
                     raise TypeError('Link: missing parameter {}'.format(e))
 
-        def __unicode__(self):
+        def __str__(self):
             return u'<Link: id="{}" label="{}" priority={}>'.format(
                             self.id, self.label, self._priority,
                     )
@@ -693,13 +695,13 @@ class CreationFormsItem(ViewableItem):
                     url = model.get_create_absolute_url()
 
                     if not url:
-                        logger.warn('Beware, the method %s.get_create_absolute_url() should return an URL, '
+                        logger.warning('Beware, the method %s.get_create_absolute_url() should return an URL, '
                                     'or the creation popup will not work correctly' % model
                                    )
                 else:
-                    url = unicode(url)
+                    url = str(url)
             else:
-                url = unicode(url)
+                url = str(url)
 
             return url
 
@@ -707,7 +709,7 @@ class CreationFormsItem(ViewableItem):
             return format_html(u'<a href="{}">{}</a>', self.url, self.label)
 
         def to_dict(self, user):
-            d = {'label': unicode(self.label)}
+            d = {'label': str(self.label)}
 
             if user.has_perm(self.perm):  # TODO: accept callable too ?
                 d['url'] = self.url
@@ -723,7 +725,7 @@ class CreationFormsItem(ViewableItem):
         def __iter__(self):
             return iter(self._links)
 
-        def __unicode__(self):
+        def __str__(self):
             return u'<LinkGroup: id="{id}" label="{label}" priority={priority}>'.format(
                             id=self.id, label=self.label, priority=self._priority
                     )
@@ -768,7 +770,7 @@ class CreationFormsItem(ViewableItem):
         grid = []
         group_it = iter(groups)
 
-        for row_weigth in xrange(grid_size, 0, -1):
+        for row_weigth in range(grid_size, 0, -1):
             row = []
 
             if not holes:
@@ -782,10 +784,10 @@ class CreationFormsItem(ViewableItem):
                     holes -= 1
                     col_max_idx = grid_size - 1
 
-            for col_idx in xrange(col_max_idx):
+            for col_idx in range(col_max_idx):
                 link_group = next(group_it)
 
-                row.append({'label': unicode(link_group.label),
+                row.append({'label': str(link_group.label),
                             'links': [link.to_dict(user) for link in link_group],
                            })
 
@@ -872,7 +874,7 @@ class Menu(ItemList):
             else:
                 yield item
 
-    def __unicode__(self):
+    def __str__(self):
         # TODO: from cStringIO import StringIO ?
         res = ''
 
@@ -885,7 +887,7 @@ class Menu(ItemList):
 
                 res += '---'
             else:
-                res += unicode(item)
+                res += str(item)
 
             res += '\n'
 

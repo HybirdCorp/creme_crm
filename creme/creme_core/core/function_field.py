@@ -23,14 +23,14 @@ from django.utils.formats import number_format
 from django.utils.html import escape, format_html, format_html_join
 
 
-class FunctionFieldResult(object):
+class FunctionFieldResult:
     __slots__ = ('_data',)
 
     def __init__(self, str_data):
         self._data = str_data
 
     # def __unicode__(self, str_data):
-    def __unicode__(self):
+    def __str__(self):
         return self.for_html()
 
     def for_html(self):
@@ -56,7 +56,7 @@ class FunctionFieldDecimal(FunctionFieldResult):
 # TODO: other types (date, datetime...)
 
 
-class FunctionField(object):
+class FunctionField:
     """A FunctionField is related to a model and represents a special method of
     this model : it has a verbose name and can be used by HeaderFilter to build
     a column (like regular fields).
@@ -104,7 +104,7 @@ class FunctionFieldResultsList(FunctionFieldResult):
         return u'/'.join(e.for_csv() for e in self._data)
 
 
-class FunctionFieldsManager(object):
+class FunctionFieldsManager:
     def __init__(self, *function_fields):
         self._function_fields = {f_field.name: f_field for f_field in function_fields}
         self._parent = None
@@ -113,7 +113,7 @@ class FunctionFieldsManager(object):
         manager = self
 
         while manager:
-            for func_field in manager._function_fields.itervalues():
+            for func_field in manager._function_fields.values():
                 yield func_field
 
             manager = manager._parent

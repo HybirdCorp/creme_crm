@@ -104,7 +104,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(description, retr_ticket.description)
 
         self.assertEqual(u'#{} - {}'.format(ticket.number, title),
-                         unicode(retr_ticket)
+                         str(retr_ticket)
                         )
 
     def test_detailview02(self):

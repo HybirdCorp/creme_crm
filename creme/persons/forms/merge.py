@@ -86,7 +86,7 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
             if value:
                 empty = False
 
-        if not empty:  # We do not use Address.__nonzero__() because we ignore the address' name.
+        if not empty:  # We do not use Address.__bool__() because we ignore the address' name.
             address.save()
             setattr(entity1, attr_name, address)
             return was_none, ()

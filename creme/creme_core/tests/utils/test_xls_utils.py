@@ -55,7 +55,7 @@ class XLSUtilsTestCase(CremeTestCase):
             XlrdReader(filedata=self.get_file_path('data-invalid.xls'))
 
         self.assertEqual(str(error.exception),
-                         "Unsupported format, or corrupt file: Expected BOF record; found 'this is '"
+                         "Unsupported format, or corrupt file: Expected BOF record; found b'this is '"
                         )
 
     @skipIf(XlrdMissing, "Skip tests, couldn't find xlrd libs")
@@ -82,8 +82,9 @@ class XLSUtilsTestCase(CremeTestCase):
     @skipIf(XlrdMissing, "Skip tests, couldn't find xlrd libs")
     def test_open_file(self):
         for filename in self.files:
-            with open(self.get_file_path(filename)) as filename:
-                file_content = filename.read()
+            # with open(self.get_file_path(filename)) as file_obj:
+            with open(self.get_file_path(filename), mode='rb') as file_obj:
+                file_content = file_obj.read()
                 rd = XlrdReader(file_contents=file_content)
                 self.assertEqual(list(rd), self.data)
 
@@ -100,8 +101,9 @@ class XLSUtilsTestCase(CremeTestCase):
         rd = XlrdReader(filedata=file.name)
         self.assertEqual(list(rd), self.data)
 
-        with open(file.name) as file_content:
-            file_content = file_content.read()
+        # with open(file.name) as file_obj:
+        with open(file.name, mode='rb') as file_obj:
+            file_content = file_obj.read()
             rd = XlrdReader(file_contents=file_content)
             self.assertEqual(list(rd), self.data)
 

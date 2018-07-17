@@ -62,7 +62,7 @@ class AbstractPollReply(CremeEntity):
         verbose_name_plural = _(u'Form replies')
         ordering = ('name',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
@@ -99,7 +99,7 @@ class PollReplySection(CremeModel):
         verbose_name_plural = _(u'Sections')
         ordering = ('order',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 

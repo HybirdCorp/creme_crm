@@ -77,7 +77,7 @@ def get_encoded_contact_img(contact=None, needs_attr=False, *args, **kwargs):
 def get_repr(contact=None, needs_attr=False, *args, **kwargs):
     if needs_attr:
         return ''
-    return unicode(contact)
+    return str(contact)
 
 
 def get_organisation(contact=None, needs_attr=False, *args, **kwargs):
@@ -88,7 +88,7 @@ def get_organisation(contact=None, needs_attr=False, *args, **kwargs):
     relations = Relation.objects.filter(subject_entity=contact, type=REL_SUB_EMPLOYED_BY)
 
     if relations:
-        organisation = unicode(relations[0].object_entity.get_real_entity())
+        organisation = str(relations[0].object_entity.get_real_entity())
 
     return organisation
 
@@ -188,7 +188,7 @@ def create_or_update_address(contact, prefix, data, history=None):
             changes.append(('%s_address__address' % prefix, address_content))
 
         address.save()
-    elif any([city, state, country, po_box, address_content]): #TODO: use Address.__nonzero__()
+    elif any([city, state, country, po_box, address_content]):  # TODO: use Address.__bool__()
         c_address = Address(city=city,
                             state=state,
                             country=country,
@@ -263,7 +263,7 @@ def create_image_from_b64(contact, d, user):
 
 ###
 def _format_data(model_or_entity, data):
-    for field_name, value in data.iteritems():
+    for field_name, value in data.items():
         field_class, field_value = get_instance_field_info(model_or_entity, field_name)
         if field_class is not None and issubclass(field_class, (models.DateTimeField, models.DateField)):
             datetime_formatted = False
@@ -276,7 +276,7 @@ def _format_data(model_or_entity, data):
 
             if not datetime_formatted:
                 data[field_name] = None
-        elif isinstance(value, basestring):
+        elif isinstance(value, str):
             data[field_name] = value
 #            data[field_name] = value.decode('utf-8')
 
@@ -373,8 +373,8 @@ def update_contact(contact, data, user, history, *args, **kwargs):
 
 def write_simple_history(history, data):
     changes = []
-    for ns, fields in CREME_CONTACT_MAPPING.iteritems():
-        for creme_field in fields.iterkeys():
+    for ns, fields in CREME_CONTACT_MAPPING.items():
+        for creme_field in fields:
             updated = data.get(creme_field)
             if updated is not None:
                 changes.append((creme_field, updated.encode('utf-8')))#Adding changes to the history
@@ -391,10 +391,10 @@ def serialize_contact(contact, namespaces):
     xml = []
     xml_append = xml.append
 
-    for ns, values in CREME_CONTACT_MAPPING.iteritems():
+    for ns, values in CREME_CONTACT_MAPPING.items():
         prefix = namespaces.get(ns)
 
-        for c_field, xml_field in values.iteritems():
+        for c_field, xml_field in values.items():
             value = None
 
             if callable(c_field):

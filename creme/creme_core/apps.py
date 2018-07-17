@@ -467,7 +467,7 @@ def extended_app_configs(app_labels):
         try:
             app_config = get_app_config(label)
         except LookupError:
-            logger.warn('The app "%s" seems not installed.', label)
+            logger.warning('The app "%s" seems not installed.', label)
         else:
             app_configs.add(app_config)
             app_configs.update(app_config.get_extending_app_configs())

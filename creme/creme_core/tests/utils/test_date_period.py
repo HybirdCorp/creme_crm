@@ -72,9 +72,9 @@ class DatePeriodTestCase(CremeTestCase):
         every_hour = get('hours', 1)
         rrule_every_hour = rrule(HOURLY, interval=1)
         self.assertIsNotNone(every_hour)
-        self.assertEqual(_('Hour(s)'), unicode(every_hour.verbose_name))
+        self.assertEqual(_('Hour(s)'), str(every_hour.verbose_name))
         self.assertEqual(ungettext('{number} hour', '{number} hours', 1).format(number=1),
-                         unicode(every_hour)
+                         str(every_hour)
                         )
         self.assertEqual({'type': 'hours', 'value': 1}, every_hour.as_dict())
         self.assertRRuleEqual(rrule_every_hour, every_hour.as_rrule())
@@ -92,7 +92,7 @@ class DatePeriodTestCase(CremeTestCase):
                          now_value + every_3hours.as_timedelta()
                         )
         self.assertEqual(ungettext('{number} hour', '{number} hours', 3).format(number=3),
-                         unicode(every_3hours)
+                         str(every_3hours)
                         )
         self.assertRRuleEqual(rrule_every_3hours, every_3hours.as_rrule())
 
@@ -103,7 +103,7 @@ class DatePeriodTestCase(CremeTestCase):
         self.assertIsNotNone(every_3minutes)
         self.assertEqual({'type': 'minutes', 'value': 3}, every_3minutes.as_dict())
         self.assertEqual(ungettext('{number} minute', '{number} minutes', 3).format(number=3),
-                         unicode(every_3minutes)
+                         str(every_3minutes)
                         )
 
         create_dt = self.create_datetime
@@ -120,7 +120,7 @@ class DatePeriodTestCase(CremeTestCase):
         self.assertIsNotNone(every_day)
         self.assertEqual({'type': 'days', 'value': 1}, every_day.as_dict())
         self.assertEqual(ungettext('{number} day', '{number} days', 1).format(number=1),
-                         unicode(every_day)
+                         str(every_day)
                         )
 
         create_dt = self.create_datetime
@@ -136,7 +136,7 @@ class DatePeriodTestCase(CremeTestCase):
                          now_value + every_5days.as_timedelta()
                         )
         self.assertEqual(ungettext('{number} day', '{number} days', 5).format(number=5),
-                         unicode(every_5days)
+                         str(every_5days)
                         )
         self.assertRRuleEqual(rrule_every_5days, every_5days.as_rrule())
 
@@ -147,7 +147,7 @@ class DatePeriodTestCase(CremeTestCase):
         self.assertIsNotNone(every_year)
         self.assertEqual({'type': 'years', 'value': 1}, every_year.as_dict())
         self.assertEqual(ungettext('{number} year', '{number} years', 1).format(number=1),
-                         unicode(every_year)
+                         str(every_year)
                         )
         self.assertRRuleEqual(rrule_every_year, every_year.as_rrule())
 
@@ -180,7 +180,7 @@ class DatePeriodTestCase(CremeTestCase):
         self.assertIsNotNone(every_month)
         self.assertEqual({'type': 'months', 'value': 1}, every_month.as_dict())
         self.assertEqual(ungettext('{number} month', '{number} months', 1).format(number=1),
-                         unicode(every_month)
+                         str(every_month)
                         )
 
         create_dt = self.create_datetime
@@ -203,7 +203,7 @@ class DatePeriodTestCase(CremeTestCase):
         self.assertIsNotNone(every_week)
         self.assertEqual({'type': 'weeks', 'value': 1}, every_week.as_dict())
         self.assertEqual(ungettext('{number} week', '{number} weeks', 1).format(number=1),
-                         unicode(every_week)
+                         str(every_week)
                         )
 
         create_dt = self.create_datetime

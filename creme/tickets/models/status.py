@@ -48,7 +48,7 @@ class Status(CremeModel):
 
     creation_label = pgettext_lazy('tickets-status', u'Create a status')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:

@@ -50,7 +50,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
 
         url = self._build_enum_url(FakeCivility)
         response = self.assertGET200(url)
-        self.assertEqual([[c.id, unicode(c)] for c in FakeCivility.objects.all()], response.json())
+        self.assertEqual([[c.id, str(c)] for c in FakeCivility.objects.all()], response.json())
 
     def test_model_user(self):
         self.login()
@@ -58,7 +58,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
         User = get_user_model()
         url = self._build_enum_url(User)
         response = self.assertGET200(url)
-        self.assertEqual([[c.id, unicode(c)] for c in User.objects.all()], response.json())
+        self.assertEqual([[c.id, str(c)] for c in User.objects.all()], response.json())
 
     def test_model_entityfilter(self):
         self.maxDiff = None
@@ -86,8 +86,8 @@ class EnumerableViewsTestCase(ViewsTestCase):
         sort_key = collator.sort_key
         self.assertEqual(sorted([{'value': f.id,
                                   'label': f.name,
-                                  'group': unicode(f.entity_type),
-                                  'help':  unicode(f.entity_type) + (u' ({})'.format(f.user) if f.is_private else ''),
+                                  'group': str(f.entity_type),
+                                  'help':  str(f.entity_type) + (u' ({})'.format(f.user) if f.is_private else ''),
                                  } for f in EntityFilter.objects.all()
                                 ],
                                 key=lambda e: sort_key(e['group'] + e['label'])
@@ -100,7 +100,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(reverse('creme_core__efilter_user_choices'))
         self.assertEqual([['__currentuser__', _(u'Current user')]] +
-                         [[u.id, unicode(u)] for u in get_user_model().objects.all()],
+                         [[u.id, str(u)] for u in get_user_model().objects.all()],
                          response.json()
                         )
 

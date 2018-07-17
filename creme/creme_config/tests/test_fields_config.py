@@ -158,7 +158,7 @@ class FieldsConfigTestCase(CremeTestCase):
         with self.assertNoException():
             hidden_f = response.context['form'].fields['hidden']
 
-        self.assertEqual(['phone', 'birthday'], hidden_f.initial)
+        self.assertCountEqual(['phone', 'birthday'], hidden_f.initial)
 
     def test_delete(self):
         self.login()

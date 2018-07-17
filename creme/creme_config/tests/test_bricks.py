@@ -2240,7 +2240,7 @@ class BricksConfigTestCase(CremeTestCase):
         self.assertListEqual([(EntityCellRegularField, 'regular_field-first_name', 'first_name'),
                               (EntityCellCustomField,
                                'custom_field-{}'.format(contact_customfield.id),
-                               unicode(contact_customfield.id)
+                               str(contact_customfield.id)
                               ),
                              ], cells
                             )

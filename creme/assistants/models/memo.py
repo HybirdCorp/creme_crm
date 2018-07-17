@@ -48,7 +48,7 @@ class Memo(CremeModel):
         verbose_name = _(u'Memo')
         verbose_name_plural = _(u'Memos')
 
-    def __unicode__(self):
+    def __str__(self):
         # NB: translate for unicode can not take 2 arguments...
         return ellipsis(self.content.strip().replace('\n', ''), 25)
 

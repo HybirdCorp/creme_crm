@@ -40,7 +40,7 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
         with self.assertNoException():
             content_disp = imime['Content-Disposition']
 
-        self.assertRegexpMatches(content_disp, r'inline; filename="creme_22(.*).png"')
+        self.assertRegex(content_disp, r'inline; filename="creme_22(.*).png"')
 
     def test_sender01(self):
         user = self.login()

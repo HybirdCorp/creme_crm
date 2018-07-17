@@ -97,7 +97,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
 
         pcall = pcalls[0]
         self.assertEqual(user, pcall.user)
-        self.assertIn(unicode(contact), pcall.title)
+        self.assertIn(str(contact), pcall.title)
         self.assertTrue(pcall.description)
         self.assertEqual(a_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING, pcall.sub_type.id)
         self.assertEqual(a_constants.STATUS_IN_PROGRESS, pcall.status.id)
@@ -172,8 +172,8 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         phone = '558899'
         contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit', mobile=phone)
         response = self.assertGET200(self.RESPOND_URL, data={'number': phone})
-        self.assertContains(response, unicode(contact))
-        self.assertNotContains(response, unicode(user.linked_contact))
+        self.assertContains(response, str(contact))
+        self.assertNotContains(response, str(user.linked_contact))
 
     @skipIfCustomOrganisation
     def test_respond_to_a_call03(self):
@@ -184,8 +184,8 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         orga1 = Organisation.objects.all()[0]
         orga2 = Organisation.objects.create(user=user, name='Gunsmith Cats', phone=phone)
         response = self.client.get(self.RESPOND_URL, data={'number': phone})
-        self.assertContains(response, unicode(orga2))
-        self.assertNotContains(response, unicode(orga1))
+        self.assertContains(response, str(orga2))
+        self.assertNotContains(response, str(orga1))
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -217,7 +217,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         phone = '558899'
         contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit', phone=phone)
         response = self.assertGET200(self.RESPOND_URL, data={'number': phone})
-        self.assertNotContains(response, unicode(contact))
+        self.assertNotContains(response, str(contact))
 
     @skipIfCustomContact
     def test_create_contact(self):
@@ -277,7 +277,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
 
         pcall = pcalls[0]
         self.assertEqual(user, pcall.user)
-        self.assertIn(unicode(contact), pcall.title)
+        self.assertIn(str(contact), pcall.title)
         self.assertTrue(pcall.description)
         self.assertEqual(a_constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING, pcall.sub_type.id)
         self.assertEqual(a_constants.STATUS_IN_PROGRESS,                 pcall.status.id)

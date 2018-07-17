@@ -137,7 +137,8 @@ class CSVPopulatorTestCase(CremeTestCase):
         name = 'unknown'
 
         with self.assertRaises(CSVPopulator.ReadError) as error:
-            populator._open(name)
+            # populator._open(name)
+            populator.populate(name)
 
         self.assertIn('Unable to open CSV data from {}'.format(name), str(error.exception))
 

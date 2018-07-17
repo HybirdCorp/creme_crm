@@ -63,7 +63,7 @@ class Less(Filter):
 
     def __init__(self, **kwargs):
         self.config(kwargs, path=(), main_module=None)
-        if isinstance(self.path, basestring):
+        if isinstance(self.path, str):
             self.path = (self.path,)
 
         # we need to be able to mutate self.path,

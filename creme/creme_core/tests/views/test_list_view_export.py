@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from future_builtins import map
-
     from datetime import date
     from functools import partial
     from os.path import dirname, exists, join
     from unittest import skipIf
-    from urllib import urlencode
+    from urllib.parse import urlencode
 
     import html5lib
 

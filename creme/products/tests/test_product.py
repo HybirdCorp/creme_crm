@@ -616,7 +616,7 @@ class ProductTestCase(_ProductsTestCase):
         sub_cat21 = SubCategory.objects.create(name='Thriller', category=cat2)
         sub_cat22 = SubCategory.objects.create(name='Action',   category=cat2)  # NB: same name than sub_cat12
 
-        names = ['Product %2i' % i for i in xrange(1, 7)]
+        names = ['Product %2i' % i for i in range(1, 7)]
 
         lines = [(names[0], '',        ''),
                  (names[1], cat2.name, sub_cat21.name),
@@ -744,7 +744,7 @@ class ProductTestCase(_ProductsTestCase):
         cat3_name = 'Books'
         sub_cat31_name = 'Sci-Fi'
 
-        names = ['Product %2i' % i for i in xrange(1, 5)]
+        names = ['Product %2i' % i for i in range(1, 5)]
 
         lines = [(names[0], '', ''),
                  (names[1], cat2.name, sub_cat21.name),
@@ -845,7 +845,7 @@ class ProductTestCase(_ProductsTestCase):
         cat2 = Category.objects.create(name='(Test) DVD')
         sub_cat21 = SubCategory.objects.create(name='Thriller', category=cat2)
 
-        names = ['Product %2i' % i for i in xrange(1, 5)]
+        names = ['Product %2i' % i for i in range(1, 5)]
         lines = [(names[0], '', ''),
                  (names[1], cat2.name, sub_cat21.name),
                  (names[2], cat2.name, 'Action'),

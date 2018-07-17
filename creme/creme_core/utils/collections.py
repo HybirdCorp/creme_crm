@@ -24,13 +24,13 @@
 #
 ################################################################################
 
-from __future__ import absolute_import  # For standard 'collections' module
+# from __future__ import absolute_import  # For standard 'collections' module
 
 import collections
-from sys import maxint
+from sys import maxsize
 
 
-class LimitedList(object):
+class LimitedList:
     def __init__(self, max_size):
         self._max_size = max_size
         self._size = 0
@@ -48,7 +48,7 @@ class LimitedList(object):
     def __len__(self):
         return self._size
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self._size)
 
     def __iter__(self):
@@ -58,7 +58,7 @@ class LimitedList(object):
         return repr(self._data)
 
 
-class ClassKeyedMap(object):
+class ClassKeyedMap:
     """A kind of dictionnary where key must be classes (with single inheritance).
     When a value is not found, the value of the nearest parent (in the class
     inheritance meaning), in the map, is used. If there is no parent class,
@@ -77,7 +77,7 @@ class ClassKeyedMap(object):
         # -> So the smallest order corresponds to the nearest class
         get_order = {cls: i for i, cls in enumerate(klass.mro())}.get
 
-        return sorted(classes, key=lambda cls: get_order(cls, maxint))[0]
+        return sorted(classes, key=lambda cls: get_order(cls, maxsize))[0]
 
     def __getitem__(self, key_class):
         """There is no default argument, because it is given at construction ;
@@ -91,7 +91,7 @@ class ClassKeyedMap(object):
         except KeyError:
             # TODO: improve algo with complex registration parent/child with holes + annoying order
             #       VS we want to control the behaviour with installed apps order ??
-            family = [cls for cls in data.iterkeys() if issubclass(key_class, cls)]
+            family = [cls for cls in data if issubclass(key_class, cls)]
 
             if family:
                 key_class_value = data[self._nearest_parent_class(key_class, family)]
@@ -106,7 +106,7 @@ class ClassKeyedMap(object):
     def __setitem__(self, key_class, value):
         data = self._data
 
-        for cls in data.iterkeys():
+        for cls in data:
             if issubclass(cls, key_class):
                 data[cls] = value
 
@@ -125,7 +125,7 @@ class ClassKeyedMap(object):
     def __len__(self):
         return len(self._data)
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self._data)
 
     def __repr__(self):
@@ -138,14 +138,14 @@ class ClassKeyedMap(object):
     def default(self):
         return self._default
 
-    def items(self):  # NB: already Py3K ready :)
-        return self._data.iteritems()
+    def items(self):
+        return self._data.items()
 
-    def keys(self):  # NB: already Py3K ready :)
-        return self._data.iterkeys()
+    def keys(self):
+        return self._data.keys()
 
-    def values(self):  # NB: already Py3K ready :)
-        return self._data.itervalues()
+    def values(self):
+        return self._data.values()
 
 
 ################################################################################

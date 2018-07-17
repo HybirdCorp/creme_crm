@@ -126,7 +126,7 @@ def build_get_actions(event, entity):
     return _get_actions
 
 
-class ListViewPostProcessor(object):
+class ListViewPostProcessor:
     _RTYPE_IDS = (constants.REL_SUB_IS_INVITED_TO,
                   constants.REL_SUB_ACCEPTED_INVITATION,
                   constants.REL_SUB_REFUSED_INVITATION,
@@ -193,7 +193,7 @@ class ListViewPostProcessor(object):
             options=format_html_join(
                 '', u'<option value="{}"{}>{}</option>',
                 ((status, ' selected' if status == current_status else '', status_name)
-                     for status, status_name in INV_STATUS_MAP.iteritems()
+                     for status, status_name in INV_STATUS_MAP.items()
                 )
             ),
         )
@@ -232,7 +232,7 @@ class ListViewPostProcessor(object):
             options=format_html_join(
                 '', u'<option value="{}"{}>{}</option>',
                 ((status, ' selected' if status == current_status else '', status_name)
-                     for status, status_name in PRES_STATUS_MAP.iteritems()
+                     for status, status_name in PRES_STATUS_MAP.items()
                 )
             ),
         )

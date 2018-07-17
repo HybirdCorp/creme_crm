@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from creme.creme_core.utils import safe_unicode
+    # from creme.creme_core.utils import safe_unicode
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.persons import get_address_model, get_contact_model, get_organisation_model
@@ -25,13 +25,22 @@ class GeoLocationBaseTestCase(CremeTestCase):
     def assertModelInstance(self, instance, klass, **kwargs):
         self.assertIsInstance(instance, klass)
 
-        for key, expected in kwargs.iteritems():
-            value = getattr(instance, key)
-            self.assertEqual(safe_unicode(value), safe_unicode(expected),
-                             u'unexpected {}.{} value : {} != {}'.format(
+        for key, expected in kwargs.items():
+            # value = getattr(instance, key)
+            # self.assertEqual(safe_unicode(value), safe_unicode(expected),
+            #                  u'unexpected {}.{} value : {} != {}'.format(
+            #                          klass.__name__, key,
+            #                          safe_unicode(value),
+            #                          safe_unicode(expected)
+            #                     )
+            #                 )
+            value = str(getattr(instance, key))
+            expected_str = str(expected)
+            self.assertEqual(value, expected_str,
+                             'unexpected {}.{} value : {} != {}'.format(
                                      klass.__name__, key,
-                                     safe_unicode(value),
-                                     safe_unicode(expected)
+                                     value,
+                                     expected_str,
                                 )
                             )
 

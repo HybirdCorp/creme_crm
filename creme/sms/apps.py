@@ -34,7 +34,7 @@ class SMSConfig(CremeAppConfig):
         self.SMSCampaign     = get_smscampaign_model()
         self.MessagingList   = get_messaginglist_model()
         self.MessageTemplate = get_messagetemplate_model()
-        super(SMSConfig, self).all_apps_ready()
+        super().all_apps_ready()
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.SMSCampaign,

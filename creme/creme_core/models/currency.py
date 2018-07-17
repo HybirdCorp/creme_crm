@@ -33,7 +33,7 @@ class Currency(CremeModel):
 
     creation_label = _(u'Create a currency')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:

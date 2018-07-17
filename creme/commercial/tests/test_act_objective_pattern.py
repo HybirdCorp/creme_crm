@@ -86,7 +86,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         patterns = [create_patterns(name='ObjPattern#{}'.format(i),
                                     average_sales=1000 * i,
                                     segment=self._create_segment('Segment #{}'.format(i)),
-                                   ) for i in xrange(1, 4)
+                                   ) for i in range(1, 4)
                    ]
 
         response = self.assertGET200(ActObjectivePattern.get_lv_absolute_url())
@@ -436,7 +436,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertGET200(url)
 
         name = comp01.name.title()
-        response = self.client.post(url, data={'entities_lbl': [unicode(comp01)],
+        response = self.client.post(url, data={'entities_lbl': [str(comp01)],
                                                'field_value':  name,
                                               }
                                    )

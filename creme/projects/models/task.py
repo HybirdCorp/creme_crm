@@ -62,7 +62,7 @@ class AbstractProjectTask(CremeEntity):
     resources          = None
     parents            = None
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def get_absolute_url(self):
@@ -185,7 +185,7 @@ class AbstractProjectTask(CremeEntity):
         new_links = {values['new_pk']: [context[old_child_id]['new_pk']
                                             for old_child_id in values['o_children']
                                        ]
-                        for values in context.itervalues()
+                        for values in context.values()
                     }
 
         for task in project_task_filter(pk__in=new_links.keys()):

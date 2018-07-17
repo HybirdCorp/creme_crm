@@ -106,17 +106,17 @@ class DynamicInput(widgets.TextInput):
 #     is_hidden = True
 
 
-class EnhancedSelectOptions(object):
+class EnhancedSelectOptions:
     option_template_name = 'creme_core/forms/widgets/enhanced-option.html'
 
-    class Choice(object):
+    class Choice:
         def __init__(self, value, disabled=False, help=u''):
             self.value = value
             self.disabled = disabled
             self.help = help
 
-        def __unicode__(self):
-            return unicode(self.value)
+        def __str__(self):
+            return str(self.value)
 
     def _set_options(self, options):
         if options is None:
@@ -277,7 +277,7 @@ class PolymorphicInput(widgets.TextInput):
             self.add_input(input.name, input.widget, input.attrs, **input.kwargs)
 
     def add_dselect(self, name, options=None, attrs=None, **kwargs):
-        if isinstance(options, basestring):
+        if isinstance(options, str):
             self.add_input(name, widget=DynamicSelect, attrs=attrs, url=options, **kwargs)
         else:
             self.add_input(name, widget=DynamicSelect, attrs=attrs, options=options, **kwargs)
@@ -377,7 +377,7 @@ class ChainedInput(widgets.TextInput):
             self.add_input(input.name, input.widget, input.attrs, **input.kwargs)
 
     def add_dselect(self, name, options=None, attrs=None, **kwargs):
-        if isinstance(options, basestring):
+        if isinstance(options, str):
             self.add_input(name, widget=DynamicSelect, attrs=attrs, url=options, **kwargs)
         else:
             self.add_input(name, widget=DynamicSelect, attrs=attrs, options=options, **kwargs)
@@ -418,7 +418,7 @@ class ChainedInput(widgets.TextInput):
 class SelectorList(widgets.TextInput):
     template_name = 'creme_core/forms/widgets/selector-list.html'
 
-    class Action(object):
+    class Action:
         def __init__(self, name, label, enabled=True, **attrs):
             self.name = name
             self.label = label
@@ -714,7 +714,7 @@ class EntityCreatorWidget(ActionButtonList):
                 selector_attrs['qfilter'] = self.q_filter
 
             self.delegate = EntitySelector(
-                unicode(ContentType.objects.get_for_model(model).id),
+                str(ContentType.objects.get_for_model(model).id),
                 selector_attrs,
             )
 
@@ -745,7 +745,7 @@ class MultiEntityCreatorWidget(SelectorList):
             self.clear_actions()  # TODO: indicate that we do not want actions in __init__
             self.add_action('add', getattr(model, 'selection_label', pgettext('creme_core-verb', u'Select')))
 
-            delegate = EntitySelector(unicode(ContentType.objects.get_for_model(model).id),
+            delegate = EntitySelector(str(ContentType.objects.get_for_model(model).id),
                                       {'auto':       False,
                                        'qfilter':    self.q_filter,
                                        'multiple':   True,
@@ -1083,7 +1083,7 @@ class OrderedMultipleChoiceWidget(widgets.SelectMultiple):
         prefix_value = '{}_value_'.format(name)
 
         selected = []
-        for key, value in data.iteritems():
+        for key, value in data.items():
             if key.startswith(prefix_check):
                 index = key[len(prefix_check):]  # In fact not an int...
                 order = int(data.get(prefix_order + index) or 0)
@@ -1146,7 +1146,7 @@ class ListEditionWidget(widgets.Widget):
 
         # return [get(prefix_value_fmt(i)) if has_key(prefix_check_fmt(i)) else None
         return [get(prefix_value_fmt(i)) if (prefix_check_fmt(i) in data) else None
-                    for i in xrange(len(self.content))
+                    for i in range(len(self.content))
                ]
 
 

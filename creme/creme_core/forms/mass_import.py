@@ -18,9 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from future_builtins import filter
 from functools import partial
-from itertools import izip_longest
+from itertools import zip_longest
 import logging
 from os.path import splitext
 
@@ -78,9 +77,11 @@ def get_header(filedata, has_header):
 
     if has_header:
         try:
-            filedata.open()
+            # filedata.open()
+            filedata.open(mode='r')  # TODO: 'mode' given by backend ?
             header = next(backend(filedata))
         except Exception as e:
+            logger.exception('Error when reading doc header in clean()')
             raise ValidationError(ugettext(u'Error reading document: {error}.').format(error=e))
         finally:
             filedata.close()
@@ -127,7 +128,7 @@ class UploadForm(CremeForm):
 
 # Extractors (and related field/widget) for regular model's fields--------------
 
-class Extractor(object):
+class Extractor:
     def __init__(self, column_index, default_value, value_castor):
         self._column_index  = column_index
         self._default_value = default_value
@@ -194,7 +195,7 @@ class Extractor(object):
                     except ValidationError as e:
                         err_msg = e.messages[0]  # TODO: are several messages possible ??
                     except Exception as e:
-                        err_msg = unicode(e)
+                        err_msg = str(e)
 
         return value, err_msg
 
@@ -366,7 +367,7 @@ class ExtractorField(Field):
 
 # Extractors (and related field/widget) for entities----------------------------
 
-class EntityExtractionCommand(object):
+class EntityExtractionCommand:
     def __init__(self, model, field_name, column_index, create):
         self.model = model
         self.field_name = field_name
@@ -379,7 +380,7 @@ class EntityExtractionCommand(object):
         return index
 
 
-class EntityExtractor(object):
+class EntityExtractor:
     def __init__(self, extraction_cmds):
         "@params extraction_cmds: List of EntityExtractionCommands"
         self._commands = extraction_cmds
@@ -487,7 +488,7 @@ class EntityExtractorWidget(BaseExtractorWidget):
         build_ident = '{main}_{app}_{model}_colselect'.format
         widget_cxt['lines'] = lines = []
 
-        for info, cmd in izip_longest(self.models_info, value or ()):
+        for info, cmd in zip_longest(self.models_info, value or ()):
             ctype = get_ct(info[0])
             fmt_kwargs = {'app': ctype.app_label, 'model': ctype.model}
 
@@ -578,7 +579,7 @@ class EntityExtractorField(Field):
 
 # Extractors (and related field/widget) for relations---------------------------
 
-class RelationExtractor(object):
+class RelationExtractor:
     def __init__(self, column_index, rtype, subfield_search, related_model, create_if_unfound):
         self._column_index    = column_index
         self._rtype           = rtype
@@ -644,7 +645,7 @@ class RelationExtractor(object):
         return (self._rtype, object_entity), err_msg
 
 
-class MultiRelationsExtractor(object):
+class MultiRelationsExtractor:
     def __init__(self, extractors):
         self._extractors = extractors
 
@@ -796,7 +797,7 @@ class RelationExtractorField(MultiRelationEntityField):
 
 # Extractors (and related field/widget) for custom fields ----------------------
 
-class CustomFieldExtractor(object):
+class CustomFieldExtractor:
     def __init__(self, column_index, default_value, value_castor, custom_field, create_if_unfound):
         self._column_index  = column_index
         self._default_value = default_value
@@ -959,7 +960,7 @@ class ImportForm(CremeModelForm):
         'forbidden_read': _(u"You have not the credentials to read this document."),
     }
 
-    choices = [(0, 'Not in the file')] + [(i, 'Column {}'.format(i)) for i in xrange(1, 21)]  # Overloaded by factory
+    choices = [(0, 'Not in the file')] + [(i, 'Column {}'.format(i)) for i in range(1, 21)]  # Overloaded by factory
     header_dict = {}  # Idem
 
     blocks = FieldBlockManager(
@@ -982,7 +983,7 @@ class ImportForm(CremeModelForm):
 
     def append_error(self, err_msg):
         if err_msg:
-            self.import_errors.append(unicode(err_msg))
+            self.import_errors.append(str(err_msg))
 
     # NB: hack to bypass the model validation (see form_factory() comment)
     def _post_clean(self):
@@ -1038,7 +1039,10 @@ class ImportForm(CremeModelForm):
         if error_msg:
             raise self.Error(error_msg)
 
-        filedata.open()
+        # filedata.open()
+        # TODO: mode depedns on the backend ?
+        # TODO: use "with"
+        filedata.open(mode='r')
 
         lines = backend(filedata)
         if get_cleaned('has_header'):
@@ -1046,13 +1050,13 @@ class ImportForm(CremeModelForm):
             next(lines)
 
         # Resuming
-        for i in xrange(MassImportJobResult.objects.filter(job=job).count()):
+        for i in range(MassImportJobResult.objects.filter(job=job).count()):
             # lines.next()
             next(lines)
 
         append_error = self.append_error
         key_fields = frozenset(get_cleaned('key_fields'))
-        is_empty_value = lambda s: s is None or isinstance(s, basestring) and not s.strip()
+        is_empty_value = lambda s: s is None or isinstance(s, str) and not s.strip()
 
         for i, line in enumerate(filter(None, lines), start=1):
             job_result = MassImportJobResult(job=job, line=line)
@@ -1124,9 +1128,9 @@ class ImportForm(CremeModelForm):
                 logger.exception('Exception in Mass importing')
 
                 try:
-                    for messages in e.message_dict.itervalues():
+                    for messages in e.message_dict.values():
                         for message in messages:
-                            append_error(unicode(message))
+                            append_error(str(message))
                 except:
                     append_error(str(e))
 
@@ -1288,7 +1292,7 @@ def form_factory(ct, header):
             header_dict[slugify(col_name)] = i
     else:
         fstring = ugettext(u'Column {}')
-        choices.extend((i, fstring.format(i)) for i in xrange(1, 21))
+        choices.extend((i, fstring.format(i)) for i in range(1, 21))
 
     model_class = ct.model_class()
     customform_factory = import_form_registry.get(ct)

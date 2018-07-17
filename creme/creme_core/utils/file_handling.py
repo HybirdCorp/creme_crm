@@ -36,7 +36,7 @@ from ..utils.secure_filename import secure_filename
 logger = logging.getLogger(__name__)
 
 
-class FileNameSuffixGenerator(object):
+class FileNameSuffixGenerator:
     def __iter__(self):
         yield ''
 
@@ -73,7 +73,7 @@ class DatetimeFileNameSuffixGenerator(FileNameSuffixGenerator):
 
 
 # TODO: i18n for error messages ?
-class FileCreator(object):
+class FileCreator:
     """Creates new files atomically (does not reuse an existing ones)
 
     You provide a base name for the file, and if it already exists,
@@ -103,7 +103,7 @@ class FileCreator(object):
         self.dir_path = dir_path
         self.name = name
         self.max_trials = max_trials
-        self.max_length = max_length or sys.maxint
+        self.max_length = max_length or sys.maxsize
         self._generators_classes = gen_cls = [FileNameSuffixGenerator]
         gen_cls.extend(generators)
 
@@ -118,7 +118,7 @@ class FileCreator(object):
                 os.makedirs(dir_path, 0o755)
             except os.error as e:
                 if not exists(dir_path):
-                    logger.warn('Cannot create directory %s (%s)', dir_path, e)
+                    logger.warning('Cannot create directory %s (%s)', dir_path, e)
 
                     raise self.Error('The directory {} cannot be created.'.format(dir_path))
 

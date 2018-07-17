@@ -83,19 +83,19 @@ class ListViewStateTestCase(CremeTestCase):
     def test_order_sql(self):
         self.assertEqual(('name',), FakeOrganisation._meta.ordering)
 
-        self.assertRegexpMatches(self._get_sql(FakeOrganisation.objects.all()),
-                                 'ORDER BY .creme_core_fakeorganisation.\..name. ASC( NULLS FIRST)?$'
-                                )
+        self.assertRegex(self._get_sql(FakeOrganisation.objects.all()),
+                         'ORDER BY .creme_core_fakeorganisation.\..name. ASC( NULLS FIRST)?$'
+                        )
 
         # Check that order by 'id' does not use cremeentity.id, but fakeorganisation.cremeentity_ptr_id
-        self.assertRegexpMatches(self._get_sql(FakeOrganisation.objects.order_by('id')),
-                                 'ORDER BY .creme_core_fakeorganisation.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
-                                )
-        self.assertRegexpMatches(self._get_sql(FakeOrganisation.objects.order_by('name', 'id')),
-                                 'ORDER BY '
-                                 '.creme_core_fakeorganisation.\..name. ASC( NULLS FIRST)?\, '
-                                 '.creme_core_fakeorganisation.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
-                                )
+        self.assertRegex(self._get_sql(FakeOrganisation.objects.order_by('id')),
+                         'ORDER BY .creme_core_fakeorganisation.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
+                        )
+        self.assertRegex(self._get_sql(FakeOrganisation.objects.order_by('name', 'id')),
+                         'ORDER BY '
+                         '.creme_core_fakeorganisation.\..name. ASC( NULLS FIRST)?\, '
+                         '.creme_core_fakeorganisation.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
+                        )
 
     def test_sort_oneorder_01(self):
         "Ordering: natural ordering key"

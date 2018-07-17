@@ -34,7 +34,7 @@ except Exception as e:
 class InputsBaseTestCase(CrudityTestCase):  # TODO: rename EmailInputBaseTestCase ?
     def _get_pop_email(self, body=u'', body_html=u'', senders=(), tos=(), ccs=(), subject=None, dates=(), attachments=()):
         return PopEmail(body=body, body_html=body_html, senders=senders, tos=tos, ccs=ccs,
-                        subject=subject, dates=dates, attachments=attachments
+                        subject=subject, dates=dates, attachments=attachments,
                        )
 
     def _get_input(self, input_klass, backend_klass, **backend_cfg):
@@ -87,7 +87,7 @@ class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
 
         wactions = WaitingAction.objects.all()
         self.assertEqual(1, len(wactions))
-        self.assertEqual({'user_id': unicode(user.id), 'created': '01/02/2003'},
+        self.assertEqual({'user_id': str(user.id), 'created': '01/02/2003'},
                          # wactions[0].get_data()
                          wactions[0].data
                         )
@@ -206,7 +206,7 @@ class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
             subject='create_ce',
         ))
         self.assertEqual(1, WaitingAction.objects.count())
-        self.assertEqual({'user_id': unicode(user.id),
+        self.assertEqual({'user_id': str(user.id),
                           'created': '01/02/2003',
                           'description': 'I\n want to\n create a    \ncreme entity\n',
                          },
@@ -263,7 +263,7 @@ entity
         wactions = WaitingAction.objects.all()
         self.assertEqual(1, len(wactions))
 
-        self.assertEqual({'user_id':     unicode(user.id),
+        self.assertEqual({'user_id':     str(user.id),
                           'created':     u'01/02/2003',
                           'description': u'I\n\n        want\n\n        to\n                    create\n                a\ncreme\nentity\n\n        ',
                          },
@@ -314,7 +314,7 @@ entity
         email_input.create(self._get_pop_email(body=body, senders=('creme@crm.org',), subject='create_ce'))
         wactions = WaitingAction.objects.all()
         self.assertEqual(1, len(wactions))
-        self.assertEqual({'user_id':     unicode(user.id),
+        self.assertEqual({'user_id':     str(user.id),
                           'created':     '01/02/2003',
                           'description': 'I',
                          },
@@ -469,7 +469,7 @@ description3=[[<br>]]
 
         wa = WaitingAction.objects.all()[0]
         # self.assertEqual({'user_id': unicode(user.id), 'created': '01/02/2003'}, wa.get_data())
-        self.assertEqual({'user_id': unicode(user.id), 'created': '01/02/2003'}, wa.data)
+        self.assertEqual({'user_id': str(user.id), 'created': '01/02/2003'}, wa.data)
         self.assertEqual(admin, wa.user)
 
     @skipIfCustomContact
@@ -656,7 +656,7 @@ description3=[[<br>]]
         self.assertEqual(1, len(wactions))
 
         wa = wactions[0]
-        self.assertEqual({'user_id':     unicode(user.id),
+        self.assertEqual({'user_id':     str(user.id),
                           'created':     '01/02/2003',
                           'last_name':   'Bros',
                           'first_name':  'Mario',
@@ -739,7 +739,8 @@ description3=[[<br>]]
 class InfopathInputEmailTestCase(InputsBaseTestCase):
     # clean_files_in_teardown = True
 
-    def _build_attachment(self, filename='', content_type='application/x-microsoft-infopathform', content=''):
+    # def _build_attachment(self, filename='', content_type='application/x-microsoft-infopathform', content=''):
+    def _build_attachment(self, filename='', content_type='application/x-microsoft-infopathform', content=b''):
         return filename, SimpleUploadedFile(filename, content, content_type=content_type)
 
     def _get_infopath_input(self, backend, **backend_cfg):
@@ -826,7 +827,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         infopath_input.create(self._get_pop_email(body=u'password=creme',
                                                   senders=('creme@cremecrm.com',),
                                                   subject='create_ce_infopath',
-                                                  attachments=[self._build_attachment(content='invalid')],
+                                                  attachments=[self._build_attachment(content=b'invalid')],
                                                  )
                              )
         self.assertEqual(0, WaitingAction.objects.count())
@@ -835,7 +836,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         "Allowed with valid xml"
         user = self.user
         other_user = self.other_user
-        xml_content = """
+        xml_content = r"""
         <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\Raph\Desktop\Infopath\create_contact.xsn" name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xml:lang="fr">
             <my:user_id>{}</my:user_id>
             <my:created xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">2003-02-01</my:created>
@@ -858,7 +859,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         infopath_input.create(PopEmail(body=u'password=creme',
                                        senders=('creme@cremecrm.com',),
                                        subject='create_ce_infopath',
-                                       attachments=[self._build_attachment(content=xml_content)],
+                                       # attachments=[self._build_attachment(content=xml_content)],
+                                       attachments=[self._build_attachment(content=xml_content.encode())],
                                       )
                              )
         self.assertEqual(1, WaitingAction.objects.count())
@@ -877,7 +879,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         "Allowed with valid but weird xml"
         user = self.user
         other_user = self.other_user
-        xml_content = """
+        xml_content = r"""
 
         <?xml version="1.0" encoding="UTF-8"?>
 <?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\Raph\Desktop\Infopath\create_contact.xsn" name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xml:lang="fr">
@@ -908,7 +910,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         infopath_input.create(self._get_pop_email(body=u'password=creme',
                                                   senders=('creme@cremecrm.com',),
                                                   subject='create_ce_infopath',
-                                                  attachments=[self._build_attachment(content=xml_content)],
+                                                  # attachments=[self._build_attachment(content=xml_content)],
+                                                  attachments=[self._build_attachment(content=xml_content.encode())],
                                                  )
                              )
 
@@ -928,7 +931,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         other_user = self.other_user
         self._set_sandbox_by_user()
 
-        xml_content = """<?xml version="1.0" encoding="UTF-8"?>
+        xml_content = r"""<?xml version="1.0" encoding="UTF-8"?>
 <?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" 
                        href="file:///C:\Users\Raph\Desktop\Infopath\create_contact.xsn" 
                        name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?>
@@ -955,7 +958,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         infopath_input.create(self._get_pop_email(body=u'password=creme',
                                                   senders=('creme@cremecrm.com',),  # <== no user has this address
                                                   subject='create_ce_infopath',
-                                                  attachments=[self._build_attachment(content=xml_content)],
+                                                  # attachments=[self._build_attachment(content=xml_content)],
+                                                  attachments=[self._build_attachment(content=xml_content.encode())],
                                                  )
                              )
         self.assertEqual(1, WaitingAction.objects.count())
@@ -977,7 +981,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         other_user = self.other_user
         self._set_sandbox_by_user()
 
-        xml_content = """
+        xml_content = r"""
 <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\Raph\Desktop\Infopath\create_contact.xsn" name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xml:lang="fr">
     <my:user_id>{}</my:user_id>
     <my:created xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">2003-02-01</my:created>
@@ -1000,7 +1004,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         infopath_input.create(self._get_pop_email(body=u'password=creme',
                                                   senders=(other_user.email,),
                                                   subject='create_ce_infopath',
-                                                  attachments=[self._build_attachment(content=xml_content)],
+                                                  # attachments=[self._build_attachment(content=xml_content)],
+                                                  attachments=[self._build_attachment(content=xml_content.encode())],
                                                  )
                              )
 
@@ -1021,7 +1026,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         "Allowed with valid xml with no sandbox with default values"
         user = self.user
 
-        xml_content = """
+        xml_content = r"""
 <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\Raph\Desktop\Infopath\create_contact.xsn" name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xml:lang="fr">
 </my:CremeCRMCrudity>"""
 
@@ -1041,7 +1046,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         infopath_input.create(self._get_pop_email(body=u'password=creme',
                                                   senders=('other_user@cremecrm.com',),
                                                   subject='create_ce_infopath',
-                                                  attachments=[self._build_attachment(content=xml_content)],
+                                                  # attachments=[self._build_attachment(content=xml_content)],
+                                                  attachments=[self._build_attachment(content=xml_content.encode())],
                                                  )
                              )
         self.assertEqual(0, WaitingAction.objects.count())
@@ -1057,7 +1063,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         other_user = self.other_user
         self._set_sandbox_by_user()
 
-        xml_content = """
+        xml_content = r"""
 <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\Raph\Desktop\Infopath\create_contact.xsn" name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xml:lang="fr">
     <my:user_id>{}</my:user_id>
     <my:created xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">2003-02-01</my:created>
@@ -1082,7 +1088,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual(0, WaitingAction.objects.count())
         infopath_input.create(PopEmail(body=u'password=creme', senders=('other_user@cremecrm.com',),
                                        subject='create_ce_infopath',
-                                       attachments=[self._build_attachment(content=xml_content)],
+                                       # attachments=[self._build_attachment(content=xml_content)],
+                                       attachments=[self._build_attachment(content=xml_content.encode())],
                                       )
                              )
         self.assertEqual(0, WaitingAction.objects.count())
@@ -1095,7 +1102,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
     def test_create_contact01(self):
         "Sandboxed with image"
         user = self.user
-        xml_content = """
+        xml_content = r"""
 <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\User\Desktop\Infopath\create_contact.xsn" name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xml:lang="fr">
     <my:user_id>{}</my:user_id>
     <my:created xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">2003-02-01</my:created>
@@ -1128,22 +1135,23 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual(0, WaitingAction.objects.count())
         infopath_input.create(self._get_pop_email(body=u'password=creme', senders=('user@cremecrm.com',),
                                                   subject='create_ce_infopath',
-                                                  attachments=[self._build_attachment(content=xml_content)],
+                                                  # attachments=[self._build_attachment(content=xml_content)],
+                                                  attachments=[self._build_attachment(content=xml_content.encode())],
                                                  )
                              )
         self.assertEqual(1, WaitingAction.objects.count())
 
         wa = WaitingAction.objects.all()[0]
-        img_content = 'x0lGQRQAAAABAAAAAAAAAHwCAAAGAAAAYgAuAHAAbgBnAAAAiVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hA' \
-                      'AAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABuwAAAbsBOuzj4gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5' \
-                      'vuPBoAAAH5SURBVDiNpZM9a1RBFIbfd87M3N3szW6iYoIYlYBgY6FNwMafIOJPsLCwEm3UQoKFYhk7/4lYGqxtRPAr6kI' \
-                      'S3KjZTbIfc+/MsfAjyV5FwYFTnAPnmfc9Z4aqiv85drzQeJQ9YENOmpaZEsPm7OEZdtvb7dWL6xf+CuAtnjp6eebaKAVL' \
-                      'A5SD1Hu9/LYJYvZPCsy+LCErY1QKYK2AgHACgEf6NwsZGmKo4j2gChKCBoAhRO7zOhRFAp7oTX35S7Wqor5UP39oYfoha' \
-                      'toyM2aOJMtQoAgFhl+Hq0URi9AtyI4eSz08j1f1zD4FNPGcn3eni1GAs4KYdjdjGnLEJ4KK9uhDAAWxMoOiG9eNIXzdQ2' \
-                      'xlMfC1DMYI2ATwOwAccpc5ZJmvNnuPeq0GI3QI30sVgCpf9VcG7wadsAYF8MOBEQPnLayxSIU67WMT23izF8C9L5G3efb' \
-                      'ElbmnqOlEMQhIUbXz7PNHBmXc0sdpA/f0rq5ULexmXVWNACBOYBKC7qTj0alPm7gx3rwPQJKObkKHSUFArACKEgIYwRCr' \
-                      'GFQGtNcCQU4uTh7s2/4l15IFmZZ5Nak1Wgvvbc8vWbFfKIwkyxhir4/+J72jJcd/Ixdpc+QHoo1OS3XipIkIjt8cGXv5V' \
-                      'r5RAVQkLtLnyKcUan4GLGhKU+y82Ol8A49h31zz9A1IAAAAAElFTkSuQmCC'
+        img_content = b'x0lGQRQAAAABAAAAAAAAAHwCAAAGAAAAYgAuAHAAbgBnAAAAiVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hA' \
+                      b'AAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABuwAAAbsBOuzj4gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5' \
+                      b'vuPBoAAAH5SURBVDiNpZM9a1RBFIbfd87M3N3szW6iYoIYlYBgY6FNwMafIOJPsLCwEm3UQoKFYhk7/4lYGqxtRPAr6kI' \
+                      b'S3KjZTbIfc+/MsfAjyV5FwYFTnAPnmfc9Z4aqiv85drzQeJQ9YENOmpaZEsPm7OEZdtvb7dWL6xf+CuAtnjp6eebaKAVL' \
+                      b'A5SD1Hu9/LYJYvZPCsy+LCErY1QKYK2AgHACgEf6NwsZGmKo4j2gChKCBoAhRO7zOhRFAp7oTX35S7Wqor5UP39oYfoha' \
+                      b'toyM2aOJMtQoAgFhl+Hq0URi9AtyI4eSz08j1f1zD4FNPGcn3eni1GAs4KYdjdjGnLEJ4KK9uhDAAWxMoOiG9eNIXzdQ2' \
+                      b'xlMfC1DMYI2ATwOwAccpc5ZJmvNnuPeq0GI3QI30sVgCpf9VcG7wadsAYF8MOBEQPnLayxSIU67WMT23izF8C9L5G3efb' \
+                      b'ElbmnqOlEMQhIUbXz7PNHBmXc0sdpA/f0rq5ULexmXVWNACBOYBKC7qTj0alPm7gx3rwPQJKObkKHSUFArACKEgIYwRCr' \
+                      b'GFQGtNcCQU4uTh7s2/4l15IFmZZ5Nak1Wgvvbc8vWbFfKIwkyxhir4/+J72jJcd/Ixdpc+QHoo1OS3XipIkIjt8cGXv5V' \
+                      b'r5RAVQkLtLnyKcUan4GLGhKU+y82Ol8A49h31zz9A1IAAAAAElFTkSuQmCC'
         filename, blob = decode_b64binary(img_content)
         expected_data = {'user_id': str(user.id), 'created': '2003-02-01', 'last_name': 'Bros',
                          'first_name': 'Mario', 'email': 'mario@bros.com', 'url_site': 'http://mario.com',
@@ -1167,7 +1175,11 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual('A plumber', contact.description)
         self.assertTrue(contact.image)
 
-        self.assertEqual(blob, contact.image.filedata.read())
+        f = contact.image.filedata
+        try:
+            self.assertEqual(blob, f.read())
+        finally:
+            f.close()
 
     def _get_languages(self):
         languages = list(Language.objects.all())
@@ -1176,7 +1188,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         if length < 3:
             create = Language.objects.create
 
-            for i in xrange(1, 4 - length):
+            for i in range(1, 4 - length):
                 create(code=u'c{}'.format(i), name=u'Langues #{}'.format(i))
 
         return languages
@@ -1186,7 +1198,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         user = self.user
         languages = self._get_languages()
 
-        xml_content = """
+        xml_content = r"""
 <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\User\Desktop\Infopath\create_contact.xsn" name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xml:lang="fr">
     <my:user_id>{}</my:user_id>
     <my:created xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">2003-02-01</my:created>
@@ -1223,7 +1235,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual(0, WaitingAction.objects.count())
         infopath_input.create(self._get_pop_email(body=u'password=creme', senders=('user@cremecrm.com',),
                                                   subject='create_ce_infopath',
-                                                  attachments=[self._build_attachment(content=xml_content)],
+                                                  # attachments=[self._build_attachment(content=xml_content)],
+                                                  attachments=[self._build_attachment(content=xml_content.encode())],
                                                  )
                              )
 
@@ -1258,7 +1271,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         user = self.user
         languages = self._get_languages()
 
-        xml_content = """
+        xml_content = r"""
         <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\User\Desktop\Infopath\create_contact.xsn" name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xml:lang="fr">
             <my:user_id>{}</my:user_id>
             <my:created xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">2003-02-01</my:created>
@@ -1297,7 +1310,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual(0, WaitingAction.objects.count())
         infopath_input.create(self._get_pop_email(body=u'password=creme', senders=('user@cremecrm.com',),
                                                   subject='create_ce_infopath',
-                                                  attachments=[self._build_attachment(content=xml_content)],
+                                                  # attachments=[self._build_attachment(content=xml_content)],
+                                                  attachments=[self._build_attachment(content=xml_content.encode())],
                                                  )
                              )
         self.assertEqual(0, WaitingAction.objects.count())
@@ -1322,17 +1336,17 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.maxDiff = None
         folder = Folder.objects.create(user=user, title='test_create_document01')
 
-        img_content = "x0lGQRQAAAABAAAAAAAAAHwCAAAGAAAAYgAuAHAAbgBnAAAAiVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAA" \
-                      "AABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABuwAAAbsBOuzj4gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vu" \
-                      "PBoAAAH5SURBVDiNpZM9a1RBFIbfd87M3N3szW6iYoIYlYBgY6FNwMafIOJPsLCwEm3UQoKFYhk7/4lYGqxtRPAr6kIS3K" \
-                      "jZTbIfc+/MsfAjyV5FwYFTnAPnmfc9Z4aqiv85drzQeJQ9YENOmpaZEsPm7OEZdtvb7dWL6xf+CuAtnjp6eebaKAVLA5SD" \
-                      "1Hu9/LYJYvZPCsy+LCErY1QKYK2AgHACgEf6NwsZGmKo4j2gChKCBoAhRO7zOhRFAp7oTX35S7Wqor5UP39oYfohatoyM2" \
-                      "aOJMtQoAgFhl+Hq0URi9AtyI4eSz08j1f1zD4FNPGcn3eni1GAs4KYdjdjGnLEJ4KK9uhDAAWxMoOiG9eNIXzdQ2xlMfC1" \
-                      "DMYI2ATwOwAccpc5ZJmvNnuPeq0GI3QI30sVgCpf9VcG7wadsAYF8MOBEQPnLayxSIU67WMT23izF8C9L5G3efbElbmnqO" \
-                      "lEMQhIUbXz7PNHBmXc0sdpA/f0rq5ULexmXVWNACBOYBKC7qTj0alPm7gx3rwPQJKObkKHSUFArACKEgIYwRCrGFQGtNcC" \
-                      "QU4uTh7s2/4l15IFmZZ5Nak1Wgvvbc8vWbFfKIwkyxhir4/+J72jJcd/Ixdpc+QHoo1OS3XipIkIjt8cGXv5Vr5RAVQkLt" \
-                      "LnyKcUan4GLGhKU+y82Ol8A49h31zz9A1IAAAAAElFTkSuQmCC"
-        xml_content = """
+        img_content = b"x0lGQRQAAAABAAAAAAAAAHwCAAAGAAAAYgAuAHAAbgBnAAAAiVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAA" \
+                      b"AABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABuwAAAbsBOuzj4gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vu" \
+                      b"PBoAAAH5SURBVDiNpZM9a1RBFIbfd87M3N3szW6iYoIYlYBgY6FNwMafIOJPsLCwEm3UQoKFYhk7/4lYGqxtRPAr6kIS3K" \
+                      b"jZTbIfc+/MsfAjyV5FwYFTnAPnmfc9Z4aqiv85drzQeJQ9YENOmpaZEsPm7OEZdtvb7dWL6xf+CuAtnjp6eebaKAVLA5SD" \
+                      b"1Hu9/LYJYvZPCsy+LCErY1QKYK2AgHACgEf6NwsZGmKo4j2gChKCBoAhRO7zOhRFAp7oTX35S7Wqor5UP39oYfohatoyM2" \
+                      b"aOJMtQoAgFhl+Hq0URi9AtyI4eSz08j1f1zD4FNPGcn3eni1GAs4KYdjdjGnLEJ4KK9uhDAAWxMoOiG9eNIXzdQ2xlMfC1" \
+                      b"DMYI2ATwOwAccpc5ZJmvNnuPeq0GI3QI30sVgCpf9VcG7wadsAYF8MOBEQPnLayxSIU67WMT23izF8C9L5G3efbElbmnqO" \
+                      b"lEMQhIUbXz7PNHBmXc0sdpA/f0rq5ULexmXVWNACBOYBKC7qTj0alPm7gx3rwPQJKObkKHSUFArACKEgIYwRCrGFQGtNcC" \
+                      b"QU4uTh7s2/4l15IFmZZ5Nak1Wgvvbc8vWbFfKIwkyxhir4/+J72jJcd/Ixdpc+QHoo1OS3XipIkIjt8cGXv5Vr5RAVQkLt" \
+                      b"LnyKcUan4GLGhKU+y82Ol8A49h31zz9A1IAAAAAElFTkSuQmCC"
+        xml_content = r"""
 <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\User\Desktop\Infopath\create_document.xsn" name="urn:schemas-microsoft-com:office:infopath:create-document:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xml:lang="fr">
     <my:user_id>{}</my:user_id>
     <my:title>My doc</my:title>
@@ -1341,7 +1355,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
     <my:description>
         <div xmlns="http://www.w3.org/1999/xhtml">A document</div>
     </my:description>
-</my:CremeCRMCrudity>""".format(user.id, folder.id, img_content)
+</my:CremeCRMCrudity>""".format(user.id, folder.id, img_content.decode())
 
         infopath_input = self._get_infopath_input(DocumentFakeBackend, password='creme', subject='create_ce_infopath',
                                                   body_map={'user_id':     user.id,
@@ -1357,7 +1371,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         infopath_input.create(self._get_pop_email(body=u'password=creme',
                                                   senders=('user@cremecrm.com',),
                                                   subject='create_ce_infopath',
-                                                  attachments=[self._build_attachment(content=xml_content)],
+                                                  # attachments=[self._build_attachment(content=xml_content)],
+                                                  attachments=[self._build_attachment(content=xml_content.encode())],
                                                  )
                              )
 
@@ -1366,9 +1381,9 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
         wa = wactions[0]
         filename, blob = decode_b64binary(img_content)
-        self.assertEqual({'user_id':     unicode(user.id),
+        self.assertEqual({'user_id':     str(user.id),
                           'title':       u'My doc',
-                          'linked_folder_id': unicode(folder.id),
+                          'linked_folder_id': str(folder.id),
                           'description': u'A document',
                           'filedata': (filename, blob),
                          },
@@ -1385,8 +1400,12 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual('A document', document.description)
         self.assertTrue(document.filedata)
 
-        filename, blob = decode_b64binary(img_content)
-        self.assertEqual(blob, document.filedata.read())
+        blob = decode_b64binary(img_content)[1]
+        f = document.filedata
+        try:
+            self.assertEqual(blob, f.read())
+        finally:
+            f.close()
 
 
 class FileSystemInputTestCase(CrudityTestCase):

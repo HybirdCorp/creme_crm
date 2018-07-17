@@ -31,9 +31,9 @@ class LimitedListTestCase(CremeTestCase):
 
 class ClassKeyedMapTestCase(CremeTestCase):
     def test_main(self):
-        class Klass1(object): pass
-        class Klass2(object): pass
-        class Klass3(object): pass
+        class Klass1: pass
+        class Klass2: pass
+        class Klass3: pass
 
         ckm = ClassKeyedMap([(Klass1, 1), (Klass2, 2)])
         self.assertEqual(1, ckm[Klass1])
@@ -68,9 +68,9 @@ class ClassKeyedMapTestCase(CremeTestCase):
 
     def test_setitem(self):
         "Other default value + __setitem__"
-        class Klass1(object): pass
-        class Klass2(object): pass
-        class Klass3(object): pass
+        class Klass1: pass
+        class Klass2: pass
+        class Klass3: pass
 
         ckm = ClassKeyedMap(default=0)
 
@@ -87,8 +87,8 @@ class ClassKeyedMapTestCase(CremeTestCase):
 
     def test_inheritage01(self):
         "Inheriting values"
-        class Klass1(object): pass
-        class Klass2(object): pass
+        class Klass1: pass
+        class Klass2: pass
         class Klass3(Klass2): pass
         class Klass4(Klass3): pass
 
@@ -104,7 +104,7 @@ class ClassKeyedMapTestCase(CremeTestCase):
 
     def test_inheritage02(self):
         "Inheriting values: more complex case (the nearest parent should be found)"
-        class Klass1(object): pass
+        class Klass1: pass
         class Klass2(Klass1): pass
         class Klass3(Klass2): pass
         class Klass4(Klass3): pass
@@ -119,7 +119,7 @@ class ClassKeyedMapTestCase(CremeTestCase):
 
     def test_inheritage03(self):
         "Inheritance order must be kept when cache is filled too"
-        class Klass1(object): pass
+        class Klass1: pass
         class Klass2(Klass1): pass
         class Klass3(Klass2): pass
         class Klass4(Klass3): pass
@@ -133,7 +133,7 @@ class ClassKeyedMapTestCase(CremeTestCase):
 
     def test_nearest_parent_class(self):
         "Inheritance order must be kept when new value are added explicitly"
-        class Klass1(object): pass
+        class Klass1: pass
         class Klass2(Klass1): pass
         class Klass3(Klass2): pass
         class Klass4(Klass3): pass
@@ -148,7 +148,7 @@ class ClassKeyedMapTestCase(CremeTestCase):
         class Klass5(Klass4): pass
         self.assertIs(Klass3, nearest(Klass4, [Klass2, Klass5, Klass3, Klass1]))
 
-        class Klass6(object): pass
+        class Klass6: pass
         self.assertIs(Klass3, nearest(Klass4, [Klass2, Klass5, Klass3, Klass6, Klass1]))
 
 

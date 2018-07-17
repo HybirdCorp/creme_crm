@@ -3,10 +3,11 @@
 try:
     from datetime import date
     from os.path import join, dirname, abspath
-    try:
-        from cStringIO import StringIO
-    except ImportError:
-        from StringIO import StringIO
+    # try:
+    #     from cStringIO import StringIO
+    # except ImportError:
+    #     from StringIO import StringIO
+    from io import StringIO
 
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType

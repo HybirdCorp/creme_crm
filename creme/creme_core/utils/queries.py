@@ -47,7 +47,7 @@ def get_q_from_dict(dict, is_or=False):
     """
     q = Q()
 
-    for k, v in dict.iteritems():
+    for k, v in dict.items():
         k = str(k)
         # __, is_not, req = k.rpartition('~')
         # if bool(is_not):
@@ -104,7 +104,7 @@ def get_q_from_dict(dict, is_or=False):
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ################################################################################
 
-class QSerializer(object):
+class QSerializer:
     """A Q object serializer base class.
 
     By default the class provides loads/dumps methods which wrap around

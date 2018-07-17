@@ -67,12 +67,12 @@ class _TempFilesCleanerType(JobType):
                                                 )
                         continue
                 else:
-                    logger.warn('_TempFilesCleanerType: the file %s has already been deleted.', full_path)
+                    logger.warning('_TempFilesCleanerType: the file %s has already been deleted.', full_path)
 
                 try:
                     temp_file.delete()
                 except ProtectedError as e:
-                    logger.warn('The FileRef(id=%s) cannot be deleted because of its dependencies: %s',
+                    logger.warning('The FileRef(id=%s) cannot be deleted because of its dependencies: %s',
                                 temp_file.id, e.args[1],
                                )
                     JobResult.objects.create(job=job,

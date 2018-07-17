@@ -5,7 +5,7 @@
 from .base import ContentLine, Component, defaultSerialize, VObjectError, ValidateError, NativeError
 
 
-class Behavior(object):
+class Behavior:
     """Abstract class to describe vobject options, requirements and encodings.
 
     Behaviors are used for root components like VCALENDAR, for subcomponents
@@ -87,7 +87,7 @@ class Behavior(object):
                 name = child.name.upper()
                 count[name] = count.get(name, 0) + 1
 
-            for key, val in cls.knownChildren.iteritems():
+            for key, val in cls.knownChildren.items():
                 if count.get(key, 0) < val[0]: 
                     if raiseException:
                         raise ValidateError('{} components must contain at least {} {}'.format(

@@ -107,11 +107,18 @@ class MailingListAddCSVForm(CremeForm):
         filter_ = EmailRecipient.objects.filter
 
         uploaded_file = self.cleaned_data['recipients']
-        addresses = chunktools.iter_splitlinechunks(uploaded_file.chunks(),
-                                                    parser=self.filter_mail_chunk
-                                                   )
+        # addresses = chunktools.iter_splitlinechunks(uploaded_file.chunks(),
+        #                                             parser=self.filter_mail_chunk,
+        #                                            )
+        # TODO: genexpr
+        def addresses():
+            for line in uploaded_file:
+                address = self.filter_mail_chunk(line)
+                if address:
+                    yield address
 
-        for recipients in chunktools.iter_as_chunk(addresses, 256):
+        # for recipients in chunktools.iter_as_chunk(addresses, 256):
+        for recipients in chunktools.iter_as_chunk(addresses(), 256):
             recipients = frozenset(recipients)
             existing   = frozenset(filter_(ml=ml, address__in=recipients).values_list('address', flat=True))
 

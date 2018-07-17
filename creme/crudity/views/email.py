@@ -18,13 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from unicodedata import normalize
+# from unicodedata import normalize
 
 from django.conf import settings
 from django.http import Http404, HttpResponse
 from django.template.loader import render_to_string
 
 from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.utils.secure_filename import secure_filename
 
 from .. import registry
 from ..backends.models import CrudityBackend
@@ -52,9 +53,10 @@ def download_email_template(request, subject):
                                             ),
                             content_type="application/vnd.sealed.eml",
                            )
-    # TODO: use secure_filename() ?
+
     response['Content-Disposition'] = 'attachment; filename={}.eml'.format(
-        normalize('NFKD', unicode(CrudityBackend.normalize_subject(backend.subject))).encode('ascii', 'ignore')
+        # normalize('NFKD', str(CrudityBackend.normalize_subject(backend.subject))).encode('ascii', 'ignore')
+        secure_filename(subject)
     )
 
     return response

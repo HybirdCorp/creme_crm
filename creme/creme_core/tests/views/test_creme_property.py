@@ -231,7 +231,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         ptype03 = create_ptype(str_pk='test-prop_foobar03', text='wears strange shoes')
 
         create_entity = CremeEntity.objects.create
-        entities = [create_entity(user=self.user) for i in xrange(15)]
+        entities = [create_entity(user=self.user) for i in range(15)]
 
         for entity in entities:
             self.assertEqual(0, entity.properties.count())
@@ -330,7 +330,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             label = response.context['form'].fields['bad_entities_lbl']
 
-        self.assertEqual(unicode(uneditable), label.initial)
+        self.assertEqual(str(uneditable), label.initial)
 
     def test_add_properties_bulk04(self):
         self.login(is_superuser=False)

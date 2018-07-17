@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from future_builtins import map
 from collections import defaultdict, OrderedDict
 from datetime import date
 import json
@@ -114,7 +113,7 @@ class FieldConditionWidget(ChainedInput):  # TODO: rename FieldConditionSelector
 
     def _build_operatorchoices(self, operators):
         return [(json.dumps({'id': id, 'types': ' '.join(op.allowed_fieldtypes)}), op.name)
-                    for id, op in operators.iteritems()
+                    for id, op in operators.items()
                ]
 
     def _build_fieldchoice(self, name, data):
@@ -392,7 +391,7 @@ class RelationsConditionsWidget(SelectorList):
                                       .resolve('creme_core__ctypes_compatible_with_rtype_as_choices')
 
         add_dselect = chained_input.add_dselect
-        add_dselect('has', options=_HAS_RELATION_OPTIONS.iteritems(), attrs=attrs_json)
+        add_dselect('has', options=_HAS_RELATION_OPTIONS.items(), attrs=attrs_json)
         add_dselect(rtype_name, options=self.rtypes, attrs={'auto': False, 'autocomplete': True})
         add_dselect('ctype', options=ctype_url, attrs=dict(attrs_json, autocomplete=True))
 
@@ -416,7 +415,7 @@ class RelationSubfiltersConditionsWidget(SelectorList):
         ctype_name = 'ctype'
 
         add_dselect = chained_input.add_dselect
-        add_dselect('has', options=_HAS_RELATION_OPTIONS.iteritems(), attrs=attrs_json)
+        add_dselect('has', options=_HAS_RELATION_OPTIONS.items(), attrs=attrs_json)
         add_dselect(rtype_name, options=self.rtypes, attrs={'auto': False, 'autocomplete': True})
         add_dselect(ctype_name, attrs=dict(attrs_json, autocomplete=True),
                     # TODO: use a GET arg instead of using a TemplateURLBuilder ?
@@ -440,7 +439,7 @@ class PropertiesConditionsWidget(SelectorList):
         self.selector = chained_input = ChainedInput(attrs)
 
         add_dselect = chained_input.add_dselect
-        add_dselect('has', options=_HAS_PROPERTY_OPTIONS.iteritems(),
+        add_dselect('has', options=_HAS_PROPERTY_OPTIONS.items(),
                     attrs={'auto': False, 'datatype': 'json'},
                    )
         add_dselect('ptype', options=self.ptypes, attrs={'auto': False})
@@ -556,7 +555,7 @@ class RegularFieldsConditionsField(_ConditionsField):
             elif isinstance(field, ModelBooleanField):
                 values = search_info['values'][0]
             else:
-                values = u','.join(unicode(value) for value in search_info['values'])
+                values = u','.join(str(value) for value in search_info['values'])
 
             if field_entry['type'] in EntityFilterCondition._FIELDTYPES_RELATED:
                 field_entry['ctype'] = ContentType.objects.get_for_model(field.remote_field.model).id
@@ -599,7 +598,7 @@ class RegularFieldsConditionsField(_ConditionsField):
         elif isinstance(entry.get('value'), bool):
             values = [entry.get('value')]
         else:
-            values = [v for v in clean_value(entry, 'value', unicode, required_error_key='invalidvalue').split(',') if v]
+            values = [v for v in clean_value(entry, 'value', str, required_error_key='invalidvalue').split(',') if v]
 
         return operator, values
 
@@ -810,7 +809,7 @@ class CustomFieldsConditionsField(_ConditionsField):
             field_type = customfield_rname_choicetype(search_info['rname'])
             field_entry = {'id': int(condition.name), 'type': field_type}
 
-            value = u','.join(unicode(v) for v in search_info['value'])
+            value = u','.join(str(v) for v in search_info['value'])
 
             # HACK : lower serialisation of boolean (combobox waiting for 'true' and not 'True')
             if search_info['rname'] == CustomFieldBoolean.get_related_name():
@@ -869,7 +868,7 @@ class CustomFieldsConditionsField(_ConditionsField):
         elif isinstance(entry.get('value'), bool):
             values = [entry.get('value')]
         else:
-            values = [v for v in clean_value(entry, 'value', unicode,
+            values = [v for v in clean_value(entry, 'value', str,
                                              required_error_key='invalidvalue',
                                             ).split(',')
                             if v

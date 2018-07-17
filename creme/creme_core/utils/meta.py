@@ -32,7 +32,7 @@ from django.db.models import FieldDoesNotExist, DateField
 from .unicode_collation import collator
 
 
-class FieldInfo(object):
+class FieldInfo:
     """Class which stores a 'chain' of fields for a given model.
 
     Example:
@@ -112,7 +112,7 @@ class FieldInfo(object):
 
         return self.__fields[idx]
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self.__fields)
 
     def __len__(self):
@@ -133,7 +133,7 @@ class FieldInfo(object):
 
     @property
     def verbose_name(self):
-        return u' - '.join(unicode(field.verbose_name) for field in self.__fields)
+        return u' - '.join(str(field.verbose_name) for field in self.__fields)
 
     # TODO: probably does not work with several ManyToManyFields in the fields chain
     def value_from(self, instance):
@@ -162,7 +162,7 @@ def is_date_field(field):
 
 
 # ModelFieldEnumerator -------------------------------------------------------
-class _FilterModelFieldQuery(object):
+class _FilterModelFieldQuery:
     # TODO: use a constants in fields_tags ?? set() ?
     _TAGS = ('viewable', 'clonable', 'enumerable', 'optional')
 
@@ -172,7 +172,7 @@ class _FilterModelFieldQuery(object):
         if function:
             conditions.append(function)
 
-        for attr_name, value in kwargs.iteritems():
+        for attr_name, value in kwargs.items():
             fun = (lambda field, deep, attr_name, value: field.get_tag(attr_name) == value) \
                   if attr_name in self._TAGS else \
                   (lambda field, deep, attr_name, value: getattr(field, attr_name) == value)
@@ -188,7 +188,7 @@ class _ExcludeModelFieldQuery(_FilterModelFieldQuery):
         return not any(cond(field, deep) for cond in self._conditions)
 
 
-class ModelFieldEnumerator(object):
+class ModelFieldEnumerator:
     def __init__(self, model, deep=0, only_leafs=True):
         """Constructor.
         @param model DjangoModel class.
@@ -253,7 +253,7 @@ class ModelFieldEnumerator(object):
         self._ffilters.append(_ExcludeModelFieldQuery(function, **kwargs))
         return self
 
-    def choices(self, printer=lambda field: unicode(field.verbose_name)):
+    def choices(self, printer=lambda field: str(field.verbose_name)):
         """@return A list of tuple (field_name, field_verbose_name)."""
         sort_key = collator.sort_key
         sortable_choices = []
@@ -262,8 +262,8 @@ class ModelFieldEnumerator(object):
         # then sub-fields (fields of ForeignKey/ManyToManyField), then sub-sub-fields...
         for fields_info in self:
             # These variable avoid ugettext/printer to be called to many times
-            fk_vnames = [unicode(field.verbose_name) for field in fields_info[:-1]]
-            terminal_vname = unicode(printer(fields_info[-1]))
+            fk_vnames = [str(field.verbose_name) for field in fields_info[:-1]]
+            terminal_vname = str(printer(fields_info[-1]))
 
             # The sort key (list.sort() will compare tuples, so the first elements,
             # then eventually the second ones etc...)

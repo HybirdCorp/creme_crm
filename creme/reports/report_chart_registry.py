@@ -21,14 +21,14 @@
 from django.utils.translation import ugettext_lazy as _
 
 
-class ReportChart(object):
+class ReportChart:
     def __init__(self, name, label, template=None):
         self.name = name
         self.label = label
         self.template = template or 'reports/plot/{}.json'.format(name)
 
 
-class ReportChartRegistry(object):
+class ReportChartRegistry:
     __slots__ = ('_charts',)
 
     def __init__(self):
@@ -41,10 +41,10 @@ class ReportChartRegistry(object):
         return self._charts.get(name)
 
     def __iter__(self):
-        return self._charts.iteritems()
+        return iter(self._charts.items())
 
     def choices(self):
-        return [(chart.name, chart.label) for chart in self._charts.itervalues()]
+        return [(chart.name, chart.label) for chart in self._charts.values()]
 
 
 report_chart_registry = ReportChartRegistry()

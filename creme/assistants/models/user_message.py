@@ -48,7 +48,7 @@ class UserMessagePriority(CremeModel):
         verbose_name_plural = _(u'Priorities of user message')
         ordering = ('title',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
 
@@ -76,7 +76,7 @@ class UserMessage(CremeModel):
         verbose_name = _(u'User message')
         verbose_name_plural = _(u'User messages')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     @staticmethod
@@ -111,7 +111,7 @@ class UserMessage(CremeModel):
                             sender=sender, creme_entity=entity,
                            )
         UserMessage.objects.bulk_create(build_msg(recipient=user)
-                                            for user in users_map.itervalues()
+                                            for user in users_map.values()
                                        )
 
         from ..creme_jobs import usermessages_send_type

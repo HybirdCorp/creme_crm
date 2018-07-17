@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013  Hybird
+#    Copyright (C) 2013-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,17 +18,30 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import csv
+
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.utils.unicode_csv import UnicodeReader
+# from creme.creme_core.utils.unicode_csv import UnicodeReader
 
 from .base import ImportBackend
 
 
-class CSVImportBackend(UnicodeReader, ImportBackend):
+# class CSVImportBackend(UnicodeReader, ImportBackend):
+class CSVImportBackend(ImportBackend):
     id = 'csv'
     verbose_name = _(u'CSV File')
     help_text = _(u'A CSV file contains the fields values of an entity on each line, '
                   'separated by commas or semicolons and each one can be surrounded by quotation marks " '
                   '(to protect a value containing a comma for example).'
-                  )
+                 )
+
+    def __init__(self, f):
+        super().__init__(f)
+        dialect = csv.Sniffer().sniff(f.read(100 * 1024))
+        f.seek(0)
+
+        self.reader = csv.reader(f, dialect=dialect)
+
+    def __next__(self):
+        return next(self.reader)

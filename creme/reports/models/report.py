@@ -57,7 +57,7 @@ class AbstractReport(CremeEntity):
         verbose_name_plural = _(u'Reports')
         ordering = ('name',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
@@ -85,7 +85,7 @@ class AbstractReport(CremeEntity):
             if rfield.hand:  # Field is valid
                 if rfield.selected:
                     if selected_found:
-                        logger.warn('Several expanded sub-reports -> we fix it')
+                        logger.warning('Several expanded sub-reports -> we fix it')
                         rfield.selected = False
                         rfield.save()
 
@@ -187,7 +187,7 @@ class AbstractReport(CremeEntity):
                             if f.many_to_many and f.auto_created
                      )
 
-        return [(f.name, unicode(f.related_model._meta.verbose_name))
+        return [(f.name, str(f.related_model._meta.verbose_name))
                     for f in chain(related_fields, m2m_fields)
                         if f.name in allowed_related_fields
                ]
@@ -216,7 +216,7 @@ class Field(CremeModel):
         verbose_name_plural = _(u'Columns of report')
         ordering = ('order',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     # def __repr__(self):
@@ -259,7 +259,7 @@ class Field(CremeModel):
             try:
                 self._hand = hand = REPORT_HANDS_MAP[self.type](self)
             except (ReportHand.ValueError, KeyError) as e:
-                logger.warn('Invalid column is deleted (%s)', e)
+                logger.warning('Invalid column is deleted (%s)', e)
                 self.delete()
 
         return hand

@@ -30,7 +30,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
         block1 = blocks[0]
         self.assertIsInstance(block1, tuple)
         self.assertEqual(2, len(block1))
-        self.assertEqual(_(u'General information'), unicode(block1[0]))
+        self.assertEqual(_(u'General information'), str(block1[0]))
 
         fields = block1[1]
         self.assertIsInstance(fields, list)
@@ -67,7 +67,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
         with self.assertNoException():
             general_block = blocks_group['general']
 
-        self.assertEqual(_(u'General information'), unicode(general_block[0]))
+        self.assertEqual(_(u'General information'), str(general_block[0]))
 
         with self.assertNoException():
             p_block = blocks_group[block_id]

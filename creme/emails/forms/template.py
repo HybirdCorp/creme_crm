@@ -40,7 +40,7 @@ Document = get_document_model()
 
 TEMPLATES_VARS = {'last_name', 'first_name', 'civility', 'name'}
 _TEMPLATES_VARS_4_HELP = u' '.join('{{%s}}' % var for var in TEMPLATES_VARS)
-_help_text = lazy((lambda: ugettext(u'You can use variables: {}').format(_TEMPLATES_VARS_4_HELP)), unicode)
+_help_text = lazy((lambda: ugettext(u'You can use variables: {}').format(_TEMPLATES_VARS_4_HELP)), str)
 
 
 class EmailTemplateForm(CremeEntityForm):

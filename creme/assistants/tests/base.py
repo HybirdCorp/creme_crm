@@ -60,7 +60,7 @@ class AssistantsTestCase(CremeTestCase):
 
         hline = hlines[-1]
         self.assertEqual(TYPE_DELETION, hline.type)
-        self.assertEqual(unicode(contact02), hline.entity_repr)
+        self.assertEqual(str(contact02), hline.entity_repr)
 
     def get_reminder_job(self):
         return self.get_object_or_fail(Job, type_id=reminder_type.id)

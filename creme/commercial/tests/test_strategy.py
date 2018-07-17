@@ -755,7 +755,7 @@ class StrategyTestCase(CommercialBaseTestCase, BrickTestCaseMixin):
         self.assertGET200(url)
 
         product = segment_desc.product.title()
-        response = self.client.post(url, data={'entities_lbl': [unicode(segment_desc)],
+        response = self.client.post(url, data={'entities_lbl': [str(segment_desc)],
                                                'field_value':  product,
                                               }
                                    )

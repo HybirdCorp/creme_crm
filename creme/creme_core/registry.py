@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 #         super(NotRegistered, self).__init__(*args, **kwargs)
 
 
-class CremeRegistry(object):
+class CremeRegistry:
     """Registry for Creme Applications and Entities."""
     def __init__(self):
         self._entity_models = OrderedSet()

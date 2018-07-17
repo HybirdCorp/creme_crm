@@ -313,7 +313,9 @@ class RelationCTypeBrickWizard(PopupWizardMixin, SessionWizardView):
     permission = 'creme_core.can_admin'
 
     def done(self, form_list, **kwargs):
-        form_list[1].save()
+        # form_list[1].save()
+        _ct_form, fields_form = form_list
+        fields_form.save()
 
         # return HttpResponse(content_type='text/javascript')
         return HttpResponse()

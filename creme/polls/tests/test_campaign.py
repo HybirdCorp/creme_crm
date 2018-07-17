@@ -96,7 +96,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_listview(self):
         create_camp = partial(PollCampaign.objects.create, user=self.user)
-        camps = [create_camp(name='Camp#%d' % i) for i in xrange(3)]
+        camps = [create_camp(name='Camp#%d' % i) for i in range(3)]
 
         response = self.assertGET200(PollCampaign.get_lv_absolute_url())
 
@@ -136,7 +136,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                    )
         self.assertNoFormError(response)
 
-        for i in xrange(1, reply_number + 1):
+        for i in range(1, reply_number + 1):
             preply = self.get_object_or_fail(PollReply, name='{}#{}'.format(name, i))
             self.assertEqual(camp, preply.campaign)
 
@@ -160,6 +160,6 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
                                    )
         self.assertNoFormError(response)
 
-        for i in xrange(1, reply_number + 1):
+        for i in range(1, reply_number + 1):
             preply = self.get_object_or_fail(PollReply, name='{}#{}'.format(name, i))
             self.assertEqual(camp, preply.campaign)

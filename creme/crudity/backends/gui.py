@@ -21,7 +21,7 @@
 from django.template.loader import get_template
 
 
-class BrickHeaderAction(object):
+class BrickHeaderAction:
     def render(self, backend):
         raise NotImplementedError
 

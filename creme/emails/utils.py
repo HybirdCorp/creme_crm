@@ -38,7 +38,7 @@ ALLOWED_CHARS = ascii_letters + digits
 
 def generate_id():
     from .models.mail import ID_LENGTH
-    return ''.join(choice(ALLOWED_CHARS) for i in xrange(ID_LENGTH))
+    return ''.join(choice(ALLOWED_CHARS) for i in range(ID_LENGTH))
 
 
 _IMG_PATTERN = re_compile(r'<img.*src[\s]*[=]{1,1}["\']{1,1}(?P<img_src>[\d\w:/?\=.]*)["\']{1,1}')
@@ -78,7 +78,7 @@ def get_mime_image(image_entity):
     return mime_image
 
 
-class EMailSender(object):
+class EMailSender:
     def __init__(self, body, body_html, signature=None, attachments=()):
         "@throws ImageFromHTMLError"
         mime_images = []

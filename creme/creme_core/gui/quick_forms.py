@@ -24,7 +24,7 @@
 # logger = logging.getLogger(__name__)
 
 
-class QuickFormsRegistry(object):
+class QuickFormsRegistry:
     class RegistrationError(Exception):
         pass
 
@@ -47,7 +47,7 @@ class QuickFormsRegistry(object):
             raise self.RegistrationError('No Quick Form is registered for the model : {}'.format(model))
 
     def iter_models(self):
-        return self._forms.iterkeys()
+        return self._forms.keys()
 
     def get_form(self, model):
         return self._forms.get(model)

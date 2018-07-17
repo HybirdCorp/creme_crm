@@ -81,8 +81,10 @@ class I18N(Filter):
         #             ).content
         # Hybird FIX - Django1.10 version
         translation.activate(language)
+        # content += JavaScriptCatalog(packages=[app_config.name for app_config in apps.app_configs.values()]) \
+        #                             .get(HttpRequest()).content
         content += JavaScriptCatalog(packages=[app_config.name for app_config in apps.app_configs.values()]) \
-                                    .get(HttpRequest()).content
+                                    .get(HttpRequest()).content.decode()
 
         # The hgettext() function just calls gettext() internally, but it won't get indexed by makemessages.
         content += '\nwindow.hgettext = function(text) { return gettext(text); };\n'

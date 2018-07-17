@@ -30,7 +30,7 @@ else:
         name = models.CharField(_(u'Category name'), max_length=100, unique=True)
 #        is_custom = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
 
-        def __unicode__(self):
+        def __str__(self):
             return self.name
 
         class Meta:
@@ -63,7 +63,7 @@ else:
             verbose_name_plural = u'Test Folders'
             ordering = ('title',)
 
-        def __unicode__(self):
+        def __str__(self):
             return self.title
 
 
@@ -82,7 +82,7 @@ else:
             verbose_name_plural = u'Test Documents'
             ordering = ('title',)
 
-        def __unicode__(self):
+        def __str__(self):
             return u'{} - {}'.format(self.linked_folder, self.title)
 
 #        def get_absolute_url(self):
@@ -111,7 +111,7 @@ else:
     class FakeImageCategory(CremeModel):
         name = models.CharField(_(u'Name'), max_length=100)
 
-        def __unicode__(self):
+        def __str__(self):
             return self.name
 
         class Meta:
@@ -146,7 +146,7 @@ else:
             verbose_name_plural = u'Test Images'
             ordering = ('name',)
 
-        def __unicode__(self):
+        def __str__(self):
             return self.name
 
         def get_absolute_url(self):
@@ -168,7 +168,7 @@ else:
         title    = models.CharField(_(u'Title'), max_length=100)
         shortcut = models.CharField(_(u'Shortcut'), max_length=100)
 
-        def __unicode__(self):
+        def __str__(self):
             return self.title
 
         class Meta:
@@ -181,7 +181,7 @@ else:
     class FakePosition(CremeModel):
         title = models.CharField(_(u'Title'), max_length=100)
 
-        def __unicode__(self):
+        def __str__(self):
             return self.title
 
         class Meta:
@@ -196,7 +196,7 @@ else:
         is_custom = models.BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
         order     = BasicAutoField(_(u'Order'))  # Used by creme_config
 
-        def __unicode__(self):
+        def __str__(self):
             return self.title
 
         class Meta:
@@ -225,7 +225,7 @@ else:
             verbose_name = u'Test address'
             verbose_name_plural = u'Test addresses'
 
-        def __unicode__(self):
+        def __str__(self):
             return u' '.join(filter(None, [self.value, self.zipcode, self.city, self.department, self.country]))
 
         def get_edit_absolute_url(self):
@@ -291,7 +291,7 @@ else:
             verbose_name_plural = u'Test Contacts'
             index_together = ('last_name', 'first_name', 'cremeentity_ptr')
 
-        def __unicode__(self):
+        def __str__(self):
             return u'{} {}'.format(self.first_name, self.last_name)
 
         def clean(self):
@@ -317,7 +317,7 @@ else:
     class FakeLegalForm(CremeModel):
         title = models.CharField(_(u'Title'), max_length=100)
 
-        def __unicode__(self):
+        def __str__(self):
             return self.title
 
         class Meta:
@@ -335,7 +335,7 @@ else:
 
         def __call__(self, entity, user):
             return FunctionFieldResultsList(FunctionFieldResult('Todo {} #{}'.format(entity, i))
-                                                for i in xrange(1, 3)
+                                                for i in range(1, 3)
                                            )
 
 
@@ -384,7 +384,7 @@ else:
             verbose_name_plural = u'Test Organisations'
             index_together = ('name', 'cremeentity_ptr')
 
-        def __unicode__(self):
+        def __str__(self):
             return self.name
 
         def get_absolute_url(self):
@@ -430,7 +430,7 @@ else:
             verbose_name_plural = u'Test Activities'
             ordering = ('-start',)
 
-        def __unicode__(self):
+        def __str__(self):
             return self.title
 
 #        def get_absolute_url(self):
@@ -454,7 +454,7 @@ else:
             verbose_name_plural = u'Test Mailing lists'
             ordering = ('name',)
 
-        def __unicode__(self) :
+        def __str__(self) :
             return self.name
 
 #        def get_absolute_url(self):
@@ -479,7 +479,7 @@ else:
             verbose_name_plural = u'Test campaigns'
             ordering = ('name',)
 
-        def __unicode__(self):
+        def __str__(self):
             return self.name
 
 #        def get_absolute_url(self):
@@ -515,7 +515,7 @@ else:
             # ordering = ('name',)
             ordering = ('name', '-expiration_date')
 
-        def __unicode__(self):
+        def __str__(self):
             return self.name
 
         def get_absolute_url(self):
@@ -579,7 +579,7 @@ else:
             verbose_name_plural = u'Test Products'
             ordering = ('name',)
 
-        def __unicode__(self):
+        def __str__(self):
             return self.name
 
         # def get_absolute_url(self):

@@ -57,7 +57,7 @@ class AbstractReportGraph(CremeEntity):
         verbose_name_plural = _(u"Reports' graphs")
         ordering = ['name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
@@ -107,7 +107,7 @@ class AbstractReportGraph(CremeEntity):
                 volatile_column, rfield_type = data.split('|', 1)
                 rfield_type = int(rfield_type)
             except ValueError as e:
-                logger.warn('Instance block: invalid link type "%s" in block "%s" [%s].',
+                logger.warning('Instance block: invalid link type "%s" in block "%s" [%s].',
                             # data, instance_block_config, e,
                             data, instance_brick_config, e,
                            )

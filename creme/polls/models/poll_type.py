@@ -35,5 +35,5 @@ class PollType(CremeModel):
         verbose_name_plural = _(u'Types of poll')
         ordering = ('name',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name

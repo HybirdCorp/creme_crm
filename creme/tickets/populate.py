@@ -59,7 +59,7 @@ class Populator(BasePopulator):
 
         # ---------------------------
         for pk, name in BASE_STATUS:
-            create_if_needed(Status, {'pk': pk}, name=unicode(name), is_custom=False, order=pk)
+            create_if_needed(Status, {'pk': pk}, name=str(name), is_custom=False, order=pk)
 
         # ---------------------------
         create_hf = HeaderFilter.create

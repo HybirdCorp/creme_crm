@@ -31,7 +31,8 @@ class Bundles(Generator):
                 combinations = product(*(variations[key]
                                          for key in sorted(variations.keys())))
                 for combination in combinations:
-                    variation_map = zip(sorted(variations.keys()), combination)
+                    # variation_map = zip(sorted(variations.keys()), combination)
+                    variation_map = list(zip(sorted(variations.keys()), combination))
                     variation = dict(variation_map)
                     name, content = self.generate_file(backend, bundle,
                                                        variation, combination)

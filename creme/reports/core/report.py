@@ -40,7 +40,7 @@ from ..report_aggregation_registry import field_aggregation_registry
 logger = logging.getLogger(__name__)
 
 
-class ReportHandRegistry(object):
+class ReportHandRegistry:
     __slots__ = ('_hands', )
 
     def __init__(self):
@@ -69,7 +69,7 @@ class ReportHandRegistry(object):
 REPORT_HANDS_MAP = ReportHandRegistry()
 
 
-class ReportHand(object):
+class ReportHand:
     "Class that computes values of a report column"
     verbose_name = 'OVERLOADME'
 
@@ -146,7 +146,7 @@ class ReportHand(object):
         if issubclass(qs.model, CremeEntity):
             qs = EntityCredentials.filter(user, qs)
 
-        return u', '.join(unicode(extract(instance)) for instance in qs)
+        return u', '.join(str(extract(instance)) for instance in qs)
 
     def _get_value_single(self, entity, user, scope):
         """Used as _get_value() method by subclasses which does not manage
@@ -292,12 +292,12 @@ class RHForeignKey(RHRegularField):
                                                         output='csv',
                                                     )
             else:
-                self._value_extractor = lambda fk_instance, user: unicode(fk_instance)
+                self._value_extractor = lambda fk_instance, user: str(fk_instance)
 
         self._qs = qs
         super(RHForeignKey, self).__init__(report_field,
                                            support_subreport=True,
-                                           title=unicode(fk_field.verbose_name) if sub_report else None,
+                                           title=str(fk_field.verbose_name) if sub_report else None,
                                           )
 
     # NB: cannot rename to _get_related_instances() because forbidden entities are filtered instead of outputting '??'
@@ -347,7 +347,7 @@ class RHManyToManyField(RHRegularField):
             self._related_model_value_extractor = \
                 lambda instance: getattr(instance, attr_name, None) or u''
         else:
-            self._related_model_value_extractor = unicode
+            self._related_model_value_extractor = str
 
     def _get_related_instances(self, entity, user):
         return getattr(entity, self._field_info[0].name).all()
@@ -374,7 +374,7 @@ class RHCustomField(ReportHand):
 
     def _get_value_single_on_allowed(self, entity, user, scope):
         cvalue = entity.get_custom_value(self._cfield)
-        return unicode(cvalue.value) if cvalue else u''
+        return str(cvalue.value) if cvalue else u''
 
 
 @REPORT_HANDS_MAP(RFT_RELATION)
@@ -393,7 +393,7 @@ class RHRelation(ReportHand):
             self._related_model = report_field.sub_report.ct.model_class()
 
         super(RHRelation, self).__init__(report_field,
-                                         title=unicode(rtype.predicate),
+                                         title=str(rtype.predicate),
                                          support_subreport=True,
                                         )
 
@@ -406,7 +406,7 @@ class RHRelation(ReportHand):
     # TODO: extract algorithm that retrieve efficiently real entity from CremeEntity.get_related_entities()
     def _get_value_no_subreport(self, entity, user, scope):
         has_perm = user.has_perm_to_view
-        return u', '.join(unicode(e)
+        return u', '.join(str(e)
                             for e in entity.get_related_entities(self._rtype.id, True)
                                 if has_perm(e)
                          )
@@ -430,7 +430,7 @@ class RHFunctionField(ReportHand):
 
         self._funcfield = funcfield
 
-        super(RHFunctionField, self).__init__(report_field, title=unicode(funcfield.verbose_name))
+        super(RHFunctionField, self).__init__(report_field, title=str(funcfield.verbose_name))
 
     def _get_value_single_on_allowed(self, entity, user, scope):
         # return self._funcfield(entity).for_csv()
@@ -518,7 +518,7 @@ class RHRelated(ReportHand):
         self._attr_name = related_field.get_accessor_name()
 
         super(RHRelated, self).__init__(report_field,
-                                        title=unicode(related_field.related_model._meta.verbose_name),
+                                        title=str(related_field.related_model._meta.verbose_name),
                                         support_subreport=True,
                                        )
 
@@ -534,7 +534,7 @@ class RHRelated(ReportHand):
         return (ContentType.objects.get_for_model(self._related_field.related_model),)
 
 
-class ExpandableLine(object):
+class ExpandableLine:
     """Store a line of report values that can be expanded in several lines if
     there are selected sub-reports.
     """

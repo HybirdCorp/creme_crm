@@ -58,7 +58,7 @@ FIELDS_DATA_TYPES = ClassKeyedMap([
 ])
 
 
-class EntityCellsRegistry(object):
+class EntityCellsRegistry:
     __slots__ = ('_cell_classes', )
 
     class RegistrationError(Exception):
@@ -88,10 +88,10 @@ class EntityCellsRegistry(object):
                     else:
                         errors = True
                 except Exception as e:
-                    logger.warn('EntityCellsRegistry: %s, %s', e.__class__, e)
+                    logger.warning('EntityCellsRegistry: %s, %s', e.__class__, e)
                     errors = True
         except Exception as e:
-            logger.warn('EntityCellsRegistry: %s, %s', e.__class__, e)
+            logger.warning('EntityCellsRegistry: %s, %s', e.__class__, e)
             errors = True
 
         return cells, errors
@@ -99,7 +99,7 @@ class EntityCellsRegistry(object):
 CELLS_MAP = EntityCellsRegistry()
 
 
-class EntityCell(object):
+class EntityCell:
     """Represents a value accessor ; it's a kind of super field. It can
     retrieve a value store in entities (of the same type).
     This values can be (see child classes) :
@@ -130,7 +130,7 @@ class EntityCell(object):
     def __repr__(self):
         return u"<EntityCell(type={}, value='{}')>".format(self.type_id, self.value)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def _get_field_class(self):
@@ -260,7 +260,7 @@ class EntityCellRegularField(EntityCell):
         try:
             field_info = FieldInfo(model, name)
         except FieldDoesNotExist as e:
-            logger.warn('EntityCellRegularField(): problem with field "%s" ("%s")', name, e)
+            logger.warning('EntityCellRegularField(): problem with field "%s" ("%s")', name, e)
             return None
 
         return EntityCellRegularField(model, name, field_info, is_hidden)
@@ -335,7 +335,7 @@ class EntityCellCustomField(EntityCell):
         pattern = self._CF_PATTERNS.get(customfield.field_type, '{}__value__icontains')
 
         super(EntityCellCustomField, self).__init__(model=customfield.content_type.model_class(),
-                                                    value=unicode(customfield.id),
+                                                    value=str(customfield.id),
                                                     title=customfield.name,
                                                     has_a_filter=True,
                                                     editable=False,  # TODO: make it editable
@@ -353,7 +353,7 @@ class EntityCellCustomField(EntityCell):
         try:
             cfield = CustomField.objects.get(content_type=ct, id=customfield_id)
         except CustomField.DoesNotExist:
-            logger.warn('EntityCellCustomField: custom field "%s" does not exist', customfield_id)
+            logger.warning('EntityCellCustomField: custom field "%s" does not exist', customfield_id)
             return None
 
         return EntityCellCustomField(cfield)
@@ -367,7 +367,7 @@ class EntityCellCustomField(EntityCell):
 
     @staticmethod
     def populate_entities(cells, entities, user):
-        CremeEntity.populate_custom_values(entities, [cell.custom_field for cell in cells]) # NB: not itervalues()
+        CremeEntity.populate_custom_values(entities, [cell.custom_field for cell in cells])  # NB: not itervalues()
 
     def render_html(self, entity, user):
         from django.utils.html import escape
@@ -392,7 +392,7 @@ class EntityCellFunctionField(EntityCell):
 
         super(EntityCellFunctionField, self).__init__(model=model,
                                                       value=func_field.name,
-                                                      title=unicode(func_field.verbose_name),
+                                                      title=str(func_field.verbose_name),
                                                       has_a_filter=func_field.has_filter,
                                                       is_hidden=func_field.is_hidden,
                                                      )
@@ -402,7 +402,7 @@ class EntityCellFunctionField(EntityCell):
         func_field = model.function_fields.get(func_field_name)
 
         if func_field is None:
-            logger.warn('EntityCellFunctionField: function field "%s" does not exist', func_field_name)
+            logger.warning('EntityCellFunctionField: function field "%s" does not exist', func_field_name)
             return None
 
         return EntityCellFunctionField(model=model, func_field=func_field)
@@ -438,7 +438,7 @@ class EntityCellRelation(EntityCell):
     def __init__(self, model, rtype, is_hidden=False):
         self._rtype = rtype
         super(EntityCellRelation, self).__init__(model=model,
-                                                 value=unicode(rtype.id),
+                                                 value=str(rtype.id),
                                                  title=rtype.predicate,
                                                  has_a_filter=True,
                                                  is_hidden=is_hidden,
@@ -449,7 +449,7 @@ class EntityCellRelation(EntityCell):
         try:
             rtype = RelationType.objects.get(pk=rtype_id)
         except RelationType.DoesNotExist:
-            logger.warn('EntityCellRelation: relation type "%s" does not exist', rtype_id)
+            logger.warning('EntityCellRelation: relation type "%s" does not exist', rtype_id)
             return None
 
         return EntityCellRelation(model=model, rtype=rtype, is_hidden=is_hidden)
@@ -486,7 +486,7 @@ class EntityCellRelation(EntityCell):
 
     def render_csv(self, entity, user):
         has_perm = user.has_perm_to_view
-        return u'/'.join(unicode(o)
+        return u'/'.join(str(o)
                             for o in entity.get_related_entities(self.value, True)
                                 if has_perm(o)
                         )

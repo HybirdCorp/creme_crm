@@ -138,7 +138,7 @@ class Command(BaseCommand):
             if verbosity >= 1:
                 self.stdout.write('{} useless entries found and commented:'.format(len(overloading_entries)))
 
-            for msgid, entry in overloading_entries.iteritems():
+            for msgid, entry in overloading_entries.items():
                 self.stdout.write(msgid)
                 entry.obsolete = True
 

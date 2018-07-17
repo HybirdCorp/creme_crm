@@ -122,7 +122,7 @@ class RelatedDocumentCreateForm(_DocumentBaseForm):
 
         get_or_create_folder = Folder.objects.get_or_create
         model_folder = get_or_create_folder(
-                            title=unicode(entity.entity_type),
+                            title=str(entity.entity_type),
                             parent_folder=self.root_folder,
                             category=category,
                             defaults={'user': user},

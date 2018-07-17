@@ -157,7 +157,7 @@ class _UserRoleWizardFormStep(CremeModelForm):
     def app_choices(apps):
         sort_key = collator.sort_key
 
-        return sorted(((app.label, unicode(app.verbose_name)) for app in apps),
+        return sorted(((app.label, str(app.verbose_name)) for app in apps),
                           key=lambda t: sort_key(t[1])
                      )
 

@@ -78,7 +78,8 @@ class FieldConfigWizard(PopupWizardMixin, SessionWizardView):
     permission = 'creme_core.can_admin'
 
     def done(self, form_list, **kwargs):
-        configure_step = form_list[1]
+        # configure_step = form_list[1]
+        _model_step, configure_step = form_list
         configure_step.save()
 
         # return HttpResponse(content_type='text/javascript')

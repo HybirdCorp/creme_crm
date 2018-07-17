@@ -109,7 +109,7 @@ END:VEVENT
     def get_creation_title(cls, type_id):
         return CREATION_LABELS.get(type_id, cls.creation_label)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def get_absolute_url(self):

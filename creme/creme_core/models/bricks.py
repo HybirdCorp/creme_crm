@@ -238,7 +238,7 @@ class BrickMypageLocation(CremeModel):
                         create(user=instance, brick_id=loc.brick_id, order=loc.order)
                 except Exception:
                     # TODO: still useful ? (BrickMypageLocation table should exist when the first User is created)
-                    logger.warn('Can not create brick config for this user: %s'
+                    logger.warning('Can not create brick config for this user: %s'
                                 ' (if it is the first user, do not worry because it is normal)', instance
                                )
 
@@ -292,7 +292,7 @@ class RelationBrickItem(CremeModel):
             self._cells_map = {}
             self._dump_cells_map()
 
-    def __unicode__(self):  # NB: useful for creme_config titles
+    def __str__(self):  # NB: useful for creme_config titles
         return self.relation_type.predicate
 
     def delete(self, *args, **kwargs):
@@ -306,7 +306,7 @@ class RelationBrickItem(CremeModel):
         compat_ctype_ids = set(self.relation_type.object_ctypes.values_list('id', flat=True)) or \
                            {ct.id for ct in creme_entity_content_types()}
 
-        for ct_id in self._cells_by_ct().iterkeys():
+        for ct_id in self._cells_by_ct():
             compat_ctype_ids.discard(ct_id)
 
         return not bool(compat_ctype_ids)
@@ -327,7 +327,7 @@ class RelationBrickItem(CremeModel):
     def _dump_cells_map(self):
         self.json_cells_map = jsondumps(
                 {ct_id: [cell.to_dict() for cell in cells]
-                    for ct_id, cells in self._cells_map.iteritems()
+                    for ct_id, cells in self._cells_map.items()
                 }
             )
 
@@ -342,7 +342,7 @@ class RelationBrickItem(CremeModel):
             build = CELLS_MAP.build_cells_from_dicts
             total_errors = False
 
-            for ct_id, cells_as_dicts in jsonloads(self.json_cells_map).iteritems():
+            for ct_id, cells_as_dicts in jsonloads(self.json_cells_map).items():
                 ct = get_ct(ct_id)
                 cells, errors = build(model=ct.model_class(), dicts=cells_as_dicts)  # TODO: do it lazily ??
 
@@ -352,7 +352,7 @@ class RelationBrickItem(CremeModel):
                 cells_map[ct.id] = cells
 
             if total_errors:
-                logger.warn('RelationBrickItem (id="%s") is saved with valid cells.', self.id)
+                logger.warning('RelationBrickItem (id="%s") is saved with valid cells.', self.id)
                 self._dump_cells_map()
                 self.save()
 
@@ -369,7 +369,7 @@ class RelationBrickItem(CremeModel):
         "Beware: do not modify the returned objects"
         get_ct = ContentType.objects.get_for_id
 
-        for ct_id, cells in self._cells_by_ct().iteritems():
+        for ct_id, cells in self._cells_by_ct().items():
             yield get_ct(ct_id), cells  # TODO: copy dicts ?? (if 'yes' -> iter_ctypes() too)
 
     def set_cells(self, ctype, cells):
@@ -390,7 +390,7 @@ class InstanceBrickConfigItem(CremeModel):
         app_label = 'creme_core'
         ordering = ('id',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.brick.verbose_name
 
     # def delete(self, using=None):
@@ -458,7 +458,7 @@ class CustomBrickConfigItem(CremeModel):
         if self.json_cells is None:
             self.cells = []
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def delete(self, *args, **kwargs):
@@ -496,7 +496,7 @@ class CustomBrickConfigItem(CremeModel):
                                                             )
 
             if errors:
-                logger.warn('CustomBrickConfigItem (id="%s") is saved with valid cells.', self.id)
+                logger.warning('CustomBrickConfigItem (id="%s") is saved with valid cells.', self.id)
                 self._dump_cells(cells)
                 self.save()
 

@@ -39,7 +39,7 @@ class AssistantReminder(Reminder):
     def get_emails(self, object):
         user = object.user
 
-        return [teammate.email for teammate in user.teammates.itervalues()] if user.is_team else [user.email]
+        return [teammate.email for teammate in user.teammates.values()] if user.is_team else [user.email]
 
 
 class ReminderAlert(AssistantReminder):

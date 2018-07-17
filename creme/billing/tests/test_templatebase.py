@@ -52,13 +52,13 @@ class TemplateBaseTestCase(_BillingTestCase):
         with self.assertNumQueries(1):
             status_str = tpl.verbose_status
 
-        self.assertEqual(unicode(invoice_status1), status_str)
+        self.assertEqual(str(invoice_status1), status_str)
 
         # Cache -------------------------
         with self.assertNumQueries(0):
             status_str = tpl.verbose_status
 
-        self.assertEqual(unicode(invoice_status1), status_str)
+        self.assertEqual(str(invoice_status1), status_str)
 
         # Change status -------------------------
         invoice_status2 = self.get_object_or_fail(InvoiceStatus, pk=2)
@@ -67,7 +67,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         with self.assertNumQueries(1):
             status_str = tpl.verbose_status
 
-        self.assertEqual(unicode(invoice_status2), status_str)
+        self.assertEqual(str(invoice_status2), status_str)
 
         # Invalid ID -------------------------
         tpl.status_id = invalid_id = 1024
@@ -83,7 +83,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         quote_status = self.get_object_or_fail(QuoteStatus, pk=3)
         tpl = self._create_templatebase(Quote, quote_status.id)
 
-        self.assertEqual(unicode(quote_status), tpl.verbose_status)
+        self.assertEqual(str(quote_status), tpl.verbose_status)
 
     def test_status_function_field(self):
         invoice_status = self.get_object_or_fail(InvoiceStatus, pk=3)
@@ -98,7 +98,7 @@ class TemplateBaseTestCase(_BillingTestCase):
             # status_str = funf(tpl).for_html()
             status_str = funf(tpl, self.user).for_html()
 
-        self.assertEqual(unicode(invoice_status), status_str)
+        self.assertEqual(str(invoice_status), status_str)
 
         with self.assertNumQueries(0):
             funf(tpl, self.user).for_html()

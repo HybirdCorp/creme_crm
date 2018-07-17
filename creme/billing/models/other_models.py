@@ -32,7 +32,7 @@ class SettlementTerms(CremeModel):
 
     creation_label = _(u'Create settlement terms')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -49,7 +49,7 @@ class AbstractStatus(CremeModel):
 
     creation_label = pgettext_lazy('billing-status', u'Create a status')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -97,7 +97,7 @@ class AdditionalInformation(CremeModel):
 
     creation_label = pgettext_lazy('billing-additional_info', u'Create information')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -114,7 +114,7 @@ class PaymentTerms(CremeModel):
 
     creation_label = _(u'Create payment terms')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -143,7 +143,7 @@ class PaymentInformation(CremeModel):
                                        on_delete=CASCADE,
                                       )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:

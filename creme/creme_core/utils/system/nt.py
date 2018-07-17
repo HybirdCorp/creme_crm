@@ -5,7 +5,7 @@
 ################################################################################
 #
 # Copyright (c) 2012 Daniel Miller
-# Copyright (c) 2016 Hybird
+# Copyright (c) 2016-2018 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -43,9 +43,11 @@ try:
 
     def enable_exit_handler(handler=lambda *args: exit()):
         SetConsoleCtrlHandler(handler, True)
-        __exit_handler = handler
+        __exit_handler = handler   # TODO: comment ?
 
     def disable_exit_handler():
+        global __win32_exit_handler
+
         if __win32_exit_handler is not None:
             SetConsoleCtrlHandler(__win32_exit_handler, False)
             __win32_exit_handler = None

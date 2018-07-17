@@ -106,7 +106,7 @@ def json_entity_get(request, entity_id):
 
 
 JSON_PREDICATE_FIELDS = {
-    'unicode': lambda e, user: unicode(e),
+    'unicode': lambda e, user: str(e),
     'id':      lambda e, user: e.id,
 }
 
@@ -131,7 +131,7 @@ def json_entity_rtypes(request, entity_id):  # TODO: seems unused
 
 
 JSON_CONTENT_TYPE_FIELDS = {
-    'unicode': lambda e, user: unicode(e),
+    'unicode': lambda e, user: str(e),
     'id':      lambda e, user: e.id
 }
 
@@ -319,8 +319,8 @@ def delete_all(request):  # TODO: deprecate ?
         status = 200
         message = _(u'Operation successfully completed')
     else:
-        status = min(errors.iterkeys())
-        message = ",".join(msg for error_messages in errors.itervalues() for msg in error_messages)
+        status = min(errors)
+        message = ",".join(msg for error_messages in errors.values() for msg in error_messages)
 
     # return HttpResponse(message, content_type='text/javascript', status=status)
     return HttpResponse(message, status=status)
@@ -454,7 +454,7 @@ def add_relations_with_same_type(request):
         status = 200
         message = _(u'Operation successfully completed')
     else:
-        status = min(errors.iterkeys())
-        message = ','.join(msg for error_messages in errors.itervalues() for msg in error_messages)
+        status = min(errors)
+        message = ','.join(msg for error_messages in errors.values() for msg in error_messages)
 
     return HttpResponse(message, status=status)

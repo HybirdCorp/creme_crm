@@ -578,7 +578,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin
         clan1 = create_orga(name='Clan')
         clan2 = create_orga(name='Clan')
 
-        doc = self._build_csv_doc([(title1, unicode(aoi)),
+        doc = self._build_csv_doc([(title1, str(aoi)),
                                    (title2, (u' {} '.format(aoi)).upper()),
                                    (title3, u' {} '.format(name)),
                                    (title4, clan1.name),

@@ -320,8 +320,8 @@ class CTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
         field = CTypeChoiceField(ctypes=[ct1, ct2])
         clean = field.clean
 
-        self.assertEqual(sorted([(ct1.pk, unicode(ct1)),
-                                 (ct2.pk, unicode(ct2)),
+        self.assertEqual(sorted([(ct1.pk, str(ct1)),
+                                 (ct2.pk, str(ct2)),
                                 ], key=lambda ct: ct[1]),
                          list(field.widget.choices)
                         )
@@ -337,8 +337,8 @@ class CTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
         clean = field.clean
 
         self.assertEqual([('', field.empty_label)] +
-                         sorted([(ct1.pk, unicode(ct1)),
-                                 (ct2.pk, unicode(ct2)),
+                         sorted([(ct1.pk, str(ct1)),
+                                 (ct2.pk, str(ct2)),
                                 ], key=lambda ct: ct[1]),
                          list(field.widget.choices)
                         )
@@ -431,8 +431,8 @@ class MultiCTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
         field = MultiCTypeChoiceField(ctypes=[ct1, ct2])
         clean = field.clean
 
-        self.assertEqual(sorted([(ct1.pk, unicode(ct1)),
-                                 (ct2.pk, unicode(ct2)),
+        self.assertEqual(sorted([(ct1.pk, str(ct1)),
+                                 (ct2.pk, str(ct2)),
                                 ], key=lambda ct: ct[1]),
                          [(choice.value, label) for choice, label in field.widget.choices])
 
@@ -448,8 +448,8 @@ class MultiCTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
         field = MultiCTypeChoiceField(ctypes=[ct1, ct2], required=False)
         clean = field.clean
 
-        self.assertEqual(sorted([(ct1.pk, unicode(ct1)),
-                                 (ct2.pk, unicode(ct2)),
+        self.assertEqual(sorted([(ct1.pk, str(ct1)),
+                                 (ct2.pk, str(ct2)),
                                 ], key=lambda ct: ct[1]),
                          [(choice.value, label) for choice, label in field.widget.choices])
 

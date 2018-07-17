@@ -35,7 +35,7 @@ MESSAGE_TYPES_VERBOSE = {
 }
 
 
-class Message(object):
+class Message:
     template = 'activesync/messages/message_base.html'
     type     = _BASE
 

@@ -79,7 +79,7 @@ def get_listview_headerfilters(context):
     return context
 
 
-class PagerRenderer(object):
+class PagerRenderer:
     template_name = ''
 
     def render(self, page):
@@ -141,11 +141,14 @@ def _build_date_search_widget(widget_ctx, search_value):
 
 
 def _build_select_search_widget(widget_ctx, search_value, choices):
-    selected_value = unicode(search_value[0].decode('utf-8')) if search_value else None  # meh
+    # selected_value = str(search_value[0].decode('utf-8')) if search_value else None  # meh
+    selected_value = search_value[0] if search_value else None  # meh
     widget_ctx['type'] = 'select'
     widget_ctx['values'] = [{'value':    key,
-                             'text':     unicode(val),
-                             'selected': 'selected' if selected_value == unicode(key) else ''
+                             # 'text':     str(val),
+                             'text':     val,
+                             # 'selected': 'selected' if selected_value == str(key) else ''
+                             'selected': 'selected' if selected_value == key else ''
                             } for key, val in choices
                            ]
 

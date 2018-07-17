@@ -101,7 +101,7 @@ class BatchActionsField(JSONField):
         widget.model = model
         widget.fields = CallableChoiceIterator(
                             lambda: [(fname, field.verbose_name)
-                                         for fname, field in self._get_fields().iteritems()
+                                         for fname, field in self._get_fields().items()
                                     ]
                         )
 
@@ -124,7 +124,7 @@ class BatchActionsField(JSONField):
                         fields.append((field.name, field))
 
             sort_key = collator.sort_key
-            fields.sort(key=lambda c: sort_key(unicode(c[1].verbose_name)))
+            fields.sort(key=lambda c: sort_key(str(c[1].verbose_name)))
 
             self._fields = OrderedDict(fields)
 
@@ -150,7 +150,7 @@ class BatchActionsField(JSONField):
     def _clean_operator_name_n_value(self, entry):
         clean_value =  self.clean_value
         operator_name = clean_value(entry, 'operator', str)
-        value = clean_value(entry, 'value', unicode)
+        value = clean_value(entry, 'value', str)
 
         return operator_name, value
 

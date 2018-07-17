@@ -19,7 +19,7 @@
 ################################################################################
 
 from datetime import datetime
-from itertools import izip_longest
+from itertools import zip_longest
 from json import loads as jsonloads, dumps as jsondumps
 import logging
 from re import compile as compile_re
@@ -74,7 +74,7 @@ class EntityFilterList(list):
         return self._selected
 
 
-class EntityFilterVariable(object):
+class EntityFilterVariable:
     CURRENT_USER = '__currentuser__'
 
     def validate(self, field, value):
@@ -90,7 +90,7 @@ class _CurrentUserVariable(EntityFilterVariable):
         if not isinstance(field, ForeignKey) or not issubclass(field.remote_field.model, get_user_model()):
             return field.formfield().clean(value)
 
-        if isinstance(value, basestring) and value == EntityFilterVariable.CURRENT_USER:
+        if isinstance(value, str) and value == EntityFilterVariable.CURRENT_USER:
             return
 
         return field.formfield().clean(value)
@@ -144,7 +144,7 @@ class EntityFilter(Model):  # CremeModel ???
     class PrivacyError(Exception):
         pass
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def can_delete(self, user):
@@ -417,7 +417,7 @@ class EntityFilter(Model):  # CremeModel ???
 
     def delete(self, check_orphan=True, *args, **kwargs):
         if check_orphan:
-            parents = {unicode(cond.filter) for cond in self._iter_parent_conditions()}
+            parents = {str(cond.filter) for cond in self._iter_parent_conditions()}
 
             if parents:
                 raise EntityFilter.DependenciesError(
@@ -531,7 +531,7 @@ class EntityFilter(Model):  # CremeModel ???
             error = condition.error
 
             if error:
-                logger.warn('%s => EntityFilterCondition instance removed', error)
+                logger.warning('%s => EntityFilterCondition instance removed', error)
                 condition.delete()
             else:
                 append(condition)
@@ -552,7 +552,7 @@ class EntityFilter(Model):  # CremeModel ???
         old_conditions = EntityFilterCondition.objects.filter(filter=self).order_by('id')
         conds2del = []
 
-        for old_condition, condition in izip_longest(old_conditions, conditions):
+        for old_condition, condition in zip_longest(old_conditions, conditions):
             if not condition:  # Less new conditions that old conditions => delete conditions in excess
                 conds2del.append(old_condition.id)
             elif not old_condition:
@@ -616,7 +616,7 @@ class EntityFilter(Model):  # CremeModel ???
 
     @staticmethod
     def get_variable(value):
-        return EntityFilter._VARIABLE_MAP.get(value) if isinstance(value, basestring) else None
+        return EntityFilter._VARIABLE_MAP.get(value) if isinstance(value, str) else None
 
     @staticmethod
     def resolve_variable(value, user):
@@ -624,7 +624,7 @@ class EntityFilter(Model):  # CremeModel ???
         return variable.resolve(value, user) if variable else value
 
 
-class _ConditionOperator(object):
+class _ConditionOperator:
     __slots__ = ('name', '_accept_subpart', '_exclude', '_key_pattern', '_allowed_fieldtypes')
 
     # Fields for which the subpart of a valid value is not valid
@@ -655,8 +655,8 @@ class _ConditionOperator(object):
     def accept_subpart(self):
         return self._accept_subpart
 
-    def __unicode__(self):
-        return unicode(self.name)
+    def __str__(self):
+        return str(self.name)
 
     def get_q(self, efcondition, values):
         # key = self.key_pattern % efcondition.name
@@ -872,9 +872,9 @@ class EntityFilterCondition(Model):
                 clean_value = cf_value_class.get_formfield(custom_field, None, user=user).clean
 
                 if custom_field.field_type == CustomField.MULTI_ENUM:
-                    value = [unicode(clean_value([v])[0]) for v in value]
+                    value = [str(clean_value([v])[0]) for v in value]
                 else:
-                    value = [unicode(clean_value(v)) for v in value]
+                    value = [str(clean_value(v)) for v in value]
         except Exception as e:
             raise EntityFilterCondition.ValueError(str(e))
 
@@ -1025,9 +1025,9 @@ class EntityFilterCondition(Model):
                    cond1.name == cond2.name and
                    # cond1.value == cond2.value
                    cond1.decoded_value == cond2.decoded_value
-                        for cond1, cond2 in izip_longest(sorted(conditions1, key=key),
-                                                         sorted(conditions2, key=key),
-                                                        )
+                        for cond1, cond2 in zip_longest(sorted(conditions1, key=key),
+                                                        sorted(conditions2, key=key),
+                                                       )
                   )
 
     @property

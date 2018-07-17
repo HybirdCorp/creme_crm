@@ -64,7 +64,7 @@ class ApproachesBrick(QuerysetBrick):
         entities_map = {}
         get_ct = ContentType.objects.get_for_id
 
-        for ct_id, entities_ids in entities_ids_by_ct.iteritems():
+        for ct_id, entities_ids in entities_ids_by_ct.items():
             entities_map.update(get_ct(ct_id).model_class().objects.in_bulk(entities_ids))
 
         for comapp in comapps:

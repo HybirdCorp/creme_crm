@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2016  Hybird
+#    Copyright (C) 2015-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,12 +19,14 @@
 ################################################################################
 
 import csv
-import logging
-import urllib2
-
 from functools import partial
-from urlparse import urlparse
-from StringIO import StringIO
+import io
+import logging
+# from urlparse import urlparse
+# from urllib2 import urlopen
+# from StringIO import StringIO
+from urllib.parse import urlparse
+from urllib.request import urlopen
 from zipfile import ZipFile
 
 from django.conf import settings
@@ -33,7 +35,7 @@ from django.db import transaction
 # from django.db.models.query_utils import Q
 from django.template.defaultfilters import slugify
 
-from creme.creme_core.utils import safe_unicode
+# from creme.creme_core.utils import safe_unicode
 from creme.creme_core.utils.chunktools import iter_as_chunk
 from creme.creme_core.utils.collections import OrderedSet
 
@@ -48,7 +50,7 @@ class CSVPopulatorError(Exception):
     pass
 
 
-class CSVPopulator(object):
+class CSVPopulator:
     class ProtocolError(CSVPopulatorError):
         pass
 
@@ -58,7 +60,7 @@ class CSVPopulator(object):
     class ParseError(CSVPopulatorError):
         pass
 
-    class Context(object):
+    class Context:
         def __init__(self, defaults):
             self.line = 1
             self.defaults = defaults
@@ -76,27 +78,38 @@ class CSVPopulator(object):
         self.defaults = defaults or {}
         self.chunksize = chunksize
 
-    def _open(self, url):
-        try:
-            url_info = urlparse(url)
+    # def _open(self, url):
+    #     try:
+    #         url_info = urlparse(url)
+    #
+    #         if url_info.scheme in ('file', ''):
+    #             input = open(url_info.path, 'rb')  # binary mode in order to avoid surprises with windows.
+    #         elif url_info.scheme in ('http', 'https'):
+    #             self.info('Downloading database...')
+    #             input = urlopen(url)
+    #         else:
+    #             raise self.ProtocolError('Unable to open CSV data from {} : unsupported protocol.'.format(url))
+    #
+    #         if url_info.path.endswith('.zip'):
+    #             archive = ZipFile(StringIO(input.read()))
+    #             input = archive.open(archive.namelist()[0])
+    #
+    #         return csv.reader(input)
+    #     except CSVPopulatorError as e:
+    #         raise e
+    #     except Exception as e:
+    #         raise self.ReadError('Unable to open CSV data from {} : {}'.format(url, e))
 
-            if url_info.scheme in ('file', ''):
-                input = open(url_info.path, 'rb')  # binary mode in order to avoid surprises with windows.
-            elif url_info.scheme in ('http', 'https'):
-                self.info('Downloading database...')
-                input = urllib2.urlopen(url)
-            else:
-                raise self.ProtocolError('Unable to open CSV data from {} : unsupported protocol.'.format(url))
-
-            if url_info.path.endswith('.zip'):
-                archive = ZipFile(StringIO(input.read()))
-                input = archive.open(archive.namelist()[0])
-
-            return csv.reader(input)
-        except CSVPopulatorError as e:
-            raise e
-        except Exception as e:
-            raise self.ReadError('Unable to open CSV data from {} : {}'.format(url, e))
+    def _get_source_file(self, url_info):
+        if url_info.scheme in ('file', ''):
+            return open(url_info.path, 'rb')
+        elif url_info.scheme in ('http', 'https'):
+            self.info('Downloading database...')
+            return urlopen(url_info.geturl())
+        else:
+            raise self.ProtocolError('Unable to open CSV data from {} : '
+                                     'unsupported protocol.'.format(url_info.geturl())
+                                    )
 
     def _mapper(self, header):
         columns = self.columns
@@ -148,17 +161,68 @@ class CSVPopulator(object):
     def info(self, message):
         logger.info(message)
 
+    # def populate(self, source):
+    #     if isinstance(source, str):
+    #         reader = self._open(source)
+    #     else:
+    #         reader = iter(source)
+    #
+    #     # mapper = self._mapper(reader.next())
+    #     mapper = self._mapper(next(reader))
+    #     context = self.Context(self.defaults)
+    #
+    #     for rows in iter_as_chunk(reader, self.chunksize):
+    #         entries = []
+    #
+    #         if mapper:
+    #             rows = [mapper(row) for row in rows]
+    #
+    #         try:
+    #             self.pre(rows, context)
+    #
+    #             for row in rows:
+    #                 try:
+    #                     entries.extend(self.create(row, context))
+    #                 except Exception as e:
+    #                     self.line_error(e, row, context)
+    #
+    #                 context.line += 1
+    #
+    #             self.save(entries, context)
+    #             self.post(entries, context)
+    #         except Exception as e:
+    #             self.chunk_error(e, rows, context)
     def populate(self, source):
-        if isinstance(source, basestring):
-            reader = self._open(source)
-        else:
-            reader = iter(source)
+        if isinstance(source, str):
+            try:
+                url_info = urlparse(source)
 
-        # mapper = self._mapper(reader.next())
-        mapper = self._mapper(next(reader))
+                with self._get_source_file(url_info) as bytes_input:
+                    if url_info.path.endswith('.zip'):
+                        archive = ZipFile(bytes_input if bytes_input.seekable() else io.BytesIO(bytes_input.read()))
+
+                        with archive.open(archive.namelist()[0]) as zipped_bytes_input:
+                            self._populate_from_bytes(zipped_bytes_input)
+                    else:
+                        self._populate_from_bytes(bytes_input)
+            except CSVPopulatorError:
+                raise
+            except Exception as e:
+                raise self.ReadError('Unable to open CSV data from {} : {}'.format(source, e)) from e
+        elif hasattr(source, '__iter__'):
+            self._populate_from_lines(iter(source))
+        else:
+            raise ValueError('The source must be a path or an iterable.')
+
+    def _populate_from_bytes(self, bytes_input):
+        with io.TextIOWrapper(bytes_input) as wrapped_bytes_input:
+            self._populate_from_lines(csv.reader(wrapped_bytes_input))
+
+    def _populate_from_lines(self, lines):
+        mapper = self._mapper(next(lines))
         context = self.Context(self.defaults)
 
-        for rows in iter_as_chunk(reader, self.chunksize):
+        for rows in iter_as_chunk(lines, self.chunksize):
             entries = []
 
             if mapper:
@@ -216,9 +280,14 @@ class CSVTownPopulator(CSVPopulator):
 
     def create(self, row, context):
         zipcodes = row['zipcode'].split('-')
-        name, latitude, longitude = safe_unicode(row['title']), row['latitude'], row['longitude']
+        # name, latitude, longitude = safe_unicode(row['title']), row['latitude'], row['longitude']
+        name      = row['title']
+        latitude  = row['latitude']
+        longitude = row['longitude']
+
         slug = slugify(name)
-        country = safe_unicode(row['country'])
+        # country = safe_unicode(row['country'])
+        country = row['country']
 
         build_town = partial(Town, country=country)
 
@@ -251,10 +320,12 @@ class Command(BaseCommand):
 
     def sysout(self, message, visible):
         if visible:
-            self.stdout.write(safe_unicode(message))
+            # self.stdout.write(safe_unicode(message))
+            self.stdout.write(message)
 
     def syserr(self, message):
-        self.stderr.write(safe_unicode(message))
+        # self.stderr.write(safe_unicode(message))
+        self.stderr.write(message)
 
     def populate_addresses(self, verbosity=0):
         self.sysout('Populate geolocation information of addresses...', verbosity > 0)
@@ -275,7 +346,7 @@ class Command(BaseCommand):
             self.import_town_database(url, defaults)
 
     def print_stats(self):
-        self.sysout('%d town(s) in database.' % Town.objects.count())
+        self.sysout('{} town(s) in database.'.format(Town.objects.count()))
 
     def handle(self, *args, **options):
         populate = options.get('populate')

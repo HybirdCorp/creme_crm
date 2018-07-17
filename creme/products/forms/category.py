@@ -36,8 +36,8 @@ class SubCategoryForm(CremeModelForm):
             'value': {'category': str(category.id), 'subcategory': str(instance.id)},
             'added': [
                 {
-                    'category': (str(category.id), unicode(category)),
-                    'subcategory': (str(instance.id), unicode(instance)),
+                    'category': (str(category.id), str(category)),
+                    'subcategory': (str(instance.id), str(instance)),
                 }
             ],
         }

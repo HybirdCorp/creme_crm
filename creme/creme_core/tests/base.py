@@ -28,7 +28,7 @@ def skipIfNotInstalled(app_name):
                  )
 
 
-class _AssertNoExceptionContext(object):
+class _AssertNoExceptionContext:
     """A context manager used by CremeTestCase.assertNoException method."""
     def __init__(self, test_case):
         self.exception = test_case.failureException
@@ -45,7 +45,7 @@ class _AssertNoExceptionContext(object):
         return True
 
 
-class _CremeTestCase(object):
+class _CremeTestCase:
     @classmethod
     def setUpClass(cls):
         warnings.filterwarnings('error', r"(.)* received a naive datetime (.)*",
@@ -313,7 +313,7 @@ class _CremeTestCase(object):
     def assertQEqual(self, q1, q2):
         self.assertIsInstance(q1, Q)
         self.assertIsInstance(q2, Q)
-        self.assertEqual(unicode(q1), unicode(q2))
+        self.assertEqual(str(q1), str(q2))
 
     def assertRelationCount(self, count, subject_entity, type_id, object_entity):
         self.assertEqual(count,

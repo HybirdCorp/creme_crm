@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 FIRST_REMINDER = 1
 
 
-class Reminder(object):
+class Reminder:
     id    = None  # Overload with an unicode object ; use generate_id()
     model = None  # Overload with a CremeModel
 
@@ -126,7 +126,7 @@ class Reminder(object):
         raise NotImplementedError
 
 
-class ReminderRegistry(object):
+class ReminderRegistry:
     class RegistrationError(Exception):
         pass
 
@@ -162,14 +162,14 @@ class ReminderRegistry(object):
 
     def __iter__(self):
         # return self._reminders.iteritems()
-        return self._reminders.itervalues()
+        return iter(self._reminders.values())
 
     def itervalues(self):
         warnings.warn('ReminderRegistry.itervalues() is deprecated; use __iter__() instead.',
                       DeprecationWarning
                      )
 
-        return self._reminders.itervalues()
+        return iter(self._reminders.values())
 
 
 reminder_registry = ReminderRegistry()

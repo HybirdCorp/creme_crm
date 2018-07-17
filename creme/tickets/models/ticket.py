@@ -68,7 +68,7 @@ class TicketMixin(CremeEntity):
         app_label = 'tickets'
         abstract = True
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
 
@@ -96,7 +96,7 @@ class AbstractTicket(TicketMixin):
         super(AbstractTicket, self).__init__(*args, **kwargs)
         self.old_status_id = self.status_id
 
-    def __unicode__(self):
+    def __str__(self):
         return u'#{} - {}'.format(self.number, self.title)
 
     def get_absolute_url(self):

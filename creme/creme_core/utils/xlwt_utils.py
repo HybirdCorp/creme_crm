@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,7 @@ from django.utils.translation import ugettext as _
 from . import prefixed_truncate
 
 
-class XlwtWriter(object):
+class XlwtWriter:
     def __init__(self, encoding='utf-8'):
         self.nline = 0
         self.wb = wb = Workbook(encoding=encoding)
@@ -44,7 +44,7 @@ class XlwtWriter(object):
         for col, cell in enumerate(line):
             if isinstance(cell, datetime):
                 write(nline, col, cell, self.date_format)
-            elif isinstance(cell, basestring):
+            elif isinstance(cell, str):
                 write(nline, col, prefixed_truncate(cell, prefix, 32767))
             else:
                 write(nline, col, cell)

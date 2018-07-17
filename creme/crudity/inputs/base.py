@@ -21,7 +21,7 @@
 from ..backends.gui import TemplateBrickHeaderAction
 
 
-class CrudityInput(object):
+class CrudityInput:
     name   = u''
     method = u''
 
@@ -40,7 +40,7 @@ class CrudityInput(object):
         self._backends[backend.subject] = backend
 
     def get_backends(self):  # TODO: rename 'backends' + property + generator ?
-        return self._backends.values()
+        return list(self._backends.values())
 
     def get_backend(self, subject):
         return self._backends.get(subject)

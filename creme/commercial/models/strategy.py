@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from future_builtins import zip
-
 from django.conf import settings
 from django.db.models import (CharField, TextField, PositiveSmallIntegerField,
         ForeignKey, ManyToManyField, CASCADE)
@@ -67,7 +65,7 @@ class AbstractStrategy(CremeEntity):
         super(AbstractStrategy, self).__init__(*args, **kwargs)
         self._clear_caches()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def _clear_caches(self):
@@ -194,7 +192,7 @@ class AbstractStrategy(CremeEntity):
         if not orga_scores:
             return []
 
-        scores = [sum(score_obj.score for score_obj in orga_scores[segment_desc.id].itervalues())
+        scores = [sum(score_obj.score for score_obj in orga_scores[segment_desc.id].values())
                     for segment_desc in self.get_segment_descriptions_list()
                  ]
         max_score = max(scores)
@@ -217,7 +215,7 @@ class AbstractStrategy(CremeEntity):
     def get_segment_category(self, orga, segment):
         sid = segment.id
 
-        for category, segments in self._get_segments_categories(orga).iteritems():
+        for category, segments in self._get_segments_categories(orga).items():
             for other_segment in segments:
                 if other_segment.id == sid:
                     return category
@@ -230,7 +228,7 @@ class AbstractStrategy(CremeEntity):
         categories = self._segments_categories.get(orga)
 
         if categories is None:
-            categories = {i: [] for i in xrange(1, 5)}
+            categories = {i: [] for i in range(1, 5)}
             segment_info = self.get_segment_descriptions_list()
 
             if segment_info:
@@ -343,7 +341,7 @@ class MarketSegmentDescription(CremeModel):
                 self.place, self.price, self.promotion,
             )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.segment.name
 
     # def delete(self):
@@ -375,7 +373,7 @@ class CommercialAsset(CremeModel):
         verbose_name = _(u'Commercial asset')
         verbose_name_plural = _(u'Commercial assets')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_edit_absolute_url(self):
@@ -394,7 +392,7 @@ class CommercialAssetScore(CremeModel):
     class Meta:
         app_label = 'commercial'
 
-    def __unicode__(self):  # Debugging
+    def __str__(self):  # Debugging
         return u'<AssetScore: orga={} score={} segment={} asset={}>'.format(
                     self.organisation, self.score, self.segment, self.asset)
 
@@ -413,7 +411,7 @@ class MarketSegmentCharm(CremeModel):
         verbose_name = _(u'Segment charm')
         verbose_name_plural = _(u'Segment charms')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_edit_absolute_url(self):
@@ -432,7 +430,7 @@ class MarketSegmentCharmScore(CremeModel):
     class Meta:
         app_label = 'commercial'
 
-    def __unicode__(self):  # Debugging
+    def __str__(self):  # Debugging
         return u'<CharmScore: orga={} score={} segment={} charm={}>'.format(
                     self.organisation, self.score, self.segment, self.charm)
 
@@ -446,6 +444,6 @@ class MarketSegmentCategory(CremeModel):
     class Meta:
         app_label = 'commercial'
 
-    def __unicode__(self):  # Debugging
+    def __str__(self):  # Debugging
         return u'<MarketSegmentCategory: orga={} cat={} segment={}>'.format(
                     self.organisation, self.category, self.segment)

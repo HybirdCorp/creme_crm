@@ -41,7 +41,7 @@ class MobileAuthenticationForm(AuthenticationForm):
         # TODO: factorise
         errors = self.errors
 
-        for fname, field in self.fields.iteritems():
+        for fname, field in self.fields.items():
             attrs = field.widget.attrs
             attrs['class'] = 'form-input' if fname not in errors else \
                              'form-input form-input-invalid'
@@ -71,7 +71,7 @@ class MobileContactCreateForm(ContactQuickForm):
 
         errors = self.errors
 
-        for fname, field in self.fields.iteritems():
+        for fname, field in self.fields.items():
             if fname != 'is_favorite':
                 attrs = field.widget.attrs
                 attrs['class'] = 'form-input' if fname not in errors else \
@@ -107,7 +107,7 @@ class MobileOrganisationCreateForm(CremeModelForm):
         # TODO: factorise
         errors = self.errors
 
-        for fname, field in self.fields.iteritems():
+        for fname, field in self.fields.items():
             if fname != 'is_favorite':
                 attrs = field.widget.attrs
                 attrs['class'] = 'form-input' if fname not in errors else \

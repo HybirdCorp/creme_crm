@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from __future__ import absolute_import  # For collections...
+# from __future__ import absolute_import  # For collections...
 
 # import logging
 from collections import OrderedDict
@@ -32,12 +32,12 @@ from django.utils.translation import ugettext_lazy as _, ungettext
 # logger = logging.getLogger(__name__)
 
 
-class DatePeriod(object):
+class DatePeriod:
     name = 'base_date_period'  # Overload
     verbose_name = u'Date period'  # Overload
 
-    def __unicode__(self):
-        return unicode(self.verbose_name)
+    def __str__(self):
+        return str(self.verbose_name)
 
     def __eq__(self, other_dp):
         try:
@@ -73,7 +73,7 @@ class SimpleValueDatePeriod(DatePeriod):
     def __init__(self, value):
         self._value = value
 
-    def __unicode__(self):
+    def __str__(self):
         value = self._value
         # return self._ungettext(self._value) % value
         return self._ungettext(self._value).format(number=value)
@@ -145,7 +145,7 @@ class YearsPeriod(SimpleValueDatePeriod):
         return ungettext('{number} year', '{number} years', value)
 
 
-class DatePeriodRegistry(object):
+class DatePeriodRegistry:
     class RegistrationError(Exception):
         pass
 
@@ -162,7 +162,7 @@ class DatePeriodRegistry(object):
         is_allowed = (lambda name: True) if choices is None else \
                      lambda name: name in choices
 
-        for name, period_klass in self._periods.iteritems():
+        for name, period_klass in self._periods.items():
             if is_allowed(name):
                 yield name, period_klass.verbose_name
 

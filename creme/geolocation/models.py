@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from itertools import izip, chain, groupby
+from itertools import chain, groupby
 
 from django.conf import settings
 from django.db.models import (Model, FloatField, BooleanField,
@@ -115,7 +115,7 @@ class GeoAddress(Model):
 
             towns = Town.search_all([geo.address for geo in chain(create, update)])
 
-            for geoaddress, town in izip(chain(create, update), towns):
+            for geoaddress, town in zip(chain(create, update), towns):
                 geoaddress.set_town_position(town)
 
             GeoAddress.objects.bulk_create(create)
@@ -160,7 +160,7 @@ class GeoAddress(Model):
                                  .filter(latitude__range=(upper_left[0], lower_right[0]),
                                          longitude__range=(upper_left[1], lower_right[1]))
 
-    def __unicode__(self):
+    def __str__(self):
         return u'GeoAddress(lat={}, lon={}, status={})'.format(self.latitude, self.longitude, self.status)
 
 
@@ -180,7 +180,7 @@ class Town(Model):
         verbose_name_plural = _(u'Towns')
         ordering = ('name',)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} {} {}'.format(self.zipcode, self.name, self.country)
 
     def save(self, *args, **kwargs):

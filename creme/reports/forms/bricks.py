@@ -66,7 +66,7 @@ class GraphInstanceBrickForm(CremeForm):
         rtype_choices = []
 
         for rtype in RelationType.get_compatible_ones(ct, include_internals=True):
-            rtype_choices.append(('rtype-' + rtype.id, unicode(rtype)))
+            rtype_choices.append(('rtype-' + rtype.id, str(rtype)))
             self._rtypes[rtype.id] = rtype
 
         if fk_choices:
@@ -100,7 +100,7 @@ class GraphInstanceBrickForm(CremeForm):
             self.ibci = self.graph.create_instance_brick_config_item(save=False, **kwargs)
         # except InstanceBlockConfigItemError as e:
         except InstanceBrickConfigItemError as e:
-            raise ValidationError(unicode(e))
+            raise ValidationError(str(e))
 
         return cleaned_data
 

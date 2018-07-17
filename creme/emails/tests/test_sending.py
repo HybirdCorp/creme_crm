@@ -3,7 +3,7 @@
 try:
     from functools import partial
     from datetime import timedelta
-    from pickle import loads
+    # from pickle import loads
 
     from django.contrib.contenttypes.models import ContentType
     from django.core import mail as django_mail
@@ -34,9 +34,9 @@ except Exception as e:
 @skipIfCustomEmailTemplate
 @skipIfCustomMailingList
 class SendingsTestCase(_EmailsTestCase):
-    def _load_or_fail(self, data):
-        with self.assertNoException():
-            return loads(data.encode('utf-8'))
+    # def _load_or_fail(self, data):
+    #     with self.assertNoException():
+    #         return loads(data.encode('utf-8'))
 
     def _build_add_url(self, campaign):
         return reverse('emails__create_sending', args=(campaign.id,))
@@ -246,7 +246,7 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertGET200(reverse('emails__view_lw_mail', args=(mail.id,)))
 
         response = self.assertGET200(reverse('emails__lw_mail_body', args=(mail.id,)))
-        self.assertEqual(u'', response.content)
+        self.assertEqual(b'', response.content)
 
         # Popup detail view -----------------------------------------------------
         response = self.assertPOST200(reverse('emails__view_sending', args=(sending.id,)))
@@ -302,7 +302,8 @@ class SendingsTestCase(_EmailsTestCase):
 
         html = '<p>Your last name is: {} !</p>'.format(last_name)
         self.assertEqual(html, mail.rendered_body_html)
-        self.assertEqual(html, self.client.get(reverse('emails__lw_mail_body', args=(mail.id,))).content)
+        # self.assertEqual(html, self.client.get(reverse('emails__lw_mail_body', args=(mail.id,))).content)
+        self.assertEqual(html.encode(), self.client.get(reverse('emails__lw_mail_body', args=(mail.id,))).content)
 
         # test delete sending --------------------------------------------------
         ct = ContentType.objects.get_for_model(EmailSending)

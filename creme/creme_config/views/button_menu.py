@@ -55,7 +55,9 @@ class ButtonMenuWizard(PopupWizardMixin, SessionWizardView):
     permission = 'creme_core.can_admin'
 
     def done(self, form_list, **kwargs):
-        form_list[1].save()
+        # form_list[1].save()
+        _resource_form, config_form = form_list
+        config_form.save()
 
         # return HttpResponse(content_type='text/javascript')
         return HttpResponse()

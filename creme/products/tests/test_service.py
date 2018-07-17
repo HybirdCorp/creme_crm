@@ -230,7 +230,7 @@ class ServiceTestCase(_ProductsTestCase):
         cat3_name = 'Books'
         sub_cat31_name = 'Sci-Fi'
 
-        names = ['Service %2i' % i for i in xrange(1, 5)]
+        names = ['Service %2i' % i for i in range(1, 5)]
 
         lines = [(names[0], '', ''),
                  (names[1], cat2.name, sub_cat21.name),

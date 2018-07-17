@@ -49,7 +49,7 @@ if apps.is_installed('creme.activities'):
     Activity = get_activity_model()
 
 
-    class Activities4Card(object):
+    class Activities4Card:
         dependencies = [Activity]
         relation_type_deps = [activities_constants.REL_SUB_PART_2_ACTIVITY,
                               activities_constants.REL_SUB_ACTIVITY_SUBJECT,
@@ -74,7 +74,7 @@ if apps.is_installed('creme.activities'):
             }
 
 
-    class NeglectedContactIndicator(object):
+    class NeglectedContactIndicator:
         delta = timedelta(days=15)
         label_not = _(u'Not contacted since 15 days')
         label_never = _(u'Never contacted')
@@ -95,7 +95,7 @@ if apps.is_installed('creme.activities'):
 
             return ''
 else:
-    class NeglectedContactIndicator(object):
+    class NeglectedContactIndicator:
         def __init__(self, context, contact):
             pass
 
@@ -104,7 +104,7 @@ else:
             return ''
 
 
-    class Activities4Card(object):
+    class Activities4Card:
         dependencies = []
         relation_type_deps = []
 
@@ -119,7 +119,7 @@ if apps.is_installed('creme.opportunities'):
 
     Opportunity = get_opportunity_model()
 
-    class Opportunities4Card(object):
+    class Opportunities4Card:
         dependencies = [Opportunity]
         relation_type_deps = [opp_constants.REL_OBJ_TARGETS]
 
@@ -132,7 +132,7 @@ if apps.is_installed('creme.opportunities'):
                                                                       )
                                            )
 else:
-    class Opportunities4Card(object):
+    class Opportunities4Card:
         dependencies = []
         relation_type_deps = []
 
@@ -146,7 +146,7 @@ if apps.is_installed('creme.commercial'):
 
     Act = get_act_model()
 
-    class CommercialActs4Card(object):
+    class CommercialActs4Card:
         dependencies = [Act]
         relation_type_deps = [commercial_constants.REL_SUB_COMPLETE_GOAL]
 
@@ -159,7 +159,7 @@ if apps.is_installed('creme.commercial'):
                                                               )
                                            )
 else:
-    class CommercialActs4Card(object):
+    class CommercialActs4Card:
         dependencies = []
         relation_type_deps = []
 

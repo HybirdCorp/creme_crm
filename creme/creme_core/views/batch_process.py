@@ -80,6 +80,6 @@ def get_ops(request, ct_id, field):
 
     field_class = ct.model_class()._meta.get_field(field).__class__
 
-    return [(op_name, unicode(op))
+    return [(op_name, str(op))
                 for op_name, op in batch_operator_manager.operators(field_class)
            ]

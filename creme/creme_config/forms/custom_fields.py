@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,8 +17,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-
-from future_builtins import zip
 
 from django.forms import TypedChoiceField, CharField, ValidationError
 from django.forms.widgets import Textarea
@@ -35,7 +33,7 @@ from creme.creme_core.models.custom_field import CustomField, CustomFieldEnumVal
 
 class CustomFieldsBaseForm(CremeModelForm):
     field_type  = TypedChoiceField(label=_(u'Type of field'), coerce=int,
-                                   choices=[(i, klass.verbose_name) for i, klass in _TABLES.iteritems()],
+                                   choices=[(i, klass.verbose_name) for i, klass in _TABLES.items()],
                                   )
     enum_values = CharField(widget=Textarea(), label=_(u'Available choices'), required=False,
                             help_text=_(u'Give the possible choices (one per line) '

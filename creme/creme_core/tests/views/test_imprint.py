@@ -81,7 +81,7 @@ class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         link_node = brick_node.find(".//a[@href='{}']".format(user.linked_contact.get_absolute_url()))
         self.assertIsNotNone(link_node)
-        self.assertEqual(unicode(user), link_node.text)
+        self.assertEqual(str(user), link_node.text)
 
     def test_brick02(self):
         "Home"

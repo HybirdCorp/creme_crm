@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2015  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,7 @@ from .vcf_lib.vcard import Address as VcfAddress, Name as VcfName
 Address = get_address_model()
 
 
-class VcfGenerator(object):
+class VcfGenerator:
     """Generate a vCard from Contact object"""
     def __init__(self, contact):
         is_hidden = FieldsConfig.get_4_model(contact.__class__).is_fieldname_hidden

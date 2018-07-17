@@ -500,8 +500,8 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
         self.assertFalse(address.geoaddress.neighbours(distance=10000))
 
     def test_town_unicode(self):
-        self.assertEqual(u'13001 Marseille FRANCE', unicode(self.marseille1))
-        self.assertEqual(u'13002 Marseille FRANCE', unicode(self.marseille2))
+        self.assertEqual(u'13001 Marseille FRANCE', str(self.marseille1))
+        self.assertEqual(u'13002 Marseille FRANCE', str(self.marseille2))
 
     def test_town_search(self):
         town1 = self.marseille1

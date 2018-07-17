@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from future_builtins import filter
-
 from collections import defaultdict
 import logging
 
@@ -207,7 +205,7 @@ class FieldsConfigsBrick(PaginatedBrick):
         # TODO: exclude CTs that user cannot see ? (should probably done everywhere in creme_config...)
         fconfigs = list(FieldsConfig.objects.all())
         sort_key = collator.sort_key
-        fconfigs.sort(key=lambda fconf: sort_key(unicode(fconf.content_type)))
+        fconfigs.sort(key=lambda fconf: sort_key(str(fconf.content_type)))
 
         used_models = {fconf.content_type.model_class() for fconf in fconfigs}
         btc = self.get_template_context(
@@ -218,7 +216,7 @@ class FieldsConfigsBrick(PaginatedBrick):
         )
 
         for fconf in btc['page'].object_list:
-            vnames = [unicode(f.verbose_name) for f in fconf.hidden_fields]
+            vnames = [str(f.verbose_name) for f in fconf.hidden_fields]
             vnames.sort(key=sort_key)
 
             fconf.fields_vnames = vnames
@@ -238,7 +236,7 @@ class CustomFieldsBrick(Brick):
         # NB: we wrap the ContentType instances instead of store extra data in
         #     them because the instances are stored in a global cache, so we do
         #     not want to mutate them.
-        class _ContentTypeWrapper(object):
+        class _ContentTypeWrapper:
             __slots__ = ('ctype', 'cfields')
 
             def __init__(self, ctype, cfields):
@@ -268,7 +266,7 @@ class CustomFieldsBrick(Brick):
 
         get_ct = ContentType.objects.get_for_id
         ctypes = [_ContentTypeWrapper(get_ct(ct_id), ct_cfields)
-                    for ct_id, ct_cfields in cfields_per_ct_id.iteritems()
+                    for ct_id, ct_cfields in cfields_per_ct_id.items()
                  ]
 
         return self._render(self.get_template_context(
@@ -329,7 +327,7 @@ class BrickDetailviewLocationsBrick(PaginatedBrick):
         # NB: we wrap the ContentType instances instead of store extra data in
         #     them because the instances are stored in a global cache, so we do
         #     not want to mutate them.
-        class _ContentTypeWrapper(object):  # TODO: move from here ?
+        class _ContentTypeWrapper:  # TODO: move from here ?
             __slots__ = ('ctype', 'locations_info', 'default_count')
 
             def __init__(self, ctype):
@@ -348,7 +346,7 @@ class BrickDetailviewLocationsBrick(PaginatedBrick):
                  ]
 
         sort_key = collator.sort_key
-        ctypes.sort(key=lambda ctw: sort_key(unicode(ctw.ctype)))
+        ctypes.sort(key=lambda ctw: sort_key(str(ctw.ctype)))
 
         btc = self.get_template_context(
                     context, ctypes,
@@ -376,7 +374,7 @@ class BrickDetailviewLocationsBrick(PaginatedBrick):
             ctw.default_count = count_per_role.pop((None, False), 0)
 
             ctw.locations_info = locations_info = []
-            for (role_id, superuser), block_count in count_per_role.iteritems():
+            for (role_id, superuser), block_count in count_per_role.items():
                 if superuser:
                     role_arg = 'superuser'
                     role_label = superusers_label
@@ -508,7 +506,7 @@ class CustomBricksConfigBrick(PaginatedBrick):
         # NB: we wrap the ContentType instances instead of store extra data in
         #     them because teh instances are stored in a global cache, so we do
         #     not want to mutate them.
-        class _ContentTypeWrapper(object):  # TODO: move from here ?
+        class _ContentTypeWrapper:  # TODO: move from here ?
             __slots__ = ('ctype', 'items')
 
             def __init__(self, ctype, items):
@@ -522,11 +520,11 @@ class CustomBricksConfigBrick(PaginatedBrick):
 
         get_ct = ContentType.objects.get_for_id
         ctypes = [_ContentTypeWrapper(get_ct(ct_id), cb_items)
-                      for ct_id, cb_items in cbi_per_ctid.iteritems()
+                      for ct_id, cb_items in cbi_per_ctid.items()
                  ]
 
         sort_key = collator.sort_key
-        ctypes.sort(key=lambda ctw: sort_key(unicode(ctw.ctype)))
+        ctypes.sort(key=lambda ctw: sort_key(str(ctw.ctype)))
 
         return self._render(self.get_template_context(context, ctypes))
 
@@ -545,15 +543,15 @@ class ButtonMenuBrick(Brick):
         for bmi in ButtonMenuItem.objects.order_by('order'):
             buttons_map[bmi.content_type_id].append(bmi)
 
-        build_verbose_names = lambda bm_items: [unicode(bmi) for bmi in bm_items if bmi.button_id]
+        build_verbose_names = lambda bm_items: [str(bmi) for bmi in bm_items if bmi.button_id]
         default_buttons = build_verbose_names(buttons_map.pop(None, ()))
 
         get_ct = ContentType.objects.get_for_id
         buttons = [(get_ct(ct_id), build_verbose_names(bm_items))
-                        for ct_id, bm_items in buttons_map.iteritems()
+                        for ct_id, bm_items in buttons_map.items()
                   ]
         sort_key = collator.sort_key
-        buttons.sort(key=lambda t: sort_key(unicode(t[0])))
+        buttons.sort(key=lambda t: sort_key(str(t[0])))
 
         return self._render(self.get_template_context(
                     context,
@@ -577,7 +575,7 @@ class SearchConfigBrick(PaginatedBrick):
         # NB: we wrap the ContentType instances instead of store extra data in
         #     them because teh instances are stored in a global cache, so we do
         #     not want to mutate them.
-        class _ContentTypeWrapper(object): # TODO: move from here ?
+        class _ContentTypeWrapper: # TODO: move from here ?
             __slots__ = ('ctype', 'sc_items')
 
             def __init__(self, ctype):
@@ -586,7 +584,7 @@ class SearchConfigBrick(PaginatedBrick):
 
         ctypes = [_ContentTypeWrapper(ctype) for ctype in creme_entity_content_types()]
         sort_key = collator.sort_key
-        ctypes.sort(key=lambda ctw: sort_key(unicode(ctw.ctype)))
+        ctypes.sort(key=lambda ctw: sort_key(str(ctw.ctype)))
 
         btc = self.get_template_context(
                 context, ctypes,
@@ -607,7 +605,7 @@ class SearchConfigBrick(PaginatedBrick):
         for ctw in ctypes_wrappers:
             ctype = ctw.ctype
             ctw.sc_items = sc_items = sci_map.get(ctype.id) or []
-            sc_items.sort(key=lambda sci: sort_key(unicode(sci.role) if sci.role
+            sc_items.sort(key=lambda sci: sort_key(str(sci.role) if sci.role
                                                    else superusers_label if sci.superuser
                                                    else ''
                                                   )
@@ -697,7 +695,7 @@ class UserSettingValuesBrick(Brick):
                     context,
                     values_per_app=[
                         (get_app_config(app_label).verbose_name, svalues)
-                            for app_label, svalues in sv_info_per_app.iteritems()
+                            for app_label, svalues in sv_info_per_app.items()
                     ],
                     count=count,
         ))

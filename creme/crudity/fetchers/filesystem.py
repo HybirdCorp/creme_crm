@@ -43,7 +43,7 @@ class FileSystemFetcher(CrudityFetcher):
         try:
             dir_path = self._get_path()
         except self.FileSystemFetcherError as e:
-            logger.warn('FileSystemFetcher.fetch(): %s', e)
+            logger.warning('FileSystemFetcher.fetch(): %s', e)
         else:
             for filename in os.listdir(dir_path):
                 path = os.path.join(dir_path, filename)

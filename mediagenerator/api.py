@@ -40,7 +40,9 @@ def generate_media():
             if not os.path.exists(parent):
                 os.makedirs(parent)
 
-            if isinstance(content, unicode):
+            # if isinstance(content, unicode):
+            #     content = content.encode('utf8')
+            if isinstance(content, str):
                 content = content.encode('utf8')
 
             with open(path, 'wb') as fp:
@@ -54,8 +56,8 @@ def generate_media():
     with open(GENERATED_MEDIA_NAMES_FILE, 'w') as fp:
         fp.write('NAMES = %r' % utils.NAMES)
 
-    for category, errors in global_errors.iteritems():
+    for category, errors in global_errors.items():
         # logger.warn('Error(s) in "%s"', category)
 
-        for error in errors.itervalues():
-            logger.warn('%s - %s', category, error)
+        for error in errors.values():
+            logger.warning('%s - %s', category, error)

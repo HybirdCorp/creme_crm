@@ -33,11 +33,10 @@ You probably should use 'virtualenv'.
 DEPENDENCIES:
 (exact versions are indicated in the file 'creme/requirements.txt')
     - Core
-        - Python 2.7
+        - Python 3.5+
         - Django 1.11
         - redis 2.10 (ie: the python library, & so you'll need the related server too, of course)
-        - pytz
-        - python-dateutil 1.5
+        - python-dateutil 2.7
         - bleach 2.1
         - Pillow 5
         - django-formtools 2.1

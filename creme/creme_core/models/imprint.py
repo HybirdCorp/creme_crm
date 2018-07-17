@@ -33,7 +33,7 @@ class Imprint(models.Model):  # CremeModel ?
     class Meta:
         app_label = 'creme_core'
 
-    def __unicode__(self):
+    def __str__(self):
         return u'Imprint(date={date}, entity={eid}, user={user})'.format(
                 date=self.date, eid=self.entity.id, user=self.user,
         )

@@ -52,7 +52,7 @@ def _db_grouping_format():
 
 
 # TODO: move to creme_core ?
-class ListViewURLBuilder(object):
+class ListViewURLBuilder:
     def __init__(self, model, filter=None):
         fmt = getattr(model, 'get_lv_absolute_url', None)
 
@@ -71,7 +71,7 @@ class ListViewURLBuilder(object):
         return fmt.format(QSerializer().dumps(Q(**q_filter)) if q_filter is not None else '') if fmt else None
 
 
-class ReportGraphHandRegistry(object):
+class ReportGraphHandRegistry:
     __slots__ = ('_hands', )
 
     def __init__(self):
@@ -100,7 +100,7 @@ class ReportGraphHandRegistry(object):
 RGRAPH_HANDS_MAP = ReportGraphHandRegistry()
 
 
-class ReportGraphYCalculator(object):
+class ReportGraphYCalculator:
     def __init__(self):
         self.error = None
 
@@ -185,7 +185,7 @@ class RGYCCustomField(RGYCAggregation):
         return self._cfield.name
 
 
-class ReportGraphHand(object):
+class ReportGraphHand:
     "Class that computes abscissa & ordinate values of a ReportGraph"
     verbose_name = 'OVERLOADME'
     hand_id = None  # Set by ReportGraphHandRegistry decorator
@@ -307,7 +307,7 @@ class _RGHRegularField(ReportGraphHand):
 
             # TODO: When using extras/sql functions on dates and sqlite, the ORM returns strings instead of datetimes
             # This can probably be fixed/improved when we migrate to Django 1.8, using custom annotation operators.
-            if connection.vendor == 'sqlite' and isinstance(key, basestring):
+            if connection.vendor == 'sqlite' and isinstance(key, str):
                 # date = datetime.strptime(key, '%Y-%m-%d %H:%M:%S')
                 date = datetime.strptime(key, '%Y-%m-%d')  # NB: it seems the string format has changed in django1.6
 
@@ -370,7 +370,7 @@ class RGHYear(_RGHRegularField):
 
 
 # TODO: move to creme_core ??
-class DateInterval(object):
+class DateInterval:
     def __init__(self, begin, end, before=None, after=None):
         self.begin = begin
         self.end = end
@@ -407,7 +407,7 @@ class RGHRange(_RGHRegularField):
         self._fetch_method = self._fetch_with_group_by
         vendor = connection.vendor
         if vendor not in ('sqlite', 'mysql', 'postgresql'):
-            logger.warn('Report graph data optimizations not available with DB vendor "%s",'
+            logger.warning('Report graph data optimizations not available with DB vendor "%s",'
                         ' reverting to slower fallback method.', vendor
                        )
             self._fetch_method = self._fetch_fallback
@@ -508,7 +508,7 @@ class RGHForeignKey(_RGHRegularField):
 
         for instance in related_instances:
             kwargs = {abscissa: instance.id}
-            yield unicode(instance), [y_value_func(entities_filter(**kwargs)), build_url(kwargs)]
+            yield str(instance), [y_value_func(entities_filter(**kwargs)), build_url(kwargs)]
 
 
 @RGRAPH_HANDS_MAP(RGT_RELATION)
@@ -543,7 +543,7 @@ class RGHRelation(ReportGraphHand):
             subj_ids = rel_filter(object_entity=obj_id).order_by('subject_entity__id')\
                                                        .values_list('subject_entity')
 
-            yield (unicode(ce_objects_get(pk=obj_id).get_real_entity()),
+            yield (str(ce_objects_get(pk=obj_id).get_real_entity()),
                    [y_value_func(entities_filter(pk__in=subj_ids)), build_url({'pk__in': [e[0] for e in subj_ids]})],
                   )
 
@@ -608,7 +608,7 @@ class _RGHCustomField(ReportGraphHand):
 
             # TODO: When using extras/sql functions on dates and sqlite, the ORM returns strings instead of datetimes
             # This can probably be fixed/improved when we migrate to Django 1.8, using custom annotation operators.
-            if connection.vendor == 'sqlite' and isinstance(key, basestring):
+            if connection.vendor == 'sqlite' and isinstance(key, str):
                 # date = datetime.strptime(key, '%Y-%m-%d %H:%M:%S')
                 date = datetime.strptime(key, '%Y-%m-%d')
 
@@ -670,7 +670,7 @@ class RGHCustomRange(_RGHCustomField):
         self._fetch_method = self._fetch_with_group_by
         vendor = connection.vendor
         if vendor not in ('sqlite', 'mysql', 'postgresql'):
-            logger.warn('Report graph data optimizations not available with DB vendor "%s",'
+            logger.warning('Report graph data optimizations not available with DB vendor "%s",'
                         ' reverting to slower fallback method.', vendor
                        )
             self._fetch_method = self._fetch_fallback
@@ -763,12 +763,12 @@ class RGHCustomFK(_RGHCustomField):
         for instance in related_instances:
             kwargs = {'customfieldenum__value': instance.id}
 
-            yield unicode(instance), [y_value_func(entities_filter(**kwargs)), build_url(kwargs)]
+            yield str(instance), [y_value_func(entities_filter(**kwargs)), build_url(kwargs)]
 
 
 # TODO: we use a map/registry of GraphFetcher classes, and use it in get_fetcher_from_instance_block()
 #       and in ReportGraph form to build choices.
-class GraphFetcher(object):
+class GraphFetcher:
     """A graph fetcher can fetch the result of a given ReportGraph, with or without
     a volatile link.
     It stores the verbose name of this link (for UI), and an error if the link data
@@ -804,7 +804,7 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
         try:
             field = model._meta.get_field(field_name)
         except FieldDoesNotExist:
-            logger.warn(u'Instance block: invalid field %s.%s in block config.',
+            logger.warning(u'Instance block: invalid field %s.%s in block config.',
                         model.__name__, field_name,
                        )
             self.error = _('The field is invalid.')
@@ -815,7 +815,7 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
                 # self._volatile_model = field.rel.to
                 self._volatile_model = field.remote_field.model
             else:
-                logger.warn('Instance block: field %s.%s in block config is not a FK.',
+                logger.warning('Instance block: field %s.%s in block config is not a FK.',
                             model.__name__, field_name,
                            )
                 self.error = _('The field is invalid (not a foreign key).')
@@ -847,13 +847,13 @@ class RelationLinkedGraphFetcher(GraphFetcher):
         try:
             rtype = RelationType.objects.get(pk=rtype_id)
         except RelationType.DoesNotExist:
-            logger.warn('Instance block: invalid RelationType "%s" in block config.',
+            logger.warning('Instance block: invalid RelationType "%s" in block config.',
                         rtype_id,
                        )
             self.error = _('The relationship type is invalid.')
             self.verbose_volatile_column = '??'
         else:
-            self.verbose_volatile_column = unicode(rtype)
+            self.verbose_volatile_column = str(rtype)
             self._rtype = rtype
 
     def _aux_fetch_4_entity(self, entity, order):

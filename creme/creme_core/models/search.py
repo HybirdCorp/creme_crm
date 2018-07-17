@@ -37,14 +37,14 @@ logger = logging.getLogger(__name__)
 
 
 # TODO: store FieldInfo too/instead (see Searcher + creme_config form)
-class SearchField(object):
+class SearchField:
     __slots__ = ('__name', '__verbose_name')
 
     def __init__(self, field_name, field_verbose_name): 
         self.__name = field_name
         self.__verbose_name = field_verbose_name
 
-    def __unicode__(self):
+    def __str__(self):
         return self.__verbose_name
 
     @property
@@ -78,7 +78,7 @@ class SearchConfigItem(CremeModel):
         app_label = 'creme_core'
         unique_together = ('content_type', 'role', 'superuser')
 
-    def __unicode__(self):
+    def __str__(self):
         if self.superuser:
             return ugettext(u'Search configuration of super-users for «{model}»').format(model=self.content_type)
 
@@ -119,7 +119,7 @@ class SearchConfigItem(CremeModel):
             try:
                 field_info = FieldInfo(model, field_name)
             except FieldDoesNotExist as e:
-                logger.warn('%s => SearchField removed', e)
+                logger.warning('%s => SearchField removed', e)
             else:
                 sfields.append(SearchField(field_name=field_name, field_verbose_name=field_info.verbose_name))
 

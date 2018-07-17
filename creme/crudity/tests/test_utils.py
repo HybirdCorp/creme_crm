@@ -10,7 +10,7 @@ except Exception as e:
 
 class UtilsTestCase(CremeTestCase):
     def test_decode_b64binary01(self):
-        img_blob = "\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x10\x00\x00\x00\x10\x08\x06\x00\x00\x00\x1f\xf3\
+        img_blob = b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x10\x00\x00\x00\x10\x08\x06\x00\x00\x00\x1f\xf3\
 \xffa\x00\x00\x00\x04sBIT\x08\x08\x08\x08|\x08d\x88\x00\x00\x00\tpHYs\x00\x00\x01\xbb\x00\x00\x01\
 \xbb\x01:\xec\xe3\xe2\x00\x00\x00\x19tEXtSoftware\x00www.inkscape.org\x9b\xee<\x1a\x00\x00\x01\xf9IDAT8\
 \x8d\xa5\x93=kTA\x14\x86\xdfw\xce\xcc\xdc\xdd\xec\xcdn\xa2b\x82\x18\x95\x80`c\xa1M\xc0\xc6\x9f \xe2O\xb0\
@@ -29,7 +29,7 @@ class UtilsTestCase(CremeTestCase):
 \xdf\x1c\x19{\xf9V\xbeQ\x01T$.\xd2\xe7\xc8\xa7\x14j~\x06,hJS\xec\xbc\xd8\xe9|\x03\x8fa\xdf\\\xf3\xf4\rH\x00\
 \x00\x00\x00IEND\xaeB`\x82"
 
-        encoded = "x0lGQRQAAAABAAAAAAAAAHwCAAAGAAAAYgAuAHAAbgBnAAAAiVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgI\
+        encoded = b"x0lGQRQAAAABAAAAAAAAAHwCAAAGAAAAYgAuAHAAbgBnAAAAiVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgI\
 fAhkiAAAAAlwSFlzAAABuwAAAbsBOuzj4gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAH5SURBVDiNpZM9a1RBFIbf\
 d87M3N3szW6iYoIYlYBgY6FNwMafIOJPsLCwEm3UQoKFYhk7/4lYGqxtRPAr6kIS3KjZTbIfc+/MsfAjyV5FwYFTnAPnmfc9Z4aqiv85drzQ\
 eJQ9YENOmpaZEsPm7OEZdtvb7dWL6xf+CuAtnjp6eebaKAVLA5SD1Hu9/LYJYvZPCsy+LCErY1QKYK2AgHACgEf6NwsZGmKo4j2gChKCBoAh\
@@ -41,7 +41,7 @@ Th7s2/4l15IFmZZ5Nak1Wgvvbc8vWbFfKIwkyxhir4/+J72jJcd/Ixdpc+QHoo1OS3XipIkIjt8cGXv5
         filename, blob = decode_b64binary(encoded)
         self.assertEqual(img_blob, blob)
 
-        encoded_utf8_name = "x0lGQRQAAAABAAAAAAAAAHwCAAANAAAAcgDpAGcAZwDgAOgA6wB4AS4AcABuAGcAAACJUE5HDQoaCgAAAA1JSERSAAAAEAAAABAIBgAAAB/z/2\
+        encoded_utf8_name = b"x0lGQRQAAAABAAAAAAAAAHwCAAANAAAAcgDpAGcAZwDgAOgA6wB4AS4AcABuAGcAAACJUE5HDQoaCgAAAA1JSERSAAAAEAAAABAIBgAAAB/z/2\
 EAAAAEc0JJVAgICAh8CGSIAAAACXBIWXMAAAG7AAABuwE67OPiAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAflJREFU\
 OI2lkz1rVEEUht93zszc3ezNbqJighiVgGBjoU3Axp8g4k+wsLASbdRCgoViGTv/iVgarG1E8CvqQhLcqNlNsh9z78yx8CPJXkXBgVOcA+eZ9z\
 1nhqqK/zl2vNB4lD1gQ06alpkSw+bs4Rl229vt1YvrF/4K4C2eOnp55tooBUsDlIPUe738tgli9k8KzL4sIStjVApgrYCAcAKAR/o3CxkaYqji\

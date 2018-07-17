@@ -24,8 +24,6 @@
 #
 ################################################################################
 
-from future_builtins import map
-
 from decimal import Decimal
 from json import dumps as json_dump
 import logging
@@ -75,7 +73,7 @@ def build_ct_choices(ctypes):
     @return: A list of tuples.
     """
     from .unicode_collation import collator
-    choices = [(ct.id, unicode(ct)) for ct in ctypes]
+    choices = [(ct.id, str(ct)) for ct in ctypes]
 
     sort_key = collator.sort_key
     choices.sort(key=lambda k: sort_key(k[1]))
@@ -97,7 +95,7 @@ def update_model_instance(obj, **fields):
     """Update the field values of an instance, and save it only if it has changed."""
     save = False
 
-    for f_name, f_value in fields.iteritems():
+    for f_name, f_value in fields.items():
         if getattr(obj, f_name) != f_value:
             setattr(obj, f_name, f_value)
             save = True
@@ -163,17 +161,17 @@ def jsonify(func):
         try:
             rendered = func(*args, **kwargs)
         except Http404 as e:
-            msg = unicode(e)
+            msg = str(e)
             status = 404
         except PermissionDenied as e:
-            msg = unicode(e)
+            msg = str(e)
             status = 403
         except ConflictError as e:
-            msg = unicode(e)
+            msg = str(e)
             status = 409
         except Exception as e:
             logger.exception('Exception in @jsonify(%s)', func.__name__)
-            msg = unicode(e)
+            msg = str(e)
             status = 400
         else:
             msg = json_dump(rendered, default=decimal_serializer)
@@ -321,10 +319,10 @@ def truncate_str(str, max_length, suffix=''):
     """Truncate a suffixed string to a maximum length ; priority is given to keep the whole suffix,
      excepted when this one is too long.
 
-    @param str: The original string (a basestring instance).
+    @param str: The original string (a str instance).
     @param max_length: The maximum length (integer).
-    @param suffix: A basestring instance.
-    @return: The truncated string (a basestring instance).
+    @param suffix: A str instance.
+    @return: The truncated string (a str instance).
 
     >> truncate_str('my_entity_with_a_long_name', 24, suffix='#2')
     'my_entity_with_a_long_#2'
@@ -357,9 +355,9 @@ def ellipsis_multi(strings, length):
     """Return (potentially) shorter strings in order to the global length does not exceed a given value.
     Strings are shorten in a way which tends to make them of the same length.
 
-    @param strings: Iterable of basestring instances.
+    @param strings: Iterable of str instances.
     @param length: Global (maximum) length (ie: integer).
-    @return: A list of basestring instances.
+    @return: A list of str instances.
 
     >> ellipsis_multi(['123456', '12', '12'], 9)
     [u'1234…', '12', '12']
@@ -367,7 +365,7 @@ def ellipsis_multi(strings, length):
     str_2_truncate = [[len(s), s] for s in strings]
     total_len = sum(elt[0] for elt in str_2_truncate)
 
-    for i in xrange(max(0, total_len - length)):
+    for i in range(max(0, total_len - length)):
         max_idx = -1
         max_value = -1
 
@@ -385,10 +383,10 @@ def prefixed_truncate(s, prefix, length):
     """Truncates a string if it is too long ; when a truncation is done, the given prefix is added.
     The length of the result is always lesser or equal than the given length.
 
-    @param s: A basestring instance.
+    @param s: A str instance.
     @param prefix: An object which can be "stringified" ; eg: a string, a ugettext_lazy instance.
     @param length: An integer.
-    @return: A basestring.
+    @return: A str.
     """
     if len(s) <= length:
         return s
@@ -400,37 +398,52 @@ def prefixed_truncate(s, prefix, length):
     return prefix + s[:rem_len]
 
 
+# TODO: deprecate ? keep only the 'bytes' part ?
 def safe_unicode(value, encodings=None):
-    if isinstance(value, unicode):
+    # if isinstance(value, unicode):
+    #     return value
+    #
+    # if not isinstance(value, basestring):
+    #     value = value.__unicode__() if hasattr(value, '__unicode__') else repr(value)
+    #     return safe_unicode(value, encodings)
+    #
+    # encodings = encodings or ('utf-8', 'cp1252', 'iso-8859-1',)
+    #
+    # for encoding in encodings:
+    #     try:
+    #         return str(value, encoding=encoding)
+    #     except Exception:
+    #         continue
+    #
+    # return str(value, encoding='utf-8', errors='replace')
+
+    if isinstance(value, str):
         return value
 
-    if not isinstance(value, basestring):
-        value = value.__unicode__() if hasattr(value, '__unicode__') else repr(value)
-        return safe_unicode(value, encodings)
+    if isinstance(value, bytes):
+        for encoding in (encodings or ('utf-8', 'cp1252', 'iso-8859-1')):
+            try:
+                return value.decode(encoding=encoding)
+            except UnicodeDecodeError:
+                continue
 
-    encodings = encodings or ('utf-8', 'cp1252', 'iso-8859-1',)
+        return value.decode(encoding='utf-8', errors='replace')
 
-    for encoding in encodings:
-        try:
-            return unicode(value, encoding=encoding)
-        except Exception:
-            continue
-
-    return unicode(value, encoding='utf-8', errors='replace')
+    return str(value)
 
 
-def safe_unicode_error(err, encodings=None):
-    # Is this method deprecated for python 3.* (but str/unicode conversions won't be useful at all) ??
-    try:
-        return unicode(err)
-    except:
-        pass
-
-    # TODO: keep this deprecated method until migration to python 3.*,
-    #       because some old APIs may use it in python 2.*
-    msg = err.message
-
-    return safe_unicode(msg, encodings)
+# def safe_unicode_error(err, encodings=None):
+#     # Is this method deprecated for python 3.* (but str/unicode conversions won't be useful at all) ??
+#     try:
+#         return str(err)
+#     except:
+#         pass
+#
+#     # todo: keep this deprecated method until migration to python 3.*,
+#     #       because some old APIs may use it in python 2.*
+#     msg = err.message
+#
+#     return safe_unicode(msg, encodings)
 
 
 def log_traceback(logger, limit=10):  # TODO: use traceback.format_exc() ?

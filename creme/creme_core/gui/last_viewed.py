@@ -28,7 +28,7 @@ from creme.creme_core.utils.dates import dt_from_ISO8601, dt_to_ISO8601
 logger = logging.getLogger(__name__)
 
 
-class LastViewedItem(object):
+class LastViewedItem:
     def __init__ (self, request, entity):
         self.pk = entity.pk
         self.url = entity.get_absolute_url()
@@ -61,7 +61,7 @@ class LastViewedItem(object):
         return instance
 
     def update(self, entity):
-        self.name = unicode(entity)
+        self.name = str(entity)
         self.modified = entity.modified
 
     def __add(self, request):

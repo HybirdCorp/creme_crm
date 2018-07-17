@@ -186,7 +186,7 @@ def _uninstall_entity_filters(sender, content_types, stdout_write, style, **kwar
                                     name=efilter.name,
                                     id=efilter.id,
                                     parents=u', '.join(u'<"{}" (id="{}")>'.format(p.name, p.id)
-                                                  for p in parents.itervalues()
+                                                  for p in parents.values()
                                              ),
                                 ),
                              style.NOTICE
@@ -212,7 +212,7 @@ def _uninstall_user_setting_values(sender, **kwargs):
         new_d = {}
         save = False
 
-        for k, v in d.iteritems():
+        for k, v in d.items():
             if k.startswith(prefix):
                 save = True
             else:
@@ -625,7 +625,7 @@ def ordered_models_to_delete(app_config, connection):
 
     from creme.creme_core.utils.dependence_sort import dependence_sort, DependenciesLoopError
 
-    class ModelInfo(object):
+    class ModelInfo:
         # def __init__(self, model, dependencies, sql_cmd):
         def __init__(self, model, dependencies):
             self.model = model

@@ -30,7 +30,7 @@ from ..models import Job, JobResult
 logger = logging.getLogger(__name__)
 
 
-class JobProgress(object):
+class JobProgress:
     template_name = 'creme_core/job/progress.html'
 
     def __init__(self, percentage, label=''):
@@ -58,7 +58,7 @@ class JobProgress(object):
         return get_template(template).render({'progress': self}) if template else ''
 
 
-class JobType(object):
+class JobType:
     """Each Job (see creme_core.models.Job) has a type, which contains the real
     code to execute, & some meta-data :
         - verbose_name: is used in the Job views, in order to have a user-friendly display.
@@ -81,8 +81,8 @@ class JobType(object):
     class Error(Exception):
         pass
 
-    def __unicode__(self):
-        return unicode(self.verbose_name)
+    def __str__(self):
+        return str(self.verbose_name)
 
     def _execute(self, job):
         "TO BE OVERLOADED BY CHILD CLASSES"
@@ -112,7 +112,7 @@ class JobType(object):
             logger.exception(e)
 
             job.status = Job.STATUS_ERROR
-            job.error = unicode(e)
+            job.error = str(e)
         else:
             job.status = Job.STATUS_OK
             job.error = None

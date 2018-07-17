@@ -221,7 +221,7 @@ class PaymentInformationTestCase(_BillingTestCase):
         self.assertGET200(url)
 
         name = pi.name + ' (default)'
-        response = self.client.post(url, data={'entities_lbl': [unicode(pi)],
+        response = self.client.post(url, data={'entities_lbl': [str(pi)],
                                                'field_value':  name,
                                               }
                                    )

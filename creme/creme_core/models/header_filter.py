@@ -96,7 +96,7 @@ class HeaderFilter(Model):  # CremeModel ???
         if self.json_cells is None:
             self.cells = []
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def can_delete(self, user):
@@ -197,7 +197,7 @@ class HeaderFilter(Model):  # CremeModel ???
                                                             )
 
             if errors:
-                logger.warn('HeaderFilter (id="%s") is saved with valid cells.', self.id)
+                logger.warning('HeaderFilter (id="%s") is saved with valid cells.', self.id)
                 self._dump_cells(cells)
                 self.save()
 
@@ -245,5 +245,5 @@ class HeaderFilter(Model):  # CremeModel ???
         for cell in self.cells:
             cell_groups[cell.__class__].append(cell)
 
-        for cell_cls, cell_group in cell_groups.iteritems():
+        for cell_cls, cell_group in cell_groups.items():
             cell_cls.populate_entities(cell_group, entities, user)

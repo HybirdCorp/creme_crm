@@ -95,7 +95,7 @@ class Command(BaseCommand):
 
         problems_count = 0
 
-        for msgid, entries in entries_per_id.iteritems():
+        for msgid, entries in entries_per_id.items():
             if len(entries) > 1:
                 entries_per_msg = defaultdict(list)
 
@@ -108,7 +108,7 @@ class Command(BaseCommand):
                 if len(entries_per_msg) == 1:
                     if not_diverging:
                         # msg_entries = entries_per_msg.itervalues().next()
-                        msg_entries = next(entries_per_msg.itervalues())
+                        msg_entries = next(entries_per_msg.values())
                         self.stdout.write('\n[duplicates] ({}) in {}'.format(
                                                 msgid,
                                                 [entry.file_path for entry in msg_entries],
@@ -117,15 +117,9 @@ class Command(BaseCommand):
 
                         problems_count += 1
                 else:
-                    # cxt_conflict = bool(reduce(lambda s1, s2: s1 & s2,
-                    #                            ({entry.msgctxt for entry in msg_entries}
-                    #                                 for msg_entries in entries_per_msg.itervalues()
-                    #                            )
-                    #                           )
-                    #                    )
                     ctn = Counter()
 
-                    for msg_entries in entries_per_msg.itervalues():
+                    for msg_entries in entries_per_msg.values():
                         for ctxt in {entry.msgctxt for entry in msg_entries}:
                             ctn[ctxt] += 1
 
@@ -133,14 +127,14 @@ class Command(BaseCommand):
 
                     if not cxt_conflict and no_context:
                         cxt_conflict = any(entry.msgctxt is None
-                                               for msg_entries in entries_per_msg.itervalues()
+                                               for msg_entries in entries_per_msg.values()
                                                    for entry in msg_entries
                                           )
 
                     if cxt_conflict:
                         self.stdout.write('\n[diverging]\n ({}) in :'.format(msgid))
 
-                        for msgstr, msg_entries in entries_per_msg.iteritems():
+                        for msgstr, msg_entries in entries_per_msg.items():
                             self.stdout.write('    ({}) in: {}'.format(
                                                     msgstr,
                                                     ', '.join('(file={}, cxt={})'.format(

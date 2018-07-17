@@ -60,7 +60,7 @@ class AbstractRecurrentGenerator(CremeEntity):
         self._old_periodicity = self.periodicity
         # TODO: is_working when it is used
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):

@@ -23,7 +23,8 @@
 from django.db.models.base import Model
 from django.http.response import JsonResponse  # HttpResponse
 # from django.utils.http import PROTOCOL_TO_PORT
-from django.utils.six.moves.urllib.parse import urlparse
+# from django.utils.six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 
 
 # NB: old django.utils.http.PROTOCOL_TO_PORT
@@ -58,7 +59,7 @@ def json_update_from_widget_response(instance):
     if isinstance(instance, Model):
         data = {
             'value': instance.id,
-            'added': [(instance.id, unicode(instance))]
+            'added': [(instance.id, str(instance))]
         }
     else:
         data = instance

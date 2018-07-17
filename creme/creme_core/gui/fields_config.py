@@ -24,7 +24,7 @@ from collections import defaultdict
 from django.apps import apps
 
 
-class FieldsConfigRegistry(object):
+class FieldsConfigRegistry:
     """Register the fields of other apps which are required."""
     def __init__(self):
         # Structure: [model][field_name] -> set of app_labels

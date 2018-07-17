@@ -76,22 +76,27 @@ def lw_exceptions(view):
     "Lightweight exceptions handling (templates are not the legacy ones)."
     @wraps(view)
     def _aux(request, *args, **kwargs):
+        error = None
+
         try:
             return view(request, *args, **kwargs)
         except PermissionDenied as e:
             status = 403
+            error = e
             msg = _(u'You do not have access to this page, please contact your administrator.')
         except Http404 as e:
             status = 404
+            error = e
             msg = _(u'The page you have requested is not found.')
         except ConflictError as e:
             status = 409
+            error = e
             msg = _(u'You can not perform this action because of business constraints.')
 
         return render(request, 'mobile/error.html',
                       {'status':    status,
                        'msg':       msg,
-                       'exception': smart_text(e),
+                       'exception': smart_text(error),
                       },
                       status=status,
                      )
@@ -109,17 +114,17 @@ def lw_ajax_exceptions(view):
             # content = view(*args, **kwargs)
             return view(*args, **kwargs)
         except Http404 as e:
-            content = unicode(e)
+            content = str(e)
             status = 404
         except PermissionDenied as e:
-            content = unicode(e)
+            content = str(e)
             status = 403
         except ConflictError as e:
-            content = unicode(e)
+            content = str(e)
             status = 409
         except Exception as e:
             logger.exception('Exception in @lw_ajax_exceptions(%s)', view.__name__)
-            content = unicode(e)
+            content = str(e)
             status = 400
 
         return HttpResponse(content, status=status)
@@ -169,7 +174,7 @@ def portal(request):
                                       if a.floating_type == act_constants.NARROW
                                  )
     shortcuts_map = [(hour, hour in used_worked_hours)
-                        for hour in xrange(WORKED_HOURS[0], WORKED_HOURS[1] + 1)
+                        for hour in range(WORKED_HOURS[0], WORKED_HOURS[1] + 1)
                     ]
 
     return render(request, 'mobile/index.html',

@@ -29,7 +29,7 @@ try:
             CustomFieldEnum, CustomFieldMultiEnum, CustomFieldEnumValue,
             FakeContact, FakeOrganisation, FakePosition, FakeSector,
             FakeAddress, FakeImage, FakeImageCategory)
-    from creme.creme_core.utils import safe_unicode
+    # from creme.creme_core.utils import safe_unicode
 
     from creme.creme_config.models import FakeConfigEntity
 except Exception as e:
@@ -63,13 +63,13 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         response = self.assertGET200(url, data={'fields': ['unicode']})
         # self.assertEqual([[unicode(rei)]], load_json(response.content))
-        self.assertEqual([[unicode(rei)]], response.json())
+        self.assertEqual([[str(rei)]], response.json())
 
         response = self.assertGET200(reverse('creme_core__entity_as_json', args=(nerv.id,)),
                                      data={'fields': ['id', 'unicode']}
                                     )
         # self.assertEqual([[nerv.id, unicode(nerv)]], load_json(response.content))
-        self.assertEqual([[nerv.id, unicode(nerv)]], response.json())
+        self.assertEqual([[nerv.id, str(nerv)]], response.json())
 
         self.assertGET(400, reverse('creme_core__entity_as_json', args=(1024,)))
         self.assertGET403(url, data={'fields': ['id', 'unknown']})
@@ -95,7 +95,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(reverse('creme_core__entity_as_json', args=(e.id,)),
                                      data={'fields': ['unicode']},
                                     )
-        self.assertEqual([[unicode(e)]], response.json())
+        self.assertEqual([[str(e)]], response.json())
 
     def test_get_creme_entities_repr01(self):
         user = self.login()
@@ -137,9 +137,9 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                                     )
 
         self.assertEqual([{'id': mari.id,  'text': _(u'Entity #{id} (not viewable)').format(id=mari.id)},
-                          {'id': rei.id,   'text': unicode(rei)},
-                          {'id': nerv.id,  'text': unicode(nerv)},
-                          {'id': asuka.id, 'text': unicode(asuka)},
+                          {'id': rei.id,   'text': str(rei)},
+                          {'id': nerv.id,  'text': str(nerv)},
+                          {'id': asuka.id, 'text': str(asuka)},
                          ],
                          response.json()
                         )
@@ -165,7 +165,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         edit_url = entity.get_edit_absolute_url()
 
         response = self.assertGET200(absolute_url)
-        self.assertContains(response, unicode(entity))
+        self.assertContains(response, str(entity))
         self.assertContains(response, edit_url)
 
         url = self._build_delete_url(entity)
@@ -180,7 +180,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertGET403(edit_url)
 
         response = self.assertGET200(absolute_url)
-        self.assertContains(response, unicode(entity))
+        self.assertContains(response, str(entity))
         self.assertNotContains(response, edit_url)
 
     def test_delete_entity02(self):
@@ -290,14 +290,15 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         user = self.login()
 
         create_entity = partial(CremeEntity.objects.create, user=user)
-        entity01, entity02 = (create_entity() for i in xrange(2))
-        entity03, entity04 = (create_entity(is_deleted=True) for i in xrange(2))
+        entity01, entity02 = (create_entity() for i in range(2))
+        entity03, entity04 = (create_entity(is_deleted=True) for i in range(2))
 
         response = self.assertPOST200(self.DEL_ENTITIES_URL,
                                       data={'ids': '{},{},{}'.format(entity01.id, entity02.id, entity03.id)},
                                      )
 
-        self.assertEqual(safe_unicode(response.content), _(u'Operation successfully completed'))
+        # self.assertEqual(safe_unicode(response.content), _(u'Operation successfully completed'))
+        self.assertEqual(response.content.decode(), _(u'Operation successfully completed'))
 
         entity01 = self.get_object_or_fail(CremeEntity, pk=entity01.id)
         self.assertTrue(entity01.is_deleted)
@@ -313,7 +314,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         user = self.login()
 
         create_entity = partial(CremeEntity.objects.create, user=user)
-        entity01, entity02 = (create_entity() for i in xrange(2))
+        entity01, entity02 = (create_entity() for i in range(2))
 
         response = self.assertPOST404(self.DEL_ENTITIES_URL,
                                       data={'ids': '{},{},'.format(entity01.id, entity02.id + 1)},
@@ -1879,7 +1880,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertGET200(url)
 
         first_name = 'Luigi'
-        response = self.client.post(url, data={'entities_lbl': [unicode(mario)],
+        response = self.client.post(url, data={'entities_lbl': [str(mario)],
                                                'field_value': first_name,
                                               }
                                    )

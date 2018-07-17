@@ -139,7 +139,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                                          },
                                      ))[0]
         self.assertEqual(err.messages[0],
-                         unicode([_(u'Select a valid choice. That choice is not one of the available choices.')])
+                         str([_(u'Select a valid choice. That choice is not one of the available choices.')])
                         )
 
     def test_clean_invalid_many2many_id(self):
@@ -152,7 +152,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                                          }
                                      ))[0]
         self.assertEqual(err.messages[0],
-                         unicode([_('Select a valid choice. %(value)s is not one of the available choices.') % {'value': 12445}])
+                         str([_('Select a valid choice. %(value)s is not one of the available choices.') % {'value': 12445}])
                         )
 
     def test_iequals_condition(self):
@@ -1115,7 +1115,7 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
                            'operator': {'id': EQUALS,
                                         'types': self._get_allowed_types(EQUALS),
                                        },
-                           'value': unicode(self.cfield_enum_A.id),
+                           'value': str(self.cfield_enum_A.id),
                           }
                          ], data)
 
@@ -1184,7 +1184,7 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(str(self.cfield_int.id), condition.name)
         self.assertEqual({'operator': operator,
                           'rname': 'customfieldinteger',
-                          'value': [unicode(value)],
+                          'value': [str(value)],
                          },
                          condition.decoded_value
                         )
@@ -1209,7 +1209,7 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(str(self.cfield_int.id), condition.name)
         self.assertEqual({'operator': operator,
                           'rname': 'customfieldinteger',
-                          'value': [unicode(value)],
+                          'value': [str(value)],
                          },
                          condition.decoded_value
                         )

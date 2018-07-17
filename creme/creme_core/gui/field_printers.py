@@ -73,7 +73,7 @@ def simple_print_html(entity, fval, user, field):
 
 
 def simple_print_csv(entity, fval, user, field):
-    return unicode(fval) if fval is not None else ""
+    return str(fval) if fval is not None else ""
 
 
 def print_color_html(entity, fval, user, field):
@@ -140,7 +140,7 @@ def print_date(entity, fval, user, field):
     return date_format(fval, 'DATE_FORMAT') if fval else ''
 
 
-class FKPrinter(object):
+class FKPrinter:
     @staticmethod
     def print_fk_null_html(entity, user, field):
         null_label = field.get_null_label()
@@ -172,12 +172,12 @@ print_foreignkey_html = FKPrinter(none_printer=FKPrinter.print_fk_null_html,
 def print_foreignkey_csv(entity, fval, user, field):
     if isinstance(fval, CremeEntity):
         # TODO: change allowed unicode ??
-        return unicode(fval) if user.has_perm_to_view(fval) else settings.HIDDEN_VALUE
+        return str(fval) if user.has_perm_to_view(fval) else settings.HIDDEN_VALUE
 
-    return unicode(fval) if fval else u''
+    return str(fval) if fval else u''
 
 
-class M2MPrinter(object):
+class M2MPrinter:
     @staticmethod
     def enumerator_all(entity, fval, user, field):
         return fval.all()
@@ -227,12 +227,12 @@ print_many2many_html = M2MPrinter(default_printer=M2MPrinter.printer_html,
 def print_many2many_csv(entity, fval, user, field):
     if issubclass(fval.model, CremeEntity):
         # TODO: CSV summary ?? [e.get_entity_m2m_summary(user)]
-        return u'/'.join(unicode(e) if user.has_perm_to_view(e)
+        return u'/'.join(str(e) if user.has_perm_to_view(e)
                          else settings.HIDDEN_VALUE
                             for e in fval.filter(is_deleted=False)
                         )
 
-    return u'/'.join(unicode(a) for a in fval.all())
+    return u'/'.join(str(a) for a in fval.all())
 
 
 def print_duration(entity, fval, user, field):
@@ -268,7 +268,7 @@ def print_unsafehtml_html(entity, fval, user, field):
 
 
 # TODO: Do more specific fields (i.e: currency field....) ?
-class _FieldPrintersRegistry(object):
+class _FieldPrintersRegistry:
     def __init__(self):
         self._printers = ClassKeyedMap([
                     (models.IntegerField,       print_integer),

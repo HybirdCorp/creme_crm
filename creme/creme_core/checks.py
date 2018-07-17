@@ -26,7 +26,7 @@ from django.db.utils import DatabaseError
 # from .models import CremeEntity
 
 
-class Tags(object):
+class Tags:
     settings = 'settings'
     api_breaking = 'api_breaking'
     deprecation = 'deprecation'

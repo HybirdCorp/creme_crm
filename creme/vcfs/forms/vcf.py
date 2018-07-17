@@ -23,8 +23,9 @@ from itertools import chain
 import logging
 # import os
 from os import path
-from urllib import urlretrieve
-from urllib2 import urlopen
+# from urllib import urlretrieve
+# from urllib2 import urlopen
+from urllib.request import urlopen, urlretrieve
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -65,6 +66,9 @@ Address = get_address_model()
 URL_START = ('http://', 'https://', 'www.')
 IMG_UPLOAD_PATH = Document._meta.get_field('filedata').upload_to
 
+HOME_ADDR_PREFIX = 'homeaddr_'
+WORK_ADDR_PREFIX = 'workaddr_'
+
 
 class VcfForm(CremeForm):
     vcf_step = IntegerField(widget=HiddenInput)
@@ -79,6 +83,7 @@ class VcfForm(CremeForm):
         try:
             vcf_data = read_vcf(file_obj)
         except Exception as e:
+            logger.exception('VcfForm -> error when reading file')
             raise ValidationError(self.error_messages['invalid_file'],
                                   params={'error': e}, code='invalid_file',
                                  )
@@ -177,8 +182,8 @@ class VcfImportForm(CremeModelWithUserForm):
                }
 
     # Form-field names prefix for address + correspondence with VCF field types.
-    HOME_ADDR_PREFIX = 'homeaddr_'
-    WORK_ADDR_PREFIX = 'workaddr_'
+    # HOME_ADDR_PREFIX = 'homeaddr_'
+    # WORK_ADDR_PREFIX = 'workaddr_'
     address_prefixes = {'HOME': HOME_ADDR_PREFIX,
                         'WORK': WORK_ADDR_PREFIX,
                        }
@@ -236,20 +241,23 @@ class VcfImportForm(CremeModelWithUserForm):
 
         # TODO: use shipping address if not hidden ?
         if fconfigs[Contact].is_fieldname_hidden('billing_address'):
-            prefix = self.HOME_ADDR_PREFIX
+            # prefix = self.HOME_ADDR_PREFIX
+            prefix = HOME_ADDR_PREFIX
 
             for form_fname, __ in address_mapping:
                 del fields[prefix + form_fname]
 
         is_orga_field_hidden = fconfigs[Organisation].is_fieldname_hidden
-        for fname in fields:
+        # for fname in fields:
+        for fname in list(fields):  # NB: Cannot mutate the OrderedDict during iteration.
             # NB: 5 == len('work_')
             if fname.startswith('work_') and is_orga_field_hidden(fname[5:]):
                 del fields[fname]
                 del fields['update_' + fname]
 
         if is_orga_field_hidden('billing_address'):
-            prefix = self.WORK_ADDR_PREFIX
+            # prefix = self.WORK_ADDR_PREFIX
+            prefix = WORK_ADDR_PREFIX
 
             for form_fname, __ in address_mapping:
                 del fields[prefix + form_fname]
@@ -476,7 +484,8 @@ class VcfImportForm(CremeModelWithUserForm):
             else:  # TODO: manage urls encoded in base64 ??
                 try:
                     # TODO: factorise with activesync ??
-                    img_data = base64.decodestring(image_encoded)
+                    # img_data = base64.decodestring(image_encoded)
+                    img_data = base64.decodebytes(image_encoded.encode())
                     img_path = handle_uploaded_file(ContentFile(img_data),
                                                     path=IMG_UPLOAD_PATH.split('/'),
                                                     name='{}.{}'.format(img_name,
@@ -503,7 +512,8 @@ class VcfImportForm(CremeModelWithUserForm):
             organisation = get_data('organisation')
             save_orga    = False
             user         = cleaned_data['user']
-            addr_prefix  = self.WORK_ADDR_PREFIX
+            # addr_prefix  = self.WORK_ADDR_PREFIX
+            addr_prefix  = WORK_ADDR_PREFIX
 
             if organisation:
                 for fname in self.orga_fields:
@@ -565,7 +575,8 @@ class VcfImportForm(CremeModelWithUserForm):
             save_contact = True
 
         contact_addr = self._create_address(cleaned_data, owner=contact,
-                                            data_prefix=self.HOME_ADDR_PREFIX,
+                                            # data_prefix=self.HOME_ADDR_PREFIX,
+                                            data_prefix=HOME_ADDR_PREFIX,
                                            )
         if contact_addr is not None:
             contact.billing_address = contact_addr

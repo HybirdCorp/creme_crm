@@ -46,8 +46,8 @@ class RelationViewsTestCase(ViewsTestCase):
         get_ct = ContentType.objects.get_for_model
         self.assertIsInstance(json_data, list)
         self.assertEqual(2, len(json_data))
-        self.assertIn([get_ct(FakeContact).id, unicode(FakeContact._meta.verbose_name)], json_data)
-        self.assertIn([get_ct(FakeOrganisation).id, unicode(FakeOrganisation._meta.verbose_name)], json_data)
+        self.assertIn([get_ct(FakeContact).id, str(FakeContact._meta.verbose_name)], json_data)
+        self.assertIn([get_ct(FakeOrganisation).id, str(FakeOrganisation._meta.verbose_name)], json_data)
 
     def test_get_ctypes_of_relation02(self):
         self.login()
@@ -81,8 +81,8 @@ class RelationViewsTestCase(ViewsTestCase):
                                           },
                                     )
 
-        c_vname = unicode(FakeContact._meta.verbose_name)
-        i_vname = unicode(FakeImage._meta.verbose_name)
+        c_vname = str(FakeContact._meta.verbose_name)
+        i_vname = str(FakeImage._meta.verbose_name)
         get_ct = ContentType.objects.get_for_model
 
         expected = [[get_ct(FakeContact).id, c_vname]]
@@ -263,7 +263,7 @@ class RelationViewsTestCase(ViewsTestCase):
                              _(u'«%(subject)s» must have a property in «%(properties)s» '
                                u'in order to use the relationship «%(predicate)s»') % {
                                     'subject':    subject,
-                                    'properties': '{}/{}'.format(ptype01, ptype03),
+                                    'properties': '{}/{}'.format(ptype03, ptype01),
                                     'predicate':  rtype03.predicate,
                                 }
                             )
@@ -626,7 +626,7 @@ class RelationViewsTestCase(ViewsTestCase):
         with self.assertNoException():
             label = response.context['form'].fields['bad_entities_lbl']
 
-        self.assertEqual(unicode(unlinkable), label.initial)
+        self.assertEqual(str(unlinkable), label.initial)
 
     def test_add_relations_bulk04(self):
         self._aux_test_add_relations(is_superuser=False)
@@ -1481,7 +1481,7 @@ class RelationViewsTestCase(ViewsTestCase):
         response = self.assertGET200(self._build_predicates_json_url(nerv),
                                      data={'fields': ['id', 'unicode']}
                                     )
-        self.assertIn([rtype3.id, unicode(rtype3)],
+        self.assertIn([rtype3.id, str(rtype3)],
                       response.json()
                      )
 

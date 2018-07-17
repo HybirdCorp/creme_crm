@@ -64,7 +64,7 @@ def as_int(value, default=0):
         return default
 
 
-class RelatedExtractor(object):
+class RelatedExtractor:
     def __init__(self, create_if_unfound=False):
         self._create = create_if_unfound
 
@@ -281,8 +281,8 @@ class ParticipantsExtractorWidget(BaseExtractorWidget):
                                                                     selected_key='pattern_column_index',
                                                                    )
 
-        widget_cxt['pattern_select'] = Select(choices=[(pattern_id, unicode(pattern.verbose_name))
-                                                           for pattern_id, pattern in _PATTERNS.iteritems()
+        widget_cxt['pattern_select'] = Select(choices=[(pattern_id, str(pattern.verbose_name))
+                                                           for pattern_id, pattern in _PATTERNS.items()
                                                       ],
                                              ).get_context(name='{}_pattern'.format(name),
                                                            value=value.get('pattern_id'),
@@ -592,7 +592,10 @@ def get_massimport_form_builder(header_dict, choices):
             end = instance.end
 
             if start:
-                if not start.time() and (not end or not end.time()):
+                null_time = time(0)
+
+                # if not start.time() and (not end or not end.time()):
+                if start.time() == null_time and (not end or end.time() == null_time):
                     instance.end = make_aware_dt(datetime.combine(start, time(hour=23, minute=59)))
                     instance.floating_type = constants.FLOATING_TIME
                 elif not end:

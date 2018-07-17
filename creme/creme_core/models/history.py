@@ -87,7 +87,7 @@ class _JSONEncoder(JSONEncoder):
     def default(self, o):
         # TODO: remove when json standard lib handles Decimal
         if isinstance(o, Decimal):
-            return unicode(o)
+            return str(o)
 
         if isinstance(o, datetime):
             # return dt_to_ISO8601(make_naive(o, timezone=utc))
@@ -130,7 +130,7 @@ def _fk_printer(field, val, user):
         if isinstance(out, CremeEntity):
             out = out.allowed_unicode(user)
 
-    return unicode(out)
+    return str(out)
 
 # TODO: ClassKeyedMap ?
 _PRINTERS = {
@@ -152,7 +152,7 @@ _PRINTERS = {
     }
 
 
-class _HistoryLineTypeRegistry(object):
+class _HistoryLineTypeRegistry:
     __slots__ = ('_hltypes', )
 
     def __init__(self):
@@ -172,7 +172,7 @@ class _HistoryLineTypeRegistry(object):
         return self._hltypes[i]
 
     def __iter__(self):
-        return self._hltypes.itervalues()
+        return iter(self._hltypes.values())
 
 
 TYPES_MAP = _HistoryLineTypeRegistry()
@@ -193,7 +193,7 @@ TYPE_PROP_DEL     = 13
 TYPE_EXPORT       = 20
 
 
-class _HistoryLineType(object):
+class _HistoryLineType:
     type_id           = None  # Overload with TYPE_*
     verbose_name      = u'OVERLOAD ME'
     has_related_line  = False
@@ -461,7 +461,7 @@ class _HLTAuxCreation(_HistoryLineType):
 
     @staticmethod
     def _build_modifs(related):
-        return [_get_ct(related).id, related.pk, unicode(related)]
+        return [_get_ct(related).id, related.pk, str(related)]
 
     @classmethod
     def create_line(cls, related):
@@ -516,7 +516,7 @@ class _HLTAuxDeletion(_HLTAuxCreation):
 
     @staticmethod
     def _build_modifs(related):
-        return [_get_ct(related).id, unicode(related)]
+        return [_get_ct(related).id, str(related)]
 
     def verbose_modifications(self, modifications, entity_ctype, user):
         ct_id, str_obj = modifications
@@ -598,7 +598,7 @@ class HistoryLine(Model):
                     value=self.value,
                 )
 
-    def __unicode__(self):
+    def __str__(self):
         return repr(self)
 
     @staticmethod
@@ -669,7 +669,7 @@ class HistoryLine(Model):
     # def _encode_attrs(instance, modifs=(), related_line_id=None):
     @classmethod
     def _encode_attrs(cls, instance, modifs=(), related_line_id=None):
-        value = [unicode(instance)]
+        value = [str(instance)]
         if related_line_id:
             value.append(related_line_id)
 
@@ -678,7 +678,7 @@ class HistoryLine(Model):
         try:
             attrs = encode(value + list(modifs))
         except TypeError as e:
-            logger.warn('HistoryLine._encode_attrs(): %s', e)
+            logger.warning('HistoryLine._encode_attrs(): %s', e)
             attrs = encode(value)
 
         return attrs

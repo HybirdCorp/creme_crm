@@ -8,7 +8,7 @@ from mediagenerator.utils import load_backend, find_file, read_text_file
 from .settings import DEFAULT_MEDIA_FILTERS
 
 
-class Filter(object):
+class Filter:
     takes_input = True
 
     def __init__(self, **kwargs):

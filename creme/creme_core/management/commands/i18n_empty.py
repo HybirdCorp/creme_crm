@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2017 Hybird
+# Copyright (c) 2017-2018 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 
-class _POFileInfo(object):
+class _POFileInfo:
     __slots__ = ('app_label', 'file_path', 'pofile')
 
     def __init__(self, app_label, file_path, pofile):
@@ -42,7 +42,7 @@ class _POFileInfo(object):
         self.file_path = file_path
         self.pofile = pofile
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} ({})'.format(self.app_label, self.file_path)
 
 
@@ -117,7 +117,7 @@ class Command(BaseCommand):
             if verbosity >= 2:
                 self.stdout.write('No empty message.')
         else:
-            for msgid, entries_info in untranslated_entries.iteritems():
+            for msgid, entries_info in untranslated_entries.items():
                 self.stdout.write(u'\nmsgid="{msgid}"\n{entries}\n--------\n'.format(
                                         msgid=msgid,
                                         entries='\n'.join(u' - {}'.format(entry_info) for entry_info in entries_info),

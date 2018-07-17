@@ -70,22 +70,22 @@ def get_hg_info():
     raw_result, error = hg_log.communicate()
 
     if error:
-        logger.warn('Error in creme_core.utils.version.get_hg_info(): %s', error)
+        logger.warning('Error in creme_core.utils.version.get_hg_info(): %s', error)
     else:
         try:
             date_str, changeset_id = raw_result.split('#', 1)
         except ValueError:
-            logger.warn('Error in creme_core.utils.version.get_hg_info() ; received: %s', raw_result)
+            logger.warning('Error in creme_core.utils.version.get_hg_info() ; received: %s', raw_result)
         else:
             info['id'] = changeset_id
 
             try:
                 date_obj = parse_datetime(date_str)
             except ValueError as e:
-                logger.warn('Error in creme_core.utils.version.get_hg_info(): invalid date info (%s)', e)
+                logger.warning('Error in creme_core.utils.version.get_hg_info(): invalid date info (%s)', e)
             else:
                 if date_obj is None:
-                    logger.warn('Error in creme_core.utils.version.get_hg_info(): date info is not well formatted (%s)', date_str)
+                    logger.warning('Error in creme_core.utils.version.get_hg_info(): date info is not well formatted (%s)', date_str)
                 else:
                     info['date'] = localtime(date_obj)
 

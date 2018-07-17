@@ -73,7 +73,7 @@ class RelationsBrick(QuerysetBrick):
         if isinstance(info, dict):
             def is_a_list_of_strings(key):
                 rtype_ids = info.get(key, ())
-                return isinstance(rtype_ids, (list, tuple)) and all(isinstance(x, basestring) for x in rtype_ids)
+                return isinstance(rtype_ids, (list, tuple)) and all(isinstance(x, str) for x in rtype_ids)
 
             info_are_ok = is_a_list_of_strings('include') and is_a_list_of_strings('exclude')
 
@@ -81,7 +81,7 @@ class RelationsBrick(QuerysetBrick):
             self._reloading_info = info
         else:
             self._reloading_info = {}  # We do not let leave 'None' (because it means 'first render').
-            logger.warn('Invalid reloading extra_data for RelationsBrick: %s', info)
+            logger.warning('Invalid reloading extra_data for RelationsBrick: %s', info)
 
     def _iter_dependencies_info(self):
         # In order a JS dependencies intelligence want to get the real dependence.
@@ -174,7 +174,7 @@ class HistoryBrick(QuerysetBrick):
 
         entities_map = {}
 
-        for ct_id, entities_ids in entities_ids_by_ct.iteritems():
+        for ct_id, entities_ids in entities_ids_by_ct.items():
             entities_map.update(get_ct(ct_id).model_class().objects.in_bulk(entities_ids))
 
         for hline in hlines:
@@ -329,13 +329,13 @@ class JobBrick(Brick):
         info_are_ok = False
 
         if isinstance(info, dict):
-            info_are_ok = isinstance(info.get('list_url', ''), basestring)
+            info_are_ok = isinstance(info.get('list_url', ''), str)
 
         if info_are_ok:
             self._reloading_info = info
         else:
             self._reloading_info = {}  # We do not let leave 'None' (because it means 'first render').
-            logger.warn('Invalid reloading extra_data for JobBrick: %s', info)
+            logger.warning('Invalid reloading extra_data for JobBrick: %s', info)
 
     def detailview_display(self, context):
         job = context['job']

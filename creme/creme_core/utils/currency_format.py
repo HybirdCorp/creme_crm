@@ -2,13 +2,11 @@
 
 ################################################################################
 #   This code is derived from the 'currency' function of the module 'locale.py'
-#   of the Python2.7 standard library.
+#   of the Python standard library.
 #   The function has been modified to take the id of the wanted currency.
 #
-#    Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011
-#    Python Software Foundation.  All rights reserved.
-#
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (c) 2001-2018  Python Software Foundation.
+#                  2009-2018      Hybird
 #
 #    This file is released under the Python License
 #    (http://www.opensource.org/licenses/Python-2.0)
@@ -58,7 +56,7 @@ def currency(val, currency_or_id=None):
         try:
             locale.setlocale(LC_MONETARY, lang)
         except:
-            logger.warn('currency(): fail when setting "%s"', lang)
+            logger.warning('currency(): fail when setting "%s"', lang)
             locale.setlocale(LC_MONETARY, '')
 
     conv = locale.localeconv()
@@ -75,10 +73,12 @@ def currency(val, currency_or_id=None):
 
     # Check for illegal values
     digits = conv[not is_local_symbol and 'int_frac_digits' or 'frac_digits']
+    if digits == 127:
+        raise ValueError("Currency formatting is not possible using the 'C' locale.")
 
     # s = locale.format('%%.%if' % digits, abs(val), True, monetary=True)
-    s = locale.format('%.{}f'.format(digits), abs(val), True, monetary=True)
-    s = s.decode(locale.getlocale(LC_MONETARY)[1])
+    s = locale.format('%.{}f'.format(digits), abs(val), grouping=True, monetary=True)
+    # s = s.decode(locale.getlocale(LC_MONETARY)[1])
 
     # '<' and '>' are markers if the sign must be inserted between symbol and value
     s = '<' + s + '>'

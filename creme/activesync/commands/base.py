@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 ACTIVE_SYNC_DEBUG = settings.ACTIVE_SYNC_DEBUG  # TODO: remove
 
 
-class Base(object):
+class Base:
     template_name = u'overloadme.xml'  # XML template to send to the server
     command       = u'OVERLOADME'      # Associated command
     encoder       = lambda s, x: WBXMLEncoder(AirsyncDTD_Reverse).encode(x)  # xml to wbxml encoder
@@ -76,7 +76,7 @@ class Base(object):
         return self._messages[level]
 
     def messages(self):
-        return self._messages.iteritems()
+        return self._messages.items()
 
     def get_info_messages(self):
         return self._messages[_INFO]
@@ -121,7 +121,7 @@ class Base(object):
         if settings.ACTIVE_SYNC_DEBUG:
             # print u"Request: %s" % content
             msg = u'Request: %s' % content
-            logger.warn(msg)
+            logger.warning(msg)
             self._data['debug']['xml'].append(msg)
 
         return self.encoder(str(content.encode('utf-8'))) # TODO: Verify side effects
@@ -130,14 +130,14 @@ class Base(object):
         try:
             decoded = self.decoder(content)
         except Exception as e:
-            logger.warn('Error while decoding reponse (%s)', e)
+            logger.warning('Error while decoding reponse (%s)', e)
             raise errors.CremeActiveSyncError(errors.SYNC_ERR_NOT_FOUND)
 #        return fromstring(str(self.decoder(content)))#Trick to use ElementTree instead of libxml2 in waiting for own ElementTree parser
 
         if settings.ACTIVE_SYNC_DEBUG:
             # print u"Response: %s" % prettify(self.decoder(content))
             msg = u'Response: %s' % prettify(decoded)
-            logger.warn(msg)
+            logger.warning(msg)
             self._data['debug']['xml'].append(msg)
 
         return decoded

@@ -358,7 +358,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
         self._assertJsonifyFilter([1, 2, 3], [1, 2, 3])
         self._assertJsonifyFilter({'value': 1, 'label': 'a'}, {'value': 1, 'label': 'a'})
 
-        self._assertJsonifyFilter([0, 1, 2], (v for v in xrange(3)))
+        self._assertJsonifyFilter([0, 1, 2], (v for v in range(3)))
         self._assertJsonifyFilter([{'value': 0, 'label': 'a'}, {'value': 1, 'label': 'b'}, {'value': 2, 'label': 'c'}],
                                   ({'value': value, 'label': label} for value, label in enumerate(['a', 'b', 'c']))
                                  )

@@ -4,9 +4,10 @@ from .base import behavior_registry, backslashEscape, ContentLine
 from .behavior import Behavior
 from .utils import stringToTextValues
 
+
 # ------------------------ vCard structs ---------------------------------------
 
-class Name(object):
+class Name:
     def __init__(self, family='', given='', additional='', prefix='', suffix=''):
         """Each name attribute can be a string or a list of strings."""
         self.family     = family
@@ -19,7 +20,7 @@ class Name(object):
         return '<Name: {}>'.format(self)
 
 
-class Address(object):
+class Address:
     def __init__(self, street='', city='', region='', code='',
                  country='', box='', extended=''):
         """Each name attribute can be a string or a list of strings."""
@@ -174,7 +175,7 @@ def splitFields(string):
 
 
 def toList(stringOrList):
-    if isinstance(stringOrList, basestring):
+    if isinstance(stringOrList, str):
         return [stringOrList]
 
     return stringOrList
