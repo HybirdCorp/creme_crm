@@ -99,7 +99,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         with self.assertNoException():
             form = response.context['form']
-            orga_fields = set(form.fields['actions']._fields.iterkeys())
+            orga_fields = set(form.fields['actions']._fields)
 
         self.assertEqual({'content_type': self.orga_ct,
                           'filter': None,

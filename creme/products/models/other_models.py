@@ -30,7 +30,7 @@ class Category(CremeModel):
 
     creation_label = pgettext_lazy('products-category', u'Create a category')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -47,7 +47,7 @@ class SubCategory(CremeModel):
 
     creation_label = pgettext_lazy('products-sub_category', u'Create a sub-category')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:

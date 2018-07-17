@@ -112,11 +112,11 @@ class BulkForm(CremeForm):
 
         for field, subfields in regular_fields:
             if not subfields:
-                choices.append((build_url(fieldname=field.name), unicode(field.verbose_name)))
+                choices.append((build_url(fieldname=field.name), str(field.verbose_name)))
             else:
-                sub_choices.append((unicode(field.verbose_name),
+                sub_choices.append((str(field.verbose_name),
                                     [(build_url(fieldname='{}__{}'.format(field.name, subfield.name)),
-                                      unicode(subfield.verbose_name),
+                                      str(subfield.verbose_name),
                                      ) for subfield in subfields
                                     ],
                                    )
@@ -165,7 +165,7 @@ class BulkForm(CremeForm):
         return form_field
 
     def _bulk_clean_entity(self, entity, values):
-        for key, value in values.iteritems():
+        for key, value in values.items():
             try:
                 mfield = entity._meta.get_field(key)
             except FieldDoesNotExist:
@@ -210,7 +210,7 @@ class BulkForm(CremeForm):
                  }
         messages = []
 
-        for key, value in error.message_dict.iteritems():
+        for key, value in error.message_dict.items():
             field = fields.get(key)
             message = ''.join(value) if isinstance(value, (list, tuple)) else value
             messages.append(u'{} : {}'.format(ugettext(field.verbose_name), message)

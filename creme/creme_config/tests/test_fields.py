@@ -74,7 +74,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         "No action"
         field = CreatorModelChoiceField(queryset=FakePosition.objects.all())
         positions = [(u'', u'---------')]
-        positions.extend((p.pk, unicode(p)) for p in FakePosition.objects.all())
+        positions.extend((p.pk, str(p)) for p in FakePosition.objects.all())
 
         with self.assertNoException():
             choices = list(field.choices)
@@ -87,7 +87,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         field.user = self._create_superuser()
 
         positions = [(u'', u'---------')]
-        positions.extend((p.pk, unicode(p)) for p in FakePosition.objects.all())
+        positions.extend((p.pk, str(p)) for p in FakePosition.objects.all())
 
         with self.assertNoException():
             options = list(field.choices)
@@ -99,7 +99,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         self.assertIn(u'---------', render_str)
 
         for p in FakePosition.objects.all():
-            self.assertIn(unicode(p), render_str)
+            self.assertIn(str(p), render_str)
 
     def test_filtered_queryset01(self):
         "No action"
@@ -135,7 +135,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         self.assertEqual([(u'', u'---------')], list(field.widget.choices))
 
         positions = [(u'', u'---------')]
-        positions.extend((p.pk, unicode(p)) for p in FakePosition.objects.all())
+        positions.extend((p.pk, str(p)) for p in FakePosition.objects.all())
 
         field.queryset = FakePosition.objects.all()
 
@@ -151,7 +151,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         self.assertEqual(positions, list(field.widget.choices))
 
         field.queryset = FakePosition.objects.all()
-        positions.extend((p.pk, unicode(p)) for p in FakePosition.objects.all())
+        positions.extend((p.pk, str(p)) for p in FakePosition.objects.all())
         self.assertEqual(positions, list(field.widget.choices))
 
     def test_create_action_url(self):
@@ -236,19 +236,19 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
 
         self.assertEqual('', field.widget.creation_url)
         self.assertFalse(field.widget.creation_allowed)
-        self.assertEqual(_(u'Create'), unicode(field.widget.creation_label))
+        self.assertEqual(_(u'Create'), str(field.widget.creation_label))
 
         field.user = user
 
         self.assertEqual(self.ADD_URL, field.widget.creation_url)
         self.assertFalse(field.widget.creation_allowed)
-        self.assertEqual(_(u"Create"), unicode(field.widget.creation_label))
+        self.assertEqual(_(u"Create"), str(field.widget.creation_label))
 
         field.user = None
 
         self.assertEqual('', field.widget.creation_url)
         self.assertFalse(field.widget.creation_allowed)
-        self.assertEqual(_(u"Create"), unicode(field.widget.creation_label))
+        self.assertEqual(_(u"Create"), str(field.widget.creation_label))
 
     def test_actions_admin(self):
         admin = self.login(is_superuser=False, admin_4_apps=('creme_core',))
@@ -274,11 +274,11 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         "No action"
         field = CreatorModelMultipleChoiceField(queryset=FakePosition.objects.all())
 
-        positions = [(p.pk, unicode(p)) for p in FakePosition.objects.all()]
+        positions = [(p.pk, str(p)) for p in FakePosition.objects.all()]
         self.assertEqual(positions, list(field.choices))
 
         render_str = field.widget.render('position', None)
-        self.assertNotIn(unicode(FakePosition.creation_label), render_str)
+        self.assertNotIn(str(FakePosition.creation_label), render_str)
 
     def test_queryset(self):
         "With action"
@@ -286,11 +286,11 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         field = CreatorModelMultipleChoiceField(queryset=FakePosition.objects.all())
         field.user = user
 
-        positions = [(p.pk, unicode(p)) for p in FakePosition.objects.all()]
+        positions = [(p.pk, str(p)) for p in FakePosition.objects.all()]
         self.assertEqual(positions, list(field.choices))
 
         render_str = field.widget.render('position', None)
-        self.assertIn(unicode(FakePosition.creation_label), render_str)
+        self.assertIn(str(FakePosition.creation_label), render_str)
 
     def test_filtered_queryset_no_action(self):
         "No action"
@@ -301,7 +301,7 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         self.assertEqual(positions, list(field.choices))
 
         render_str = field.widget.render('position', None)
-        self.assertNotIn(unicode(FakePosition.creation_label), render_str)
+        self.assertNotIn(str(FakePosition.creation_label), render_str)
 
     def test_filtered_queryset(self):
         "With action"
@@ -315,7 +315,7 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         self.assertEqual(positions, list(field.choices))
 
         render_str = field.widget.render('position', None)
-        self.assertIn(unicode(FakePosition.creation_label), render_str)
+        self.assertIn(str(FakePosition.creation_label), render_str)
 
     def test_set_queryset_property_no_action(self):
         "No action"
@@ -325,15 +325,15 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         self.assertEqual([], list(field.widget.choices))
 
         render_str = field.widget.render('position', None)
-        self.assertNotIn(unicode(FakePosition.creation_label), render_str)
+        self.assertNotIn(str(FakePosition.creation_label), render_str)
 
         field.queryset = FakePosition.objects.all()
 
-        positions = [(p.pk, unicode(p)) for p in FakePosition.objects.all()]
+        positions = [(p.pk, str(p)) for p in FakePosition.objects.all()]
         self.assertEqual(positions, list(field.choices))
 
         render_str = field.widget.render('position', None)
-        self.assertNotIn(unicode(FakePosition.creation_label), render_str)
+        self.assertNotIn(str(FakePosition.creation_label), render_str)
 
     def test_set_queryset_property(self):
         "With action"
@@ -346,15 +346,15 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         self.assertTrue(field.widget.creation_allowed)
 
         render_str = field.widget.render('position', None)
-        self.assertIn(unicode(FakePosition.creation_label), render_str)
+        self.assertIn(str(FakePosition.creation_label), render_str)
 
         field.queryset = FakePosition.objects.all()
 
-        positions = [(p.pk, unicode(p)) for p in FakePosition.objects.all()]
+        positions = [(p.pk, str(p)) for p in FakePosition.objects.all()]
         self.assertEqual(positions, list(field.choices))
 
         render_str = field.widget.render('position', None)
-        self.assertIn(unicode(FakePosition.creation_label), render_str)
+        self.assertIn(str(FakePosition.creation_label), render_str)
 
     def test_create_action_url(self):
         user = self.login()

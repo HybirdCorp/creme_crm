@@ -93,7 +93,7 @@ class UserMessageTestCase(AssistantsTestCase):
 
         self.assertDatetimesAlmostEqual(now(), message.creation_date)
 
-        self.assertEqual(title, unicode(message))
+        self.assertEqual(title, str(message))
 
         jobs = queue.refreshed_jobs
         self.assertEqual(1, len(jobs))
@@ -165,7 +165,7 @@ class UserMessageTestCase(AssistantsTestCase):
         create_user = User.objects.create_user
         users       = [create_user('User{}'.format(i), email='user{}@foobar.com'.format(i),
                                    first_name='User{}'.format(i), last_name='Foobar',
-                                  ) for i in xrange(1, 3)
+                                  ) for i in range(1, 3)
                       ]
 
         team = User.objects.create(username='Team', is_team=True, role=None)
@@ -182,7 +182,7 @@ class UserMessageTestCase(AssistantsTestCase):
         create_user = User.objects.create_user
         users = [create_user('User{}'.format(i), email='user{}@foobar.com'.format(i),
                              first_name='User{}'.format(i), last_name='Foobar',
-                            ) for i in xrange(1, 5)
+                            ) for i in range(1, 5)
                 ]
 
         team01 = User.objects.create(username='Team01', is_team=True, role=None)

@@ -46,7 +46,7 @@ class CreatorModelChoiceWidget(Select):
                                               )
 
                 allowed = self.creation_allowed
-                label = unicode(self.creation_label)
+                label = str(self.creation_label)
                 button_list.add_action('create', label, enabled=allowed, popupUrl=url,
                                        title=label if allowed else ugettext(u'Cannot create'),
                                       )

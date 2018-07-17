@@ -105,7 +105,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         self.assertFalse(queue.refreshed_jobs)  # Because there is no deadline
 
-        self.assertEqual(title, unicode(todo))
+        self.assertEqual(title, str(todo))
 
     def test_create02(self):
         "Deadline"
@@ -192,7 +192,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
     def test_brick_reload01(self):
         "Detailview"
-        for i in xrange(1, 4):
+        for i in range(1, 4):
             self._create_todo('Todo{}'.format(i), 'Description {}'.format(i))
 
         todos = ToDo.get_todos(self.entity)

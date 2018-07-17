@@ -19,7 +19,7 @@
 ################################################################################
 
 
-class FormRegistry(object):
+class FormRegistry:
     class UnregisteredCTypeException(Exception):
         pass
 

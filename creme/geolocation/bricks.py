@@ -55,7 +55,7 @@ class _MapBrick(Brick):
             efilters = efilters_per_ctid[ct.id]
 
             if efilters:
-                title = unicode(ct.model_class()._meta.verbose_name_plural)
+                title = str(ct.model_class()._meta.verbose_name_plural)
                 choices.append((title,
                                 [(ef.id, u'{} - {}'.format(title, ef.name)) for ef in efilters]
                                )
@@ -69,8 +69,8 @@ class _MapBrick(Brick):
         #                                           .select_related('geoaddress')
         #        ]
         return [
-            {k: (escape(v) if isinstance(v, basestring) else v)
-                    for k, v in address_as_dict(address).iteritems()
+            {k: (escape(v) if isinstance(v, str) else v)
+                    for k, v in address_as_dict(address).items()
             } for address in Address.objects.filter(object_id=entity.id)
                                             .select_related('geoaddress')
         ]

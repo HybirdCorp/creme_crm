@@ -87,7 +87,7 @@ class PersonsConfig(CremeAppConfig):
 
         def print_fk_user_html(entity, fval, user, field):
             if fval.is_team:
-                return unicode(fval)
+                return str(fval)
 
             return widget_entity_hyperlink(fval.linked_contact, user)
 

@@ -71,7 +71,7 @@ class ButtonMenuEditForm(CremeForm):
         choices = []
 
         if not self.ct:  # Default conf
-            choices.extend((id_, unicode(button.verbose_name))
+            choices.extend((id_, str(button.verbose_name))
                                 for id_, button in button_registry
                                     if not button.get_ctypes()
                           )
@@ -87,9 +87,9 @@ class ButtonMenuEditForm(CremeForm):
 
                 if not ctypes:
                     if id_ not in default_conf_ids:
-                        choices.append((id_, unicode(button.verbose_name)))
+                        choices.append((id_, str(button.verbose_name)))
                 elif model_class in ctypes:
-                    choices.append((id_, unicode(button.verbose_name)))
+                    choices.append((id_, str(button.verbose_name)))
 
         sort_key = collator.sort_key
         choices.sort(key=lambda c: sort_key(c[1]))

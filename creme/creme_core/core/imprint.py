@@ -26,7 +26,7 @@ from django.utils.timezone import now
 from creme.creme_core.models import Imprint
 
 
-class _ImprintManager(object):
+class _ImprintManager:
     class RegistrationError(Exception):
         pass
 

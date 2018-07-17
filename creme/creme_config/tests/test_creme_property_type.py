@@ -32,8 +32,8 @@ class PropertyTypeTestCase(CremeTestCase):
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_config/property_type_portal.html')
 
-        self.assertContains(response, unicode(ptype1))
-        self.assertContains(response, unicode(ptype2))
+        self.assertContains(response, str(ptype1))
+        self.assertContains(response, str(ptype2))
 
     def _find_property_type(self, prop_types, text):
         for prop_type in prop_types:

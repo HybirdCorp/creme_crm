@@ -245,7 +245,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         condition = next(iter_conds)
         self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
         self.assertEqual(str(custom_field.id),                  condition.name)
-        self.assertEqual({'operator': cfield_operator, 'rname': 'customfieldinteger', 'value': [unicode(cfield_value)]},
+        self.assertEqual({'operator': cfield_operator, 'rname': 'customfieldinteger', 'value': [str(cfield_value)]},
                          condition.decoded_value
                         )
 
@@ -899,7 +899,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(str(custom_field.id),                  condition.name)
         self.assertEqual({'operator': cfield_operator,
                           'rname':    'customfieldstring',
-                          'value':    [unicode(cfield_value)],
+                          'value':    [str(cfield_value)],
                          },
                          condition.decoded_value
                         )
@@ -1407,7 +1407,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         response = self.assertGET200(self._build_get_ct_url(rtype))
 
         ct = self.ct_contact
-        self.assertEqual([[0, _(u'All')], [ct.id, unicode(ct)]],
+        self.assertEqual([[0, _(u'All')], [ct.id, str(ct)]],
                          response.json()
                         )
 

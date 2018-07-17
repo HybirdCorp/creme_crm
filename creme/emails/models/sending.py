@@ -18,14 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from json import loads as json_load
 import logging
-from pickle import loads
+# from pickle import loads
 from time import sleep
 
 from django.conf import settings
 from django.core.mail import send_mail, get_connection
 from django.db import IntegrityError
-from django.db.models import (ForeignKey, DateTimeField, PositiveSmallIntegerField,
+from django.db.models import (ForeignKey, DateTimeField, PositiveSmallIntegerField, BinaryField,
         EmailField, CharField, TextField, ManyToManyField, SET_NULL, CASCADE)
 from django.db.transaction import atomic
 from django.template import Template, Context
@@ -100,7 +101,7 @@ class EmailSending(CremeModel):
         verbose_name = _(u'Email campaign sending')
         verbose_name_plural = _(u'Email campaign sendings')
 
-    def __unicode__(self):
+    def __str__(self):
         return pgettext('emails', u'Sending of «{campaign}» on {date}').format(
                     campaign=self.campaign,
                     date=date_format(localtime(self.sending_date), 'DATETIME_FORMAT'),
@@ -188,8 +189,10 @@ class LightWeightEmail(_Email):
         body = self.body
 
         try:
-            return Template(sending_body).render(Context(loads(body.encode('utf-8')) if body else {}))
-        except Exception as e:  # Pickle raises too much different exceptions... Catch'em all ?
+            # return Template(sending_body).render(Context(loads(body.encode('utf-8')) if body else {}))
+            return Template(sending_body).render(Context(json_load(body) if body else {}))
+        # except Exception as e:  # Pickle raises too much different exceptions... Catch'em all ?
+        except Exception as e:
             logger.debug('Error in LightWeightEmail._render_body(): %s', e)
             return ''
 
@@ -234,6 +237,7 @@ class LightWeightEmailSender(EMailSender):
 
     def _process_bodies(self, mail):
         body = mail.body
-        context = Context(loads(body.encode('utf-8')) if body else {})
+        # context = Context(loads(body.encode('utf-8')) if body else {})
+        context = Context(json_load(body) if body else {})
 
         return self._body_template.render(context), self._body_html_template.render(context)

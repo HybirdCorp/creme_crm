@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 _CUSTOM_NAME = 'custom_field_{}'
 
 
-class _FieldBlock(object):
+class _FieldBlock:
     __slots__ = ('name', 'field_names')
 
     def __init__(self, verbose_name, field_names):
@@ -49,11 +49,11 @@ class _FieldBlock(object):
         self.name = verbose_name
         self.field_names = list(field_names) if field_names != '*' else field_names
 
-    def __unicode__(self):  # For debugging
+    def __str__(self):  # For debugging
         return u'<_FieldBlock: {} {}>'.format(self.name, self.field_names)
 
 
-class FieldBlocksGroup(object):
+class FieldBlocksGroup:
     """You should not build them directly ; use FieldBlockManager.build() instead.
     It contains a list of block descriptors. A blocks descriptor is a tuple
     (block_verbose_name, [list of tuples (BoundField, field_is_required)]).
@@ -88,7 +88,7 @@ class FieldBlocksGroup(object):
             block_name = blocks_data[wildcard_cat]
             blocks_data[wildcard_cat] = (block_name,
                                          [(form[name], field.required)
-                                              for name, field in form.fields.iteritems()
+                                              for name, field in form.fields.items()
                                                   if name not in field_set
                                          ],
                                         )
@@ -104,10 +104,10 @@ class FieldBlocksGroup(object):
         """Iterates on the non used blocks (see __getitem__).
         @return A sequence of block descriptors (see FieldBlocksGroup doc string).
         """
-        return self._blocks_data.itervalues()
+        return iter(self._blocks_data.values())
 
 
-class FieldBlockManager(object):
+class FieldBlockManager:
     __slots__ = ('__blocks',)
 
     def __init__(self, *blocks):
@@ -124,7 +124,7 @@ class FieldBlockManager(object):
         @param blocks see __init__(). New blocks are merged with self's blocks.
         """
         merged_blocks = OrderedDict([(cat, _FieldBlock(block.name, block.field_names))
-                                        for cat, block in self.__blocks.iteritems()
+                                        for cat, block in self.__blocks.items()
                                     ]
                                    )
         to_add = []
@@ -152,10 +152,10 @@ class FieldBlockManager(object):
         @param form An instance of django.forms.Form.
         @return An instance of FieldBlocksGroup.
         """
-        return FieldBlocksGroup(form, self.__blocks.iteritems())
+        return FieldBlocksGroup(form, self.__blocks.items())
 
 
-class HookableForm(object):
+class HookableForm:
     # Beware: use related method to manipulate
     _creme_post_clean_callbacks = ()  # ==> add_post_clean_callback()
     _creme_post_init_callbacks  = ()  # ==> add_post_init_callback()
@@ -209,7 +209,7 @@ class CremeForm(Form, HookableForm):
         super(CremeForm, self).__init__(*args, **kwargs)
         self.user = user
 
-        for fn, field in self.fields.iteritems():
+        for fn, field in self.fields.items():
             field.user = user  # Used by CreatorModelChoiceField for example
 
         self._creme_post_init()
@@ -237,7 +237,7 @@ class CremeModelForm(ModelForm, HookableForm):
         super(CremeModelForm, self).__init__(*args, **kwargs)
         self.user = user
 
-        for fn, field in self.fields.iteritems():
+        for fn, field in self.fields.items():
             field.user = user  # Used by CreatorModelChoiceField for example
 
         self.fields_configs = fc = FieldsConfig.LocalCache()
@@ -282,7 +282,7 @@ class CremeEntityForm(CremeModelWithUserForm):
         # TODO: move in CremeModelForm ???
         # Populate help_text in form widgets
         # Rule is form field help text or model field help text
-        for field_name, form_field in self.fields.iteritems():
+        for field_name, form_field in self.fields.items():
             try:
                 model_field = self.instance._meta.get_field(field_name)
                 help_text = form_field.help_text if form_field.help_text not in (None, u'') else model_field.help_text

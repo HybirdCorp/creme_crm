@@ -29,7 +29,7 @@ IGNORE_PATTERN = prepare_patterns(getattr(settings,
    'IGNORE_DATA_URI_PATTERNS', (r'.*\.htc',)), 'IGNORE_DATA_URI_PATTERNS')
 
 
-class URLRewriter(object):
+class URLRewriter:
     def __init__(self, base_path='./'):
         self.base_path = base_path or './'
 

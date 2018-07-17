@@ -37,7 +37,7 @@ ALLOWED_ID_CHARS = OrderedSet('abcdefghijklmnopqrstuvwxyz'
                              )
 
 
-class FetcherInterface(object):
+class FetcherInterface:
     """Multiple fetchers of the same "type" (i.e: pop email, imap email...) could
     be registered with the same key in CRUDityRegistry.
     FetcherInterface abstract those to act like one fetcher.
@@ -60,7 +60,7 @@ class FetcherInterface(object):
             return input_name.get(method)
 
     def get_inputs(self):
-        return self._inputs.values()
+        return iter(self._inputs.values())
 
     def fetch(self):
         data = []
@@ -82,7 +82,7 @@ class FetcherInterface(object):
         self._default_backend = backend
 
 
-class CRUDityRegistry(object):
+class CRUDityRegistry:
     class RegistrationError(Exception):
         pass
 
@@ -90,23 +90,23 @@ class CRUDityRegistry(object):
         self._fetchers = {}
         self._backends = {}
 
-    def __unicode__(self):
+    def __str__(self):
         res = 'CRUDityRegistry:'
 
-        for fetcher_name, fetcher_interface in self._fetchers.iteritems():
+        for fetcher_name, fetcher_interface in self._fetchers.items():
             res += '\n - Fetcher("{}"): {}'.format(
                     fetcher_name,
-                    '/'.join(unicode(fetcher.__class__.__name__) for fetcher in fetcher_interface.fetchers),
+                    '/'.join(str(fetcher.__class__.__name__) for fetcher in fetcher_interface.fetchers),
             )
 
             default_backend = fetcher_interface.get_default_backend()
             if default_backend:
                 res += '    Default backend: {}'.format(default_backend)
 
-            for input_name, inputs in fetcher_interface._inputs.iteritems():
+            for input_name, inputs in fetcher_interface._inputs.items():
                 res += '\n    - Input("{}"):'.format(input_name)
 
-                for method, input in inputs.iteritems():
+                for method, input in inputs.items():
                     res += '\n       - Method "{}": <{}>'.format(method, input.__class__.__name__)
 
                     backends = input.backends
@@ -115,7 +115,7 @@ class CRUDityRegistry(object):
                         res += ' -> No BACKEND'
                     else:
                         res += '\n         Backends:'
-                        for subject, backend in input.backends.iteritems():
+                        for subject, backend in input.backends.items():
                             res += '\n          - {}: {}'.format(subject, backend.__class__.__name__)
 
         return res
@@ -125,7 +125,7 @@ class CRUDityRegistry(object):
             # Fetchers
             fetchers = getattr(crud_import, 'fetchers', {})
             register_fetchers = self.register_fetchers
-            for source_type, fetchers_classes in fetchers.iteritems():
+            for source_type, fetchers_classes in fetchers.items():
                 if any(c not in ALLOWED_ID_CHARS for c in source_type):
                     raise ValueError('The fetchers ID "{}" (in {}) use forbidden characters [allowed ones: {}].'.format(
                                             source_type, crud_import, ''.join(ALLOWED_ID_CHARS),
@@ -137,7 +137,7 @@ class CRUDityRegistry(object):
             # Inputs
             inputs = getattr(crud_import, 'inputs', {})
             register_inputs = self.register_inputs
-            for source_type, input_classes in inputs.iteritems():
+            for source_type, input_classes in inputs.items():
                 for crud_input in input_classes:
                     if any(c not in ALLOWED_ID_CHARS for c in crud_input.name):
                         raise ValueError('The input ID "{}" ({}) use forbidden characters [allowed ones: {}].'.format(
@@ -160,8 +160,8 @@ class CRUDityRegistry(object):
         else:
             fetcher_multiplex.add_fetchers(fetchers)
 
-    def get_fetchers(self):
-        return self._fetchers.values()
+    def get_fetchers(self):  # TODO: iterator instead
+        return list(self._fetchers.values())
 
     def get_fetcher(self, source):
         return self._fetchers.get(source)
@@ -185,7 +185,7 @@ class CRUDityRegistry(object):
         """Get all registered backend
          @returns: A list of backend /!\classes (not instances)
         """
-        return self._backends.values()
+        return iter(self._backends.values())
 
     def get_backend(self, model):
         """Get the registered backend class for the model"""
@@ -204,7 +204,7 @@ class CRUDityRegistry(object):
 
         for fetcher in self.get_fetchers():
             for crud_inputs in fetcher.get_inputs():
-                for crud_input in crud_inputs.itervalues():
+                for crud_input in crud_inputs.values():
                     backends.extend(crud_input.get_backends())
 
             default_be = fetcher.get_default_backend()
@@ -225,7 +225,7 @@ class CRUDityRegistry(object):
         except KeyError:
             raise KeyError('Input not found: ' + input_name)
 
-        for crud_input in crud_inputs.itervalues():
+        for crud_input in crud_inputs.values():
             backend = crud_input.get_backend(norm_subject)
 
             if backend:
@@ -341,7 +341,7 @@ class CRUDityRegistry(object):
 
         def _handle_data(multi_fetcher, data):
             for inputs_per_method in multi_fetcher.get_inputs():
-                for crud_input in inputs_per_method.itervalues():
+                for crud_input in inputs_per_method.values():
                     handling_backend = crud_input.handle(data)
 
                     if handling_backend is not None:
@@ -357,7 +357,7 @@ class CRUDityRegistry(object):
             # TODO: FetcherInterface.has_backends() ?
             if not any(crud_input.has_backends
                            for inputs_per_method in fetcher_multiplex.get_inputs()
-                               for crud_input in inputs_per_method.itervalues()
+                               for crud_input in inputs_per_method.values()
                       ) and not fetcher_multiplex.get_default_backend():
                 continue
 

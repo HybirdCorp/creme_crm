@@ -71,14 +71,20 @@ class UserRoleCreationWizard(PopupWizardMixin, SessionWizardView):
         return super(UserRoleCreationWizard, self).dispatch(*args, **kwargs)
 
     def done(self, form_list, **kwargs):
+        form_iter = iter(form_list)
+
         with atomic():
-            form_list[0].partial_save()
-            form_list[1].save()
+            # form_list[0].partial_save()
+            # form_list[1].save()
+            #
+            # form_list[2].save()
+            # form_list[3].save()
+            #
+            # form_list[4].save()
+            next(form_iter).partial_save()
 
-            form_list[2].save()
-            form_list[3].save()
-
-            form_list[4].save()
+            for form in form_iter:
+                form.save()
 
         # return HttpResponse(content_type='text/javascript')
         return HttpResponse()
@@ -123,12 +129,18 @@ class UserRoleEditionWizard(PopupWizardMixin, SessionWizardView):
         return super(UserRoleEditionWizard, self).dispatch(*args, **kwargs)
 
     def done(self, form_list, **kwargs):
-        with atomic():
-            form_list[0].partial_save()
-            form_list[1].save()
+        form_iter = iter(form_list)
 
-            form_list[2].save()
-            form_list[3].save()
+        with atomic():
+            # form_list[0].partial_save()
+            # form_list[1].save()
+            #
+            # form_list[2].save()
+            # form_list[3].save()
+            next(form_iter).partial_save()
+
+            for form in form_iter:
+                form.save()
 
         # return HttpResponse('', content_type='text/javascript')
         return HttpResponse()

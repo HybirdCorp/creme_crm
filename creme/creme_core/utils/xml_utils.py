@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 import xml.etree.ElementTree as ET
 
-from django.utils.encoding import smart_str
+# from django.utils.encoding import smart_str
 
 
 def _element_iterator(tree):
@@ -51,7 +51,7 @@ class XMLDiffError(Exception):
     pass
 
 
-class XMLDiff(object):
+class XMLDiff:
     def __init__(self, msg, node, root):
         self._msg  = msg
         self._node = node
@@ -65,7 +65,8 @@ class XMLDiff(object):
 
     @property
     def long_msg(self):
-        return ET.tostring(self._root, 'utf-8')
+        # return ET.tostring(self._root, 'utf-8')
+        return ET.tostring(self._root, 'utf-8').decode()
 
 
 def xml_diff(xml1, xml2):
@@ -74,11 +75,15 @@ def xml_diff(xml1, xml2):
     @param xml2 String representing the second XML document.
     @return XMLDiff instance, or None if there is no difference.
     """
-    if isinstance(xml1, unicode):
-        xml1 = smart_str(xml1)
+    # if isinstance(xml1, unicode):
+    #     xml1 = smart_str(xml1)
+    if isinstance(xml1, str):
+        xml1 = xml1.encode()
 
-    if isinstance(xml2, unicode):
-        xml2 = smart_str(xml2)
+    # if isinstance(xml2, unicode):
+    #     xml2 = smart_str(xml2)
+    if isinstance(xml2, str):
+        xml2 = xml2.encode()
 
     XML = ET.XML
 
@@ -112,7 +117,7 @@ def xml_diff(xml1, xml2):
                 else:
                     return XMLDiff(u'Additional sibling or child element in the second document',
                                    previous_node1, tree1
-                                  )
+                                   )
 
             try:
                 # deep_change2, node2 = iter2.next()
@@ -127,7 +132,7 @@ def xml_diff(xml1, xml2):
 
                 return XMLDiff(u'Additional sibling or child element in the second document',
                                previous_node1, tree1
-                              )
+                               )
 
             # Tag comparison ---------------------------------------------------
             if node1.tag != node2.tag:
@@ -142,17 +147,19 @@ def xml_diff(xml1, xml2):
                 if attr_value1 is None:
                     return XMLDiff(u'Attribute "{}" is missing in the first document'.format(attr_name2),
                                    node1, tree1
-                                  )
+                                   )
 
                 if attr_value1 != attr_value2:
                     return XMLDiff(u'Attribute "{}": "{}" != "{}"'.format(
-                                        attr_name2, attr_value1, attr_value2),
-                                   node1, tree1
-                                  )
+                            attr_name2, attr_value1, attr_value2),
+                            node1, tree1
+                    )
             if attrs1:
-                return XMLDiff(u'Attribute "{}" is missing in the second document'.format(attrs1.keys()[0]),
-                                node1, tree1
-                              )
+                return XMLDiff(
+                    # u'Attribute "{}" is missing in the second document'.format(attrs1.keys()[0]),
+                    u'Attribute "{}" is missing in the second document'.format(next(iter(attrs1.keys()))),
+                    node1, tree1,
+                )
 
             # Text comparison --------------------------------------------------
             text1 = node1.text or ''; text1 = text1.strip()

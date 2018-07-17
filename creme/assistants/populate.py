@@ -37,8 +37,8 @@ class Populator(BasePopulator):
     def populate(self):
         already_populated = UserMessagePriority.objects.filter(pk=PRIO_IMP_PK).exists()
 
-        for pk, title in USERMESSAGE_PRIORITIES.iteritems():
-            create_if_needed(UserMessagePriority, {'pk': pk}, title=unicode(title), is_custom=False)
+        for pk, title in USERMESSAGE_PRIORITIES.items():
+            create_if_needed(UserMessagePriority, {'pk': pk}, title=str(title), is_custom=False)
 
         SettingValue.objects.get_or_create(key_id=todo_reminder_key.id, defaults={'value': 9})
 

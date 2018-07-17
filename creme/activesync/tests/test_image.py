@@ -3,7 +3,7 @@
 try:
     import base64
     from os.path import dirname, join, abspath
-    from StringIO import StringIO
+    from io import StringIO
 
     from django.conf import settings
 

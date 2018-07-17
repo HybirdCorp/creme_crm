@@ -615,9 +615,9 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
 
         self.assertNotIn('info', fields)
 
-        self.assertIn((replacing_role.id, unicode(replacing_role)), choices)
-        self.assertIn((other_role.id,     unicode(other_role)),     choices)
-        self.assertNotIn((role_2_del.id,  unicode(role_2_del)),     choices)
+        self.assertIn((replacing_role.id, str(replacing_role)), choices)
+        self.assertIn((other_role.id,     str(other_role)),     choices)
+        self.assertNotIn((role_2_del.id,  str(role_2_del)),     choices)
 
         response = self.client.post(url, data={'to_role': replacing_role.id})
         self.assertNoFormError(response)

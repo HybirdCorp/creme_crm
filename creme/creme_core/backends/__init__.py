@@ -26,7 +26,7 @@ from django.conf import settings
 from creme.creme_core.utils.imports import safe_import_object
 
 
-class _BackendRegistry(object):
+class _BackendRegistry:
     class InvalidId(Exception):
         pass
 
@@ -65,7 +65,7 @@ class _BackendRegistry(object):
 
     @property
     def backends(self):
-        return self._get_backends().itervalues()
+        return iter(self._get_backends().values())
 
     def iterbackends(self):
         warnings.warn('_BackendRegistry.iterbackends() is deprecated ; '
@@ -77,7 +77,7 @@ class _BackendRegistry(object):
 
     @property
     def extensions(self):
-        return self._get_backends().iterkeys()
+        return self._get_backends().keys()
 
     def iterkeys(self):
         warnings.warn('_BackendRegistry.iterkeys() is deprecated ; '

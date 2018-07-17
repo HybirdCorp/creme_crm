@@ -139,7 +139,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertContains(response, self.coxco.get_absolute_url())
         self.assertNotContains(response, self.linusfo.get_absolute_url())
 
-        vnames = {unicode(vname) for vname in context['models']}
+        vnames = {str(vname) for vname in context['models']}
         self.assertIn(_(u'Contact'), vnames)
         self.assertIn(_(u'Organisation'), vnames)
 
@@ -211,7 +211,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertNotContains(response, ' id="{}'.format(self.CONTACT_BRICKID))
         self.assertNotContains(response, self.alan.get_absolute_url())
 
-        vnames = {unicode(vname) for vname in context['models']}
+        vnames = {str(vname) for vname in context['models']}
         self.assertIn(FakeOrganisation._meta.verbose_name, vnames)
         self.assertNotIn(FakeContact._meta.verbose_name, vnames)
 
@@ -350,7 +350,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         self.maxDiff = None
         self.assertEqual(
-            {'best':    {'label': unicode(coxco),
+            {'best':    {'label': str(coxco),
                          # 'score': 102,
                          'url':   coxco.get_absolute_url(),
                         },
@@ -361,11 +361,11 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
              'results': [{'count':   2,
                           'id':      alan.entity_type_id,
                           'label':   'Test Contact',
-                          'results': [{'label': unicode(alan),
+                          'results': [{'label': str(alan),
                                        # 'score': 101,
                                        'url':   alan.get_absolute_url(),
                                       },
-                                      {'label': unicode(coxi),
+                                      {'label': str(coxi),
                                        # 'score': 101,
                                        'url':   coxi.get_absolute_url(),
                                       },
@@ -374,7 +374,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
                          {'count':   1,
                           'id':      coxco.entity_type_id,
                           'label':   'Test Organisation',
-                          'results': [{'label': unicode(coxco),
+                          'results': [{'label': str(coxco),
                                        # 'score': 102,
                                        'url':   coxco.get_absolute_url(),
                                       },
@@ -401,7 +401,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         self.maxDiff = None
         self.assertEqual(
-            {'best':    {'label': unicode(coxi),
+            {'best':    {'label': str(coxi),
                          # 'score': 101,
                          'url':   coxi.get_absolute_url(),
                         },
@@ -412,7 +412,7 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
              'results': [{'count':   1,
                           'id':      coxi.entity_type_id,
                           'label':   'Test Contact',
-                          'results': [{'label': unicode(coxi),
+                          'results': [{'label': str(coxi),
                                        # 'score': 101,
                                        'url':   coxi.get_absolute_url(),
                                       },

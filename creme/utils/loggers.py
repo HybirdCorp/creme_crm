@@ -18,26 +18,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import bz2
 import re
 import time
-import bz2
-
-from threading import Thread
-
-from sys import path as syspath, getfilesystemencoding
-from os import rename as rename_file, remove as delete_file, makedirs
-from os.path import splitext, join, dirname, exists, expanduser
 
 from collections import defaultdict
-
 from logging import Formatter, Filter, getLevelName, CRITICAL, ERROR, WARNING, INFO, DEBUG
 from logging.handlers import TimedRotatingFileHandler
+from os import rename as rename_file, remove as delete_file, makedirs
+from os.path import splitext, join, dirname, exists, expanduser
+from sys import path as syspath  # getfilesystemencoding
+from threading import Thread
 
 try:
     from termcolor import colored
 except ImportError:
     def colored(str, *args, **kwargs):
         return str
+
 
 class CremeFormatter(Formatter):
     _COLORS = defaultdict(lambda: (None, []), [
@@ -60,7 +58,7 @@ class CremeFormatter(Formatter):
         self.colors.update(CremeFormatter._COLORS)
 
         if colors is not None:
-            for key, color in colors.iteritems():
+            for key, color in colors.items():
                 self.colors[getLevelName(key)] = color
 
     def formatModulepath(self, record):
@@ -72,16 +70,18 @@ class CremeFormatter(Formatter):
 
         return modulepath
 
+    # TODO: remove ?
     def formatEncodedException(self, record):
-        exception = self.formatException(record.exc_info)
-
-        for encoding in ['utf-8', getfilesystemencoding()]:
-            try:
-                return unicode(exception, encoding=encoding)
-            except Exception:
-                continue
-
-        return unicode(exception, getfilesystemencoding(), errors='replace')
+        # exception = self.formatException(record.exc_info)
+        #
+        # for encoding in ['utf-8', getfilesystemencoding()]:
+        #     try:
+        #         return unicode(exception, encoding=encoding)
+        #     except Exception:
+        #         continue
+        #
+        # return str(exception, getfilesystemencoding(), errors='replace')
+        return self.formatException(record.exc_info)
 
     def format(self, record):
         record.message = record.getMessage()

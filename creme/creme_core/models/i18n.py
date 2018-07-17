@@ -28,7 +28,7 @@ class Language(CremeModel):
     name = CharField(_(u'Name'), max_length=100)
     code = CharField(_(u'Code'), max_length=5)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} - {}'.format(self.name, self.code)
 
     class Meta:

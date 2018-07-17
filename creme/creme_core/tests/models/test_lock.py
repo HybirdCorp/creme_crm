@@ -5,7 +5,7 @@ try:
 
     from ..base import CremeTransactionTestCase
     from creme.creme_core.models.lock import Mutex, MutexLockedException, MutexNotLockedException, mutex_autolock, MutexAutoLock
-    from creme.creme_core.utils import safe_unicode_error
+    # from creme.creme_core.utils import safe_unicode_error
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
@@ -106,7 +106,8 @@ class MutexTestCase(CremeTransactionTestCase):
         with self.assertRaises(Exception) as context:
             self.invalid_locked_func(5)
 
-        self.assertEqual(u'invalid result {}'.format(5), safe_unicode_error(context.exception))
+        # self.assertEqual(u'invalid result {}'.format(5), safe_unicode_error(context.exception))
+        self.assertEqual(u'invalid result {}'.format(5), str(context.exception))
 
         self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
 
@@ -150,5 +151,6 @@ class MutexTestCase(CremeTransactionTestCase):
                 self.assertEqual(1, Mutex.objects.filter(id='dummy_lock').count())
                 raise Exception('invalid result !')
 
-        self.assertEqual(u'invalid result !', safe_unicode_error(context.exception))
+        # self.assertEqual(u'invalid result !', safe_unicode_error(context.exception))
+        self.assertEqual(u'invalid result !', str(context.exception))
         self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())

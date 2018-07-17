@@ -38,7 +38,7 @@ def address_as_dict(address):
     from .models import GeoAddress
 
     title      = address_title(address)
-    content    = unicode(address)
+    content    = str(address)
     owner      = address.owner
     address_id = address.id
 
@@ -52,7 +52,7 @@ def address_as_dict(address):
     return {
             'id':           address_id,
             'content':      content,
-            'owner':        unicode(owner),
+            'owner':        str(owner),
             'title':        title,
             'is_billing':   is_billing,
             'is_shipping':  is_shipping,
@@ -109,7 +109,7 @@ def addresses_from_persons(queryset, user):
 
     # merge ids
     address_ids.update(billing_shipping_ids)
-    return addresses.filter(pk__in=address_ids.itervalues())  # TODO: select_related('geoaddress') ??
+    return addresses.filter(pk__in=address_ids.values())  # TODO: select_related('geoaddress') ??
 
 
 # TODO : move it to creme_core ? (as SettingValue static method ?)

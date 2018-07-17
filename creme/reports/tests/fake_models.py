@@ -31,7 +31,7 @@ else:
             verbose_name_plural = u'Test (reports) Folders'
             ordering = ('title',)
 
-        def __unicode__(self):
+        def __str__(self):
             return self.title
 
         def get_absolute_url(self):
@@ -51,7 +51,7 @@ else:
             verbose_name_plural = u'Test (reports) Documents'
             ordering = ('title',)
 
-        def __unicode__(self):
+        def __str__(self):
             return self.title
 
 #        def get_absolute_url(self):
@@ -76,5 +76,5 @@ else:
             verbose_name_plural = u'Books'
             ordering = ('name',)
 
-        def __unicode__(self):
+        def __str__(self):
             return self.name

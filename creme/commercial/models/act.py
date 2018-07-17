@@ -49,7 +49,7 @@ class ActType(CremeModel):
         verbose_name_plural = _(u'Types of commercial actions')
         ordering = ('title',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
 
@@ -76,7 +76,7 @@ class AbstractAct(CremeEntity):
         verbose_name_plural = _(u'Commercial actions')
         ordering = ('name',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def clean(self):
@@ -159,7 +159,7 @@ class ActObjective(CremeModel):
         verbose_name_plural = _(u'Commercial Objectives')
         # ordering = ('name',) TODO ?
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_edit_absolute_url(self):
@@ -218,7 +218,7 @@ class AbstractActObjectivePattern(CremeEntity):
         verbose_name_plural = _(u'Objective patterns')
         ordering = ('name',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
@@ -247,10 +247,10 @@ class AbstractActObjectivePattern(CremeEntity):
             components = self.components.in_bulk()
             root_components = []
 
-            for comp in components.itervalues():
+            for comp in components.values():
                 comp._children_cache = []
 
-            for comp in components.itervalues():
+            for comp in components.values():
                 children = components[comp.parent_id]._children_cache if comp.parent_id else root_components
                 children.append(comp)
 
@@ -283,7 +283,7 @@ class ActObjectivePatternComponent(CremeModel):
     class Meta:
         app_label = "commercial"
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     # TODO: delete this code with new ForeignKey in Django1.3 ?? (maybe it causes more queries)

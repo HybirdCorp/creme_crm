@@ -49,7 +49,7 @@ class CremePropertyType(CremeModel):
         verbose_name_plural = _(u'Types of property')
         ordering = ('text',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.text
 
     def get_absolute_url(self):
@@ -113,8 +113,8 @@ class CremeProperty(CremeModel):
         verbose_name_plural = _(u'Properties')
         unique_together = ('type', 'creme_entity')
 
-    def __unicode__(self):
-        return unicode(self.type)
+    def __str__(self):
+        return str(self.type)
 
     def get_related_entity(self):  # For generic views
         return self.creme_entity

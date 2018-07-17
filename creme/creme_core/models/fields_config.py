@@ -54,7 +54,7 @@ class FieldsConfig(CremeModel):
     class InvalidModel(Exception):
         pass
 
-    class LocalCache(object):
+    class LocalCache:
         __slots__ = ('_configs', )
 
         def __init__(self):
@@ -99,7 +99,7 @@ class FieldsConfig(CremeModel):
 
             return False
 
-    def __unicode__(self):
+    def __str__(self):
         return ugettext('Configuration of {model}').format(model=self.content_type)
 
     @staticmethod
@@ -113,16 +113,16 @@ class FieldsConfig(CremeModel):
             try:
                 field = get_field(field_name)
             except FieldDoesNotExist as e:
-                logger.warn('FieldsConfig: problem with field "%s" ("%s")', field_name, e)
+                logger.warning('FieldsConfig: problem with field "%s" ("%s")', field_name, e)
                 errors = True
                 continue
 
             if not field.get_tag('optional'):
-                logger.warn('FieldsConfig: the field "%s" is not optional', field_name)
+                logger.warning('FieldsConfig: the field "%s" is not optional', field_name)
                 errors = True
                 continue
 
-            for name, value in field_conf.iteritems():
+            for name, value in field_conf.items():
                 if name != HIDDEN:
                     raise FieldsConfig.InvalidAttribute('Invalid attribute name: "{}"'.format(name))
 
@@ -158,7 +158,7 @@ class FieldsConfig(CremeModel):
                                                )
 
         if errors:
-            logger.warn('FieldsConfig: we save the corrected descriptions.')
+            logger.warning('FieldsConfig: we save the corrected descriptions.')
             self.descriptions = desc
             self.save()
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2014  Hybird
+#    Copyright (C) 2013-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from datetime import datetime
-from itertools import izip_longest
+from itertools import zip_longest
 
 from .constants import DATETIME_FILTER_FORMAT
 
@@ -40,20 +40,24 @@ def expand_sparse_iterator(sparse_iterator, default_value):
     This method takes an iterator on such a sparse collection and yields a default value
     for the missing indices, resulting in the original full collection.
     """
-    current_index, current_value = next(sparse_iterator)
-    yield current_value
+    try:
+        current_index, current_value = next(sparse_iterator)
+    except StopIteration:  # It's deprecated to raise a StopIteration in a generator
+        pass
+    else:
+        yield current_value
 
-    for next_index, next_value in sparse_iterator:
-        for _times in xrange(abs(current_index - next_index) - 1):
-            yield default_value
-        yield next_value
-        current_index = next_index
+        for next_index, next_value in sparse_iterator:
+            for _times in range(abs(current_index - next_index) - 1):
+                yield default_value
+            yield next_value
+            current_index = next_index
 
 
 # TODO: this could be interesting in creme_core.utils
 def sparsezip(full_collection, sparse_collection, default_value):
     "Zips a 'full' collection with a 'sparse' collection by expanding the latter using expand_sparse_iterator()"
-    for value in izip_longest(full_collection,
-                              expand_sparse_iterator(iter(sparse_collection), default_value),
-                              fillvalue=default_value):
+    for value in zip_longest(full_collection,
+                             expand_sparse_iterator(iter(sparse_collection), default_value),
+                             fillvalue=default_value):
         yield value

@@ -24,10 +24,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class _StatisticsRegistry(object):
+class _StatisticsRegistry:
     __slots__ = ('_items',)
 
-    class _StatisticsItem(object):
+    class _StatisticsItem:
         __slots__ = ('id', 'label', 'retrieve', 'perm', '_priority')
 
         def __init__(self, id, label, func, perm):
@@ -67,7 +67,7 @@ class _StatisticsRegistry(object):
             if item.id == item_id:
                 return items.pop(i)
 
-        logger.warn('Item with id=%s not found', item_id)
+        logger.warning('Item with id=%s not found', item_id)
 
     def change_priority(self, priority, *item_ids):
         for item_id in item_ids:

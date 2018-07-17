@@ -18,13 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from itertools import izip_longest
-import logging
+from itertools import zip_longest
 from json import dumps as json_dump
+import logging
 from re import compile as compile_re
 from types import GeneratorType
-from urllib import urlencode
-from urlparse import urlsplit
+# from urllib import urlencode
+# from urlparse import urlsplit
+from urllib.parse import urlencode, urlsplit
 import warnings
 
 from django.conf import settings
@@ -39,7 +40,7 @@ from mediagenerator.generators.bundles.utils import _render_include_media
 from ..backends import import_backend_registry, export_backend_registry
 from ..gui.field_printers import field_printers_registry
 from ..models import CremeEntity, Relation
-from ..utils import safe_unicode, bool_as_html
+from ..utils import bool_as_html  # safe_unicode
 from ..utils.currency_format import currency
 from ..utils.media import get_creme_media_url
 from ..utils.translation import plural
@@ -92,7 +93,7 @@ def get_meta_value(obj, key, default=''):
     try:
         return getattr(obj._meta, key)
     except AttributeError as e:
-        logger.warn('Templatetag get_meta_value: %s', e)
+        logger.warning('Templatetag get_meta_value: %s', e)
     except:
         pass
 
@@ -246,7 +247,7 @@ def mod(integer, integer2):
 
 @register.filter(name='xrange')
 def x_range(integer, start=0):
-    return xrange(start, start + integer)
+    return range(start, start + integer)
 
 
 @register.filter
@@ -271,7 +272,7 @@ def to_timestamp(date):
 
 @register.filter
 def uca_sort(iterable):
-    strs = [unicode(e) for e in iterable]
+    strs = [str(e) for e in iterable]
     strs.sort(key=collator.sort_key)
 
     return strs
@@ -290,9 +291,11 @@ def format_amount(amount, currency_or_id=None):
 @register.filter
 def optionize_model_iterable(iterable, type='tuple'):
     if type == 'dict':
-        return ({'value': model.id, 'label': safe_unicode(model)} for model in iterable)
+        # return ({'value': model.id, 'label': safe_unicode(model)} for model in iterable)
+        return ({'value': model.id, 'label': str(model)} for model in iterable)
     else:
-        return ((model.id, safe_unicode(model)) for model in iterable)
+        # return ((model.id, safe_unicode(model)) for model in iterable)
+        return ((model.id, str(model)) for model in iterable)
 
 
 @register.filter
@@ -310,14 +313,14 @@ def get_entity_summary(entity, user):
 
 @register.simple_tag(takes_context=True)
 def get_entity_html_attrs(context, entity):
-    return format_html_join(' ', '{}="{}"', entity.get_html_attrs(context).iteritems())
+    return format_html_join(' ', '{}="{}"', entity.get_html_attrs(context).items())
 
 
 # See grouper implementation: https://docs.python.org/2/library/itertools.html#recipes
 @register.filter
 def grouper(value, n):
     args = [iter(value)] * n
-    return izip_longest(fillvalue=None, *args)
+    return zip_longest(fillvalue=None, *args)
 
 
 @register.simple_tag
@@ -535,7 +538,7 @@ class MediaNode(TemplateNode):
 # TODO: creme_backends module ? (wait for list-view rework to see if it's still useful)
 @register.simple_tag
 def get_export_backends():
-    return json_dump([[backend.id, unicode(backend.verbose_name)]
+    return json_dump([[backend.id, str(backend.verbose_name)]
                         for backend in export_backend_registry.backends
                      ]
                     )

@@ -4,7 +4,8 @@ import codecs
 from collections import defaultdict
 import logging
 import re
-import StringIO, cStringIO
+# import StringIO, cStringIO
+from io import StringIO
 import sys
 
 # ----------------------------------- Logging ----------------------------------
@@ -20,7 +21,7 @@ SPACEORTAB = SPACE + TAB
 
 
 # -------------------------------- Main classes --------------------------------
-class VBase(object):
+class VBase:
     """Base class for ContentLine and Component.
     
     @ivar behavior:
@@ -229,6 +230,7 @@ class ContentLine(VBase):
         self.singletonparams = []
         self.isNative = isNative
         self.lineNumber = lineNumber
+
         def updateTable(x):
             if len(x) == 1:
                 self.singletonparams += x
@@ -258,14 +260,16 @@ class ContentLine(VBase):
         # self.value should be unicode for iCalendar, but if quoted-printable
         # is used, or if the quoted-printable state machine is used, text may be
         # encoded
-        if type(self.value) is str:
+        # if type(self.value) is str:
+        if isinstance(self.value, bytes):
             charset = 'iso-8859-1'
             if 'CHARSET' in self.params:
                 charsets = self.params.pop('CHARSET')
                 if charsets:
                     charset = charsets[0]
 
-            self.value = unicode(self.value, charset)
+            # self.value = str(self.value, charset)
+            self.value = self.value.decode(charset)
 
     def __getattr__(self, name):
         """Make params accessible via self.foo_param or self.foo_paramlist.
@@ -466,14 +470,14 @@ class Component(VBase):
         """Recursively replace children with their native representation."""
         # sort to get dependency order right, like vtimezone before vevent
         for childArray in (self.contents[k] for k in self.sortChildKeys()):
-            for i in xrange(len(childArray)):
+            for i in range(len(childArray)):
                 childArray[i] = childArray[i].transformToNative()
                 childArray[i].transformChildrenToNative()
 
     def transformChildrenFromNative(self, clearBehavior=True):
         """Recursively transform native children to vanilla representations."""
         for childArray in self.contents.values():
-            for i in xrange(len(childArray)):
+            for i in range(len(childArray)):
                 childArray[i]=childArray[i].transformFromNative()
                 childArray[i].transformChildrenFromNative(clearBehavior)
 
@@ -654,6 +658,7 @@ Line 1;encoding=quoted-printable:this is an evil=
 Line 2 is a new line, it does not start with whitespace.
 """
 
+
 def getLogicalLines(fp, allowQP=True, findBegin=False):
     """Iterate through a stream, yielding one logical line at a time.
 
@@ -664,8 +669,9 @@ def getLogicalLines(fp, allowQP=True, findBegin=False):
 
     Quoted-printable data will be decoded in the Behavior decoding phase.
 
-    >>> import StringIO
-    >>> f = StringIO.StringIO(testLines)
+    # >>> from StringIO import StringIO
+    >>> from io import StringIO
+    >>> f = StringIO(testLines)
     >>> for n, l in enumerate(getLogicalLines(f)):
     ...     print('Line {}: {}'.format(n, l[0]))
     ...
@@ -677,8 +683,10 @@ def getLogicalLines(fp, allowQP=True, findBegin=False):
     """
     if not allowQP:
         bytes = fp.read(-1)
+
         if len(bytes) > 0:
-            if type(bytes[0]) == unicode:
+            # if type(bytes[0]) == unicode:
+            if isinstance(bytes, str):
                 val = bytes
             elif not findBegin:
                 val = bytes.decode('utf-8')
@@ -697,7 +705,7 @@ def getLogicalLines(fp, allowQP=True, findBegin=False):
 
         # strip off any UTF8 BOMs which Python's UTF8 decoder leaves
 
-        val = val.lstrip(unicode(codecs.BOM_UTF8, "utf8"))
+        val = val.lstrip(str(codecs.BOM_UTF8, "utf8"))
         lineNumber = 1
 
         for match in logical_lines_re.finditer(val):
@@ -708,8 +716,8 @@ def getLogicalLines(fp, allowQP=True, findBegin=False):
 
             lineNumber += n
     else:
-        quotedPrintable=False
-        newbuffer = StringIO.StringIO
+        quotedPrintable = False
+        newbuffer = StringIO
         logicalLine = newbuffer()
         lineNumber = 0
         lineStartNumber = 0
@@ -773,41 +781,70 @@ def dquoteEscape(param):
     return param
 
 
-def foldOneLine(outbuf, input, lineLength = 75):
+def foldOneLine(outbuf, input, lineLength=75):
     # Folding line procedure that ensures multi-byte utf-8 sequences are not broken
     # across lines
 
-    if len(input) < lineLength:
+    # if len(input) < lineLength:
+    #     # Optimize for unfolded line case
+    #     outbuf.write(input)
+    # else:
+    #     # Look for valid utf8 range and write that out
+    #     start = 0
+    #     written = 0
+    #     while written < len(input):
+    #         # Start max length -1 chars on from where we are
+    #         offset = start + lineLength - 1
+    #         if offset >= len(input):
+    #             line = input[start:]
+    #             outbuf.write(line)
+    #             written = len(input)
+    #         else:
+    #             # Check whether next char is valid utf8 lead byte
+    #             while (input[offset] > 0x7F) and ((ord(input[offset]) & 0xC0) == 0x80):
+    #                 # Step back until we have a valid char
+    #                 offset -= 1
+    #
+    #             line = input[start:offset]
+    #             outbuf.write(line)
+    #             outbuf.write("\r\n ")
+    #             written += offset - start
+    #             start = offset
+    # outbuf.write("\r\n")
+    input_length = len(input)
+
+    if input_length < lineLength:
         # Optimize for unfolded line case
         outbuf.write(input)
     else:
         # Look for valid utf8 range and write that out
         start = 0
         written = 0
-        while written < len(input):
+        while written < input_length:
             # Start max length -1 chars on from where we are
             offset = start + lineLength - 1
-            if offset >= len(input):
+            if offset >= input_length:
                 line = input[start:]
                 outbuf.write(line)
                 written = len(input)
             else:
-                # Check whether next char is valid utf8 lead byte
-                while (input[offset] > 0x7F) and ((ord(input[offset]) & 0xC0) == 0x80):
-                    # Step back until we have a valid char
-                    offset -= 1
+                # # Check whether next char is valid utf8 lead byte
+                # while (input[offset] > 0x7F) and ((ord(input[offset]) & 0xC0) == 0x80):
+                #     # Step back until we have a valid char
+                #     offset -= 1
 
                 line = input[start:offset]
                 outbuf.write(line)
-                outbuf.write("\r\n ")
+                outbuf.write('\r\n ')
                 written += offset - start
                 start = offset
-    outbuf.write("\r\n")
+
+    outbuf.write('\r\n')
 
 
 def defaultSerialize(obj, buf, lineLength):
     """Encode and fold obj and its children, write to buf or return a string."""
-    outbuf = buf or cStringIO.StringIO()
+    outbuf = buf or StringIO()
 
     if isinstance(obj, Component):
         if obj.group is None:
@@ -830,14 +867,15 @@ def defaultSerialize(obj, buf, lineLength):
         if obj.behavior and not startedEncoded:
             obj.behavior.encode(obj)
 
-        s = codecs.getwriter('utf-8')(cStringIO.StringIO())  # unfolded buffer
+        # s = codecs.getwriter('utf-8')(StringIO())  # unfolded buffer
+        s = StringIO()  # unfolded buffer
 
         if obj.group is not None:
             s.write(obj.group + '.')
 
         s.write(obj.name.upper())
 
-        for key, paramvals in obj.params.iteritems():
+        for key, paramvals in obj.params.items():
             s.write(';' + key + '=' + ','.join(dquoteEscape(p) for p in paramvals))
 
         s.write(':' + obj.value)
@@ -904,7 +942,9 @@ END:VCALENDAR''')
     <SUMMARY{u'BLAH': [u'hi!']}Bastille Day Party>
     """
 
-    stream = StringIO.StringIO(streamOrString) if isinstance(streamOrString, basestring) else \
+    # stream = StringIO.StringIO(streamOrString) if isinstance(streamOrString, basestring) else \
+    #          streamOrString
+    stream = StringIO(streamOrString) if isinstance(streamOrString, str) else \
              streamOrString
 
     try:
@@ -989,7 +1029,7 @@ def readOne(stream, validate=False, transform=True, findBegin=True,
 
 # -------------------------- version registry ----------------------------------
 
-class BehaviorRegistry(object):
+class BehaviorRegistry:
     def __init__(self):
         self._behaviors = defaultdict(list)
 

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from future_builtins import zip
     from functools import partial
     # from json import loads as load_json
 

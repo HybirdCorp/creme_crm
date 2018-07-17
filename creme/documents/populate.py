@@ -53,8 +53,8 @@ class Populator(BasePopulator):
 
         # ---------------------------
         # TODO: pk string (or UUID) (+ move DOCUMENTS_FROM_EMAILS in 'emails' app) ??
-        entities_cat = create_if_needed(FolderCategory, {'pk': constants.DOCUMENTS_FROM_ENTITIES}, name=unicode(constants.DOCUMENTS_FROM_ENTITIES_NAME), is_custom=False)
-        create_if_needed(FolderCategory,                {'pk': constants.DOCUMENTS_FROM_EMAILS},   name=unicode(constants.DOCUMENTS_FROM_EMAILS_NAME),   is_custom=False)
+        entities_cat = create_if_needed(FolderCategory, {'pk': constants.DOCUMENTS_FROM_ENTITIES}, name=str(constants.DOCUMENTS_FROM_ENTITIES_NAME), is_custom=False)
+        create_if_needed(FolderCategory,                {'pk': constants.DOCUMENTS_FROM_EMAILS},   name=str(constants.DOCUMENTS_FROM_EMAILS_NAME),   is_custom=False)
 
         # TODO: created by 'products' & 'persons' app ?
         create_doc_cat = DocumentCategory.objects.get_or_create

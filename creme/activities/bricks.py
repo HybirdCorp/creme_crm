@@ -77,7 +77,7 @@ class ParticipantsBrick(QuerysetBrick):
             relation.object_entity = contacts[relation.object_entity_id]
 
         users_contacts = {contact.is_user_id: contact
-                            for contact in contacts.itervalues()
+                            for contact in contacts.values()
                                 if contact.is_user_id
                          }
 

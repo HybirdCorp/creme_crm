@@ -29,7 +29,7 @@ from django.db import connections, DEFAULT_DB_ALIAS
 from django.db.models.signals import pre_save
 
 from creme.creme_core.apps import creme_app_configs
-from creme.creme_core.utils import safe_unicode_error, safe_unicode
+# from creme.creme_core.utils import safe_unicode_error, safe_unicode
 from creme.creme_core.utils.collections import OrderedSet
 from creme.creme_core.utils.dependence_sort import dependence_sort
 
@@ -43,7 +43,7 @@ def _checked_app_label(app_label, app_labels):
     return app_label
 
 
-class BasePopulator(object):
+class BasePopulator:
     dependencies = []  # eg: ['appname1', 'appname2']
 
     def __init__(self, verbosity, app, all_apps, options, stdout, style):
@@ -88,7 +88,7 @@ class Command(BaseCommand):
     requires_migrations_checks = True
 
     def _signal_handler(self, sender, instance, **kwargs):
-        if instance.pk and not isinstance(instance.pk, basestring):
+        if instance.pk and not isinstance(instance.pk, str):
             # Models with string pk should manage pk manually, so we can optimise
             self.models.add(sender)
 
@@ -164,10 +164,12 @@ class Command(BaseCommand):
             try:
                 populator.populate()
             except Exception as e:
-                self.stderr.write(' Populate "{}" failed ({})'.format(populator.app, safe_unicode_error(e)))
+                # self.stderr.write(' Populate "{}" failed ({})'.format(populator.app, safe_unicode_error(e)))
+                self.stderr.write(' Populate "{}" failed ({})'.format(populator.app, e))
                 if verbosity >= 1:
                     exc_type, exc_value, exc_traceback = sys.exc_info()
-                    self.stderr.write(safe_unicode(''.join(format_exception(exc_type, exc_value, exc_traceback))))
+                    # self.stderr.write(safe_unicode(''.join(format_exception(exc_type, exc_value, exc_traceback))))
+                    self.stderr.write(''.join(format_exception(exc_type, exc_value, exc_traceback)))
 
             if verbosity >= 1:
                 # self.stdout.write(' OK', self.style.MIGRATE_SUCCESS)

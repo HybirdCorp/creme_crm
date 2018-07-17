@@ -58,7 +58,7 @@ class UserAddForm(CremeModelForm):
 
     password_1 = CharField(label=_(u'Password'), strip=False, widget=PasswordInput,
                            # help_text=password_validation.password_validators_help_text_html(),
-                           help_text=lazy(_password_validators_help_text_html, unicode),
+                           help_text=lazy(_password_validators_help_text_html, str),
                           )
     # password_1   = CharField(label=_(u'Password'), min_length=6, widget=PasswordInput())
     password_2 = CharField(label=_(u'Confirm password'),
@@ -151,7 +151,7 @@ class UserChangePwForm(CremeForm):
     password_1 = CharField(label=_(u'Password'),
                            widget=PasswordInput, strip=False,
                            # help_text=password_validation.password_validators_help_text_html(),
-                           help_text=lazy(_password_validators_help_text_html, unicode),
+                           help_text=lazy(_password_validators_help_text_html, str),
                           )
     password_2 = CharField(label=_(u'Password (again)'),
                            widget=PasswordInput, strip=False,
@@ -221,7 +221,7 @@ class UserAssignationForm(CremeForm):
         users = CremeUser.objects.exclude(pk=user_to_delete.pk).exclude(is_staff=True)
         choices = defaultdict(list)
         for user in users:
-            choices[user.is_team].append((user.id, unicode(user)))
+            choices[user.is_team].append((user.id, str(user)))
 
         to_user = self.fields['to_user']
         to_user.queryset = users

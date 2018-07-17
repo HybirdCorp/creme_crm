@@ -53,7 +53,7 @@ def sync_with_user(sender, instance, created, **kwargs):
                                   email=instance.email,
                                  )
     except DatabaseError as e:
-        logger.warn('Can not create linked contact for this user: %s (if it is the first user,'
+        logger.warning('Can not create linked contact for this user: %s (if it is the first user,'
                     ' do not worry because it is normal) (%s)', instance, e
                    )
 

@@ -95,7 +95,7 @@ class ParticipantCreateForm(CremeForm):
             if not user.is_team:
                 users.add(user)
             else:
-                users.update(user.teammates.itervalues())
+                users.update(user.teammates.values())
 
         return validators.validate_linkable_entities(Contact.objects.filter(is_user__in=users),
                                                      self.user,
@@ -175,7 +175,7 @@ class SubjectCreateForm(CremeForm):
                                             u'These entities are already subjects: %(duplicates)s',
                                             len(duplicates)
                                            ),
-                                  params={'duplicates': u', '.join(unicode(e) for e in duplicates)},
+                                  params={'duplicates': u', '.join(str(e) for e in duplicates)},
                                  )
 
         return subjects

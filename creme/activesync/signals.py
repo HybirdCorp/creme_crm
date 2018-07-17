@@ -63,7 +63,7 @@ def post_delete_activesync_handler(sender, instance, **kwargs):
     c_x_mapping = _get_mapping_from_creme_entity_id(instance.pk)
 
     if c_x_mapping is not None:
-        c_x_mapping.creme_entity_repr = unicode(instance)
+        c_x_mapping.creme_entity_repr = str(instance)
         c_x_mapping.creme_entity_ct = ContentType.objects.get_for_model(instance)
         c_x_mapping.was_deleted = True
         c_x_mapping.save()

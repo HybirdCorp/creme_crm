@@ -132,7 +132,7 @@ def get_available_report_graph_types(request, ct_id):
         result = [{'id': '', 'text': _(u'Choose an abscissa field')}]  # TODO: is the translation useful ??
     else:
         result = [{'id':   type_id,
-                   'text': unicode(RGRAPH_HANDS_MAP[type_id].verbose_name),
+                   'text': str(RGRAPH_HANDS_MAP[type_id].verbose_name),
                   } for type_id in gtypes
                  ]
 

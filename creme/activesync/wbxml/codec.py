@@ -27,7 +27,7 @@
 ################################################################################
 
 import logging
-import StringIO
+from io import StringIO
 from xml.etree.ElementTree import XML, Element, ElementTree, _ElementInterface, tostring #SubElement, , fromstring
 
 
@@ -98,7 +98,7 @@ class WrongXMLType(Exception):
 class WrongWBXMLType(Exception):
     pass
 
-class WBXMLEncoder(object):
+class WBXMLEncoder:
     """
         Encode xml to wbxml
 
@@ -121,17 +121,17 @@ class WBXMLEncoder(object):
     def encode(self, to_encode):
         logger.debug('Enter encode')
 
-        self._out    = StringIO.StringIO()
+        self._out    = StringIO()
         self._tagcp  = 0
         self._attrcp = 0
         self._stack  = []
 
-        if isinstance(to_encode, basestring):
+        if isinstance(to_encode, str):
             self.xml = XML(to_encode)
         elif isinstance(to_encode, (_ElementInterface, )):
             self.xml = to_encode
         else:
-            raise WrongXMLType("to_encode has to be an instance of unicode or basestring or xml.etree.ElementTree.Element not %s" % to_encode.__class__)
+            raise WrongXMLType("to_encode has to be an instance of str or xml.etree.ElementTree.Element not %s" % to_encode.__class__)
 
         #Writting the wbxml header
         self.write_header()
@@ -346,7 +346,7 @@ class WBXMLEncoder(object):
 
 ################################################################################
 
-class WBXMLDecoder(object):
+class WBXMLDecoder:
     """
         Decode wbxml to xml
 
@@ -371,7 +371,7 @@ class WBXMLDecoder(object):
         self.attrcp = 0
         self.unget_buffer = None
 
-        self.input    =  StringIO.StringIO(to_decode)
+        self.input    =  StringIO(to_decode)
         self.version  = self.get_byte()
         self.publicid = self.get_mbuint()
 

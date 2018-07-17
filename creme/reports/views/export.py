@@ -129,7 +129,7 @@ def export(request, report_id):
     form = ReportExportFilterForm(report=report, user=user, data=request.GET)
 
     if not form.is_valid():
-        logger.warn('Error in reports.export(): %s', form.errors)
+        logger.warning('Error in reports.export(): %s', form.errors)
         raise Http404('Invalid export filter')
 
     q_filter = form.get_q()

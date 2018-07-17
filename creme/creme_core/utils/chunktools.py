@@ -16,7 +16,7 @@
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
@@ -24,7 +24,7 @@
 #
 ################################################################################
 
-from future_builtins import map
+import warnings
 
 
 # def iter_splitchunks(chunks, sep, filter):
@@ -58,7 +58,13 @@ def iter_splitchunks(chunks, sep, parser=None, limit=None):
         yield last
 
 
+# NB: broken if you pass bytes instead of str after the transition py2.7 => py3
 def iter_splitlinechunks(chunks, parser=None, limit=None):
+    warnings.warn('creme_core.utils.chunktools.iter_splitlinechunks() is deprecated ; '
+                  'you can use the method django.core.files.base.File.__iter__() instead for example.',
+                  DeprecationWarning
+                 )
+
     overflow = ''
     endline = '\r\n'
 

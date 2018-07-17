@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from future_builtins import map
-
 from collections import defaultdict
 from copy import deepcopy
 from functools import partial
@@ -167,7 +165,7 @@ class JSONField(fields.CharField):
         if not value:
             return ''
 
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             return value
 
         return self.format_json(self._value_to_jsonifiable(value))
@@ -364,7 +362,7 @@ class GenericEntityField(EntityCredsJSONField):
         return {'ctype': {
                     'id': ctype_id,
                     'create': ctype_create_url,
-                    'create_label': unicode(ctype.model_class().creation_label),
+                    'create_label': str(ctype.model_class().creation_label),
                 },
                 'entity': pk
                }
@@ -401,9 +399,9 @@ class GenericEntityField(EntityCredsJSONField):
         create_url = partial(self._create_url, self._user)
         return ((json_dump({'id': ctype.pk,
                             'create': create_url(ctype),
-                            'create_label': unicode(ctype.model_class().creation_label),
+                            'create_label': str(ctype.model_class().creation_label),
                            }),
-                 unicode(ctype)
+                 str(ctype)
                 ) for ctype in self.get_ctypes())
 
     def get_ctypes(self):
@@ -473,7 +471,7 @@ class MultiGenericEntityField(GenericEntityField):
         entities_map = {}
 
         # Build the list of entities (ignore invalid entries)
-        for ct_id, ctype_entity_pks in entities_by_ctype.iteritems():
+        for ct_id, ctype_entity_pks in entities_by_ctype.items():
             ctype_entities = self._clean_ctype(ct_id).model_class() \
                                                      .objects \
                                                      .filter(is_deleted=False) \
@@ -492,11 +490,11 @@ class MultiGenericEntityField(GenericEntityField):
         return self._check_entities_perms([entities_map[pk] for pk in entities_pks])
 
 
-class ChoiceModelIterator(object):
+class ChoiceModelIterator:
     def __init__(self, queryset, render_value=None, render_label=None):
         self.queryset = queryset.all()
         self.render_value = render_value or (lambda v: v.pk)
-        self.render_label = render_label or (lambda v: unicode(v))
+        self.render_label = render_label or (lambda v: str(v))
 
     def __iter__(self):
         for model in self.queryset:
@@ -878,7 +876,8 @@ class CreatorEntityField(EntityCredsJSONField):
         return quickforms_registry.get_form(model) is not None
 
     def _value_to_jsonifiable(self, value):
-        if isinstance(value, (int, long)):
+        # if isinstance(value, (int, long)):
+        if isinstance(value, int):
             if not self._entity_queryset(self.model, self.q_filter_query).filter(pk=value).exists():
                 raise ValueError('No such entity with id={}.'.format(value))
 
@@ -909,7 +908,8 @@ class MultiCreatorEntityField(CreatorEntityField):
         if not value:
             return []
 
-        if value and isinstance(value[0], (int, long)):
+        # if value and isinstance(value[0], (int, long)):
+        if value and isinstance(value[0], int):
             if self._entity_queryset(self.model, self.q_filter_query).filter(pk__in=value).count() < len(value):
                 raise ValueError("The entities with ids [{}] don't exist.".format(
                                         ', '.join(str(v) for v in value)
@@ -992,7 +992,7 @@ class FilteredEntityTypeField(JSONField):
 
         if self._empty_label is not None:
             # TODO: improve widget to do not make a request for '0' (same comment in widget)
-            choices.append((0, unicode(self._empty_label)))
+            choices.append((0, str(self._empty_label)))
 
         choices.extend(build_ct_choices(self.ctypes))
 
@@ -1509,7 +1509,7 @@ class MultiCTypeChoiceField(CTypeChoiceField):
         get_app_conf = apps.get_app_config
 
         choices = [(Choice(ct.id, help=get_app_conf(ct.app_label).verbose_name),
-                    unicode(ct),
+                    str(ct),
                    ) for ct in ctypes
                   ]
         sort_key = collator.sort_key

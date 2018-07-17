@@ -21,7 +21,7 @@
 from django.utils.translation import ugettext as _
 
 
-class PagerLink(object):
+class PagerLink:
     CHOOSE = 'choose'
     PREVIOUS = 'previous'
     NEXT = 'next'
@@ -30,7 +30,7 @@ class PagerLink(object):
         self.page = page
         self.group = group
         self.enabled = enabled
-        self.label = label or unicode(page)
+        self.label = label or str(page)
         self.is_current = is_current
 
         if help is None:
@@ -57,13 +57,13 @@ class PagerLink(object):
     def is_choose(self):
         return self.group == self.CHOOSE
 
-    def __unicode__(self):
+    def __str__(self):
         return u'PagerLink(label={label}, help={help}, group={group}, enabled={enabled}, page={page})'.format(
             label=self.label, help=self.help, group=self.group, enabled=self.enabled, page=self.page,
         )
 
 
-class PagerContext(object):
+class PagerContext:
     SHOW_ALL_PAGES_LIMIT = 5
     SHOW_LAST_PAGE_LIMIT = 4
     SHOW_FIRST_PAGE_LIMIT = 4
@@ -106,11 +106,11 @@ class PagerContext(object):
 
         if page_count < self.SHOW_ALL_PAGES_LIMIT:
             links.extend(
-                PagerLink(index, is_current=is_current(index)) for index in xrange(1, page_count + 1)
+                PagerLink(index, is_current=is_current(index)) for index in range(1, page_count + 1)
             )
         elif page_current <= self.SHOW_LAST_PAGE_LIMIT:
             links.extend(
-                PagerLink(index, is_current=is_current(index)) for index in xrange(1, page_next + 1)
+                PagerLink(index, is_current=is_current(index)) for index in range(1, page_next + 1)
             )
             links.append(PagerLink(page_next + 1, help=_(u'To another page'), group=PagerLink.CHOOSE))
             links.append(PagerLink(page_count, help=_(u'To last page')))
@@ -118,13 +118,13 @@ class PagerContext(object):
             links.append(PagerLink(1, help=_(u'To first page')))
             links.append(PagerLink(page_previous - 1, help=_(u'To another page'), group=PagerLink.CHOOSE))
             links.extend(
-                PagerLink(index, is_current=is_current(index)) for index in xrange(page_previous, page_count + 1)
+                PagerLink(index, is_current=is_current(index)) for index in range(page_previous, page_count + 1)
             )
         else:
             links.append(PagerLink(1, help=_(u'To first page')))
             links.append(PagerLink(page_previous - 1, help=_(u'To another page'), group=PagerLink.CHOOSE))
             links.extend(
-                PagerLink(index, is_current=is_current(index)) for index in xrange(page_previous, page_next + 1)
+                PagerLink(index, is_current=is_current(index)) for index in range(page_previous, page_next + 1)
             )
             links.append(PagerLink(page_next + 1, help=_(u'To another page'), group=PagerLink.CHOOSE))
             links.append(PagerLink(page_count, help=_(u'To last page')))

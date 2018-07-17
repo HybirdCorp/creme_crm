@@ -69,7 +69,7 @@ class DatePeriodField(TextField):  # TODO: inherit from a JSONField
         if not value:  # if value is None: ??
             return None
 
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             return date_period_registry.deserialize(jsonloads(value))
 
         # DatePeriod instance

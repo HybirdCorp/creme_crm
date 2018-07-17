@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from future_builtins import filter
 import logging
 import re
 from xml.etree import ElementTree as ET
@@ -107,11 +106,12 @@ class CreateEmailInput(EmailInput):
             if self.is_allowed_password(backend.password, split_body):
                 for key in data.keys():
                     for i, line in enumerate(split_body):
-                        r = re.search(ur"""[\t ]*%s[\t ]*=(?P<%s>['"/@ \t.;?!-\\\w&]+)""" % (key, key), line, flags=re.UNICODE)
+                        r = re.search(r"""[\t ]*%s[\t ]*=(?P<%s>['"/@ \t.;?!-\\\w&]+)""" % (key, key), line, flags=re.UNICODE)
 
                         if r:
                             # TODO: Check if the target field is a simple-line field ?
-                            data[key] = (r.groupdict().get(key).replace('\\n', '\n')).encode('utf8')
+                            # data[key] = (r.groupdict().get(key).replace('\\n', '\n')).encode('utf8')
+                            data[key] = r.groupdict().get(key).replace('\\n', '\n')
                             split_body.pop(i)
                             break
 
@@ -200,7 +200,7 @@ class CreateInfopathInput(CreateEmailInput):
     def _pre_process_data(self, backend, data):
         model_get_field = backend.model._meta.get_field
 
-        for field_name, field_value in data.iteritems():
+        for field_name, field_value in data.items():
             try:
                 field = model_get_field(field_name)
             except FieldDoesNotExist:
@@ -209,7 +209,8 @@ class CreateInfopathInput(CreateEmailInput):
             if field_value is not None \
                and (isinstance(field, ForeignKey) and issubclass(field.remote_field.model, Document)) \
                or isinstance(field, FileField):
-                data[field_name] = decode_b64binary(field_value)  # (filename, image_blob)
+                # data[field_name] = decode_b64binary(field_value)  # (filename, image_blob)
+                data[field_name] = decode_b64binary(field_value.encode())  # (filename, image_blob)
 
     def create(self, email):
         backend = self.get_backend(CrudityBackend.normalize_subject(email.subject)) or self.get_backend("*")
@@ -238,7 +239,8 @@ class CreateInfopathInput(CreateEmailInput):
                     return backend
 
     def get_data_from_infopath_file(self, backend, xml_file):
-        content = xml_file.read()
+        # content = xml_file.read()
+        content = xml_file.read().decode()
         # data = {}
         content = re.sub(remove_pattern, '', content.strip(), re.U)
         content = re.sub('>[\s]*<', '><', content, re.U)

@@ -36,14 +36,14 @@ class FieldNotAllowed(Exception):
     pass
 
 
-class _BulkUpdateRegistry(object):
+class _BulkUpdateRegistry:
     """Registry which stores what fields of entities models can or cannot be
     edited via the inner/bulk edition system, and if they use a specific form.
 
     For the app writers, only the register() method should be useful. Call it in
     your creme_core_register.py with the global 'bulk_update_registry' instance.
     """
-    class ModelBulkStatus(object):
+    class ModelBulkStatus:
         def __init__(self, model, ignore=False):
             self._model = model
             self.ignore = ignore
@@ -90,7 +90,7 @@ class _BulkUpdateRegistry(object):
             # TODO: FieldsConfig.LocalCache ??
             is_updatable = self.is_updatable
             return {key: field
-                        for key, field in self.regular_fields.iteritems()
+                        for key, field in self.regular_fields.items()
                             if is_updatable(field)
                    }
 
@@ -98,7 +98,7 @@ class _BulkUpdateRegistry(object):
         def expandable_regular_fields(self):
             is_expandable = self.is_expandable
             return {key: field
-                        for key, field in self.regular_fields.iteritems()
+                        for key, field in self.regular_fields.items()
                             if is_expandable(field)
                    }
 
@@ -202,7 +202,7 @@ class _BulkUpdateRegistry(object):
             bulk_status._innerforms.update(innerforms)
 
         # Manage child and parent classes
-        for other_model, other_status in self._status.iteritems():
+        for other_model, other_status in self._status.items():
             if other_model is not model:
                 if issubclass(other_model, model):
                     # Registered subclass inherits exclusions of new model

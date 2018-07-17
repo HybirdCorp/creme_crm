@@ -69,7 +69,7 @@ class _FieldAddressForm(UnnamedAddressForm):
 
     def save(self, *args, **kwargs):
         address = self.instance
-        address.name = unicode(self.verbose_name)
+        address.name = str(self.verbose_name)
 
         entity = self._entity
         super(_FieldAddressForm, self).save(*args, **kwargs)

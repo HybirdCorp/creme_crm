@@ -273,7 +273,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         #                  }),
         #                  response.content
         #                 )
-        self.assertEqual({'added': [[instance.id, unicode(instance)]],
+        self.assertEqual({'added': [[instance.id, str(instance)]],
                           'value': instance.id
                          },
                          response.json()

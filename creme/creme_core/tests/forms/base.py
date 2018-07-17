@@ -26,7 +26,7 @@ class FieldTestCase(CremeTestCase):  # TODO: Mixin
     def assertFieldValidationError(self, field, key, func, *args, **kwargs):
         message_args = kwargs.pop('message_args', {})   # Pop error message args from kwargs
         err, stack = self.assertFieldRaises(ValidationError, func, *args, **kwargs)
-        message = unicode(field().error_messages[key] % message_args)
+        message = str(field().error_messages[key] % message_args)
 
         if not hasattr(err, 'messages'):
             self.fail('unexpected empty message instead of "{}"\nerror : {}'.format(message, stack))

@@ -59,7 +59,7 @@ def rename_linkedproject_fields(apps, schema_editor):
         cells_map_data = json_load(rbci.json_cells_map)
         save = False
 
-        for cells_ctid, cells_data in cells_map_data.iteritems():
+        for cells_ctid, cells_data in cells_map_data.items():
             if int(cells_ctid) == ct_id:
                 for cell_data in cells_data:
                     if cell_data.get('type') == 'regular_field' and cell_data.get('value', '').startswith('project'):

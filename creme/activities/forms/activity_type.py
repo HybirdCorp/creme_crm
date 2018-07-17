@@ -170,7 +170,7 @@ class ActivityTypeField(JSONField):
             yield None, self.empty_label
 
         for instance in types:
-            yield instance.id, unicode(instance)
+            yield instance.id, str(instance)
 
 
 class BulkEditTypeForm(BulkDefaultEditForm):

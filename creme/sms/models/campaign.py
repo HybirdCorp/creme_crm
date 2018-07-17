@@ -44,7 +44,7 @@ class AbstractSMSCampaign(CremeEntity):
         verbose_name_plural = _(u'SMS campaigns')
         ordering = ('name',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
@@ -70,7 +70,7 @@ class AbstractSMSCampaign(CremeEntity):
             sending.delete(*args, **kwargs)
 
         # super(AbstractSMSCampaign, self).delete()
-        super(AbstractSMSCampaign, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
 
     def all_recipients(self):
         mlists = self.lists.filter(is_deleted=False)

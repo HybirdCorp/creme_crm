@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from __future__ import division
-
 import collections
 from datetime import date, datetime
 from decimal import Decimal
@@ -48,7 +46,7 @@ class LastPage(InvalidPage):
     pass
 
 
-class FlowPaginator(object):
+class FlowPaginator:
     """Paginates a Queryset on CremeEntities.
 
     It should be fast on big data bases, because it avoids SQL's OFFSET most of the time,
@@ -59,7 +57,7 @@ class FlowPaginator(object):
             (ie: first in ASC order, last in DESC order).
             Tip: you can use creme.models.manager.LowNullsQuerySet.
     """
-    def __init__(self, queryset, key, per_page, count=sys.maxint):
+    def __init__(self, queryset, key, per_page, count=sys.maxsize):
         """Constructor.
         @param queryset: QuerySet instance. Beware: lines must have always the same order when
                          sub-set queries are performed, or the paginated content won't be consistent.

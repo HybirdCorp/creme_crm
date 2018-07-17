@@ -28,12 +28,12 @@ from django.utils.datastructures import OrderedSet
 # logger = logging.getLogger(__name__)
 
 
-class Algo(object):
+class Algo:
     def generate_number(self, organisation, ct, *args, **kwargs):
         pass
 
 
-class AlgoRegistry(object):
+class AlgoRegistry:
     class RegistrationError(Exception):
         pass
 
@@ -56,11 +56,11 @@ class AlgoRegistry(object):
         return self._algos.get(name)
 
     def __iter__(self):
-        return self._algos.iteritems()
+        return iter(self._algos.items())
 
     @property
     def algorithms(self):
-        return self._algos.itervalues()
+        return iter(self._algos.values())
 
     def itervalues(self):
         warnings.warn('AlgoRegistry.itervalues() is deprecated ; '
@@ -75,7 +75,7 @@ algo_registry = AlgoRegistry()
 
 
 # ------------------------------------------------------------------------------
-class RelationTypeConverterRegistry(object):
+class RelationTypeConverterRegistry:
     """ This registry is used when converting a billing document into another billing document.
     The RelationTypes which ContentType doesn't match after the conversion also have to be
     converted into a compatible one.
@@ -104,7 +104,7 @@ relationtype_converter = RelationTypeConverterRegistry()
 
 
 # ------------------------------------------------------------------------------
-class LinesRegistry(object):
+class LinesRegistry:
     """ Stores the different Line classes to use with billing document.
 
     Generally, it is just ProductLine & ServiceLine.

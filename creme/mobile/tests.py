@@ -587,7 +587,7 @@ class MobileTestCase(CremeTestCase):
 
         expected_pcalls = [pc2, pc1]
 
-        for minute in xrange(8):
+        for minute in range(8):
             expected_pcalls.append(create_pc(start=now_val - timedelta(hours=23, minutes=60 - minute), participant=contact))
 
         create_pc(start=now_val - timedelta(hours=23, minutes=minute), participant=contact)  # Already 10 PhoneCalls
@@ -639,7 +639,7 @@ class MobileTestCase(CremeTestCase):
         contact2 = self.other_user.linked_contact
 
         create_floating = partial(self._create_floating, participant=contact1)
-        for i in xrange(1, 32):
+        for i in range(1, 32):
             activity = create_floating('Floating %i' % i)
             # TODO: improve self._create_floating for several participants
             # several participants, because the template does not display 'me' (user.linked_contact)

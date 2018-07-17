@@ -103,7 +103,7 @@ class CremeListViewTagsTestCase(CremeTestCase):
     def test_listview_pager_slow(self):
         user = self.login()
 
-        for i in xrange(1, 20):
+        for i in range(1, 20):
             FakeOrganisation.objects.create(user=user, name='A{}'.format(i))
 
         paginator = Paginator(FakeOrganisation.objects.all(), 5)
@@ -129,7 +129,7 @@ class CremeListViewTagsTestCase(CremeTestCase):
     def test_listview_pager_fast(self):
         user = self.login()
 
-        for i in xrange(1, 20):
+        for i in range(1, 20):
             FakeOrganisation.objects.create(user=user, name='A{}'.format(i))
 
         paginator = FlowPaginator(queryset=FakeOrganisation.objects.all(),

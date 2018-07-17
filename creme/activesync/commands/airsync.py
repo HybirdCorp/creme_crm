@@ -76,8 +76,8 @@ class AirSync(Base):
         data = {'user': user}
         if app_data is not None:
             app_data_find = app_data.find
-            for ns, field_dict in mapping.iteritems():
-                for c_field, x_field in field_dict.iteritems():
+            for ns, field_dict in mapping.items():
+                for c_field, x_field in field_dict.items():
                     d = app_data_find('{%s}%s' % (ns, x_field))
                     if d is not None:
                         if callable(c_field):
@@ -86,8 +86,8 @@ class AirSync(Base):
                         if c_field and c_field.strip() != '':
                             data[c_field] = smart_text(d.text)
         else:
-            for ns, field_dict in mapping.iteritems():
-                for c_field, x_field in field_dict.iteritems():
+            for ns, field_dict in mapping.items():
+                for c_field, x_field in field_dict.items():
                     if callable(c_field):
                         c_field = c_field(needs_attr=True)
                     data[c_field] = u""
@@ -142,12 +142,12 @@ class AirSync(Base):
         #Gathering all required namespaces
         namespaces = mapping.keys()
         extra_ns   = {"A%s" % i: v for i, v in enumerate(namespaces)}
-        reverse_ns = {v: k for k, v in extra_ns.iteritems()}
+        reverse_ns = {v: k for k, v in extra_ns.items()}
 
         reverse_ns_get = reverse_ns.get
         folder_supported_append = folder.supported.append
 
-        for prefix, ns in mapping.iteritems():
+        for prefix, ns in mapping.items():
             for item in ns.values():
                 ns_prefix = reverse_ns_get(prefix)
                 folder_supported_append("<%s%s/>" % ('%s:' % ns_prefix if ns_prefix else '', item))
@@ -301,8 +301,8 @@ class AirSync(Base):
                     update_data = {}
                     app_data_node = change_node.find('%(ns0)sApplicationData' % d_ns)
                     if app_data_node is not None:
-                        for ns, field_dict in mapping.iteritems():
-                            for c_field, x_field in field_dict.iteritems():
+                        for ns, field_dict in mapping.items():
+                            for c_field, x_field in field_dict.items():
                                 node = app_data_node.find('{%(ns1)s}%(x_field)s' % {'x_field': x_field, 'ns1': ns})
                                 if node is not None:
                                     if callable(c_field):
@@ -310,8 +310,8 @@ class AirSync(Base):
 
                                     update_data[c_field] = smart_text(node.text)
                     else:
-                        for ns, field_dict in mapping.iteritems():
-                            for c_field, x_field in field_dict.iteritems():
+                        for ns, field_dict in mapping.items():
+                            for c_field, x_field in field_dict.items():
                                 if callable(c_field):
                                     c_field = c_field(needs_attr=True)
                                 update_data[c_field] = u""

@@ -303,7 +303,7 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
         self.assertTrue(Address(address='21 jump street', country='Yeeeha'))
 
-    def test_unicode01(self):
+    def test_str01(self):
         address_value = '21 jump street'
         po_box = 'Popop'
         zipcode = '424242'
@@ -322,24 +322,24 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
                           country=country,
                          )
         self.assertEqual(u'{} {} {} {}'.format(address_value, zipcode, city, department),
-                         unicode(address)
+                         str(address)
                         )
 
         address.zipcode = None
-        self.assertEqual(u'{} {} {}'.format(address_value, city, department), unicode(address))
+        self.assertEqual(u'{} {} {}'.format(address_value, city, department), str(address))
 
         address.department = None
-        self.assertEqual(u'{} {}'.format(address_value, city), unicode(address))
+        self.assertEqual(u'{} {}'.format(address_value, city), str(address))
 
-        self.assertEqual(po_box, unicode(Address(po_box=po_box)))
-        self.assertEqual(state, unicode(Address(state=state)))
-        self.assertEqual(country, unicode(Address(country=country)))
+        self.assertEqual(po_box, str(Address(po_box=po_box)))
+        self.assertEqual(state, str(Address(state=state)))
+        self.assertEqual(country, str(Address(country=country)))
 
         self.assertEqual(u'{} {} {}'.format(po_box, state, country),
-                         unicode(Address(po_box=po_box, state=state, country=country))
+                         str(Address(po_box=po_box, state=state, country=country))
                         )
 
-    def test_unicode02(self):
+    def test_str02(self):
         FieldsConfig.create(Address,
                             descriptions=[('zipcode',    {FieldsConfig.HIDDEN: True}),
                                           ('department', {FieldsConfig.HIDDEN: True}),
@@ -360,9 +360,9 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
                           state=state,
                           country='wtf',
                          )
-        self.assertEqual(u'{} {}'.format(address_value, city), unicode(address))
+        self.assertEqual(u'{} {}'.format(address_value, city), str(address))
 
-        self.assertEqual(po_box, unicode(Address(po_box=po_box, state=state)))
+        self.assertEqual(po_box, str(Address(po_box=po_box, state=state)))
 
     @skipIfCustomOrganisation
     def test_delete_orga(self):
@@ -452,7 +452,7 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(gainax.entity_type, hline.entity_ctype)
         self.assertEqual(self.other_user,    hline.entity_owner)
         self.assertEqual(TYPE_AUX_CREATION,  hline.type)
-        self.assertEqual([ContentType.objects.get_for_model(address).id, address.id, unicode(address)],
+        self.assertEqual([ContentType.objects.get_for_model(address).id, address.id, str(address)],
                          hline.modifications
                         )
         self.assertEqual([_(u'Add <{type}>: “{value}”').format(

@@ -87,7 +87,7 @@ def skipIfCustomServiceLine(test_func):
     return skipIf(skip_sline_tests, 'Custom ServiceLine model in use')(test_func)
 
 
-class _BillingTestCaseMixin(object):
+class _BillingTestCaseMixin:
     def login(self, is_superuser=True, allowed_apps=None, *args, **kwargs):
         return super(_BillingTestCaseMixin, self).login(is_superuser,
                                                         allowed_apps=allowed_apps or ['billing'],
@@ -267,10 +267,10 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
         # ----------------------------------------------------------------------
 
         lines_count = 4
-        names   = ['Billdoc #%04i' % i for i in xrange(1, lines_count + 1)]
-        numbers = ['B%04i' % i for i in xrange(1, lines_count + 1)]
+        names   = ['Billdoc #%04i' % i for i in range(1, lines_count + 1)]
+        numbers = ['B%04i' % i for i in range(1, lines_count + 1)]
         issuing_dates = [date(year=2013, month=6 + i, day=24 + i)
-                            for i in xrange(lines_count)
+                            for i in range(lines_count)
                         ]
 
         date_fmt = settings.DATE_INPUT_FORMATS[0]

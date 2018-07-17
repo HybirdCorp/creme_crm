@@ -40,5 +40,5 @@ class TaskStatus(CremeModel):
         verbose_name_plural = pgettext_lazy('projects-plural', u'Status of task')
         ordering = ('order',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name

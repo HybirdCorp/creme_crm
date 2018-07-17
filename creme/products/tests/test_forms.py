@@ -215,8 +215,8 @@ class CreateCategoryTestCase(CremeTestCase):
 
         cat12 = self.get_object_or_fail(SubCategory, name='sub12')
 
-        self.assertEqual({'added': [{'category': [str(cat1.id), unicode(cat1)],
-                                     'subcategory': [str(cat12.id), unicode(cat12)],
+        self.assertEqual({'added': [{'category': [str(cat1.id), str(cat1)],
+                                     'subcategory': [str(cat12.id), str(cat12)],
                                     }],
                           'value': {'category': str(cat1.id),
                                     'subcategory': str(cat12.id),
@@ -246,7 +246,7 @@ class CreateCategoryTestCase(CremeTestCase):
         self.assertNoFormError(response)
         cat1 = self.get_object_or_fail(Category, name='cat1')
 
-        self.assertEqual({'added': [[cat1.id, unicode(cat1)]],
+        self.assertEqual({'added': [[cat1.id, str(cat1)]],
                           'value': cat1.id
                          },
                          response.json()

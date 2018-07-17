@@ -45,7 +45,7 @@ class Calendar(CremeModel):
         verbose_name_plural = _(u'Calendars')
         ordering = ['name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @property

@@ -102,7 +102,7 @@ class EntityFiltersTestCase(CremeTestCase):
 
         if kwargs.get('exclude', False):
             excluded = frozenset(short_names)
-            ids = [c.id for sn, c in contacts.iteritems() if sn not in excluded]
+            ids = [c.id for sn, c in contacts.items() if sn not in excluded]
         else:
             ids = [contacts[sn].id for sn in short_names]
 
@@ -691,7 +691,7 @@ class EntityFiltersTestCase(CremeTestCase):
 
         excluded = frozenset(self._get_ikari_case_sensitive())
         self.assertExpectedFiltered(efilter, FakeContact,
-                                    [c.id for c in self.contacts.itervalues() if c.id not in excluded]
+                                    [c.id for c in self.contacts.values() if c.id not in excluded]
                                    )
 
     def test_filter_field_not_iequals(self):
@@ -2184,7 +2184,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                ])
 
         custom_field01.delete()
-        self.assertEqual([unicode(custom_field02.id)], [cond.name for cond in efilter.conditions.all()])
+        self.assertEqual([str(custom_field02.id)], [cond.name for cond in efilter.conditions.all()])
 
     def test_customfield_number_isempty(self):
         rei = self.contacts['rei']

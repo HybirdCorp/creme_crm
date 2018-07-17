@@ -50,7 +50,7 @@ class Action(CremeModel):
         verbose_name = _(u'Action')
         verbose_name_plural = _(u'Actions')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def get_edit_absolute_url(self):

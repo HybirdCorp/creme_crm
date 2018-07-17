@@ -39,7 +39,7 @@ class ActivityType(CremeModel):
 
     creation_label = pgettext_lazy('activities-type', u'Create a type')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -66,7 +66,7 @@ class ActivitySubType(CremeModel):
 
     creation_label = pgettext_lazy('activities-type', u'Create a sub-type')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -83,7 +83,7 @@ class Status(CremeModel):
 
     creation_label = pgettext_lazy('activities-status', u'Create a status')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:

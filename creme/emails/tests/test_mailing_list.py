@@ -2,7 +2,7 @@
 
 try:
     from functools import partial
-    from StringIO import StringIO
+    from io import StringIO
 
     from django.contrib.contenttypes.models import ContentType
     from django.urls import reverse
@@ -169,13 +169,16 @@ class MailingListsTestCase(_EmailsTestCase):
         # TODO: it seems django validator does manages address with unicode chars:
         #       is it a problem
         # recipients = ['spike.spiegel@bebop.com', u'jet.bläck@bebop.com']
-        recipients = ['spike.spiegel@bebop.com', u'jet.black@bebop.com']
+        # recipients = ['spike.spiegel@bebop.com', u'jet.black@bebop.com']
+        recipient1 = 'spike.spiegel@bebop.com'
+        recipient2 = u'jet.black@bebop.com'
 
-        csvfile = StringIO(end.join(recipients) + ' ')
+        csvfile = StringIO(end.join([' ' + recipient1, recipient2 + ' ']) + ' ')
         csvfile.name = 'recipients.csv'  # Django uses this
 
         self.assertNoFormError(self.client.post(url, data={'recipients': csvfile}))
-        self.assertEqual(set(recipients), {r.address for r in mlist.emailrecipient_set.all()})
+        # self.assertEqual(set(recipients), {r.address for r in mlist.emailrecipient_set.all()})
+        self.assertEqual({recipient1, recipient2}, {r.address for r in mlist.emailrecipient_set.all()})
 
         csvfile.close()
 

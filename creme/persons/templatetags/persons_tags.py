@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from contextlib import closing  # TODO: remove in Py3K ?
-from StringIO import StringIO
+# from contextlib import closing
+from io import StringIO
 
 from django import template
 from django.utils.translation import ugettext as _
@@ -37,7 +37,8 @@ register = template.Library()
 def persons_pretty_address(address):
     is_field_hidden = FieldsConfig.get_4_model(address.__class__).is_fieldname_hidden
 
-    with closing(StringIO()) as sio:
+    # with closing(StringIO()) as sio:
+    with StringIO() as sio:
         write = sio.write
 
         addr = '' if is_field_hidden('address') else address.address
@@ -46,7 +47,8 @@ def persons_pretty_address(address):
 
         po_box = '' if is_field_hidden('po_box') else address.po_box
         if po_box:
-            if sio.len:
+            # if sio.len:
+            if sio.tell():
                 write('\n')
 
             write(po_box)
@@ -54,7 +56,8 @@ def persons_pretty_address(address):
         zipcode = '' if is_field_hidden('zipcode') else address.zipcode
         city    = '' if is_field_hidden('city')    else address.city
         if zipcode or city:
-            if sio.len:
+            # if sio.len:
+            if sio.tell():
                 write('\n')
 
             if not zipcode:

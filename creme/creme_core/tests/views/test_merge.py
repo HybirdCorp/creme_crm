@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from future_builtins import filter
-
     from collections import defaultdict
     from datetime import timedelta
     from functools import partial
@@ -264,7 +262,7 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertEqual(1, len(deletion_lines))
         deletion_line = deletion_lines[0]
         self.assertEqual(orga02.entity_type, deletion_line.entity_ctype)
-        self.assertEqual(unicode(orga02),    deletion_line.entity_repr)
+        self.assertEqual(str(orga02),    deletion_line.entity_repr)
 
         prop_lines = new_hlines[history.TYPE_PROP_ADD]
         self.assertEqual(1, len(prop_lines))

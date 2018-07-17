@@ -38,7 +38,7 @@ def validate_viewable_entity(entity, user, code='viewnotallowed'):
     try:
         user.has_perm_to_view_or_die(entity)
     except PermissionDenied as e:
-        raise ValidationError(unicode(e), code=code)
+        raise ValidationError(str(e), code=code)
 
     return entity
 
@@ -62,7 +62,7 @@ def validate_editable_entity(entity, user, code='changenotallowed'):
     try:
         user.has_perm_to_change_or_die(entity)
     except PermissionDenied as e:
-        raise ValidationError(unicode(e), code=code)
+        raise ValidationError(str(e), code=code)
 
     return entity
 
@@ -86,7 +86,7 @@ def validate_linkable_entity(entity, user, code='linknotallowed'):
     try:
         user.has_perm_to_link_or_die(entity)
     except PermissionDenied as e:
-        raise ValidationError(unicode(e), code=code)
+        raise ValidationError(str(e), code=code)
 
     return entity
 

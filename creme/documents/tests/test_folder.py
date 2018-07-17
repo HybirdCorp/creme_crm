@@ -382,7 +382,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         stack = [folder]
         stack_append = stack.append
 
-        for i in xrange(100):
+        for i in range(100):
             clone = folder.clone()
             self.assertNotEqual(stack[-1].title, clone.title)
             stack_append(clone)

@@ -66,13 +66,13 @@ class _BatchProcessType(JobType):
 
         try:
             # TODO: NON_FIELD_ERRORS need to be unit tested...
-            humanized = [unicode(errors) if field == NON_FIELD_ERRORS else
+            humanized = [str(errors) if field == NON_FIELD_ERRORS else
                          u'{} => {}'.format(get_field(field).verbose_name, u', '.join(errors))
-                            for field, errors in ve.message_dict.iteritems()
+                            for field, errors in ve.message_dict.items()
                         ]
         except Exception as e:
             logger.debug('BatchProcess._humanize_validation_error: %s', e)
-            humanized = [unicode(ve)]
+            humanized = [str(ve)]
 
         return humanized
 
@@ -145,7 +145,7 @@ class _BatchProcessType(JobType):
             if efilter is not None:
                 desc.append(ugettext('Filter: {}').format(efilter))
 
-            desc.extend(unicode(ba) for ba in self._get_actions(model, job_data))
+            desc.extend(str(ba) for ba in self._get_actions(model, job_data))
         except Exception:  # TODO: unit test
             logger.exception('Error in _BatchProcessType.get_description')
             desc = ['?']

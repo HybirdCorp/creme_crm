@@ -75,7 +75,7 @@ class EntityCellsWidget(Widget):
                     for field_id, field_vname in self.model_fields
                 ]
         cells.extend((field_id, build(model, field_id[PREFIX:]))
-                        for choices in self.model_subfields.itervalues()
+                        for choices in self.model_subfields.values()
                             for field_id, field_vname in choices
                     )
 
@@ -91,7 +91,7 @@ class EntityCellsWidget(Widget):
 
             for field_id, cell in cells:
                 try:
-                    value = unicode(cell.render_html(entity, user))
+                    value = str(cell.render_html(entity, user))
                 except Exception as e:
                     logger.critical('EntityCellsWidget._build_samples(): %s', e)
                     value = ''
@@ -217,14 +217,14 @@ class EntityCellsField(Field):
                       subfields_choices[_RFIELD_PREFIX + fields_info[0].name]  # FK, M2M
 
             field_id = _RFIELD_PREFIX + '__'.join(field.name for field in fields_info)
-            choices.append((field_id, unicode(fields_info[-1].verbose_name)))
+            choices.append((field_id, str(fields_info[-1].verbose_name)))
             builders[field_id] = EntityCellsField._build_4_regularfield
 
         sort_key = collator.sort_key
         sort_choice = lambda k: sort_key(k[1])  # TODO: in utils ?
         rfields_choices.sort(key=sort_choice)
 
-        for subfield_choices in subfields_choices.itervalues():
+        for subfield_choices in subfields_choices.values():
             subfield_choices.sort(key=sort_choice)
 
     def _choices_4_relationtypes(self, ct, builders):

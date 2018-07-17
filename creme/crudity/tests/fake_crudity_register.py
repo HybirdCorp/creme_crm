@@ -7,7 +7,7 @@ from ..fetchers.base import CrudityFetcher
 from ..inputs.base import CrudityInput
 
 
-class Swallow(object):
+class Swallow:
     def __init__(self, title, content):
         self.title = title
         self.content = content

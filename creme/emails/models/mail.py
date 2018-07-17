@@ -61,7 +61,7 @@ class _Email(CremeModel):
         manager_inheritance_from_future = True
         app_label = 'emails'
 
-    def __unicode__(self):
+    def __str__(self):
         return u'Mail<from: {}> <to: {}> <sent: {}> <id: {}>'.format(
                     self.sender, self.recipient, self.sending_date, self.id,
                 )
@@ -97,7 +97,7 @@ class AbstractEntityEmail(_Email, CremeEntity):
         ordering = ('-sending_date',)
 
     def genid_n_save(self):
-        while True:  # TODO: xrange(10000) to avoid infinite loop ??
+        while True:  # TODO: range(10000) to avoid infinite loop ??
             self.identifier = generate_id()
 
             try:
@@ -109,7 +109,7 @@ class AbstractEntityEmail(_Email, CremeEntity):
             else:
                 return
 
-    def __unicode__(self):
+    def __str__(self):
         return ugettext(u'EMail <from: {sender}> <to: {to}> <status: {status}>').format(
                                 sender=self.sender,
                                 to=self.recipient,

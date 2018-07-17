@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2015  Hybird
+#    Copyright (C) 2012-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,7 +35,7 @@ _CLASS_MAPPING = {
     }
 
 
-class NodeStyle(object):  # TODO: configurable style stored in DB
+class NodeStyle:  # TODO: configurable style stored in DB
     ELEMENTS = {
             'COLOR': {
                     'LINE':      '',  # Use normal brick line color
@@ -70,7 +70,7 @@ class NodeStyle(object):  # TODO: configurable style stored in DB
         return ('background-color: #{};'.format(color)) if color else ''
 
 
-class SectionTree(object):
+class SectionTree:
     def __init__(self, pobj):
         attr_name, section_model, line_model = _CLASS_MAPPING[pobj.__class__]
 
@@ -86,7 +86,8 @@ class SectionTree(object):
             sections_map[section.parent_id].append(section)
 
         lines_map = defaultdict(list)
-        gen_number = count(1).next
+        # gen_number = count(1).next
+        gen_number = count(1).__next__
         # for line in pform.lines.all(): #TODO: idem
         for line in line_model.objects.filter(**kwargs):
             line.is_section = False
@@ -196,5 +197,5 @@ class StatsTree(SectionTree):
                     stats[choice_label] += choice_count
 
             fline.answer_stats = [(stat_label, stat_count, round(float(stat_count * 100) / float(total), 2))
-                                    for stat_label, stat_count in stats.iteritems()
+                                    for stat_label, stat_count in stats.items()
                                  ] if total > 0 else []

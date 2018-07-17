@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017  Hybird
+#    Copyright (C) 2017-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import ConfigParser
-from io import BytesIO
+# import ConfigParser
+import configparser
+# from io import BytesIO
+from io import StringIO
 
 from django.contrib.auth import get_user_model
 from django.http import Http404, HttpResponse
@@ -44,7 +46,8 @@ def download_ini_template(request, subject):
     if backend is None:
         raise Http404(u'This backend is not registered')
 
-    ini = ConfigParser.RawConfigParser()
+    # ini = ConfigParser.RawConfigParser()
+    ini = configparser.RawConfigParser()
     ini.add_section('head')
     ini.set('head', 'action', subject)
 
@@ -52,10 +55,11 @@ def download_ini_template(request, subject):
         ini.set('head', 'username', getattr(request.user, get_user_model().USERNAME_FIELD))
 
     ini.add_section('body')
-    for k, v in backend.body_map.iteritems():
+    for k, v in backend.body_map.items():
         ini.set('body', k, v)
 
-    buffer = BytesIO()
+    # buffer = BytesIO()
+    buffer = StringIO()
     ini.write(buffer)
 
     response = HttpResponse(buffer.getvalue(), content_type='text/plain')

@@ -43,7 +43,8 @@ class VcfImportTestCase(CremeTestCase):
 
     def _post_step0(self, content):
         tmpfile = NamedTemporaryFile()
-        tmpfile.write(smart_str(content))
+        # tmpfile.write(smart_str(content))
+        tmpfile.write(content.encode())
         tmpfile.flush()
 
         filedata = tmpfile.file
@@ -76,7 +77,7 @@ class VcfImportTestCase(CremeTestCase):
         with self.assertNoException():
             form = response.context['form']
 
-        self.assertIn('value="1"', unicode(form['vcf_step']))
+        self.assertIn('value="1"', str(form['vcf_step']))
 
     def test_parsing_vcf00(self):
         self.login()
@@ -87,7 +88,7 @@ class VcfImportTestCase(CremeTestCase):
         with self.assertNoException():
             form = response.context['form']
 
-        self.assertIn('value="1"', unicode(form['vcf_step']))
+        self.assertIn('value="1"', str(form['vcf_step']))
 
         firt_name, sep, last_name = read_vcf(content).fn.value.partition(' ')
         self.assertEqual(form['first_name'].field.initial, firt_name)
@@ -344,7 +345,7 @@ END:VCARD""".format(name=name)
 
         first_name = u'Fûka'
         last_name = 'Naritaki'
-        content = ur"""BEGIN:VCARD
+        content = r"""BEGIN:VCARD
 VERSION:3.0
 FN:{long_name}
 N:{last_name};{first_name}
@@ -407,7 +408,7 @@ END:VCARD"""
         email      = fields['email'].initial
         url_site   = fields['url_site'].initial
 
-        self.assertIn('value="1"', unicode(form['vcf_step']))
+        self.assertIn('value="1"', str(form['vcf_step']))
 
         response = self._post_step1(data={'user':        user_id,
                                           'first_name':  first_name,

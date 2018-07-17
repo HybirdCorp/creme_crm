@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
-    import ConfigParser
+    # import ConfigParser
+    import configparser
     import io
     # from json import loads as load_json
     import poplib
@@ -51,7 +52,7 @@ FAKE_CRUDITY_BACKENDS = [{'fetcher':     'swallow',
                         ]
 
 
-class FakePOP3(object):
+class FakePOP3:
     instances = []
 
     def __init__(self, host, port=None, timeout=None):
@@ -251,10 +252,12 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
                         )
         self.assertEqual('text/plain', response['Content-Type'])
 
-        config = ConfigParser.RawConfigParser()
+        # config = ConfigParser.RawConfigParser()
+        config = configparser.RawConfigParser()
 
         with self.assertNoException():
-            config.readfp(io.BytesIO(response.content))
+            # config.readfp(io.BytesIO(response.content))
+            config.read_file(io.StringIO(response.content.decode()))
 
         with self.assertNoException():
             action = config.get('head', 'action')
@@ -272,7 +275,8 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
             read_last_name = config.get('body', 'last_name')
         self.assertEqual(last_name, read_last_name)
 
-        with self.assertRaises(ConfigParser.NoOptionError):
+        # with self.assertRaises(ConfigParser.NoOptionError):
+        with self.assertRaises(configparser.NoOptionError):
             config.get('body', 'sector')
 
         with self.assertNoException():
@@ -301,10 +305,12 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
                                  )
 
         response = self.assertGET200(reverse('crudity__dl_fs_ini_template', args=(subject,)))
-        config = ConfigParser.RawConfigParser()
+        # config = ConfigParser.RawConfigParser()
+        config = configparser.RawConfigParser()
 
         with self.assertNoException():
-            config.readfp(io.BytesIO(response.content))
+            # config.readfp(io.BytesIO(response.content))
+            config.read_file(io.StringIO(response.content.decode()))
 
         with self.assertNoException():
             username = config.get('head', 'username')

@@ -9,7 +9,7 @@ RESTARTED_PK    = 4
 COMPLETED_PK    = 5
 
 
-class TaskStatusDesc(object):
+class TaskStatusDesc:
     __slots__ = ('name', 'verbose_name')
 
     def __init__(self, name, verbose_name):

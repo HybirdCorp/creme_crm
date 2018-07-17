@@ -849,7 +849,7 @@ class LineTestCase(_BillingTestCase):
         self.assertGET200(url)
 
         comment = pline.comment + ' I can flyyy'
-        response = self.client.post(url, data={'entities_lbl': [unicode(pline)],
+        response = self.client.post(url, data={'entities_lbl': [str(pline)],
                                                'field_value':  comment,
                                               }
                                    )

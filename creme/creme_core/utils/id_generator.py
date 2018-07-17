@@ -49,7 +49,7 @@ def generate_string_id_and_save(model, objects, prefix):
     last_exception = None
 
     for obj in objects:
-        for i in xrange(1000):  # Avoid infinite loop
+        for i in range(1000):  # Avoid infinite loop
             index += 1
             obj.id = prefix + str(index)
 

@@ -30,7 +30,7 @@ from creme.creme_core.forms.mass_import import ImportForm4CremeEntity, BaseExtra
 from ..models import Category, SubCategory
 
 
-class CategoriesExtractor(object):
+class CategoriesExtractor:
     class _FatalError(Exception):
         pass
 

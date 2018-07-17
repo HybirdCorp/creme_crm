@@ -34,7 +34,7 @@ def print_hour(value):
     return _('{hour}h').format(hour=value)
 
 
-class _SettingKey(object):
+class _SettingKey:
     STRING = 1
     INT    = 2
     BOOL   = 3
@@ -42,11 +42,11 @@ class _SettingKey(object):
     EMAIL  = 20
 
     _CASTORS = {
-            STRING: unicode,
+            STRING: str,
             INT:    int,
             BOOL:   bool_from_str,
             HOUR:   int,  # TODO: validate 0 =< x =< 23  ??
-            EMAIL:  unicode,
+            EMAIL:  str,
         }
 
     HTML_PRINTERS = {
@@ -71,7 +71,7 @@ class _SettingKey(object):
 
         self._castor = self._CASTORS[type]
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{cls}(id="{id}", description="{description}", ' \
                u'app_label="{app_label}", type={type}, hidden={hidden})'.format(
                 cls=self.__class__.__name__,
@@ -99,16 +99,16 @@ class SettingKey(_SettingKey):
 
 class UserSettingKey(_SettingKey):
     _CASTORS = {
-            _SettingKey.STRING: unicode,
+            _SettingKey.STRING: str,
             _SettingKey.INT:    int,
             # _SettingKey.BOOL:   bool_from_str,
             _SettingKey.BOOL:   bool,  # TODO: fix _SettingKey to use JSON ('True' => 'true') ??
             _SettingKey.HOUR:   int,
-            _SettingKey.EMAIL:  unicode,
+            _SettingKey.EMAIL:  str,
         }
 
 
-class _SettingKeyRegistry(object):
+class _SettingKeyRegistry:
     class RegistrationError(Exception):
         pass
 
@@ -120,7 +120,7 @@ class _SettingKeyRegistry(object):
         return self._skeys[key_id]
 
     def __iter__(self):
-        return self._skeys.itervalues()
+        return iter(self._skeys.values())
 
     def register(self, *skeys):
         setdefault = self._skeys.setdefault
@@ -148,7 +148,7 @@ setting_key_registry = _SettingKeyRegistry(SettingKey)
 user_setting_key_registry = _SettingKeyRegistry(UserSettingKey)
 
 
-class UserSettingValueManager(object):
+class UserSettingValueManager:
     class ReadOnlyError(Exception):
         pass
 
@@ -168,7 +168,7 @@ class UserSettingValueManager(object):
 
         if exc_value:
             # TODO: do we need a non-atomic mode which saves anyway ?
-            logger.warn('UserSettingValueManager: an exception has been raised, changes will not be saved !')
+            logger.warning('UserSettingValueManager: an exception has been raised, changes will not be saved !')
             raise exc_value
 
         self._user_class.objects.filter(pk=self._user_id)\

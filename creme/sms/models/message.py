@@ -64,7 +64,7 @@ class Sending(CremeModel):
         verbose_name = _(u'Sending')
         verbose_name_plural = _(u'Sendings')
 
-    def __unicode__(self):
+    def __str__(self):
         # return self.date
         return pgettext('sms', u'Sending of «{campaign}» on {date}').format(
                     campaign=self.campaign,
@@ -73,7 +73,7 @@ class Sending(CremeModel):
 
     def formatstatus(self):
         items = ((self.messages.filter(status=status).count(), status_name)
-                    for status, status_name in MESSAGE_STATUS.iteritems()
+                    for status, status_name in MESSAGE_STATUS.items()
                 )
         return ', '.join((u'{} {}'.format(count, label[1] if count > 1 else label[0])
                             for count, label in items if count > 0)
@@ -88,7 +88,7 @@ class Sending(CremeModel):
 
         # self.messages.all().delete()
         # return super(Sending, self).delete(using=using)
-        return super(Sending, self).delete(*args, **kwargs)
+        return super().delete(*args, **kwargs)
 
 
 # TODO: keep the related entity (to hide the number when the entity is not viewable)
@@ -98,7 +98,7 @@ class Message(CremeModel):
     status = CharField(_(u'State'), max_length=10)
     status_message = CharField(_(u'Full state'), max_length=100, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.phone
 
     class Meta:
@@ -121,7 +121,7 @@ class Message(CremeModel):
         try:
             ws.connect()
         except WSException as err:
-            sending.messages.filter(status=MESSAGE_STATUS_NOTSENT).update(status_message=unicode(err))
+            sending.messages.filter(status=MESSAGE_STATUS_NOTSENT).update(status_message=str(err))
             return None
 
         return ws
@@ -161,7 +161,7 @@ class Message(CremeModel):
                 res = ws.send_messages(content, list(numbers), sending_id)
                 not_accepted = res.get('not_accepted', [])
             except WSException as err:
-                Message.objects.filter(pk__in=pks).update(status_message=unicode(err))
+                Message.objects.filter(pk__in=pks).update(status_message=str(err))
 
             for phone, status, status_message in not_accepted:
                 Message.objects.filter(phone=phone, sending__id=sending_id) \

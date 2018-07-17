@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from __future__ import print_function
+# from __future__ import print_function
 
 from os.path import dirname
 from shutil import rmtree
@@ -103,10 +103,10 @@ class CremeDiscoverRunner(DiscoverRunner):
         super(CremeDiscoverRunner, self).setup_test_environment(**kwargs)
         self._mock_media_path = settings.MEDIA_ROOT = mkdtemp(prefix='creme_test_media')
         self._http_server = python_subprocess(
-            'import SimpleHTTPServer;'
-            'from SocketServer import TCPServer;'
+            'import http.server;'
+            'from socketserver import TCPServer;'
             'TCPServer.allow_reuse_address = True;'
-            'httpd = TCPServer(("localhost", {port}), SimpleHTTPServer.SimpleHTTPRequestHandler);'
+            'httpd = TCPServer(("localhost", {port}), http.server.SimpleHTTPRequestHandler);'
             'print("Test HTTP server: serving localhost at port {port}");'
             'httpd.serve_forever()'.format(port=http_port())
         )

@@ -18,9 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import csv
+
 from django.core.management.base import BaseCommand
 
-from creme.creme_core.utils.unicode_csv import UnicodeReader
+# from creme.creme_core.utils.unicode_csv import UnicodeReader
 
 
 class CSVImportCommand(BaseCommand):
@@ -38,8 +40,10 @@ class CSVImportCommand(BaseCommand):
         )
 
     def _read(self, filename, callback, delimiter=','):
-        with open(filename, 'rb') as csvfile:
-            it = iter(UnicodeReader(csvfile, delimiter=delimiter))
+        # with open(filename, 'rb') as csvfile:
+        with open(filename, 'r') as csvfile:
+            # it = iter(UnicodeReader(csvfile, delimiter=delimiter))
+            it = csv.reader(csvfile, delimiter=delimiter)
 
             try:
                 header = next(it)
@@ -87,7 +91,7 @@ class CSVImportCommand(BaseCommand):
 # class Command(CSVImportCommand):
 #     help = "import organisations and their manager"
 #
-#     def _create_contact(self, raw, organisation):
+#     def _create_contact(self, raw):
 #         names = raw.split(None, 1)
 #
 #         if len(names) == 1:
@@ -104,7 +108,7 @@ class CSVImportCommand(BaseCommand):
 #
 #     def handle_manager(self, raw, organisation):
 #         if raw:
-#             Relation.objects.get_or_create(subject_entity=self._create_contact(raw, organisation),
+#             Relation.objects.get_or_create(subject_entity=self._create_contact(raw),
 #                                            type=self.rtype_manages,
 #                                            object_entity=organisation,
 #                                            user=self.user,
@@ -127,7 +131,7 @@ class CSVImportCommand(BaseCommand):
 #             if not organisation.billing_address:
 #                 organisation.billing_address = Address.objects.create(
 #                         owner=organisation,
-#                         address='%s %s' % (l_get('Address 1'), l_get('Address 2')),
+#                         address='{} {}'.format(l_get('Address 1'), l_get('Address 2')),
 #                         po_box=l_get(u'PO'),
 #                         city=l_get(u'City'),
 #                         zipcode=l_get(u'Zip'),
@@ -138,7 +142,7 @@ class CSVImportCommand(BaseCommand):
 #             organisation.save()
 #             self.handle_manager(l_get(u'Manager'), organisation)
 #         except Exception as e:
-#             self.stderr.write("An error occurred at line: %s" % line)
+#             self.stderr.write('An error occurred at line: {}'.format(line))
 #             self.stderr.write(e)
 #
 #     def handle(self, *csv_filenames, **options):
@@ -148,13 +152,11 @@ class CSVImportCommand(BaseCommand):
 #             self.user = get_user_model().objects.get(pk=1)
 #             self.rtype_manages = RelationType.objects.get(pk=REL_SUB_MANAGES)
 #         except Exception as e:
-#             self.stderr.write('Error (%s): have you run the populates ???' % e)
+#             self.stderr.write('Error ({}): have you run the populates ???'.format(e))
 #             self.stderr.write('Importing organisation [KO]')
 #         else:
-#             self._read(csv_filename, self._manage_line, delimiter=";")
-#             for csv_filename in csv_filenames:
-#                 self._read(csv_filename, callback=self._manage_line, delimiter=';')
+#             super(Command, self).handle(*csv_filenames, **options)
 #
 #             self.stdout.write('Importing organisation [OK]')
-#             self.stdout.write('    Organisations in database: %s' % Organisation.objects.count())
-#             self.stdout.write('    Contacts in database: %s' % Contact.objects.count())
+#             self.stdout.write('    Organisations in database: {}'.format(Organisation.objects.count()))
+#             self.stdout.write('    Contacts in database: {}'.format(Contact.objects.count()))

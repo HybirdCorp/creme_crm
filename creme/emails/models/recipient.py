@@ -40,7 +40,7 @@ class EmailRecipient(CremeModel):
         verbose_name_plural = pgettext_lazy('emails', u'Recipients')
         ordering = ('address',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.address
 
     def get_related_entity(self):  # For generic views

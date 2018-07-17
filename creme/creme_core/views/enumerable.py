@@ -49,8 +49,8 @@ def json_list_enumerable(request, ct_id):
                         'label': filter.name,
                         'help':  u'{} ({})'.format(filter.entity_type, filter.user)
                                  if filter.is_private else
-                                 unicode(filter.entity_type),
-                        'group': unicode(filter.entity_type),
+                                 str(filter.entity_type),
+                        'group': str(filter.entity_type),
                        } for filter in EntityFilter.objects.all()
                       ],
                       key=key,
@@ -67,7 +67,7 @@ def json_list_enumerable(request, ct_id):
         except (KeyError, NotRegisteredInConfig):
             raise Http404(u'Content type is not registered in config')
 
-    return [(e.id, unicode(e)) for e in model.objects.all()]
+    return [(e.id, str(e)) for e in model.objects.all()]
 
 
 # TODO: move to entity_filter.py ?
@@ -75,7 +75,7 @@ def json_list_enumerable(request, ct_id):
 @jsonify
 def json_list_userfilter(request):
     return list(chain((('__currentuser__', _(u'Current user')),),
-                      ((e.id, unicode(e)) for e in get_user_model().objects.all()),
+                      ((e.id, str(e)) for e in get_user_model().objects.all()),
                      )
                )
 

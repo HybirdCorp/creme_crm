@@ -62,7 +62,7 @@ class AlertTestCase(AssistantsTestCase):
                          alert.trigger_date
                         )
 
-        self.assertEqual(title, unicode(alert))
+        self.assertEqual(title, str(alert))
 
         jobs = queue.refreshed_jobs
         self.assertEqual(1, len(jobs))

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from StringIO import StringIO
+    from io import StringIO
     from os.path import join, dirname, abspath
     from xml.etree.ElementTree import XML, tostring
 
@@ -22,7 +22,7 @@ class ActiveSyncWbxmlTestCase(CremeTestCase):
         self.decoder = WBXMLDecoder(AirsyncDTD_Forward)
         self.encoder = WBXMLEncoder(AirsyncDTD_Reverse)
         self.xml_path = join(dirname(abspath(__file__)), 'data')
-        self.files = [("test_%s.xml" % i, "test_%s.wbxml" % i) for i in xrange(1, 7)]
+        self.files = [("test_%s.xml" % i, "test_%s.wbxml" % i) for i in range(1, 7)]
 
     def _open_n_read(self, filename, mode='rb'):
         path = join(self.xml_path, filename)

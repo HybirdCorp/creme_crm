@@ -28,7 +28,7 @@ from .. import get_document_model
 from ..constants import MIMETYPE_PREFIX_IMG
 
 
-class ImageFieldMixin(object):
+class ImageFieldMixin:
     @property
     def _image_creation_url(self):
         return reverse_lazy('documents__create_image_popup')

@@ -94,7 +94,7 @@ class CredentialsTestCase(CremeTestCase):
             last_name=user.last_name[0],
         )
         self.assertEqual(full_name, user.get_full_name())
-        self.assertEqual(full_name, unicode(user))
+        self.assertEqual(full_name, str(user))
 
         self.assertEqual(user.username, user.get_short_name())
 
@@ -108,7 +108,7 @@ class CredentialsTestCase(CremeTestCase):
         username1 = 'Teamee'
         team1 = CremeUser.objects.create(username=username1, is_team=True)
 
-        self.assertEqual(_('{user} (team)').format(user=username1), unicode(team1))
+        self.assertEqual(_('{user} (team)').format(user=username1), str(team1))
         self.assertEqual(username1, team1.get_short_name())
 
         # TODO: error if team ??
@@ -122,7 +122,7 @@ class CredentialsTestCase(CremeTestCase):
                                          first_name='NC', last_name=username2,
                                         )
 
-        self.assertEqual(_('{user} (team)').format(user=username2), unicode(team2))
+        self.assertEqual(_('{user} (team)').format(user=username2), str(team2))
 
     @override_settings(THEMES=[('this_theme_is_cool', 'Cool one'),
                                ('yet_another_theme',  'I am cool too, bro'),
@@ -740,7 +740,7 @@ class CredentialsTestCase(CremeTestCase):
             user.has_perm_to_admin_or_die('creme_core')
 
         fmt = _('You are not allowed to configure this app: {}').format
-        self.assertEqual(fmt(_('Core')), unicode(cm.exception))
+        self.assertEqual(fmt(_('Core')), str(cm.exception))
 
         role.admin_4_apps = ['creme_core', 'documents']
         role.save()
@@ -771,7 +771,7 @@ class CredentialsTestCase(CremeTestCase):
 
         # self.assertEqual(fmt % (_('Invalid app "%s"') % invalid_app),
         self.assertEqual(fmt(apps.get_app_config('persons').verbose_name),
-                         unicode(cm.exception)
+                         str(cm.exception)
                         )
 
         self.assertTrue(user.has_perm('creme_core'))
@@ -843,11 +843,11 @@ class CredentialsTestCase(CremeTestCase):
         with self.assertNumQueries(0):  # Teammates are cached
             team.teammates
 
-        self.assertTrue(all(isinstance(u, CremeUser) for u in teammates.itervalues()))
+        self.assertTrue(all(isinstance(u, CremeUser) for u in teammates.values()))
 
         ids_set = {user.id, other.id}
-        self.assertEqual(ids_set, set(teammates.iterkeys()))
-        self.assertEqual(ids_set, {u.id for u in teammates.itervalues()})
+        self.assertEqual(ids_set, set(teammates))
+        self.assertEqual(ids_set, {u.id for u in teammates.values()})
 
         user3 = CremeUser.objects.create_user(username='Kanna', email='kanna@century.jp',
                                               first_name='Kanna', last_name='Gendou',

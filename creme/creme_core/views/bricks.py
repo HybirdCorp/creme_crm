@@ -66,7 +66,7 @@ def render_detailview_brick(brick, context):
     if fun:
         return fun(context)
 
-    logger.warn('Brick without detailview_display(): %s (id=%s)', brick.__class__, brick.id_)
+    logger.warning('Brick without detailview_display(): %s (id=%s)', brick.__class__, brick.id_)
 
 
 def render_home_brick(brick, context):
@@ -75,7 +75,7 @@ def render_home_brick(brick, context):
     if fun:
         return fun(context)
 
-    logger.warn('Brick without home_display() : %s (id=%s)', brick.__class__, brick.id_)
+    logger.warning('Brick without home_display() : %s (id=%s)', brick.__class__, brick.id_)
 
 
 # def render_portal_brick(brick, context, ct_ids):
@@ -135,10 +135,10 @@ def bricks_render_info(request, bricks, context=None,
         try:
             decoded_reloading_info = json_load(all_reloading_info_json)
         except ValueError as e:
-            logger.warn('Invalid "extra_data" parameter: %s.', e)
+            logger.warning('Invalid "extra_data" parameter: %s.', e)
         else:
             if not isinstance(decoded_reloading_info, dict):
-                logger.warn('Invalid "extra_data" parameter (not a dict).')
+                logger.warning('Invalid "extra_data" parameter (not a dict).')
             else:
                 all_reloading_info = decoded_reloading_info
 

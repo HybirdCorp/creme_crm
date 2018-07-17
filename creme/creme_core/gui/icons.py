@@ -161,7 +161,7 @@ _ICON_SIZES_MAP = {
 }
 
 
-class BaseIcon(object):
+class BaseIcon:
     def __init__(self, size, label='', css_class=''):
         self.size = size
 
@@ -245,14 +245,14 @@ def get_icon_by_name(name, theme, size_px, label='', css_class=''):
         except KeyError:
             pass
 
-        logger.warn('Missing image: %s (theme="%s", size=%s)', name, theme, size_px)
+        logger.warning('Missing image: %s (theme="%s", size=%s)', name, theme, size_px)
 
         return ''
 
     return Icon(url=_get_image_url(), size=size_px, label=label, css_class=css_class)
 
 
-class IconRegistry(object):
+class IconRegistry:
     def __init__(self):
         self._icons = {}
         self._icons_4_objects = {}
@@ -285,7 +285,7 @@ class IconRegistry(object):
             try:
                 url = get_creme_media_url(theme, path)
             except KeyError:
-                logger.warn('Missing image: %s', path)
+                logger.warning('Missing image: %s', path)
 
         return Icon(url=url, size=size_px, label=model._meta.verbose_name)
 
@@ -312,7 +312,7 @@ class IconRegistry(object):
             try:
                 url = get_creme_media_url(theme, path)
             except KeyError:
-                logger.warn('Missing image: %s', path)
+                logger.warning('Missing image: %s', path)
 
         return Icon(url=url, size=size_px,
                     label=label or instance._meta.verbose_name,

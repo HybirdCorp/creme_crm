@@ -73,7 +73,7 @@ class _BrickLocationsForm(CremeForm):
 
     def _build_home_locations_field(self, field_name, brick_locations):
         bricks = self.fields[field_name]
-        choices = [(brick.id_, unicode(brick.verbose_name))
+        choices = [(brick.id_, str(brick.verbose_name))
                         for brick in gui_bricks.brick_registry.get_compatible_home_bricks()
                   ]
         sort_key = collator.sort_key
@@ -87,7 +87,7 @@ class _BrickLocationsForm(CremeForm):
                         old_locations=(), role=None, superuser=False,
                        ):
         # At least 1 block per zone (even if it can be fake block)
-        needed = sum(len(brick_ids) or 1 for brick_ids in bricks_partitions.itervalues())
+        needed = sum(len(brick_ids) or 1 for brick_ids in bricks_partitions.values())
         lendiff = needed - len(old_locations)
 
         if lendiff < 0:
@@ -97,11 +97,11 @@ class _BrickLocationsForm(CremeForm):
             locations_store = list(old_locations)
 
             if lendiff > 0:
-                locations_store.extend(location_builder() for __ in xrange(lendiff))
+                locations_store.extend(location_builder() for __ in range(lendiff))
 
         store_it = iter(locations_store)
 
-        for zone, brick_ids in bricks_partitions.iteritems():
+        for zone, brick_ids in bricks_partitions.items():
             if not brick_ids:  # No brick for this zone -> fake brick_id
                 brick_ids = ('',)
 
@@ -144,7 +144,7 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
         model = ct.model_class() if ct else None
 
         self.choices = choices = [
-            (brick.id_, unicode(brick.verbose_name))
+            (brick.id_, str(brick.verbose_name))
                for brick in gui_bricks.brick_registry.get_compatible_bricks(model=model)
         ]
 

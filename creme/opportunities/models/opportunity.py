@@ -67,7 +67,7 @@ class SalesPhase(CremeModel):
 
     creation_label = pgettext_lazy('opportunities-sales_phase', 'Create a phase')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -88,7 +88,7 @@ class Origin(CremeModel):
 
     creation_label = pgettext_lazy('opportunities-origin', 'Create an origin')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -113,7 +113,7 @@ class AbstractOpportunity(CremeEntity):
     sales_phase           = ForeignKey(SalesPhase, verbose_name=_(u'Sales phase'),
                                        on_delete=PROTECT,
                                       )
-    chance_to_win         = PositiveIntegerField(_(ur'% of chance to win'),
+    chance_to_win         = PositiveIntegerField(_(r'% of chance to win'),
                                                  blank=True, null=True,
                                                 ).set_tags(optional=True)
     expected_closing_date = DateField(_(u'Expected closing date'), blank=True, null=True)\
@@ -146,7 +146,7 @@ class AbstractOpportunity(CremeEntity):
         verbose_name_plural = _(u'Opportunities')
         ordering = ('name',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def _clean_emitter_n_target(self):
@@ -190,7 +190,7 @@ class AbstractOpportunity(CremeEntity):
             return ugettext(u'Error: «Estimated sales» is hidden')
 
         if is_hidden('chance_to_win'):
-            return ugettext(ur'Error: «% of chance to win» is hidden')
+            return ugettext(r'Error: «% of chance to win» is hidden')
 
         return (self.estimated_sales or 0) * (self.chance_to_win or 0) / 100.0
 

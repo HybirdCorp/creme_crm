@@ -49,7 +49,7 @@ Folder = get_folder_model()
 Document = get_document_model()
 
 
-class CrudityBackend(object):
+class CrudityBackend:
     model = None     # Class inheriting CremeEntity. OVERRIDE THIS IN on your own backend.
 
     # These ones are set by the registry.dispatch()
@@ -95,7 +95,7 @@ class CrudityBackend(object):
         """
         if self.is_configured:
             model = self.model  # TODO: alias _meta
-            for field_name in self.body_map.iterkeys():
+            for field_name in self.body_map:
                 try:
                     model._meta.get_field(field_name)
                 except FieldDoesNotExist as e:
@@ -137,7 +137,7 @@ class CrudityBackend(object):
         model_get_field = self.model._meta.get_field
         need_new_save = False
 
-        for field_name, field_value in data.iteritems():
+        for field_name, field_value in data.items():
             try:
                 field = model_get_field(field_name)
             except FieldDoesNotExist:
@@ -155,7 +155,7 @@ class CrudityBackend(object):
 
         try:
             with atomic():
-                for field_name, field_value in data.items():
+                for field_name, field_value in list(data.items()):
                     try:
                         field = model_get_field(field_name)
                     except FieldDoesNotExist:
@@ -169,10 +169,10 @@ class CrudityBackend(object):
                         data[field_name] = field.to_python(None)
                         continue
 
-                    if isinstance(field_value, basestring) and not isinstance(field_value, unicode):
-                        field_value = field_value.decode('utf8')
+                    # if isinstance(field_value, basestring) and not isinstance(field_value, unicode):
+                    #     field_value = field_value.decode('utf8')
 
-                    if not isinstance(field, TextField) and isinstance(field_value, basestring):
+                    if not isinstance(field, TextField) and isinstance(field_value, str):
                         data[field_name] = field_value = field_value.replace('\n', ' ')
 
                     if isinstance(field, DateTimeField):
@@ -180,7 +180,7 @@ class CrudityBackend(object):
                     elif isinstance(field, DateField):
                         data[field_name] = field_value = date_from_str(field_value.strip())
 
-                    elif isinstance(field, BooleanField) and isinstance(field_value, basestring):
+                    elif isinstance(field, BooleanField) and isinstance(field_value, str):
                         data[field_name] = field_value = field.to_python(field_value.strip()[0:1].lower()) #Trick to obtain 't'/'f' or '1'/'0'
 
                     elif isinstance(field, ForeignKey) and issubclass(field.remote_field.model, Document):

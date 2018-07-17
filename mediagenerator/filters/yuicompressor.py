@@ -26,7 +26,8 @@ class YUICompressor(Filter):
 
                 assert cmd.wait() == 0, 'Command returned bad result:\n{}'.format(error)
 
-                yield output.decode('utf-8')
+                # yield output.decode('utf-8')
+                yield output
             except Exception as e:
                 raise ValueError(
                     "Failed to execute Java VM or yuicompressor. "

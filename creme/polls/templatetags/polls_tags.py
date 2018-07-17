@@ -74,7 +74,7 @@ def poll_stats_chart(node):
                    ]
         else:
             chartpath = 'polls/templatetags/plots/number.html'
-            data = [[[percent, unicode(answer)] for answer, _stat, percent in node.answer_stats]
+            data = [[[percent, str(answer)] for answer, _stat, percent in node.answer_stats]
                    ]
 
         context = {

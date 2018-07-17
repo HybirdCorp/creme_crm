@@ -89,4 +89,4 @@ def safe_import_object(objectpath):
     try:
         return import_object(objectpath)
     except Exception as e:
-        logger.warn('An error occurred trying to import "%s": [%s]', objectpath, e)
+        logger.warning('An error occurred trying to import "%s": [%s]', objectpath, e)

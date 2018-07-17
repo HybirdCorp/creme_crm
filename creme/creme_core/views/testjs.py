@@ -66,7 +66,7 @@ TEST_IMAGE_URLS = ('icecream/images/add_32.png',
                   )
 
 
-class MockImage(object):
+class MockImage:
     def __init__(self, url, width, height=None):
         self.url = url
         self.width = width
@@ -77,7 +77,7 @@ class MockImage(object):
         return mark_safe(print_image_html(entity, self, entity.user, None))
 
 
-class MockManyToMany(object):
+class MockManyToMany:
     def __init__(self, model):
         self.model = model
 
@@ -88,7 +88,7 @@ class MockManyToMany(object):
         return self.model.objects.filter(**kwargs)
 
 
-class Dummy(object):
+class Dummy:
     def __init__(self, id, user):
         self.user = user
         self.name = u'Dummy ({})'.format(id)
@@ -105,7 +105,7 @@ class Dummy(object):
         # self.manytomany = mark_safe(print_many2many(self, MockManyToMany(CremeProperty), user, None))
         self.manytomany = mark_safe(print_many2many_html(self, MockManyToMany(CremeProperty), user, None))
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -126,7 +126,7 @@ class DummyListBrick(PaginatedBrick):
         item_count_str = str(request.GET.get('count') or reloading_info.get('count', ''))
         item_count = int(item_count_str) if item_count_str.isdigit() else 20
 
-        data = [Dummy(id + 1, user) for id in xrange(item_count)]
+        data = [Dummy(id + 1, user) for id in range(item_count)]
 
         # return self._render(self.get_block_template_context(
         return self._render(self.get_template_context(
@@ -145,7 +145,7 @@ def js_testview_or_404(message, error):
     if settings.TESTS_ON or not settings.FORCE_JS_TESTVIEW:
         raise Http404(error)
 
-    logger.warn(message)
+    logger.warning(message)
 
 
 def js_testview_context(request, viewname):
@@ -172,7 +172,7 @@ def js_testview_context(request, viewname):
     get = request.GET.get
 
     return {
-        'THEME_LIST':      [(theme_id, unicode(theme_vname)) for theme_id, theme_vname in settings.THEMES],
+        'THEME_LIST':      [(theme_id, str(theme_vname)) for theme_id, theme_vname in settings.THEMES],
         # 'THEME_NAME':      get('theme', get_current_theme()),
         'THEME_NAME':      get('theme') or request.user.theme_info[0],
         'TEST_VIEW_LIST':  test_views,
@@ -188,7 +188,7 @@ def test_http_response(request):
     if not settings.TESTS_ON and not settings.FORCE_JS_TESTVIEW:
         raise Http404('This is view is only reachable during javascript or server unittests')
 
-    logger.warn("Beware : If you are not running unittest this view shouldn't be reachable."
+    logger.warning("Beware : If you are not running unittest this view shouldn't be reachable."
                 " Check your server configuration."
                )
 

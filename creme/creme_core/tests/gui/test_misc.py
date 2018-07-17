@@ -39,7 +39,7 @@ class GuiTestCase(CremeTestCase):
         settings.MAX_LAST_ITEMS = 5
         user = self.login()
 
-        class FakeRequest(object):
+        class FakeRequest:
             def __init__(this):
                 user_id = str(user.id)
                 sessions = [d for d in (s.get_decoded() for s in Session.objects.all())
@@ -79,7 +79,7 @@ class GuiTestCase(CremeTestCase):
         self.assertGET200(FakeContact.get_lv_absolute_url())
         old_item = get_items()[-1]
         self.assertEqual(contact01.pk,       old_item.pk)
-        self.assertEqual(unicode(contact01), old_item.name)
+        self.assertEqual(str(contact01), old_item.name)
 
         self.assertGET200(contact02.get_absolute_url())
         self.assertEqual([contact02.pk, contact04.pk, contact03.pk, contact01.pk],
@@ -155,7 +155,7 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual(u'<a href="{}">{}</a>'.format(img.get_absolute_url(), escape(img)),
                          get_html_val(casca, 'image', user)
                         )
-        self.assertEqual(unicode(casca.image), get_csv_val(casca, 'image', user))
+        self.assertEqual(str(casca.image), get_csv_val(casca, 'image', user))
 
         self.assertEqual('<p>Casca&#39;s selfie</p>',
                          get_html_val(casca, 'image__description', user)
@@ -181,7 +181,7 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual('', get_html_val(judo, 'image__description', user))
         self.assertEqual('', get_html_val(judo, 'image__categories',  user))
 
-        self.assertEqual(unicode(user), get_html_val(casca, 'image__user', user))            # depth = 2
+        self.assertEqual(str(user), get_html_val(casca, 'image__user', user))            # depth = 2
         self.assertEqual(user.username, get_html_val(casca, 'image__user__username', user))  # depth = 3
 
     def test_field_printers02(self):

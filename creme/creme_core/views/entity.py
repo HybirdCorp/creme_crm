@@ -63,7 +63,7 @@ def get_creme_entities_repr(request, entities_ids):
     e_ids = [int(e_id) for e_id in entities_ids.split(',') if e_id]
 
     entities = CremeEntity.objects.in_bulk(e_ids)
-    CremeEntity.populate_real_entities(list(entities.itervalues()))  # NB: list + itervalues = Py3K ready
+    CremeEntity.populate_real_entities(list(entities.values()))
 
     user = request.user
     has_perm = user.has_perm_to_view
@@ -114,14 +114,14 @@ def get_info_fields(request, ct_id):
 
     # TODO: use django.forms.models.fields_for_model ?
     form = modelform_factory(model, CremeEntityForm)(user=request.user)
-    required_fields = [name for name, field in form.fields.iteritems()
+    required_fields = [name for name, field in form.fields.items()
                            if field.required and name != 'user'
                       ]
 
     kwargs = {}
     if len(required_fields) == 1:
         required_field = required_fields[0]
-        kwargs['printer'] = lambda field: unicode(field.verbose_name) \
+        kwargs['printer'] = lambda field: str(field.verbose_name) \
                                           if field.name != required_field else \
                                           _(u'{field} [CREATION]').format(field=field.verbose_name)
 
@@ -619,9 +619,9 @@ def delete_entities(request):
         message = _(u'Operation successfully completed')
         content_type = None
     else:
-        status = min(errors.iterkeys())
+        status = min(errors)
         message = json_dumps({'count': len(entity_ids),
-                              'errors': [msg for error_messages in errors.itervalues() for msg in error_messages],
+                              'errors': [msg for error_messages in errors.values() for msg in error_messages],
                              }
                             )
         content_type = 'application/json'

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +28,7 @@ from xlrd import (open_workbook, xldate_as_tuple,
                  )
 
 
-class XlCTypeHandler(object):
+class XlCTypeHandler:
     """
         class handling cell types:
         XL_CELL_EMPTY (0): empty string u''.
@@ -73,7 +73,7 @@ class XlCTypeHandler(object):
         return self._ctype_handlers.get(cell.ctype, self.default_handler)(cell)
 
 
-class XlrdReader(object):
+class XlrdReader:
     def __init__(self, filedata=None, file_contents=None, sheet_index=0):
         book = self.book = open_workbook(filename=getattr(filedata, 'path', filedata),
                                          file_contents=file_contents)
@@ -82,11 +82,12 @@ class XlrdReader(object):
         cell_parser = XlCTypeHandler(book)
         parse = cell_parser.handle_cell
 
-        self._calc = ([parse(cell) for cell in sheet.row(row_number)] for row_number in xrange(sheet.nrows))
+        self._calc = ([parse(cell) for cell in sheet.row(row_number)] for row_number in range(sheet.nrows))
 
     def __iter__(self):
         return self
 
-    def next(self):
+    # def next(self):
+    def __next__(self):
         # return self._calc.next()
         return next(self._calc)

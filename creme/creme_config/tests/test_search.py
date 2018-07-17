@@ -58,7 +58,7 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def _get_first_entity_ctype(self):
         ctypes = list(creme_entity_content_types())
-        ctypes.sort(key=lambda ct: collator.sort_key(unicode(ct)))
+        ctypes.sort(key=lambda ct: collator.sort_key(str(ct)))
 
         return ctypes[0]
 
@@ -73,7 +73,7 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         brick_node = self.get_brick_node(self.get_html_tree(response.content), SearchConfigBrick.id_)
         title_node = brick_node.find(".//div[@class='search-config-group-title']")
         self.assertIsNotNone(title_node)
-        self.assertEqual([unicode(ctype)], [text.strip() for text in title_node.itertext()])
+        self.assertEqual([str(ctype)], [text.strip() for text in title_node.itertext()])
 
         # Missing default configurations are built
         sci = self.get_object_or_fail(SearchConfigItem, content_type=ctype)

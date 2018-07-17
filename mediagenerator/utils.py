@@ -53,14 +53,14 @@ def _refresh_dev_names():
             _backend_mapping[url] = backend
 
 
-class _MatchNothing(object):
+class _MatchNothing:
     def match(self, content):
         return False
 
 
 def prepare_patterns(patterns, setting_name):
     """Helper function for patter-matching settings."""
-    if isinstance(patterns, basestring):
+    if isinstance(patterns, str):
         patterns = (patterns,)
 
     if not patterns:
@@ -97,7 +97,7 @@ def get_media_url_mapping():
     mapping = {}
 
     for key, value in get_media_mapping().items():
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             value = (value,)
         mapping[key] = [base_url + url for url in value]
 
@@ -164,11 +164,13 @@ def find_file(name, media_dirs=None):
             return path
 
 
+# TODO: remove & use "with" instead...
 def read_text_file(path):
     fp = open(path, 'r')
     output = fp.read()
     fp.close()
-    return output.decode('utf8')
+    # return output.decode('utf8')
+    return output
 
 
 def load_backend(backend):

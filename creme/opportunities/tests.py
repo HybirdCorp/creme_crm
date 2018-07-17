@@ -711,7 +711,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertTrue(quote.number)
 
         name = quote.name
-        self.assertIn(unicode(quote.number), name)
+        self.assertIn(str(quote.number), name)
         self.assertIn(str(opportunity.name), name)
 
         self.assertRelationCount(1, quote, REL_SUB_BILL_ISSUED,   emitter)
@@ -1466,7 +1466,7 @@ class SalesPhaseTestCase(CremeTestCase):
         self.assertEqual(1, sp1.order)
         self.assertEqual(2, sp2.order)
 
-    def test_creme_config_block(self):
+    def test_creme_config_brick(self):
         self.login()
         self.assertGET200(reverse('creme_config__app_portal', args=('opportunities',)))
 
@@ -1475,16 +1475,19 @@ class SalesPhaseTestCase(CremeTestCase):
         sp2 = create_phase(name='Abandoned',   order=1)
 
         response = self.assertGET200(self.PORTAL_URL)
+        content = response.content.decode()
 
-        sp1_index = response.content.index(sp1.name)
+        # sp1_index = response.content.index(sp1.name)
+        sp1_index = content.index(sp1.name)
         self.assertNotEqual(-1, sp1_index)
 
-        sp2_index = response.content.index(sp2.name)
+        # sp2_index = response.content.index(sp2.name)
+        sp2_index = content.index(sp2.name)
         self.assertNotEqual(-1, sp2_index)
 
         self.assertLess(sp2_index, sp1_index)  # order_by('order')
 
-    def test_creme_config_block_reordering(self):
+    def test_creme_config_brick_reordering(self):
         self.login()
 
         create_phase = SalesPhase.objects.create

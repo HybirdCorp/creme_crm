@@ -33,7 +33,7 @@ from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.utils.dates import date_2_dict
 
 
-class PollLineType(object):
+class PollLineType:
     verbose_name = '??'
     editable     = True
 
@@ -75,7 +75,7 @@ class PollLineType(object):
 
     @staticmethod
     def choices():
-        return [(i, pltype.verbose_name) for i, pltype in POLL_LINE_TYPES.iteritems()]
+        return [(i, pltype.verbose_name) for i, pltype in POLL_LINE_TYPES.items()]
 
     def _cleaned_args(self):
         return self._args
@@ -208,7 +208,7 @@ class BoolPollLineType(PollLineType):
                                )
 
     def get_choices(self):
-        return [(k, unicode(v)) for k, v in self._CHOICES.iteritems()]
+        return [(k, str(v)) for k, v in self._CHOICES.items()]
 
     def get_stats(self, raw_answer):
         answer = self.decode_answer(raw_answer)

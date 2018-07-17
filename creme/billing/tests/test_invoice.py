@@ -347,7 +347,7 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertGET200(url)
 
         name = name.title()
-        response = self.client.post(url, data={'entities_lbl': [unicode(invoice)],
+        response = self.client.post(url, data={'entities_lbl': [str(invoice)],
                                                'field_value':  name,
                                               }
                                    )
@@ -366,7 +366,7 @@ class InvoiceTestCase(_BillingTestCase):
         url = self.build_inneredit_url(entity=invoice, fieldname='discount')
         self.assertGET200(url)
 
-        response = self.assertPOST200(url, data={'entities_lbl': [unicode(invoice)],
+        response = self.assertPOST200(url, data={'entities_lbl': [str(invoice)],
                                                  'field_value':  '110',
                                                 }
                                      )

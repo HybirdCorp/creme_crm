@@ -41,19 +41,30 @@ class _DocumentsTestCase(CremeTestCase):
         cls.ADD_DOC_URL = reverse('documents__create_document')
 
     def _build_filedata(self, content_str, suffix='.txt'):
-        tmpfile = NamedTemporaryFile(suffix=suffix, delete=False)
-        tmpfile.write(content_str)
+        # tmpfile = NamedTemporaryFile(suffix=suffix, delete=False)
+        # tmpfile.write(content_str)
+        # tmpfile.flush()
+        #
+        # # We close and reopen in order to have a file with the right name (so we must specify delete=False)
+        # tmpfile.close()
+        #
+        # name = tmpfile.name
+        #
+        # return open(name, 'rb'), basename(name)
+        tmpfile = NamedTemporaryFile(suffix=suffix)
+        tmpfile.write(content_str.encode())
         tmpfile.flush()
 
-        # We close and reopen in order to have a file with the right name (so we must specify delete=False)
-        tmpfile.close()
+        filedata = tmpfile.file
+        filedata.seek(0)
 
-        name = tmpfile.name
+        tmpfile.base_name = basename(tmpfile.name)
 
-        return open(name, 'rb'), basename(name)
+        return tmpfile
 
     def _create_doc(self, title, file_obj=None, folder=None, description=None, user=None):
-        file_obj = file_obj or self._build_filedata('{} : Content'.format(title))[0]
+        # file_obj = file_obj or self._build_filedata('{} : Content'.format(title))[0]
+        file_obj = file_obj or self._build_filedata('{} : Content'.format(title))
         folder = folder or Folder.objects.all()[0]
         user = user or self.user
         data = {'user':     user.pk,
@@ -82,11 +93,11 @@ class _DocumentsTestCase(CremeTestCase):
         }
 
         name = IMAGE_PATHS[ident]
-        image_file = open(join(settings.CREME_ROOT, 'static', 'chantilly', 'images', name), 'rb')
 
-        return self._create_doc(title=title or name,
-                                file_obj=image_file,
-                                folder=folder or Folder.objects.get(uuid=constants.UUID_FOLDER_IMAGES),
-                                description=description,
-                                user=user,
-                               )
+        with open(join(settings.CREME_ROOT, 'static', 'chantilly', 'images', name), 'rb') as image_file:
+            return self._create_doc(title=title or name,
+                                    file_obj=image_file,
+                                    folder=folder or Folder.objects.get(uuid=constants.UUID_FOLDER_IMAGES),
+                                    description=description,
+                                    user=user,
+                                   )

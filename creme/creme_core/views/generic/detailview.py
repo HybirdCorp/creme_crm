@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from future_builtins import filter
-
 from collections import defaultdict
 from itertools import chain
 import logging
@@ -68,12 +66,12 @@ def detailview_bricks(user, entity):
     # We call the method block_registry.get_bricks() once to regroup additional queries
     bricks = {}
     model = entity.__class__
-    for brick in brick_registry.get_bricks(list(chain.from_iterable(brick_ids for brick_ids in loc_map.itervalues())),
+    for brick in brick_registry.get_bricks(list(chain.from_iterable(brick_ids for brick_ids in loc_map.values())),
                                            entity=entity,
                                           ):
         target_ctypes = brick.target_ctypes
         if target_ctypes and not model in target_ctypes:
-            logger.warn('This brick cannot be displayed on this content type (you have a config problem): %s', brick.id_)
+            logger.warning('This brick cannot be displayed on this content type (you have a config problem): %s', brick.id_)
         else:
             bricks[brick.id_] = brick
 
@@ -85,7 +83,7 @@ def detailview_bricks(user, entity):
         bricks[hat_brick.id_] = hat_brick
 
     return {zone_name: list(filter(None, (bricks.get(brick_id) for brick_id in loc_map[zone])))
-                for zone, zone_name in BrickDetailviewLocation.ZONE_NAMES.iteritems()
+                for zone, zone_name in BrickDetailviewLocation.ZONE_NAMES.items()
            }
 
 

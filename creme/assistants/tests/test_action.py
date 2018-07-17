@@ -67,7 +67,7 @@ class ActionTestCase(AssistantsTestCase):
                          action.deadline
                         )
 
-        self.assertEqual(title, unicode(action))
+        self.assertEqual(title, str(action))
 
         create_bdi = partial(BrickDetailviewLocation.create_if_needed, model=FakeContact,
                              zone=BrickDetailviewLocation.RIGHT,

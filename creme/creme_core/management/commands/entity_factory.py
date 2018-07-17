@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from __future__ import unicode_literals, print_function
+# from __future__ import unicode_literals, print_function
 
 try:
     import factory
@@ -55,7 +55,7 @@ def print_time(name='TIME', mute=False):
 
 
 # Move to creme_core.management.base ? -----------------------------------------
-class ProgressBar(object):
+class ProgressBar:
     def __init__(self, max, stdout, length=80, char='='):
         self._stdout = stdout
         self._max = max
@@ -187,7 +187,7 @@ def _get_organisation_n_factory(locale):
 
 # Optimizers -------------------------------------------------------------------
 
-class BaseOptimizeContext(object):
+class BaseOptimizeContext:
     def __init__(self, cursor, verbosity, stdout):
         self.cursor = cursor
         self.verbosity = verbosity
@@ -311,7 +311,7 @@ class Command(BaseCommand):
         get_opt = options.get
 
         if get_opt('list_types'):
-            self.stdout.write('\n'.join(' - {}'.format(m) for m in self.TYPES.iterkeys()))
+            self.stdout.write('\n'.join(' - {}'.format(m) for m in self.TYPES))
             return
 
         e_type = get_opt('type')
@@ -358,7 +358,7 @@ class Command(BaseCommand):
 
         # with print_time(mute=not verbosity):
         with optimiser_class(cursor, verbosity, self.stdout):
-            for _ in xrange(number):
+            for _ in range(number):
                 create()
                 progress()
 

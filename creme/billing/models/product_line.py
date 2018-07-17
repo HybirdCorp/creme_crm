@@ -34,7 +34,7 @@ class AbstractProductLine(Line):
         verbose_name = _(u'Product line')
         verbose_name_plural = _(u'Product lines')
 
-    def __unicode__(self):
+    def __str__(self):
         if self.on_the_fly_item:
             return ugettext(u'On the fly product «{}»').format(self.on_the_fly_item)
 

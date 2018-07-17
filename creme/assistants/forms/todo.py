@@ -33,7 +33,7 @@ from ..models import ToDo
 
 class ToDoForm(CremeModelWithUserForm):
     deadline_hour = TypedChoiceField(label=_(u'Deadline hour'), coerce=int,
-                                     choices=[(i, '%ih' % i) for i in xrange(0, 24)],
+                                     choices=[(i, '%ih' % i) for i in range(0, 24)],
                                      required=False, empty_value=None, initial=8,
                                      help_text=_(u'The hour is used only if you set the deadline date.'),
                                     )

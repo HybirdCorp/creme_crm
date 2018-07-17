@@ -125,7 +125,7 @@ def portal_model(request, app_name, model_name):
         if meta.ordering and meta.ordering[0] == 'order' and isinstance(order_field, IntegerField):
             for order, instance in enumerate(model.objects.order_by('order', 'pk'), start=1):
                 if order != instance.order:
-                    logger.warn('Fix an order problem in model %s (%s)', model, instance)
+                    logger.warning('Fix an order problem in model %s (%s)', model, instance)
                     instance.order = order
                     instance.save()
 

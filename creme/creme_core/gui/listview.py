@@ -52,9 +52,9 @@ def simple_value(value):
     return ''  # TODO : Verify same semantic than "null" sql
 
 
-class ListViewState(object):
+class ListViewState:
     # TODO: in utils.meta + use instead of <.startswith('-')>
-    class _OrderedField(object):
+    class _OrderedField:
         def __init__(self, ord_field_str):
             "@param ord_field_str: something like 'name' or '-creation_date'"
             self._raw = ord_field_str
@@ -114,7 +114,7 @@ class ListViewState(object):
         if data is not None:
             lvs = object.__new__(ListViewState)
 
-            for k, v in data.iteritems():
+            for k, v in data.items():
                 setattr(lvs, k, v)
 
             if lvs.extra_q is not None:
@@ -124,7 +124,7 @@ class ListViewState(object):
 
     @staticmethod
     def build_from_request(arguments, url, **kwargs):
-        kwargs.update((str(k), v) for k, v in arguments.iteritems())
+        kwargs.update((str(k), v) for k, v in arguments.items())
         kwargs['url'] = url
         return ListViewState(**kwargs)
 
@@ -186,7 +186,7 @@ class ListViewState(object):
                 try:
                     return dt_from_str(str).date()
                 except AttributeError:
-                    logger.warn('ListViewState: invalid date: %s', str)
+                    logger.warning('ListViewState: invalid date: %s', str)
 
     def _build_date_range_dict(self, name, value):
         don = partial(self._date_or_None, value=value)
@@ -194,7 +194,7 @@ class ListViewState(object):
         end = don(index=1)
 
         if not start and not end:
-            logger.warn('ListViewState: date range need a start and/or a end.')
+            logger.warning('ListViewState: date range need a start and/or a end.')
             return {}
 
         return CustomRange(start, end).get_q_dict(name, now())
@@ -255,7 +255,7 @@ class ListViewState(object):
                               )
 
         # NB: same remark but with CustomField tables : a type (INT, DATE...) == a DB table.
-        for field_type, searches in cf_searches.iteritems():
+        for field_type, searches in cf_searches.items():
             if len(searches) == 1:
                 cf, pattern, value = searches[0]
                 related_name = cf.get_value_class().get_related_name()
@@ -344,14 +344,14 @@ class ListViewState(object):
         cell = cells_dict.get(cell_key)
 
         if cell is None:
-            logger.warn('ListViewState: no such sortable column "%s"', cell_key)
+            logger.warning('ListViewState: no such sortable column "%s"', cell_key)
             return None
 
         # TODO: move to EntityCell
         if isinstance(cell, EntityCellRegularField):
             return cls._get_regular_sortfield(cell)
         else:
-            logger.warn('ListViewState: can not sort with column "%s" '
+            logger.warning('ListViewState: can not sort with column "%s" '
                         '(only sort of regular field is implemented)',
                         cell_key,
                        )
@@ -437,7 +437,7 @@ class ListViewState(object):
 # -----------------------------------------------------------------------------
 
 
-class _ModelSmartColumnsRegistry(object):
+class _ModelSmartColumnsRegistry:
     __slots__ = ('_cells', '_relationtype')
 
     def __init__(self):
@@ -459,7 +459,7 @@ class _ModelSmartColumnsRegistry(object):
                 rtype = self._get_relationtype(data)
 
                 if rtype is False:
-                    logger.warn('SmartColumnsRegistry: relation type "%s" does not exist', data)
+                    logger.warning('SmartColumnsRegistry: relation type "%s" does not exist', data)
                 else:
                     cell = EntityCellRelation(model=model, rtype=rtype)
 
@@ -499,7 +499,7 @@ class _ModelSmartColumnsRegistry(object):
         return self
 
 
-class SmartColumnsRegistry(object):
+class SmartColumnsRegistry:
     def __init__(self):
         self._model_registries = defaultdict(_ModelSmartColumnsRegistry)
 

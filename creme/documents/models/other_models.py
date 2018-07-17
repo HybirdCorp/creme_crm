@@ -40,7 +40,7 @@ class FolderCategory(CremeModel):
         verbose_name_plural = _(u'Folder categories')
         ordering = ('name',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -57,7 +57,7 @@ class DocumentCategory(CremeModel):
         verbose_name_plural = _(u'Document categories')
         ordering = ('name',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -70,7 +70,7 @@ class MimeType(CremeModel):
         verbose_name_plural = _(u'MIME types')
         ordering = ('name',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @property

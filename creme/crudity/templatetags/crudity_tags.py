@@ -29,7 +29,7 @@ register = template.Library()
 @register.filter(name="truncate")
 def truncate(word, truncate_at):
     words = truncatewords(word, truncate_at)
-    word = unicode(word)
+    word = str(word)
     truncated = word[:truncate_at]
 
     if len(words.split()) == 1 and not len(truncated) == len(word):

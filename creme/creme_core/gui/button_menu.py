@@ -27,7 +27,7 @@ from django.template.loader import get_template
 logger = logging.getLogger(__name__)
 
 
-class Button(object):
+class Button:
     id_           = None  # Overload with an unicode object ; use generate_id()
     verbose_name  = 'BUTTON'  # Used in the user configuration (see ButtonMenuItem)
     template_name = 'creme_core/buttons/place-holder.html'  # Used to render the button of course
@@ -63,7 +63,7 @@ class Button(object):
         return get_template(self.template_name).render(context)
 
 
-class ButtonsRegistry(object):
+class ButtonsRegistry:
     class RegistrationError(Exception):
         pass
 
@@ -114,7 +114,7 @@ class ButtonsRegistry(object):
                     yield button
 
     def __iter__(self):
-        for b_id, b_cls in self._button_classes.iteritems():
+        for b_id, b_cls in self._button_classes.items():
             yield b_id, b_cls()
 
 

@@ -40,23 +40,23 @@ class DynamicSelectTestCase(FieldTestCase):
                             )
 
     def test_options_function(self):
-        select = DynamicSelect(options=lambda: [(id, str(id)) for id in xrange(10)])
+        select = DynamicSelect(options=lambda: [(id, str(id)) for id in range(10)])
 
         self.assertTrue(callable(select.options))
-        self.assertListEqual([(id_, str(id_)) for id_ in xrange(10)],
+        self.assertListEqual([(id_, str(id_)) for id_ in range(10)],
                              select.choices)
 
-        self.assertListEqual([(id_, str(id_)) for id_ in xrange(10)],
+        self.assertListEqual([(id_, str(id_)) for id_ in range(10)],
                              select.choices)
 
     def test_options_generator(self):
-        select = DynamicSelect(options=((id_, str(id_)) for id_ in xrange(10)))
+        select = DynamicSelect(options=((id_, str(id_)) for id_ in range(10)))
 
         self.assertIsInstance(select.options, list)
-        self.assertListEqual([(id_, str(id_)) for id_ in xrange(10)],
+        self.assertListEqual([(id_, str(id_)) for id_ in range(10)],
                              select.choices)
 
-        self.assertListEqual([(id_, str(id_)) for id_ in xrange(10)],
+        self.assertListEqual([(id_, str(id_)) for id_ in range(10)],
                              select.choices)
 
     # def test_render_options(self):

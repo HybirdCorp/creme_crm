@@ -943,7 +943,7 @@ class MenuTestCase(CremeTestCase):
                                      '<a href="/persons/contacts">List of contacts</a>'
                                  '</li>'
                              '</ul>',
-                             ElementTree.tostring(ul_node)
+                             ElementTree.tostring(ul_node).decode()
                             )
 
     def test_render_menu(self):

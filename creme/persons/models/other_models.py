@@ -34,7 +34,7 @@ class Civility(CremeModel):
 
     creation_label = _(u'Create a civility')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     class Meta:
@@ -49,7 +49,7 @@ class Position(CremeModel):
 
     creation_label = pgettext_lazy('persons-position', u'Create a position')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     class Meta:
@@ -64,7 +64,7 @@ class Sector(CremeModel):
 
     creation_label = pgettext_lazy('persons-sector', u'Create a sector')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     class Meta:
@@ -79,7 +79,7 @@ class LegalForm(CremeModel):
 
     creation_label = _(u'Create a legal form')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     class Meta:
@@ -95,7 +95,7 @@ class StaffSize(CremeModel):
 
     creation_label = _(u'Create a staff size')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.size
 
     class Meta:

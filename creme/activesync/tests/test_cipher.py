@@ -40,21 +40,21 @@ class CipherTestCase(CremeTestCase):
         ciphertext = Cipher.encrypt(text)
         self.assertEqual(text, Cipher.decrypt(ciphertext))
 
-        text = ''.join(str(i) for i in xrange(50))
+        text = ''.join(str(i) for i in range(50))
         ciphertext = Cipher.encrypt(text)
         self.assertEqual(text, Cipher.decrypt(ciphertext))
 
     def test_cipher04(self):
-        for i in xrange(143):
+        for i in range(143):
             # Test with text with not always the same length
-            text = ''.join(chr(random.randint(0, 0xFF)) for _ in xrange(i))
+            text = ''.join(chr(random.randint(0, 0xFF)) for _ in range(i))
             ciphertext = Cipher.encrypt(text)
             self.assertEqual(text, Cipher.decrypt(ciphertext))
 
     def test_cipher05(self):
-        for i in xrange(143):
+        for i in range(143):
             # Test with text with not always the same length
-            text = ''.join(chr(random.randint(0, 255)) for _ in xrange(i))
+            text = ''.join(chr(random.randint(0, 255)) for _ in range(i))
             ciphertext = Cipher.encrypt(text)
             self.assertEqual(text, Cipher.decrypt(ciphertext))
 
@@ -64,9 +64,9 @@ class CipherTestCase(CremeTestCase):
         self.assertEqual(text, Cipher.decrypt_from_db(ciphertext))
 
     def test_cipher_for_db02(self):
-        for i in xrange(143):
+        for i in range(143):
             # Test with text with not always the same length
-            text = ''.join(chr(random.randint(0, 255)) for _ in xrange(i))
+            text = ''.join(chr(random.randint(0, 255)) for _ in range(i))
             ciphertext = Cipher.encrypt_for_db(text)
             self.assertEqual(text, Cipher.decrypt_from_db(ciphertext))
 

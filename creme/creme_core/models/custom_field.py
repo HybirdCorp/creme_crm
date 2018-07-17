@@ -67,12 +67,12 @@ class CustomField(CremeModel):
         unique_together = ('content_type', 'name')
         ordering = ('id',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     # def delete(self, using=None):
     def delete(self, *args, **kwargs):
-        for value_class in _TABLES.itervalues():
+        for value_class in _TABLES.values():
             value_class.objects.filter(custom_field=self).delete()
 
         # Beware: we don't call the CustomFieldEnumValue.delete() to avoid loop.
@@ -97,7 +97,7 @@ class CustomField(CremeModel):
         # TODO: select_related() for enum ???
         cf_values = self.get_value_class().objects.filter(custom_field=self.id, entity=entity_id)
 
-        return unicode(cf_values[0]) if cf_values else u''
+        return str(cf_values[0]) if cf_values else u''
 
     @staticmethod
     def get_custom_values_map(entities, custom_fields):
@@ -111,7 +111,7 @@ class CustomField(CremeModel):
         cvalues_map = defaultdict(lambda: defaultdict(list))
         entities = [e.id for e in entities]  # NB: 'list(entities)' ==> made strangely a query for every entity ;(
 
-        for field_type, cfields_list in cfield_map.iteritems():
+        for field_type, cfields_list in cfield_map.items():
             for cvalue in _TABLES[field_type]._get_4_entities(entities, cfields_list):
                 cvalues_map[cvalue.entity_id][cvalue.custom_field_id] = cvalue
 
@@ -126,8 +126,8 @@ class CustomFieldValue(CremeModel):
     class Meta:
         abstract = True
 
-    def __unicode__(self):
-        return unicode(self.value)
+    def __str__(self):
+        return str(self.value)
 
     @classmethod
     def _get_4_entities(cls, entities, cfields):
@@ -205,7 +205,7 @@ class CustomFieldString(CustomFieldValue):
     class Meta:
         app_label = 'creme_core'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.value
 
     @staticmethod
@@ -255,7 +255,7 @@ class CustomFieldDateTime(CustomFieldValue):
         app_label = 'creme_core'
 
     # TODO: factorise with gui.field_printers
-    def __unicode__(self):
+    def __str__(self):
         value = self.value
         return date_format(localtime(value), 'DATETIME_FORMAT') if value else ''
 
@@ -272,7 +272,7 @@ class CustomFieldBoolean(CustomFieldValue):
     class Meta:
         app_label = 'creme_core'
 
-    def __unicode__(self):
+    def __str__(self):
         return ugettext(u'Yes') if self.value else ugettext(u'No')
 
     @staticmethod
@@ -293,7 +293,7 @@ class CustomFieldEnumValue(CremeModel):
     class Meta:
         app_label = 'creme_core'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.value
 
     # def delete(self, using=None):
@@ -347,8 +347,8 @@ class CustomFieldMultiEnum(CustomFieldValue):
     class Meta:
         app_label = 'creme_core'
 
-    def __unicode__(self):
-        return u' / '.join(unicode(val) for val in self.get_enumvalues())
+    def __str__(self):
+        return u' / '.join(str(val) for val in self.get_enumvalues())
 
     @staticmethod
     def _get_formfield(**kwargs):

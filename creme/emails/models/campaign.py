@@ -43,7 +43,7 @@ class AbstractEmailCampaign(CremeEntity):
         verbose_name_plural = _(u'Emailing campaigns')
         ordering = ('name',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
@@ -63,7 +63,7 @@ class AbstractEmailCampaign(CremeEntity):
     def all_recipients(self):
         # Merge all the mailing_lists and their children
         lists = dict(pk_ml for ml in self.mailing_lists.filter(is_deleted=False)
-                        for pk_ml in ml.get_family().iteritems()
+                        for pk_ml in ml.get_family().items()
                     ).values()
 
         # Manual recipients
@@ -83,7 +83,7 @@ class AbstractEmailCampaign(CremeEntity):
         update(lambda ml: ml.contacts)
         update(lambda ml: ml.organisations)
 
-        return recipients.iteritems()
+        return recipients.items()
 
     def restore(self):
         CremeEntity.restore(self)

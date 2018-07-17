@@ -115,7 +115,7 @@ class HistoryTestCase(CremeTestCase):
         self.assertEqual(self.other_user,    hline.entity_owner)
         self.assertEqual(TYPE_AUX_CREATION,  hline.type)
         self.assertBetweenDates(hline)
-        self.assertEqual([ContentType.objects.get_for_model(address).id, address.id, unicode(address)],
+        self.assertEqual([ContentType.objects.get_for_model(address).id, address.id, str(address)],
                          hline.modifications
                         )
         self.assertEqual([_(u'Add <{type}>: “{value}”').format(
@@ -440,7 +440,7 @@ about this fantastic animation studio."""
     def test_deletion01(self):
         old_count = HistoryLine.objects.count()
         gainax = FakeOrganisation.objects.create(user=self.other_user, name='Gainax')
-        entity_repr = unicode(gainax)
+        entity_repr = str(gainax)
 
         self.assertEqual(old_count + 1, HistoryLine.objects.count())
 
@@ -550,7 +550,7 @@ about this fantastic animation studio."""
         self.assertEqual(ghibli.entity_type, hline.entity_ctype)
         self.assertEqual(user,               hline.entity_owner)
         self.assertEqual(TYPE_RELATED,       hline.type)
-        self.assertEqual(unicode(ghibli),    hline.entity_repr)
+        self.assertEqual(str(ghibli),    hline.entity_repr)
         self.assertEqual([],                 hline.modifications)
         self.assertEqual(edition_hline.id,   hline.related_line.id)
         self.assertBetweenDates(hline)
@@ -571,7 +571,7 @@ about this fantastic animation studio."""
 
         hline = hlines[-1]
         self.assertEqual(gainax.id,       hline.entity.id)
-        self.assertEqual(unicode(gainax), hline.entity_repr)
+        self.assertEqual(str(gainax), hline.entity_repr)
         self.assertEqual(TYPE_PROP_ADD,   hline.type)
         self.assertEqual([ptype.id],      hline.modifications)
         self.assertEqual(False,           hline.line_type.is_about_relation)
@@ -603,7 +603,7 @@ about this fantastic animation studio."""
 
         hline = hlines[-1]
         self.assertEqual(gainax.id,       hline.entity.id)
-        self.assertEqual(unicode(gainax), hline.entity_repr)
+        self.assertEqual(str(gainax), hline.entity_repr)
         self.assertEqual(TYPE_PROP_DEL,   hline.type)
         self.assertEqual([ptype.id],      hline.modifications)
         self.assertEqual(False,           hline.line_type.is_about_relation)
@@ -634,7 +634,7 @@ about this fantastic animation studio."""
 
         hline = hlines[-2]
         self.assertEqual(rei.id,            hline.entity.id)
-        self.assertEqual(unicode(rei),      hline.entity_repr)
+        self.assertEqual(str(rei),      hline.entity_repr)
         self.assertEqual(TYPE_RELATION,     hline.type)
         self.assertEqual([rtype.id],        hline.modifications)
         # self.assertEqual(relation.modified, hline.date)
@@ -643,7 +643,7 @@ about this fantastic animation studio."""
 
         hline_sym = hlines[-1]
         self.assertEqual(nerv.id,           hline_sym.entity.id)
-        self.assertEqual(unicode(nerv),     hline_sym.entity_repr)
+        self.assertEqual(str(nerv),     hline_sym.entity_repr)
         self.assertEqual(TYPE_SYM_RELATION, hline_sym.type)
         self.assertEqual([srtype.id],       hline_sym.modifications)
         # self.assertEqual(relation.modified, hline_sym.date)
@@ -711,7 +711,7 @@ about this fantastic animation studio."""
 
         hline = hlines[-2]
         self.assertEqual(rei,               hline.entity.get_real_entity())
-        self.assertEqual(unicode(rei),      hline.entity_repr)
+        self.assertEqual(str(rei),      hline.entity_repr)
         self.assertEqual(TYPE_RELATION_DEL, hline.type)
         self.assertEqual([rtype.id],        hline.modifications)
         self.assertEqual(True,              hline.line_type.is_about_relation)
@@ -719,7 +719,7 @@ about this fantastic animation studio."""
 
         hline_sym = hlines[-1]
         self.assertEqual(nerv,             hline_sym.entity.get_real_entity())
-        self.assertEqual(unicode(nerv),    hline_sym.entity_repr)
+        self.assertEqual(str(nerv),    hline_sym.entity_repr)
         self.assertEqual(TYPE_SYM_REL_DEL, hline_sym.type)
         self.assertEqual([srtype.id],      hline_sym.modifications)
         self.assertEqual(True,             hline_sym.line_type.is_about_relation)
@@ -785,7 +785,7 @@ about this fantastic animation studio."""
         self.assertBetweenDates(hline)
         self.assertEqual([[ContentType.objects.get_for_model(address).id,
                            address.id,
-                           unicode(address),
+                           str(address),
                           ],
                           ['city', old_city, city],
                           ['department', department],

@@ -23,7 +23,7 @@ from django.db.models.query import Q
 from ..models import SearchConfigItem, FieldsConfig
 
 
-class Searcher(object):
+class Searcher:
     def __init__(self, models, user):
         self._search_map = search_map = {}
         models = list(models)  # Several iterations
@@ -54,7 +54,7 @@ class Searcher(object):
 
     @property
     def models(self):
-        return self._search_map.iterkeys()
+        return self._search_map.keys()
 
     def search(self, model, research):
         """Return the models which fields contain the wanted value.

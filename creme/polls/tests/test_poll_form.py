@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from future_builtins import zip
     from functools import partial
     from json import loads as json_load, dumps as json_dump
 
@@ -464,9 +463,9 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertNoFormError(response)
 
         line = pform.lines.all()[0]
-        self.assertEqual('{"lower_bound": %s}' % lower_bound, line.type_args)
+        self.assertEqual({'lower_bound': lower_bound}, json_load(line.type_args))
         self.assertEqual(_(u'Integer greater than {min_value}').format(min_value=lower_bound),
-                         unicode(line.poll_line_type.description)
+                         str(line.poll_line_type.description)
                         )
 
     def test_add_line_int03(self):
@@ -483,9 +482,9 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertNoFormError(response)
 
         line = pform.lines.all()[0]
-        self.assertEqual('{"upper_bound": %s}' % upper_bound, line.type_args)
+        self.assertEqual({'upper_bound': upper_bound}, json_load(line.type_args))
         self.assertEqual(_(u'Integer lesser than {max_value}').format(max_value=upper_bound),
-                         unicode(line.poll_line_type.description)
+                         str(line.poll_line_type.description)
                         )
 
     def test_add_line_int04(self):
@@ -504,15 +503,14 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertNoFormError(response)
 
         line = pform.lines.all()[0]
-        self.assertEqual('{"lower_bound": %s, "upper_bound": %s}' % (
-                            lower_bound, upper_bound),
-                        line.type_args
+        self.assertEqual({'lower_bound': lower_bound, 'upper_bound': upper_bound},
+                        json_load(line.type_args),
                        )
         self.assertEqual(_(u'Integer between {min_value} and {max_value}').format(
                                 min_value=lower_bound,
                                 max_value=upper_bound,
                             ),
-                         unicode(line.poll_line_type.description)
+                         str(line.poll_line_type.description)
                         )
 
     def test_add_line_int05(self):
@@ -555,7 +553,8 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertEqual(desc, plt.verbose_name)
         self.assertEqual(desc, plt.description)
 
-        self.assertItemsEqual(plt.get_choices(), [(0, _('No')), (1, _('Yes'))])
+        # self.assertItemsEqual(plt.get_choices(), [(0, _('No')), (1, _('Yes'))])
+        self.assertCountEqual(plt.get_choices(), [(0, _('No')), (1, _('Yes'))])
         self.assertIsNone(plt.get_editable_choices())
 
         self.assertFalse(hasattr(plt, 'get_deleted_choices'))
@@ -1951,7 +1950,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertGET200(url)
 
         question = line.question + ' ?'
-        response = self.client.post(url, data={'entities_lbl': [unicode(line)],
+        response = self.client.post(url, data={'entities_lbl': [str(line)],
                                                'field_value':  question,
                                               }
                                    )

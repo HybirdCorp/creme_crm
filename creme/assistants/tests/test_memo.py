@@ -53,7 +53,7 @@ class MemoTestCase(AssistantsTestCase):
 
         self.assertDatetimesAlmostEqual(now(), memo.creation_date)
 
-        self.assertEqual(content, unicode(memo))
+        self.assertEqual(content, str(memo))
 
     def test_edit(self):
         content  = 'content'
@@ -65,7 +65,7 @@ class MemoTestCase(AssistantsTestCase):
 
         content += u""": 
 I add a long text in order to obtain a content that 
-will be truncate by unicode() method"""
+will be truncate by str() method"""
         homepage = not homepage
         response = self.client.post(url, data={'user':        self.user.pk,
                                                'content':     content,
@@ -78,7 +78,7 @@ will be truncate by unicode() method"""
         self.assertEqual(content,  memo.content)
         self.assertEqual(homepage, memo.on_homepage)
 
-        self.assertEqual(u'content: I add a long te…', unicode(memo))
+        self.assertEqual(u'content: I add a long te…', str(memo))
 
     def test_delete_related01(self):
         self._create_memo()

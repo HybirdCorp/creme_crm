@@ -20,8 +20,8 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
         self.login()
         self.brick = _MapBrick()
 
-        self.contacts_title      = unicode(Contact._meta.verbose_name_plural)
-        self.organisations_title = unicode(Organisation._meta.verbose_name_plural)
+        self.contacts_title      = str(Contact._meta.verbose_name_plural)
+        self.organisations_title = str(Organisation._meta.verbose_name_plural)
 
     def create_filter(self, pk, name, owner, model, field, operator, *values):
         return EntityFilter.create(pk, name, model=model,

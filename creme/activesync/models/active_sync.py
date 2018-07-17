@@ -79,7 +79,7 @@ class CremeExchangeMapping(CremeModel):
     user               = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=u'Belongs to', on_delete=CASCADE)
     creme_entity_repr  = CharField(u'Verbose entity representation', max_length=200, null=True, blank=True, default=u"")  # IHM/User purposes
 
-    def __unicode__(self):
+    def __str__(self):
         return u"<CremeExchangeMapping ce_id: <%s>, ex_id: <%s>, belongs to %s>" % (self.creme_entity_id, self.exchange_entity_id, self.user)
 
     class Meta:
@@ -110,7 +110,7 @@ class CremeClient(CremeModel):
     contact_folder_id  = CharField(u'Contact folder id', max_length=64,  default=None, blank=True, null=True)
     last_sync          = DateTimeField(_(u'Last sync'), blank=True, null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"<CremeClient for <%s> >" % self.user
 
     class Meta:
@@ -186,7 +186,7 @@ class SyncKeyHistory(CremeModel):
         client.sync_key = SyncKeyHistory._get_previous_key(client)
         client.save()
 
-    def __unicode__(self):
+    def __str__(self):
         return u"<SyncKeyHistory for <%s>, key=<%s>, created=<%s>>" % (self.client, self.sync_key, self.created)
 
 
@@ -211,7 +211,7 @@ class UserSynchronizationHistory(CremeModel):
         verbose_name = u'History'
         verbose_name_plural = u'History'
 
-    def __unicode__(self):
+    def __str__(self):
         return u"<UserSynchronizationHistory user=%s, entity_repr=%s>" % (self.user, self.entity_repr)
 
     def _get_entity(self):
@@ -231,7 +231,7 @@ class UserSynchronizationHistory(CremeModel):
 
     def _set_entity(self, entity):
         self.entity_pk   = entity.pk
-        self.entity_repr = unicode(entity)
+        self.entity_repr = str(entity)
         self.entity_ct   = entity.entity_type
 #        self._entity     = entity
 
@@ -254,7 +254,7 @@ class UserSynchronizationHistory(CremeModel):
         changes = pickle.loads(self.entity_changes.encode('utf-8'))
         get_for_id = ContentType.objects.get_for_id
 
-        for k, v in changes.iteritems():
+        for k, v in changes.items():
             if isinstance(v, dict):
                 model_class = get_for_id(v['ct_id']).model_class()
                 try:
@@ -266,7 +266,7 @@ class UserSynchronizationHistory(CremeModel):
 
     def _set_changes(self, entity_changes):
         """ Set changes in self.entity_changes
-            @params entity_changes has to be an iterable of (key, value) => [('a',1),...] or .iteritems(), etc.
+            @params entity_changes has to be an iterable of (key, value) => [('a',1),...] or .items(), etc.
             if a value is None the key is deleted
             if a value is a django 'Model' it will be transformed into a dict {'ct_id': ContentType id, 'pk': Its pk}
         """
@@ -303,7 +303,7 @@ class UserSynchronizationHistory(CremeModel):
             ush.entity = entity
         else:
             repr, ct = entity
-            ush.entity_repr = unicode(repr)
+            ush.entity_repr = str(repr)
             ush.entity_ct   = ct
 
         ush.save()
@@ -332,7 +332,7 @@ class AS_Folder(CremeModel):
     as_class     = CharField(u'class',        max_length=25, default=None, blank=True, null=True)
     entity_id    = CharField(u'Entity id',    max_length=200, default=None, blank=True, null=True)  # A reference to something in Creme (currently used for Calendars mapping)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"<AS_Folder for <%s> >" % self.client.user
 
     class Meta:

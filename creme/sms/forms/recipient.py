@@ -38,7 +38,7 @@ class MessagingListAddRecipientsForm(CremeForm):
     blocks = FieldBlockManager(('general', _(u'Recipients'), '*'))
 
     def __init__(self, entity, *args, **kwargs):
-        super(MessagingListAddRecipientsForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.messaging_list = entity
 
     def save(self):
@@ -67,7 +67,7 @@ class MessagingListAddCSVForm(CremeForm):
     recipients = FileField(label=_(u'Recipients'), help_text=_HELP)
 
     def __init__(self, entity, *args, **kwargs):
-        super(MessagingListAddCSVForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.messaging_list = entity
 
     def save(self):

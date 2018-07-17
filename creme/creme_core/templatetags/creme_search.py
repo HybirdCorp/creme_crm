@@ -57,7 +57,7 @@ def search_form(user, selected_ct_id=None, search_terms=''):
     get_ct = ContentType.objects.get_for_model
     content_types = [
         {'id':           get_ct(model).id,
-         'verbose_name': unicode(model._meta.verbose_name),
+         'verbose_name': str(model._meta.verbose_name),
         } for model in Searcher(creme_registry.iter_entity_models(), user).models
     ]
     sort_key = collator.sort_key

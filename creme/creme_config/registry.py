@@ -42,7 +42,7 @@ class NotRegisteredInConfig(Exception):
     pass
 
 
-class ModelConfig(object):
+class ModelConfig:
     _SHORT_NAME_RE = re.compile(r'^\w+$')
 
     def __init__(self, model, name_in_url, form_class=None):
@@ -76,7 +76,7 @@ class ModelConfig(object):
 
 
 # TODO: __slots__ ???
-class AppConfigRegistry(object):
+class AppConfigRegistry:
     def __init__(self, name, verbose_name):
         self.name = name
         self.verbose_name = verbose_name
@@ -106,7 +106,7 @@ class AppConfigRegistry(object):
         return model_conf
 
     def models(self):
-        return self._models.itervalues()
+        return iter(self._models.values())
 
     def register_brick(self, brick_cls):
         self._bricks_classes.append(brick_cls)
@@ -121,7 +121,7 @@ class AppConfigRegistry(object):
             yield brick_cls()
 
 
-class _ConfigRegistry(object):
+class _ConfigRegistry:
     def __init__(self, block_registry=brick_registry):
         self._brick_registry = block_registry
         self._apps = _apps = {}
@@ -149,7 +149,7 @@ class _ConfigRegistry(object):
         ext_app_name = apps.get_app_config(app_label).extended_app
 
         if ext_app_name is not None:
-            for app_config in apps.app_configs.itervalues():
+            for app_config in apps.app_configs.values():
                 if app_config.name == ext_app_name:
                     return app_config.label
 
@@ -171,7 +171,7 @@ class _ConfigRegistry(object):
             app_conf.register_model(*args)
 
     def apps(self):
-        return self._apps.itervalues()
+        return iter(self._apps.values())
 
     def register_bricks(self, *bricks_to_register):  # TODO: factorise with register()
         app_registries = self._apps

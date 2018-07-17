@@ -19,7 +19,7 @@
 ################################################################################
 
 from time import time
-from urllib import urlencode
+from urllib.parse import urlencode
 # import warnings
 
 # from django.conf import settings
@@ -229,7 +229,7 @@ def light_search(request):
 
                 for e in query:
                     score = e.search_score
-                    entry = {'label': unicode(e), 'url': e.get_absolute_url()}  # 'score': score
+                    entry = {'label': str(e), 'url': e.get_absolute_url()}  # 'score': score
 
                     if score > best_score:
                         best_score = score
@@ -238,7 +238,7 @@ def light_search(request):
                     entities.append(entry)
 
                 results.append({'id':      ctype.id,
-                                'label':   unicode(model._meta.verbose_name),
+                                'label':   str(model._meta.verbose_name),
                                 'count':   count,
                                 'results': entities,
                                })

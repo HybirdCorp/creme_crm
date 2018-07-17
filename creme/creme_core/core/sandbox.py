@@ -23,7 +23,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class SandboxType(object):
+class SandboxType:
     id           = None       # Override with an unicode object ; use generate_id()
     verbose_name = 'SANDBOX'  # Override or create a property (see below)
 
@@ -41,7 +41,7 @@ class SandboxType(object):
     #     return u'Restricted to "{}"'.format(self.sandbox.user)
 
 
-class _SandboxTypeRegistry(object):
+class _SandboxTypeRegistry:
     class Error(Exception):
         pass
 

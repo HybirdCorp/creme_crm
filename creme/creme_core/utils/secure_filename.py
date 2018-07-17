@@ -10,12 +10,15 @@
 #    library.
 #
 #    Copyright: (c) 2010 by the Werkzeug Team
+#                   2018 Hybird
 #    License: BSD
 #    Website: http://werkzeug.pocoo.org/
 
 
 import os
 import re
+from unicodedata import normalize
+
 
 _windows_device_files = ('CON', 'AUX', 'COM1', 'COM2', 'COM3', 'COM4', 'LPT1',
                          'LPT2', 'LPT3', 'PRN', 'NUL')
@@ -38,14 +41,14 @@ def secure_filename(filename):
     >>> secure_filename(u'i contain cool \xfcml\xe4uts.txt')
     'i_contain_cool_umlauts.txt'
 
-    @param filename: the filename to secure (unicode or str).
+    @param filename: the filename to secure (str).
     @return: A new string.
     """
-    if isinstance(filename, unicode):
-        from unicodedata import normalize
-        filename = normalize('NFKD', filename).encode('ascii', 'ignore')
+    # if isinstance(filename, unicode):
+    #     filename = normalize('NFKD', filename).encode('ascii', 'ignore')
+    filename = normalize('NFKD', filename).encode('ascii', 'ignore').decode()
 
-    for sep in os.path.sep, os.path.altsep:
+    for sep in (os.path.sep, os.path.altsep):
         if sep:
             filename = filename.replace(sep, ' ')
 

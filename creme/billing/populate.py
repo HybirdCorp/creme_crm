@@ -103,7 +103,7 @@ class Populator(BasePopulator):
 
         # ---------------------------
         create_if_needed(PaymentTerms, {'pk': 1}, name=_(u'Deposit'),
-                         description=_(ur'20% deposit will be required'),
+                         description=_(r'20% deposit will be required'),
                          is_custom=False,
                         )
 

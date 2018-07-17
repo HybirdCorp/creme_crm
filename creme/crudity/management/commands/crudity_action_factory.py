@@ -94,7 +94,7 @@ class Command(BaseCommand):
         get_opt = options.get
 
         if get_opt('list_types'):
-            self.stdout.write('\n'.join(' - {}'.format(m) for m in types_map.iterkeys()))
+            self.stdout.write('\n'.join(' - {}'.format(m) for m in types_map))
             return
 
         number = get_opt('number')
@@ -106,9 +106,9 @@ class Command(BaseCommand):
 
         from creme.crudity.registry import crudity_registry  # lazy loading
 
-        for fetcher_name, fetcher in crudity_registry._fetchers.iteritems():
+        for fetcher_name, fetcher in crudity_registry._fetchers.items():
             for crud_inputs in fetcher.get_inputs():
-                for method, input in crud_inputs.iteritems():
+                for method, input in crud_inputs.items():
                     for backend in input.get_backends():
                         _get_model_n_factory = types_map.get(backend.model)
 
@@ -119,7 +119,7 @@ class Command(BaseCommand):
                         backend_count += 1
                         factory = _get_model_n_factory(locale)[1]
 
-                        for i in xrange(number):
+                        for i in range(number):
                             # action = WaitingAction(
                             #     action=method,
                             #     source='{} - {}'.format(fetcher_name, input.name),

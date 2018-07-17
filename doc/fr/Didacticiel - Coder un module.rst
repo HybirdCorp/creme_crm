@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 13-07-2018 pour la version 2.0 de Creme
+:Version: 16-07-2018 pour la version 2.0 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -131,17 +131,17 @@ Puis créons dedans un fichier nommé ``beaver.py`` (notez le singulier) à l'ai
 
 
     class Beaver(CremeEntity):
-        name     = CharField(_(u'Name'), max_length=100)
-        birthday = DateField(_(u'Birthday'))
+        name     = CharField(_('Name'), max_length=100)
+        birthday = DateField(_('Birthday'))
 
         class Meta:
             app_label = 'beavers'
             manager_inheritance_from_future = True  # Pour éviter des messages d'erreur de Django
-            verbose_name = _(u'Beaver')
-            verbose_name_plural = _(u'Beavers')
+            verbose_name = _('Beaver')
+            verbose_name_plural = _('Beavers')
             ordering = ('name',)
 
-        def __unicode__(self):
+        def __str__(self):
             return self.name
 
 
@@ -155,7 +155,7 @@ dans une vue en liste, ainsi que beaucoup d'autres services.
 En plus des champs contenus en base (fields), nous déclarons :
 
 - La classe ``Meta`` qui permet d'indiquer notamment l'app à laquelle appartient notre modèle.
-- La méhode ``__unicode__`` qui permet d'afficher de manière agréable les objets ``Beavers``.
+- La méhode ``__str__`` qui permet d'afficher de manière agréable les objets ``Beavers``.
 
 
 Là encore, pour que le répertoire ``models/`` soit un module, nous devons y mettre
@@ -254,7 +254,7 @@ Tout d'abord, créons un nouveau fichier ``beavers/apps.py`` qui contient : ::
 
     class BeaversConfig(CremeAppConfig):
         name = 'creme.beavers'
-        verbose_name = _(u'Beavers management')
+        verbose_name = _('Beavers management')
         dependencies = ['creme.creme_core']
 
         def register_entity_models(self, creme_registry):
@@ -437,8 +437,8 @@ nommer correctement les éléments d'interface (bouton, menu etc…) : ::
     class Beaver(CremeEntity):
         [...]
 
-        creation_label = _(u'Create a beaver')  # Intitulé du formulaire de création
-        save_label	   = _(u'Save the beaver')  # Intitulé du bouton de sauvegarde
+        creation_label = _('Create a beaver')  # Intitulé du formulaire de création
+        save_label	   = _('Save the beaver')  # Intitulé du bouton de sauvegarde
 
         [...]
 
@@ -552,7 +552,7 @@ Le méthode ``get()`` permet de récupérer des éléments dans l'arborescence d
 Ici nous allons chercher le groupe avec l'identifiant 'features', puis dans ce
 dernier nous récupérons le conteneur avec l'identifiant 'persons-directory'.
 Si vous voulez connaître la structure du menu, il suffit de faire un
-``print unicode(creme_menu)``.
+``print(str(creme_menu))``.
 
 **Note** : la méthode ``add()`` peut prendre un paramètre ``priority`` qui permet
 de gérer l'ordre des entrées (une priorité plus petite signifiant "avant").
@@ -566,14 +566,14 @@ Nous ajoutons ensuite une entrée dans la fenêtre permettant de créer tout typ
 d'entité : ::
 
         creme_menu.get('creation', 'any_forms') \
-                  .get_or_create_group('persons-directory', _(u'Directory'), priority=10) \
+                  .get_or_create_group('persons-directory', _('Directory'), priority=10) \
                   .add('create_beaver', Beaver)  # <- vous pouvez utiliser un paramètre 'priority'
 
 
 Puisque dans notre exemple, nous souhaitons insérer notre entrée dans le groupe "Annuaire",
 nous récupérons ce dernier grâce à ``get_or_create_group()``. Pour afficher la structure
 des groupes de cette fenêtre, vous pouvez faire
-``print creme_menu.get('creation', 'any_forms').verbose_unicode``.
+``print(creme_menu.get('creation', 'any_forms').verbose_unicode)``.
 
 
 Initialisation du module
@@ -615,7 +615,7 @@ Puis créons un fichier : ``beavers/populate.py``. ::
         dependencies = ['creme_core']
 
         def populate(self):
-            HeaderFilter.create(pk=DEFAULT_HFILTER_CONTACT, name=_(u'Beaver view'), model=Beaver,
+            HeaderFilter.create(pk=DEFAULT_HFILTER_CONTACT, name=_('Beaver view'), model=Beaver,
                                 cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                                             (EntityCellRegularField, {'name': 'birthday'}),
                                            ],
@@ -821,12 +821,12 @@ Créez un fichier ``models/status.py`` : ::
 
 
     class Status(CremeModel):
-        name      = CharField(_(u'Name'), max_length=100, blank=False, null=False, unique=True)
+        name      = CharField(_('Name'), max_length=100, blank=False, null=False, unique=True)
         is_custom = BooleanField(default=True).set_tags(viewable=False)
 
-        creation_label = pgettext_lazy('beavers-status', u'Create a status')
+        creation_label = pgettext_lazy('beavers-status', 'Create a status')
 
-        def __unicode__(self):
+        def __str__(self):
             return self.name
 
         class Meta:
@@ -908,7 +908,7 @@ Il devrait ressembler à ça: ::
 
 
     def populate_status(apps, schema_editor):
-        apps.get_model('beavers', 'Status').objects.create(id=1, name=u'Healthy', is_custom=False)
+        apps.get_model('beavers', 'Status').objects.create(id=1, name='Healthy', is_custom=False)
 
 
     class Migration(migrations.Migration):
@@ -933,9 +933,9 @@ Puis ajoutons un champ 'status' dans notre modèle ``Beaver`` : ::
 
 
     class Beaver(CremeEntity):
-        name     = CharField(_(u'Name'), max_length=100)
-        birthday = DateField(_(u'Birthday'))
-        status   = ForeignKey(Status, verbose_name=_(u'Status'))  # <- NEW
+        name     = CharField(_('Name'), max_length=100)
+        birthday = DateField(_('Birthday'))
+        status   = ForeignKey(Status, verbose_name=_('Status'))  # <- NEW
 
         [....]
 
@@ -988,8 +988,8 @@ Utilisons tout de suite ces constantes ; modifiez ``populate.py`` : ::
         already_populated = Status.objects.exists()
 
         if not already_populated:
-            Status.objects.create(id=STATUS_HEALTHY, name=_(u'Healthy'), is_custom=False)
-            Status.objects.create(id=STATUS_SICK,    name=_(u'Sick'),    is_custom=False)
+            Status.objects.create(id=STATUS_HEALTHY, name=_('Healthy'), is_custom=False)
+            Status.objects.create(id=STATUS_SICK,    name=_('Sick'),    is_custom=False)
 
 
 En mettant l'attribut ``is_custom`` à ``False``, on rend ces 2 ``Status`` non
@@ -1042,16 +1042,16 @@ vous devez rajouter un champ ``order`` comme ceci : ::
 
 
     class Status(CremeModel):
-        name      = CharField(_(u'Name'), max_length=100, blank=False, null=False, unique=True)
+        name      = CharField(_('Name'), max_length=100, blank=False, null=False, unique=True)
         is_custom = BooleanField(default=True).set_tags(viewable=False)
-        order     = BasicAutoField(_(u'Order'))  # <- NEW
+        order     = BasicAutoField(_('Order'))  # <- NEW
 
         [...]
 
         class Meta:
             app_label = 'beavers'
-            verbose_name = _(u'Beaver status')
-            verbose_name_plural  = _(u'Beaver status')
+            verbose_name = _('Beaver status')
+            verbose_name_plural  = _('Beaver status')
             ordering = ('order',)  # <- NEW
 
 
@@ -1131,8 +1131,8 @@ Puis ``beavers/populate.py`` : ::
 
         Contact = persons.get_contact_model()
 
-        RelationType.create((constants.REL_SUB_HAS_VET, _(u'has veterinary'),       [Beaver]),
-                            (constants.REL_OBJ_HAS_VET, _(u'is the veterinary of'), [Contact]),
+        RelationType.create((constants.REL_SUB_HAS_VET, _('has veterinary'),       [Beaver]),
+                            (constants.REL_OBJ_HAS_VET, _('is the veterinary of'), [Contact]),
                            )
 
 
@@ -1140,8 +1140,8 @@ Puis ``beavers/populate.py`` : ::
 (Beaver et Contact en l'occurrence). Nous pourrions aussi, si on créait un type de propriété
 «est un vétérinaire» (pour les Contacts), mettre une contrainte supplémentaire : ::
 
-        RelationType.create((constants.REL_SUB_HAS_VET, _(u'has veterinary'),       [Beaver]),
-                            (constants.REL_OBJ_HAS_VET, _(u'is the veterinary of'), [Contact], [VeterinaryPType]),
+        RelationType.create((constants.REL_SUB_HAS_VET, _('has veterinary'),       [Beaver]),
+                            (constants.REL_OBJ_HAS_VET, _('is the veterinary of'), [Contact], [VeterinaryPType]),
                            )
 
 Les types de relations créés ne sont pas supprimables via l'interface de configuration
@@ -1154,8 +1154,8 @@ qu'une des fiches à relier ait telle valeur pour un champ, ou que seuls certain
 puissent supprimer ces relations là. La solution consiste à déclarer ces types comme internes ;
 les vues de création et de suppression génériques des relations ignorent alors ces types : ::
 
-        RelationType.create((constants.REL_SUB_HAS_VET, _(u'has veterinary'),       [Beaver]),
-                            (constants.REL_OBJ_HAS_VET, _(u'is the veterinary of'), [Contact]),
+        RelationType.create((constants.REL_SUB_HAS_VET, _('has veterinary'),       [Beaver]),
+                            (constants.REL_OBJ_HAS_VET, _('is the veterinary of'), [Contact]),
                             is_internal=True,
                            )
 
@@ -1244,7 +1244,7 @@ Créez le fichier ``creme/beavers/bricks.py`` : ::
         template_name = 'beavers/bricks/age.html'
 
         # Nom utilisé par l'interface de configuration pour désigner ce bloc.
-        verbose_name = _(u'Age of the beaver')
+        verbose_name = _('Age of the beaver')
 
         # L'interface de configuration ne proposera de mettre ce bloc que sur la vue détaillée
         # des castors (NB: ne pas renseigner cet attribut pour que le bloc puisse être sur
@@ -1408,8 +1408,8 @@ Dans un nouveau fichier de vue ``beavers/views/ticket.py`` : ::
         beaver = get_object_or_404(Beaver, pk=beaver_id)
 
         return add_entity(request, TicketCreateForm,
-                          extra_initial={'title':       _(u'Need a veterinary'),
-                                         'description': _(u'%s is sick.') % beaver,
+                          extra_initial={'title':       _('Need a veterinary'),
+                                         'description': _('{} is sick.').format(beaver),
                                         },
                          )
 
@@ -1429,7 +1429,7 @@ une convention) : ::
 
     class CreateTicketButton(Button):
         id_           = Button.generate_id('beavers', 'create_ticket')
-        verbose_name  = _(u'Create a ticket to notify that a beaver is sick.')
+        verbose_name  = _('Create a ticket to notify that a beaver is sick.')
         template_name = 'beavers/buttons/ticket.html'
         permission    = 'tickets.add_ticket'
 
@@ -1569,7 +1569,7 @@ les blocs personnalisés. ::
 
     class _BeaverAgeField(FunctionField):
         name         = 'get_age'
-        verbose_name = _(u'Age')
+        verbose_name = _('Age')
 
 
     class Beaver(CremeEntity):
@@ -1583,9 +1583,9 @@ les blocs personnalisés. ::
             birthday = self.birthday
 
             if not birthday:
-                return ugettext(u'N/A')
+                return ugettext('N/A')
 
-            return ugettext(u'{} year(s)').format(date.today().year - birthday.year)
+            return ugettext('{} year(s)').format(date.today().year - birthday.year)
 
 
 **Notes** Dans le cas le plus simple, le *name* du FunctionField, qui lui sert
@@ -1598,15 +1598,15 @@ d'une app dont vous ne voulez pas toucher le code) : ::
 
     class _BeaverAgeField(FunctionField):
         name         = 'compute_age'
-        verbose_name = _(u'Age')
+        verbose_name = _('Age')
 
         def __call__(self, entity, user):
             birthday = entity.birthday
 
             if not birthday:
-                age = ugettext(u'N/A)
+                age = ugettext('N/A)
             else:
-                age = ugettext(u'{} year(s)').format(date.today().year - birthday.year)
+                age = ugettext('{} year(s)').format(date.today().year - birthday.year)
 
             return FunctionFieldResult(age)
 
@@ -1743,7 +1743,7 @@ Avant toute chose, si vous voulez afficher dans la console la structure
 du menu, afin de connaître les différents identifiants et priorités des
 ``Item``, faites ceci : ::
 
-    print(unicode(creme_menu))
+    print(str(creme_menu))
 
 
 **Modifier un label** : ::
@@ -1802,7 +1802,7 @@ utiliser ce champ ; cet exercice est laissé au lecteur) : ::
 
     class BeaversConfig(CremeAppConfig):
         name = 'creme.beavers'
-        verbose_name = _(u'Beavers management')
+        verbose_name = _('Beavers management')
         dependencies = ['creme.creme_core']
 
         def all_apps_ready(self):
@@ -1815,7 +1815,7 @@ utiliser ce champ ; cet exercice est laissé au lecteur) : ::
             from creme.persons.forms.contact import ContactForm
 
             def add_my_field(form):
-                form.fields['loves_beavers'] = BooleanField(required=False, label=_(u'Loves beavers?'))
+                form.fields['loves_beavers'] = BooleanField(required=False, label=_('Loves beavers?'))
 
             ContactForm.add_post_init_callback(add_my_field)
 
@@ -1965,7 +1965,7 @@ Notre ``AppConfig`` va déclarer que l'on étend ``tickets`` : ::
 
     class MyTicketsConfig(CremeAppConfig):
         name = 'creme.my_tickets'
-        verbose_name = _(u'Tickets')
+        verbose_name = _('Tickets')
         dependencies = ['creme.tickets']
         extended_app = 'creme.tickets'  # <= ICI !!
         credentials  = CremeAppConfig.CRED_NONE  # <= et ICI !!
@@ -1988,7 +1988,7 @@ afin d'éviter tout un tas de petits désagréments/bugs : ::
 
 
     class Ticket(AbstractTicket):
-        estimated_cost = DecimalField(_(u'Estimated cost (€)'),
+        estimated_cost = DecimalField(_('Estimated cost (€)'),
                                       blank=True, null=True,
                                       max_digits=10, decimal_places=2,
                                      )  # <= CHAMP SUPPLÉMENTAIRE
@@ -2645,7 +2645,7 @@ Ici on va juste créer un simple fichier ``beavers/creme_jobs.py`` : ::
 
     class _BeaversHealthType(JobType):
         id           = JobType.generate_id('beavers', 'beavers_health')
-        verbose_name = _(u'Check the health of the beavers')
+        verbose_name = _('Check the health of the beavers')
         periodic     = JobType.PERIODIC
 
         def _execute(self, job):
@@ -2658,8 +2658,8 @@ Ici on va juste créer un simple fichier ``beavers/creme_jobs.py`` : ::
             # La liste permet de mettre des informations supplémentaires comme
             # l'URL du service utilisée dans notre cas.
             return [
-                ugettext(u'Check the health of the beavers by connecting to our health service'),
-                ugettext(u'URL is {}').format(settings.BEAVERS_HEALTH_URL),
+                ugettext('Check the health of the beavers by connecting to our health service'),
+                ugettext('URL is {}').format(settings.BEAVERS_HEALTH_URL),
             ]
 
 
@@ -2741,8 +2741,8 @@ dans le bloc d'erreurs de la vue détaillée du job). Voici un exemple : ::
             except MyConnectionError as e:
                 JobResult.objects.create(
                     job=job,
-                    messages=[ugettext(u'An error occurred during connection.'),
-                              ugettext(u'Original error: {}').format(e),
+                    messages=[ugettext('An error occurred during connection.'),
+                              ugettext('Original error: {}').format(e),
                              ],
                 )
 
@@ -2804,7 +2804,7 @@ Créez un fichier ``beavers/tests.py`` : ::
 
         from .models import Beaver, Status
     except Exception as e:
-        print('Error in <%s>: %s' % (__name__, e))
+        print('Error in <{}>: {}'.format(__name__, e))
 
 
     class BeaverTestCase(CremeTestCase):

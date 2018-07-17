@@ -26,7 +26,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.models import CustomField
 
 
-class FieldAggregation(object):
+class FieldAggregation:
     def __init__(self, name, func, pattern, title):
         self.name    = name
         self.func    = func
@@ -34,7 +34,7 @@ class FieldAggregation(object):
         self.title   = title
 
 
-class FieldAggregationRegistry(object):
+class FieldAggregationRegistry:
     __slots__ = ('_aggregations',)
 
     authorized_fields = (models.DecimalField, models.FloatField, models.PositiveIntegerField,
@@ -52,11 +52,11 @@ class FieldAggregationRegistry(object):
         return self._aggregations.get(name)
 
     def __iter__(self):
-        return self._aggregations.iteritems()
+        return self._aggregations.items()
 
     @property
     def aggregations(self):
-        return self._aggregations.itervalues()
+        return iter(self._aggregations.values())
 
     def itervalues(self):
         warnings.warn('FieldAggregationRegistry.itervalues() is deprecated ; '

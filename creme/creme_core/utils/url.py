@@ -24,8 +24,6 @@
 #
 ################################################################################
 
-from future_builtins import zip
-
 from django.urls import reverse
 
 
@@ -34,7 +32,7 @@ class TemplateURLBuilderError(Exception):
     pass
 
 
-class TemplateURLBuilder(object):
+class TemplateURLBuilder:
     """ Resolve URLs by their name, but some parts of the URL can be replaced by
     template-like arguments ; it can be useful to build template-URL for JavaScript.
 
@@ -58,7 +56,7 @@ class TemplateURLBuilder(object):
         It's why no PlaceHolder class for simple alphanumeric is provided, because it would be a bad idea.
     """
 
-    class PlaceHolder(object):
+    class PlaceHolder:
         def __init__(self, final_name, regex_key):
             self.final_name = final_name
             self.regex_key = regex_key
@@ -91,7 +89,7 @@ class TemplateURLBuilder(object):
                - The value is a tuple (PlaceHolderClass, final_name).
         """
         self._place_holders = [ph_value[0](final_name=ph_value[1], regex_key=ph_key)
-                                    for ph_key, ph_value in place_holders.iteritems()
+                                    for ph_key, ph_value in place_holders.items()
                               ]
 
     def resolve(self, viewname, urlconf=None, kwargs=None, current_app=None):
@@ -103,7 +101,7 @@ class TemplateURLBuilder(object):
         reverse_kwargs = {}
         tried_urls = []
 
-        for trial in xrange(10):
+        for trial in range(10):
             try:
                 tmp_names = []
 

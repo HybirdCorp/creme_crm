@@ -74,10 +74,10 @@ class MiscViewsTestCase(ViewsTestCase):
     def test_400_middleware(self):
         self.login()
         response = self.assertGET(400, '/test_http_response?status=400')
-        self.assertEqual(response.content, u'<p>Http Response 400</p>')
+        self.assertEqual(response.content, b'<p>Http Response 400</p>')
 
         response = self.assertGET(400, '/test_http_response?status=400', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.assertEqual(response.content, u'XML Http Response 400')
+        self.assertEqual(response.content, b'XML Http Response 400')
 
     def test_403_middleware(self):
         self.login()
@@ -101,7 +101,7 @@ class MiscViewsTestCase(ViewsTestCase):
         self.assertContains(response, 'Tests: conflicting operation', status_code=409)
 
         response = self.assertGET(409, '/test_http_response?status=409', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.assertEqual(response.content, 'Tests: conflicting operation')
+        self.assertEqual(response.content, b'Tests: conflicting operation')
 
     def test_500_middleware(self):
         self.login()
@@ -110,7 +110,7 @@ class MiscViewsTestCase(ViewsTestCase):
             self.client.get('/test_http_response?status=500')
 
         response = self.assertGET(500, '/test_http_response?status=500', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.assertEqual(response.content, 'Tests: server internal error')
+        self.assertEqual(response.content, b'Tests: server internal error')
 
     def test_auth_decorators01(self):
         self.login(is_superuser=False,

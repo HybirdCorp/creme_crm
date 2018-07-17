@@ -117,8 +117,8 @@ class Job(Model):
         self._old_reference_run = self.reference_run
         self._old_enabled = self.enabled
 
-    def __unicode__(self):
-        return unicode(self.type)
+    def __str__(self):
+        return str(self.type)
 
     def __repr__(self):
         return u'<Job type="{type}" id="{id}">'.format(type=self.type_id, id=self.id)

@@ -117,9 +117,9 @@ def serialize_entity(entity, mapping):
 
     pre_serialization = CREME_AS_MAPPING[entity.__class__]['pre_serialization']
 
-    for ns, values in mapping.iteritems():
+    for ns, values in mapping.items():
         prefix = namespaces.get(ns)
-        for c_field, xml_field in values.iteritems():
+        for c_field, xml_field in values.items():
             value   = None
             f_class = None
 

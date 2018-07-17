@@ -46,17 +46,22 @@
         <td>
 {#        {% for k, v in waiting_action.get_data.items %} #}
         {% for k, v in waiting_action.data.items %}
-            {% if forloop.counter0|mod:4 == 0 %}
+{#            {% if forloop.counter0|mod:4 == 0 %} #}
+            {% if forloop.counter0|divisibleby:4 %}
             <p>
             {% else %}
              /
             {% endif %}
+{% comment %} TODO: fix this feature ? (in Py3 str is iterable ; can we have list ?)
             {% if v|isiterable %}
                 {{k}} : {{v.0|truncate:50}}
             {% else %}
                 {{k}} : {{v|truncate:50}}
             {% endif %}
-            {% if forloop.counter|mod:4 == 0 %}
+{% endcomment %}
+            {{k}} : {{v|truncate:50}}
+{#            {% if forloop.counter|mod:4 == 0 %} #}
+            {% if forloop.counter|divisibleby:4 %}
             </p>
             {% endif %}
         {% endfor %}

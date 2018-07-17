@@ -107,7 +107,7 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
         verbose_name_plural = _(u'Contacts')
         index_together = ('last_name', 'first_name', 'cremeentity_ptr')
 
-    def __unicode__(self):
+    def __str__(self):
         civ = self.civility
 
         if civ and civ.shortcut:

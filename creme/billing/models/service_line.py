@@ -34,7 +34,7 @@ class AbstractServiceLine(Line):
         verbose_name = _(u'Service line')
         verbose_name_plural = _(u'Service lines')
 
-    def __unicode__(self):
+    def __str__(self):
         if self.on_the_fly_item:
             return ugettext(u'On the fly service «{}»').format(self.on_the_fly_item)
 

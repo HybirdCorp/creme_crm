@@ -222,7 +222,7 @@ class ListViewTestCase(ViewsTestCase):
         rtype_cell_content = content[5]
         self.assertIsInstance(rtype_cell_content, list)
         self.assertEqual(1, len(rtype_cell_content))
-        self.assertEqual(u'<a href="/tests/contact/{id}">{value}</a>'.format(id=spike.id, value=spike),
+        self.assertEqual(u'<a href="/tests/contact/{id}">{value}</a>'.format(id=spike.id, value=spike).encode(),
                          html_tostring(rtype_cell_content[0]).strip()
                         )
 
@@ -231,7 +231,7 @@ class ListViewTestCase(ViewsTestCase):
         ptype_cell_content = content[6]
         self.assertIsInstance(ptype_cell_content, list)
         self.assertEqual(1, len(ptype_cell_content))
-        self.assertEqual(u'<ul><li>{}</li></ul>'.format(ptype1.text),
+        self.assertEqual(u'<ul><li>{}</li></ul>'.format(ptype1.text).encode(),
                          html_tostring(ptype_cell_content[0]).strip()
                         )
         self.assertNotIn(ptype2.text, content)  # NB: not really useful...
@@ -273,7 +273,7 @@ class ListViewTestCase(ViewsTestCase):
         def post(selection, is_single):
             response = self.assertPOST200(self.url, data={'selection': selection} if selection is not None else {})
             pattern = '<input[\s]+value="{}"[\s]+id="o2m"[\s]+type="hidden"[\s]+/>'.format(is_single)
-            self.assertIsNotNone(re.search(pattern, response.content))
+            self.assertIsNotNone(re.search(pattern, response.content.decode()))
 
         post(None, False)
         post('single', True)
@@ -291,7 +291,7 @@ class ListViewTestCase(ViewsTestCase):
         def get(selection, is_single):
             response = self.assertGET200(self.url, data={'selection': selection} if selection is not None else {})
             pattern = '<input[\s]+value="{}"[\s]+id="o2m"[\s]+type="hidden"[\s]+/>'.format(is_single)
-            self.assertIsNotNone(re.search(pattern, response.content))
+            self.assertIsNotNone(re.search(pattern, response.content.decode()))
 
         get(None, False)
         get('single', True)
@@ -424,7 +424,7 @@ class ListViewTestCase(ViewsTestCase):
 
     def assertListViewContentOrder(self, response, key, entries):
         content = self._get_lv_content(self._get_lv_node(response))
-        lines = [(self.assertIndex(unicode(getattr(e, key)), content), e)
+        lines = [(self.assertIndex(str(getattr(e, key)), content), e)
                     for e in entries
                 ]
         self.assertListEqual(list(entries),
@@ -549,11 +549,11 @@ class ListViewTestCase(ViewsTestCase):
         self.assertEqual('regular_field-start', sort_field)
         self.assertEqual('-',  sort_order)
 
-        self.assertRegexpMatches(self._get_sql(response),
-                                 'ORDER BY '
-                                 '.creme_core_fakeactivity.\..start. DESC( NULLS LAST)?\, '
-                                 '.creme_core_fakeactivity.\..cremeentity_ptr_id. DESC( NULLS LAST)?$'
-                                )
+        self.assertRegex(self._get_sql(response),
+                         'ORDER BY '
+                         '.creme_core_fakeactivity.\..start. DESC( NULLS LAST)?\, '
+                         '.creme_core_fakeactivity.\..cremeentity_ptr_id. DESC( NULLS LAST)?$'
+                        )
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=100000)
     def test_ordering_default(self):
@@ -577,12 +577,12 @@ class ListViewTestCase(ViewsTestCase):
         self.assertEqual('regular_field-last_name', listview_state.sort_field)
         self.assertEqual('', listview_state.sort_order)
 
-        self.assertRegexpMatches(self._get_sql(response),
-                                 'ORDER BY '
-                                 '.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?\, '
-                                 '.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)?\, '
-                                 '.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
-                                )
+        self.assertRegex(self._get_sql(response),
+                         'ORDER BY '
+                         '.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?\, '
+                         '.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)?\, '
+                         '.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
+                        )
 
     def test_ordering_merge_column_and_default(self):
         self.assertEqual(('last_name', 'first_name'), FakeContact._meta.ordering)
@@ -672,13 +672,13 @@ class ListViewTestCase(ViewsTestCase):
         listview_state = response.context['list_view_state']
         self.assertEqual('regular_field-address', listview_state.sort_field)
         self.assertEqual('', listview_state.sort_order)
-        self.assertRegexpMatches(self._get_sql(response),
-                                 'ORDER BY '
-                                 '.creme_core_fakecontact.\..address_id. ASC( NULLS FIRST)?\, '
-                                 '.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?\, '
-                                 '.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)?\, '
-                                 '.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
-                                )
+        self.assertRegex(self._get_sql(response),
+                         'ORDER BY '
+                         '.creme_core_fakecontact.\..address_id. ASC( NULLS FIRST)?\, '
+                         '.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?\, '
+                         '.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)?\, '
+                         '.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$'
+                        )
 
     def test_ordering_customfield_column(self):
         "Custom field ordering is ignored in current implementation"
@@ -760,23 +760,23 @@ class ListViewTestCase(ViewsTestCase):
     def test_ordering_fastmode_01(self):
         "Fast mode=OFF"
         sql = self._aux_test_ordering_fastmode()
-        self.assertRegexpMatches(sql,
-                                 'ORDER BY '
-                                 '.creme_core_fakecontact.\..birthday. ASC( NULLS FIRST)?, '
-                                 '.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?, '
-                                 '.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)?, '
-                                 '.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)? LIMIT'
-                                )
+        self.assertRegex(sql,
+                         'ORDER BY '
+                         '.creme_core_fakecontact.\..birthday. ASC( NULLS FIRST)?, '
+                         '.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?, '
+                         '.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)?, '
+                         '.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)? LIMIT'
+                        )
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=2)
     def test_ordering_fastmode_02(self):
         "Fast mode=ON"
         sql = self._aux_test_ordering_fastmode()
-        self.assertRegexpMatches(sql,
-                                 'ORDER BY'
-                                 ' .creme_core_fakecontact.\..birthday. ASC( NULLS FIRST)?,'
-                                 ' .creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)? LIMIT'
-                                )
+        self.assertRegex(sql,
+                         'ORDER BY'
+                         ' .creme_core_fakecontact.\..birthday. ASC( NULLS FIRST)?,'
+                         ' .creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)? LIMIT'
+                        )
 
     def test_efilter01(self):
         user = self.login()
@@ -2135,7 +2135,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertLessEqual(count, expected_count)
 
         create_orga = partial(FakeOrganisation.objects.create, user=self.user)
-        for i in xrange(expected_count - count):
+        for i in range(expected_count - count):
             create_orga(name='Mafia #{:02}'.format(i))
 
         organisations = list(FakeOrganisation.objects.all())
@@ -2287,7 +2287,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertLessEqual(count, expected_count)
 
         create_contact = partial(FakeContact.objects.create, user=user)
-        for i in xrange(expected_count - count):
+        for i in range(expected_count - count):
             create_contact(first_name='Gally', last_name='Tuned{:02}'.format(i))
 
         contacts = list(FakeContact.objects.all())
@@ -2348,7 +2348,7 @@ class ListViewTestCase(ViewsTestCase):
         count = FakeContact.objects.count()
         self.assertLessEqual(count, expected_count)
 
-        ids = range(expected_count - count)
+        ids = list(range(expected_count - count))
         shuffle(ids)
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -2407,7 +2407,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertLessEqual(count, expected_count)
 
         create_contact = partial(FakeContact.objects.create, user=user)
-        for i in xrange(expected_count - count):
+        for i in range(expected_count - count):
             # NB: same last_name
             create_contact(first_name='Gally', last_name='Tuned', phone='11 22 33 #%02i' % i)
 
@@ -2454,7 +2454,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertLessEqual(count, expected_count)
 
         create_contact = partial(FakeContact.objects.create, user=user)
-        for i in xrange(expected_count - count):
+        for i in range(expected_count - count):
             create_contact(first_name='Gally', last_name='Tuned#{:02}'.format(i))
 
         hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=FakeContact,
@@ -2503,7 +2503,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertLessEqual(count, expected_count)
 
         create_contact = partial(FakeContact.objects.create, user=user)
-        for i in xrange(expected_count - count):
+        for i in range(expected_count - count):
             create_contact(first_name='Gally', last_name='Tuned#%02i' % i)
 
         hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=FakeContact,

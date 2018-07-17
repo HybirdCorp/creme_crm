@@ -93,7 +93,7 @@ def mutex_autolock(lock_name):
     return _autolock_aux
 
 
-class MutexAutoLock(object):
+class MutexAutoLock:
     def __init__(self, lock_name):
         self.lock_name = lock_name
         self.locked = False

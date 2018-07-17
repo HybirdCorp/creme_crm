@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from functools import reduce
 import logging
 from operator import or_ as or_op
 from re import compile as re_compile
@@ -70,7 +71,7 @@ class UserRole(Model):
         self._exportable_ctypes_set = None
         self._setcredentials = None
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @property
@@ -132,7 +133,7 @@ class UserRole(Model):
             try:
                 app = get_app(app_label)
             except LookupError:
-                logger.warn('The app "%s" seems not registered (from UserRole "%s").', app_label, self)
+                logger.warning('The app "%s" seems not registered (from UserRole "%s").', app_label, self)
             else:
                 verbose_names.append(app.verbose_name)
 
@@ -270,7 +271,7 @@ class SetCredentials(Model):
     class Meta:
         app_label = 'creme_core'
 
-    def __unicode__(self):
+    def __str__(self):
         value = self.value
         perms = []
         append = perms.append
@@ -568,7 +569,7 @@ class CremeUser(AbstractBaseUser):
         verbose_name_plural = _(u'Users')
         app_label = 'creme_core'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.get_full_name()
 
     def get_full_name(self):

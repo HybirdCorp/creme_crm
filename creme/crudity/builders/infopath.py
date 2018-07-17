@@ -119,7 +119,7 @@ _TEMPLATE_NILLABLE_TYPES = (  # Types which could be nil="true" in template.xml
 )
 
 
-class InfopathFormField(object):
+class InfopathFormField:
     def __init__(self, urn, model, field_name, request):
         self.request     = request
         self.uuid        = generate_guid_for_field(urn, model, field_name)
@@ -155,7 +155,7 @@ class InfopathFormField(object):
 
         element_builder = _ELEMENT_TEMPLATE.get(field_type)
         if element_builder is None:
-            logger.warn('The field "%s" has a type which is not managed (%s)', model_field, field_type)
+            logger.warning('The field "%s" has a type which is not managed (%s)', model_field, field_type)
             return None
 
         template_name = element_builder(element_type)
@@ -222,7 +222,7 @@ class InfopathFormField(object):
         choices = []
 
         if isinstance(self.model_field, (models.ForeignKey, models.ManyToManyField)):
-            choices = [(entity.pk, unicode(entity))
+            choices = [(entity.pk, str(entity))
                             # for entity in self.model_field.rel.to._default_manager.all()
                             for entity in self.model_field.remote_field.model._default_manager.all()
                       ]
@@ -255,7 +255,7 @@ class InfopathFormField(object):
         return ' and '.join('.!="{}"'.format(c[0]) for c in self._get_choices())
 
 
-class InfopathFormBuilder(object):
+class InfopathFormBuilder:
     def __init__(self, request, backend):
         assert backend.model is not None
         self.backend   = backend
@@ -285,7 +285,7 @@ class InfopathFormBuilder(object):
             backend      = self.backend
             build_field  = partial(InfopathFormField, self.urn, backend.model, request=self.request)
             self._fields = [build_field(field_name)
-                                for field_name in backend.body_map.iterkeys()
+                                for field_name in backend.body_map
                                     if field_name != 'password'
                            ]
 
@@ -335,7 +335,7 @@ class InfopathFormBuilder(object):
             # for file_name, content in cab_files.items():
             #     with open(path_join(backend_path, file_name), 'wb') as f:
             #         f.write(content.encode('utf8'))
-            for file_name, renderer in cab_files_renderers.iteritems():
+            for file_name, renderer in cab_files_renderers.items():
                 with open(path_join(backend_path, file_name), 'wb') as f:
                     f.write(renderer(request).encode('utf8'))
 
@@ -376,9 +376,10 @@ class InfopathFormBuilder(object):
                 subprocess.call(chain(['lcab', '-qn'], final_files_paths, [infopath_form_filepath]))
 
             with open(infopath_form_filepath, 'rb') as f:
-                for chunk in f.read(File.DEFAULT_CHUNK_SIZE):
-                    yield chunk
-
+                # NB: does not work with Py3.
+                # for chunk in f.read(File.DEFAULT_CHUNK_SIZE):
+                #     yield chunk
+                return f.read()
         finally:
             if backend_path:
                 shutil.rmtree(backend_path)

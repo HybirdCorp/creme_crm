@@ -243,18 +243,18 @@ class BatchOperatorTestCase(CremeTestCase):
         self.assertEqual(2, op(9, op.cast('4')))
 
     def test_operators01(self):
-        ops = {(op_name, unicode(op)) for op_name, op in batch_operator_manager.operators(models.CharField)}
+        ops = {(op_name, str(op)) for op_name, op in batch_operator_manager.operators(models.CharField)}
         self.assertIn(('upper', _('To upper case')), ops)
         self.assertIn(('lower', _('To lower case')), ops)
         self.assertNotIn('add_int', (e[0] for e in ops))
 
     def test_operators02(self):
-        ops = {(op_name, unicode(op)) for op_name, op in batch_operator_manager.operators(models.IntegerField)}
+        ops = {(op_name, str(op)) for op_name, op in batch_operator_manager.operators(models.IntegerField)}
         self.assertIn(('add_int', _('Add')), ops)
         self.assertNotIn('prefix', (e[0] for e in ops))
 
     def test_operators03(self):
-        ops = {(op_name, unicode(op)) for op_name, op in batch_operator_manager.operators()}
+        ops = {(op_name, str(op)) for op_name, op in batch_operator_manager.operators()}
         self.assertIn(('mul_int', _('Multiply')), ops)
         self.assertIn(('suffix',  _('Suffix')), ops)
 
@@ -295,7 +295,7 @@ class BatchActionTestCase(CremeTestCase):
                                 operator=_(u'Remove the start (N characters)'),
                                 message=_(u'enter a whole number'),
                             ),
-                         unicode(cm.exception)
+                         str(cm.exception)
                         )
 
         with self.assertRaises(BatchAction.ValueError) as cm:
@@ -305,7 +305,7 @@ class BatchActionTestCase(CremeTestCase):
                                 operator=_(u'Remove the end (N characters)'),
                                 message=_(u'enter a positive number'),
                             ),
-                         unicode(cm.exception)
+                         str(cm.exception)
                         )
 
     def test_unicode01(self):
@@ -314,7 +314,7 @@ class BatchActionTestCase(CremeTestCase):
                                 field=_(u'First name'),
                                 operator=_(u'To upper case'),
                             ),
-                         unicode(baction)
+                         str(baction)
                         )
 
     def test_unicode02(self):
@@ -326,7 +326,7 @@ class BatchActionTestCase(CremeTestCase):
                                 operator=_(u'Remove a sub-string'),
                                 value=value,
                             ),
-                         unicode(baction)
+                         str(baction)
                         )
 
 
@@ -528,7 +528,7 @@ class EntityCellTestCase(CremeTestCase):
         cell = EntityCellFunctionField(model=FakeContact, func_field=funfield)
         self.assertIsInstance(cell, EntityCellFunctionField)
         self.assertEqual(name,            cell.value)
-        self.assertEqual(unicode(funfield.verbose_name), cell.title)
+        self.assertEqual(str(funfield.verbose_name), cell.title)
         self.assertIs(cell.has_a_filter, True)  # TODO: test with a non-filterable FunctionField
         self.assertIs(cell.editable,     False)
         self.assertIs(cell.sortable,     False)

@@ -43,7 +43,7 @@ from re import compile as compile_re
 from logging import info
 
 
-class _Node(object):
+class _Node:
     __slots__ = ('value', '_children')
 
     def __init__(self):
@@ -143,7 +143,7 @@ class _Collator:
         sort_key = []
         append = sort_key.append
 
-        for level in xrange(4):
+        for level in range(4):
             if level:
                 append(0)  # Level separator
 

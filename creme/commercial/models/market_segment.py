@@ -38,7 +38,7 @@ class MarketSegment(CremeModel):
         verbose_name = _(u'Market segment')
         verbose_name_plural = _(u'Market segments')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_edit_absolute_url(self):

@@ -67,7 +67,7 @@ class _FakePersonCSVImportForm(ImportForm4CremeEntity):
             address = instance.address
 
             if address is not None:  # Update
-                for fname, fvalue in address_dict.iteritems():
+                for fname, fvalue in address_dict.items():
                     setattr(address, fname, fvalue)
                 address.save()
             else:

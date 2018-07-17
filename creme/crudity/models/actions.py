@@ -20,7 +20,7 @@
 
 from pickle import loads, dumps
 
-from django.db.models import TextField, CharField
+from django.db.models import BinaryField, CharField  # TextField
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.models import CremeModel
@@ -33,7 +33,8 @@ class WaitingAction(CremeModel):
     # NB: - If default backend (subject="*"): fetcher_name.
     #     - If not  'fetcher_name - input_name'  (i.e: email - raw, email - infopath, sms - raw...).
     source  = CharField(_(u'Source'), max_length=100)
-    raw_data = TextField(blank=True, null=True)  # Pickled data
+    # raw_data = TextField(blank=True, null=True)  # Pickled data
+    raw_data = BinaryField(blank=True, null=True)  # Pickled data
     ct      = CTypeForeignKey(verbose_name=_(u'Type of resource'))  # Redundant, but faster bd recovery
     subject = CharField(_(u'Subject'), max_length=100)
     user    = CremeUserForeignKey(verbose_name=_(u'Owner'), blank=True, null=True, default=None)  # If sandbox per user
@@ -46,13 +47,14 @@ class WaitingAction(CremeModel):
     # def get_data(self):
     @property
     def data(self):
-        data = loads(self.raw_data.encode('utf-8'))
+        # data = loads(self.raw_data.encode('utf-8'))
+        data = loads(self.raw_data)
 
-        if isinstance(data, dict):
-            data = {
-                k: v.decode('utf8') if isinstance(v, basestring) else v
-                    for k, v in data.iteritems()
-            }
+        # if isinstance(data, dict):
+        #     data = {
+        #         k: v.decode('utf8') if isinstance(v, str) else v
+        #             for k, v in data.items()
+        #     }
 
         return data
 

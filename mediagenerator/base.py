@@ -1,11 +1,13 @@
 from hashlib import sha1
 
-from django.utils.encoding import smart_str
+# from django.utils.encoding import smart_str
+from django.utils.encoding import smart_bytes
 
 
-class Generator(object):
+class Generator:
     def generate_version(self, key, url, content):
-        return sha1(smart_str(content)).hexdigest()
+        # return sha1(smart_str(content)).hexdigest()
+        return sha1(smart_bytes(content)).hexdigest()
 
     def get_output(self):
         """

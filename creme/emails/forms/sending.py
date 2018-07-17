@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,9 +19,9 @@
 ################################################################################
 
 from datetime import datetime, time
-
+from json import dumps as json_dump
 import logging
-from pickle import dumps
+# from pickle import dumps
 
 from django.forms import IntegerField, EmailField, DateTimeField, ValidationError
 from django.template.base import Template, VariableNode
@@ -173,12 +173,12 @@ class SendingCreateForm(CremeModelForm):
                 for varname in varlist:
                     val = getattr(recipient_entity, varname, None)
                     if val:
-                        # TODO: unicode(val).encode('utf-8') ?
-                        #       (if val is an fk it doesn't have attribute encode...(civility))
-                        context[varname] = val.encode('utf-8')
+                        # context[varname] = val.encode('utf-8')
+                        context[varname] = val  # TODO: str(val) ?
 
                 if context:
-                    mail.body = dumps(context)
+                    # mail.body = dumps(context)
+                    mail.body = json_dump(context, separators=(',', ':'))
 
             mail.genid_n_save()
 

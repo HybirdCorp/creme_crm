@@ -259,7 +259,7 @@ class ProjectsTestCase(CremeTestCase):
         url = self.build_inneredit_url(project, 'start_date')
         self.assertGET200(url)
 
-        self.assertNoFormError(self.client.post(url, data={'entities_lbl': [unicode(project)],
+        self.assertNoFormError(self.client.post(url, data={'entities_lbl': [str(project)],
                                                            'field_value':  '2012-3-4',
                                                           }
                                                 )
@@ -274,7 +274,7 @@ class ProjectsTestCase(CremeTestCase):
 
         project = self.create_project('Eva01', start_date='2012-02-20', end_date='2012-03-25')[0]
         response = self.assertPOST200(self.build_inneredit_url(project, 'start_date'),
-                                      data={'entities_lbl': [unicode(project)],
+                                      data={'entities_lbl': [str(project)],
                                             'field_value':  '2012-03-27',  # <= after end_date
                                            }
                                      )

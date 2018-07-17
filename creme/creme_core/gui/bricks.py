@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from future_builtins import filter, map
 from collections import defaultdict
 import logging
 # import warnings
@@ -38,7 +37,7 @@ from ..models import (Relation, RelationBrickItem, CremeEntity,
 logger = logging.getLogger(__name__)
 
 
-class _BrickContext(object):
+class _BrickContext:
     def __repr__(self):
         return '<BrickContext>'
 
@@ -49,7 +48,7 @@ class _BrickContext(object):
     def from_dict(cls, data):
         instance = cls()
 
-        for k, v in data.iteritems():
+        for k, v in data.items():
             setattr(instance, k, v)
 
         return instance
@@ -59,7 +58,7 @@ class _BrickContext(object):
         return False
 
 
-class Brick(object):
+class Brick:
     """ A block of information.
 
     (NB: we use now the term 'brick' internally -- but 'block' in the GUI,
@@ -171,7 +170,7 @@ class Brick(object):
                     meta = dep._meta
                     yield '{}.{}'.format(meta.app_label, meta.model_name)
             else:
-                yield unicode(dep)
+                yield str(dep)
 
     def _build_template_context(self, context, brick_id, brick_context, **extra_kwargs):
         context['brick_id'] = brick_id
@@ -262,7 +261,7 @@ class PaginatedBrick(Brick):
             try:
                 page_index = int(page_index)
             except ValueError:
-                logger.warn('PaginatedBrick: invalid page number for brick %s: %s', brick_id, page_index)
+                logger.warning('PaginatedBrick: invalid page number for brick %s: %s', brick_id, page_index)
                 page_index = 1
         else:
             page_index = brick_context.page
@@ -341,7 +340,7 @@ class QuerysetBrick(PaginatedBrick):
             return False
 
         if not cell.sortable:
-            logger.warn('QuerysetBrick: the field "{}" is not sortable.'.format(fname))
+            logger.warning('QuerysetBrick: the field "{}" is not sortable.'.format(fname))
             return False
 
         return True
@@ -455,7 +454,7 @@ class SpecificRelationsBrick(QuerysetBrick):
         unconfigured_group = []  # Entities that do not have a customised columns setting
         get_ct = ContentType.objects.get_for_id
 
-        for ct_id, entities in entities_by_ct.iteritems():
+        for ct_id, entities in entities_by_ct.items():
             cells = config_item.get_cells(get_ct(ct_id))
 
             if cells:
@@ -501,7 +500,7 @@ class CustomBrick(Brick):
         return self._render(self.get_template_context(context, config_item=self.config_item))
 
 
-class BricksManager(object):
+class BricksManager:
     """The bricks of a page are registered in order to regroup the query to get their states.
 
     Documentation for DEPRECATED features:
@@ -553,7 +552,7 @@ class BricksManager(object):
                         dep_map[dep].append(brick)
 
             if wilcarded_bricks:
-                for dep_bricks in dep_map.itervalues():
+                for dep_bricks in dep_map.values():
                     dep_bricks.extend(wilcarded_bricks)
 
         return dep_map
@@ -589,7 +588,7 @@ class BricksManager(object):
         return context[BricksManager.var_name]  # Will raise exception if not created: OK
 
     def get_remaining_groups(self):
-        return self._bricks_groups.keys()
+        return list(self._bricks_groups.keys())
 
     # def get_dependencies_map(self):
     #     warnings.warn('BricksManager.get_dependencies_map() is deprecated.', DeprecationWarning)
@@ -605,7 +604,7 @@ class BricksManager(object):
         state = _state_cache.get(brick_id)
         if state is None:
             state = self._state_cache[brick_id] = BrickState.get_for_brick_id(brick_id, user)
-            logger.warn("State not set in cache for '%s'" % brick_id)
+            logger.warning("State not set in cache for '%s'" % brick_id)
 
         return state
 
@@ -627,7 +626,7 @@ class BricksManager(object):
         self._used_relationtypes = set(relationtypes_ids)
 
 
-class _BrickRegistry(object):
+class _BrickRegistry:
     """Use to retrieve a Brick by its id.
     Many services (like reloading views) need your Bricks to be registered in.
     """
@@ -713,7 +712,7 @@ class _BrickRegistry(object):
         return self._brick_classes[brick_id]
 
     def __iter__(self):
-        return self._brick_classes.iteritems()
+        return iter(self._brick_classes.items())
 
     def get_brick_4_instance(self, ibi, entity=None):
         """Get a Brick instance corresponding to a InstanceBlockConfigItem.
@@ -863,7 +862,7 @@ class _BrickRegistry(object):
         @param model: Constraint on a CremeEntity class ;
                       None means bricks must be compatible with all kind of CremeEntity.
         """
-        for brick_cls in self._brick_classes.itervalues():
+        for brick_cls in self._brick_classes.values():
             brick = brick_cls()
 
             if brick.configurable and hasattr(brick, 'detailview_display') \
@@ -892,7 +891,7 @@ class _BrickRegistry(object):
     def get_compatible_hat_bricks(self, model):
         yield self.get_generic_hat_brick(model)
 
-        for brick_id, brick_cls in self._hat_brick_classes[model].iteritems():
+        for brick_id, brick_cls in self._hat_brick_classes[model].items():
             if brick_id:  # Only generic hat brick's ID is empty
                 yield brick_cls()
 
@@ -918,7 +917,7 @@ class _BrickRegistry(object):
     def get_compatible_home_bricks(self):
         method_name = 'home_display'
 
-        for brick_cls in self._brick_classes.itervalues():
+        for brick_cls in self._brick_classes.values():
             brick = brick_cls()
 
             if brick.configurable and hasattr(brick, method_name):

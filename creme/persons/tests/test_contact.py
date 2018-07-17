@@ -88,13 +88,13 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         first_name = 'Spike'
         last_name  = 'Spiegel'
         build_contact = partial(Contact, last_name=last_name)
-        self.assertEqual(last_name, unicode(build_contact()))
-        self.assertEqual(last_name, unicode(build_contact(first_name='')))
+        self.assertEqual(last_name, str(build_contact()))
+        self.assertEqual(last_name, str(build_contact(first_name='')))
         self.assertEqual(_(u'{first_name} {last_name}').format(
                                 first_name=first_name,
                                 last_name=last_name,
                             ),
-                         unicode(build_contact(first_name=first_name))
+                         str(build_contact(first_name=first_name))
                         )
 
         captain = Civility.objects.create(title='Captain')  # No shortcut
@@ -102,7 +102,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                 first_name=first_name,
                                 last_name=last_name,
                             ),
-                         unicode(build_contact(first_name=first_name, civility=captain))
+                         str(build_contact(first_name=first_name, civility=captain))
                         )
 
         captain.shortcut = shortcut = 'Cpt'
@@ -112,7 +112,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                 first_name=first_name,
                                 last_name=last_name,
                             ),
-                         unicode(build_contact(first_name=first_name, civility=captain))
+                         str(build_contact(first_name=first_name, civility=captain))
                         )
 
     def test_populated_contact_uuid(self):
@@ -585,7 +585,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         naruto.shipping_address = create_address(name="Naruto's", address='Home (second entry)', po_box='001')
         naruto.save()
 
-        for i in xrange(5):
+        for i in range(5):
             create_address(name='Secret Cave #{}'.format(i), address='Cave #{}'.format(i), po_box='XXX')
 
         kage_bunshin = naruto.clone()
@@ -610,7 +610,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(7, len(addresses_map))
         self.assertEqual(7, len(c_addresses_map))
 
-        for ident, address in addresses_map.iteritems():
+        for ident, address in addresses_map.items():
             address2 = c_addresses_map.get(ident)
             self.assertIsNotNone(address2, ident)
             self.assertAddressOnlyContentEqual(address, address2)
@@ -798,7 +798,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
             orga_f = response.context['formset'][0].fields['organisation']
 
         self.assertEqual(_(u'Enter the name of an existing Organisation.'),
-                         unicode(orga_f.help_text)
+                         str(orga_f.help_text)
                         )
 
         response = self.client.post(url,
@@ -838,7 +838,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
             orga_f = response.context['formset'][0].fields['organisation']
 
         self.assertIsInstance(orga_f.widget, Label)
-        self.assertFalse(unicode(orga_f.help_text))
+        self.assertFalse(str(orga_f.help_text))
         self.assertEqual(_(u'You are not allowed to link with an Organisation'),
                          orga_f.initial
                         )
@@ -988,7 +988,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         orga_name = 'Bebop'
 
-        for i in xrange(2):
+        for i in range(2):
             Organisation.objects.create(user=self.other_user, name=orga_name)
 
         response = self.client.post(self._build_quickform_url(1),
@@ -1689,7 +1689,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                          get_html_val(deunan, 'is_user', user)
                         )
 
-        self.assertEqual(unicode(user), field_printers_registry.get_csv_field_value(deunan, 'user', user))
+        self.assertEqual(str(user), field_printers_registry.get_csv_field_value(deunan, 'user', user))
 
     def test_fk_user_printer02(self):
         "Team"
@@ -1698,6 +1698,6 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         eswat = CremeUser.objects.create(username='eswat', is_team=True)
         deunan = Contact.objects.create(user=eswat, first_name='Deunan', last_name='Knut')
 
-        self.assertEqual(unicode(eswat),
+        self.assertEqual(str(eswat),
                          field_printers_registry.get_html_field_value(deunan, 'user', user)
                         )

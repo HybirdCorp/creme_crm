@@ -238,7 +238,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                       for node in xml.findall('{xsd}element/{xsd}complexType/{xsd}sequence/{xsd}element'.format(xsd=xsd))
                     }
         # chain() because language_value is not declared in body_map, only language has to (m2m)
-        expected_ref_attrs = {'my:{}'.format(key) for key in chain(body_map.iterkeys(), ['language_value'])}
+        expected_ref_attrs = {'my:{}'.format(key) for key in chain(body_map, ['language_value'])}
         self.assertEqual(expected_ref_attrs, ref_attrs)
 
         xsd_elements = {
@@ -334,7 +334,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         ref_attrs = {node.get('ref')
                         for node in xml.findall('{xsd}element/{xsd}complexType/{xsd}sequence/{xsd}element'.format(xsd=xsd))
                     }
-        expected_ref_attrs = {'my:{}'.format(key) for key in body_map.iterkeys()}
+        expected_ref_attrs = {'my:{}'.format(key) for key in body_map}
         self.assertEqual(expected_ref_attrs, ref_attrs)
 
         xsd_elements = {
@@ -419,7 +419,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                          builder.namespace
                         )  # Can't be got with ElementTree, because it's a namespace
 
-        self.assertEqual({'my:{}'.format(field_name) for field_name in body_map.iterkeys()},
+        self.assertEqual({'my:{}'.format(field_name) for field_name in body_map},
                          {node.get('name')
                             for node in XML(content).findall('{xsl}template/{xsl}copy/{xsl}element'.format(
                                                                     xsl='{http://www.w3.org/1999/XSL/Transform}',
@@ -543,7 +543,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                                     body_map={}, model=Contact
                                    )
 
-        for field_name, attrs_nodetype in fields.iteritems():
+        for field_name, attrs_nodetype in fields.items():
             attrs, node_type = attrs_nodetype
             self._test_view_xsl_01(backend, field_name, attrs, node_type)
 
@@ -591,14 +591,14 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                  '{xd}binding'.format(xd=xd): 'my:{}'.format(field_name),
                 }
         target_node =  xml.find('{xsl}template/div/div/table/tbody/tr/td/div/font/select'.format(xsl=xsl))
-        for attr, expected_value in attrs.iteritems():
+        for attr, expected_value in attrs.items():
             self.assertEqual(expected_value, target_node.get(attr))
 
         options = target_node.findall('option')
         self.assertTrue(options)  # At least, it must have empty choice
 
         users_set = {('my:{}=""'.format(field_name), _('Select...'))}
-        users_set.update(('my:{}="{}"'.format(field_name, user.pk), unicode(user))
+        users_set.update(('my:{}="{}"'.format(field_name, user.pk), str(user))
                             for user in get_user_model().objects.all()
                         )
         self.assertEqual(users_set,
@@ -645,7 +645,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                                     body_map={}, model=Document,
                                    )
 
-        for field_name, attrs_nodetype in fields.iteritems():
+        for field_name, attrs_nodetype in fields.items():
             attrs, node_type = attrs_nodetype
             self._test_view_xsl_01(backend, field_name, attrs, node_type)
 
@@ -678,7 +678,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         input_nodes = target_node.findall('{xsl}choose/{xsl}when/span/span/input'.format(xsl=xsl))
         self.assertTrue(input_nodes)
 
-        self.assertEqual({unicode(language) for language in languages},
+        self.assertEqual({str(language) for language in languages},
                          {input_node.get('title') for input_node in input_nodes}
                         )
         self.assertEqual({'my:language/my:language_value[.="{}"][1]'.format(l.id) for l in languages},
@@ -718,9 +718,14 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         builder = self._get_builder(backend)
         content = builder.render().content
 
-        self.assertIn('<my:first_name></my:first_name>',            content)
-        self.assertIn('<my:last_name></my:last_name>',              content)
-        self.assertIn('<my:birthday xsi:nil="true"></my:birthday>', content)
+        # self.assertIn('<my:first_name></my:first_name>',            content)
+        # self.assertIn('<my:last_name></my:last_name>',              content)
+        # self.assertIn('<my:birthday xsi:nil="true"></my:birthday>', content)
+        self.longMessage = False
+        error_msg = 'Not found in (truncated): {}'.format(content[:100])
+        self.assertIn(b'<my:first_name></my:first_name>',            content, error_msg)
+        self.assertIn(b'<my:last_name></my:last_name>',              content, error_msg)
+        self.assertIn(b'<my:birthday xsi:nil="true"></my:birthday>', content, error_msg)
 
     def test_get_create_form_view01(self):
         "Backend not registered"
@@ -824,7 +829,7 @@ class InfopathFormFieldTestCase(CrudityTestCase):
         backend1 = self._get_backend(ContactFakeBackend, subject='create_ce')
         builder1 = InfopathFormBuilder(request=request, backend=backend1)
         uuid1 = InfopathFormField(builder1.urn, CremeEntity, 'user_id', request).uuid
-        for i in xrange(10):
+        for i in range(10):
             self.assertEqual(uuid1, InfopathFormField(builder1.urn, CremeEntity, 'user_id', request).uuid)
 
         # Backend 2
@@ -832,7 +837,7 @@ class InfopathFormFieldTestCase(CrudityTestCase):
         builder2 = InfopathFormBuilder(request=request, backend=backend2)
 
         uuid2 = InfopathFormField(builder2.urn, CremeEntity, 'user_id', request).uuid
-        for i in xrange(10):
+        for i in range(10):
             self.assertEqual(uuid2, InfopathFormField(builder2.urn, CremeEntity, 'user_id', request).uuid)
 
         self.assertNotEqual(uuid2, uuid1)
@@ -842,7 +847,7 @@ class InfopathFormFieldTestCase(CrudityTestCase):
         builder3 = InfopathFormBuilder(request=request, backend=backend3)
 
         uuid3 = InfopathFormField(builder3.urn, Contact, 'user_id', request).uuid
-        for i in xrange(10):
+        for i in range(10):
             self.assertEqual(uuid3, InfopathFormField(builder3.urn, Contact, 'user_id', request).uuid)
 
         self.assertNotEqual(uuid1, uuid3)
@@ -879,6 +884,6 @@ class InfopathFormFieldTestCase(CrudityTestCase):
                                     body_map={'user_id': 1},
                                    )
         urn = InfopathFormBuilder(request=request, backend=backend).urn
-        self.assertEqual({(user.pk, unicode(user)) for user in get_user_model().objects.all()},
+        self.assertEqual({(user.pk, str(user)) for user in get_user_model().objects.all()},
                          set(InfopathFormField(urn, Contact, 'user_id', request)._get_choices())
                         )

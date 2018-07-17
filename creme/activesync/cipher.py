@@ -25,10 +25,10 @@ from Crypto.Cipher import AES
 from django.conf import settings
 
 
-class Cipher(object):
+class Cipher:
     @staticmethod
     def get_cipher():
-        iv = ''.join(chr(0) for i in xrange(16))
+        iv = ''.join(chr(0) for i in range(16))
         return AES.new(settings.SECRET_KEY[:32], AES.MODE_CFB, iv)
 
     @staticmethod

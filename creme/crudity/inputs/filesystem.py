@@ -18,7 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import ConfigParser
+# import ConfigParser
+import configparser
 import logging
 from os import remove as remove_file
 
@@ -43,21 +44,23 @@ class IniFileInput(CrudityInput):
 
     def create(self, file_path):
         backend = None
-        config = ConfigParser.RawConfigParser()
+        # config = ConfigParser.RawConfigParser()
+        config = configparser.RawConfigParser()
         ok = False
 
         try:
             ok = config.read(file_path)
         except Exception as e:
-            logger.warn('IniFileInput.create(): invalid ini file (%s): %s', file_path, e)
+            logger.warning('IniFileInput.create(): invalid ini file (%s): %s', file_path, e)
 
         if not ok:
-            logger.warn('IniFileInput.create(): invalid ini file (%s)', file_path)
+            logger.warning('IniFileInput.create(): invalid ini file (%s)', file_path)
         else:
             try:
                 subject = config.get('head', 'action')
-            except (ConfigParser.NoSectionError, ConfigParser.NoOptionError) as e:
-                logger.warn('IniFileInput.create(): invalid file content for %s (%s)', file_path, e)
+            # except (ConfigParser.NoSectionError, ConfigParser.NoOptionError) as e:
+            except (configparser.NoSectionError, configparser.NoOptionError) as e:
+                logger.warning('IniFileInput.create(): invalid file content for %s (%s)', file_path, e)
             else:
                 backend = self.get_backend(CrudityBackend.normalize_subject(subject))
 
@@ -68,8 +71,9 @@ class IniFileInput(CrudityInput):
                     for field_name in data.keys():
                         try:
                             data[field_name] = config.get('body', field_name)
-                        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError) as e:
-                            logger.warn('IniFileInput.create(): invalid data in .ini file (%s): %s', file_path, e)
+                        # except (ConfigParser.NoSectionError, ConfigParser.NoOptionError) as e:
+                        except (configparser.NoSectionError, configparser.NoOptionError) as e:
+                            logger.warning('IniFileInput.create(): invalid data in .ini file (%s): %s', file_path, e)
 
                     # Get owner
                     owner = None
@@ -77,15 +81,16 @@ class IniFileInput(CrudityInput):
                     if backend.is_sandbox_by_user:
                         try:
                             username = config.get('head', 'username')
-                        except ConfigParser.NoOptionError as e:
-                            logger.warn('IniFileInput.create(): no "username" in [head] section of %s', file_path, e)
+                        # except ConfigParser.NoOptionError as e:
+                        except configparser.NoOptionError as e:
+                            logger.warning('IniFileInput.create(): no "username" in [head] section of %s', file_path, e)
                         else:
                             query_data = {CremeUser.USERNAME_FIELD: username}
 
                             try:
                                 owner = CremeUser.objects.get(**query_data)
                             except CremeUser.DoesNotExist:
-                                logger.warn('IniFileInput.create(): no user ([head] section) corresponds to %s (%s)',
+                                logger.warning('IniFileInput.create(): no user ([head] section) corresponds to %s (%s)',
                                             query_data, file_path,
                                            )
 

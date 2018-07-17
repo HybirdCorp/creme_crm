@@ -67,9 +67,9 @@ class Populator(BasePopulator):
                     )
 
         # ---------------------------
-        for pk, statusdesc in constants.TASK_STATUS.iteritems():
-            create_if_needed(TaskStatus, {'pk': pk}, name=unicode(statusdesc.name), order=pk,
-                             description=unicode(statusdesc.verbose_name), is_custom=False,
+        for pk, statusdesc in constants.TASK_STATUS.items():
+            create_if_needed(TaskStatus, {'pk': pk}, name=str(statusdesc.name), order=pk,
+                             description=str(statusdesc.verbose_name), is_custom=False,
                             )
 
         # ---------------------------

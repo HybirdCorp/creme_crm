@@ -59,7 +59,7 @@ class AbstractDocument(CremeEntity):
         verbose_name_plural = _(u'Documents')
         ordering = ('title',)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{} - {}'.format(self.linked_folder, self.title)
 
     def get_absolute_url(self):
@@ -83,7 +83,7 @@ class AbstractDocument(CremeEntity):
     def get_dl_url(self):
         import os
 
-        return settings.MEDIA_URL + unicode(self.filedata).replace(os.sep, '/')
+        return settings.MEDIA_URL + str(self.filedata).replace(os.sep, '/')
 
     def get_entity_summary(self, user):
         if not user.has_perm_to_view(self):

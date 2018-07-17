@@ -74,7 +74,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
 
         self.assertEqual(render, 
                          u'<a href="/tests/organisation/{}" class="is_deleted">{}</a>'.format(
-                                orga.id, unicode(orga)
+                                orga.id, str(orga)
                             )
                         )
 

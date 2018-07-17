@@ -545,14 +545,14 @@ AirsyncDTD = []
 
 def InitializeDTD():
     reverse_namespaces = AirsyncDTD_Reverse['namespaces']
-    for (nsid, nsname) in AirsyncDTD_Forward['namespaces'].iteritems():
+    for (nsid, nsname) in AirsyncDTD_Forward['namespaces'].items():
         reverse_namespaces[nsname] = nsid
 
     reverse_codes = AirsyncDTD_Reverse['codes']
     forward_codes = AirsyncDTD_Forward['codes']
-    for (cp, value) in forward_codes.iteritems():
+    for (cp, value) in forward_codes.items():
         reverse_codes[cp] = {}
-        for (tagid, tagname) in forward_codes[cp].iteritems():
+        for (tagid, tagname) in forward_codes[cp].items():
             reverse_codes[cp][tagname] = tagid
 
     AirsyncDTD.append(AirsyncDTD_Forward)

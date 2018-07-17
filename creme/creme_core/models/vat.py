@@ -33,8 +33,8 @@ class Vat(CremeModel):
 
     creation_label = _(u'Create a VAT value')
 
-    def __unicode__(self):
-        return unicode(self.value)
+    def __str__(self):
+        return str(self.value)
 
     class Meta:
         app_label = 'creme_core'

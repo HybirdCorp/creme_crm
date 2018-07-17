@@ -163,8 +163,8 @@ class EntityEmailTestCase(_EmailsTestCase):
 
             return self.get_object_or_fail(Document, title=title)
 
-        content1 = "Hey I'm the content"
-        content2 = "Another content"
+        content1 = b"Hey I'm the content"
+        content2 = b'Another content'
         doc1 = create_doc('Doc01', content1)
         doc2 = create_doc('Doc02', content2)
 
@@ -195,8 +195,8 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         message = messages[1]
         self.assertEqual([recipient], message.recipients())
-        self.assertEqual([(basename(doc1.filedata.name), content1, 'text/plain'),
-                          (basename(doc2.filedata.name), content2, 'text/plain'),
+        self.assertEqual([(basename(doc1.filedata.name), content1.decode(), 'text/plain'),
+                          (basename(doc2.filedata.name), content2.decode(), 'text/plain'),
                          ],
                          message.attachments
                         )
@@ -579,7 +579,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertGET409(reverse('creme_core__sanitized_html_field', args=(email.id, 'sender')))  # Not an UnsafeHTMLField
 
         response = self.assertGET200(reverse('creme_core__sanitized_html_field', args=(email.id, 'body_html')))
-        self.assertEqual('', response.content)
+        self.assertEqual(b'', response.content)
 
     def test_get_sanitized_html_field02(self):
         self.login()
@@ -593,14 +593,14 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertEqual('<p>hi</p>'
                          '<img alt="Totoro">'
                          '<img alt="Nekobus" src="{}nekobus.jpg">'.format(settings.MEDIA_URL),
-                         response.content
+                         response.content.decode()
                         )
 
         response = self.assertGET200(url + '?external_img=on')
         self.assertEqual('<p>hi</p>'
                          '<img alt="Totoro" src="http://external/images/totoro.jpg">'
                          '<img alt="Nekobus" src="{}nekobus.jpg">'.format(settings.MEDIA_URL),
-                         response.content
+                         response.content.decode()
                         )
         # TODO: improve sanitization test (other tags, css...)
 

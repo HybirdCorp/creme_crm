@@ -25,7 +25,7 @@ from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from .widgets import CreatorModelChoiceWidget
 
 
-class CreatorModelChoiceMixin(object):
+class CreatorModelChoiceMixin:
     _create_action_url = None
     _user = None
 

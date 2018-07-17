@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013  Hybird
+#    Copyright (C) 2013-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 
-class ImportBackend(object):
+class ImportBackend:
     """
     Base class defining backend used to import entities from listview.
     id: unique import backend identifier: the file extension matching this backend.
@@ -30,12 +30,21 @@ class ImportBackend(object):
     verbose_name = "OVERLOAD ME"
     help_text = "OVERLOAD ME"
 
-    def next(self):
+    def __init__(self, f):
+        """Abstract constructor.
+        @param f: File instance ; must be opened & readable.
+        """
+        pass
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
         """ Returns next line. """
         raise NotImplementedError
 
 
-class ExportBackend(object):
+class ExportBackend:
     """
     Base class defining backend used to export entities from listview.
     Must define a django view response attribute: self.response.

@@ -123,7 +123,7 @@ def delete(request):
         try:
             efilter.delete()
         except EntityFilter.DependenciesError as e:
-            return_msg = unicode(e)
+            return_msg = str(e)
         except ProtectedError as e:
             return_msg = _(u'«{}» can not be deleted because of its dependencies.').format(efilter)
             return_msg += render_to_string('creme_core/templatetags/widgets/list_instances.html',
@@ -151,7 +151,7 @@ def get_content_types(request, rtype_id):
                     utils.creme_entity_content_types()
 
     choices = [(0, _(u'All'))]
-    choices.extend((ct.id, unicode(ct)) for ct in content_types)
+    choices.extend((ct.id, str(ct)) for ct in content_types)
 
     return choices
 

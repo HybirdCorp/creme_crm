@@ -49,7 +49,7 @@ class AbstractGraph(CremeEntity):
         verbose_name_plural = pgettext_lazy('graphs', u'Graphs')
         ordering = ('name',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
@@ -91,7 +91,7 @@ class AbstractGraph(CremeEntity):
         CremeEntity.populate_real_entities([root.entity for root in roots]) #small optimisation
 
         for root in roots:
-            add_node(unicode(root.entity), shape='box')
+            add_node(str(root.entity), shape='box')
             # add_node('filled box',    shape='box', style='filled', color='#FF00FF')
             # add_node('filled box v2', shape='box', style='filled', fillcolor='#FF0000', color='#0000FF', penwidth='2.0') #default pensize="1.0"
 
@@ -99,7 +99,7 @@ class AbstractGraph(CremeEntity):
 
         for root in roots:
             subject = root.entity
-            str_subject = unicode(subject)
+            str_subject = str(subject)
             relations   = subject.relations.filter(type__in=root.relation_types.all())\
                                            .select_related('object_entity', 'type')
 
@@ -110,7 +110,7 @@ class AbstractGraph(CremeEntity):
                 if not user.has_perm_to_view(object_):
                     continue
 
-                uni_object = unicode(object_)
+                uni_object = str(object_)
                 str_object = uni_object
 
                 orbital_node = orbital_nodes.get(object_.id)
@@ -119,7 +119,7 @@ class AbstractGraph(CremeEntity):
                     orbital_nodes[object_.id] = str_object
 
                 add_edge(str_subject, str_object,
-                         label=unicode(relation.type.predicate))
+                         label=str(relation.type.predicate))
                 # add_edge('b', 'd', color='#FF0000', fontcolor='#00FF00', label='foobar', style='dashed')
 
         orbital_rtypes = self.orbital_relation_types.all()
@@ -131,7 +131,7 @@ class AbstractGraph(CremeEntity):
                                                     object_entity__in=orbital_ids,
                                                     type__in=orbital_rtypes).select_related('type'):
                 add_edge(orbital_nodes[relation.subject_entity_id], orbital_nodes[relation.object_entity_id],
-                         label=unicode(relation.type.predicate),
+                         label=str(relation.type.predicate),
                          style='dashed')
 
         # print graph.string()

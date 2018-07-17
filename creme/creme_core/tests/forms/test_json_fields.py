@@ -128,9 +128,8 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual(val, JSONField().from_python(val))
 
     def test_format_object_to_json(self):
-        self.assertEqual('{"ctype": "12", "entity": "1"}',
-                         JSONField().from_python({'ctype': '12', 'entity': '1'})
-                        )
+        val = {'ctype': '12', 'entity': '1'}
+        self.assertEqual(json_dump(val), JSONField().from_python(val))
 
     def test_clean_entity_from_model(self):
         self.login()
@@ -168,7 +167,7 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                     'create': reverse('creme_core__quick_form', args=(ctype_id,)),
                     'id': ctype_id,
                     'create_label': label or
-                                    unicode(ContentType.objects.get_for_id(ctype_id).model_class().creation_label),
+                                    str(ContentType.objects.get_for_id(ctype_id).model_class().creation_label),
                 },
             'entity': entity_id,
         })
@@ -481,7 +480,7 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
             'ctype':  {
                 'create': reverse('creme_core__quick_form', args=(ctype_id,)),
                 'id': ctype_id,
-                'create_label': unicode(
+                'create_label': str(
                     ContentType.objects.get_for_id(ctype_id)
                                .model_class()
                                .creation_label
@@ -535,12 +534,12 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                          json_load(field.from_python([
                              {'ctype': {'id': contact_ct_id,
                                         'create': build_url(contact_ct_id) ,
-                                        'create_label': unicode(contact_label)},
+                                        'create_label': str(contact_label)},
                                         'entity': 1,
                                        },
                              {'ctype': {'id': orga_ct_id,
                                         'create': build_url(orga_ct_id),
-                                        'create_label': unicode(orga_label)},
+                                        'create_label': str(orga_label)},
                                         'entity': 5,
                                        },
                          ]))
@@ -1490,13 +1489,15 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         rtype2 = self.create_hates_rtype()[0]
 
         field = MultiRelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id])
-        # TODO: assertJSONEqual
-        self.assertEqual('[{"entity": %s, "ctype": %s, "rtype": "%s"}, '
-                          '{"entity": %s, "ctype": %s, "rtype": "%s"}]' % (
-                                contact.id, contact.entity_type_id, rtype1.id,
-                                orga.id,    orga.entity_type_id,    rtype2.id,
-                            ),
-                         field.from_python([(rtype1, contact), (rtype2, orga)])
+
+        # TODO: assertJSONEqual ?
+        with self.assertNoException():
+            json_data = json_load(field.from_python([(rtype1, contact), (rtype2, orga)]))
+
+        self.assertEqual([{'entity': contact.id, 'ctype': contact.entity_type_id, 'rtype': rtype1.id},
+                          {'entity': orga.id,    'ctype': orga.entity_type_id,    'rtype': rtype2.id},
+                         ],
+                         json_data
                         )
 
     def test_autocomplete_property(self):

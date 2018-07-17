@@ -100,7 +100,7 @@ class DateRangeTestCase(CremeTestCase):
     def test_future(self):
         date_range = self.registry.get_range('in_future')
         self.assertIsNotNone(date_range)
-        self.assertEqual(_(u"In the future"), unicode(date_range.verbose_name))
+        self.assertEqual(_(u"In the future"), str(date_range.verbose_name))
 
         now_value = now()
         self.assertEqual({'birthday__gte': now_value},

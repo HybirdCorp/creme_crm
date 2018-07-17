@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from __future__ import division, absolute_import  # For collections...
+# from __future__ import division, absolute_import  # For collections...
 
 from calendar import monthrange
 from collections import OrderedDict
@@ -53,12 +53,12 @@ def get_quarter_dates(year, quarter):
            )
 
 
-class DateRange(object):
+class DateRange:
     name = 'base_date_range'  # Overload
     verbose_name = u'Date range'  # Overload
 
-    def __unicode__(self):
-        return unicode(self.verbose_name)
+    def __str__(self):
+        return str(self.verbose_name)
 
     def get_dates(self, now):
         raise NotImplementedError
@@ -289,7 +289,7 @@ class NotEmptyRange(DateRange):
         return {'{}__isnull'.format(field): False}
 
 
-class DateRangeRegistry(object):
+class DateRangeRegistry:
     class RegistrationError(Exception):
         pass
 
@@ -300,9 +300,9 @@ class DateRangeRegistry(object):
     def choices(self, exclude_empty=True):
         if exclude_empty:
             empties = frozenset((EmptyRange.name, NotEmptyRange.name))
-            return ((key, range) for key, range in self._ranges.iteritems() if key not in empties)
+            return ((key, range) for key, range in self._ranges.items() if key not in empties)
 
-        return self._ranges.iteritems()
+        return self._ranges.items()
 
     def register(self, *dranges):
         ranges_map = self._ranges

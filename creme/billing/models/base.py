@@ -107,7 +107,7 @@ class Base(CremeEntity):
         super(Base, self).__init__(*args, **kwargs)
         self._lines_cache = {}  # Key: Line class ; Value: Lines instances (list)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def _pre_delete(self):

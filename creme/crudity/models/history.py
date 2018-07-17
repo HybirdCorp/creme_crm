@@ -46,6 +46,6 @@ class History(CremeModel):
 
         return entity
 
-    def __unicode__(self):
+    def __str__(self):
         e = self.get_entity()
         return u'History of "{}"'.format(e) if e else u'History'

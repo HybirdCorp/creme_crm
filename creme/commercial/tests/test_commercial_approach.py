@@ -87,7 +87,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(entity.id,   commapp.entity_id)
 
         self.assertDatetimesAlmostEqual(now(), commapp.creation_date)
-        self.assertEqual(title, unicode(commapp))
+        self.assertEqual(title, str(commapp))
 
     def test_merge(self):
         user = self.user
@@ -134,7 +134,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
         hline = hlines[-1]
         self.assertEqual(TYPE_DELETION, hline.type)
-        self.assertEqual(unicode(orga02), hline.entity_repr)
+        self.assertEqual(str(orga02), hline.entity_repr)
 
     @skipIfCustomActivity
     def test_create_from_activity01(self):

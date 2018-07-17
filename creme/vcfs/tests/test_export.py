@@ -72,7 +72,7 @@ class VcfExportTestCase(CremeTestCase):
     def test_get_empty_vcf(self):
         user = self.login()
         response = self._generate_vcf(Contact.objects.create(user=user, last_name='Abitbol'))
-        self.assertEqual('BEGIN:VCARD\r\nVERSION:3.0\r\nFN: Abitbol\r\nN:Abitbol;;;;\r\nEND:VCARD\r\n',
+        self.assertEqual(b'BEGIN:VCARD\r\nVERSION:3.0\r\nFN: Abitbol\r\nN:Abitbol;;;;\r\nEND:VCARD\r\n',
                          response.content
                         )
 
@@ -103,7 +103,7 @@ class VcfExportTestCase(CremeTestCase):
                                         )
 
         response = self._generate_vcf(contact)
-        self.assertEqual('BEGIN:VCARD\r\nVERSION:3.0\r\nFN: Abitbol\r\nN:Abitbol;;;Monsieur;\r\nEND:VCARD\r\n',
+        self.assertEqual(b'BEGIN:VCARD\r\nVERSION:3.0\r\nFN: Abitbol\r\nN:Abitbol;;;Monsieur;\r\nEND:VCARD\r\n',
                          response.content
                         )
 
@@ -117,7 +117,7 @@ class VcfExportTestCase(CremeTestCase):
         Relation.objects.create(type=rtype, subject_entity=orga, object_entity=contact, user=user)
 
         response = self._generate_vcf(contact)
-        self.assertEqual('BEGIN:VCARD\r\nVERSION:3.0\r\nFN: Abitbol\r\nN:Abitbol;;;;\r\nORG:ORGNAME\r\nEND:VCARD\r\n',
+        self.assertEqual(b'BEGIN:VCARD\r\nVERSION:3.0\r\nFN: Abitbol\r\nN:Abitbol;;;;\r\nORG:ORGNAME\r\nEND:VCARD\r\n',
                          response.content
                         )
 
@@ -129,10 +129,10 @@ class VcfExportTestCase(CremeTestCase):
         contact.save()
 
         response = self._generate_vcf(contact)
-        self.assertEqual('BEGIN:VCARD\r\nVERSION:3.0\r\nADR:Org_po_box;;Org_address;Org_city;Org_department;'
-                         'Org_zipcode;Org_countr\r\n y\r\nTEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\n'
-                         'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\n'
-                         'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
+        self.assertEqual(b'BEGIN:VCARD\r\nVERSION:3.0\r\nADR:Org_po_box;;Org_address;Org_city;Org_department;'
+                         b'Org_zipcode;Org_countr\r\n y\r\nTEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\n'
+                         b'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\n'
+                         b'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
                          response.content
                         )
 
@@ -144,11 +144,11 @@ class VcfExportTestCase(CremeTestCase):
         contact.save()
 
         response = self._generate_vcf(contact)
-        self.assertEqual('BEGIN:VCARD\r\nVERSION:3.0\r\nADR:Org_po_box;;Org_address;'
-                         'Org_city;Org_department;Org_zipcode;Org_countr\r\n y\r\n'
-                         'TEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\n'
-                         'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;'
-                         '\r\nTEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
+        self.assertEqual(b'BEGIN:VCARD\r\nVERSION:3.0\r\nADR:Org_po_box;;Org_address;'
+                         b'Org_city;Org_department;Org_zipcode;Org_countr\r\n y\r\n'
+                         b'TEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\n'
+                         b'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;'
+                         b'\r\nTEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
                          response.content
                         )
 
@@ -161,12 +161,12 @@ class VcfExportTestCase(CremeTestCase):
         contact.save()
 
         response = self._generate_vcf(contact)
-        self.assertEqual('BEGIN:VCARD\r\nVERSION:3.0\r\n'
-                         'ADR:shipping_po_box;;shipping_address;shipping_city;shipping_department;sh\r\n ipping_zipcode;shipping_country\r\n'
-                         'ADR:billing_po_box;;billing_address;billing_city;billing_department;billin\r\n g_zipcode;billing_country\r\n'
-                         'TEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\n'
-                         'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\n'
-                         'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
+        self.assertEqual(b'BEGIN:VCARD\r\nVERSION:3.0\r\n'
+                         b'ADR:shipping_po_box;;shipping_address;shipping_city;shipping_department;sh\r\n ipping_zipcode;shipping_country\r\n'
+                         b'ADR:billing_po_box;;billing_address;billing_city;billing_department;billin\r\n g_zipcode;billing_country\r\n'
+                         b'TEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\n'
+                         b'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\n'
+                         b'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
                          response.content
                         )
 
@@ -180,11 +180,11 @@ class VcfExportTestCase(CremeTestCase):
         self.create_address(contact, 'Org')  # Other_address
 
         response = self._generate_vcf(contact)
-        self.assertEqual('BEGIN:VCARD\r\nVERSION:3.0\r\n'
-                         'ADR:Org_po_box;;Org_address;Org_city;Org_department;Org_zipcode;Org_countr\r\n y\r\n'
-                         'TEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\n'
-                         'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\n'
-                         'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
+        self.assertEqual(b'BEGIN:VCARD\r\nVERSION:3.0\r\n'
+                         b'ADR:Org_po_box;;Org_address;Org_city;Org_department;Org_zipcode;Org_countr\r\n y\r\n'
+                         b'TEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\n'
+                         b'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\n'
+                         b'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
                          response.content
                         )
 
@@ -198,13 +198,13 @@ class VcfExportTestCase(CremeTestCase):
         self.create_address(contact, 'Org')  # Other_address
 
         response = self._generate_vcf(contact)
-        self.assertEqual('BEGIN:VCARD\r\nVERSION:3.0\r\n'
-                         'ADR:shipping_po_box;;shipping_address;shipping_city;shipping_department;sh\r\n ipping_zipcode;shipping_country\r\n'
-                         'ADR:billing_po_box;;billing_address;billing_city;billing_department;billin\r\n g_zipcode;billing_country\r\n'
-                         'ADR:Org_po_box;;Org_address;Org_city;Org_department;Org_zipcode;Org_countr\r\n y\r\n'
-                         'TEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\n'
-                         'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\n'
-                         'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
+        self.assertEqual(b'BEGIN:VCARD\r\nVERSION:3.0\r\n'
+                         b'ADR:shipping_po_box;;shipping_address;shipping_city;shipping_department;sh\r\n ipping_zipcode;shipping_country\r\n'
+                         b'ADR:billing_po_box;;billing_address;billing_city;billing_department;billin\r\n g_zipcode;billing_country\r\n'
+                         b'ADR:Org_po_box;;Org_address;Org_city;Org_department;Org_zipcode;Org_countr\r\n y\r\n'
+                         b'TEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\n'
+                         b'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\n'
+                         b'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
                          response.content
                         )
 
@@ -224,10 +224,10 @@ class VcfExportTestCase(CremeTestCase):
                  )
 
         response = self._generate_vcf(contact)
-        self.assertEqual('BEGIN:VCARD\r\nVERSION:3.0\r\n'
-                         'ADR:billing_po_box;;billing_address;billing_city;billing_department;;billi\r\n ng_country\r\n'
-                         'TEL;TYPE=CELL:0606060606\r\n'
-                         'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;;\r\n'
-                         'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
+        self.assertEqual(b'BEGIN:VCARD\r\nVERSION:3.0\r\n'
+                         b'ADR:billing_po_box;;billing_address;billing_city;billing_department;;billi\r\n ng_country\r\n'
+                         b'TEL;TYPE=CELL:0606060606\r\n'
+                         b'TEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;;\r\n'
+                         b'TEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
                          response.content
                         )

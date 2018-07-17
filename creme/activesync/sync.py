@@ -53,7 +53,7 @@ url_validator = validators.URLValidator()
 # ACTIVE_SYNC_DEBUG = settings.ACTIVE_SYNC_DEBUG
 
 
-class Synchronization(object):
+class Synchronization:
     """
         TODO: Handle SSL & Domain
     """
@@ -171,7 +171,7 @@ class Synchronization(object):
         self._messages[_ERROR].append(MessageError(message=msg, **kwargs))
 
     def messages(self):
-        return self._messages.iteritems()
+        return self._messages.items()
 
     def get_messages(self, level):
         return self._messages[level]

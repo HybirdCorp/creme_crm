@@ -69,7 +69,7 @@ def export_as_pdf(request, base_id):
     target = entity.get_target().get_real_entity()
     has_perm(target)
 
-    document_name = unicode(entity._meta.verbose_name)
+    document_name = str(entity._meta.verbose_name)
 
     template = loader.get_template(template_path)
     context = {

@@ -297,7 +297,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         bebop.shipping_address = create_address(name='Hideout #2')
         bebop.save()
 
-        for i in xrange(3, 5):
+        for i in range(3, 5):
             create_address(name='Hideout #{}'.format(i))
 
         cloned = bebop.clone()
@@ -320,7 +320,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(4, len(addresses_map))
         self.assertEqual(4, len(c_addresses_map))
 
-        for ident, address in addresses_map.iteritems():
+        for ident, address in addresses_map.items():
             address2 = c_addresses_map.get(ident)
             self.assertIsNotNone(address2, ident)
             self.assertAddressOnlyContentEqual(address, address2)

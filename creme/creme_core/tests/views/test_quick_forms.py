@@ -193,11 +193,10 @@ class QuickFormTestCase(CremeTestCase):
         self.assertEqual(count + 1, FakeContact.objects.count())
 
         contact = self.get_object_or_fail(FakeContact, last_name=last_name, email=email)
-        self.assertEqual(json_dump({
-                             "added": [[contact.id, unicode(contact)]],
-                             "value": contact.id
-                         }),
-                         response.content
+        self.assertEqual({'added': [[contact.id, str(contact)]],
+                          'value': contact.id,
+                         },
+                         response.json()
                         )
 
     # TODO : test_quickform_with_custom_sync_data

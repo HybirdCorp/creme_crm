@@ -82,7 +82,7 @@ def abstract_list_folders(request, **extra_kwargs):
         try:
             parent_id = int(parent_id)
         except (ValueError, TypeError):
-            logger.warn('Folder.listview(): invalid "parent_id" parameter: %s', parent_id)
+            logger.warning('Folder.listview(): invalid "parent_id" parameter: %s', parent_id)
             parent_id = None
         else:
             folder = get_object_or_404(Folder, pk=parent_id)

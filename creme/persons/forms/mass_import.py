@@ -63,7 +63,7 @@ class _PersonMassImportForm(ImportForm4CremeEntity):  # TODO: rename 'PersonCSVI
             address = getattr(person, attr_name, None)
 
             if address is not None:  # Update
-                for fname, fvalue in address_dict.iteritems():
+                for fname, fvalue in address_dict.items():
                     setattr(address, fname, fvalue)
 
                 address.save()

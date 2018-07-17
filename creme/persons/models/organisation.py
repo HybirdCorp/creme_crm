@@ -96,7 +96,7 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
         verbose_name_plural = _(u'Organisations')
         index_together = ('name', 'cremeentity_ptr')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def _check_deletion(self):

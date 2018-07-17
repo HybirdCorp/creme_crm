@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,8 @@
 ################################################################################
 
 import base64
-import htmlentitydefs
+# import htmlentitydefs
+from html.entities import entitydefs as htmlentitydefs
 import re
 import struct
 import uuid
@@ -118,10 +119,11 @@ def generate_guid_for_field(urn, model, field_name):
 
 def decode_b64binary(blob_b64):
     """Decode base64binary encoded files (Usually found in xsd:base64Binary http://www.w3.org/TR/xmlschema-2/#base64Binary)
-    @return file name
-    @return decoded content (a string with binaries data)
+    @param blob_b64: <bytes> data encoded in base64.
+    @return: A tuple (file_name, decoded_data) ; "file_name" is a str, "decoded_data" bytes.
     """
-    blob_str = base64.decodestring(blob_b64)
+    # blob_str = base64.decodestring(blob_b64)
+    blob_str = base64.decodebytes(blob_b64)
     blob_str_len = len(blob_str)
 
     header, filesize, filename_len, rest = struct.unpack('16sII{}s'.format(blob_str_len - 16 - 2 * 4), blob_str)
@@ -129,7 +131,8 @@ def decode_b64binary(blob_b64):
 
     header, filesize, filename_len, filename, blob = struct.unpack('16sII{}s{}s'.format(filename_len, (blob_str_len - 16 - 2 * 4 - filename_len)), blob_str)
 
-    filename = ''.join(unichr(i) for i in struct.unpack('{}h'.format(len(filename) / 2), filename) if i > 0)
+    # filename = ''.join(unichr(i) for i in struct.unpack('{}h'.format(len(filename) / 2), filename) if i > 0)
+    filename = ''.join(chr(i) for i in struct.unpack('{}h'.format(len(filename) // 2), filename) if i > 0)
     filename = str(filename.encode('utf8'))
 
     return filename, blob

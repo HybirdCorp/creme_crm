@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 _SEARCH_FIELD_MAX_LENGTH = 200
 
 
-class EntityAction(object):
+class EntityAction:
     def __init__(self, url, text, is_allowed, attrs=None, icon=None, verbose=None):
         self.url = url
         self.text = text
@@ -67,7 +67,7 @@ class _PrettyPropertiesField(FunctionField):
         return Q(properties__type__text__icontains=search_string)
 
     def __call__(self, entity, user):
-        return FunctionFieldResultsList(FunctionFieldResult(unicode(p))
+        return FunctionFieldResultsList(FunctionFieldResult(str(p))
                                             for p in entity.get_properties()
                                        )
 
@@ -147,16 +147,16 @@ class CremeEntity(CremeModel):
 
         super(CremeEntity, self)._delete_without_transaction(using=using, keep_parents=keep_parents)
 
-    def __unicode__(self):
+    def __str__(self):
         real_entity = self.get_real_entity()
 
         if self is real_entity:
             return u"Creme entity: {}".format(self.id)
 
-        return unicode(real_entity)
+        return str(real_entity)
 
     def allowed_unicode(self, user):
-        return unicode(self) if user.has_perm_to_view(self) else \
+        return str(self) if user.has_perm_to_view(self) else \
                ugettext(u'Entity #{id} (not viewable)').format(id=self.id)
 
     def get_real_entity(self):
@@ -266,7 +266,7 @@ class CremeEntity(CremeModel):
         entities_map = {}
         get_ct = ContentType.objects.get_for_id
 
-        for ct_id, entity_ids in entities_by_ct.iteritems():
+        for ct_id, entity_ids in entities_by_ct.items():
             entities_map.update(get_ct(ct_id).model_class().objects.in_bulk(entity_ids))
 
         for entity in entities:
@@ -326,7 +326,7 @@ class CremeEntity(CremeModel):
         if not user.has_perm_to_view(self):
             return self.allowed_unicode(user)
 
-        return '<a target="_blank" href="{}">{}</a>'.format(self.get_absolute_url(), escape(unicode(self)))
+        return '<a target="_blank" href="{}">{}</a>'.format(self.get_absolute_url(), escape(str(self)))
 
     def get_actions(self, user):  # TODO: improve icon/css class management....
         actions = []
@@ -400,7 +400,7 @@ class CremeEntity(CremeModel):
 
     def _search_field_value(self):
         """Overload this method if you want to customise the value to search on your CremeEntity type."""
-        return unicode(self)
+        return str(self)
 
     def _clone_custom_values(self, source):
         for custom_field in CustomField.objects.filter(content_type=source.entity_type_id):

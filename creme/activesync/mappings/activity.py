@@ -216,15 +216,15 @@ def _set_meeting_from_data(meeting, data, user, folder):
     meeting.save()
 
     CREME_MEETING_MAPPING_copy = CREME_MEETING_MAPPING.copy()
-    for ns, fields in CREME_MEETING_MAPPING_copy.iteritems():
-        for c_field, x_field in fields.iteritems():
+    for ns, fields in CREME_MEETING_MAPPING_copy.items():
+        for c_field, x_field in fields.items():
             if callable(c_field):
                 val = CREME_MEETING_MAPPING_copy[ns][c_field]
                 del CREME_MEETING_MAPPING_copy[ns][c_field]
                 CREME_MEETING_MAPPING_copy[ns][c_field(needs_attr=True)] = val
 
-    for name, value in data.iteritems():
-        for ns, fields in CREME_MEETING_MAPPING_copy.iteritems():
+    for name, value in data.items():
+        for ns, fields in CREME_MEETING_MAPPING_copy.items():
             field_name = fields.get(name)
             if field_name is not None:
                 handle_AS_data(meeting, field_name, value)

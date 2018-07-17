@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import BaseHTTPServer
-from StringIO import StringIO
+from io import StringIO
 #import sys
 import os
 

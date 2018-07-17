@@ -117,7 +117,7 @@ def brick_header_title(context, title, plural=None, empty=None, icon='info', cou
     if isinstance(title_fmt, SafeData):
         rendered_title = mark_safe(rendered_title)
 
-    if isinstance(icon, basestring):
+    if isinstance(icon, str):
         # TODO: cache ?
         theme = get_current_theme_from_context(context)
         icon = get_icon_by_name(icon, theme, size_px=get_icon_size_px(theme, size='brick-header'),
@@ -209,7 +209,7 @@ def brick_action(context, id, url='', label='', icon=None, icon_size='brick-acti
     if not label:
         label = DEFAULT_ACTION_LABELS.get(action_type, '')
 
-    if isinstance(icon, basestring):
+    if isinstance(icon, str):
         theme = get_current_theme_from_context(context)
         icon = get_icon_by_name(icon, theme, size_px=get_icon_size_px(theme, icon_size),
                                 label=_(u'Information') if icon == 'info' else label,
@@ -227,7 +227,7 @@ def brick_action(context, id, url='', label='', icon=None, icon_size='brick-acti
         #     return unicode(value)
         #
         # raise TypeError("%s is not JSON serializable" % type(value))
-        return unicode(value)
+        return str(value)
 
     def _clean_extra_data(data, prefix='__'):
         prefix_length = len(prefix)
@@ -237,7 +237,7 @@ def brick_action(context, id, url='', label='', icon=None, icon_size='brick-acti
         #             for key, value in data.iteritems()
         #                 if key.startswith(prefix)
         # }
-        for key, value in data.iteritems():
+        for key, value in data.items():
             if not key.startswith(prefix):
                 raise TemplateSyntaxError('The key "{}" does not starts with {}'.format(key, prefix))
 
@@ -397,7 +397,7 @@ def brick_table_column(title, status='', **attrs):
     return {
         'title':      title,
         'status':     status.split(' ') if status else (),
-        'attributes': mark_safe(' '.join('{}="{}"'.format(k.replace('_', '-'), v) for k, v in attrs.iteritems())),
+        'attributes': mark_safe(' '.join('{}="{}"'.format(k.replace('_', '-'), v) for k, v in attrs.items())),
     }
 
 
@@ -448,7 +448,7 @@ def brick_table_column_for_cell(context, cell, title='', status='', **attrs):
         'help':       help,
         'sort_by':    sort_data,
         'status':     status.split(' ') if status else (),
-        'attributes': mark_safe(' '.join('{}="{}"'.format(k.replace('_', '-'), v) for k, v in attrs.iteritems())),
+        'attributes': mark_safe(' '.join('{}="{}"'.format(k.replace('_', '-'), v) for k, v in attrs.items())),
     }
 
 

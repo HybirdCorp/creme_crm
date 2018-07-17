@@ -737,12 +737,12 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         self.assertEqual({user, other_user}, {msg.recipient for msg in messages})
 
-        self.assertIn(unicode(meeting), message.title)
+        self.assertIn(str(meeting), message.title)
 
         body = message.body
-        self.assertIn(unicode(akane), body)
-        self.assertIn(unicode(me), body)
-        self.assertIn(unicode(ranma), body)
+        self.assertIn(str(akane), body)
+        self.assertIn(str(me), body)
+        self.assertIn(str(ranma), body)
 
     @skipIfNotInstalled('creme.assistants')
     def test_createview_usermsg02(self):
