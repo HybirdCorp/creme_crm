@@ -1609,11 +1609,14 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         with self.assertRaises(ValueError) as error:
             field.from_python(contact.pk)
 
-        self.assertIn(str(error.exception),
-                      ('No such entity with id={}.'.format(contact.id),
-                       'No such entity with id={}L.'.format(contact.id),
-                      )
-                     )
+        # self.assertIn(str(error.exception),
+        #               ('No such entity with id={}.'.format(contact.id),
+        #                'No such entity with id={}L.'.format(contact.id),
+        #               )
+        #              )
+        self.assertEqual(str(error.exception),
+                         'No such entity with id={}.'.format(contact.id)
+                        )
 
     def test_format_object_with_qfilter02(self):
         "qfilter is a callable returning a dict"
@@ -1628,11 +1631,14 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         with self.assertRaises(ValueError) as error:
             field.from_python(contact.pk)
 
-        self.assertIn(str(error.exception),
-                      ('No such entity with id={}.'.format(contact.id),
-                       'No such entity with id={}L.'.format(contact.id),
-                      )
-                     )
+        # self.assertIn(str(error.exception),
+        #               ('No such entity with id={}.'.format(contact.id),
+        #                'No such entity with id={}L.'.format(contact.id),
+        #               )
+        #              )
+        self.assertEqual(str(error.exception),
+                         'No such entity with id={}.'.format(contact.id)
+                        )
 
     def test_format_object_with_qfilter03(self):
         "qfilter is Q"
@@ -1647,11 +1653,14 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         with self.assertRaises(ValueError) as error:
             field.from_python(contact.id)
 
-        self.assertIn(str(error.exception),
-                      ('No such entity with id={}.'.format(contact.id),
-                       'No such entity with id={}L.'.format(contact.id),
-                      )
-                     )
+        # self.assertIn(str(error.exception),
+        #               ('No such entity with id={}.'.format(contact.id),
+        #                'No such entity with id={}L.'.format(contact.id),
+        #               )
+        #              )
+        self.assertEqual(str(error.exception),
+                         'No such entity with id={}.'.format(contact.id)
+                        )
 
     def test_format_object_from_other_model(self):
         self.login()
@@ -1666,11 +1675,14 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         with self.assertRaises(ValueError) as error:
             field.from_python(orga.pk)
 
-        self.assertIn(str(error.exception),
-                      ('No such entity with id={}.'.format(orga.id),
-                       'No such entity with id={}L.'.format(orga.id),
-                      )
-                     )
+        # self.assertIn(str(error.exception),
+        #               ('No such entity with id={}.'.format(orga.id),
+        #                'No such entity with id={}L.'.format(orga.id),
+        #               )
+        #              )
+        self.assertEqual(str(error.exception),
+                         'No such entity with id={}.'.format(orga.id)
+                        )
 
     def test_invalid_qfilter(self):
         self.login()
@@ -1679,10 +1691,10 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         field = CreatorEntityField(FakeContact)
         # Do this hack for MySql database that uses longs and alter JSON format result
-        qfilter_errors = {
-            "Invalid type for q_filter (needs dict or Q): ['~pk', {}]".format(contact.id),
-            "Invalid type for q_filter (needs dict or Q): ['~pk', {}L]".format(contact.id),
-        }
+        # qfilter_errors = {
+        #     "Invalid type for q_filter (needs dict or Q): ['~pk', {}]".format(contact.id),
+        #     "Invalid type for q_filter (needs dict or Q): ['~pk', {}L]".format(contact.id),
+        # }
 
         # Set qfilter property
         field.q_filter = ['~pk', contact.pk]
@@ -1690,7 +1702,9 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         with self.assertRaises(ValueError) as error:
             field.q_filter_query()
 
-        self.assertIn(str(error.exception), qfilter_errors)
+        # self.assertIn(str(error.exception), qfilter_errors)
+        qfilter_error = "Invalid type for q_filter (needs dict or Q): ['~pk', {}]".format(contact.id)
+        self.assertEqual(str(error.exception), qfilter_error)
 
         # Set qfilter in constructor
         field = CreatorEntityField(FakeContact, q_filter=['~pk', contact.pk], create_action_url=action_url)
@@ -1698,7 +1712,8 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         with self.assertRaises(ValueError) as error:
             field.q_filter_query()
 
-        self.assertIn(str(error.exception), qfilter_errors)
+        # self.assertIn(str(error.exception), qfilter_errors)
+        self.assertEqual(str(error.exception), qfilter_error)
 
     def test_action_buttons_no_custom_quickform(self):
         self.assertIsNotNone(quickforms_registry.get_form(FakeContact))
@@ -1999,11 +2014,14 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
             field.from_python([contact1.pk, contact2.pk, contact3.pk])
 
         ids = [str(e.id) for e in (contact1, contact2, contact3)]
-        self.assertIn(str(error.exception),
-                      ("The entities with ids [{}] don't exist.".format(', '.join(ids)),
-                       "The entities with ids [{}] don't exist.".format('L, '.join(ids)),
-                      )
-                     )
+        # self.assertIn(str(error.exception),
+        #               ("The entities with ids [{}] don't exist.".format(', '.join(ids)),
+        #                "The entities with ids [{}] don't exist.".format('L, '.join(ids)),
+        #               )
+        #              )
+        self.assertEqual(str(error.exception),
+                         "The entities with ids [{}] don't exist.".format(', '.join(ids)),
+                        )
 
     def test_format_object_from_other_model(self):
         self.login()
@@ -2023,11 +2041,14 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
             field.from_python([orga.pk, contact.pk, contact2.pk])
 
         ids = [str(e.id) for e in [orga, contact, contact2]]
-        self.assertIn(str(error.exception),
-                      ("The entities with ids [{}] don't exist.".format(', '.join(ids)),
-                       "The entities with ids [{}] don't exist.".format('L, '.join(ids)),
-                      )
-                     )
+        # self.assertIn(str(error.exception),
+        #               ("The entities with ids [{}] don't exist.".format(', '.join(ids)),
+        #                "The entities with ids [{}] don't exist.".format('L, '.join(ids)),
+        #               )
+        #              )
+        self.assertEqual(str(error.exception),
+                         "The entities with ids [{}] don't exist.".format(', '.join(ids)),
+                        )
 
     def test_invalid_qfilter(self):
         self.login()
@@ -2035,24 +2056,27 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         action_url = '/persons/quickforms/from_widget/{}/'.format(contact.entity_type_id)
 
         field = MultiCreatorEntityField(FakeContact)
-        # Do this hack for MySql database that uses longs and alter json format result
-        qfilter_errors = ("Invalid type for q_filter (needs dict or Q): ['~pk', {}]".format(contact.id),
-                          "Invalid type for q_filter (needs dict or Q): ['~pk', {}L]".format(contact.id),
-                         )
+        # # Do this hack for MySql database that uses longs and alter json format result
+        # qfilter_errors = ("Invalid type for q_filter (needs dict or Q): ['~pk', {}]".format(contact.id),
+        #                   "Invalid type for q_filter (needs dict or Q): ['~pk', {}L]".format(contact.id),
+        #                  )
 
         field.q_filter = ['~pk', contact.pk]
 
         with self.assertRaises(ValueError) as error:
             field.q_filter_query
 
-        self.assertIn(str(error.exception), qfilter_errors)
+        # self.assertIn(str(error.exception), qfilter_error)
+        qfilter_error = "Invalid type for q_filter (needs dict or Q): ['~pk', {}]".format(contact.id)
+        self.assertEqual(str(error.exception), qfilter_error)
 
         field = MultiCreatorEntityField(FakeContact, q_filter=['~pk', contact.pk], create_action_url=action_url)
 
         with self.assertRaises(ValueError) as error:
             field.q_filter_query
 
-        self.assertIn(str(error.exception), qfilter_errors)
+        # self.assertIn(str(error.exception), qfilter_errors)
+        self.assertEqual(str(error.exception), qfilter_error)
 
     def test_create_action_url(self):
         self.login()
