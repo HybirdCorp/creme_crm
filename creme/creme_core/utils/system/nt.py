@@ -19,7 +19,7 @@
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
@@ -28,9 +28,9 @@
 
 import logging
 
-from subprocess import Popen
+# from subprocess import Popen
 from sys import exit, version_info
-from sys import executable as PYTHON_BIN
+# from sys import executable as PYTHON_BIN
 
 
 logger = logging.getLogger(__name__)
@@ -66,15 +66,15 @@ except ImportError:
     logger.critical('pywin32 not installed for Python %s', version)
 
 
-def python_subprocess(script, python=PYTHON_BIN, start_new_session=False, **kwargs):
-    # Hack which prevents signal propagation from parent process.
-    # Useless in python 3 (use start_new_session instead).
-    if version_info < (3, 2):
-        if start_new_session:
-            CREATE_NEW_PROCESS_GROUP = 0x00000200  # note: could get it from subprocess
-            DETACHED_PROCESS = 0x00000008          # 0x8 | 0x200 == 0x208
-            kwargs.update(creationflags=DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP)
-    else:
-        kwargs.update(start_new_session=start_new_session)
-
-    return Popen([python, '-c', script], **kwargs)
+# def python_subprocess(script, python=PYTHON_BIN, start_new_session=False, **kwargs):
+#     # Hack which prevents signal propagation from parent process.
+#     # Useless in python 3 (use start_new_session instead).
+#     if version_info < (3, 2):
+#         if start_new_session:
+#             CREATE_NEW_PROCESS_GROUP = 0x00000200  # note: could get it from subprocess
+#             DETACHED_PROCESS = 0x00000008          # 0x8 | 0x200 == 0x208
+#             kwargs.update(creationflags=DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP)
+#     else:
+#         kwargs.update(start_new_session=start_new_session)
+#
+#     return Popen([python, '-c', script], **kwargs)
