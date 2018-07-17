@@ -728,7 +728,7 @@ class CremeUser(AbstractBaseUser):
     def has_perm_to_change_or_die(self, entity):
         if not self.has_perm_to_change(entity):
             raise PermissionDenied(ugettext(u'You are not allowed to edit this entity: {}').format(
-                                        entity.allowed_unicode(self)
+                                        entity.allowed_str(self)
                                     )
                                   )
 
@@ -755,7 +755,7 @@ class CremeUser(AbstractBaseUser):
     def has_perm_to_delete_or_die(self, entity):
         if not self.has_perm_to_delete(entity):
             raise PermissionDenied(ugettext(u'You are not allowed to delete this entity: {}').format(
-                                        entity.allowed_unicode(self)
+                                        entity.allowed_str(self)
                                     )
                                   )
 
@@ -799,7 +799,7 @@ class CremeUser(AbstractBaseUser):
         if not self.has_perm_to_link(entity_or_model, owner):
             if isinstance(entity_or_model, CremeEntity):
                 msg = ugettext(u'You are not allowed to link this entity: {}').format(
-                                        entity_or_model.allowed_unicode(self)
+                                        entity_or_model.allowed_str(self)
                                     )
             else:
                 msg = ugettext(u'You are not allowed to link: {}').format(
@@ -815,7 +815,7 @@ class CremeUser(AbstractBaseUser):
     def has_perm_to_unlink_or_die(self, entity):
         if not self.has_perm_to_unlink(entity):
             raise PermissionDenied(ugettext(u'You are not allowed to unlink this entity: {}').format(
-                                        entity.allowed_unicode(self)
+                                        entity.allowed_str(self)
                                     )
                                   )
 
@@ -826,7 +826,7 @@ class CremeUser(AbstractBaseUser):
     def has_perm_to_view_or_die(self, entity):
         if not self.has_perm_to_view(entity):
             raise PermissionDenied(ugettext(u'You are not allowed to view this entity: {}').format(
-                                        entity.allowed_unicode(self)
+                                        entity.allowed_str(self)
                                     )
                                   )
 

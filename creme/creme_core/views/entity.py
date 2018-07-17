@@ -472,13 +472,13 @@ def empty_trash(request):
                     entity.delete()
                 except ProtectedError:
                     errors.append(_(u'«{entity}» can not be deleted because of its dependencies.').format(
-                                        entity=entity.allowed_unicode(user)
+                                        entity=entity.allowed_str(user)
                                     )
                                  )
                 except Exception as e:
                     logger.exception('Error when trying to empty the trash')
                     errors.append(_(u'«{entity}» deletion caused an unexpected error [{error}].').format(
-                                        entity=entity.allowed_unicode(user),
+                                        entity=entity.allowed_str(user),
                                         error=e,
                                     )
                                  )
@@ -532,7 +532,7 @@ def _delete_entity(user, entity):
     if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
         return (404,
                 _(u'«{entity}» does not use the generic deletion view.').format(
-                        entity=entity.allowed_unicode(user),
+                        entity=entity.allowed_str(user),
                     )
                )
 
@@ -541,15 +541,15 @@ def _delete_entity(user, entity):
 
         if related is None:
             logger.critical('delete_entity(): an auxiliary entity seems orphan (id=%s)', entity.id)
-            return 403, _(u'You are not allowed to delete this entity: {}').format(entity.allowed_unicode(user))
+            return 403, _(u'You are not allowed to delete this entity: {}').format(entity.allowed_str(user))
 
         if not user.has_perm_to_change(related):
-            return 403, _(u'{entity} : <b>Permission denied</b>').format(entity=entity.allowed_unicode(user))
+            return 403, _(u'{entity} : <b>Permission denied</b>').format(entity=entity.allowed_str(user))
 
         trash = False
     else:
         if not user.has_perm_to_delete(entity):
-            return 403, _(u'{entity} : <b>Permission denied</b>').format(entity=entity.allowed_unicode(user))
+            return 403, _(u'{entity} : <b>Permission denied</b>').format(entity=entity.allowed_str(user))
 
         trash = not entity.is_deleted
 
@@ -561,14 +561,14 @@ def _delete_entity(user, entity):
     except SpecificProtectedError as e:
         return (400,
                 u'{} {}'.format(
-                    _(u'«{entity}» can not be deleted.').format(entity=entity.allowed_unicode(user)),
+                    _(u'«{entity}» can not be deleted.').format(entity=entity.allowed_str(user)),
                     e.args[0],
                   ),
                )
     except ProtectedError as e:
         return (400,
                 _(u'«{entity}» can not be deleted because of its dependencies.').format(
-                        entity=entity.allowed_unicode(user),
+                        entity=entity.allowed_str(user),
                     ),
                 {'protected_objects': e.args[1]},
                )
@@ -576,7 +576,7 @@ def _delete_entity(user, entity):
         logger.exception('Error when trying to empty the trash')
         return (400,
                 _(u'«{entity}» deletion caused an unexpected error [{error}].').format(
-                        entity=entity.allowed_unicode(user),
+                        entity=entity.allowed_str(user),
                         error=e,
                     )
                )

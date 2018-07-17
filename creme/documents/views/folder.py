@@ -56,7 +56,7 @@ def abstract_add_child_folder(request, folder_id, form=ChildFolderForm,
     user.has_perm_to_link_or_die(parent_folder)
 
     return add_model_with_popup(request, form,
-                                title=title % parent_folder.allowed_unicode(user),
+                                title=title % parent_folder.allowed_str(user),
                                 initial={'parent': parent_folder},
                                 submit_label=submit_label,
                                )

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -519,7 +519,7 @@ def get_add_objects(reverse_ns, user, airsync_cmd, creme_model, serializer, mapp
 #            objects_append(add_object(entity, lambda cc: serializer(cc, reverse_ns)))
             objects_append(add_object(entity, lambda cc: serializer(cc, mapping)))
         else:
-            add_info_message(_(u"The entity <%s> was not added on the server because you haven't the right to view it") % entity.allowed_unicode(user))
+            add_info_message(_(u"The entity <%s> was not added on the server because you haven't the right to view it") % entity.allowed_str(user))
 
     return objects
 
@@ -548,7 +548,7 @@ def get_change_objects(reverse_ns, user, airsync_cmd, creme_model, serializer, m
             add_history_update_on_server(entity, None)#TODO: Add update information....
             objects_append(change_object(modified_ids[entity.id], entity, lambda cc: serializer(cc, mapping)))#Naive version send all attribute even it's not modified
         else:
-            add_info_message(_(u"The entity <%s> was not updated on the server because you haven't the right to view it") % entity.allowed_unicode(user))
+            add_info_message(_(u"The entity <%s> was not updated on the server because you haven't the right to view it") % entity.allowed_str(user))
 
     logger.debug(u"Change object : %s", objects)
 

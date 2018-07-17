@@ -128,7 +128,7 @@ def _fk_printer(field, val, user):
         out = val
     else:
         if isinstance(out, CremeEntity):
-            out = out.allowed_unicode(user)
+            out = out.allowed_str(user)
 
     return str(out)
 

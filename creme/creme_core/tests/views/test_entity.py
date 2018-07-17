@@ -345,7 +345,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         self.assertDictEqual({'count': 2,
                               'errors': [_(u'{entity} : <b>Permission denied</b>').format(
-                                                entity=forbidden.allowed_unicode(user),
+                                                entity=forbidden.allowed_str(user),
                                             ),
                                         ],
                              },
