@@ -5,7 +5,7 @@
 ################################################################################
 #
 # Copyright (c) 2012 Daniel Miller
-# Copyright (c) 2016 Hybird
+# Copyright (c) 2016-2018 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -19,7 +19,7 @@
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
@@ -27,9 +27,17 @@
 ################################################################################
 
 from os import name as os_name
+from subprocess import Popen
+from sys import executable as PYTHON_BIN
 
-# We import the following function
-# - python_subprocess
+
+def python_subprocess(script, python=PYTHON_BIN, start_new_session=False, **kwargs):
+    kwargs['start_new_session'] = start_new_session
+
+    return Popen([python, '-c', script], **kwargs)
+
+
+# We import the following functions
 # - enable_exit_handler
 # - disable_exit_handler
 # - is_exit_handler_enabled
@@ -40,9 +48,9 @@ elif os_name == 'posix':
     from .posix import *
 else:  # 'os2', 'ce', 'java', 'riscos', other ?
     import logging
-    from subprocess import Popen
-    from sys import exit, version_info
-    from sys import executable as PYTHON_BIN
+    # from subprocess import Popen
+    from sys import exit  #, version_info
+    # from sys import executable as PYTHON_BIN
 
     logger = logging.getLogger(__name__)
     logger.critical('It seems your platform "%s" has not been tested for the sub-process feature ;'
@@ -61,11 +69,10 @@ else:  # 'os2', 'ce', 'java', 'riscos', other ?
         return False
 
 
-    # TODO: refactor when only Python3 is supported
-    def python_subprocess(script, python=PYTHON_BIN, start_new_session=False, **kwargs):
-        if version_info < (3, 2):
-            logger.critical('python_subprocess(): "start_new_session" argument may be not supported.')
-        else:
-            kwargs.update(start_new_session=start_new_session)
-
-        return Popen([python, '-c', script], **kwargs)
+    # def python_subprocess(script, python=PYTHON_BIN, start_new_session=False, **kwargs):
+    #     if version_info < (3, 2):
+    #         logger.critical('python_subprocess(): "start_new_session" argument may be not supported.')
+    #     else:
+    #         kwargs.update(start_new_session=start_new_session)
+    #
+    #     return Popen([python, '-c', script], **kwargs)

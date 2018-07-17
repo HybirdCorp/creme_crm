@@ -5,7 +5,7 @@
 ################################################################################
 #
 # Copyright (c) 2012 Daniel Miller
-# Copyright (c) 2016 Hybird
+# Copyright (c) 2016-2018 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -19,18 +19,18 @@
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 ################################################################################
 
-from os import setpgrp
-from subprocess import Popen
+# from os import setpgrp
+# from subprocess import Popen
 import signal
-from sys import exit, version_info
-from sys import executable as PYTHON_BIN
+from sys import exit # version_info
+# from sys import executable as PYTHON_BIN
 
 
 def enable_exit_handler(on_exit=lambda *args: exit()):
@@ -48,12 +48,12 @@ def is_exit_handler_enabled():
            signal.getsignal(signal.SIGTERM) not in (signal.SIG_DFL, None)
 
 
-def python_subprocess(script, python=PYTHON_BIN, start_new_session=False, **kwargs):
-    # Hack that prevents signal propagation from parent process.
-    # Useless in python 3 (use start_new_session instead)
-    if version_info < (3, 2):
-        kwargs.update(preexec_fn=setpgrp() if start_new_session else None)
-    else:
-        kwargs.update(start_new_session=start_new_session)
-
-    return Popen([python, '-c', script], **kwargs)
+# def python_subprocess(script, python=PYTHON_BIN, start_new_session=False, **kwargs):
+#     # Hack that prevents signal propagation from parent process.
+#     # Useless in python 3 (use start_new_session instead)
+#     if version_info < (3, 2):
+#         kwargs.update(preexec_fn=setpgrp() if start_new_session else None)
+#     else:
+#         kwargs.update(start_new_session=start_new_session)
+#
+#     return Popen([python, '-c', script], **kwargs)
