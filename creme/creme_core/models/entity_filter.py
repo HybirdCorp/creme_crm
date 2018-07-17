@@ -1017,12 +1017,14 @@ class EntityFilterCondition(Model):
         Beware: the 'filter' fields are not compared (so the related ContentType
         is not used).
         """
-        key = lambda cond: (cond.type, cond.name, cond.value)
+        # key = lambda cond: (cond.type, cond.name, cond.value)
+        key = lambda cond: (cond.type, cond.name, cond.decoded_value)
 
         return all(cond1 and cond2 and 
                    cond1.type == cond2.type and
                    cond1.name == cond2.name and
-                   cond1.value == cond2.value
+                   # cond1.value == cond2.value
+                   cond1.decoded_value == cond2.decoded_value
                         for cond1, cond2 in izip_longest(sorted(conditions1, key=key),
                                                          sorted(conditions2, key=key),
                                                         )
