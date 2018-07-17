@@ -21,7 +21,7 @@
 from json import dumps as json_dump
 import logging
 import math
-# import warnings
+import warnings
 
 # from django.apps import apps
 # from django.conf import settings
@@ -823,6 +823,14 @@ class CreationFormsItem(ViewableItem):
 
     @property
     def verbose_unicode(self):
+        warnings.warn('CreationFormsItem.verbose_unicode() is deprecated ; '
+                      'use CreationFormsItem.verbose_str() instead.',
+                      DeprecationWarning
+                     )
+        return self.verbose_str
+
+    @property
+    def verbose_str(self):
         """Returns a detailed description of groups/links ; useful to get priorities/IDs."""
         res = u'{}\n'.format(self)
 

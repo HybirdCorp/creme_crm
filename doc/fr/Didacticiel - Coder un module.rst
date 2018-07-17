@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 16-07-2018 pour la version 2.0 de Creme
+:Version: 17-07-2018 pour la version 2.0 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -573,7 +573,7 @@ d'entité : ::
 Puisque dans notre exemple, nous souhaitons insérer notre entrée dans le groupe "Annuaire",
 nous récupérons ce dernier grâce à ``get_or_create_group()``. Pour afficher la structure
 des groupes de cette fenêtre, vous pouvez faire
-``print(creme_menu.get('creation', 'any_forms').verbose_unicode)``.
+``print(creme_menu.get('creation', 'any_forms').verbose_str)``.
 
 
 Initialisation du module
