@@ -32,7 +32,7 @@
     </tr>
     <tr>
         <td>{% trans 'Password' %}</td>
-        <td>{% if password|is_none %}{% trans "Undefined" %}{% else %}{% for i in password.as_html|length|xrange %}*{% endfor %}{% endif %}</td>
+        <td>{% if password|is_none %}{% trans "Undefined" %}{% else %}{% for i in password.as_html|length|range %}*{% endfor %}{% endif %}</td>
     </tr>
     <tr>
         <td>{% trans 'Synchronize activities (calendars)' %}</td>

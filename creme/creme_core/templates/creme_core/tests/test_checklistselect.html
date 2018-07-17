@@ -565,7 +565,7 @@
         <h3>Bench&nbsp;<button id="bench-reload">Reload</button>&nbsp;<input type="number" value="250" id="bench-count-input"></input></h3>
         <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect" id="bench-selector">
             <select class="ui-creme-input" multiple>
-                {% for index in 250|xrange:1 %}
+                {% for index in 250|range:1 %}
                 <option value='{{index}}' help="item">{{index|format:"item-%s"}}</option>
                 {% endfor %}
             </select>
