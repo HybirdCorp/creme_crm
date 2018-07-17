@@ -724,26 +724,85 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
     def test_get_create_form_view01(self):
         "Backend not registered"
-        subject = 'create_contact'
-        self._get_backend(ContactFakeBackend, subject=subject,
-                          body_map={}, model=Contact
+        # subject = 'create_contact'
+        # self._get_backend(ContactFakeBackend, subject=subject,
+        #                   body_map={}, model=Contact
+        #                  )
+        # self.assertGET404(reverse('crudity__dl_infopath_form', args=(subject,)))
+        registry.crudity_registry = crudity_registry = registry.CRUDityRegistry()
+        crudity_registry.autodiscover()
+        registry.crudity_registry.dispatch([
+            {'fetcher':     'email',
+             'input':       'raw',  # not 'infopath',
+             'method':      'create',
+             'model':       'creme_core.fakecontact',
+             'password':    '',
+             'limit_froms': (),
+             'in_sandbox':  True,
+             'body_map':    {},
+             'subject':     'CREATE CONTACT',
+            },
+        ])
+        self.assertGET404(reverse('crudity__dl_infopath_form',
+                                  args=(CrudityBackend.normalize_subject('CREATE CONTACT'),)
+                                 )
                          )
-        self.assertGET404(reverse('crudity__dl_infopath_form', args=(subject,)))
 
     def test_get_create_form_view02(self):
-        crudity_registry = registry.crudity_registry
+        registry.crudity_registry = crudity_registry = registry.CRUDityRegistry()
+        crudity_registry.autodiscover()
+        registry.crudity_registry.dispatch([
+            {'fetcher':     'email',
+             'input':       'infopath',
+             'method':      'create',
+             'model':       'creme_core.fakecontact',
+             'password':    '',
+             'limit_froms': (),
+             'in_sandbox':  True,
+             'body_map':    {},
+             'subject':     'CREATE CONTACT',
+            },
+        ])
+        self.assertGET404(reverse('crudity__dl_infopath_form',
+                                  args=(CrudityBackend.normalize_subject('CREATE UNKNOWN'),)
+                                 )
+                         )
 
-        subject = 'create_contact'
-        backend = self._get_backend(ContactFakeBackend, subject=subject, body_map={})
+    # def test_get_create_form_view02(self):
+    def test_get_create_form_view03(self):
+        # crudity_registry = registry.crudity_registry
+        subject = 'CREATE CONTACT'
 
-        crudity_registry.register_fetchers('test', [FakeFetcher()])
-        input = FakeInput()
-        input.method = 'create'
-        input.name = 'infopath'
-        input.add_backend(backend)
-        crudity_registry.register_inputs('test', [input])
+        registry.crudity_registry = crudity_registry = registry.CRUDityRegistry()
+        crudity_registry.autodiscover()
+        registry.crudity_registry.dispatch([
+            {'fetcher':     'email',
+             'input':       'infopath',
+             'method':      'create',
+             'model':       'creme_core.fakecontact',
+             'password':    '',
+             'limit_froms': (),
+             'in_sandbox':  True,
+             'body_map':    {},
+             'subject':     subject,
+            },
+        ])
 
-        response = self.assertGET200(reverse('crudity__dl_infopath_form', args=(subject,)))
+        # subject = 'create_contact'
+        # backend = self._get_backend(ContactFakeBackend, subject=subject, body_map={})
+        #
+        # crudity_registry.register_fetchers('test', [FakeFetcher()])
+        # input = FakeInput()
+        # input.method = 'create'
+        # input.name = 'infopath'
+        # input.add_backend(backend)
+        # crudity_registry.register_inputs('test', [input])
+
+        # response = self.assertGET200(reverse('crudity__dl_infopath_form', args=(subject,)))
+        response = self.assertGET200(reverse('crudity__dl_infopath_form',
+                                             args=(CrudityBackend.normalize_subject(subject),)
+                                            )
+                                    )
         self.assertEqual('application/vnd.ms-infopath', response['Content-Type'])
 
 
