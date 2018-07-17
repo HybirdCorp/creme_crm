@@ -286,7 +286,7 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter16 = create_ef(pk=base_pk + '[1.10.2 rc11]12', name='Filter [1.10.2 rc11]#12')
         self.assertEqual(efilter16, EntityFilter.get_latest_version(base_pk))
 
-    def test_conditions_equal(self):
+    def test_conditions_equal01(self):
         equal = EntityFilterCondition.conditions_equal
         self.assertIs(equal([], []), True)
 
@@ -322,6 +322,28 @@ class EntityFiltersTestCase(CremeTestCase):
                               [cond2, cond3, cond1]
                              )
                        )
+
+    def test_conditions_equal02(self):
+        "Does not compare JSON but dict (Py3k bug)"
+        equal = EntityFilterCondition.conditions_equal
+
+        cond1 = EntityFilterCondition(
+            type=EntityFilterCondition.EFC_FIELD,
+            name='first_name',
+            value='{"operator": 1, "values": ["Ikari"]}',
+        )
+        cond2 = EntityFilterCondition(
+            type=EntityFilterCondition.EFC_FIELD,
+            name='first_name',
+            value='{"operator": 1, "values": ["Ikari"]}',
+        )
+        cond3 = EntityFilterCondition(
+            type=EntityFilterCondition.EFC_FIELD,
+            name='first_name',
+            value='{"values": ["Ikari"], "operator": 1}',  # Different strings, but same JSONified dict....
+        )
+        self.assertTrue(equal([cond1], [cond2]))
+        self.assertTrue(equal([cond1], [cond3]))
 
     def test_create_condition_creatorfield_fk(self):
         equal = EntityFilterCondition.conditions_equal
