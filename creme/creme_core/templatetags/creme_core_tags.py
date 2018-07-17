@@ -247,6 +247,13 @@ def mod(integer, integer2):
 
 @register.filter(name='xrange')
 def x_range(integer, start=0):
+    warnings.warn('The template filter "|xrange" is deprecated ; use "|range" instead.', DeprecationWarning)
+
+    return range(start, start + integer)
+
+
+@register.filter(name='range')
+def range_filter(integer, start=0):
     return range(start, start + integer)
 
 
