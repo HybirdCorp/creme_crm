@@ -183,16 +183,13 @@ class ActionTestCase(AssistantsTestCase):
         self.assertIsInstance(actions, QuerySet)
         self.assertEqual(Action, actions.model)
 
-        self.assertEqual({action1, action3}, set(actions))
-        self.assertEqual(2, len(actions))
+        self.assertCountEqual([action1, action3], actions)
 
         # --
         actions = Action.get_actions_nit(entity=self.entity, today=now_value)
         self.assertIsInstance(actions, QuerySet)
         self.assertEqual(Action, actions.model)
-
-        self.assertEqual({action5}, set(actions))
-        self.assertEqual(1, len(actions))
+        self.assertCountEqual([action5], actions)
 
     def test_get_actions_for_home01(self):
         user = self.user
@@ -214,16 +211,13 @@ class ActionTestCase(AssistantsTestCase):
         self.assertIsInstance(actions, QuerySet)
         self.assertEqual(Action, actions.model)
 
-        self.assertEqual({action1, action3}, set(actions))
-        self.assertEqual(2, len(actions))
+        self.assertCountEqual([action1, action3], actions)
 
         # --
         actions = Action.get_actions_nit_for_home(user=user, today=now_value)
         self.assertIsInstance(actions, QuerySet)
         self.assertEqual(Action, actions.model)
-
-        self.assertEqual({action5}, set(actions))
-        self.assertEqual(1, len(actions))
+        self.assertCountEqual([action5], actions)
 
     def test_get_actions_for_home02(self):
         "Teams"
@@ -256,14 +250,12 @@ class ActionTestCase(AssistantsTestCase):
         action4 = create_action(title='Action#4', deadline=yesterday, user=team1)  # No (deadline)
         create_action(title='Action#5', deadline=yesterday, user=team2)  # No
 
-        actions = Action.get_actions_it_for_home(user=user, today=now_value)
-        self.assertEqual({action1, action3}, set(actions))
-        self.assertEqual(2, len(actions))
-
-        # --
-        actions = Action.get_actions_nit_for_home(user=user, today=now_value)
-        self.assertEqual({action4}, set(actions))
-        self.assertEqual(1, len(actions))
+        self.assertCountEqual([action1, action3],
+                              Action.get_actions_it_for_home(user=user, today=now_value)
+                             )
+        self.assertCountEqual([action4],
+                              Action.get_actions_nit_for_home(user=user, today=now_value)
+                             )
 
     def test_get_actions_for_ctypes01(self):
         user = self.user
@@ -292,16 +284,13 @@ class ActionTestCase(AssistantsTestCase):
         self.assertIsInstance(actions, QuerySet)
         self.assertEqual(Action, actions.model)
 
-        self.assertEqual({action1, action3, action5}, set(actions))
-        self.assertEqual(3, len(actions))
+        self.assertCountEqual([action1, action3, action5], actions)
 
         # --
         actions = Action.get_actions_nit_for_ctypes(user=user, today=now_value, ct_ids=ct_ids)
         self.assertIsInstance(actions, QuerySet)
         self.assertEqual(Action, actions.model)
-
-        self.assertEqual({action7}, set(actions))
-        self.assertEqual(1, len(actions))
+        self.assertCountEqual([action7], actions)
 
     def test_get_actions_for_ctypes02(self):
         "Teams"
@@ -339,10 +328,9 @@ class ActionTestCase(AssistantsTestCase):
 
         ct_ids = [self.entity.entity_type_id, entity2.entity_type_id]
         actions = Action.get_actions_it_for_ctypes(user=user, today=now_value, ct_ids=ct_ids)
-        self.assertEqual({action1, action3, action4}, set(actions))
-        self.assertEqual(3, len(actions))
+        self.assertCountEqual([action1, action3, action4], actions)
 
         # --
-        actions = Action.get_actions_nit_for_ctypes(user=user, today=now_value, ct_ids=ct_ids)
-        self.assertEqual({action5}, set(actions))
-        self.assertEqual(1, len(actions))
+        self.assertCountEqual([action5],
+                              Action.get_actions_nit_for_ctypes(user=user, today=now_value, ct_ids=ct_ids)
+                             )
