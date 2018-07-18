@@ -1151,7 +1151,7 @@ class ImportForm(CremeModelForm):
                 job_result.messages = self.import_errors
                 job_result.save()
 
-            self.import_errors[:] = ()
+            self.import_errors.clear()
 
         filedata.close()
 

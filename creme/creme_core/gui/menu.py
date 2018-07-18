@@ -276,7 +276,7 @@ class ItemList:
         for item in items:
             item._priority = None
 
-        items[:] = ()
+        items.clear()
         self._items_ids.clear()
 
     def get(self, *item_ids):

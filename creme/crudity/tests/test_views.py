@@ -133,7 +133,7 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
         # super(CrudityViewsTestCase, self).tearDown()
         super().tearDown()
 
-        FakePOP3.instances[:] = ()
+        FakePOP3.instances.clear()
 
     def _build_test_registry(self, backend_configs=None):
         registry.crudity_registry.dispatch(backend_configs if backend_configs is not None else
