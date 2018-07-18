@@ -21,13 +21,14 @@
 import collections
 from datetime import date, datetime
 from decimal import Decimal
+from functools import lru_cache
 from math import ceil
 import sys
 
 from django.core.exceptions import ValidationError
 from django.core.paginator import InvalidPage
 from django.db.models import Q
-from django.utils.lru_cache import lru_cache
+# from django.utils.lru_cache import lru_cache
 
 from creme.creme_core.utils.dates import DATE_ISO8601_FMT, DATETIME_ISO8601_FMT
 from creme.creme_core.utils.db import populate_related
