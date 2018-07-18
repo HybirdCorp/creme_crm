@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -45,7 +45,8 @@ class SettingForm(CremeModelForm):
         exclude = ('key_id', 'user', 'value_str')
 
     def __init__(self, *args, **kwargs):
-        super(SettingForm, self).__init__(*args, **kwargs)
+        # super(SettingForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         fields = self.fields
         svalue = self.instance
 
@@ -64,14 +65,16 @@ class SettingForm(CremeModelForm):
     def save(self, *args, **kwargs):
         self.instance.value = self.cleaned_data['value']
 
-        return super(SettingForm, self).save(*args, **kwargs)
+        # return super(SettingForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class UserSettingForm(CremeForm):
     value = CharField(label=_(u'Value'))
 
     def __init__(self, skey, *args, **kwargs):
-        super(UserSettingForm, self).__init__(*args, **kwargs)
+        # super(UserSettingForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.skey = skey
         fields = self.fields
         field_class = _FIELDS.get(skey.type)

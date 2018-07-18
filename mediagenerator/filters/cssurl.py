@@ -81,7 +81,9 @@ class URLRewriter:
 class CSSURL(Filter):
     """Rewrites URLs relative to media folder ("absolute" rewriting)."""
     def __init__(self, **kwargs):
-        super(CSSURL, self).__init__(**kwargs)
+        # super(CSSURL, self).__init__(**kwargs)
+        super().__init__(**kwargs)
+
         assert self.filetype == 'css', (
             'CSSURL only supports CSS output. '
             'The parent filter expects "{}".'.format(self.filetype))
@@ -92,7 +94,8 @@ class CSSURL(Filter):
             yield rewriter.rewrite_urls(input)
 
     def get_dev_output(self, name, variation):
-        content = super(CSSURL, self).get_dev_output(name, variation)
+        # content = super(CSSURL, self).get_dev_output(name, variation)
+        content = super().get_dev_output(name, variation)
 
         return URLRewriter().rewrite_urls(content)
 
@@ -100,7 +103,8 @@ class CSSURL(Filter):
 class CSSURLFileFilter(FileFilter):
     """Rewrites URLs relative to input file's location."""
     def get_dev_output(self, name, variation):
-        content = super(CSSURLFileFilter, self).get_dev_output(name, variation)
+        # content = super(CSSURLFileFilter, self).get_dev_output(name, variation)
+        content = super().get_dev_output(name, variation)
         if not REWRITE_CSS_URLS_RELATIVE_TO_SOURCE:
             return content
 

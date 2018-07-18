@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -87,7 +87,8 @@ class CreatorModelChoiceField(ModelChoiceField, CreatorModelChoiceMixin):
     widget = CreatorModelChoiceWidget
 
     def __init__(self, queryset, create_action_url='', user=None, *args, **kwargs):
-        super(CreatorModelChoiceField, self).__init__(queryset, *args, **kwargs)
+        # super(CreatorModelChoiceField, self).__init__(queryset, *args, **kwargs)
+        super().__init__(queryset, *args, **kwargs)
         self.creation_info(create_action_url, user)
 
 
@@ -95,6 +96,7 @@ class CreatorModelMultipleChoiceField(ModelMultipleChoiceField, CreatorModelChoi
     widget = UnorderedMultipleChoiceWidget
 
     def __init__(self, queryset, create_action_url='', user=None, *args, **kwargs):
-        super(CreatorModelMultipleChoiceField, self).__init__(queryset, *args, **kwargs)
+        # super(CreatorModelMultipleChoiceField, self).__init__(queryset, *args, **kwargs)
+        super().__init__(queryset, *args, **kwargs)
         self.creation_info(create_action_url, user)
 

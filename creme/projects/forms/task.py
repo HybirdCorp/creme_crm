@@ -60,7 +60,8 @@ class _TaskForm(CremeEntityForm):
         model = ProjectTask
 
     def __init__(self, *args, **kwargs):
-        super(_TaskForm, self).__init__(*args, **kwargs)
+        # super(_TaskForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         fields = self.fields
         fields['duration'].required = True
@@ -76,7 +77,8 @@ class TaskCreateForm(_TaskForm):
     parent_tasks = MultiCreatorEntityField(label=_(u'Parent tasks'), required=False, model=ProjectTask)
 
     def __init__(self, entity, *args, **kwargs):
-        super(TaskCreateForm, self).__init__(*args, **kwargs)
+        # super(TaskCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._project = entity
 
         fields = self.fields
@@ -91,7 +93,8 @@ class TaskCreateForm(_TaskForm):
         instance.linked_project = project
         instance.order = project.attribute_order_task()
 
-        super(TaskCreateForm, self).save(*args, **kwargs)
+        # super(TaskCreateForm, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
         return instance
 
@@ -103,7 +106,8 @@ class TaskAddParentForm(CremeForm):
         model = ProjectTask
 
     def __init__(self, instance, *args, **kwargs):
-        super(TaskAddParentForm, self).__init__(*args, **kwargs)
+        # super(TaskAddParentForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.task = instance
         # self.fields['parents'].q_filter = {
         #     # 'project':       instance.project_id,
@@ -141,7 +145,8 @@ class RelatedActivityEditForm(CremeEntityForm):
             raise ConflictError('This Activity is not related to a project task.')
 
     def __init__(self, *args, **kwargs):
-        super(RelatedActivityEditForm, self).__init__(*args, **kwargs)
+        # super(RelatedActivityEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         fields = self.fields
         fields['duration'].required = True
         fields['start'].required = True
@@ -200,7 +205,8 @@ class RelatedActivityEditForm(CremeEntityForm):
         cdata = self.cleaned_data
         instance.type, instance.sub_type = cdata['type_selector']
 
-        super(RelatedActivityEditForm, self).save(*args, **kwargs)
+        # super(RelatedActivityEditForm, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
         participant = cdata['resource'].linked_contact
         old_participant = self.old_participant
@@ -223,7 +229,8 @@ class RelatedActivityEditForm(CremeEntityForm):
 
 class RelatedActivityCreateForm(RelatedActivityEditForm):
     def __init__(self, *args, **kwargs):
-        super(RelatedActivityCreateForm, self).__init__(*args, **kwargs)
+        # super(RelatedActivityCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._task = self._get_task()  # TODO: remove
 
     def _get_task(self):
@@ -244,7 +251,8 @@ class RelatedActivityCreateForm(RelatedActivityEditForm):
             count=len(task.related_activities) + 1,
         )
 
-        super(RelatedActivityCreateForm, self).save(*args, **kwargs)
+        # super(RelatedActivityCreateForm, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
         Relation.objects.create(subject_entity=instance,
                                 type_id=REL_SUB_LINKED_2_PTASK,

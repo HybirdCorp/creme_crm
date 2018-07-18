@@ -45,7 +45,8 @@ class CustomFieldsBaseForm(CremeModelForm):
         model = CustomField
 
     def clean(self):
-        cdata = super(CustomFieldsBaseForm, self).clean()
+        # cdata = super(CustomFieldsBaseForm, self).clean()
+        cdata = super().clean()
 
         if cdata.get('field_type') in (CustomField.ENUM, CustomField.MULTI_ENUM) \
            and not cdata['enum_values'].strip():
@@ -58,7 +59,8 @@ class CustomFieldsBaseForm(CremeModelForm):
         return cdata
 
     def save(self):
-        instance     = super(CustomFieldsBaseForm, self).save()
+        # instance     = super(CustomFieldsBaseForm, self).save()
+        instance = super().save()
         cleaned_data = self.cleaned_data
 
         if cleaned_data['field_type'] in (CustomField.ENUM, CustomField.MULTI_ENUM):
@@ -80,7 +82,8 @@ class CustomFieldsCTAddForm(CustomFieldsBaseForm):
                     )
 
     def __init__(self, *args, **kwargs):
-        super(CustomFieldsCTAddForm, self).__init__(*args, **kwargs)
+        # super(CustomFieldsCTAddForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         used_ct_ids = set(CustomField.objects.values_list('content_type_id', flat=True))
         ct_field = self.fields['content_type']
@@ -92,7 +95,8 @@ class CustomFieldsAddForm(CustomFieldsBaseForm):
         exclude = ('content_type',)
 
     def __init__(self, *args, **kwargs):
-        super(CustomFieldsAddForm, self).__init__(*args, **kwargs)
+        # super(CustomFieldsAddForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.ct = self.initial['ct']
 
     def clean_name(self):
@@ -105,7 +109,8 @@ class CustomFieldsAddForm(CustomFieldsBaseForm):
 
     def save(self):
         self.instance.content_type = self.ct
-        return super(CustomFieldsAddForm, self).save()
+        # return super(CustomFieldsAddForm, self).save()
+        return super().save()
 
 
 class CustomFieldsEditForm(CremeModelForm):
@@ -114,7 +119,8 @@ class CustomFieldsEditForm(CremeModelForm):
         fields = ('name',)
 
     def __init__(self, *args, **kwargs):
-        super(CustomFieldsEditForm, self).__init__(*args, **kwargs)
+        # super(CustomFieldsEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if self.instance.field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
             self._enum_values = CustomFieldEnumValue.objects.filter(custom_field=self.instance)
@@ -141,7 +147,8 @@ class CustomFieldsEditForm(CremeModelForm):
         return name
 
     def save(self):
-        cfield = super(CustomFieldsEditForm, self).save()
+        # cfield = super(CustomFieldsEditForm, self).save()
+        cfield = super().save()
 
         if cfield.field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
             cleaned_data = self.cleaned_data

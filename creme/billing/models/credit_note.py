@@ -68,7 +68,8 @@ class AbstractCreditNote(Base):
 
         self.status_id = status_id
 
-        return super(AbstractCreditNote, self).build(template)
+        # return super(AbstractCreditNote, self).build(template)
+        return super().build(template)
 
     def _update_linked_docs(self):
         # TODO: factorise (Relation.get_real_objects() ??)
@@ -82,11 +83,13 @@ class AbstractCreditNote(Base):
             rel.object_entity.get_real_entity().save()
 
     def restore(self):
-        super(AbstractCreditNote, self).restore()
+        # super(AbstractCreditNote, self).restore()
+        super().restore()
         self._update_linked_docs()
 
     def trash(self):
-        super(AbstractCreditNote, self).trash()
+        # super(AbstractCreditNote, self).trash()
+        super().trash()
         self._update_linked_docs()
 
 

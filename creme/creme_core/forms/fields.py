@@ -75,12 +75,14 @@ class JSONField(fields.CharField):
     value_type = None  # Overload this: type of the value returned by the field.
 
     def __init__(self, user=None, *args, **kwargs):
-        super(JSONField, self).__init__(*args, **kwargs)
+        # super(JSONField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._user = user
         self.widget.from_python = self.from_python
 
     def __deepcopy__(self, memo):
-        obj = super(JSONField, self).__deepcopy__(memo)
+        # obj = super(JSONField, self).__deepcopy__(memo)
+        obj = super().__deepcopy__(memo)
         obj.widget.from_python = obj.from_python
         return obj
 
@@ -252,7 +254,8 @@ class EntityCredsJSONField(JSONField):
         @param credentials: Binary combination of EntityCredentials.{VIEW, CHANGE, LINK}.
                             Default value is EntityCredentials.LINK.
         """
-        super(EntityCredsJSONField, self).__init__(*args, **kwargs)
+        # super(EntityCredsJSONField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._credentials = credentials
 
     def _check_entity_perms(self, entity, *args):
@@ -292,7 +295,8 @@ class GenericEntityField(EntityCredsJSONField):
     value_type = dict
 
     def __init__(self, models=(), autocomplete=False, creator=True, user=None, *args, **kwargs):
-        super(GenericEntityField, self).__init__(*args, **kwargs)
+        # super(GenericEntityField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.creator = creator
         self.autocomplete = autocomplete
         self._user = user
@@ -422,17 +426,19 @@ class MultiGenericEntityField(GenericEntityField):
     value_type = list
 
     def __init__(self, models=(), autocomplete=False, unique=True, creator=True, user=None, *args, **kwargs):
-        super(MultiGenericEntityField, self).__init__(models=models, autocomplete=autocomplete,
-                                                      creator=creator, user=user,
-                                                      *args, **kwargs
-                                                     )
+        # super(MultiGenericEntityField, self).__init__(models=models, autocomplete=autocomplete,
+        super().__init__(models=models, autocomplete=autocomplete,
+                         creator=creator, user=user,
+                         *args, **kwargs
+                        )
         self.unique = unique
 
     def widget_attrs(self, widget):
         return {}
 
     def _value_to_jsonifiable(self, value):
-        return list(map(super(MultiGenericEntityField, self)._value_to_jsonifiable, value))
+        # return list(map(super(MultiGenericEntityField, self)._value_to_jsonifiable, value))
+        return list(map(super()._value_to_jsonifiable, value))
 
     def _value_from_unjsonfied(self, data):
         # We want to to keep the global order (left by defaultdict)
@@ -515,7 +521,8 @@ class RelationEntityField(EntityCredsJSONField):
     value_type = dict
 
     def __init__(self, allowed_rtypes=(REL_SUB_HAS, ), autocomplete=False, *args, **kwargs):
-        super(RelationEntityField, self).__init__(*args, **kwargs)
+        # super(RelationEntityField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.autocomplete = autocomplete
         self.allowed_rtypes = allowed_rtypes
 
@@ -614,7 +621,8 @@ class MultiRelationEntityField(RelationEntityField):
     value_type = list
 
     def _value_to_jsonifiable(self, value):
-        return list(map(super(MultiRelationEntityField, self)._value_to_jsonifiable, value))
+        # return list(map(super(MultiRelationEntityField, self)._value_to_jsonifiable, value))
+        return list(map(super()._value_to_jsonifiable, value))
 
     def _build_rtype_cache(self, rtype_pk):
         try:
@@ -750,7 +758,8 @@ class CreatorEntityField(EntityCredsJSONField):
                  create_action_url='',
                  user=None, force_creation=False, *args, **kwargs
                 ):
-        super(CreatorEntityField, self).__init__(*args, **kwargs)
+        # super(CreatorEntityField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         widget = self.widget
         self._model = widget.model = model
 
@@ -918,7 +927,8 @@ class MultiCreatorEntityField(CreatorEntityField):
 
             return value
 
-        return list(map(super(MultiCreatorEntityField, self)._value_to_jsonifiable, value))
+        # return list(map(super(MultiCreatorEntityField, self)._value_to_jsonifiable, value))
+        return list(map(super()._value_to_jsonifiable, value))
 
     def _value_from_unjsonfied(self, data):
         entities = []
@@ -958,7 +968,8 @@ class FilteredEntityTypeField(JSONField):
                         - A callable which returns an iterable of ContentType IDs / instances.
                         - Sequence of ContentType IDs / instances.
         """
-        super(FilteredEntityTypeField, self).__init__(*args, **kwargs)
+        # super(FilteredEntityTypeField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._empty_label = empty_label
         self.ctypes = ctypes
 
@@ -1042,13 +1053,14 @@ class OptionalField(fields.MultiValueField):
     }
 
     def __init__(self, widget=None, label=None, initial=None, help_text='', sub_label='', *args, **kwargs):
-        super(OptionalField, self).__init__(fields=(fields.BooleanField(required=False),
-                                                    self._build_subfield(*args, **kwargs),
-                                                   ),
-                                            required=False,
-                                            require_all_fields=False,
-                                            widget=widget, label=label, initial=initial, help_text=help_text,
-                                           )
+        # super(OptionalField, self).__init__(fields=(fields.BooleanField(required=False),
+        super().__init__(fields=(fields.BooleanField(required=False),
+                                 self._build_subfield(*args, **kwargs),
+                                ),
+                         required=False,
+                         require_all_fields=False,
+                         widget=widget, label=label, initial=initial, help_text=help_text,
+                        )
         self.widget.sub_label = sub_label
 
     def _build_subfield(self, *args, **kwargs):
@@ -1063,7 +1075,8 @@ class OptionalField(fields.MultiValueField):
         if sub_required:
             sub_field.required = False
 
-        use_value, sub_value = super(OptionalField, self).clean(value)
+        # use_value, sub_value = super(OptionalField, self).clean(value)
+        use_value, sub_value = super().clean(value)
 
         if sub_required:
             sub_field.required = True
@@ -1106,7 +1119,8 @@ class ListEditionField(fields.Field):
         @param content Sequence of strings
         @param only_delete Can only delete elements, not edit them.
         """
-        super(ListEditionField, self).__init__(*args, **kwargs)
+        # super(ListEditionField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.content = content
         self.only_delete = only_delete
 
@@ -1210,7 +1224,8 @@ class MultiEmailField(fields.Field):
         "Check if value consists only of valid emails."
 
         # Use the parent's handling of required fields, etc.
-        super(MultiEmailField, self).validate(value)
+        # super(MultiEmailField, self).validate(value)
+        super().validate(value)
 
         for email in value:
             validate_email(email)
@@ -1224,9 +1239,10 @@ class DatePeriodField(fields.MultiValueField):
         @param period_registry: see property 'period_registry'.
         @param period_names: see property 'period_names'.
         """
-        super(DatePeriodField, self).__init__((fields.ChoiceField(), fields.IntegerField(min_value=1)),
-                                              *args, **kwargs
-                                             )
+        # super(DatePeriodField, self).__init__((fields.ChoiceField(), fields.IntegerField(min_value=1)),
+        super().__init__((fields.ChoiceField(), fields.IntegerField(min_value=1)),
+                         *args, **kwargs
+                        )
 
         self._period_registry = period_registry
         self.period_names = period_names
@@ -1265,7 +1281,8 @@ class DatePeriodField(fields.MultiValueField):
         return (data_list[0], data_list[1]) if data_list else (u'', u'')
 
     def clean(self, value):
-        period_name, period_value = super(DatePeriodField, self).clean(value)
+        # period_name, period_value = super(DatePeriodField, self).clean(value)
+        period_name, period_value = super().clean(value)
 
         if not period_value:
             return None
@@ -1304,12 +1321,13 @@ class DateRangeField(fields.MultiValueField):
         self.end_date   = fields.DateField(required=False)
         self.render_as  = render_as
 
-        super(DateRangeField, self).__init__(fields=(ranges,
-                                                     self.start_date,
-                                                     self.end_date,
-                                                    ),
-                                             require_all_fields=False, *args, **kwargs
-                                            )
+        # super(DateRangeField, self).__init__(fields=(ranges,
+        super().__init__(fields=(ranges,
+                                 self.start_date,
+                                 self.end_date,
+                                ),
+                         require_all_fields=False, *args, **kwargs
+                        )
 
         self.widget.choices = ranges.widget.choices  # Get the CallableChoiceIterator
 
@@ -1317,7 +1335,8 @@ class DateRangeField(fields.MultiValueField):
         return (data_list[0], data_list[1], data_list[2]) if data_list else (u'', u'', u'')
 
     def clean(self, value):
-        range_name, start, end = super(DateRangeField, self).clean(value)
+        # range_name, start, end = super(DateRangeField, self).clean(value)
+        range_name, start, end = super().clean(value)
 
         if range_name == '':
             if not start and not end and self.required:
@@ -1346,11 +1365,13 @@ class ColorField(fields.CharField):
 
     # def __init__(self, *args, **kwargs):
     def __init__(self, max_length=6, min_length=6, *args, **kwargs):
-        # super(ColorField, self).__init__(max_length=6, min_length=6, *args, **kwargs)
-        super(ColorField, self).__init__(max_length=max_length, min_length=min_length, *args, **kwargs)
+        # # super(ColorField, self).__init__(max_length=6, min_length=6, *args, **kwargs)
+        # super(ColorField, self).__init__(max_length=max_length, min_length=min_length, *args, **kwargs)
+        super().__init__(max_length=max_length, min_length=min_length, *args, **kwargs)
 
     def clean(self, value):
-        return super(ColorField, self).clean(value).upper()
+        # return super(ColorField, self).clean(value).upper()
+        return super().clean(value).upper()
 
 
 class DurationField(fields.MultiValueField):
@@ -1366,13 +1387,15 @@ class DurationField(fields.MultiValueField):
         self.minutes = IntegerField(min_value=0)
         self.seconds = IntegerField(min_value=0)
 
-        super(DurationField, self).__init__(fields=(self.hours, self.minutes, self.seconds), *args, **kwargs)
+        # super(DurationField, self).__init__(fields=(self.hours, self.minutes, self.seconds), *args, **kwargs)
+        super().__init__(fields=(self.hours, self.minutes, self.seconds), *args, **kwargs)
 
     def compress(self, data_list):
         return (data_list[0], data_list[1], data_list[2]) if data_list else (u'', u'', u'')
 
     def clean(self, value):
-        hours, minutes, seconds = super(DurationField, self).clean(value)
+        # hours, minutes, seconds = super(DurationField, self).clean(value)
+        hours, minutes, seconds = super().clean(value)
         return ':'.join([str(hours or 0), str(minutes or 0), str(seconds or 0)])
 
 
@@ -1388,10 +1411,11 @@ class ChoiceOrCharField(fields.MultiValueField):
                           BEWARE: id should not be a null value (like '', 0, etc..).
         """
         self.choice_field = choice_field = fields.ChoiceField()
-        super(ChoiceOrCharField, self).__init__(fields=(choice_field, fields.CharField(required=False)),
-                                                require_all_fields=False,
-                                                *args, **kwargs
-                                               )
+        # super(ChoiceOrCharField, self).__init__(fields=(choice_field, fields.CharField(required=False)),
+        super().__init__(fields=(choice_field, fields.CharField(required=False)),
+                         require_all_fields=False,
+                         *args, **kwargs
+                        )
         self.choices = choices
 
     @property
@@ -1421,7 +1445,8 @@ class ChoiceOrCharField(fields.MultiValueField):
         return index, strval
 
     def clean(self, value):
-        value = super(ChoiceOrCharField, self).clean(value)
+        # value = super(ChoiceOrCharField, self).clean(value)
+        value = super().clean(value)
 
         if value[0] == 0 and not value[1]:
             raise ValidationError(self.error_messages['invalid_other'],
@@ -1446,14 +1471,16 @@ class CTypeChoiceField(fields.Field):
                  to_field_name=None, limit_choices_to=None,  # TODO: manage ?
                  *args, **kwargs):
         "@param ctypes: A sequence of ContentTypes or a callable which returns one."
-        super(CTypeChoiceField, self).__init__(required, widget, label, initial, help_text,
-                                               *args, **kwargs
-                                              )
+        # super(CTypeChoiceField, self).__init__(required, widget, label, initial, help_text,
+        super().__init__(required, widget, label, initial, help_text,
+                         *args, **kwargs
+                        )
         self.empty_label = empty_label
         self.ctypes = ctypes
 
     def __deepcopy__(self, memo):
-        result = super(CTypeChoiceField, self).__deepcopy__(memo)
+        # result = super(CTypeChoiceField, self).__deepcopy__(memo)
+        result = super().__deepcopy__(memo)
         result._ctypes = deepcopy(self._ctypes, memo)
         return result
 
@@ -1524,7 +1551,8 @@ class MultiCTypeChoiceField(CTypeChoiceField):
         ctypes = []
 
         if value not in self.empty_values:
-            to_python = super(MultiCTypeChoiceField, self).to_python
+            # to_python = super(MultiCTypeChoiceField, self).to_python
+            to_python = super().to_python
             ctypes.extend(to_python(ct_id) for ct_id in value)
 
         return ctypes
@@ -1533,10 +1561,12 @@ class MultiCTypeChoiceField(CTypeChoiceField):
 class EntityCTypeChoiceField(CTypeChoiceField):
     def __init__(self, ctypes=None, *args, **kwargs):
         ctypes = ctypes or creme_entity_content_types
-        super(EntityCTypeChoiceField, self).__init__(ctypes=ctypes, *args, **kwargs)
+        # super(EntityCTypeChoiceField, self).__init__(ctypes=ctypes, *args, **kwargs)
+        super().__init__(ctypes=ctypes, *args, **kwargs)
 
 
 class MultiEntityCTypeChoiceField(MultiCTypeChoiceField):
     def __init__(self, ctypes=None, *args, **kwargs):
         ctypes = ctypes or creme_entity_content_types
-        super(MultiEntityCTypeChoiceField, self).__init__(ctypes=ctypes, *args, **kwargs)
+        # super(MultiEntityCTypeChoiceField, self).__init__(ctypes=ctypes, *args, **kwargs)
+        super().__init__(ctypes=ctypes, *args, **kwargs)

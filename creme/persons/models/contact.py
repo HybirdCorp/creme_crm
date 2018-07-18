@@ -160,13 +160,15 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
 
     def delete(self, *args, **kwargs):
         self._check_deletion()  # Should not be useful (trashing should be blocked too)
-        super(AbstractContact, self).delete(*args, **kwargs)
+        # super(AbstractContact, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
 
     def _post_save_clone(self, source):
         self._aux_post_save_clone(source)
 
     def save(self, *args, **kwargs):
-        super(AbstractContact, self).save(*args, **kwargs)
+        # super(AbstractContact, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
         rel_user = self.is_user
         if rel_user:
@@ -180,7 +182,8 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
 
     def trash(self):
         self._check_deletion()
-        super(AbstractContact, self).trash()
+        # super(AbstractContact, self).trash()
+        super().trash()
 
     @staticmethod
     def _create_linked_contact(user, **kwargs):

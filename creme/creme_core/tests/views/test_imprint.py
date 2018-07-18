@@ -19,7 +19,8 @@ except Exception as e:
 class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     @classmethod
     def setUpClass(cls):
-        super(ImprintViewsTestCase, cls).setUpClass()
+        # super(ImprintViewsTestCase, cls).setUpClass()
+        super().setUpClass()
 
         BrickDetailviewLocation.create_if_needed(brick_id=ImprintsBrick.id_, order=1,
                                                  zone=BrickDetailviewLocation.LEFT,

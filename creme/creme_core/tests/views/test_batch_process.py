@@ -37,7 +37,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(BatchProcessViewsTestCase, cls).setUpClass()
+        # super(BatchProcessViewsTestCase, cls).setUpClass()
+        super().setUpClass()
         Job.objects.all().delete()
 
         get_ct = ContentType.objects.get_for_model

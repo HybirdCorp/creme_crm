@@ -17,7 +17,8 @@ except Exception as e:
 
 class FieldsConfigTestCase(CremeTestCase):
     def setUp(self):
-        super(FieldsConfigTestCase, self).setUp()
+        # super(FieldsConfigTestCase, self).setUp()
+        super().setUp()
         set_global_info(per_request_cache={})
 
     def test_create01(self):

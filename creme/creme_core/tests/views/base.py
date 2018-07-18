@@ -33,7 +33,8 @@ def skipIfNoXLSLib(test_func):
 
 class ViewsTestCase(CremeTestCase):
     def login(self, is_superuser=True, *args, **kwargs):
-        user = super(ViewsTestCase, self).login(is_superuser, *args, **kwargs)
+        # user = super(ViewsTestCase, self).login(is_superuser, *args, **kwargs)
+        user = super().login(is_superuser, *args, **kwargs)
 
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW   |

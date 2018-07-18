@@ -51,7 +51,8 @@ class ParticipantCreateForm(CremeForm):
     participants        = MultiCreatorEntityField(label=_(u'Participants'), model=Contact, required=False)
 
     def __init__(self, entity, *args, **kwargs):
-        super(ParticipantCreateForm, self).__init__(*args, **kwargs)
+        # super(ParticipantCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.activity = entity
         self.participants = set()
 
@@ -113,7 +114,8 @@ class ParticipantCreateForm(CremeForm):
         return my_participation
 
     def clean(self):
-        cleaned_data = super(ParticipantCreateForm, self).clean()
+        # cleaned_data = super(ParticipantCreateForm, self).clean()
+        cleaned_data = super().clean()
 
         if not self._errors:
             activity = self.activity
@@ -153,7 +155,8 @@ class SubjectCreateForm(CremeForm):
     subjects = MultiGenericEntityField(label=_(u'Subjects'))
 
     def __init__(self, entity, *args, **kwargs):
-        super(SubjectCreateForm, self).__init__(*args, **kwargs)
+        # super(SubjectCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.activity = entity
         self.rtype = rtype = RelationType.objects.get(pk=constants.REL_SUB_ACTIVITY_SUBJECT)
         ctypes = rtype.subject_ctypes.all()

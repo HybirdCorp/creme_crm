@@ -55,7 +55,8 @@ class _BasePersonForm(CremeEntityForm):
     hide_shipping_address = False
 
     def __init__(self, *args, **kwargs):
-        super(_BasePersonForm, self).__init__(*args, **kwargs)
+        # super(_BasePersonForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         fconfig = self.fields_configs.get_4_model(self.instance.__class__)
         self._init_address_fields(fconfig, _BILLING_ADDRESS_FIELD)
@@ -101,7 +102,8 @@ class _BasePersonForm(CremeEntityForm):
         return save_instance
 
     def save(self, *args, **kwargs):
-        instance = super(_BasePersonForm, self).save(*args, **kwargs)
+        # instance = super(_BasePersonForm, self).save(*args, **kwargs)
+        instance = super().save(*args, **kwargs)
         change4billing  = self._save_address(_BILLING_ADDRESS_FIELD,  _('Billing address'))
         change4shipping = self._save_address(_SHIPPING_ADDRESS_FIELD, _('Shipping address'))
 

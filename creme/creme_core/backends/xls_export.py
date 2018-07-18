@@ -40,7 +40,8 @@ class XLSExportBackend(XlwtWriter, ExportBackend):
     dir_parts = ('xls',)  # Sub-directory under {settings.MEDIA_ROOT}/upload
 
     def __init__(self, encoding='utf-8'):
-        super(XLSExportBackend, self).__init__(encoding=encoding)
+        # super(XLSExportBackend, self).__init__(encoding=encoding)
+        super().__init__(encoding=encoding)
         self.dir_path = join(settings.MEDIA_ROOT, 'upload', *self.dir_parts)
 
     def save(self, filename):
@@ -55,4 +56,5 @@ class XLSExportBackend(XlwtWriter, ExportBackend):
                                         )
         self.response = HttpResponseRedirect(reverse('creme_core__dl_file', args=(fileref.filedata,)))
 
-        super(XLSExportBackend, self).save(path)
+        # super(XLSExportBackend, self).save(path)
+        super().save(path)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2015  Hybird
+#    Copyright (C) 2014-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,8 @@ from creme.creme_core.models import EntityFilter
 
 class ReportFilterBulkForm(BulkDefaultEditForm):
     def __init__(self, model, field, user, entities, is_bulk=False, **kwargs):
-        super(ReportFilterBulkForm, self).__init__(model, field, user, entities, is_bulk=is_bulk, **kwargs)
+        # super(ReportFilterBulkForm, self).__init__(model, field, user, entities, is_bulk=is_bulk, **kwargs)
+        super().__init__(model, field, user, entities, is_bulk=is_bulk, **kwargs)
 
         filter_field = self.fields['field_value']
         filter_field.empty_label = _(u'All')
@@ -82,7 +83,8 @@ class ReportFilterBulkForm(BulkDefaultEditForm):
                                   code='different_ctypes',
                                  )
 
-        return super(ReportFilterBulkForm, self).clean()
+        # return super(ReportFilterBulkForm, self).clean()
+        return super().clean()
 
     def _bulk_clean_entity(self, entity, values):
         if entity.id in self._uneditable_ids:
@@ -90,4 +92,5 @@ class ReportFilterBulkForm(BulkDefaultEditForm):
                                   code='private',
                                  )
 
-        return super(ReportFilterBulkForm, self)._bulk_clean_entity(entity, values)
+        # return super(ReportFilterBulkForm, self)._bulk_clean_entity(entity, values)
+        return super()._bulk_clean_entity(entity, values)

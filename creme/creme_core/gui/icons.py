@@ -174,7 +174,8 @@ class BaseIcon:
 
 class Icon(BaseIcon):
     def __init__(self, url, *args, **kwargs):
-        super(Icon, self).__init__(*args, **kwargs)
+        # super(Icon, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.url = url
 
     def render(self, css_class=''):
@@ -191,7 +192,8 @@ class Icon(BaseIcon):
 
 class SVGIcon(BaseIcon):
     def __init__(self, view_box, svg_path, *args, **kwargs):
-        super(SVGIcon, self).__init__(*args, **kwargs)
+        # super(SVGIcon, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.view_box = view_box
         self.svg_path = svg_path
 

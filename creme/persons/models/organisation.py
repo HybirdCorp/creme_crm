@@ -109,7 +109,7 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
     def delete(self, *args, **kwargs):
         self._check_deletion()  # Should not be useful (trashing should be blocked too)
         # super(AbstractOrganisation, self).delete(using=using)
-        super(AbstractOrganisation, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('persons__view_organisation', args=(self.id,))
@@ -158,7 +158,8 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
 
     def trash(self):
         self._check_deletion()
-        super(AbstractOrganisation, self).trash()
+        # super(AbstractOrganisation, self).trash()
+        super().trash()
 
 
 class Organisation(AbstractOrganisation):

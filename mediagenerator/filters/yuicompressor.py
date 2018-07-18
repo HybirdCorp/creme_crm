@@ -6,7 +6,8 @@ from mediagenerator.generators.bundles.base import Filter
 
 class YUICompressor(Filter):
     def __init__(self, **kwargs):
-        super(YUICompressor, self).__init__(**kwargs)
+        # super(YUICompressor, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         assert self.filetype in ('css', 'js'), (
             'YUICompressor only supports compilation to css and js. '
             'The parent filter expects "{}".'.format(self.filetype))

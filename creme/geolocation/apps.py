@@ -30,7 +30,8 @@ class GeolocationConfig(CremeAppConfig):
     credentials = CremeAppConfig.CRED_NONE
 
     def all_apps_ready(self):
-        super(GeolocationConfig, self).all_apps_ready()
+        # super(GeolocationConfig, self).all_apps_ready()
+        super().all_apps_ready()
 
         from . import signals
 

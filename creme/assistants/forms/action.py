@@ -40,7 +40,8 @@ class ActionForm(CremeModelWithUserForm):
         widgets = {'deadline': CalendarWidget}
 
     def __init__(self, entity, *args, **kwargs):
-        super(ActionForm, self).__init__(*args, **kwargs)
+        # super(ActionForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         instance = self.instance
         instance.creme_entity = entity
 
@@ -53,7 +54,8 @@ class ActionForm(CremeModelWithUserForm):
                                                        )
 
     def clean(self):
-        cdata = super(ActionForm, self).clean()
+        # cdata = super(ActionForm, self).clean()
+        cdata = super().clean()
 
         if not self._errors:
             deadline_time = cdata.get('deadline_time')

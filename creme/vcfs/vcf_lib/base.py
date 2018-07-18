@@ -36,7 +36,8 @@ class VBase:
         vCards, according to RFC2426
     """
     def __init__(self, group=None, *args, **kwds):
-        super(VBase, self).__init__(*args, **kwds)
+        # super(VBase, self).__init__(*args, **kwds)
+        super().__init__(*args, **kwds)
         self.group      = group
         self.behavior   = None
         self.parentBehavior = None
@@ -222,7 +223,8 @@ class ContentLine(VBase):
                  lineNumber = None, *args, **kwds):
         """Take output from parseLine, convert params list to dictionary."""
         # group is used as a positional argument to match parseLine's return
-        super(ContentLine, self).__init__(group, *args, **kwds)
+        # super(ContentLine, self).__init__(group, *args, **kwds)
+        super().__init__(group, *args, **kwds)
         self.name        = name.upper()
         self.value       = value
         self.encoded     = encoded
@@ -330,7 +332,8 @@ class Component(VBase):
         be serialized.
     """
     def __init__(self, name=None, *args, **kwds):
-        super(Component, self).__init__(*args, **kwds)
+        # super(Component, self).__init__(*args, **kwds)
+        super().__init__(*args, **kwds)
         self.contents  = {}
         if name:
             self.name=name.upper()

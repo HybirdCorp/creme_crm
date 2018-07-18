@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2015  Hybird
+#    Copyright (C) 2014-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,7 +36,8 @@ Organisation = get_organisation_model()
 
 class MobileAuthenticationForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
-        super(MobileAuthenticationForm, self).__init__(*args, **kwargs)
+        # super(MobileAuthenticationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # TODO: factorise
         errors = self.errors
@@ -65,7 +66,8 @@ class MobileContactCreateForm(ContactQuickForm):
           }
 
     def __init__(self, *args, **kwargs):
-        super(MobileContactCreateForm, self).__init__(*args, **kwargs)
+        # super(MobileContactCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.instance.user = self.user
         del self.fields['user']  # TODO: useful ?? (not in MobileOrganisationCreateForm)
 
@@ -82,10 +84,12 @@ class MobileContactCreateForm(ContactQuickForm):
 
     def clean(self):
         self.cleaned_data['user'] = self.user
-        return super(MobileContactCreateForm, self).clean()
+        # return super(MobileContactCreateForm, self).clean()
+        return super().clean()
 
     def save(self, *args, **kwargs):
-        contact = super(MobileContactCreateForm, self).save(*args, **kwargs)
+        # contact = super(MobileContactCreateForm, self).save(*args, **kwargs)
+        contact = super().save(*args, **kwargs)
 
         if self.cleaned_data['is_favorite']:
             MobileFavorite.objects.create(entity=contact, user=self.user)
@@ -101,7 +105,8 @@ class MobileOrganisationCreateForm(CremeModelForm):
         fields = ('name', 'phone')
 
     def __init__(self, *args, **kwargs):
-        super(MobileOrganisationCreateForm, self).__init__(*args, **kwargs)
+        # super(MobileOrganisationCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.instance.user = self.user
 
         # TODO: factorise
@@ -117,7 +122,8 @@ class MobileOrganisationCreateForm(CremeModelForm):
                     attrs['required'] = ''
 
     def save(self, *args, **kwargs):
-        orga = super(MobileOrganisationCreateForm, self).save(*args, **kwargs)
+        # orga = super(MobileOrganisationCreateForm, self).save(*args, **kwargs)
+        orga = super().save(*args, **kwargs)
 
         if self.cleaned_data['is_favorite']:
             MobileFavorite.objects.create(entity=orga, user=self.user)

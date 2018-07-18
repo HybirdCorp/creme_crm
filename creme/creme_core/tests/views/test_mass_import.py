@@ -77,7 +77,8 @@ class MassImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin, BrickTe
 
     @classmethod
     def setUpClass(cls):
-        super(MassImportViewsTestCase, cls).setUpClass()
+        # super(MassImportViewsTestCase, cls).setUpClass()
+        super().setUpClass()
         Job.objects.all().delete()
 
         cls.ct = ContentType.objects.get_for_model(FakeContact)

@@ -150,7 +150,8 @@ class CompressedTimedRotatingFileHandler(TimedRotatingFileHandler):
 
         # kwargs.update({'filename': self.filenames[0]})
         kwargs['filename'] = expanduser(filename)
-        super(CompressedTimedRotatingFileHandler, self).__init__(*args, **kwargs)
+        # super(CompressedTimedRotatingFileHandler, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     # def _open(self):
     #     for filename in self.filenames:
@@ -172,7 +173,8 @@ class CompressedTimedRotatingFileHandler(TimedRotatingFileHandler):
         if not exists(log_dir):
             makedirs(log_dir)
 
-        return super(CompressedTimedRotatingFileHandler, self)._open()
+        # return super(CompressedTimedRotatingFileHandler, self)._open()
+        return super()._open()
 
     def _next_filename(self, count, extension):
         for i in range(self.backupCount - 1, 0, -1):

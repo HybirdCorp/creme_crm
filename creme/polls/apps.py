@@ -34,7 +34,8 @@ class PollsConfig(CremeAppConfig):
         self.PollCampaign = get_pollcampaign_model()
         self.PollForm     = get_pollform_model()
         self.PollReply    = get_pollreply_model()
-        super(PollsConfig, self).all_apps_ready()
+        # super(PollsConfig, self).all_apps_ready()
+        super().all_apps_ready()
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.PollForm, self.PollReply, self.PollCampaign)

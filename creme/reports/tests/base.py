@@ -54,7 +54,8 @@ class BaseReportsTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(BaseReportsTestCase, cls).setUpClass()
+        # super(BaseReportsTestCase, cls).setUpClass()
+        super().setUpClass()
 
         get_ct = ContentType.objects.get_for_model
         cls.ct_contact = get_ct(FakeContact)

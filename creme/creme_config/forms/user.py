@@ -75,7 +75,8 @@ class UserAddForm(CremeModelForm):
         fields = ('username', 'last_name', 'first_name', 'email', 'role') # 'is_superuser'
 
     def __init__(self, *args, **kwargs):
-        super(UserAddForm, self).__init__(*args, **kwargs)
+        # super(UserAddForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # NB: browser can ignore <em> tag in <option>...
         self.fields['role'].empty_label = u'*{}*'.format(ugettext(u'Superuser'))
@@ -112,7 +113,8 @@ class UserAddForm(CremeModelForm):
         instance.is_superuser = (instance.role is None)  # TODO: remove field CremeUser.is_superuser ??
         instance.set_password(self.cleaned_data['password_1'])
 
-        return super(UserAddForm, self).save(*args, **kwargs)
+        # return super(UserAddForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 # TODO: factorise with UserAddForm
@@ -124,7 +126,8 @@ class UserEditForm(CremeModelForm):
         fields = ('first_name', 'last_name', 'email', 'role')  # 'is_superuser'
 
     def __init__(self, *args, **kwargs):
-        super(UserEditForm, self).__init__(*args, **kwargs)
+        # super(UserEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # NB: browser can ignore <em> tag in <option>...
         self.fields['role'].empty_label = u'*{}*'.format(ugettext(u'Superuser'))
@@ -135,7 +138,8 @@ class UserEditForm(CremeModelForm):
         instance.role = role = self.cleaned_data['role']
         instance.is_superuser = (role is None)
 
-        return super(UserEditForm, self).save(*args, **kwargs)
+        # return super(UserEditForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 # NB: we cannot use django.contrib.auth.forms.AdminPasswordChangeForm, because it defines a 'user'
@@ -160,7 +164,8 @@ class UserChangePwForm(CremeForm):
 
     def __init__(self, *args, **kwargs):
         self.user2edit = kwargs.pop('instance')
-        super(UserChangePwForm, self).__init__(*args, **kwargs)
+        # super(UserChangePwForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def clean_password_2(self):
         data = self.data
@@ -189,14 +194,16 @@ class TeamCreateForm(CremeModelForm):
         fields = ('username',)
 
     def __init__(self, *args, **kwargs):
-        super(TeamCreateForm, self).__init__(*args, **kwargs)
+        # super(TeamCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['username'].label = ugettext('Team name')
 
     def save(self, *args, **kwargs):
         team = self.instance
 
         team.is_team = True
-        super(TeamCreateForm, self).save(*args, **kwargs)
+        # super(TeamCreateForm, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
         team.teammates = self.cleaned_data['teammates']
 
@@ -205,7 +212,8 @@ class TeamCreateForm(CremeModelForm):
 
 class TeamEditForm(TeamCreateForm):
     def __init__(self, *args, **kwargs):
-        super(TeamEditForm, self).__init__(*args, **kwargs)
+        # super(TeamEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['teammates'].initial = self.instance.teammates
 
 
@@ -215,7 +223,8 @@ class UserAssignationForm(CremeForm):
                               )
 
     def __init__(self, user, *args, **kwargs):
-        super(UserAssignationForm, self).__init__(user, *args, **kwargs)
+        # super(UserAssignationForm, self).__init__(user, *args, **kwargs)
+        super().__init__(user, *args, **kwargs)
         self.user_to_delete = user_to_delete= self.initial['user_to_delete']
 
         users = CremeUser.objects.exclude(pk=user_to_delete.pk).exclude(is_staff=True)

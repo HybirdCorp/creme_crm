@@ -63,7 +63,8 @@ class ButtonMenuWizard(PopupWizardMixin, SessionWizardView):
         return HttpResponse()
 
     def get_form_kwargs(self, step):
-        kwargs = super(ButtonMenuWizard, self).get_form_kwargs(step)
+        # kwargs = super(ButtonMenuWizard, self).get_form_kwargs(step)
+        kwargs = super().get_form_kwargs(step)
 
         if step == '1':
             cleaned_data = self.get_cleaned_data_for_step('0')

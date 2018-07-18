@@ -11,7 +11,8 @@ except Exception as e:
 
 class SignaturesTestCase(_EmailsTestCase):
     def login(self, is_superuser=True, allowed_apps=('emails',), *args, **kwargs):
-        return super(SignaturesTestCase, self).login(is_superuser, allowed_apps=allowed_apps, *args, **kwargs)
+        # return super(SignaturesTestCase, self).login(is_superuser, allowed_apps=allowed_apps, *args, **kwargs)
+        return super().login(is_superuser, allowed_apps=allowed_apps, *args, **kwargs)
 
     def test_create01(self):
         self.login()

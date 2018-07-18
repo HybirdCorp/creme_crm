@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -48,7 +48,8 @@ class AddContactsForm(CremeForm):
     blocks = FieldBlockManager(('general', _(u'Contacts recipients'), '*'))
 
     def __init__(self, entity, *args, **kwargs):
-        super(AddContactsForm, self).__init__(*args, **kwargs)
+        # super(AddContactsForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.ml = entity
 
     def save(self):
@@ -65,7 +66,8 @@ class AddOrganisationsForm(CremeForm):  # TODO: factorise
     blocks = FieldBlockManager(('general', _(u'Organisations recipients'), '*'))
 
     def __init__(self, entity, *args, **kwargs):
-        super(AddOrganisationsForm, self).__init__(*args, **kwargs)
+        # super(AddOrganisationsForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.ml = entity
 
     def save(self):
@@ -84,7 +86,8 @@ class _AddPersonsFromFilterForm(CremeForm):
     person_model = None  # Contact/Organisation
 
     def __init__(self, entity, *args, **kwargs):
-        super(_AddPersonsFromFilterForm, self).__init__(*args, **kwargs)
+        # super(_AddPersonsFromFilterForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.ml = entity
 
         ct = ContentType.objects.get_for_model(self.person_model)
@@ -136,7 +139,8 @@ class AddChildForm(CremeForm):
     blocks = FieldBlockManager(('general', _(u'Child mailing list'), '*'))
 
     def __init__(self, entity, *args, **kwargs):
-        super(AddChildForm, self).__init__(*args, **kwargs)
+        # super(AddChildForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.ml = entity
 
     def clean_child(self):

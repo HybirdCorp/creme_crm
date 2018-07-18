@@ -21,7 +21,8 @@ except Exception as e:
 @skipIfCustomAddress
 class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
     def login(self, create_orga=True, *args, **kwargs):
-        super(AddressTestCase, self).login(*args, **kwargs)
+        # super(AddressTestCase, self).login(*args, **kwargs)
+        super().login(*args, **kwargs)
 
         if create_orga:
             return Organisation.objects.create(user=self.user, name='Nerv')

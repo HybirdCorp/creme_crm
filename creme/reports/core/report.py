@@ -241,10 +241,11 @@ class RHRegularField(ReportHand):
 
     def __init__(self, report_field, support_subreport=False, title=None):
         model = report_field.model
-        super(RHRegularField, self).__init__(report_field,
-                                             title=title or self._field_info.verbose_name,
-                                             support_subreport=support_subreport,
-                                            )
+        # super(RHRegularField, self).__init__(report_field,
+        super().__init__(report_field,
+                         title=title or self._field_info.verbose_name,
+                         support_subreport=support_subreport,
+                        )
 
         # TODO: FieldInfo is used by build_field_printer do the same work: can we factorise this ??
         self._printer = field_printers_registry.build_field_printer(model,
@@ -295,10 +296,11 @@ class RHForeignKey(RHRegularField):
                 self._value_extractor = lambda fk_instance, user: str(fk_instance)
 
         self._qs = qs
-        super(RHForeignKey, self).__init__(report_field,
-                                           support_subreport=True,
-                                           title=str(fk_field.verbose_name) if sub_report else None,
-                                          )
+        # super(RHForeignKey, self).__init__(report_field,
+        super().__init__(report_field,
+                         support_subreport=True,
+                         title=str(fk_field.verbose_name) if sub_report else None,
+                        )
 
     # NB: cannot rename to _get_related_instances() because forbidden entities are filtered instead of outputting '??'
     def _get_fk_instance(self, entity):
@@ -338,7 +340,8 @@ class RHForeignKey(RHRegularField):
 
 class RHManyToManyField(RHRegularField):
     def __init__(self, report_field):
-        super(RHManyToManyField, self).__init__(report_field, support_subreport=True)
+        # super(RHManyToManyField, self).__init__(report_field, support_subreport=True)
+        super().__init__(report_field, support_subreport=True)
         field_info = self._field_info
 
         if len(field_info) > 1:
@@ -370,7 +373,8 @@ class RHCustomField(ReportHand):
         except CustomField.DoesNotExist:
             raise ReportHand.ValueError('Invalid custom field: "{}"'.format(report_field.name))
 
-        super(RHCustomField, self).__init__(report_field, title=cf.name)
+        # super(RHCustomField, self).__init__(report_field, title=cf.name)
+        super().__init__(report_field, title=cf.name)
 
     def _get_value_single_on_allowed(self, entity, user, scope):
         cvalue = entity.get_custom_value(self._cfield)
@@ -392,10 +396,11 @@ class RHRelation(ReportHand):
         if report_field.sub_report:
             self._related_model = report_field.sub_report.ct.model_class()
 
-        super(RHRelation, self).__init__(report_field,
-                                         title=str(rtype.predicate),
-                                         support_subreport=True,
-                                        )
+        # super(RHRelation, self).__init__(report_field,
+        super().__init__(report_field,
+                         title=str(rtype.predicate),
+                         support_subreport=True,
+                        )
 
     def _get_related_instances(self, entity, user):
         return self._related_model.objects.filter(relations__type=self._rtype.symmetric_type,
@@ -430,7 +435,8 @@ class RHFunctionField(ReportHand):
 
         self._funcfield = funcfield
 
-        super(RHFunctionField, self).__init__(report_field, title=str(funcfield.verbose_name))
+        # super(RHFunctionField, self).__init__(report_field, title=str(funcfield.verbose_name))
+        super().__init__(report_field, title=str(funcfield.verbose_name))
 
     def _get_value_single_on_allowed(self, entity, user, scope):
         # return self._funcfield(entity).for_csv()
@@ -454,9 +460,10 @@ class RHAggregate(ReportHand):
                                                                       aggregation,
                                                                      )
 
-        super(RHAggregate, self).__init__(report_field,
-                                          title=u'{} - {}'.format(aggregation.title, verbose_name),
-                                         )
+        # super(RHAggregate, self).__init__(report_field,
+        super().__init__(report_field,
+                         title=u'{} - {}'.format(aggregation.title, verbose_name),
+                        )
 
     def _build_query_n_vname(self, report_field, field_name, aggregation):
         raise NotImplementedError
@@ -517,10 +524,11 @@ class RHRelated(ReportHand):
         self._related_field = related_field
         self._attr_name = related_field.get_accessor_name()
 
-        super(RHRelated, self).__init__(report_field,
-                                        title=str(related_field.related_model._meta.verbose_name),
-                                        support_subreport=True,
-                                       )
+        # super(RHRelated, self).__init__(report_field,
+        super().__init__(report_field,
+                         title=str(related_field.related_model._meta.verbose_name),
+                         support_subreport=True,
+                        )
 
     def _get_related_field(self, model, related_field_name):
         for f in model._meta.get_fields():

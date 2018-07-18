@@ -15,7 +15,8 @@ except Exception as e:
 
 class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
     def setUp(self):
-        super(CremeTestCase, self).setUp()
+        # super(CremeTestCase, self).setUp()
+        super().setUp()
         self.factory = RequestFactory()
 
     def _build_request(self, url='/'):  # TODO: in CremeTestCase ??

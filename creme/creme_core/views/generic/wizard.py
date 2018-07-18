@@ -39,10 +39,12 @@ class PopupWizardMixin:
         if perm and not self.request.user.has_perm(perm):
             raise PermissionDenied('You are not allowed to view this form')
 
-        return super(PopupWizardMixin, self).dispatch(*args, **kwargs)
+        # return super(PopupWizardMixin, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def get_context_data(self, form, **kwargs):
-        context = super(PopupWizardMixin, self).get_context_data(form=form, **kwargs)
+        # context = super(PopupWizardMixin, self).get_context_data(form=form, **kwargs)
+        context = super().get_context_data(form=form, **kwargs)
         context['title'] = getattr(form, 'step_title', self.wizard_title)
         context['prev_label'] = getattr(form, 'step_prev_label', '')
         context['first_label'] = getattr(form, 'step_first_label', '')

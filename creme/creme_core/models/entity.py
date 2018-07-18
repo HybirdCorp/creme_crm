@@ -118,7 +118,8 @@ class CremeEntity(CremeModel):
         ]
 
     def __init__(self, *args, **kwargs):
-        super(CremeEntity, self).__init__(*args, **kwargs)
+        # super(CremeEntity, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if self.pk is None:
             # has_arg = kwargs.has_key
@@ -145,7 +146,8 @@ class CremeEntity(CremeModel):
         for prop in self.properties.all():
             prop.delete(using=using)
 
-        super(CremeEntity, self)._delete_without_transaction(using=using, keep_parents=keep_parents)
+        # super(CremeEntity, self)._delete_without_transaction(using=using, keep_parents=keep_parents)
+        super()._delete_without_transaction(using=using, keep_parents=keep_parents)
 
     def __str__(self):
         real_entity = self.get_real_entity()
@@ -402,7 +404,8 @@ class CremeEntity(CremeModel):
     def save(self, *args, **kwargs):
         self.header_filter_search_field = self._search_field_value()[:_SEARCH_FIELD_MAX_LENGTH]
 
-        super(CremeEntity, self).save(*args, **kwargs)
+        # super(CremeEntity, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
         logger.debug('CremeEntity.save(%s, %s)', args, kwargs)
 
     def _search_field_value(self):

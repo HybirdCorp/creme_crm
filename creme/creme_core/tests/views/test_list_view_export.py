@@ -45,7 +45,8 @@ except Exception:
 class CSVExportViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
-        super(CSVExportViewsTestCase, cls).setUpClass()
+        # super(CSVExportViewsTestCase, cls).setUpClass()
+        super().setUpClass()
         cls.ct = ContentType.objects.get_for_model(FakeContact)
 
         cls._hf_backup = list(HeaderFilter.objects.all())
@@ -53,7 +54,8 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        super(CSVExportViewsTestCase, cls).tearDownClass()
+        # super(CSVExportViewsTestCase, cls).tearDownClass()
+        super().tearDownClass()
         HeaderFilter.objects.all().delete()
         HeaderFilter.objects.bulk_create(cls._hf_backup)
 

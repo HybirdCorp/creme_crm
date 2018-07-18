@@ -22,7 +22,8 @@ except Exception as e:
 class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
     @classmethod
     def setUpClass(cls):
-        super(GenericModelConfigTestCase, cls).setUpClass()
+        # super(GenericModelConfigTestCase, cls).setUpClass()
+        super().setUpClass()
 
         cls._sector_backup = list(FakeSector.objects.all())
         FakeSector.objects.all().delete()
@@ -34,7 +35,8 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @classmethod
     def tearDownClass(cls):
-        super(GenericModelConfigTestCase, cls).tearDownClass()
+        # super(GenericModelConfigTestCase, cls).tearDownClass()
+        super().tearDownClass()
         FakeSector.objects.all().delete()
         FakeSector.objects.bulk_create(cls._sector_backup)
 

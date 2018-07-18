@@ -53,7 +53,8 @@ class ActivityFakeBackend(CrudityBackend):
 class CrudityTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        super(CrudityTestCase, cls).setUpClass()
+        # super(CrudityTestCase, cls).setUpClass()
+        super().setUpClass()
 
         cls.FakeContactBackend = FakeContactBackend
         cls.SwallowInput = SwallowInput

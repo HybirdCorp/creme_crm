@@ -27,11 +27,13 @@ class UserMessageTestCase(AssistantsTestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(UserMessageTestCase, cls).setUpClass()
+        # super(UserMessageTestCase, cls).setUpClass()
+        super().setUpClass()
         cls.original_send_messages = EmailBackend.send_messages
 
     def tearDown(self):
-        super(AssistantsTestCase, self).tearDown()
+        # super(AssistantsTestCase, self).tearDown()
+        super().tearDown()
         EmailBackend.send_messages = self.original_send_messages
 
     def _build_add_url(self, entity=None):

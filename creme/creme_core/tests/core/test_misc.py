@@ -333,7 +333,8 @@ class BatchActionTestCase(CremeTestCase):
 class EntityCellTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        super(EntityCellTestCase, cls).setUpClass()
+        # super(EntityCellTestCase, cls).setUpClass()
+        super().setUpClass()
 
         cls.contact_ct = ContentType.objects.get_for_model(FakeContact)
 
@@ -720,11 +721,13 @@ class ReminderTestCase(CremeTestCase):
 
 class JobManagerTestCase(CremeTestCase):
     def setUp(self):
-        super(JobManagerTestCase, self).setUp()
+        # super(JobManagerTestCase, self).setUp()
+        super().setUp()
         self.reminders = []
 
     def tearDown(self):
-        super(JobManagerTestCase, self).tearDown()
+        # super(JobManagerTestCase, self).tearDown()
+        super().tearDown()
 
         for reminder in self.reminders:
             reminder_registry.unregister(reminder)

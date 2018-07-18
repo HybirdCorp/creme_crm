@@ -32,7 +32,8 @@ from ..models import PollFormLineCondition
 
 class PollFormLineConditionsWidget(SelectorList):
     def __init__(self, sources=(), attrs=None):
-        super(PollFormLineConditionsWidget, self).__init__(selector=None, attrs=attrs)
+        # super(PollFormLineConditionsWidget, self).__init__(selector=None, attrs=attrs)
+        super().__init__(selector=None, attrs=attrs)
         self.sources = sources
 
     def get_context(self, name, value, attrs):
@@ -46,7 +47,8 @@ class PollFormLineConditionsWidget(SelectorList):
                                       .resolve('polls__form_line_choices')
            )
 
-        return super(PollFormLineConditionsWidget, self).get_context(name=name, value=value, attrs=attrs)
+        # return super(PollFormLineConditionsWidget, self).get_context(name=name, value=value, attrs=attrs)
+        return super().get_context(name=name, value=value, attrs=attrs)
 
 
 class PollFormLineConditionsField(JSONField):
@@ -58,7 +60,8 @@ class PollFormLineConditionsField(JSONField):
     value_type = list
 
     def __init__(self, sources=(), *args, **kwargs):
-        super(PollFormLineConditionsField, self).__init__(*args, **kwargs)
+        # super(PollFormLineConditionsField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.sources = sources
 
     @property

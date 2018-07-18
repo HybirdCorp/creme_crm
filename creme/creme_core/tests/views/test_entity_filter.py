@@ -22,7 +22,8 @@ except Exception as e:
 class EntityFilterViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
-        super(EntityFilterViewsTestCase, cls).setUpClass()
+        # super(EntityFilterViewsTestCase, cls).setUpClass()
+        super().setUpClass()
 
         get_ct = ContentType.objects.get_for_model
         cls.ct_contact = get_ct(FakeContact)

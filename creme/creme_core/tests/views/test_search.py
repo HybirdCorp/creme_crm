@@ -27,7 +27,8 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     @classmethod
     def setUpClass(cls):
-        super(SearchViewTestCase, cls).setUpClass()
+        # super(SearchViewTestCase, cls).setUpClass()
+        super().setUpClass()
         cls.contact_ct_id = ContentType.objects.get_for_model(FakeContact).id
 
         QuerysetBrick.page_size = 10
@@ -37,7 +38,8 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     @classmethod
     def tearDownClass(cls):
-        super(SearchViewTestCase, cls).tearDownClass()
+        # super(SearchViewTestCase, cls).tearDownClass()
+        super().tearDownClass()
 
         del QuerysetBrick.page_size
         assert QuerysetBrick.page_size  # In PaginatedBlock

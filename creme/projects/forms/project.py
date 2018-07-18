@@ -45,7 +45,8 @@ class ProjectCreateForm(ProjectEditForm):
     responsibles = MultiCreatorEntityField(label=_(u'Project leaders'), model=get_contact_model())
 
     def save(self, *args, **kwargs):
-        instance = super(ProjectCreateForm, self).save(*args, **kwargs)
+        # instance = super(ProjectCreateForm, self).save(*args, **kwargs)
+        instance = super().save(*args, **kwargs)
         cleaned_data = self.cleaned_data
         create_relation = partial(Relation.objects.create, user=cleaned_data['user'],
                                   type_id=REL_OBJ_PROJECT_MANAGER,

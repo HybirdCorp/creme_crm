@@ -80,7 +80,8 @@ class CremeModel(Model):
         self._delete_m2m()
         self._delete_stored_files()
         self._pre_delete()  # TODO: keep_parents ?
-        super(CremeModel, self).delete(using=using, keep_parents=keep_parents)
+        # super(CremeModel, self).delete(using=using, keep_parents=keep_parents)
+        super().delete(using=using, keep_parents=keep_parents)
 
     def delete(self, using=None, keep_parents=False):
         try:

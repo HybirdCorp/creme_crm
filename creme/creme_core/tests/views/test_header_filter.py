@@ -25,7 +25,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(HeaderFilterViewsTestCase, cls).setUpClass()
+        # super(HeaderFilterViewsTestCase, cls).setUpClass()
+        super().setUpClass()
         cls.contact_ct = ContentType.objects.get_for_model(FakeContact)
 
         cls._hf_backup = list(HeaderFilter.objects.all())
@@ -33,7 +34,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        super(HeaderFilterViewsTestCase, cls).tearDownClass()
+        # super(HeaderFilterViewsTestCase, cls).tearDownClass()
+        super().tearDownClass()
         HeaderFilter.objects.all().delete()
         HeaderFilter.objects.bulk_create(cls._hf_backup)
 

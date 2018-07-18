@@ -65,7 +65,8 @@ class FieldConfigWizard(PopupWizardMixin, SessionWizardView):
         step_submit_label = pgettext_lazy('creme_config-verb', u'Select')
 
         def __init__(self, *args, **kwargs):
-            super(FieldConfigWizard._ModelStep, self).__init__(*args, **kwargs)
+            # super(FieldConfigWizard._ModelStep, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
             if not self.ctypes:
                 raise ConflictError(ugettext(u'All configurable types of resource are already configured.'))
 

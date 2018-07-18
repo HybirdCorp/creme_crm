@@ -33,7 +33,8 @@ class TicketsConfig(CremeAppConfig):
 
         self.Ticket         = get_ticket_model()
         self.TicketTemplate = get_tickettemplate_model()
-        super(TicketsConfig, self).all_apps_ready()
+        # super(TicketsConfig, self).all_apps_ready()
+        super().all_apps_ready()
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Ticket)

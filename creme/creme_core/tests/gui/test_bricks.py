@@ -20,7 +20,8 @@ except Exception as e:
 class BrickRegistryTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        super(BrickRegistryTestCase, cls).setUpClass()
+        # super(BrickRegistryTestCase, cls).setUpClass()
+        super().setUpClass()
         RelationBrickItem.objects.all().delete()
         InstanceBrickConfigItem.objects.all().delete()
 
@@ -901,7 +902,8 @@ class BricksManagerTestCase(CremeTestCase):
 
 class BrickTestCase(CremeTestCase):
     def setUp(self):
-        super(BrickTestCase, self).setUp()
+        # super(BrickTestCase, self).setUp()
+        super().setUp()
         self.factory = RequestFactory()
 
     class OrderedBrick(QuerysetBrick):

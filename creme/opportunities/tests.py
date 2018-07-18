@@ -107,7 +107,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
     @classmethod
     def setUpClass(cls):
-        super(OpportunitiesTestCase, cls).setUpClass()
+        # super(OpportunitiesTestCase, cls).setUpClass()
+        super().setUpClass()
 
         try:
             cls.ADD_URL = reverse('opportunities__create_opportunity')
@@ -1437,14 +1438,16 @@ class SalesPhaseTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(SalesPhaseTestCase, cls).setUpClass()
+        # super(SalesPhaseTestCase, cls).setUpClass()
+        super().setUpClass()
 
         cls._phase_backup = list(SalesPhase.objects.all())
         SalesPhase.objects.all().delete()
 
     @classmethod
     def tearDownClass(cls):
-        super(SalesPhaseTestCase, cls).tearDownClass()
+        # super(SalesPhaseTestCase, cls).tearDownClass()
+        super().tearDownClass()
 
         try:
             SalesPhase.objects.bulk_create(cls._phase_backup)

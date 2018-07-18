@@ -55,7 +55,8 @@ class AddRelatedActivityButton(Button):
                                            size_px=get_icon_size_px(theme=theme, size='instance-button'),
                                           )
 
-        return super(AddRelatedActivityButton, self).render(context)
+        # return super(AddRelatedActivityButton, self).render(context)
+        return super().render(context)
 
 
 class AddMeetingButton(AddRelatedActivityButton):

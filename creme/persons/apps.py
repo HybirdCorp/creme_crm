@@ -39,7 +39,8 @@ class PersonsConfig(CremeAppConfig):
         self.Contact      = persons.get_contact_model()
         self.Organisation = persons.get_organisation_model()
         self.Address      = persons.get_address_model()
-        super(PersonsConfig, self).all_apps_ready()
+        # super(PersonsConfig, self).all_apps_ready()
+        super().all_apps_ready()
         self.hook_user()
         self.hook_user_form()
 

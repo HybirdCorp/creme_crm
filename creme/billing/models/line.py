@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -112,13 +112,15 @@ class Line(CremeEntity):
                                   code='required_name',
                                  )
 
-        super(Line, self).clean()
+        # super(Line, self).clean()
+        super().clean()
 
     def clone(self, new_related_document=None):
         # BEWARE: CremeProperty and Relation are not cloned (except our 2 internal relations)
         self._new_related_document = new_related_document or self.related_document
 
-        return super(Line, self).clone()
+        # return super(Line, self).clone()
+        return super().clone()
 
     def get_absolute_url(self):
         return self.get_related_entity().get_absolute_url()
@@ -205,7 +207,8 @@ class Line(CremeEntity):
 
             self.user = self._related_document.user
 
-            super(Line, self).save(*args, **kwargs)
+            # super(Line, self).save(*args, **kwargs)
+            super().save(*args, **kwargs)
 
             create_relation = partial(Relation.objects.create, subject_entity=self, user=self.user)
             create_relation(type_id=REL_OBJ_HAS_LINE, object_entity=self._related_document)
@@ -213,7 +216,8 @@ class Line(CremeEntity):
             if self._related_item:
                 create_relation(type_id=REL_SUB_LINE_RELATED_ITEM, object_entity=self._related_item)
         else:
-            super(Line, self).save(*args, **kwargs)
+            # super(Line, self).save(*args, **kwargs)
+            super().save(*args, **kwargs)
 
         # TODO: problem, if several lines are added/edited at once, lots of useless queries (workflow engine ??)
         self.related_document.save()  # Update totals

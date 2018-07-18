@@ -7,7 +7,8 @@ from creme.creme_core.gui.menu import ViewableItem
 
 class UserContactURLItem(ViewableItem):
     def __init__(self, id, icon=None, icon_label=''):
-        super(UserContactURLItem, self).__init__(id=id, icon=icon, icon_label=icon_label)
+        # super(UserContactURLItem, self).__init__(id=id, icon=icon, icon_label=icon_label)
+        super().__init__(id=id, icon=icon, icon_label=icon_label)
 
     def render(self, context, level=0):
         user = context['user']

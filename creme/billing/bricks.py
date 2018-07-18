@@ -101,7 +101,8 @@ class _LinesBrick(SimpleBrick):
         class _LineForm(LineEditForm):
             def __init__(self, *args, **kwargs):
                 self.empty_permitted = False
-                super(_LineForm, self).__init__(user=context['user'], related_document=document, *args, **kwargs)
+                # super(_LineForm, self).__init__(user=context['user'], related_document=document, *args, **kwargs)
+                super().__init__(user=context['user'], related_document=document, *args, **kwargs)
 
         line_model = self.line_model
         lineformset_class = modelformset_factory(line_model, can_delete=True, form=_LineForm, extra=0)

@@ -139,7 +139,8 @@ def multi_save_lines(request, document_id):
     class _LineForm(line_forms.LineEditForm):
         def __init__(self, *args, **kwargs):
             self.empty_permitted = False
-            super(_LineForm, self).__init__(user=user, related_document=document, *args, **kwargs)
+            # super(_LineForm, self).__init__(user=user, related_document=document, *args, **kwargs)
+            super().__init__(user=user, related_document=document, *args, **kwargs)
 
     # Only modified formsets land here
     for line_ct_id, data in request.POST.items():

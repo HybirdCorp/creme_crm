@@ -223,11 +223,12 @@ class LightWeightEmail(_Email):
 
 class LightWeightEmailSender(EMailSender):
     def __init__(self, sending):
-        super(LightWeightEmailSender, self).__init__(body=sending.body,
-                                                     body_html=sending.body_html,
-                                                     signature=sending.signature,
-                                                     attachments=sending.attachments.all(),
-                                                    )
+        # super(LightWeightEmailSender, self).__init__(body=sending.body,
+        super().__init__(body=sending.body,
+                         body_html=sending.body_html,
+                         signature=sending.signature,
+                         attachments=sending.attachments.all(),
+                        )
         self._sending = sending
         self._body_template = Template(self._body)
         self._body_html_template = Template(self._body_html)

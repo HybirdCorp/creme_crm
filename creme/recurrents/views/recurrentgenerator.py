@@ -48,7 +48,8 @@ class RecurrentGeneratorWizard(SessionWizardView):
     # @method_decorator(permission_required('recurrents.add_recurrentgenerator'))
     @method_decorator(permission_required(cperm(RecurrentGenerator)))
     def dispatch(self, *args, **kwargs):
-        return super(RecurrentGeneratorWizard, self).dispatch(*args, **kwargs)
+        # return super(RecurrentGeneratorWizard, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def done(self, form_list, **kwargs):
         # generator_form = form_list[0]
@@ -62,7 +63,8 @@ class RecurrentGeneratorWizard(SessionWizardView):
         return redirect(resource_form.instance)
 
     def get_context_data(self, form, **kwargs):
-        context = super(RecurrentGeneratorWizard, self).get_context_data(form=form, **kwargs)
+        # context = super(RecurrentGeneratorWizard, self).get_context_data(form=form, **kwargs)
+        context = super().get_context_data(form=form, **kwargs)
         context['title'] = RecurrentGenerator.creation_label
         # context['submit_label'] = _('Save the generator')
         context['submit_label'] = RecurrentGenerator.save_label
@@ -93,7 +95,8 @@ class RecurrentGeneratorWizard(SessionWizardView):
                          )
             form = form_class(**kwargs)
         else:
-            form = super(RecurrentGeneratorWizard, self).get_form(step, data, files)
+            # form = super(RecurrentGeneratorWizard, self).get_form(step, data, files)
+            form = super().get_form(step, data, files)
 
         return form
 

@@ -35,7 +35,8 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
 
     @classmethod
     def setUpClass(cls):
-        super(CTITestCase, cls).setUpClass()
+        # super(CTITestCase, cls).setUpClass()
+        super().setUpClass()
 
         cls.ADD_PCALL_URL = reverse('cti__create_phonecall_as_caller')
 
@@ -43,7 +44,8 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         return reverse('cti__create_phonecall', args=(contact.id,))
 
     def login(self, *args, **kwargs):
-        user = super(CTITestCase, self).login(*args, **kwargs)
+        # user = super(CTITestCase, self).login(*args, **kwargs)
+        user = super().login(*args, **kwargs)
 
         other_user = self.other_user
         self.contact = user.linked_contact

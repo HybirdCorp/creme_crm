@@ -24,7 +24,8 @@ class MenuTestCase(CremeTestCase):
     theme = 'icecream'
 
     def setUp(self):
-        super(MenuTestCase, self).setUp()
+        # super(MenuTestCase, self).setUp()
+        super().setUp()
         self.factory = RequestFactory()
         self.maxDiff = None
 

@@ -46,12 +46,14 @@ class _TemplateBaseForm(BaseEditForm):
 
     def save(self, *args, **kwargs):
         self.instance.status_id = self.cleaned_data['status']
-        return super(_TemplateBaseForm, self).save(*args, **kwargs)
+        # return super(_TemplateBaseForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class TemplateBaseEditForm(_TemplateBaseForm):
     def __init__(self, *args, **kwargs):
-        super(TemplateBaseEditForm, self).__init__(*args, **kwargs)
+        # super(TemplateBaseEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         instance = self.instance
 
@@ -61,13 +63,15 @@ class TemplateBaseEditForm(_TemplateBaseForm):
 
 class TemplateBaseCreateForm(_TemplateBaseForm):
     def __init__(self, ct, *args, **kwargs):  # 'ct' arg => see RecurrentGeneratorWizard
-        super(TemplateBaseCreateForm, self).__init__(*args, **kwargs)
+        # super(TemplateBaseCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._build_status_field(ct)
         self.instance.ct = ct
         self.fields['source'].initial = first_managed_orga_id()
 
     def save(self, *args, **kwargs):
-        instance = super(TemplateBaseCreateForm, self).save(*args, **kwargs)
+        # instance = super(TemplateBaseCreateForm, self).save(*args, **kwargs)
+        instance = super().save(*args, **kwargs)
 
         target = self.cleaned_data['target']
         instance.billing_address  = copy_or_create_address(target.billing_address,  instance, _(u'Billing address'))

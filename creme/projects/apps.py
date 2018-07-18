@@ -33,7 +33,8 @@ class ProjectsConfig(CremeAppConfig):
 
         self.Project     = get_project_model()
         self.ProjectTask = get_task_model()
-        super(ProjectsConfig, self).all_apps_ready()
+        # super(ProjectsConfig, self).all_apps_ready()
+        super().all_apps_ready()
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Project, self.ProjectTask)

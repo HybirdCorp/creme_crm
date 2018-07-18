@@ -29,7 +29,8 @@ class AssistantsConfig(CremeAppConfig):
     dependencies = ['creme.creme_core']
 
     def ready(self):
-        super(AssistantsConfig, self).ready()
+        # super(AssistantsConfig, self).ready()
+        super().ready()
 
         from . import signals
 

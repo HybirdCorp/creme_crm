@@ -112,7 +112,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
             template_name = 'persons/bricks/itdoesnotexist.html'
 
             def __init__(self, instance_block_config_item):
-                super(ContactBrick, self).__init__()
+                # super(ContactBrick, self).__init__()
+                super().__init__()
                 self.ibci = instance_block_config_item
 
             def detailview_display(self, context):
@@ -238,7 +239,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                 except Exception as e:
                     errors.append(e)
 
-                return super(FoobarBrick, self).detailview_display(context)
+                # return super(FoobarBrick, self).detailview_display(context)
+                return super().detailview_display(context)
 
         brick_registry.register(FoobarBrick)
 
@@ -261,7 +263,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
             def detailview_display(self, context):
                 FoobarBrick.contact = context.get('object')
-                return super(FoobarBrick, self).detailview_display(context)
+                # return super(FoobarBrick, self).detailview_display(context)
+                return super().detailview_display(context)
 
         brick_registry.register(FoobarBrick)
 
@@ -287,7 +290,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
             def detailview_display(self, context):
                 FoobarBrick1.contact = context.get('object')
-                return super(FoobarBrick1, self).detailview_display(context)
+                # return super(FoobarBrick1, self).detailview_display(context)
+                return super().detailview_display(context)
 
         class FoobarBrick2(self.TestBrick):
             id_ = Brick.generate_id('creme_core', 'test_bricks_reload_detailview02_2')
@@ -295,7 +299,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
             def detailview_display(self, context):
                 FoobarBrick2.contact = context.get('object')
-                return super(FoobarBrick2, self).detailview_display(context)
+                # return super(FoobarBrick2, self).detailview_display(context)
+                return super().detailview_display(context)
 
         class FoobarBrick3(self.TestBrick):
             id_ = Brick.generate_id('creme_core', 'test_bricks_reload_detailview02_3')
@@ -303,7 +308,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
             def detailview_display(self, context):
                 FoobarBrick3.contact = context.get('object')
-                return super(FoobarBrick3, self).detailview_display(context)
+                # return super(FoobarBrick3, self).detailview_display(context)
+                return super().detailview_display(context)
 
         brick_registry.register(FoobarBrick1, FoobarBrick2, FoobarBrick3)
 

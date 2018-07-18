@@ -16,7 +16,8 @@ except Exception as e:
 
 class ImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
     def setUp(self):
-        super(ImageEntityFieldTestCase, self).setUp()
+        # super(ImageEntityFieldTestCase, self).setUp()
+        super().setUp()
         self.login()
 
     def test_init01(self):
@@ -197,7 +198,8 @@ class ImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
 
 class MultiImageEntityFieldTestCase(_DocumentsTestCase, FieldTestCase):
     def setUp(self):
-        super(MultiImageEntityFieldTestCase, self).setUp()
+        # super(MultiImageEntityFieldTestCase, self).setUp()
+        super().setUp()
         self.login()
 
     @staticmethod

@@ -145,7 +145,8 @@ class IntPollLineType(PollLineType):
     verbose_name = _(u'Integer')
 
     def __init__(self, **kwargs):
-        super(IntPollLineType, self).__init__(**kwargs)
+        # super(IntPollLineType, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         args = self._args
 
         def extract(arg):  # TODO: move to creme_core.utils ??
@@ -264,7 +265,8 @@ class EnumPollLineType(PollLineType):
     _description_del = _(u'Choice list ({choices}) (deleted: {del_choices})')
 
     def __init__(self, **kwargs):
-        super(EnumPollLineType, self).__init__(**kwargs)
+        # super(EnumPollLineType, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         choices = kwargs.get('choices') or ()
 
         if len(choices) < 2:
@@ -354,7 +356,8 @@ class EnumOrStringPollLineType(EnumPollLineType):
 
     def _cast_answer_4_decoding(self, answer):
         if len(answer) == 1:
-            return super(EnumOrStringPollLineType, self)._cast_answer_4_decoding(answer[0])
+            # return super(EnumOrStringPollLineType, self)._cast_answer_4_decoding(answer[0])
+            return super()._cast_answer_4_decoding(answer[0])
 
         return answer[1]
 
@@ -365,7 +368,8 @@ class EnumOrStringPollLineType(EnumPollLineType):
     def decode_condition(self, raw_cond_answer):  # TODO; factorise better like decode_answer() ??
         choice = jsonloads(raw_cond_answer)[0]  # [TODO: if len(cond_answer) > 1]
 
-        return super(EnumOrStringPollLineType, self)._cast_answer_4_decoding(choice) if choice else \
+        # return super(EnumOrStringPollLineType, self)._cast_answer_4_decoding(choice) if choice else \
+        return super()._cast_answer_4_decoding(choice) if choice else \
                ugettext('Other')
 
     def encode_condition(self, cond_answer):

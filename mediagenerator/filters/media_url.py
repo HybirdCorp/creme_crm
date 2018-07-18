@@ -30,7 +30,8 @@ class MediaURL(Filter):
     takes_input = False
 
     def __init__(self, **kwargs):
-        super(MediaURL, self).__init__(**kwargs)
+        # super(MediaURL, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         assert self.filetype == 'js', (
             'MediaURL only supports JS output. '
             'The parent filter expects "{}".'.format(self.filetype))

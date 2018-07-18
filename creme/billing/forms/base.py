@@ -66,7 +66,8 @@ class BaseEditForm(CremeEntityForm):
             )
 
     def __init__(self, *args, **kwargs):
-        super(BaseEditForm, self).__init__(*args, **kwargs)
+        # super(BaseEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.issued_relation   = None
         self.received_relation = None
         self.old_user_id = self.instance.user_id
@@ -115,7 +116,8 @@ class BaseEditForm(CremeEntityForm):
         if source != org_payment_info:
             instance.payment_info = None
 
-        instance = super(BaseEditForm, self).save(*args, **kwargs)
+        # instance = super(BaseEditForm, self).save(*args, **kwargs)
+        instance = super().save(*args, **kwargs)
 
         self._manage_relation(self.issued_relation, REL_SUB_BILL_ISSUED, source)  # TODO: move this intelligence in models.Base.save()
         self._manage_relation(self.received_relation, REL_SUB_BILL_RECEIVED, target)
@@ -132,7 +134,8 @@ class BaseEditForm(CremeEntityForm):
 
 class BaseCreateForm(BaseEditForm):
     def __init__(self, *args, **kwargs):
-        super(BaseCreateForm, self).__init__(*args, **kwargs)
+        # super(BaseCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.fields['source'].initial = first_managed_orga_id()
 
@@ -144,7 +147,8 @@ class BaseCreateForm(BaseEditForm):
         if instance.generate_number_in_create:
             instance.generate_number(cleaned_data['source'])
 
-        super(BaseCreateForm, self).save(*args, **kwargs)
+        # super(BaseCreateForm, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
         instance.billing_address  = copy_or_create_address(target.billing_address,  instance, _(u'Billing address'))
         instance.shipping_address = copy_or_create_address(target.shipping_address, instance, _(u'Shipping address'))

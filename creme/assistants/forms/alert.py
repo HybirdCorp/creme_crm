@@ -40,7 +40,8 @@ class AlertForm(CremeModelWithUserForm):
         widgets = {'trigger_date': CalendarWidget}
 
     def __init__(self, entity, *args, **kwargs):
-        super(AlertForm, self).__init__(*args, **kwargs)
+        # super(AlertForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         instance = self.instance
         instance.creme_entity = entity
 
@@ -53,7 +54,8 @@ class AlertForm(CremeModelWithUserForm):
                                                       )
 
     def clean(self):
-        cleaned_data = super(AlertForm, self).clean()
+        # cleaned_data = super(AlertForm, self).clean()
+        cleaned_data = super().clean()
 
         if not self._errors:
             trigger_time = cleaned_data.get('trigger_time')

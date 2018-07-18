@@ -137,7 +137,8 @@ class FutureActivitiesBrick(QuerysetBrick):
     #     return Activity.get_future_linked_for_ctypes(ct_ids, context['today'])
 
     def get_template_context(self, *args, **kwargs):
-        ctxt = super(FutureActivitiesBrick, self).get_template_context(*args, **kwargs)
+        # ctxt = super(FutureActivitiesBrick, self).get_template_context(*args, **kwargs)
+        ctxt = super().get_template_context(*args, **kwargs)
 
         activities = ctxt['page'].object_list
         CremeEntity.populate_relations(activities, self._RTYPES_2_POP)  # Optimisation

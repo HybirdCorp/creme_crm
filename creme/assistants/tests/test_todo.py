@@ -36,11 +36,13 @@ except Exception as e:
 class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
     @classmethod
     def setUpClass(cls):
-        super(TodoTestCase, cls).setUpClass()
+        # super(TodoTestCase, cls).setUpClass()
+        super().setUpClass()
         cls.original_send_messages = EmailBackend.send_messages
 
     def tearDown(self):
-        super(TodoTestCase, self).tearDown()
+        # super(TodoTestCase, self).tearDown()
+        super().tearDown()
         EmailBackend.send_messages = self.original_send_messages
 
     def _build_add_url(self, entity):

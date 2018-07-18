@@ -36,4 +36,5 @@ class Restrict2SuperusersButton(Button):
         context['sandbox_uuid'] = str(sandbox.uuid) if sandbox else None
         context['UUID_SANDBOX_SUPERUSERS'] = UUID_SANDBOX_SUPERUSERS
 
-        return super(Restrict2SuperusersButton, self).render(context)
+        # return super(Restrict2SuperusersButton, self).render(context)
+        return super().render(context)

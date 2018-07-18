@@ -38,7 +38,8 @@ class _SearchForm(CremeModelForm):
 
     def save(self, *args, **kwargs):
         self.instance.searchfields = self.cleaned_data['fields']
-        return super(_SearchForm, self).save(*args, **kwargs)
+        # return super(_SearchForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class SearchAddForm(_SearchForm):
@@ -50,7 +51,8 @@ class SearchAddForm(_SearchForm):
         exclude = ('content_type', 'field_names')
 
     def __init__(self, *args, **kwargs):
-        super(SearchAddForm, self).__init__(*args, **kwargs)
+        # super(SearchAddForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         instance = self.instance
         instance.content_type = self.initial['content_type']
         self.fields['fields'].choices = instance.get_modelfields_choices()
@@ -78,12 +80,14 @@ class SearchAddForm(_SearchForm):
         if not role:
             self.instance.superuser = True
 
-        return super(SearchAddForm, self).save(*args, **kwargs)
+        # return super(SearchAddForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class SearchEditForm(_SearchForm):
     def __init__(self, *args, **kwargs):
-        super(SearchEditForm, self).__init__(*args, **kwargs)
+        # super(SearchEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         instance = self.instance
         selected_fnames = [sf.name for sf in instance.searchfields]
         # TODO: work with Fields instead of Field names + split()...

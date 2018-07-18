@@ -50,7 +50,8 @@ class MobileTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(MobileTestCase, cls).setUpClass()
+        # super(MobileTestCase, cls).setUpClass()
+        super().setUpClass()
 
         cls.CREATE_CONTACT_URL = reverse('mobile__create_contact')
         cls.CREATE_ORGA_URL    = reverse('mobile__create_organisation')
@@ -61,11 +62,12 @@ class MobileTestCase(CremeTestCase):
         cls.WF_JUSTDONE_URL   = reverse('mobile__pcall_wf_just_done')
 
     def login(self, is_superuser=True, is_staff=False, allowed_apps=('activities', 'persons'), *args, **kwargs):
-        return super(MobileTestCase, self).login(is_superuser=is_superuser,
-                                                 is_staff=is_staff,
-                                                 allowed_apps=allowed_apps,
-                                                 *args, **kwargs
-                                                )
+        # return super(MobileTestCase, self).login(is_superuser=is_superuser,
+        return super().login(is_superuser=is_superuser,
+                             is_staff=is_staff,
+                             allowed_apps=allowed_apps,
+                             *args, **kwargs
+                            )
 
     def _build_start_url(self, activity):
         return reverse('mobile__start_activity', args=(activity.id,))

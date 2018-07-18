@@ -68,7 +68,8 @@ class IconNode(TemplateNode):
 
 class NamedIconNode(IconNode):
     def __init__(self, name_var, **kwargs):
-        super(NamedIconNode, self).__init__(**kwargs)
+        # super(NamedIconNode, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name_var = name_var
 
     def _build_icon(self, context, theme, size_px, label, css_class):
@@ -77,7 +78,8 @@ class NamedIconNode(IconNode):
 
 class ContentTypeIconNode(IconNode):
     def __init__(self, ctype_var, **kwargs):
-        super(ContentTypeIconNode, self).__init__(**kwargs)
+        # super(ContentTypeIconNode, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.ctype_var = ctype_var
 
     def _build_icon(self, context, theme, size_px, label, css_class):
@@ -94,7 +96,8 @@ class ContentTypeIconNode(IconNode):
 
 class InstanceIconNode(IconNode):
     def __init__(self, instance_var, **kwargs):
-        super(InstanceIconNode, self).__init__(**kwargs)
+        # super(InstanceIconNode, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.instance_var = instance_var
 
     def _build_icon(self, context, theme, size_px, label, css_class):

@@ -68,7 +68,8 @@ class GeoAddress(Model):
         ordering = ('address_id',)
 
     def __init__(self, *args, **kwargs):
-        super(GeoAddress, self).__init__(*args, **kwargs)
+        # super(GeoAddress, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._neighbours = {}
 
     @property
@@ -185,7 +186,8 @@ class Town(Model):
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
-        super(Town, self).save(*args, **kwargs)
+        # super(Town, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     @classmethod
     def search(cls, address):

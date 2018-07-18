@@ -22,7 +22,8 @@ except Exception as e:
 @skipIfCustomMailingList
 class MailingListsTestCase(_EmailsTestCase):
     def setUp(self):
-        super(MailingListsTestCase, self).setUp()
+        # super(MailingListsTestCase, self).setUp()
+        super().setUp()
         self.login()
 
     def _build_addcontact_url(self, mlist):

@@ -98,7 +98,8 @@ class ImageEntityField(ImageFieldMixin, forms.CreatorEntityField):
             force_creation = True
             create_action_url = self._image_creation_url
 
-        super(ImageEntityField, self).__init__(
+        # super(ImageEntityField, self).__init__(
+        super().__init__(
                 model=get_document_model(),
                 q_filter=q_filter,
                 create_action_url=create_action_url,
@@ -120,7 +121,8 @@ class MultiImageEntityField(ImageFieldMixin, forms.MultiCreatorEntityField):
             force_creation = True
             create_action_url = self._image_creation_url
 
-        super(MultiImageEntityField, self).__init__(
+        # super(MultiImageEntityField, self).__init__(
+        super().__init__(
                 model=get_document_model(),
                 q_filter=q_filter,
                 create_action_url=create_action_url,

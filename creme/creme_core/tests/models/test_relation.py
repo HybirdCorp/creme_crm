@@ -14,7 +14,8 @@ except Exception as e:
 class RelationsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        super(RelationsTestCase, cls).setUpClass()
+        # super(RelationsTestCase, cls).setUpClass()
+        super().setUpClass()
         cls.contact_ct_id = ContentType.objects.get_for_model(FakeContact).id
 
     def setUp(self):

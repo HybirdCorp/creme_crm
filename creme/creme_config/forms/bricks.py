@@ -51,9 +51,10 @@ __all__ = ('BrickDetailviewLocationsAddForm', 'BrickDetailviewLocationsEditForm'
 
 class BrickLocationsField(MultipleChoiceField):
     def __init__(self, required=False, choices=(), widget=OrderedMultipleChoiceWidget, *args, **kwargs):
-        super(BrickLocationsField, self).__init__(required=required, choices=choices,
-                                                  widget=widget, *args, **kwargs
-                                                 )
+        # super(BrickLocationsField, self).__init__(required=required, choices=choices,
+        super().__init__(required=required, choices=choices,
+                         widget=widget, *args, **kwargs
+                        )
 
 
 class _BrickLocationsForm(CremeForm):
@@ -136,7 +137,8 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
              )
 
     def __init__(self, *args, **kwargs):
-        super(_BrickDetailviewLocationsForm, self).__init__(*args, **kwargs)
+        # super(_BrickDetailviewLocationsForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.ct = ct = self.initial['content_type']
         self.role = None
         self.superuser = False
@@ -167,7 +169,8 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
             del fields['hat']
 
     def clean(self):
-        cdata = super(_BrickDetailviewLocationsForm, self).clean()
+        # cdata = super(_BrickDetailviewLocationsForm, self).clean()
+        cdata = super().clean()
         all_brick_ids = set()
 
         for brick_id in chain(cdata['top'], cdata['left'], cdata['right'], cdata['bottom']):
@@ -219,7 +222,8 @@ class BrickDetailviewLocationsAddForm(_BrickDetailviewLocationsForm):
     blocks = FieldBlockManager(('general', _(u'Configuration'), ('role', 'hat', 'top', 'left', 'right', 'bottom')))
 
     def __init__(self, *args, **kwargs):
-        super(BrickDetailviewLocationsAddForm, self).__init__(*args, **kwargs)
+        # super(BrickDetailviewLocationsAddForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         fields = self.fields
 
         role_f = fields['role']
@@ -243,12 +247,14 @@ class BrickDetailviewLocationsAddForm(_BrickDetailviewLocationsForm):
     def save(self, *args, **kwargs):
         self.role      = role = self.cleaned_data['role']
         self.superuser = (role is None)
-        super(BrickDetailviewLocationsAddForm, self).save(*args, **kwargs)
+        # super(BrickDetailviewLocationsAddForm, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class BrickDetailviewLocationsEditForm(_BrickDetailviewLocationsForm):
     def __init__(self, *args, **kwargs):
-        super(BrickDetailviewLocationsEditForm, self).__init__(*args, **kwargs)
+        # super(BrickDetailviewLocationsEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         initial = self.initial
         self.role      = role      = initial['role']
         self.superuser = superuser = initial['superuser']
@@ -327,7 +333,8 @@ class BrickHomeLocationsForm(_BrickLocationsForm):
     bricks = BrickLocationsField(label=_(u'Blocks to display on the home'))
 
     def __init__(self, *args, **kwargs):
-        super(BrickHomeLocationsForm, self).__init__(*args, **kwargs)
+        # super(BrickHomeLocationsForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # self.locations = locations = BlockPortalLocation.objects.filter(app_name='creme_core')
         self.locations = locations = BrickHomeLocation.objects.all()
 
@@ -347,7 +354,8 @@ class BrickMypageLocationsForm(_BrickLocationsForm):
     bricks = BrickLocationsField(label=_(u'Blocks to display on the «My Page» of the users'))
 
     def __init__(self, owner, *args, **kwargs):
-        super(BrickMypageLocationsForm, self).__init__(*args, **kwargs)
+        # super(BrickMypageLocationsForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.owner = owner
         self.locations = locations = BrickMypageLocation.objects.filter(user=owner)
 
@@ -372,7 +380,8 @@ class RTypeBrickAddForm(CremeModelForm):
         model = RelationBrickItem
 
     def __init__(self, *args, **kwargs):
-        super(RTypeBrickAddForm, self).__init__(*args, **kwargs)
+        # super(RTypeBrickAddForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         existing_type_ids = RelationBrickItem.objects.values_list('relation_type_id', flat=True)
 
@@ -384,7 +393,8 @@ class RTypeBrickAddForm(CremeModelForm):
                                         'creme_config',
                                         self.cleaned_data['relation_type'].id,
                                     )
-        return super(RTypeBrickAddForm, self).save(*args, **kwargs)
+        # return super(RTypeBrickAddForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class RTypeBrickItemAddCtypeForm(CremeModelForm):
@@ -397,7 +407,8 @@ class RTypeBrickItemAddCtypeForm(CremeModelForm):
         exclude = ('relation_type',)
 
     def __init__(self, *args, **kwargs):
-        super(RTypeBrickItemAddCtypeForm, self).__init__(*args, **kwargs)
+        # super(RTypeBrickItemAddCtypeForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         instance = self.instance
         ct_field = self.fields['ctype']
         compatible_ctypes = instance.relation_type.object_ctypes.all()
@@ -411,7 +422,8 @@ class RTypeBrickItemAddCtypeForm(CremeModelForm):
     def save(self, *args, **kwargs):
         self.instance.set_cells(self.cleaned_data['ctype'], ())
 
-        return super(RTypeBrickItemAddCtypeForm, self).save(*args, **kwargs)
+        # return super(RTypeBrickItemAddCtypeForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class RTypeBrickItemEditCtypeForm(CremeModelForm):
@@ -426,7 +438,8 @@ class RTypeBrickItemEditCtypeForm(CremeModelForm):
     }
 
     def __init__(self, ctype, *args, **kwargs):
-        super(RTypeBrickItemEditCtypeForm, self).__init__(*args, **kwargs)
+        # super(RTypeBrickItemEditCtypeForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.ctype = ctype
 
         cells_f = self.fields['cells']
@@ -460,7 +473,8 @@ class RTypeBrickItemEditCtypeForm(CremeModelForm):
     def save(self, *args, **kwargs):
         self.instance.set_cells(self.ctype, self.cleaned_data['cells'])
 
-        return super(RTypeBrickItemEditCtypeForm, self).save(*args, **kwargs)
+        # return super(RTypeBrickItemEditCtypeForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class CustomBrickConfigItemCreateForm(CremeModelForm):
@@ -472,7 +486,8 @@ class CustomBrickConfigItemCreateForm(CremeModelForm):
         model = CustomBrickConfigItem
 
     def __init__(self, *args, **kwargs):
-        super(CustomBrickConfigItemCreateForm, self).__init__(*args, **kwargs)
+        # super(CustomBrickConfigItemCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # TODO: add an 'exclude' argument in creme_entity_content_types() ??
         get_for_model = ContentType.objects.get_for_model
         is_invalid = gui_bricks.brick_registry.is_model_invalid
@@ -486,7 +501,8 @@ class CustomBrickConfigItemCreateForm(CremeModelForm):
         ct = self.cleaned_data['ctype']
         instance.content_type = ct
 
-        super(CustomBrickConfigItemCreateForm, self).save(commit=False)
+        # super(CustomBrickConfigItemCreateForm, self).save(commit=False)
+        super().save(commit=False)
         generate_string_id_and_save(CustomBrickConfigItem, [instance],
                                     'creme_core-user_customblock_{}-{}'.format(ct.app_label, ct.model)
                                    )
@@ -503,7 +519,8 @@ class CustomBrickConfigItemEditForm(CremeModelForm):
         model = CustomBrickConfigItem
 
     def __init__(self, *args, **kwargs):
-        super(CustomBrickConfigItemEditForm, self).__init__(*args, **kwargs)
+        # super(CustomBrickConfigItemEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         instance = self.instance
         cells_f = self.fields['cells']
@@ -515,4 +532,5 @@ class CustomBrickConfigItemEditForm(CremeModelForm):
     def save(self, *args, **kwargs):
         self.instance.cells = self.cleaned_data['cells']
 
-        return super(CustomBrickConfigItemEditForm, self).save(*args, **kwargs)
+        # return super(CustomBrickConfigItemEditForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)

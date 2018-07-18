@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -59,7 +59,8 @@ class _LineMultipleAddForm(core_forms.CremeForm):
         raise NotImplementedError
 
     def __init__(self, entity, *args, **kwargs):
-        super(_LineMultipleAddForm, self).__init__(*args, **kwargs)
+        # super(_LineMultipleAddForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.billing_document = entity
         self.fields['vat'].initial = Vat.get_default_vat()  # Not in field declaration because default value can change
 
@@ -115,7 +116,8 @@ class LineEditForm(core_forms.CremeModelWithUserForm):
         exclude = ()
 
     def __init__(self, user, related_document=None, *args, **kwargs):
-        super(LineEditForm, self).__init__(user=user, *args, **kwargs)
+        # super(LineEditForm, self).__init__(user=user, *args, **kwargs)
+        super().__init__(user=user, *args, **kwargs)
         self.related_document = related_document
         fields = self.fields
 
@@ -147,7 +149,8 @@ class LineEditForm(core_forms.CremeModelWithUserForm):
 
     # TODO: UGLY HACK: we should have our 3 choices in Line.discount_unit & remove Line.total_discount (refactor the template too)
     def clean(self):
-        cdata = super(LineEditForm, self).clean()
+        # cdata = super(LineEditForm, self).clean()
+        cdata = super().clean()
 
         if not self._errors:
             discount_unit = cdata['discount_unit']
@@ -171,14 +174,16 @@ class LineEditForm(core_forms.CremeModelWithUserForm):
         if not instance.pk:
             instance.related_document = self.related_document
 
-        return super(LineEditForm, self).save(*args, **kwargs)
+        # return super(LineEditForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class AddToCatalogForm(core_forms.CremeForm):
     sub_category = CategoryField(label=_(u'Sub-category'), required=False)
 
     def __init__(self, user, line, related_item_class, *args, **kwargs):
-        super(AddToCatalogForm, self).__init__(user, *args, **kwargs)
+        # super(AddToCatalogForm, self).__init__(user, *args, **kwargs)
+        super().__init__(user, *args, **kwargs)
         self.line = line
         self.related_item_class = related_item_class
 
@@ -195,7 +200,8 @@ class AddToCatalogForm(core_forms.CremeForm):
                                   code='not_on_the_fly',
                                  )
 
-        return super(AddToCatalogForm, self).clean()
+        # return super(AddToCatalogForm, self).clean()
+        return super().clean()
 
     @atomic
     def save(self, *args, **kwargs):

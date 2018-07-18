@@ -44,7 +44,8 @@ class OpportunityEditForm(CremeEntityForm):
         model = Opportunity
 
     def __init__(self, *args, **kwargs):
-        super(OpportunityEditForm, self).__init__(*args, **kwargs)
+        # super(OpportunityEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if self.instance.pk:  # Edition
             self.fields['target'].initial = self.instance.target
@@ -67,7 +68,8 @@ class OpportunityCreateForm(OpportunityEditForm):
         return emitter
 
     def save(self, *args, **kwargs):
-        instance = super(OpportunityCreateForm, self).save(*args, **kwargs)
+        # instance = super(OpportunityCreateForm, self).save(*args, **kwargs)
+        instance = super().save(*args, **kwargs)
 
         form_post_save.send(sender=Opportunity, instance=instance, created=True)
 

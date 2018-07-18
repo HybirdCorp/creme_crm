@@ -45,7 +45,8 @@ class DocumentBrick(EntityBrick):
     verbose_name = _(u'Information on the document')
 
     def _get_cells(self, entity, context):
-        cells = super(DocumentBrick, self)._get_cells(entity=entity, context=context)
+        # cells = super(DocumentBrick, self)._get_cells(entity=entity, context=context)
+        cells = super()._get_cells(entity=entity, context=context)
         cells.append(EntityCellRegularField.build(model=Document, name='categories'))
 
         return cells

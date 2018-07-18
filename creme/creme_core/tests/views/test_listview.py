@@ -40,7 +40,8 @@ except Exception as e:
 class ListViewTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
-        super(ListViewTestCase, cls).setUpClass()
+        # super(ListViewTestCase, cls).setUpClass()
+        super().setUpClass()
 
         cls.url = FakeOrganisation.get_lv_absolute_url()
         cls.ctype = ContentType.objects.get_for_model(FakeOrganisation)
@@ -50,7 +51,8 @@ class ListViewTestCase(ViewsTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        super(ListViewTestCase, cls).tearDownClass()
+        # super(ListViewTestCase, cls).tearDownClass()
+        super().tearDownClass()
         FakeCivility.objects.all().delete()
         FakeCivility.objects.bulk_create(cls._civ_backup)
 

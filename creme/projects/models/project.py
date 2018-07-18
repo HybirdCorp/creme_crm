@@ -80,7 +80,8 @@ class AbstractProject(CremeEntity):
         return reverse('projects__list_projects')
 
     def get_html_attrs(self, context):
-        attrs = super(AbstractProject, self).get_html_attrs(context)
+        # attrs = super(AbstractProject, self).get_html_attrs(context)
+        attrs = super().get_html_attrs(context)
 
         # NB: if 'status' if not in the HeaderFilter, it will cause an extra query...
         color = self.status.color_code
@@ -90,7 +91,8 @@ class AbstractProject(CremeEntity):
         return attrs
 
     def clean(self):
-        super(AbstractProject, self).clean()
+        # super(AbstractProject, self).clean()
+        super().clean()
 
         # TODO: refactor if start/end can not be null
         if self.start_date and self.end_date and self.start_date >= self.end_date:
@@ -106,8 +108,9 @@ class AbstractProject(CremeEntity):
             # task.delete()
             task.delete(*args, **kwargs)
 
-        # super(AbstractProject, self).delete()
-        super(AbstractProject, self).delete(*args, **kwargs)
+        # # super(AbstractProject, self).delete()
+        # super(AbstractProject, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
 
     def get_tasks(self):
         if self.tasks_list is None:

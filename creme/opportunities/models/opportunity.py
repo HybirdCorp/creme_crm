@@ -77,7 +77,8 @@ class SalesPhase(CremeModel):
         ordering = ('order',)
 
     def clean(self):
-        super(SalesPhase, self).clean()
+        # super(SalesPhase, self).clean()
+        super().clean()
 
         if self.won and self.lost:
             raise ValidationError(ugettext('A phase can not be won and lost at the same time.'))
@@ -167,7 +168,8 @@ class AbstractOpportunity(CremeEntity):
 
     def clean(self):
         self._clean_emitter_n_target()
-        super(AbstractOpportunity, self).clean()
+        # super(AbstractOpportunity, self).clean()
+        super().clean()
 
     def get_absolute_url(self):
         return reverse('opportunities__view_opportunity', args=(self.id,))
@@ -285,14 +287,16 @@ class AbstractOpportunity(CremeEntity):
         if not self.pk:  # Creation
             self._clean_emitter_n_target()
 
-            super(AbstractOpportunity, self).save(*args, **kwargs)
+            # super(AbstractOpportunity, self).save(*args, **kwargs)
+            super().save(*args, **kwargs)
 
             create_relation(subject_entity=self._opp_emitter, type_id=constants.REL_SUB_EMIT_ORGA)
             create_relation(subject_entity=target,            type_id=constants.REL_OBJ_TARGETS)
 
             transform_target_into_prospect(self._opp_emitter, target, self.user)
         else:
-            super(AbstractOpportunity, self).save(*args, **kwargs)
+            # super(AbstractOpportunity, self).save(*args, **kwargs)
+            super().save(*args, **kwargs)
 
             old_relation = self._opp_target_rel
 

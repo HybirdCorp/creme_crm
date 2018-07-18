@@ -34,7 +34,8 @@ class OpportunitiesConfig(CremeAppConfig):
     dependencies = ['creme.persons', 'creme.products']
 
     def ready(self):
-        super(OpportunitiesConfig, self).ready()
+        # super(OpportunitiesConfig, self).ready()
+        super().ready()
 
         from django.apps import apps
         self.billing_installed = apps.is_installed('creme.billing')
@@ -43,7 +44,8 @@ class OpportunitiesConfig(CremeAppConfig):
         from . import get_opportunity_model
 
         self.Opportunity = get_opportunity_model()
-        super(OpportunitiesConfig, self).all_apps_ready()
+        # super(OpportunitiesConfig, self).all_apps_ready()
+        super().all_apps_ready()
 
         if self.MIGRATION_MODE:
             return

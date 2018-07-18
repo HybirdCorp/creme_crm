@@ -21,7 +21,8 @@ class FieldsConfigTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(FieldsConfigTestCase, cls).setUpClass()
+        # super(FieldsConfigTestCase, cls).setUpClass()
+        super().setUpClass()
 
         cls.ct = ContentType.objects.get_for_model(FakeContact)
 

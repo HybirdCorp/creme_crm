@@ -55,7 +55,8 @@ class EntityCellsWidget(Widget):
     def __init__(self, user=None, model=None, model_fields=(), model_subfields=None, custom_fields=(),
                  function_fields=(), relation_types=(), *args, **kwargs
                 ):
-        super(EntityCellsWidget, self).__init__(*args, **kwargs)
+        # super(EntityCellsWidget, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.user = user
         self.model = model
 
@@ -114,7 +115,8 @@ class EntityCellsWidget(Widget):
         if isinstance(value, list):
             value = ','.join('%s-%s' % (cell.type_id, cell.value) for cell in value)
 
-        context = super(EntityCellsWidget, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(EntityCellsWidget, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
 
         widget_cxt = context['widget']
         widget_cxt['samples'] = self._build_samples()
@@ -134,7 +136,8 @@ class EntityCellsField(Field):
     }
 
     def __init__(self, content_type=None, *args, **kwargs):
-        super(EntityCellsField, self).__init__(*args, **kwargs)
+        # super(EntityCellsField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._non_hiddable_cells = []
         self.content_type = content_type
         self.user = None
@@ -329,7 +332,8 @@ class HeaderFilterForm(CremeModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super(HeaderFilterForm, self).__init__(*args, **kwargs)
+        # super(HeaderFilterForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         instance = self.instance
         fields   = self.fields
         fields['user'].empty_label = _(u'All users')
@@ -377,11 +381,13 @@ class HeaderFilterForm(CremeModelForm):
         instance.cells = self.cleaned_data['cells']
 
         if instance.id:
-            super(HeaderFilterForm, self).save()
+            # super(HeaderFilterForm, self).save()
+            super().save()
         else:
             ct = instance.entity_type
 
-            super(HeaderFilterForm, self).save(commit=False)
+            # super(HeaderFilterForm, self).save(commit=False)
+            super().save(commit=False)
             generate_string_id_and_save(HeaderFilter, [instance],
                                         'creme_core-userhf_%s-%s' % (ct.app_label, ct.model)
                                        )

@@ -215,7 +215,8 @@ class VcfImportForm(CremeModelWithUserForm):
     other_help_text = _(u'Read in VCF File : ')
 
     def __init__(self, vcf_data=None, *args, **kwargs):
-        super(VcfImportForm, self).__init__(*args, **kwargs)
+        # super(VcfImportForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         fields = self.fields
 
         if vcf_data:

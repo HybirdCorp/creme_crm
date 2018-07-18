@@ -47,7 +47,8 @@ class PollFormSectionEditForm(CremeModelForm):
         model = PollFormSection
 
     def __init__(self, entity, *args, **kwargs):
-        super(PollFormSectionEditForm, self).__init__(*args, **kwargs)
+        # super(PollFormSectionEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.pform = entity
 
 
@@ -80,7 +81,8 @@ class PollFormSectionCreateForm(PollFormSectionEditForm):
             section.order += 1
             section.save()
 
-        return super(PollFormSectionCreateForm, self).save(*args, **kwargs)
+        # return super(PollFormSectionCreateForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class _PollFormLineForm(CremeModelForm):
@@ -88,7 +90,8 @@ class _PollFormLineForm(CremeModelForm):
         model = PollFormLine
 
     def __init__(self, entity, *args, **kwargs):
-        super(_PollFormLineForm, self).__init__(*args, **kwargs)
+        # super(_PollFormLineForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.pform = entity
 
 
@@ -110,7 +113,8 @@ class PollFormLineCreateForm(_PollFormLineForm):
                            )
 
     def __init__(self, *args, **kwargs):
-        super(PollFormLineCreateForm, self).__init__(*args, **kwargs)
+        # super(PollFormLineCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.section = section = self.initial.get('section')
         self.section_lines = section_lines = []  # Lines which are in the section where we create our line
         self.next_lines = next_lines = []  # The lines after the one we create (but not in the same section): their order have to be incremented
@@ -157,7 +161,8 @@ class PollFormLineCreateForm(_PollFormLineForm):
                                                    )
 
     def clean(self):
-        cleaned_data = super(PollFormLineCreateForm, self).clean()
+        # cleaned_data = super(PollFormLineCreateForm, self).clean()
+        cleaned_data = super().clean()
 
         if not self._errors:
             get_data = cleaned_data.get
@@ -200,7 +205,8 @@ class PollFormLineCreateForm(_PollFormLineForm):
             line.order += 1
             line.save()
 
-        return super(PollFormLineCreateForm, self).save(*args, **kwargs)
+        # return super(PollFormLineCreateForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class PollFormLineEditForm(_PollFormLineForm):
@@ -215,7 +221,9 @@ class PollFormLineEditForm(_PollFormLineForm):
     }
 
     def __init__(self, *args, **kwargs):
-        super(PollFormLineEditForm, self).__init__(*args, **kwargs)
+        # super(PollFormLineEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
+
         if self.instance.disabled:  # TODO: improve the generic view edit_related_to_entity instead....
             from django.http import Http404
             raise Http404('You can not edit a disabled line.')
@@ -275,7 +283,8 @@ class PollFormLineEditForm(_PollFormLineForm):
         return old_choices
 
     def clean(self):
-        cleaned_data = super(PollFormLineEditForm, self).clean()
+        # cleaned_data = super(PollFormLineEditForm, self).clean()
+        cleaned_data = super().clean()
         self.type_args = None
 
         if not self._errors and self.initial_choices:
@@ -301,7 +310,8 @@ class PollFormLineEditForm(_PollFormLineForm):
         if self.type_args:
             self.instance.type_args = self.type_args
 
-        return super(PollFormLineEditForm, self).save(*args, **kwargs)
+        # return super(PollFormLineEditForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class PollFormLineConditionsForm(CremeForm):
@@ -313,7 +323,8 @@ class PollFormLineConditionsForm(CremeForm):
     conditions = PollFormLineConditionsField(label=_('Conditions'), required=False)
 
     def __init__(self, entity, *args, **kwargs):
-        super(PollFormLineConditionsForm, self).__init__(*args, **kwargs)
+        # super(PollFormLineConditionsForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.line = line = self.initial['line']
         self.old_conditions = conditions = line.get_conditions()
 

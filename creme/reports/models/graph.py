@@ -146,7 +146,8 @@ class AbstractReportGraph(CremeEntity):
                           DeprecationWarning
                          )
 
-            super(AbstractReportGraph.InstanceBlockConfigItemError, self).__init__(*args, **kwarg)
+            # super(AbstractReportGraph.InstanceBlockConfigItemError, self).__init__(*args, **kwarg)
+            super().__init__(*args, **kwarg)
 
     def create_instance_block_config_item(self, *args, **kwargs):
         warnings.warn('AbstractReportGraph.create_instance_block_config_item() is deprecated ; '

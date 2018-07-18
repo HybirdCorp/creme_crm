@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -43,7 +43,8 @@ class ButtonMenuAddForm(CremeForm):
                        )
 
     def __init__(self, *args, **kwargs):
-        super(ButtonMenuAddForm, self).__init__(*args, **kwargs)
+        # super(ButtonMenuAddForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         used_ct_ids = set(ButtonMenuItem.objects.exclude(content_type=None)
                                                 .distinct()
@@ -63,7 +64,8 @@ class ButtonMenuEditForm(CremeForm):
                                     )
 
     def __init__(self, button_menu_items, ct_id, *args, **kwargs):
-        super(ButtonMenuEditForm, self).__init__(*args, **kwargs)
+        # super(ButtonMenuEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.ct = ContentType.objects.get_for_id(ct_id) if ct_id else None
         self.set_buttons = button_menu_items

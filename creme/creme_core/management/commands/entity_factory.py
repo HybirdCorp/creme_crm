@@ -202,7 +202,8 @@ class BaseOptimizeContext:
 
 class OptimizeMySQLContext(BaseOptimizeContext):
     def __init__(self, *args, **kwargs):
-        super(OptimizeMySQLContext, self).__init__(*args, **kwargs)
+        # super(OptimizeMySQLContext, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.engine = None
         self.flush_policy = None
 

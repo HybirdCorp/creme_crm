@@ -19,7 +19,8 @@ Organisation = get_organisation_model()
 class GeoLocationBaseTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        super(GeoLocationBaseTestCase, cls).setUpClass()
+        # super(GeoLocationBaseTestCase, cls).setUpClass()
+        super().setUpClass()
         Town.objects.all().delete()  # TODO: backup ?
 
     def assertModelInstance(self, instance, klass, **kwargs):

@@ -45,7 +45,8 @@ class CremeTestSuite(unittest.TestSuite):
         call_command(PopulateCommand(), verbosity=0)
         ContentType.objects.clear_cache()  # The cache seems corrupted when we switch to the test DB
 
-        return super(CremeTestSuite, self).run(*args, **kwargs)
+        # return super(CremeTestSuite, self).run(*args, **kwargs)
+        return super().run(*args, **kwargs)
 
 
 def creme_init_worker(counter):
@@ -63,12 +64,14 @@ class CremeTestLoader(unittest.TestLoader):
     suiteClass = CremeTestSuite
 
     def __init__(self):
-        super(CremeTestLoader, self).__init__()
+        # super(CremeTestLoader, self).__init__()
+        super().__init__()
         self._allowed_paths = [app_conf.path for app_conf in apps.get_app_configs()]
         self._ignored_dir_paths = set()
 
     def _match_path(self, path, full_path, pattern):
-        match = super(CremeTestLoader, self)._match_path(path, full_path, pattern)
+        # match = super(CremeTestLoader, self)._match_path(path, full_path, pattern)
+        match = super()._match_path(path, full_path, pattern)
 
         if match:
             dir_path = dirname(full_path)
@@ -94,13 +97,15 @@ class CremeDiscoverRunner(DiscoverRunner):
     test_loader = CremeTestLoader()
 
     def __init__(self, *args, **kwargs):
-        super(CremeDiscoverRunner, self).__init__(*args, **kwargs)
+        # super(CremeDiscoverRunner, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._mock_media_path = None
         self._original_media_root = settings.MEDIA_ROOT
         self._http_server = None
 
     def setup_test_environment(self, **kwargs):
-        super(CremeDiscoverRunner, self).setup_test_environment(**kwargs)
+        # super(CremeDiscoverRunner, self).setup_test_environment(**kwargs)
+        super().setup_test_environment(**kwargs)
         self._mock_media_path = settings.MEDIA_ROOT = mkdtemp(prefix='creme_test_media')
         self._http_server = python_subprocess(
             'import http.server;'
@@ -112,7 +117,8 @@ class CremeDiscoverRunner(DiscoverRunner):
         )
 
     def teardown_test_environment(self, **kwargs):
-        super(CremeDiscoverRunner, self).teardown_test_environment(**kwargs)
+        # super(CremeDiscoverRunner, self).teardown_test_environment(**kwargs)
+        super().teardown_test_environment(**kwargs)
         settings.MEDIA_ROOT = self._original_media_root
 
         if self._mock_media_path:

@@ -19,7 +19,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(ButtonMenuConfigTestCase, cls).setUpClass()
+        # super(ButtonMenuConfigTestCase, cls).setUpClass()
+        super().setUpClass()
 
         cls.contact_ct = ct = ContentType.objects.get_for_model(FakeContact)
         contact_conf = ButtonMenuItem.objects.filter(content_type=ct)
@@ -28,7 +29,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        super(ButtonMenuConfigTestCase, cls).tearDownClass()
+        # super(ButtonMenuConfigTestCase, cls).tearDownClass()
+        super().tearDownClass()
 
         ButtonMenuItem.objects.bulk_create(cls._buttonconf_backup)
 

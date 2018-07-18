@@ -36,7 +36,8 @@ class CommercialConfig(CremeAppConfig):
         self.Act      = get_act_model()
         self.Pattern  = get_pattern_model()
         self.Strategy = get_strategy_model()
-        super(CommercialConfig, self).all_apps_ready()
+        # super(CommercialConfig, self).all_apps_ready()
+        super().all_apps_ready()
 
         from . import signals
 

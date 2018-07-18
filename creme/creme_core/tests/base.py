@@ -498,22 +498,26 @@ class _CremeTestCase:
 class CremeTestCase(TestCase, _CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        super(CremeTestCase, cls).setUpClass()
+        # super(CremeTestCase, cls).setUpClass()
+        super().setUpClass()
         _CremeTestCase.setUpClass()
 
     def tearDown(self):
-        super(CremeTestCase, self).tearDown()
+        # super(CremeTestCase, self).tearDown()
+        super().tearDown()
         _CremeTestCase.tearDown(self)
 
 
 class CremeTransactionTestCase(TransactionTestCase, _CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        super(CremeTransactionTestCase, cls).setUpClass()
+        # super(CremeTransactionTestCase, cls).setUpClass()
+        super().setUpClass()
         _CremeTestCase.setUpClass()
 
     def tearDown(self):
-        super(CremeTransactionTestCase, self).tearDown()
+        # super(CremeTransactionTestCase, self).tearDown()
+        super().tearDown()
         _CremeTestCase.tearDown(self)
 
     @classmethod

@@ -231,4 +231,5 @@ class SearchConfigItem(CremeModel):
         if self.superuser and self.role_id:
             raise ValueError('"role" must be NULL if "superuser" is True')
 
-        super(SearchConfigItem, self).save(*args, **kwargs)
+        # super(SearchConfigItem, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)

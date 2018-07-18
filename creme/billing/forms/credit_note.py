@@ -54,7 +54,8 @@ class CreditNoteRelatedForm(base.CremeForm):
     credit_notes = MultiCreatorEntityField(label=_(u'Credit notes'), model=CreditNote)
 
     def __init__(self, entity, *args, **kwargs):
-        super(CreditNoteRelatedForm, self).__init__(*args, **kwargs)
+        # super(CreditNoteRelatedForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.billing_document = entity
         existing = Relation.objects.filter(subject_entity=entity.id, type=constants.REL_OBJ_CREDIT_NOTE_APPLIED)
 

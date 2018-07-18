@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,7 +38,8 @@ class HistoryConfigForm(CremeForm):
                                              )
 
     def __init__(self, *args, **kwargs):
-        super(HistoryConfigForm, self).__init__(*args, **kwargs)
+        # super(HistoryConfigForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.fields['relation_types'].queryset = \
             RelationType.objects.exclude(pk__in=HistoryConfigItem.objects.values_list('relation_type', flat=True))

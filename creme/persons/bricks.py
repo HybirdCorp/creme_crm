@@ -347,7 +347,8 @@ class _AddressesBrick(Brick):
 
         build_cell = partial(EntityCellRegularField.build, model=Address)
 
-        return super(_AddressesBrick, self).get_template_context(
+        # return super(_AddressesBrick, self).get_template_context(
+        return super().get_template_context(
                     context,
                     b_address=b_address,
                     s_address=s_address,
@@ -379,7 +380,8 @@ class _OtherAddressesBrick(QuerysetBrick):
     def get_template_context(self, context, **kwargs):
         build_cell = partial(EntityCellRegularField.build, model=Address)
 
-        return super(_OtherAddressesBrick, self).get_template_context(
+        # return super(_OtherAddressesBrick, self).get_template_context(
+        return super().get_template_context(
                     context,
                     context['object'].other_addresses,
                     cells=OrderedDict((fname, build_cell(name=fname)) for fname in _get_address_field_names()),

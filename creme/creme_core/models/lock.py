@@ -30,12 +30,14 @@ from django.db.utils import IntegrityError
 
 class MutexLockedException(Exception):  # TODO: inner class ?
     def __init__(self, *args, **kwargs):
-        super(MutexLockedException, self).__init__('Mutex is already locked')
+        # super(MutexLockedException, self).__init__('Mutex is already locked')
+        super().__init__('Mutex is already locked')
 
 
 class MutexNotLockedException(Exception):
     def __init__(self, *args, **kwargs):
-        super(MutexNotLockedException, self).__init__('The mutex is not locked')
+        # super(MutexNotLockedException, self).__init__('The mutex is not locked')
+        super().__init__('The mutex is not locked')
 
 
 class Mutex(Model):
@@ -76,7 +78,8 @@ class Mutex(Model):
         Mutex.objects.filter(id=id_).delete()
 
     def save(self, *args, **kwargs):
-        super(Mutex, self).save(force_insert=True, *args, **kwargs)
+        # super(Mutex, self).save(force_insert=True, *args, **kwargs)
+        super().save(force_insert=True, *args, **kwargs)
 
 
 def mutex_autolock(lock_name):

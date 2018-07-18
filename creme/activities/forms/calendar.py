@@ -35,7 +35,8 @@ class CalendarForm(base.CremeModelForm):
         exclude = ('user',)
 
     def __init__(self, *args, **kwargs):
-        super(CalendarForm, self).__init__(*args, **kwargs)
+        # super(CalendarForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if not self.instance.pk:
             self.fields['color'].initial = Calendar.new_color()
@@ -45,12 +46,14 @@ class CalendarForm(base.CremeModelForm):
 
     def save(self, *args, **kwargs):
         self.instance.user = self.get_user()
-        return super(CalendarForm, self).save(*args, **kwargs)
+        # return super(CalendarForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class CalendarConfigForm(CalendarForm):
     def __init__(self, *args, **kwargs):
-        super(CalendarConfigForm, self).__init__(*args, **kwargs)
+        # super(CalendarConfigForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if not self.instance.pk:
             self.fields['user'] = ModelChoiceField(label=_('User'),
@@ -69,7 +72,8 @@ class ActivityCalendarLinkerForm(base.CremeForm):
 
     def __init__(self, instance, *args, **kwargs):
         self.activity = instance
-        super(ActivityCalendarLinkerForm, self).__init__(*args, **kwargs)
+        # super(ActivityCalendarLinkerForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         user = self.user
         calendars = instance.calendars.filter(user=user)[:2]
 

@@ -46,7 +46,8 @@ class EntityEmailLinkButton(Button):
         context['entity_email_ct_id'] = ContentType.objects.get_for_model(EntityEmail).id
         context['rtypes'] = self.rtype_ids
 
-        return super(EntityEmailLinkButton, self).render(context)
+        # return super(EntityEmailLinkButton, self).render(context)
+        return super().render(context)
 
 
 # entityemail_link_button = EntityEmailLinkButton()

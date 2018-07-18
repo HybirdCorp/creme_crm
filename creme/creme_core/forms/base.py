@@ -206,7 +206,8 @@ class CremeForm(Form, HookableForm):
 
     def __init__(self, user, *args, **kwargs):
         """@param user The user who sends the request (i order to check the permissions)"""
-        super(CremeForm, self).__init__(*args, **kwargs)
+        # super(CremeForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.user = user
 
         for fn, field in self.fields.items():
@@ -215,7 +216,8 @@ class CremeForm(Form, HookableForm):
         self._creme_post_init()
 
     def clean(self, *args, **kwargs):
-        res = super(CremeForm, self).clean(*args, **kwargs)
+        # res = super(CremeForm, self).clean(*args, **kwargs)
+        res = super().clean(*args, **kwargs)
         self._creme_post_clean()
         return res
 
@@ -234,7 +236,8 @@ class CremeModelForm(ModelForm, HookableForm):
 
     def __init__(self, user, *args, **kwargs):
         """@param user The user that sends the request (in order to check the permissions)"""
-        super(CremeModelForm, self).__init__(*args, **kwargs)
+        # super(CremeModelForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.user = user
 
         for fn, field in self.fields.items():
@@ -246,7 +249,8 @@ class CremeModelForm(ModelForm, HookableForm):
         self._creme_post_init()
 
     def clean(self, *args, **kwargs):
-        res = super(CremeModelForm, self).clean(*args, **kwargs)
+        # res = super(CremeModelForm, self).clean(*args, **kwargs)
+        res = super().clean(*args, **kwargs)
         self._creme_post_clean()
         return res
 
@@ -254,7 +258,8 @@ class CremeModelForm(ModelForm, HookableForm):
         return self.blocks.build(self)
 
     def save(self, *args, **kwargs):
-        instance = super(CremeModelForm, self).save(*args, **kwargs)
+        # instance = super(CremeModelForm, self).save(*args, **kwargs)
+        instance = super().save(*args, **kwargs)
         self._creme_post_save()
         return instance
 
@@ -263,7 +268,8 @@ class CremeModelWithUserForm(CremeModelForm):
     user = ModelChoiceField(label=_('Owner user'), empty_label=None, queryset=None)
 
     def __init__(self, user, *args, **kwargs):
-        super(CremeModelWithUserForm, self).__init__(user=user, *args, **kwargs)
+        # super(CremeModelWithUserForm, self).__init__(user=user, *args, **kwargs)
+        super().__init__(user=user, *args, **kwargs)
         user_f = self.fields['user']
         user_f.queryset = get_user_model().objects.filter(is_staff=False)
         user_f.initial = user.id
@@ -275,7 +281,8 @@ class CremeEntityForm(CremeModelWithUserForm):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-        super(CremeEntityForm, self).__init__(*args, **kwargs)
+        # super(CremeEntityForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         assert self.instance, CremeEntity
         self._build_customfields()
 
@@ -301,7 +308,8 @@ class CremeEntityForm(CremeModelWithUserForm):
             fields[_CUSTOM_NAME.format(i)] = cfield.get_formfield(cvalue)
 
     def save(self, *args, **kwargs):
-        instance = super(CremeEntityForm, self).save(*args, **kwargs)
+        # instance = super(CremeEntityForm, self).save(*args, **kwargs)
+        instance = super().save(*args, **kwargs)
         cleaned_data = self.cleaned_data
 
         for i, (custom_field, custom_value) in enumerate(self._customs):

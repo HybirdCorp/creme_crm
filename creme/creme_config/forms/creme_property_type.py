@@ -54,14 +54,16 @@ class CremePropertyTypeAddForm(_CremePropertyTypeBaseForm):
                                          is_custom=True, generate_pk=True,
                                          is_copiable=get_data('is_copiable'),
                                         )
-        super(CremePropertyTypeAddForm, self).save()
+        # super(CremePropertyTypeAddForm, self).save()
+        super().save()
 
         return ptype
 
 
 class CremePropertyTypeEditForm(_CremePropertyTypeBaseForm):
     def __init__(self, instance, *args, **kwargs):
-        super(CremePropertyTypeEditForm, self).__init__(*args, **kwargs)
+        # super(CremePropertyTypeEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.instance = instance
         fields = self.fields
@@ -76,4 +78,5 @@ class CremePropertyTypeEditForm(_CremePropertyTypeBaseForm):
                                  get_data('subject_ctypes'), is_custom=True,
                                  is_copiable=get_data('is_copiable'),
                                 )
-        super(CremePropertyTypeEditForm, self).save()
+        # super(CremePropertyTypeEditForm, self).save()
+        super().save()

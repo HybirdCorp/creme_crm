@@ -56,7 +56,8 @@ class Calendar(CremeModel):
 
     # def delete(self, using=None):
     def delete(self, using=None, keep_parents=False):
-        super(Calendar, self).delete(using=using, keep_parents=keep_parents)
+        # super(Calendar, self).delete(using=using, keep_parents=keep_parents)
+        super().delete(using=using, keep_parents=keep_parents)
 
         if self.is_default:
             # Sadly we cannot update() on a slice...
@@ -122,7 +123,8 @@ class Calendar(CremeModel):
            not Calendar.objects.filter(user=self.user, is_default=True).exists():
             self.is_default = True
 
-        super(Calendar, self).save(*args, **kwargs)
+        # super(Calendar, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
         if check and self.is_default:
             Calendar.objects.filter(user=self.user, is_default=True) \

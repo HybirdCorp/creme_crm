@@ -33,7 +33,8 @@ class ProductsConfig(CremeAppConfig):
 
         self.Product = get_product_model()
         self.Service = get_service_model()
-        super(ProductsConfig, self).all_apps_ready()
+        # super(ProductsConfig, self).all_apps_ready()
+        super().all_apps_ready()
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Product, self.Service)

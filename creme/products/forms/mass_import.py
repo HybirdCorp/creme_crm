@@ -100,7 +100,8 @@ class CategoriesExtractorWidget(BaseExtractorWidget):
     template_name = 'products/forms/widgets/mass-import/categories-extractor.html'
 
     def __init__(self, categories=(), *args, **kwargs):
-        super(CategoriesExtractorWidget, self).__init__(*args, **kwargs)
+        # super(CategoriesExtractorWidget, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.categories = categories
         self.propose_creation = False
 
@@ -114,7 +115,8 @@ class CategoriesExtractorWidget(BaseExtractorWidget):
         #     twice -- python + js sides).
 
         value = value or {}
-        context = super(CategoriesExtractorWidget, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(CategoriesExtractorWidget, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
         widget_cxt = context['widget']
         widget_cxt['propose_creation'] = self.propose_creation
         widget_cxt['create'] = value.get('create', False)
@@ -200,7 +202,8 @@ class CategoriesExtractorField(Field):
     }
 
     def __init__(self, choices, categories, *args, **kwargs):
-        super(CategoriesExtractorField, self).__init__(*args, **kwargs)
+        # super(CategoriesExtractorField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._user = None
         self._can_create = False
         self._allowed_indexes = {c[0] for c in choices}

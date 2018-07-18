@@ -64,7 +64,8 @@ class UserRole(Model):
         verbose_name_plural = _(u'Roles')
 
     def __init__(self, *args, **kwargs):
-        super(UserRole, self).__init__(*args, **kwargs)
+        # super(UserRole, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._allowed_apps = None; self._extended_allowed_apps = None
         self._admin_4_apps = None; self._extended_admin_4_apps = None
         self._creatable_ctypes_set = None

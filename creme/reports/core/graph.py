@@ -149,7 +149,8 @@ class RGYCCount(ReportGraphYCalculator):
 
 class RGYCAggregation(ReportGraphYCalculator):
     def __init__(self, aggregation, aggregate_value):
-        super(RGYCAggregation, self).__init__()
+        # super(RGYCAggregation, self).__init__()
+        super().__init__()
         self._aggregation = aggregation
         self._aggregate_value = aggregate_value
 
@@ -166,7 +167,8 @@ class RGYCAggregation(ReportGraphYCalculator):
 
 class RGYCField(RGYCAggregation):
     def __init__(self, field, aggregation):
-        super(RGYCField, self).__init__(aggregation, aggregation.func(field.name))
+        # super(RGYCField, self).__init__(aggregation, aggregation.func(field.name))
+        super().__init__(aggregation, aggregation.func(field.name))
         self._field = field
 
     def _name(self):
@@ -175,7 +177,8 @@ class RGYCField(RGYCAggregation):
 
 class RGYCCustomField(RGYCAggregation):
     def __init__(self, cfield, aggregation):
-        super(RGYCCustomField, self).__init__(
+        # super(RGYCCustomField, self).__init__(
+        super().__init__(
             aggregation,
             aggregation.func('{}__value'.format(cfield.get_value_class().get_related_name())),
            )
@@ -256,7 +259,8 @@ class ReportGraphHand:
 
 class _RGHRegularField(ReportGraphHand):
     def __init__(self, graph):
-        super(_RGHRegularField, self).__init__(graph)
+        # super(_RGHRegularField, self).__init__(graph)
+        super().__init__(graph)
         model = graph.model
 
         try:
@@ -402,7 +406,8 @@ class RGHRange(_RGHRegularField):
     verbose_name = _(u"By X days")
 
     def __init__(self, graph):
-        super(RGHRange, self).__init__(graph)
+        # super(RGHRange, self).__init__(graph)
+        super().__init__(graph)
 
         self._fetch_method = self._fetch_with_group_by
         vendor = connection.vendor
@@ -516,7 +521,8 @@ class RGHRelation(ReportGraphHand):
     verbose_name = _(u"By values (of related entities)")
 
     def __init__(self, graph):
-        super(RGHRelation, self).__init__(graph)
+        # super(RGHRelation, self).__init__(graph)
+        super().__init__(graph)
 
         try:
             rtype = RelationType.objects.get(pk=self._graph.abscissa)
@@ -555,7 +561,8 @@ class RGHRelation(ReportGraphHand):
 
 class _RGHCustomField(ReportGraphHand):
     def __init__(self, graph):
-        super(_RGHCustomField, self).__init__(graph)
+        # super(_RGHCustomField, self).__init__(graph)
+        super().__init__(graph)
         abscissa = self._graph.abscissa
 
         try:
@@ -665,7 +672,8 @@ class RGHCustomRange(_RGHCustomField):
     verbose_name = _(u"By X days")
 
     def __init__(self, graph):
-        super(RGHCustomRange, self).__init__(graph)
+        # super(RGHCustomRange, self).__init__(graph)
+        super().__init__(graph)
 
         self._fetch_method = self._fetch_with_group_by
         vendor = connection.vendor
@@ -796,7 +804,8 @@ class GraphFetcher:
 
 class RegularFieldLinkedGraphFetcher(GraphFetcher):
     def __init__(self, field_name, *args, **kwargs):
-        super(RegularFieldLinkedGraphFetcher, self).__init__(*args, **kwargs)
+        # super(RegularFieldLinkedGraphFetcher, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         model = self.graph.model
         self.field_name = None
         self.verbose_volatile_column = '??'
@@ -843,7 +852,8 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
 
 class RelationLinkedGraphFetcher(GraphFetcher):
     def __init__(self, rtype_id, *args, **kwargs):
-        super(RelationLinkedGraphFetcher, self).__init__(*args, **kwargs)
+        # super(RelationLinkedGraphFetcher, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         try:
             rtype = RelationType.objects.get(pk=rtype_id)
         except RelationType.DoesNotExist:

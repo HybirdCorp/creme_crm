@@ -8,7 +8,8 @@ COMPILATION_LEVEL = getattr(settings, 'CLOSURE_COMPILATION_LEVEL',
 class Closure(Filter):
     def __init__(self, **kwargs):
         self.config(kwargs, compilation_level=COMPILATION_LEVEL)
-        super(Closure, self).__init__(**kwargs)
+        # super(Closure, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         assert self.filetype == 'js', (
             'Closure only supports compilation to js. '
             'The parent filter expects "{}".'.format(self.filetype))

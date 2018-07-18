@@ -287,7 +287,8 @@ class RelationBrickItem(CremeModel):
         app_label = 'creme_core'
 
     def __init__(self, *args, **kwargs):
-        super(RelationBrickItem, self).__init__(*args, **kwargs)
+        # super(RelationBrickItem, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if self.json_cells_map is None:
             self._cells_map = {}
             self._dump_cells_map()
@@ -298,7 +299,8 @@ class RelationBrickItem(CremeModel):
     def delete(self, *args, **kwargs):
         BrickDetailviewLocation.objects.filter(brick_id=self.brick_id).delete()
 
-        super(RelationBrickItem, self).delete(*args, **kwargs)
+        # super(RelationBrickItem, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
 
     @property
     def all_ctypes_configured(self):
@@ -400,7 +402,7 @@ class InstanceBrickConfigItem(CremeModel):
         BrickState.objects.filter(brick_id=brick_id).delete()
 
         # super(InstanceBlockConfigItem, self).delete(using=using)
-        super(InstanceBrickConfigItem, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
 
     @property
     def brick(self):
@@ -454,7 +456,8 @@ class CustomBrickConfigItem(CremeModel):
         app_label = 'creme_core'
 
     def __init__(self, *args, **kwargs):
-        super(CustomBrickConfigItem, self).__init__(*args, **kwargs)
+        # super(CustomBrickConfigItem, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if self.json_cells is None:
             self.cells = []
 
@@ -466,7 +469,8 @@ class CustomBrickConfigItem(CremeModel):
         BrickDetailviewLocation.objects.filter(brick_id=brick_id).delete()
         BrickState.objects.filter(brick_id=brick_id).delete()
 
-        super(CustomBrickConfigItem, self).delete(*args, **kwargs)
+        # super(CustomBrickConfigItem, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
 
     def generate_id(self):
         return 'customblock-{}'.format(self.id)

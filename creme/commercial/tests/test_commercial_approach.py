@@ -43,14 +43,16 @@ except Exception as e:
 class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
     @classmethod
     def setUpClass(cls):
-        super(CommercialApproachTestCase, cls).setUpClass()
+        # super(CommercialApproachTestCase, cls).setUpClass()
+        super().setUpClass()
         cls.original_send_messages = EmailBackend.send_messages
 
     def setUp(self):
         self.login()
 
     def tearDown(self):
-        super(CommercialApproachTestCase, self).tearDown()
+        # super(CommercialApproachTestCase, self).tearDown()
+        super().tearDown()
         EmailBackend.send_messages = self.original_send_messages
 
     # def _build_entity_field(self, entity):

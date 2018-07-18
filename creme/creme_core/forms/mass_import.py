@@ -118,7 +118,8 @@ class UploadForm(CremeForm):
         return self._header
 
     def clean(self):
-        cdata = super(UploadForm, self).clean()
+        # cdata = super(UploadForm, self).clean()
+        cdata = super().clean()
 
         if not self._errors:
             self._header = get_header(cdata['document'].filedata, cdata['has_header'])
@@ -202,7 +203,8 @@ class Extractor:
 
 class BaseExtractorWidget(Widget):
     def __init__(self, *args, **kwargs):
-        super(BaseExtractorWidget, self).__init__(*args, **kwargs)
+        # super(BaseExtractorWidget, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.column_select = Select()
 
     @property
@@ -218,14 +220,16 @@ class ExtractorWidget(BaseExtractorWidget):  # TODO: rename (Regular/Base)FieldE
     template_name = 'creme_core/forms/widgets/mass-import/extractor.html'
 
     def __init__(self, *args, **kwargs):
-        super(ExtractorWidget, self).__init__(*args, **kwargs)
+        # super(ExtractorWidget, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.default_value_widget = None
         self.subfield_select = None  # TODO: rename 'subfield_choices'
         self.propose_creation = False
 
     def get_context(self, name, value, attrs):
         value = value or {}
-        context = super(ExtractorWidget, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(ExtractorWidget, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
         widget_cxt = context['widget']
 
         final_attrs = widget_cxt['attrs']
@@ -284,7 +288,8 @@ class ExtractorField(Field):
 
     # TODO: default values + properties which update widget
     def __init__(self, choices, modelfield, modelform_field, *args, **kwargs):
-        super(ExtractorField, self).__init__(*args, **kwargs)
+        # super(ExtractorField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.required = modelform_field.required
         modelform_field.required = False
 
@@ -454,7 +459,8 @@ class EntityExtractorWidget(BaseExtractorWidget):
     template_name = 'creme_core/forms/widgets/mass-import/entity-extractor.html'
 
     def __init__(self, models_info=(), *args, **kwargs):
-        super(EntityExtractorWidget, self).__init__(*args, **kwargs)
+        # super(EntityExtractorWidget, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # self.propose_creation = False # TODO
         self.models_info = models_info
 
@@ -468,7 +474,8 @@ class EntityExtractorWidget(BaseExtractorWidget):
         return '{0}_{1}_{2}_create'.format(name, *model_id)
 
     def get_context(self, name, value, attrs):
-        context = super(EntityExtractorWidget, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(EntityExtractorWidget, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
 
         def build_selected_value(cmd):
             sel_val = 0
@@ -536,7 +543,8 @@ class EntityExtractorField(Field):
         """@param model_info: Sequence of tuple (Entity class, field name)
                   Field name if used to get or create class instances.
         """
-        super(EntityExtractorField, self).__init__(*args, **kwargs)
+        # super(EntityExtractorField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.models_info = models_info
         self.allowed_indexes = {c[0] for c in choices}
 
@@ -661,7 +669,7 @@ class RelationExtractorSelector(SelectorList):
     template_name = 'creme_core/forms/widgets/mass-import/relations-extractor.html'
 
     def __init__(self, columns=(), relation_types=(), attrs=None):
-        super(RelationExtractorSelector, self).__init__(None, attrs=attrs)
+        super().__init__(None, attrs=attrs)
         self.columns = columns
         self.relation_types = relation_types
         # TODO: autocomplete ?
@@ -684,17 +692,19 @@ class RelationExtractorSelector(SelectorList):
            )
         add('column', options=self.columns, label=ugettext(u'equals to'))
 
-        context = super(RelationExtractorSelector, self).get_context(name=name, attrs=attrs,
-                                                                     value=value.get('selectorlist'),
-                                                                    )
+        # context = super(RelationExtractorSelector, self).get_context(name=name, attrs=attrs,
+        #                                                              value=value.get('selectorlist'),
+        #                                                             )
+        context = super().get_context(name=name, attrs=attrs, value=value.get('selectorlist'))
         context['widget']['can_create_checked'] = value.get('can_create', False)
 
         return context
 
     def value_from_datadict(self, data, files, name):
         return {
-            'selectorlist': super(RelationExtractorSelector, self)
-                                 .value_from_datadict(data=data, files=files, name=name),
+            # 'selectorlist': super(RelationExtractorSelector, self)
+            #                      .value_from_datadict(data=data, files=files, name=name),
+            'selectorlist': super().value_from_datadict(data=data, files=files, name=name),
             'can_create':   data.get('{}_can_create'.format(name), False),
         }
 
@@ -707,7 +717,8 @@ class RelationExtractorField(MultiRelationEntityField):
     }
 
     def __init__(self, columns=(), *args, **kwargs):
-        super(RelationExtractorField, self).__init__(*args, **kwargs)
+        # super(RelationExtractorField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.columns = columns
 
     @property
@@ -862,7 +873,8 @@ class CustomFieldExtractorWidget(ExtractorWidget):
 
     def get_context(self, name, value, attrs):
         value = value or {}
-        context = super(CustomFieldExtractorWidget, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(CustomFieldExtractorWidget, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
         context['widget']['can_create'] = value.get('can_create', False)
 
         return context
@@ -880,10 +892,11 @@ class CustomFieldExtractorWidget(ExtractorWidget):
 # TODO: factorise
 class CustomfieldExtractorField(Field):
     def __init__(self, choices, custom_field, user, *args, **kwargs):
-        super(CustomfieldExtractorField, self).__init__(widget=CustomFieldExtractorWidget,
-                                                        label=custom_field.name,
-                                                        *args, **kwargs
-                                                       )
+        # super(CustomfieldExtractorField, self).__init__(widget=CustomFieldExtractorWidget,
+        super().__init__(widget=CustomFieldExtractorWidget,
+                         label=custom_field.name,
+                         *args, **kwargs
+                        )
 
         self._custom_field = custom_field
         formfield = custom_field.get_formfield(None)
@@ -969,7 +982,8 @@ class ImportForm(CremeModelForm):
        )
 
     def __init__(self, *args, **kwargs):
-        super(ImportForm, self).__init__(*args, **kwargs)
+        # super(ImportForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.import_errors = []
 
         get_fconf = FieldsConfig.LocalCache().get_4_model
@@ -1166,7 +1180,8 @@ class ImportForm4CremeEntity(ImportForm):
                          )
 
     def __init__(self, *args, **kwargs):
-        super(ImportForm4CremeEntity, self).__init__(*args, **kwargs)
+        # super(ImportForm4CremeEntity, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         user = self.user
         fields = self.fields
         ct = ContentType.objects.get_for_model(self._meta.model)

@@ -40,7 +40,8 @@ class FieldsConfigAddForm(CremeForm):
                             )
 
     def __init__(self, *args, **kwargs):
-        super(FieldsConfigAddForm, self).__init__(*args, **kwargs)
+        # super(FieldsConfigAddForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         used_ct_ids = set(FieldsConfig.objects.values_list('content_type', flat=True))
         self.ctypes = ctypes = [ct for ct in map(ContentType.objects.get_for_model,
                                                  filter(FieldsConfig.is_model_valid, apps.get_models())
@@ -72,7 +73,8 @@ class FieldsConfigEditForm(CremeModelForm):
         model = FieldsConfig
 
     def __init__(self, *args, **kwargs):
-        super(FieldsConfigEditForm, self).__init__(*args, **kwargs)
+        # super(FieldsConfigEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         instance = self.instance
         hidden_f = self.fields['hidden']
         hidden_f.choices = FieldsConfig.field_enumerator(instance.content_type.model_class()).choices()
@@ -86,4 +88,5 @@ class FieldsConfigEditForm(CremeModelForm):
         self.instance.descriptions = [(field_name, {HIDDEN: True})
                                         for field_name in self.cleaned_data['hidden']
                                      ]
-        return super(FieldsConfigEditForm, self).save(*args, **kwargs)
+        # return super(FieldsConfigEditForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)

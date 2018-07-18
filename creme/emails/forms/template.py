@@ -91,7 +91,8 @@ class EmailTemplateAddAttachment(CremeForm):
     blocks = FieldBlockManager(('general', _(u'Attachments'), '*'))
 
     def __init__(self, entity, *args, **kwargs):
-        super(EmailTemplateAddAttachment, self).__init__(*args, **kwargs)
+        # super(EmailTemplateAddAttachment, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.template = entity
 
     def save(self):
