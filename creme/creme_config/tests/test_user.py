@@ -941,21 +941,20 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
         user = self.user
         self.assertEqual(settings.TIME_ZONE, user.time_zone)
 
-        # TODO: use 'nonlocal' in py3k
-        inner = {'called':       False,
-                 'activated_tz': None,
-                }
+        called = False
+        activated_tz = None
 
         def fake_activate(tz):
-            inner['called']       = True
-            inner['activated_tz'] = tz
+            nonlocal called, activated_tz
+            called = True
+            activated_tz = tz
 
         original_activate = django_tz.activate
         django_tz.activate = fake_activate
 
         try:
             self.client.get('/')
-            self.assertFalse(inner['called'])
+            self.assertFalse(called)
 
             url = reverse('creme_config__set_user_timezone')
 
@@ -977,15 +976,17 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
                 self.assertIn('selected', option)
 
             def change_tz(tz):
+                nonlocal called
+
                 self.assertPOST200(url, data={'time_zone': tz})
 
                 self.assertEqual(tz, self.refresh(user).time_zone)
 
                 self.client.get('/')
-                self.assertTrue(inner['called'])
-                self.assertEqual(tz, inner['activated_tz'])
+                self.assertTrue(called)
+                self.assertEqual(tz, activated_tz)
 
-                inner['called'] = False
+                called = False
 
             TIME_ZONE = settings.TIME_ZONE
             time_zones = [tz for tz in ('Asia/Tokyo', 'US/Eastern', 'Europe/Paris')
