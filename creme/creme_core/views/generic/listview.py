@@ -249,7 +249,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
 
     rows = _build_rowscount(arguments, current_lvs)
 
-    transient = is_GET or (arguments.get('transient') in ('1', 'true'))
+    transient = is_GET or (arguments.get('transient') in {'1', 'true'})
     ct = ContentType.objects.get_for_model(model)
     user = request.user
     header_filters = HeaderFilterList(ct, user)

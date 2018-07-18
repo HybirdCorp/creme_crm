@@ -411,7 +411,7 @@ class RGHRange(_RGHRegularField):
 
         self._fetch_method = self._fetch_with_group_by
         vendor = connection.vendor
-        if vendor not in ('sqlite', 'mysql', 'postgresql'):
+        if vendor not in {'sqlite', 'mysql', 'postgresql'}:
             logger.warning('Report graph data optimizations not available with DB vendor "%s",'
                         ' reverting to slower fallback method.', vendor
                        )
@@ -677,7 +677,7 @@ class RGHCustomRange(_RGHCustomField):
 
         self._fetch_method = self._fetch_with_group_by
         vendor = connection.vendor
-        if vendor not in ('sqlite', 'mysql', 'postgresql'):
+        if vendor not in {'sqlite', 'mysql', 'postgresql'}:
             logger.warning('Report graph data optimizations not available with DB vendor "%s",'
                         ' reverting to slower fallback method.', vendor
                        )

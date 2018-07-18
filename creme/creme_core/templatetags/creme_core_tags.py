@@ -389,7 +389,7 @@ def do_templatize(parser, token):
     template_string, var_name = match.groups()
 
     first_char = template_string[0]
-    if not (first_char == template_string[-1] and first_char in ('"', "'")):
+    if not (first_char == template_string[-1] and first_char in {'"', "'"}):
         raise TemplateSyntaxError("{!r} tag's argument should be in quotes".format(tag_name))
 
     return TemplatizeNode(template_string[1:-1], var_name)
