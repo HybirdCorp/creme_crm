@@ -86,7 +86,7 @@ class VcfForm(CremeForm):
             logger.exception('VcfForm -> error when reading file')
             raise ValidationError(self.error_messages['invalid_file'],
                                   params={'error': e}, code='invalid_file',
-                                 )
+                                 ) from e
 
         return vcf_data
 

@@ -119,7 +119,7 @@ def validate(request):
             raise Http404('Invalid backend for WaitingAction(id={}, source={}): {}'.format(
                                 action.id, action.source, e,
                             )
-                         )
+                         ) from e
 
         with atomic():
             is_created = backend.create(action)

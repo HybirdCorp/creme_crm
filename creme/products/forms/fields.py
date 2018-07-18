@@ -108,8 +108,8 @@ class CategoryField(JSONField):
 
         try:
             subcategory = SubCategory.objects.get(pk=subcategory_pk)
-        except SubCategory.DoesNotExist:
-            raise ValidationError(self.error_messages['doesnotexist'], code='doesnotexist')
+        except SubCategory.DoesNotExist as e:
+            raise ValidationError(self.error_messages['doesnotexist'], code='doesnotexist') from e
 
         if subcategory.category_id != category_pk:
             raise ValidationError(self.error_messages['subcategorynotallowed'],
@@ -122,10 +122,10 @@ class CategoryField(JSONField):
         # Check category in allowed ones
         try:
             category = self._categories.get(id=category_pk)
-        except Category.DoesNotExist:
+        except Category.DoesNotExist as e:
             raise ValidationError(self.error_messages['categorynotallowed'],
                                   code='categorynotallowed',
-                                 )
+                                 ) from e
 
         return category
 

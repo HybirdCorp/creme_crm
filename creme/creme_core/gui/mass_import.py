@@ -38,8 +38,8 @@ class FormRegistry:
     def get(self, ct):
         try:
             return self._form_factories[ct.model_class()]
-        except KeyError:
-            raise self.UnregisteredCTypeException('Unregistered ContentType: {}'.format(ct))
+        except KeyError as e:
+            raise self.UnregisteredCTypeException('Unregistered ContentType: {}'.format(ct)) from e
 
     def is_registered(self, ct):
         return ct.model_class() in self._form_factories  # TODO: accept model directly ??

@@ -79,8 +79,8 @@ def set_timezone(request):
 def edit_setting_value(request, skey_id):
     try:
         skey = user_setting_key_registry[skey_id]
-    except KeyError:
-        raise Http404('This key is invalid')
+    except KeyError as e:
+        raise Http404('This key is invalid') from e
 
     if skey.hidden:
         raise Http404('You can not edit a UserSettingValue which is hidden.')

@@ -43,8 +43,8 @@ class QuickFormsRegistry:
     def unregister(self, model):
         try:
             self._forms.pop(model)
-        except KeyError:
-            raise self.RegistrationError('No Quick Form is registered for the model : {}'.format(model))
+        except KeyError as e:
+            raise self.RegistrationError('No Quick Form is registered for the model : {}'.format(model)) from e
 
     def iter_models(self):
         return self._forms.keys()

@@ -120,7 +120,7 @@ def link_report(request, field_id):
     hand = rfield.hand
 
     if hand is None:
-        raise ConflictError('This field is invalid')  # TODO: force block to reload
+        raise ConflictError('This field is invalid')  # TODO: force brick to reload
 
     ctypes = rfield.hand.get_linkable_ctypes()
 

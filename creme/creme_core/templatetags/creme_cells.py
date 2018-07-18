@@ -138,10 +138,10 @@ def do_cell_4_regularfield(parser, token):
     fa_name, fa_value = match.groups()
     try:
         first_arg_name, rf_cell_node_cls = _RFIELD_CELL_NODES[fa_name]
-    except KeyError:
+    except KeyError as e:
         raise TemplateSyntaxError('Invalid 1rst argument of "cell_4_regularfield" tag ; '
                                   'it must be in {}.'.format(_RFIELD_CELL_NODES.keys())
-                                 )
+                                 ) from e
 
     # Second argument -------------
     match = KWARG_RE.match(bits[2])

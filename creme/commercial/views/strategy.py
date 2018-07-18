@@ -231,7 +231,7 @@ def _set_score(request, strategy_id, method_name):
     try:
         getattr(strategy, method_name)(model_id, segment_desc_id, orga_id, score)
     except Exception as e:
-        raise Http404(str(e))
+        raise Http404(str(e)) from e
 
     # return HttpResponse(content_type='text/javascript')
     return HttpResponse()
@@ -259,7 +259,7 @@ def set_segment_category(request, strategy_id):
     try:
         strategy.set_segment_category(segment_desc_id, orga_id, category)
     except Exception as e:
-        raise Http404(str(e))
+        raise Http404(str(e)) from e
 
     # return HttpResponse(content_type='text/javascript')
     return HttpResponse()

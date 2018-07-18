@@ -105,8 +105,8 @@ def generate_new_doc(request, opp_id, ct_id):
 
     try:
         rtype_id, set_as_current, workflow_action = _GEN_BEHAVIOURS[klass]
-    except KeyError:
-        raise Http404('Bad billing document type')
+    except KeyError as e:
+        raise Http404('Bad billing document type') from e
 
     user = request.user
     user.has_perm_to_create_or_die(klass)

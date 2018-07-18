@@ -56,8 +56,8 @@ class Mutex(Model):
         try:
             with atomic():
                 self.save()
-        except IntegrityError:
-            raise MutexLockedException('Mutex is already locked')
+        except IntegrityError as e:
+            raise MutexLockedException('Mutex is already locked') from e
 
         # return self ?
 

@@ -82,7 +82,7 @@ def get_header(filedata, has_header):
             header = next(backend(filedata))
         except Exception as e:
             logger.exception('Error when reading doc header in clean()')
-            raise ValidationError(ugettext(u'Error reading document: {error}.').format(error=e))
+            raise ValidationError(ugettext(u'Error reading document: {error}.').format(error=e)) from e
         finally:
             filedata.close()
 
@@ -341,8 +341,8 @@ class ExtractorField(Field):
     def clean(self, value):
         try:
             col_index = int(value['selected_column'])
-        except TypeError:
-            raise ValidationError(self.error_messages['invalid'], code='invalid')
+        except TypeError as e:
+            raise ValidationError(self.error_messages['invalid'], code='invalid') from e
 
         def_value = self._original_field.clean(value['default_value'])
 
@@ -571,8 +571,8 @@ class EntityExtractorField(Field):
                                          )
 
                 one_active_command |= bool(index)
-        except TypeError:
-            raise ValidationError(self.error_messages['invalid'], code='invalid')
+        except TypeError as e:
+            raise ValidationError(self.error_messages['invalid'], code='invalid') from e
 
         return one_active_command
 
@@ -781,16 +781,16 @@ class RelationExtractorField(MultiRelationEntityField):
                 ct = ContentType.objects.get_for_id(ctype_pk)
                 model = ct.model_class()
                 model._meta.get_field(searchfield)
-            except ContentType.DoesNotExist:
+            except ContentType.DoesNotExist as e:
                 raise ValidationError(self.error_messages['ctypedoesnotexist'],
                                       params={'ctype': ctype_pk},
                                       code='ctypedoesnotexist',
-                                     )
-            except FieldDoesNotExist:
+                                     ) from e
+            except FieldDoesNotExist as e:
                 raise ValidationError(self.error_messages['fielddoesnotexist'],
                                       params={'field': searchfield},
                                       code='fielddoesnotexist',
-                                     )
+                                     ) from e
 
             # TODO: creation creds for entity (it is done, but in the form)
             # TODO: improve widget to answer for creation only if allowed
@@ -926,8 +926,8 @@ class CustomfieldExtractorField(Field):
     def clean(self, value):
         try:
             col_index = int(value['selected_column'])
-        except TypeError:
-            raise ValidationError(self.error_messages['invalid'], code='invalid')
+        except TypeError as e:
+            raise ValidationError(self.error_messages['invalid'], code='invalid') from e
 
         def_value = value['default_value']
 

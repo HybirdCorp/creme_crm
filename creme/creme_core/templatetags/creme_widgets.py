@@ -157,8 +157,10 @@ def do_icon(parser, token):
     fa_name, fa_value = match.groups()
     try:
         arg_name, icon_node_cls = _WIDGET_ICON_NODES[fa_name]
-    except KeyError:
-        raise TemplateSyntaxError('Invalid 1rst argument to "widget_icon" tag ; it must be in {}'.format(_WIDGET_ICON_NODES.keys()))
+    except KeyError as e:
+        raise TemplateSyntaxError(
+                'Invalid 1rst argument to "widget_icon" tag ; it must be in {}'.format(_WIDGET_ICON_NODES.keys())
+        ) from e
 
     kwargs = {arg_name: parser.compile_filter(fa_value)}
 
@@ -314,8 +316,8 @@ class JoinNode(TemplateNode):
     def render(self, context):
         try:
             forloop = context['forloop']
-        except KeyError:
-            raise ValueError('The tag {% widget_join %} must be used inside a {% for %} loop.')
+        except KeyError as e:
+            raise ValueError('The tag {% widget_join %} must be used inside a {% for %} loop.') from e
 
         try:
             behaviour = self.behaviours[context['LANGUAGE_CODE']]

@@ -87,8 +87,8 @@ def get_sanitized_html_field(request, entity_id, field_name):
 
     try:
         field = entity._meta.get_field(field_name)
-    except FieldDoesNotExist:
-        raise ConflictError('This field does not exist.')
+    except FieldDoesNotExist as e:
+        raise ConflictError('This field does not exist.') from e
 
     if not isinstance(field, UnsafeHTMLField):
         raise ConflictError('This field is not an HTMLField.')
@@ -167,8 +167,8 @@ def search_and_view(request):
     for model_id in model_ids:
         try:
             ct = ContentType.objects.get_by_natural_key(*model_id.split('-'))
-        except (ContentType.DoesNotExist, TypeError):
-            raise Http404(u'This model does not exist: {}'.format(model_id))
+        except (ContentType.DoesNotExist, TypeError) as e:
+            raise Http404(u'This model does not exist: {}'.format(model_id)) from e
 
         if not has_perm(ct.app_label):
             raise PermissionDenied(_(u'You are not allowed to access to this app'))
@@ -407,7 +407,7 @@ def merge(request):
         try:
             merge_form = EntitiesMergeForm(user=request.user, entity1=entity1, entity2=entity2)
         except MergeEntitiesBaseForm.CanNotMergeError as e:
-            raise ConflictError(e)
+            raise ConflictError(e) from e
 
         cancel_url = build_cancel_path(request)
 
@@ -677,7 +677,7 @@ def delete_related_to_entity(request, ct_id):
     try:
         auxiliary.delete()
     except ProtectedError as e:
-        raise PermissionDenied(e.args[0])
+        raise PermissionDenied(e.args[0]) from e
 
     if request.is_ajax():
         # return HttpResponse(content_type='text/javascript')

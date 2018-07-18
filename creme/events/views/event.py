@@ -274,8 +274,8 @@ def _get_status(request, valid_status):
 
     try:
         status = int(status_str)
-    except Exception:
-        raise Http404('Status is not an integer: {}'.format(status_str))
+    except Exception as e:
+        raise Http404('Status is not an integer: {}'.format(status_str)) from e
 
     if not status in valid_status:
         raise Http404('Unknown status: {}'.format(status))

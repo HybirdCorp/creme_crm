@@ -191,9 +191,9 @@ class CRUDityRegistry:
         """Get the registered backend class for the model"""
         try:
             return self._backends[model]
-        except KeyError:
+        except KeyError as e:
             # raise NotRegistered("No backend is registered for the model '%s'" % model)
-            raise self.RegistrationError('No backend is registered for the model "{}"'.format(model))
+            raise self.RegistrationError('No backend is registered for the model "{}"'.format(model)) from e
 
     def get_configured_backends(self):
         """Get backends instances which are configured and associated to an input
@@ -217,13 +217,13 @@ class CRUDityRegistry:
     def get_configured_backend(self, fetcher_name, input_name, norm_subject):
         try:
             fetcher = self._fetchers[fetcher_name]
-        except KeyError:
-            raise KeyError('Fetcher not found: ' + fetcher_name)
+        except KeyError as e:
+            raise KeyError('Fetcher not found: ' + fetcher_name) from e
 
         try:
             crud_inputs = fetcher._inputs[input_name] # TODO: FetcherInterface method ?
-        except KeyError:
-            raise KeyError('Input not found: ' + input_name)
+        except KeyError as e:
+            raise KeyError('Input not found: ' + input_name) from e
 
         for crud_input in crud_inputs.values():
             backend = crud_input.get_backend(norm_subject)
@@ -259,9 +259,9 @@ class CRUDityRegistry:
             except KeyError as e:
                 raise ImproperlyConfigured(u'You have an error in your CRUDITY_BACKENDS settings. '
                                            u'Check if "{}" is present'.format(e)
-                                          )
+                                          ) from e
             except DeserializationError as de:
-                raise ImproperlyConfigured(de)
+                raise ImproperlyConfigured(de) from de
             else:
                 backend_cls = self._backends.get(model)
                 if backend_cls is None:

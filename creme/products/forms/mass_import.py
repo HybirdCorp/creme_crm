@@ -232,8 +232,8 @@ class CategoriesExtractorField(Field):
     def _clean_index(self, value, key):
         try:
             index = int(value[key])
-        except TypeError:
-            raise ValidationError('Invalid value for index "{}"'.format(key))
+        except TypeError as e:
+            raise ValidationError('Invalid value for index "{}"'.format(key)) from e
 
         if index not in self._allowed_indexes:
             raise ValidationError('Invalid index')
@@ -243,8 +243,8 @@ class CategoriesExtractorField(Field):
     def clean(self, value):
         try:
             default_subcat = SubCategory.objects.get(id=value['default_subcat'])
-        except (ValueError, SubCategory.DoesNotExist):
-            raise ValidationError(self.error_messages['invalid_sub_cat'], code='invalid_sub_cat')
+        except (ValueError, SubCategory.DoesNotExist) as e:
+            raise ValidationError(self.error_messages['invalid_sub_cat'], code='invalid_sub_cat') from e
 
         cat_index    = self._clean_index(value, 'cat_column_index')
         subcat_index = self._clean_index(value, 'subcat_column_index')

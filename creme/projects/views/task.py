@@ -162,8 +162,8 @@ def delete_activity(request):
     try:
         rel1 = get_rel(type=constants.REL_SUB_PART_AS_RESOURCE, object_entity=activity)
         rel2 = get_rel(subject_entity=activity, type=constants.REL_SUB_LINKED_2_PTASK)
-    except Relation.DoesNotExist:
-        raise ConflictError('This activity is not related to a project task.')
+    except Relation.DoesNotExist as e:
+        raise ConflictError('This activity is not related to a project task.') from e
 
     request.user.has_perm_to_change_or_die(rel2.object_entity.get_real_entity())  # Project task
 

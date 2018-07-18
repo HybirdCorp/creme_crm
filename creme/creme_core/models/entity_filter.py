@@ -399,8 +399,8 @@ class EntityFilter(Model):  # CremeModel ???
                         else:
                             try:
                                 copy_num = int(copy_num_str) + 1
-                            except ValueError:
-                                raise ValueError('Malformed EntityFilter PK/version: {}'.format(latest_pk))
+                            except ValueError as e:
+                                raise ValueError('Malformed EntityFilter PK/version: {}'.format(latest_pk)) from e
 
                             new_pk += str(copy_num)
                             new_name += '({})'.format(copy_num)
@@ -881,7 +881,7 @@ class EntityFilterCondition(Model):
                 else:
                     value = [str(clean_value(v)) for v in value]
         except Exception as e:
-            raise EntityFilterCondition.ValueError(str(e))
+            raise EntityFilterCondition.ValueError(str(e)) from e
 
         # TODO: migration that replace single value by arrays of values.
         value = {'operator': operator,
@@ -917,7 +917,7 @@ class EntityFilterCondition(Model):
         try:
             finfo = FieldInfo(model, name)
         except FieldDoesNotExist as e:
-            raise EntityFilterCondition.ValueError(str(e))
+            raise EntityFilterCondition.ValueError(str(e)) from e
 
         if not is_date_field(finfo[-1]):
             raise EntityFilterCondition.ValueError('build_4_date(): field must be a date field.')
@@ -957,12 +957,12 @@ class EntityFilterCondition(Model):
         try:
             finfo = FieldInfo(model, name)
         except FieldDoesNotExist as e:
-            raise EntityFilterCondition.ValueError(str(e))
+            raise EntityFilterCondition.ValueError(str(e)) from e
 
         try:
             values = operator_obj.validate_field_values(finfo[-1], values, user=user)
         except Exception as e:
-            raise EntityFilterCondition.ValueError(str(e))
+            raise EntityFilterCondition.ValueError(str(e)) from e
 
         return EntityFilterCondition(type=EntityFilterCondition.EFC_FIELD,
                                      name=name,

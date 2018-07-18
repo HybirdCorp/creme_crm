@@ -379,8 +379,8 @@ def do_templatize(parser, token):
     try:
         # Splitting by None == splitting by spaces.
         tag_name, arg = token.contents.split(None, 1)
-    except ValueError:
-        raise TemplateSyntaxError('{!r} tag requires arguments'.format(token.contents.split()[0]))
+    except ValueError as e:
+        raise TemplateSyntaxError('{!r} tag requires arguments'.format(token.contents.split()[0])) from e
 
     match = _templatize_re.search(arg)
     if not match:
@@ -418,8 +418,8 @@ def do_print_field(parser, token):
     try:
         # Splitting by None == splitting by spaces.
         tag_name, arg = token.contents.split(None, 1)
-    except ValueError:
-        raise TemplateSyntaxError("{!r} tag requires arguments".format(token.contents.split()[0]))
+    except ValueError as e:
+        raise TemplateSyntaxError("{!r} tag requires arguments".format(token.contents.split()[0])) from e
 
     match = _PRINT_FIELD_RE.search(arg)
     if not match:
@@ -489,8 +489,8 @@ def do_has_perm_to(parser, token):
     try:
         # Splitting by None == splitting by spaces.
         tag_name, arg = token.contents.split(None, 1)
-    except ValueError:
-        raise TemplateSyntaxError('{!r} tag requires arguments'.format(token.contents.split()[0]))
+    except ValueError as e:
+        raise TemplateSyntaxError('{!r} tag requires arguments'.format(token.contents.split()[0])) from e
 
     match = _haspermto_re.search(arg)
     if not match:
@@ -536,8 +536,8 @@ def do_include_creme_media(parser, token):
     try:
         # Splitting by None == splitting by spaces.
         tag_name, arg = token.contents.split(None, 1)
-    except ValueError:
-        raise TemplateSyntaxError('{!r} tag requires arguments'.format(token.contents.split()[0]))
+    except ValueError as e:
+        raise TemplateSyntaxError('{!r} tag requires arguments'.format(token.contents.split()[0])) from e
 
     return MediaNode(TemplateLiteral(parser.compile_filter(arg), arg))
 

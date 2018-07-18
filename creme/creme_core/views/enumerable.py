@@ -64,8 +64,8 @@ def json_list_enumerable(request, ct_id):
 
         try:
             config_registry.get_app(app_name).get_model_conf(model=model)
-        except (KeyError, NotRegisteredInConfig):
-            raise Http404(u'Content type is not registered in config')
+        except (KeyError, NotRegisteredInConfig) as e:
+            raise Http404(u'Content type is not registered in config') from e
 
     return [(e.id, str(e)) for e in model.objects.all()]
 

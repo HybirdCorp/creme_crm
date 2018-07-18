@@ -118,7 +118,7 @@ class VBase:
                                            lineNumber
                                           )
 
-                    raise ParseError(new_error, e_info[2])
+                    raise ParseError(new_error, e_info[2]) from e
 
     def transformFromNative(self):
         """Return self transformed into a ContentLine or Component if needed.
@@ -151,7 +151,7 @@ class VBase:
                                             lineNumber
                                            )
 
-                    raise NativeError(new_error, e_info[2])
+                    raise NativeError(new_error, e_info[2]) from e
         else:
             return self
 
@@ -287,8 +287,8 @@ class ContentLine(VBase):
                 return self.params[toVName(name, 10, True)]
             else:
                 raise AttributeError(name)
-        except KeyError:
-            raise AttributeError(name)
+        except KeyError as e:
+            raise AttributeError(name) from e
 
     def __setattr__(self, name, value):
         """Make params accessible via self.foo_param or self.foo_paramlist.
@@ -359,8 +359,8 @@ class Component(VBase):
                 return self.contents[toVName(name, 5)]
             else:
                 return self.contents[toVName(name)][0]
-        except KeyError:
-            raise AttributeError(name)
+        except KeyError as e:
+            raise AttributeError(name) from e
 
     _normal_attributes = frozenset(['contents','name','behavior','parentBehavior','group'])
     def __setattr__(self, name, value):

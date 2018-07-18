@@ -262,13 +262,13 @@ def edit_line_wizard(request, preply_id, line_id):
 
     try:
         line_node = tree.find_line(int(line_id))
-    except KeyError:
+    except KeyError as e:
         msg = 'PollReplyLine with this id {} does not exist for PollReply {}'.format(
                     line_id,
                     preply,
                 )
         logger.error(msg)
-        raise Http404(msg)
+        raise Http404(msg) from e
 
     previous_answer = None
 
@@ -410,8 +410,8 @@ def edit_line(request, preply_id, line_id):
 
     try:
         line_node = tree.find_line(int(line_id))
-    except KeyError:
-        raise Http404('This PollReplyLine id does not correspond to the PollReply instance')
+    except KeyError as e:
+        raise Http404('This PollReplyLine id does not correspond to the PollReply instance') from e
 
     if not tree.conditions_are_met(line_node):
         raise Http404('This answered can not be edited (conditions are not met)')

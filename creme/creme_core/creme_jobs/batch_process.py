@@ -52,9 +52,9 @@ class _BatchProcessType(JobType):
         if efilter_id:
             try:
                 efilter = EntityFilter.objects.get(id=efilter_id)
-            except EntityFilter.DoesNotExist:
+            except EntityFilter.DoesNotExist as e:
                 if raise_exception:
-                    raise self.Error(ugettext(u'The filter does not exist anymore'))
+                    raise self.Error(ugettext(u'The filter does not exist anymore')) from e
 
         return efilter
 
