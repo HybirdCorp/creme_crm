@@ -819,8 +819,10 @@ def brick_display(context, *bricks, **kwargs):
     def pop_group(brick_id):
         try:
             BricksManager.get(context).pop_group(brick_id)
-        except KeyError:
-            raise ValueError('{{% brick_display %}}: it seems that this brick has not been declared/imported: {}'.format(brick_id))
+        except KeyError as e:
+            raise ValueError(
+                '{{% brick_display %}}: it seems that this brick has not been declared/imported: {}'.format(brick_id)
+            ) from e
 
     for brick_or_seq in bricks:
         if brick_or_seq == '':

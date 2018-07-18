@@ -637,7 +637,7 @@ class RegularFieldsConditionsField(_ConditionsField):
                                                )
                                  )
         except EntityFilterCondition.ValueError as e:
-            raise ValidationError(str(e))
+            raise ValidationError(str(e)) from e
 
         return conditions
 
@@ -785,7 +785,7 @@ class DateFieldsConditionsField(_ConditionsField):
                                                  )
                                  )
         except EntityFilterCondition.ValueError as e:
-            raise ValidationError(str(e))
+            raise ValidationError(str(e)) from e
 
         return conditions
 
@@ -851,10 +851,10 @@ class CustomFieldsConditionsField(_ConditionsField):
         # TODO: regroup queries
         try:
             cfield = self._get_cfields().get(id=cfield_id)
-        except CustomField.DoesNotExist:
+        except CustomField.DoesNotExist as e:
             raise ValidationError(self.error_messages['invalidcustomfield'],
                                   code='invalidcustomfield',
-                                 )
+                                 ) from e
 
         return cfield
 
@@ -910,7 +910,7 @@ class CustomFieldsConditionsField(_ConditionsField):
                                                  )
                                  )
         except EntityFilterCondition.ValueError as e:
-            raise ValidationError(str(e))
+            raise ValidationError(str(e)) from e
 
         return conditions
 
@@ -959,10 +959,10 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
         # TODO: regroup queries
         try:
             cfield = self._get_cfields().get(id=cfield_id)
-        except CustomField.DoesNotExist:
+        except CustomField.DoesNotExist as e:
             raise ValidationError(self.error_messages['invalidcustomfield'],
                                   code='invalidcustomfield',
-                                 )
+                                 ) from e
 
         return cfield
 
@@ -980,7 +980,7 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
                                                  )
                                  )
         except EntityFilterCondition.ValueError as e:
-            raise ValidationError(str(e))
+            raise ValidationError(str(e)) from e
 
         return conditions
 
@@ -1039,8 +1039,8 @@ class RelationsConditionsField(_ConditionsField):
         if ct_id:
             try:
                 ct = ContentType.objects.get_for_id(ct_id)
-            except ContentType.DoesNotExist:
-                raise ValidationError(self.error_messages['invalidct'], code='invalidct')
+            except ContentType.DoesNotExist as e:
+                raise ValidationError(self.error_messages['invalidct'], code='invalidct') from e
 
             return ct
 
@@ -1050,8 +1050,8 @@ class RelationsConditionsField(_ConditionsField):
         if entity_id:
             try:
                 return int(entity_id)
-            except ValueError:
-                raise ValidationError(self.error_messages['invalidformat'], code='invalidformat')
+            except ValueError as e:
+                raise ValidationError(self.error_messages['invalidformat'], code='invalidformat') from e
 
     def _clean_rtype(self, entry):
         rtype_id = self.clean_value(entry, 'rtype', str)
@@ -1059,8 +1059,8 @@ class RelationsConditionsField(_ConditionsField):
         # TODO: group queries
         try:
             rtype = self._get_rtypes().get(id=rtype_id)
-        except RelationType.DoesNotExist:
-            raise ValidationError(self.error_messages['invalidrtype'])
+        except RelationType.DoesNotExist as e:
+            raise ValidationError(self.error_messages['invalidrtype']) from e
 
         return rtype
 
@@ -1099,7 +1099,7 @@ class RelationsConditionsField(_ConditionsField):
         try:
             conditions = [build_condition(**kwargs) for kwargs in all_kwargs]
         except EntityFilterCondition.ValueError as e:
-            raise ValidationError(str(e))
+            raise ValidationError(str(e)) from e
 
         return conditions
 
@@ -1155,7 +1155,7 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
         try:
             conditions = [build_condition(**kwargs) for kwargs in all_kwargs]
         except EntityFilterCondition.ValueError as e:
-            raise ValidationError(str(e))
+            raise ValidationError(str(e)) from e
 
         return conditions
 
@@ -1190,8 +1190,8 @@ class PropertiesConditionsField(_ConditionsField):
         # TODO: regroup queries ??
         try:
             ptype = self._get_ptypes().get(id=ptype_pk)
-        except CremePropertyType.DoesNotExist:
-            raise ValidationError(self.error_messages['invalidptype'], code='invalidptype')
+        except CremePropertyType.DoesNotExist as e:
+            raise ValidationError(self.error_messages['invalidptype'], code='invalidptype') from e
 
         return ptype
 
@@ -1318,7 +1318,7 @@ class _EntityFilterForm(CremeModelForm):
             try:
                 self.instance.check_privacy(self.get_cleaned_conditions(), is_private, owner)
             except EntityFilter.PrivacyError as e:
-                raise ValidationError(e)
+                raise ValidationError(e) from e
 
         return cdata
 
@@ -1382,7 +1382,7 @@ class EntityFilterEditForm(_EntityFilterForm):
             try:
                 self.instance.check_cycle(conditions)
             except EntityFilter.CycleError as e:
-                raise ValidationError(e)
+                raise ValidationError(e) from e
 
             cdata['all_conditions'] = conditions
 

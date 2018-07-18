@@ -79,8 +79,8 @@ def import_object(objectpath):
 
     try:
         result = getattr(mod, attr)
-    except AttributeError:
-        raise AttributeError('Module "{}" does not define a "{}" object'.format(module, attr))
+    except AttributeError as e:
+        raise AttributeError('Module "{}" does not define a "{}" object'.format(module, attr)) from e
 
     return result
 

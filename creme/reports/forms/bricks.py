@@ -102,7 +102,7 @@ class GraphInstanceBrickForm(CremeForm):
             self.ibci = self.graph.create_instance_brick_config_item(save=False, **kwargs)
         # except InstanceBlockConfigItemError as e:
         except InstanceBrickConfigItemError as e:
-            raise ValidationError(str(e))
+            raise ValidationError(str(e)) from e
 
         return cleaned_data
 

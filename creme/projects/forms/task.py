@@ -141,8 +141,8 @@ class RelatedActivityEditForm(CremeEntityForm):
             return Relation.objects.get(subject_entity=self.instance.pk, type=REL_SUB_LINKED_2_PTASK) \
                            .object_entity \
                            .get_real_entity()
-        except Relation.DoesNotExist:
-            raise ConflictError('This Activity is not related to a project task.')
+        except Relation.DoesNotExist as e:
+            raise ConflictError('This Activity is not related to a project task.') from e
 
     def __init__(self, *args, **kwargs):
         # super(RelatedActivityEditForm, self).__init__(*args, **kwargs)
@@ -175,8 +175,8 @@ class RelatedActivityEditForm(CremeEntityForm):
                 self.old_relation = get_relation(type=REL_SUB_PART_AS_RESOURCE,
                                                  object_entity=pk,
                                                 )
-            except Relation.DoesNotExist:
-                raise ConflictError('This Activity is not related to a projet task')
+            except Relation.DoesNotExist as e:
+                raise ConflictError('This Activity is not related to a projet task') from e
 
             self.old_participant = self.old_relation.subject_entity.get_real_entity()
             resource_f.initial = Resource.objects.get(task=task,

@@ -82,9 +82,9 @@ class WSBackEnd:
             self.connected = True
             self.url = url
         except HTTPError as e:
-            raise WSException('Connection error to {}'.format(url), e)
+            raise WSException('Connection error to {}'.format(url), e) from e
         except URLError as e:
-            raise WSException('Connection error to {}'.format(url), e)
+            raise WSException('Connection error to {}'.format(url), e) from e
 
         return self
 
@@ -107,13 +107,13 @@ class WSBackEnd:
         try:
             # get from urllib2 ugly code ! (see urllib2.urlopen())
             return self.opener.open(request)
-        except HTTPError as err:
-            if err.code is not code:
-                raise WSException('Request send error', err)
+        except HTTPError as e:
+            if e.code is not code:
+                raise WSException('Request send error', e) from e
 
-            return err.read()
-        except URLError as err:
-            raise WSException('Request send error', err)
+            return e.read()
+        except URLError as e:
+            raise WSException('Request send error', e) from e
 
     def _encode(self, data):
         return urlencode({key: value for key, value in data.items() if value is not None}, True)

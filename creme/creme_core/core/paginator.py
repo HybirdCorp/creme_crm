@@ -164,8 +164,8 @@ class FlowPaginator:
     def _check_key_info(self, page_info):
         try:
             info_key = page_info['key']
-        except KeyError:
-            raise InvalidPage('Missing "key".')
+        except KeyError as e:
+            raise InvalidPage('Missing "key".') from e
         else:
             if info_key != self.key:
                 raise InvalidPage('Invalid "key" (different from paginator key).')
@@ -174,8 +174,8 @@ class FlowPaginator:
     def _offset_from_info(page_info):
         try:
             offset = int(page_info.get('offset', 0))
-        except ValueError:
-            raise InvalidPage('Invalid "offset" (not integer).')
+        except ValueError as e:
+            raise InvalidPage('Invalid "offset" (not integer).') from e
 
         if offset < 0:
             raise InvalidPage('Invalid "offset" (negative) .')
@@ -198,7 +198,7 @@ class FlowPaginator:
         try:
             qs = self.queryset.filter(q)
         except (ValueError, ValidationError) as e:
-            raise InvalidPage('Invalid "value" [{}].'.format(e))
+            raise InvalidPage('Invalid "value" [{}].'.format(e)) from e
 
         return qs
 

@@ -118,8 +118,8 @@ def download_file(request, location):
     try:
         with open(path, 'rb') as f:
             data = f.read()
-    except IOError:
-        raise Http404(_('Invalid file'))
+    except IOError as e:
+        raise Http404(_('Invalid file')) from e
 
     response = HttpResponse(data, content_type=ftype)
     response['Content-Disposition'] = 'attachment; filename={}'.format(name.replace(' ', '_'))

@@ -120,7 +120,7 @@ class FileCreator:
                 if not exists(dir_path):
                     logger.warning('Cannot create directory %s (%s)', dir_path, e)
 
-                    raise self.Error('The directory {} cannot be created.'.format(dir_path))
+                    raise self.Error('The directory {} cannot be created.'.format(dir_path)) from e
 
         name = secure_filename(self.name)
         name_root, name_ext = splitext(name)
@@ -145,12 +145,11 @@ class FileCreator:
                 try:
                     # TODO: in Python 3.3, use 'x' option of __builtins__.open()
                     fd = os.open(final_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-                except OSError:
-                    pass
-                    if trials >= max_trials:
+                except OSError as e:
+                     if trials >= max_trials:
                         raise self.Error('No unique filename has been found with the '
                                          'current rules (max trials reached).'
-                                        )
+                                        ) from e
                 else:
                     os.close(fd)
 

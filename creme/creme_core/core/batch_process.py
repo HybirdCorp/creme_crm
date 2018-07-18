@@ -37,8 +37,8 @@ def cast_2_str(value):
 def cast_2_positive_int(value):
     try:
         value = int(value)
-    except (ValueError, TypeError):
-        raise CastError(ugettext('enter a whole number'))
+    except (ValueError, TypeError) as e:
+        raise CastError(ugettext('enter a whole number')) from e
 
     if value < 1:
         raise CastError(ugettext('enter a positive number'))
@@ -167,7 +167,7 @@ class BatchAction:
                                                 operator=operator,
                                                 message=e,
                                             )
-                                        )
+                                        ) from e
 
     def __call__(self, entity):
         """The action's operator is computed with the given entity (on the field indicated by action-field

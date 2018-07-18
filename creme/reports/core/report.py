@@ -212,8 +212,8 @@ class RHRegularField(ReportHand):
     def __new__(cls, report_field):
         try:
             field_info = FieldInfo(report_field.model, report_field.name)
-        except FieldDoesNotExist:
-            raise ReportHand.ValueError('Invalid field: "{}" (does not exist)'.format(report_field.name))
+        except FieldDoesNotExist as e:
+            raise ReportHand.ValueError('Invalid field: "{}" (does not exist)'.format(report_field.name)) from e
 
         # if len(field_info) > 1 and isinstance(field_info[1], (ForeignKey, ManyToManyField)):
         #      raise ReportHand.ValueError('Invalid field: "%s"' % report_field.name)
@@ -370,8 +370,8 @@ class RHCustomField(ReportHand):
     def __init__(self, report_field):
         try:
             self._cfield = cf = CustomField.objects.get(id=report_field.name)
-        except CustomField.DoesNotExist:
-            raise ReportHand.ValueError('Invalid custom field: "{}"'.format(report_field.name))
+        except CustomField.DoesNotExist as e:
+            raise ReportHand.ValueError('Invalid custom field: "{}"'.format(report_field.name)) from e
 
         # super(RHCustomField, self).__init__(report_field, title=cf.name)
         super().__init__(report_field, title=cf.name)
@@ -390,8 +390,8 @@ class RHRelation(ReportHand):
 
         try:
             self._rtype = rtype = RelationType.objects.get(id=rtype_id)
-        except RelationType.DoesNotExist:
-            raise ReportHand.ValueError('Invalid relation type: "{}"'.format(rtype_id))
+        except RelationType.DoesNotExist as e:
+            raise ReportHand.ValueError('Invalid relation type: "{}"'.format(rtype_id)) from e
 
         if report_field.sub_report:
             self._related_model = report_field.sub_report.ct.model_class()
@@ -484,8 +484,8 @@ class RHAggregateRegularField(RHAggregate):
     def _build_query_n_vname(self, report_field, field_name, aggregation):
         try:
             field = report_field.model._meta.get_field(field_name)
-        except FieldDoesNotExist:
-            raise ReportHand.ValueError('Unknown field: "{}"'.format(field_name))
+        except FieldDoesNotExist as e:
+            raise ReportHand.ValueError('Unknown field: "{}"'.format(field_name)) from e
 
         if not isinstance(field, field_aggregation_registry.authorized_fields):
             raise ReportHand.ValueError('This type of field can not be aggregated: "{}"'.format(field_name))
@@ -500,8 +500,8 @@ class RHAggregateCustomField(RHAggregate):
     def _build_query_n_vname(self, report_field, field_name, aggregation):
         try:
             cfield = CustomField.objects.get(id=field_name)
-        except (ValueError, CustomField.DoesNotExist):
-            raise ReportHand.ValueError('Invalid custom field aggregation: "{}"'.format(field_name))
+        except (ValueError, CustomField.DoesNotExist) as e:
+            raise ReportHand.ValueError('Invalid custom field aggregation: "{}"'.format(field_name)) from e
 
         if cfield.field_type not in field_aggregation_registry.authorized_customfields:
             raise ReportHand.ValueError('This type of custom field can not be aggregated: "{}"'.format(field_name))

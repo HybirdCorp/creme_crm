@@ -47,8 +47,8 @@ def _get_appconf(user, app_name):
 
     try:
         app_config = config_registry.get_app(app_name)
-    except LookupError:
-        raise Http404('Unknown app')
+    except LookupError as e:
+        raise Http404('Unknown app') from e
 
     return app_config
 
@@ -149,7 +149,7 @@ def delete_model(request, app_name, model_name):
 
     try:
         instance.delete()
-    except ProtectedError:
+    except ProtectedError as e:
         msg = _(u'{} can not be deleted because of its dependencies.').format(instance)
 
         # TODO: factorise ??
@@ -157,7 +157,7 @@ def delete_model(request, app_name, model_name):
             # return HttpResponse(msg, content_type='text/javascript', status=400)
             return HttpResponse(msg, status=400)
 
-        raise Http404(msg)
+        raise Http404(msg) from e
 
     return HttpResponse()
 

@@ -116,7 +116,7 @@ def disable_line(request, line_id):
     try:
         line.disable()
     except ProtectedError as e:
-        raise PermissionDenied(e.args[0])
+        raise PermissionDenied(e.args[0]) from e
 
     if request.is_ajax():
         # return HttpResponse(content_type='text/javascript')

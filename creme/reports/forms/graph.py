@@ -237,7 +237,7 @@ class ReportGraphForm(CremeEntityForm):
         try:
             graph_type = int(str_val)
         except Exception as e:
-            raise ValidationError('Invalid value: %s  [%s]', str_val, e)
+            raise ValidationError('Invalid value: %s  [%s]', str_val, e) from e
 
         hand = RGRAPH_HANDS_MAP.get(graph_type)
 

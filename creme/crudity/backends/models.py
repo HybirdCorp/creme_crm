@@ -103,7 +103,7 @@ class CrudityBackend:
                         if field.get_attname() == field_name:
                             break
                     else:
-                        raise ImproperlyConfiguredBackend(e)
+                        raise ImproperlyConfiguredBackend(e) from e
 
     # TODO: factorise with CrudityQuerysetBrick.is_sandbox_by_user ?
     @property

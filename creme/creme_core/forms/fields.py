@@ -138,10 +138,10 @@ class JSONField(fields.CharField):
 
         try:
             return type(value)
-        except:
+        except Exception as e:
             raise ValidationError(self.error_messages['invalidformat'],
                                   code='invalidformat',
-                                 )
+                                 ) from e
 
     def clean_json(self, value, expected_type=None):
         if not value:
@@ -149,10 +149,10 @@ class JSONField(fields.CharField):
 
         try:
             data = json_load(value)
-        except Exception:
+        except Exception as e:
             raise ValidationError(self.error_messages['invalidformat'],
                                   code='invalidformat',
-                                 )
+                                 ) from e
 
         if expected_type is not None and data is not None and not isinstance(data, expected_type):
             raise ValidationError(self.error_messages['invalidtype'], code='invalidtype')
@@ -188,11 +188,11 @@ class JSONField(fields.CharField):
         if not isinstance(ctype, ContentType):
             try:
                 ctype = ContentType.objects.get_for_id(ctype)
-            except ContentType.DoesNotExist:
+            except ContentType.DoesNotExist as e:
                 raise ValidationError(self.error_messages['doesnotexist'],
                                       params={'ctype': ctype},
                                       code='doesnotexist',
-                                     )
+                                     ) from e
 
         entity = None
 
@@ -205,13 +205,13 @@ class JSONField(fields.CharField):
 
             try:
                 entity = model.objects.get(is_deleted=False, pk=entity_pk)
-            except model.DoesNotExist:
+            except model.DoesNotExist as e:
                 raise ValidationError(self.error_messages['doesnotexist'],
                                       params={'ctype': ctype.pk,
                                               'entity': entity_pk,
                                              },
                                       code='doesnotexist',
-                                     )
+                                     ) from e
 
         return entity
 
@@ -226,11 +226,11 @@ class JSONField(fields.CharField):
     def _clean_entity_from_model(self, model, entity_pk, qfilter=None):
         try:
             return self._entity_queryset(model, qfilter).get(pk=entity_pk)
-        except model.DoesNotExist:
+        except model.DoesNotExist as e:
             if self.required:
                 raise ValidationError(self.error_messages['doesnotexist'],
                                       code='doesnotexist',
-                                     )
+                                     ) from e
 
     def _value_from_unjsonfied(self, data):
         "Build the field value from deserialized data."
@@ -601,10 +601,10 @@ class RelationEntityField(EntityCredsJSONField):
 
         try:
             return RelationType.objects.get(pk=rtype_pk)
-        except RelationType.DoesNotExist:
+        except RelationType.DoesNotExist as e:
             raise ValidationError(self.error_messages['rtypedoesnotexist'],
                                   params={'rtype': rtype_pk}, code='rtypedoesnotexist',
-                                 )
+                                 ) from e
 
     def _get_options(self):  # TODO: inline
         return ChoiceModelIterator(self._allowed_rtypes)
@@ -627,10 +627,10 @@ class MultiRelationEntityField(RelationEntityField):
     def _build_rtype_cache(self, rtype_pk):
         try:
             rtype = RelationType.objects.get(pk=rtype_pk)
-        except RelationType.DoesNotExist:
+        except RelationType.DoesNotExist as e:
             raise ValidationError(self.error_messages['rtypedoesnotexist'],
                                   params={'rtype': rtype_pk}, code='rtypedoesnotexist',
-                                 )
+                                 ) from e
 
         rtype_allowed_ctypes     = frozenset(ct.pk for ct in rtype.object_ctypes.all())
         rtype_allowed_properties = frozenset(rtype.object_properties.values_list('id', flat=True))
@@ -640,10 +640,10 @@ class MultiRelationEntityField(RelationEntityField):
     def _build_ctype_cache(self, ctype_pk):
         try:
             ctype = ContentType.objects.get_for_id(ctype_pk)
-        except ContentType.DoesNotExist:
+        except ContentType.DoesNotExist as e:
             raise ValidationError(self.error_messages['ctypedoesnotexist'],
                                   params={'ctype': ctype_pk}, code='ctypedoesnotexist',
-                                 )
+                                 ) from e
 
         return ctype, []
 
@@ -832,8 +832,8 @@ class CreatorEntityField(EntityCredsJSONField):
             if isinstance(q_filter, dict):
                 try:
                     q = get_q_from_dict(q_filter)
-                except:
-                    raise ValueError('Invalid q_filter: {}'.format(q_filter))
+                except Exception as e:
+                    raise ValueError('Invalid q_filter: {}'.format(q_filter)) from e
             elif isinstance(q_filter, Q):
                 q = q_filter
             else:

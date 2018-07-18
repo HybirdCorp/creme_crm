@@ -49,7 +49,7 @@ def mass_import(request, ct_id):
     try:
         import_form_registry.get(ct)
     except import_form_registry.UnregisteredCTypeException as e:
-        raise Http404(e)
+        raise Http404(e) from e
 
     user = request.user
 

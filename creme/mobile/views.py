@@ -386,7 +386,7 @@ def _build_date_or_404(date_str):
     try:
         return dt_from_ISO8601(date_str)
     except ValueError as e:
-        raise Http404(e)
+        raise Http404(e) from e
 
 
 @mobile_login_required

@@ -301,8 +301,8 @@ class ItemList:
 
                 try:
                     get = item.get
-                except AttributeError:
-                    raise KeyError('"{0}" is not a container.'.format(item_id1))
+                except AttributeError as e:
+                    raise KeyError('"{0}" is not a container.'.format(item_id1)) from e
 
                 return get(*item_ids)
 
@@ -686,7 +686,7 @@ class CreationFormsItem(ViewableItem):
                     self._url  = kwargs['url']
                     self.perm  = kwargs['perm']
                 except KeyError as e:
-                    raise TypeError('Link: missing parameter {}'.format(e))
+                    raise TypeError('Link: missing parameter {}'.format(e)) from e
 
         def __str__(self):
             return u'<Link: id="{}" label="{}" priority={}>'.format(

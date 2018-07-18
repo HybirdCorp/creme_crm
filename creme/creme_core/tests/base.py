@@ -209,7 +209,7 @@ class _CremeTestCase:
         except Exception as e:
             print_traceback()
 
-            raise self.failureException('An exception <{}> occurred: {}'.format(e.__class__.__name__, e))
+            raise self.failureException('An exception <{}> occurred: {}'.format(e.__class__.__name__, e)) from e
 
     # TODO: add an argument 'field' like assertNoFormsetError()
     def assertNoFormError(self, response, status=200, form='form'):
@@ -357,7 +357,7 @@ class _CremeTestCase:
         try:
             diff = xml_diff(expected, actual)
         except XMLDiffError as e:
-            raise self.failureException('Bad XML document [{}]'.format(e))
+            raise self.failureException('Bad XML document [{}]'.format(e)) from e
 
         if diff is not None:
             msg = diff.long_msg

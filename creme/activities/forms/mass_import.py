@@ -335,8 +335,8 @@ class ParticipantsExtractorField(Field):
     def _clean_index(self, value, key):
         try:
             index = int(value[key])
-        except TypeError:
-            raise ValidationError('Invalid value for index "{}"'.format(key))
+        except TypeError as e:
+            raise ValidationError('Invalid value for index "{}"'.format(key)) from e
 
         if index not in self._allowed_indexes:
             raise ValidationError('Invalid index')
@@ -346,8 +346,8 @@ class ParticipantsExtractorField(Field):
     def _clean_mode(self, value):  # TODO: factorise
         try:
             mode = int(value['mode'])
-        except TypeError:
-            raise ValidationError('Invalid value for mode')
+        except TypeError as e:
+            raise ValidationError('Invalid value for mode') from e
 
         return mode
 
@@ -533,8 +533,8 @@ class SubjectsExtractorField(Field):
     def _clean_index(self, value, key):
         try:
             index = int(value[key])
-        except TypeError:
-            raise ValidationError('Invalid value for index "{}"'.format(key))
+        except TypeError as e:
+            raise ValidationError('Invalid value for index "{}"'.format(key)) from e
 
         if index not in self._allowed_indexes:
             raise ValidationError('Invalid index')

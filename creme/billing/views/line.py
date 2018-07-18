@@ -91,8 +91,8 @@ def add_to_catalog(request, line_id):
 
     try:
         related_item_class = line.related_item_class()
-    except AttributeError:
-        raise Http404('This entity is not a billing line')  # ConflictError ??
+    except AttributeError as e:
+        raise Http404('This entity is not a billing line') from e # ConflictError ??
 
     user = request.user
     user.has_perm_to_create_or_die(related_item_class)

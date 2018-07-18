@@ -60,8 +60,8 @@ def get_ct_or_404(ct_id):
     """
     try:
         ct = ContentType.objects.get_for_id(ct_id)
-    except ContentType.DoesNotExist:
-        raise Http404('No content type with this id: {}'.format(ct_id))
+    except ContentType.DoesNotExist as e:
+        raise Http404('No content type with this id: {}'.format(ct_id)) from e
 
     return ct
 
@@ -197,7 +197,7 @@ def _get_from_request_or_404(method, method_name, key, cast=None, **kwargs):
         try:
             value = cast(value)
         except Exception as e:
-            raise Http404('Problem with argument "{}" : it can not be coerced ({})'.format(key, str(e)))
+            raise Http404('Problem with argument "{}" : it can not be coerced ({})'.format(key, str(e))) from e
 
     return value
 

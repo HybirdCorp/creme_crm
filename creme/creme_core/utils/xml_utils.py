@@ -90,12 +90,12 @@ def xml_diff(xml1, xml2):
     try:
         tree1 = XML(xml1)
     except Exception as e:
-        raise XMLDiffError('First document contains errors (base exception: {})'.format(e))
+        raise XMLDiffError('First document contains errors (base exception: {})'.format(e)) from e
 
     try:
         tree2 = XML(xml2)
     except Exception as e:
-        raise XMLDiffError('Second document contains errors (base exception: {})'.format(e))
+        raise XMLDiffError('Second document contains errors (base exception: {})'.format(e)) from e
 
     iter1 = _element_iterator(tree1)
     iter2 = _element_iterator(tree2)

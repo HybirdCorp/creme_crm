@@ -142,8 +142,8 @@ class ActivityTypeField(JSONField):
 
         try:
             atype = self.types.get(pk=type_pk)
-        except ActivityType.DoesNotExist:
-            raise ValidationError(self.error_messages['typenotallowed'], code='typenotallowed')
+        except ActivityType.DoesNotExist as e:
+            raise ValidationError(self.error_messages['typenotallowed'], code='typenotallowed') from e
 
         related_types = ActivitySubType.objects.filter(type=atype)
         subtype = None
@@ -151,10 +151,10 @@ class ActivityTypeField(JSONField):
         if subtype_pk:
             try:
                 subtype = related_types.get(pk=subtype_pk)
-            except ActivitySubType.DoesNotExist:
+            except ActivitySubType.DoesNotExist as e:
                 raise ValidationError(self.error_messages['subtyperequired'],
                                       code='subtyperequired',
-                                     )
+                                     ) from e
         elif self.required and related_types.exists():
             raise ValidationError(self.error_messages['subtyperequired'],
                                   code='subtyperequired',

@@ -44,8 +44,8 @@ def _add_tags_to_fields():
     def _get_tag(self, tag_name):
         try:
             return getattr(self, '_cremetag_{}'.format(tag_name))
-        except AttributeError:
-            raise InvalidFieldTag('Unknown tag : {}'.format(tag_name))
+        except AttributeError as e:
+            raise InvalidFieldTag('Unknown tag : {}'.format(tag_name)) from e
 
     Field.set_tags = _set_tags
     Field.get_tag  = _get_tag
