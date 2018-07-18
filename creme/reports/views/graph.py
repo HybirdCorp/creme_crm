@@ -140,8 +140,9 @@ def get_available_report_graph_types(request, ct_id):
 
 
 def cast_order(order):
-    if order != 'ASC' and order != 'DESC':
-        raise ValueError('Order must be in ("ASC", "DESC")')
+    # if order != 'ASC' and order != 'DESC':
+    if order not in {'ASC', 'DESC'}:
+        raise ValueError('Order must be in {"ASC", "DESC"}')
 
     return order
 

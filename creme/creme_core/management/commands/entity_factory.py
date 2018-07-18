@@ -216,7 +216,7 @@ class OptimizeMySQLContext(BaseOptimizeContext):
             cursor.execute("SHOW VARIABLES LIKE 'innodb_flush_log_at_trx_commit'")
             self.flush_policy = flush_policy = cursor.fetchall()[0][1]
 
-            if flush_policy in ('1', '2'):
+            if flush_policy in {'1', '2'}:
                 sql_cmd = 'SET GLOBAL innodb_flush_log_at_trx_commit=0'
 
                 if self.verbosity:
@@ -232,7 +232,7 @@ class OptimizeMySQLContext(BaseOptimizeContext):
         cursor = self.cursor
 
         if self.engine == 'InnoDB':
-            if self.flush_policy in ('1', '2'):
+            if self.flush_policy in {'1', '2'}:
                 cursor.execute('SET GLOBAL innodb_flush_log_at_trx_commit={}'.format(self.flush_policy))
         # else: # TODO: manage other engine
 

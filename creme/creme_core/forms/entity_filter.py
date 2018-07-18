@@ -319,10 +319,10 @@ class CustomFieldConditionSelector(FieldConditionWidget):
         if type == 'string':
             return 'string'
 
-        if type in ('integer', 'double', 'float'):
+        if type in {'integer', 'double', 'float'}:
             return 'number__null'
 
-        if type in ('enum', 'multienum'):
+        if type in {'enum', 'multienum'}:
             return 'enum__null'
 
         return type + '__null'

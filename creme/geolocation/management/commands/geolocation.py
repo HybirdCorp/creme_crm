@@ -101,9 +101,9 @@ class CSVPopulator:
     #         raise self.ReadError('Unable to open CSV data from {} : {}'.format(url, e))
 
     def _get_source_file(self, url_info):
-        if url_info.scheme in ('file', ''):
+        if url_info.scheme in {'file', ''}:
             return open(url_info.path, 'rb')
-        elif url_info.scheme in ('http', 'https'):
+        elif url_info.scheme in {'http', 'https'}:
             self.info('Downloading database...')
             return urlopen(url_info.geturl())
         else:

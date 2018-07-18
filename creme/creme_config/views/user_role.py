@@ -90,7 +90,7 @@ class UserRoleCreationWizard(PopupWizardMixin, SessionWizardView):
         return HttpResponse()
 
     def get_form_instance(self, step):
-        if step in ('0', '1', '2', '3'):
+        if step in {'0', '1', '2', '3'}:
             return self.role
 
     def get_form_kwargs(self, step):

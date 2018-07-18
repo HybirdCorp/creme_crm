@@ -640,8 +640,8 @@ class FunctionFieldTestCase(_BillingTestCase):
         for funf in chain(off_mngr, cff_mngr):
             self.assertIsInstance(funf, FunctionField)
 
-            if funf.name in ('total_pending_payment',
+            if funf.name in {'total_pending_payment',
                              'total_won_quote_this_year',
                              'total_won_quote_last_year',
-                            ):
+                             }:
                 self.assertEqual('0', funf(target, user).for_html())
