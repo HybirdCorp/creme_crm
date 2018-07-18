@@ -58,7 +58,8 @@ class AbscissaGroupBySelect(Select):
         if attrs is not None:
             extra_args.update(attrs)
 
-        return super(AbscissaGroupBySelect, self).get_context(name=name, value=value, attrs=extra_args)
+        # return super(AbscissaGroupBySelect, self).get_context(name=name, value=value, attrs=extra_args)
+        return super().get_context(name=name, value=value, attrs=extra_args)
 
 
 class ReportGraphForm(CremeEntityForm):
@@ -89,7 +90,8 @@ class ReportGraphForm(CremeEntityForm):
         model = get_rgraph_model()
 
     def __init__(self, entity, *args, **kwargs):
-        super(ReportGraphForm, self).__init__(*args, **kwargs)
+        # super(ReportGraphForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.report = entity
         report_ct = entity.ct
         model = report_ct.model_class()
@@ -288,7 +290,8 @@ class ReportGraphForm(CremeEntityForm):
                 return cfield
 
     def clean(self):
-        cleaned_data = super(ReportGraphForm, self).clean()
+        # cleaned_data = super(ReportGraphForm, self).clean()
+        cleaned_data = super().clean()
         get_data     = cleaned_data.get
         model = self.report.ct.model_class()
 
@@ -345,4 +348,5 @@ class ReportGraphForm(CremeEntityForm):
         agg_fields = get_data('aggregate_field')
         graph.ordinate = '{}__{}'.format(agg_fields, get_data('aggregate')) if agg_fields else u""
 
-        return super(ReportGraphForm, self).save(*args, **kwargs)
+        # return super(ReportGraphForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)

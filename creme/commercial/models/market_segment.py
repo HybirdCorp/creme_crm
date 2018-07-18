@@ -62,4 +62,5 @@ class MarketSegment(CremeModel):
             if qs.exists():
                 raise ValueError('Only one MarketSegment with property_type=NULL is allowed.')
 
-        super(MarketSegment, self).save(*args, **kwargs)
+        # super(MarketSegment, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)

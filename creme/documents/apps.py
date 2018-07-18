@@ -36,7 +36,8 @@ class DocumentsConfig(CremeAppConfig):
 
         self.Document = get_document_model()
         self.Folder   = get_folder_model()
-        super(DocumentsConfig, self).all_apps_ready()
+        # super(DocumentsConfig, self).all_apps_ready()
+        super().all_apps_ready()
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Document, self.Folder)

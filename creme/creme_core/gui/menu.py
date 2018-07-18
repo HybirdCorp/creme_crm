@@ -160,7 +160,8 @@ class ViewableItem(Item):
                (eg: 'persons', 'persons.add_contact') or a callable which takes one argument (user) & returns
                a boolean.
         """
-        super(ViewableItem, self).__init__(id)
+        # super(ViewableItem, self).__init__(id)
+        super().__init__(id)
         # TODO: assert there is at least an icon or a label ????
         self.label = label
         self.icon = icon
@@ -468,7 +469,8 @@ class ContainerItem(ViewableItem, ItemList):
 
 class LabelItem(ViewableItem):
     def __init__(self, id,  label, css_classes='ui-creme-navigation-text-entry'):
-        super(LabelItem, self).__init__(id=id, label=label)
+        # super(LabelItem, self).__init__(id=id, label=label)
+        super().__init__(id=id, label=label)
         self.css_class = css_classes
 
     def render(self, context, level=0):
@@ -478,7 +480,8 @@ class LabelItem(ViewableItem):
 class GroupLabelItem(LabelItem):
     "You should not instancing these class (just set a 'label' on your ItemGroup)."
     def __init__(self, id,  label):
-        super(GroupLabelItem, self).__init__(id=id, label=label, css_classes='ui-creme-navigation-title')
+        # super(GroupLabelItem, self).__init__(id=id, label=label, css_classes='ui-creme-navigation-title')
+        super().__init__(id=id, label=label, css_classes='ui-creme-navigation-title')
 
     def __str__(self):
         return ''
@@ -488,7 +491,8 @@ class URLItem(ViewableItem):
     "Item which is rendered as a <a> tag"
     def __init__(self, id, url, *args, **kwargs):
         "@param url: see 'url' property."
-        super(URLItem, self).__init__(id, *args, **kwargs)
+        # super(URLItem, self).__init__(id, *args, **kwargs)
+        super().__init__(id, *args, **kwargs)
         self._url = url
 
     @property
@@ -572,7 +576,7 @@ class URLItem(ViewableItem):
 
 # class OnClickItem(Item):
 #     def __init__(self, id, onclick, *args, **kwargs):
-#         super(OnClickItem, self).__init__(id, *args, **kwargs)
+#         super().__init__(id, *args, **kwargs)
 #         self.onclick = onclick
 #
 #     def render(self, context):
@@ -590,7 +594,8 @@ class URLItem(ViewableItem):
 class TrashItem(URLItem):
     "Item rendering as a link to the Creme trash."
     def __init__(self, id, url=reverse('creme_core__trash')):
-        super(TrashItem, self).__init__(id=id, url=url)
+        # super(TrashItem, self).__init__(id=id, url=url)
+        super().__init__(id=id, url=url)
 
     def render(self, context, level=0):
         count = CremeEntity.objects.filter(is_deleted=True).count()
@@ -604,6 +609,7 @@ class TrashItem(URLItem):
                 label=_(u'Trash'),
                 count=ungettext(u'{count} entity', u'{count} entities', count).format(count=count),
         )
+
 
 class QuickCreationItemGroup(ItemGroup):  # TODO: 'is_group' + do not inherit ItemGroup ?
     """Item group with a dynamic content, yielded from a QuickFormsRegistry instance."""
@@ -624,7 +630,8 @@ class QuickCreationItemGroup(ItemGroup):  # TODO: 'is_group' + do not inherit It
 
     def __init__(self, id, registry, label=ugettext_lazy(u'Quick creation')):
         """@param registry: QuickFormsRegistry instance (indeed, we only need a iter_models() method)."""
-        super(QuickCreationItemGroup, self).__init__(id=id, label=label)
+        # super(QuickCreationItemGroup, self).__init__(id=id, label=label)
+        super().__init__(id=id, label=label)
         self._registry = registry
 
     def __iter__(self):
@@ -750,7 +757,8 @@ class CreationFormsItem(ViewableItem):
             self._links.remove(*link_ids)
 
     def __init__(self, *args, **kwargs):
-        super(CreationFormsItem, self).__init__(*args, **kwargs)
+        # super(CreationFormsItem, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._groups = ItemList()  # we do not inherit to expose a (slightly) different API
 
     def as_grid(self, user):
@@ -873,7 +881,8 @@ class Menu(ItemList):
     ItemGroup = ItemGroup
 
     def __iter__(self):
-        for item in super(Menu, self).__iter__():
+        # for item in super(Menu, self).__iter__():
+        for item in super().__iter__():
             # TODO: what about nested group (in group) ? forbid or manage ?
             # TODO: attr 'must_be_flattened' ?
             if isinstance(item, ItemGroup):

@@ -44,14 +44,16 @@ _CUSTOMFIELD_FORMAT = 'customfield-{}'  # TODO: remove & use base._CUSTOM_NAME i
 
 class BulkFieldSelectWidget(Select):
     def build_attrs(self, base_attrs, extra_attrs=None):
-        attrs = super(BulkFieldSelectWidget, self).build_attrs(base_attrs=base_attrs, extra_attrs=extra_attrs)
+        # attrs = super(BulkFieldSelectWidget, self).build_attrs(base_attrs=base_attrs, extra_attrs=extra_attrs)
+        attrs = super().build_attrs(base_attrs=base_attrs, extra_attrs=extra_attrs)
         attrs['onchange'] = 'creme.dialog.redirect($(this).val(), $(this));'
         return attrs
 
 
 class BulkForm(CremeForm):
     def __init__(self, model, field, user, entities, is_bulk, parent_field=None, **kwargs):
-        super(BulkForm, self).__init__(user, **kwargs)
+        # super(BulkForm, self).__init__(user, **kwargs)
+        super().__init__(user, **kwargs)
         self.is_bulk = is_bulk
         self.is_subfield = parent_field is not None
         self.is_custom = is_custom = isinstance(field, custom_field.CustomField)
@@ -240,7 +242,8 @@ class BulkForm(CremeForm):
 
 class BulkDefaultEditForm(BulkForm):
     def __init__(self, model, field, user, entities, is_bulk=False, **kwargs):
-        super(BulkDefaultEditForm, self).__init__(model, field, user, entities, is_bulk, **kwargs)
+        # super(BulkDefaultEditForm, self).__init__(model, field, user, entities, is_bulk, **kwargs)
+        super().__init__(model, field, user, entities, is_bulk, **kwargs)
 
         instance = entities[0] if not is_bulk else None
         form_field = self._bulk_formfield(user, instance)
@@ -248,7 +251,8 @@ class BulkDefaultEditForm(BulkForm):
         self.fields['field_value'] = form_field
 
     def clean(self):
-        cleaned_data = super(BulkDefaultEditForm, self).clean()
+        # cleaned_data = super(BulkDefaultEditForm, self).clean()
+        cleaned_data = super().clean()
 
         if self.errors:
             return cleaned_data

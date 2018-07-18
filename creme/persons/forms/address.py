@@ -33,12 +33,14 @@ class AddressForm(CremeModelForm):
         model = get_address_model()
 
     def __init__(self, entity, *args, **kwargs):
-        super(AddressForm, self).__init__(*args, **kwargs)
+        # super(AddressForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._entity = entity
 
     def save(self, *args, **kwargs):
         self.instance.owner = self._entity
-        return super(AddressForm, self).save(*args, **kwargs)
+        # return super(AddressForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class UnnamedAddressForm(AddressForm):
@@ -60,7 +62,8 @@ class _FieldAddressForm(UnnamedAddressForm):
     verbose_name = 'OVERLOAD'
 
     def __init__(self, *args, **kwargs):
-        super(_FieldAddressForm, self).__init__(*args, **kwargs)
+        # super(_FieldAddressForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # TODO: should be in the view ?
         field_name = self.field_name
@@ -72,7 +75,8 @@ class _FieldAddressForm(UnnamedAddressForm):
         address.name = str(self.verbose_name)
 
         entity = self._entity
-        super(_FieldAddressForm, self).save(*args, **kwargs)
+        # super(_FieldAddressForm, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
         setattr(entity, self.field_name, address)
         entity.save()  # TODO: with django 1.5: save only one field

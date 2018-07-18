@@ -20,7 +20,8 @@ except Exception as e:
 class HeaderFiltersTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        super(HeaderFiltersTestCase, cls).setUpClass()
+        # super(HeaderFiltersTestCase, cls).setUpClass()
+        super().setUpClass()
 
         get_ct = ContentType.objects.get_for_model
         cls.contact_ct = get_ct(FakeContact)  # TODO: used once ?!

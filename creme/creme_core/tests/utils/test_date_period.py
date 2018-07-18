@@ -15,7 +15,8 @@ except Exception as e:
 class DatePeriodTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        super(DatePeriodTestCase, cls).setUpClass()
+        # super(DatePeriodTestCase, cls).setUpClass()
+        super().setUpClass()
 
         cls.registry = DatePeriodRegistry(
                 MinutesPeriod,

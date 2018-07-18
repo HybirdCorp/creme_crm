@@ -24,8 +24,8 @@ class FlowPaginatorTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        # CremeTestCase.setUpClass()
-        super(FlowPaginatorTestCase, cls).setUpClass()
+        # super(FlowPaginatorTestCase, cls).setUpClass()
+        super().setUpClass()
 
         all_names = [('Rei',     'Ichido'),
                      (u'Gô',     'Reietsu'),
@@ -47,7 +47,8 @@ class FlowPaginatorTestCase(CremeTestCase):
                             ]
 
     def setUp(self):
-        super(FlowPaginatorTestCase, self).setUp()
+        # super(FlowPaginatorTestCase, self).setUp()
+        super().setUp()
         self.login()
 
         self.assertIsNone(FakeContact.objects.first())

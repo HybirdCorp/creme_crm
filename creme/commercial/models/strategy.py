@@ -62,7 +62,8 @@ class AbstractStrategy(CremeEntity):
         ordering = ('name',)
 
     def __init__(self, *args, **kwargs):
-        super(AbstractStrategy, self).__init__(*args, **kwargs)
+        # super(AbstractStrategy, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._clear_caches()
 
     def __str__(self):
@@ -346,14 +347,15 @@ class MarketSegmentDescription(CremeModel):
 
     # def delete(self):
     def delete(self, *args, **kwargs):
-        # strategy = self.strategy
-        #
-        # CommercialAssetScore.objects.filter(segment_desc=self, asset__strategy=strategy).delete()
-        # MarketSegmentCharmScore.objects.filter(segment_desc=self, charm__strategy=strategy).delete()
-        # MarketSegmentCategory.objects.filter(strategy=strategy, segment_desc=self).delete()
-        #
-        # super(MarketSegmentDescription, self).delete()
-        super(MarketSegmentDescription, self).delete(*args, **kwargs)
+        # # strategy = self.strategy
+        # #
+        # # CommercialAssetScore.objects.filter(segment_desc=self, asset__strategy=strategy).delete()
+        # # MarketSegmentCharmScore.objects.filter(segment_desc=self, charm__strategy=strategy).delete()
+        # # MarketSegmentCategory.objects.filter(strategy=strategy, segment_desc=self).delete()
+        # #
+        # # super(MarketSegmentDescription, self).delete()
+        # super(MarketSegmentDescription, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
 
         self.strategy._clear_caches()  # NB: not really useful...
 

@@ -34,16 +34,19 @@ class HistoryTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(HistoryTestCase, cls).setUpClass()
+        # super(HistoryTestCase, cls).setUpClass()
+        super().setUpClass()
         HistoryLine.objects.all().delete()
 
     def setUp(self):
-        super(HistoryTestCase, self).setUp()
+        # super(HistoryTestCase, self).setUp()
+        super().setUp()
         self.old_time = now().replace(microsecond=0)
         self.login()
 
     def tearDown(self):
-        super(HistoryTestCase, self).tearDown()
+        # super(HistoryTestCase, self).tearDown()
+        super().tearDown()
         HistoryLine.ENABLED = True
 
     def _build_organisation(self, name, extra_args=None, **kwargs):

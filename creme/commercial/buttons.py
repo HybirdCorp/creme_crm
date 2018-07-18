@@ -38,7 +38,8 @@ class CompleteGoalButton(Button):
         context['predicate_id'] = REL_SUB_COMPLETE_GOAL
         context['act_ct'] = ContentType.objects.get_for_model(get_act_model())
 
-        return super(CompleteGoalButton, self).render(context)
+        # return super(CompleteGoalButton, self).render(context)
+        return super().render(context)
 
 
 # complete_goal_button = CompleteGoalButton()

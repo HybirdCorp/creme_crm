@@ -23,7 +23,8 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     @classmethod
     def setUpClass(cls):
-        super(PropertyViewsTestCase, cls).setUpClass()
+        # super(PropertyViewsTestCase, cls).setUpClass()
+        super().setUpClass()
         cls.centity_ct = ContentType.objects.get_for_model(CremeEntity)
 
     def assertEntityHasProperty(self, ptype, entity):

@@ -95,7 +95,8 @@ class AbstractDocument(CremeEntity):
                                name=self.title,
                               )
 
-        return super(AbstractDocument, self).get_entity_summary(user)
+        # return super(AbstractDocument, self).get_entity_summary(user)
+        return super().get_entity_summary(user)
 
     def save(self, *args, **kwargs):
         if not self.pk:  # Creation
@@ -104,7 +105,8 @@ class AbstractDocument(CremeEntity):
             if mime_name is not None:
                 self.mime_type = MimeType.objects.get_or_create(name=mime_name)[0]
 
-        super(AbstractDocument, self).save(*args, **kwargs)
+        # super(AbstractDocument, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class Document(AbstractDocument):

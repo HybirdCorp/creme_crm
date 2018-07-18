@@ -134,7 +134,8 @@ class SectionTree:
 
 class ReplySectionTree(SectionTree):
     def __init__(self, preply):
-        super(ReplySectionTree, self).__init__(preply)
+        # super(ReplySectionTree, self).__init__(preply)
+        super().__init__(preply)
         PollReplyLine.populate_conditions([node for node in self if not node.is_section])
 
     def conditions_are_met(self, line_node):
@@ -178,7 +179,8 @@ class ReplySectionTree(SectionTree):
 
 class StatsTree(SectionTree):
     def __init__(self, pform):
-        super(StatsTree, self).__init__(pform)
+        # super(StatsTree, self).__init__(pform)
+        super().__init__(pform)
         flines = [node for node in self if not node.is_section]
         replies_map = defaultdict(list)
 

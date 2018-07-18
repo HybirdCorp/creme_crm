@@ -43,7 +43,8 @@ class ToDoForm(CremeModelWithUserForm):
         widgets = {'deadline': CalendarWidget}
 
     def __init__(self, entity, *args, **kwargs):
-        super(ToDoForm, self).__init__(*args, **kwargs)
+        # super(ToDoForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.instance.creme_entity = entity
 
         deadline = self.instance.deadline
@@ -51,7 +52,8 @@ class ToDoForm(CremeModelWithUserForm):
             self.fields['deadline_hour'].initial = localtime(deadline).hour
 
     def clean(self):
-        cdata = super(ToDoForm, self).clean()
+        # cdata = super(ToDoForm, self).clean()
+        cdata = super().clean()
 
         if not self._errors:
             get_data = cdata.get

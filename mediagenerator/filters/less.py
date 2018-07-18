@@ -69,7 +69,8 @@ class Less(Filter):
         # we need to be able to mutate self.path,
         self.path = list(self.path)
 
-        super(Less, self).__init__(**kwargs)
+        # super(Less, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         assert self.filetype == 'css', (
             'Less only supports compilation to CSS. '

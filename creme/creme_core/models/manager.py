@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2013 Tim Babych
 # Copyright (c) 2016 Daniel Hahler
-# Copyright (c) 2016 Hybird
+# Copyright (c) 2016-2018 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +36,8 @@ class LowNullsSQLCompiler(SQLCompiler):
     So it injects 'NULLS FIRST/LAST' into queries (on PostgreSQL only).
     """
     def get_order_by(self):
-        result = super(LowNullsSQLCompiler, self).get_order_by()
+        # result = super(LowNullsSQLCompiler, self).get_order_by()
+        result = super().get_order_by()
 
         if result and self.connection.vendor == 'postgresql':
             # NB: PostgreSQL accepts NULLS LAST/FIRST even on columns which cannot be NULL, so we do not check it.
@@ -61,5 +62,6 @@ class LowNullsQuery(models.sql.query.Query):
 
 class LowNullsQuerySet(models.QuerySet):
     def __init__(self, model=None, query=None, using=None, hints=None):
-        super(LowNullsQuerySet, self).__init__(model, query, using, hints)
+        # super(LowNullsQuerySet, self).__init__(model, query, using, hints)
+        super().__init__(model, query, using, hints)
         self.query = query or LowNullsQuery(self.model)

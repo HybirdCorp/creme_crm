@@ -88,7 +88,8 @@ class FakePOP3_SSL(FakePOP3):
     def __init__(self, host, port=None, keyfile=None, certfile=None):
         # self.host = host
         # self.port = port
-        super(FakePOP3_SSL, self).__init__(host=host, port=port)
+        # super(FakePOP3_SSL, self).__init__(host=host, port=port)
+        super().__init__(host=host, port=port)
         self._keyfile = keyfile
         self._certfile = certfile
 
@@ -100,7 +101,8 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
 
     @classmethod
     def setUpClass(cls):
-        super(CrudityViewsTestCase, cls).setUpClass()
+        # super(CrudityViewsTestCase, cls).setUpClass()
+        super().setUpClass()
 
         cls._original_POP3 = poplib.POP3
         cls._original_POP3_SSL = poplib.POP3_SSL
@@ -111,14 +113,16 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
         cls._original_crudity_registry = registry.crudity_registry
 
     def setUp(self):
-        super(CrudityViewsTestCase, self).setUp()
+        # super(CrudityViewsTestCase, self).setUp()
+        super().setUp()
 
         registry.crudity_registry = crudity_registry = registry.CRUDityRegistry()
         crudity_registry.autodiscover()
 
     @classmethod
     def tearDownClass(cls):
-        super(CrudityViewsTestCase, cls).tearDownClass()
+        # super(CrudityViewsTestCase, cls).tearDownClass()
+        super().tearDownClass()
 
         poplib.POP3     = cls._original_POP3
         poplib.POP3_SSL = cls._original_POP3_SSL
@@ -126,7 +130,8 @@ class CrudityViewsTestCase(CrudityTestCase, BrickTestCaseMixin):
         registry.crudity_registry = cls._original_crudity_registry
 
     def tearDown(self):
-        super(CrudityViewsTestCase, self).tearDown()
+        # super(CrudityViewsTestCase, self).tearDown()
+        super().tearDown()
 
         FakePOP3.instances[:] = ()
 

@@ -42,7 +42,8 @@ class _BaseForm(CremeEntityForm):
         instance.category = sub_category.category
         instance.sub_category = sub_category
 
-        return super(_BaseForm, self).save(*args, **kwargs)
+        # return super(_BaseForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class _BaseEditForm(_BaseForm):
@@ -51,7 +52,8 @@ class _BaseEditForm(_BaseForm):
         exclude = _BaseForm.Meta.exclude + ('images',)
 
     def __init__(self, *args, **kwargs):
-        super(_BaseEditForm, self).__init__(*args, **kwargs)
+        # super(_BaseEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['sub_category'].initial = self.instance.sub_category
 
 
@@ -59,7 +61,8 @@ class AddImagesForm(CremeForm):
     images = MultiImageEntityField(label=_(u'Images'))
 
     def __init__(self, entity, *args, **kwargs):
-        super(AddImagesForm, self).__init__(*args, **kwargs)
+        # super(AddImagesForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.entity = entity
 
         images_f = self.fields['images']

@@ -20,13 +20,15 @@ class BackendsTestCase(CrudityTestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(BackendsTestCase, cls).setUpClass()
+        # super(BackendsTestCase, cls).setUpClass()
+        super().setUpClass()
 
         cls._original_crudity_registry = registry.crudity_registry
 
     @classmethod
     def tearDownClass(cls):
-        super(BackendsTestCase, cls).tearDownClass()
+        # super(BackendsTestCase, cls).tearDownClass()
+        super().tearDownClass()
 
         registry.crudity_registry = cls._original_crudity_registry
 

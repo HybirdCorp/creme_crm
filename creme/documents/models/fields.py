@@ -31,10 +31,12 @@ class ImageEntityForeignKey(ForeignKey):
         limit_choices_to = kwargs.setdefault('limit_choices_to', {})
         limit_choices_to['mime_type__name__startswith'] = MIMETYPE_PREFIX_IMG
 
-        super(ImageEntityForeignKey, self).__init__(**kwargs)
+        # super(ImageEntityForeignKey, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def deconstruct(self):
-        name, path, args, kwargs = super(ImageEntityForeignKey, self).deconstruct()
+        # name, path, args, kwargs = super(ImageEntityForeignKey, self).deconstruct()
+        name, path, args, kwargs = super().deconstruct()
         # kwargs.pop('to', None)
         #  + 'limit_choices_to' stuff
 
@@ -61,10 +63,12 @@ class ImageEntityManyToManyField(ManyToManyField):
         limit_choices_to = kwargs.setdefault('limit_choices_to', {})
         limit_choices_to['mime_type__name__startswith'] = MIMETYPE_PREFIX_IMG
 
-        super(ImageEntityManyToManyField, self).__init__(**kwargs)
+        # super(ImageEntityManyToManyField, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def deconstruct(self):
-        name, path, args, kwargs = super(ImageEntityManyToManyField, self).deconstruct()
+        # name, path, args, kwargs = super(ImageEntityManyToManyField, self).deconstruct()
+        name, path, args, kwargs = super().deconstruct()
         # kwargs.pop('to', None)
         #  + 'limit_choices_to' stuff
 

@@ -69,7 +69,8 @@ class _ActivityForm(CremeEntityForm):
         help_texts = {'end': _(u'Default duration of the type will be used if you leave blank.')}
 
     def __init__(self, *args, **kwargs):
-        super(_ActivityForm, self).__init__(*args, **kwargs)
+        # super(_ActivityForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.participants = set()  # All Contacts who participate: me, other users, other contacts
 
         duration_field = self.fields.get('duration')
@@ -79,7 +80,8 @@ class _ActivityForm(CremeEntityForm):
                                         )
 
     def clean(self):
-        cdata = super(_ActivityForm, self).clean()
+        # cdata = super(_ActivityForm, self).clean()
+        cdata = super().clean()
 
         if not self._errors:
             self.floating_type = self._clean_interval(self._get_activity_type_n_subtype()[0])
@@ -173,7 +175,8 @@ class _ActivityForm(CremeEntityForm):
         instance.floating_type = self.floating_type
         instance.type, instance.sub_type = self._get_activity_type_n_subtype()
 
-        super(_ActivityForm, self).save(*args, **kwargs)
+        # super(_ActivityForm, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
         create_relation = partial(Relation.objects.create, object_entity=instance,
                                   type_id=constants.REL_SUB_PART_2_ACTIVITY, user=instance.user,
@@ -195,7 +198,8 @@ class ActivityEditForm(_ActivityForm):
         return localtime(dt) if dt else dt
 
     def __init__(self, *args, **kwargs):
-        super(ActivityEditForm, self).__init__(*args, **kwargs)
+        # super(ActivityEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         fields = self.fields
         instance = self.instance
 
@@ -242,7 +246,8 @@ class _ActivityCreateForm(_ActivityForm):
         return users
 
     def save(self, *args, **kwargs):
-        instance = super(_ActivityCreateForm, self).save(*args, **kwargs)
+        # instance = super(_ActivityCreateForm, self).save(*args, **kwargs)
+        instance = super().save(*args, **kwargs)
 
         for part_user in self.cleaned_data['participating_users']:
             # TODO: regroup queries ??
@@ -272,7 +277,8 @@ class ActivityCreateForm(_ActivityCreateForm):
     )
 
     def __init__(self, activity_type_id=None, *args, **kwargs):
-        super(ActivityCreateForm, self).__init__(*args, **kwargs)
+        # super(ActivityCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         user   = self.user
         fields = self.fields
 
@@ -355,10 +361,12 @@ class ActivityCreateForm(_ActivityCreateForm):
             if not cdata['my_participation'][0] and not cdata['participating_users']:
                 raise ValidationError(self.error_messages['no_participant'], code='no_participant')
 
-        return super(ActivityCreateForm, self).clean()
+        # return super(ActivityCreateForm, self).clean()
+        return super().clean()
 
     def save(self, *args, **kwargs):
-        instance = super(ActivityCreateForm, self).save(*args, **kwargs)
+        # instance = super(ActivityCreateForm, self).save(*args, **kwargs)
+        instance = super().save(*args, **kwargs)
 
         self._generate_alerts()
         self._generate_user_messages()
@@ -435,7 +443,8 @@ class ActivityCreateForm(_ActivityCreateForm):
 
 class RelatedActivityCreateForm(ActivityCreateForm):
     def __init__(self, related_entity, relation_type_id, *args, **kwargs):
-        super(RelatedActivityCreateForm, self).__init__(*args, **kwargs)
+        # super(RelatedActivityCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if relation_type_id == constants.REL_SUB_PART_2_ACTIVITY:
             assert isinstance(related_entity, Contact)
@@ -456,7 +465,8 @@ class CalendarActivityCreateForm(ActivityCreateForm):
         exclude = ActivityCreateForm.Meta.exclude + ('minutes', )
 
     def __init__(self, start=None, *args, **kwargs):
-        super(CalendarActivityCreateForm, self).__init__(*args, **kwargs)
+        # super(CalendarActivityCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if start:  # Normally there's always a start_date for this kind of add
             fields = self.fields
@@ -486,7 +496,8 @@ class IndisponibilityCreateForm(_ActivityCreateForm):
 
     def __init__(self, activity_type_id=None, *args, **kwargs):
         assert activity_type_id == constants.ACTIVITYTYPE_INDISPO
-        super(IndisponibilityCreateForm, self).__init__(*args, **kwargs)
+        # super(IndisponibilityCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         fields = self.fields
 
         fields['start'].required = True
@@ -501,7 +512,8 @@ class IndisponibilityCreateForm(_ActivityCreateForm):
 
     def clean(self):
         self.cleaned_data['busy'] = True
-        return super(IndisponibilityCreateForm, self).clean()
+        # return super(IndisponibilityCreateForm, self).clean()
+        return super().clean()
 
     def _get_activity_type_n_subtype(self):
         return (ActivityType.objects.get(pk=constants.ACTIVITYTYPE_INDISPO),

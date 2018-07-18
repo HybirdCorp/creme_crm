@@ -36,7 +36,8 @@ class ReportsConfig(CremeAppConfig):
 
         self.Report = get_report_model()
         self.ReportGraph = get_rgraph_model()
-        super(ReportsConfig, self).all_apps_ready()
+        # super(ReportsConfig, self).all_apps_ready()
+        super().all_apps_ready()
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Report)

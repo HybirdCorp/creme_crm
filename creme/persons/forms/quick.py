@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2017  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -52,7 +52,8 @@ class ContactQuickForm(CremeModelWithUserForm):  # NB: not CremeEntityForm to ig
         fields = ('user', 'last_name', 'first_name', 'phone', 'email')
 
     def __init__(self, *args, **kwargs):
-        super(ContactQuickForm, self).__init__(*args, **kwargs)
+        # super(ContactQuickForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         has_perm = self.user.has_perm_to_link
         c_link_perm = has_perm(Contact, owner=None)
@@ -108,7 +109,8 @@ class ContactQuickForm(CremeModelWithUserForm):  # NB: not CremeEntityForm to ig
         return orga_name
 
     def clean(self):
-        cdata = super(ContactQuickForm, self).clean()
+        # cdata = super(ContactQuickForm, self).clean()
+        cdata = super().clean()
 
         if not self._errors and cdata['organisation']:
             owner = cdata['user']
@@ -124,7 +126,8 @@ class ContactQuickForm(CremeModelWithUserForm):  # NB: not CremeEntityForm to ig
         return EntityCredentials.filter(self.user, Organisation.objects.filter(name=orga_name))
 
     def save(self, *args, **kwargs):
-        contact = super(ContactQuickForm, self).save(*args, **kwargs)
+        # contact = super(ContactQuickForm, self).save(*args, **kwargs)
+        contact = super().save(*args, **kwargs)
 
         if self.has_perm_to_link:
             orga_name = self.cleaned_data['organisation']

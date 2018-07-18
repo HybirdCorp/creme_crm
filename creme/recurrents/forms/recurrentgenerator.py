@@ -31,7 +31,8 @@ class RecurrentGeneratorEditForm(CremeEntityForm):
         model = get_rgenerator_model()
 
     def __init__(self, *args, **kwargs):
-        super(RecurrentGeneratorEditForm, self).__init__(*args, **kwargs)
+        # super(RecurrentGeneratorEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if self.instance.last_generation:
             del self.fields['first_generation']
 
@@ -42,7 +43,8 @@ class RecurrentGeneratorCreateForm(RecurrentGeneratorEditForm):
     def __init__(self, *args, **kwargs):
         from ..registry import recurrent_registry
 
-        super(RecurrentGeneratorCreateForm, self).__init__(*args, **kwargs)
+        # super(RecurrentGeneratorCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         has_perm = self.user.has_perm_to_create
         self.fields['ct'].ctypes = [ctype for ctype in recurrent_registry.ctypes
@@ -52,4 +54,5 @@ class RecurrentGeneratorCreateForm(RecurrentGeneratorEditForm):
     def save(self, *args, **kwargs):
         self.instance.ct = self.cleaned_data['ct']
 
-        return super(RecurrentGeneratorCreateForm, self).save(*args, **kwargs)
+        # return super(RecurrentGeneratorCreateForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)

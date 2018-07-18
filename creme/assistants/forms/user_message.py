@@ -40,7 +40,8 @@ class UserMessageForm(CremeModelForm):
         fields = ('title', 'body', 'priority')
 
     def __init__(self, entity, *args, **kwargs):
-        super(UserMessageForm, self).__init__(*args, **kwargs)
+        # super(UserMessageForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.entity = entity
 
         self.fields['priority'].empty_label = None  # TODO: generalise this behavior to all forms ???

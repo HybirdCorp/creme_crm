@@ -104,7 +104,8 @@ class Base(CremeEntity):
         ordering = ('name',)
 
     def __init__(self, *args, **kwargs):
-        super(Base, self).__init__(*args, **kwargs)
+        # super(Base, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._lines_cache = {}  # Key: Line class ; Value: Lines instances (list)
 
     def __str__(self):
@@ -234,7 +235,8 @@ class Base(CremeEntity):
         # Not REL_OBJ_CREDIT_NOTE_APPLIED, links to CreditNote are not cloned.
         relation_create = Relation.objects.create
         class_map = relationtype_converter.get_class_map(source, self)
-        super(Base, self)._copy_relations(source, allowed_internal=[REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED])
+        # super(Base, self)._copy_relations(source, allowed_internal=[REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED])
+        super()._copy_relations(source, allowed_internal=[REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED])
 
         for relation in source.relations.filter(type__is_internal=False,
                                                 type__is_copiable=True,
@@ -308,4 +310,5 @@ class Base(CremeEntity):
             self.total_vat    = self._get_total_with_tax()
             self.total_no_vat = self._get_total()
 
-        return super(Base, self).save(*args, **kwargs)
+        # return super(Base, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)

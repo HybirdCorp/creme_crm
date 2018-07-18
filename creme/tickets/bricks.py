@@ -31,9 +31,10 @@ class TicketBrick(EntityBrick):
     verbose_name = _(u'Information on the ticket')
 
     def _get_cells(self, entity, context):
-        cells = super(TicketBrick, self)._get_cells(entity=entity, context=context)
-        cells.append(EntityCellFunctionField(model=get_ticket_model(), func_field=_ResolvingDurationField()))
+        # cells = super(TicketBrick, self)._get_cells(entity=entity, context=context)
+        cells = super()._get_cells(entity=entity, context=context)
 
+        cells.append(EntityCellFunctionField(model=get_ticket_model(), func_field=_ResolvingDurationField()))
         return cells
 
     def _get_title(self, entity, context):

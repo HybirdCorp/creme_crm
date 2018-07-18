@@ -62,7 +62,8 @@ class CrmButton(Button):
         context['verbose_name'] = self.verbose_name
         context['become_url'] = reverse(self.url_name, args=(context['object'].id,))
 
-        return super(CrmButton, self).render(context)
+        # return super(CrmButton, self).render(context)
+        return super().render(context)
 
 
 class BecomeCustomerButton(CrmButton):
@@ -121,7 +122,8 @@ class AddLinkedContactButton(Button):
     def render(self, context):
         context['contact_link_perm'] = context['user'].has_perm_to_link(Contact)
 
-        return super(AddLinkedContactButton, self).render(context)
+        # return super(AddLinkedContactButton, self).render(context)
+        return super().render(context)
 
 
 # become_customer_button    = BecomeCustomerButton()

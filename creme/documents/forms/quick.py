@@ -43,16 +43,15 @@ class DocumentQuickForm(CremeModelWithUserForm):
         fields = ('user', 'filedata', 'linked_folder')
 
     def __init__(self, *args, **kwargs):
-        super(DocumentQuickForm, self).__init__(*args, **kwargs)
+        # super(DocumentQuickForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
-        # folder_f = self.fields.get('folder')
         folder_f = self.fields.get('linked_folder')
 
         if folder_f:
             folder = get_folder_model().objects.get(uuid=constants.UUID_FOLDER_RELATED2ENTITIES)
 
             if self.user.has_perm_to_view(folder):
-                # self.fields['folder'].initial = folder
                 self.fields['linked_folder'].initial = folder.id
 
     def save(self, *args, **kwargs):
@@ -65,7 +64,8 @@ class DocumentQuickForm(CremeModelWithUserForm):
             )
         assign_2_charfield(instance, 'title', basename(fpath))
 
-        return super(DocumentQuickForm, self).save(*args, **kwargs)
+        # return super(DocumentQuickForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class DocumentWidgetQuickForm(DocumentQuickForm):
@@ -74,21 +74,23 @@ class DocumentWidgetQuickForm(DocumentQuickForm):
         fields = ('user', 'filedata')
 
     def __init__(self, folder=None, user=None, *args, **kwargs):
-        super(DocumentWidgetQuickForm, self).__init__(user=user, *args, **kwargs)
+        # super(DocumentWidgetQuickForm, self).__init__(user=user, *args, **kwargs)
+        super().__init__(user=user, *args, **kwargs)
         self.folder = folder
 
     def save(self, *args, **kwargs):
         if self.folder is not None:
-            # self.instance.folder = self.folder
             self.instance.linked_folder = self.folder
 
-        return super(DocumentWidgetQuickForm, self).save(*args, **kwargs)
+        # return super(DocumentWidgetQuickForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 # TODO: check Mimetype of the uploaded file ?
 class CSVDocumentWidgetQuickForm(DocumentWidgetQuickForm):
     def __init__(self, user=None, *args, **kwargs):
-        super(DocumentWidgetQuickForm, self).__init__(user=user, *args, **kwargs)
+        # super(DocumentWidgetQuickForm, self).__init__(user=user, *args, **kwargs)
+        super().__init__(user=user, *args, **kwargs)
         self.fields['filedata'].widget.attrs = {'accept': ','.join('.' + ext
                                                                        for ext in import_backend_registry.extensions
                                                                   ),
@@ -96,7 +98,8 @@ class CSVDocumentWidgetQuickForm(DocumentWidgetQuickForm):
 
     def clean(self):
         self.folder = get_csv_folder_or_create(self.user)
-        return super(CSVDocumentWidgetQuickForm, self).clean()
+        # return super(CSVDocumentWidgetQuickForm, self).clean()
+        return super().clean()
 
 
 # TODO: factorise
@@ -109,9 +112,9 @@ class ImageQuickForm(CremeModelWithUserForm):
         fields = ('user', 'image', 'linked_folder')
 
     def __init__(self, *args, **kwargs):
-        super(ImageQuickForm, self).__init__(*args, **kwargs)
+        # super(ImageQuickForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         fields = self.fields
-        # fields['folder'].initial = get_folder_model().objects.filter(uuid=constants.UUID_FOLDER_IMAGES).first()
         fields['linked_folder'].initial = get_folder_model().objects.filter(uuid=constants.UUID_FOLDER_IMAGES).first()
         # TODO: hook django (create or own widget and set it on ImageField ?)
         fields['image'].widget.attrs = {'accept': ','.join('.' + ext for ext in settings.ALLOWED_IMAGES_EXTENSIONS)}
@@ -126,4 +129,5 @@ class ImageQuickForm(CremeModelWithUserForm):
             )
         assign_2_charfield(instance, 'title', basename(fpath))
 
-        return super(ImageQuickForm, self).save(*args, **kwargs)
+        # return super(ImageQuickForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)

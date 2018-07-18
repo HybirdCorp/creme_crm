@@ -266,9 +266,10 @@ class CSVPopulator:
 
 class CSVTownPopulator(CSVPopulator):
     def __init__(self, defaults=None, chunksize=100):
-        super(CSVTownPopulator, self).__init__(['title', 'zipcode', 'latitude', 'longitude', 'country'],
-                                               defaults=defaults,
-                                               chunksize=chunksize)
+        # super(CSVTownPopulator, self).__init__(['title', 'zipcode', 'latitude', 'longitude', 'country'],
+        super().__init__(['title', 'zipcode', 'latitude', 'longitude', 'country'],
+                         defaults=defaults, chunksize=chunksize,
+                        )
 
     def line_error(self, e, row, context):
         logger.error('    invalid data (line %d) : %s', context.line, e)

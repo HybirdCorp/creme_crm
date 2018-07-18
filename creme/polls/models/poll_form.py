@@ -181,7 +181,8 @@ class PollFormSection(CremeModel):
                 if not node.has_line: break
                 raise ProtectedError(ugettext(u'There is at least one question in this section.'), [self])
 
-        super(PollFormSection, self).delete(*args, **kwargs)
+        # super(PollFormSection, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
 
     def get_edit_absolute_url(self):
         return reverse('polls__edit_form_section', args=(self.id,))
@@ -236,7 +237,8 @@ class PollFormLine(CremeModel, _PollLine):
                                  [self]
                                 )
 
-        super(PollFormLine, self).delete(*args, **kwargs)
+        # super(PollFormLine, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
 
     def disable(self):
         if self.disabled:

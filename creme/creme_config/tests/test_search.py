@@ -22,7 +22,8 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @classmethod
     def setUpClass(cls):
-        super(SearchConfigTestCase, cls).setUpClass()
+        # super(SearchConfigTestCase, cls).setUpClass()
+        super().setUpClass()
 
         SearchConfigItem.objects.all().delete()  # TODO: backup ?
 

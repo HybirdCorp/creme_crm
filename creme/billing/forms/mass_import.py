@@ -71,7 +71,8 @@ def get_import_form_builder(header_dict, choices):
                                              )
 
         def _post_instance_creation(self, instance, line, updated):
-            super(InvoiceMassImportForm, self)._post_instance_creation(instance, line, updated)
+            # super(InvoiceMassImportForm, self)._post_instance_creation(instance, line, updated)
+            super()._post_instance_creation(instance, line, updated)
             cdata = self.cleaned_data
             user = self.user
 

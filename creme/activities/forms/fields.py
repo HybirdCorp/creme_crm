@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017  Hybird
+#    Copyright (C) 2017-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,10 +27,11 @@ from ..models import Calendar
 
 class UserParticipationField(OptionalModelChoiceField):
     def __init__(self, user=None, sub_label=_(u'Appears on the calendar:'), *args, **kwargs):
-        super(UserParticipationField, self).__init__(sub_label=sub_label,
-                                                     queryset=Calendar.objects.none(),
-                                                     *args, **kwargs
-                                                    )
+        # super(UserParticipationField, self).__init__(sub_label=sub_label,
+        super().__init__(sub_label=sub_label,
+                         queryset=Calendar.objects.none(),
+                         *args, **kwargs
+                        )
         self.user = user
 
     @property

@@ -89,10 +89,9 @@ class RelationType(CremeModel):
     def delete(self, using=None, keep_parents=False):
         sym_type = self.symmetric_type
 
-        # super(RelationType, sym_type).delete(using=using)
-        super(RelationType, sym_type).delete(using=using, keep_parents=keep_parents)
+        super(RelationType, sym_type).delete(using=using)
         # super(RelationType, self).delete(using=using)
-        super(RelationType, self).delete(using=using, keep_parents=keep_parents)
+        super().delete(using=using, keep_parents=keep_parents)
 
     @staticmethod
     def get_compatible_ones(ct, include_internals=False):
@@ -245,14 +244,16 @@ class Relation(CremeModel):
         """
         update = bool(self.pk)
 
-        super(Relation, self).save(using=using, force_insert=force_insert)
+        # super(Relation, self).save(using=using, force_insert=force_insert)
+        super().save(using=using, force_insert=force_insert)
 
         sym_relation = self._build_symmetric_relation(update)
         super(Relation, sym_relation).save(using=using, force_insert=force_insert)
 
         if self.symmetric_relation is None:
             self.symmetric_relation = sym_relation
-            super(Relation, self).save(using=using, force_insert=False)
+            # super(Relation, self).save(using=using, force_insert=False)
+            super().save(using=using, force_insert=False)
 
     # def get_real_entity(self):
     #     return self._get_real_entity(Relation)

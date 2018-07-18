@@ -16,7 +16,8 @@ except Exception as e:
 @skipIfCustomOrganisation
 class MapBrickTestCase(GeoLocationBaseTestCase):
     def setUp(self):
-        super(MapBrickTestCase, self).setUp()
+        # super(MapBrickTestCase, self).setUp()
+        super().setUp()
         self.login()
         self.brick = _MapBrick()
 

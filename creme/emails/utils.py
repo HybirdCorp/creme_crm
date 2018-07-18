@@ -46,7 +46,8 @@ _IMG_PATTERN = re_compile(r'<img.*src[\s]*[=]{1,1}["\']{1,1}(?P<img_src>[\d\w:/?
 
 class ImageFromHTMLError(Exception):
     def __init__(self, filename, *args, **kwargs):
-        super(Exception, self).__init__('Can not use the image : {}'.format(filename))
+        # super(Exception, self).__init__('Can not use the image : {}'.format(filename))
+        super().__init__('Can not use the image : {}'.format(filename))
         self._filename = filename
 
     @property

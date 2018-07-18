@@ -34,7 +34,8 @@ class ActivitiesConfig(CremeAppConfig):
         from . import get_activity_model
 
         self.Activity = get_activity_model()
-        super(ActivitiesConfig, self).all_apps_ready()
+        # super(ActivitiesConfig, self).all_apps_ready()
+        super().all_apps_ready()
 
         from . import signals
 

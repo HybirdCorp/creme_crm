@@ -194,10 +194,11 @@ class EntityCellActions(EntityCell):
 
     # def __init__(self):
     def __init__(self, model):
-        super(EntityCellActions, self).__init__(model=model,
-                                                value='entity_actions',
-                                                title=_(u'Actions'),
-                                               )
+        # super(EntityCellActions, self).__init__(model=model,
+        #                                         value='entity_actions',
+        #                                         title=_(u'Actions'),
+        #                                        )
+        super().__init__(model=model, value='entity_actions', title=_(u'Actions'))
 
     # def render_html(self, entity, user): TODO
 
@@ -238,15 +239,16 @@ class EntityCellRegularField(EntityCell):
         if any(f.many_to_many or f.one_to_many for f in field_info):
             sortable = False
 
-        super(EntityCellRegularField, self).__init__(model=model,
-                                                     value=name,
-                                                     title=field_info.verbose_name,
-                                                     has_a_filter=has_a_filter,
-                                                     editable=True,
-                                                     sortable=sortable,
-                                                     is_hidden=is_hidden,
-                                                     filter_string=pattern.format(name) if has_a_filter else '',
-                                                    )
+        # super(EntityCellRegularField, self).__init__(model=model,
+        super().__init__(model=model,
+                         value=name,
+                         title=field_info.verbose_name,
+                         has_a_filter=has_a_filter,
+                         editable=True,
+                         sortable=sortable,
+                         is_hidden=is_hidden,
+                         filter_string=pattern.format(name) if has_a_filter else '',
+                        )
 
     @staticmethod
     def build(model, name, is_hidden=False):
@@ -334,17 +336,16 @@ class EntityCellCustomField(EntityCell):
         self._customfield = customfield
         pattern = self._CF_PATTERNS.get(customfield.field_type, '{}__value__icontains')
 
-        super(EntityCellCustomField, self).__init__(model=customfield.content_type.model_class(),
-                                                    value=str(customfield.id),
-                                                    title=customfield.name,
-                                                    has_a_filter=True,
-                                                    editable=False,  # TODO: make it editable
-                                                    sortable=False,  # TODO: make it sortable ?
-                                                    is_hidden=False,
-                                                    filter_string=pattern.format(customfield.get_value_class()
-                                                                                            .get_related_name()
-                                                                                ),
-                                                   )
+        # super(EntityCellCustomField, self).__init__(model=customfield.content_type.model_class(),
+        super().__init__(model=customfield.content_type.model_class(),
+                         value=str(customfield.id),
+                         title=customfield.name,
+                         has_a_filter=True,
+                         editable=False,  # TODO: make it editable
+                         sortable=False,  # TODO: make it sortable ?
+                         is_hidden=False,
+                         filter_string=pattern.format(customfield.get_value_class().get_related_name()),
+                        )
 
     @staticmethod
     def build(model, customfield_id):
@@ -390,12 +391,13 @@ class EntityCellFunctionField(EntityCell):
     def __init__(self, model, func_field):
         self._functionfield = func_field
 
-        super(EntityCellFunctionField, self).__init__(model=model,
-                                                      value=func_field.name,
-                                                      title=str(func_field.verbose_name),
-                                                      has_a_filter=func_field.has_filter,
-                                                      is_hidden=func_field.is_hidden,
-                                                     )
+        # super(EntityCellFunctionField, self).__init__(model=model,
+        super().__init__(model=model,
+                         value=func_field.name,
+                         title=str(func_field.verbose_name),
+                         has_a_filter=func_field.has_filter,
+                         is_hidden=func_field.is_hidden,
+                        )
 
     @staticmethod
     def build(model, func_field_name):
@@ -437,12 +439,13 @@ class EntityCellRelation(EntityCell):
     # def __init__(self, rtype, is_hidden=False):
     def __init__(self, model, rtype, is_hidden=False):
         self._rtype = rtype
-        super(EntityCellRelation, self).__init__(model=model,
-                                                 value=str(rtype.id),
-                                                 title=rtype.predicate,
-                                                 has_a_filter=True,
-                                                 is_hidden=is_hidden,
-                                                )
+        # super(EntityCellRelation, self).__init__(model=model,
+        super().__init__(model=model,
+                         value=str(rtype.id),
+                         title=rtype.predicate,
+                         has_a_filter=True,
+                         is_hidden=is_hidden,
+                        )
 
     @staticmethod
     def build(model, rtype_id, is_hidden=False):  # TODO: store 'model' in instance
@@ -499,12 +502,13 @@ class EntityCellVolatile(EntityCell):
     # def __init__(self, value, title, render_func, is_hidden=False):
     def __init__(self, model, value, title, render_func, is_hidden=False):
         self._render_func = render_func
-        super(EntityCellVolatile, self).__init__(model=model,
-                                                 value=value,
-                                                 title=title,
-                                                 has_a_filter=True,  # TODO: ??
-                                                 is_hidden=is_hidden,
-                                                )
+        # super(EntityCellVolatile, self).__init__(model=model,
+        super().__init__(model=model,
+                         value=value,
+                         title=title,
+                         has_a_filter=True,  # TODO: ??
+                         is_hidden=is_hidden,
+                        )
 
     def render_html(self, entity, user):
         return self._render_func(entity)

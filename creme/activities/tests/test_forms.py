@@ -17,16 +17,17 @@ __all__ = ('ActivityTypeFieldTestCase',)
 class ActivityTypeFieldTestCase(FieldTestCase):
     @classmethod
     def setUpClass(cls):
-        super(ActivityTypeFieldTestCase, cls).setUpClass()
+        # super(ActivityTypeFieldTestCase, cls).setUpClass()
+        super().setUpClass()
 
         cls.atype = ActivityType.objects.create(id='meeting', name='Meeting',
                                                 default_day_duration=0,
                                                 default_hour_duration="01:00:00",
                                                )
         cls.subtype = ActivitySubType.objects.create(id='rendezvous',
-                                                   name='Rendez-vous',
-                                                   type=cls.atype,
-                                                  )
+                                                     name='Rendez-vous',
+                                                     type=cls.atype,
+                                                    )
 
     def _build_value(self, act_type_id, subtype_id=None):
         return jsondumps({'type': act_type_id, 'sub_type': subtype_id})

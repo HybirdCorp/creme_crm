@@ -43,7 +43,8 @@ class ResourceCreateForm(CremeEntityForm):
         model = Resource
 
     def __init__(self, task, *args, **kwargs):
-        super(ResourceCreateForm, self).__init__(*args, **kwargs)
+        # super(ResourceCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         instance = self.instance
         instance.task = task
 
@@ -65,7 +66,8 @@ class ResourceCreateForm(CremeEntityForm):
 
     def save(self, *args, **kwargs):
         self.instance.linked_contact = self.cleaned_data['contact']
-        return super(ResourceCreateForm, self).save(*args, **kwargs)
+        # return super(ResourceCreateForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class ResourceEditForm(ResourceCreateForm):
@@ -76,7 +78,8 @@ class ResourceEditForm(ResourceCreateForm):
                                      )
 
     def __init__(self, entity, *args, **kwargs):
-        super(ResourceEditForm, self).__init__(task=entity, *args, **kwargs)
+        # super(ResourceEditForm, self).__init__(task=entity, *args, **kwargs)
+        super().__init__(task=entity, *args, **kwargs)
         self.old_contact = self.fields['contact'].initial = self.instance.linked_contact
 
     def save(self, *args, **kwargs):
@@ -103,4 +106,5 @@ class ResourceEditForm(ResourceCreateForm):
                 if activity.id in activities_ids:
                     _link_contact_n_activity(new_contact, activity, self.user)
 
-        return super(ResourceEditForm, self).save(*args, **kwargs)
+        # return super(ResourceEditForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)

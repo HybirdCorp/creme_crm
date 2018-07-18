@@ -93,7 +93,8 @@ class AbstractTicket(TicketMixin):
         ordering = ('title',)
 
     def __init__(self, *args, **kwargs):
-        super(AbstractTicket, self).__init__(*args, **kwargs)
+        # super(AbstractTicket, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.old_status_id = self.status_id
 
     def __str__(self):
@@ -114,7 +115,8 @@ class AbstractTicket(TicketMixin):
         return reverse('tickets__list_tickets')
 
     def get_html_attrs(self, context):
-        attrs = super(AbstractTicket, self).get_html_attrs(context)
+        # attrs = super(AbstractTicket, self).get_html_attrs(context)
+        attrs = super().get_html_attrs(context)
 
         if self.status_id == OPEN_PK and \
            (context['today'] - self.created) > timedelta(days=settings.TICKETS_COLOR_DELAY):
@@ -143,7 +145,8 @@ class AbstractTicket(TicketMixin):
             self.number = number_id
             TicketNumber.objects.filter(id__lt=number_id).delete()
 
-        super(AbstractTicket, self).save(*args, **kwargs)
+        # super(AbstractTicket, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class Ticket(AbstractTicket):

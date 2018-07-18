@@ -52,7 +52,8 @@ class ObjectiveForm(CremeModelForm):
         }
 
     def __init__(self, entity, *args, **kwargs):
-        super(ObjectiveForm, self).__init__(*args, **kwargs)
+        # super(ObjectiveForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.act = entity
 
         instance = self.instance
@@ -77,7 +78,8 @@ class ObjectiveForm(CremeModelForm):
         if ct_n_filter:
             instance.ctype, instance.filter = ct_n_filter
 
-        return super(ObjectiveForm, self).save(*args, **kwargs)
+        # return super(ObjectiveForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class ObjectivesFromPatternForm(CremeForm):
@@ -86,7 +88,8 @@ class ObjectivesFromPatternForm(CremeForm):
                               )
 
     def __init__(self, entity, *args, **kwargs):
-        super(ObjectivesFromPatternForm, self).__init__(*args, **kwargs)
+        # super(ObjectivesFromPatternForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.act = entity
 
         self.fields['pattern'].queryset = ActObjectivePattern.objects.filter(segment=entity.segment_id)
@@ -131,22 +134,26 @@ class _PatternComponentForm(CremeModelForm):
         instance = self.instance
         instance.ctype, instance.filter = self.cleaned_data['entity_counting']
 
-        return super(_PatternComponentForm, self).save(*args, **kwargs)
+        # return super(_PatternComponentForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class PatternComponentForm(_PatternComponentForm):
     def __init__(self, entity, *args, **kwargs):
-        super(PatternComponentForm, self).__init__(*args, **kwargs)
+        # super(PatternComponentForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.pattern = entity
 
     def save(self, *args, **kwargs):
         self.instance.pattern = self.pattern
-        return super(PatternComponentForm, self).save(*args, **kwargs)
+        # return super(PatternComponentForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class PatternChildComponentForm(_PatternComponentForm):
     def __init__(self, parent, *args, **kwargs):
-        super(PatternChildComponentForm, self).__init__(*args, **kwargs)
+        # super(PatternChildComponentForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.parent = parent
 
     def save(self, *args, **kwargs):
@@ -155,12 +162,14 @@ class PatternChildComponentForm(_PatternComponentForm):
 
         instance.pattern = parent.pattern
         instance.parent = parent
-        return super(PatternChildComponentForm, self).save(*args, **kwargs)
+        # return super(PatternChildComponentForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class PatternParentComponentForm(_PatternComponentForm):
     def __init__(self, child, *args, **kwargs):
-        super(PatternParentComponentForm, self).__init__(*args, **kwargs)
+        # super(PatternParentComponentForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.child = child
 
     def save(self, *args, **kwargs):
@@ -169,7 +178,8 @@ class PatternParentComponentForm(_PatternComponentForm):
 
         instance.pattern = child.pattern
         instance.parent = child.parent
-        super(PatternParentComponentForm, self).save(*args, **kwargs)
+        # super(PatternParentComponentForm, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
         child.parent = instance
         child.save()  # TODO: use *args/**kwargs ('using' arg)???

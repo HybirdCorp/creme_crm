@@ -51,7 +51,8 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
             if entity2.is_managed and not entity1.is_managed:
                 entity1, entity2 = entity2, entity1
 
-        super(_PersonMergeForm, self).__init__(entity1, entity2, *args, **kwargs)
+        # super(_PersonMergeForm, self).__init__(entity1, entity2, *args, **kwargs)
+        super().__init__(entity1, entity2, *args, **kwargs)
 
     def _build_initial_address_dict(self, address, initial, prefix):
         getter = (lambda fname: '') if address is None else \
@@ -61,7 +62,8 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
             initial[prefix + fname] = getter(fname)
 
     def _build_initial_dict(self, entity):
-        initial = super(_PersonMergeForm, self)._build_initial_dict(entity)
+        # initial = super(_PersonMergeForm, self)._build_initial_dict(entity)
+        initial = super()._build_initial_dict(entity)
 
         build = self._build_initial_address_dict
         build(entity.billing_address,  initial, _BILL_PREFIX)
@@ -98,7 +100,8 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
         return True, ()
 
     def _post_entity1_update(self, entity1, entity2, cleaned_data):
-        super(_PersonMergeForm, self)._post_entity1_update(entity1, entity2, cleaned_data)
+        # super(_PersonMergeForm, self)._post_entity1_update(entity1, entity2, cleaned_data)
+        super()._post_entity1_update(entity1, entity2, cleaned_data)
         save_address = self._save_address
 
         must_save1, to_del1 = save_address(entity1, entity2, 'billing_address',  cleaned_data, _BILL_PREFIX, _('Billing address'))

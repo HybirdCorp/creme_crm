@@ -28,18 +28,21 @@ except Exception as e:
 class EmailsCrudityTestCase(_EmailsTestCase):
     @classmethod
     def setUpClass(cls):
-        super(EmailsCrudityTestCase, cls).setUpClass()
+        # super(EmailsCrudityTestCase, cls).setUpClass()
+        super().setUpClass()
 
         from ..crudity_register import EntityEmailBackend
         cls.EntityEmailBackend = EntityEmailBackend
 
     def setUp(self):
-        super(EmailsCrudityTestCase, self).setUp()
+        # super(EmailsCrudityTestCase, self).setUp()
+        super().setUp()
         self.login()
         self._category_to_restore = None
 
     def tearDown(self):
-        super(EmailsCrudityTestCase, self).tearDown()
+        # super(EmailsCrudityTestCase, self).tearDown()
+        super().tearDown()
         cat = self._category_to_restore
 
         if cat is not None:

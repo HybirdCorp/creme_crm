@@ -52,7 +52,8 @@ class ColorField(CharField):
 
     def __init__(self, *args, **kwargs):
         kwargs['max_length'] = 6  # TODO: accepts 8 too (if alpha is needed) ?
-        super(ColorField, self).__init__(*args, **kwargs)
+        # super(ColorField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def formfield(self, **kwargs):
         from ..forms.fields import ColorField as ColorFormField  # Lazy loading
@@ -60,8 +61,9 @@ class ColorField(CharField):
         defaults = {'form_class': ColorFormField}
         defaults.update(kwargs)
 
-        # return super(CharField, self).formfield(**defaults)
-        return super(ColorField, self).formfield(**defaults)
+        # # return super(CharField, self).formfield(**defaults)
+        # return super(ColorField, self).formfield(**defaults)
+        return super().formfield(**defaults)
 
 
 class DatePeriodField(TextField):  # TODO: inherit from a JSONField
@@ -97,7 +99,7 @@ class DatePeriodField(TextField):  # TODO: inherit from a JSONField
         defaults = {'form_class': DatePeriodFormField}
         defaults.update(kwargs)
 
-        # Beware we do not call TextField.formfield because it overload 'widget'
+        # BEWARE: we do not call TextField.formfield because it overload 'widget'
         # (we could define the 'widget' key in 'defaults'...)
         return super(TextField, self).formfield(**defaults)
 
@@ -118,10 +120,12 @@ class CremeUserForeignKey(ForeignKey):
         # Override on_delete, even if it was already defined in kwargs
         kwargs['on_delete'] = SET(_transfer_assignation)
         kwargs.setdefault('to', settings.AUTH_USER_MODEL)
-        super(CremeUserForeignKey, self).__init__(**kwargs)
+        # super(CremeUserForeignKey, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def deconstruct(self):
-        name, path, args, kwargs = super(CremeUserForeignKey, self).deconstruct()
+        # name, path, args, kwargs = super(CremeUserForeignKey, self).deconstruct()
+        name, path, args, kwargs = super().deconstruct()
 
         kwargs.pop('limit_choices_to', None)
         del kwargs['on_delete']
@@ -129,7 +133,7 @@ class CremeUserForeignKey(ForeignKey):
         return name, path, args, kwargs
 
     def get_internal_type(self):
-        return "ForeignKey"
+        return 'ForeignKey'
 
 
 class CTypeForeignKey(ForeignKey):
@@ -138,7 +142,8 @@ class CTypeForeignKey(ForeignKey):
         kwargs['to'] = 'contenttypes.ContentType'
         # In a normal use, ContentType instances are never deleted ; so CASCADE by default should be OK
         kwargs.setdefault('on_delete', CASCADE)
-        super(CTypeForeignKey, self).__init__(**kwargs)
+        # super(CTypeForeignKey, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def __get__(self, instance, instance_type=None):
         ct_id = getattr(instance, self.attname)
@@ -149,13 +154,15 @@ class CTypeForeignKey(ForeignKey):
         setattr(instance, self.attname, value.id if value else value)
 
     def contribute_to_class(self, cls, name, **kwargs):
-        super(CTypeForeignKey, self).contribute_to_class(cls, name, **kwargs)
+        # super(CTypeForeignKey, self).contribute_to_class(cls, name, **kwargs)
+        super().contribute_to_class(cls, name, **kwargs)
 
         # Connect self as the descriptor for this field (thx to GenericForeignKey code)
         setattr(cls, name, self)
 
     def deconstruct(self):
-        name, path, args, kwargs = super(CTypeForeignKey, self).deconstruct()
+        # name, path, args, kwargs = super(CTypeForeignKey, self).deconstruct()
+        name, path, args, kwargs = super().deconstruct()
         # kwargs.pop('to', None)
 
         return name, path, args, kwargs
@@ -169,7 +176,7 @@ class CTypeForeignKey(ForeignKey):
         defaults = {'form_class': CTypeChoiceField}
         defaults.update(kwargs)
 
-        # Beware we don't call super(CTypeForeignKey, self).formfield(**defaults)
+        # BEWARE: we don't call super(CTypeForeignKey, self).formfield(**defaults)
         # to avoid useless/annoying 'queryset' arg
         return super(ForeignKey, self).formfield(**defaults)
 
@@ -183,7 +190,8 @@ class EntityCTypeForeignKey(CTypeForeignKey):
         from ..forms.fields import EntityCTypeChoiceField
         defaults = {'form_class': EntityCTypeChoiceField}
         defaults.update(kwargs)
-        return super(EntityCTypeForeignKey, self).formfield(**defaults)
+        # return super(EntityCTypeForeignKey, self).formfield(**defaults)
+        return super().formfield(**defaults)
 
 
 # TODO: factorise with CTypeForeignKey
@@ -193,7 +201,8 @@ class CTypeOneToOneField(OneToOneField):
         kwargs['to'] = 'contenttypes.ContentType'
         # In a normal use, ContentType instances are never deleted ; so CASCADE by default should be OK
         kwargs.setdefault('on_delete', CASCADE)
-        super(CTypeOneToOneField, self).__init__(**kwargs)
+        # super(CTypeOneToOneField, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def __get__(self, instance, instance_type=None):
         ct_id = getattr(instance, self.attname)
@@ -204,13 +213,15 @@ class CTypeOneToOneField(OneToOneField):
         setattr(instance, self.attname, value.id if value else value)
 
     def contribute_to_class(self, cls, name, **kwargs):
-        super(CTypeOneToOneField, self).contribute_to_class(cls, name, **kwargs)
+        # super(CTypeOneToOneField, self).contribute_to_class(cls, name, **kwargs)
+        super().contribute_to_class(cls, name, **kwargs)
 
         # Connect self as the descriptor for this field (thx to GenericForeignKey code)
         setattr(cls, name, self)
 
     def deconstruct(self):
-        name, path, args, kwargs = super(CTypeOneToOneField, self).deconstruct()
+        # name, path, args, kwargs = super(CTypeOneToOneField, self).deconstruct()
+        name, path, args, kwargs = super().deconstruct()
         # kwargs.pop('to', None)
 
         return name, path, args, kwargs
@@ -223,7 +234,7 @@ class CTypeOneToOneField(OneToOneField):
         defaults = {'form_class': CTypeChoiceField}
         defaults.update(kwargs)
 
-        # Beware we don't call super(CTypeOneToOneField, self).formfield(**defaults)
+        # BEWARE: we don't call super(CTypeOneToOneField, self).formfield(**defaults)
         # to avoid useless/annoying 'queryset' arg
         return super(OneToOneField, self).formfield(**defaults)
 
@@ -248,11 +259,13 @@ class BasicAutoField(PositiveIntegerField):
         # Not '1', in order to distinguish a initialised value from a non initialised one.
         kwargs['default'] = None
 
-        super(BasicAutoField, self).__init__(*args, **kwargs)
+        # super(BasicAutoField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.set_tags(viewable=False)
 
     def deconstruct(self):
-        name, path, args, kwargs = super(BasicAutoField, self).deconstruct()
+        # name, path, args, kwargs = super(BasicAutoField, self).deconstruct()
+        name, path, args, kwargs = super().deconstruct()
 
         if self.editable:
             kwargs['editable'] = True
@@ -283,7 +296,7 @@ class BasicAutoField(PositiveIntegerField):
 ################################################################################
 #  Copyright (c) 2007  Michael Trier
 #  Copyright (C) 2014  http://trbs.net
-#  Copyright (C) 2009-2015  Hybird
+#  Copyright (C) 2009-2018  Hybird
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal
@@ -315,13 +328,15 @@ class CreationDateTimeField(DateTimeField):
         setdefault('blank',    True)
         setdefault('default',  now)
 
-        super(CreationDateTimeField, self).__init__(*args, **kwargs)
+        # super(CreationDateTimeField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def get_internal_type(self):
         return "DateTimeField"
 
     def deconstruct(self):
-        name, path, args, kwargs = super(CreationDateTimeField, self).deconstruct()
+        # name, path, args, kwargs = super(CreationDateTimeField, self).deconstruct()
+        name, path, args, kwargs = super().deconstruct()
 
         if self.editable:
             kwargs['editable'] = True

@@ -31,7 +31,8 @@ from .models import WaitingAction, History
 
 class CrudityQuerysetBrick(QuerysetBrick):
     def __init__(self, *args, **kwargs):
-        super(CrudityQuerysetBrick, self).__init__()
+        # super(CrudityQuerysetBrick, self).__init__()
+        super().__init__()
 
     def detailview_display(self, context):
         if not context['user'].has_perm('crudity'):
@@ -52,7 +53,8 @@ class WaitingActionsBrick(CrudityQuerysetBrick):
     order_by      = 'id'
 
     def __init__(self, backend):
-        super(WaitingActionsBrick, self).__init__()
+        # super(WaitingActionsBrick, self).__init__()
+        super().__init__()
         self.backend = backend
         self.id_     = self.generate_id()
 
@@ -65,7 +67,8 @@ class WaitingActionsBrick(CrudityQuerysetBrick):
     def detailview_display(self, context):
         # Credentials are OK: brick is not registered in brick registry,
         # so reloading is necessarily done with the custom view
-        super(WaitingActionsBrick, self).detailview_display(context)
+        # super(WaitingActionsBrick, self).detailview_display(context)
+        super().detailview_display(context)
         backend = self.backend
         ct = ContentType.objects.get_for_model(backend.model)
 
@@ -94,7 +97,8 @@ class CrudityHistoryBrick(CrudityQuerysetBrick):
     order_by      = 'id'
 
     def __init__(self, ct):
-        super(CrudityHistoryBrick, self).__init__()
+        # super(CrudityHistoryBrick, self).__init__()
+        super().__init__()
         self.ct = ct
         self.id_ = self.generate_id()
 
@@ -104,7 +108,8 @@ class CrudityHistoryBrick(CrudityQuerysetBrick):
     def detailview_display(self, context):
         # Credentials are OK: block is not registered in block registry,
         # so reloading is necessarily done with the custom view
-        super(CrudityHistoryBrick, self).detailview_display(context)
+        # super(CrudityHistoryBrick, self).detailview_display(context)
+        super().detailview_display(context)
         ct = self.ct
 
         histories = History.objects.filter(entity__entity_type=ct)

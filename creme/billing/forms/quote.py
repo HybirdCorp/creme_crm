@@ -32,7 +32,8 @@ class QuoteCreateForm(BaseCreateForm):
         model = Quote
 
     def save(self, *args, **kwargs):
-        instance = super(QuoteCreateForm, self).save(*args, **kwargs)
+        # instance = super(QuoteCreateForm, self).save(*args, **kwargs)
+        instance = super().save(*args, **kwargs)
         cleaned_data = self.cleaned_data
         transform_target_into_prospect(cleaned_data['source'],
                                        cleaned_data['target'],

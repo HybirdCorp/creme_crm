@@ -17,11 +17,13 @@ except Exception as e:
 
 class SettingValueTestCase(CremeTestCase):
     def setUp(self):
-        super(SettingValueTestCase, self).setUp()
+        # super(SettingValueTestCase, self).setUp()
+        super().setUp()
         self._registered_skey = []
 
     def tearDown(self):
-        super(SettingValueTestCase, self).tearDown()
+        # super(SettingValueTestCase, self).tearDown()
+        super().tearDown()
         setting_key_registry.unregister(*self._registered_skey)
 
     def _register_key(self, skey):
@@ -215,11 +217,13 @@ class SettingValueTestCase(CremeTestCase):
 
 class UserSettingValueTestCase(CremeTestCase):
     def setUp(self):
-        super(UserSettingValueTestCase, self).setUp()
+        # super(UserSettingValueTestCase, self).setUp()
+        super().setUp()
         self._registered_skey = []
 
     def tearDown(self):
-        super(UserSettingValueTestCase, self).tearDown()
+        # super(UserSettingValueTestCase, self).tearDown()
+        super().tearDown()
         user_setting_key_registry.unregister(*self._registered_skey)
 
     def _register_key(self, *skeys):

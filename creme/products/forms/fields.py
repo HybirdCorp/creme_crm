@@ -34,7 +34,8 @@ from ..models import Category, SubCategory
 
 class CreatorCategorySelector(ActionButtonList):
     def __init__(self, categories=(), attrs=None, creation_url='', creation_allowed=False):
-        super(CreatorCategorySelector, self).__init__(attrs)
+        # super(CreatorCategorySelector, self).__init__(attrs)
+        super().__init__(attrs)
         self.categories = categories
         self.creation_allowed = creation_allowed
         self.creation_url = creation_url
@@ -72,7 +73,8 @@ class CreatorCategorySelector(ActionButtonList):
         self.delegate = selector
         self._build_actions(attrs)
 
-        return super(CreatorCategorySelector, self).get_context(name=name, value=value, attrs=attrs)
+        # return super(CreatorCategorySelector, self).get_context(name=name, value=value, attrs=attrs)
+        return super().get_context(name=name, value=value, attrs=attrs)
 
 
 class CategoryField(JSONField):
@@ -85,11 +87,13 @@ class CategoryField(JSONField):
     value_type = dict
 
     def __init__(self, categories=Category.objects.all(), *args, **kwargs):
-        super(CategoryField, self).__init__(*args, **kwargs)
+        # super(CategoryField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.categories = categories
 
     def __deepcopy__(self, memo):
-        result = super(CategoryField, self).__deepcopy__(memo)
+        # result = super(CategoryField, self).__deepcopy__(memo)
+        result = super().__deepcopy__(memo)
 
         # Need to force a new ChoiceModelIterator to be created.
         result.categories = result.categories

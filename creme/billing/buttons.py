@@ -73,7 +73,8 @@ class _AddBillingDocumentButton(Button):
 
         context['rtype_id'] = REL_OBJ_BILL_RECEIVED
 
-        return super(_AddBillingDocumentButton, self).render(context)
+        # return super(_AddBillingDocumentButton, self).render(context)
+        return super().render(context)
 
 
 class AddInvoiceButton(_AddBillingDocumentButton):

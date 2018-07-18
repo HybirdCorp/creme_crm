@@ -45,7 +45,6 @@ def portal(request):
     return _config_portal(request, 'creme_config/user_role_portal.html')
 
 
-
 class UserRoleCreationWizard(PopupWizardMixin, SessionWizardView):
     class _CredentialsStep(user_role_forms.UserRoleCredentialsStep):
         step_submit_label = UserRole.save_label
@@ -68,7 +67,8 @@ class UserRoleCreationWizard(PopupWizardMixin, SessionWizardView):
     def dispatch(self, *args, **kwargs):
         _check_superuser(self.request.user)   # TODO: set public ?
 
-        return super(UserRoleCreationWizard, self).dispatch(*args, **kwargs)
+        # return super(UserRoleCreationWizard, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def done(self, form_list, **kwargs):
         form_iter = iter(form_list)
@@ -94,7 +94,8 @@ class UserRoleCreationWizard(PopupWizardMixin, SessionWizardView):
             return self.role
 
     def get_form_kwargs(self, step):
-        kwargs = super(UserRoleCreationWizard, self).get_form_kwargs(step)
+        # kwargs = super(UserRoleCreationWizard, self).get_form_kwargs(step)
+        kwargs = super().get_form_kwargs(step)
 
         if step != '0':
             kwargs['allowed_app_names'] = self.get_cleaned_data_for_step('0')['allowed_apps']
@@ -126,7 +127,8 @@ class UserRoleEditionWizard(PopupWizardMixin, SessionWizardView):
         self.role = role = get_object_or_404(UserRole, pk=kwargs['role_id'])
         self.wizard_title = ugettext(u'Edit «{}»').format(role)
 
-        return super(UserRoleEditionWizard, self).dispatch(*args, **kwargs)
+        # return super(UserRoleEditionWizard, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def done(self, form_list, **kwargs):
         form_iter = iter(form_list)
@@ -149,7 +151,8 @@ class UserRoleEditionWizard(PopupWizardMixin, SessionWizardView):
         return self.role
 
     def get_form_kwargs(self, step):
-        kwargs = super(UserRoleEditionWizard, self).get_form_kwargs(step)
+        # kwargs = super(UserRoleEditionWizard, self).get_form_kwargs(step)
+        kwargs = super().get_form_kwargs(step)
 
         if step != '0':
             kwargs['allowed_app_names'] = self.get_cleaned_data_for_step('0')['allowed_apps']

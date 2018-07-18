@@ -234,7 +234,8 @@ END:VEVENT
         return SettingValue.objects.get(key_id=SETTING_DISPLAY_REVIEW).value
 
     def _copy_relations(self, source):
-        super(AbstractActivity, self)._copy_relations(source, allowed_internal=[REL_OBJ_PART_2_ACTIVITY])
+        # super(AbstractActivity, self)._copy_relations(source, allowed_internal=[REL_OBJ_PART_2_ACTIVITY])
+        super()._copy_relations(source, allowed_internal=[REL_OBJ_PART_2_ACTIVITY])
 
     def _pre_delete(self):
         for relation in self.relations.filter(type=REL_OBJ_PART_2_ACTIVITY):

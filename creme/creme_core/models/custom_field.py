@@ -79,7 +79,7 @@ class CustomField(CremeModel):
         self.customfieldenumvalue_set.all().delete()
 
         # super(CustomField, self).delete(using=using)
-        super(CustomField, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
 
     def type_verbose_name(self):
         return _TABLES[self.field_type].verbose_name
@@ -300,7 +300,7 @@ class CustomFieldEnumValue(CremeModel):
     def delete(self, *args, **kwargs):
         CustomFieldEnum.objects.filter(custom_field=self.custom_field_id, value=str(self.id)).delete()
         # super(CustomFieldEnumValue, self).delete(using=using)
-        super(CustomFieldEnumValue, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
 
 
 class CustomFieldEnum(CustomFieldValue):

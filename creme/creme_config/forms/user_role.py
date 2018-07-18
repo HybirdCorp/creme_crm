@@ -76,7 +76,8 @@ class EditCredentialsForm(CremeModelForm):
         exclude = ('role', 'value')  # fields ??
 
     def __init__(self, *args, **kwargs):
-        super(EditCredentialsForm, self).__init__(*args, **kwargs)
+        # super(EditCredentialsForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         fields = self.fields
         fields['ctype'].ctypes = filtered_entity_ctypes(self._get_allowed_apps())
 
@@ -98,13 +99,15 @@ class EditCredentialsForm(CremeModelForm):
                                 get_data('can_link'), get_data('can_unlink')
                                )
 
-        return super(EditCredentialsForm, self).save(*args, **kwargs)
+        # return super(EditCredentialsForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class AddCredentialsForm(EditCredentialsForm):
     def __init__(self, role, *args, **kwargs):
         self.role = role
-        super(AddCredentialsForm, self).__init__(*args, **kwargs)
+        # super(AddCredentialsForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['set_type'].initial = SetCredentials.ESET_ALL
 
     def _get_allowed_apps(self):
@@ -113,12 +116,14 @@ class AddCredentialsForm(EditCredentialsForm):
     def save(self, *args, **kwargs):
         self.instance.role = self.role
 
-        return super(AddCredentialsForm, self).save(*args, **kwargs)
+        # return super(AddCredentialsForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class UserRoleDeleteForm(CremeForm):
     def __init__(self, user, *args, **kwargs):
-        super(UserRoleDeleteForm, self).__init__(user, *args, **kwargs)
+        # super(UserRoleDeleteForm, self).__init__(user, *args, **kwargs)
+        super().__init__(user, *args, **kwargs)
         self.role_to_delete = role_2_del = self.initial['role_to_delete']
         self.using_users = users = CremeUser.objects.filter(role=role_2_del)
 
@@ -166,7 +171,8 @@ class _UserRoleWizardFormStep(CremeModelForm):
 
     def save(self, *args, **kwargs):
         self.partial_save()
-        return super(_UserRoleWizardFormStep, self).save(*args, **kwargs)
+        # return super(_UserRoleWizardFormStep, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class UserRoleAppsStep(_UserRoleWizardFormStep):
@@ -176,7 +182,8 @@ class UserRoleAppsStep(_UserRoleWizardFormStep):
         fields = ('name', 'allowed_apps',)
 
     def __init__(self, *args, **kwargs):
-        super(UserRoleAppsStep, self).__init__(*args, **kwargs)
+        # super(UserRoleAppsStep, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         CRED_REGULAR = CremeAppConfig.CRED_REGULAR
         allowed_apps_f = self.fields['allowed_apps']
@@ -201,7 +208,8 @@ class UserRoleAdminAppsStep(_UserRoleWizardFormStep):
         fields = ('admin_4_apps',)
 
     def __init__(self, allowed_app_names, *args, **kwargs):
-        super(UserRoleAdminAppsStep, self).__init__(*args, **kwargs)
+        # super(UserRoleAdminAppsStep, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         CRED_ADMIN = CremeAppConfig.CRED_ADMIN
         labels = set(allowed_app_names)
@@ -223,7 +231,8 @@ class UserRoleCreatableCTypesStep(_UserRoleWizardFormStep):
         fields = ('creatable_ctypes',)
 
     def __init__(self, allowed_app_names, *args, **kwargs):
-        super(UserRoleCreatableCTypesStep, self).__init__(*args, **kwargs)
+        # super(UserRoleCreatableCTypesStep, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['creatable_ctypes'].ctypes = filtered_entity_ctypes(allowed_app_names)
 
     def save(self, *args, **kwargs):
@@ -242,7 +251,8 @@ class UserRoleExportableCTypesStep(_UserRoleWizardFormStep):
         fields = ('exportable_ctypes',)
 
     def __init__(self, allowed_app_names, *args, **kwargs):
-        super(UserRoleExportableCTypesStep, self).__init__(*args, **kwargs)
+        # super(UserRoleExportableCTypesStep, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['exportable_ctypes'].ctypes = filtered_entity_ctypes(allowed_app_names)
 
     def save(self, *args, **kwargs):
@@ -255,7 +265,8 @@ class UserRoleCredentialsStep(AddCredentialsForm):
 
     def __init__(self, allowed_app_names, *args, **kwargs):
         self.allowed_app_names = allowed_app_names
-        super(UserRoleCredentialsStep, self).__init__(*args, **kwargs)
+        # super(UserRoleCredentialsStep, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['can_view'] = CharField(label=_(u'Can view'),
                                             required=False, widget=Label,
                                             initial=_(u'Yes'),

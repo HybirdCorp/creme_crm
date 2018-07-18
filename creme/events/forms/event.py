@@ -41,7 +41,8 @@ class EventForm(CremeEntityForm):
         model = get_event_model()
 
     def clean(self):
-        cdata = super(CremeEntityForm, self).clean()
+        # cdata = super(CremeEntityForm, self).clean()
+        cdata = super().clean()
 
         if not self._errors:
             end = cdata.get('end_date')
@@ -69,7 +70,8 @@ class AddContactsToEventForm(CremeForm):
 
     def __init__(self, *args, **kwargs):
         self.event = kwargs.pop('instance')
-        super(AddContactsToEventForm, self).__init__(*args, **kwargs)
+        # super(AddContactsToEventForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # TODO: factorise (_RelationsCreateForm in creme_core) ??
         relations_field = self.fields['related_contacts']
@@ -130,7 +132,8 @@ class AddContactsToEventForm(CremeForm):
 
 class RelatedOpportunityCreateForm(OpportunityCreateForm):
     def __init__(self, *args, **kwargs):
-        super(RelatedOpportunityCreateForm, self).__init__(*args, **kwargs)
+        # super(RelatedOpportunityCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         initial = self.initial
         fields  = self.fields
@@ -154,7 +157,8 @@ class RelatedOpportunityCreateForm(OpportunityCreateForm):
                                                )
 
     def save(self, *args, **kwargs):
-        opp = super(RelatedOpportunityCreateForm, self).save(*args, **kwargs)
+        # opp = super(RelatedOpportunityCreateForm, self).save(*args, **kwargs)
+        opp = super().save(*args, **kwargs)
 
         Relation.objects.create(user=self.user, subject_entity=opp,
                                 type_id=constants.REL_SUB_GEN_BY_EVENT, object_entity=self.event,

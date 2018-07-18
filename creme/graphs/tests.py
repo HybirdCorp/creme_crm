@@ -36,9 +36,10 @@ def skipIfCustomGraph(test_func):
 @skipIfCustomGraph
 class GraphsTestCase(CremeTestCase):
     def login(self, allowed_apps=('graphs',), *args, **kwargs):
-        return super(GraphsTestCase, self).login(allowed_apps=allowed_apps,
-                                                 *args, **kwargs
-                                                )
+        # return super(GraphsTestCase, self).login(allowed_apps=allowed_apps,
+        return super().login(allowed_apps=allowed_apps,
+                             *args, **kwargs
+                            )
 
     # def test_portal(self):
     #     self.login()

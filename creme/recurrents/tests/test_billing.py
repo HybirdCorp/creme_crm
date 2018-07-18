@@ -39,7 +39,8 @@ TemplateBase = get_template_base_model()
 class RecurrentsBillingTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        super(RecurrentsBillingTestCase, cls).setUpClass()
+        # super(RecurrentsBillingTestCase, cls).setUpClass()
+        super().setUpClass()
 
         Vat.objects.get_or_create(is_default=True, defaults={'value': DEFAULT_VAT})
 

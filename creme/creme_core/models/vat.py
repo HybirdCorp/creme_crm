@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2017  Hybird
+#    Copyright (C) 2013-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -49,7 +49,8 @@ class Vat(CremeModel):
         elif not Vat.objects.filter(is_default=True).exclude(pk=self.id).exists():
             self.is_default = True
 
-        super(Vat, self).save(*args, **kwargs)
+        # super(Vat, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     @atomic
     def delete(self, *args, **kwargs):
@@ -60,7 +61,8 @@ class Vat(CremeModel):
                 first_vat.is_default = True
                 first_vat.save()
 
-        super(Vat, self).delete(*args, **kwargs)
+        # super(Vat, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
 
     @staticmethod
     def get_default_vat():

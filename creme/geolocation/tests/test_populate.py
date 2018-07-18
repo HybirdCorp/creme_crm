@@ -105,7 +105,8 @@ class CSVPopulatorTestCase(CremeTestCase):
         class InvalidLineCSVPopulator(MockCSVPopulator):
             def create(self, row, context):
                 if context.line % 2 > 0:
-                    return super(InvalidLineCSVPopulator, self).create(row, context)
+                    # return super(InvalidLineCSVPopulator, self).create(row, context)
+                    return super().create(row, context)
 
                 raise Exception('invalid line !')
 

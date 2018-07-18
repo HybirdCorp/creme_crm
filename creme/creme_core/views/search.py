@@ -48,7 +48,8 @@ class FoundEntitiesBrick(QuerysetBrick):
     template_name = 'creme_core/bricks/found-entities.html'
 
     def __init__(self, searcher, model, research, user, id=None):
-        super(FoundEntitiesBrick, self).__init__()
+        # super(FoundEntitiesBrick, self).__init__()
+        super().__init__()
         # dependencies  = (...,)  # TODO: ??
         self.searcher = searcher
         self.model = model

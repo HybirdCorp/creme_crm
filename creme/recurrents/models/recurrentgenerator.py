@@ -52,7 +52,8 @@ class AbstractRecurrentGenerator(CremeEntity):
         ordering = ('name',)
 
     def __init__(self, *args, **kwargs):
-        super(AbstractRecurrentGenerator, self).__init__(*args, **kwargs)
+        # super(AbstractRecurrentGenerator, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.__init_refreshing_cache()
 
     def __init_refreshing_cache(self):
@@ -80,7 +81,8 @@ class AbstractRecurrentGenerator(CremeEntity):
     def save(self, *args, **kwargs):
         from ..creme_jobs import recurrents_gendocs_type
         created = bool(not self.pk)
-        super(AbstractRecurrentGenerator, self).save(*args, **kwargs)
+        # super(AbstractRecurrentGenerator, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
         if created or self._old_first_generation != self.first_generation or \
            self._old_periodicity != self.periodicity:

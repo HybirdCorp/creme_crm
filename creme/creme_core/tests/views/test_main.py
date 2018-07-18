@@ -19,13 +19,15 @@ except Exception as e:
 
 class MiscViewsTestCase(ViewsTestCase):
     def setUp(self):
-        super(MiscViewsTestCase, self).setUp()
+        # super(MiscViewsTestCase, self).setUp()
+        super().setUp()
 
         self.FORCE_JS_TESTVIEW = settings.FORCE_JS_TESTVIEW
         settings.FORCE_JS_TESTVIEW = False
 
     def tearDown(self):
-        super(MiscViewsTestCase, self).tearDown()
+        # super(MiscViewsTestCase, self).tearDown()
+        super().tearDown()
         settings.FORCE_JS_TESTVIEW = self.FORCE_JS_TESTVIEW
 
     def test_home(self):  # TODO: improve test

@@ -59,7 +59,8 @@ class _RelationsCreateForm(CremeForm):
         @param relations_types: Sequence of RelationTypes ids to narrow to these types ;
                                 A empty sequence means all types compatible with the parameter 'content_type'.
         """
-        super(_RelationsCreateForm, self).__init__(*args, **kwargs)
+        # super(_RelationsCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.subjects = subjects
         self.subjects_ids = subjects_ids = frozenset(s.id for s in subjects)
 
@@ -180,7 +181,8 @@ class _RelationsCreateForm(CremeForm):
         return sf_rtypes
 
     def clean(self):
-        cdata = super(_RelationsCreateForm, self).clean()
+        # cdata = super(_RelationsCreateForm, self).clean()
+        cdata = super().clean()
 
         if not self._errors:
             relations_desc = cdata['relations']
@@ -230,10 +232,11 @@ class _RelationsCreateForm(CremeForm):
 
 class RelationCreateForm(_RelationsCreateForm):
     def __init__(self, subject, relations_types=None, *args, **kwargs):
-        super(RelationCreateForm, self).__init__([subject], subject.entity_type,
-                                                 relations_types=relations_types,
-                                                 *args, **kwargs
-                                                )
+        # super(RelationCreateForm, self).__init__([subject], subject.entity_type,
+        super().__init__([subject], subject.entity_type,
+                         relations_types=relations_types,
+                         *args, **kwargs
+                        )
 
 
 class MultiEntitiesRelationCreateForm(_RelationsCreateForm):
@@ -244,10 +247,11 @@ class MultiEntitiesRelationCreateForm(_RelationsCreateForm):
 
     def __init__(self, subjects, forbidden_subjects, relations_types=None, *args, **kwargs):
         first_subject = subjects[0] if subjects else forbidden_subjects[0]
-        super(MultiEntitiesRelationCreateForm, self).__init__(subjects, first_subject.entity_type,
-                                                              relations_types=relations_types,
-                                                              *args, **kwargs
-                                                             )
+        # super(MultiEntitiesRelationCreateForm, self).__init__(subjects, first_subject.entity_type,
+        super().__init__(subjects, first_subject.entity_type,
+                         relations_types=relations_types,
+                         *args, **kwargs
+                        )
 
         user = self.user
         fields = self.fields

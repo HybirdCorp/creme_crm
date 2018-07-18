@@ -21,7 +21,8 @@ except Exception as e:
 class DBTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        super(DBTestCase, cls).setUpClass()
+        # super(DBTestCase, cls).setUpClass()
+        super().setUpClass()
 
         # NB: We build an index, so it is not declared in the model's Meta
         #     => functions have to make introspection on the DB server.
@@ -44,8 +45,8 @@ class DBTestCase(CremeTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        # CremeTestCase.tearDownClass()
-        super(DBTestCase, cls).tearDownClass()
+        # super(DBTestCase, cls).tearDownClass()
+        super().tearDownClass()
 
         connection = connections[DEFAULT_DB_ALIAS]
         vendor = connection.vendor

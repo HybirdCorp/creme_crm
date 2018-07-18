@@ -21,12 +21,11 @@ except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
 
-# class BlockTestCase(CremeTestCase):
 class BrickTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        # super(BlockTestCase, cls).setUpClass()
-        super(BrickTestCase, cls).setUpClass()
+        # super(BrickTestCase, cls).setUpClass()
+        super().setUpClass()
 
         cls._bdl_backup = list(BrickDetailviewLocation.objects.all())
         cls._bpl_backup = list(BrickHomeLocation.objects.all())
@@ -38,8 +37,8 @@ class BrickTestCase(CremeTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        # super(BlockTestCase, cls).tearDownClass()
-        super(BrickTestCase, cls).tearDownClass()
+        # super(BrickTestCase, cls).tearDownClass()
+        super().tearDownClass()
 
         BrickDetailviewLocation.objects.all().delete()
         BrickHomeLocation.objects.all().delete()

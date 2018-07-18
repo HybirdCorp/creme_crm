@@ -98,7 +98,8 @@ class RelationTypeCreateForm(CremeForm):
 
 class RelationTypeEditForm(RelationTypeCreateForm):
     def __init__(self, instance, *args, **kwargs):
-        super(RelationTypeEditForm, self).__init__(*args, **kwargs)
+        # super(RelationTypeEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.instance = instance
         sym_instance = instance.symmetric_type
         fields = self.fields
@@ -121,10 +122,11 @@ class RelationTypeEditForm(RelationTypeCreateForm):
     def save(self, *args, **kwargs):
         instance = self.instance
 
-        return super(RelationTypeEditForm, self).save(pk_subject=instance.id, 
-                                                      pk_object=instance.symmetric_type_id,
-                                                      generate_pk=False,
-                                                     )
+        # return super(RelationTypeEditForm, self).save(pk_subject=instance.id,
+        return super().save(pk_subject=instance.id,
+                            pk_object=instance.symmetric_type_id,
+                            generate_pk=False,
+                           )
 
 
 class SemiFixedRelationTypeCreateForm(CremeModelForm):
@@ -138,7 +140,8 @@ class SemiFixedRelationTypeCreateForm(CremeModelForm):
         exclude = ('relation_type', 'object_entity')
 
     def clean(self):
-        cdata = super(SemiFixedRelationTypeCreateForm, self).clean()
+        # cdata = super(SemiFixedRelationTypeCreateForm, self).clean()
+        cdata = super().clean()
 
         if not self._errors:
             rtype, entity = cdata['semi_relation']
@@ -157,4 +160,5 @@ class SemiFixedRelationTypeCreateForm(CremeModelForm):
         instance = self.instance
         instance.relation_type, instance.object_entity = self.cleaned_data['semi_relation']
 
-        return super(SemiFixedRelationTypeCreateForm, self).save(*args, **kwargs)
+        # return super(SemiFixedRelationTypeCreateForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)

@@ -39,7 +39,8 @@ class HeaderFilterList(list):
     Indeed, it's a cache.
     """
     def __init__(self, content_type, user):
-        super(HeaderFilterList, self).__init__(HeaderFilter.get_for_user(user, content_type))
+        # super(HeaderFilterList, self).__init__(HeaderFilter.get_for_user(user, content_type))
+        super().__init__(HeaderFilter.get_for_user(user, content_type))
         self._selected = None
 
     @property
@@ -79,7 +80,7 @@ class HeaderFilter(Model):  # CremeModel ???
     # 'True' means: can only be viewed (and so edited/deleted) by its owner.
     is_private = BooleanField(pgettext_lazy('creme_core-header_filter', u'Is private?'), default=False)
 
-    json_cells = TextField(editable=False, null=True) #TODO: JSONField ? CellsField ?
+    json_cells = TextField(editable=False, null=True)  # TODO: JSONField ? CellsField ?
 
     creation_label = _(u'Create a view')
     save_label     = _(u'Save the view')
@@ -91,7 +92,8 @@ class HeaderFilter(Model):  # CremeModel ???
         ordering = ('name',)
 
     def __init__(self, *args, **kwargs):
-        super(HeaderFilter, self).__init__(*args, **kwargs)
+        # super(HeaderFilter, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # TODO: a true CellsField ??
         if self.json_cells is None:
             self.cells = []

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015  Hybird
+#    Copyright (C) 2015-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,8 @@ from django.utils.translation import ugettext as _
 
 class BillingDiscountField(DecimalField):
     def validate(self, value):
-        super(BillingDiscountField, self).validate(value)
+        # super(BillingDiscountField, self).validate(value)
+        super().validate(value)
 
         if not (0 <= value <= 100):
             raise ValidationError(_(u'Enter a number between 0 and 100 (it is a percentage).'))

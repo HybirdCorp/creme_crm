@@ -50,7 +50,8 @@ def skipIfCustomEvent(test_func):
 class EventsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        super(EventsTestCase, cls).setUpClass()
+        # super(EventsTestCase, cls).setUpClass()
+        super().setUpClass()
 
         cls.ADD_URL = reverse('events__create_event')
 

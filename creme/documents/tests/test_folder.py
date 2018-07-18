@@ -21,13 +21,15 @@ except Exception as e:
 class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
     @classmethod
     def setUpClass(cls):
-        super(FolderTestCase, cls).setUpClass()
+        # super(FolderTestCase, cls).setUpClass()
+        super().setUpClass()
 
         cls.ADD_URL  = reverse('documents__create_folder')
         cls.LIST_URL = reverse('documents__list_folders')
 
     def setUp(self):
-        super(FolderTestCase, self).setUp()
+        # super(FolderTestCase, self).setUp()
+        super().setUp()
         self.login()
 
     def test_createview01(self):

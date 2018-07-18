@@ -797,7 +797,8 @@ class HistoryLine(Model):
             user = get_global_info('user')
             self.username = user.username if user else ''
 
-            super(HistoryLine, self).save(*args, **kwargs)
+            # super(HistoryLine, self).save(*args, **kwargs)
+            super().save(*args, **kwargs)
 
     @property
     def user(self):

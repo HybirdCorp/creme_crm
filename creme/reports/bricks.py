@@ -83,7 +83,8 @@ class ReportGraphBrick(Brick):
 
     # def __init__(self, instance_block_config):
     def __init__(self, instance_brick_config):
-        super(ReportGraphBrick, self).__init__()
+        # super(ReportGraphBrick, self).__init__()
+        super().__init__()
         # self.verbose = instance_block_config.verbose #TODO: delete 'verbose' field ?
         # self.instance_block_id = instance_block_config.id
         self.instance_brick_id = instance_brick_config.id

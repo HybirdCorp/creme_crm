@@ -60,7 +60,8 @@ class PollRepliesCreateForm(CremeForm):
     pform    = CreatorEntityField(label=_(u'Related form'), model=polls.get_pollform_model())
 
     def __init__(self, *args, **kwargs):
-        super(PollRepliesCreateForm, self).__init__(*args, **kwargs)
+        # super(PollRepliesCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         fields = self.fields
         fields['user'].initial = self.user.id
 
@@ -154,12 +155,14 @@ class PollReplyEditForm(CremeEntityForm):
         exclude = ('pform', 'person')
 
     def __init__(self, *args, **kwargs):
-        super(PollReplyEditForm, self).__init__(*args, **kwargs)
+        # super(PollReplyEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['related_person'].initial = self.instance.person
 
     def save(self, *args, **kwargs):
         self.instance.person = self.cleaned_data['related_person']
-        return super(PollReplyEditForm, self).save(*args, **kwargs)
+        # return super(PollReplyEditForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class PersonAddRepliesForm(CremeForm):
@@ -169,7 +172,8 @@ class PersonAddRepliesForm(CremeForm):
                                      )
 
     def __init__(self, entity, *args, **kwargs):
-        super(PersonAddRepliesForm, self).__init__(*args, **kwargs)
+        # super(PersonAddRepliesForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if not isinstance(entity, (Contact, Organisation)):
             raise Http404('You can only link to Contacts & Organisations')
@@ -187,7 +191,8 @@ class PollReplyFillForm(CremeForm):
 
     def __init__(self, line_node, *args, **kwargs):
         "@param line_node Node (see ReplySectionTree) related to a PollReplyLine."
-        super(PollReplyFillForm, self).__init__(*args, **kwargs)
+        # super(PollReplyFillForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.line_node = line_node
 
         fields = self.fields
@@ -212,7 +217,8 @@ class PollReplyFillForm(CremeForm):
             fields['answer'] = answer_field
 
     def clean(self):
-        cdata = super(PollReplyFillForm, self).clean()
+        # cdata = super(PollReplyFillForm, self).clean()
+        cdata = super().clean()
         errors = self._errors
 
         if not errors and not cdata.get('not_applicable', False) and \
@@ -241,7 +247,8 @@ class PollReplyFillForm(CremeForm):
 
 class InnerEditPersonForm(BulkDefaultEditForm):
     def __init__(self, model, field, user=None, entities=(), is_bulk=False, **kwargs):
-        super(InnerEditPersonForm, self).__init__(model, field, user, entities, is_bulk, **kwargs)
+        # super(InnerEditPersonForm, self).__init__(model, field, user, entities, is_bulk, **kwargs)
+        super().__init__(model, field, user, entities, is_bulk, **kwargs)
         person_field = GenericEntityField(label=_(u'Person who filled'),
                                           required=False,
                                           models=[Organisation, Contact],

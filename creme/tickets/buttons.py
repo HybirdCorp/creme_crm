@@ -38,7 +38,8 @@ class Linked2TicketButton(Button):
         context['rtype_id'] = REL_SUB_LINKED_2_TICKET
         context['ticket_ct'] = ContentType.objects.get_for_model(get_ticket_model())  # TODO: use templatetag instead
 
-        return super(Linked2TicketButton, self).render(context)
+        # return super(Linked2TicketButton, self).render(context)
+        return super().render(context)
 
 
 # linked_2_ticket_button = Linked2TicketButton()

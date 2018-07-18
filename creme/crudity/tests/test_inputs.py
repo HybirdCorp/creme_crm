@@ -1413,13 +1413,15 @@ class FileSystemInputTestCase(CrudityTestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(FileSystemInputTestCase, cls).setUpClass()
+        # super(FileSystemInputTestCase, cls).setUpClass()
+        super().setUpClass()
 
         cls.tmp_dir_path = mkdtemp(prefix='creme_crudity_fsinput')
 
     @classmethod
     def tearDownClass(cls):
-        super(FileSystemInputTestCase, cls).tearDownClass()
+        # super(FileSystemInputTestCase, cls).tearDownClass()
+        super().tearDownClass()
 
         if cls.tmp_dir_path is not None:
             rmtree(cls.tmp_dir_path)

@@ -38,7 +38,8 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     @classmethod
     def setUpClass(cls):
-        super(JobViewsTestCase, cls).setUpClass()
+        # super(JobViewsTestCase, cls).setUpClass()
+        super().setUpClass()
 
         cls.queue = queue = JobManagerQueue.get_main_queue()
         cls._original_queue_ping = queue.ping

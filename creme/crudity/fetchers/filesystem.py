@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017  Hybird
+#    Copyright (C) 2017-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,7 +34,8 @@ class FileSystemFetcher(CrudityFetcher):
         pass
 
     def __init__(self, setting_name='CRUDITY_FILESYS_FETCHER_DIR', *args, **kwargs):
-        super(FileSystemFetcher, self).__init__(*args, **kwargs)
+        # super(FileSystemFetcher, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.setting_name = setting_name
 
     def fetch(self, *args, **kwargs):

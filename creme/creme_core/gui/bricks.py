@@ -273,7 +273,8 @@ class PaginatedBrick(Brick):
         except (EmptyPage, InvalidPage):
             page = paginator.page(paginator.num_pages)
 
-        return super(PaginatedBrick, self)._build_template_context(
+        # return super(PaginatedBrick, self)._build_template_context(
+        return super()._build_template_context(
                 context=context, brick_id=brick_id, brick_context=brick_context, page=page,
                 **extra_kwargs
         )
@@ -287,14 +288,16 @@ class _QuerysetBrickContext(_PaginatedBrickContext):
     __slots__ = ('page', '_order_by')
 
     def __init__(self):
-        super(_QuerysetBrickContext, self).__init__()  # *args **kwargs ??
+        # super(_QuerysetBrickContext, self).__init__()
+        super().__init__()  # *args **kwargs ??
         self._order_by = ''
 
     def __repr__(self):
         return '<QuerysetBrickContext: page={} order_by={}>'.format(self.page, self._order_by)
 
     def as_dict(self):
-        d = super(_QuerysetBrickContext, self).as_dict()
+        # d = super(_QuerysetBrickContext, self).as_dict()
+        d = super().as_dict()
         d['_order_by'] = self._order_by
 
         return d
@@ -308,7 +311,8 @@ class _QuerysetBrickContext(_PaginatedBrickContext):
         return order_by
 
     def update(self, template_context):
-        modified = super(_QuerysetBrickContext, self).update(template_context)
+        # modified = super(_QuerysetBrickContext, self).update(template_context)
+        modified = super().update(template_context)
         order_by = template_context['order_by']
 
         if self._order_by != order_by:
@@ -358,7 +362,8 @@ class QuerysetBrick(PaginatedBrick):
                 order_by = raw_order_by
                 extra_kwargs['objects'] = objects.order_by(order_by)
 
-        return super(QuerysetBrick, self)._build_template_context(
+        # return super(QuerysetBrick, self)._build_template_context(
+        return super()._build_template_context(
                 context=context, brick_id=brick_id, brick_context=brick_context,
                 objects_ctype=ContentType.objects.get_for_model(objects.model),
                 order_by=order_by,
@@ -413,7 +418,8 @@ class SpecificRelationsBrick(QuerysetBrick):
 
     def __init__(self, relationblock_item):
         "@param relationblock_item: Instance of RelationBlockItem"
-        super(SpecificRelationsBrick, self).__init__()
+        # super(SpecificRelationsBrick, self).__init__()
+        super().__init__()
         self.id_ = relationblock_item.brick_id
         self.config_item = relationblock_item
 
@@ -477,7 +483,8 @@ class CustomBrick(Brick):
 
     def __init__(self, id_, customblock_conf_item):
         "@param customblock_conf_item: Instance of CustomBlockConfigItem"
-        super(CustomBrick, self).__init__()
+        # super(CustomBrick, self).__init__()
+        super().__init__()
         self.id_ = id_
         # TODO: related models (by FK/M2M/...) ?
         self.dependencies = deps = [customblock_conf_item.content_type.model_class()]

@@ -189,7 +189,8 @@ class PropertyTypeInfoBrick(Brick):
     template_name = 'creme_core/bricks/ptype-info.html'
 
     def __init__(self, ptype, ctypes):
-        super(PropertyTypeInfoBrick, self).__init__()
+        # super(PropertyTypeInfoBrick, self).__init__()
+        super().__init__()
         self.ptype = ptype
         self.ctypes = ctypes
 
@@ -207,7 +208,8 @@ class TaggedEntitiesBrick(QuerysetBrick):
     template_name = 'creme_core/bricks/tagged-entities.html'
 
     def __init__(self, ptype, ctype):
-        super(TaggedEntitiesBrick, self).__init__()
+        # super(TaggedEntitiesBrick, self).__init__()
+        super().__init__()
         self.ptype = ptype
         self.ctype = ctype
         self.id_ = self.generate_id('creme_core', 'tagged-{}-{}'.format(ctype.app_label, ctype.model))
@@ -249,7 +251,8 @@ class TaggedMiscEntitiesBrick(QuerysetBrick):
     template_name = 'creme_core/bricks/tagged-entities.html'
 
     def __init__(self, ptype, excluded_ctypes):
-        super(TaggedMiscEntitiesBrick, self).__init__()
+        # super(TaggedMiscEntitiesBrick, self).__init__()
+        super().__init__()
         self.ptype = ptype
         self.excluded_ctypes = excluded_ctypes
 

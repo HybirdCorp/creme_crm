@@ -201,7 +201,8 @@ _PATTERNS = OrderedDict([('1', _pattern_CFL),
 
 class MultiColumnsParticipantsExtractor(RelatedExtractor):
     def __init__(self, first_name_index, last_name_index, create_if_unfound=False):
-        super(MultiColumnsParticipantsExtractor, self).__init__(create_if_unfound)
+        # super(MultiColumnsParticipantsExtractor, self).__init__(create_if_unfound)
+        super().__init__(create_if_unfound)
         self._first_name_index = first_name_index - 1 if first_name_index else None
         self._last_name_index = last_name_index - 1
 
@@ -218,7 +219,8 @@ class MultiColumnsParticipantsExtractor(RelatedExtractor):
 
 class SplitColumnParticipantsExtractor(RelatedExtractor):
     def __init__(self, column_index, separator, pattern_func, create_if_unfound=False):
-        super(SplitColumnParticipantsExtractor, self).__init__(create_if_unfound)
+        # super(SplitColumnParticipantsExtractor, self).__init__(create_if_unfound)
+        super().__init__(create_if_unfound)
         self._column_index = column_index - 1
         self._separator = separator
         self._pattern_func = pattern_func
@@ -243,12 +245,14 @@ class ParticipantsExtractorWidget(BaseExtractorWidget):
     template_name = 'activities/forms/widgets/mass-import/participants-extractor.html'
 
     def __init__(self, *args, **kwargs):
-        super(ParticipantsExtractorWidget, self).__init__(*args, **kwargs)
+        # super(ParticipantsExtractorWidget, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.propose_creation = False
 
     def get_context(self, name, value, attrs):
         value = value or {}
-        context = super(ParticipantsExtractorWidget, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(ParticipantsExtractorWidget, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
 
         widget_cxt = context['widget']
         widget_cxt['MULTICOLUMNS']   = MODE_MULTICOLUMNS
@@ -311,7 +315,8 @@ class ParticipantsExtractorWidget(BaseExtractorWidget):
 
 class ParticipantsExtractorField(Field):
     def __init__(self, choices, *args, **kwargs):
-        super(ParticipantsExtractorField, self).__init__(widget=ParticipantsExtractorWidget, *args, **kwargs)
+        # super(ParticipantsExtractorField, self).__init__(widget=ParticipantsExtractorWidget, *args, **kwargs)
+        super().__init__(widget=ParticipantsExtractorWidget, *args, **kwargs)
         self._user = None
         self._can_create = False
         self._allowed_indexes = {c[0] for c in choices}
@@ -389,7 +394,8 @@ class ParticipantsExtractorField(Field):
 
 class SubjectsExtractor(RelatedExtractor):
     def __init__(self, column_index, separator, create_if_unfound=False):
-        super(SubjectsExtractor, self).__init__(create_if_unfound)
+        # super(SubjectsExtractor, self).__init__(create_if_unfound)
+        super().__init__(create_if_unfound)
         self._column_index = column_index - 1
         self._separator = separator
         self._models = [ct.model_class() for ct in RelationType.objects
@@ -458,12 +464,14 @@ class SubjectsExtractorWidget(BaseExtractorWidget):
     template_name = 'activities/forms/widgets/mass-import/subjects-extractor.html'
 
     def __init__(self, *args, **kwargs):
-        super(SubjectsExtractorWidget, self).__init__(*args, **kwargs)
+        # super(SubjectsExtractorWidget, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.propose_creation = False
 
     def get_context(self, name, value, attrs):
         value = value or {}
-        context = super(SubjectsExtractorWidget, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(SubjectsExtractorWidget, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
 
         widget_cxt = context['widget']
 
@@ -505,7 +513,8 @@ class SubjectsExtractorWidget(BaseExtractorWidget):
 
 class SubjectsExtractorField(Field):
     def __init__(self, choices, *args, **kwargs):
-        super(SubjectsExtractorField, self).__init__(widget=SubjectsExtractorWidget, *args, **kwargs)
+        # super(SubjectsExtractorField, self).__init__(widget=SubjectsExtractorWidget, *args, **kwargs)
+        super().__init__(widget=SubjectsExtractorWidget, *args, **kwargs)
         self._user = None
         self._can_create = False
         self._allowed_indexes = {c[0] for c in choices}
@@ -573,7 +582,8 @@ def get_massimport_form_builder(header_dict, choices):
                         )
 
         def __init__(self, *args, **kwargs):
-            super(ActivityMassImportForm, self).__init__(*args, **kwargs)
+            # super(ActivityMassImportForm, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
             self.fields['my_participation'].initial = (True, Calendar.get_user_default_calendar(self.user))
 
             self.user_participants = []
@@ -607,7 +617,8 @@ def get_massimport_form_builder(header_dict, choices):
                 instance.floating_type = constants.FLOATING
 
         def _post_instance_creation(self, instance, line, updated):
-            super(ActivityMassImportForm, self)._post_instance_creation(instance, line, updated)
+            # super(ActivityMassImportForm, self)._post_instance_creation(instance, line, updated)
+            super()._post_instance_creation(instance, line, updated)
 
             cdata = self.cleaned_data
             user = instance.user

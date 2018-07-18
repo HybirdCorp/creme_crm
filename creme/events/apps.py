@@ -32,8 +32,8 @@ class EventsConfig(CremeAppConfig):
         from . import get_event_model
 
         self.Event = get_event_model()
-        super(EventsConfig, self).all_apps_ready()
-
+        # super(EventsConfig, self).all_apps_ready()
+        super().all_apps_ready()
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Event)

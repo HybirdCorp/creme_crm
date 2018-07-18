@@ -32,7 +32,8 @@ class GraphsConfig(CremeAppConfig):
         from . import get_graph_model
 
         self.Graph = get_graph_model()
-        super(GraphsConfig, self).all_apps_ready()
+        # super(GraphsConfig, self).all_apps_ready()
+        super().all_apps_ready()
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Graph)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -61,7 +61,8 @@ class MailingListAddRecipientsForm(CremeForm):
     blocks = FieldBlockManager(('general', _(u'Recipients'), '*'))
 
     def __init__(self, entity, *args, **kwargs):
-        super(MailingListAddRecipientsForm, self).__init__(*args, **kwargs)
+        # super(MailingListAddRecipientsForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.ml = entity
 
     def save(self):
@@ -86,7 +87,8 @@ class MailingListAddCSVForm(CremeForm):
     blocks = FieldBlockManager(('general', _(u'CSV file'), '*'))
 
     def __init__(self, entity, *args, **kwargs):
-        super(MailingListAddCSVForm, self).__init__(*args, **kwargs)
+        # super(MailingListAddCSVForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.ml = entity
 
     @staticmethod

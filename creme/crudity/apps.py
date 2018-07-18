@@ -29,7 +29,8 @@ class CrudityConfig(CremeAppConfig):
     dependencies = ['creme.creme_core']
 
     def ready(self):
-        super(CrudityConfig, self).ready()
+        # super(CrudityConfig, self).ready()
+        super().ready()
 
         from . import signals
 

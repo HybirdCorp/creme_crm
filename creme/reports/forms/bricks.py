@@ -44,7 +44,8 @@ class GraphInstanceBrickForm(CremeForm):
                                  )
 
     def __init__(self, graph, *args, **kwargs):
-        super(GraphInstanceBrickForm, self).__init__(*args, **kwargs)
+        # super(GraphInstanceBrickForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.graph = graph
         # self.fields['volatile_column'].choices = self._get_volatile_choices(graph.report.ct)
         self.fields['volatile_column'].choices = self._get_volatile_choices(graph.linked_report.ct)
@@ -83,7 +84,8 @@ class GraphInstanceBrickForm(CremeForm):
         return choices
 
     def clean(self):
-        cleaned_data = super(GraphInstanceBrickForm, self).clean()
+        # cleaned_data = super(GraphInstanceBrickForm, self).clean()
+        cleaned_data = super().clean()
         volatile_column = cleaned_data.get('volatile_column')
         kwargs = {}
 

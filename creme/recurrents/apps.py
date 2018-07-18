@@ -33,7 +33,8 @@ class RecurrentsConfig(CremeAppConfig):
 
         self.RecurrentGenerator = get_rgenerator_model()
 
-        super(RecurrentsConfig, self).all_apps_ready()
+        # super(RecurrentsConfig, self).all_apps_ready()
+        super().all_apps_ready()
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.RecurrentGenerator)

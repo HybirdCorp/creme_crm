@@ -57,15 +57,17 @@ class ProjectsTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(ProjectsTestCase, cls).setUpClass()
+        # super(ProjectsTestCase, cls).setUpClass()
+        super().setUpClass()
 
         cls.ADD_PROJECT_URL = reverse('projects__create_project')
 
     def login(self, is_superuser=True, *args, **kwargs):
-        return super(ProjectsTestCase, self).login(is_superuser,
-                                                   allowed_apps=['projects'],
-                                                   *args, **kwargs
-                                                  )
+        # return super(ProjectsTestCase, self).login(is_superuser,
+        return super().login(is_superuser,
+                             allowed_apps=['projects'],
+                             *args, **kwargs
+                            )
 
     def _build_add_task_url(self, project):
         return reverse('projects__create_task', args=(project.id,))

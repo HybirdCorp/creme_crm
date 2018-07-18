@@ -47,7 +47,8 @@ class AddPropertiesForm(_AddPropertiesForm):
         # We need this entity in super constructor when post_init_callback is called.
         # TODO: Add unit tests for this !
         self.entity = entity
-        super(AddPropertiesForm, self).__init__(*args, **kwargs)
+        # super(AddPropertiesForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # TODO: move queryset to a CremePropertyType method ??
         excluded = CremeProperty.objects.filter(creme_entity=entity).values_list('type', flat=True)
@@ -64,7 +65,8 @@ class AddPropertiesBulkForm(_AddPropertiesForm):
     entities_lbl = CharField(label=_(u"Related entities"), widget=Label(), required=False)
 
     def __init__(self, model, entities, forbidden_entities, *args, **kwargs):
-        super(AddPropertiesBulkForm, self).__init__(*args, **kwargs)
+        # super(AddPropertiesBulkForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.entities = entities
         fields = self.fields
         ct = ContentType.objects.get_for_model(model)

@@ -33,9 +33,10 @@ from django.utils.decorators import ContextDecorator
 
 class CaptureQueriesContext(DjangoCaptureQueriesContext):
     def __init__(self, connection=None):
-        super(CaptureQueriesContext, self).__init__(connection if connection is not None else
-                                                    connections[DEFAULT_DB_ALIAS]
-                                                   )
+        # super(CaptureQueriesContext, self).__init__(connection if connection is not None else
+        #                                             connections[DEFAULT_DB_ALIAS]
+        #                                            )
+        super().__init__(connection if connection is not None else connections[DEFAULT_DB_ALIAS])
         self._captured_sql = None
 
     @property
@@ -68,7 +69,8 @@ class QueriesPrinter(CaptureQueriesContext, ContextDecorator):
         def [...]
     """
     def __exit__(self, *args, **kwargs):
-        super(QueriesPrinter, self).__exit__(*args, **kwargs)
+        # super(QueriesPrinter, self).__exit__(*args, **kwargs)
+        super().__exit__(*args, **kwargs)
 
         queries = self.captured_queries
         if queries:

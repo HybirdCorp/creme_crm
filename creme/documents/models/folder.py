@@ -101,7 +101,8 @@ class AbstractFolder(CremeEntity):
             self._pre_save_clone(source)
 
     def get_actions(self, user):
-        actions = super(AbstractFolder, self).get_actions(user)
+        # actions = super(AbstractFolder, self).get_actions(user)
+        actions = super().get_actions(user)
 
         actions['others'].append(EntityAction('{}?parent_id={}'.format(self.get_lv_absolute_url(), self.id),
                                               ugettext(u'Explore'),
@@ -126,7 +127,8 @@ class AbstractFolder(CremeEntity):
 
     def delete(self, *args, **kwargs):
         self._check_deletion()  # Should not be useful (trashing should be blocked too)
-        super(AbstractFolder, self).delete(*args, **kwargs)
+        # super(AbstractFolder, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
 
     def get_parents(self):
         parents = []
@@ -140,7 +142,8 @@ class AbstractFolder(CremeEntity):
 
     def trash(self):
         self._check_deletion()
-        super(AbstractFolder, self).trash()
+        # super(AbstractFolder, self).trash()
+        super().trash()
 
 
 class Folder(AbstractFolder):

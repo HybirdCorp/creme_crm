@@ -19,12 +19,14 @@ except Exception as e:
 class MetaTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        super(MetaTestCase, cls).setUpClass()
+        # super(MetaTestCase, cls).setUpClass()
+        super().setUpClass()
         cls._lang = translation.get_language()
         cls._translation_deactivated = False
 
     def tearDown(self):
-        super(MetaTestCase, self).tearDown()
+        # super(MetaTestCase, self).tearDown()
+        super().tearDown()
 
         if self._translation_deactivated:
             translation.activate(self._lang)

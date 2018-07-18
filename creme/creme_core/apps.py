@@ -255,7 +255,8 @@ class CremeCoreConfig(CremeAppConfig):
         return ''  # We want to catch some URLs which do not start by 'creme_core/'
 
     def ready(self):
-        super(CremeCoreConfig, self).ready()
+        # super(CremeCoreConfig, self).ready()
+        super().ready()
 
         if self.MIGRATION_MODE:
             return
@@ -277,7 +278,8 @@ class CremeCoreConfig(CremeAppConfig):
             from .tests.fake_apps import ready
             ready()
 
-        super(CremeCoreConfig, self).all_apps_ready()
+        # super(CremeCoreConfig, self).all_apps_ready()
+        super().all_apps_ready()
 
     def register_menu(self, creme_menu):
         from django.urls import reverse_lazy as reverse

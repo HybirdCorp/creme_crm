@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2016  Hybird
+#    Copyright (C) 2009-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -43,7 +43,8 @@ class _AuxForm(CremeModelForm):
         exclude = ()
 
     def __init__(self, entity, *args, **kwargs):
-        super(_AuxForm, self).__init__(*args, **kwargs)
+        # super(_AuxForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.instance.strategy = entity
 
 
@@ -53,7 +54,8 @@ class SegmentLinkForm(_AuxForm):
         model = MarketSegmentDescription
 
     def __init__(self, entity, *args, **kwargs):
-        super(SegmentLinkForm, self).__init__(entity, *args, **kwargs)
+        # super(SegmentLinkForm, self).__init__(entity, *args, **kwargs)
+        super().__init__(entity, *args, **kwargs)
 
         segment_field = self.fields['segment']
         segment_field.queryset = MarketSegment.objects.exclude(marketsegmentdescription__strategy=entity)
@@ -114,11 +116,13 @@ class _SegmentForm(_AuxForm):
 
 class SegmentEditForm(_SegmentForm):
     def __init__(self, *args, **kwargs):
-        super(SegmentEditForm, self).__init__(*args, **kwargs)
+        # super(SegmentEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['name'].initial = self.instance.segment.name
 
     def save(self, *args, **kwargs):
-        seginfo = super(SegmentEditForm, self).save(*args, **kwargs)
+        # seginfo = super(SegmentEditForm, self).save(*args, **kwargs)
+        seginfo = super().save(*args, **kwargs)
         name = self.cleaned_data['name']
 
         segment = seginfo.segment
@@ -147,7 +151,8 @@ class SegmentCreateForm(_SegmentForm):
                                         )
 
         segment_desc.segment = MarketSegment.objects.create(name=name, property_type=ptype)
-        super(SegmentCreateForm, self).save(*args, **kwargs)
+        # super(SegmentCreateForm, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
         return segment_desc
 
@@ -156,7 +161,8 @@ class AddOrganisationForm(CremeForm):
     organisations = MultiCreatorEntityField(label=_(u'Organisations'), model=get_organisation_model())
 
     def __init__(self, entity, *args, **kwargs):
-        super(AddOrganisationForm, self).__init__(*args, **kwargs)
+        # super(AddOrganisationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._strategy = entity
 
     def save(self):

@@ -48,18 +48,21 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(InfopathFormBuilderTestCase, cls).setUpClass()
+        # super(InfopathFormBuilderTestCase, cls).setUpClass()
+        super().setUpClass()
 
         cls._original_crudity_registry = registry.crudity_registry
 
     @classmethod
     def tearDownClass(cls):
-        super(InfopathFormBuilderTestCase, cls).tearDownClass()
+        # super(InfopathFormBuilderTestCase, cls).tearDownClass()
+        super().tearDownClass()
 
         registry.crudity_registry = cls._original_crudity_registry
 
     def setUp(self):
-        super(InfopathFormBuilderTestCase, self).setUp()
+        # super(InfopathFormBuilderTestCase, self).setUp()
+        super().setUp()
         self.request = request = RequestFactory().get('/')  # Url doesn't matter
         request.user = self.user
         request.LANGUAGE_CODE = '1033'  # en
@@ -813,7 +816,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
 class InfopathFormFieldTestCase(CrudityTestCase):
     def setUp(self):
-        super(InfopathFormFieldTestCase, self).setUp()
+        # super(InfopathFormFieldTestCase, self).setUp()
+        super().setUp()
         # TODO: factorise
         self.request = request = RequestFactory().get('/')  # Url doesn't matter
         request.user = self.user

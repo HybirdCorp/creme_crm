@@ -80,7 +80,8 @@ class AbstractAct(CremeEntity):
         return self.name
 
     def clean(self):
-        super(AbstractAct, self).clean()
+        # super(AbstractAct, self).clean()
+        super().clean()
         start = self.start
         due_date = self.due_date
 

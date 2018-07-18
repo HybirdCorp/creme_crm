@@ -38,7 +38,8 @@ class BillingConfig(CremeAppConfig):
         self.TemplateBase = billing.get_template_base_model()
         self.ProductLine  = billing.get_product_line_model()
         self.ServiceLine  = billing.get_service_line_model()
-        super(BillingConfig, self).all_apps_ready()
+        # super(BillingConfig, self).all_apps_ready()
+        super().all_apps_ready()
 
         self.register_billing_algorithm()
         self.register_billing_lines()

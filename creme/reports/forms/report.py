@@ -52,21 +52,24 @@ class _EntityCellRelated(EntityCell):
     type_id = 'related'
 
     def __init__(self, model, agg_id):
-        super(_EntityCellRelated, self).__init__(model=model, value=agg_id, title='Related')
+        # super(_EntityCellRelated, self).__init__(model=model, value=agg_id, title='Related')
+        super().__init__(model=model, value=agg_id, title='Related')
 
 
 class _EntityCellAggregate(EntityCell):
     type_id = 'regular_aggregate'
 
     def __init__(self, model, agg_id):
-        super(_EntityCellAggregate, self).__init__(model=model, value=agg_id, title='Aggregate')
+        # super(_EntityCellAggregate, self).__init__(model=model, value=agg_id, title='Aggregate')
+        super().__init__(model=model, value=agg_id, title='Aggregate')
 
 
 class _EntityCellCustomAggregate(EntityCell):
     type_id = 'custom_aggregate'
 
     def __init__(self, model, agg_id):
-        super(_EntityCellCustomAggregate, self).__init__(model=model, value=agg_id, title='Custom Aggregate')
+        # super(_EntityCellCustomAggregate, self).__init__(model=model, value=agg_id, title='Custom Aggregate')
+        super().__init__(model=model, value=agg_id, title='Custom Aggregate')
 
 
 _CELL_2_HAND_MAP = {
@@ -98,7 +101,8 @@ class ReportCreateForm(CremeEntityForm):
         model = Report
 
     def clean(self):
-        cleaned_data = super(ReportCreateForm, self).clean()
+        # cleaned_data = super(ReportCreateForm, self).clean()
+        cleaned_data = super().clean()
 
         if not self._errors:
             get_data = cleaned_data.get
@@ -116,7 +120,8 @@ class ReportCreateForm(CremeEntityForm):
 
     @atomic
     def save(self, *args, **kwargs):
-        report = super(ReportCreateForm, self).save(*args, **kwargs)
+        # report = super(ReportCreateForm, self).save(*args, **kwargs)
+        report = super().save(*args, **kwargs)
         hf = self.cleaned_data['hf']
 
         if hf is not None:
@@ -137,7 +142,8 @@ class ReportEditForm(CremeEntityForm):
         exclude = CremeEntityForm.Meta.exclude + ('ct',)
 
     def __init__(self, *args, **kwargs):
-        super(ReportEditForm, self).__init__(*args, **kwargs)
+        # super(ReportEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         fields = self.fields
         filter_f = fields['filter']
         filter_f.empty_label = ugettext(u'All')
@@ -157,7 +163,8 @@ class LinkFieldToReportForm(CremeForm):
     report = CreatorEntityField(label=_(u'Sub-report linked to the column'), model=Report)
 
     def __init__(self, field, ctypes, *args, **kwargs):
-        super(LinkFieldToReportForm, self).__init__(*args, **kwargs)
+        # super(LinkFieldToReportForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.rfield = field
         report = field.report
         # q_filter = {'~id__in': [r.id for r in chain(report.get_ascendants_reports(), [report])]}
@@ -183,13 +190,15 @@ class ReportHandsWidget(EntityCellsWidget):
     template_name = 'reports/forms/widgets/report-hands.html'
 
     def __init__(self, related_entities=(), *args, **kwargs):
-        super(ReportHandsWidget, self).__init__(*args, **kwargs)
+        # super(ReportHandsWidget, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.related_entities = related_entities
         self.regular_aggregates = ()
         self.custom_aggregates = ()
 
     def get_context(self, name, value, attrs):
-        context = super(ReportHandsWidget, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(ReportHandsWidget, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
 
         widget_cxt = context['widget']
         widget_cxt['related_entities']   = self.related_entities
@@ -212,7 +221,8 @@ class ReportHandsField(EntityCellsField):
         return _EntityCellRelated(model, name[len(_RELATED_PREFIX):])
 
     def _regular_fields_enum(self, model):
-        fields = super(ReportHandsField, self)._regular_fields_enum(model)
+        # fields = super(ReportHandsField, self)._regular_fields_enum(model)
+        fields = super()._regular_fields_enum(model)
         fields.filter(lambda field, depth: not (depth and isinstance(field, (ForeignKey, ManyToManyField))
                                                 and issubclass(field.remote_field.model, CremeEntity)
                                                )
@@ -271,7 +281,8 @@ class ReportFieldsForm(CremeForm):
 
     def __init__(self, entity, *args, **kwargs):
         self.report = entity
-        super(ReportFieldsForm, self).__init__(*args, **kwargs)
+        # super(ReportFieldsForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         cells = []
         model = self.report.ct.model_class()
@@ -335,7 +346,8 @@ class ReportExportPreviewFilterForm(CremeForm):
     }
 
     def __init__(self, report, *args, **kwargs):
-        super(ReportExportPreviewFilterForm, self).__init__(*args, **kwargs)
+        # super(ReportExportPreviewFilterForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         fields = self.fields
 
         fields['date_field'].choices = self._date_field_choices(report)
@@ -357,7 +369,8 @@ class ReportExportPreviewFilterForm(CremeForm):
                ]
 
     def clean(self):
-        cleaned_data = super(ReportExportPreviewFilterForm, self).clean()
+        # cleaned_data = super(ReportExportPreviewFilterForm, self).clean()
+        cleaned_data = super().clean()
 
         if cleaned_data.get('date_field'):
             date_filter = cleaned_data.get('date_filter')
@@ -405,5 +418,6 @@ class ReportExportPreviewFilterForm(CremeForm):
 
 class ReportExportFilterForm(ReportExportPreviewFilterForm):
     def __init__(self, report, *args, **kwargs):
-        super(ReportExportFilterForm, self).__init__(report, *args, **kwargs)
+        # super(ReportExportFilterForm, self).__init__(report, *args, **kwargs)
+        super().__init__(report, *args, **kwargs)
         self.fields['doc_type'].required = True

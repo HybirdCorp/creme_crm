@@ -13,7 +13,8 @@ except Exception as e:
 
 class CrudityRegistryTestCase(CrudityTestCase):
     def setUp(self):
-        super(CrudityRegistryTestCase, self).setUp()
+        # super(CrudityRegistryTestCase, self).setUp()
+        super().setUp()
         self.crudity_registry = registry.CRUDityRegistry()  # Ensure the registry is empty
 
     def test_register_fetchers01(self):

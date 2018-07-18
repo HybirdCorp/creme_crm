@@ -320,7 +320,8 @@ if apps.is_installed('creme.crudity'):
 
         # TODO: factorise with crudity.bricks.WaitingActionsBrick ?
         def __init__(self, backend):
-            super(_SynchronizationMailsBrick, self).__init__()
+            # super(_SynchronizationMailsBrick, self).__init__()
+            super().__init__()
             self.backend = backend
 
 
@@ -330,7 +331,8 @@ if apps.is_installed('creme.crudity'):
         template_name = 'emails/bricks/synchronization.html'
 
         def detailview_display(self, context):
-            super(WaitingSynchronizationMailsBrick, self).detailview_display(context)
+            # super(WaitingSynchronizationMailsBrick, self).detailview_display(context)
+            super().detailview_display(context)
             context['rtypes'] = (constants.REL_SUB_MAIL_SENDED,
                                  constants.REL_SUB_MAIL_RECEIVED,
                                  constants.REL_SUB_RELATED_TO,
@@ -355,7 +357,8 @@ if apps.is_installed('creme.crudity'):
         template_name = 'emails/bricks/synchronization-spam.html'
 
         def detailview_display(self, context):
-            super(SpamSynchronizationMailsBrick, self).detailview_display(context)
+            # super(SpamSynchronizationMailsBrick, self).detailview_display(context)
+            super().detailview_display(context)
 
             waiting_mails = EntityEmail.objects.filter(status=constants.MAIL_STATUS_SYNCHRONIZED_SPAM)
             if self.is_sandbox_by_user:

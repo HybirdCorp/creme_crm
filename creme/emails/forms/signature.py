@@ -32,4 +32,5 @@ class SignatureForm(CremeModelForm):
 
     def save(self, *args, **kwargs):
         self.instance.user = self.user
-        return super(SignatureForm, self).save(*args, **kwargs)
+        # return super(SignatureForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)

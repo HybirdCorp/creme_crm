@@ -35,7 +35,8 @@ TicketTemplate = get_tickettemplate_model()
 class RecurrentsTicketsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        super(RecurrentsTicketsTestCase, cls).setUpClass()
+        # super(RecurrentsTicketsTestCase, cls).setUpClass()
+        super().setUpClass()
 
         if apps.is_installed('creme.tickets'):
             cls.ct = ContentType.objects.get_for_model(Ticket)

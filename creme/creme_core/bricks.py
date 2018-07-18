@@ -62,7 +62,8 @@ class RelationsBrick(QuerysetBrick):
     template_name = 'creme_core/bricks/relations.html'
 
     def __init__(self):
-        super(RelationsBrick, self).__init__()
+        # super(RelationsBrick, self).__init__()
+        super().__init__()
         self._included_rtype_ids = []
         self._excluded_rtype_ids = []
 
@@ -389,7 +390,8 @@ class JobErrorsBrick(JobResultsBrick):
     template_name = 'creme_core/bricks/job-errors.html'
 
     def _build_queryset(self, job):
-        return super(JobErrorsBrick, self)._build_queryset(job).filter(raw_messages__isnull=False)
+        # return super(JobErrorsBrick, self)._build_queryset(job).filter(raw_messages__isnull=False)
+        return super()._build_queryset(job).filter(raw_messages__isnull=False)
 
     def _extra_context(self, job):
         return {'JOB_ERROR': Job.STATUS_ERROR}

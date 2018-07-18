@@ -201,7 +201,8 @@ class OppTargetBrick(Brick):
     target_ctypes = (Opportunity,)
 
     def __init__(self):
-        super(OppTargetBrick, self).__init__()
+        # super(OppTargetBrick, self).__init__()
+        super().__init__()
         self.display_source = display_source = len(Organisation.get_all_managed_by_creme()) > 1
 
         if display_source:

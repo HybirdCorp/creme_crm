@@ -106,7 +106,8 @@ class Job(Model):
         ordering = ('id',)
 
     def __init__(self, *args, **kwargs):
-        super(Job, self).__init__(*args, **kwargs)
+        # super(Job, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if not self.language:
             self.language = get_language()
 
@@ -270,7 +271,8 @@ class Job(Model):
             if self.user_id is None:  # System job
                 self.reference_run = round_hour(self.reference_run)
 
-        super(Job, self).save(*args, **kwargs)
+        # super(Job, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
         queue_error = False
 

@@ -2222,15 +2222,16 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
 
     @classmethod
     def setUpClass(cls):
-        # _JSONFieldBaseTestCase.setUpClass()
-        super(FilteredEntityTypeFieldTestCase, cls).setUpClass()
+        # super(FilteredEntityTypeFieldTestCase, cls).setUpClass()
+        super().setUpClass()
 
         get_ct = ContentType.objects.get_for_model
         cls.ct_contact = get_ct(FakeContact)
         cls.ct_orga    = get_ct(FakeOrganisation)
 
     def setUp(self):
-        super(FilteredEntityTypeFieldTestCase, self).setUp()
+        # super(FilteredEntityTypeFieldTestCase, self).setUp()
+        super().setUp()
         self.login()
 
     def test_clean_empty_required(self):

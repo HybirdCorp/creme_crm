@@ -37,7 +37,8 @@ class FakeAddressForm(CremeModelForm):
         fields = '__all__'
 
     def __init__(self, entity, *args, **kwargs):
-        super(FakeAddressForm, self).__init__(*args, **kwargs)
+        # super(FakeAddressForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.instance.entity = entity
 
 
@@ -50,7 +51,8 @@ class _FakePersonCSVImportForm(ImportForm4CremeEntity):
         exclude = ('image',)
 
     def _post_instance_creation(self, instance, line, updated):
-        super(_FakePersonCSVImportForm, self)._post_instance_creation(instance, line, updated)
+        # super(_FakePersonCSVImportForm, self)._post_instance_creation(instance, line, updated)
+        super()._post_instance_creation(instance, line, updated)
         data = self.cleaned_data
         address_dict = {}
 

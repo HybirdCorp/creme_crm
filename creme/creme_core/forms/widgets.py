@@ -82,14 +82,16 @@ logger = logging.getLogger(__name__)
 # TODO: to be improved....
 class DynamicInput(widgets.TextInput):
     def __init__(self, type='text', attrs=None):
-        super(DynamicInput, self).__init__(attrs)
+        # super(DynamicInput, self).__init__(attrs)
+        super().__init__(attrs)
         self.input_type = type
 
     # TODO: factorise ?
     def get_context(self, name, value, attrs):
         widget_type = 'ui-creme-dinput'
 
-        context = super(DynamicInput, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(DynamicInput, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
 
         final_attrs = context['widget']['attrs']
         css_class = 'ui-creme-input ui-creme-widget widget-auto ' if final_attrs.pop('auto', True) else \
@@ -152,7 +154,8 @@ class DynamicSelect(EnhancedSelectOptions, widgets.Select):
     template_name = 'creme_core/forms/widgets/dyn-select.html'
 
     def __init__(self, attrs=None, options=None, url='', label=None):
-        super(DynamicSelect, self).__init__(attrs, ())  # TODO: options or ()
+        # super(DynamicSelect, self).__init__(attrs, ())
+        super().__init__(attrs, ())  # TODO: options or ()
         self.url = url
         self.label = label
         self.from_python = None
@@ -163,7 +166,8 @@ class DynamicSelect(EnhancedSelectOptions, widgets.Select):
 
         # value = self.from_python(value) if self.from_python is not None else value # TODO ?
 
-        context = super(DynamicSelect, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(DynamicSelect, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
         widget_cxt = context['widget']
         widget_cxt['label'] = self.label
 
@@ -181,7 +185,8 @@ class DynamicSelectMultiple(EnhancedSelectOptions, widgets.SelectMultiple):
     template_name = 'creme_core/forms/widgets/dyn-select.html'
 
     def __init__(self, attrs=None, options=None, url='', label=None):
-        super(DynamicSelectMultiple, self).__init__(attrs, ())  # TODO: options or ()
+        # super(DynamicSelectMultiple, self).__init__(attrs, ())
+        super().__init__(attrs, ())  # TODO: options or ()
         self.url = url
         self.label = label
         self.from_python = None
@@ -192,7 +197,8 @@ class DynamicSelectMultiple(EnhancedSelectOptions, widgets.SelectMultiple):
 
         # value = self.from_python(value) if self.from_python is not None else value  # TODO ?
 
-        context = super(DynamicSelectMultiple, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(DynamicSelectMultiple, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
         widget_cxt = context['widget']
         widget_cxt['label'] = self.label
 
@@ -210,13 +216,15 @@ class ActionButtonList(widgets.Widget):
     template_name = 'creme_core/forms/widgets/action-button-list.html'
 
     def __init__(self, delegate, attrs=None, actions=()):
-        super(ActionButtonList, self).__init__(attrs)
+        # super(ActionButtonList, self).__init__(attrs)
+        super().__init__(attrs)
         self.delegate = delegate
         self.actions = list(actions)
         self.from_python = None
 
     def __deepcopy__(self, memo):
-        obj = super(ActionButtonList, self).__deepcopy__(memo)
+        # obj = super(ActionButtonList, self).__deepcopy__(memo)
+        obj = super().__deepcopy__(memo)
         obj.actions = copy.deepcopy(self.actions)
         return obj
 
@@ -247,7 +255,8 @@ class ActionButtonList(widgets.Widget):
 
         # value = self.from_python(value) if self.from_python is not None else value  TODO ?
 
-        context = super(ActionButtonList, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(ActionButtonList, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
         widget_cxt = context['widget']
         widget_cxt['class'] = 'ui-creme-widget widget-auto ' + widget_type
         widget_cxt['widget_type'] = widget_type
@@ -265,7 +274,8 @@ class PolymorphicInput(widgets.TextInput):
     template_name = 'creme_core/forms/widgets/polymorphic-input.html'
 
     def __init__(self, attrs=None, key='', *args):
-        super(PolymorphicInput, self).__init__(attrs)
+        # super(PolymorphicInput, self).__init__(attrs)
+        super().__init__(attrs)
         self.key = key
         self.inputs = []
         self.default_input = None
@@ -292,7 +302,8 @@ class PolymorphicInput(widgets.TextInput):
         widget_type = 'ui-creme-polymorphicselect'
 
         # value = self.from_python(value) if self.from_python is not None else value # TODO ?
-        context = super(PolymorphicInput, self).get_context(name='', value='', attrs=attrs)
+        # context = super(PolymorphicInput, self).get_context(name='', value='', attrs=attrs)
+        context = super().get_context(name='', value='', attrs=attrs)
         widget_cxt = context['widget']
         widget_cxt['key'] = self.key
 
@@ -321,7 +332,8 @@ class DateRangeSelect(widgets.Widget):
     template_name = 'creme_core/forms/widgets/date-range-select.html'
 
     def __init__(self, attrs=None, choices=None):
-        super(DateRangeSelect, self).__init__(attrs)
+        # super(DateRangeSelect, self).__init__(attrs)
+        super().__init__(attrs)
         self.choices = choices
 
     def range_choices(self):
@@ -332,7 +344,8 @@ class DateRangeSelect(widgets.Widget):
     def get_context(self, name, value, attrs):
         widget_type = 'ui-creme-daterange-selector'
 
-        context = super(DateRangeSelect, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(DateRangeSelect, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
         widget_cxt = context['widget']
 
         final_attrs = widget_cxt['attrs']
@@ -362,13 +375,15 @@ class ChainedInput(widgets.TextInput):
     VERTICAL = 'vbox'
 
     def __init__(self, attrs=None, *args):
-        super(ChainedInput, self).__init__(attrs)
+        # super(ChainedInput, self).__init__(attrs)
+        super().__init__(attrs)
         self.inputs = []
         self.set_inputs(*args)
         self.from_python = None  # TODO: remove this hack ?
 
     def __deepcopy__(self, memo):
-        obj = super(ChainedInput, self).__deepcopy__(memo)
+        # obj = super(ChainedInput, self).__deepcopy__(memo)
+        obj = super().__deepcopy__(memo)
         obj.inputs = copy.deepcopy(self.inputs)
         return obj
 
@@ -393,7 +408,8 @@ class ChainedInput(widgets.TextInput):
         widget_type = 'ui-creme-chainedselect'
 
         value = self.from_python(value) if self.from_python is not None else value
-        context = super(ChainedInput, self).get_context(name='', value='', attrs=attrs)
+        # context = super(ChainedInput, self).get_context(name='', value='', attrs=attrs)
+        context = super().get_context(name='', value='', attrs=attrs)
         widget_cxt = context['widget']
         final_attrs = widget_cxt.pop('attrs')
 
@@ -451,7 +467,8 @@ class SelectorList(widgets.TextInput):
             }
 
     def __init__(self, selector, attrs=None, enabled=True):
-        super(SelectorList, self).__init__(attrs)
+        # super(SelectorList, self).__init__(attrs)
+        super().__init__(attrs)
         self.selector = selector
         self.enabled = enabled
         self.actions = [self.Action('add', ugettext_lazy(u'Add'))]
@@ -470,7 +487,8 @@ class SelectorList(widgets.TextInput):
 
         value = self.from_python(value) if self.from_python is not None else value
 
-        context = super(SelectorList, self).get_context(name=name, value=value, attrs=None)
+        # context = super(SelectorList, self).get_context(name=name, value=value, attrs=None)
+        context = super().get_context(name=name, value=value, attrs=None)
         widget_cxt = context['widget']
         widget_cxt['class'] = 'ui-creme-widget widget-auto ' + widget_type
         widget_cxt['widget_type'] = widget_type
@@ -499,7 +517,8 @@ class EntitySelector(widgets.Widget):
         @param content_type: Template variable which represent the ContentType ID in the URL. Default is '${ctype}'.
         @param attrs: see Widget.
         """
-        super(EntitySelector, self).__init__(attrs)
+        # super(EntitySelector, self).__init__(attrs)
+        super().__init__(attrs)
         self.url = self._build_listview_url(content_type)
         self.text_url = self._build_text_url()
         self.from_python = None
@@ -520,7 +539,8 @@ class EntitySelector(widgets.Widget):
 
         # value = self.from_python(value) if self.from_python is not None else value  # TODO ?
 
-        context = super(EntitySelector, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(EntitySelector, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
         widget_cxt = context['widget']
         widget_cxt['url']      = self.url
         widget_cxt['text_url'] = self.text_url
@@ -560,7 +580,8 @@ class CTEntitySelector(ChainedInput):
     # template_name = ... TODO in order to override from apps ?
 
     def __init__(self, content_types=(), attrs=None, multiple=False, autocomplete=False, creator=False):
-        super(CTEntitySelector, self).__init__(attrs)
+        # super(CTEntitySelector, self).__init__(attrs)
+        super().__init__(attrs)
         self.content_types = content_types
         self.multiple = multiple
         self.autocomplete = autocomplete
@@ -594,14 +615,16 @@ class CTEntitySelector(ChainedInput):
 
         self.add_input('entity', widget=actions)
 
-        return super(CTEntitySelector, self).get_context(name=name, value=value, attrs=attrs)
+        # return super(CTEntitySelector, self).get_context(name=name, value=value, attrs=attrs)
+        return super().get_context(name=name, value=value, attrs=attrs)
 
 
 class MultiCTEntitySelector(SelectorList):
     # template_name = ... TODO in order to override from apps ?
 
     def __init__(self, content_types=(), attrs=None, autocomplete=False, creator=False):
-        super(MultiCTEntitySelector, self).__init__(None, attrs=attrs)
+        # super(MultiCTEntitySelector, self).__init__(None, attrs=attrs)
+        super().__init__(None, attrs=attrs)
         self.content_types = content_types
         self.autocomplete = autocomplete
         self.creator = creator
@@ -614,7 +637,8 @@ class MultiCTEntitySelector(SelectorList):
                                          attrs={'reset': False},
                                         )
 
-        return super(MultiCTEntitySelector, self).get_context(name=name, value=value, attrs=attrs)
+        # return super(MultiCTEntitySelector, self).get_context(name=name, value=value, attrs=attrs)
+        return super().get_context(name=name, value=value, attrs=attrs)
 
 
 class RelationSelector(ChainedInput):
@@ -623,7 +647,8 @@ class RelationSelector(ChainedInput):
     def __init__(self, relation_types=(), content_types=None,  # TODO: rename 'ctypes_url' ?
                  attrs=None, multiple=False, autocomplete=False,
                 ):
-        super(RelationSelector, self).__init__(attrs)
+        # super(RelationSelector, self).__init__(attrs)
+        super().__init__(attrs)
         self.relation_types = relation_types
         self.content_types = content_types
         self.multiple = multiple
@@ -643,7 +668,8 @@ class RelationSelector(ChainedInput):
                        attrs={'auto': False, 'multiple': self.multiple},
                       )
 
-        return super(RelationSelector, self).get_context(name=name, value=value, attrs=attrs)
+        # return super(RelationSelector, self).get_context(name=name, value=value, attrs=attrs)
+        return super().get_context(name=name, value=value, attrs=attrs)
 
 
 class MultiRelationSelector(SelectorList):
@@ -652,7 +678,8 @@ class MultiRelationSelector(SelectorList):
     def __init__(self, relation_types=(), content_types=None,
                  attrs=None, autocomplete=False,
                 ):
-        super(MultiRelationSelector, self).__init__(None, attrs=attrs)
+        # super(MultiRelationSelector, self).__init__(None, attrs=attrs)
+        super().__init__(None, attrs=attrs)
         self.relation_types = relation_types
         self.content_types = content_types
         self.autocomplete = autocomplete
@@ -664,14 +691,16 @@ class MultiRelationSelector(SelectorList):
                                          autocomplete=self.autocomplete,
                                         )
 
-        return super(MultiRelationSelector, self).get_context(name=name, value=value, attrs=attrs)
+        # return super(MultiRelationSelector, self).get_context(name=name, value=value, attrs=attrs)
+        return super().get_context(name=name, value=value, attrs=attrs)
 
 
 class EntityCreatorWidget(ActionButtonList):
     # template_name = ... TODO in order to override from apps ?
 
     def __init__(self, model=None, q_filter=None, attrs=None, creation_url='', creation_allowed=False):
-        super(EntityCreatorWidget, self).__init__(delegate=None, attrs=attrs)
+        # super(EntityCreatorWidget, self).__init__(delegate=None, attrs=attrs)
+        super().__init__(delegate=None, attrs=attrs)
         self.model = model
         self.q_filter = q_filter
         self.creation_url = creation_url
@@ -720,7 +749,8 @@ class EntityCreatorWidget(ActionButtonList):
 
             self._build_actions(model, attrs)
 
-        return super(EntityCreatorWidget, self).get_context(name=name, value=value, attrs=attrs)
+        # return super(EntityCreatorWidget, self).get_context(name=name, value=value, attrs=attrs)
+        return super().get_context(name=name, value=value, attrs=attrs)
 
 
 # TODO: factorise with EntityCreatorWidget ?
@@ -729,7 +759,8 @@ class MultiEntityCreatorWidget(SelectorList):
 
     def __init__(self, model=None, q_filter=None, attrs=None, creation_url='', creation_allowed=False):
         attrs = attrs or {'clonelast': False}
-        super(MultiEntityCreatorWidget, self).__init__(None, attrs=attrs)
+        # super(MultiEntityCreatorWidget, self).__init__(None, attrs=attrs)
+        super().__init__(None, attrs=attrs)
         self.model = model
         self.q_filter = q_filter
         self.creation_url = creation_url
@@ -766,14 +797,16 @@ class MultiEntityCreatorWidget(SelectorList):
 
         button_list.delegate = delegate
 
-        return super(MultiEntityCreatorWidget, self).get_context(name=name, value=value, attrs=attrs)
+        # return super(MultiEntityCreatorWidget, self).get_context(name=name, value=value, attrs=attrs)
+        return super().get_context(name=name, value=value, attrs=attrs)
 
 
 class FilteredEntityTypeWidget(ChainedInput):
     # template_name = ... TODO in order to override from apps ?
 
     def __init__(self, content_types=(), attrs=None, autocomplete=True):
-        super(FilteredEntityTypeWidget, self).__init__(attrs)
+        # super(FilteredEntityTypeWidget, self).__init__(attrs)
+        super().__init__(attrs)
         self.content_types = content_types
         self.autocomplete = autocomplete
 
@@ -790,7 +823,8 @@ class FilteredEntityTypeWidget(ChainedInput):
                     options=reverse('creme_core__efilters') + '?ct_id=${%s}&all=true' % ctype_name,
                    )
 
-        return super(FilteredEntityTypeWidget, self).get_context(name=name, value=value, attrs=attrs)
+        # return super(FilteredEntityTypeWidget, self).get_context(name=name, value=value, attrs=attrs)
+        return super().get_context(name=name, value=value, attrs=attrs)
 
 
 class DateTimeWidget(widgets.DateTimeInput):
@@ -798,10 +832,12 @@ class DateTimeWidget(widgets.DateTimeInput):
     template_name = 'creme_core/forms/widgets/datetime.html'
 
     def __init__(self, attrs=None):
-        super(DateTimeWidget, self).__init__(attrs=attrs, format='%d-%m-%Y %H:%M')
+        # super(DateTimeWidget, self).__init__(attrs=attrs, format='%d-%m-%Y %H:%M')
+        super().__init__(attrs=attrs, format='%d-%m-%Y %H:%M')
 
     def get_context(self, name, value, attrs):
-        context = super(DateTimeWidget, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(DateTimeWidget, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
 
         widget_cxt = context['widget']
         widget_cxt['type'] = 'hidden'
@@ -814,7 +850,8 @@ class TimeWidget(widgets.TextInput):
     template_name = 'creme_core/forms/widgets/time.html'
 
     def get_context(self, name, value, attrs):
-        context = super(TimeWidget, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(TimeWidget, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
         context['widget']['type'] = 'hidden'
 
         return context
@@ -836,7 +873,8 @@ class CalendarWidget(widgets.TextInput):
     def get_context(self, name, value, attrs):
         widget_type = 'ui-creme-datepicker'
 
-        context = super(CalendarWidget, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(CalendarWidget, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
         widget_cxt = context['widget']
         widget_cxt['format_help_text'] = self.default_help_text
 
@@ -859,10 +897,12 @@ class DependentSelect(widgets.Select):
         self.target_id = target_id
         self.target_url = None
         self.target_val = None
-        super(DependentSelect, self).__init__(attrs, choices)
+        # super(DependentSelect, self).__init__(attrs, choices)
+        super().__init__(attrs, choices)
 
     def get_context(self, name, value, attrs):
-        context = super(DependentSelect, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(DependentSelect, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
         final_attrs = context['widget']['attrs']
         final_attrs['onchange'] = """(function() {
     var source = $('#%(id)s');
@@ -891,19 +931,21 @@ class OptionalWidget(widgets.MultiWidget):
     template_name = 'creme_core/forms/widgets/optional.html'
 
     def __init__(self, sub_widget=widgets.TextInput, attrs=None, sub_label=''):
-        super(OptionalWidget, self).__init__(
-                widgets=(widgets.CheckboxInput(attrs={'onchange': 'creme.forms.optionalWidgetHandler(this)'}),
-                         sub_widget,
-                        ),
-                attrs=attrs,
-            )
+        # super(OptionalWidget, self).__init__(
+        super().__init__(
+            widgets=(widgets.CheckboxInput(attrs={'onchange': 'creme.forms.optionalWidgetHandler(this)'}),
+                     sub_widget,
+                    ),
+            attrs=attrs,
+        )
         self.sub_label = sub_label
 
     def decompress(self, value):
         return (value[0], value[1]) if value else (None, None)
 
     def get_context(self, name, value, attrs):
-        context = super(OptionalWidget, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(OptionalWidget, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
         context['widget']['label'] = self.sub_label
 
         return context
@@ -915,13 +957,15 @@ class OptionalWidget(widgets.MultiWidget):
 
 class OptionalSelect(OptionalWidget):
     def __init__(self, choices=(), *args, **kwargs):
-        super(OptionalSelect, self).__init__(widgets.Select(choices=choices), *args, **kwargs)
+        # super(OptionalSelect, self).__init__(widgets.Select(choices=choices), *args, **kwargs)
+        super().__init__(widgets.Select(choices=choices), *args, **kwargs)
 
 
 class TinyMCEEditor(widgets.Textarea):
     def get_context(self, name, value, attrs):
         widget_type = 'ui-creme-jqueryplugin'
-        context = super(TinyMCEEditor, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(TinyMCEEditor, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
 
         final_attrs = context['widget']['attrs']
         css_class = 'ui-creme-input ui-creme-widget widget-auto ' if final_attrs.pop('auto', True) else \
@@ -954,7 +998,8 @@ class ColorPickerWidget(widgets.TextInput):
 
     def get_context(self, name, value, attrs):
         widget_type = 'ui-creme-jqueryplugin'
-        context = super(ColorPickerWidget, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(ColorPickerWidget, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
 
         final_attrs = context['widget']['attrs']
         css_class = 'ui-creme-input ui-creme-widget widget-auto ' if final_attrs.pop('auto', True) else \
@@ -994,7 +1039,8 @@ class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultipl
         @param creation_allowed: False to disable the creation button (only used if 'creation_url' is given).
         @param creation_label: Label of the creation button (only used if 'creation_url' is given).
         """
-        super(UnorderedMultipleChoiceWidget, self).__init__(attrs, choices)
+        # super(UnorderedMultipleChoiceWidget, self).__init__(attrs, choices)
+        super().__init__(attrs, choices)
         self.columntype = columntype
         self.filtertype = filtertype
         self.viewless = viewless
@@ -1036,7 +1082,8 @@ class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultipl
             value = list(value)
 
         count = self._choice_count()
-        context = super(UnorderedMultipleChoiceWidget, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(UnorderedMultipleChoiceWidget, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
         widget_cxt = context['widget']
 
         final_attrs = widget_cxt['attrs']
@@ -1068,7 +1115,8 @@ class OrderedMultipleChoiceWidget(widgets.SelectMultiple):
     template_name = 'creme_core/forms/widgets/ordered-multiple.html'
 
     def get_context(self, name, value, attrs):
-        context = super(OrderedMultipleChoiceWidget, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(OrderedMultipleChoiceWidget, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
 
         context['widget']['orders'] = {
             opt_value: order + 1
@@ -1100,11 +1148,13 @@ class Label(widgets.TextInput):
     empty_label = None  # TODO: remove ?
 
     def __init__(self, attrs=None, empty_label=None):
-        super(Label, self).__init__(attrs=attrs)
+        # super(Label, self).__init__(attrs=attrs)
+        super().__init__(attrs=attrs)
         self.empty_label = empty_label
 
     def get_context(self, name, value, attrs):
-        context = super(Label, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(Label, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
         context['widget']['content'] = value or self.empty_label
 
         return context
@@ -1116,7 +1166,8 @@ class ListEditionWidget(widgets.Widget):
     only_delete = False
 
     def get_context(self, name, value, attrs):
-        context = super(ListEditionWidget, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(ListEditionWidget, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
 
         items = []
         for i, label in enumerate(self.content):
@@ -1154,11 +1205,12 @@ class DatePeriodWidget(widgets.MultiWidget):
     template_name = 'creme_core/forms/widgets/date-period.html'
 
     def __init__(self, choices=(), attrs=None):
-        super(DatePeriodWidget, self).__init__(
-                    widgets=(widgets.Select(choices=choices, attrs={'class': 'dperiod-type'}),
-                             widgets.TextInput(attrs={'class': 'dperiod-value'}),  # TODO: min_value
-                            ),
-                    attrs=attrs,
+        # super(DatePeriodWidget, self).__init__(
+        super().__init__(
+            widgets=(widgets.Select(choices=choices, attrs={'class': 'dperiod-type'}),
+                     widgets.TextInput(attrs={'class': 'dperiod-value'}),  # TODO: min_value
+                    ),
+            attrs=attrs,
         )
 
     @property
@@ -1177,7 +1229,8 @@ class DatePeriodWidget(widgets.MultiWidget):
         return None, None
 
     def get_context(self, name, value, attrs):
-        context = super(DatePeriodWidget, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(DatePeriodWidget, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
 
         # TODO: do we need a system for localized settings (like python in locale/ ) ?
         try:
@@ -1201,7 +1254,8 @@ class DateRangeWidget(widgets.MultiWidget):
     def __init__(self, choices=(), attrs=None):
         self.render_as = attrs.pop('render_as', 'table') if attrs else 'table'
 
-        super(DateRangeWidget, self).__init__(
+        # super(DateRangeWidget, self).__init__(
+        super().__init__(
             widgets=(widgets.Select(choices=choices, attrs={'data-daterange-type': True}),
                      CalendarWidget(attrs={'data-daterange-field': 'start'}),
                      CalendarWidget(attrs={'data-daterange-field': 'end'}),
@@ -1228,7 +1282,8 @@ class DateRangeWidget(widgets.MultiWidget):
 
     def get_context(self, name, value, attrs):
         widget_type = 'ui-creme-daterange'
-        context = super(DateRangeWidget, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(DateRangeWidget, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
 
         widget_cxt = context['widget']
         final_attrs = widget_cxt['attrs']
@@ -1244,9 +1299,10 @@ class DurationWidget(widgets.MultiWidget):
 
     def __init__(self, attrs=None):
         TextInput = widgets.TextInput
-        super(DurationWidget, self).__init__(widgets=[TextInput] * 3,
-                                             attrs=attrs,
-                                            )
+        # super(DurationWidget, self).__init__(widgets=[TextInput] * 3,
+        #                                      attrs=attrs,
+        #                                     )
+        super().__init__(widgets=[TextInput] * 3, attrs=attrs)
 
     def decompress(self, value):
         return value.split(':') if value else (None, None, None)
@@ -1254,11 +1310,11 @@ class DurationWidget(widgets.MultiWidget):
 
 class ChoiceOrCharWidget(widgets.MultiWidget):
     def __init__(self, attrs=None, choices=()):
-        super(ChoiceOrCharWidget, self).__init__(widgets=(widgets.Select(choices=choices),
-                                                          widgets.TextInput(),
-                                                         ),
-                                                 attrs=attrs,
-                                                )
+        # super(ChoiceOrCharWidget, self).__init__(
+        super().__init__(
+            widgets=(widgets.Select(choices=choices), widgets.TextInput()),
+            attrs=attrs,
+        )
 
     @property
     def choices(self):
@@ -1279,7 +1335,8 @@ class CremeRadioSelect(widgets.RadioSelect):
     template_name = 'creme_core/forms/widgets/radio.html'
 
     def get_context(self, name, value, attrs):
-        context = super(CremeRadioSelect, self).get_context(name=name, value=value, attrs=attrs)
+        # context = super(CremeRadioSelect, self).get_context(name=name, value=value, attrs=attrs)
+        context = super().get_context(name=name, value=value, attrs=attrs)
 
         final_attrs = context['widget']['attrs']
         final_attrs['class'] = '{} {}'.format(final_attrs.get('class', ''), 'radio_select').strip()

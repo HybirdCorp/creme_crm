@@ -56,7 +56,8 @@ class GenericModelBrick(QuerysetBrick):
 
     # NB: credentials are OK : we are sure to use the custom reloading view because of the specific constructor.
     def __init__(self, app_name, model_name, model):
-        super(GenericModelBrick, self).__init__()
+        # super(GenericModelBrick, self).__init__()
+        super().__init__()
         self.app_name = app_name
         self.model_name = model_name
         self.model = model

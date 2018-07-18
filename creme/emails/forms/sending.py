@@ -63,7 +63,8 @@ class SendingCreateForm(CremeModelForm):
         exclude = ()
 
     def __init__(self, entity, *args, **kwargs):
-        super(SendingCreateForm, self).__init__(*args, **kwargs)
+        # super(SendingCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.campaign = entity
         self.can_admin_emails = can_admin_emails = self.user.has_perm_to_admin("emails")
 
@@ -100,7 +101,8 @@ class SendingCreateForm(CremeModelForm):
         return sender_value
 
     def clean(self):
-        cleaned_data = super(SendingCreateForm, self).clean()
+        # cleaned_data = super(SendingCreateForm, self).clean()
+        cleaned_data = super().clean()
 
         if cleaned_data['type'] == SENDING_TYPE_DEFERRED:
             sending_date = cleaned_data['sending_date']
@@ -144,7 +146,8 @@ class SendingCreateForm(CremeModelForm):
         instance.body_html = template.body_html
         instance.signature = template.signature
 
-        super(SendingCreateForm, self).save()
+        # super(SendingCreateForm, self).save()
+        super().save()
 
         sender_address = cleaned_data['sender']
         if self.can_edit_sender_value:

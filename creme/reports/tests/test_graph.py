@@ -39,7 +39,8 @@ except Exception as e:
 class ReportGraphTestCase(BaseReportsTestCase, BrickTestCaseMixin):
     @classmethod
     def setUpClass(cls):
-        super(ReportGraphTestCase, cls).setUpClass()
+        # super(ReportGraphTestCase, cls).setUpClass()
+        super().setUpClass()
         cls.ct_invoice = ContentType.objects.get_for_model(FakeInvoice)
         cls.qfilter_serializer = QSerializer()
 

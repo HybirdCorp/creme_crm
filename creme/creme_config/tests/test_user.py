@@ -899,12 +899,14 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
 class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
     def setUp(self):
-        super(UserSettingsTestCase, self).setUp()
+        # super(UserSettingsTestCase, self).setUp()
+        super().setUp()
         self.login()
         self._registered_skey = []
 
     def tearDown(self):
-        super(UserSettingsTestCase, self).tearDown()
+        # super(UserSettingsTestCase, self).tearDown()
+        super().tearDown()
         user_setting_key_registry.unregister(*self._registered_skey)
 
     def _register_key(self, *skeys):

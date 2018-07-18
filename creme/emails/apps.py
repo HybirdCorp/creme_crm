@@ -36,7 +36,8 @@ class EmailsConfig(CremeAppConfig):
         self.EmailTemplate = get_emailtemplate_model()
         self.EntityEmail   = get_entityemail_model()
         self.MailingList   = get_mailinglist_model()
-        super(EmailsConfig, self).all_apps_ready()
+        # super(EmailsConfig, self).all_apps_ready()
+        super().all_apps_ready()
 
         from . import signals
 

@@ -14,7 +14,8 @@ except Exception as e:
 class DateRangeTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        super(DateRangeTestCase, cls).setUpClass()
+        # super(DateRangeTestCase, cls).setUpClass()
+        super().setUpClass()
 
         cls.registry = date_range.DateRangeRegistry(
                 date_range.PreviousYearRange(),

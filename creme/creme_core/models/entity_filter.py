@@ -55,7 +55,8 @@ class EntityFilterList(list):
     Indeed, it's as a cache.
     """
     def __init__(self, content_type, user):
-        super(EntityFilterList, self).__init__(EntityFilter.get_for_user(user, content_type))
+        # super(EntityFilterList, self).__init__(EntityFilter.get_for_user(user, content_type))
+        super().__init__(EntityFilter.get_for_user(user, content_type))
         self._selected = None
 
     @property
@@ -426,7 +427,8 @@ class EntityFilter(Model):  # CremeModel ???
                                 ).format(u', '.join(parents))
                 )
 
-        super(EntityFilter, self).delete(*args, **kwargs)
+        # super(EntityFilter, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
 
     @property
     def entities_are_distinct(self):
@@ -699,10 +701,11 @@ class _ConditionBooleanOperator(_ConditionOperator):
 
 class _IsEmptyOperator(_ConditionBooleanOperator):
     def __init__(self, name, exclude=False, **kwargs):
-        super(_IsEmptyOperator, self).__init__(name, key_pattern='{}__isnull',
-                                               exclude=exclude, accept_subpart=False,
-                                               **kwargs
-                                              )
+        # super(_IsEmptyOperator, self).__init__(name, key_pattern='{}__isnull',
+        super().__init__(name, key_pattern='{}__isnull',
+                         exclude=exclude, accept_subpart=False,
+                         **kwargs
+                        )
 
     def get_q(self, efcondition, values):
         field_name = efcondition.name
@@ -725,13 +728,15 @@ class _IsEmptyOperator(_ConditionBooleanOperator):
 
 class _RangeOperator(_ConditionOperator):
     def __init__(self, name):
-        super(_RangeOperator, self).__init__(name, '{}__range', allowed_fieldtypes=('number', 'date'))
+        # super(_RangeOperator, self).__init__(name, '{}__range', allowed_fieldtypes=('number', 'date'))
+        super().__init__(name, '{}__range', allowed_fieldtypes=('number', 'date'))
 
     def validate_field_values(self, field, values, user=None):
         if len(values) != 2:
             raise ValueError(u'A list with 2 elements is expected for condition {}'.format(self.name))
 
-        return [super(_RangeOperator, self).validate_field_values(field, values)]
+        # return [super(_RangeOperator, self).validate_field_values(field, values)]
+        return [super().validate_field_values(field, values)]
 
 
 class EntityFilterCondition(Model):

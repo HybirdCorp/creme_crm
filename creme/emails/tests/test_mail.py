@@ -38,22 +38,25 @@ class EntityEmailTestCase(_EmailsTestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(EntityEmailTestCase, cls).setUpClass()
+        # super(EntityEmailTestCase, cls).setUpClass()
+        super().setUpClass()
         cls.original_send_messages = EmailBackend.send_messages
 
     def tearDown(self):
-        super(EntityEmailTestCase, self).tearDown()
+        # super(EntityEmailTestCase, self).tearDown()
+        super().tearDown()
         EmailBackend.send_messages = self.original_send_messages
 
     def login(self, is_superuser=True, is_staff=False,
               allowed_apps=('persons', 'emails'),
               creatable_models=(Contact, Organisation, EntityEmail),
               *args, **kwargs):
-        return super(EntityEmailTestCase, self).login(is_superuser=is_superuser,
-                                                      allowed_apps=allowed_apps,
-                                                      creatable_models=creatable_models,
-                                                      *args, **kwargs
-                                                     )
+        # return super(EntityEmailTestCase, self).login(is_superuser=is_superuser,
+        return super().login(is_superuser=is_superuser,
+                             allowed_apps=allowed_apps,
+                             creatable_models=creatable_models,
+                             *args, **kwargs
+                            )
 
     def _build_send_from_template_url(self, entity):
         # return '/emails/mail/add_from_template/%s' % entity.id

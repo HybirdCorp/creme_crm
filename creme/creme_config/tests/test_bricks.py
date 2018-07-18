@@ -133,7 +133,8 @@ class DetailviewInstanceBrick(Brick):
     id_ = InstanceBrickConfigItem.generate_base_id('creme_config', 'test_detail_instance')
 
     def __init__(self, instance_block_config_item):
-        super(DetailviewInstanceBrick, self).__init__()
+        # super(DetailviewInstanceBrick, self).__init__()
+        super().__init__()
         self.ibci = instance_block_config_item
 
     def detailview_display(self, context):
@@ -157,7 +158,8 @@ class HomeInstanceBrick(Brick):
     verbose_name = u'Testing purpose'
 
     def __init__(self, instance_block_config_item):
-        super(HomeInstanceBrick, self).__init__()
+        # super(HomeInstanceBrick, self).__init__()
+        super().__init__()
         self.ibci = instance_block_config_item
 
     def home_display(self, context):
@@ -181,7 +183,8 @@ class BricksConfigTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(BricksConfigTestCase, cls).setUpClass()
+        # super(BricksConfigTestCase, cls).setUpClass()
+        super().setUpClass()
 
         cls._bdl_backup = list(BrickDetailviewLocation.objects.all())
         cls._bpl_backup = list(BrickHomeLocation.objects.all())
@@ -212,7 +215,8 @@ class BricksConfigTestCase(CremeTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        super(BricksConfigTestCase, cls).tearDownClass()
+        # super(BricksConfigTestCase, cls).tearDownClass()
+        super().tearDownClass()
 
         BrickDetailviewLocation.objects.all().delete()
         BrickHomeLocation.objects.all().delete()

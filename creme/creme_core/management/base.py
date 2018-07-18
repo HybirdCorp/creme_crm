@@ -155,7 +155,7 @@ class CSVImportCommand(BaseCommand):
 #             self.stderr.write('Error ({}): have you run the populates ???'.format(e))
 #             self.stderr.write('Importing organisation [KO]')
 #         else:
-#             super(Command, self).handle(*csv_filenames, **options)
+#             super().handle(*csv_filenames, **options)
 #
 #             self.stdout.write('Importing organisation [OK]')
 #             self.stdout.write('    Organisations in database: {}'.format(Organisation.objects.count()))

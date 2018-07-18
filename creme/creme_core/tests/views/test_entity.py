@@ -1298,12 +1298,14 @@ class _BulkEditTestCase(ViewsTestCase):
 class BulkUpdateTestCase(_BulkEditTestCase):
     @classmethod
     def setUpClass(cls):
-        super(BulkUpdateTestCase, cls).setUpClass()
+        # super(BulkUpdateTestCase, cls).setUpClass()
+        super().setUpClass()
         cls.contact_ct = ContentType.objects.get_for_model(FakeContact)
         cls.contact_bulk_status = bulk_update_registry.status(FakeContact)
 
     def setUp(self):
-        super(BulkUpdateTestCase, self).setUp()
+        # super(BulkUpdateTestCase, self).setUp()
+        super().setUp()
         contact_status = bulk_update_registry.status(FakeContact)
 
         self._contact_innerforms = contact_status._innerforms
@@ -1313,7 +1315,8 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         bulk_update_registry.status(FakeContact).excludes = set()
 
     def tearDown(self):
-        super(BulkUpdateTestCase, self).tearDown()
+        # super(BulkUpdateTestCase, self).tearDown()
+        super().tearDown()
         contact_status = bulk_update_registry.status(FakeContact)
         contact_status._innerforms = self._contact_innerforms
         contact_status.excludes = self._contact_excludes

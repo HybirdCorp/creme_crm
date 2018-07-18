@@ -321,7 +321,8 @@ class RelationCTypeBrickWizard(PopupWizardMixin, SessionWizardView):
         return HttpResponse()
 
     def get_context_data(self, form, **kwargs):
-        context = super(RelationCTypeBrickWizard, self).get_context_data(form, **kwargs)
+        # context = super(RelationCTypeBrickWizard, self).get_context_data(form, **kwargs)
+        context = super().get_context_data(form, **kwargs)
         context['title'] = ugettext(u'New customised type for «{predicate}»').format(predicate=form.instance)
 
         return context
@@ -330,7 +331,8 @@ class RelationCTypeBrickWizard(PopupWizardMixin, SessionWizardView):
         return get_object_or_404(RelationBrickItem, id=self.kwargs['rbi_id'])
 
     def get_form_kwargs(self, step):
-        kwargs = super(RelationCTypeBrickWizard, self).get_form_kwargs(step)
+        # kwargs = super(RelationCTypeBrickWizard, self).get_form_kwargs(step)
+        kwargs = super().get_form_kwargs(step)
 
         if step == '1':
             kwargs['ctype'] = self.get_cleaned_data_for_step('0')['ctype']
