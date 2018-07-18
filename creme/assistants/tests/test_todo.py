@@ -437,18 +437,19 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         create_todo('Todo#1')
 
-        self.send_messages_called = False
+        send_messages_called = False
         err_msg = 'Sent error'
 
         def send_messages(this, messages):
-            self.send_messages_called = True  # TODO: pyk nonlocal
+            nonlocal send_messages_called
+            send_messages_called = True
             raise Exception(err_msg)
 
         EmailBackend.send_messages = send_messages
 
         job = self.execute_reminder_job()
 
-        self.assertTrue(self.send_messages_called)
+        self.assertTrue(send_messages_called)
         self.assertEqual(1, DateReminder.objects.exclude(id__in=reminder_ids).count())
 
         jresults = JobResult.objects.filter(job=job)

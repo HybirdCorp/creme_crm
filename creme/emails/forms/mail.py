@@ -158,10 +158,11 @@ class EntityEmailForm(CremeEntityForm):
         attachments = get_data('attachments')
         user        = get_data('user')
 
-        # TODO use "sending_error = False" + "nonlocal sending_error" in python3
-        sending_errors = []
+        sending_error = False
 
         def create_n_send_mail(recipient_address):
+            nonlocal sending_error
+
             email = EntityEmail.create_n_send_mail(sender=sender, recipient=recipient_address,
                                                    subject=subject, user=user,
                                                    body=body, body_html=body_html,
@@ -169,7 +170,7 @@ class EntityEmailForm(CremeEntityForm):
                                                   )
 
             if email.status == MAIL_STATUS_SENDINGERROR:
-                sending_errors.append(True)
+                sending_error = True
 
             return email
 
@@ -185,7 +186,7 @@ class EntityEmailForm(CremeEntityForm):
             create_relation(subject_entity=email, type_id=REL_SUB_MAIL_SENDED,   object_entity=user_contact, user=user)
             create_relation(subject_entity=email, type_id=REL_SUB_MAIL_RECEIVED, object_entity=recipient,    user=user)
 
-        if sending_errors:
+        if sending_error:
             entity_emails_send_type.refresh_job()
 
 

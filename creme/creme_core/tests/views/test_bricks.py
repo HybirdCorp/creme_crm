@@ -197,15 +197,16 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login()
         extra_data = [1, 2]
 
-        errors = []  # TODO: nonlocal in Py3K
-        received_extra_data = []  # TODO: nonlocal in Py3K
+        # errors = []
+        received_extra_data = None
 
         class FoobarBrick(self.TestBrick):
             id_ = Brick.generate_id('creme_core', 'test_bricks_reload_basic04')
 
             @self.TestBrick.reloading_info.setter
             def reloading_info(self, info):
-                received_extra_data.append(info)
+                nonlocal received_extra_data
+                received_extra_data = info
 
         brick_registry.register(FoobarBrick)
 
@@ -219,25 +220,26 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                          response.json()
                         )
 
-        self.assertTrue(received_extra_data)
-        self.assertEqual(extra_data, received_extra_data[0])
-        self.assertFalse(errors)
+        self.assertEqual(extra_data, received_extra_data)
+        # self.assertFalse(errors)
 
     def test_reload_basic05(self):
         "Invalid extra data"
         self.login()
 
-        errors = []  # TODO: nonlocal in Py3K
-        received_extra_data = []  # TODO: nonlocal in Py3K
+        error = None
+        received_extra_data = None
 
         class FoobarBrick(self.TestBrick):
             id_ = Brick.generate_id('creme_core', 'test_bricks_reload_basic05')
 
             def detailview_display(self, context):
+                nonlocal error, received_extra_data
+
                 try:
-                    received_extra_data.append(BricksManager.get(context).get_reloading_info(self))
+                    received_extra_data = BricksManager.get(context).get_reloading_info(self)
                 except Exception as e:
-                    errors.append(e)
+                    error = e
 
                 # return super(FoobarBrick, self).detailview_display(context)
                 return super().detailview_display(context)
@@ -249,8 +251,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
                                 'extra_data': '{%s: ' % FoobarBrick.id_,
                                },
                          )
-        self.assertFalse(received_extra_data)
-        self.assertTrue(errors)
+        self.assertIsNone(received_extra_data)
+        self.assertIsNotNone(error)
 
     def test_reload_detailview01(self):
         user = self.login()
