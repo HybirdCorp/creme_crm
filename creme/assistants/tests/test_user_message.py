@@ -118,8 +118,7 @@ class UserMessageTestCase(AssistantsTestCase):
         self._create_usermessage(title, body, priority, [user01, user02], self.entity)
 
         messages = UserMessage.objects.all()
-        self.assertEqual(2, len(messages))
-        self.assertEqual({user01, user02}, {msg.recipient for msg in messages})
+        self.assertCountEqual([user01, user02], [msg.recipient for msg in messages])
 
         self.assertIs(now_value, job.type.next_wakeup(job, now_value))
 

@@ -165,8 +165,7 @@ will be truncate by str() method"""
         self.assertIsInstance(memos, QuerySet)
         self.assertEqual(Memo, memos.model)
 
-        self.assertEqual({memo1, memo3}, set(memos))
-        self.assertEqual(2, len(memos))
+        self.assertCountEqual([memo1, memo3], memos)
 
     def test_get_memos_for_home01(self):
         user = self.user
@@ -181,8 +180,7 @@ will be truncate by str() method"""
         self.assertIsInstance(memos, QuerySet)
         self.assertEqual(Memo, memos.model)
 
-        self.assertEqual({memo1, memo3}, set(memos))
-        self.assertEqual(2, len(memos))
+        self.assertCountEqual([memo1, memo3], memos)
 
     def test_get_memos_for_home02(self):
         "Teams"
