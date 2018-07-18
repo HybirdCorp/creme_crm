@@ -9,9 +9,9 @@ try:
     from django.conf import settings
 
     from ..base import CremeTestCase
-    from creme.creme_core.utils.file_handling import (IncrFileNameSuffixGenerator,
-                                                      RandomFileNameSuffixGenerator, DateFileNameSuffixGenerator, DatetimeFileNameSuffixGenerator,
-                                                      FileCreator)
+    from creme.creme_core.utils.file_handling import (FileCreator,
+          IncrFileNameSuffixGenerator, RandomFileNameSuffixGenerator,
+          DateFileNameSuffixGenerator, DatetimeFileNameSuffixGenerator)
 except Exception as e:
     print('Error in <{}>: {}'.format(__name__, e))
 
