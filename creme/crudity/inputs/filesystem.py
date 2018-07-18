@@ -46,84 +46,84 @@ class IniFileInput(CrudityInput):
         backend = None
         # config = ConfigParser.RawConfigParser()
         config = configparser.RawConfigParser()
-        ok = False
+        # ok = False
 
         try:
             ok = config.read(file_path)
         except Exception as e:
-            logger.warning('IniFileInput.create(): invalid ini file (%s): %s', file_path, e)
-
-        if not ok:
-            logger.warning('IniFileInput.create(): invalid ini file (%s)', file_path)
+            logger.warning('IniFileInput.create(): invalid ini file : %s', e)
         else:
-            try:
-                subject = config.get('head', 'action')
-            # except (ConfigParser.NoSectionError, ConfigParser.NoOptionError) as e:
-            except (configparser.NoSectionError, configparser.NoOptionError) as e:
-                logger.warning('IniFileInput.create(): invalid file content for %s (%s)', file_path, e)
+            if not ok:
+                logger.warning('IniFileInput.create(): invalid ini file (%s)', file_path)
             else:
-                backend = self.get_backend(CrudityBackend.normalize_subject(subject))
+                try:
+                    subject = config.get('head', 'action')
+                # except (ConfigParser.NoSectionError, ConfigParser.NoOptionError) as e:
+                except (configparser.NoSectionError, configparser.NoOptionError) as e:
+                    logger.warning('IniFileInput.create(): invalid file content for %s (%s)', file_path, e)
+                else:
+                    backend = self.get_backend(CrudityBackend.normalize_subject(subject))
 
-                if backend:
-                    # Build data dict
-                    data = dict(backend.body_map)
+                    if backend:
+                        # Build data dict
+                        data = dict(backend.body_map)
 
-                    for field_name in data.keys():
-                        try:
-                            data[field_name] = config.get('body', field_name)
-                        # except (ConfigParser.NoSectionError, ConfigParser.NoOptionError) as e:
-                        except (configparser.NoSectionError, configparser.NoOptionError) as e:
-                            logger.warning('IniFileInput.create(): invalid data in .ini file (%s): %s', file_path, e)
-
-                    # Get owner
-                    owner = None
-                    CremeUser = get_user_model()
-                    if backend.is_sandbox_by_user:
-                        try:
-                            username = config.get('head', 'username')
-                        # except ConfigParser.NoOptionError as e:
-                        except configparser.NoOptionError as e:
-                            logger.warning('IniFileInput.create(): no "username" in [head] section of %s', file_path, e)
-                        else:
-                            query_data = {CremeUser.USERNAME_FIELD: username}
-
+                        for field_name in data.keys():
                             try:
-                                owner = CremeUser.objects.get(**query_data)
-                            except CremeUser.DoesNotExist:
-                                logger.warning('IniFileInput.create(): no user ([head] section) corresponds to %s (%s)',
-                                            query_data, file_path,
-                                           )
+                                data[field_name] = config.get('body', field_name)
+                            # except (ConfigParser.NoSectionError, ConfigParser.NoOptionError) as e:
+                            except (configparser.NoSectionError, configparser.NoOptionError) as e:
+                                logger.warning('IniFileInput.create(): invalid data in .ini file (%s): %s', file_path, e)
 
-                    if owner is None:
-                        owner = CremeUser.objects.get_admin()
+                        # Get owner
+                        owner = None
+                        CremeUser = get_user_model()
+                        if backend.is_sandbox_by_user:
+                            try:
+                                username = config.get('head', 'username')
+                            # except ConfigParser.NoOptionError as e:
+                            except configparser.NoOptionError as e:
+                                logger.warning('IniFileInput.create(): no "username" in [head] section of %s', file_path, e)
+                            else:
+                                query_data = {CremeUser.USERNAME_FIELD: username}
 
-                    # Create instances
-                    if backend.in_sandbox:
-                        # TODO: factorise with other inputs
-                        # action = WaitingAction(action=self.method,
-                        #                        ct=ContentType.objects.get_for_model(backend.model),
-                        #                        source='%s - %s' % (backend.fetcher_name, self.name),
-                        #                        subject=backend.subject,
-                        #                        user=owner,
-                        #                       )
-                        # action.set_data(data)
-                        # action.save()
-                        WaitingAction.objects.create(
-                              action=self.method,
-                              ct=ContentType.objects.get_for_model(backend.model),
-                              source='{} - {}'.format(backend.fetcher_name, self.name),
-                              subject=backend.subject,
-                              user=owner,
-                              data=data,
-                        )
-                    else:
-                        # TODO: should be a public method
-                        backend._create_instance_n_history(data,
-                                                           user=owner,
-                                                           source='{} - {}'.format(backend.fetcher_name, self.name),
-                                                          )
+                                try:
+                                    owner = CremeUser.objects.get(**query_data)
+                                except CremeUser.DoesNotExist:
+                                    logger.warning('IniFileInput.create(): no user ([head] section) corresponds to %s (%s)',
+                                                query_data, file_path,
+                                               )
 
-                    # Cleaning
-                    remove_file(file_path)
+                        if owner is None:
+                            owner = CremeUser.objects.get_admin()
+
+                        # Create instances
+                        if backend.in_sandbox:
+                            # TODO: factorise with other inputs
+                            # action = WaitingAction(action=self.method,
+                            #                        ct=ContentType.objects.get_for_model(backend.model),
+                            #                        source='%s - %s' % (backend.fetcher_name, self.name),
+                            #                        subject=backend.subject,
+                            #                        user=owner,
+                            #                       )
+                            # action.set_data(data)
+                            # action.save()
+                            WaitingAction.objects.create(
+                                  action=self.method,
+                                  ct=ContentType.objects.get_for_model(backend.model),
+                                  source='{} - {}'.format(backend.fetcher_name, self.name),
+                                  subject=backend.subject,
+                                  user=owner,
+                                  data=data,
+                            )
+                        else:
+                            # TODO: should be a public method
+                            backend._create_instance_n_history(data,
+                                                               user=owner,
+                                                               source='{} - {}'.format(backend.fetcher_name, self.name),
+                                                              )
+
+                        # Cleaning
+                        remove_file(file_path)
 
         return backend
