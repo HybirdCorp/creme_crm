@@ -233,7 +233,7 @@ class ActionButtonList(widgets.Widget):
         return self
 
     def clear_actions(self):
-        self.actions[:] = ()
+        self.actions.clear()
         return self
 
     def _get_button_context(self, name, label, enabled, **kwargs):

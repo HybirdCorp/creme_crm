@@ -182,8 +182,8 @@ if settings.TESTS_ON:
 
         def clear(self):
             "Useful for test cases ; clear the internal lists."
-            self.started_jobs[:] = []
-            self.refreshed_jobs[:] = []
+            self.started_jobs.clear()
+            self.refreshed_jobs.clear()
 
         def start_job(self, job):
             self.started_jobs.append(job)
