@@ -26,6 +26,7 @@
 import logging
 
 from datetime import date, datetime
+import io
 import os, sys
 from os.path import join, splitext, exists
 from random import randint
@@ -143,15 +144,17 @@ class FileCreator:
                 final_path = join(dir_path, current_name_root + name_ext)
 
                 try:
-                    # TODO: in Python 3.3, use 'x' option of __builtins__.open()
-                    fd = os.open(final_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-                except OSError as e:
+                    # fd = os.open(final_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+                    f = io.open(final_path, 'x')
+                # except OSError as e:
+                except FileExistsError as e:
                      if trials >= max_trials:
                         raise self.Error('No unique filename has been found with the '
                                          'current rules (max trials reached).'
                                         ) from e
                 else:
-                    os.close(fd)
+                    # os.close(fd)
+                    f.close()
 
                     return final_path
             else:
