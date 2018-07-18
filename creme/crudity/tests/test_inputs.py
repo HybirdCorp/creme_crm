@@ -1444,11 +1444,18 @@ class FileSystemInputTestCase(CrudityTestCase):
         backend = self.FakeContactBackend({'subject': subject})
 
         inifile_input.add_backend(backend)
+        path = join(dirname(__file__), 'data', 'unknown.ini')
 
         with self.assertNoException():
-            ok = IniFileInput().create(join(dirname(__file__), 'data', 'unknown.ini'))
+            with self.assertLogs(level='WARNING') as logs_manager:
+                ret_backend = IniFileInput().create(path)
 
-        self.assertIsNone(ok)
+        self.assertIsNone(ret_backend)
+        self.assertEqual(logs_manager.output,
+                         ['WARNING:creme.crudity.inputs.filesystem:IniFileInput.create(): '
+                          'invalid ini file ({})'.format(path),
+                         ],
+                        )
 
     def test_error02(self):
         "Invalid format"
@@ -1457,12 +1464,19 @@ class FileSystemInputTestCase(CrudityTestCase):
         backend = self.FakeContactBackend({'subject': subject})
 
         inifile_input.add_backend(backend)
+        path = self.get_deletable_file_path('test_error_01')
 
         with self.assertNoException():
-            ok = IniFileInput().create(self.get_deletable_file_path('test_error_01'))
+            with self.assertLogs(level='WARNING') as logs_manager:
+                ret_backend = IniFileInput().create(path)
 
-        self.assertIsNone(ok)
-        # TODO: assertLog
+        self.assertIsNone(ret_backend)
+        self.assertEqual(logs_manager.output,
+                         ['WARNING:creme.crudity.inputs.filesystem:IniFileInput.create(): '
+                          'invalid ini file : File contains no section headers.\n'
+                          "file: '{}', line: 1\n'action: TEST_CREATE_CONTACT\\n'".format(path),
+                         ],
+                        )
 
     def test_error03(self):
         "No head"
@@ -1471,12 +1485,18 @@ class FileSystemInputTestCase(CrudityTestCase):
         backend = self.FakeContactBackend({'subject': subject})
 
         inifile_input.add_backend(backend)
+        path = self.get_deletable_file_path('test_error_02')
 
         with self.assertNoException():
-            ok = IniFileInput().create(self.get_deletable_file_path('test_error_02'))
+            with self.assertLogs(level='WARNING') as logs_manager:
+                ret_backend = IniFileInput().create(path)
 
-        self.assertIsNone(ok)
-        # TODO: assertLog
+        self.assertIsNone(ret_backend)
+        self.assertEqual(logs_manager.output,
+                         ["WARNING:creme.crudity.inputs.filesystem:IniFileInput.create(): "
+                          "invalid file content for {} (No section: 'head')".format(path),
+                         ],
+                        )
 
     def test_subject_dont_matches(self):
         inifile_input = IniFileInput()
@@ -1619,13 +1639,18 @@ class FileSystemInputTestCase(CrudityTestCase):
                                          )
 
         inifile_input.add_backend(backend)
+        path = self.get_deletable_file_path('test_error_03')
 
         with self.assertNoException():
-            ok = inifile_input.create(self.get_deletable_file_path('test_error_03'))
+            with self.assertLogs(level='WARNING') as logs_manager:
+                ret_backend = inifile_input.create(path)
 
-        # self.assertIs(ok, True)
-        self.assertIsNotNone(ok)
-        # TODO: assertLog
+        self.assertIsNotNone(ret_backend)
+        self.assertEqual(logs_manager.output,
+                         ["WARNING:creme.crudity.inputs.filesystem:IniFileInput.create(): "
+                          "no user ([head] section) corresponds to {{'username': 'iaminvalid'}} ({})".format(path),
+                         ],
+                        )
 
         wactions = WaitingAction.objects.all()
         self.assertEqual(1, len(wactions))

@@ -837,8 +837,17 @@ class SandboxTestCase(CremeTestCase):
             verbose_name = 'Test sandbox #4'
 
         sandbox2 = Sandbox(type_id=TestSandboxType2_4.id)
-        # TODO: assertLogs
-        self.assertIsNone(registry.get(sandbox2))
+
+        with self.assertLogs(level='CRITICAL') as logs_manager:
+            sb_type = registry.get(sandbox2)
+
+        self.assertIsNone(sb_type)
+        self.assertEqual(logs_manager.output,
+                         ['CRITICAL:creme.creme_core.core.sandbox:Unknown SandboxType: {}'.format(
+                                 TestSandboxType2_4.id
+                            ),
+                         ],
+                        )
 
     def test_sandbox_data(self):
         user = self.login()
