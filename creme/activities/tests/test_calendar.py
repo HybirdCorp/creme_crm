@@ -224,6 +224,34 @@ class CalendarTestCase(_ActivitiesTestCase):
                         )
         self.assertIs(creation_perm, True)
 
+    @skipIfCustomActivity
+    def test_user_calendar03(self):
+        "Floating activity without calendar (bugfix)"
+        user = self.login()
+
+        def create_act(i):
+            act = Activity.objects.create(user=user, title='Floating Act#{}'.format(i),
+                                          type_id=ACTIVITYTYPE_TASK,
+                                          floating_type=FLOATING,
+                                         )
+            Relation.objects.create(user=user,
+                                    subject_entity=user.linked_contact,
+                                    type_id=REL_SUB_PART_2_ACTIVITY,
+                                    object_entity=act,
+                                   )
+            return act
+
+        create_act(1)
+        act2 = create_act(2)
+        act2.calendars.add(Calendar.get_user_default_calendar(user))
+
+        response = self.assertGET200(self.CALENDAR_URL)
+
+        with self.assertNoException():
+            floating_acts = response.context['floating_activities']
+
+        self.assertEqual([act2], list(floating_acts))
+
     def test_add_user_calendar01(self):
         user = self.login()
         self.assertFalse(Calendar.objects.filter(is_default=True, user=user))

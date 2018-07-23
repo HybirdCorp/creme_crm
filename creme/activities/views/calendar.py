@@ -156,14 +156,18 @@ def user_calendar(request):
         creme_calendars_by_user[filter_key].append({'name': calendar.name,
                                                     'id': calendar.id})
 
-    floating_activities = Activity.objects.filter(floating_type=constants.FLOATING,
-                                                  relations__type=constants.REL_OBJ_PART_2_ACTIVITY,
-                                                  relations__object_entity=user.linked_contact.id,
-                                                  is_deleted=False,
-                                                 )
-
-    for activity in floating_activities:
-        activity.calendar = activity.calendars.get(user=user)
+    floating_activities = []
+    for activity in Activity.objects.filter(floating_type=constants.FLOATING,
+                                            relations__type=constants.REL_OBJ_PART_2_ACTIVITY,
+                                            relations__object_entity=user.linked_contact.id,
+                                            is_deleted=False,
+                                           ):
+        try:
+            activity.calendar = activity.calendars.get(user=user)
+        except Calendar.DoesNotExist:
+            pass
+        else:
+            floating_activities.append(activity)
 
     return render(request, 'activities/calendar.html',
                   {'user_username':           user.username,
