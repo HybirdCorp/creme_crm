@@ -145,10 +145,8 @@ def _build_select_search_widget(widget_ctx, search_value, choices):
     selected_value = search_value[0] if search_value else None  # meh
     widget_ctx['type'] = 'select'
     widget_ctx['values'] = [{'value':    key,
-                             # 'text':     str(val),
-                             'text':     val,
-                             # 'selected': 'selected' if selected_value == str(key) else ''
-                             'selected': 'selected' if selected_value == key else ''
+                             'text':     str(val),
+                             'selected': 'selected' if selected_value == str(key) else ''
                             } for key, val in choices
                            ]
 
