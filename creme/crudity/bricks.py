@@ -25,8 +25,9 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_core.gui.bricks import QuerysetBrick
 from creme.creme_core.models import SettingValue
 
-from .constants import SETTING_CRUDITY_SANDBOX_BY_USER
+# from .constants import SETTING_CRUDITY_SANDBOX_BY_USER
 from .models import WaitingAction, History
+from .setting_keys import sandbox_key
 
 
 class CrudityQuerysetBrick(QuerysetBrick):
@@ -41,9 +42,10 @@ class CrudityQuerysetBrick(QuerysetBrick):
     # TODO: staticmethod
     @property
     def is_sandbox_by_user(self):
-        # No cache need sub-blocks are created on the fly
-        # return SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER, user=None).value
-        return SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER).value
+        # No cache: we need to create sub-blocks on the fly
+        # # return SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER, user=None).value
+        # return SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER).value
+        return SettingValue.objects.get_4_key(sandbox_key, default=False).value
 
 
 class WaitingActionsBrick(CrudityQuerysetBrick):

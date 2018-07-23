@@ -288,20 +288,24 @@ class PaymentInformationBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         organisation = context['object']
-        has_to_be_displayed = True
+        # has_to_be_displayed = True
+        #
+        # try:
+        #     if not organisation.is_managed and SettingValue.objects.get(key_id=payment_info_key.id).value:
+        #         has_to_be_displayed = False
+        # except SettingValue.DoesNotExist:
+        #     # Populate error ?
+        #     pass
+        #
+        # if not has_to_be_displayed:
+        #     return ''  # todo: in template ? empty <table> ?
 
-        try:
-            if not organisation.is_managed and SettingValue.objects.get(key_id=payment_info_key.id).value:
-                has_to_be_displayed = False
-        except SettingValue.DoesNotExist:
-            # Populate error ?
-            pass
-
-        if not has_to_be_displayed:
+        if not organisation.is_managed and SettingValue.objects.get_4_key(payment_info_key, default=True).value:
             return ''  # TODO: in template ? empty <table> ?
 
-        return self._render(self.get_template_context(context,
-                    PaymentInformation.objects.filter(organisation=organisation),
+        return self._render(self.get_template_context(
+                context,
+                PaymentInformation.objects.filter(organisation=organisation),
         ))
 
 

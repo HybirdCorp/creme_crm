@@ -19,8 +19,9 @@ import logging
 from django.conf import settings
 from django.utils import translation
 
-from ..constants import DISPLAY_CURRENCY_LOCAL_SYMBOL
+# from ..constants import DISPLAY_CURRENCY_LOCAL_SYMBOL
 from ..models import Currency, SettingValue
+from ..setting_keys import currency_symbol_key
 
 
 logger = logging.getLogger(__name__)
@@ -61,7 +62,8 @@ def currency(val, currency_or_id=None):
 
     conv = locale.localeconv()
 
-    is_local_symbol = SettingValue.objects.get(key_id=DISPLAY_CURRENCY_LOCAL_SYMBOL).value
+    # is_local_symbol = SettingValue.objects.get(key_id=DISPLAY_CURRENCY_LOCAL_SYMBOL).value
+    is_local_symbol = SettingValue.objects.get_4_key(currency_symbol_key).value
 
     if currency_or_id:
         currency_obj = currency_or_id if isinstance(currency_or_id, Currency) else \

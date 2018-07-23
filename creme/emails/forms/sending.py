@@ -20,7 +20,7 @@
 
 from datetime import datetime, time
 from json import dumps as json_dump
-import logging
+# import logging
 # from pickle import dumps
 
 from django.forms import IntegerField, EmailField, DateTimeField, ValidationError
@@ -35,11 +35,12 @@ from creme.creme_core.models import SettingValue
 from creme.creme_core.utils.dates import make_aware_dt
 
 from .. import get_emailtemplate_model
-from ..constants import SETTING_EMAILCAMPAIGN_SENDER
+# from ..constants import SETTING_EMAILCAMPAIGN_SENDER
 from ..models.sending import EmailSending, LightWeightEmail, SENDING_TYPE_DEFERRED  # SENDING_STATE_PLANNED
+from ..setting_keys import emailcampaign_sender
 
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 
 class SendingCreateForm(CremeModelForm):
@@ -68,15 +69,16 @@ class SendingCreateForm(CremeModelForm):
         self.campaign = entity
         self.can_admin_emails = can_admin_emails = self.user.has_perm_to_admin("emails")
 
-        try:
-            sender_setting = SettingValue.objects.get(key_id=SETTING_EMAILCAMPAIGN_SENDER)
-        except SettingValue.DoesNotExist:
-            # sender_setting = None
-            logger.critical('SettingValue with key=%s cannot be found !'
-                            ' ("creme_populate" command has not been run correctly)',
-                            SETTING_EMAILCAMPAIGN_SENDER
-                        )
-            raise
+        # try:
+        #     sender_setting = SettingValue.objects.get(key_id=SETTING_EMAILCAMPAIGN_SENDER)
+        # except SettingValue.DoesNotExist:
+        #     # sender_setting = None
+        #     logger.critical('SettingValue with key=%s cannot be found !'
+        #                     ' ("creme_populate" command has not been run correctly)',
+        #                     SETTING_EMAILCAMPAIGN_SENDER
+        #                 )
+        #     raise
+        sender_setting = SettingValue.objects.get_4_key(emailcampaign_sender)
 
         sender_field = self.fields['sender']
         self.can_edit_sender_value = can_edit_sender_value = not sender_setting.value and can_admin_emails

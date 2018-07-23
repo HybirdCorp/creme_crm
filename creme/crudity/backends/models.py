@@ -38,9 +38,10 @@ from creme.creme_core.views.file_handling import handle_uploaded_file
 from creme.documents import get_document_model, get_folder_model
 
 from ..bricks import WaitingActionsBrick
-from ..constants import SETTING_CRUDITY_SANDBOX_BY_USER
+# from ..constants import SETTING_CRUDITY_SANDBOX_BY_USER
 from ..exceptions import ImproperlyConfiguredBackend
 from ..models import History
+from ..setting_keys import sandbox_key
 
 
 logger = logging.getLogger(__name__)
@@ -109,7 +110,8 @@ class CrudityBackend:
     @property
     def is_sandbox_by_user(self):
         if self._sandbox_by_user is None:
-            self._sandbox_by_user = SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER).value
+            # self._sandbox_by_user = SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER).value
+            self._sandbox_by_user = SettingValue.objects.get_4_key(sandbox_key, default=False).value
 
         return self._sandbox_by_user
 
