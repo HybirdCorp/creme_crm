@@ -190,7 +190,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(self._build_contact_dl_url(header=True))
 
-        self.assertEqual([u','.join(u'"{}"'.format(hfi.title) for hfi in cells)],
+        self.assertEqual([','.join('"{}"'.format(hfi.title) for hfi in cells)],
                          [force_text(line) for line in response.content.splitlines()]
                         )
         self.assertFalse(HistoryLine.objects.exclude(id__in=existing_hline_ids))
@@ -199,7 +199,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         # response = self.assertGET200(self._build_dl_url(self.ct.id, header=True, use_GET=False),
         #                              data={'list_url': lv_url}
         #                             )
-        # self.assertEqual([u','.join(u'"%s"' % hfi.title for hfi in cells)],
+        # self.assertEqual([','.join('"%s"' % hfi.title for hfi in cells)],
         #                  [force_unicode(line) for line in response.content.splitlines()]
         #                 )
 
@@ -229,15 +229,15 @@ class CSVExportViewsTestCase(ViewsTestCase):
         # TODO: sort the relations/properties by they verbose_name ??
         result = response.content.splitlines()
         it = (force_text(line) for line in result)
-        self.assertEqual(next(it), u','.join(u'"{}"'.format(hfi.title) for hfi in hf.cells))
-        self.assertEqual(next(it), u'"","Black","Jet","Bebop",""')
-        self.assertIn(next(it), (u'"","Spiegel","Spike","Bebop/Swordfish",""',
-                                 u'"","Spiegel","Spike","Swordfish/Bebop",""')
+        self.assertEqual(next(it), ','.join('"{}"'.format(hfi.title) for hfi in hf.cells))
+        self.assertEqual(next(it), '"","Black","Jet","Bebop",""')
+        self.assertIn(next(it), ('"","Spiegel","Spike","Bebop/Swordfish",""',
+                                 '"","Spiegel","Spike","Swordfish/Bebop",""')
                      )
-        self.assertIn(next(it), (u'"","Valentine","Faye","","is a girl/is beautiful"',
-                                 u'"","Valentine","Faye","","is beautiful/is a girl"')
+        self.assertIn(next(it), ('"","Valentine","Faye","","is a girl/is beautiful"',
+                                 '"","Valentine","Faye","","is beautiful/is a girl"')
                      )
-        self.assertEqual(next(it), u'"","Wong","Edward","","is a girl"')
+        self.assertEqual(next(it), '"","Wong","Edward","","is a girl"')
         with self.assertRaises(StopIteration):
             next(it)
 
@@ -258,11 +258,11 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertEqual([count, hf.name],
                          hline.modifications
                         )
-        self.assertEqual([_(u'Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
+        self.assertEqual([_('Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
                                     count=count,
                                     model='Test Contacts',
                                     view=hf.name,
-                                    filter=_(u'All'),
+                                    filter=_('All'),
                                 ),
                          ],
                          hline.get_verbose_modifications(user),
@@ -278,15 +278,15 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         # TODO: sort the relations/properties by they verbose_name ??
         it = (force_text(line) for line in response.content.splitlines())
-        self.assertEqual(next(it), u';'.join(u'"{}"'.format(hfi.title) for hfi in cells))
-        self.assertEqual(next(it), u'"";"Black";"Jet";"Bebop";""')
-        self.assertIn(next(it), (u'"";"Spiegel";"Spike";"Bebop/Swordfish";""',
-                                 u'"";"Spiegel";"Spike";"Swordfish/Bebop";""')
+        self.assertEqual(next(it), ';'.join('"{}"'.format(hfi.title) for hfi in cells))
+        self.assertEqual(next(it), '"";"Black";"Jet";"Bebop";""')
+        self.assertIn(next(it), ('"";"Spiegel";"Spike";"Bebop/Swordfish";""',
+                                 '"";"Spiegel";"Spike";"Swordfish/Bebop";""')
                      )
-        self.assertIn(next(it), (u'"";"Valentine";"Faye";"";"is a girl/is beautiful"',
-                                 u'"";"Valentine";"Faye";"";"is beautiful/is a girl"')
+        self.assertIn(next(it), ('"";"Valentine";"Faye";"";"is a girl/is beautiful"',
+                                 '"";"Valentine";"Faye";"";"is beautiful/is a girl"')
                      )
-        self.assertEqual(next(it), u'"";"Wong";"Edward";"";"is a girl"')
+        self.assertEqual(next(it), '"";"Wong";"Edward";"";"is a girl"')
         with self.assertRaises(StopIteration):
             next(it)
 
@@ -328,7 +328,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         result = list(map(force_text, response.content.splitlines()))
         self.assertEqual(result[1], '"","Black","Jet","",""')
         self.assertEqual(result[2], '"","Spiegel","Spike","Swordfish",""')
-        self.assertEqual(result[3], u'"","Wong","Edward","","is a girl"')
+        self.assertEqual(result[3], '"","Wong","Edward","","is a girl"')
 
     def test_list_view_export05(self):
         "Datetime field"
@@ -347,7 +347,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         result = [force_text(line) for line in response.content.splitlines()]
         self.assertEqual(2, len(result))
         self.assertEqual(result[1],
-                         u'"{}","{}"'.format(spike.last_name,
+                         '"{}","{}"'.format(spike.last_name,
                                              date_format(localtime(spike.created), 'DATETIME_FORMAT'),
                                             )
                         )
@@ -430,11 +430,11 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         it = (force_text(line) for line in response.content.splitlines())
         self.assertEqual(next(it),
-                         u','.join(u'"{}"'.format(u)
-                                    for u in [_(u'Civility'), _(u'Last name'), 'pilots', _(u'Properties')]
+                         ','.join('"{}"'.format(u)
+                                    for u in [_('Civility'), _('Last name'), 'pilots', _('Properties')]
                                   )
                         )
-        self.assertEqual(next(it), u'"","Black","Bebop",""')
+        self.assertEqual(next(it), '"","Black","Bebop",""')
 
     def test_extra_filter(self):
         self.login()
@@ -444,7 +444,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         result = [force_text(line) for line in response.content.splitlines()]
         self.assertEqual(2, len(result))
-        self.assertEqual(u'"","Wong","Edward","","is a girl"', result[1])
+        self.assertEqual('"","Wong","Edward","","is a girl"', result[1])
 
     def test_list_view_export_with_filter01(self):
         user = self.login()
@@ -469,7 +469,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         result = [force_text(line) for line in response.content.splitlines()]
         self.assertEqual(2, len(result))
 
-        self.assertEqual(u'"","Wong","Edward","","is a girl"', result[1])
+        self.assertEqual('"","Wong","Edward","","is a girl"', result[1])
 
         # History
         hlines = HistoryLine.objects.exclude(id__in=existing_hline_ids)
@@ -479,7 +479,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertEqual([1, hf.name, efilter.name],
                          hline.modifications
                         )
-        self.assertEqual([_(u'Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
+        self.assertEqual([_('Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
                                     count=1,
                                     model='Test Contact',
                                     view=hf.name,
@@ -517,7 +517,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         fileref = filerefs[0]
         self.assertTrue(fileref.temporary)
-        self.assertEqual(u'fakecontact.xls', fileref.basename)
+        self.assertEqual('fakecontact.xls', fileref.basename)
         # self.assertEqual(user, fileref.user) TODO
 
         fullpath = fileref.filedata.path
@@ -553,8 +553,8 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         it = iter(XlrdReader(None, file_contents=response.content))
         self.assertEqual(next(it), [hfi.title for hfi in cells])
-        self.assertEqual(next(it), [orga01.name, _(u'Yes'), ''])
-        self.assertEqual(next(it), [orga02.name, _(u'No'),  date_format(orga02.creation_date, 'DATE_FORMAT')])
+        self.assertEqual(next(it), [orga01.name, _('Yes'), ''])
+        self.assertEqual(next(it), [orga02.name, _('No'),  date_format(orga02.creation_date, 'DATE_FORMAT')])
         with self.assertRaises(StopIteration):
             next(it)
 
@@ -581,9 +581,9 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                     )
 
         lines = {force_text(line) for line in response.content.splitlines()}
-        self.assertIn(u'"Bebop","1000"', lines)
-        self.assertIn(u'"Swordfish","20000"', lines)
-        self.assertIn(u'"Redtail",""', lines)
+        self.assertIn('"Bebop","1000"', lines)
+        self.assertIn('"Swordfish","20000"', lines)
+        self.assertIn('"Redtail",""', lines)
 
     def test_print_integer02(self):
         "Field with choices"
@@ -613,8 +613,8 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                     )
 
         lines = {force_text(line) for line in response.content.splitlines()}
-        self.assertIn(u'"Bebop","{}"'.format(_(u'Percent')),    lines)
-        self.assertIn(u'"Swordfish","{}"'.format(_(u'Amount')), lines)
+        self.assertIn('"Bebop","{}"'.format(_('Percent')),    lines)
+        self.assertIn('"Swordfish","{}"'.format(_('Amount')), lines)
 
     # TODO: factorise with ListViewTestCase
     def _get_lv_content(self, response):
@@ -661,8 +661,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         faye  = create_contact(first_name='Faye',  last_name='Valentine', phone='678678')
 
         # Set the current list view state, with the quick search
-        lv_url = FakeContact.get_lv_absolute_url()
-        response = self.assertPOST200(lv_url,
+        response = self.assertPOST200(FakeContact.get_lv_absolute_url(),
                                       data={'_search': 1,
                                             'regular_field-phone': '123',
                                            }
@@ -677,8 +676,44 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         it = (force_text(line) for line in response.content.splitlines())
         next(it)  # Header
-        self.assertEqual(next(it), u'"123455","Black","Jet"')
-        self.assertEqual(next(it), u'"123233","Spiegel","Spike"')
+        self.assertEqual(next(it), '"123455","Black","Jet"')
+        self.assertEqual(next(it), '"123233","Spiegel","Spike"')
+
+        with self.assertRaises(StopIteration):
+            next(it)
+
+    @override_settings(PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
+    def test_sorting(self):
+        user = self.login()
+
+        hf = HeaderFilter.create(pk='test-hf_contact_test_sorting', name='Contact view',
+                                 model=FakeContact,
+                                 cells_desc=[(EntityCellRegularField, {'name': 'phone'}),
+                                             (EntityCellRegularField, {'name': 'last_name'}),
+                                             (EntityCellRegularField, {'name': 'first_name'}),
+                                            ],
+                                )
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        create_contact(first_name='Spike', last_name='Spiegel',   phone='123233')
+        create_contact(first_name='Jet',   last_name='Black',     phone='123455')
+        create_contact(first_name='Faye',  last_name='Valentine', phone='678678')
+
+        # Set the current list view state, with the ordering
+        self.assertPOST200(FakeContact.get_lv_absolute_url(),
+                           data={'_search': 1,
+                                 'regular_field-phone': '123',
+                                 'sort_field': 'regular_field-last_name',
+                                 'sort_order': '-',
+                                }
+                          )
+
+        response = self.assertGET200(self._build_contact_dl_url(hfilter_id=hf.id))
+
+        it = (force_text(line) for line in response.content.splitlines())
+        next(it)  # Header
+        self.assertEqual(next(it), '"123233","Spiegel","Spike"')
+        self.assertEqual(next(it), '"123455","Black","Jet"')
 
         with self.assertRaises(StopIteration):
             next(it)
