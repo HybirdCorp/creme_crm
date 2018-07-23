@@ -46,7 +46,7 @@
     <tr>
         <td class="job-app">{{job.type.app_config.verbose_name|default:'?'}}</td>
         <td class="job-type">{{job.type|default:'?'}}</td>
-        <td class="job-owner">{{job.user|default:''}}</td>
+        <td class="job-owner">{% if job.user %}{{job.user}}{% else %}<span class="empty-field">—</span>{% endif %}</td>
         <td class="job-periodicity" data-type="list">
         {% with periodic=job.type.periodic %}
         {% if periodic != NOT_PERIODIC %}
@@ -63,7 +63,7 @@
         {% endif %}
         {% endwith %}
         </td>
-        <td class="job-lastrun">{{job.last_run|default:''}}</td>
+        <td class="job-lastrun">{% if job.last_run %}{{job.last_run}}{% else %}<span class="empty-field">—</span>{% endif %}</td>
         <td class="job-status" data-job-id="{{job.id}}" data-job-status="{{job.status}}" data-job-ack-errors="{{job.ack_errors}}">
             {{job.get_status_display}}
             {% if not job.is_finished %}{{job.progress.render}}{% endif %}
