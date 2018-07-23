@@ -18,7 +18,9 @@ try:
 
     from ..base import CremeTestCase
     from ..fake_models import FakeContact, FakeCivility
+
     # from creme.creme_core.models import PreferedMenuItem
+    from creme.creme_core.global_info import clear_global_info
     from creme.creme_core.utils import (find_first, truncate_str, split_filter,
         create_if_needed, update_model_instance, get_from_GET_or_404, get_from_POST_or_404,
         safe_unicode, int_2_roman, ellipsis, ellipsis_multi, prefixed_truncate) # safe_unicode_error
@@ -700,6 +702,7 @@ class CurrencyFormatTestCase(CremeTestCase):
 
         sv.value = False
         sv.save()
+        clear_global_info()
         result5 = currency(5, currency_or_id=my_currency)
         self.assertIn('5', result5)
         self.assertIn(my_currency.international_symbol, result5)

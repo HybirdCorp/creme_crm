@@ -3,6 +3,7 @@
 try:
     from django.utils.translation import ugettext as _
 
+    from creme.creme_core.global_info import clear_global_info
     from creme.creme_core.models import SettingValue
 
     from creme.persons.tests.base import (skipIfCustomAddress,
@@ -229,6 +230,8 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         new_value = 12500
         setting.value = new_value
         setting.save()
+        clear_global_info()
+
         self.assertEqual(get_radius(), new_value)
 
     def test_get_google_api_key(self):
@@ -239,6 +242,8 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         new_value = '12500'
         setting.value = new_value
         setting.save()
+        clear_global_info()
+
         self.assertEqual(get_google_api_key(), new_value)
 
     def test_location_bounding_box(self):

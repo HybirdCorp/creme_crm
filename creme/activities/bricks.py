@@ -23,13 +23,14 @@ from itertools import chain
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import CremeEntity, Relation
+from creme.creme_core.models import CremeEntity, Relation, SettingValue
 from creme.creme_core.gui.bricks import SimpleBrick, QuerysetBrick
 
 from creme import persons
 
 from . import get_activity_model, constants
 from .models import Calendar
+from .setting_keys import review_key
 
 
 Contact      = persons.get_contact_model()
@@ -160,7 +161,8 @@ class FutureActivitiesBrick(QuerysetBrick):
                                                 )
                            )
 
-        ctxt['display_review'] = Activity.display_review()
+        # ctxt['display_review'] = Activity.display_review()
+        ctxt['display_review'] = SettingValue.objects.get_4_key(review_key).value
 
         return ctxt
 

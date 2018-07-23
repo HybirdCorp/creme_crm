@@ -27,7 +27,7 @@ from django.db.models import TextField, FieldDoesNotExist
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..core.entity_cell import EntityCellRegularField
-from ..global_info import get_per_request_cache  # get_global_info, set_global_info
+from ..global_info import get_per_request_cache
 from .base import CremeModel
 from .fields import CTypeOneToOneField
 

@@ -214,6 +214,86 @@ class SettingValueTestCase(CremeTestCase):
             # SettingValue.objects.create(key=sk, value='abc')
             sv.value = 'abc'
 
+    def test_get_4_key01(self):
+        "Key ID"
+        sk = SettingKey(id='activities-test_get_4_key01', description='Display logo?',
+                        app_label='activities', type=SettingKey.BOOL,
+                       )
+        self._register_key(sk)
+
+        sv = SettingValue(key=sk)
+        sv.value = True
+        sv.save()
+
+        pk = sv.pk
+
+        with self.assertNumQueries(1):
+            sv = SettingValue.objects.get_4_key(sk.id)
+
+        self.assertIsInstance(sv, SettingValue)
+        self.assertEqual(pk, sv.pk)
+
+        # Cache
+        with self.assertNumQueries(0):
+            sv = SettingValue.objects.get_4_key(sk.id)
+
+        self.assertEqual(pk, sv.pk)
+
+    def test_get_4_key02(self):
+        "Key instance"
+        sk = SettingKey(id='activities-test_get_4_key02', description='Display logo?',
+                        app_label='activities', type=SettingKey.BOOL,
+                       )
+        self._register_key(sk)
+
+        sv = SettingValue(key=sk)
+        sv.value = True
+        sv.save()
+
+        pk = sv.pk
+
+        with self.assertNumQueries(1):
+            sv = SettingValue.objects.get_4_key(sk)
+
+        self.assertIsInstance(sv, SettingValue)
+        self.assertEqual(pk, sv.pk)
+
+    def test_get_4_key03(self):
+        "Exceptions"
+        sk = SettingKey(id='activities-test_get_4_key03', description='Display logo?',
+                        app_label='activities', type=SettingKey.BOOL,
+                       )
+        self._register_key(sk)
+
+        with self.assertRaises(KeyError):
+            SettingValue.objects.get_4_key('unknown')
+
+        with self.assertLogs(level='CRITICAL') as log_cm:
+            with self.assertRaises(SettingValue.DoesNotExist):
+                SettingValue.objects.get_4_key(sk)
+
+        messages = log_cm.output
+        self.assertEqual(1, len(messages))
+        self.assertIn(''"creme_populate"'', messages[0])
+
+    def test_get_4_key04(self):
+        "Default value"
+        sk = SettingKey(id='activities-test_get_4_key04', description='Display logo?',
+                        app_label='activities', type=SettingKey.BOOL,
+                       )
+
+        with self.assertLogs(level='CRITICAL') as log_cm:
+            sv = SettingValue.objects.get_4_key(sk, default=False)
+
+        messages = log_cm.output
+        self.assertEqual(1, len(messages))
+        self.assertIn('creme_populate', messages[0])
+
+        # self.assertIsInstance(sv, SettingValue)
+        # self.assertIsNone(sv.id)
+        self.assertEqual(sk.id, sv.key_id)
+        self.assertIs(False, sv.value)
+
 
 class UserSettingValueTestCase(CremeTestCase):
     def setUp(self):
@@ -508,4 +588,3 @@ class UserSettingValueTestCase(CremeTestCase):
         as_html = user.settings.as_html
         self.assertEqual(bool_as_html(True), as_html(sk1))
         self.assertEqual(str_value,          as_html(sk2))
-

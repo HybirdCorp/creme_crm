@@ -34,9 +34,10 @@ from creme.opportunities import get_opportunity_model
 from creme.opportunities.constants import REL_SUB_TARGETS
 
 from creme import commercial
-from .constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW, REL_OBJ_COMPLETE_GOAL
+from .constants import REL_OBJ_COMPLETE_GOAL  # DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW
 from .models import (CommercialApproach, MarketSegment, MarketSegmentDescription,
         CommercialAsset, MarketSegmentCharm, ActObjective, ActObjectivePatternComponent)
+from .setting_keys import orga_approaches_key
 
 
 get_ct = ContentType.objects.get_for_model
@@ -74,8 +75,10 @@ class ApproachesBrick(QuerysetBrick):
         entity = context['object']
         pk = entity.pk
 
+        # if isinstance(entity, get_organisation_model()) and \
+        #    not SettingValue.objects.get(key_id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW).value:
         if isinstance(entity, get_organisation_model()) and \
-           not SettingValue.objects.get(key_id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW).value:
+           not SettingValue.objects.get_4_key(orga_approaches_key, default=True).value:
             # TODO: regroup the queries
             managers_ids      = entity.get_managers().values_list('id', flat=True)
             employees_ids     = entity.get_employees().values_list('id', flat=True)
@@ -84,9 +87,10 @@ class ApproachesBrick(QuerysetBrick):
                                                           ) \
                                                    .values_list('id',flat=True)
 
-            approaches = CommercialApproach.objects.filter(ok_or_in_futur=False,
-                                                           entity_id__in=chain([pk], managers_ids, employees_ids, opportunities_ids),
-                                                          )
+            approaches = CommercialApproach.objects.filter(
+                ok_or_in_futur=False,
+                entity_id__in=chain([pk], managers_ids, employees_ids, opportunities_ids),
+            )
         else:
             approaches = CommercialApproach.get_approaches(pk)
 

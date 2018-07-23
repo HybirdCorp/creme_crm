@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2017  Hybird
+#    Copyright (C) 2014-2018  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 from math import cos, radians
+import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
@@ -109,11 +110,16 @@ def addresses_from_persons(queryset, user):
 
     # merge ids
     address_ids.update(billing_shipping_ids)
+
     return addresses.filter(pk__in=address_ids.values())  # TODO: select_related('geoaddress') ??
 
 
-# TODO : move it to creme_core ? (as SettingValue static method ?)
 def get_setting(key, default=None):
+    warnings.warn('geolocation.utils.get_setting() is deprecated ; '
+                  'use SettingValue.objects.get_4_key() instead.',
+                  DeprecationWarning
+                 )
+
     try:
         if isinstance(key, SettingKey):
             key = key.id
@@ -124,11 +130,15 @@ def get_setting(key, default=None):
 
 
 def get_radius():
-    return get_setting(setting_keys.NEIGHBOURHOOD_DISTANCE, default=DEFAULT_SEPARATING_NEIGHBOURS)
+    # return get_setting(setting_keys.NEIGHBOURHOOD_DISTANCE, default=DEFAULT_SEPARATING_NEIGHBOURS)
+    return SettingValue.objects.get_4_key(setting_keys.NEIGHBOURHOOD_DISTANCE,
+                                          default=DEFAULT_SEPARATING_NEIGHBOURS,
+                                         ).value
 
 
 def get_google_api_key():
-    return get_setting(setting_keys.GOOGLE_API_KEY) or ''
+    # return get_setting(setting_keys.GOOGLE_API_KEY) or ''
+    return SettingValue.objects.get_4_key(setting_keys.GOOGLE_API_KEY, default='').value or ''
 
 
 def location_bounding_box(latitude, longitude, distance):

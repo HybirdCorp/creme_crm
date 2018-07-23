@@ -18,7 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging  # warnings
+# import logging
+import warnings
 
 from django.db.models import (PositiveIntegerField, DateTimeField, CharField,
         TextField, BooleanField, ManyToManyField, ForeignKey, PROTECT, SET_NULL)
@@ -28,13 +29,14 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, SettingValue
 
-from ..constants import (NARROW, CREATION_LABELS, SETTING_AUTO_ORGA_SUBJECTS, SETTING_DISPLAY_REVIEW,
+from ..constants import (NARROW, CREATION_LABELS,  # SETTING_DISPLAY_REVIEW SETTING_AUTO_ORGA_SUBJECTS
         REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
+from ..setting_keys import auto_subjects_key
 from .calendar import Calendar
 from .other_models import ActivityType, ActivitySubType, Status
 
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 
 class AbstractActivity(CremeEntity):
@@ -208,29 +210,36 @@ END:VEVENT
         if source.busy:
             self.busy = False
 
+    # TODO: move to utils ?
     def is_auto_orga_subject_enabled(self):
-        # TODO: better cache system for SettingValues...
-        CACHE_NAME = '_auto_orga_subject_cache'
-        enabled = getattr(self, CACHE_NAME, None)
-
-        if enabled is None:
-            try:
-                sv = SettingValue.objects.get(key_id=SETTING_AUTO_ORGA_SUBJECTS)
-            except SettingValue.DoesNotExist:
-                logger.critical('SettingValue with key=%s cannot be found !'
-                                ' ("creme_populate" command has not been run correctly)',
-                                SETTING_AUTO_ORGA_SUBJECTS
-                               )
-                enabled = False
-            else:
-                enabled = sv.value
-
-            setattr(self, CACHE_NAME, enabled)
-
-        return enabled
+        # CACHE_NAME = '_auto_orga_subject_cache'
+        # enabled = getattr(self, CACHE_NAME, None)
+        #
+        # if enabled is None:
+        #     try:
+        #         sv = SettingValue.objects.get(key_id=SETTING_AUTO_ORGA_SUBJECTS)
+        #     except SettingValue.DoesNotExist:
+        #         logger.critical('SettingValue with key=%s cannot be found !'
+        #                         ' ("creme_populate" command has not been run correctly)',
+        #                         SETTING_AUTO_ORGA_SUBJECTS
+        #                        )
+        #         enabled = False
+        #     else:
+        #         enabled = sv.value
+        #
+        #     setattr(self, CACHE_NAME, enabled)
+        #
+        # return enabled
+        return SettingValue.objects.get_4_key(auto_subjects_key, default=False).value
 
     @staticmethod
     def display_review():
+        warnings.warn('AbstractActivity.display_review() is deprecated ; '
+                      'use "SettingValue.objects.get_4_key(setting_keys.review_key).value" instead.',
+                      DeprecationWarning
+                     )
+        from ..constants import SETTING_DISPLAY_REVIEW
+
         return SettingValue.objects.get(key_id=SETTING_DISPLAY_REVIEW).value
 
     def _copy_relations(self, source):

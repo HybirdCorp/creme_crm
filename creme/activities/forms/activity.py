@@ -39,6 +39,7 @@ from creme.persons import get_contact_model
 from .. import get_activity_model, constants
 from ..models import ActivityType, Calendar, ActivitySubType
 from ..utils import check_activity_collisions
+from ..setting_keys import form_user_messages_key
 from .activity_type import ActivityTypeField
 from .fields import UserParticipationField
 
@@ -326,19 +327,25 @@ class ActivityCreateForm(_ActivityCreateForm):
 
     @staticmethod
     def _add_informed_users_fields(fields):
-        try:
-            sv = SettingValue.objects.get(key_id=constants.SETTING_FORM_USERS_MSG)
-        except SettingValue.DoesNotExist:
-            logger.critical('SettingValue with key=%s cannot be found !'
-                            ' ("creme_populate" command has not been run correctly)',
-                            constants.SETTING_FORM_USERS_MSG
-                           )
-        else:
-            if sv.value:
-                fields['informed_users'] = ModelMultipleChoiceField(queryset=get_user_model().objects.filter(is_staff=False),
-                                                                    required=False,
-                                                                    label=_(u'Users to keep informed'),
-                                                                   )
+        # try:
+        #     sv = SettingValue.objects.get(key_id=constants.SETTING_FORM_USERS_MSG)
+        # except SettingValue.DoesNotExist:
+        #     logger.critical('SettingValue with key=%s cannot be found !'
+        #                     ' ("creme_populate" command has not been run correctly)',
+        #                     constants.SETTING_FORM_USERS_MSG
+        #                    )
+        # else:
+        #     if sv.value:
+        #         fields['informed_users'] = ModelMultipleChoiceField(queryset=get_user_model().objects.filter(is_staff=False),
+        #                                                             required=False,
+        #                                                             label=_(u'Users to keep informed'),
+        #                                                            )
+        if SettingValue.objects.get_4_key(form_user_messages_key, default=False).value:
+            fields['informed_users'] = ModelMultipleChoiceField(
+                queryset=get_user_model().objects.filter(is_staff=False),
+                required=False,
+                label=_('Users to keep informed'),
+            )
 
     def clean_my_participation(self):
         my_participation = self.cleaned_data['my_participation']
