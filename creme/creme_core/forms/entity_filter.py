@@ -550,7 +550,8 @@ class RegularFieldsConditionsField(_ConditionsField):
                         fields[field.name] = [field]
 
             for field in model._meta.many_to_many:
-                self._build_related_fields(field, fields, fconfigs)
+                if field.get_tag('viewable'):  # TODO: test not viewable
+                    self._build_related_fields(field, fields, fconfigs)
 
         return self._fields
 
