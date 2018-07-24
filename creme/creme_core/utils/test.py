@@ -106,13 +106,16 @@ class CremeDiscoverRunner(DiscoverRunner):
     def setup_test_environment(self, **kwargs):
         # super(CremeDiscoverRunner, self).setup_test_environment(**kwargs)
         super().setup_test_environment(**kwargs)
+        print('Creating mock media directory...')
         self._mock_media_path = settings.MEDIA_ROOT = mkdtemp(prefix='creme_test_media')
+        print(' ... {} created.'.format(self._mock_media_path))
         self._http_server = python_subprocess(
             'import http.server;'
+            'import os;'
             'from socketserver import TCPServer;'
             'TCPServer.allow_reuse_address = True;'
             'httpd = TCPServer(("localhost", {port}), http.server.SimpleHTTPRequestHandler);'
-            'print("Test HTTP server: serving localhost at port {port}");'
+            'print("Test HTTP server: serving localhost at port {port} with process ID:", os.getpid());'
             'httpd.serve_forever()'.format(port=http_port())
         )
 
@@ -122,9 +125,11 @@ class CremeDiscoverRunner(DiscoverRunner):
         settings.MEDIA_ROOT = self._original_media_root
 
         if self._mock_media_path:
+            print('Deleting mock media directory...')
             rmtree(self._mock_media_path)
 
         if self._http_server is not None:
+            print('Shutting down HTTP server...')
             self._http_server.terminate()
 
     # def setup_databases(self, *args, **kwargs):
